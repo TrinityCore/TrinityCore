@@ -36,7 +36,6 @@ EndContentData */
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "ObjectAccessor.h"
 #include "MotionMaster.h"
 #include "sunken_temple.h"
 
@@ -143,7 +142,7 @@ enum NightmareSuppressor
 {
     EVENT_CAST_SUPPRESSOR     = 1,
     SAY_RANDOM_SPAWN          = 0,
-    POINT_ID_AVATAR_OF_HAKKAR = 0
+    POINT_ID_SHADE_OF_HAKKAR  = 0
 };
 
 Position const AvatarHakkarSpawnPos = { -467.107f, 273.063f, -90.449f, 3.0f };
@@ -164,23 +163,27 @@ public:
             switch (action)
             {
             case ACTION_CAST_SUPPRESSOR_NIGHTMARE:
-                //me->SetReactState(REACT_PASSIVE);
                 me->SetSpeed(MOVE_RUN, 2);
-                me->GetMotionMaster()->MovePoint(POINT_ID_AVATAR_OF_HAKKAR, AvatarHakkarSpawnPos);
+                if (Creature* shade = instance->GetCreature(DATA_SHADE_OF_HAKKAR))
+                    me->GetMotionMaster()->MoveCloserAndStop(POINT_ID_SHADE_OF_HAKKAR, shade, 17.0f);
                 Talk(SAY_RANDOM_SPAWN);
-                _events.ScheduleEvent(EVENT_CAST_SUPPRESSOR, 12s);
                 break;
             }
         }
 
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type == POINT_MOTION_TYPE)
+                if (id == 0)
+                    _events.ScheduleEvent(EVENT_CAST_SUPPRESSOR, 0s);
+        }
+
         void JustEngagedWith(Unit* /*who*/) override
         {
-            if (Creature* shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_HAKKAR)))
+            if (Creature* shade = instance->GetCreature(DATA_SHADE_OF_HAKKAR))
                 shade->AI()->DoAction(ACTION_REMOVE_SUPPRESSOR);
-            _events.CancelEvent(EVENT_CAST_SUPPRESSOR);
             me->CastStop();
             me->SetSpeed(MOVE_RUN, 5);
-            //AttackStart(who);
         }
 
         void UpdateAI(uint32 diff) override

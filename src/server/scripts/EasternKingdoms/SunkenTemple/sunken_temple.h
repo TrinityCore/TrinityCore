@@ -81,7 +81,7 @@ enum STGameObjectIds
 
 enum STEvents
 {
-    EVENT_STATE        = 1,
+    EVENT_STATE          = 1,
     DATA_ETERNAL_FLAME,
     DATA_SHADE_OF_HAKKAR
 };

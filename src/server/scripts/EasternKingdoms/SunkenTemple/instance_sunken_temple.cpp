@@ -46,6 +46,12 @@ static constexpr DoorData doorData[] =
     { 0,                        0,                       DOOR_TYPE_ROOM }  // END
 };
 
+static constexpr ObjectData creatureData[] =
+{
+    { NPC_SHADE_OF_HAKKAR, DATA_SHADE_OF_HAKKAR     },
+    { 0,                   0                      } // END
+};
+
 static constexpr ObjectData gameObjects[] =
 {
     { GO_ATALAI_STATUE1,  GO_ATALAI_STATUE1 },
@@ -110,7 +116,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
             LoadDoorData(doorData);
-            LoadObjectData(nullptr, gameObjects);
+            LoadObjectData(creatureData, gameObjects);
             State = 0;
 
             s1 = false;
@@ -173,7 +179,7 @@ public:
                 {
                     NightmareSuppressorGUID.Clear();
                     if (!Events.Empty())
-                        Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 15s, 45);
+                        Events.ScheduleEvent(EVENT_SPAWN_NIGHTMARE_SUPPRESSOR, 15s, 45s);
                 }
                 break;
             default:
@@ -329,7 +335,7 @@ public:
                 if (GameObject* eternalFlame = GetGameObject(i))
                     eternalFlame->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
             if (ShadeOfHakkarGUID)
-            { 
+            {
                 Creature* shade = instance->GetCreature(ShadeOfHakkarGUID);
                 for (uint8 i = 0; i < 8; ++i)
                 {
