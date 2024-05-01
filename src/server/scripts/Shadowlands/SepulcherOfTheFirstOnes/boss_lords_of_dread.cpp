@@ -50,8 +50,9 @@
 #include "GameObjectAI.h"
 #include "sepulcher_of_the_first_ones.h"
 
-enum MimickingDisguiseTransformationSpells
+enum LordsOfDreadSpells
 {
+    // Mimicking Transformations
     SPELL_MIMICKING_TRANSFORMATION_1                    = 361096,
     SPELL_MIMICKING_TRANSFORMATION_2                    = 361102,
     SPELL_MIMICKING_TRANSFORMATION_3                    = 361103,
@@ -66,10 +67,7 @@ enum MimickingDisguiseTransformationSpells
     SPELL_MIMICKING_TRANSFORMATION_12                   = 361114,
     SPELL_MIMICKING_TRANSFORMATION_13                   = 361115,
     SPELL_MIMICKING_TRANSFORMATION_14                   = 361116,
-};
 
-enum LordsOfDreadSpells
-{
     // Introduction Imitations
     SPELL_GRAND_REVEAL_MALGANIS                         = 366518,
     SPELL_GRAND_REVEAL_KINTESSA                         = 366565,
@@ -248,8 +246,7 @@ enum Actions
 {
     ACTION_OPEN_DOOR_TO_LORDS_OF_DREAD = 1,
     ACTION_START_INTRODUCTION,
-    ACTION_KINTESSA_MIMICKING_DISGUISE,
-    ACTION_MALGANIS_MIMICKING_DISGUISE,
+    ACTION_MIMICKING_DISGUISE,
     ACTION_MALGANIS_SWARM_EVENTS,
     ACTION_KINTESSA_SWARM_EVENTS,
     ACTION_KINTESSA_PARANOIA_EVENTS,
@@ -563,14 +560,8 @@ struct boss_malganis : public LordsOfDreadAI
                 events.ScheduleEvent(EVENT_MANIFEST_SHADOWS, 33600ms);
                 break;
             }
-            case ACTION_MALGANIS_MIMICKING_DISGUISE:
+            case ACTION_MIMICKING_DISGUISE:
             {
-                Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
-                Creature* malganis = instance->GetCreature(DATA_MALGANIS);
-
-                if (!kintessa || !malganis)
-                    return;
-
                 for (uint8 i = 0; i < 14; i++)
                 {
                     scheduler.Schedule(Milliseconds(i * 250), [this, i](TaskContext /*task*/)
@@ -725,14 +716,8 @@ struct boss_kintessa : public LordsOfDreadAI
                 introduction->Start();
                 break;
             }
-            case ACTION_KINTESSA_MIMICKING_DISGUISE:
+            case ACTION_MIMICKING_DISGUISE:
             {
-                Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
-                Creature* malganis = instance->GetCreature(DATA_MALGANIS);
-
-                if (!kintessa || !malganis)
-                    return;
-
                 for (uint8 i = 0; i < 14; i++)
                 {
                     scheduler.Schedule(Milliseconds(i * 250), [this, i](TaskContext /*task*/)
@@ -1276,47 +1261,43 @@ class spell_lords_of_dread_mimicking_disguise : public AuraScript
         });
     }
 
+    static constexpr uint32 MimickingTransformations[] =
+    {
+        SPELL_MIMICKING_TRANSFORMATION_1,
+        SPELL_MIMICKING_TRANSFORMATION_2,
+        SPELL_MIMICKING_TRANSFORMATION_3,
+        SPELL_MIMICKING_TRANSFORMATION_4,
+        SPELL_MIMICKING_TRANSFORMATION_5,
+        SPELL_MIMICKING_TRANSFORMATION_6,
+        SPELL_MIMICKING_TRANSFORMATION_7,
+        SPELL_MIMICKING_TRANSFORMATION_8,
+        SPELL_MIMICKING_TRANSFORMATION_9,
+        SPELL_MIMICKING_TRANSFORMATION_10,
+        SPELL_MIMICKING_TRANSFORMATION_11,
+        SPELL_MIMICKING_TRANSFORMATION_12,
+        SPELL_MIMICKING_TRANSFORMATION_13,
+        SPELL_MIMICKING_TRANSFORMATION_14
+    };
+
     void OnPeriodic(AuraEffect const* aurEff)
     {
-        Creature* kintessa = GetTarget()->GetInstanceScript()->GetCreature(DATA_KINTESSA);
-        Creature* malganis = GetTarget()->GetInstanceScript()->GetCreature(DATA_MALGANIS);
-        if (!kintessa || !malganis)
+        InstanceScript* instance = GetTarget()->GetInstanceScript();
+        if (!instance)
             return;
 
-        std::vector<MimickingDisguiseTransformationSpells> spellList =
-        {
-            SPELL_MIMICKING_TRANSFORMATION_1,
-            SPELL_MIMICKING_TRANSFORMATION_2,
-            SPELL_MIMICKING_TRANSFORMATION_3,
-            SPELL_MIMICKING_TRANSFORMATION_4,
-            SPELL_MIMICKING_TRANSFORMATION_5,
-            SPELL_MIMICKING_TRANSFORMATION_6,
-            SPELL_MIMICKING_TRANSFORMATION_7,
-            SPELL_MIMICKING_TRANSFORMATION_8,
-            SPELL_MIMICKING_TRANSFORMATION_9,
-            SPELL_MIMICKING_TRANSFORMATION_10,
-            SPELL_MIMICKING_TRANSFORMATION_11,
-            SPELL_MIMICKING_TRANSFORMATION_12,
-            SPELL_MIMICKING_TRANSFORMATION_13,
-            SPELL_MIMICKING_TRANSFORMATION_14
-        };
+        Creature* creature = nullptr;
 
-        if (spellList.empty())
-            return;
-
-        int chosenTransformation = Trinity::Containers::SelectRandomContainerElement(spellList);
-        uint8 CurrentTick = aurEff->GetTickNumber();
-
-        if (CurrentTick % 2 == 0)
-        {
-            kintessa->GetAI()->DoAction(ACTION_KINTESSA_MIMICKING_DISGUISE);
-            kintessa->CastSpell(kintessa, chosenTransformation);
-        }
+        if (aurEff->GetTickNumber() % 2 == 0)
+            creature = instance->GetCreature(DATA_KINTESSA);
         else
-        {
-            malganis->GetAI()->DoAction(ACTION_MALGANIS_MIMICKING_DISGUISE);
-            malganis->CastSpell(malganis, chosenTransformation);
-        }
+            creature = instance->GetCreature(DATA_MALGANIS);
+
+        if (!creature)
+            return;
+
+        uint32 chosenTransformation = Trinity::Containers::SelectRandomContainerElement(MimickingTransformations);
+        creature->GetAI()->DoAction(ACTION_MIMICKING_DISGUISE);
+        creature->CastSpell(creature, chosenTransformation);
     }
 
     void Register() override
