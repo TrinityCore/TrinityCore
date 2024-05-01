@@ -304,12 +304,6 @@ enum ResetConversations
 
 Position const SwarmingRetreatPos = { -5727.0454f, -4067.804f, 146.26663f };
 
-uint32 const LordsOfDreadData[2] =
-{
-    DATA_MALGANIS,
-    DATA_KINTESSA,
-};
-
 Position const MalganisVisuals[14] =
 {
    { -5720.8384f, -4044.9219f, 151.26650f, },
@@ -345,6 +339,15 @@ Position const KintessaVisuals[14] =
    { -5729.2970f, -4084.23270f, 156.23918f, },
    { -5741.0156f, -4105.48300f, 154.11404f  }
 };
+
+static void ForDreadlords(InstanceScript* instance, std::function<void(Creature* dreadlord)> func)
+{
+    for (uint32 data = DATA_MALGANIS; data <= DATA_KINTESSA; data++)
+    {
+        if (Creature* dreadLord = instance->GetCreature(data))
+            func(dreadLord);
+    }
+}
 
 struct LordsOfDreadAI : public BossAI
 {
@@ -460,15 +463,14 @@ struct LordsOfDreadAI : public BossAI
         else
             DoCastSelf(SPELL_DARKNESS_ENERGY, true);
 
-        for (uint32 dreadLordData : LordsOfDreadData)
-            if (Creature* dreadLord = ObjectAccessor::GetCreature(*me, instance->GetGuidData(dreadLordData)))
-            {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, dreadLord);
-                DoZoneInCombat(dreadLord);
-                if (IsLFR())
-                    dreadLord->CastSpell(dreadLord, SPELL_LIFE_LINK, true);
-            }
 
+        ForDreadlords(instance, [this](Creature* dreadlord)
+        {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, dreadlord);
+            DoZoneInCombat(dreadlord);
+            if (IsLFR())
+                dreadlord->CastSpell(dreadlord, SPELL_LIFE_LINK, true);
+        });
         instance->SetBossState(DATA_LORDS_OF_DREAD, IN_PROGRESS);
         instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 1);
     }
@@ -484,9 +486,11 @@ struct LordsOfDreadAI : public BossAI
         ClearLordsOfDreadDebuffs();
         summons.DespawnAll();
         _DespawnAtEvade();
-        for (uint32 dreadLordData : LordsOfDreadData)
-            if (Creature* dreadLord = ObjectAccessor::GetCreature(*me, instance->GetGuidData(dreadLordData)))
-                dreadLord->AI()->EnterEvadeMode();
+
+        ForDreadlords(instance, [](Creature* dreadlord)
+        {
+            dreadlord->AI()->EnterEvadeMode();
+        });
         instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
         instance->SetBossState(DATA_LORDS_OF_DREAD, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -799,9 +803,12 @@ struct boss_kintessa : public LordsOfDreadAI
             {
                 _essencesReturned++;
                 if (_essencesReturned == 2)
-                    for (uint32 dreadLordData : LordsOfDreadData)
-                        if (Creature* dreadLord = ObjectAccessor::GetCreature(*me, instance->GetGuidData(dreadLordData)))
-                            dreadLord->RemoveAurasDueToSpell(SPELL_INFILTRATION_DISAPPEAR);
+                {
+                    ForDreadlords(instance, [](Creature* dreadlord)
+                    {
+                        dreadlord->RemoveAurasDueToSpell(SPELL_INFILTRATION_DISAPPEAR);
+                    });
+                }
                 break;
             }
         }
