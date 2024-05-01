@@ -20,7 +20,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
 #include "BattlePetMgr.h"
-#include "Battleground.h"
+#include "BattlegroundScript.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DB2Stores.h"
@@ -92,7 +92,8 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
     "AreaTrigger Client Triggered",
     "Trainer Spell",
     "Object Visibility (by ID)",
-    "Spawn Group"
+    "Spawn Group",
+    "Player Condition"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -231,7 +232,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             else if (BattlegroundMap const* bgMap = map->ToBattlegroundMap())
             {
-                ZoneScript const* zoneScript = bgMap->GetBG();
+                ZoneScript const* zoneScript = bgMap->GetBattlegroundScript();
                 switch (ConditionValue3)
                 {
                     case INSTANCE_INFO_DATA:
@@ -657,8 +658,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_PLAYER_CONDITION:
         {
             if (Player const* player = object->ToPlayer())
-                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ConditionValue1))
-                    condMeets = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+                condMeets = ConditionMgr::IsPlayerMeetingCondition(player, ConditionValue1);
             break;
         }
         case CONDITION_PRIVATE_OBJECT:
@@ -1444,6 +1444,44 @@ void ConditionMgr::LoadConditions(bool isReload)
     for (auto&& [id, conditions] : ConditionStore[CONDITION_SOURCE_TYPE_GRAVEYARD])
         addToGraveyardData(id, conditions);
 
+    struct
+    {
+        bool operator()(uint32 playerConditionId, std::vector<Condition> const& conditions, ConditionEntriesByTypeArray const& store) const
+        {
+            return std::any_of(conditions.begin(), conditions.end(), [&](Condition const& condition)
+            {
+                if (condition.ConditionType == CONDITION_PLAYER_CONDITION)
+                {
+                    if (condition.ConditionValue1 == playerConditionId)
+                        return true;
+                    auto playerCondItr = store[CONDITION_SOURCE_TYPE_PLAYER_CONDITION].find({ 0, int32(condition.ConditionValue1), 0 });
+                    if (playerCondItr != store[CONDITION_SOURCE_TYPE_PLAYER_CONDITION].end())
+                        if (operator()(playerConditionId, *playerCondItr->second, store))
+                            return true;
+                }
+                else if (condition.ReferenceId)
+                {
+                    auto refItr = store[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION].find({ condition.ReferenceId, 0, 0 });
+                    if (refItr != store[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION].end())
+                        if (operator()(playerConditionId, *refItr->second, store))
+                            return true;
+                }
+                return false;
+            });
+        }
+    } isPlayerConditionIdUsedByCondition;
+
+    for (auto&& [id, conditions] : ConditionStore[CONDITION_SOURCE_TYPE_PLAYER_CONDITION])
+    {
+        if (isPlayerConditionIdUsedByCondition(id.SourceEntry, *conditions, ConditionStore))
+        {
+            TC_LOG_ERROR("sql.sql", "[Condition SourceType: CONDITION_SOURCE_TYPE_PLAYER_CONDITION, SourceGroup: {}, SourceEntry: {}, SourceId: {}] "
+                "has a circular reference to player condition id {}, removed all conditions for this SourceEntry!",
+                id.SourceGroup, id.SourceEntry, id.SourceId, id.SourceEntry);
+            conditions->clear();
+        }
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded {} conditions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -2028,10 +2066,6 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
-        case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
-        case CONDITION_SOURCE_TYPE_SMART_EVENT:
-            break;
         case CONDITION_SOURCE_TYPE_GRAVEYARD:
             if (!sObjectMgr->FindGraveyardData(cond->SourceEntry, cond->SourceGroup))
             {
@@ -2125,6 +2159,11 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
+        case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
+        case CONDITION_SOURCE_TYPE_SMART_EVENT:
+        case CONDITION_SOURCE_TYPE_PLAYER_CONDITION:
+            break;
         default:
             TC_LOG_ERROR("sql.sql", "{} Invalid ConditionSourceType in `condition` table, ignoring.", cond->ToString());
             return false;
@@ -2139,15 +2178,24 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
     {
         case CONDITION_AURA:
         {
-            if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE))
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE);
+            if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing spell (Id: {}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
 
-            if (cond->ConditionValue2 >= MAX_SPELL_EFFECTS)
+            if (cond->ConditionValue2 >= spellInfo->GetEffects().size())
             {
-                TC_LOG_ERROR("sql.sql", "{} has non existing effect index ({}) (must be 0..{}), skipped.", cond->ToString(true), cond->ConditionValue2, MAX_SPELL_EFFECTS - 1);
+                TC_LOG_ERROR("sql.sql", "{} spell {} has non existing effect index ({}) (must be 0..{}), skipped.",
+                    cond->ToString(true), cond->ConditionValue1, cond->ConditionValue2, spellInfo->GetEffects().size() - 1);
+                return false;
+            }
+
+            if (!spellInfo->GetEffect(SpellEffIndex(cond->ConditionValue2)).IsAura())
+            {
+                TC_LOG_ERROR("sql.sql", "{} spell {} effect index {} is not an aura, skipped.",
+                    cond->ToString(true), cond->ConditionValue1, cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2822,6 +2870,20 @@ uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerCond
     return 0;
 }
 
+bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, uint32 conditionId)
+{
+    if (!conditionId)
+        return true;
+
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_PLAYER_CONDITION, conditionId, player))
+        return false;
+
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
+        return IsPlayerMeetingCondition(player, playerCondition);
+
+    return true;
+}
+
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
     if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
@@ -2958,7 +3020,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         if (player->GetMap()->IsBattlegroundOrArena())
             team = player->m_playerData->ArenaFaction;
         else
-            team = player->GetTeamId();
+            team = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 0;
 
         if (condition->CurrentPvpFaction - 1 != team)
             return false;

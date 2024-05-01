@@ -17,8 +17,8 @@
 
 #include "SpellHistory.h"
 #include "CharmInfo.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "Duration.h"
 #include "Item.h"
 #include "Map.h"
@@ -51,10 +51,10 @@ struct SpellHistory::PersistenceHelper<Player>
             return false;
 
         cooldownEntry->SpellId = *spellId;
-        cooldownEntry->CooldownEnd = Clock::from_time_t(fields[2].GetInt64());
+        cooldownEntry->CooldownEnd = time_point_cast<Duration>(Clock::from_time_t(fields[2].GetInt64()));
         cooldownEntry->ItemId = fields[1].GetUInt32();
         cooldownEntry->CategoryId = fields[3].GetUInt32();
-        cooldownEntry->CategoryEnd = Clock::from_time_t(fields[4].GetInt64());
+        cooldownEntry->CategoryEnd = time_point_cast<Duration>(Clock::from_time_t(fields[4].GetInt64()));
         return true;
     }
 
@@ -64,8 +64,8 @@ struct SpellHistory::PersistenceHelper<Player>
         if (!sSpellCategoryStore.LookupEntry(*categoryId))
             return false;
 
-        chargeEntry->RechargeStart = Clock::from_time_t(fields[1].GetInt64());
-        chargeEntry->RechargeEnd = Clock::from_time_t(fields[2].GetInt64());
+        chargeEntry->RechargeStart = time_point_cast<Duration>(Clock::from_time_t(fields[1].GetInt64()));
+        chargeEntry->RechargeEnd = time_point_cast<Duration>(Clock::from_time_t(fields[2].GetInt64()));
         return true;
     }
 
@@ -103,10 +103,10 @@ struct SpellHistory::PersistenceHelper<Pet>
             return false;
 
         cooldownEntry->SpellId = *spellId;
-        cooldownEntry->CooldownEnd = Clock::from_time_t(fields[1].GetInt64());
+        cooldownEntry->CooldownEnd = time_point_cast<Duration>(Clock::from_time_t(fields[1].GetInt64()));
         cooldownEntry->ItemId = 0;
         cooldownEntry->CategoryId = fields[2].GetUInt32();
-        cooldownEntry->CategoryEnd = Clock::from_time_t(fields[3].GetInt64());
+        cooldownEntry->CategoryEnd = time_point_cast<Duration>(Clock::from_time_t(fields[3].GetInt64()));
         return true;
     }
 
@@ -116,8 +116,8 @@ struct SpellHistory::PersistenceHelper<Pet>
         if (!sSpellCategoryStore.LookupEntry(*categoryId))
             return false;
 
-        chargeEntry->RechargeStart = Clock::from_time_t(fields[1].GetInt64());
-        chargeEntry->RechargeEnd = Clock::from_time_t(fields[2].GetInt64());
+        chargeEntry->RechargeStart = time_point_cast<Duration>(Clock::from_time_t(fields[1].GetInt64()));
+        chargeEntry->RechargeEnd = time_point_cast<Duration>(Clock::from_time_t(fields[2].GetInt64()));
         return true;
     }
 
@@ -219,7 +219,7 @@ void SpellHistory::SaveToDB(CharacterDatabaseTransaction trans)
 
 void SpellHistory::Update()
 {
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
     for (auto itr = _categoryCooldowns.begin(); itr != _categoryCooldowns.end();)
     {
         if (itr->second->CategoryEnd < now)
@@ -236,12 +236,9 @@ void SpellHistory::Update()
             ++itr;
     }
 
-    for (auto& p : _categoryCharges)
-    {
-        std::deque<ChargeEntry>& chargeRefreshTimes = p.second;
+    for (auto& [chargeCategoryId, chargeRefreshTimes] : _categoryCharges)
         while (!chargeRefreshTimes.empty() && chargeRefreshTimes.front().RechargeEnd <= now)
             chargeRefreshTimes.pop_front();
-    }
 }
 
 void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell /*= nullptr*/)
@@ -302,7 +299,7 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellHistory* sendSpell
 {
     sendSpellHistory->Entries.reserve(_spellCooldowns.size());
 
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
     for (auto const& p : _spellCooldowns)
     {
         WorldPackets::Spells::SpellHistoryEntry historyEntry;
@@ -313,11 +310,11 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellHistory* sendSpell
             historyEntry.OnHold = true;
         else
         {
-            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.CooldownEnd - now);
+            Milliseconds cooldownDuration = duration_cast<Milliseconds>(p.second.CooldownEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
-            Milliseconds categoryDuration = std::chrono::duration_cast<Milliseconds>(p.second.CategoryEnd - now);
+            Milliseconds categoryDuration = duration_cast<Milliseconds>(p.second.CategoryEnd - now);
             if (categoryDuration.count() > 0)
             {
                 historyEntry.Category = p.second.CategoryId;
@@ -337,12 +334,12 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpell
 {
     sendSpellCharges->Entries.reserve(_categoryCharges.size());
 
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
     for (auto const& p : _categoryCharges)
     {
         if (!p.second.empty())
         {
-            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.front().RechargeEnd - now);
+            Milliseconds cooldownDuration = duration_cast<Milliseconds>(p.second.front().RechargeEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
@@ -358,7 +355,7 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpell
 template<>
 void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
 {
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
 
     petSpells->Cooldowns.reserve(_spellCooldowns.size());
     for (auto const& p : _spellCooldowns)
@@ -369,12 +366,12 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
 
         if (!p.second.OnHold)
         {
-            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.CooldownEnd - now);
+            Milliseconds cooldownDuration = duration_cast<Milliseconds>(p.second.CooldownEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
             petSpellCooldown.Duration = uint32(cooldownDuration.count());
-            Milliseconds categoryDuration = std::chrono::duration_cast<Milliseconds>(p.second.CategoryEnd - now);
+            Milliseconds categoryDuration = duration_cast<Milliseconds>(p.second.CategoryEnd - now);
             if (categoryDuration.count() > 0)
                 petSpellCooldown.CategoryDuration = uint32(categoryDuration.count());
         }
@@ -389,7 +386,7 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
     {
         if (!p.second.empty())
         {
-            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.front().RechargeEnd - now);
+            Milliseconds cooldownDuration = duration_cast<Milliseconds>(p.second.front().RechargeEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
@@ -410,9 +407,9 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     Duration cooldown = Duration::zero();
     Duration categoryCooldown = Duration::zero();
 
-    Clock::time_point curTime = GameTime::GetTime<Clock>();
-    Clock::time_point catrecTime;
-    Clock::time_point recTime;
+    TimePoint curTime = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+    TimePoint catrecTime;
+    TimePoint recTime;
     bool needsCooldownPacket = false;
 
     if (!forcedCooldown)
@@ -486,7 +483,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
                 SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.AssertEntry(categoryId);
                 if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
-                    categoryCooldown = std::chrono::duration_cast<Milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - Clock::now());
+                    categoryCooldown = duration_cast<Milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - GameTime::GetTime<Clock>());
             }
         }
         else
@@ -503,8 +500,8 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         if (cooldown == Duration::zero() && categoryCooldown == Duration::zero())
             return;
 
-        catrecTime = categoryCooldown != Duration::zero() ? curTime + std::chrono::duration_cast<Clock::duration>(Milliseconds(categoryCooldown)) : curTime;
-        recTime = cooldown != Duration::zero() ? curTime + std::chrono::duration_cast<Clock::duration>(Milliseconds(cooldown)) : catrecTime;
+        catrecTime = categoryCooldown != Duration::zero() ? curTime + categoryCooldown : curTime;
+        recTime = cooldown != Duration::zero() ? curTime + cooldown : catrecTime;
     }
 
     // self spell cooldown
@@ -551,7 +548,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
         StartCooldown(spellInfo, itemId, spell);
 }
 
-void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold /*= false*/)
+void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, TimePoint cooldownEnd, uint32 categoryId, TimePoint categoryEnd, bool onHold /*= false*/)
 {
     CooldownEntry& cooldownEntry = _spellCooldowns[spellId];
     // scripts can start multiple cooldowns for a given spell, only store the longest one
@@ -580,7 +577,7 @@ void SpellHistory::ModifySpellCooldown(uint32 spellId, Duration cooldownMod, boo
 
 void SpellHistory::ModifySpellCooldown(CooldownStorageType::iterator& itr, Duration cooldownMod, bool withoutCategoryCooldown)
 {
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
 
     itr->second.CooldownEnd += cooldownMod;
 
@@ -599,7 +596,7 @@ void SpellHistory::ModifySpellCooldown(CooldownStorageType::iterator& itr, Durat
         WorldPackets::Spells::ModifyCooldown modifyCooldown;
         modifyCooldown.IsPet = _owner != playerOwner;
         modifyCooldown.SpellID = itr->second.SpellId;
-        modifyCooldown.DeltaTime = std::chrono::duration_cast<Milliseconds>(cooldownMod).count();
+        modifyCooldown.DeltaTime = duration_cast<Milliseconds>(cooldownMod).count();
         modifyCooldown.WithoutCategoryCooldown = withoutCategoryCooldown;
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
@@ -693,7 +690,7 @@ bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/) const
 
 SpellHistory::Duration SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
 {
-    Clock::time_point end;
+    TimePoint end;
     auto itr = _spellCooldowns.find(spellInfo->Id);
     if (itr != _spellCooldowns.end())
         end = itr->second.CooldownEnd;
@@ -706,29 +703,29 @@ SpellHistory::Duration SpellHistory::GetRemainingCooldown(SpellInfo const* spell
         end = catItr->second->CategoryEnd;
     }
 
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
     if (end < now)
         return Duration::zero();
 
     Clock::duration remaining = end - now;
-    return std::chrono::duration_cast<Milliseconds>(remaining);
+    return duration_cast<Milliseconds>(remaining);
 }
 
 SpellHistory::Duration SpellHistory::GetRemainingCategoryCooldown(uint32 categoryId) const
 {
-    Clock::time_point end;
+    TimePoint end;
     auto catItr = _categoryCooldowns.find(categoryId);
     if (catItr == _categoryCooldowns.end())
         return Duration::zero();
 
     end = catItr->second->CategoryEnd;
 
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
     if (end < now)
         return Duration::zero();
 
     Clock::duration remaining = end - now;
-    return std::chrono::duration_cast<Milliseconds>(remaining);
+    return duration_cast<Milliseconds>(remaining);
 }
 
 SpellHistory::Duration SpellHistory::GetRemainingCategoryCooldown(SpellInfo const* spellInfo) const
@@ -738,8 +735,8 @@ SpellHistory::Duration SpellHistory::GetRemainingCategoryCooldown(SpellInfo cons
 
 void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, Duration lockoutTime)
 {
-    Clock::time_point now = GameTime::GetTime<Clock>();
-    Clock::time_point lockoutEnd = now + lockoutTime;
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+    TimePoint lockoutEnd = now + lockoutTime;
     for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (SpellSchoolMask(1 << i) & schoolMask)
             _schoolLockouts[i] = lockoutEnd;
@@ -794,7 +791,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, Duration lockoutT
 
 bool SpellHistory::IsSchoolLocked(SpellSchoolMask schoolMask) const
 {
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
     for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (SpellSchoolMask(1 << i) & schoolMask)
             if (_schoolLockouts[i] > now)
@@ -811,10 +808,10 @@ bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
     int32 chargeRecovery = GetChargeRecoveryTime(chargeCategoryId);
     if (chargeRecovery > 0 && GetMaxCharges(chargeCategoryId) > 0)
     {
-        Clock::time_point recoveryStart;
+        TimePoint recoveryStart;
         std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryId];
         if (charges.empty())
-            recoveryStart = GameTime::GetTime<Clock>();
+            recoveryStart = time_point_cast<Duration>(GameTime::GetTime<Clock>());
         else
             recoveryStart = charges.back().RechargeEnd;
 
@@ -835,7 +832,7 @@ void SpellHistory::ModifyChargeRecoveryTime(uint32 chargeCategoryId, Duration co
     if (itr == _categoryCharges.end() || itr->second.empty())
         return;
 
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
 
     for (ChargeEntry& entry : itr->second)
     {
@@ -943,28 +940,52 @@ bool SpellHistory::HasGlobalCooldown(SpellInfo const* spellInfo) const
 
 void SpellHistory::AddGlobalCooldown(SpellInfo const* spellInfo, Duration duration)
 {
-    _globalCooldowns[spellInfo->StartRecoveryCategory] = Clock::now() + duration;
+    _globalCooldowns[spellInfo->StartRecoveryCategory] = time_point_cast<Duration>(Clock::now() + duration);
 }
 
 void SpellHistory::CancelGlobalCooldown(SpellInfo const* spellInfo)
 {
-    _globalCooldowns[spellInfo->StartRecoveryCategory] = Clock::time_point(Clock::duration(0));
+    _globalCooldowns[spellInfo->StartRecoveryCategory] = TimePoint(Duration(0));
 }
 
 SpellHistory::Duration SpellHistory::GetRemainingGlobalCooldown(SpellInfo const* spellInfo) const
 {
-    Clock::time_point end;
+    TimePoint end;
     auto cdItr = _globalCooldowns.find(spellInfo->StartRecoveryCategory);
     if (cdItr == _globalCooldowns.end())
         return Duration::zero();
 
     end = cdItr->second;
-    Clock::time_point now = GameTime::GetTime<Clock>();
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
     if (end < now)
         return Duration::zero();
 
     Clock::duration remaining = end - now;
-    return std::chrono::duration_cast<std::chrono::milliseconds>(remaining);
+    return duration_cast<Milliseconds>(remaining);
+}
+
+void SpellHistory::PauseCooldowns()
+{
+    _pauseTime = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+}
+
+void SpellHistory::ResumeCooldowns()
+{
+    if (!_pauseTime)
+        return;
+
+    Duration pausedDuration = time_point_cast<Duration>(GameTime::GetTime<Clock>()) - *_pauseTime;
+
+    for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+        itr->second.CooldownEnd += pausedDuration;
+
+    for (auto& [chargeCategoryId, chargeRefreshTimes] : _categoryCharges)
+        for (ChargeEntry& chargeEntry : chargeRefreshTimes)
+            chargeEntry.RechargeEnd += pausedDuration;
+
+    _pauseTime.reset();
+
+    Update();
 }
 
 Player* SpellHistory::GetPlayerOwner() const
@@ -990,7 +1011,7 @@ void SpellHistory::SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryColle
         WorldPackets::Spells::SetSpellCharges setSpellCharges;
         setSpellCharges.Category = chargeCategoryId;
         if (!chargeCollection.empty())
-            setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<Milliseconds>(chargeCollection.front().RechargeEnd - Clock::now()).count());
+            setSpellCharges.NextRecoveryTime = uint32(duration_cast<Milliseconds>(chargeCollection.front().RechargeEnd - GameTime::GetTime<Clock>()).count());
         setSpellCharges.ConsumedCharges = uint8(chargeCollection.size());
         setSpellCharges.IsPet = player != _owner;
         player->SendDirectMessage(setSpellCharges.Write());
@@ -1073,8 +1094,8 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
 
         for (auto const& c : _spellCooldowns)
         {
-            Clock::time_point now = GameTime::GetTime<Clock>();
-            uint32 cooldownDuration = uint32(c.second.CooldownEnd > now ? std::chrono::duration_cast<Milliseconds>(c.second.CooldownEnd - now).count() : 0);
+            TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+            uint32 cooldownDuration = uint32(c.second.CooldownEnd > now ? duration_cast<Milliseconds>(c.second.CooldownEnd - now).count() : 0);
 
             // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
             if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || c.second.OnHold)

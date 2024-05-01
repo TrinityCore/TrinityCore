@@ -177,7 +177,7 @@ enum UnitFlags : uint32
     UNIT_FLAG_DISALLOWED            = (UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL |
                                        UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_RENAME | UNIT_FLAG_PREPARATION | /* UNIT_FLAG_UNK_6 | */
                                        UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_LOOTING | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP_ENABLING |
-                                       UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
+                                       UNIT_FLAG_CANT_SWIM | UNIT_FLAG_CAN_SWIM | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
                                        UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
                                        UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
                                        UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE), // SKIP
@@ -227,7 +227,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_DISALLOWED                                       = (UNIT_FLAG2_FEIGN_DEATH | UNIT_FLAG2_IGNORE_REPUTATION | UNIT_FLAG2_COMPREHEND_LANG |
                                                                    UNIT_FLAG2_MIRROR_IMAGE | UNIT_FLAG2_FORCE_MOVEMENT | UNIT_FLAG2_DISARM_OFFHAND |
                                                                    UNIT_FLAG2_DISABLE_PRED_STATS | UNIT_FLAG2_ALLOW_CHANGING_TALENTS | UNIT_FLAG2_DISARM_RANGED |
-                                                                /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION |
+                                                                /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION | UNIT_FLAG2_CANNOT_TURN |
                                                                    UNIT_FLAG2_PREVENT_SPELL_CLICK | /* UNIT_FLAG2_INTERACT_WHILE_HOSTILE | */ /* UNIT_FLAG2_UNK2 | */
                                                                 /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER |
                                                                    UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS | UNIT_FLAG2_LARGE_AOI | UNIT_FLAG2_GIGANTIC_AOI | UNIT_FLAG2_NO_ACTIONS |
@@ -263,7 +263,7 @@ enum UnitFlags3 : uint32
     UNIT_FLAG3_ALREADY_SKINNED                              = 0x00020000,
     UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS                      = 0x00040000,   // TITLE Suppress all NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction for all npcs as long as npc with this flag is visible
     UNIT_FLAG3_SUPPRESS_NPC_SOUNDS                          = 0x00080000,   // TITLE Suppress NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction
-    UNIT_FLAG3_UNK20                                        = 0x00100000,
+    UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT            = 0x00100000,   // TITLE Allow Interaction While in Combat DESCRIPTION Allows using various NPC functions while in combat (vendor, gossip, questgiver)
     UNIT_FLAG3_UNK21                                        = 0x00200000,
     UNIT_FLAG3_DONT_FADE_OUT                                = 0x00400000,
     UNIT_FLAG3_UNK23                                        = 0x00800000,
@@ -279,9 +279,9 @@ enum UnitFlags3 : uint32
     UNIT_FLAG3_DISALLOWED                                   = (UNIT_FLAG3_UNK0 | /* UNIT_FLAG3_UNCONSCIOUS_ON_DEATH | */ /* UNIT_FLAG3_ALLOW_MOUNTED_COMBAT | */ UNIT_FLAG3_GARRISON_PET |
                                                                /* UNIT_FLAG3_UI_CAN_GET_POSITION | */ /* UNIT_FLAG3_AI_OBSTACLE | */ UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK | */
                                                                UNIT_FLAG3_IGNORE_COMBAT | UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK | UNIT_FLAG3_UNK10 | UNIT_FLAG3_UNK11 |
-                                                               UNIT_FLAG3_UNK12 | /* UNIT_FLAG3_FAKE_DEAD | */ /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
+                                                               UNIT_FLAG3_UNK12 | UNIT_FLAG3_FAKE_DEAD | /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
                                                                /* UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD | */ UNIT_FLAG3_ALREADY_SKINNED | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS | */ /* UNIT_FLAG3_SUPPRESS_NPC_SOUNDS | */
-                                                               UNIT_FLAG3_UNK20 | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
+                                                               UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
                                                                /* UNIT_FLAG3_FORCE_HIDE_NAMEPLATE | */ UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
                                                                UNIT_FLAG3_UNK28 | UNIT_FLAG3_UNK29 | UNIT_FLAG3_UNK30 | UNIT_FLAG3_UNK31), // SKIP
     UNIT_FLAG3_ALLOWED                                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
@@ -333,25 +333,27 @@ DEFINE_ENUM_FLAG(NPCFlags);
 // EnumUtils: DESCRIBE THIS
 enum NPCFlags2 : uint32
 {
-    UNIT_NPC_FLAG_2_NONE                    = 0x00000000,
-    UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER     = 0x00000001,   // TITLE is item upgrade
-    UNIT_NPC_FLAG_2_GARRISON_ARCHITECT      = 0x00000002,   // TITLE is garrison architect DESCRIPTION garrison building placement UI
-    UNIT_NPC_FLAG_2_STEERING                = 0x00000004,   // TITLE is avoiding obstacles DESCRIPTION clientside pathfinding
-    UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL = 0x00000008, // TITLE is area spirit healer individual DESCRIPTION area spirit healer with individual timers
-    UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER        = 0x00000010,   // TITLE is shipment crafter DESCRIPTION garrison work orders
-    UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC    = 0x00000020,   // TITLE is garrison mission
-    UNIT_NPC_FLAG_2_TRADESKILL_NPC          = 0x00000040,   // TITLE is tradeskill DESCRIPTION crafting at npc
-    UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW       = 0x00000080,   // TITLE is black market view DESCRIPTION only allows viewing black market auctions, no bidding
-    UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC     = 0x00000200,   // TITLE is garrrison talent
-    UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR  = 0x00000400,   // TITLE is contribution collector
-    UNIT_NPC_FLAG_2_AZERITE_RESPEC          = 0x00004000,   // TITLE is azerite respec
-    UNIT_NPC_FLAG_2_ISLANDS_QUEUE           = 0x00008000,   // TITLE is islands queue
+    UNIT_NPC_FLAG_2_NONE                                            = 0x00000000,
+    UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER                             = 0x00000001,   // TITLE is item upgrade
+    UNIT_NPC_FLAG_2_GARRISON_ARCHITECT                              = 0x00000002,   // TITLE is garrison architect DESCRIPTION garrison building placement UI
+    UNIT_NPC_FLAG_2_STEERING                                        = 0x00000004,   // TITLE is avoiding obstacles DESCRIPTION clientside pathfinding
+    UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL                   = 0x00000008,   // TITLE is area spirit healer individual DESCRIPTION area spirit healer with individual timers
+    UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER                                = 0x00000010,   // TITLE is shipment crafter DESCRIPTION garrison work orders
+    UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC                            = 0x00000020,   // TITLE is garrison mission
+    UNIT_NPC_FLAG_2_TRADESKILL_NPC                                  = 0x00000040,   // TITLE is tradeskill DESCRIPTION crafting at npc
+    UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW                               = 0x00000080,   // TITLE is black market view DESCRIPTION only allows viewing black market auctions, no bidding
+    UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC                             = 0x00000200,   // TITLE is garrrison talent
+    UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR                          = 0x00000400,   // TITLE is contribution collector
+    UNIT_NPC_FLAG_2_FAST_STEERING_AVOIDS_OBSTACLES                  = 0x00002000,   // TITLE enables avoiding obstacles when FastSteering spline flag is set
+    UNIT_NPC_FLAG_2_AZERITE_RESPEC                                  = 0x00004000,   // TITLE is azerite respec
+    UNIT_NPC_FLAG_2_ISLANDS_QUEUE                                   = 0x00008000,   // TITLE is islands queue
     UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION   = 0x00010000,
-    UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER= 0x00200000,   // TITLE is personal tabard designer
+    UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER                        = 0x00200000,   // TITLE is personal tabard designer
 };
 
 DEFINE_ENUM_FLAG(NPCFlags2);
 
+// EnumUtils: DESCRIBE THIS
 enum MovementFlags : uint32
 {
     MOVEMENTFLAG_NONE                  = 0x00000000,
@@ -388,29 +390,30 @@ enum MovementFlags : uint32
 
     MOVEMENTFLAG_MASK_MOVING =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT |
-        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
+        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,// SKIP
 
     MOVEMENTFLAG_MASK_TURNING =
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN,
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN, // SKIP
 
     MOVEMENTFLAG_MASK_MOVING_FLY =
-        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING, // SKIP
 
     // Movement flags allowed for creature in CreateObject - we need to keep all other enabled serverside
     // to properly calculate all movement
     MOVEMENTFLAG_MASK_CREATURE_ALLOWED =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_SWIMMING |
-        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION,
+        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION, // SKIP
 
     /// @todo if needed: add more flags to this masks that are exclusive to players
     MOVEMENTFLAG_MASK_PLAYER_ONLY =
-        MOVEMENTFLAG_FLYING,
+        MOVEMENTFLAG_FLYING, // SKIP
 
     /// Movement flags that have change status opcodes associated for players
     MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE = MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_ROOT |
-        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION
+        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION // SKIP
 };
 
+// EnumUtils: DESCRIBE THIS
 enum MovementFlags2 : uint32
 {
     MOVEMENTFLAG2_NONE                                      = 0x00000000,
@@ -435,6 +438,7 @@ enum MovementFlags2 : uint32
     MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00080000
 };
 
+// EnumUtils: DESCRIBE THIS
 enum MovementFlags3 : uint32
 {
     MOVEMENTFLAG3_NONE              = 0x00000000,

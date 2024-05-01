@@ -16,46 +16,25 @@
  */
 
 #include "MovementGenerator.h"
-#include "Creature.h"
-#include "IdleMovementGenerator.h"
-#include "MovementDefines.h"
-#include "PathGenerator.h"
-#include "RandomMovementGenerator.h"
-#include "UnitAI.h"
-#include "WaypointMovementGenerator.h"
-#include <sstream>
+#include "StringFormat.h"
 
-MovementGenerator::~MovementGenerator() { }
+MovementGenerator::~MovementGenerator()
+{
+    // Ensure script doesn't get stuck waiting for this movement
+    SetScriptResult(MovementStopReason::Interrupted);
+}
 
 std::string MovementGenerator::GetDebugInfo() const
 {
-    std::stringstream sstr;
-    sstr << std::boolalpha
-        << "Mode: " << std::to_string(Mode)
-        << " Priority: " << std::to_string(Priority)
-        << " Flags: " << Flags
-        << " BaseUniteState: " << BaseUnitState;
-    return sstr.str();
+    return Trinity::StringFormat("Mode: {} Priority: {} Flags: {} BaseUniteState: {}",
+        Mode, Priority, Flags, BaseUnitState);
 }
 
-IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
-
-MovementGenerator* IdleMovementFactory::Create(Unit* /*object*/) const
+void MovementGenerator::SetScriptResult(MovementStopReason reason)
 {
-    static IdleMovementGenerator instance;
-    return &instance;
-}
-
-RandomMovementFactory::RandomMovementFactory() : MovementGeneratorCreator(RANDOM_MOTION_TYPE) { }
-
-MovementGenerator* RandomMovementFactory::Create(Unit* /*object*/) const
-{
-    return new RandomMovementGenerator<Creature>();
-}
-
-WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WAYPOINT_MOTION_TYPE) { }
-
-MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
-{
-    return new WaypointMovementGenerator<Creature>(0, true);
+    if (ScriptResult)
+    {
+        ScriptResult->SetResult(reason);
+        ScriptResult.reset();
+    }
 }

@@ -140,11 +140,12 @@ endif()
 
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
-# -Wno-deprecated-copy needed to suppress a warning in g3d
+# -Wno-undefined-inline needed for a compile time optimization hack with fmt
 target_compile_options(trinity-compile-option-interface
   INTERFACE
     -Wno-narrowing
-    -Wno-deprecated-register)
+    -Wno-deprecated-register
+    -Wno-undefined-inline)
 
 if(BUILD_SHARED_LIBS)
   # -fPIC is needed to allow static linking in shared libs.

@@ -127,7 +127,7 @@ namespace WorldPackets
         class InspectResult final : public ServerPacket
         {
         public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
+            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 4096)
             {
                 PvpTalents.fill(0);
             }
@@ -139,7 +139,7 @@ namespace WorldPackets
             std::vector<uint16> Talents;
             std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
             Optional<InspectGuildData> GuildData;
-            std::array<PVPBracketData, 7> Bracket;
+            std::array<PVPBracketData, 9> Bracket;
             Optional<int32> AzeriteLevel;
             int32 ItemLevel = 0;
             uint32 LifetimeHK = 0;

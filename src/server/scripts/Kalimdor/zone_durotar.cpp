@@ -211,7 +211,6 @@ struct npc_durotar_tiki_target : public ScriptedAI
     void JustAppeared() override
     {
         me->SetReactState(REACT_PASSIVE);
-        me->SetTemplateRooted(true);
         DoCastSelf(TiKiTargetMask[urand(0, 2)]);
         DoCastSelf(SPELL_ARCANE_MISSILES_TRAINER);
     }

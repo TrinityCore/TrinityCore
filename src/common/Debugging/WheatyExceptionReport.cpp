@@ -41,7 +41,7 @@ inline LPTSTR ErrorMessage(DWORD dw)
     else
     {
         LPTSTR msgBuf = (LPTSTR)LocalAlloc(LPTR, 30);
-        sprintf(msgBuf, "Unknown error: %u", dw);
+        snprintf(msgBuf, 30, "Unknown error: %u", dw);
         return msgBuf;
     }
 
@@ -125,7 +125,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     ++pos;
 
     TCHAR crash_folder_path[MAX_PATH];
-    sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    _stprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
     if (!CreateDirectory(crash_folder_path, nullptr))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -134,10 +134,10 @@ PEXCEPTION_POINTERS pExceptionInfo)
 
     SYSTEMTIME systime;
     GetLocalTime(&systime);
-    sprintf(m_szDumpFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].dmp",
+    _stprintf_s(m_szDumpFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].dmp",
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
-    _stprintf(m_szLogFileName, _T("%s\\%s_%s_[%u-%u_%u-%u-%u].txt"),
+    _stprintf_s(m_szLogFileName, _T("%s\\%s_%s_[%u-%u_%u-%u-%u].txt"),
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
     m_hDumpFile = CreateFile(m_szDumpFileName,
@@ -375,13 +375,13 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
                 lRet = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009"), 0, KEY_QUERY_VALUE, &hKey);
                 if (lRet == ERROR_SUCCESS)
                 {
-                    _stprintf(wszTmp, _T("Service Pack 6a (Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("Service Pack 6a (Version %d.%d, Build %d)"),
                         osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                     _tcsncat(szVersion, wszTmp, cntMax);
                 }
                 else                                            // Windows NT 4.0 prior to SP6a
                 {
-                    _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("%s (Version %d.%d, Build %d)"),
                         szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                     _tcsncat(szVersion, wszTmp, cntMax);
                 }
@@ -390,17 +390,17 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
             else                                                // Windows NT 3.51 and earlier or Windows 2000 and later
             {
                 if (!_tcslen(szCSDVersion))
-                    _stprintf(wszTmp, _T("(Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("(Version %d.%d, Build %d)"),
                         osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                 else
-                    _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+                    _stprintf_s(wszTmp, _T("%s (Version %d.%d, Build %d)"),
                         szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                 _tcsncat(szVersion, wszTmp, cntMax);
             }
             break;
         }
         default:
-            _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+            _stprintf_s(wszTmp, _T("%s (Version %d.%d, Build %d)"),
                 szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
             _tcsncat(szVersion, wszTmp, cntMax);
             break;
@@ -674,12 +674,12 @@ PEXCEPTION_POINTERS pExceptionInfo)
             sizeof(szFaultingModule),
             section, offset);
 
-#ifdef _M_IX86
+#if defined(_M_IX86) || defined(_M_ARM)
         Log(_T("Fault address:  %08X %02X:%08X %s\r\n"),
             pExceptionRecord->ExceptionAddress,
             section, offset, szFaultingModule);
 #endif
-#ifdef _M_X64
+#if defined(_M_X64) || defined(_M_ARM64) || defined(_M_HYBRID_X86_ARM64) || defined (_M_ARM64EC)
         Log(_T("Fault address:  %016I64X %02X:%016I64X %s\r\n"),
             pExceptionRecord->ExceptionAddress,
             section, offset, szFaultingModule);
@@ -708,13 +708,29 @@ PEXCEPTION_POINTERS pExceptionInfo)
         Log(_T("RAX:%016I64X\r\nRBX:%016I64X\r\nRCX:%016I64X\r\nRDX:%016I64X\r\nRSI:%016I64X\r\nRDI:%016I64X\r\n")
             _T("R8: %016I64X\r\nR9: %016I64X\r\nR10:%016I64X\r\nR11:%016I64X\r\nR12:%016I64X\r\nR13:%016I64X\r\nR14:%016I64X\r\nR15:%016I64X\r\n")
             , pCtx->Rax, pCtx->Rbx, pCtx->Rcx, pCtx->Rdx,
-            pCtx->Rsi, pCtx->Rdi, pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
+            pCtx->Rsi, pCtx->Rdi, pCtx->R8, pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
         Log(_T("CS:RIP:%04X:%016I64X\r\n"), pCtx->SegCs, pCtx->Rip);
-        Log(_T("SS:RSP:%04X:%016X  RBP:%08X\r\n"),
+        Log(_T("SS:RSP:%04X:%016I64X  RBP:%08X\r\n"),
             pCtx->SegSs, pCtx->Rsp, pCtx->Rbp);
         Log(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
             pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
         Log(_T("Flags:%08X\r\n"), pCtx->EFlags);
+#endif
+
+#ifdef _M_ARM64
+        Log(_T("\r\nRegisters:\r\n"));
+        Log(_T("X0:%016I64X\r\nX1:%016I64X\r\nX2:%016I64X\r\nX3:%016I64X\r\nX4:%016I64X\r\nX5:%016I64X\r\n"),
+            _T("X6:%016I64X\r\nX7:%016I64X\r\nX8:%016I64X\r\nX9:%016I64X\r\nX10:%016I64X\r\nX11:%016I64X\r\nX12:%016I64X\r\nX13:%016I64X\r\n"),
+            _T("X14:%016I64X\r\nX15:%016I64X\r\nX16:%016I64X\r\nX17:%016I64X\r\nX18:%016I64X\r\nX19:%016I64X\r\nX20:%016I64X\r\nX21:%016I64X\r\n"),
+            _T("X22:%016I64X\r\nX23:%016I64X\r\nX24:%016I64X\r\nX25:%016I64X\r\nX26:%016I64X\r\nX27:%016I64X\r\nX28:%016I64X\r\n"),
+            pCtx->X0, pCtx->X1, pCtx->X2, pCtx->X3, pCtx->X4, pCtx->X5,
+            pCtx->X6, pCtx->X7, pCtx->X8, pCtx->X9, pCtx->X10, pCtx->X11, pCtx->X12, pCtx->X13,
+            pCtx->X14, pCtx->X15, pCtx->X16, pCtx->X17, pCtx->X18, pCtx->X19, pCtx->X20, pCtx->X21,
+            pCtx->X22, pCtx->X23, pCtx->X24, pCtx->X25, pCtx->X26, pCtx->X27, pCtx->X28);
+        Log(_T("LR:%016I64X\r\n"), pCtx->Lr);
+        Log(_T("PC:%016I64X\r\n"), pCtx->Pc);
+        Log(_T("SP:%016I64X FP:%016I64X\r\n"), pCtx->Sp, pCtx->Fp);
+        Log(_T("Flags:%08X\r\n"), pCtx->Cpsr);
 #endif
 
         SymSetOptions(SYMOPT_DEFERRED_LOADS);
@@ -968,27 +984,26 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
     STACKFRAME64 sf;
     memset(&sf, 0, sizeof(sf));
 
-    #ifdef _M_IX86
-    // Initialize the STACKFRAME structure for the first call.  This is only
-    // necessary for Intel CPUs, and isn't mentioned in the documentation.
-    sf.AddrPC.Offset       = pContext->Eip;
+    // Initialize the STACKFRAME structure for the first call.
     sf.AddrPC.Mode         = AddrModeFlat;
+    sf.AddrStack.Mode      = AddrModeFlat;
+    sf.AddrFrame.Mode      = AddrModeFlat;
+
+#ifdef _M_IX86
+    sf.AddrPC.Offset       = pContext->Eip;
     sf.AddrStack.Offset    = pContext->Esp;
-    sf.AddrStack.Mode      = AddrModeFlat;
     sf.AddrFrame.Offset    = pContext->Ebp;
-    sf.AddrFrame.Mode      = AddrModeFlat;
-
     dwMachineType = IMAGE_FILE_MACHINE_I386;
-    #endif
-
-#ifdef _M_X64
-    sf.AddrPC.Offset    = pContext->Rip;
-    sf.AddrPC.Mode = AddrModeFlat;
+#elif defined(_M_X64)
+    sf.AddrPC.Offset       = pContext->Rip;
     sf.AddrStack.Offset    = pContext->Rsp;
-    sf.AddrStack.Mode      = AddrModeFlat;
     sf.AddrFrame.Offset    = pContext->Rbp;
-    sf.AddrFrame.Mode      = AddrModeFlat;
     dwMachineType = IMAGE_FILE_MACHINE_AMD64;
+#elif defined(_M_ARM64)
+    sf.AddrPC.Offset       = pContext->Pc;
+    sf.AddrStack.Offset    = pContext->Sp;
+    sf.AddrFrame.Offset    = pContext->Fp;
+    dwMachineType = IMAGE_FILE_MACHINE_ARM64;
 #endif
 
     for (;;)
@@ -1008,8 +1023,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
             break;                                          // the frame is OK.  Bail if not.
 #ifdef _M_IX86
         Log(_T("%08X  %08X  "), sf.AddrPC.Offset, sf.AddrFrame.Offset);
-#endif
-#ifdef _M_X64
+#elif defined(_M_X64) || defined(_M_ARM64)
         Log(_T("%016I64X  %016I64X  "), sf.AddrPC.Offset, sf.AddrFrame.Offset);
 #endif
 
@@ -1037,8 +1051,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
                 szModule, sizeof(szModule), section, offset);
 #ifdef _M_IX86
             Log(_T("%04X:%08X %s"), section, offset, szModule);
-#endif
-#ifdef _M_X64
+#elif defined(_M_X64) || defined(_M_ARM64)
             Log(_T("%04X:%016I64X %s"), section, offset, szModule);
 #endif
         }
@@ -1063,7 +1076,10 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
             SymSetContext(m_hProcess, &imagehlpStackFrame, nullptr);
 
             // Enumerate the locals/parameters
-            SymEnumSymbols(m_hProcess, 0, nullptr, EnumerateSymbolsCallback, &sf);
+            EnumerateSymbolsCallbackContext ctx;
+            ctx.sf = &sf;
+            ctx.context = pContext;
+            SymEnumSymbols(m_hProcess, 0, nullptr, EnumerateSymbolsCallback, &ctx);
 
             Log(_T("\r\n"));
         }
@@ -1084,7 +1100,7 @@ PVOID         UserContext)
     __try
     {
         ClearSymbols();
-        FormatSymbolValue(pSymInfo, (STACKFRAME64*)UserContext);
+        FormatSymbolValue(pSymInfo, (EnumerateSymbolsCallbackContext*)UserContext);
 
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
@@ -1095,6 +1111,191 @@ PVOID         UserContext)
     return TRUE;
 }
 
+Optional<DWORD_PTR> WheatyExceptionReport::GetIntegerRegisterValue(PCONTEXT context, ULONG registerId)
+{
+#define REG_L(x) ((BYTE)(((DWORD_PTR)(x)) & 0xff))
+#define REG_H(x) ((BYTE)((((DWORD_PTR)(x)) >> 8) & 0xff))
+#define REG_X(x) ((WORD)(((DWORD_PTR)(x)) & 0xffff))
+#define REG_E(x) ((DWORD)(((DWORD_PTR)(x)) & 0xffffffff))
+#define REG_R(x) ((DWORD64)(((DWORD_PTR)(x)) & 0xffffffffffffffff))
+#define CPU_REG(reg, field, part) case reg: return part(context->field);
+    switch (registerId)
+    {
+#ifdef _M_IX86
+        CPU_REG(CV_REG_AL, Eax, REG_L);
+        CPU_REG(CV_REG_CL, Ecx, REG_L);
+        CPU_REG(CV_REG_DL, Edx, REG_L);
+        CPU_REG(CV_REG_BL, Ebx, REG_L);
+        CPU_REG(CV_REG_AH, Eax, REG_H);
+        CPU_REG(CV_REG_CH, Ecx, REG_H);
+        CPU_REG(CV_REG_DH, Edx, REG_H);
+        CPU_REG(CV_REG_BH, Ebx, REG_H);
+        CPU_REG(CV_REG_AX, Eax, REG_X);
+        CPU_REG(CV_REG_CX, Ecx, REG_X);
+        CPU_REG(CV_REG_DX, Edx, REG_X);
+        CPU_REG(CV_REG_BX, Ebx, REG_X);
+        CPU_REG(CV_REG_SP, Esp, REG_X);
+        CPU_REG(CV_REG_BP, Ebp, REG_X);
+        CPU_REG(CV_REG_SI, Esi, REG_X);
+        CPU_REG(CV_REG_DI, Edi, REG_X);
+        CPU_REG(CV_REG_EAX, Eax, REG_E);
+        CPU_REG(CV_REG_ECX, Ecx, REG_E);
+        CPU_REG(CV_REG_EDX, Edx, REG_E);
+        CPU_REG(CV_REG_EBX, Ebx, REG_E);
+        CPU_REG(CV_REG_ESP, Esp, REG_E);
+        CPU_REG(CV_REG_EBP, Ebp, REG_E);
+        CPU_REG(CV_REG_ESI, Esi, REG_E);
+        CPU_REG(CV_REG_EDI, Edi, REG_E);
+        CPU_REG(CV_REG_EIP, Eip, REG_E);
+#elif defined (_M_X64)
+        CPU_REG(CV_AMD64_AL, Rax, REG_L);
+        CPU_REG(CV_AMD64_CL, Rcx, REG_L);
+        CPU_REG(CV_AMD64_DL, Rdx, REG_L);
+        CPU_REG(CV_AMD64_BL, Rbx, REG_L);
+        CPU_REG(CV_AMD64_SIL, Rsi, REG_L);
+        CPU_REG(CV_AMD64_DIL, Rdi, REG_L);
+        CPU_REG(CV_AMD64_BPL, Rbp, REG_L);
+        CPU_REG(CV_AMD64_SPL, Rsp, REG_L);
+        CPU_REG(CV_AMD64_R8B, R8, REG_L);
+        CPU_REG(CV_AMD64_R9B, R9, REG_L);
+        CPU_REG(CV_AMD64_R10B, R10, REG_L);
+        CPU_REG(CV_AMD64_R11B, R11, REG_L);
+        CPU_REG(CV_AMD64_R12B, R12, REG_L);
+        CPU_REG(CV_AMD64_R13B, R13, REG_L);
+        CPU_REG(CV_AMD64_R14B, R14, REG_L);
+        CPU_REG(CV_AMD64_R15B, R15, REG_L);
+        CPU_REG(CV_AMD64_AH, Rax, REG_H);
+        CPU_REG(CV_AMD64_CH, Rcx, REG_H);
+        CPU_REG(CV_AMD64_DH, Rdx, REG_H);
+        CPU_REG(CV_AMD64_BH, Rbx, REG_H);
+        CPU_REG(CV_AMD64_AX, Rax, REG_X);
+        CPU_REG(CV_AMD64_CX, Rcx, REG_X);
+        CPU_REG(CV_AMD64_DX, Rdx, REG_X);
+        CPU_REG(CV_AMD64_BX, Rbx, REG_X);
+        CPU_REG(CV_AMD64_SP, Rsp, REG_X);
+        CPU_REG(CV_AMD64_BP, Rbp, REG_X);
+        CPU_REG(CV_AMD64_SI, Rsi, REG_X);
+        CPU_REG(CV_AMD64_DI, Rdi, REG_X);
+        CPU_REG(CV_AMD64_R8W, R8, REG_X);
+        CPU_REG(CV_AMD64_R9W, R9, REG_X);
+        CPU_REG(CV_AMD64_R10W, R10, REG_X);
+        CPU_REG(CV_AMD64_R11W, R11, REG_X);
+        CPU_REG(CV_AMD64_R12W, R12, REG_X);
+        CPU_REG(CV_AMD64_R13W, R13, REG_X);
+        CPU_REG(CV_AMD64_R14W, R14, REG_X);
+        CPU_REG(CV_AMD64_R15W, R15, REG_X);
+        CPU_REG(CV_AMD64_EAX, Rax, REG_E);
+        CPU_REG(CV_AMD64_ECX, Rcx, REG_E);
+        CPU_REG(CV_AMD64_EDX, Rdx, REG_E);
+        CPU_REG(CV_AMD64_EBX, Rbx, REG_E);
+        CPU_REG(CV_AMD64_ESP, Rsp, REG_E);
+        CPU_REG(CV_AMD64_EBP, Rbp, REG_E);
+        CPU_REG(CV_AMD64_ESI, Rsi, REG_E);
+        CPU_REG(CV_AMD64_EDI, Rdi, REG_E);
+        CPU_REG(CV_AMD64_R8D, R8, REG_E);
+        CPU_REG(CV_AMD64_R9D, R9, REG_E);
+        CPU_REG(CV_AMD64_R10D, R10, REG_E);
+        CPU_REG(CV_AMD64_R11D, R11, REG_E);
+        CPU_REG(CV_AMD64_R12D, R12, REG_E);
+        CPU_REG(CV_AMD64_R13D, R13, REG_E);
+        CPU_REG(CV_AMD64_R14D, R14, REG_E);
+        CPU_REG(CV_AMD64_R15D, R15, REG_E);
+        CPU_REG(CV_AMD64_RIP, Rip, REG_R);
+        CPU_REG(CV_AMD64_RAX, Rax, REG_R);
+        CPU_REG(CV_AMD64_RBX, Rbx, REG_R);
+        CPU_REG(CV_AMD64_RCX, Rcx, REG_R);
+        CPU_REG(CV_AMD64_RDX, Rdx, REG_R);
+        CPU_REG(CV_AMD64_RSI, Rsi, REG_R);
+        CPU_REG(CV_AMD64_RDI, Rdi, REG_R);
+        CPU_REG(CV_AMD64_RBP, Rbp, REG_R);
+        CPU_REG(CV_AMD64_RSP, Rsp, REG_R);
+        CPU_REG(CV_AMD64_R8, R8, REG_R);
+        CPU_REG(CV_AMD64_R9, R9, REG_R);
+        CPU_REG(CV_AMD64_R10, R10, REG_R);
+        CPU_REG(CV_AMD64_R11, R11, REG_R);
+        CPU_REG(CV_AMD64_R12, R12, REG_R);
+        CPU_REG(CV_AMD64_R13, R13, REG_R);
+        CPU_REG(CV_AMD64_R14, R14, REG_R);
+        CPU_REG(CV_AMD64_R15, R15, REG_R);
+#elif defined(_M_ARM64)
+        CPU_REG(CV_ARM64_W0, X0, REG_E);
+        CPU_REG(CV_ARM64_W1, X1, REG_E);
+        CPU_REG(CV_ARM64_W2, X2, REG_E);
+        CPU_REG(CV_ARM64_W3, X3, REG_E);
+        CPU_REG(CV_ARM64_W4, X4, REG_E);
+        CPU_REG(CV_ARM64_W5, X5, REG_E);
+        CPU_REG(CV_ARM64_W6, X6, REG_E);
+        CPU_REG(CV_ARM64_W7, X7, REG_E);
+        CPU_REG(CV_ARM64_W8, X8, REG_E);
+        CPU_REG(CV_ARM64_W9, X9, REG_E);
+        CPU_REG(CV_ARM64_W10, X10, REG_E);
+        CPU_REG(CV_ARM64_W11, X11, REG_E);
+        CPU_REG(CV_ARM64_W12, X12, REG_E);
+        CPU_REG(CV_ARM64_W13, X13, REG_E);
+        CPU_REG(CV_ARM64_W14, X14, REG_E);
+        CPU_REG(CV_ARM64_W15, X15, REG_E);
+        CPU_REG(CV_ARM64_W16, X16, REG_E);
+        CPU_REG(CV_ARM64_W17, X17, REG_E);
+        CPU_REG(CV_ARM64_W18, X18, REG_E);
+        CPU_REG(CV_ARM64_W19, X19, REG_E);
+        CPU_REG(CV_ARM64_W20, X20, REG_E);
+        CPU_REG(CV_ARM64_W21, X21, REG_E);
+        CPU_REG(CV_ARM64_W22, X22, REG_E);
+        CPU_REG(CV_ARM64_W23, X23, REG_E);
+        CPU_REG(CV_ARM64_W24, X24, REG_E);
+        CPU_REG(CV_ARM64_W25, X25, REG_E);
+        CPU_REG(CV_ARM64_W26, X26, REG_E);
+        CPU_REG(CV_ARM64_W27, X27, REG_E);
+        CPU_REG(CV_ARM64_W28, X28, REG_E);
+        CPU_REG(CV_ARM64_W29, Fp, REG_E);
+        CPU_REG(CV_ARM64_W30, Lr, REG_E);
+        case CV_ARM64_WZR: return 0;
+        CPU_REG(CV_ARM64_X0, X0, REG_R);
+        CPU_REG(CV_ARM64_X1, X1, REG_R);
+        CPU_REG(CV_ARM64_X2, X2, REG_R);
+        CPU_REG(CV_ARM64_X3, X3, REG_R);
+        CPU_REG(CV_ARM64_X4, X4, REG_R);
+        CPU_REG(CV_ARM64_X5, X5, REG_R);
+        CPU_REG(CV_ARM64_X6, X6, REG_R);
+        CPU_REG(CV_ARM64_X7, X7, REG_R);
+        CPU_REG(CV_ARM64_X8, X8, REG_R);
+        CPU_REG(CV_ARM64_X9, X9, REG_R);
+        CPU_REG(CV_ARM64_X10, X10, REG_R);
+        CPU_REG(CV_ARM64_X11, X11, REG_R);
+        CPU_REG(CV_ARM64_X12, X12, REG_R);
+        CPU_REG(CV_ARM64_X13, X13, REG_R);
+        CPU_REG(CV_ARM64_X14, X14, REG_R);
+        CPU_REG(CV_ARM64_X15, X15, REG_R);
+        CPU_REG(CV_ARM64_IP0, X16, REG_R);
+        CPU_REG(CV_ARM64_IP1, X17, REG_R);
+        CPU_REG(CV_ARM64_X18, X18, REG_R);
+        CPU_REG(CV_ARM64_X19, X19, REG_R);
+        CPU_REG(CV_ARM64_X20, X20, REG_R);
+        CPU_REG(CV_ARM64_X21, X21, REG_R);
+        CPU_REG(CV_ARM64_X22, X22, REG_R);
+        CPU_REG(CV_ARM64_X23, X23, REG_R);
+        CPU_REG(CV_ARM64_X24, X24, REG_R);
+        CPU_REG(CV_ARM64_X25, X25, REG_R);
+        CPU_REG(CV_ARM64_X26, X26, REG_R);
+        CPU_REG(CV_ARM64_X27, X27, REG_R);
+        CPU_REG(CV_ARM64_X28, X28, REG_R);
+        CPU_REG(CV_ARM64_FP, Fp, REG_R);
+        CPU_REG(CV_ARM64_LR, Lr, REG_R);
+        CPU_REG(CV_ARM64_SP, Sp, REG_R);
+        case CV_ARM64_ZR: return 0;
+#endif
+        default:
+            break;
+    }
+    return {};
+#undef CPU_REG
+#undef REG_R
+#undef REG_E
+#undef REG_X
+#undef REG_H
+#undef REG_L
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // Given a SYMBOL_INFO representing a particular variable, displays its
 // contents.  If it's a user defined type, display the members and their
@@ -1102,33 +1303,39 @@ PVOID         UserContext)
 //////////////////////////////////////////////////////////////////////////////
 bool WheatyExceptionReport::FormatSymbolValue(
 PSYMBOL_INFO pSym,
-STACKFRAME64 * sf)
+EnumerateSymbolsCallbackContext* pCtx)
 {
     // If it's a function, don't do anything.
     if (pSym->Tag == SymTagFunction)                      // SymTagFunction from CVCONST.H from the DIA SDK
         return false;
 
-    DWORD_PTR pVariable = 0;                                // Will point to the variable's data in memory
+    DWORD_PTR pVariable = pSym->Address;                    // Will point to the variable's data in memory
+    Optional<DWORD_PTR> registerVariableStorage;
 
-    if (pSym->Flags & IMAGEHLP_SYMBOL_INFO_REGRELATIVE)
+    if (pSym->Flags & IMAGEHLP_SYMBOL_INFO_FRAMERELATIVE
+        || (pSym->Flags & IMAGEHLP_SYMBOL_INFO_REGRELATIVE && pSym->Register == CV_ALLREG_VFRAME))
     {
-        // if (pSym->Register == 8)   // EBP is the value 8 (in DBGHELP 5.1)
-        {                                                   //  This may change!!!
-#ifdef _M_IX86
-            pVariable = sf->AddrFrame.Offset;
-#elif _M_X64
-            pVariable = sf->AddrStack.Offset;
-#endif
-            pVariable += (DWORD_PTR)pSym->Address;
-        }
-        // else
-        //  return false;
+        pVariable += pCtx->sf->AddrFrame.Offset;
+    }
+    else if (pSym->Flags & IMAGEHLP_SYMBOL_INFO_REGRELATIVE)
+    {
+        Optional<DWORD_PTR> registerValue = GetIntegerRegisterValue(pCtx->context, pSym->Register);
+        if (!registerValue)
+            return false;
+
+        pVariable += *registerValue;
     }
     else if (pSym->Flags & IMAGEHLP_SYMBOL_INFO_REGISTER)
-        return false;                                       // Don't try to report register variable
+    {
+        registerVariableStorage = GetIntegerRegisterValue(pCtx->context, pSym->Register);
+        if (!registerVariableStorage)
+            return false;                                   // Don't try to report non-integer register variable
+
+        pVariable = reinterpret_cast<DWORD_PTR>(&*registerVariableStorage);
+    }
     else
     {
-        pVariable = (DWORD_PTR)pSym->Address;               // It must be a global variable
+        // It must be a global variable
     }
 
     PushSymbolDetail();
@@ -1529,50 +1736,50 @@ size_t countOverride)
                 else
                     length = strlen((char*)pAddress);
                 if (length > bufferSize - 6)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (DWORD)(bufferSize - 6), (char*)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s...\"", (int)(bufferSize - 6), (char*)pAddress);
                 else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s\"", (DWORD)length, (char*)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s\"", (int)length, (char*)pAddress);
                 break;
             }
             case btStdString:
             {
                 std::string* value = static_cast<std::string*>(pAddress);
                 if (value->length() > bufferSize - 6)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (DWORD)(bufferSize - 6), value->c_str());
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s...\"", (int)(bufferSize - 6), value->c_str());
                 else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%s\"", value->c_str());
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%s\"", value->c_str());
                 break;
             }
             default:
                 // Format appropriately (assuming it's a 1, 2, or 4 bytes (!!!)
                 if (length == 1)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", *(PBYTE)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PBYTE)pAddress);
                 else if (length == 2)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", *(PWORD)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PWORD)pAddress);
                 else if (length == 4)
                 {
                     if (basicType == btFloat)
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "%f", *(PFLOAT)pAddress);
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%f", *(PFLOAT)pAddress);
                     else
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", *(PDWORD)pAddress);
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PDWORD)pAddress);
                 }
                 else if (length == 8)
                 {
                     if (basicType == btFloat)
                     {
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "%f",
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%f",
                             *(double *)pAddress);
                     }
                     else
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X",
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X",
                         *(DWORD64*)pAddress);
                 }
                 else
                 {
     #if _WIN64
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X", (DWORD64)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X", (DWORD64)pAddress);
     #else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", (DWORD)pAddress);
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", (DWORD)pAddress);
     #endif
                 }
                 break;
@@ -1581,9 +1788,9 @@ size_t countOverride)
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
 #if _WIN64
-        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X <Unable to read memory>", (DWORD64)pAddress);
+        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X <Unable to read memory>", (DWORD64)pAddress);
 #else
-        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X <Unable to read memory>", (DWORD)pAddress);
+        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X <Unable to read memory>", (DWORD)pAddress);
 #endif
     }
 }

@@ -800,7 +800,7 @@ void InstanceScript::SetEntranceLocation(uint32 worldSafeLocationId)
     _temporaryEntranceId = 0;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, uint8 priority)
+void InstanceScript::SendEncounterUnit(EncounterFrameType type, Unit const* unit, Optional<int32> param1 /*= {}*/, Optional<int32> param2 /*= {}*/)
 {
     switch (type)
     {
@@ -811,7 +811,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, ui
 
             WorldPackets::Instance::InstanceEncounterEngageUnit encounterEngageMessage;
             encounterEngageMessage.Unit = unit->GetGUID();
-            encounterEngageMessage.TargetFramePriority = priority;
+            encounterEngageMessage.TargetFramePriority = param1.value_or(0);
             instance->SendToPlayers(encounterEngageMessage.Write());
             break;
         }
@@ -832,8 +832,43 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, ui
 
             WorldPackets::Instance::InstanceEncounterChangePriority encounterChangePriorityMessage;
             encounterChangePriorityMessage.Unit = unit->GetGUID();
-            encounterChangePriorityMessage.TargetFramePriority = priority;
+            encounterChangePriorityMessage.TargetFramePriority = param1.value_or(0);
             instance->SendToPlayers(encounterChangePriorityMessage.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_ADD_TIMER:
+        {
+            WorldPackets::Instance::InstanceEncounterTimerStart instanceEncounterTimerStart;
+            instanceEncounterTimerStart.TimeRemaining = param1.value_or(0);
+            instance->SendToPlayers(instanceEncounterTimerStart.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
+        {
+            WorldPackets::Instance::InstanceEncounterObjectiveStart instanceEncounterObjectiveStart;
+            instanceEncounterObjectiveStart.ObjectiveID = param1.value_or(0);
+            instance->SendToPlayers(instanceEncounterObjectiveStart.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
+        {
+            WorldPackets::Instance::InstanceEncounterObjectiveUpdate instanceEncounterObjectiveUpdate;
+            instanceEncounterObjectiveUpdate.ObjectiveID = param1.value_or(0);
+            instanceEncounterObjectiveUpdate.ProgressAmount = param2.value_or(0);
+            instance->SendToPlayers(instanceEncounterObjectiveUpdate.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
+        {
+            WorldPackets::Instance::InstanceEncounterObjectiveComplete instanceEncounterObjectiveComplete;
+            instanceEncounterObjectiveComplete.ObjectiveID = param1.value_or(0);
+            instance->SendToPlayers(instanceEncounterObjectiveComplete.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED:
+        {
+            WorldPackets::Instance::InstanceEncounterPhaseShiftChanged instanceEncounterPhaseShiftChanged;
+            instance->SendToPlayers(instanceEncounterPhaseShiftChanged.Write());
             break;
         }
         default:

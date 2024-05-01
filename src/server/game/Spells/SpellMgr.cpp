@@ -743,12 +743,6 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
         if (!player || (auraSpell > 0 && !player->HasAura(auraSpell)) || (auraSpell < 0 && player->HasAura(-auraSpell)))
             return false;
 
-    if (player)
-    {
-        if (Battleground* bg = player->GetBattleground())
-            return bg->IsSpellAllowed(spellId, player);
-    }
-
     // Extra conditions
     switch (spellId)
     {
@@ -4003,6 +3997,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
 
+    // Inescapable Torment
+    ApplySpellFix({ 373427 }, [](SpellInfo* spellInfo)
+    {
+        // Remove self-damage from passive aura on learn
+        ApplySpellEffectFix(spellInfo, EFFECT_3, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_DUMMY;
+        });
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
@@ -4768,7 +4772,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Stinging Sap
     ApplySpellFix({ 374523 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
     });
 
     // Jump to Center (DNT)
@@ -4983,8 +4987,10 @@ void SpellMgr::LoadSpellInfoImmunities()
             immunities.School = school;
             immunities.DispelType = dispelType;
             immunities.Mechanic = mechanics;
-            immunities.ImmuneAoE = fields[6].GetBool();
-            immunities.ImmuneChain = fields[7].GetBool();
+            if (fields[6].GetBool())
+                immunities.Other |= SpellOtherImmunity::AoETarget;
+            if (fields[7].GetBool())
+                immunities.Other |= SpellOtherImmunity::ChainTarget;
 
             if (immunities.School.to_ullong() != school)
                 TC_LOG_ERROR("sql.sql", "Invalid value in `SchoolMask` {} for creature immunities {}, truncated", school, id);

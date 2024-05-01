@@ -97,16 +97,16 @@ namespace Movement
         UpdateResult _updateState(int32& ms_time_diff);
         int32 next_timestamp() const { return spline.length(point_Idx + 1); }
         int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
-        int32 timeElapsed() const { return Duration() - time_passed; }
 
     public:
+        int32 timeRemaining() const { return Duration() - time_passed; }
         int32 timePassed() const { return time_passed; }
         int32 Duration() const { return spline.length(); }
         MySpline const& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
         float Velocity() const { return velocity; }
         void _Finalize();
-        void _Interrupt() { splineflags.done = true; }
+        void _Interrupt() { splineflags.Done = true; }
 
     public:
         void Initialize(MoveSplineInitArgs const&);
@@ -134,9 +134,9 @@ namespace Movement
         Location ComputePosition(int32 time_offset) const;
 
         uint32 GetId() const { return m_Id; }
-        bool Finalized() const { return splineflags.done; }
-        bool isCyclic() const { return splineflags.cyclic; }
-        bool isFalling() const { return splineflags.falling; }
+        bool Finalized() const { return splineflags.Done; }
+        bool isCyclic() const { return splineflags.Cyclic; }
+        bool isFalling() const { return splineflags.Falling; }
         Vector3 const& FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3::zero(); }
         Vector3 const& CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3::zero(); }
         int32 currentPathIdx() const;

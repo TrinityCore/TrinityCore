@@ -529,12 +529,12 @@ void AuctionHouseMgr::LoadAuctions()
             }
 
             Item* item = NewItemOrBag(proto);
-            if (!item->LoadFromDB(itemGuid, ObjectGuid::Create<HighGuid::Player>(fields[51].GetUInt64()), fields, itemEntry))
+            if (!item->LoadFromDB(itemGuid, ObjectGuid::Create<HighGuid::Player>(fields[52].GetUInt64()), fields, itemEntry))
             {
                 delete item;
                 continue;
             }
-            uint32 auctionId = fields[52].GetUInt32();
+            uint32 auctionId = fields[53].GetUInt32();
             itemsByAuction[auctionId].push_back(item);
 
             ++count;
@@ -1130,20 +1130,25 @@ void AuctionHouseObject::Update()
         {
             SendAuctionExpired(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);
+
+            RemoveAuction(trans, auction, &it);
         }
         ///- Or perform the transaction
         else
         {
+            // Copy data before freeing AuctionPosting in auctionHouse->RemoveAuction
+            // Because auctionHouse->SendAuctionWon can unload items if bidder is offline
+            // we need to RemoveAuction before sending mails
+            AuctionPosting copy = *auction;
+            RemoveAuction(trans, auction, &it);
+
             //we should send an "item sold" message if the seller is online
             //we send the item to the winner
             //we send the money to the seller
-            SendAuctionWon(auction, nullptr, trans);
-            SendAuctionSold(auction, nullptr, trans);
+            SendAuctionSold(&copy, nullptr, trans);
+            SendAuctionWon(&copy, nullptr, trans);
             sScriptMgr->OnAuctionSuccessful(this, auction);
         }
-
-        ///- In any case clear the auction
-        RemoveAuction(trans, auction, &it);
     }
 
     // Run DB changes
@@ -1684,7 +1689,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     }
 
     player->ModifyMoney(-int64(totalPrice));
-    player->SaveGoldToDB(trans);
+    player->SaveInventoryAndGoldToDB(trans);
 
     for (MailedItemsBatch const& batch : items)
     {

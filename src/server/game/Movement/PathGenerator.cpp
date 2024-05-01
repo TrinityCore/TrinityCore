@@ -20,6 +20,7 @@
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
 #include "DisableMgr.h"
+#include "G3DPosition.hpp"
 #include "Log.h"
 #include "MMapFactory.h"
 #include "MMapManager.h"
@@ -31,14 +32,14 @@
 PathGenerator::PathGenerator(WorldObject const* owner) :
     _polyLength(0), _type(PATHFIND_BLANK), _useStraightPath(false),
     _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH), _useRaycast(false),
-    _endPosition(G3D::Vector3::zero()), _source(owner), _navMesh(nullptr),
+    _startPosition(PositionToVector3(owner)), _endPosition(G3D::Vector3::zero()), _source(owner), _navMesh(nullptr),
     _navMeshQuery(nullptr)
 {
     memset(_pathPolyRefs, 0, sizeof(_pathPolyRefs));
 
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::PathGenerator for {}", _source->GetGUID().ToString());
 
-    uint32 mapId = PhasingHandler::GetTerrainMapId(_source->GetPhaseShift(), _source->GetMapId(), _source->GetMap()->GetTerrain(), _source->GetPositionX(), _source->GetPositionY());
+    uint32 mapId = PhasingHandler::GetTerrainMapId(_source->GetPhaseShift(), _source->GetMapId(), _source->GetMap()->GetTerrain(), _startPosition.x, _startPosition.y);
     if (DisableMgr::IsPathfindingEnabled(_source->GetMapId()))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
@@ -54,12 +55,9 @@ PathGenerator::~PathGenerator()
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::~PathGenerator() for {}", _source->GetGUID().ToString());
 }
 
-bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
+bool PathGenerator::CalculatePath(float srcX, float srcY, float srcZ, float destX, float destY, float destZ, bool forceDest)
 {
-    float x, y, z;
-    _source->GetPosition(x, y, z);
-
-    if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
+    if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(srcX, srcY, srcZ))
         return false;
 
     TC_METRIC_DETAILED_EVENT("mmap_events", "CalculatePath", "");
@@ -67,7 +65,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     G3D::Vector3 dest(destX, destY, destZ);
     SetEndPosition(dest);
 
-    G3D::Vector3 start(x, y, z);
+    G3D::Vector3 start(srcX, srcY, srcZ);
     SetStartPosition(start);
 
     _forceDestination = forceDest;
@@ -89,6 +87,13 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     BuildPolyPath(start, dest);
     return true;
+}
+
+bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
+{
+    float x, y, z;
+    _source->GetPosition(x, y, z);
+    return CalculatePath(x, y, z, destX, destY, destZ, forceDest);
 }
 
 dtPolyRef PathGenerator::GetPathPolyByPosition(dtPolyRef const* polyPath, uint32 polyPathSize, float const* point, float* distance) const
@@ -179,13 +184,13 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         BuildShortcut();
         bool path = _source->GetTypeId() == TYPEID_UNIT && _source->ToCreature()->CanFly();
 
-        bool waterPath = _source->GetTypeId() == TYPEID_UNIT && _source->ToCreature()->CanSwim();
+        bool waterPath = _source->GetTypeId() == TYPEID_UNIT && _source->ToCreature()->CanEnterWater();
         if (waterPath)
         {
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
             for (uint32 i = 0; i < _pathPoints.size(); ++i)
             {
-                ZLiquidStatus status = _source->GetMap()->GetLiquidStatus(_source->GetPhaseShift(), _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, map_liquidHeaderTypeFlags::AllLiquids, nullptr, _source->GetCollisionHeight());
+                ZLiquidStatus status = _source->GetMap()->GetLiquidStatus(_source->GetPhaseShift(), _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, {}, nullptr, _source->GetCollisionHeight());
                 // One of the points is not in the water, cancel movement.
                 if (status == LIQUID_MAP_NO_WATER)
                 {
@@ -653,7 +658,7 @@ void PathGenerator::CreateFilter()
     if (_source->GetTypeId() == TYPEID_UNIT)
     {
         Creature* creature = (Creature*)_source;
-        if (creature->CanWalk())
+        if (!creature->IsAquatic())
             includeFlags |= NAV_GROUND;          // walk
 
         // creatures don't take environmental damage
@@ -684,9 +689,9 @@ void PathGenerator::UpdateFilter()
         if (_sourceUnit->IsInWater() || _sourceUnit->IsUnderWater())
         {
             uint16 includedFlags = _filter.getIncludeFlags();
-            includedFlags |= GetNavTerrain(_source->GetPositionX(),
-                                           _source->GetPositionY(),
-                                           _source->GetPositionZ());
+            includedFlags |= GetNavTerrain(_startPosition.x,
+                                           _startPosition.y,
+                                           _startPosition.z);
 
             _filter.setIncludeFlags(includedFlags);
         }
@@ -700,7 +705,7 @@ void PathGenerator::UpdateFilter()
 NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z) const
 {
     LiquidData data;
-    ZLiquidStatus liquidStatus = _source->GetMap()->GetLiquidStatus(_source->GetPhaseShift(), x, y, z, map_liquidHeaderTypeFlags::AllLiquids, &data, _source->GetCollisionHeight());
+    ZLiquidStatus liquidStatus = _source->GetMap()->GetLiquidStatus(_source->GetPhaseShift(), x, y, z, {}, &data, _source->GetCollisionHeight());
     if (liquidStatus == LIQUID_MAP_NO_WATER)
         return NAV_GROUND;
 

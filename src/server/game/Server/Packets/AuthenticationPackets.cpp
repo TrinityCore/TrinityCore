@@ -184,22 +184,22 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
             _worldPacket << virtualRealm;
 
-        for (CharacterTemplate const* templat : SuccessInfo->Templates)
+        for (CharacterTemplate const* characterTemplate : SuccessInfo->Templates)
         {
-            _worldPacket << uint32(templat->TemplateSetId);
-            _worldPacket << uint32(templat->Classes.size());
-            for (CharacterTemplateClass const& templateClass : templat->Classes)
+            _worldPacket << uint32(characterTemplate->TemplateSetId);
+            _worldPacket << uint32(characterTemplate->Classes.size());
+            for (CharacterTemplateClass const& templateClass : characterTemplate->Classes)
             {
                 _worldPacket << uint8(templateClass.ClassID);
                 _worldPacket << uint8(templateClass.FactionGroup);
             }
 
-            _worldPacket.WriteBits(templat->Name.length(), 7);
-            _worldPacket.WriteBits(templat->Description.length(), 10);
+            _worldPacket.WriteBits(characterTemplate->Name.length(), 7);
+            _worldPacket.WriteBits(characterTemplate->Description.length(), 10);
             _worldPacket.FlushBits();
 
-            _worldPacket.WriteString(templat->Name);
-            _worldPacket.WriteString(templat->Description);
+            _worldPacket.WriteString(characterTemplate->Name);
+            _worldPacket.WriteString(characterTemplate->Description);
         }
     }
 

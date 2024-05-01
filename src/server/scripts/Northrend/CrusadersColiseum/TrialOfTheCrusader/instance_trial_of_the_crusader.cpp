@@ -119,7 +119,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 EventStage = 0;
                 NorthrendBeasts = NOT_STARTED;
                 NorthrendBeastsCount = 4;
-                Team = TEAM_OTHER;
                 EventTimer = 1000;
                 NotOneButTwoJormungarsTimer = 0;
                 ResilienceWillFixItTimer = 0;
@@ -133,9 +132,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
-                if (Team == TEAM_OTHER)
-                    Team = player->GetTeam();
-
                 if (NorthrendBeasts == GORMOK_IN_PROGRESS)
                     player->CreateVehicleKit(PLAYER_VEHICLE_ID, 0);
             }
@@ -524,7 +520,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint32 EventStage;
                 uint32 EventTimer;
                 uint32 NorthrendBeasts;
-                uint32 Team;
                 bool CrusadersSpecialState;
                 GuidVector snoboldGUIDS;
 

@@ -1843,7 +1843,7 @@ enum class PowerTypeFlags : int16
     ContinueRegenWhileFatigued    = 0x0200, // NYI
     RegenAffectedByHaste          = 0x0400, // NYI
     SetToMaxOnLevelUp             = 0x1000,
-    SetToMaxLevelOnInitialLogIn   = 0x2000, // NYI
+    SetToMaxOnInitialLogIn        = 0x2000, // NYI
     AllowCostModsForPlayers       = 0x4000  // NYI
 };
 
@@ -1933,7 +1933,7 @@ enum class SpellEffectAttributes
     SuppressPointsStacking                  = 0x000040,
     ChainFromInitialTarget                  = 0x000080,
     UncontrolledNoBackwards                 = 0x000100, /*NYI*/
-    AuraPointsStack                         = 0x000200, /*NYI*/ // refreshing periodic auras with this attribute will add remaining damage to new aura
+    AuraPointsStack                         = 0x000200, // refreshing auras with this attribute will add remaining amount to new aura
     NoCopyDamageInterruptsOrProcs           = 0x000400, /*NYI*/
     AddTargetCombatReachToAOE               = 0x000800, /*NYI*/
     IsHarmful                               = 0x001000,
@@ -2462,6 +2462,27 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_CAN_SWITCH               = 0x04000000,
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
+
+enum class VignetteFlags
+{
+    InfiniteAOI             = 0x000001,
+    ShowOnMap               = 0x000002,
+    PingMinimap             = 0x000004,
+    TestVisibilityRules     = 0x000008,
+    VerticalRangeIsAbsolute = 0x000010,
+    Unique                  = 0x000020,
+    ZoneInfiniteAOI         = 0x000040,
+    PersistsThroughDeath    = 0x000080,
+
+    DontShowOnMinimap       = 0x000200,
+    HasTooltip              = 0x000400,
+
+    AdditionalHeightReq     = 0x008000, // Must be within 10 yards of vignette Z coord (hardcoded in client)
+    HideOnContinentMaps     = 0x010000,
+    NoPaddingAboveUiWidgets = 0x020000
+};
+
+DEFINE_ENUM_FLAG(VignetteFlags);
 
 enum WorldMapTransformsFlags
 {
