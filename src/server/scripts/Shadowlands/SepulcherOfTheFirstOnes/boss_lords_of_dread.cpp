@@ -1865,7 +1865,7 @@ class spell_malganis_swarm_of_decay : public SpellScript
         Creature* malganis = caster->GetInstanceScript()->GetCreature(DATA_MALGANIS);
         Unit* swarmOfShadows = caster->FindNearestCreature(NPC_SWARM_OF_SHADOWS, 20.0f, true);
 
-        swarmOfShadows->GetMotionMaster()->MoveRotate(2, 30000, ROTATE_DIRECTION_RIGHT);
+        swarmOfShadows->GetMotionMaster()->MoveRotate(2, ROTATE_DIRECTION_RIGHT, 30s);
 
         if (!swarmOfShadows || !malganis)
             return;

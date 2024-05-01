@@ -113,7 +113,6 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
 
     if (_duration)
         _duration->Update(diff);
-    owner->SetOrientation(angle);
 
     if (_totalTurnAngle)
         _totalTurnAngle = *_totalTurnAngle - angleDelta;
