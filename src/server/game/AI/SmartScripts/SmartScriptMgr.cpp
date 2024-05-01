@@ -2088,8 +2088,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses item {} (slot {}) not equipable in a hand for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
                         return false;
                     }
-                }
-                    
+                }  
             }
             break;
         }
