@@ -110,7 +110,7 @@ public:
         GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
         if (!objectInfo)
         {
-            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, *objectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -119,7 +119,7 @@ public:
         {
             // report to DB errors log as in loading case
             TC_LOG_ERROR("sql.sql", "Gameobject (Entry {} GoType: {}) have invalid displayId ({}), not spawned.", *objectId, objectInfo->type, objectInfo->displayId);
-            handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, objectId);
+            handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, *objectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -159,7 +159,7 @@ public:
         /// @todo is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGameObjectData(guidLow));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, *objectId, objectInfo->name.c_str(), guidLow, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
     }
 
@@ -173,7 +173,7 @@ public:
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
         {
-            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, *objectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
