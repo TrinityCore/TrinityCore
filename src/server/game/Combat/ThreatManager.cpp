@@ -189,7 +189,7 @@ void ThreatReference::HeapNotifyDecreased()
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL),
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _needThreatClearUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL),
     _sortedThreatList(std::make_unique<Heap>()), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -210,15 +210,29 @@ void ThreatManager::Initialize()
 
 void ThreatManager::Update(uint32 tdiff)
 {
-    if (!CanHaveThreatList() || IsThreatListEmpty(true))
+    if (!CanHaveThreatList())
         return;
+
     if (_updateTimer <= tdiff)
     {
-        UpdateVictim();
+        if (_needThreatClearUpdate)
+        {
+            SendClearAllThreatToClients();
+            _needThreatClearUpdate = false;
+        }
+
+        if (!IsThreatListEmpty(true))
+            UpdateVictim();
+
         _updateTimer = THREAT_UPDATE_INTERVAL;
     }
     else
         _updateTimer -= tdiff;
+}
+
+void ThreatManager::ResetUpdateTimer()
+{
+    _updateTimer = THREAT_UPDATE_INTERVAL;
 }
 
 Unit* ThreatManager::GetCurrentVictim()
@@ -539,7 +553,7 @@ void ThreatManager::ClearAllThreat()
 {
     if (!_myThreatListEntries.empty())
     {
-        SendClearAllThreatToClients();
+        _needThreatClearUpdate = true;
         do
             _myThreatListEntries.begin()->second->UnregisterAndFree();
         while (!_myThreatListEntries.empty());
