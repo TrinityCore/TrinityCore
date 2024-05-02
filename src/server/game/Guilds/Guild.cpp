@@ -48,7 +48,7 @@ uint32 const EMBLEM_PRICE = 10 * GOLD;
 inline uint64 GetGuildBankTabPrice(uint8 tabId)
 {
     // these prices are in gold units, not copper
-    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000, 0, 0 };
+    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000 };
     ASSERT(tabId < GUILD_BANK_MAX_TABS);
 
     return tabPrices[tabId];
@@ -1628,16 +1628,11 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (tabId >= GUILD_BANK_MAX_TABS)
         return;
 
-    // Do not get money for bank tabs that the GM bought, we had to buy them already.
-    // This is just a speedup check, GetGuildBankTabPrice will return 0.
-    if (tabId < GUILD_BANK_MAX_TABS - 2) // 7th tab is actually the 6th
-    {
         int64 tabCost = GetGuildBankTabPrice(tabId) * GOLD;
         if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
             return;
 
         player->ModifyMoney(-tabCost);
-    }
 
     _CreateNewBankTab();
 
