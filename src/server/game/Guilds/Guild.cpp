@@ -3494,6 +3494,9 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
     if (!member) // Shouldn't happen, just in case
         return;
 
+    if (tabId >= _GetPurchasedTabsSize())
+        return;
+
     WorldPackets::Guild::GuildBankQueryResults packet;
 
     packet.Money = m_bankMoney;
