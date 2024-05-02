@@ -73,7 +73,7 @@ public:
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
         if (!titleInfo)
         {
-            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
+            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, *titleId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -84,7 +84,7 @@ public:
         target->SetTitle(titleInfo);
         target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->MaskID);
 
-        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, titleId, titleNameStr, tNameLink);
+        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, *titleId, titleNameStr, tNameLink);
 
         return true;
     }
@@ -106,7 +106,7 @@ public:
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
         if (!titleInfo)
         {
-            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
+            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, *titleId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -115,7 +115,7 @@ public:
         std::string titleNameStr = fmt::sprintf(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
-        handler->PSendSysMessage(LANG_TITLE_ADD_RES, titleId, titleNameStr, tNameLink);
+        handler->PSendSysMessage(LANG_TITLE_ADD_RES, *titleId, titleNameStr, tNameLink);
 
         return true;
     }
@@ -137,7 +137,7 @@ public:
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
         if (!titleInfo)
         {
-            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
+            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, *titleId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -147,7 +147,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
         std::string titleNameStr = fmt::sprintf(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
-        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, titleId, titleNameStr, tNameLink);
+        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, *titleId, titleNameStr, tNameLink);
 
         if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {
