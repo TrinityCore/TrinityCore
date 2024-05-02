@@ -444,7 +444,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 RankID = 0;
+            int32 RankID = 0;
             int32 RankOrder = 0;
             uint32 WithdrawGoldLimit = 0;
             uint32 Flags = 0;

@@ -188,8 +188,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     data.WriteBit(rosterMemberData.SorEligible);
     data.FlushBits();
 
-    data << rosterMemberData.DungeonScore;
-
     data.WriteString(rosterMemberData.Name);
     data.WriteString(rosterMemberData.Note);
     data.WriteString(rosterMemberData.OfficerNote);
@@ -328,12 +326,13 @@ void WorldPackets::Guild::GuildSetRankPermissions::Read()
         _worldPacket >> TabWithdrawItemLimit[i];
     }
 
+    _worldPacket >> OldFlags;
+
     _worldPacket.ResetBitPos();
     uint32 rankNameLen = _worldPacket.ReadBits(7);
 
     RankName = _worldPacket.ReadString(rankNameLen);
-
-    _worldPacket >> OldFlags;
+    
 }
 
 WorldPacket const* WorldPackets::Guild::GuildEventNewLeader::Write()
