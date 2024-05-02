@@ -95,6 +95,9 @@ class TC_GAME_API ThreatManager
         // called from Creature::Update (only creatures can have their own threat list)
         // should not be called from anywhere else
         void Update(uint32 tdiff);
+        // called from Creature::AtEngage
+        // should not be called from anywhere else
+        void ResetUpdateTimer();
 
         // never nullptr
         Unit* GetOwner() const { return _owner; }
@@ -197,6 +200,7 @@ class TC_GAME_API ThreatManager
         void PurgeThreatListRef(ObjectGuid const& guid);
 
         bool _needClientUpdate;
+        bool _needThreatClearUpdate;
         uint32 _updateTimer;
         std::unique_ptr<Heap> _sortedThreatList;
         std::unordered_map<ObjectGuid, ThreatReference*> _myThreatListEntries;
