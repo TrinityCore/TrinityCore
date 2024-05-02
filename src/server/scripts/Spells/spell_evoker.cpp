@@ -95,28 +95,29 @@ class spell_evo_azure_strike : public SpellScript
 // 381758 - Blessing of the Bronze (Bronze)
 class spell_evo_blessing_of_the_bronze : public SpellScript
 {
-    void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+    void RemoveInvalidTargets(std::list<WorldObject*>& targets) const
     {
         targets.remove_if([&](WorldObject const* target)
         {
-            Player const* player = target->ToPlayer();
-            int8 classEntry = player->GetClass();
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return true;
 
             switch (GetSpellInfo()->Id)
             {
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DK: return classEntry != CLASS_DEATH_KNIGHT;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DH: return classEntry != CLASS_DEMON_HUNTER;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DRUID: return classEntry != CLASS_DRUID;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_EVOKER: return classEntry != CLASS_EVOKER;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_HUNTER: return classEntry != CLASS_HUNTER;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MAGE: return classEntry != CLASS_MAGE;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MONK: return classEntry != CLASS_MONK;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PALADIN: return classEntry != CLASS_PALADIN;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PRIEST: return classEntry != CLASS_PRIEST;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_ROGUE: return classEntry != CLASS_ROGUE;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_SHAMAN: return classEntry != CLASS_SHAMAN;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK: return classEntry != CLASS_WARLOCK;
-                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR: return classEntry != CLASS_WARRIOR;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DK: return unitTarget->GetClass() != CLASS_DEATH_KNIGHT;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DH: return unitTarget->GetClass() != CLASS_DEMON_HUNTER;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DRUID: return unitTarget->GetClass() != CLASS_DRUID;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_EVOKER: return unitTarget->GetClass() != CLASS_EVOKER;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_HUNTER: return unitTarget->GetClass() != CLASS_HUNTER;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MAGE: return unitTarget->GetClass() != CLASS_MAGE;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MONK: return unitTarget->GetClass() != CLASS_MONK;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PALADIN: return unitTarget->GetClass() != CLASS_PALADIN;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PRIEST: return unitTarget->GetClass() != CLASS_PRIEST;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_ROGUE: return unitTarget->GetClass() != CLASS_ROGUE;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_SHAMAN: return unitTarget->GetClass() != CLASS_SHAMAN;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK: return unitTarget->GetClass() != CLASS_WARLOCK;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR: return unitTarget->GetClass() != CLASS_WARRIOR;
                 default:
                     break;
             }

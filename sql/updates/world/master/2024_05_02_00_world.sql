@@ -1,4 +1,4 @@
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (381732, 381741, 381746, 381748, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758);
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_evo_blessing_of_the_bronze';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (381732, 'spell_evo_blessing_of_the_bronze'),
 (381741, 'spell_evo_blessing_of_the_bronze'),
