@@ -43,7 +43,7 @@ namespace Trinity
         }
         catch (std::exception const& formatError)
         {
-            return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+            return fmt::format("An error occurred formatting string \"{}\" : {}", FormatStringView(fmt), formatError.what());
         }
     }
 
@@ -56,7 +56,7 @@ namespace Trinity
         }
         catch (std::exception const& formatError)
         {
-            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", FormatStringView(fmt), formatError.what());
         }
     }
 
@@ -118,7 +118,7 @@ struct fmt::formatter<Optional<T>, Char> : formatter<T, Char>
         if (value.has_value())
             return formatter<T, Char>::format(*value, ctx);
 
-        return formatter<std::string_view, Char>().format("(nullopt)", ctx);
+        return formatter<string_view, Char>().format("(nullopt)", ctx);
     }
 };
 
