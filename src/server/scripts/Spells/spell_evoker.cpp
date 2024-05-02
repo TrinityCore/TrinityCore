@@ -32,18 +32,31 @@
 
 enum EvokerSpells
 {
-    SPELL_EVOKER_BLAST_FURNACE             = 375510,
-    SPELL_EVOKER_ENERGIZING_FLAME          = 400006,
-    SPELL_EVOKER_FIRE_BREATH_DAMAGE        = 357209,
-    SPELL_EVOKER_GLIDE_KNOCKBACK           = 358736,
-    SPELL_EVOKER_HOVER                     = 358267,
-    SPELL_EVOKER_LIVING_FLAME              = 361469,
-    SPELL_EVOKER_LIVING_FLAME_DAMAGE       = 361500,
-    SPELL_EVOKER_LIVING_FLAME_HEAL         = 361509,
-    SPELL_EVOKER_PERMEATING_CHILL_TALENT   = 370897,
-    SPELL_EVOKER_PYRE_DAMAGE               = 357212,
-    SPELL_EVOKER_SCOURING_FLAME            = 378438,
-    SPELL_EVOKER_SOAR_RACIAL               = 369536
+    SPELL_EVOKER_BLAST_FURNACE                  = 375510,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DK      = 381732,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DH      = 381741,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DRUID   = 381746,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_EVOKER  = 381748,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_HUNTER  = 381749,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MAGE    = 381750,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MONK    = 381751,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PALADIN = 381752,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PRIEST  = 381753,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_ROGUE   = 381754,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_SHAMAN  = 381756,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
+    SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
+    SPELL_EVOKER_ENERGIZING_FLAME               = 400006,
+    SPELL_EVOKER_FIRE_BREATH_DAMAGE             = 357209,
+    SPELL_EVOKER_GLIDE_KNOCKBACK                = 358736,
+    SPELL_EVOKER_HOVER                          = 358267,
+    SPELL_EVOKER_LIVING_FLAME                   = 361469,
+    SPELL_EVOKER_LIVING_FLAME_DAMAGE            = 361500,
+    SPELL_EVOKER_LIVING_FLAME_HEAL              = 361509,
+    SPELL_EVOKER_PERMEATING_CHILL_TALENT        = 370897,
+    SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
+    SPELL_EVOKER_SCOURING_FLAME                 = 378438,
+    SPELL_EVOKER_SOAR_RACIAL                    = 369536
 };
 
 enum EvokerSpellLabels
@@ -64,6 +77,57 @@ class spell_evo_azure_strike : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_azure_strike::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
+// 381732 - Blessing of the Bronze (Bronze)
+// 381741 - Blessing of the Bronze (Bronze)
+// 381746 - Blessing of the Bronze (Bronze)
+// 381748 - Blessing of the Bronze (Bronze)
+// 381749 - Blessing of the Bronze (Bronze)
+// 381750 - Blessing of the Bronze (Bronze)
+// 381751 - Blessing of the Bronze (Bronze)
+// 381752 - Blessing of the Bronze (Bronze)
+// 381753 - Blessing of the Bronze (Bronze)
+// 381754 - Blessing of the Bronze (Bronze)
+// 381756 - Blessing of the Bronze (Bronze)
+// 381757 - Blessing of the Bronze (Bronze)
+// 381758 - Blessing of the Bronze (Bronze)
+class spell_evo_blessing_of_the_bronze : public SpellScript
+{
+    void RemoveInvalidTargets(std::list<WorldObject*>& targets) const
+    {
+        targets.remove_if([&](WorldObject const* target)
+        {
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return true;
+
+            switch (GetSpellInfo()->Id)
+            {
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DK: return unitTarget->GetClass() != CLASS_DEATH_KNIGHT;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DH: return unitTarget->GetClass() != CLASS_DEMON_HUNTER;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DRUID: return unitTarget->GetClass() != CLASS_DRUID;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_EVOKER: return unitTarget->GetClass() != CLASS_EVOKER;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_HUNTER: return unitTarget->GetClass() != CLASS_HUNTER;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MAGE: return unitTarget->GetClass() != CLASS_MAGE;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_MONK: return unitTarget->GetClass() != CLASS_MONK;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PALADIN: return unitTarget->GetClass() != CLASS_PALADIN;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_PRIEST: return unitTarget->GetClass() != CLASS_PRIEST;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_ROGUE: return unitTarget->GetClass() != CLASS_ROGUE;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_SHAMAN: return unitTarget->GetClass() != CLASS_SHAMAN;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK: return unitTarget->GetClass() != CLASS_WARLOCK;
+                case SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR: return unitTarget->GetClass() != CLASS_WARRIOR;
+                default:
+                    break;
+            }
+            return true;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_blessing_of_the_bronze::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
     }
 };
 
@@ -302,6 +366,7 @@ class spell_evo_scouring_flame : public SpellScript
 void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
+    RegisterSpellScript(spell_evo_blessing_of_the_bronze);
     RegisterSpellScript(spell_evo_charged_blast);
     RegisterSpellScript(spell_evo_fire_breath);
     RegisterSpellScript(spell_evo_fire_breath_damage);
