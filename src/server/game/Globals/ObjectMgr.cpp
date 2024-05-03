@@ -1535,7 +1535,8 @@ void ObjectMgr::LoadEquipmentTemplates()
                 continue;
             }
 
-            if (!sDB2Manager.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId))
+            // AppearanceModId 0 is always valid
+            if (equipmentInfo.Items[i].AppearanceModId && !sDB2Manager.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId))
             {
                 TC_LOG_ERROR("sql.sql", "Unknown item appearance for (ID={}, AppearanceModID={}) pair in creature_equip_template.ItemID{} creature_equip_template.AppearanceModID{} "
                     "for CreatureID = {} and ID={}, forced to default.",
