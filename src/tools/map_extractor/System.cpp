@@ -310,7 +310,7 @@ void ReadMapDBC()
         }
     }
 
-    map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
+    std::erase_if(map_ids, [](MapEntry const& map) { return !map.WdtFileDataId; });
 
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
