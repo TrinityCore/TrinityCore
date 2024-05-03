@@ -2055,27 +2055,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     }
                 }
 
-                for (uint8 slot = 0; slot < MAX_EQUIPMENT_ITEMS; slot++)
+                auto isValidEquipmentSlot = [&](uint32 itemEntry, uint8 slot)
                 {
-                    uint32 itemEntry = 0;
-                    switch (slot)
-                    {
-                        case 0:
-                            itemEntry = e.action.equip.slot1;
-                            break;
-                        case 1:
-                            itemEntry = e.action.equip.slot2;
-                            break;
-                        case 2:
-                            itemEntry = e.action.equip.slot3;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (!itemEntry)
-                        continue;
-
                     ItemEntry const* dbcItem = sItemStore.LookupEntry(itemEntry);
                     if (!dbcItem)
                     {
@@ -2088,7 +2069,18 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses item {} (slot {}) not equipable in a hand for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
                         return false;
                     }
-                }
+
+                    return true;
+                };
+
+                if (e.action.equip.slot1 && !isValidEquipmentSlot(e.action.equip.slot1, 0))
+                    return false;
+
+                if (e.action.equip.slot2 && !isValidEquipmentSlot(e.action.equip.slot2, 1))
+                    return false;
+
+                if (e.action.equip.slot3 && !isValidEquipmentSlot(e.action.equip.slot3, 2))
+                    return false;
             }
             break;
         }
