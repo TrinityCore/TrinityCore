@@ -25,6 +25,7 @@
 #include <functional>
 #include <list>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <unordered_set>
@@ -429,7 +430,7 @@ namespace std
 
 namespace fmt
 {
-inline namespace v9
+inline namespace v10
 {
 template <typename T, typename Char, typename Enable>
 struct formatter;
@@ -445,7 +446,7 @@ struct formatter<ObjectGuid, char, void>
             return begin;
 
         if (*begin != '}')
-            ctx.on_error("invalid type specifier");
+            throw std::invalid_argument("invalid type specifier");
 
         return begin;
     }
