@@ -415,6 +415,20 @@ enum InventoryType : uint8
 
 #define MAX_INVTYPE                               35
 
+constexpr std::array<InventoryType, 10> InventoryTypesEquipable =
+{
+    INVTYPE_WEAPON,
+    INVTYPE_SHIELD,
+    INVTYPE_RANGED,
+    INVTYPE_2HWEAPON,
+    INVTYPE_WEAPONMAINHAND,
+    INVTYPE_WEAPONOFFHAND,
+    INVTYPE_HOLDABLE,
+    INVTYPE_THROWN,
+    INVTYPE_RANGEDRIGHT,
+    INVTYPE_PROFESSION_TOOL
+};
+
 enum ItemClass : uint8
 {
     ITEM_CLASS_CONSUMABLE                       = 0,

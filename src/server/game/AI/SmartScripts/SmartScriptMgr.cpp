@@ -2054,6 +2054,33 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                     }
                 }
+
+                auto isValidEquipmentSlot = [&](uint32 itemEntry, uint8 slot)
+                {
+                    ItemEntry const* dbcItem = sItemStore.LookupEntry(itemEntry);
+                    if (!dbcItem)
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses unknown item {} (slot {}) for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
+                        return false;
+                    }
+
+                    if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses item {} (slot {}) not equipable in a hand for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
+                        return false;
+                    }
+
+                    return true;
+                };
+
+                if (e.action.equip.slot1 && !isValidEquipmentSlot(e.action.equip.slot1, 0))
+                    return false;
+
+                if (e.action.equip.slot2 && !isValidEquipmentSlot(e.action.equip.slot2, 1))
+                    return false;
+
+                if (e.action.equip.slot3 && !isValidEquipmentSlot(e.action.equip.slot3, 2))
+                    return false;
             }
             break;
         }
