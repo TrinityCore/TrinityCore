@@ -1857,8 +1857,9 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, ObjectGuid guid, bool 
 
         CharacterDatabaseTransaction trans(nullptr);
         member->ChangeRank(trans, newRankId);
+
         _LogEvent(demote ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, player->GetGUID().GetCounter(), member->GetGUID().GetCounter(), AsUnderlyingType(newRankId));
-        //_BroadcastEvent(demote ? GE_DEMOTION : GE_PROMOTION, ObjectGuid::Empty, player->GetName().c_str(), name.c_str(), _GetRankName(newRankId).c_str());
+        SendGuildRanksUpdate(player->GetGUID(), guid, oldRank->GetId(), newRankId);
     }
 }
 
@@ -1896,7 +1897,10 @@ void Guild::HandleSetMemberRank(WorldSession* session, ObjectGuid targetGuid, Ob
         return;
     }
 
-    SendGuildRanksUpdate(setterGuid, targetGuid, newRank->GetId());
+    CharacterDatabaseTransaction trans(nullptr);
+    member->ChangeRank(trans, newRank->GetId());
+
+    SendGuildRanksUpdate(setterGuid, targetGuid, oldRank->GetId(), newRank->GetId());
 }
 
 void Guild::HandleAddNewRank(WorldSession* session, std::string_view name)
@@ -3567,7 +3571,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
     session->SendPacket(packet.Write());
 }
 
-void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, GuildRankId rank)
+void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, GuildRankId oldRank, GuildRankId newRank)
 {
     Member* member = GetMember(targetGuid);
     ASSERT(member);
@@ -3575,15 +3579,12 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, G
     WorldPackets::Guild::GuildSendRankChange rankChange;
     rankChange.Officer = setterGuid;
     rankChange.Other = targetGuid;
-    rankChange.RankID = AsUnderlyingType(rank);
-    rankChange.Promote = (rank < member->GetRankId());
+    rankChange.RankID = AsUnderlyingType(newRank);
+    rankChange.Promote = (newRank < oldRank);
     BroadcastPacket(rankChange.Write());
 
-    CharacterDatabaseTransaction trans;
-    member->ChangeRank(trans, rank);
-
     TC_LOG_DEBUG("network", "SMSG_GUILD_RANKS_UPDATE [Broadcast] Target: {}, Issuer: {}, RankId: {}",
-        targetGuid.ToString(), setterGuid.ToString(), uint32(rank));
+        targetGuid.ToString(), setterGuid.ToString(), uint32(newRank));
 }
 
 void Guild::ResetTimes(bool weekly)
