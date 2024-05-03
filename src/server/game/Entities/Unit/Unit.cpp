@@ -7432,7 +7432,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 
 
     //blessing of light fix
-    Aura* blessingOfLight = owner->GetAuraOfRankedSpell(19977);
+    Aura* blessingOfLight = victim->GetAuraOfRankedSpell(19977);
     if (blessingOfLight)
     {
         //flash of light
