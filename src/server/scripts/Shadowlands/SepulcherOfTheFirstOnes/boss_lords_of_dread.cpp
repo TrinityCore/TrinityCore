@@ -1358,9 +1358,9 @@ class spell_lords_of_dread_transformation_visuals : public AuraScript
     }
 };
 
-// 360166 - Lords of Dread Energy Regenration
-// 360167 - Lords of Dread Energy Regenration
-class spell_lords_of_dread_energy_regenration : public AuraScript
+// 360166 - Lords of Dread Energy Regeneration
+// 360167 - Lords of Dread Energy Regeneration
+class spell_lords_of_dread_energy_regeneration : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1392,7 +1392,7 @@ class spell_lords_of_dread_energy_regenration : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_lords_of_dread_energy_regenration::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_lords_of_dread_energy_regeneration::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
 private:
@@ -2633,7 +2633,7 @@ void AddSC_boss_lords_of_dread()
     RegisterAreaTriggerAI(at_lords_of_dread_introduction);
     RegisterSpellScript(spell_lords_of_dread_mimicking_disguise);
     RegisterSpellScript(spell_lords_of_dread_transformation_visuals);
-    RegisterSpellScript(spell_lords_of_dread_energy_regenration);
+    RegisterSpellScript(spell_lords_of_dread_energy_regeneration);
     RegisterSpellScript(spell_malganis_leeching_claws);
     RegisterSpellScript(spell_malganis_cloud_of_carrion);
     RegisterSpellScript(spell_malganis_cloud_of_carrion_init);
