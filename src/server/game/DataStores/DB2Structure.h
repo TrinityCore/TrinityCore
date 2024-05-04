@@ -2679,6 +2679,13 @@ struct LiquidTypeEntry
     std::array<float, 4> Coefficient;
 };
 
+struct LocationEntry
+{
+    uint32 ID;
+    DBCPosition3D Pos;
+    std::array<float, 3> Rot;
+};
+
 #define MAX_LOCK_CASE 8
 
 struct LockEntry
@@ -2975,6 +2982,26 @@ struct ParagonReputationEntry
     int32 FactionID;
     int32 LevelThreshold;
     int32 QuestID;
+};
+
+struct PathEntry
+{
+    uint32 ID;
+    uint8 Type;
+    uint8 SplineType;
+    uint8 Red;
+    uint8 Green;
+    uint8 Blue;
+    uint8 Alpha;
+    uint8 Flags;
+};
+
+struct PathNodeEntry
+{
+    uint32 ID;
+    uint16 PathID;
+    int16 Sequence;
+    int32 LocationID;
 };
 
 struct PhaseEntry

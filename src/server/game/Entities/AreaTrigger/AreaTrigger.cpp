@@ -705,7 +705,7 @@ void AreaTrigger::SearchUnitInPolygon(std::vector<Unit*>& targetList)
     {
         return unit->GetPositionZ() < minZ
             || unit->GetPositionZ() > maxZ
-            || !CheckIsInPolygon2D(unit);
+            || !unit->IsInPolygon2D(*this, _polygonVertices);
     });
 }
 
@@ -917,75 +917,6 @@ void AreaTrigger::UpdatePolygonVertices()
     }
 
     _verticesUpdatePreviousOrientation = newOrientation;
-}
-
-bool AreaTrigger::CheckIsInPolygon2D(Position const* pos) const
-{
-    float testX = pos->GetPositionX();
-    float testY = pos->GetPositionY();
-
-    //this method uses the ray tracing algorithm to determine if the point is in the polygon
-    bool locatedInPolygon = false;
-
-    for (std::size_t vertex = 0; vertex < _polygonVertices.size(); ++vertex)
-    {
-        std::size_t nextVertex;
-
-        //repeat loop for all sets of points
-        if (vertex == (_polygonVertices.size() - 1))
-        {
-            //if i is the last vertex, let j be the first vertex
-            nextVertex = 0;
-        }
-        else
-        {
-            //for all-else, let j=(i+1)th vertex
-            nextVertex = vertex + 1;
-        }
-
-        float vertX_i = GetPositionX() + _polygonVertices[vertex].GetPositionX();
-        float vertY_i = GetPositionY() + _polygonVertices[vertex].GetPositionY();
-        float vertX_j = GetPositionX() + _polygonVertices[nextVertex].GetPositionX();
-        float vertY_j = GetPositionY() + _polygonVertices[nextVertex].GetPositionY();
-
-        // following statement checks if testPoint.Y is below Y-coord of i-th vertex
-        bool belowLowY = vertY_i > testY;
-        // following statement checks if testPoint.Y is below Y-coord of i+1-th vertex
-        bool belowHighY = vertY_j > testY;
-
-        /* following statement is true if testPoint.Y satisfies either (only one is possible)
-        -->(i).Y < testPoint.Y < (i+1).Y        OR
-        -->(i).Y > testPoint.Y > (i+1).Y
-
-        (Note)
-        Both of the conditions indicate that a point is located within the edges of the Y-th coordinate
-        of the (i)-th and the (i+1)- th vertices of the polygon. If neither of the above
-        conditions is satisfied, then it is assured that a semi-infinite horizontal line draw
-        to the right from the testpoint will NOT cross the line that connects vertices i and i+1
-        of the polygon
-        */
-        bool withinYsEdges = belowLowY != belowHighY;
-
-        if (withinYsEdges)
-        {
-            // this is the slope of the line that connects vertices i and i+1 of the polygon
-            float slopeOfLine = (vertX_j - vertX_i) / (vertY_j - vertY_i);
-
-            // this looks up the x-coord of a point lying on the above line, given its y-coord
-            float pointOnLine = (slopeOfLine* (testY - vertY_i)) + vertX_i;
-
-            //checks to see if x-coord of testPoint is smaller than the point on the line with the same y-coord
-            bool isLeftToLine = testX < pointOnLine;
-
-            if (isLeftToLine)
-            {
-                //this statement changes true to false (and vice-versa)
-                locatedInPolygon = !locatedInPolygon;
-            }//end if (isLeftToLine)
-        }//end if (withinYsEdges
-    }
-
-    return locatedInPolygon;
 }
 
 bool AreaTrigger::HasOverridePosition() const
