@@ -1197,6 +1197,8 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        std::vector<Position> GetVerticesForAreaTrigger(AreaTriggerEntry const* areaTrigger) const;
+
         bool IsTavernAreaTrigger(uint32 Trigger_ID) const
         {
             return _tavernAreaTriggerStore.find(Trigger_ID) != _tavernAreaTriggerStore.end();
