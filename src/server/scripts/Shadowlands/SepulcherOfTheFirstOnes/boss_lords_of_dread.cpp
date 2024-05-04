@@ -277,7 +277,7 @@ enum LordsOfDreadTexts
     SAY_MALGANIS_ANNOUNCE_ENRAGE            = 7,
     SAY_MALGANIS_ENRAGE                     = 8,
 
-    SAY_KINTESSA_AGGRO                      = 0,
+    //SAY_KINTESSA_AGGRO                      = 0,
     SAY_KINTESSA_SLAY                       = 1,
     SAY_FEARFUL_TREPIDATION                 = 2,
     SAY_INFILTRATION_OF_DREAD               = 3,
@@ -337,7 +337,9 @@ Position const KintessaVisuals[14] =
    { -5741.0156f, -4105.48300f, 154.11404f  }
 };
 
-static void ForDreadlords(InstanceScript* instance, std::function<void(Creature* dreadlord)> func)
+namespace
+{
+void ForDreadlords(InstanceScript* instance, std::function<void(Creature* dreadlord)> func)
 {
     for (uint32 data = DATA_MALGANIS; data <= DATA_KINTESSA; data++)
     {
@@ -346,55 +348,99 @@ static void ForDreadlords(InstanceScript* instance, std::function<void(Creature*
     }
 }
 
+void ClearLordsOfDreadDebuffs(InstanceScript* instance)
+{
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OPENED_VEINS);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANGUISHING_STRIKE_DEBUFF);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOUD_OF_CARRION_AREATRIGGER_DEBUFF);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOUD_OF_CARRION_DEBUFF_DAMAGE);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARFUL_TREPIDATION_CIRCLE);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARANOIA);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARANOIA_STUN);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEEDBACK);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BURSTING_DREAD_FEAR);
+    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNSETTLING_DREAMS);
+}
+
+void StartEncounter(InstanceScript* instance)
+{
+    if (instance->GetBossState(DATA_LORDS_OF_DREAD) == IN_PROGRESS)
+        return;
+
+    instance->SetBossState(DATA_LORDS_OF_DREAD, IN_PROGRESS);
+    instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 1);
+
+    bool doAggroTalk = roll_chance_i(50);
+    ForDreadlords(instance, [instance, &doAggroTalk](Creature* dreadlord)
+    {
+        if (doAggroTalk)
+        {
+            dreadlord->AI()->Talk(SAY_MALGANIS_AGGRO);
+            doAggroTalk = false;
+        }
+        else
+            doAggroTalk = true;
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, dreadlord);
+        dreadlord->AI()->DoZoneInCombat(); // @TODO: ovah did changes here, i forgot which
+    });
+}
+
+void FailEncounter(InstanceScript* instance, EvadeReason why)
+{
+    if (instance->GetBossState(DATA_LORDS_OF_DREAD) == FAIL)
+        return;
+
+    instance->SetBossState(DATA_LORDS_OF_DREAD, FAIL);
+    instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
+    ClearLordsOfDreadDebuffs(instance);
+
+    ForDreadlords(instance, [instance, why](Creature* dreadlord)
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, dreadlord);
+        dreadlord->AI()->EnterEvadeMode(why);
+    });
+}
+
+void DoneEncounter(InstanceScript* instance)
+{
+    if (instance->GetBossState(DATA_LORDS_OF_DREAD) == DONE)
+        return;
+
+    bool bothDead = true;
+    ForDreadlords(instance, [&bothDead](Creature* dreadlord)
+    {
+        if (dreadlord->IsAlive())
+            bothDead = false;
+    });
+
+    if (!bothDead)
+        return;
+
+    instance->SetBossState(DATA_LORDS_OF_DREAD, DONE);
+    instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_COMPLETED, 1);
+    instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
+    ClearLordsOfDreadDebuffs(instance);
+
+    ForDreadlords(instance, [instance](Creature* dreadlord)
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, dreadlord);
+    });
+}
+}
+
 struct LordsOfDreadAI : public BossAI
 {
     LordsOfDreadAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId) { }
-
-    void ClearLordsOfDreadDebuffs()
-    {
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OPENED_VEINS);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANGUISHING_STRIKE_DEBUFF);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOUD_OF_CARRION_AREATRIGGER_DEBUFF);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOUD_OF_CARRION_DEBUFF_DAMAGE);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARFUL_TREPIDATION_CIRCLE);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARANOIA);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARANOIA_STUN);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEEDBACK);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BURSTING_DREAD_FEAR);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNSETTLING_DREAMS);
-    }
-
-    void EndLordsOfDreadEncounterIfPossible()
-    {
-        Creature* malganis = instance->GetCreature(DATA_MALGANIS);
-        Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
-
-        if (!malganis || !kintessa)
-            return;
-
-        if (!malganis->IsAlive() && !kintessa->IsAlive())
-        {
-            events.Reset();
-            summons.DespawnAll();
-            instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_COMPLETED, 1);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->SetBossState(DATA_LORDS_OF_DREAD, DONE);
-            _JustDied();
-        }
-    }
 
     void Reset() override
     {
         events.Reset();
         summons.DespawnAll();
-        instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        instance->SetBossState(DATA_LORDS_OF_DREAD, NOT_STARTED);
     }
 
     void JustAppeared() override
     {
-        instance->SetBossState(DATA_LORDS_OF_DREAD, NOT_STARTED);
         scheduler.ClearValidator();
         scheduler.Schedule(5s, [this](TaskContext task)
         {
@@ -405,17 +451,10 @@ struct LordsOfDreadAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        ForDreadlords(instance, [this](Creature* dreadlord)
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, dreadlord);
-            DoZoneInCombat(dreadlord);
-        });
+        StartEncounter(instance);
 
         if (IsLFR())
             DoCast(GetOtherDreadlord(), SPELL_LIFE_LINK, true);
-
-        instance->SetBossState(DATA_LORDS_OF_DREAD, IN_PROGRESS);
-        instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 1);
     }
 
     void UpdateAI(uint32 diff) override
@@ -423,29 +462,21 @@ struct LordsOfDreadAI : public BossAI
         scheduler.Update(diff);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
-        ClearLordsOfDreadDebuffs();
+        FailEncounter(instance, why);
+
+        events.Reset();
         summons.DespawnAll();
         _DespawnAtEvade();
-
-        ForDreadlords(instance, [](Creature* dreadlord)
-        {
-            dreadlord->AI()->EnterEvadeMode();
-        });
-
-        instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
-        instance->SetBossState(DATA_LORDS_OF_DREAD, FAIL);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         events.Reset();
         summons.DespawnAll();
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_COMPLETED, 1);
-        instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
+
+        DoneEncounter(instance);
     }
 
 protected:
@@ -481,13 +512,6 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
     void JustEngagedWith(Unit* who) override
     {
         DoCastSelf(SPELL_DECAY_ENERGY, true);
-        if (roll_chance_i(50))
-            Talk(SAY_MALGANIS_AGGRO);
-        else
-        {
-            if (Creature* kintessa = GetOtherDreadlord())
-                kintessa->AI()->Talk(SAY_KINTESSA_AGGRO);
-        }
 
         events.ScheduleEvent(EVENT_MANIFEST_SHADOWS, 13s);
         events.ScheduleEvent(EVENT_LEECHING_CLAWS, 15500ms);
@@ -567,7 +591,7 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
 
     void UpdateAI(uint32 diff) override
     {
-        scheduler.Update(diff);
+        LordsOfDreadAI::UpdateAI(diff);
 
         if (!UpdateVictim())
             return;
@@ -652,11 +676,8 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
 
     void StartRandomResetConversation()
     {
-        if (me->GetEntry() == BOSS_KINTESSA)
-        {
-            int randomConversation = Trinity::Containers::SelectRandomContainerElement(ResetConversations);
-            Conversation::CreateConversation(randomConversation, me, me->GetPosition(), ObjectGuid::Empty, nullptr, true);
-        }
+        int randomConversation = Trinity::Containers::SelectRandomContainerElement(ResetConversations);
+        Conversation::CreateConversation(randomConversation, me, me->GetPosition(), ObjectGuid::Empty, nullptr, true);
     }
 
     void JustAppeared() override
@@ -829,7 +850,7 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
 
     void UpdateAI(uint32 diff) override
     {
-        scheduler.Update(diff);
+        LordsOfDreadAI::UpdateAI(diff);
 
         if (!UpdateVictim())
             return;
