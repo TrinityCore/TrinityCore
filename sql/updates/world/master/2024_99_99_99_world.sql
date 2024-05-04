@@ -31,8 +31,8 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 (@OGUID+5, 0, 0, 0.866025209426879882, 0.500000298023223876, 0, 0); -- Massive Door
 
 -- Creature Templates
-UPDATE `creature_template` SET `ScriptName`='boss_malganis', `faction`=16, `speed_run`=1.285714268684387207, `BaseAttackTime`=1500, `unit_flags`=64 WHERE `entry`=181398; -- Mal'Ganis
-UPDATE `creature_template` SET `ScriptName`='boss_kintessa', `faction`=16, `speed_run`=1.285714268684387207, `BaseAttackTime`=1500, `unit_flags`=64 WHERE `entry`=181399; -- Kin'tessa
+UPDATE `creature_template` SET `ScriptName`='boss_lords_of_dread_malganis', `faction`=16, `speed_run`=1.285714268684387207, `BaseAttackTime`=1500, `unit_flags`=64 WHERE `entry`=181398; -- Mal'Ganis
+UPDATE `creature_template` SET `ScriptName`='boss_lords_of_dread_kintessa', `faction`=16, `speed_run`=1.285714268684387207, `BaseAttackTime`=1500, `unit_flags`=64 WHERE `entry`=181399; -- Kin'tessa
 UPDATE `creature_template` SET `faction`=190, `speed_run`=1.571428537368774414, `BaseAttackTime`=1500, `unit_flags`=33554752, `unit_flags3`=1, `VehicleId`=7660 WHERE `entry`=183906; -- Simple Task
 UPDATE `creature_template` SET `faction`=190, `npcflag`=16777216, `speed_run`=1.571428537368774414, `BaseAttackTime`=1500, `unit_flags`=832, `unit_flags2`=67108864, `unit_flags3`=16777217 WHERE `entry` IN (183907, 183910, 183909, 183908); -- Strange Device
 UPDATE `creature_template` SET `faction`=16, `speed_run`=1.571428537368774414, `BaseAttackTime`=1500, `unit_flags`=33554752, `unit_flags3`=1, `VehicleId`=7614 WHERE `entry`=182039; -- Swarm of Shadows

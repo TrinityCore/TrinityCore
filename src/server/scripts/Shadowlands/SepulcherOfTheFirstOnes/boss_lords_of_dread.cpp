@@ -399,7 +399,7 @@ struct LordsOfDreadAI : public BossAI
         scheduler.Schedule(5s, [this](TaskContext task)
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-            task.Repeat(Milliseconds(urand(4000, 10000)));
+            task.Repeat(4s, 10s);
         });
     }
 
@@ -409,9 +409,11 @@ struct LordsOfDreadAI : public BossAI
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, dreadlord);
             DoZoneInCombat(dreadlord);
-            if (IsLFR())
-                dreadlord->CastSpell(dreadlord, SPELL_LIFE_LINK, true);
         });
+
+        if (IsLFR())
+            DoCast(GetOtherDreadlord(), SPELL_LIFE_LINK, true);
+
         instance->SetBossState(DATA_LORDS_OF_DREAD, IN_PROGRESS);
         instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 1);
     }
@@ -454,9 +456,9 @@ protected:
 };
 
 // 181398 - Mal'Ganis
-struct boss_malganis : public LordsOfDreadAI
+struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
 {
-    struct boss_malganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _retreatsCount(0), _carrionCount(0) { }
+    struct boss_lords_of_dread_mal_ganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _retreatsCount(0), _carrionCount(0) { }
 
     void CancelMalganisEventsScheduleAfterParanoia()
     {
@@ -634,9 +636,9 @@ private:
 };
 
 // 181399 - Kin'tessa
-struct boss_kintessa : public LordsOfDreadAI
+struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
 {
-    struct boss_kintessa(Creature* creature) : LordsOfDreadAI(creature, DATA_KINTESSA), _essencesReturned(0), _swarmCount(0) { }
+    struct boss_lords_of_dread_kintessa(Creature* creature) : LordsOfDreadAI(creature, DATA_KINTESSA), _essencesReturned(0), _swarmCount(0) { }
 
     static constexpr uint32 ResetConversations[] =
     {
@@ -2598,8 +2600,8 @@ void AddSC_boss_lords_of_dread()
 {
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_overthrown_protector_malganis);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_overthrown_protector_kintessa);
-    RegisterSepulcherOfTheFirstOnesCreatureAI(boss_malganis);
-    RegisterSepulcherOfTheFirstOnesCreatureAI(boss_kintessa);
+    RegisterSepulcherOfTheFirstOnesCreatureAI(boss_lords_of_dread_mal_ganis);
+    RegisterSepulcherOfTheFirstOnesCreatureAI(boss_lords_of_dread_kintessa);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_inchoate_shadow);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_slumber_cloud);
 
