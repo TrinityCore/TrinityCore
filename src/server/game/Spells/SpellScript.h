@@ -238,6 +238,8 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_CALC_HEALING,
     SPELL_SCRIPT_HOOK_ON_PRECAST,
     SPELL_SCRIPT_HOOK_CALC_CAST_TIME,
+    SPELL_SCRIPT_HOOK_EMPOWER_STAGE_COMPLETED,
+    SPELL_SCRIPT_HOOK_EMPOWER_COMPLETED,
 };
 
 #define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT_HIT
@@ -785,6 +787,40 @@ public:
         SafeWrapperType _safeWrapper;
     };
 
+    class EmpowerStageCompletedHandler final
+    {
+    public:
+        using EmpowerStageFnType = void(SpellScript::*)(int32);
+
+        using SafeWrapperType = void(*)(SpellScript* spellScript, EmpowerStageFnType callImpl, int32 completedStagesCount);
+
+        template<typename ScriptFunc>
+        explicit EmpowerStageCompletedHandler(ScriptFunc handler)
+        {
+            using ScriptClass = GetScriptClass_t<ScriptFunc>;
+
+            static_assert(sizeof(EmpowerStageFnType) >= sizeof(ScriptFunc));
+            static_assert(alignof(EmpowerStageFnType) >= alignof(ScriptFunc));
+
+            static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, int32>,
+                "EmpowerStageCompleted/EmpowerCompleted signature must be \"void HandleEmpowerStageCompleted(int32 completedStagesCount)\"");
+
+            _callImpl = reinterpret_cast<EmpowerStageFnType>(handler);
+            _safeWrapper = [](SpellScript* spellScript, EmpowerStageFnType callImpl, int32 completedStagesCount) -> void
+            {
+                return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl))(completedStagesCount);
+            };
+        }
+
+        void Call(SpellScript* spellScript, int32 completedStagesCount) const
+        {
+            return _safeWrapper(spellScript, _callImpl, completedStagesCount);
+        }
+    private:
+        EmpowerStageFnType _callImpl;
+        SafeWrapperType _safeWrapper;
+    };
+
      // left for custom compatibility only, DO NOT USE
     #define PrepareSpellScript(CLASSNAME)
 
@@ -888,6 +924,16 @@ public:
     HookList<OnCalculateResistAbsorbHandler> OnCalculateResistAbsorb;
     #define SpellOnResistAbsorbCalculateFn(F) OnCalculateResistAbsorbHandler(&F)
 
+    // example: OnEmpowerStageCompleted += SpellOnEmpowerStageCompletedFn(class::function);
+    // where function is void function(int32 completedStages)
+    HookList<EmpowerStageCompletedHandler> OnEmpowerStageCompleted;
+    #define SpellOnEmpowerStageCompletedFn(F) EmpowerStageCompletedHandler(&F)
+
+    // example: OnEmpowerCompleted += SpellOnEmpowerCompletedFn(class::function);
+    // where function is void function(int32 completedStages)
+    HookList<EmpowerStageCompletedHandler> OnEmpowerCompleted;
+    #define SpellOnEmpowerCompletedFn(F) EmpowerStageCompletedHandler(&F)
+
     // hooks are executed in following order, at specified event of spell:
     // 1. OnPrecast - executed during spell preparation (before cast bar starts)
     // 2. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
@@ -908,6 +954,8 @@ public:
     // 14. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
     // 15. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
     // 16. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
+    // 17. OnEmpowerStageCompleted - executed when empowered spell completes each stage
+    // 18. OnEmpowerCompleted - executed when empowered spell is released
 
     // this hook is only executed after a successful dispel of any aura
     // OnEffectSuccessfulDispel - executed just after effect successfully dispelled aura(s)

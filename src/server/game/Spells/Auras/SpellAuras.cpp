@@ -883,8 +883,14 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
         maxDuration = -1;
 
     // IsPermanent() checks max duration (which we are supposed to calculate here)
-    if (maxDuration != -1 && modOwner)
-        modOwner->ApplySpellMod(spellInfo, SpellModOp::Duration, maxDuration);
+    if (maxDuration != -1)
+    {
+        if (modOwner)
+            modOwner->ApplySpellMod(spellInfo, SpellModOp::Duration, maxDuration);
+
+        if (spellInfo->IsEmpowerSpell())
+            maxDuration += SPELL_EMPOWER_HOLD_TIME_AT_MAX;
+    }
 
     return maxDuration;
 }

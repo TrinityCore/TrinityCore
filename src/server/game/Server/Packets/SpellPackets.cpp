@@ -851,6 +851,76 @@ WorldPacket const* SpellChannelUpdate::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* SpellEmpowerStart::Write()
+{
+    _worldPacket << CastID;
+    _worldPacket << CasterGUID;
+    _worldPacket << uint32(Targets.size());
+    _worldPacket << int32(SpellID);
+    _worldPacket << Visual;
+    _worldPacket << EmpowerDuration;
+    _worldPacket << MinHoldTime;
+    _worldPacket << HoldAtMaxTime;
+    _worldPacket << uint32(StageDurations.size());
+
+    for (ObjectGuid const& target : Targets)
+        _worldPacket << target;
+
+    for (Duration<Milliseconds, uint32> stageDuration : StageDurations)
+        _worldPacket << stageDuration;
+
+    _worldPacket.WriteBit(InterruptImmunities.has_value());
+    _worldPacket.WriteBit(HealPrediction.has_value());
+    _worldPacket.FlushBits();
+
+    if (InterruptImmunities)
+        _worldPacket << *InterruptImmunities;
+
+    if (HealPrediction)
+        _worldPacket << *HealPrediction;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* SpellEmpowerUpdate::Write()
+{
+    _worldPacket << CastID;
+    _worldPacket << CasterGUID;
+    _worldPacket << TimeRemaining;
+    _worldPacket << uint32(StageDurations.size());
+    _worldPacket << uint8(Status);
+    _worldPacket.FlushBits();
+
+    for (Duration<Milliseconds, uint32> stageDuration : StageDurations)
+        _worldPacket << stageDuration;
+
+    return &_worldPacket;
+}
+
+void SetEmpowerMinHoldStagePercent::Read()
+{
+    _worldPacket >> MinHoldStagePercent;
+}
+
+void SpellEmpowerRelease::Read()
+{
+    _worldPacket >> SpellID;
+}
+
+void SpellEmpowerRestart::Read()
+{
+    _worldPacket >> SpellID;
+}
+
+WorldPacket const* SpellEmpowerSetStage::Write()
+{
+    _worldPacket << CastID;
+    _worldPacket << CasterGUID;
+    _worldPacket << int32(Stage);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* ResurrectRequest::Write()
 {
     _worldPacket << ResurrectOffererGUID;

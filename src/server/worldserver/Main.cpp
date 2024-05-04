@@ -338,7 +338,8 @@ extern int main(int argc, char** argv)
 
     // Initialize the World
     sSecretMgr->Initialize(SECRET_OWNER_WORLDSERVER);
-    sWorld->SetInitialWorldSettings();
+    if (!sWorld->SetInitialWorldSettings())
+        return 1;
 
     auto mapManagementHandle = Trinity::make_unique_ptr_with_deleter(&dummy, [](void*)
     {
@@ -359,7 +360,12 @@ extern int main(int argc, char** argv)
     // Start soap serving thread if enabled
     std::unique_ptr<std::thread, ShutdownTCSoapThread> soapThread;
     if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
-        soapThread.reset(new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))));
+    {
+        if (std::thread* soap = CreateSoapThread(sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))))
+            soapThread.reset(soap);
+        else
+            return -1;
+    }
 
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));

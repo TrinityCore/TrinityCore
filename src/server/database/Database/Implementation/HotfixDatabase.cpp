@@ -1507,6 +1507,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "ImplicitTarget2, SpellID FROM spell_effect WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_EFFECT, "SELECT MAX(ID) + 1 FROM spell_effect", CONNECTION_SYNCH);
 
+    // SpellEmpower.db2
+    PrepareStatement(HOTFIX_SEL_SPELL_EMPOWER, "SELECT ID, SpellID, Unused1000 FROM spell_empower WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_EMPOWER, "SELECT MAX(ID) + 1 FROM spell_empower", CONNECTION_SYNCH);
+
+    // SpellEmpowerStage.db2
+    PrepareStatement(HOTFIX_SEL_SPELL_EMPOWER_STAGE, "SELECT ID, Stage, DurationMs, SpellEmpowerID FROM spell_empower_stage"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_EMPOWER_STAGE, "SELECT MAX(ID) + 1 FROM spell_empower_stage", CONNECTION_SYNCH);
+
     // SpellEquippedItems.db2
     PrepareStatement(HOTFIX_SEL_SPELL_EQUIPPED_ITEMS, "SELECT ID, SpellID, EquippedItemClass, EquippedItemInvTypes, EquippedItemSubclass"
         " FROM spell_equipped_items WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

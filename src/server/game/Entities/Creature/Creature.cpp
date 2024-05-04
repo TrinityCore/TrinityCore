@@ -542,6 +542,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetModRangedHaste(1.0f);
     SetModHasteRegen(1.0f);
     SetModTimeRate(1.0f);
+    SetSpellEmpowerStage(-1);
 
     SetSpeedRate(MOVE_WALK,   creatureInfo->speed_walk);
     SetSpeedRate(MOVE_RUN,    creatureInfo->speed_run);
@@ -742,6 +743,8 @@ void Creature::Update(uint32 diff)
 
     UpdateMovementCapabilities();
 
+    GetThreatManager().Update(diff);
+
     switch (m_deathState)
     {
         case JUST_RESPAWNED:
@@ -828,7 +831,6 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            GetThreatManager().Update(diff);
             if (_spellFocusInfo.Delay)
             {
                 if (_spellFocusInfo.Delay <= diff)
@@ -3593,6 +3595,8 @@ bool Creature::IsEngaged() const
 void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
+
+    GetThreatManager().ResetUpdateTimer();
 
     if (!HasFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT))
         Dismount();
