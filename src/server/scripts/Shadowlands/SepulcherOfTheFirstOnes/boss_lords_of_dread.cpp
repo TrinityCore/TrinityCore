@@ -480,7 +480,7 @@ struct LordsOfDreadAI : public BossAI
     }
 
 protected:
-    Creature* GetOtherDreadlord()
+    constexpr Creature* GetOtherDreadlord()
     {
         return instance->GetCreature(me->GetEntry() == BOSS_MALGANIS ? DATA_KINTESSA : DATA_MALGANIS);
     }
@@ -507,6 +507,13 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
         LordsOfDreadAI::JustAppeared();
 
         DoCastSelf(SPELL_DARKNESS_OVERRIDE);
+    }
+
+    void Reset() override
+    {
+        LordsOfDreadAI::Reset();
+
+        _carrionCount = 0;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -539,10 +546,12 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
             {
                 _retreatsCount++;
                 if (_retreatsCount == 2)
+                {
                     scheduler.Schedule(3s, [this](TaskContext /*task*/)
                     {
                         instance->DoUseDoorOrButton(instance->GetGuidData(DATA_DOOR_TO_LORDS_OF_DREAD));
                     });
+                }
                 break;
             }
             case ACTION_MALGANIS_SWARM_EVENTS:
@@ -568,7 +577,6 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
                 }
                 break;
             }
-
             case ACTION_MALGANIS_INFILTRATION_OF_DREAD:
             {
                 events.CancelEvent(EVENT_LEECHING_CLAWS);
@@ -636,7 +644,7 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
                 }
                 case EVENT_SWARM_OF_DECAY:
                 {
-                    Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
+                    Creature* kintessa = GetOtherDreadlord();
                     if (!kintessa->IsAlive())
                         return;
 
@@ -685,6 +693,13 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
         LordsOfDreadAI::JustAppeared();
 
         DoCastSelf(SPELL_DARKNESS_OVERRIDE);
+    }
+
+    void Reset() override
+    {
+        LordsOfDreadAI::Reset();
+
+        _swarmCount = 0;
     }
 
     void EnterEvadeMode(EvadeReason why) override
@@ -739,19 +754,7 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
         {
             case ACTION_START_INTRODUCTION:
             {
-                Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
-                Creature* malganis = instance->GetCreature(DATA_MALGANIS);
-
-                if (!kintessa || !malganis)
-                    return;
-
-                Conversation* introduction = Conversation::CreateConversation(CONVERSATION_INTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                if (!introduction)
-                    return;
-
-                introduction->AddActor(BOSS_KINTESSA, 0, kintessa->GetGUID());
-                introduction->AddActor(BOSS_MALGANIS, 1, malganis->GetGUID());
-                introduction->Start();
+                Conversation::CreateConversation(CONVERSATION_INTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
                 break;
             }
             case ACTION_MIMICKING_DISGUISE:
@@ -780,7 +783,6 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
                 events.ScheduleEvent(EVENT_SLUMBER_CLOUD, 49s);
                 break;
             }
-
             case ACTION_PARANOIA:
             {
                 scheduler.Schedule(2s, [this](TaskContext /*task*/)
@@ -893,7 +895,7 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
                 }
                 case EVENT_INFILTRATION_OF_DREAD:
                 {
-                    Creature* malganis = instance->GetCreature(DATA_MALGANIS);
+                    Creature* malganis = GetOtherDreadlord();
                     if (!malganis->IsAlive())
                         return;
 
@@ -917,15 +919,14 @@ private:
 int32 constexpr CORPOREAL_SHADOW_NAME_OVERRIDE = 274;
 struct npc_inchoate_shadow : public ScriptedAI
 {
-    npc_inchoate_shadow(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
+    npc_inchoate_shadow(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
         SetCombatMovement(false);
         DoZoneInCombat();
         DoCastSelf(SPELL_RAVENOUS_HUNGER_PERIODIC);
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
         if (!IsLFR())
         {
@@ -953,9 +954,6 @@ struct npc_inchoate_shadow : public ScriptedAI
         if (me->HealthBelowPctDamaged(1, damage) && me->HasAura(SPELL_INCOMPLETE_FORM) || me->HasAura(SPELL_INCOMPLETE_FORM_AURA))
             damage = 0;
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // 181925 - Slumber Cloud
@@ -1072,7 +1070,6 @@ struct npc_overthrown_protector_kintessa : public ScriptedAI
         _scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
         {
             Talk(SAY_KINTESSA_COPY_AGGRO);
-
         });
     }
 
