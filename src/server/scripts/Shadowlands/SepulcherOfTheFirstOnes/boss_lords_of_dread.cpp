@@ -480,7 +480,7 @@ struct LordsOfDreadAI : public BossAI
     }
 
 protected:
-    constexpr Creature* GetOtherDreadlord()
+    Creature* GetOtherDreadlord()
     {
         return instance->GetCreature(me->GetEntry() == BOSS_MALGANIS ? DATA_KINTESSA : DATA_MALGANIS);
     }
@@ -1381,10 +1381,10 @@ class spell_lords_of_dread_energy_regeneration : public AuraScript
         if (malganis->HasAura(SPELL_SWARM_OF_DECAY) || kintessa->HasAura(SPELL_INFILTRATION_DISAPPEAR))
             return;
 
-        _malganisEnergy = malganis->GetPower(malganis->GetPowerType());
-        _kintessaEnergy = kintessa->GetPower(kintessa->GetPowerType());
+        int32 malganisEnergy = malganis->GetPower(malganis->GetPowerType());
+        int32 kintessaEnergy = kintessa->GetPower(kintessa->GetPowerType());
 
-        if (_malganisEnergy == 100 && _kintessaEnergy == 50 || _malganisEnergy == 50 && _kintessaEnergy == 100)
+        if (malganisEnergy == 100 && kintessaEnergy == 50 || malganisEnergy == 50 && kintessaEnergy == 100)
             return;
 
         target->ModifyPower(target->GetPowerType(), 1);
@@ -1394,10 +1394,6 @@ class spell_lords_of_dread_energy_regeneration : public AuraScript
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_lords_of_dread_energy_regeneration::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
-
-private:
-    uint8 _malganisEnergy = 0;
-    uint8 _kintessaEnergy = 0;
 };
 
 // 359960 - Leeching Claws
@@ -1510,7 +1506,11 @@ class spell_malganis_cloud_of_carrion_init : public AuraScript
         if (!caster)
             return;
 
-        Creature* malganis = caster->GetInstanceScript()->GetCreature(DATA_MALGANIS);
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* malganis = instance->GetCreature(DATA_MALGANIS);
         if (!malganis)
             return;
 
@@ -1519,7 +1519,6 @@ class spell_malganis_cloud_of_carrion_init : public AuraScript
 
         if (caster->GetMap()->IsMythic() && caster->HasAura(SPELL_AURA_OF_CARRION))
         {
-
             Aura* decayMastery = malganis->GetAura(SPELL_DECAY_MASTERY);
             uint8 decayMasteryStacks = decayMastery->GetStackAmount();
 
@@ -1591,7 +1590,11 @@ class spell_malganis_cloud_of_carrion_circle : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Creature* malganis = GetCaster()->GetInstanceScript()->GetCreature(DATA_MALGANIS);
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* malganis = instance->GetCreature(DATA_MALGANIS);
         if (!malganis)
             return;
 
@@ -1693,7 +1696,7 @@ class spell_malganis_cloud_of_carrion_damage : public SpellScript
 struct at_malganis_cloud_of_carrion : public AreaTriggerAI
 {
     at_malganis_cloud_of_carrion(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
-    _instance(at->GetInstanceScript()) { }
+        _instance(at->GetInstanceScript()) { }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -1857,18 +1860,25 @@ class spell_malganis_swarm_of_decay : public SpellScript
     void OnPrecast() override
     {
         Unit* caster = GetCaster();
-        Creature* malganis = caster->GetInstanceScript()->GetCreature(DATA_MALGANIS);
-        Creature* kintessa = caster->GetInstanceScript()->GetCreature(DATA_KINTESSA);
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* malganis = instance->GetCreature(DATA_MALGANIS);
+        Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
 
         if (!malganis || !kintessa)
             return;
 
         if (Creature* creature = caster->ToCreature())
+        {
             if (CreatureAI* malganisAI = creature->AI())
             {
                 malganisAI->Talk(SAY_SWARM_OF_DECAY);
                 malganisAI->Talk(SAY_SWARM_OF_DECAY_ANNOUNCE);
             }
+        }
 
         malganis->SummonCreature(NPC_SWARM_OF_SHADOWS, caster->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
         malganis->GetAI()->DoAction(ACTION_MALGANIS_SWARM_EVENTS);
@@ -1881,13 +1891,19 @@ class spell_malganis_swarm_of_decay : public SpellScript
     void HandleAfterCast()
     {
         Unit* caster = GetCaster();
-        Creature* malganis = caster->GetInstanceScript()->GetCreature(DATA_MALGANIS);
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* malganis = instance->GetCreature(DATA_MALGANIS);
+        if (!malganis)
+            return;
+
         Unit* swarmOfShadows = caster->FindNearestCreature(NPC_SWARM_OF_SHADOWS, 20.0f, true);
+        if (!swarmOfShadows)
+            return;
 
         swarmOfShadows->GetMotionMaster()->MoveRotate(2, ROTATE_DIRECTION_RIGHT, 30s);
-
-        if (!swarmOfShadows || !malganis)
-            return;
 
         malganis->CastSpell(swarmOfShadows, SPELL_RIDE_VEHICLE_HARDCODED, true);
         malganis->CastSpell(malganis, SPELL_UNTO_DARKNESS_DARKEN_ENVIRONMENT, true);
@@ -1911,7 +1927,11 @@ class spell_malganis_swarm_of_decay_aura : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Creature* malganis = GetTarget()->GetInstanceScript()->GetCreature(DATA_MALGANIS))
+        InstanceScript* instance = GetTarget()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* malganis = instance->GetCreature(DATA_MALGANIS))
         {
             if (Unit* swarmOfShadows = GetTarget()->FindNearestCreature(NPC_SWARM_OF_SHADOWS, 30.0f, true))
                 swarmOfShadows->ToCreature()->DespawnOrUnsummon();
@@ -1991,9 +2011,12 @@ struct spell_kintessa_anguishing_strike_debuff_damage : SpellScript
             return;
 
         Aura* anguishingStrikes = GetHitUnit()->GetAura(SPELL_ANGUISHING_STRIKE_DEBUFF);
+        if (!anguishingStrikes)
+            return;
+
         uint8 anguishingStacks = anguishingStrikes->GetStackAmount();
 
-        SetHitDamage(int32(GetHitDamage() * (uint8)anguishingStacks));
+        SetHitDamage(int32(GetHitDamage() * anguishingStacks));
     }
 
     void Register() override
@@ -2135,7 +2158,6 @@ struct at_kintessa_slumber_cloud : AreaTriggerAI
         {
             UpdateSize(newRadius, newRadius);
         });
-
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -2248,13 +2270,19 @@ class spell_infiltration_of_dread_cast : public SpellScript
         if (caster->GetEntry() == BOSS_KINTESSA)
         {
             if (Creature* creature = caster->ToCreature())
+            {
                 if (CreatureAI* kintessaAI = creature->AI())
                 {
                     kintessaAI->Talk(SAY_ANNOUNCE_INFILTRATION_OF_DREAD);
                     kintessaAI->Talk(SAY_INFILTRATION_OF_DREAD);
                 }
+            }
 
-            Creature* malganis = caster->GetInstanceScript()->GetCreature(DATA_MALGANIS);
+            InstanceScript* instance = caster->GetInstanceScript();
+            if (!instance)
+                return;
+
+            Creature* malganis = instance->GetCreature(DATA_MALGANIS);
             if (!malganis)
                 return;
             malganis->GetAI()->DoAction(ACTION_MALGANIS_INFILTRATION_OF_DREAD);
@@ -2289,7 +2317,12 @@ class spell_kintessa_infiltration_of_dread : public SpellScript
 
         caster->CastSpell(target, SPELL_INFILTRATION_PULL, true);
         caster->CastSpell(target, SPELL_PARANOIA, true);
-        if (Creature* kintessa = caster->GetInstanceScript()->GetCreature(DATA_KINTESSA))
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* kintessa = instance->GetCreature(DATA_KINTESSA))
             kintessa->GetAI()->DoAction(ACTION_PARANOIA);
     }
 
@@ -2421,6 +2454,8 @@ class spell_lords_of_dread_disappear : public AuraScript
     {
         Unit* target = GetTarget();
         InstanceScript* instance = target->GetInstanceScript();
+        if (!instance)
+            return;
 
         Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
         Creature* malganis = instance->GetCreature(DATA_MALGANIS);
