@@ -68,24 +68,6 @@ enum LordsOfDreadSpells
     SPELL_MIMICKING_TRANSFORMATION_13                   = 361115,
     SPELL_MIMICKING_TRANSFORMATION_14                   = 361116,
 
-    // Introduction Imitations
-    SPELL_GRAND_REVEAL_MALGANIS                         = 366518,
-    SPELL_GRAND_REVEAL_KINTESSA                         = 366565,
-    SPELL_SWARMING_RETREAT_CLEAR_DEBUFFS                = 367410,
-    SPELL_SWARMING_RETREAT                              = 366559,
-    SPELL_CLEAR_ALL_DEBUFFS                             = 34098,
-    SPELL_LEECHING_CLAWS_PROTECTOR                      = 366549,
-    SPELL_LEECHING_CLAWS_PHYSICAL_DAMAGE_PROTECTOR      = 366550,
-    SPELL_OPENED_VEINS_PROTECTOR                        = 366551,
-    SPELL_LEECHING_CLAWS_HEAL_PROTECTOR                 = 366553,
-    SPELL_CLOUD_OF_CARRION_PROTECTOR                    = 366573,
-    SPELL_CLOUD_OF_CARRION_DEBUFF_PROTECTOR             = 366574,
-    SPELL_ANGUISHING_STRIKE_PROTECTOR                   = 366629,
-    SPELL_ANGUISHING_STRIKE_PHYSICAL_DAMAGE_PROTECTOR   = 366631,
-    SPELL_ANGUISHING_STRIKE_DEBUFF_PROTECTOR            = 366632,
-    SPELL_FEARFUL_TREPIDATION_PROTECTOR                 = 366633,
-    SPELL_FEARFUL_TREPIDATION_DEBUFF_PROTECTOR          = 366634,
-
     // Generic
     SPELL_BERSERK                                       = 26662,
     SPELL_LIFE_LINK                                     = 345561,
@@ -215,14 +197,6 @@ enum LordsOfDreadSpells
 
 enum Events
 {
-    // Overthrown Protector Malganis
-    EVENT_LEECHING_CLAWS_PROTECTOR = 1,
-    EVENT_CLOUD_OF_CARRION_PROTECTOR,
-
-    // Overthrown Protector Kintessa
-    EVENT_ANGUISHING_STRIKE_PROTECTOR,
-    EVENT_FEARFUL_TREPIDATION_PROTECTOR,
-
     // Mal'Ganis
     EVENT_LEECHING_CLAWS,
     EVENT_CLOUD_OF_CARRION,
@@ -244,8 +218,7 @@ enum Events
 
 enum Actions
 {
-    ACTION_OPEN_DOOR_TO_LORDS_OF_DREAD = 1,
-    ACTION_START_INTRODUCTION,
+    ACTION_START_INTRODUCTION = 1,
     ACTION_MIMICKING_DISGUISE,
     ACTION_MALGANIS_SWARM_EVENTS,
     ACTION_KINTESSA_SWARM_EVENTS,
@@ -260,13 +233,6 @@ enum Actions
 
 enum LordsOfDreadTexts
 {
-    // Imitation texts
-    SAY_MALGANIS_COPY_AGGRO                 = 0,
-    SAY_MALGANIS_COPY_RETREAT               = 1,
-
-    SAY_KINTESSA_COPY_AGGRO                 = 0,
-    SAY_KINTESSA_COPY_RETREAT               = 1,
-
     SAY_MALGANIS_AGGRO                      = 0,
     SAY_MALGANIS_SLAY                       = 1,
     SAY_MANIFEST_SHADOWS                    = 2,
@@ -287,6 +253,7 @@ enum LordsOfDreadTexts
     SAY_KINTESSA_ANNOUNCE_ENRAGE            = 7,
     SAY_KINTESSA_ENRAGE                     = 8,
 };
+
 enum LordsOfDreadConversations
 {
     CONVERSATION_INTRODUCTION           = 17838,
@@ -298,8 +265,6 @@ enum LordsOfDreadConversations
     CONVERSATION_RESET_ENCOUNTER_05     = 17695,
     CONVERSATION_RESET_ENCOUNTER_06     = 17696,
 };
-
-Position const SwarmingRetreatPos = { -5727.0454f, -4067.804f, 146.26663f };
 
 Position const MalganisVisuals[14] =
 {
@@ -489,7 +454,7 @@ protected:
 // 181398 - Mal'Ganis
 struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
 {
-    struct boss_lords_of_dread_mal_ganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _retreatsCount(0), _carrionCount(0) { }
+    struct boss_lords_of_dread_mal_ganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _carrionCount(0) { }
 
     void CancelMalganisEventsScheduleAfterParanoia()
     {
@@ -542,18 +507,6 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
     {
         switch (action)
         {
-            case ACTION_OPEN_DOOR_TO_LORDS_OF_DREAD:
-            {
-                _retreatsCount++;
-                if (_retreatsCount == 2)
-                {
-                    scheduler.Schedule(3s, [this](TaskContext /*task*/)
-                    {
-                        instance->DoUseDoorOrButton(instance->GetGuidData(DATA_DOOR_TO_LORDS_OF_DREAD));
-                    });
-                }
-                break;
-            }
             case ACTION_MALGANIS_SWARM_EVENTS:
             {
                 events.CancelEvent(EVENT_CLOUD_OF_CARRION);
@@ -663,7 +616,6 @@ struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
         }
     }
 private:
-    uint8 _retreatsCount;
     uint8 _carrionCount;
 };
 
@@ -977,279 +929,6 @@ struct npc_slumber_cloud : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-};
-
-// 185154 - Overthrown Protector (Mal'Ganis)
-struct npc_overthrown_protector_malganis : public ScriptedAI
-{
-    npc_overthrown_protector_malganis(Creature* creature) : ScriptedAI(creature), _malganisRetreated(false) { }
-
-    void JustAppeared() override
-    {
-        me->SetImmuneToAll(false);
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        DoCastSelf(SPELL_GRAND_REVEAL_MALGANIS, true);
-        _events.ScheduleEvent(EVENT_LEECHING_CLAWS_PROTECTOR, 10s);
-        _events.ScheduleEvent(EVENT_CLOUD_OF_CARRION_PROTECTOR, 15s);
-        _scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
-        {
-            Talk(SAY_MALGANIS_COPY_AGGRO);
-        });
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (me->HealthBelowPctDamaged(90, damage) && _malganisRetreated == false)
-        {
-            _malganisRetreated = true;
-            DoCastSelf(SPELL_SWARMING_RETREAT_CLEAR_DEBUFFS, true);
-            DoCastSelf(SPELL_SWARMING_RETREAT);
-            Talk(SAY_MALGANIS_COPY_RETREAT);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-
-        if (!UpdateVictim())
-            return;
-
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_LEECHING_CLAWS_PROTECTOR:
-                {
-                    DoCastVictim(SPELL_LEECHING_CLAWS_PROTECTOR);
-                    _events.Repeat(10s);
-                    break;
-                }
-                case EVENT_CLOUD_OF_CARRION_PROTECTOR:
-                {
-                    DoCastSelf(SPELL_CLOUD_OF_CARRION_PROTECTOR);
-                    _events.Repeat(5s, 10s);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-    }
-
-private:
-    bool _malganisRetreated;
-    TaskScheduler _scheduler;
-    EventMap _events;
-};
-
-// 185155 - Overthrown Protector (Kin'tessa)
-struct npc_overthrown_protector_kintessa : public ScriptedAI
-{
-    npc_overthrown_protector_kintessa(Creature* creature) : ScriptedAI(creature), _kintessaRetreated(false) { }
-
-    void JustAppeared() override
-    {
-        me->SetImmuneToAll(false);
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        DoCastSelf(SPELL_GRAND_REVEAL_KINTESSA, true);
-        _events.ScheduleEvent(EVENT_ANGUISHING_STRIKE_PROTECTOR, Milliseconds(urand(8000, 10000)));
-        _events.ScheduleEvent(EVENT_FEARFUL_TREPIDATION_PROTECTOR, Milliseconds(urand(15000, 20000)));
-        me->SetObjectScale(2);
-        _scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
-        {
-            Talk(SAY_KINTESSA_COPY_AGGRO);
-        });
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (me->HealthBelowPctDamaged(90, damage) && _kintessaRetreated == false)
-        {
-            _kintessaRetreated = true;
-            DoCastSelf(SPELL_SWARMING_RETREAT_CLEAR_DEBUFFS, true);
-            DoCastSelf(SPELL_SWARMING_RETREAT);
-            Talk(SAY_KINTESSA_COPY_RETREAT);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-
-        if (!UpdateVictim())
-            return;
-
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_ANGUISHING_STRIKE_PROTECTOR:
-                {
-                    DoCastVictim(SPELL_ANGUISHING_STRIKE_PROTECTOR);
-                    _events.Repeat(10s, 12s);
-                    break;
-                }
-                case EVENT_FEARFUL_TREPIDATION_PROTECTOR:
-                {
-                    DoCastSelf(SPELL_FEARFUL_TREPIDATION_PROTECTOR);
-                    _events.Repeat(15s, 20s);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-    }
-
-private:
-    bool _kintessaRetreated;
-    TaskScheduler _scheduler;
-    EventMap _events;
-};
-
-// 366518 - Grand Reveal Mal'Ganis
-// 366565 - Grand Reveal Kin'Tessa
-int32 constexpr MALGANIS_OVERRIDE_NAME = 279;
-int32 constexpr KINTESSA_OVERRIDE_NAME = 280;
-class spell_lords_of_dread_grand_reveal : public AuraScript
-{
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-
-        if (Creature* creature = target->ToCreature())
-            if (creature->GetEntry() == NPC_OVERTHROWN_PROTECTOR_MALGANIS)
-                target->SetSpellOverrideNameID(MALGANIS_OVERRIDE_NAME);
-            else
-                target->SetSpellOverrideNameID(KINTESSA_OVERRIDE_NAME);
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_lords_of_dread_grand_reveal::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 366549 - Leeching Claws Malganis Imitation
-class spell_malganis_imitation_leeching_claws : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_OPENED_VEINS_PROTECTOR, SPELL_LEECHING_CLAWS_HEAL_PROTECTOR, SPELL_LEECHING_CLAWS_PHYSICAL_DAMAGE_PROTECTOR });
-    }
-
-    void HandleCast(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        if (target->HasAura(SPELL_OPENED_VEINS_PROTECTOR))
-            caster->CastSpell(caster, SPELL_LEECHING_CLAWS_HEAL_PROTECTOR, true);
-
-        caster->CastSpell(target, SPELL_LEECHING_CLAWS_PHYSICAL_DAMAGE_PROTECTOR, true);
-        caster->CastSpell(target, SPELL_OPENED_VEINS_PROTECTOR, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_malganis_imitation_leeching_claws::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 366573 - Cloud of Carrion Malganis Imitation
-class spell_malganis_imitation_cloud_of_carrion : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_CLOUD_OF_CARRION_DEBUFF_PROTECTOR });
-    }
-
-    void HandleCast(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_CLOUD_OF_CARRION_DEBUFF_PROTECTOR, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_malganis_imitation_cloud_of_carrion::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 366629 - Anguishing Strike Kintessa Imitation
-class spell_kintessa_imitation_anguishing_strike : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ANGUISHING_STRIKE_PHYSICAL_DAMAGE_PROTECTOR, SPELL_ANGUISHING_STRIKE_DEBUFF_PROTECTOR });
-    }
-
-    void HandleCast(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        caster->CastSpell(target, SPELL_ANGUISHING_STRIKE_PHYSICAL_DAMAGE_PROTECTOR, true);
-        caster->CastSpell(target, SPELL_ANGUISHING_STRIKE_DEBUFF_PROTECTOR, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_kintessa_imitation_anguishing_strike::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 366633 - Fearful Trepidation Kintessa Imitation
-class spell_kintessa_imitation_fearful_trepidation : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FEARFUL_TREPIDATION_DEBUFF_PROTECTOR });
-    }
-
-    void HandleCast(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_FEARFUL_TREPIDATION_DEBUFF_PROTECTOR, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_kintessa_imitation_fearful_trepidation::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 366559 - Swarming Retreat
-class spell_lords_of_dread_swarming_retreat : public SpellScript
-{
-    void HandleAfterCast()
-    {
-        Creature* malganis = GetCaster()->GetInstanceScript()->GetCreature(DATA_MALGANIS);
-        if (!malganis)
-            return;
-        malganis->GetAI()->DoAction(ACTION_OPEN_DOOR_TO_LORDS_OF_DREAD);
-        GetCaster()->GetMotionMaster()->MovePoint(0, SwarmingRetreatPos);
-    }
-
-    void Register() override
-    {
-        AfterCast += SpellCastFn(spell_lords_of_dread_swarming_retreat::HandleAfterCast);
-    }
 };
 
 // Custom AT 999999 - Lords of Dread Introduction
@@ -2651,19 +2330,10 @@ private:
 
 void AddSC_boss_lords_of_dread()
 {
-    RegisterSepulcherOfTheFirstOnesCreatureAI(npc_overthrown_protector_malganis);
-    RegisterSepulcherOfTheFirstOnesCreatureAI(npc_overthrown_protector_kintessa);
     RegisterSepulcherOfTheFirstOnesCreatureAI(boss_lords_of_dread_mal_ganis);
     RegisterSepulcherOfTheFirstOnesCreatureAI(boss_lords_of_dread_kintessa);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_inchoate_shadow);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_slumber_cloud);
-
-    RegisterSpellScript(spell_lords_of_dread_grand_reveal);
-    RegisterSpellScript(spell_malganis_imitation_leeching_claws);
-    RegisterSpellScript(spell_malganis_imitation_cloud_of_carrion);
-    RegisterSpellScript(spell_kintessa_imitation_anguishing_strike);
-    RegisterSpellScript(spell_kintessa_imitation_fearful_trepidation);
-    RegisterSpellScript(spell_lords_of_dread_swarming_retreat);
 
     RegisterAreaTriggerAI(at_lords_of_dread_introduction);
     RegisterSpellScript(spell_lords_of_dread_mimicking_disguise);

@@ -91,6 +91,7 @@ public:
             LoadDoorData(doorData);
 
             AnduinIntroductionState = NOT_STARTED;
+            LordsOfDreadRetreatCounter = 0;
         }
 
         bool SetBossState(uint32 id, EncounterState state) override
@@ -139,6 +140,13 @@ public:
                     AnduinIntroductionState = data;
                     break;
                 }
+                case DATA_LORDS_OF_DREAD_RETREAT_COUNTER:
+                {
+                    LordsOfDreadRetreatCounter = data;
+                    if (LordsOfDreadRetreatCounter == 2)
+                        OpenLordsOfDreadDoor();
+                    break;
+                }
                 default:
                     break;
             }
@@ -150,6 +158,8 @@ public:
             {
                 case DATA_ANDUIN_WRYNN_INTRODUCTION:
                     return AnduinIntroductionState;
+                case DATA_LORDS_OF_DREAD_RETREAT_COUNTER:
+                    return LordsOfDreadRetreatCounter;
                 default:
                     break;
             }
@@ -157,8 +167,24 @@ public:
             return 0;
         }
 
+        void Update(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+        void OpenLordsOfDreadDoor()
+        {
+            _scheduler.Schedule(3s, [this](TaskContext /*task*/)
+            {
+                DoUseDoorOrButton(GetGuidData(DATA_DOOR_TO_LORDS_OF_DREAD));
+            });
+        }
+
     protected:
+        TaskScheduler _scheduler;
+
         uint8 AnduinIntroductionState;
+        uint8 LordsOfDreadRetreatCounter;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

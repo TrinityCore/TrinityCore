@@ -57,6 +57,7 @@ enum SepulcherOfTheFirstOnesDataTypes
     // Lords of Dread Encounter
     DATA_MALGANIS,
     DATA_KINTESSA,
+    DATA_LORDS_OF_DREAD_RETREAT_COUNTER,
     DATA_DOOR_TO_LORDS_OF_DREAD,
 };
 
