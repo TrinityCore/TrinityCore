@@ -2288,7 +2288,7 @@ struct at_kintessa_horrifying_shadows : AreaTriggerAI
         });
     }
 
-    void OnUpdate(uint32 diff)
+    void OnUpdate(uint32 diff) override
     {
         _scheduler.Update(diff);
     }
