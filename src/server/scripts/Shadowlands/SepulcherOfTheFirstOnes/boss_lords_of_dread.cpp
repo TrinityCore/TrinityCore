@@ -878,7 +878,7 @@ struct npc_inchoate_shadow : public ScriptedAI
         SetCombatMovement(false);
         DoZoneInCombat();
         DoCastSelf(SPELL_RAVENOUS_HUNGER_PERIODIC);
-        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me); // @TODO: param
 
         if (!IsLFR())
         {
@@ -887,6 +887,11 @@ struct npc_inchoate_shadow : public ScriptedAI
         }
         if (IsMythic())
             DoCastSelf(SPELL_COALESCING_DARKNESS, true);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void HealReceived(Unit* /*healer*/, uint32& heal) override
@@ -934,24 +939,21 @@ private:
 // Custom AT 999999 - Lords of Dread Introduction
 struct at_lords_of_dread_introduction : AreaTriggerAI
 {
-    at_lords_of_dread_introduction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
-        _instance(at->GetInstanceScript()), _firstEntry(false) { }
+    at_lords_of_dread_introduction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
         if (!unit->IsPlayer())
             return;
 
-        _firstEntry = true;
-        if (Creature* kintessa = _instance->GetCreature(DATA_KINTESSA))
+        if (InstanceScript* instance = at->GetInstanceScript())
         {
-            kintessa->GetAI()->DoAction(ACTION_START_INTRODUCTION);
+            if (Creature* kintessa = instance->GetCreature(DATA_KINTESSA))
+                kintessa->GetAI()->DoAction(ACTION_START_INTRODUCTION);
         }
-    }
 
-private:
-    InstanceScript* _instance;
-    bool _firstEntry;
+        at->Remove();
+    }
 };
 
 // 361117 - Lords of Dread Mimicking Disguise
