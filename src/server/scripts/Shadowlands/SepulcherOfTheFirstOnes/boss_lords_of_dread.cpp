@@ -1071,7 +1071,7 @@ class spell_lords_of_dread_energy_regeneration : public AuraScript
         int32 malganisEnergy = malganis->GetPower(malganis->GetPowerType());
         int32 kintessaEnergy = kintessa->GetPower(kintessa->GetPowerType());
 
-        if (malganisEnergy == 100 && kintessaEnergy == 50 || malganisEnergy == 50 && kintessaEnergy == 100)
+        if ((malganisEnergy == 100 && kintessaEnergy == 50) || (malganisEnergy == 50 && kintessaEnergy == 100))
             return;
 
         target->ModifyPower(target->GetPowerType(), 1);
