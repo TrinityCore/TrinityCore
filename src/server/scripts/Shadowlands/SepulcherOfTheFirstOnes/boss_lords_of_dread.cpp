@@ -908,7 +908,7 @@ struct npc_inchoate_shadow : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(1, damage) && me->HasAura(SPELL_INCOMPLETE_FORM) || me->HasAura(SPELL_INCOMPLETE_FORM_AURA))
+        if ((me->HealthBelowPctDamaged(1, damage) && me->HasAura(SPELL_INCOMPLETE_FORM)) || me->HasAura(SPELL_INCOMPLETE_FORM_AURA))
             damage = 0;
     }
 };
