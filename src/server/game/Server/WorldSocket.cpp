@@ -362,7 +362,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
 
     WorldPacket packet(std::move(_packetBuffer), GetConnectionType());
     OpcodeClient opcode = packet.read<OpcodeClient>();
-    if (uint32(opcode) >= uint32(NUM_OPCODE_HANDLERS))
+    if (opcode < MIN_CMSG_OPCODE_NUMBER || opcode > MAX_CMSG_OPCODE_NUMBER)
     {
         TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent wrong opcode (opcode: {})",
             GetRemoteIpAddress().to_string(), uint32(opcode));
@@ -485,7 +485,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 return ReadDataHandlerResult::Error;
             }
 
-            OpcodeHandler const* handler = opcodeTable[opcode];
+            ClientOpcodeHandler const* handler = opcodeTable[opcode];
             if (!handler)
             {
                 TC_LOG_ERROR("network.opcode", "No defined handler for opcode {} sent by {}", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet.GetOpcode())), _worldSession->GetPlayerInfo());
