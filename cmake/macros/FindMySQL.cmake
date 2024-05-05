@@ -134,10 +134,6 @@ find_path(MYSQL_INCLUDE_DIR
     "$ENV{SystemDrive}/MySQL/MySQL Server 8.4"
     "c:/msys/local/include"
     "$ENV{MYSQL_ROOT}"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5 (x64);INSTALLDIR]"
   PATH_SUFFIXES
     include
     include/mysql
@@ -165,7 +161,7 @@ endif(UNIX)
 if(WIN32)
   find_library(MYSQL_LIBRARY
     NAMES
-      libmysql libmariadb
+      libmysql
     HINTS
       ${_MYSQL_ROOT_HINTS}
     PATHS
@@ -180,10 +176,6 @@ if(WIN32)
       "$ENV{SystemDrive}/MySQL/MySQL Server 8.4"
       "c:/msys/local/lib"
       "$ENV{MYSQL_ROOT}"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5 (x64);INSTALLDIR]"
     PATH_SUFFIXES
       lib
       lib/opt
@@ -235,10 +227,6 @@ if(WIN32)
       "$ENV{SystemDrive}/MySQL/MySQL Server 8.4"
       "c:/msys/local/bin"
       "$ENV{MYSQL_ROOT}"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5 (x64);INSTALLDIR]"
     PATH_SUFFIXES
       bin
       bin/opt
