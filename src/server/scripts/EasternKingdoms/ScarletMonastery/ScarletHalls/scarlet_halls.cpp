@@ -42,25 +42,25 @@ DungeonEncounterData const encounters[] =
 
 class instance_scarlet_halls : public InstanceMapScript
 {
-    public:
-        instance_scarlet_halls() : InstanceMapScript(ScarletHallsScriptName, 1001) { }
+public:
+    instance_scarlet_halls() : InstanceMapScript(ScarletHallsScriptName, 1001) { }
 
-        struct instance_scarlet_halls_InstanceMapScript : public InstanceScript
+    struct instance_scarlet_halls_InstanceMapScript : public InstanceScript
+    {
+        instance_scarlet_halls_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            instance_scarlet_halls_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
-            {
-                SetHeaders(DataHeader);
-                SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
-                LoadDoorData(doorData);
-                LoadDungeonEncounterData(encounters);
-            }
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_scarlet_halls_InstanceMapScript(map);
+            SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadObjectData(creatureData, nullptr);
+            LoadDoorData(doorData);
+            LoadDungeonEncounterData(encounters);
         }
+    };
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_scarlet_halls_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_scarlet_halls()

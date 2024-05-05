@@ -24,6 +24,7 @@
 #include "SpellScript.h"
 #include "SpellAuras.h"
 #include "SharedDefines.h"
+#include "Vehicle.h"
 #include "scarlet_halls.h"
 
 enum HarlanSpells
@@ -218,6 +219,9 @@ class spell_harlan_blades_of_light_selector : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
+        if (GetHitUnit()->HasAuraType(AuraType::SPELL_AURA_SPIRIT_OF_REDEMPTION))
+            return;
+
         GetHitUnit()->CastSpell(GetCaster(), SPELL_HARLAN_BLADES_OF_LIGHT_VEHICLE, true);
         GetCaster()->CastSpell(GetHitUnit(), SPELL_HARLAN_BLADES_OF_LIGHT_DAMAGE, false);
     }
@@ -256,6 +260,63 @@ class spell_scarlet_defender_heavy_armor : public AuraScript
     }
 };
 
+constexpr Position CallReinforcmentsRightPosition = { 1182.020f, 447.325f, 11.98933f };
+constexpr Position CallReinforcmentsLeftPosition = { 1181.833f, 440.649f, 11.98763f };
+
+// 111755 - Call Reinforcements
+class spell_call_reinforcements_right : public SpellScript
+{
+    void SetDest(SpellDestination& dest)
+    {
+        dest.Relocate(CallReinforcmentsRightPosition);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_call_reinforcements_right::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
+// 111756 - Call Reinforcements
+class spell_call_reinforcements_left : public SpellScript
+{
+    void SetDest(SpellDestination& dest)
+    {
+        dest.Relocate(CallReinforcmentsLeftPosition);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_call_reinforcements_left::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
+// 128930 - Eject Spirits of Redemption
+class spell_eject_spirits_of_redemption : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        Vehicle* veh = GetCaster()->GetVehicleKit();
+        if (!veh)
+            return;
+
+        for (auto const& [_, seat] : veh->Seats)
+        {
+            Unit* passenger = ObjectAccessor::GetUnit(*GetCaster(), seat.Passenger.Guid);
+            if (!passenger)
+                continue;
+
+            if (passenger->HasAuraType(AuraType::SPELL_AURA_SPIRIT_OF_REDEMPTION))
+                passenger->ExitVehicle();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_eject_spirits_of_redemption::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_boss_armsmaster_harlan()
 {
     // Creature
@@ -266,4 +327,7 @@ void AddSC_boss_armsmaster_harlan()
     RegisterSpellScript(spell_harlan_blades_of_light_selector);
     RegisterSpellScript(spell_harlan_leave_vehicle);
     RegisterSpellScript(spell_scarlet_defender_heavy_armor);
+    RegisterSpellScript(spell_call_reinforcements_right);
+    RegisterSpellScript(spell_call_reinforcements_left);
+    RegisterSpellScript(spell_eject_spirits_of_redemption);
 }
