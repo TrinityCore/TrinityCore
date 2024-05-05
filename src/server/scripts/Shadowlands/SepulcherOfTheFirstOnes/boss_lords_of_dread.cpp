@@ -454,7 +454,7 @@ protected:
 // 181398 - Mal'Ganis
 struct boss_lords_of_dread_malganis : public LordsOfDreadAI
 {
-    struct boss_lords_of_dread_malganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _carrionCount(0) { }
+    boss_lords_of_dread_malganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _carrionCount(0) { }
 
     void CancelMalganisEventsScheduleAfterParanoia()
     {
@@ -622,7 +622,7 @@ private:
 // 181399 - Kin'tessa
 struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
 {
-    struct boss_lords_of_dread_kintessa(Creature* creature) : LordsOfDreadAI(creature, DATA_KINTESSA), _essencesReturned(0), _swarmCount(0) { }
+    boss_lords_of_dread_kintessa(Creature* creature) : LordsOfDreadAI(creature, DATA_KINTESSA), _essencesReturned(0), _swarmCount(0) { }
 
     static constexpr uint32 ResetConversations[] =
     {
