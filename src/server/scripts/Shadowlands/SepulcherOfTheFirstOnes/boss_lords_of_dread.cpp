@@ -1769,10 +1769,10 @@ struct at_kintessa_slumber_cloud : AreaTriggerAI
             UpdateSize(startRadius, targetRadius);
             at->SetTimeToTargetScale(3000);
 
-            task.Schedule(Milliseconds(5000), [this](TaskContext task)
+            task.Schedule(5s, [this](TaskContext task)
             {
                 UpdateSizeBasedOnInfiltration();
-                task.Repeat(Milliseconds(10000));
+                task.Repeat(10s);
             });
         });
     }
@@ -1819,7 +1819,7 @@ struct at_kintessa_slumber_cloud : AreaTriggerAI
 
         UpdateSize(oldRadius, newRadius);
 
-        _scheduler.Schedule(5000ms, [this, newRadius](TaskContext task)
+        _scheduler.Schedule(5s, [this, newRadius](TaskContext /*task*/)
         {
             UpdateSize(newRadius, newRadius);
         });
@@ -2038,6 +2038,8 @@ class spell_infiltration_of_dread_paranoia : public AuraScript
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_CLOUD_OF_CARRION_CIRCLE, GetCaster()->GetMap()->GetDifficultyID());
         if (dmgInfo.GetSpellInfo() != spellInfo)
             return;
+
+        // @TODO: ?????
     }
 
     void Register() override
@@ -2054,8 +2056,9 @@ class spell_lords_of_dread_infiltration : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {   SPELL_STRENGTH_OF_MIND_IMPOSTER,
+        return ValidateSpellInfo
+        ({
+            SPELL_STRENGTH_OF_MIND_IMPOSTER,
             SPELL_MALGANIS_IMPOSTER_REAL,
             SPELL_INFILTRATION_RETURN_TO_MALGANIS,
             SPELL_INFILTRATION_RETURN_TO_KINTESSA
@@ -2133,8 +2136,7 @@ class spell_lords_of_dread_disappear : public AuraScript
             if (target->GetEntry() == BOSS_KINTESSA)
                 target->CastSpell(target, SPELL_SHADOW_MASTERY, true);
         }
-
-        if (target->GetMap()->IsMythic() && target == kintessa)
+        else if (target->GetMap()->IsMythic() && target == kintessa)
         {
             kintessa->CastSpell(kintessa, SPELL_AURA_OF_SHADOWS);
             kintessa->AI()->Talk(SAY_KINTESSA_ANNOUNCE_AURA_OF_SHADOWS);
@@ -2147,14 +2149,10 @@ class spell_lords_of_dread_disappear : public AuraScript
             case AURA_REMOVE_BY_DEFAULT:
             {
                 if (target->GetEntry() == BOSS_KINTESSA)
-                {
                     target->GetAI()->DoAction(ACTION_KINTESSA_PARANOIA_EVENTS);
-                }
-
                 else if (target->GetEntry() == BOSS_MALGANIS)
-                {
                     target->GetAI()->DoAction(ACTION_MALGANIS_PARANOIA_EVENTS);
-                }
+
                 target->GetInstanceScript()->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARANOIA);
                 break;
             }
@@ -2162,14 +2160,10 @@ class spell_lords_of_dread_disappear : public AuraScript
             {
                 target->CastSpell(target, SPELL_SHATTER_MIND, true);
                 if (target->GetEntry() == BOSS_KINTESSA)
-                {
                     target->GetAI()->DoAction(ACTION_KINTESSA_PARANOIA_EVENTS);
-                }
-
                 else if (target->GetEntry() == BOSS_MALGANIS)
-                {
                     target->GetAI()->DoAction(ACTION_MALGANIS_PARANOIA_EVENTS);
-                }
+
                 target->GetInstanceScript()->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARANOIA);
                 break;
             }
@@ -2281,7 +2275,7 @@ struct at_kintessa_horrifying_shadows : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
         {
             for (ObjectGuid const& guid : at->GetInsideUnits())
             {
