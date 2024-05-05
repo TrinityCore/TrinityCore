@@ -86,12 +86,12 @@ private:
 
         uint64 const timestamp;
 
-        static constexpr State StateConvert(std::string const& state)
+        static inline State StateConvert(std::string const& state)
         {
             return (state == "RELEASED") ? RELEASED : ARCHIVED;
         }
 
-        static constexpr std::string StateConvert(State const state)
+        static inline std::string StateConvert(State const state)
         {
             return (state == RELEASED) ? "RELEASED" : "ARCHIVED";
         }
