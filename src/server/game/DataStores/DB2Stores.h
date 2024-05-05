@@ -230,6 +230,8 @@ TC_GAME_API extern DB2Storage<SpellClassOptionsEntry>               sSpellClassO
 TC_GAME_API extern DB2Storage<SpellCooldownsEntry>                  sSpellCooldownsStore;
 TC_GAME_API extern DB2Storage<SpellDurationEntry>                   sSpellDurationStore;
 TC_GAME_API extern DB2Storage<SpellEffectEntry>                     sSpellEffectStore;
+TC_GAME_API extern DB2Storage<SpellEmpowerEntry>                    sSpellEmpowerStore;
+TC_GAME_API extern DB2Storage<SpellEmpowerStageEntry>               sSpellEmpowerStageStore;
 TC_GAME_API extern DB2Storage<SpellEquippedItemsEntry>              sSpellEquippedItemsStore;
 TC_GAME_API extern DB2Storage<SpellFocusObjectEntry>                sSpellFocusObjectStore;
 TC_GAME_API extern DB2Storage<SpellInterruptsEntry>                 sSpellInterruptsStore;

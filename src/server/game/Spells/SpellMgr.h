@@ -51,6 +51,7 @@ struct SpellCategoriesEntry;
 struct SpellClassOptionsEntry;
 struct SpellCooldownsEntry;
 struct SpellEffectEntry;
+struct SpellEmpowerStageEntry;
 struct SpellEquippedItemsEntry;
 struct SpellInterruptsEntry;
 struct SpellLabelEntry;
@@ -134,7 +135,7 @@ enum ProcFlags : uint32
 {
     PROC_FLAG_NONE                              = 0x00000000,
 
-    PROC_FLAG_HEARTBEAT                         = 0x00000001,    // 00 Killed by agressor - not sure about this flag
+    PROC_FLAG_HEARTBEAT                         = 0x00000001,    // 00 Heartbeat
     PROC_FLAG_KILL                              = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
     PROC_FLAG_DEAL_MELEE_SWING                  = 0x00000004,    // 02 Done melee auto attack
@@ -667,6 +668,7 @@ struct SpellInfoLoadHelper
     SpellClassOptionsEntry const* ClassOptions = nullptr;
     SpellCooldownsEntry const* Cooldowns = nullptr;
     std::array<SpellEffectEntry const*, MAX_SPELL_EFFECTS> Effects = { };
+    std::vector<SpellEmpowerStageEntry const*> EmpowerStages;
     SpellEquippedItemsEntry const* EquippedItems = nullptr;
     SpellInterruptsEntry const* Interrupts = nullptr;
     std::vector<SpellLabelEntry const*> Labels;

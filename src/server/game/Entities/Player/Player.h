@@ -768,6 +768,20 @@ enum class ItemSearchCallbackResult
     Continue
 };
 
+enum class BagSlotFlags : uint32
+{
+    None                = 0x00,
+    DisableAutoSort     = 0x01,
+    PriorityEquipment   = 0x02,
+    PriorityConsumables = 0x04,
+    PriorityTradeGoods  = 0x08,
+    PriorityJunk        = 0x10,
+    PriorityQuestItems  = 0x20,
+    ExcludeJunkSell     = 0x40,
+};
+
+DEFINE_ENUM_FLAG(BagSlotFlags);
+
 enum NewWorldReason
 {
     NEW_WORLD_NORMAL    = 16,   // Normal map change
@@ -1383,6 +1397,20 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetInventorySlotCount(uint8 slots);
         uint8 GetBankBagSlotCount() const { return m_activePlayerData->NumBankSlots; }
         void SetBankBagSlotCount(uint8 count) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBankSlots), count); }
+        bool IsBackpackAutoSortDisabled() const { return m_activePlayerData->BackpackAutoSortDisabled; }
+        void SetBackpackAutoSortDisabled(bool disabled) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BackpackAutoSortDisabled), disabled); }
+        bool IsBackpackSellJunkDisabled() const { return m_activePlayerData->BackpackSellJunkDisabled; }
+        void SetBackpackSellJunkDisabled(bool disabled) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BackpackSellJunkDisabled), disabled); }
+        bool IsBankAutoSortDisabled() const { return m_activePlayerData->BankAutoSortDisabled; }
+        void SetBankAutoSortDisabled(bool disabled) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BankAutoSortDisabled), disabled); }
+        EnumFlag<BagSlotFlags> GetBagSlotFlags(uint32 bagIndex) const { return static_cast<BagSlotFlags>(m_activePlayerData->BagSlotFlags[bagIndex]); }
+        void SetBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
+        void RemoveBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
+        void ReplaceAllBagSlotFlags(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
+        EnumFlag<BagSlotFlags> GetBankBagSlotFlags(uint32 bagIndex) const { return static_cast<BagSlotFlags>(m_activePlayerData->BankBagSlotFlags[bagIndex]); }
+        void SetBankBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BankBagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
+        void RemoveBankBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BankBagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
+        void ReplaceAllBankBagSlotFlags(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BankBagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -1923,6 +1951,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 GetLastPotionId() const { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = nullptr);
+
+        float GetEmpowerMinHoldStagePercent() const { return m_empowerMinHoldStagePercent; }
+        void SetEmpowerMinHoldStagePercent(float empowerMinHoldStagePercent) { m_empowerMinHoldStagePercent = empowerMinHoldStagePercent; }
 
         void SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura);
         void ClearResurrectRequestData()
@@ -2884,7 +2915,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         GuidList WhisperList;
         TimePoint m_regenInterruptTimestamp;
         uint32 m_regenTimerCount;
-        uint32 m_foodEmoteTimerCount;
         std::array<float, MAX_POWERS_PER_CLASS> m_powerFraction;
         uint32 m_contestedPvPTimer;
 
@@ -3051,6 +3081,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         std::unordered_map<uint32 /*overridenSpellId*/, std::unordered_set<uint32> /*newSpellId*/> m_overrideSpells;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
         std::unordered_map<uint32, StoredAuraTeleportLocation> m_storedAuraTeleportLocations;
+        float m_empowerMinHoldStagePercent;
 
         SpecializationInfo _specializationInfo;
 

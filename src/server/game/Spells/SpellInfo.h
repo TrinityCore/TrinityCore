@@ -411,6 +411,7 @@ class TC_GAME_API SpellInfo
         uint32 SchoolMask = 0;
         uint32 ChargeCategoryId = 0;
         std::unordered_set<uint32> Labels;
+        std::vector<Milliseconds> EmpowerStageThresholds;
 
         // SpellScalingEntry
         struct ScalingInfo
@@ -501,6 +502,7 @@ class TC_GAME_API SpellInfo
         bool IsNextMeleeSwingSpell() const;
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
+        bool IsEmpowerSpell() const;
         bool HasInitialAggro() const;
         bool HasHitDelay() const;
 
