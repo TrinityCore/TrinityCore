@@ -23,6 +23,8 @@
 #define _OPCODES_H
 
 #include "Define.h"
+#include <array>
+#include <memory>
 #include <string>
 
 enum ConnectionType : int8
@@ -34,13 +36,15 @@ enum ConnectionType : int8
     CONNECTION_TYPE_DEFAULT     = -1
 };
 
-enum OpcodeMisc : uint16
-{
-    MAX_OPCODE                                        = 0x3FFF,
-    NUM_OPCODE_HANDLERS                               = (MAX_OPCODE + 1),
-    UNKNOWN_OPCODE                                    = 0xFFFF,
-    NULL_OPCODE                                       = 0xBADD
-};
+constexpr std::size_t MIN_CMSG_OPCODE_NUMBER = 0x305C;
+constexpr std::size_t MAX_CMSG_OPCODE_NUMBER = 0x3A63;
+constexpr std::size_t NUM_CMSG_OPCODES = MAX_CMSG_OPCODE_NUMBER - MIN_CMSG_OPCODE_NUMBER + 1;
+
+constexpr std::size_t MIN_SMSG_OPCODE_NUMBER = 0x256C;
+constexpr std::size_t MAX_SMSG_OPCODE_NUMBER = 0x3052;
+constexpr std::size_t NUM_SMSG_OPCODES = MAX_SMSG_OPCODE_NUMBER - MIN_SMSG_OPCODE_NUMBER + 1;
+
+constexpr uint16 UNKNOWN_OPCODE = 0xBADD;   // special marker value for uninitialized WorldPackets
 
 enum OpcodeClient : uint16
 {
@@ -2107,10 +2111,10 @@ enum OpcodeServer : uint16
     SMSG_MULTIPLE_PACKETS                             = 0x3051,
 
     // Deleted opcodes, here only to allow compile
-    SMSG_ARENA_TEAM_STATS                             = 0xBADD,
+    SMSG_ARENA_TEAM_STATS                             = UNKNOWN_OPCODE,
 };
 
-inline bool IsInstanceOnlyOpcode(uint32 opcode)
+constexpr bool IsInstanceOnlyOpcode(uint32 opcode)
 {
     switch (opcode)
     {
@@ -2151,67 +2155,53 @@ enum PacketProcessing
 class WorldPacket;
 class WorldSession;
 
-class OpcodeHandler
+struct ClientOpcodeHandler final
 {
-public:
-    OpcodeHandler(char const* name, SessionStatus status) : Name(name), Status(status) { }
-    virtual ~OpcodeHandler() { }
+    using HandlerFunction = void (*)(WorldSession* session, WorldPacket& packet);
 
     char const* Name;
     SessionStatus Status;
-};
-
-class ClientOpcodeHandler : public OpcodeHandler
-{
-public:
-    ClientOpcodeHandler(char const* name, SessionStatus status, PacketProcessing processing)
-        : OpcodeHandler(name, status), ProcessingPlace(processing) { }
-
-    virtual void Call(WorldSession* session, WorldPacket& packet) const = 0;
-
+    HandlerFunction Call;
     PacketProcessing ProcessingPlace;
 };
 
-class ServerOpcodeHandler : public OpcodeHandler
+struct ServerOpcodeHandler final
 {
-public:
-    ServerOpcodeHandler(char const* name, SessionStatus status, ConnectionType conIdx)
-        : OpcodeHandler(name, status), ConnectionIndex(conIdx) { }
-
+    char const* Name;
+    SessionStatus Status;
     ConnectionType ConnectionIndex;
 };
 
 class OpcodeTable
 {
-    public:
-        OpcodeTable();
+public:
+    OpcodeTable();
+    ~OpcodeTable();
 
-        OpcodeTable(OpcodeTable const&) = delete;
-        OpcodeTable& operator=(OpcodeTable const&) = delete;
+    void Initialize();
 
-        ~OpcodeTable();
+    ClientOpcodeHandler const* operator[](OpcodeClient index) const
+    {
+        return _internalTableClient[index - MIN_CMSG_OPCODE_NUMBER].get();
+    }
 
-        void Initialize();
+    ServerOpcodeHandler const* operator[](OpcodeServer index) const
+    {
+        return _internalTableServer[index - MIN_SMSG_OPCODE_NUMBER].get();
+    }
 
-        ClientOpcodeHandler const* operator[](OpcodeClient index) const
-        {
-            return _internalTableClient[index];
-        }
+private:
+    bool ValidateClientOpcode(OpcodeClient opcode, char const* name) const;
+    void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, ClientOpcodeHandler::HandlerFunction call, PacketProcessing processing);
 
-        ServerOpcodeHandler const* operator[](OpcodeServer index) const
-        {
-            return _internalTableServer[index];
-        }
+    bool ValidateServerOpcode(OpcodeServer opcode, char const* name, ConnectionType conIdx) const;
+    void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx);
 
-    private:
-        bool ValidateClientOpcode(OpcodeClient opcode, char const* name) const;
-        template<typename Handler, Handler HandlerFunction>
-        void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
+    void InitializeClientOpcodes();
+    void InitializeServerOpcodes();
 
-        void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx);
-
-        ClientOpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
-        ServerOpcodeHandler* _internalTableServer[NUM_OPCODE_HANDLERS];
+    std::array<std::unique_ptr<ClientOpcodeHandler>, NUM_CMSG_OPCODES> _internalTableClient;
+    std::array<std::unique_ptr<ServerOpcodeHandler>, NUM_SMSG_OPCODES> _internalTableServer;
 };
 
 extern OpcodeTable opcodeTable;
