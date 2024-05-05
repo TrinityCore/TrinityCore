@@ -299,7 +299,6 @@ public:
                 _currentRiftId = tmp;
 
                 Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT, PortalLocation[tmp], TEMPSUMMON_CORPSE_DESPAWN);
-                
                 if (temp)
                 {
                     if (Creature* boss = SummonedPortalBoss(temp))
