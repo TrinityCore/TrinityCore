@@ -207,25 +207,6 @@ bool MySQLConnection::Execute(char const* sql)
     return true;
 }
 
-static auto mysql_bind_param_no_deprecated(MYSQL_STMT* stmt, MYSQL_BIND* bnd)
-{
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#else
-#pragma warning(push)
-#pragma warning(disable: 4996)
-#endif
-
-    return mysql_stmt_bind_param(stmt, bnd);
-
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic pop
-#else
-#pragma warning(pop)
-#endif
-}
-
 bool MySQLConnection::Execute(PreparedStatementBase* stmt)
 {
     if (!m_Mysql)
@@ -243,7 +224,7 @@ bool MySQLConnection::Execute(PreparedStatementBase* stmt)
 
     uint32 _s = getMSTime();
 
-    if (mysql_bind_param_no_deprecated(msql_STMT, msql_BIND))
+    if (mysql_stmt_bind_named_param(msql_STMT, msql_BIND, msql_STMT->param_count, nullptr))
     {
         uint32 lErrno = mysql_errno(m_Mysql);
         TC_LOG_ERROR("sql.sql", "SQL(p): {}\n [ERROR]: [{}] {}", m_mStmt->getQueryString(), lErrno, mysql_stmt_error(msql_STMT));
@@ -291,7 +272,7 @@ bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLPreparedStatement
 
     uint32 _s = getMSTime();
 
-    if (mysql_bind_param_no_deprecated(msql_STMT, msql_BIND))
+    if (mysql_stmt_bind_named_param(msql_STMT, msql_BIND, msql_STMT->param_count, nullptr))
     {
         uint32 lErrno = mysql_errno(m_Mysql);
         TC_LOG_ERROR("sql.sql", "SQL(p): {}\n [ERROR]: [{}] {}", m_mStmt->getQueryString(), lErrno, mysql_stmt_error(msql_STMT));
