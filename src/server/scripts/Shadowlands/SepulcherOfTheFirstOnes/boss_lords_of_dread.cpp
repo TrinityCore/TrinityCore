@@ -1058,9 +1058,11 @@ class spell_lords_of_dread_energy_regeneration : public AuraScript
         InstanceScript* instance = target->GetInstanceScript();
 
         Creature* malganis = instance->GetCreature(DATA_MALGANIS);
-        Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
+        if (!malganis)
+            return;
 
-        if (!malganis || !kintessa)
+        Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
+        if (!kintessa)
             return;
 
         if (malganis->HasAura(SPELL_SWARM_OF_DECAY) || kintessa->HasAura(SPELL_INFILTRATION_DISAPPEAR))
@@ -1187,7 +1189,6 @@ class spell_malganis_cloud_of_carrion_init : public AuraScript
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetCaster();
-        Unit* target = GetTarget();
         if (!caster)
             return;
 
@@ -1199,6 +1200,7 @@ class spell_malganis_cloud_of_carrion_init : public AuraScript
         if (!malganis)
             return;
 
+        Unit* target = GetTarget();
         caster->CastSpell(target, SPELL_CLOUD_OF_CARRION_MISSILE, true);
         caster->CastSpell(target, SPELL_CLOUD_OF_CARRION_PREVENT_TRANSFER, true);
 
@@ -1210,13 +1212,14 @@ class spell_malganis_cloud_of_carrion_init : public AuraScript
             if (!decayMastery || decayMasteryStacks <= 0)
                 decayMasteryStacks = 0;
 
-            uint8 totalWaves = _carrionWaves + decayMasteryStacks;
+            uint8 carrionWaves = 4;
+            uint8 totalWaves = carrionWaves + decayMasteryStacks;
 
-            float _angleOffset = float(M_PI * 2) / totalWaves;
+            float angleOffset = float(M_PI * 2) / totalWaves;
             for (uint8 i = 0; i < totalWaves; i++)
             {
                 float angle = caster->GetOrientation();
-                float nextAngle = angle - _angleOffset * i;
+                float nextAngle = angle - angleOffset * i;
 
                 Position dest = { caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), nextAngle };
                 target->CastSpell(dest, SPELL_CLOUD_OF_CARRION_AREATRIGGER, true);
@@ -1241,9 +1244,6 @@ class spell_malganis_cloud_of_carrion_init : public AuraScript
         OnEffectApply += AuraEffectApplyFn(spell_malganis_cloud_of_carrion_init::OnApply, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_malganis_cloud_of_carrion_init::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
-
-private:
-    uint8 _carrionWaves = 4;
 };
 
 // 360017 - Cloud of Carrion Circle
@@ -1259,17 +1259,18 @@ class spell_malganis_cloud_of_carrion_circle : public AuraScript
             SPELL_BURSTING_DREAD_IMMUNITY,
         });
     }
+
     void OnPeriodic(AuraEffect const* aurEff)
     {
         Unit* caster = GetCaster();
-        Unit* target = GetTarget();
         if (!caster)
             return;
 
+        Unit* target = GetTarget();
         caster->CastSpell(target, SPELL_CLOUD_OF_CARRION_DEBUFF_DAMAGE, true);
 
-        uint8 CurrentTick = aurEff->GetTickNumber();
-        if (CurrentTick % 3 == 0)
+        uint8 currentTick = aurEff->GetTickNumber();
+        if (currentTick % 3 == 0)
             caster->CastSpell(target, SPELL_CLOUD_OF_CARRION_AREATRIGGER_DEBUFF, true);
     }
 
@@ -1287,41 +1288,37 @@ class spell_malganis_cloud_of_carrion_circle : public AuraScript
         {
             case AURA_REMOVE_BY_DEFAULT:
             {
-                Aura* decayMastery = malganis->GetAura(SPELL_DECAY_MASTERY);
-
                 uint8 decayMasteryStacks = 0;
-
-                if (!decayMastery)
-                    decayMasteryStacks = 0;
-                else
+                if (Aura* decayMastery = malganis->GetAura(SPELL_DECAY_MASTERY))
                     decayMasteryStacks = decayMastery->GetStackAmount();
 
                 Unit* target = GetTarget();
                 target->RemoveAurasDueToSpell(SPELL_CLOUD_OF_CARRION_AREATRIGGER_DEBUFF);
                 target->CastSpell(target, SPELL_BURSTING_DREAD_IMMUNITY, true);
 
+                uint8 carrionWaves = 0;
                 switch (GetTarget()->GetMap()->GetDifficultyID())
                 {
                     case DIFFICULTY_LFR_NEW:
                     case DIFFICULTY_NORMAL_RAID:
-                        _carrionWaves = 2;
+                        carrionWaves = 2;
                         break;
                     case DIFFICULTY_HEROIC_RAID:
-                        _carrionWaves = 4;
+                        carrionWaves = 4;
                         break;
                     case DIFFICULTY_MYTHIC_RAID:
-                        _carrionWaves = uint32(6 + decayMasteryStacks);
+                        carrionWaves = 6u + decayMasteryStacks;
                         break;
                     default:
-                        _carrionWaves = 6;
+                        carrionWaves = 6;
                         break;
                 }
 
-                float _angleOffset = float(M_PI * 2) / _carrionWaves;
-                for (uint8 i = 0; i < _carrionWaves; i++)
+                float angleOffset = float(M_PI * 2) / carrionWaves;
+                for (uint8 i = 0; i < carrionWaves; i++)
                 {
                     float angle = target->GetOrientation();
-                    float nextAngle = angle - _angleOffset * i;
+                    float nextAngle = angle - angleOffset * i;
 
                     Position dest = { target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), nextAngle };
                     target->CastSpell(dest, SPELL_CLOUD_OF_CARRION_AREATRIGGER, true);
@@ -1342,9 +1339,6 @@ class spell_malganis_cloud_of_carrion_circle : public AuraScript
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_malganis_cloud_of_carrion_circle::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         AfterEffectRemove += AuraEffectRemoveFn(spell_malganis_cloud_of_carrion_circle::OnRemove, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
     }
-
-private:
-    uint8 _carrionWaves = 0;
 };
 
 // 360015 - Cloud of Carrion Damage Debuff
@@ -1388,10 +1382,8 @@ struct at_malganis_cloud_of_carrion : public AreaTriggerAI
         if (!unit->IsPlayer() || unit->HasAura(SPELL_CLOUD_OF_CARRION_PREVENT_TRANSFER) || unit->HasAura(SPELL_BURSTING_DREAD_IMMUNITY))
             return;
 
-        if (Creature* Malganis = _instance->GetCreature(DATA_MALGANIS))
-        {
-            Malganis->CastSpell(unit, SPELL_CLOUD_OF_CARRION_AREATRIGGER_DEBUFF);
-        }
+        if (Creature* malganis = _instance->GetCreature(DATA_MALGANIS))
+            malganis->CastSpell(unit, SPELL_CLOUD_OF_CARRION_AREATRIGGER_DEBUFF);
     }
 
 private:
@@ -1414,8 +1406,6 @@ struct at_malganis_cloud_of_carrion_puddle : AreaTriggerAI
 
             Position destPos(originPos.GetPositionX() + (std::cos(originPos.GetOrientation()) * carrionWave), originPos.GetPositionY() + (std::sin(originPos.GetOrientation()) * carrionWave), originPos.GetPositionZ());
 
-            _lastPointPos = destPos.GetPosition();
-
             Movement::PointsArray carrionWaveSpliePoints;
 
             carrionWaveSpliePoints.push_back(PositionToVector3(at));
@@ -1434,8 +1424,6 @@ struct at_malganis_cloud_of_carrion_puddle : AreaTriggerAI
         if (!malganis)
             return;
 
-        Position currentPos = at->GetPosition();
-
         malganis->CastSpell(unit, SPELL_CLOUD_OF_CARRION_CIRCLE, true);
     }
 
@@ -1447,7 +1435,6 @@ struct at_malganis_cloud_of_carrion_puddle : AreaTriggerAI
 
 private:
     InstanceScript* _instance;
-    Position _lastPointPos;
 };
 
 // 361913 - Manifest Shadows
@@ -1550,27 +1537,23 @@ class spell_malganis_swarm_of_decay : public SpellScript
         if (!instance)
             return;
 
-        Creature* malganis = instance->GetCreature(DATA_MALGANIS);
         Creature* kintessa = instance->GetCreature(DATA_KINTESSA);
-
-        if (!malganis || !kintessa)
+        if (!kintessa)
             return;
 
         if (Creature* creature = caster->ToCreature())
         {
+            caster->SummonCreature(NPC_SWARM_OF_SHADOWS, caster->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
             if (CreatureAI* malganisAI = creature->AI())
             {
                 malganisAI->Talk(SAY_SWARM_OF_DECAY);
                 malganisAI->Talk(SAY_SWARM_OF_DECAY_ANNOUNCE);
+                malganisAI->DoAction(ACTION_MALGANIS_SWARM_EVENTS);
             }
         }
 
-        malganis->SummonCreature(NPC_SWARM_OF_SHADOWS, caster->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
-        malganis->GetAI()->DoAction(ACTION_MALGANIS_SWARM_EVENTS);
-
         if (Creature* kintessa = GetCaster()->GetInstanceScript()->GetCreature(DATA_KINTESSA))
             kintessa->GetAI()->DoAction(ACTION_KINTESSA_SWARM_EVENTS);
-
     }
 
     void HandleAfterCast()
@@ -1580,19 +1563,15 @@ class spell_malganis_swarm_of_decay : public SpellScript
         if (!instance)
             return;
 
-        Creature* malganis = instance->GetCreature(DATA_MALGANIS);
-        if (!malganis)
-            return;
-
         Unit* swarmOfShadows = caster->FindNearestCreature(NPC_SWARM_OF_SHADOWS, 20.0f, true);
         if (!swarmOfShadows)
             return;
 
         swarmOfShadows->GetMotionMaster()->MoveRotate(2, ROTATE_DIRECTION_RIGHT, 30s);
 
-        malganis->CastSpell(swarmOfShadows, SPELL_RIDE_VEHICLE_HARDCODED, true);
-        malganis->CastSpell(malganis, SPELL_UNTO_DARKNESS_DARKEN_ENVIRONMENT, true);
-        malganis->SetPower(malganis->GetPowerType(), 0);
+        caster->CastSpell(swarmOfShadows, SPELL_RIDE_VEHICLE_HARDCODED, true);
+        caster->CastSpell(caster, SPELL_UNTO_DARKNESS_DARKEN_ENVIRONMENT, true);
+        caster->SetPower(caster->GetPowerType(), 0);
         if (Creature* kintessa = caster->GetInstanceScript()->GetCreature(DATA_KINTESSA))
             kintessa->CastSpell(swarmOfShadows, SPELL_RIDE_VEHICLE_HARDCODED, true);
     }
@@ -1603,6 +1582,7 @@ class spell_malganis_swarm_of_decay : public SpellScript
     }
 };
 
+// 360300 - Swarm of Decay
 class spell_malganis_swarm_of_decay_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -1616,13 +1596,14 @@ class spell_malganis_swarm_of_decay_aura : public AuraScript
         if (!instance)
             return;
 
-        if (Creature* malganis = instance->GetCreature(DATA_MALGANIS))
+        if (Creature* malganis = GetTarget()->ToCreature())
         {
-            if (Unit* swarmOfShadows = GetTarget()->FindNearestCreature(NPC_SWARM_OF_SHADOWS, 30.0f, true))
-                swarmOfShadows->ToCreature()->DespawnOrUnsummon();
+            if (Creature* swarmOfShadows = malganis->FindNearestCreature(NPC_SWARM_OF_SHADOWS, 30.0f, true))
+                swarmOfShadows->DespawnOrUnsummon();
 
             if (malganis->GetMap()->IsHeroicOrHigher())
                 malganis->CastSpell(malganis, SPELL_DECAY_MASTERY, true);
+
             if (malganis->GetMap()->IsMythic())
             {
                 malganis->CastSpell(malganis, SPELL_AURA_OF_CARRION, true);
@@ -1802,7 +1783,6 @@ struct at_kintessa_slumber_cloud : AreaTriggerAI
             return;
 
         _scheduler.Update(diff);
-
     }
 
     void UpdateSize(float radius, float targetRadius)
@@ -2329,9 +2309,9 @@ struct at_kintessa_horrifying_shadows : AreaTriggerAI
         else
             at->GetCaster()->RemoveAurasDueToSpell(SPELL_HORRIFYING_SHADOWS_FEAR);
     }
+
 private:
     TaskScheduler _scheduler;
-
 };
 
 void AddSC_boss_lords_of_dread()
