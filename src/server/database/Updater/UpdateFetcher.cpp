@@ -412,7 +412,7 @@ void UpdateFetcher::CleanUp(AppliedFileStorage const& storage) const
 
 void UpdateFetcher::UpdateState(std::string const& name, State const state) const
 {
-    std::string const update = "UPDATE `updates` SET `state`=\'" + AppliedFileEntry::StateConvert(state) + "\' WHERE `name`=\"" + name + "\"";
+    std::string const update = Trinity::StringFormat(R"(UPDATE `updates` SET `state`='{}' WHERE `name`="{}")", AppliedFileEntry::StateConvert(state), name);
 
     // Update database
     _apply(update);
