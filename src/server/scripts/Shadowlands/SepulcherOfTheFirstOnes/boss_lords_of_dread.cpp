@@ -943,7 +943,11 @@ struct at_lords_of_dread_introduction : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!unit->IsPlayer())
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (player->IsGameMaster())
             return;
 
         if (InstanceScript* instance = at->GetInstanceScript())
