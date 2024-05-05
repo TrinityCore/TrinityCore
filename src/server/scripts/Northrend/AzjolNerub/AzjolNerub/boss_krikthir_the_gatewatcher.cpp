@@ -337,7 +337,6 @@ struct npc_gatewatcher_petAI : public ScriptedAI
         }
         _JustEngagedWith();
         ScriptedAI::JustEngagedWith(who);
-        me->SetCombatPulseDelay(5);
     }
 
     void SetData(uint32 data, uint32 value) override

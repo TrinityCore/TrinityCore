@@ -1290,6 +1290,9 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         CooldownAuraSpellId = _cooldowns->AuraSpellID;
     }
 
+    // SpellEmpowerStageEntry
+    std::ranges::transform(data.EmpowerStages, std::back_inserter(EmpowerStageThresholds), [](SpellEmpowerStageEntry const* stage) { return Milliseconds(stage->DurationMs); });
+
     // SpellEquippedItemsEntry
     if (SpellEquippedItemsEntry const* _equipped = data.EquippedItems)
     {
@@ -1741,6 +1744,11 @@ bool SpellInfo::IsRangedWeaponSpell() const
 bool SpellInfo::IsAutoRepeatRangedSpell() const
 {
     return HasAttribute(SPELL_ATTR2_AUTO_REPEAT);
+}
+
+bool SpellInfo::IsEmpowerSpell() const
+{
+    return !EmpowerStageThresholds.empty();
 }
 
 bool SpellInfo::HasInitialAggro() const

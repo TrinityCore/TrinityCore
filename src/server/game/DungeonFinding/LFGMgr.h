@@ -502,6 +502,11 @@ class TC_GAME_API LFGMgr
         LfgGroupDataContainer GroupsStore;                 /// Group data
 };
 
+inline int32 format_as(LFGMgrEnum e) { return e; }
+inline int32 format_as(LfgProposalState e) { return e; }
+inline uint8 format_as(LfgTeleportResult e) { return e; }
+inline int32 format_as(LfgJoinResult e) { return e; }
+inline int32 format_as(LfgRoleCheckState e) { return e; }
 } // namespace lfg
 
 #define sLFGMgr lfg::LFGMgr::instance()

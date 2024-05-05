@@ -1514,7 +1514,8 @@ void ObjectMgr::LoadEquipmentTemplates()
                 continue;
             }
 
-            if (!sDB2Manager.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId))
+            // AppearanceModId 0 is always valid
+            if (equipmentInfo.Items[i].AppearanceModId && !sDB2Manager.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId))
             {
                 TC_LOG_ERROR("sql.sql", "Unknown item appearance for (ID={}, AppearanceModID={}) pair in creature_equip_template.ItemID{} creature_equip_template.AppearanceModID{} "
                     "for CreatureID = {} and ID={}, forced to default.",
@@ -1526,15 +1527,7 @@ void ObjectMgr::LoadEquipmentTemplates()
                 continue;
             }
 
-            if (dbcItem->InventoryType != INVTYPE_WEAPON &&
-                dbcItem->InventoryType != INVTYPE_SHIELD &&
-                dbcItem->InventoryType != INVTYPE_RANGED &&
-                dbcItem->InventoryType != INVTYPE_2HWEAPON &&
-                dbcItem->InventoryType != INVTYPE_WEAPONMAINHAND &&
-                dbcItem->InventoryType != INVTYPE_WEAPONOFFHAND &&
-                dbcItem->InventoryType != INVTYPE_HOLDABLE &&
-                dbcItem->InventoryType != INVTYPE_THROWN &&
-                dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
+            if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
             {
                 TC_LOG_ERROR("sql.sql", "Item (ID={}) in creature_equip_template.ItemID{} for CreatureID = {} and ID = {} is not equipable in a hand, forced to 0.",
                     equipmentInfo.Items[i].ItemId, i + 1, entry, id);
