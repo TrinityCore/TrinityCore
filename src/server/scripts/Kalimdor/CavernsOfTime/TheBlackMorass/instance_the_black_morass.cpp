@@ -40,7 +40,7 @@ enum Misc
 
 inline uint32 RandRiftBoss() { return ((rand32() % 2) ? NPC_RIFT_KEEPER : NPC_RIFT_LORD); }
 
-float PortalLocation[4][4]=
+static const Position PortalLocation[4] =
 {
     {-2041.06f, 7042.08f, 29.99f, 1.30f},
     {-1968.18f, 7042.11f, 21.93f, 2.12f},
@@ -59,7 +59,7 @@ static Wave RiftWaves[]=
     { RIFT_BOSS,             0s },
     { NPC_CRONO_LORD_DEJA,   0s },
     { RIFT_BOSS,           120s },
-    { NPC_TEMPORUS,        140s },
+    { NPC_TEMPORUS,          0s },
     { RIFT_BOSS,           120s },
     { NPC_AEONUS,            0s }
 };
@@ -184,6 +184,8 @@ public:
                                 medivh->KillSelf();
                                 m_auiEncounter[0] = FAIL;
                                 m_auiEncounter[1] = NOT_STARTED;
+                                Clear();
+                                InitWorldState(false);
                             }
                         }
                     }
@@ -202,6 +204,7 @@ public:
                     {
                         //this may be completed further out in the post-event
                         TC_LOG_DEBUG("scripts", "Instance The Black Morass: Event completed.");
+                        InitWorldState(false);
                         Map::PlayerList const& players = instance->GetPlayers();
 
                         if (!players.isEmpty())
@@ -226,8 +229,10 @@ public:
             case TYPE_RIFT:
                 if (data == SPECIAL)
                 {
-                    if (mRiftPortalCount < 7)
+                    if (mRiftPortalCount != 6 && mRiftPortalCount != 12)
                         ScheduleEventNextPortal(5s);
+                    else
+                        ScheduleEventNextPortal(RiftWaves[GetRiftWaveId() + 1].NextPortalTime);
                 }
                 else
                     m_auiEncounter[1] = data;
@@ -293,9 +298,8 @@ public:
 
                 _currentRiftId = tmp;
 
-                Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT,
-                    PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
-                    TEMPSUMMON_CORPSE_DESPAWN);
+                Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT, PortalLocation[tmp], TEMPSUMMON_CORPSE_DESPAWN);
+                
                 if (temp)
                 {
                     if (Creature* boss = SummonedPortalBoss(temp))

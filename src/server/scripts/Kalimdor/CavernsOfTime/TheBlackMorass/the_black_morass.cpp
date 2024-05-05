@@ -25,6 +25,7 @@
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "the_black_morass.h"
+#include "GameObject.h"
 
 enum MedivhBm
 {
@@ -35,7 +36,7 @@ enum MedivhBm
     SAY_DEATH                            = 5,
     SAY_WIN                              = 6,
     SAY_ORCS_ENTER                       = 7,
-    SAY_ORCS_ANSWER                      = 8,
+    SAY_ORCS_ANSWER                      = 0,
 
     SPELL_CHANNEL                        = 31556,
     SPELL_PORTAL_RUNE                    = 32570,    // aura(portal on ground effect)
@@ -102,6 +103,94 @@ enum MedivhBm
     C_COUNCIL_ENFORCER                   = 17023
 };
 
+#define PORTAL_ORIENTATION 6.1515f
+
+static const Position OrcSpawnPos[6] =
+{
+    {-2089.731f, 7118.083f, 34.589f, 6.19f},
+    {-2089.331f, 7121.083f, 34.589f, 6.19f},
+    {-2088.931f, 7124.083f, 34.589f, 6.19f},
+    {-2088.531f, 7127.083f, 34.589f, 6.19f},
+    {-2088.131f, 7130.083f, 34.589f, 6.19f},
+    {-2087.731f, 7133.083f, 34.589f, 6.19f}
+};
+
+static const Position OrcSquadPos[4] =
+{
+    {-2042.571f, 7113.892f, 0.f, 0.f},
+    {-2054.446f, 7115.418f, 0.f, 0.f},
+    {-2067.175f, 7116.800f, 0.f, 0.f},
+    {-2083.669f, 7118.932f, 0.f, 0.f}
+};
+
+static const Position DarkPortalPos = { -2085.570f, 7125.6215f, 29.444f, 6.148f };
+
+class HomeMovementEvent : public BasicEvent
+{
+public:
+    explicit HomeMovementEvent(Unit* owner) : _owner(owner) { }
+
+    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+    {
+        _owner->GetMotionMaster()->MoveTargetedHome();
+        return true;
+    }
+
+private:
+    Unit* _owner;
+};
+
+class YellEvent : public BasicEvent
+{
+public:
+    explicit YellEvent(Creature* owner) : _owner(owner) { }
+
+    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+    {
+        _owner->SetFacingTo(3.05f);
+        _owner->AI()->Talk(SAY_ORCS_ANSWER);
+        return true;
+    }
+
+private:
+    Creature* _owner;
+};
+
+class MarchMovementEvent : public BasicEvent
+{
+public:
+    explicit MarchMovementEvent(Creature* owner, uint8 orcSquadNumber, uint8 orcNumber) : _owner(owner), _orcSquadNumber(orcSquadNumber), _orcNumber(orcNumber) { }
+
+    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+    {
+        float x = OrcSquadPos[_orcSquadNumber].GetPositionX();
+        if (!_orcSquadNumber && _orcNumber == 2)
+        {
+            _owner->m_Events.AddEvent(new YellEvent(_owner), _owner->m_Events.CalculateTime(33s));
+            x += 2;
+        }
+        float y = (OrcSquadPos[_orcSquadNumber].GetPositionY() + _orcNumber * 3);
+        float z = _owner->GetMapHeight(x, y, _owner->GetPositionZ());
+        _owner->GetMotionMaster()->MovePoint(0, x, y, z);
+        _owner->SetVisible(true);
+        _owner->m_Events.AddEvent(new HomeMovementEvent(_owner), _owner->m_Events.CalculateTime(Seconds(urand(44, 47))));
+        _owner->DespawnOrUnsummon(Seconds(urand(51, 55)));
+        return true;
+    }
+
+private:
+    Creature* _owner;
+    uint8 _orcSquadNumber;
+    uint8 _orcNumber;
+};
+
+enum MedivhEvents
+{
+    EVENT_SPELL_CORRUPT = 1,
+    EVENT_CHECK,
+    EVENT_ORCS_MARSH,
+};
+
 struct npc_medivh_bm : public ScriptedAI
 {
     npc_medivh_bm(Creature* creature) : ScriptedAI(creature)
@@ -112,21 +201,33 @@ struct npc_medivh_bm : public ScriptedAI
 
     void Initialize()
     {
-        SpellCorrupt_Timer = 0;
-        Check_Timer = 0;
+        orcSquadNumber = 0;
         Life75 = true;
         Life50 = true;
         Life25 = true;
     }
 
     InstanceScript* instance;
-
-    uint32 SpellCorrupt_Timer;
-    uint32 Check_Timer;
+    EventMap Events;
+    uint8 orcSquadNumber;
 
     bool Life75;
     bool Life50;
     bool Life25;
+
+    void StartPostEvent()
+    {
+        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(PORTAL_ORIENTATION, 0.f, 0.f);
+        me->SummonGameObject(GO_DARK_PORTAL, DarkPortalPos, rot, 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN))->GetGUID();
+        for (uint8 i = 0; i < 4; ++i)
+            for (uint8 j = 0; j < 6; ++j)
+                if (Creature* creature = me->SummonCreature(NPC_SHADOW_COUNCIL_ENFORCER, OrcSpawnPos[j]))
+                {
+                    creature->m_Events.AddEvent(new MarchMovementEvent(creature, i, j), Seconds(30 + i));
+                    creature->SetVisible(false);
+                }
+        Events.ScheduleEvent(EVENT_ORCS_MARSH, 47s);
+    }
 
     void Reset() override
     {
@@ -148,7 +249,7 @@ struct npc_medivh_bm : public ScriptedAI
             Talk(SAY_ENTER);
             instance->SetData(TYPE_MEDIVH, IN_PROGRESS);
             DoCast(me, SPELL_CHANNEL, false);
-            Check_Timer = 5000;
+            Events.ScheduleEvent(EVENT_CHECK, 5s);
         }
         else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
         {
@@ -181,14 +282,14 @@ struct npc_medivh_bm : public ScriptedAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (SpellCorrupt_Timer)
+        if (Events.HasEventScheduled(EVENT_SPELL_CORRUPT))
             return;
 
         if (spellInfo->Id == SPELL_CORRUPT_AEONUS)
-            SpellCorrupt_Timer = 1000;
+            Events.ScheduleEvent(EVENT_SPELL_CORRUPT, 1s);
 
         if (spellInfo->Id == SPELL_CORRUPT)
-            SpellCorrupt_Timer = 3000;
+            Events.ScheduleEvent(EVENT_SPELL_CORRUPT, 3s);
     }
 
     void JustDied(Unit* killer) override
@@ -201,65 +302,65 @@ struct npc_medivh_bm : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (SpellCorrupt_Timer)
-        {
-            if (SpellCorrupt_Timer <= diff)
-            {
-                instance->SetData(TYPE_MEDIVH, SPECIAL);
+        Events.Update(diff);
 
-                if (me->HasAura(SPELL_CORRUPT_AEONUS))
-                    SpellCorrupt_Timer = 1000;
-                else if (me->HasAura(SPELL_CORRUPT))
-                    SpellCorrupt_Timer = 3000;
-                else
-                    SpellCorrupt_Timer = 0;
-            } else SpellCorrupt_Timer -= diff;
+        switch (Events.ExecuteEvent())
+        {
+        case EVENT_SPELL_CORRUPT:
+            instance->SetData(TYPE_MEDIVH, SPECIAL);
+            if (me->HasAura(SPELL_CORRUPT_AEONUS))
+                Events.ScheduleEvent(EVENT_SPELL_CORRUPT, 1s);
+            else if (me->HasAura(SPELL_CORRUPT))
+                Events.ScheduleEvent(EVENT_SPELL_CORRUPT, 3s);
+            break;
+        case EVENT_CHECK:
+        {
+            uint32 pct = instance->GetData(DATA_SHIELD);
+
+            Events.ScheduleEvent(EVENT_CHECK, 5s);
+
+            if (Life25 && pct <= 25)
+            {
+                Talk(SAY_WEAK25);
+                Life25 = false;
+            }
+            else if (Life50 && pct <= 50)
+            {
+                Talk(SAY_WEAK50);
+                Life50 = false;
+            }
+            else if (Life75 && pct <= 75)
+            {
+                Talk(SAY_WEAK75);
+                Life75 = false;
+            }
+
+            //if we reach this it means event was running but at some point reset.
+            if (instance->GetData(TYPE_MEDIVH) == NOT_STARTED)
+            {
+                me->DespawnOrUnsummon();
+                me->Respawn();
+                return;
+            }
+
+            if (instance->GetData(TYPE_RIFT) == DONE)
+            {
+                Talk(SAY_WIN);
+                Events.CancelEvent(EVENT_CHECK);
+
+                if (me->HasAura(SPELL_CHANNEL))
+                    me->RemoveAura(SPELL_CHANNEL);
+
+                instance->SetData(TYPE_MEDIVH, DONE);
+                StartPostEvent();
+            }
         }
-
-        if (Check_Timer)
-        {
-            if (Check_Timer <= diff)
-            {
-                uint32 pct = instance->GetData(DATA_SHIELD);
-
-                Check_Timer = 5000;
-
-                if (Life25 && pct <= 25)
-                {
-                    Talk(SAY_WEAK25);
-                    Life25 = false;
-                }
-                else if (Life50 && pct <= 50)
-                {
-                    Talk(SAY_WEAK50);
-                    Life50 = false;
-                }
-                else if (Life75 && pct <= 75)
-                {
-                    Talk(SAY_WEAK75);
-                    Life75 = false;
-                }
-
-                //if we reach this it means event was running but at some point reset.
-                if (instance->GetData(TYPE_MEDIVH) == NOT_STARTED)
-                {
-                    me->DespawnOrUnsummon();
-                    me->Respawn();
-                    return;
-                }
-
-                if (instance->GetData(TYPE_RIFT) == DONE)
-                {
-                    Talk(SAY_WIN);
-                    Check_Timer = 0;
-
-                    if (me->HasAura(SPELL_CHANNEL))
-                        me->RemoveAura(SPELL_CHANNEL);
-
-                    /// @todo start the post-event here
-                    instance->SetData(TYPE_MEDIVH, DONE);
-                }
-            } else Check_Timer -= diff;
+            break;
+        case EVENT_ORCS_MARSH:
+            Talk(SAY_ORCS_ENTER);
+            break;
+        default:
+            break;
         }
 
         //if (!UpdateVictim())
@@ -281,6 +382,11 @@ static Wave PortalWaves[]=
     { {NPC_INFINITE_EXECUTIONER, NPC_INFINITE_VANQUISHER, NPC_INFINITE_CRONOMANCER, NPC_INFINITE_ASSASIN} }
 };
 
+enum TimeRiftEvents
+{
+    EVENT_TIME_RIFT_WAVE = 1
+};
+
 struct npc_time_rift : public ScriptedAI
 {
     npc_time_rift(Creature* creature) : ScriptedAI(creature)
@@ -291,14 +397,14 @@ struct npc_time_rift : public ScriptedAI
 
     void Initialize()
     {
-        TimeRiftWave_Timer = 15000;
+        Events.ScheduleEvent(EVENT_TIME_RIFT_WAVE, 15s);
         mRiftWaveCount = 0;
         mWaveId = 0;
     }
 
     InstanceScript* instance;
 
-    uint32 TimeRiftWave_Timer;
+    EventMap Events;
     uint8 mRiftWaveCount;
     uint8 mWaveId;
 
@@ -360,11 +466,20 @@ struct npc_time_rift : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (TimeRiftWave_Timer <= diff)
+        if (instance->GetData(DATA_PORTAL_COUNT) == 18)
+            return;
+
+        Events.Update(diff);
+
+        switch (Events.ExecuteEvent())
         {
+        case EVENT_TIME_RIFT_WAVE:
             DoSelectSummon();
-            TimeRiftWave_Timer = 15000;
-        } else TimeRiftWave_Timer -= diff;
+            Events.Repeat(15s);
+            break;
+        default:
+            break;
+        }
 
         if (me->IsNonMeleeSpellCast(false))
             return;
