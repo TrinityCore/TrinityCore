@@ -227,10 +227,12 @@ class spell_lords_of_dread_grand_reveal : public AuraScript
         Unit* target = GetTarget();
 
         if (Creature* creature = target->ToCreature())
+        {
             if (creature->GetEntry() == NPC_OVERTHROWN_PROTECTOR_MALGANIS)
                 target->SetSpellOverrideNameID(MALGANIS_OVERRIDE_NAME);
             else
                 target->SetSpellOverrideNameID(KINTESSA_OVERRIDE_NAME);
+        }
     }
 
     void Register() override
