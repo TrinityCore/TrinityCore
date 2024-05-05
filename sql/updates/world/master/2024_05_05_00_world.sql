@@ -21,15 +21,19 @@ INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `DifficultyID`,
 (128930, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0);
 
 -- Script Names
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (111216, 111394, 112953, 113969, 111755, 111756, 128930);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (111216, 111394, 112953, 113959, 111755, 111756, 128930);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (111216, 'spell_harlan_blades_of_light'),
 (111394, 'spell_harlan_blades_of_light_selector'),
 (112953, 'spell_harlan_leave_vehicle'),
 (113959, 'spell_scarlet_defender_heavy_armor'),
-(111755, 'spell_call_reinforcements_right'),
-(111756, 'spell_call_reinforcements_left'),
 (128930, 'spell_eject_spirits_of_redemption');
+
+-- Spelltarget Pos.
+DELETE FROM `spell_target_position` WHERE `ID` IN (111755, 111756);
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
+(111755, 0, 1001, 1182.020, 447.325, 11.98933, NULL, 0),
+(111756, 0, 1001, 1181.833, 440.649, 11.98763, NULL, 0);
 
 -- Conditions
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (111394));

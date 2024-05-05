@@ -261,37 +261,6 @@ class spell_scarlet_defender_heavy_armor : public AuraScript
     }
 };
 
-constexpr Position CallReinforcmentsRightPosition = { 1182.020f, 447.325f, 11.98933f };
-constexpr Position CallReinforcmentsLeftPosition = { 1181.833f, 440.649f, 11.98763f };
-
-// 111755 - Call Reinforcements
-class spell_call_reinforcements_right : public SpellScript
-{
-    void SetDest(SpellDestination& dest)
-    {
-        dest.Relocate(CallReinforcmentsRightPosition);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_call_reinforcements_right::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
-    }
-};
-
-// 111756 - Call Reinforcements
-class spell_call_reinforcements_left : public SpellScript
-{
-    void SetDest(SpellDestination& dest)
-    {
-        dest.Relocate(CallReinforcmentsLeftPosition);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_call_reinforcements_left::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
-    }
-};
-
 // 128930 - Eject Spirits of Redemption
 class spell_eject_spirits_of_redemption : public SpellScript
 {
@@ -328,7 +297,5 @@ void AddSC_boss_armsmaster_harlan()
     RegisterSpellScript(spell_harlan_blades_of_light_selector);
     RegisterSpellScript(spell_harlan_leave_vehicle);
     RegisterSpellScript(spell_scarlet_defender_heavy_armor);
-    RegisterSpellScript(spell_call_reinforcements_right);
-    RegisterSpellScript(spell_call_reinforcements_left);
     RegisterSpellScript(spell_eject_spirits_of_redemption);
 }
