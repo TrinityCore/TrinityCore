@@ -195,7 +195,7 @@ enum LordsOfDreadSpells
     SPELL_INCOMPLETE_FORM_AURA                          = 362020,
 };
 
-enum Events
+enum LordsOfDreadEvents
 {
     // Mal'Ganis
     EVENT_LEECHING_CLAWS,
@@ -216,7 +216,7 @@ enum Events
     EVENT_RAVENOUS_HUNGER,
 };
 
-enum Actions
+enum LordsOfDreadActions
 {
     ACTION_START_INTRODUCTION = 1,
     ACTION_MIMICKING_DISGUISE,
