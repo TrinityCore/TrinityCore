@@ -452,9 +452,9 @@ protected:
 };
 
 // 181398 - Mal'Ganis
-struct boss_lords_of_dread_mal_ganis : public LordsOfDreadAI
+struct boss_lords_of_dread_malganis : public LordsOfDreadAI
 {
-    struct boss_lords_of_dread_mal_ganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _carrionCount(0) { }
+    struct boss_lords_of_dread_malganis(Creature* creature) : LordsOfDreadAI(creature, DATA_MALGANIS), _carrionCount(0) { }
 
     void CancelMalganisEventsScheduleAfterParanoia()
     {
@@ -2332,7 +2332,7 @@ private:
 
 void AddSC_boss_lords_of_dread()
 {
-    RegisterSepulcherOfTheFirstOnesCreatureAI(boss_lords_of_dread_mal_ganis);
+    RegisterSepulcherOfTheFirstOnesCreatureAI(boss_lords_of_dread_malganis);
     RegisterSepulcherOfTheFirstOnesCreatureAI(boss_lords_of_dread_kintessa);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_inchoate_shadow);
     RegisterSepulcherOfTheFirstOnesCreatureAI(npc_slumber_cloud);
