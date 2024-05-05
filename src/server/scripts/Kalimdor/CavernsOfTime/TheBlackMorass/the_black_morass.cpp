@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 #include "the_black_morass.h"
 #include "GameObject.h"
 
