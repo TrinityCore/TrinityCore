@@ -40,6 +40,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "TemporarySummon.h"
