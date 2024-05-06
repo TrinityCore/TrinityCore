@@ -217,18 +217,7 @@ if(OPENSSL_USE_STATIC_LIBS)
   endif()
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "QNX" AND
-  CMAKE_SYSTEM_VERSION VERSION_GREATER_EQUAL "7.0" AND CMAKE_SYSTEM_VERSION VERSION_LESS "7.1" AND
-  OpenSSL_FIND_VERSION VERSION_GREATER_EQUAL "1.1" AND OpenSSL_FIND_VERSION VERSION_LESS "1.2")
-  # QNX 7.0.x provides openssl 1.0.2 and 1.1.1 in parallel:
-  # * openssl 1.0.2: libcrypto.so.2 and libssl.so.2, headers under usr/include/openssl
-  # * openssl 1.1.1: libcrypto1_1.so.2.1 and libssl1_1.so.2.1, header under usr/include/openssl1_1
-  # See http://www.qnx.com/developers/articles/rel_6726_0.html
-  set(_OPENSSL_FIND_PATH_SUFFIX "openssl1_1")
-  set(_OPENSSL_NAME_POSTFIX "1_1")
-else()
-  set(_OPENSSL_FIND_PATH_SUFFIX "include")
-endif()
+set(_OPENSSL_FIND_PATH_SUFFIX "include")
 
 if (OPENSSL_ROOT_DIR OR NOT "$ENV{OPENSSL_ROOT_DIR}" STREQUAL "")
   set(_OPENSSL_ROOT_HINTS HINTS ${OPENSSL_ROOT_DIR} ENV OPENSSL_ROOT_DIR)
@@ -284,7 +273,6 @@ endif ()
 
 if(HOMEBREW_PREFIX)
   list(APPEND _OPENSSL_ROOT_HINTS
-    "${HOMEBREW_PREFIX}/opt/openssl@1.1"
     "${HOMEBREW_PREFIX}/opt/openssl@3")
 endif()
 
