@@ -39,6 +39,12 @@ else()
   message("* Build map/vmap tools   : No")
 endif()
 
+if (MODULES  AND (NOT MODULES STREQUAL "none"))
+  message("* Build with modules     : Yes (${MODULES})")
+else()
+  message("* Build with modules     : No")
+endif()
+
 if(BUILD_TESTING)
   message("* Build unit tests       : Yes")
 else()

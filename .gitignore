@@ -23,3 +23,12 @@ nbproject/*
 cmake-build-*/*
 .vs
 *.user
+
+# acore modules
+.aider*
+/modules/*
+!/modules/*.md
+!/modules/*.sh
+!/modules/CMakeLists.txt
+!/modules/*.h
+!/modules/*.cmake

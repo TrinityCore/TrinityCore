@@ -104,3 +104,38 @@ if(BUILD_TESTING)
     set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
   endif()
 endif()
+
+#
+# Loading dyn modules
+#
+
+# some utils for cmake
+include(dep/acore/cmake-utils/utils.cmake)
+include(ConfigureModules)
+include(ConfigInstall)
+
+# add modules and dependencies from AzerothCore
+CU_SUBDIRLIST(sub_DIRS  "${CMAKE_SOURCE_DIR}/modules" FALSE FALSE)
+message(STATUS "Checking for modules")
+FOREACH(subdir ${sub_DIRS})
+    message(STATUS "Checking module: ${subdir}")
+    get_filename_component(MODULENAME ${subdir} NAME)
+
+    if (";${DISABLED_AC_MODULES};" MATCHES ";${MODULENAME};")
+        continue()
+    endif()
+
+    STRING(REPLACE "${CMAKE_SOURCE_DIR}/" "" subdir_rel ${subdir})
+    if(EXISTS "${subdir}/CMakeLists.txt")
+        message(STATUS "Adding module: ${MODULENAME}")
+        add_subdirectory("${subdir_rel}")
+    else()
+        message(STATUS "Skipping moduole ${MODULENAME}, no CMAKE file.")
+    endif()
+ENDFOREACH()
+
+if (SERVERS)
+  # add modules sources
+  add_subdirectory(modules)
+endif()
+

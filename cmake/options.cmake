@@ -59,3 +59,17 @@ option(BUILD_TESTING    "Build test suite" 0)
 if(UNIX)
   option(USE_LD_GOLD    "Use GNU gold linker"                                        0)
 endif()
+
+# stuff for modules
+set(MODULES_AVAILABLE_OPTIONS none static dynamic)
+set(MODULES "static" CACHE STRING "Build core with modules")
+set_property(CACHE MODULES PROPERTY STRINGS ${MODULES_AVAILABLE_OPTIONS})
+
+# Log a error when the value of the MODULES variable isn't a valid option.
+if(MODULES)
+  list(FIND MODULES_AVAILABLE_OPTIONS "${MODULES}" MODULES_INDEX)
+  if(${MODULES_INDEX} EQUAL -1)
+    message(FATAL_ERROR "The value (${MODULES}) of your MODULES variable is invalid! "
+            "Allowed values are: ${MODULES_AVAILABLE_OPTIONS}. Set static")
+  endif()
+endif()
