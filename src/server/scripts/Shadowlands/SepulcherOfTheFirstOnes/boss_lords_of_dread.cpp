@@ -1399,21 +1399,18 @@ struct at_malganis_cloud_of_carrion_puddle : AreaTriggerAI
 
     void OnInitialize() override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            Position originPos = at->GetPosition();
+        Position originPos = at->GetPosition();
 
-            float carrionWave = 100.0f;
+        float carrionWave = 100.0f;
 
-            Position destPos(originPos.GetPositionX() + (std::cos(originPos.GetOrientation()) * carrionWave), originPos.GetPositionY() + (std::sin(originPos.GetOrientation()) * carrionWave), originPos.GetPositionZ());
+        Position destPos(originPos.GetPositionX() + (std::cos(originPos.GetOrientation()) * carrionWave), originPos.GetPositionY() + (std::sin(originPos.GetOrientation()) * carrionWave), originPos.GetPositionZ());
 
-            Movement::PointsArray carrionWaveSpliePoints;
+        Movement::PointsArray carrionWaveSpliePoints;
 
-            carrionWaveSpliePoints.push_back(PositionToVector3(at));
-            carrionWaveSpliePoints.push_back(PositionToVector3(destPos));
+        carrionWaveSpliePoints.push_back(PositionToVector3(at));
+        carrionWaveSpliePoints.push_back(PositionToVector3(destPos));
 
-            at->InitSplines(carrionWaveSpliePoints, uint32(at->GetDistance(destPos) * 180));
-        }
+        at->InitSplines(carrionWaveSpliePoints, uint32(at->GetDistance(destPos) * 180));
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -1894,7 +1891,6 @@ class spell_kintessa_fearful_trepidation_debuff : public AuraScript
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetCaster();
-        Unit* target = GetTarget();
         if (!caster)
             return;
 
@@ -1902,7 +1898,7 @@ class spell_kintessa_fearful_trepidation_debuff : public AuraScript
             _radius = spellInfo->GetEffect(EFFECT_0).CalcValue();
 
         std::list<Player*> playerList;
-        target->GetPlayerListInGrid(playerList, _radius);
+        GetTarget()->GetPlayerListInGrid(playerList, _radius);
 
         for (Player* playersInRadius : playerList)
         {
@@ -1973,23 +1969,11 @@ class spell_kintessa_infiltration_of_dread : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_INFILTRATION_PULL, SPELL_PARANOIA });
-    }
-
-    void HandleCast(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        caster->CastSpell(target, SPELL_INFILTRATION_PULL, true);
-        caster->CastSpell(target, SPELL_PARANOIA, true);
-
-        InstanceScript* instance = caster->GetInstanceScript();
-        if (!instance)
-            return;
-
-        if (Creature* kintessa = instance->GetCreature(DATA_KINTESSA))
-            kintessa->GetAI()->DoAction(ACTION_PARANOIA);
+        return ValidateSpellInfo
+        ({
+            SPELL_INFILTRATION_PULL,
+            SPELL_PARANOIA
+        });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -2002,10 +1986,17 @@ class spell_kintessa_infiltration_of_dread : public SpellScript
         });
     }
 
+    void HandleCast(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_INFILTRATION_PULL, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PARANOIA, true);
+        GetCaster()->GetAI()->DoAction(ACTION_PARANOIA);
+    }
+
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_kintessa_infiltration_of_dread::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kintessa_infiltration_of_dread::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_kintessa_infiltration_of_dread::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 
 private:
@@ -2067,11 +2058,6 @@ class spell_lords_of_dread_infiltration : public AuraScript
     }
 
 public:
-    bool Load() override
-    {
-        return true;
-    }
-
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         amount = 0;

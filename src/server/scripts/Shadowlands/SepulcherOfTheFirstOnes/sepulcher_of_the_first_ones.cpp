@@ -28,6 +28,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "TaskScheduler.h"
+#include "Unit.h"
 #include "sepulcher_of_the_first_ones.h"
 
 enum LordsOfDreadImitationSpells
