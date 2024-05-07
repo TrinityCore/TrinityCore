@@ -63,6 +63,7 @@ void AddSC_instance_dire_maul();
 // Dragon Soul
 void AddSC_instance_dragon_soul();
 // Ragefire Chasm
+void AddSC_boss_adarogg();
 void AddSC_instance_ragefire_chasm();
 // Maraudon
 void AddSC_boss_celebras_the_cursed();
@@ -204,6 +205,7 @@ void AddKalimdorScripts()
     // Dragon Soul
     AddSC_instance_dragon_soul();
     // Ragefire Chasm
+    AddSC_boss_adarogg();
     AddSC_instance_ragefire_chasm();
     //Maraudon
     AddSC_boss_celebras_the_cursed();
