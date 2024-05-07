@@ -27,7 +27,7 @@
 
 std::thread* CreateSoapThread(const std::string& host, uint16 port)
 {
-    auto soap = Trinity::make_unique_ptr_with_deleter<struct soap*>(new struct soap(), [](struct soap* soap)
+    auto soap = Trinity::make_unique_ptr_with_deleter(new struct soap(), [](struct soap* soap)
     {
         soap_destroy(soap);
         soap_end(soap);

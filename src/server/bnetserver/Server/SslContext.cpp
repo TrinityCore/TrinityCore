@@ -30,7 +30,7 @@ namespace
 {
 auto CreatePasswordUiMethodFromPemCallback(::pem_password_cb* callback)
 {
-    return Trinity::make_unique_ptr_with_deleter(UI_UTIL_wrap_read_pem_callback(callback, 0), ::UI_destroy_method);
+    return Trinity::make_unique_ptr_with_deleter(UI_UTIL_wrap_read_pem_callback(callback, 0), &::UI_destroy_method);
 }
 
 auto OpenOpenSSLStore(boost::filesystem::path const& storePath, UI_METHOD const* passwordCallback, void* passwordCallbackData)
@@ -45,7 +45,7 @@ auto OpenOpenSSLStore(boost::filesystem::path const& storePath, UI_METHOD const*
 
     uri += genericPath;
 
-    return Trinity::make_unique_ptr_with_deleter(OSSL_STORE_open(uri.c_str(), passwordCallback, passwordCallbackData, nullptr, nullptr), ::OSSL_STORE_close);
+    return Trinity::make_unique_ptr_with_deleter(OSSL_STORE_open(uri.c_str(), passwordCallback, passwordCallbackData, nullptr, nullptr), &::OSSL_STORE_close);
 }
 
 boost::system::error_code GetLastOpenSSLError()
