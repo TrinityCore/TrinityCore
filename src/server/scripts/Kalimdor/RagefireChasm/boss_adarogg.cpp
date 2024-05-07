@@ -26,10 +26,10 @@ enum Spells
     SPELL_ADJULES_CHOW_TIME         = 120113,
     SPELL_EAT_TROGG                 = 120064,
 
-	SPELL_INFERNO_CHARGE_DAMAGE		= 119299,
-	SPELL_INFERNO_CHARGE_CAST		= 119405,
-	SPELL_INFERNO_CHARGE_SUMMON		= 119297, // Serverside
-	SPELL_FIRE_BREATH				= 119420
+    SPELL_INFERNO_CHARGE_DAMAGE     = 119299,
+    SPELL_INFERNO_CHARGE_CAST       = 119405,
+    SPELL_INFERNO_CHARGE_SUMMON     = 119297, // Serverside
+    SPELL_FIRE_BREATH               = 119420
 };
 
 enum Texts
@@ -43,8 +43,8 @@ enum Texts
 
 enum Events
 {
-	EVENT_INFERNO_CHARGE 			= 1,
-	EVENT_FIRE_BREATH				= 2
+    EVENT_INFERNO_CHARGE            = 1,
+    EVENT_FIRE_BREATH               = 2
 };
 
 enum Actions
@@ -237,6 +237,6 @@ void AddSC_boss_adarogg()
 {
     new at_adarogg_intro();
 
-	RegisterRagefireChasmCreatureAI(boss_adarogg);
-	RegisterSpellScript(spell_rfc_inferno_charge);
+    RegisterRagefireChasmCreatureAI(boss_adarogg);
+    RegisterSpellScript(spell_rfc_inferno_charge);
 }
