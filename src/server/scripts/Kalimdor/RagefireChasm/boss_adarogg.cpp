@@ -130,7 +130,7 @@ struct boss_adarogg : public BossAI
                     DoCast(SPELL_ADJULES_CHOW_TIME);
                     me->GetMotionMaster()->MovePoint(0, IntroPoints[1]);
 
-                    task.Schedule(1s + 200ms, [this](TaskContext task)
+                    task.Schedule(1s + 200ms, [this](TaskContext /*task*/)
                     {
                         DoCast(SPELL_ADJULES_CHOW_TIME);
                         me->GetMotionMaster()->MovePath(PATH_INTRO, true);
