@@ -213,30 +213,9 @@ private:
     uint8 eatCounter;
 };
 
-// 119298 - (Serverside/Non-DB2) Inferno Charge
-class spell_rfc_inferno_charge : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_INFERNO_CHARGE_DAMAGE });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_INFERNO_CHARGE_DAMAGE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_rfc_inferno_charge::HandleScript, EFFECT_0, SPELL_EFFECT_CHARGE);
-    }
-};
-
 void AddSC_boss_adarogg()
 {
     new at_adarogg_intro();
 
     RegisterRagefireChasmCreatureAI(boss_adarogg);
-    RegisterSpellScript(spell_rfc_inferno_charge);
 }
