@@ -88,9 +88,7 @@ public:
 // 61408 - Adarogg
 struct boss_adarogg : public BossAI
 {
-    using BossAI::BossAI;
-
-    boss_adarogg(Creature* creature) : BossAI(creature, BOSS_ADAROGG), eatCounter(0) { }
+    boss_adarogg(Creature* creature) : BossAI(creature, BOSS_ADAROGG), _eatCounter(0) { }
 
     void Reset() override
     {
@@ -122,7 +120,7 @@ struct boss_adarogg : public BossAI
             corruptedHoundmaster1->AI()->Talk(SAY_HOUNDMASTER_INTRO_0);
             corruptedHoundmaster2->AI()->Talk(SAY_HOUNDMASTER_INTRO_1);
 
-            scheduler.Schedule(2s, [this](TaskContext task)
+            _scheduler.Schedule(2s, [this](TaskContext task)
             {
                 DoCast(SPELL_ADJULES_CHOW_TIME);
                 me->GetMotionMaster()->MovePoint(0, IntroPoints[0]);
@@ -151,18 +149,18 @@ struct boss_adarogg : public BossAI
                 case POINT_EAT_1:
                 case POINT_EAT_2:
                 {
-                    scheduler.Schedule(1s, [this](TaskContext task)
+                    _scheduler.Schedule(1s, [this](TaskContext task)
                     {
-                        if (eatCounter < 2)
+                        if (_eatCounter < 2)
                         {
                             DoCast(SPELL_EAT_TROGG);
                             task.Repeat(2s, 3s);
-                            eatCounter++;
+                            _eatCounter++;
                         }
                         else
                         {
                             task.CancelAll();
-                            eatCounter = 0;
+                            _eatCounter = 0;
                         }
                     });
                     break;
@@ -173,7 +171,7 @@ struct boss_adarogg : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        scheduler.Update(diff);
+        _scheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
@@ -211,8 +209,8 @@ struct boss_adarogg : public BossAI
     }
 
 private:
-    TaskScheduler scheduler;
-    uint8 eatCounter;
+    TaskScheduler _scheduler;
+    uint8 _eatCounter;
 };
 
 void AddSC_boss_adarogg()
