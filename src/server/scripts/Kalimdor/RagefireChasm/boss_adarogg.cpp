@@ -76,8 +76,8 @@ public:
     bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* teron = instance->GetCreature(BOSS_ADAROGG))
-                teron->AI()->DoAction(ACTION_KILL_HOUNDMASTERS);
+            if (Creature* adarogg = instance->GetCreature(BOSS_ADAROGG))
+                adarogg->AI()->DoAction(ACTION_KILL_HOUNDMASTERS);
 
         return true;
     }
