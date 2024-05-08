@@ -119,6 +119,8 @@ enum Creatures
     NPC_FEL_EYE_STALK                = 23323
 };
 
+typedef std::set<uint32> TrashMobSet;
+
 ParallelogramBoundary* const GreenMatterBoundary = new ParallelogramBoundary
 {
     Position(2640.37f, 7089.21f, 0.0f),
@@ -215,7 +217,7 @@ static Position const MoSpawnPos[3] =
     {2704.05f, 7089.95f, 364.77f, 4.08f}
 };
 
-static std::set<uint32> const TrashMobSet =
+static TrashMobSet const TrashMobs =
 {
     NPC_FEL_IMP_DEFENDER,
     NPC_FELHOUND_DEFENDER,
@@ -247,11 +249,7 @@ static std::set<uint32> const TrashMobSet =
 
 enum OverseerShartuul
 {
-    EVENT_SPAWN_MOB_DEMON_I_WAVE_I      = 1,
-    EVENT_SPAWN_MOB_DEMON_II_WAVE_I,
-    EVENT_SPAWN_MOB_DEMON_II_WAVE_II,
-    EVENT_SPAWN_MOB_DEMON_II_WAVE_III,
-    EVENT_SPAWN_MOB_DEMON_II_WAVE_IV,
+    EVENT_SPAWN_TRASH_WAVE              = 1,
 
     EVENT_SPAWN_EYE_OF_SHARTUUL,
     EVENT_SPAWN_DREADMAW,
@@ -288,6 +286,38 @@ enum OverseerShartuul
     POINT_SHARTUUL_COMBAT               = 0
 };
 
+struct TrashWave
+{
+    uint8 currWave;
+    std::vector<uint32> creatureEntrys;
+    std::vector<Seconds> delays; // in seconds
+};
+
+// Define waves
+std::vector<TrashWave> trashWaves =
+{
+    {
+        0,
+        {NPC_FEL_IMP_DEFENDER, NPC_FELHOUND_DEFENDER, NPC_FELHOUND_DEFENDER},
+        {12s, 120s}
+    },
+    {
+        0,
+        {NPC_GAN_ARG_UNDERLING, NPC_GAN_ARG_UNDERLING},
+        {8s, 36s, 64s, 67s}
+    },
+    {
+        0,
+        {NPC_MO_ARG_TORMENTER, NPC_GAN_ARG_UNDERLING, NPC_GAN_ARG_UNDERLING, NPC_GAN_ARG_UNDERLING},
+        {40s, 120s, 200s}
+    },
+    {
+        0,
+        {NPC_GAN_ARG_UNDERLING, NPC_GAN_ARG_UNDERLING},
+        {16s}
+    }
+};
+
 class npc_overseer_shartuul : public CreatureScript
 {
 public:
@@ -299,7 +329,6 @@ public:
 
         void Initialaize()
         {
-            currMoWave = 0;
             currDemonState = 0;
             _knockBackDist = 5.0f;
             _knockBackX = 0;
@@ -327,7 +356,6 @@ public:
             Initialaize();
         }
 
-        uint8 currMoWave;
         int8 currDemonState;
         EventMap events;
         SummonList summons;
@@ -336,9 +364,8 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summons.Summon(summoned);
-
             //The effect of being struck by green lightning, before a npc appears
-            if (TrashMobSet.find(summoned->GetEntry()) != TrashMobSet.end())
+            if (TrashMobs.find(summoned->GetEntry()) != TrashMobs.end())
                 if (Creature* spawnLightningNPC = FindFreeSpawnLightningNPC())
                     spawnLightningNPC->CastSpell(summoned, SPELL_SPAWN_LIGHTNING, false);
         }
@@ -362,7 +389,6 @@ public:
         void DoAction(int32 action) override
         {
             currDemonState = action;
-            currMoWave = 0;
 
             switch (action)
             {
@@ -390,6 +416,7 @@ public:
                 events.Reset();
                 break;
             case ACTION_START_DEMON_II_PHASE_I: //Summon Shivan Assassin
+                ++waveIndex;
                 events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 8s);
                 events.ScheduleEvent(EVENT_SPAWN_SHIVAN_ASSASSIN, 60s);
                 break;
@@ -455,23 +482,16 @@ public:
                     //!Wave handler
                 case EVENT_SPAWN_MOB_WAVE:
                 {
-                    Talk(SAY_THREAT);
-                    switch (currDemonState)
+                    if (waveIndex >= trashWaves.size()) // If all waves are cleared, the following action begins
                     {
-                    case ACTION_START_DEMON_I_PHASE_I:
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_I_WAVE_I, 1s, 4s);
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_I_WAVE_I, 120s); //!x2 mobs after 120s
-                        break;
-                    case ACTION_START_DEMON_II_PHASE_I:
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_I, 6s);
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_II, 30s);
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_III, 50s);
-                        break;
-                    default:
+                        DoAction(ACTION_START_DEMON_II_PHASE_II);
                         break;
                     }
-                    break;
+                    for (uint8 i = 0; i < trashWaves[waveIndex].delays.size(); ++i)
+                        events.ScheduleEvent(EVENT_SPAWN_TRASH_WAVE, trashWaves[waveIndex].delays[i]);
+                    Talk(SAY_THREAT);
                 }
+                break;
                     //!Bosses spawn events (INTRO PHASE)
                 case EVENT_SPAWN_SHIVAN_ASSASSIN:
                     if (Creature* creature = me->SummonCreature(NPC_SHIVAN_ASSASSIN, ForgeCampPos))
@@ -507,40 +527,17 @@ public:
                         _shartuulGUID = creature->GetGUID();
                     break;
                     //!Mob Waves
-                case EVENT_SPAWN_MOB_DEMON_I_WAVE_I:
-                    me->SummonCreature(NPC_FEL_IMP_DEFENDER, me->GetRandomPoint(ForgeCampPos, 50.0f), TEMPSUMMON_DEAD_DESPAWN);
-                    me->SummonCreature(NPC_FELHOUND_DEFENDER, me->GetRandomPoint(ForgeCampPos, 50.0f), TEMPSUMMON_DEAD_DESPAWN);
-                    me->SummonCreature(NPC_FELHOUND_DEFENDER, me->GetRandomPoint(ForgeCampPos, 50.0f), TEMPSUMMON_DEAD_DESPAWN);
-                    events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_I_WAVE_I, 7s, 14s);
+                case EVENT_SPAWN_TRASH_WAVE:
+                    SummonTrashWave(me, trashWaves[waveIndex]);
+                    if (!waveIndex) //The first wave of mobs shouldn't end until the boss shows up
+                        events.ScheduleEvent(EVENT_SPAWN_TRASH_WAVE, 7s, 14s);
+                    else
+                        if (++trashWaves[waveIndex].currWave == trashWaves[waveIndex].delays.size())
+                        {
+                            ++waveIndex;
+                            events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 0s);
+                        }
                     break;
-                case EVENT_SPAWN_MOB_DEMON_II_WAVE_I:
-                case EVENT_SPAWN_MOB_DEMON_II_WAVE_II:
-                    for (uint8 i = 0; i < 2; i++)
-                        me->SummonCreature(NPC_GAN_ARG_UNDERLING, me->GetRandomPoint(ForgeCampPos, 50.0f), TEMPSUMMON_DEAD_DESPAWN);
-                    break;
-                case EVENT_SPAWN_MOB_DEMON_II_WAVE_III:
-                    events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_I, 1s);
-                    events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_II, 4s);
-                    events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_IV, 35s);
-                    break;
-                case EVENT_SPAWN_MOB_DEMON_II_WAVE_IV: //Mo Wave
-                {
-                    if (currMoWave >= 3) //Checking the number of summoned Mo'arg the Tormentor
-                    {
-                        DoAction(ACTION_START_DEMON_II_PHASE_II);
-                        break;
-                    }
-                    if (currMoWave == 2) //Summon the last two Gan'arg
-                        events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_II, 60s);
-                    me->SummonCreature(NPC_MO_ARG_TORMENTER, MoSpawnPos[currMoWave], TEMPSUMMON_DEAD_DESPAWN);
-                    for (uint8 i = 0; i < 4; ++i) //!Summon Gan'arg near Mo'arg
-                        FindPosAndSpawnMoUnderling(i, MoSpawnPos[currMoWave]);
-                    for (uint8 i = 0; i < 3; ++i) //!Summon Gan'arg in a random location
-                        me->SummonCreature(NPC_GAN_ARG_UNDERLING, me->GetRandomPoint(ForgeCampPos, 50.0f), TEMPSUMMON_DEAD_DESPAWN);
-                    events.ScheduleEvent(EVENT_SPAWN_MOB_DEMON_II_WAVE_IV, 80s);
-                    ++currMoWave;
-                    break;
-                }
                 case EVENT_OPEN_SHARTUUL_PORTAL:
                     events.CancelEvent(EVENT_CAST_ARCANE_EXPLOSION);
                     if (Creature* creature = me->SummonCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, ShartuulPortalSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 20s))
@@ -566,6 +563,21 @@ public:
                 default:
                     break;
                 }
+            }
+        }
+
+        void SummonTrashWave(Creature* me, const TrashWave& wave)
+        {
+            for (uint32 creatureId : wave.creatureEntrys)
+            {
+                if (waveIndex == 2 && creatureId == NPC_MO_ARG_TORMENTER)
+                {
+                    me->SummonCreature(NPC_MO_ARG_TORMENTER, MoSpawnPos[wave.currWave], TEMPSUMMON_DEAD_DESPAWN);
+                    for (uint8 i = 0; i < 4; ++i)
+                        FindPosAndSpawnMoUnderling(i, MoSpawnPos[wave.currWave]); //Summon Gan'arg near Mo'arg
+                }
+                else
+                    me->SummonCreature(creatureId, me->GetRandomPoint(ForgeCampPos, 50.0f), TEMPSUMMON_DEAD_DESPAWN);
             }
         }
 
@@ -669,10 +681,10 @@ public:
 
         void FindPosAndSpawnMoUnderling(uint8 i, Position moPos)
         {
-            if (currMoWave == 2)
+            if (trashWaves[2].currWave == 2)
             {
                 //Calculate position by line
-                static const std::vector<std::pair<int16, int16>> offsets = { {-20, 12}, {-10, 10}, {10, -10}, {20, -12} };
+                static const std::vector<std::pair<int8, int8>> offsets = { {-20, 12}, {-10, 10}, {10, -10}, {20, -12} };
                 if (i < offsets.size())
                 {
                     moPos.m_positionX += offsets[i].first;
@@ -682,7 +694,7 @@ public:
             else
             {
                 //Calculate position by square
-                static const std::vector<std::pair<int16, int16>> offsets = { {-10, -10}, {10, -10}, {-10, 10}, {10, 10} };
+                static const std::vector<std::pair<int8, int8>> offsets = { {-10, -10}, {10, -10}, {-10, 10}, {10, 10} };
                 if (i < offsets.size())
                 {
                     moPos.m_positionX += offsets[i].first;
@@ -759,6 +771,8 @@ public:
         ObjectGuid _shivanAssassinGUID;
         ObjectGuid _shartuulGUID;
         ObjectGuid _eredarBreathTargeGUID;
+
+        uint8 waveIndex = 0;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -2044,16 +2058,16 @@ class spell_shartuuls_transporter_possession_transfer : public AuraScript
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
         Creature* overseerShartuul = caster->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f);
         if (!overseerShartuul)
             return;
-
-        //!I'm not sure how safe it's gonna be
         Unit* target = caster->GetVictim(); //GetTargetApplication()->GetTarget();
         if (!target)
             return;
         Unit* charmer = target->GetCharmer();
-        if (!charmer || !caster)
+        if (!charmer)
             return;
         uint32 prevCharm;
         uint32 currCharm;
