@@ -106,6 +106,13 @@ namespace WorldPackets
                 uint32 Unknown1007 = 0;
             };
 
+            struct AddonChatThrottleParams
+            {
+                int32 MaxTries = 0;
+                int32 TriesRestoredPerSecond = 0;
+                int32 UsedTriesPerMessage = 0;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 200) { }
 
             WorldPacket const* Write() override;
@@ -151,6 +158,7 @@ namespace WorldPackets
             bool QuestSessionEnabled                 = false;
             bool IsMuted                             = false;
             bool ClubFinderEnabled                   = false;
+            bool CommunityFinderEnabled              = false;
             bool Unknown901CheckoutRelated           = false;
             bool TextToSpeechFeatureEnabled          = false;
             bool ChatDisabledByDefault               = false;
@@ -164,11 +172,14 @@ namespace WorldPackets
             bool IsLFDEnabled                        = true;  // classic only
             bool IsLFREnabled                        = true;  // classic only
             bool IsPremadeGroupEnabled               = true;  // classic only
+            bool CanShowSetRoleButton                = true;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
             std::vector<GameRuleValuePair> GameRuleValues;
+            std::string Unknown1027;                          // related to movement lua functions used by keybinds
+            AddonChatThrottleParams AddonChatThrottle;
         };
 
         struct DebugTimeEventInfo
@@ -203,6 +214,7 @@ namespace WorldPackets
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool Unknown901CheckoutRelated           = false; // NYI
             bool IsNameReservationEnabled            = false; // classic only
+            bool TimerunningEnabled                  = false; // NYI
             bool AddonsDisabled                      = false;
             bool Unused1000                          = false;
             bool AccountSaveDataExportEnabled        = false;
@@ -220,6 +232,8 @@ namespace WorldPackets
             uint32 KioskSessionMinutes               = 0;
             int32 ActiveSeason                       = 0;     // Currently active Classic season
             std::vector<GameRuleValuePair> GameRuleValues;
+            int32 ActiveTimerunningSeasonID          = 0;
+            int32 RemainingTimerunningSeasonSeconds  = 0;
             int16 MaxPlayerNameQueriesPerPacket      = 50;
             int16 PlayerNameQueryTelemetryInterval   = 600;
             Duration<Seconds, uint32> PlayerNameQueryInterval = 10s;

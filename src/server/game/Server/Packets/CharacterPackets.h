@@ -62,6 +62,7 @@ namespace WorldPackets
             uint8 Sex             = GENDER_NONE;
             Array<ChrCustomizationChoice, 250> Customizations;
             Optional<int32> TemplateSet;
+            int32 TimerunningSeasonID = 0;
             bool IsTrialBoost     = false;
             bool UseNPE           = false;
             bool Unused1026       = false;
@@ -153,6 +154,7 @@ namespace WorldPackets
                 uint32 Unknown703        = 0;
                 uint32 LastLoginVersion  = 0;
                 uint32 OverrideSelectScreenFileDataID = 0;
+                int32 TimerunningSeasonID = 0;
 
                 uint32 PetCreatureDisplayID = 0;
                 uint32 PetExperienceLevel   = 0;

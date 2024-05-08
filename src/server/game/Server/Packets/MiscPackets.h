@@ -940,13 +940,14 @@ namespace WorldPackets
         class StartTimer final : public ServerPacket
         {
         public:
-            StartTimer() : ServerPacket(SMSG_START_TIMER, 12) { }
+            StartTimer() : ServerPacket(SMSG_START_TIMER, 8 + 4 + 8 + 1 + 16) { }
 
             WorldPacket const* Write() override;
 
             Duration<Seconds> TotalTime;
             Duration<Seconds> TimeLeft;
             CountdownTimerType Type = {};
+            Optional<ObjectGuid> PlayerGuid;
         };
 
         class QueryCountdownTimer final : public ClientPacket
