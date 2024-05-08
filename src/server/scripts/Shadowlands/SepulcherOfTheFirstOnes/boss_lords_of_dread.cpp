@@ -305,15 +305,6 @@ Position const KintessaVisuals[14] =
 
 namespace
 {
-void ForDreadlords(InstanceScript* instance, std::function<void(Creature* dreadlord)> func)
-{
-    for (uint32 data = DATA_MALGANIS; data <= DATA_KINTESSA; data++)
-    {
-        if (Creature* dreadLord = instance->GetCreature(data))
-            func(dreadLord);
-    }
-}
-
 void ClearLordsOfDreadDebuffs(InstanceScript* instance)
 {
     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OPENED_VEINS);
@@ -328,7 +319,7 @@ void ClearLordsOfDreadDebuffs(InstanceScript* instance)
     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNSETTLING_DREAMS);
 }
 
-void StartEncounter(InstanceScript* instance)
+void StartEncounter(InstanceScript* instance, Creature* triggeringDreadlord, Creature* otherDreadlord)
 {
     if (instance->GetBossState(DATA_LORDS_OF_DREAD) == IN_PROGRESS)
         return;
@@ -336,23 +327,18 @@ void StartEncounter(InstanceScript* instance)
     instance->SetBossState(DATA_LORDS_OF_DREAD, IN_PROGRESS);
     instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 1);
 
-    bool doAggroTalk = roll_chance_i(50);
-    ForDreadlords(instance, [instance, &doAggroTalk](Creature* dreadlord)
-    {
-        if (doAggroTalk)
-        {
-            dreadlord->AI()->Talk(SAY_MALGANIS_AGGRO);
-            doAggroTalk = false;
-        }
-        else
-            doAggroTalk = true;
+    if (roll_chance_i(50))
+        triggeringDreadlord->AI()->Talk(SAY_MALGANIS_AGGRO);
+    else
+        otherDreadlord->AI()->Talk(SAY_MALGANIS_AGGRO);
 
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, dreadlord);
-        dreadlord->AI()->DoZoneInCombat(); // @TODO: ovah did changes here, i forgot which
-    });
+    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, triggeringDreadlord);
+    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, otherDreadlord);
+    triggeringDreadlord->AI()->DoZoneInCombat(); // @TODO: ovah did changes here, i forgot which
+    otherDreadlord->AI()->DoZoneInCombat(); // @TODO: ovah did changes here, i forgot which
 }
 
-void FailEncounter(InstanceScript* instance, EvadeReason why)
+void FailEncounter(InstanceScript* instance, EvadeReason why, Creature* triggeringDreadlord, Creature* otherDreadlord)
 {
     if (instance->GetBossState(DATA_LORDS_OF_DREAD) == FAIL)
         return;
@@ -361,26 +347,17 @@ void FailEncounter(InstanceScript* instance, EvadeReason why)
     instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
     ClearLordsOfDreadDebuffs(instance);
 
-    ForDreadlords(instance, [instance, why](Creature* dreadlord)
-    {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, dreadlord);
-        dreadlord->AI()->EnterEvadeMode(why);
-    });
+    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, triggeringDreadlord);
+    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, otherDreadlord);
+    otherDreadlord->AI()->EnterEvadeMode(why);
 }
 
-void DoneEncounter(InstanceScript* instance)
+void DoneEncounter(InstanceScript* instance, Creature* triggeringDreadlord, Creature* otherDreadlord)
 {
     if (instance->GetBossState(DATA_LORDS_OF_DREAD) == DONE)
         return;
 
-    bool bothDead = true;
-    ForDreadlords(instance, [&bothDead](Creature* dreadlord)
-    {
-        if (dreadlord->IsAlive())
-            bothDead = false;
-    });
-
-    if (!bothDead)
+    if (otherDreadlord->IsAlive())
         return;
 
     instance->SetBossState(DATA_LORDS_OF_DREAD, DONE);
@@ -388,10 +365,8 @@ void DoneEncounter(InstanceScript* instance)
     instance->DoUpdateWorldState(WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED, 0);
     ClearLordsOfDreadDebuffs(instance);
 
-    ForDreadlords(instance, [instance](Creature* dreadlord)
-    {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, dreadlord);
-    });
+    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, triggeringDreadlord);
+    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, otherDreadlord);
 }
 }
 
@@ -417,10 +392,14 @@ struct LordsOfDreadAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        StartEncounter(instance);
+        Creature* otherDreadlord = GetOtherDreadlord();
+        if (!otherDreadlord)
+            return;
+
+        StartEncounter(instance, me, otherDreadlord);
 
         if (IsLFR())
-            DoCast(GetOtherDreadlord(), SPELL_LIFE_LINK, true);
+            DoCast(otherDreadlord, SPELL_LIFE_LINK, true);
     }
 
     void UpdateAI(uint32 diff) override
@@ -430,7 +409,11 @@ struct LordsOfDreadAI : public BossAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        FailEncounter(instance, why);
+        Creature* otherDreadlord = GetOtherDreadlord();
+        if (!otherDreadlord)
+            return;
+
+        FailEncounter(instance, why, me, otherDreadlord);
 
         events.Reset();
         summons.DespawnAll();
@@ -442,13 +425,17 @@ struct LordsOfDreadAI : public BossAI
         events.Reset();
         summons.DespawnAll();
 
-        DoneEncounter(instance);
+        Creature* otherDreadlord = GetOtherDreadlord();
+        if (!otherDreadlord)
+            return;
+
+        DoneEncounter(instance, me, otherDreadlord);
     }
 
 protected:
-    Creature* GetOtherDreadlord()
+    virtual Creature* GetOtherDreadlord()
     {
-        return instance->GetCreature(me->GetEntry() == BOSS_MALGANIS ? DATA_KINTESSA : DATA_MALGANIS);
+        return nullptr;
     }
 };
 
@@ -616,6 +603,13 @@ struct boss_lords_of_dread_malganis : public LordsOfDreadAI
                 return;
         }
     }
+
+protected:
+    Creature* GetOtherDreadlord() override
+    {
+        return instance->GetCreature(DATA_KINTESSA);
+    }
+
 private:
     uint8 _carrionCount;
 };
@@ -793,10 +787,9 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
                 _essencesReturned++;
                 if (_essencesReturned == 2)
                 {
-                    ForDreadlords(instance, [](Creature* dreadlord)
-                    {
-                        dreadlord->RemoveAurasDueToSpell(SPELL_INFILTRATION_DISAPPEAR);
-                    });
+                    me->RemoveAurasDueToSpell(SPELL_INFILTRATION_DISAPPEAR);
+                    if (Creature* otherDreadlord = GetOtherDreadlord())
+                        otherDreadlord->RemoveAurasDueToSpell(SPELL_INFILTRATION_DISAPPEAR);
                 }
                 break;
             }
@@ -862,6 +855,12 @@ struct boss_lords_of_dread_kintessa : public LordsOfDreadAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
+    }
+
+protected:
+    Creature* GetOtherDreadlord() override
+    {
+        return instance->GetCreature(DATA_MALGANIS);
     }
 private:
     uint8 _essencesReturned;
