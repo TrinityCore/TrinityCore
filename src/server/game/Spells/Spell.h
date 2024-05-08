@@ -478,8 +478,10 @@ class TC_GAME_API Spell
         void cast(bool skipCheck = false);
         void finish(SpellCastResult result = SPELL_CAST_OK);
         void TakePower();
+        void RefundPower();
 
         void TakeRunePower(bool didHit);
+        void RefundRunePower();
         void TakeReagents();
         void TakeCastItem();
 

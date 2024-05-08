@@ -20,20 +20,17 @@
 #include "WorldSession.h"
 #include "Packets/AllPackets.h"
 
-template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
-class PacketHandler : public ClientOpcodeHandler
+namespace
 {
-public:
-    PacketHandler(char const* name, SessionStatus status, PacketProcessing processing) : ClientOpcodeHandler(name, status, processing) { }
-
-    void Call(WorldSession* session, WorldPacket& packet) const override
-    {
-        std::remove_cv_t<PacketClass> nicePacket(std::move(packet));
-        nicePacket.Read();
-        (session->*HandlerFunction)(nicePacket);
-        session->LogUnprocessedTail(nicePacket.GetRawPacket());
-    }
-};
+template<class PacketClass, void(WorldSession::* HandlerFunction)(PacketClass&)>
+void CallHandlerWrapper(WorldSession* session, WorldPacket& packet)
+{
+    std::remove_cv_t<PacketClass> nicePacket(std::move(packet));
+    nicePacket.Read();
+    (session->*HandlerFunction)(nicePacket);
+    session->LogUnprocessedTail(nicePacket.GetRawPacket());
+}
+}
 
 OpcodeTable opcodeTable;
 
@@ -48,93 +45,100 @@ struct get_packet_class<void(WorldSession::*)(PacketClass&)>
     using type = PacketClass;
 };
 
-OpcodeTable::OpcodeTable()
-{
-    memset(_internalTableClient, 0, sizeof(_internalTableClient));
-    memset(_internalTableServer, 0, sizeof(_internalTableServer));
-}
+OpcodeTable::OpcodeTable() = default;
 
-OpcodeTable::~OpcodeTable()
-{
-    for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
-    {
-        delete _internalTableClient[i];
-        delete _internalTableServer[i];
-    }
-}
+OpcodeTable::~OpcodeTable() = default;
 
 bool OpcodeTable::ValidateClientOpcode(OpcodeClient opcode, char const* name) const
 {
-    if (uint32(opcode) == NULL_OPCODE)
+    if (opcode == UNKNOWN_OPCODE)
     {
         TC_LOG_ERROR("network", "Opcode {} does not have a value", name);
         return false;
     }
 
-    if (uint32(opcode) >= NUM_OPCODE_HANDLERS)
+    if (opcode < MIN_CMSG_OPCODE_NUMBER || opcode > MAX_CMSG_OPCODE_NUMBER)
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
     }
 
-    if (_internalTableClient[opcode] != nullptr)
+    if ((*this)[opcode] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override client handler of {} with {} (opcode {})", _internalTableClient[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override client handler of {} with {} (opcode {})", (*this)[opcode]->Name, name, opcode);
         return false;
     }
 
     return true;
 }
 
-template<typename Handler, Handler HandlerFunction>
-void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing)
+void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, ClientOpcodeHandler::HandlerFunction call, PacketProcessing processing)
 {
     if (!ValidateClientOpcode(opcode, name))
         return;
 
-    _internalTableClient[opcode] = new PacketHandler<typename get_packet_class<Handler>::type, HandlerFunction>(name, status, processing);
+    _internalTableClient[opcode - MIN_CMSG_OPCODE_NUMBER].reset(new ClientOpcodeHandler{
+        .Name = name,
+        .Status = status,
+        .Call = call,
+        .ProcessingPlace = processing
+    });
 }
 
-void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx)
+bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, char const* name, ConnectionType conIdx) const
 {
-    if (uint32(opcode) == NULL_OPCODE)
+    if (opcode == UNKNOWN_OPCODE)
     {
         TC_LOG_ERROR("network", "Opcode {} does not have a value", name);
-        return;
+        return false;
     }
 
-    if (uint32(opcode) >= NUM_OPCODE_HANDLERS)
+    if (opcode < MIN_SMSG_OPCODE_NUMBER || opcode > MAX_SMSG_OPCODE_NUMBER)
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
-        return;
+        return false;
     }
 
     if (conIdx >= MAX_CONNECTION_TYPES)
     {
         TC_LOG_ERROR("network", "Tried to set invalid connection type {} for opcode {}", conIdx, name);
-        return;
+        return false;
     }
 
     if (IsInstanceOnlyOpcode(opcode) && conIdx != CONNECTION_TYPE_INSTANCE)
     {
         TC_LOG_ERROR("network", "Tried to set invalid connection type {} for instance only opcode {}", conIdx, name);
-        return;
+        return false;
     }
 
-    if (_internalTableServer[opcode] != nullptr)
+    if ((*this)[opcode] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override server handler of {} with {} (opcode {})", opcodeTable[opcode]->Name, name, opcode);
-        return;
+        TC_LOG_ERROR("network", "Tried to override server handler of {} with {} (opcode {})", (*this)[opcode]->Name, name, opcode);
+        return false;
     }
 
-    _internalTableServer[opcode] = new ServerOpcodeHandler(name, status, conIdx);
+    return true;
+}
+
+void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx)
+{
+    if (!ValidateServerOpcode(opcode, name, conIdx))
+        return;
+
+    _internalTableServer[opcode - MIN_SMSG_OPCODE_NUMBER].reset(new ServerOpcodeHandler{ .Name = name, .Status = status, .ConnectionIndex = conIdx });
 }
 
 /// Correspondence between opcodes and their names
 void OpcodeTable::Initialize()
 {
+    InitializeClientOpcodes();
+    InitializeServerOpcodes();
+}
+
+void OpcodeTable::InitializeClientOpcodes()
+{
 #define DEFINE_HANDLER(opcode, status, processing, handler) \
-    ValidateAndSetClientOpcode<decltype(handler), handler>(opcode, #opcode, status, processing)
+    ValidateAndSetClientOpcode(opcode, #opcode, status, &CallHandlerWrapper<typename get_packet_class<decltype(handler)>::type, handler>, processing)
 
     DEFINE_HANDLER(CMSG_ABANDON_NPE_RESPONSE,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_ACCEPT_GUILD_INVITE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildAcceptInvite);
@@ -1002,7 +1006,10 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_WRAP_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItem);
 
 #undef DEFINE_HANDLER
+}
 
+void OpcodeTable::InitializeServerOpcodes()
+{
 #define DEFINE_SERVER_OPCODE_HANDLER(opcode, status, con) \
     static_assert((status) == STATUS_NEVER || (status) == STATUS_UNHANDLED, "Invalid status for server opcode"); \
     ValidateAndSetServerOpcode(opcode, #opcode, status, con)
@@ -2203,15 +2210,15 @@ void OpcodeTable::Initialize()
 #undef DEFINE_SERVER_OPCODE_HANDLER
 }
 
-template<typename T>
+template<std::size_t MIN_OPCODE, std::size_t MAX_OPCODE, typename T>
 inline std::string GetOpcodeNameForLoggingImpl(T id)
 {
     uint32 opcode = uint32(id);
     char const* name = nullptr;
 
-    if (opcode < NUM_OPCODE_HANDLERS)
+    if (opcode >= MIN_OPCODE && opcode <= MAX_OPCODE)
     {
-        if (OpcodeHandler const* handler = opcodeTable[id])
+        if (auto const* handler = opcodeTable[id])
             name = handler->Name;
         else
             name = "UNKNOWN OPCODE";
@@ -2224,10 +2231,10 @@ inline std::string GetOpcodeNameForLoggingImpl(T id)
 
 std::string GetOpcodeNameForLogging(OpcodeClient opcode)
 {
-    return GetOpcodeNameForLoggingImpl(opcode);
+    return GetOpcodeNameForLoggingImpl<MIN_CMSG_OPCODE_NUMBER, MAX_CMSG_OPCODE_NUMBER>(opcode);
 }
 
 std::string GetOpcodeNameForLogging(OpcodeServer opcode)
 {
-    return GetOpcodeNameForLoggingImpl(opcode);
+    return GetOpcodeNameForLoggingImpl<MIN_SMSG_OPCODE_NUMBER, MAX_SMSG_OPCODE_NUMBER>(opcode);
 }
