@@ -227,6 +227,7 @@ struct SpellEffectInfo::ImmunityInfo
     uint32 MechanicImmuneMask = 0;
     uint32 DispelImmune = 0;
     uint32 DamageSchoolMask = 0;
+    bool   ForceRemoveAurasWithMechanicImmune = false;
 
     Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
     Trinity::Containers::FlatSet<SpellEffects> SpellEffectImmune;
@@ -2588,6 +2589,7 @@ void SpellInfo::_LoadImmunityInfo()
         uint32 mechanicImmunityMask = 0;
         uint32 dispelImmunity = 0;
         uint32 damageImmunityMask = 0;
+        bool   forceRemoveAurasWithMechanicImmune = false;
 
         int32 miscVal = effect.MiscValue;
         int32 amount = effect.CalcValue();
@@ -2777,6 +2779,10 @@ void SpellInfo::_LoadImmunityInfo()
                         mechanicImmunityMask |= 1 << miscVal;
                         break;
                 }
+
+                if (DurationEntry && DurationEntry->ID == 407) // Special 100 ms duration spells: PvP trinket, Every Man for Himself and some other
+                    forceRemoveAurasWithMechanicImmune = true;
+
                 break;
             }
             case SPELL_AURA_EFFECT_IMMUNITY:
@@ -2818,6 +2824,7 @@ void SpellInfo::_LoadImmunityInfo()
         immuneInfo.MechanicImmuneMask = mechanicImmunityMask;
         immuneInfo.DispelImmune = dispelImmunity;
         immuneInfo.DamageSchoolMask = damageImmunityMask;
+        immuneInfo.ForceRemoveAurasWithMechanicImmune = forceRemoveAurasWithMechanicImmune;
 
         immuneInfo.AuraTypeImmune.shrink_to_fit();
         immuneInfo.SpellEffectImmune.shrink_to_fit();
@@ -2908,8 +2915,8 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
         if (HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
         {
             if (apply)
-                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
-            else
+                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id, immuneInfo->ForceRemoveAurasWithMechanicImmune);
+            else if (!immuneInfo->ForceRemoveAurasWithMechanicImmune)
             {
                 std::vector<Aura*> aurasToUpdateTargets;
                 target->RemoveAppliedAuras([mechanicImmunity, &aurasToUpdateTargets](AuraApplication const* aurApp)
