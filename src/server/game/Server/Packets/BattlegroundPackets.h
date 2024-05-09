@@ -43,7 +43,10 @@ namespace WorldPackets
             int32 CurrentArenaSeason = 0;
             int32 PvpSeasonID = 0;
             int32 ConquestWeeklyProgressCurrencyID = 0;
+            int32 Unknown1027_1 = 0;
             bool WeeklyRewardChestsEnabled = false;
+            bool Unknown1027_2 = false;
+            bool Unknown1027_3 = false;
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket

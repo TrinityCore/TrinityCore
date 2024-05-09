@@ -87,6 +87,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
     _worldPacket << PlayerNameQueryInterval;
 
+    _worldPacket << int32(AddonChatThrottle.MaxTries);
+    _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
+    _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
+
     for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
         _worldPacket << gameRuleValue;
 
@@ -122,10 +126,11 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(QuestSessionEnabled);
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
+    _worldPacket.WriteBit(CommunityFinderEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
-    _worldPacket.WriteBit(ChatDisabledByDefault);
 
+    _worldPacket.WriteBit(ChatDisabledByDefault);
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
     _worldPacket.WriteBit(AddonsDisabled);
@@ -133,10 +138,15 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ContentTrackingEnabled);
     _worldPacket.WriteBit(IsSellAllJunkEnabled);
     _worldPacket.WriteBit(IsGroupFinderEnabled);
-    _worldPacket.WriteBit(IsLFDEnabled);
 
+    _worldPacket.WriteBit(IsLFDEnabled);
     _worldPacket.WriteBit(IsLFREnabled);
     _worldPacket.WriteBit(IsPremadeGroupEnabled);
+    _worldPacket.WriteBit(CanShowSetRoleButton);
+    _worldPacket.WriteBit(false); // unused 10.2.7
+    _worldPacket.WriteBit(false); // unused 10.2.7
+
+    _worldPacket.WriteBits(Unknown1027.length(), 7);
 
     _worldPacket.FlushBits();
 
@@ -172,6 +182,8 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->Period);
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
+
+    _worldPacket.WriteString(Unknown1027);
 
     {
         _worldPacket.WriteBit(Squelch.IsSquelched);
@@ -211,9 +223,10 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
     _worldPacket.WriteBit(IsNameReservationEnabled);
     _worldPacket.WriteBit(LaunchETA.has_value());
+    _worldPacket.WriteBit(TimerunningEnabled);
     _worldPacket.WriteBit(AddonsDisabled);
-    _worldPacket.WriteBit(Unused1000);
 
+    _worldPacket.WriteBit(Unused1000);
     _worldPacket.WriteBit(AccountSaveDataExportEnabled);
     _worldPacket.WriteBit(AccountLockedByExport);
     _worldPacket.WriteBit(RealmHiddenAlert.has_value());
@@ -238,6 +251,8 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(MaximumExpansionLevel);
     _worldPacket << int32(ActiveSeason);
     _worldPacket << uint32(GameRuleValues.size());
+    _worldPacket << int32(ActiveTimerunningSeasonID);
+    _worldPacket << int32(RemainingTimerunningSeasonSeconds);
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
     _worldPacket << PlayerNameQueryInterval;
