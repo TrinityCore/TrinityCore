@@ -241,7 +241,7 @@ namespace WorldPackets
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
             int32 Unused1007                         = 0;
             uint32 EventRealmQueues                  = 0;
-            Optional<std::string> RealmHiddenAlert;
+            std::string RealmHiddenAlert;
         };
 
         class SetTimeZoneInformation final : public ServerPacket
