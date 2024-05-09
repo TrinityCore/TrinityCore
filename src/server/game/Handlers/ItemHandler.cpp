@@ -1248,33 +1248,58 @@ bool HasBankBagAnyFlag(uint8 bagSlot, Player* player)
     return false;
 }
 
-void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFlags::None, bool leftToRight = false)
+void StoreItemInBag(Item* item, Player* player)
 {
     if (!item)
         return;
-
-    //First we prioritize the bag with Priority flags
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    uint32 itemQuality = item->GetQuality();
+    uint32 itemClass = item->GetTemplate()->GetClass();
+    ItemPosCountVec dest;
+    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
+    if (itemQuality != ITEM_QUALITY_POOR)
     {
-        Bag* pbag = player->GetBagByPos(i);
-        if (pbag)
+        //First we prioritize the bag with Priority flags
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
         {
-            if (player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(bagFlag))
+            Bag* pbag = player->GetBagByPos(i);
+            if (pbag)
             {
-                ItemPosCountVec dest;
-                if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                if (player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityEquipment)
+                    && (itemClass == ITEM_CLASS_ARMOR || itemClass == ITEM_CLASS_WEAPON))
                 {
-                    player->StoreItem(dest, item, true);
-                    return;
+                    if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityConsumables) && itemClass == ITEM_CLASS_CONSUMABLE)
+                {
+                    if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityQuestItems) && itemClass == ITEM_CLASS_QUEST)
+                {
+                    if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityTradeGoods) && itemClass == ITEM_CLASS_TRADE_GOODS)
+                {
+                    if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->StoreItem(dest, item, true);
+                        return;
+                    }
                 }
             }
         }
-    }
 
-    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
-    if (!leftToRight)
-    {
-        ItemPosCountVec dest;
         if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
         {
             player->StoreItem(dest, item, true);
@@ -1288,7 +1313,6 @@ void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFl
             {
                 if (HasBagAnyFlag(i - INVENTORY_SLOT_BAG_START, player)) //to ignore the flagged bags
                     continue;
-                ItemPosCountVec dest;
                 if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
                 {
                     player->StoreItem(dest, item, true);
@@ -1299,6 +1323,24 @@ void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFl
     }
     else //for junk
     {
+        //First we prioritize the bag with Priority flags
+        for (uint8 i = INVENTORY_SLOT_BAG_END - 1; i >= INVENTORY_SLOT_BAG_START; --i)
+        {
+            Bag* pbag = player->GetBagByPos(i);
+            if (pbag)
+            {
+                if (player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityJunk))
+                    for (uint8 j = GetBagSize(pbag); j > 0; j--)
+                    {
+                        if (player->CanStoreItem(i, j - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                        {
+                            player->StoreItem(dest, item, true);
+                            return;
+                        }
+                    }
+            }
+        }
+
         for (uint8 i = INVENTORY_SLOT_BAG_END-1; i >= INVENTORY_SLOT_BAG_START; --i)
         {
             Bag* pbag = player->GetBagByPos(i);
@@ -1308,7 +1350,6 @@ void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFl
                     continue;
                 for (uint8 j = GetBagSize(pbag); j > 0; j--)
                 {
-                    ItemPosCountVec dest;
                     if (player->CanStoreItem(i, j - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
                     {
                         player->StoreItem(dest, item, true);
@@ -1321,7 +1362,6 @@ void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFl
         uint8 endbackpackSlot = INVENTORY_SLOT_ITEM_START + player->GetInventorySlotCount();
         for (uint8 i = endbackpackSlot; i > 0; i--)
         {
-            ItemPosCountVec dest;
             if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, i - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
             {
                 player->StoreItem(dest, item, true);
@@ -1332,7 +1372,6 @@ void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFl
     }
 
     //In case we don't have any place in other bags we store in all the remaining bags
-    ItemPosCountVec dest;
     if (player->CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
     {
         player->StoreItem(dest, item, true);
@@ -1344,7 +1383,6 @@ void StoreItemInBag(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFl
         Bag* pbag = player->GetBagByPos(i);
         if (pbag)
         {
-            ItemPosCountVec dest;
             if (player->CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
             {
                 player->StoreItem(dest, item, true);
@@ -1367,35 +1405,62 @@ void StoreItemInReagentBank(Item* item, Player* player)
     }
 }
 
-void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotFlags::None, bool leftToRight = false)
+void StoreItemInBank(Item* item, Player* player)
 {
     if (!item)
         return;
 
-    //First we prioritize the bag with Priority flags
-    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    uint32 itemQuality = item->GetQuality();
+    uint32 itemClass = item->GetTemplate()->GetClass();
+    ItemPosCountVec dest;
+
+
+    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
+    if (itemQuality != ITEM_QUALITY_POOR)
     {
-        Bag* pBag = player->GetBagByPos(i);
-        if (pBag)
+        //First we prioritize the bag with Priority flags
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
         {
-            if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::DisableAutoSort))
-                continue;
-            if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(bagFlag))
+            Bag* pBag = player->GetBagByPos(i);
+            if (pBag)
             {
-                ItemPosCountVec dest;
-                if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::DisableAutoSort))
+                    continue;
+                if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityEquipment)
+                    && (itemClass == ITEM_CLASS_ARMOR || itemClass == ITEM_CLASS_WEAPON))
                 {
-                    player->BankItem(dest, item, true);
-                    return;
+                    if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->BankItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityConsumables) && itemClass == ITEM_CLASS_CONSUMABLE)
+                {
+                    if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->BankItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityQuestItems) && itemClass == ITEM_CLASS_QUEST)
+                {
+                    if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->BankItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (player->GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityTradeGoods) && itemClass == ITEM_CLASS_TRADE_GOODS)
+                {
+                    if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->BankItem(dest, item, true);
+                        return;
+                    }
                 }
             }
         }
-    }
-
-    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
-    if (!leftToRight)
-    {
-        ItemPosCountVec dest;
         if (player->CanBankItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
         {
             player->BankItem(dest, item, true);
@@ -1410,7 +1475,6 @@ void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotF
                 if (HasBankBagAnyFlag(i - BANK_SLOT_BAG_START, player))
                     continue;
 
-                ItemPosCountVec dest;
                 if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
                 {
                     player->BankItem(dest, item, true);
@@ -1426,9 +1490,22 @@ void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotF
             Bag* pBag = player->GetBagByPos(i);
             if (pBag)
             {
+                if (player->GetBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityJunk))
+                    if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        player->BankItem(dest, item, true);
+                        return;
+                    }
+            }
+        }
+
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            Bag* pBag = player->GetBagByPos(i);
+            if (pBag)
+            {
                 if (HasBankBagAnyFlag(i - BANK_SLOT_BAG_START, player))
                     continue;
-                ItemPosCountVec dest;
                 if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
                 {
                     player->BankItem(dest, item, true);
@@ -1439,7 +1516,6 @@ void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotF
 
         for (uint8 slot = BANK_SLOT_ITEM_END-1; slot >= BANK_SLOT_ITEM_START; slot--)
         {
-            ItemPosCountVec dest;
             if (player->CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
             {
                 player->BankItem(dest, item, true);
@@ -1449,7 +1525,6 @@ void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotF
     }
 
     //In case we don't have any place in other bags we store in all the remaining bags
-    ItemPosCountVec dest;
     if (player->CanBankItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
     {
         player->BankItem(dest, item, true);
@@ -1461,7 +1536,6 @@ void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotF
         Bag* pBag = player->GetBagByPos(i);
         if (pBag)
         {
-            ItemPosCountVec dest;
             if (player->CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
             {
                 player->BankItem(dest, item, true);
@@ -1473,72 +1547,123 @@ void StoreItemInBank(Item* item, Player* player, BagSlotFlags bagFlag = BagSlotF
 
 void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
 {
-    Item* hearthstoneItem = nullptr;
-    std::multimap<uint32, Item*> items;
-    std::multimap<uint32, Item*> foodItems;
-    std::multimap<uint32, Item*> consumablesNofoodItems;
-    std::multimap<uint32, Item*> armorItems;
-    std::multimap<uint32, Item*> weaponItems;
-    std::multimap<uint32, Item*> poorQualityItems;
-    std::multimap<uint32, Item*> tradeGoodItems;
-    std::multimap<uint32, Item*> questItems;
-
+    std::multimap<uint64, Item*> items;
+    uint32 sortOrderHi;
+    uint32 sortOrderLo;
+    uint64 sortOrder;
     uint8 endbackpackSlot = INVENTORY_SLOT_ITEM_START + _player->GetInventorySlotCount();
-
     /*
-    * Store item in multiple multimap depending on:
-    *   healthstone: hearthstoneItem
-    *   quest Items: questItems
-    *   quality (poor only): poorQualityItems
-    *   Class:
-    *       Armor: armorItems
-    *       weapon: weaponItems
-    *       consumables (except food/drinks): consumablesNofoodItems
-    *   SubClass (food items only): foodItems
-    *   all other: items
-    * First loop for the backpack
-    * Second loop for all other bags
+    * The sorting order is:
+    * 1 - the special Items (hearthstones, etc.)
+    * 2 - Consumables ordered by subclass then item id
+    * 3 - Weapons and Shield
+    * 4 - Armor ordered by item level in descending order
+    *  4.01 - Head
+    *  4.02 - Shoulders
+    *  4.03 - Chest and Robe
+    *  4.04 - Wrists
+    *  4.05 - Hands
+    *  4.06 - Waist
+    *  4.07 - Legs
+    *  4.08 - Feet
+    *  4.09 - Cloak
+    *  4.10 - Accessory (Neck, finger then trinkets)
+    *  4.11 - Shirt and Tabard (order by item id)
+    * 5 - All other items order by class (ascending) and subclass (descending) then item id (descending)
     */
+
     if (!_player->IsBackpackAutoSortDisabled())
         for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < endbackpackSlot; slot++)
         {
             if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
             {
-                if (item->GetEntry() == ITEM_HEARTHSTONE)
+                if (item->GetEntry() == ITEM_HEARTHSTONE || item->GetEntry() == ITEM_GARRISON_HEARTHSTONE
+                    || item->GetEntry() == ITEM_DALARAN_HEARTHSTONE || item->GetEntry() == ITEM_FLIGHT_MASTER_WHISTLE)
                 {
-                    hearthstoneItem = item;
-                    _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
-                    continue;
+                    sortOrderLo = item->GetEntry();
+                    sortOrderHi = ITEM_SORT_SPECIAL_ITEM << 24;
                 }
-                else if (item->GetQuality() == ITEM_QUALITY_POOR)
-                    poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
                 else
                 {
                     switch (item->GetTemplate()->GetClass())
                     {
                     case (ITEM_CLASS_ARMOR):
-                        armorItems.insert(std::make_pair(item->GetEntry(), item));
+                        switch (item->GetTemplate()->GetInventoryType())
+                        {
+                        case (INVTYPE_SHIELD):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_SHIELD << 24 ;
+                            break;
+                        case (INVTYPE_HEAD):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_HEAD << 24;
+                            break;
+                        case (INVTYPE_SHOULDERS):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_SHOULDERS << 24;
+                            break;
+                        case (INVTYPE_ROBE):
+                        case (INVTYPE_CHEST):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_CHEST << 24;
+                            break;
+                        case (INVTYPE_WRISTS):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_WRISTS << 24;
+                            break;
+                        case (INVTYPE_HANDS):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_HANDS << 24;
+                            break;
+                        case (INVTYPE_WAIST):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_WAIST << 24;
+                            break;
+                        case (INVTYPE_LEGS):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_LEGS << 24;
+                            break;
+                        case (INVTYPE_FEET):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_FEET << 24;
+                            break;
+                        case (INVTYPE_CLOAK):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_CLOAK << 24;
+                            break;
+                        case (INVTYPE_NECK):
+                        case (INVTYPE_FINGER):
+                        case (INVTYPE_TRINKET):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                            sortOrderHi = ITEM_SORT_ACCESSORY << 24;
+                            break;
+                        case (INVTYPE_BODY):
+                        case (INVTYPE_TABARD):
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                            sortOrderHi = ITEM_SORT_BODY_TABARD << 24;
+                            break;
+                        default:
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24;
+                            break;
+                        }
                         break;
                     case (ITEM_CLASS_WEAPON):
-                        weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_WEAPON << 24;
                         break;
                     case (ITEM_CLASS_CONSUMABLE):
-                        if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
-                            foodItems.insert(std::make_pair(item->GetEntry(), item));
-                        else
-                            consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
-                        break;
-                    case (ITEM_CLASS_TRADE_GOODS):
-                        tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
-                        break;
-                    case (ITEM_CLASS_QUEST):
-                        questItems.insert(std::make_pair(item->GetEntry(), item));
+                        sortOrderLo = item->GetEntry();
+                        sortOrderHi = ITEM_SORT_CONSUMABLE << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                         break;
                     default:
-                        items.insert(std::make_pair(item->GetEntry(), item));
+                        sortOrderLo = (UINT32_MAX - item->GetEntry());
+                        sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                         break;
                     }
                 }
+                sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+                items.insert(std::make_pair(sortOrder, item));
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
             }
         }
@@ -1547,137 +1672,209 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
     {
         if (Bag* bag = _player->GetBagByPos(i))
         {
-            if (!_player->GetBagSlotFlags(i- INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::DisableAutoSort))
+            if (!_player->GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::DisableAutoSort))
                 for (uint32 j = 0; j < GetBagSize(bag); j++)
                 {
                     if (Item* item = GetItemInBag(bag, j))
                     {
-                        if (item->GetEntry() == ITEM_HEARTHSTONE)
+                        if (item->GetEntry() == ITEM_HEARTHSTONE || item->GetEntry() == ITEM_GARRISON_HEARTHSTONE
+                            || item->GetEntry() == ITEM_DALARAN_HEARTHSTONE || item->GetEntry() == ITEM_FLIGHT_MASTER_WHISTLE)
                         {
-                            hearthstoneItem = item;
-                            _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
-                            continue;
+                            sortOrderLo = item->GetEntry();
+                            sortOrderHi = ITEM_SORT_SPECIAL_ITEM << 24;
                         }
-                        else if (item->GetQuality() == ITEM_QUALITY_POOR)
-                            poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
                         else
                         {
                             switch (item->GetTemplate()->GetClass())
                             {
                             case (ITEM_CLASS_ARMOR):
-                                armorItems.insert(std::make_pair(item->GetEntry(), item));
+                                switch (item->GetTemplate()->GetInventoryType())
+                                {
+                                case (INVTYPE_SHIELD):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_SHIELD << 24;
+                                    break;
+                                case (INVTYPE_HEAD):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_HEAD << 24;
+                                    break;
+                                case (INVTYPE_SHOULDERS):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_SHOULDERS << 24;
+                                    break;
+                                case (INVTYPE_ROBE):
+                                case (INVTYPE_CHEST):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_CHEST << 24;
+                                    break;
+                                case (INVTYPE_WRISTS):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_WRISTS << 24;
+                                    break;
+                                case (INVTYPE_HANDS):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_HANDS << 24;
+                                    break;
+                                case (INVTYPE_WAIST):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_WAIST << 24;
+                                    break;
+                                case (INVTYPE_LEGS):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_LEGS << 24;
+                                    break;
+                                case (INVTYPE_FEET):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_FEET << 24;
+                                    break;
+                                case (INVTYPE_CLOAK):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_CLOAK << 24;
+                                    break;
+                                case (INVTYPE_NECK):
+                                case (INVTYPE_FINGER):
+                                case (INVTYPE_TRINKET):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                                    sortOrderHi = ITEM_SORT_ACCESSORY << 24;
+                                    break;
+                                case (INVTYPE_BODY):
+                                case (INVTYPE_TABARD):
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                                    sortOrderHi = ITEM_SORT_BODY_TABARD << 24;
+                                    break;
+                                default:
+                                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                    sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24;
+                                    break;
+                                }
                                 break;
                             case (ITEM_CLASS_WEAPON):
-                                weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_WEAPON << 24;
                                 break;
                             case (ITEM_CLASS_CONSUMABLE):
-                                if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
-                                    foodItems.insert(std::make_pair(item->GetEntry(), item));
-                                else
-                                    consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
-                                break;
-                            case (ITEM_CLASS_TRADE_GOODS):
-                                tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
-                                break;
-                            case (ITEM_CLASS_QUEST):
-                                questItems.insert(std::make_pair(item->GetEntry(), item));
+                                sortOrderLo = item->GetEntry();
+                                sortOrderHi = ITEM_SORT_CONSUMABLE << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                                 break;
                             default:
-                                items.insert(std::make_pair(item->GetEntry(), item));
+                                sortOrderLo = (UINT32_MAX - item->GetEntry());
+                                sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                                 break;
                             }
                         }
+                        sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+                        items.insert(std::make_pair(sortOrder, item));
                         _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
                     }
                 }
         }
     }
-    //all inventory (backpack + bags) is empty now
 
-    //first store hearthstone...
-    if (hearthstoneItem != nullptr)
-        StoreItemInBag(hearthstoneItem, _player);
-
-    //... then all the food/drink...
-    for (auto itr = std::begin(foodItems); itr != std::end(foodItems); ++itr)
-        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityConsumables);
-
-    //... then weapons...
-    for (auto itr = std::begin(weaponItems); itr != std::end(weaponItems); ++itr)
-        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityEquipment);
-
-    //... then armor...
-    for (auto itr = std::begin(armorItems); itr != std::end(armorItems); ++itr)
-        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityEquipment);
-
-    //... then consumables (except for foods/drinks)...
-    for (auto itr = std::begin(consumablesNofoodItems); itr != std::end(consumablesNofoodItems); ++itr)
-        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityConsumables);
-
-    //... then all other item except poor items and quest Item...
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
         StoreItemInBag(itr->second, _player);
-
-    //... then all other item except poor items and quest Item...
-    for (auto itr = std::begin(tradeGoodItems); itr != std::end(tradeGoodItems); ++itr)
-        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityTradeGoods);
-
-    //... then quest item...
-    for (auto itr = std::begin(questItems); itr != std::end(questItems); ++itr)
-        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityQuestItems);
-
-    //... and finaly poor items
-    for (auto itr = std::begin(poorQualityItems); itr != std::end(poorQualityItems); ++itr)
-        StoreItemInBag(itr->second, _player, BagSlotFlags::PriorityJunk, true);
 
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
 void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
 {
-    std::multimap<uint32, Item*> items;
-    std::multimap<uint32, Item*> foodItems;
-    std::multimap<uint32, Item*> consumablesNofoodItems;
-    std::multimap<uint32, Item*> armorItems;
-    std::multimap<uint32, Item*> weaponItems;
-    std::multimap<uint32, Item*> poorQualityItems;
-    std::multimap<uint32, Item*> tradeGoodItems;
-    std::multimap<uint32, Item*> questItems;
+    std::multimap<uint64, Item*> items;
+    uint32 sortOrderHi;
+    uint32 sortOrderLo;
+    uint64 sortOrder;
 
     //save all the items in all bags into a multimap: items and remove items from bank
     for (uint8 slot = BANK_SLOT_ITEM_START; slot < BANK_SLOT_ITEM_END; slot++)
     {
         if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         {
-            if (item->GetQuality() == ITEM_QUALITY_POOR)
-                poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
+            if (item->GetEntry() == ITEM_HEARTHSTONE || item->GetEntry() == ITEM_GARRISON_HEARTHSTONE
+                || item->GetEntry() == ITEM_DALARAN_HEARTHSTONE || item->GetEntry() == ITEM_FLIGHT_MASTER_WHISTLE)
+            {
+                sortOrderLo = item->GetEntry();
+                sortOrderHi = ITEM_SORT_SPECIAL_ITEM << 24;
+            }
             else
             {
                 switch (item->GetTemplate()->GetClass())
                 {
                 case (ITEM_CLASS_ARMOR):
-                    armorItems.insert(std::make_pair(item->GetEntry(), item));
+                    switch (item->GetTemplate()->GetInventoryType())
+                    {
+                    case (INVTYPE_SHIELD):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_SHIELD << 24;
+                        break;
+                    case (INVTYPE_HEAD):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_HEAD << 24;
+                        break;
+                    case (INVTYPE_SHOULDERS):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_SHOULDERS << 24;
+                        break;
+                    case (INVTYPE_ROBE):
+                    case (INVTYPE_CHEST):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_CHEST << 24;
+                        break;
+                    case (INVTYPE_WRISTS):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_WRISTS << 24;
+                        break;
+                    case (INVTYPE_HANDS):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_HANDS << 24;
+                        break;
+                    case (INVTYPE_WAIST):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_WAIST << 24;
+                        break;
+                    case (INVTYPE_LEGS):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_LEGS << 24;
+                        break;
+                    case (INVTYPE_FEET):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_FEET << 24;
+                        break;
+                    case (INVTYPE_CLOAK):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_CLOAK << 24;
+                        break;
+                    case (INVTYPE_NECK):
+                    case (INVTYPE_FINGER):
+                    case (INVTYPE_TRINKET):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                        sortOrderHi = ITEM_SORT_ACCESSORY << 24;
+                        break;
+                    case (INVTYPE_BODY):
+                    case (INVTYPE_TABARD):
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                        sortOrderHi = ITEM_SORT_BODY_TABARD << 24;
+                        break;
+                    default:
+                        sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                        sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24;
+                        break;
+                    }
                     break;
                 case (ITEM_CLASS_WEAPON):
-                    weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                    sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                    sortOrderHi = ITEM_SORT_WEAPON << 24;
                     break;
                 case (ITEM_CLASS_CONSUMABLE):
-                    if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
-                        foodItems.insert(std::make_pair(item->GetEntry(), item));
-                    else
-                        consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
-                    break;
-                case (ITEM_CLASS_TRADE_GOODS):
-                    tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
-                    break;
-                case (ITEM_CLASS_QUEST):
-                    questItems.insert(std::make_pair(item->GetEntry(), item));
+                    sortOrderLo = item->GetEntry();
+                    sortOrderHi = ITEM_SORT_CONSUMABLE << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                     break;
                 default:
-                    items.insert(std::make_pair(item->GetEntry(), item));
+                    sortOrderLo = (UINT32_MAX - item->GetEntry());
+                    sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                     break;
                 }
             }
+            sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+            items.insert(std::make_pair(sortOrder, item));
             _player->RemoveItem(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
         }
     }
@@ -1690,91 +1887,125 @@ void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBa
             {
                 if (Item* item = GetItemInBag(bag, j))
                 {
-                    if (item->GetQuality() == ITEM_QUALITY_POOR)
-                        poorQualityItems.insert(std::make_pair(item->GetEntry(), item));
+                    if (item->GetEntry() == ITEM_HEARTHSTONE || item->GetEntry() == ITEM_GARRISON_HEARTHSTONE
+                        || item->GetEntry() == ITEM_DALARAN_HEARTHSTONE || item->GetEntry() == ITEM_FLIGHT_MASTER_WHISTLE)
+                    {
+                        sortOrderLo = item->GetEntry();
+                        sortOrderHi = ITEM_SORT_SPECIAL_ITEM << 24;
+                    }
                     else
                     {
                         switch (item->GetTemplate()->GetClass())
                         {
                         case (ITEM_CLASS_ARMOR):
-                            armorItems.insert(std::make_pair(item->GetEntry(), item));
+                            switch (item->GetTemplate()->GetInventoryType())
+                            {
+                            case (INVTYPE_SHIELD):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_SHIELD << 24;
+                                break;
+                            case (INVTYPE_HEAD):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_HEAD << 24;
+                                break;
+                            case (INVTYPE_SHOULDERS):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_SHOULDERS << 24;
+                                break;
+                            case (INVTYPE_ROBE):
+                            case (INVTYPE_CHEST):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_CHEST << 24;
+                                break;
+                            case (INVTYPE_WRISTS):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_WRISTS << 24;
+                                break;
+                            case (INVTYPE_HANDS):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_HANDS << 24;
+                                break;
+                            case (INVTYPE_WAIST):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_WAIST << 24;
+                                break;
+                            case (INVTYPE_LEGS):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_LEGS << 24;
+                                break;
+                            case (INVTYPE_FEET):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_FEET << 24;
+                                break;
+                            case (INVTYPE_CLOAK):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_CLOAK << 24;
+                                break;
+                            case (INVTYPE_NECK):
+                            case (INVTYPE_FINGER):
+                            case (INVTYPE_TRINKET):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                                sortOrderHi = ITEM_SORT_ACCESSORY << 24;
+                                break;
+                            case (INVTYPE_BODY):
+                            case (INVTYPE_TABARD):
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetEntry());
+                                sortOrderHi = ITEM_SORT_BODY_TABARD << 24;
+                                break;
+                            default:
+                                sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                                sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24;
+                                break;
+                            }
                             break;
                         case (ITEM_CLASS_WEAPON):
-                            weaponItems.insert(std::make_pair(item->GetEntry(), item));
+                            sortOrderLo = (MAX_ITEM_LEVEL - item->GetItemLevel(_player));
+                            sortOrderHi = ITEM_SORT_WEAPON << 24;
                             break;
                         case (ITEM_CLASS_CONSUMABLE):
-                            if (item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
-                                foodItems.insert(std::make_pair(item->GetEntry(), item));
-                            else
-                                consumablesNofoodItems.insert(std::make_pair(item->GetEntry(), item));
-                            break;
-                        case (ITEM_CLASS_TRADE_GOODS):
-                            tradeGoodItems.insert(std::make_pair(item->GetEntry(), item));
-                            break;
-                        case (ITEM_CLASS_QUEST):
-                            questItems.insert(std::make_pair(item->GetEntry(), item));
+                            sortOrderLo = item->GetEntry();
+                            sortOrderHi = ITEM_SORT_CONSUMABLE << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                             break;
                         default:
-                            items.insert(std::make_pair(item->GetEntry(), item));
+                            sortOrderLo = (UINT32_MAX - item->GetEntry());
+                            sortOrderHi = ITEM_SORT_OTHER_ITEMS << 24 | item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_CONSUMABLE - item->GetTemplate()->GetSubClass());
                             break;
                         }
                     }
+                    sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+                    items.insert(std::make_pair(sortOrder, item));
                     _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
                 }
             }
         }
     }
 
-    //All the food/drink...
-    for (auto itr = std::begin(foodItems); itr != std::end(foodItems); ++itr)
-        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityConsumables);
-
-    //... then weapons...
-    for (auto itr = std::begin(weaponItems); itr != std::end(weaponItems); ++itr)
-        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityEquipment);
-
-    //... then armor...
-    for (auto itr = std::begin(armorItems); itr != std::end(armorItems); ++itr)
-        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityEquipment);
-
-    //... then consumables (except for foods/drinks)...
-    for (auto itr = std::begin(consumablesNofoodItems); itr != std::end(consumablesNofoodItems); ++itr)
-        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityConsumables);
-
-    //... then all other item except poor items and quest Item...
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
         StoreItemInBank(itr->second, _player);
-
-    //... then all other item except poor items and quest Item...
-    for (auto itr = std::begin(tradeGoodItems); itr != std::end(tradeGoodItems); ++itr)
-        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityTradeGoods);
-
-    //... then quest item...
-    for (auto itr = std::begin(questItems); itr != std::end(questItems); ++itr)
-        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityQuestItems);
-
-    //... and finaly poor items
-    for (auto itr = std::begin(poorQualityItems); itr != std::end(poorQualityItems); ++itr)
-        StoreItemInBank(itr->second, _player, BagSlotFlags::PriorityJunk, true);
 
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
 void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& /*sortReagentBankBags*/)
 {
-    std::multimap<uint32, Item*> items;
+    std::multimap<uint64, Item*> items;
+    uint32 sortOrderHi;
+    uint32 sortOrderLo;
+    uint64 sortOrder;
 
     //save all the items in all bags into a multimap: items and remove items from bank
     for (uint8 slot = REAGENT_SLOT_START; slot < REAGENT_SLOT_END; ++slot)
     {
         if (Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         {
-            items.insert(std::make_pair(item->GetEntry(), item));
+            sortOrderLo = (UINT32_MAX - item->GetEntry());
+            sortOrderHi = item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_TRADE_GOODS - item->GetTemplate()->GetSubClass());
+            sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+            items.insert(std::make_pair(sortOrder, item));
             _player->RemoveItem(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
         }
     }
 
-    //store all items in bank. Order = item entry
     for (auto itr = std::begin(items); itr != std::end(items); ++itr)
         StoreItemInReagentBank(itr->second, _player);
 

@@ -59,19 +59,42 @@ enum ItemUpdateState
 // Enum used in ItemHandler for wrapper & bag sorting
 enum ItemSpecialItem
 {
-    ITEM_HEARTHSTONE = 6948,  // Hearthstone
-    ITEM_RED_RIBBONED_WRAPPING_PAPER = 5042,  // Red Ribboned Wrapping Paper
-    ITEM_RED_RIBBONED_GIFT = 5043,  // Red Ribboned Gift
-    ITEM_BLUE_RIBBONED_WRAPPING_PAPER = 5048,  // Blue Ribboned Wrapping Paper
-    ITEM_BLUE_RIBBONED_GIFT = 5044,  // Blue Ribboned Gift
-    ITEM_BLUE_RIBBONED_HOLIDAY_WRAPPING_PAPER = 17303, // Blue Ribboned Wrapping Paper
-    ITEM_BLUE_RIBBONED_HOLIDAY_GIFT = 17302, // Blue Ribboned Holiday Gift
-    ITEM_GREEN_RIBBONED_WRAPPING_PAPER = 17304, // Green Ribboned Wrapping Paper
-    ITEM_GREEN_RIBBONED_HOLIDAY_GIFT = 17305, // Green Ribboned Holiday Gift
-    ITEM_PURPLE_RIBBONED_WRAPPING_PAPER = 17307, // Purple Ribboned Wrapping Paper
-    ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT = 17308, // Purple Ribboned Holiday Gift
-    ITEM_EMPTY_WRAPPER = 21830, // Empty Wrapper
-    ITEM_WRAPPED_GIFT = 21831, // Wrappered Gift
+    ITEM_HEARTHSTONE                             = 6948, // Hearthstone
+    ITEM_GARRISON_HEARTHSTONE                    = 110560, // Garrison Hearthstone
+    ITEM_DALARAN_HEARTHSTONE                     = 140192, // Dalaran Hearthstone
+    ITEM_FLIGHT_MASTER_WHISTLE                   = 141605, // Flight Master Whistle
+    ITEM_RED_RIBBONED_WRAPPING_PAPER             = 5042, // Red Ribboned Wrapping Paper
+    ITEM_RED_RIBBONED_GIFT                       = 5043, // Red Ribboned Gift
+    ITEM_BLUE_RIBBONED_WRAPPING_PAPER            = 5048, // Blue Ribboned Wrapping Paper
+    ITEM_BLUE_RIBBONED_GIFT                      = 5044, // Blue Ribboned Gift
+    ITEM_BLUE_RIBBONED_HOLIDAY_WRAPPING_PAPER    = 17303, // Blue Ribboned Wrapping Paper
+    ITEM_BLUE_RIBBONED_HOLIDAY_GIFT              = 17302, // Blue Ribboned Holiday Gift
+    ITEM_GREEN_RIBBONED_WRAPPING_PAPER           = 17304, // Green Ribboned Wrapping Paper
+    ITEM_GREEN_RIBBONED_HOLIDAY_GIFT             = 17305, // Green Ribboned Holiday Gift
+    ITEM_PURPLE_RIBBONED_WRAPPING_PAPER          = 17307, // Purple Ribboned Wrapping Paper
+    ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT            = 17308, // Purple Ribboned Holiday Gift
+    ITEM_EMPTY_WRAPPER                           = 21830, // Empty Wrapper
+    ITEM_WRAPPED_GIFT                            = 21831, // Wrappered Gift
+};
+// Enum used in ItemHandler for the inventory sorting
+enum ItemSortInventory
+{
+    ITEM_SORT_SPECIAL_ITEM                       = 0,
+    ITEM_SORT_CONSUMABLE                         = 1,
+    ITEM_SORT_WEAPON                             = 2,
+    ITEM_SORT_SHIELD                             = 3,
+    ITEM_SORT_HEAD                               = 4,
+    ITEM_SORT_SHOULDERS                          = 5,
+    ITEM_SORT_CHEST                              = 6,
+    ITEM_SORT_WRISTS                             = 7,
+    ITEM_SORT_HANDS                              = 8,
+    ITEM_SORT_WAIST                              = 9,
+    ITEM_SORT_LEGS                               = 10,
+    ITEM_SORT_FEET                               = 11,
+    ITEM_SORT_CLOAK                              = 12,
+    ITEM_SORT_ACCESSORY                          = 13,
+    ITEM_SORT_BODY_TABARD                        = 14,
+    ITEM_SORT_OTHER_ITEMS                        = 15
 };
 
 #define MAX_ITEM_SPELLS 5
