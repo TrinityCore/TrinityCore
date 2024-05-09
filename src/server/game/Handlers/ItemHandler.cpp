@@ -1662,7 +1662,7 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
                         break;
                     }
                 }
-                sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+                sortOrder = (static_cast<uint64>(sortOrderHi) << 32) | sortOrderLo;
                 items.insert(std::make_pair(sortOrder, item));
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
             }
@@ -1762,7 +1762,7 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
                                 break;
                             }
                         }
-                        sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+                        sortOrder = (static_cast<uint64>(sortOrderHi) << 32) | sortOrderLo;
                         items.insert(std::make_pair(sortOrder, item));
                         _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
                     }
@@ -1873,7 +1873,7 @@ void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBa
                     break;
                 }
             }
-            sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+            sortOrder = (static_cast<uint64>(sortOrderHi) << 32) | sortOrderLo;
             items.insert(std::make_pair(sortOrder, item));
             _player->RemoveItem(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
         }
@@ -1972,7 +1972,7 @@ void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBa
                             break;
                         }
                     }
-                    sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+                    sortOrder = (static_cast<uint64>(sortOrderHi) << 32) | sortOrderLo;
                     items.insert(std::make_pair(sortOrder, item));
                     _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
                 }
@@ -2000,7 +2000,7 @@ void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBank
         {
             sortOrderLo = (UINT32_MAX - item->GetEntry());
             sortOrderHi = item->GetTemplate()->GetClass() << 16 | (MAX_ITEM_SUBCLASS_TRADE_GOODS - item->GetTemplate()->GetSubClass());
-            sortOrder = (static_cast<unsigned __int64>(sortOrderHi) << 32) | sortOrderLo;
+            sortOrder = (static_cast<uint64>(sortOrderHi) << 32) | sortOrderLo;
             items.insert(std::make_pair(sortOrder, item));
             _player->RemoveItem(INVENTORY_SLOT_BAG_0, item->GetSlot(), true);
         }
