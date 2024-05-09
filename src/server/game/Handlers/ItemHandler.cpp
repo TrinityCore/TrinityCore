@@ -1414,7 +1414,6 @@ void StoreItemInBank(Item* item, Player* player)
     uint32 itemClass = item->GetTemplate()->GetClass();
     ItemPosCountVec dest;
 
-
     //Then we check all the bags + inventory. But we don't want to store items in flagged bags
     if (itemQuality != ITEM_QUALITY_POOR)
     {
