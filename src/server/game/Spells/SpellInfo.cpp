@@ -2780,7 +2780,9 @@ void SpellInfo::_LoadImmunityInfo()
                         break;
                 }
 
-                if (DurationEntry && DurationEntry->ID == 407) // Special 100 ms duration spells: PvP trinket, Every Man for Himself and some other
+                // Duration ID 36:  1 second duration spells - mostly mage's Blink
+                // Duration ID 407: Special 100 ms duration spells - PvP trinket, Every Man for Himself and some other
+                if (DurationEntry && (DurationEntry->ID == 36 || DurationEntry->ID == 407))
                     forceRemoveAurasWithMechanicImmune = true;
 
                 break;
