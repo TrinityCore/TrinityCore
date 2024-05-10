@@ -3020,8 +3020,9 @@ struct ContentRestrictionRuleSetMeta
 
 struct ContentTuningMeta
 {
-    static constexpr DB2MetaField Fields[14] =
+    static constexpr DB2MetaField Fields[15] =
     {
+        { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -3038,7 +3039,7 @@ struct ContentTuningMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1962930, -1, 14, 14, 0x7364682E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1962930, 0, 15, 15, 0xE97AE065, Fields, -1 };
 };
 
 struct ContentTuningXExpectedMeta
