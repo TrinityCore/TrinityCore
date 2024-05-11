@@ -13163,7 +13163,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
 
         SetInvSlot(slot, pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
-            SetBuybackPrice(eslot, proto->GetSellPrice() * pItem->GetCount());
+            SetBuybackPrice(eslot, pItem->GetSellPrice(this) * pItem->GetCount());
         else
             SetBuybackPrice(eslot, 0);
 
