@@ -454,8 +454,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING, "SELECT MAX(ID) + 1 FROM conditional_content_tuning", CONNECTION_SYNCH);
 
     // ContentTuning.db2
-    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING, "SELECT ID, Flags, ExpansionID, MinLevel, MaxLevel, MinLevelType, MaxLevelType, TargetLevelDelta, "
-        "TargetLevelMaxDelta, TargetLevelMin, TargetLevelMax, MinItemLevel, QuestXpMultiplier FROM content_tuning WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING, "SELECT ID, Flags, ExpansionID, HealthItemLevelCurveID, DamageItemLevelCurveID, MinLevel, MaxLevel, "
+        "MinLevelType, MaxLevelType, TargetLevelDelta, TargetLevelMaxDelta, TargetLevelMin, TargetLevelMax, MinItemLevel, QuestXpMultiplier"
+        " FROM content_tuning WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONTENT_TUNING, "SELECT MAX(ID) + 1 FROM content_tuning", CONNECTION_SYNCH);
 
     // ContentTuningXExpected.db2
@@ -962,7 +963,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // ItemModifiedAppearance.db2
     PrepareStatement(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE, "SELECT ID, ItemID, ItemAppearanceModifierID, ItemAppearanceID, OrderIndex, "
-        "TransmogSourceTypeEnum FROM item_modified_appearance WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "TransmogSourceTypeEnum, Flags FROM item_modified_appearance WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE, "SELECT MAX(ID) + 1 FROM item_modified_appearance", CONNECTION_SYNCH);
 
     // ItemModifiedAppearanceExtra.db2

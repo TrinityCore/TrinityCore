@@ -29,19 +29,13 @@ ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(Ini
 }
 
 ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size, size_t valueSize)
+    : ByteBufferException(Trinity::StringFormat("Attempted to get value with size: {} in ByteBuffer (pos: {} size: {})", valueSize, pos, size))
 {
-    std::ostringstream ss;
-
-    ss << "Attempted to get value with size: "
-       << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
-       << ")";
-
-    message().assign(ss.str());
 }
 
 ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
+    : ByteBufferException(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value))
 {
-    message().assign(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value));
 }
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
@@ -152,7 +146,7 @@ void ByteBuffer::print_storage() const
     o << "STORAGE_SIZE: " << size();
     for (uint32 i = 0; i < size(); ++i)
         o << read<uint8>(i) << " - ";
-    o << " ";
+    o << ' ';
 
     TC_LOG_TRACE("network", "{}", o.str());
 }
@@ -170,7 +164,7 @@ void ByteBuffer::textlike() const
         snprintf(buf, 2, "%c", read<uint8>(i));
         o << buf;
     }
-    o << " ";
+    o << ' ';
     TC_LOG_TRACE("network", "{}", o.str());
 }
 
@@ -187,7 +181,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[4];
-        snprintf(buf, 4, "%2X", read<uint8>(i));
+        snprintf(buf, 4, "%02X", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";
@@ -195,13 +189,13 @@ void ByteBuffer::hexlike() const
         }
         else if (i == (k * 16))
         {
-            o << "\n";
+            o << '\n';
             ++k;
             ++j;
         }
 
         o << buf;
     }
-    o << " ";
+    o << ' ';
     TC_LOG_TRACE("network", "{}", o.str());
 }
