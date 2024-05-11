@@ -23,18 +23,19 @@
 #include "TaskScheduler.h"
 #include "ragefire_chasm.h"
 
-enum Spells
+enum AdaroggSpells
 {
     // Intro
     SPELL_ADJULES_CHOW_TIME         = 120113,
     SPELL_EAT_TROGG                 = 120064,
 
+    // Combat
     SPELL_INFERNO_CHARGE_CAST       = 119405,
     SPELL_INFERNO_CHARGE_SUMMON     = 119297, // Serverside
     SPELL_FIRE_BREATH               = 119420
 };
 
-enum Texts
+enum AdaroggTexts
 {
     SAY_INFERNO_CHARGE              = 0,
 
@@ -43,27 +44,25 @@ enum Texts
     SAY_HOUNDMASTER_INTRO_1         = 1
 };
 
-enum Events
+enum AdaroggEvents
 {
     EVENT_INFERNO_CHARGE            = 1,
     EVENT_FIRE_BREATH               = 2
 };
 
-enum Actions
+enum AdaroggActions
 {
     ACTION_KILL_HOUNDMASTERS        = 1
 };
 
-enum Waypoints
+enum AdaroggPaths
 {
-    // Intro Waypoint
     PATH_INTRO                      = 6140800,
-
-    POINT_EAT_1                     = 0,
-    POINT_EAT_2                     = 3
+    PATH_INTRO2                     = 6140801,
+    PATH_INTRO3                     = 6140802,
 };
 
-constexpr Position IntroPoints[2] =
+constexpr Position AdaroggIntroPoints[2] =
 {
     { -282.31488f, -53.24906f, -60.802902f },
     { -281.1894f,  -54.73433f, -60.34256f }
@@ -77,9 +76,18 @@ public:
 
     bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* adarogg = instance->GetCreature(BOSS_ADAROGG))
-                adarogg->AI()->DoAction(ACTION_KILL_HOUNDMASTERS);
+        if (player->IsGameMaster())
+            return false;
+
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance)
+            return false;
+
+        Creature* adarogg = instance->GetCreature(BOSS_ADAROGG);
+        if (!adarogg)
+            return false;
+
+        adarogg->AI()->DoAction(ACTION_KILL_HOUNDMASTERS);
 
         return true;
     }
@@ -93,11 +101,18 @@ struct boss_adarogg : public BossAI
     void Reset() override
     {
         _Reset();
+
+        scheduler.ClearValidator();
+
+        _eatCounter = 0;
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
+        scheduler.CancelAll();
+
         events.ScheduleEvent(EVENT_INFERNO_CHARGE, 10s);
         events.ScheduleEvent(EVENT_FIRE_BREATH, 20s);
     }
@@ -109,69 +124,81 @@ struct boss_adarogg : public BossAI
 
     void DoAction(int32 action) override
     {
-        if (action == ACTION_KILL_HOUNDMASTERS)
+        if (action != ACTION_KILL_HOUNDMASTERS)
+            return;
+
+        Creature* corruptedHoundmaster1 = me->FindNearestCreatureWithOptions(70.0f, { .StringId = "npc_corrupted_houndmaster_1" });
+        if (!corruptedHoundmaster1)
+            return;
+
+        Creature* corruptedHoundmaster2 = me->FindNearestCreatureWithOptions(70.0f, { .StringId = "npc_corrupted_houndmaster_2" });
+        if (!corruptedHoundmaster2)
+            return;
+
+        corruptedHoundmaster1->AI()->Talk(SAY_HOUNDMASTER_INTRO_0);
+        corruptedHoundmaster2->AI()->Talk(SAY_HOUNDMASTER_INTRO_1);
+
+        scheduler.Schedule(2s, [this](TaskContext task)
         {
-            Creature* corruptedHoundmaster1 = me->FindNearestCreatureWithOptions(70.0f, { .StringId = "npc_corrupted_houndmaster_1" });
-            Creature* corruptedHoundmaster2 = me->FindNearestCreatureWithOptions(70.0f, { .StringId = "npc_corrupted_houndmaster_2" });
+            DoCast(SPELL_ADJULES_CHOW_TIME);
+            me->GetMotionMaster()->MovePoint(0, AdaroggIntroPoints[0]);
 
-            if (!corruptedHoundmaster1 || !corruptedHoundmaster2)
-                return;
-
-            corruptedHoundmaster1->AI()->Talk(SAY_HOUNDMASTER_INTRO_0);
-            corruptedHoundmaster2->AI()->Talk(SAY_HOUNDMASTER_INTRO_1);
-
-            _scheduler.Schedule(2s, [this](TaskContext task)
+            task.Schedule(1s, [this](TaskContext task)
             {
                 DoCast(SPELL_ADJULES_CHOW_TIME);
-                me->GetMotionMaster()->MovePoint(0, IntroPoints[0]);
+                me->GetMotionMaster()->MovePoint(0, AdaroggIntroPoints[1]);
 
-                task.Schedule(1s, [this](TaskContext task)
+                task.Schedule(1s + 200ms, [this](TaskContext /*task*/)
                 {
                     DoCast(SPELL_ADJULES_CHOW_TIME);
-                    me->GetMotionMaster()->MovePoint(0, IntroPoints[1]);
-
-                    task.Schedule(1s + 200ms, [this](TaskContext /*task*/)
-                    {
-                        DoCast(SPELL_ADJULES_CHOW_TIME);
-                        me->GetMotionMaster()->MovePath(PATH_INTRO, true);
-                    });
+                    me->GetMotionMaster()->MovePath(PATH_INTRO, false);
                 });
             });
-        }
+        });
     }
 
-    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == PATH_INTRO)
+        switch (pathId)
         {
-            switch (waypointId)
-            {
-                case POINT_EAT_1:
-                case POINT_EAT_2:
+            case PATH_INTRO:
+                scheduler.Schedule(6148ms, [this](TaskContext /*task*/)
                 {
-                    _scheduler.Schedule(1s, [this](TaskContext task)
-                    {
-                        if (_eatCounter < 2)
-                        {
-                            DoCast(SPELL_EAT_TROGG);
-                            task.Repeat(2s, 3s);
-                            _eatCounter++;
-                        }
-                        else
-                        {
-                            task.CancelAll();
-                            _eatCounter = 0;
-                        }
-                    });
-                    break;
-                }
-            }
+                    me->GetMotionMaster()->MovePath(PATH_INTRO2, false);
+                });
+                break;
+            case PATH_INTRO2:
+                scheduler.Schedule(6996ms, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_INTRO3, false);
+                });
+                break;
+            case PATH_INTRO3:
+                scheduler.Schedule(6148ms, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_INTRO2, false);
+                });
+                break;
+            default:
+                return;
         }
+
+        _eatCounter = 0;
+        scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            if (_eatCounter >= 2)
+                return;
+
+            DoCast(SPELL_EAT_TROGG);
+            _eatCounter++;
+
+            task.Repeat(2s, 3s);
+        });
     }
 
     void UpdateAI(uint32 diff) override
     {
-        _scheduler.Update(diff);
+        scheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
@@ -209,7 +236,6 @@ struct boss_adarogg : public BossAI
     }
 
 private:
-    TaskScheduler _scheduler;
     uint8 _eatCounter;
 };
 

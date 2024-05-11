@@ -5,15 +5,12 @@ UPDATE `creature` SET `StringId`='npc_corrupted_houndmaster_1' WHERE `guid`=4000
 UPDATE `creature` SET `StringId`='npc_corrupted_houndmaster_2' WHERE `guid`=4000052;
 
 -- Spells
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (120064, 119405, 119298);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (120064, 119405, 119298, 120113);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 120064, 0, 0, 51, 0, 5, 61659, 0, '', 0, 0, 0, '', 'Spell \'Eat Trog\' can only hit \'Slain Trogg\''),
 (13, 1, 120064, 0, 1, 51, 0, 5, 61669, 0, '', 0, 0, 0, '', 'Spell \'Eat Trog\' can only hit \'Oggleflint\''),
 (13, 1, 119405, 0, 0, 51, 0, 5, 61409, 0, '', 0, 0, 0, '', 'Spell \'Inferno Charge\' can only hit \'Demonic Leap\''),
-(13, 1, 119298, 0, 0, 51, 0, 5, 61409, 0, '', 0, 0, 0, '', 'Spell \'Inferno Charge\' can only hit \'Demonic Leap\'');
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` = 120113;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 119298, 0, 0, 51, 0, 5, 61409, 0, '', 0, 0, 0, '', 'Spell \'Inferno Charge\' can only hit \'Demonic Leap\''),
 (13, 1, 120113, 0, 0, 51, 0, 5, 61666, 0, '', 0, 0, 0, '', 'Spell \'Adjules Chow Time\' can only hit \'Corrupted Houndmaster\''),
 (13, 2, 120113, 0, 0, 51, 0, 5, 61666, 0, '', 0, 0, 0, '', 'Spell \'Adjules Chow Time\' can only hit \'Corrupted Houndmaster\'');
 
@@ -41,16 +38,18 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 
 -- Waypoint
 SET @ENTRY := 61408;
-SET @PATHOFFSET := 0;
-SET @PATH := @ENTRY * 100 + @PATHOFFSET;
-DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
+SET @PATH := @ENTRY * 100;
+DELETE FROM `waypoint_path` WHERE `PathId` BETWEEN @PATH+0 AND @PATH+2;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Comment`) VALUES
-(@PATH, 0, 0, 'Adarogg - Intro path');
+(@PATH+0, 0, 0, 'Adarogg - Intro - Oggleflint from start'),
+(@PATH+1, 0, 0, 'Adarogg - Intro - Slain Trogg'),
+(@PATH+2, 0, 0, 'Adarogg - Intro - Oggleflint from Slain Trogg');
 
-DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
+DELETE FROM `waypoint_path_node` WHERE `PathId` BETWEEN @PATH+0 AND @PATH+2;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
-(@PATH, 0, -277.3586, -36.89559, -60.6918, NULL, 6148),
-(@PATH, 1, -278.8507, -54.90896, -60.57021, NULL, 0),
-(@PATH, 2, -285.0681, -66.49124, -60.46365, NULL, 0),
-(@PATH, 3, -286.4794, -74.89896, -60.55044, NULL, 6996),
-(@PATH, 4, -278.9581, -43.25373, -60.82312, NULL, 0);
+(@PATH+0, 0, -277.3586, -36.89559, -60.6918, NULL, 0),
+(@PATH+1, 0, -278.8507, -54.90896, -60.57021, NULL, 0),
+(@PATH+1, 1, -285.0681, -66.49124, -60.46365, NULL, 0),
+(@PATH+1, 2, -286.4794, -74.89896, -60.55044, NULL, 0),
+(@PATH+2, 0, -278.9581, -43.25373, -60.82312, NULL, 0),
+(@PATH+2, 1, -277.3586, -36.89559, -60.6918, NULL, 0);
