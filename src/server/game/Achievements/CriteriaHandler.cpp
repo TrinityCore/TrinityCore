@@ -558,6 +558,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::CompleteAnyReplayQuest:
             case CriteriaType::BuyItemsFromVendors:
             case CriteriaType::SellItemsToVendors:
+            case CriteriaType::CompleteScenario:
+            case CriteriaType::CompleteAnyScenario:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -798,8 +800,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::KickVoterInLFRDungeon:
             case CriteriaType::KickTargetInLFRDungeon:
             case CriteriaType::GroupedTankLeftEarlyInLFRDungeon:
-            case CriteriaType::CompleteAnyScenario:
-            case CriteriaType::CompleteScenario:
             case CriteriaType::AccountObtainPetThroughBattle:
             case CriteriaType::WinPetBattle:
             case CriteriaType::PlayerObtainPetThroughBattle:
@@ -1219,6 +1219,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
         case CriteriaType::EarnArtifactXP:
+        case CriteriaType::CompleteAnyScenario:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:
@@ -1384,6 +1385,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
+        case CriteriaType::CompleteAnyScenario:
             if (!miscValue1)
                 return false;
             break;
@@ -1647,6 +1649,10 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::PlayerTriggerGameEvent:
         case CriteriaType::AnyoneTriggerGameEventScenario:
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.EventID))
+                return false;
+            break;
+        case CriteriaType::CompleteScenario:
+            if (miscValue1 != criteria->Entry->Asset.ScenarioID)
                 return false;
             break;
         default:
