@@ -450,10 +450,16 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
             }
         }
 
-        //ItemTemplate const* pProto = pItem->GetTemplate();
-        if (pItem->GetSellPrice(_player) > 0)
+        if (uint32 sellPrice = pItem->GetSellPrice(_player); sellPrice > 0)
         {
-            uint64 money = uint64(pItem->GetSellPrice(_player)) * packet.Amount;
+            uint64 money = uint64(sellPrice) * packet.Amount;
+
+            using BuybackStorageType = std::remove_cvref_t<decltype(_player->m_activePlayerData->BuybackPrice[0])>;
+            if (money > std::numeric_limits<BuybackStorageType>::max()) // ensure sell price * amount doesn't overflow buyback price
+            {
+                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
+                return;
+            }
 
             if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
             {
@@ -461,7 +467,6 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 return;
             }
 
-            pItem->SetSellMoney(money);
             _player->UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
             _player->UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
 
@@ -520,7 +525,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
     Item* pItem = _player->GetItemFromBuyBackSlot(packet.Slot);
     if (pItem)
     {
-        uint32 price = pItem->GetSellMoney();
+        uint32 price = _player->m_activePlayerData->BuybackPrice[packet.Slot - BUYBACK_SLOT_START];
         if (!_player->HasEnoughMoney(uint64(price)))
         {
             _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);

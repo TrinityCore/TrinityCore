@@ -359,12 +359,10 @@ class TC_GAME_API Item : public Object
         void SetRefundRecipient(ObjectGuid const& guid) { m_refundRecipient = guid; }
         void SetPaidMoney(uint64 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
-        void SetSellMoney(uint64 money) { m_sellMoney = money; }
 
         ObjectGuid const& GetRefundRecipient() const { return m_refundRecipient; }
         uint64 GetPaidMoney() const { return m_paidMoney; }
         uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
-        uint64 GetSellMoney() const { return m_sellMoney; }
 
         uint32 GetPlayedTime() const;
         bool IsRefundExpired() const;
@@ -463,7 +461,6 @@ class TC_GAME_API Item : public Object
         ObjectGuid m_refundRecipient;
         uint64 m_paidMoney;
         uint32 m_paidExtendedCost;
-        uint64 m_sellMoney;
         GuidSet allowedGUIDs;
         ItemRandomBonusListId m_randomBonusListId;          // store separately to easily find which bonus list is the one randomly given for stat rerolling
         ObjectGuid m_childItem;
