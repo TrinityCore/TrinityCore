@@ -228,7 +228,6 @@ static TrashMobSet const TrashMobs =
 //TODO code style
 //TODO check all dist 225f?
 //
-// 
 //TODO SPELL_DISRUPTION_RAY = 41550 - dont work right (aims the beam under himself anyway, must at the enemy)
 //TODO JUMP
 
@@ -299,7 +298,7 @@ std::vector<TrashWave> trashWaves =
     {
         0,
         {NPC_FEL_IMP_DEFENDER, NPC_FELHOUND_DEFENDER, NPC_FELHOUND_DEFENDER},
-        {12s, 120s}
+        {14s, 120s}
     },
     {
         0,
@@ -309,7 +308,7 @@ std::vector<TrashWave> trashWaves =
     {
         0,
         {NPC_MO_ARG_TORMENTER, NPC_GAN_ARG_UNDERLING, NPC_GAN_ARG_UNDERLING, NPC_GAN_ARG_UNDERLING},
-        {40s, 120s, 200s}
+        {20s, 100s, 180s}
     },
     {
         0,
@@ -318,467 +317,455 @@ std::vector<TrashWave> trashWaves =
     }
 };
 
-class npc_overseer_shartuul : public CreatureScript
+struct npc_overseer_shartuul : public ScriptedAI
 {
-public:
-    npc_overseer_shartuul() : CreatureScript("npc_overseer_shartuul") { }
+    npc_overseer_shartuul(Creature* creature) : ScriptedAI(creature), summons(me) { }
 
-    struct npc_overseer_shartuulAI : public ScriptedAI
+    void Initialaize()
     {
-        npc_overseer_shartuulAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
+        currDemonState = 0;
+        _knockBackDist = 5.0f;
+        _knockBackX = 0;
+        _knockBackY = 0;
+        _knockBackOrientation = 0;
+        _spawnEyesFirtTime = true;
 
-        void Initialaize()
+        _eredarGateBeamGUIDs.clear();
+        _wreckageGUIDs.clear();
+        _spawnLightningNPCGUIDs.clear();
+        _felguardDegraderGUID.Clear();
+        _doomPunisherGUID.Clear();
+        _eredarBreathTargeGUID.Clear();
+        currPossessDemonGUID.Clear();
+        _shivanAssassinGUID.Clear();
+        _shartuulGUID.Clear();
+
+        SummonStartEventNPC();
+    }
+
+    void Reset() override
+    {
+        summons.DespawnAll();
+        events.Reset();
+        Initialaize();
+    }
+
+    int8 currDemonState;
+    EventMap events;
+    SummonList summons;
+    ObjectGuid currPossessDemonGUID;
+
+    void JustSummoned(Creature* summoned) override
+    {
+        summons.Summon(summoned);
+        //The effect of being struck by green lightning, before a npc appears
+        if (TrashMobs.find(summoned->GetEntry()) != TrashMobs.end())
+            if (Creature* spawnLightningNPC = FindFreeSpawnLightningNPC())
+                spawnLightningNPC->CastSpell(summoned, SPELL_SPAWN_LIGHTNING, false);
+    }
+
+    void SummonedCreatureDespawn(Creature* summon) override
+    {
+        summons.Despawn(summon);
+    }
+
+    void JustAppeared() override { }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_TOUCH_OF_MADNESS)
         {
-            currDemonState = 0;
-            _knockBackDist = 5.0f;
-            _knockBackX = 0;
-            _knockBackY = 0;
-            _knockBackOrientation = 0;
-            _spawnEyesFirtTime = true;
-
-            _eredarGateBeamGUIDs.clear();
-            _wreckageGUIDs.clear();
-            _spawnLightningNPCGUIDs.clear();
-            _felguardDegraderGUID.Clear();
-            _doomPunisherGUID.Clear();
-            _eredarBreathTargeGUID.Clear();
-            currPossessDemonGUID.Clear();
-            _shivanAssassinGUID.Clear();
-            _shartuulGUID.Clear();
-
-            SummonStartEventNPC();
+            SpawnEyeStalk();
+            DoCast(SPELL_MADNESS_RIFT);
         }
+    }
 
-        void Reset() override
+    void DoAction(int32 action) override
+    {
+        currDemonState = action;
+
+        switch (action)
         {
-            summons.DespawnAll();
-            events.Reset();
-            Initialaize();
-        }
-
-        int8 currDemonState;
-        EventMap events;
-        SummonList summons;
-        ObjectGuid currPossessDemonGUID;
-
-        void JustSummoned(Creature* summoned) override
-        {
-            summons.Summon(summoned);
-            //The effect of being struck by green lightning, before a npc appears
-            if (TrashMobs.find(summoned->GetEntry()) != TrashMobs.end())
-                if (Creature* spawnLightningNPC = FindFreeSpawnLightningNPC())
-                    spawnLightningNPC->CastSpell(summoned, SPELL_SPAWN_LIGHTNING, false);
-        }
-
-        void SummonedCreatureDespawn(Creature* summon) override
-        {
-            summons.Despawn(summon);
-        }
-
-        void JustAppeared() override { }
-
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_TOUCH_OF_MADNESS)
+        case ACTION_START_DEMON_I_PHASE_I: //Trigger the event, activate the barrier
+            Talk(SAY_EVENT_START);
+            SummonShieldZappers(false);
+            SetGreenMatter();
+            SetBoundary(FieldBoundary);
+            if (_shieldGateGUID)
             {
-                SpawnEyeStalk();
-                DoCast(SPELL_MADNESS_RIFT);
+                Creature* shield = ObjectAccessor::GetCreature(*me, _shieldGateGUID);
+                shield->AI()->DoAction(ACTION_START_DEMON_I_PHASE_I);
             }
-        }
-
-        void DoAction(int32 action) override
-        {
-            currDemonState = action;
-
-            switch (action)
+            events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 8s);
+            break;
+        case ACTION_START_DEMON_I_PHASE_II: //Activate Doom Punisher, remove trash mobs
+            if (_doomPunisherGUID)
             {
-            case ACTION_START_DEMON_I_PHASE_I: //Trigger the event, activate the barrier
-                Talk(SAY_EVENT_START);
-                SummonShieldZappers(false);
-                SetGreenMatter();
-                SetBoundary(FieldBoundary);
-                if (_shieldGateGUID)
+                Creature* doomPunisher = ObjectAccessor::GetCreature(*me, _doomPunisherGUID);
+                summons.DespawnEntry(NPC_FELHOUND_DEFENDER);
+                summons.DespawnEntry(NPC_FEL_IMP_DEFENDER);
+                doomPunisher->AI()->DoAction(ACTION_START_DEMON_I_PHASE_II);
+            }
+            IgniteShieldWreckage(true);
+            events.Reset();
+            break;
+        case ACTION_START_DEMON_II_PHASE_I: //Summon Shivan Assassin
+            ++waveIndex;
+            events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 8s);
+            events.ScheduleEvent(EVENT_SPAWN_SHIVAN_ASSASSIN, 60s);
+            break;
+        case ACTION_START_DEMON_II_PHASE_II: //Activate Shivan Assassin
+            if (_shivanAssassinGUID)
+            {
+                Creature* shivanAssassin = ObjectAccessor::GetCreature(*me, _shivanAssassinGUID);
+                shivanAssassin->RemoveAurasDueToSpell(SPELL_COSMETIC_SHIVAN_STASIS);
+                shivanAssassin->AI()->DoAction(ACTION_START_DEMON_II_PHASE_II);
+            }
+            Talk(SAY_SHIVAN_IN_PROGRESS);
+            break;
+        case ACTION_START_DEMON_III_PHASE_I: //Open the portal, and eventually close it
+            Talk(SAY_SHIVAN_DONE);
+            ActivatePortalBeam();
+            events.ScheduleEvent(EVENT_CAST_ARCANE_EXPLOSION, 1s);
+            events.ScheduleEvent(EVENT_OPEN_SHARTUUL_PORTAL, 10s);
+            events.ScheduleEvent(EVENT_SPAWN_SHARTUUL, 18s);
+            events.ScheduleEvent(EVENT_CLOSE_SHARTUULS_PORTAL, 23s);
+            break;
+        case ACTION_START_DEMON_III_PHASE_II: //Summon DreadMaw
+            if (_shartuulGUID)
+            {
+                Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
+                shartuul->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+            }
+            events.ScheduleEvent(EVENT_SPAWN_DREADMAW, 10s);
+            break;
+        case ACTION_START_DEMON_III_PHASE_III:
+            if (_shartuulGUID)
+            {
+                Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
+                shartuul->CastSpell(me, SPELL_TOUCH_OF_MADNESS);
+                events.ScheduleEvent(EVENT_SHARTUUL_MOVE_TO_BATTLE, 8s);
+            }
+            break;
+        case ACTION_EVENT_DONE_OR_FAIL: //Reset event
+            IgniteShieldWreckage(false);
+            Reset();
+            break;
+        default:
+            break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!currDemonState)
+            return;
+
+        CheckBoundary();
+        CheckEventFail();
+
+        if (events.Empty())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                //!Wave handler
+            case EVENT_SPAWN_MOB_WAVE:
+            {
+                if (waveIndex >= trashWaves.size()) // If all waves are cleared, the following action begins
                 {
-                    Creature* shield = ObjectAccessor::GetCreature(*me, _shieldGateGUID);
-                    shield->AI()->DoAction(ACTION_START_DEMON_I_PHASE_I);
+                    DoAction(ACTION_START_DEMON_II_PHASE_II);
+                    break;
                 }
-                events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 8s);
-                break;
-            case ACTION_START_DEMON_I_PHASE_II: //Activate Doom Punisher, remove trash mobs
-                if (_doomPunisherGUID)
+                for (uint8 i = 0; i < trashWaves[waveIndex].delays.size(); ++i)
+                    events.ScheduleEvent(EVENT_SPAWN_TRASH_WAVE, trashWaves[waveIndex].delays[i]);
+                Talk(SAY_THREAT);
+            }
+            break;
+            //!Bosses spawn events (INTRO PHASE)
+            case EVENT_SPAWN_SHIVAN_ASSASSIN:
+                if (Creature* creature = DoSummon(NPC_SHIVAN_ASSASSIN, ForgeCampPos, 0s, TEMPSUMMON_MANUAL_DESPAWN))
                 {
-                    Creature* doomPunisher = ObjectAccessor::GetCreature(*me, _doomPunisherGUID);
-                    summons.DespawnEntry(NPC_FELHOUND_DEFENDER);
-                    summons.DespawnEntry(NPC_FEL_IMP_DEFENDER);
-                    doomPunisher->AI()->DoAction(ACTION_START_DEMON_I_PHASE_II);
+                    DoCast(creature, SPELL_COSMETIC_SHIVAN_STASIS);
+                    _shivanAssassinGUID = creature->GetGUID();
                 }
-                IgniteShieldWreckage(true);
-                events.Reset();
                 break;
-            case ACTION_START_DEMON_II_PHASE_I: //Summon Shivan Assassin
-                ++waveIndex;
-                events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 8s);
-                events.ScheduleEvent(EVENT_SPAWN_SHIVAN_ASSASSIN, 60s);
-                break;
-            case ACTION_START_DEMON_II_PHASE_II: //Activate Shivan Assassin
-                if (_shivanAssassinGUID)
+            case EVENT_SPAWN_EYE_OF_SHARTUUL:
+                if (Creature* eyeOfShartuul = DoSummon(NPC_EYE_OF_SHARTUUL, EyeOfShartuulSpawnPos, 0s, TEMPSUMMON_MANUAL_DESPAWN))
                 {
-                    Creature* shivanAssassin = ObjectAccessor::GetCreature(*me, _shivanAssassinGUID);
-                    shivanAssassin->RemoveAurasDueToSpell(SPELL_COSMETIC_SHIVAN_STASIS);
-                    shivanAssassin->AI()->DoAction(ACTION_START_DEMON_II_PHASE_II);
+                    if (_shartuulGUID)
+                    {
+                        Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
+                        shartuul->SetFacingTo(shartuul->GetAbsoluteAngle(eyeOfShartuul));
+                        shartuul->CastSpell(eyeOfShartuul, SPELL_COSMETIC_EREDAR_LIGHTNING);
+                    }
                 }
-                Talk(SAY_SHIVAN_IN_PROGRESS);
                 break;
-            case ACTION_START_DEMON_III_PHASE_I: //Open the portal, and eventually close it
-                Talk(SAY_SHIVAN_DONE);
-                ActivatePortalBeam();
-                events.ScheduleEvent(EVENT_CAST_ARCANE_EXPLOSION, 1s);
-                events.ScheduleEvent(EVENT_OPEN_SHARTUUL_PORTAL, 10s);
-                events.ScheduleEvent(EVENT_SPAWN_SHARTUUL, 18s);
-                events.ScheduleEvent(EVENT_CLOSE_SHARTUULS_PORTAL, 23s);
+            case EVENT_SPAWN_DREADMAW:
+                if (Creature* dreadMaw = DoSummon(NPC_DREADMAW, DreadmawSpawnPos, 0s, TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    if (_shartuulGUID)
+                    {
+                        Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
+                        shartuul->SetFacingTo(shartuul->GetAbsoluteAngle(dreadMaw));
+                        shartuul->CastSpell(dreadMaw, SPELL_COSMETIC_EREDAR_LIGHTNING);
+                    }
+                }
                 break;
-            case ACTION_START_DEMON_III_PHASE_II: //Summon DreadMaw
+            case EVENT_SPAWN_SHARTUUL:
+                if (Creature* creature = DoSummon(NPC_SHARTUUL, ShartuulSpawnPos, 0s, TEMPSUMMON_DEAD_DESPAWN))
+                    _shartuulGUID = creature->GetGUID();
+                break;
+            case EVENT_SPAWN_TRASH_WAVE:
+                SummonTrashWave(me, trashWaves[waveIndex]);
+                if (!waveIndex) //The first wave of mobs shouldn't end until the boss shows up
+                    events.ScheduleEvent(EVENT_SPAWN_TRASH_WAVE, 7s, 14s);
+                else
+                    if (++trashWaves[waveIndex].currWave == trashWaves[waveIndex].delays.size())
+                    {
+                        ++waveIndex;
+                        events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 20s);
+                    }
+                break;
+            case EVENT_OPEN_SHARTUUL_PORTAL:
+                events.CancelEvent(EVENT_CAST_ARCANE_EXPLOSION);
+                if (Creature* creature = DoSummon(NPC_TRIGGER_EREDAR_BREATH_TARGET, ShartuulPortalSpawnPos, 20s, TEMPSUMMON_TIMED_DESPAWN))
+                    creature->AI()->DoCastSelf(SPELL_COSMETIC_SHARTUUL_PORTAL);
+                break;
+            case EVENT_CAST_ARCANE_EXPLOSION:
+                if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, 100.0f))
+                    creature->AI()->DoCastSelf(SPELL_COSMETIC_ARCANE_EXPLOSION);
+                events.ScheduleEvent(EVENT_CAST_ARCANE_EXPLOSION, 3s);
+                break;
+            case EVENT_CLOSE_SHARTUULS_PORTAL:
+                if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, 100.0f))
+                    creature->RemoveAurasDueToSpell(SPELL_COSMETIC_SHARTUUL_PORTAL);
+                events.ScheduleEvent(EVENT_SPAWN_EYE_OF_SHARTUUL, 7s);  //Summon Eye of Shartuul
+                break;
+            case EVENT_SHARTUUL_MOVE_TO_BATTLE:
                 if (_shartuulGUID)
                 {
                     Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
-                    shartuul->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                    shartuul->GetMotionMaster()->MovePoint(POINT_SHARTUUL_COMBAT, ShartuulCombatPos);
                 }
-                events.ScheduleEvent(EVENT_SPAWN_DREADMAW, 10s);
-                break;
-            case ACTION_START_DEMON_III_PHASE_III:
-                if (_shartuulGUID)
-                {
-                    Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
-                    shartuul->CastSpell(me, SPELL_TOUCH_OF_MADNESS);
-                    events.ScheduleEvent(EVENT_SHARTUUL_MOVE_TO_BATTLE, 8s);
-                }
-                break;
-            case ACTION_EVENT_DONE_OR_FAIL: //Reset event
-                IgniteShieldWreckage(false);
-                Reset();
                 break;
             default:
                 break;
             }
         }
+    }
 
-        void UpdateAI(uint32 diff) override
+    void SummonTrashWave(Creature* me, const TrashWave& wave)
+    {
+        for (uint32 creatureId : wave.creatureEntrys)
         {
-            if (!currDemonState)
-                return;
-
-            CheckBoundary();
-            CheckEventFail();
-
-            if (events.Empty())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            if (waveIndex == 2 && creatureId == NPC_MO_ARG_TORMENTER)
             {
-                switch (eventId)
-                {
-                    //!Wave handler
-                case EVENT_SPAWN_MOB_WAVE:
-                {
-                    if (waveIndex >= trashWaves.size()) // If all waves are cleared, the following action begins
-                    {
-                        DoAction(ACTION_START_DEMON_II_PHASE_II);
-                        break;
-                    }
-                    for (uint8 i = 0; i < trashWaves[waveIndex].delays.size(); ++i)
-                        events.ScheduleEvent(EVENT_SPAWN_TRASH_WAVE, trashWaves[waveIndex].delays[i]);
-                    Talk(SAY_THREAT);
-                }
-                break;
-                    //!Bosses spawn events (INTRO PHASE)
-                case EVENT_SPAWN_SHIVAN_ASSASSIN:
-                    if (Creature* creature = me->SummonCreature(NPC_SHIVAN_ASSASSIN, ForgeCampPos))
-                    {
-                        DoCast(creature, SPELL_COSMETIC_SHIVAN_STASIS);
-                        _shivanAssassinGUID = creature->GetGUID();
-                    }
-                    break;
-                case EVENT_SPAWN_EYE_OF_SHARTUUL:
-                    if (Creature* eyeOfShartuul = me->SummonCreature(NPC_EYE_OF_SHARTUUL, EyeOfShartuulSpawnPos))
-                    {
-                        if (_shartuulGUID)
-                        {
-                            Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
-                            shartuul->SetFacingTo(shartuul->GetAbsoluteAngle(eyeOfShartuul));
-                            shartuul->CastSpell(eyeOfShartuul, SPELL_COSMETIC_EREDAR_LIGHTNING);
-                        }
-                    }
-                    break;
-                case EVENT_SPAWN_DREADMAW:
-                    if (Creature* dreadMaw = me->SummonCreature(NPC_DREADMAW, DreadmawSpawnPos))
-                    {
-                        if (_shartuulGUID)
-                        {
-                            Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
-                            shartuul->SetFacingTo(shartuul->GetAbsoluteAngle(dreadMaw));
-                            shartuul->CastSpell(dreadMaw, SPELL_COSMETIC_EREDAR_LIGHTNING);
-                        }
-                    }
-                    break;
-                case EVENT_SPAWN_SHARTUUL:
-                    if (Creature* creature = me->SummonCreature(NPC_SHARTUUL, ShartuulSpawnPos, TEMPSUMMON_DEAD_DESPAWN))
-                        _shartuulGUID = creature->GetGUID();
-                    break;
-                    //!Mob Waves
-                case EVENT_SPAWN_TRASH_WAVE:
-                    SummonTrashWave(me, trashWaves[waveIndex]);
-                    if (!waveIndex) //The first wave of mobs shouldn't end until the boss shows up
-                        events.ScheduleEvent(EVENT_SPAWN_TRASH_WAVE, 7s, 14s);
-                    else
-                        if (++trashWaves[waveIndex].currWave == trashWaves[waveIndex].delays.size())
-                        {
-                            ++waveIndex;
-                            events.ScheduleEvent(EVENT_SPAWN_MOB_WAVE, 0s);
-                        }
-                    break;
-                case EVENT_OPEN_SHARTUUL_PORTAL:
-                    events.CancelEvent(EVENT_CAST_ARCANE_EXPLOSION);
-                    if (Creature* creature = me->SummonCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, ShartuulPortalSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 20s))
-                        creature->AI()->DoCastSelf(SPELL_COSMETIC_SHARTUUL_PORTAL);
-                    break;
-                case EVENT_CAST_ARCANE_EXPLOSION:
-                    if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, 100.0f))
-                        creature->AI()->DoCastSelf(SPELL_COSMETIC_ARCANE_EXPLOSION);
-                    events.ScheduleEvent(EVENT_CAST_ARCANE_EXPLOSION, 3s);
-                    break;
-                case EVENT_CLOSE_SHARTUULS_PORTAL:
-                    if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, 100.0f))
-                        creature->RemoveAurasDueToSpell(SPELL_COSMETIC_SHARTUUL_PORTAL);
-                    events.ScheduleEvent(EVENT_SPAWN_EYE_OF_SHARTUUL, 7s);  //Summon Eye of Shartuul
-                    break;
-                case EVENT_SHARTUUL_MOVE_TO_BATTLE:
-                    if (_shartuulGUID)
-                    {
-                        Creature* shartuul = ObjectAccessor::GetCreature(*me, _shartuulGUID);
-                        shartuul->GetMotionMaster()->MovePoint(POINT_SHARTUUL_COMBAT, ShartuulCombatPos);
-                    }
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-
-        void SummonTrashWave(Creature* me, const TrashWave& wave)
-        {
-            for (uint32 creatureId : wave.creatureEntrys)
-            {
-                if (waveIndex == 2 && creatureId == NPC_MO_ARG_TORMENTER)
-                {
-                    me->SummonCreature(NPC_MO_ARG_TORMENTER, MoSpawnPos[wave.currWave], TEMPSUMMON_DEAD_DESPAWN);
-                    for (uint8 i = 0; i < 4; ++i)
-                        FindPosAndSpawnMoUnderling(i, MoSpawnPos[wave.currWave]); //Summon Gan'arg near Mo'arg
-                }
-                else
-                    me->SummonCreature(creatureId, me->GetRandomPoint(ForgeCampPos, 50.0f), TEMPSUMMON_DEAD_DESPAWN);
-            }
-        }
-
-        void SummonStartEventNPC()
-        {
-            me->SummonCreature(NPC_FELGUARD_DEGRADER, me->GetRandomPoint(ForgeCampPos, 30.0f), TEMPSUMMON_DEAD_DESPAWN);
-            if (Creature* creature = me->SummonCreature(NPC_TRIGGER_WARP_GATE_SHIELD, WarpGateShieldSpawnPos, TEMPSUMMON_DEAD_DESPAWN))
-                _shieldGateGUID = creature->GetGUID();
-            if (Creature* creature = me->SummonCreature(NPC_DOOMGUARD_PUNISHER, ForgeCampPos, TEMPSUMMON_DEAD_DESPAWN))
-                _doomPunisherGUID = creature->GetGUID();
-            for (uint8 i = 0; i < 6; i++)
-                if (Creature* creature = me->SummonCreature(NPC_TRIGGER_INVISMAN, SpawnLightningNPCSpawnPos[i]))
-                    _spawnLightningNPCGUIDs.emplace_back(creature->GetGUID());
-            SummonShieldZappers(true);
-        }
-
-        Creature* FindFreeSpawnLightningNPC()
-        {
-            for (const auto& el : _spawnLightningNPCGUIDs)
-                if (el)
-                {
-                    Creature* creature = ObjectAccessor::GetCreature(*me, el);
-                    if (creature->GetSpellHistory()->IsReady(sSpellMgr->GetSpellInfo(SPELL_SPAWN_LIGHTNING)) &&
-                        !creature->HasUnitState(UNIT_STATE_CASTING))
-                        return creature;
-                }
-            return nullptr;
-        }
-
-        void CheckEventFail()
-        {
-            if (currPossessDemonGUID)
-            {
-                Creature* creature = ObjectAccessor::GetCreature(*me, currPossessDemonGUID);
-
-                // If the creature is not alive, trigger "event" failure
-                if (!creature->IsAlive())
-                    DoAction(ACTION_EVENT_DONE_OR_FAIL);
-            }
-        };
-
-        void CheckBoundary()
-        {
-            if (currPossessDemonGUID)
-            {
-                Creature* creature = ObjectAccessor::GetCreature(*me, currPossessDemonGUID);
-                if (!IsInBoundary(creature))
-                    // If the creature is not within the boundary, compute the knockback.
-                    ComputeKnockback(creature);
-            }
-        };
-
-        // This function turns the barrier on
-        void SetGreenMatter()
-        {
-            std::vector<Creature*> temp;
-
-            // To activate Green Matter, summon creatures and cast a spell on them in a specific order
-            for (uint8 i = 0; i < 4; ++i)
-                if (Creature* creature = me->SummonCreature(NPC_TRIGGER_INVISMAN, GreenMatterSpawnPos[i]))
-                    temp.emplace_back(creature);
-            if (temp.size() == 4)
+                DoSummon(NPC_MO_ARG_TORMENTER, MoSpawnPos[wave.currWave], 0s, TEMPSUMMON_DEAD_DESPAWN);
                 for (uint8 i = 0; i < 4; ++i)
-                    temp[i]->CastSpell(temp[(i + 1) % temp.size()], SPELL_COSMETIC_GREEN_MATTER);
-        }
-
-        void ComputeKnockback(Creature* creature)
-        {
-            _knockBackOrientation = creature->GetAbsoluteAngle(ForgeCampPos) + static_cast<float>(M_PI);
-            creature->GetNearPoint2D(nullptr, _knockBackX, _knockBackY, _knockBackDist, _knockBackOrientation);
-            creature->KnockbackFrom(_knockBackX, _knockBackY, 16, 12);
-        }
-
-        void IgniteShieldWreckage(bool on)
-        {
-            if (on)
-            {
-                for (uint8 i = 0; i < 8; ++i)
-                {
-                    // Summon game objects for the shield wreckage.
-                    const bool isTemporary = i < 2;
-                    QuaternionData rotation = QuaternionData::fromEulerAnglesZYX(ShieldWreckageCreatePos[i].GetPositionZ(), 0.f, 0.f);
-                    _wreckageGUIDs.push_back(me->SummonGameObject(GO_SHIELD_WRECKAGE_MEDIUM, ShieldWreckageCreatePos[i], rotation,
-                        isTemporary ? 25s : 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN))->GetGUID());
-                }
+                    FindPosAndSpawnMoUnderling(i, MoSpawnPos[wave.currWave]); //Summon Gan'arg near Mo'arg
             }
             else
-            {
-                if (!_wreckageGUIDs.empty())
-                    for (uint8 i = 2; i < 8; ++i)
-                    {
-                        // Despawn shield wreckage.
-                        if (_wreckageGUIDs[i])
-                        {
-                            GameObject* go = ObjectAccessor::GetGameObject(*me, _wreckageGUIDs[i]);
-                            go->DespawnOrUnsummon();
-                        }
-                    }
-            }
+                DoSummon(creatureId, me->GetRandomPoint(ForgeCampPos, 50.0f), 0s, TEMPSUMMON_DEAD_DESPAWN);
         }
+    }
 
-        void FindPosAndSpawnMoUnderling(uint8 i, Position moPos)
+    void SummonStartEventNPC()
+    {
+        DoSummon(NPC_FELGUARD_DEGRADER, me->GetRandomPoint(ForgeCampPos, 30.0f), 0s, TEMPSUMMON_DEAD_DESPAWN);
+        if (Creature* creature = DoSummon(NPC_TRIGGER_WARP_GATE_SHIELD, WarpGateShieldSpawnPos, 0s, TEMPSUMMON_DEAD_DESPAWN))
+            _shieldGateGUID = creature->GetGUID();
+        if (Creature* creature = DoSummon(NPC_DOOMGUARD_PUNISHER, ForgeCampPos, 0s, TEMPSUMMON_DEAD_DESPAWN))
+            _doomPunisherGUID = creature->GetGUID();
+        for (uint8 i = 0; i < 6; i++)
+            if (Creature* creature = DoSummon(NPC_TRIGGER_INVISMAN, SpawnLightningNPCSpawnPos[i], 0s, TEMPSUMMON_MANUAL_DESPAWN))
+                _spawnLightningNPCGUIDs.emplace_back(creature->GetGUID());
+        SummonShieldZappers(true);
+    }
+
+    Creature* FindFreeSpawnLightningNPC()
+    {
+        for (const auto& el : _spawnLightningNPCGUIDs)
+            if (el)
+            {
+                Creature* creature = ObjectAccessor::GetCreature(*me, el);
+                if (creature->GetSpellHistory()->IsReady(sSpellMgr->GetSpellInfo(SPELL_SPAWN_LIGHTNING)) &&
+                    !creature->HasUnitState(UNIT_STATE_CASTING))
+                    return creature;
+            }
+        return nullptr;
+    }
+
+    void CheckEventFail()
+    {
+        if (currPossessDemonGUID)
         {
-            if (trashWaves[2].currWave == 2)
-            {
-                //Calculate position by line
-                static const std::vector<std::pair<int8, int8>> offsets = { {-20, 12}, {-10, 10}, {10, -10}, {20, -12} };
-                if (i < offsets.size())
-                {
-                    moPos.m_positionX += offsets[i].first;
-                    moPos.m_positionY += offsets[i].second;
-                }
-            }
-            else
-            {
-                //Calculate position by square
-                static const std::vector<std::pair<int8, int8>> offsets = { {-10, -10}, {10, -10}, {-10, 10}, {10, 10} };
-                if (i < offsets.size())
-                {
-                    moPos.m_positionX += offsets[i].first;
-                    moPos.m_positionY += offsets[i].second;
-                }
-            }
-            me->SummonCreature(NPC_GAN_ARG_UNDERLING, moPos, TEMPSUMMON_DEAD_DESPAWN);
+            Creature* creature = ObjectAccessor::GetCreature(*me, currPossessDemonGUID);
+
+            // If the creature is not alive, trigger "event" failure
+            if (!creature->IsAlive())
+                DoAction(ACTION_EVENT_DONE_OR_FAIL);
         }
-
-        void ActivatePortalBeam()
-        {
-            // If the gate is to be opened, summon the necessary creatures and cast the pre gate beam
-            if (Creature* eredarBreathTarget = me->SummonCreature(NPC_TRIGGER_EREDAR_BREATH_TARGET, EredarBreathTargetSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 15s))
-            {
-                _eredarBreathTargeGUID = eredarBreathTarget->GetGUID();
-                for (uint8 i = 0; i < 2; ++i)
-                    if (Creature* eredarBeam = me->SummonCreature(NPC_TRIGGER_INVISMAN_LG, EredarBeamSpawnPos[i], TEMPSUMMON_TIMED_DESPAWN, 15s))
-                    {
-                        _eredarGateBeamGUIDs.push_back(eredarBeam->GetGUID());
-                        eredarBeam->CastSpell(eredarBreathTarget, SPELL_COSMETIC_EREDAR_PRE_GATE_BEAM);
-                    }
-            }
-        }
-
-        void SpawnEyeStalk()
-        {
-            if (_spawnEyesFirtTime)
-            {
-                //Eyes appears all over the arena
-                for (uint8 i = 0; i < 16; ++i)
-                    me->SummonCreature(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f));
-            }
-            else
-            {
-                //Eyes spawns near the player
-                for (uint8 i = 0; i < 6; ++i)
-                {
-                    if (!_shivanAssassinGUID)
-                        break;
-                    Position pos = me->GetRandomPoint(ObjectAccessor::GetCreature(*me, _shivanAssassinGUID)->GetPosition(), 15.0f);
-                    me->SummonCreature(NPC_FEL_EYE_STALK, pos);
-                }
-            }
-            _spawnEyesFirtTime = false;
-        }
-
-        void SummonShieldZappers(bool on)
-        {
-            if (on) //Summon shield zappers at the columns
-            {
-                for (uint8 i = 0; i < 12; ++i)
-                    me->SummonCreature(NPC_TRIGGER_INVISMAN_LG, ZapperTargetPos[i]); //target
-                for (uint8 i = 0; i < 4; ++i)
-                    me->SummonCreature(NPC_TRIGGER_SHIELD_ZAPPER, ZapperPos[i]);
-            }
-            else //Despawn all shield zappers at the columns
-            {
-                summons.DespawnEntry(NPC_TRIGGER_INVISMAN_LG); //target
-                summons.DespawnEntry(NPC_TRIGGER_SHIELD_ZAPPER);
-            }
-        }
-
-    private:
-        bool _spawnEyesFirtTime;
-        float _knockBackDist;
-        float _knockBackX, _knockBackY;
-        float _knockBackOrientation;
-        GuidVector _eredarGateBeamGUIDs;
-        GuidVector _wreckageGUIDs;
-        GuidVector _spawnLightningNPCGUIDs;
-        ObjectGuid _shieldGateGUID;
-        ObjectGuid _felguardDegraderGUID;
-        ObjectGuid _doomPunisherGUID;
-        ObjectGuid _shivanAssassinGUID;
-        ObjectGuid _shartuulGUID;
-        ObjectGuid _eredarBreathTargeGUID;
-
-        uint8 waveIndex = 0;
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void CheckBoundary()
     {
-        return new npc_overseer_shartuulAI(creature);
+        if (currPossessDemonGUID)
+        {
+            Creature* creature = ObjectAccessor::GetCreature(*me, currPossessDemonGUID);
+            if (!IsInBoundary(creature))
+                // If the creature is not within the boundary, compute the knockback.
+                ComputeKnockback(creature);
+        }
+    };
+
+    // This function turns the barrier on
+    void SetGreenMatter()
+    {
+        std::vector<Creature*> temp;
+
+        // To activate Green Matter, summon creatures and cast a spell on them in a specific order
+        for (uint8 i = 0; i < 4; ++i)
+            if (Creature* creature = DoSummon(NPC_TRIGGER_INVISMAN, GreenMatterSpawnPos[i], 0s, TEMPSUMMON_MANUAL_DESPAWN))
+                temp.emplace_back(creature);
+        if (temp.size() == 4)
+            for (uint8 i = 0; i < 4; ++i)
+                temp[i]->CastSpell(temp[(i + 1) % temp.size()], SPELL_COSMETIC_GREEN_MATTER);
     }
+
+    void ComputeKnockback(Creature* creature)
+    {
+        _knockBackOrientation = creature->GetAbsoluteAngle(ForgeCampPos) + static_cast<float>(M_PI);
+        creature->GetNearPoint2D(nullptr, _knockBackX, _knockBackY, _knockBackDist, _knockBackOrientation);
+        creature->KnockbackFrom(_knockBackX, _knockBackY, 16, 12);
+    }
+
+    void IgniteShieldWreckage(bool on)
+    {
+        if (on)
+        {
+            for (uint8 i = 0; i < 8; ++i)
+            {
+                // Summon game objects for the shield wreckage.
+                const bool isTemporary = i < 2;
+                QuaternionData rotation = QuaternionData::fromEulerAnglesZYX(ShieldWreckageCreatePos[i].GetPositionZ(), 0.f, 0.f);
+                _wreckageGUIDs.push_back(me->SummonGameObject(GO_SHIELD_WRECKAGE_MEDIUM, ShieldWreckageCreatePos[i], rotation,
+                    isTemporary ? 25s : 0s, GOSummonType(GO_SUMMON_TIMED_OR_CORPSE_DESPAWN))->GetGUID());
+            }
+        }
+        else
+        {
+            if (!_wreckageGUIDs.empty())
+                for (uint8 i = 2; i < 8; ++i)
+                {
+                    // Despawn shield wreckage.
+                    if (_wreckageGUIDs[i])
+                    {
+                        GameObject* go = ObjectAccessor::GetGameObject(*me, _wreckageGUIDs[i]);
+                        go->DespawnOrUnsummon();
+                    }
+                }
+        }
+    }
+
+    void FindPosAndSpawnMoUnderling(uint8 i, Position moPos)
+    {
+        if (trashWaves[2].currWave == 2)
+        {
+            //Calculate position by line
+            static const std::vector<std::pair<int8, int8>> offsets = { {-20, 12}, {-10, 10}, {10, -10}, {20, -12} };
+            if (i < offsets.size())
+            {
+                moPos.m_positionX += offsets[i].first;
+                moPos.m_positionY += offsets[i].second;
+            }
+        }
+        else
+        {
+            //Calculate position by square
+            static const std::vector<std::pair<int8, int8>> offsets = { {-10, -10}, {10, -10}, {-10, 10}, {10, 10} };
+            if (i < offsets.size())
+            {
+                moPos.m_positionX += offsets[i].first;
+                moPos.m_positionY += offsets[i].second;
+            }
+        }
+        DoSummon(NPC_GAN_ARG_UNDERLING, moPos, 0s, TEMPSUMMON_DEAD_DESPAWN);
+    }
+
+    void ActivatePortalBeam()
+    {
+        // If the gate is to be opened, summon the necessary creatures and cast the pre gate beam
+        if (Creature* eredarBreathTarget = DoSummon(NPC_TRIGGER_EREDAR_BREATH_TARGET, EredarBreathTargetSpawnPos, 15s, TEMPSUMMON_TIMED_DESPAWN))
+        {
+            _eredarBreathTargeGUID = eredarBreathTarget->GetGUID();
+            for (uint8 i = 0; i < 2; ++i)
+                if (Creature* eredarBeam = DoSummon(NPC_TRIGGER_INVISMAN_LG, EredarBeamSpawnPos[i], 15s, TEMPSUMMON_TIMED_DESPAWN))
+                {
+                    _eredarGateBeamGUIDs.push_back(eredarBeam->GetGUID());
+                    eredarBeam->CastSpell(eredarBreathTarget, SPELL_COSMETIC_EREDAR_PRE_GATE_BEAM);
+                }
+        }
+    }
+
+    void SpawnEyeStalk()
+    {
+        if (_spawnEyesFirtTime)
+        {
+            //Eyes appears all over the arena
+            for (uint8 i = 0; i < 16; ++i)
+                DoSummon(NPC_FEL_EYE_STALK, me->GetRandomPoint(ForgeCampPos, 50.0f), 0s, TEMPSUMMON_MANUAL_DESPAWN);
+        }
+        else
+        {
+            //Eyes spawns near the player
+            for (uint8 i = 0; i < 6; ++i)
+            {
+                if (!_shivanAssassinGUID)
+                    break;
+                Position pos = me->GetRandomPoint(ObjectAccessor::GetCreature(*me, _shivanAssassinGUID)->GetPosition(), 15.0f);
+                DoSummon(NPC_FEL_EYE_STALK, pos, 0s, TEMPSUMMON_MANUAL_DESPAWN);
+            }
+        }
+        _spawnEyesFirtTime = false;
+    }
+
+    void SummonShieldZappers(bool on)
+    {
+        if (on) //Summon shield zappers at the columns
+        {
+            for (uint8 i = 0; i < 12; ++i)
+                DoSummon(NPC_TRIGGER_INVISMAN_LG, ZapperTargetPos[i], 0s, TEMPSUMMON_MANUAL_DESPAWN); //target
+            for (uint8 i = 0; i < 4; ++i)
+                DoSummon(NPC_TRIGGER_SHIELD_ZAPPER, ZapperPos[i], 0s, TEMPSUMMON_MANUAL_DESPAWN);
+        }
+        else //Despawn all shield zappers at the columns
+        {
+            summons.DespawnEntry(NPC_TRIGGER_INVISMAN_LG); //target
+            summons.DespawnEntry(NPC_TRIGGER_SHIELD_ZAPPER);
+        }
+    }
+
+private:
+    bool _spawnEyesFirtTime;
+    float _knockBackDist;
+    float _knockBackX, _knockBackY;
+    float _knockBackOrientation;
+    GuidVector _eredarGateBeamGUIDs;
+    GuidVector _wreckageGUIDs;
+    GuidVector _spawnLightningNPCGUIDs;
+    ObjectGuid _shieldGateGUID;
+    ObjectGuid _felguardDegraderGUID;
+    ObjectGuid _doomPunisherGUID;
+    ObjectGuid _shivanAssassinGUID;
+    ObjectGuid _shartuulGUID;
+    ObjectGuid _eredarBreathTargeGUID;
+
+    uint8 waveIndex = 0;
 };
 
 /*#####
@@ -798,122 +785,111 @@ enum WarpGateShield
     SPELL_COSMETIC_GREEN_LIGHTNING  = 40146
 };
 
-class npc_warp_gate_shield : public CreatureScript
+struct npc_warp_gate_shield : public ScriptedAI
 {
-public:
-    npc_warp_gate_shield() : CreatureScript("npc_warp_gate_shield") { }
+    npc_warp_gate_shield(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_warp_gate_shieldAI : public ScriptedAI
+    void Reset() override
     {
-        npc_warp_gate_shieldAI(Creature* creature) : ScriptedAI(creature) { }
+        _shiledHit = 0;
+        _events.Reset();
+        DoCastSelf(SPELL_COSMETIC_SHELL_SHIELD);
+    }
 
-        void Reset() override
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            _shiledHit = 0;
-            _events.Reset();
-            DoCastSelf(SPELL_COSMETIC_SHELL_SHIELD);
+        case ACTION_START_DEMON_I_PHASE_I:
+            _events.ScheduleEvent(EVENT_DEFENSE_BEAM, 1min);
+            break;
+        default:
+            break;
         }
+    }
 
-        void DoAction(int32 action) override
+    void JustAppeared() override
+    {
+        if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
+            _overseerShartuulGUID = overseerShartuul->GetGUID();
+        _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 1s);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SMASH_SHIELD)
         {
-            switch (action)
+            ++_shiledHit;
+            _events.CancelEvent(EVENT_DEFENSE_BEAM);
+            if (_shiledHit == 1)
+                if (_overseerShartuulGUID)
+                {
+                    Creature* overseerShartuul = ObjectAccessor::GetCreature(*me, _overseerShartuulGUID);
+                    overseerShartuul->AI()->Talk(SAY_FIRST_HAMMER_THROWN);
+                }
+            if (_shiledHit == 8) //After eight hits, the shield explodes
             {
-            case ACTION_START_DEMON_I_PHASE_I:
-                _events.ScheduleEvent(EVENT_DEFENSE_BEAM, 1min);
+                ShieldExplode();
+                _events.Reset();
+                return;
+            }
+            _events.ScheduleEvent(EVENT_DEFENSE_BEAM, 1min);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_events.Empty())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                //If the shield does not get hit within a minute, the demon dies and the event will fail.
+            case EVENT_DEFENSE_BEAM:
+                if (Creature* creature = me->FindNearestCreature(NPC_FELGUARD_DEGRADER, 200.0f))
+                    creature->AI()->DoCastSelf(SPELL_SHIELD_DEFENSE_BEAM);
+                break;
+            case EVENT_CAST_GREEN_LIGHTNING:
+                _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 9s);
+                if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_INVISMAN_LG, 35.0f))
+                    me->CastSpell(creature, SPELL_COSMETIC_SHIELD_LIGHTNING);
                 break;
             default:
                 break;
             }
-        }
-
-        void JustAppeared() override
-        {
-            if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
-                _overseerShartuulGUID = overseerShartuul->GetGUID();
-            _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 1s);
-        }
-
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_SMASH_SHIELD)
-            {
-                ++_shiledHit;
-                _events.CancelEvent(EVENT_DEFENSE_BEAM);
-                if (_shiledHit == 1)
-                    if (_overseerShartuulGUID)
-                    {
-                        Creature* overseerShartuul = ObjectAccessor::GetCreature(*me, _overseerShartuulGUID);
-                        overseerShartuul->AI()->Talk(SAY_FIRST_HAMMER_THROWN);
-                    }
-                if (_shiledHit == 8) //After eight hits, the shield explodes
-                {
-                    ShieldExplode();
-                    _events.Reset();
-                    return;
-                }
-                _events.ScheduleEvent(EVENT_DEFENSE_BEAM, 1min);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (_events.Empty())
-                return;
-
-            _events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    //If the shield does not get hit within a minute, the demon dies and the event will fail.
-                case EVENT_DEFENSE_BEAM:
-                    if (Creature* creature = me->FindNearestCreature(NPC_FELGUARD_DEGRADER, 200.0f))
-                        creature->AI()->DoCastSelf(SPELL_SHIELD_DEFENSE_BEAM);
-                    break;
-                case EVENT_CAST_GREEN_LIGHTNING:
-                    _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 9s);
-                    if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_INVISMAN_LG, 35.0f))
-                        me->CastSpell(creature, SPELL_COSMETIC_SHIELD_LIGHTNING);
-                    break;
-                default:
-                    break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
         }
-
-        void ShieldExplode()
-        {
-            me->RemoveAura(SPELL_COSMETIC_SHELL_SHIELD);
-            Position pos = me->GetPosition();
-            pos.m_positionZ -= 5;
-            me->NearTeleportTo(pos, true);
-            DoCastSelf(SPELL_COSMETIC_SHIELD_EXPLODE);
-
-            //Inform Overseer that the shield has exploded.
-            if (_overseerShartuulGUID)
-            {
-                Creature* overseerShartuul = ObjectAccessor::GetCreature(*me, _overseerShartuulGUID);
-                overseerShartuul->AI()->DoAction(ACTION_START_DEMON_I_PHASE_II);
-            }
-        }
-
-    private:
-        EventMap _events;
-        uint8 _shiledHit;
-        ObjectGuid _overseerShartuulGUID;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_warp_gate_shieldAI(creature);
     }
+
+    void ShieldExplode()
+    {
+        me->RemoveAura(SPELL_COSMETIC_SHELL_SHIELD);
+        Position pos = me->GetPosition();
+        pos.m_positionZ -= 5;
+        me->NearTeleportTo(pos, true);
+        DoCastSelf(SPELL_COSMETIC_SHIELD_EXPLODE);
+
+        //Inform Overseer that the shield has exploded.
+        if (_overseerShartuulGUID)
+        {
+            Creature* overseerShartuul = ObjectAccessor::GetCreature(*me, _overseerShartuulGUID);
+            overseerShartuul->AI()->DoAction(ACTION_START_DEMON_I_PHASE_II);
+        }
+    }
+
+private:
+    EventMap _events;
+    uint8 _shiledHit;
+    ObjectGuid _overseerShartuulGUID;
 };
 
 /*#####
@@ -921,65 +897,54 @@ public:
 # This npc controls lightning at the columns and at the portal
 #####*/
 
-class npc_shield_zapper : public CreatureScript
+struct npc_shield_zapper : public ScriptedAI
 {
-public:
-    npc_shield_zapper() : CreatureScript("npc_shield_zapper") { }
-
-    struct npc_shield_zapperAI : public ScriptedAI
+    npc_shield_zapper(Creature* creature) : ScriptedAI(creature)
     {
-        npc_shield_zapperAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
+        Initialize();
+    }
 
-        void Initialize()
-        {
-            _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 1s, 4s);
-        }
+    void Initialize()
+    {
+        _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 1s, 4s);
+    }
 
-        void Reset() override
-        {
-            _events.Reset();
-            Initialize();
-        }
+    void Reset() override
+    {
+        _events.Reset();
+        Initialize();
+    }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (_events.Empty())
-                return;
+    void UpdateAI(uint32 diff) override
+    {
+        if (_events.Empty())
+            return;
 
-            _events.Update(diff);
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_CAST_GREEN_LIGHTNING:
+                _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 9s);
+                if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_INVISMAN_LG, 35.0f))
+                    me->CastSpell(creature, SPELL_COSMETIC_SHIELD_LIGHTNING);
+                break;
+            default:
+                break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CAST_GREEN_LIGHTNING:
-                    _events.ScheduleEvent(EVENT_CAST_GREEN_LIGHTNING, 9s);
-                    if (Creature* creature = me->FindNearestCreature(NPC_TRIGGER_INVISMAN_LG, 35.0f))
-                        me->CastSpell(creature, SPELL_COSMETIC_SHIELD_LIGHTNING);
-                    break;
-                default:
-                    break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
         }
-
-    private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_shield_zapperAI(creature);
     }
+
+private:
+    EventMap _events;
 };
 
 //////////////////////
@@ -1081,36 +1046,25 @@ struct possess_demonAI : public WorldBossAI
 # npc_felguard_degrader - first possessed demon
 #####*/
 
-class npc_felguard_degrader : public CreatureScript
+struct npc_felguard_degrader : public ScriptedAI
 {
-public:
-    npc_felguard_degrader() : CreatureScript("npc_felguard_degrader") { }
+    npc_felguard_degrader(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_felguard_degraderAI : public ScriptedAI
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        npc_felguard_degraderAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        Player* player = caster->ToPlayer();
+        player->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC); //todo replace
+        if (spellInfo->Id == SPELL_POSSESS_DEMON)
         {
-            Player* player = caster->ToPlayer();
-            player->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC); //todo replace
-            if (spellInfo->Id == SPELL_POSSESS_DEMON)
+            if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
             {
-                if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
-                {
-                    ENSURE_AI(npc_overseer_shartuul::npc_overseer_shartuulAI, overseerShartuul->AI())->currPossessDemonGUID = me->GetGUID();
-                    overseerShartuul->AI()->DoAction(ACTION_START_DEMON_I_PHASE_I);
-                    me->SetFaction(FACTION_ENEMY);
-                }
+                ENSURE_AI(npc_overseer_shartuul, overseerShartuul->AI())->currPossessDemonGUID = me->GetGUID();
+                overseerShartuul->AI()->DoAction(ACTION_START_DEMON_I_PHASE_I);
+                me->SetFaction(FACTION_ENEMY);
             }
-            if (spellInfo->Id == SPELL_DOOMPUNISHER_POSSESSION_TRANSFER)
-                me->CastStop();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_felguard_degraderAI(creature);
+        if (spellInfo->Id == SPELL_DOOMPUNISHER_POSSESSION_TRANSFER)
+            me->CastStop();
     }
 };
 
@@ -1124,42 +1078,30 @@ enum DoomguardPunisher
     SPELL_FEL_FLAMES      = 40561,
 };
 
-class boss_doomguard_punisher : public CreatureScript
+struct boss_doomguard_punisher : public possess_demonAI
 {
-public:
-    boss_doomguard_punisher() : CreatureScript("boss_doomguard_punisher") { }
+    boss_doomguard_punisher(Creature* creature) : possess_demonAI(creature) { }
 
-    struct boss_doomguard_punisherAI : public possess_demonAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_doomguard_punisherAI(Creature* creature) : possess_demonAI(creature) { }
+        WorldBossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_CAST_FEL_FLAMES, 10s);
+    }
 
-        void JustEngagedWith(Unit* who) override
-        {
-            WorldBossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_CAST_FEL_FLAMES, 10s);
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-            case EVENT_CAST_FEL_FLAMES:
-                DoCastVictim(SPELL_FEL_FLAMES);
-                events.ScheduleEvent(EVENT_CAST_FEL_FLAMES, 45s);
-                break;
-            default:
-                possess_demonAI::ExecuteEvent(eventId);
-                break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void ExecuteEvent(uint32 eventId) override
     {
-        return new boss_doomguard_punisherAI(creature);
+        switch (eventId)
+        {
+        case EVENT_CAST_FEL_FLAMES:
+            DoCastVictim(SPELL_FEL_FLAMES);
+            events.ScheduleEvent(EVENT_CAST_FEL_FLAMES, 45s);
+            break;
+        default:
+            possess_demonAI::ExecuteEvent(eventId);
+            break;
+        }
     }
 };
-
 /*#####
 # boss_shivan_assassin - third possessed demon
 #####*/
@@ -1181,66 +1123,56 @@ enum ShivanAssassin
     SPELL_ASPECT_OF_THE_SHADOW      = 41595,
 };
 
-class boss_shivan_assassin : public CreatureScript
+struct boss_shivan_assassin : public possess_demonAI
 {
-public:
-    boss_shivan_assassin() : CreatureScript("boss_shivan_assassin") { }
-    struct boss_shivan_assassinAI : public possess_demonAI
-    {
-        boss_shivan_assassinAI(Creature* creature) : possess_demonAI(creature) { }
+    boss_shivan_assassin(Creature* creature) : possess_demonAI(creature) { }
 
-        void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* who) override
+    {
+        WorldBossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_CAST_PYROBLAST, 15s);
+        events.ScheduleEvent(EVENT_CAST_ICEBLAST, 30s);
+        events.ScheduleEvent(EVENT_CAST_DEATH_BLAST, 5s);
+        events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_FLAME, 10s);
+        events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_ICE, 25s);
+        events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_SHADOW, 50s);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
         {
-            WorldBossAI::JustEngagedWith(who);
+        case EVENT_CAST_PYROBLAST:
+            if (me->HasAura(SPELL_ASPECT_OF_THE_FLAME))
+                DoCastVictim(SPELL_PYROBLAST);
             events.ScheduleEvent(EVENT_CAST_PYROBLAST, 15s);
-            events.ScheduleEvent(EVENT_CAST_ICEBLAST, 30s);
-            events.ScheduleEvent(EVENT_CAST_DEATH_BLAST, 5s);
-            events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_FLAME, 10s);
-            events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_ICE, 25s);
-            events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_SHADOW, 50s);
+            break;
+        case EVENT_CAST_ICEBLAST:
+            if (me->HasAura(SPELL_ASPECT_OF_THE_ICE))
+                DoCastVictim(SPELL_ICEBLAST);
+            events.ScheduleEvent(EVENT_CAST_ICEBLAST, 15s);
+            break;
+        case EVENT_CAST_DEATH_BLAST:
+            if (me->HasAura(SPELL_ASPECT_OF_THE_SHADOW))
+                DoCastVictim(SPELL_DEATH_BLAST);
+            events.ScheduleEvent(EVENT_CAST_DEATH_BLAST, 15s);
+            break;
+        case EVENT_CAST_ASPECT_OF_THE_FLAME:
+            DoCastVictim(SPELL_ASPECT_OF_THE_FLAME);
+            events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_FLAME, 35s);
+            break;
+        case EVENT_CAST_ASPECT_OF_THE_ICE:
+            DoCastVictim(SPELL_ASPECT_OF_THE_ICE);
+            events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_ICE, 35s);
+            break;
+        case EVENT_CAST_ASPECT_OF_THE_SHADOW:
+            DoCastVictim(SPELL_ASPECT_OF_THE_SHADOW);
+            events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_SHADOW, 35s);
+            break;
+        default:
+            possess_demonAI::ExecuteEvent(eventId);
+            break;
         }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-            case EVENT_CAST_PYROBLAST:
-                if (me->HasAura(SPELL_ASPECT_OF_THE_FLAME))
-                    DoCastVictim(SPELL_PYROBLAST);
-                events.ScheduleEvent(EVENT_CAST_PYROBLAST, 15s);
-                break;
-            case EVENT_CAST_ICEBLAST:
-                if (me->HasAura(SPELL_ASPECT_OF_THE_ICE))
-                    DoCastVictim(SPELL_ICEBLAST);
-                events.ScheduleEvent(EVENT_CAST_ICEBLAST, 15s);
-                break;
-            case EVENT_CAST_DEATH_BLAST:
-                if (me->HasAura(SPELL_ASPECT_OF_THE_SHADOW))
-                    DoCastVictim(SPELL_DEATH_BLAST);
-                events.ScheduleEvent(EVENT_CAST_DEATH_BLAST, 15s);
-                break;
-            case EVENT_CAST_ASPECT_OF_THE_FLAME:
-                DoCastVictim(SPELL_ASPECT_OF_THE_FLAME);
-                events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_FLAME, 35s);
-                break;
-            case EVENT_CAST_ASPECT_OF_THE_ICE:
-                DoCastVictim(SPELL_ASPECT_OF_THE_ICE);
-                events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_ICE, 35s);
-                break;
-            case EVENT_CAST_ASPECT_OF_THE_SHADOW:
-                DoCastVictim(SPELL_ASPECT_OF_THE_SHADOW);
-                events.ScheduleEvent(EVENT_CAST_ASPECT_OF_THE_SHADOW, 35s);
-                break;
-            default:
-                possess_demonAI::ExecuteEvent(eventId);
-                break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_shivan_assassinAI(creature);
     }
 };
 
@@ -1268,86 +1200,75 @@ enum EyeOfShartuul
     MODEL_IMAGE_OF_EMPTY       = 19595,
 };
 
-class boss_eye_of_shartuul : public CreatureScript
+struct boss_eye_of_shartuul : public WorldBossAI
 {
-public:
-    boss_eye_of_shartuul() : CreatureScript("boss_eye_of_shartuul") { }
+    boss_eye_of_shartuul(Creature* creature) : WorldBossAI(creature) { }
 
-    struct boss_eye_of_shartuulAI : public WorldBossAI
+    void JustAppeared() override
     {
-        boss_eye_of_shartuulAI(Creature* creature) : WorldBossAI(creature) { }
+        events.ScheduleEvent(EVENT_CAST_TRANSFORM, 5s);
+        me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
+    }
 
-        void JustAppeared() override
+    void JustEngagedWith(Unit* who) override
+    {
+        AttackStart(who);
+        events.ScheduleEvent(EVENT_CAST_DARK_GLARE, 25s);
+        events.ScheduleEvent(EVENT_CAST_DISRUPTION_RAY, 21s);
+        events.ScheduleEvent(EVENT_CAST_FEL_FIREBALL, 13s);
+        events.ScheduleEvent(EVENT_CAST_TONGUE_LASH, 6s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* creature = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
+            creature->AI()->DoAction(ACTION_START_DEMON_III_PHASE_II);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && events.Empty())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            events.ScheduleEvent(EVENT_CAST_TRANSFORM, 5s);
-            me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            AttackStart(who);
-            events.ScheduleEvent(EVENT_CAST_DARK_GLARE, 25s);
-            events.ScheduleEvent(EVENT_CAST_DISRUPTION_RAY, 21s);
-            events.ScheduleEvent(EVENT_CAST_FEL_FIREBALL, 13s);
-            events.ScheduleEvent(EVENT_CAST_TONGUE_LASH, 6s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Creature* creature = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
-                creature->AI()->DoAction(ACTION_START_DEMON_III_PHASE_II);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim() && events.Empty())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+            case EVENT_CAST_DARK_GLARE:
+                Talk(SAY_EMOTE);
+                DoCastVictim(SPELL_DARK_GLARE);
+                events.ScheduleEvent(EVENT_CAST_DARK_GLARE, 27s, 31s);
+                break;
+            case EVENT_CAST_DISRUPTION_RAY:
+                DoCastVictim(SPELL_DISRUPTION_RAY);
+                events.ScheduleEvent(EVENT_CAST_DISRUPTION_RAY, 20s, 22s);
+                break;
+            case EVENT_CAST_FEL_FIREBALL:
+                DoCastVictim(SPELL_FEL_FIREBALL);
+                events.ScheduleEvent(EVENT_CAST_FEL_FIREBALL, 20s, 26s);
+                break;
+            case EVENT_CAST_TONGUE_LASH:
+                DoCastVictim(SPELL_TONGUE_LASH);
+                events.ScheduleEvent(EVENT_CAST_TONGUE_LASH, 6s, 11s);
+                break;
+            case EVENT_CAST_TRANSFORM:
+                DoCastSelf(SPELL_BEHOLDER_TRANSFORM);
+                me->SetFaction(FACTION_ENEMY);
+                AttackStart(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
+                break;
+            default:
+                break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CAST_DARK_GLARE:
-                    Talk(SAY_EMOTE);
-                    DoCastVictim(SPELL_DARK_GLARE);
-                    events.ScheduleEvent(EVENT_CAST_DARK_GLARE, 27s, 31s);
-                    break;
-                case EVENT_CAST_DISRUPTION_RAY:
-                    DoCastVictim(SPELL_DISRUPTION_RAY);
-                    events.ScheduleEvent(EVENT_CAST_DISRUPTION_RAY, 20s, 22s);
-                    break;
-                case EVENT_CAST_FEL_FIREBALL:
-                    DoCastVictim(SPELL_FEL_FIREBALL);
-                    events.ScheduleEvent(EVENT_CAST_FEL_FIREBALL, 20s, 26s);
-                    break;
-                case EVENT_CAST_TONGUE_LASH:
-                    DoCastVictim(SPELL_TONGUE_LASH);
-                    events.ScheduleEvent(EVENT_CAST_TONGUE_LASH, 6s, 11s);
-                    break;
-                case EVENT_CAST_TRANSFORM:
-                    DoCastSelf(SPELL_BEHOLDER_TRANSFORM);
-                    me->SetFaction(FACTION_ENEMY);
-                    AttackStart(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
-                    break;
-                default:
-                    break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_eye_of_shartuulAI(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -1368,89 +1289,78 @@ enum Dreadmaw
     SPELL_WRATH_HOUND_TRANSFORM  = 40648,
 };
 
-class boss_dreadmaw : public CreatureScript
+struct boss_dreadmaw : public WorldBossAI
 {
-public:
-    boss_dreadmaw() : CreatureScript("boss_dreadmaw") { }
+    boss_dreadmaw(Creature* creature) : WorldBossAI(creature) { }
 
-    struct boss_dreadmawAI : public WorldBossAI
+    void JustAppeared() override
     {
-        boss_dreadmawAI(Creature* creature) : WorldBossAI(creature) { }
+        events.ScheduleEvent(EVENT_CAST_TRANSFORM, 2s);
+        me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
+    }
 
-        void JustAppeared() override
+    void JustEngagedWith(Unit* who) override
+    {
+        AttackStart(who);
+        events.ScheduleEvent(EVENT_CAST_GROWTH, 4s);
+        events.ScheduleEvent(EVENT_CAST_LACERATING_BITE, 5s);
+        events.ScheduleEvent(EVENT_CAST_RAMPAGING_CHARGE, 13s);
+        events.ScheduleEvent(EVENT_CAST_WAR_STOMP, 6s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* creature = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
         {
-            events.ScheduleEvent(EVENT_CAST_TRANSFORM, 2s);
-            me->SetDisplayId(MODEL_IMAGE_OF_EMPTY);
+            creature->AI()->Talk(SAY_DREADMAW_DONE);
+            creature->AI()->DoAction(ACTION_START_DEMON_III_PHASE_III);
         }
+    }
 
-        void JustEngagedWith(Unit* who) override
-        {
-            AttackStart(who);
-            events.ScheduleEvent(EVENT_CAST_GROWTH, 4s);
-            events.ScheduleEvent(EVENT_CAST_LACERATING_BITE, 5s);
-            events.ScheduleEvent(EVENT_CAST_RAMPAGING_CHARGE, 13s);
-            events.ScheduleEvent(EVENT_CAST_WAR_STOMP, 6s);
-        }
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && events.Empty())
+            return;
 
-        void JustDied(Unit* /*killer*/) override
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            if (Creature* creature = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
+            switch (eventId)
             {
-                creature->AI()->Talk(SAY_DREADMAW_DONE);
-                creature->AI()->DoAction(ACTION_START_DEMON_III_PHASE_III);
+            case EVENT_CAST_GROWTH:
+                DoCastSelf(SPELL_GROWTH);
+                events.ScheduleEvent(EVENT_CAST_GROWTH, 45s);
+                break;
+            case EVENT_CAST_LACERATING_BITE:
+                DoCastVictim(SPELL_LACERATING_BITE);
+                events.ScheduleEvent(EVENT_CAST_LACERATING_BITE, 45s, 55s);
+                break;
+            case EVENT_CAST_RAMPAGING_CHARGE:
+                Talk(SAY_EMOTE); // Talk(SAY_EMOTE, me->GetVictim());
+                DoCastVictim(SPELL_RAMPAGING_CHARGE);
+                events.ScheduleEvent(EVENT_CAST_RAMPAGING_CHARGE, 13s, 18s);
+                break;
+            case EVENT_CAST_WAR_STOMP:
+                DoCastVictim(SPELL_WAR_STOMP);
+                events.ScheduleEvent(EVENT_CAST_WAR_STOMP, 8s, 12s);
+                break;
+            case EVENT_CAST_TRANSFORM:
+                DoCastSelf(SPELL_WRATH_HOUND_TRANSFORM);
+                me->SetFaction(FACTION_ENEMY);
+                JustEngagedWith(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
+                break;
+            default:
+                break;
             }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim() && events.Empty())
-                return;
-
-            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CAST_GROWTH:
-                    DoCastSelf(SPELL_GROWTH);
-                    events.ScheduleEvent(EVENT_CAST_GROWTH, 45s);
-                    break;
-                case EVENT_CAST_LACERATING_BITE:
-                    DoCastVictim(SPELL_LACERATING_BITE);
-                    events.ScheduleEvent(EVENT_CAST_LACERATING_BITE, 45s, 55s);
-                    break;
-                case EVENT_CAST_RAMPAGING_CHARGE:
-                    Talk(SAY_EMOTE); // Talk(SAY_EMOTE, me->GetVictim());
-                    DoCastVictim(SPELL_RAMPAGING_CHARGE);
-                    events.ScheduleEvent(EVENT_CAST_RAMPAGING_CHARGE, 13s, 18s);
-                    break;
-                case EVENT_CAST_WAR_STOMP:
-                    DoCastVictim(SPELL_WAR_STOMP);
-                    events.ScheduleEvent(EVENT_CAST_WAR_STOMP, 8s, 12s);
-                    break;
-                case EVENT_CAST_TRANSFORM:
-                    DoCastSelf(SPELL_WRATH_HOUND_TRANSFORM);
-                    me->SetFaction(FACTION_ENEMY);
-                    JustEngagedWith(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
-                    break;
-                default:
-                    break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_dreadmawAI(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -1475,152 +1385,141 @@ enum Shartuul
     SPELL_SHADOW_RESONANCE          = 41961,
 };
 
-class boss_shartuul : public CreatureScript
+struct boss_shartuul : public WorldBossAI
 {
-public:
-    boss_shartuul() : CreatureScript("boss_shartuul") { }
+    boss_shartuul(Creature* creature) : WorldBossAI(creature) { }
 
-    struct boss_shartuulAI : public WorldBossAI
+    void JustAppeared() override
     {
-        boss_shartuulAI(Creature* creature) : WorldBossAI(creature) { }
+        SetActive(false);
+    }
 
-        void JustAppeared() override
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE)
         {
-            SetActive(false);
-        }
-
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type == POINT_MOTION_TYPE)
+            switch (pointId)
             {
-                switch (pointId)
-                {
-                case POINT_SHARTUUL_COMBAT:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                    events.ScheduleEvent(EVENT_CAST_TRANSFORM, 4s);
-                    break;
-                default:
-                    break;
-                }
+            case POINT_SHARTUUL_COMBAT:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                events.ScheduleEvent(EVENT_CAST_TRANSFORM, 4s);
+                break;
+            default:
+                break;
             }
         }
+    }
 
-        void OnSpellCast(const SpellInfo* spell) override
-        {
-            if (spell->Id == SPELL_MAGNETIC_PULL)
-                me->NearTeleportTo(me->GetRandomPoint(ForgeCampPos, 40.0f), true);
-        }
+    void OnSpellCast(const SpellInfo* spell) override
+    {
+        if (spell->Id == SPELL_MAGNETIC_PULL)
+            me->NearTeleportTo(me->GetRandomPoint(ForgeCampPos, 40.0f), true);
+    }
 
-        void JustEngagedWith(Unit* who) override
-        {
-            WorldBossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_CAST_IMMOLATE, 4s);
-            events.ScheduleEvent(EVENT_CAST_INCINERATE, 5s);
-            events.ScheduleEvent(EVENT_CAST_MAGNETIC_PUL, 2s);
-            events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, 100ms);
-            events.ScheduleEvent(EVENT_CAST_SHADOW_RESONANCE, 7s);
-            events.ScheduleEvent(EVENT_CAST_METEOR, 60s);
-        }
+    void JustEngagedWith(Unit* who) override
+    {
+        WorldBossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_CAST_IMMOLATE, 4s);
+        events.ScheduleEvent(EVENT_CAST_INCINERATE, 5s);
+        events.ScheduleEvent(EVENT_CAST_MAGNETIC_PUL, 2s);
+        events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, 100ms);
+        events.ScheduleEvent(EVENT_CAST_SHADOW_RESONANCE, 7s);
+        events.ScheduleEvent(EVENT_CAST_METEOR, 60s);
+    }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (damage >= me->GetHealth())
         {
-            if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+
+            if (Creature* creature = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
             {
-                damage = me->GetHealth() - 1;
-
-                if (Creature* creature = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 200.0f))
+                //This is to keep Shartuul's corpse from disappearing after the event resets
+                SummonList& summons = ENSURE_AI(npc_overseer_shartuul, creature->AI())->summons;
+                for (auto itr = summons.begin(); itr != summons.end(); ++itr)
                 {
-                    //This is to keep Shartuul's corpse from disappearing after the event resets
-                    SummonList& summons = ENSURE_AI(npc_overseer_shartuul::npc_overseer_shartuulAI, creature->AI())->summons;
-                    for (auto itr = summons.begin(); itr != summons.end(); ++itr)
+                    if (itr->GetEntry() == me->GetEntry())
                     {
-                        if (itr->GetEntry() == me->GetEntry())
-                        {
-                            summons.erase(itr);
-                            break;
-                        }
+                        summons.erase(itr);
+                        break;
                     }
-                    creature->AI()->Talk(SAY_SHARTUUL_DONE);
-                    creature->AI()->DoAction(ACTION_EVENT_DONE_OR_FAIL);
                 }
-                me->KillSelf();
+                creature->AI()->Talk(SAY_SHARTUUL_DONE);
+                creature->AI()->DoAction(ACTION_EVENT_DONE_OR_FAIL);
             }
+            me->KillSelf();
         }
+    }
 
-        void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && events.Empty())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            if (!UpdateVictim() && events.Empty())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+            case EVENT_CAST_IMMOLATE:
+                DoCastSelf(SPELL_IMMOLATE);
+                events.ScheduleEvent(EVENT_CAST_IMMOLATE, 45s);
+                break;
+            case EVENT_CAST_INCINERATE:
+                Talk(SAY_INCINERATE);
+                DoCastVictim(SPELL_INCINERATE);
+                me->RemoveAurasDueToSpell(SPELL_IMMOLATE);
+                events.ScheduleEvent(EVENT_CAST_INCINERATE, 46s, 55s);
+                break;
+            case EVENT_CAST_MAGNETIC_PUL:
+                DoCastVictim(SPELL_MAGNETIC_PULL);
+                events.ScheduleEvent(EVENT_CAST_MAGNETIC_PUL, 5s, 5s);
+                break;
+            case EVENT_CAST_SHADOW_BOLT:
+                DoCastVictim(SPELL_SHADOW_BOLT);
+                events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, 8s, 12s);
+                break;
+            case EVENT_CAST_SHADOW_RESONANCE:
+                DoCastVictim(SPELL_SHADOW_RESONANCE);
+                events.ScheduleEvent(EVENT_CAST_SHADOW_RESONANCE, 8s, 12s);
+                break;
+            case EVENT_CAST_METEOR:
+                DoCast(SPELL_TOUCH_OF_MADNESS);
+                events.ScheduleEvent(EVENT_CAST_METEOR, 50s);
+                break;
+            case EVENT_CAST_TRANSFORM:
+                SetActive(true);
+                Talk(SAY_AGRO);
+                me->SetFaction(FACTION_ENEMY);
+                JustEngagedWith(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
+                break;
+            default:
+                break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CAST_IMMOLATE:
-                    DoCastSelf(SPELL_IMMOLATE);
-                    events.ScheduleEvent(EVENT_CAST_IMMOLATE, 45s);
-                    break;
-                case EVENT_CAST_INCINERATE:
-                    Talk(SAY_INCINERATE);
-                    DoCastVictim(SPELL_INCINERATE);
-                    me->RemoveAurasDueToSpell(SPELL_IMMOLATE);
-                    events.ScheduleEvent(EVENT_CAST_INCINERATE, 46s, 55s);
-                    break;
-                case EVENT_CAST_MAGNETIC_PUL:
-                    DoCastVictim(SPELL_MAGNETIC_PULL);
-                    events.ScheduleEvent(EVENT_CAST_MAGNETIC_PUL, 5s, 5s);
-                    break;
-                case EVENT_CAST_SHADOW_BOLT:
-                    DoCastVictim(SPELL_SHADOW_BOLT);
-                    events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, 8s, 12s);
-                    break;
-                case EVENT_CAST_SHADOW_RESONANCE:
-                    DoCastVictim(SPELL_SHADOW_RESONANCE);
-                    events.ScheduleEvent(EVENT_CAST_SHADOW_RESONANCE, 8s, 12s);
-                    break;
-                case EVENT_CAST_METEOR:
-                    DoCast(SPELL_TOUCH_OF_MADNESS);
-                    events.ScheduleEvent(EVENT_CAST_METEOR, 50s);
-                    break;
-                case EVENT_CAST_TRANSFORM:
-                    SetActive(true);
-                    Talk(SAY_AGRO);
-                    me->SetFaction(FACTION_ENEMY);
-                    JustEngagedWith(me->FindNearestCreature(NPC_SHIVAN_ASSASSIN, 100.0f));
-                    break;
-                default:
-                    break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
+        DoMeleeAttackIfReady();
+    }
 
-        void SetActive(bool on)
-        {
-            if (on)
-            {
-                me->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
-            }
-            else
-            {
-                DoCastSelf(SPELL_SHADOWFORM);
-                me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void SetActive(bool on)
     {
-        return new boss_shartuulAI(creature);
+        if (on)
+        {
+            me->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
+            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+        }
+        else
+        {
+            DoCastSelf(SPELL_SHADOWFORM);
+            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+        }
     }
 };
 
@@ -1727,44 +1626,33 @@ enum FelImpDefender
     SPELL_FEL_IMP_TRANSFORM = 40143,
 };
 
-class npc_fel_imp_defender : public CreatureScript
+struct npc_fel_imp_defender : public trash_defenderAI
 {
-public:
-    npc_fel_imp_defender() : CreatureScript("npc_fel_imp_defender") { }
+    npc_fel_imp_defender(Creature* creature) : trash_defenderAI(creature) { }
 
-    struct npc_fel_imp_defenderAI : public trash_defenderAI
+    void JustEngagedWith(Unit* who) override
     {
-        npc_fel_imp_defenderAI(Creature* creature) : trash_defenderAI(creature) { }
+        trash_defenderAI::JustEngagedWith(who);
+        Events.ScheduleEvent(EVENT_CAST_FIREBALL, 3s, 4s);
+    }
 
-        void JustEngagedWith(Unit* who) override
-        {
-            trash_defenderAI::JustEngagedWith(who);
-            Events.ScheduleEvent(EVENT_CAST_FIREBALL, 3s, 4s);
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-            case EVENT_TRANSFORM:
-                SetActive(true);
-                DoCastSelf(SPELL_FEL_IMP_TRANSFORM);
-                AttackStart(me->FindNearestCreature(NPC_FELGUARD_DEGRADER, 200.0f));
-                break;
-            case EVENT_CAST_FIREBALL:
-                if (me->GetEntry() == NPC_FEL_IMP_DEFENDER)
-                    DoCastVictim(SPELL_FIREBALL);
-                Events.ScheduleEvent(EVENT_CAST_FIREBALL, 6s, 9s);
-                break;
-            default:
-                break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void ExecuteEvent(uint32 eventId) override
     {
-        return new npc_fel_imp_defenderAI(creature);
+        switch (eventId)
+        {
+        case EVENT_TRANSFORM:
+            SetActive(true);
+            DoCastSelf(SPELL_FEL_IMP_TRANSFORM);
+            AttackStart(me->FindNearestCreature(NPC_FELGUARD_DEGRADER, 200.0f));
+            break;
+        case EVENT_CAST_FIREBALL:
+            if (me->GetEntry() == NPC_FEL_IMP_DEFENDER)
+                DoCastVictim(SPELL_FIREBALL);
+            Events.ScheduleEvent(EVENT_CAST_FIREBALL, 6s, 9s);
+            break;
+        default:
+            break;
+        }
     }
 };
 
@@ -1777,33 +1665,22 @@ enum FelHoundDefender
     SPELL_FELHOUND_TRANSFORM = 40462,
 };
 
-class npc_felhound_defender : public CreatureScript
+struct npc_felhound_defender : public trash_defenderAI
 {
-public:
-    npc_felhound_defender() : CreatureScript("npc_felhound_defender") { }
+    npc_felhound_defender(Creature* creature) : trash_defenderAI(creature) { }
 
-    struct npc_felhound_defenderAI : public trash_defenderAI
+    void ExecuteEvent(uint32 eventId) override
     {
-        npc_felhound_defenderAI(Creature* creature) : trash_defenderAI(creature) { }
-
-        void ExecuteEvent(uint32 eventId) override
+        switch (eventId)
         {
-            switch (eventId)
-            {
-            case EVENT_TRANSFORM:
-                SetActive(true);
-                DoCastSelf(SPELL_FELHOUND_TRANSFORM);
-                AttackStart(me->FindNearestCreature(NPC_FELGUARD_DEGRADER, 200.0f));
-                break;
-            default:
-                break;
-            }
+        case EVENT_TRANSFORM:
+            SetActive(true);
+            DoCastSelf(SPELL_FELHOUND_TRANSFORM);
+            AttackStart(me->FindNearestCreature(NPC_FELGUARD_DEGRADER, 200.0f));
+            break;
+        default:
+            break;
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_felhound_defenderAI(creature);
     }
 };
 
@@ -1820,51 +1697,40 @@ enum GanargUnderling
     SAY_BUILD_FEL_CANNON            = 1
 };
 
-class npc_ganarg_underling : public CreatureScript
+struct npc_ganarg_underling : public trash_defenderAI
 {
-public:
-    npc_ganarg_underling() : CreatureScript("npc_ganarg_underling") { }
+    npc_ganarg_underling(Creature* creature) : trash_defenderAI(creature) { }
 
-    struct npc_ganarg_underlingAI : public trash_defenderAI
+    void JustEngagedWith(Unit* who) override
     {
-        npc_ganarg_underlingAI(Creature* creature) : trash_defenderAI(creature) { }
+        trash_defenderAI::JustEngagedWith(who);
+        Events.ScheduleEvent(EVENT_CAST_BUILD_PORTABLE_FEL_CANNON, 12s, 18s);
+        Events.ScheduleEvent(EVENT_CAST_HEALTH_FUNNEL, 25s);
+    }
 
-        void JustEngagedWith(Unit* who) override
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
         {
-            trash_defenderAI::JustEngagedWith(who);
-            Events.ScheduleEvent(EVENT_CAST_BUILD_PORTABLE_FEL_CANNON, 12s, 18s);
-            Events.ScheduleEvent(EVENT_CAST_HEALTH_FUNNEL, 25s);
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
+        case EVENT_TRANSFORM:
+            SetActive(true);
+            DoCastSelf(SPELL_GAN_ARG_TRANSFORM);
+            AttackStart(me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 200.0f));
+            break;
+        case EVENT_CAST_HEALTH_FUNNEL:
+            if (Creature* creature = me->FindNearestCreature(NPC_MO_ARG_TORMENTER, 200.0f))
             {
-            case EVENT_TRANSFORM:
-                SetActive(true);
-                DoCastSelf(SPELL_GAN_ARG_TRANSFORM);
-                AttackStart(me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 200.0f));
-                break;
-            case EVENT_CAST_HEALTH_FUNNEL:
-                if (Creature* creature = me->FindNearestCreature(NPC_MO_ARG_TORMENTER, 200.0f))
-                {
-                    Talk(SAY_ASSIST);
-                    DoCast(creature, SPELL_HEALTH_FUNNEL);
-                }
-                Events.ScheduleEvent(EVENT_CAST_HEALTH_FUNNEL, 20s);
-                break;
-            case EVENT_CAST_BUILD_PORTABLE_FEL_CANNON:
-                DoCastSelf(SPELL_BUILD_PORTABLE_FEL_CANNON);
-                break;
-            default:
-                break;
+                Talk(SAY_ASSIST);
+                DoCast(creature, SPELL_HEALTH_FUNNEL);
             }
+            Events.ScheduleEvent(EVENT_CAST_HEALTH_FUNNEL, 20s);
+            break;
+        case EVENT_CAST_BUILD_PORTABLE_FEL_CANNON:
+            DoCastSelf(SPELL_BUILD_PORTABLE_FEL_CANNON);
+            break;
+        default:
+            break;
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ganarg_underlingAI(creature);
     }
 };
 
@@ -1878,43 +1744,32 @@ enum MoargTormenter
     SPELL_MO_ARG_TORMENTER_TRANSFORM = 40479,
 };
 
-class npc_moarg_tormenter : public CreatureScript
+struct npc_moarg_tormenter : public trash_defenderAI
 {
-public:
-    npc_moarg_tormenter() : CreatureScript("npc_moarg_tormenter") { }
+    npc_moarg_tormenter(Creature* creature) : trash_defenderAI(creature) { }
 
-    struct npc_moarg_tormenterAI : public trash_defenderAI
+    void JustEngagedWith(Unit* who) override
     {
-        npc_moarg_tormenterAI(Creature* creature) : trash_defenderAI(creature) { }
+        trash_defenderAI::JustEngagedWith(who);
+        Events.ScheduleEvent(EVENT_CAST_ACID_GEYSER, 25s);
+    }
 
-        void JustEngagedWith(Unit* who) override
-        {
-            trash_defenderAI::JustEngagedWith(who);
-            Events.ScheduleEvent(EVENT_CAST_ACID_GEYSER, 25s);
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-            case EVENT_TRANSFORM:
-                SetActive(true);
-                DoCastSelf(SPELL_MO_ARG_TORMENTER_TRANSFORM);
-                AttackStart(me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 200.0f));
-                break;
-            case EVENT_CAST_ACID_GEYSER:
-                DoCastVictim(SPELL_ACID_GEYSER);
-                Events.ScheduleEvent(EVENT_CAST_ACID_GEYSER, 20s);
-                break;
-            default:
-                break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void ExecuteEvent(uint32 eventId) override
     {
-        return new npc_moarg_tormenterAI(creature);
+        switch (eventId)
+        {
+        case EVENT_TRANSFORM:
+            SetActive(true);
+            DoCastSelf(SPELL_MO_ARG_TORMENTER_TRANSFORM);
+            AttackStart(me->FindNearestCreature(NPC_DOOMGUARD_PUNISHER, 200.0f));
+            break;
+        case EVENT_CAST_ACID_GEYSER:
+            DoCastVictim(SPELL_ACID_GEYSER);
+            Events.ScheduleEvent(EVENT_CAST_ACID_GEYSER, 20s);
+            break;
+        default:
+            break;
+        }
     }
 };
 
@@ -1928,44 +1783,32 @@ enum PortableFelCannon
     SPELL_PORTABLE_FEL_CANNON_TRANSFORM = 40673,
 };
 
-class npc_portable_fel_cannon : public CreatureScript
+struct npc_portable_fel_cannon : public trash_defenderAI
 {
-public:
-    npc_portable_fel_cannon() : CreatureScript("npc_portable_fel_cannon") { }
+    npc_portable_fel_cannon(Creature* creature) : trash_defenderAI(creature) { }
 
-    struct npc_portable_fel_cannonAI : public trash_defenderAI
+    void JustAppeared() override
     {
-        npc_portable_fel_cannonAI(Creature* creature) : trash_defenderAI(creature) { }
-
-        void JustAppeared() override
-        {
-            trash_defenderAI::JustAppeared();
-            Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 2s);
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-            case EVENT_TRANSFORM:
-                SetActive(true);
-                DoCastSelf(SPELL_PORTABLE_FEL_CANNON_TRANSFORM);
-                break;
-            case EVENT_CAST_FEL_CANNON_BLAST:
-                DoCast(me->GetVictim(), SPELL_FEL_CANNON_BLAST);
-                Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 5s);
-                break;
-            default:
-                break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_portable_fel_cannonAI(creature);
+        trash_defenderAI::JustAppeared();
+        Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 2s);
     }
 
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+        case EVENT_TRANSFORM:
+            SetActive(true);
+            DoCastSelf(SPELL_PORTABLE_FEL_CANNON_TRANSFORM);
+            break;
+        case EVENT_CAST_FEL_CANNON_BLAST:
+            DoCast(me->GetVictim(), SPELL_FEL_CANNON_BLAST);
+            Events.ScheduleEvent(EVENT_CAST_FEL_CANNON_BLAST, 5s);
+            break;
+        default:
+            break;
+        }
+    }
 };
 
 /*#####
@@ -1978,43 +1821,32 @@ enum FelEyeStalk
     SPELL_EYE_STALK_TRANSFORM = 40826,
 };
 
-class npc_fel_eye_stalk : public CreatureScript
+struct npc_fel_eye_stalk : public trash_defenderAI
 {
-public:
-    npc_fel_eye_stalk() : CreatureScript("npc_fel_eye_stalk") { }
+    npc_fel_eye_stalk(Creature* creature) : trash_defenderAI(creature) { }
 
-    struct npc_fel_eye_stalkAI : public trash_defenderAI
+    void JustAppeared() override
     {
-        npc_fel_eye_stalkAI(Creature* creature) : trash_defenderAI(creature) { }
+        trash_defenderAI::JustAppeared();
+        Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 2s);
+    }
 
-        void JustAppeared() override
-        {
-            trash_defenderAI::JustAppeared();
-            Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 2s);
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-            case EVENT_TRANSFORM:
-                SetActive(true);
-                DoCastSelf(SPELL_EYE_STALK_TRANSFORM);
-                me->SetEntry(16236);
-                break;
-            case EVENT_CAST_MIND_FLAY:
-                DoCast(me->GetVictim(), SPELL_MIND_FLAY);
-                Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 13s);
-                break;
-            default:
-                break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void ExecuteEvent(uint32 eventId) override
     {
-        return new npc_fel_eye_stalkAI(creature);
+        switch (eventId)
+        {
+        case EVENT_TRANSFORM:
+            SetActive(true);
+            DoCastSelf(SPELL_EYE_STALK_TRANSFORM);
+            me->SetEntry(16236);
+            break;
+        case EVENT_CAST_MIND_FLAY:
+            DoCast(me->GetVictim(), SPELL_MIND_FLAY);
+            Events.ScheduleEvent(EVENT_CAST_MIND_FLAY, 13s);
+            break;
+        default:
+            break;
+        }
     }
 };
 
@@ -2073,7 +1905,7 @@ class spell_shartuuls_transporter_possession_transfer : public AuraScript
         uint32 currCharm;
 
         //Save the new demon controlled by the player
-        ENSURE_AI(npc_overseer_shartuul::npc_overseer_shartuulAI, overseerShartuul->AI())->currPossessDemonGUID = caster->GetGUID();
+        ENSURE_AI(npc_overseer_shartuul, overseerShartuul->AI())->currPossessDemonGUID = caster->GetGUID();
         if (GetId() == SPELL_DOOMPUNISHER_POSSESSION_TRANSFER)
         {
             prevCharm = SPELL_CHARM_NORTH_01;
@@ -2268,21 +2100,21 @@ class spell_shartuuls_transporter_super_jump : public SpellScript
 
 void AddSC_shartuul_event()
 {
-    new boss_doomguard_punisher;
-    new boss_shivan_assassin;
-    new boss_eye_of_shartuul;
-    new boss_dreadmaw;
-    new boss_shartuul;
-    new npc_warp_gate_shield;
-    new npc_felguard_degrader;
-    new npc_overseer_shartuul;
-    new npc_shield_zapper;
-    new npc_fel_imp_defender;
-    new npc_felhound_defender;
-    new npc_ganarg_underling;
-    new npc_moarg_tormenter;
-    new npc_portable_fel_cannon;
-    new npc_fel_eye_stalk;
+    RegisterCreatureAI(npc_overseer_shartuul);
+    RegisterCreatureAI(npc_warp_gate_shield);
+    RegisterCreatureAI(npc_shield_zapper);
+    RegisterCreatureAI(npc_felguard_degrader);
+    RegisterCreatureAI(boss_doomguard_punisher);
+    RegisterCreatureAI(boss_shivan_assassin);
+    RegisterCreatureAI(boss_eye_of_shartuul);
+    RegisterCreatureAI(boss_dreadmaw);
+    RegisterCreatureAI(boss_shartuul);
+    RegisterCreatureAI(npc_fel_imp_defender);
+    RegisterCreatureAI(npc_felhound_defender);
+    RegisterCreatureAI(npc_ganarg_underling);
+    RegisterCreatureAI(npc_moarg_tormenter);
+    RegisterCreatureAI(npc_portable_fel_cannon);
+    RegisterCreatureAI(npc_fel_eye_stalk);
     RegisterSpellScript(spell_shartuuls_transporter_possess_demon);
     RegisterSpellScript(spell_shartuuls_transporter_possession_transfer);
     RegisterSpellScript(spell_shartuuls_transporter_aspects);
