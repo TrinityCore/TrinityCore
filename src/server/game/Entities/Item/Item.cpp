@@ -2756,6 +2756,8 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
     owner->SendDirectMessage(artifactXpGain.Write());
 
     SetState(ITEM_CHANGED, owner);
+
+    owner->UpdateCriteria(CriteriaType::EarnArtifactXP, amount);
 }
 
 void Item::SetFixedLevel(uint8 level)

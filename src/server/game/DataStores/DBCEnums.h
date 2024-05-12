@@ -534,7 +534,7 @@ enum class CriteriaType : int16
     TrackedWorldStateUIModified                    = 30,  // Tracked WorldStateUI value "{WorldStateUI}" is modified
     PVPKillInArea                                  = 31,  // Kill someone in PVP in "{AreaTable}"
     WinArena                                       = 32,  // Win arena "{Map}"
-    ParticipateInArena                             = 33,  /*NYI*/ // Participate in arena "{Map}"
+    ParticipateInArena                             = 33,  // Participate in arena "{Map}"
     LearnOrKnowSpell                               = 34,  // Learn or Know spell "{Spell}"
     EarnHonorableKill                              = 35,  // Earn an honorable kill
     AcquireItem                                    = 36,  // Acquire item "{Item}"
@@ -574,7 +574,7 @@ enum class CriteriaType : int16
     KillPlayer                                     = 70,  // Kill a player (no honor check)
     CompleteChallengeMode                          = 71,  /*NYI*/ // Complete a challenge mode on map "{Map}"
     CatchFishInFishingHole                         = 72,  // Catch fish in the "{GameObjects}" fishing hole
-    PlayerTriggerGameEvent                         = 73,  /*NYI*/ // Player will Trigger game event "{GameEvents}"
+    PlayerTriggerGameEvent                         = 73,  // Player will Trigger game event "{GameEvents}"
     Login                                          = 74,  // Login (USE SPARINGLY!)
     LearnSpellFromSkillLine                        = 75,  // Learn spell from the "{SkillLine}" skill line
     WinDuel                                        = 76,  // Win a duel
@@ -691,7 +691,7 @@ enum class CriteriaType : int16
     QualityUpgradedForGarrisonFollower             = 187, /*NYI*/ // Garrison Follower: Quality Upgraded
     LearnHeirloom                                  = 188, /*NYI*/ // Learn Heirloom "{Item}"
     LearnAnyHeirloom                               = 189, /*NYI*/ // Learn Any Heirloom
-    EarnArtifactXP                                 = 190, /*NYI*/ // Earn Artifact XP
+    EarnArtifactXP                                 = 190, // Earn Artifact XP
     AnyArtifactPowerRankPurchased                  = 191, /*NYI*/ // Artifact Power Ranks Purchased
     LearnTransmog                                  = 192, /*NYI*/ // Learn Transmog "{ItemModifiedAppearance}"
     LearnAnyTransmog                               = 193, /*NYI*/ // Learn Any Transmog
