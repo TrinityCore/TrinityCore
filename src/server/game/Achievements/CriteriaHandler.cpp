@@ -577,6 +577,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EarnArtifactXPForAzeriteItem:
             case CriteriaType::GainLevels:
             case CriteriaType::EarnArtifactXP:
+            case CriteriaType::CompletedLFGDungeon:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             case CriteriaType::KillCreature:
@@ -826,7 +827,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::BattlePetAchievementPointsEarned:
             case CriteriaType::ReleasedSpirit:
             case CriteriaType::AccountKnownPet:
-            case CriteriaType::CompletedLFGDungeon:
             case CriteriaType::KickInitiatorInLFGDungeon:
             case CriteriaType::KickVoterInLFGDungeon:
             case CriteriaType::KickTargetInLFGDungeon:
@@ -1247,6 +1247,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::Login:
             return true;
         // handle all statistic-only criteria here
+        case CriteriaType::CompletedLFGDungeon:
         case CriteriaType::ParticipateInBattleground:
         case CriteriaType::DieOnMap:
         case CriteriaType::DieAnywhere:
@@ -1375,6 +1376,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::KillPlayer:
         case CriteriaType::TotalDamageTaken:
         case CriteriaType::TotalHealReceived:
+        case CriteriaType::CompletedLFGDungeon:
         case CriteriaType::CompletedLFGDungeonWithStrangers:
         case CriteriaType::GotHaircut:
         case CriteriaType::WinDuel:
