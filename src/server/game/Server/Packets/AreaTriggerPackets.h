@@ -83,6 +83,16 @@ namespace WorldPackets
             Optional<AreaTriggerMovementScriptInfo> AreaTriggerMovementScript;
             ObjectGuid TriggerGUID;
         };
+
+        class AreaTriggerPlaySpellVisual final : public ServerPacket
+        {
+        public:
+            AreaTriggerPlaySpellVisual() : ServerPacket(SMSG_AREA_TRIGGER_PLAY_SPELL_VISUAL, 20) { }
+
+            WorldPacket const* Write() override;
+            ObjectGuid TriggerGUID;
+            uint32 SpellVisualEventID = 0;
+        };
     }
 }
 

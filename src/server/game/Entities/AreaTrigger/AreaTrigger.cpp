@@ -101,6 +101,14 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
+void AreaTrigger::PlaySpellVisual(uint32 spellVisualEventId) const
+{
+    WorldPackets::AreaTrigger::AreaTriggerPlaySpellVisual packet;
+    packet.TriggerGUID = GetGUID();
+    packet.SpellVisualEventID = spellVisualEventId;
+    SendMessageToSet(packet.Write(), false);
+}
+
 bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreatePropertiesId, Map* map, Position const& pos, int32 duration, AreaTriggerSpawn const* spawnData /* nullptr */, Unit* caster /*= nullptr*/, Unit* target /*= nullptr*/, SpellCastVisual spellVisual /*= { 0, 0 }*/, SpellInfo const* spellInfo /*= nullptr*/, Spell* spell /*= nullptr*/, AuraEffect const* aurEff /*= nullptr*/)
 {
     _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
