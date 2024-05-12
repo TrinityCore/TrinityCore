@@ -1657,7 +1657,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CriteriaType::CompleteScenario:
-            if (miscValue1 != criteria->Entry->Asset.ScenarioID)
+            if (miscValue1 != uint32(criteria->Entry->Asset.ScenarioID))
                 return false;
             break;
         default:
