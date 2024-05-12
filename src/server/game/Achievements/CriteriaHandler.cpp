@@ -595,6 +595,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HighestHealCast:
             case CriteriaType::HighestHealReceived:
             case CriteriaType::AzeriteLevelReached:
+            case CriteriaType::AnyArtifactPowerRankPurchased:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;
             case CriteriaType::ReachLevel:
@@ -835,7 +836,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterAreaTriggerWithActionSet:
             case CriteriaType::StartGarrisonMission:
             case CriteriaType::QualityUpgradedForGarrisonFollower:
-            case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::CompleteResearchGarrisonTalent:
             case CriteriaType::RecruitAnyGarrisonTroop:
             case CriteriaType::CompleteAnyWorldQuest:
@@ -1219,6 +1219,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
         case CriteriaType::EarnArtifactXP:
+        case CriteriaType::AnyArtifactPowerRankPurchased:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:

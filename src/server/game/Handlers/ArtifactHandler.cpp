@@ -152,6 +152,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         artifact->InitArtifactPowers(artifact->GetTemplate()->GetArtifactID(), uint8(i));
 
     artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
+    _player->UpdateCriteria(CriteriaType::AnyArtifactPowerRankPurchased, totalPurchasedArtifactPower);
 }
 
 void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance)
