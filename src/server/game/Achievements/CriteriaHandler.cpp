@@ -595,6 +595,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HighestDamageTaken:
             case CriteriaType::HighestHealCast:
             case CriteriaType::HighestHealReceived:
+            case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::AzeriteLevelReached:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;
@@ -836,7 +837,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterAreaTriggerWithActionSet:
             case CriteriaType::StartGarrisonMission:
             case CriteriaType::QualityUpgradedForGarrisonFollower:
-            case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::CompleteResearchGarrisonTalent:
             case CriteriaType::RecruitAnyGarrisonTroop:
             case CriteriaType::CompleteAnyWorldQuest:
@@ -1210,6 +1210,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::DefeatDungeonEncounter:
         case CriteriaType::LearnHeirloom:
         case CriteriaType::LearnAnyHeirloom:
+        case CriteriaType::EarnArtifactXP:
+        case CriteriaType::AnyArtifactPowerRankPurchased:
         case CriteriaType::LearnAnyTransmogInSlot:
         case CriteriaType::ParagonLevelIncreaseWithFaction:
         case CriteriaType::PlayerHasEarnedHonor:
@@ -1221,7 +1223,6 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
-        case CriteriaType::EarnArtifactXP:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:

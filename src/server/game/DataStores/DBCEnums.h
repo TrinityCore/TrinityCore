@@ -692,7 +692,7 @@ enum class CriteriaType : int16
     LearnHeirloom                                  = 188, // Learn Heirloom "{Item}"
     LearnAnyHeirloom                               = 189, // Learn Any Heirloom
     EarnArtifactXP                                 = 190, // Earn Artifact XP
-    AnyArtifactPowerRankPurchased                  = 191, /*NYI*/ // Artifact Power Ranks Purchased
+    AnyArtifactPowerRankPurchased                  = 191, // Artifact Power Ranks Purchased
     LearnTransmog                                  = 192, /*NYI*/ // Learn Transmog "{ItemModifiedAppearance}"
     LearnAnyTransmog                               = 193, /*NYI*/ // Learn Any Transmog
     HonorLevelIncrease                             = 194, // (Player) honor level increase
