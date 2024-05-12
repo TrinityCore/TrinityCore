@@ -554,6 +554,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::ActivateAnyGarrisonBuilding:
             case CriteriaType::HonorLevelIncrease:
             case CriteriaType::PrestigeLevelIncrease:
+            case CriteriaType::LearnAnyTransmog:
             case CriteriaType::LearnAnyTransmogInSlot:
             case CriteriaType::CompleteAnyReplayQuest:
             case CriteriaType::BuyItemsFromVendors:
@@ -1247,6 +1248,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::Login:
             return true;
         // handle all statistic-only criteria here
+        case CriteriaType::LearnAnyTransmog:
         case CriteriaType::ParticipateInBattleground:
         case CriteriaType::DieOnMap:
         case CriteriaType::DieAnywhere:
@@ -1384,6 +1386,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
+        case CriteriaType::LearnAnyTransmog:
             if (!miscValue1)
                 return false;
             break;
