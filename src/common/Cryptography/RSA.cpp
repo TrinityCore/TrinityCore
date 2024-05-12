@@ -18,27 +18,20 @@
 #include "RSA.h"
 #include "HMAC.h"
 #include "Memory.h"
+#include <openssl/core_names.h>
+#include <openssl/params.h>
 #include <openssl/pem.h>
+#include <openssl/provider.h>
 #include <algorithm>
 #include <memory>
 #include <vector>
 #include <cstring>
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#include <openssl/core_names.h>
-#include <openssl/params.h>
-#include <openssl/provider.h>
-#endif
-
 namespace
 {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-
 extern OSSL_DISPATCH const HMAC_SHA256_funcs[];
 extern OSSL_ALGORITHM const HMAC_SHA256_algs[];
 extern OSSL_DISPATCH const HMAC_SHA256_method[];
-
-#endif
 
 struct HMAC_SHA256_MD
 {
@@ -46,95 +39,6 @@ struct HMAC_SHA256_MD
     {
         Trinity::Crypto::HMAC_SHA256* hmac;
     };
-
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
-
-    HMAC_SHA256_MD()
-    {
-        _md = EVP_MD_meth_new(NID_sha256, NID_sha256WithRSAEncryption);
-        EVP_MD_meth_set_result_size(_md, Trinity::Crypto::Constants::SHA256_DIGEST_LENGTH_BYTES);
-        EVP_MD_meth_set_flags(_md, EVP_MD_FLAG_DIGALGID_ABSENT);
-        EVP_MD_meth_set_init(_md, &Init);
-        EVP_MD_meth_set_update(_md, &UpdateData);
-        EVP_MD_meth_set_final(_md, &Finalize);
-        EVP_MD_meth_set_copy(_md, &Copy);
-        EVP_MD_meth_set_cleanup(_md, &Cleanup);
-        EVP_MD_meth_set_input_blocksize(_md, SHA256_CBLOCK);
-        EVP_MD_meth_set_app_datasize(_md, sizeof(EVP_MD*) + sizeof(CTX_DATA*));
-    }
-
-    HMAC_SHA256_MD(HMAC_SHA256_MD const&) = delete;
-    HMAC_SHA256_MD(HMAC_SHA256_MD&&) = delete;
-
-    HMAC_SHA256_MD& operator=(HMAC_SHA256_MD const&) = delete;
-    HMAC_SHA256_MD& operator=(HMAC_SHA256_MD&&) = delete;
-
-    ~HMAC_SHA256_MD()
-    {
-        EVP_MD_meth_free(_md);
-        _md = nullptr;
-    }
-
-    EVP_MD* GetMd() const
-    {
-        return _md;
-    }
-
-    static int Init(EVP_MD_CTX* ctx)
-    {
-        Cleanup(ctx);
-        return 1;
-    }
-
-    static int UpdateData(EVP_MD_CTX* ctx, const void* data, size_t count)
-    {
-        CTX_DATA* ctxData = reinterpret_cast<CTX_DATA*>(EVP_MD_CTX_md_data(ctx));
-        if (!ctxData->hmac)
-            return 0;
-
-        ctxData->hmac->UpdateData(reinterpret_cast<uint8 const*>(data), count);
-        return 1;
-    }
-
-    static int Finalize(EVP_MD_CTX* ctx, unsigned char* md)
-    {
-        CTX_DATA* ctxData = reinterpret_cast<CTX_DATA*>(EVP_MD_CTX_md_data(ctx));
-        if (!ctxData->hmac)
-            return 0;
-
-        ctxData->hmac->Finalize();
-        memcpy(md, ctxData->hmac->GetDigest().data(), ctxData->hmac->GetDigest().size());
-        return 1;
-    }
-
-    // post-processing after openssl memcpys from source to dest (no need to cleanup dest)
-    static int Copy(EVP_MD_CTX* to, EVP_MD_CTX const* from)
-    {
-        CTX_DATA const* ctxDataFrom = reinterpret_cast<CTX_DATA const*>(EVP_MD_CTX_md_data(from));
-        CTX_DATA* ctxDataTo = reinterpret_cast<CTX_DATA*>(EVP_MD_CTX_md_data(to));
-
-        if (ctxDataFrom->hmac)
-            ctxDataTo->hmac = new Trinity::Crypto::HMAC_SHA256(*ctxDataFrom->hmac);
-
-        return 1;
-    }
-
-    static int Cleanup(EVP_MD_CTX* ctx)
-    {
-        CTX_DATA* data = reinterpret_cast<CTX_DATA*>(EVP_MD_CTX_md_data(ctx));
-        if (data->hmac)
-        {
-            delete data->hmac;
-            data->hmac = nullptr;
-        }
-
-        return 1;
-    }
-
-private:
-    EVP_MD* _md;
-
-#else
 
     HMAC_SHA256_MD()
     {
@@ -273,10 +177,7 @@ private:
 private:
     OSSL_LIB_CTX* _lib;
     OSSL_PROVIDER* _handle;
-#endif
 } const HmacSha256Md;
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 
 OSSL_DISPATCH const HMAC_SHA256_funcs[] =
 {
@@ -303,14 +204,11 @@ OSSL_DISPATCH const HMAC_SHA256_method[] =
     { OSSL_FUNC_PROVIDER_QUERY_OPERATION, (void(*)())HMAC_SHA256_MD::QueryProvider },
     { 0, nullptr },
 };
-#endif
 
 }
 
 namespace Trinity::Crypto
 {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-
 void RsaSignature::DigestGenerator::EVP_MD_Deleter::operator()(EVP_MD* md) const
 {
     EVP_MD_free(md);
@@ -349,36 +247,6 @@ std::unique_ptr<OSSL_PARAM[]> RsaSignature::HMAC_SHA256::GetParams() const
         OSSL_PARAM_END
     });
 }
-
-#else
-
-void RsaSignature::DigestGenerator::EVP_MD_Deleter::operator()(EVP_MD* /*md*/) const
-{
-}
-
-std::unique_ptr<EVP_MD, RsaSignature::DigestGenerator::EVP_MD_Deleter> RsaSignature::SHA256::GetGenerator() const
-{
-    return std::unique_ptr<EVP_MD, EVP_MD_Deleter>(const_cast<EVP_MD*>(EVP_sha256()));
-}
-
-void RsaSignature::SHA256::PostInitCustomizeContext(EVP_MD_CTX*)
-{
-}
-
-std::unique_ptr<EVP_MD, RsaSignature::DigestGenerator::EVP_MD_Deleter> RsaSignature::HMAC_SHA256::GetGenerator() const
-{
-    return std::unique_ptr<EVP_MD, EVP_MD_Deleter>(HmacSha256Md.GetMd());
-}
-
-void RsaSignature::HMAC_SHA256::PostInitCustomizeContext(EVP_MD_CTX* ctx)
-{
-    HMAC_SHA256_MD::CTX_DATA* ctxData = reinterpret_cast<HMAC_SHA256_MD::CTX_DATA*>(EVP_MD_CTX_md_data(ctx));
-
-    delete ctxData->hmac;
-    ctxData->hmac = new Crypto::HMAC_SHA256(_key, _keyLength);
-}
-
-#endif
 
 RsaSignature::RsaSignature() : _ctx(Impl::GenericHashImpl::MakeCTX())
 {
@@ -465,16 +333,12 @@ bool RsaSignature::Sign(uint8 const* message, std::size_t messageLength, DigestG
 {
     std::unique_ptr<EVP_MD, DigestGenerator::EVP_MD_Deleter> digestGenerator = generator.GetGenerator();
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     auto keyCtx = make_unique_ptr_with_deleter(EVP_PKEY_CTX_new_from_pkey(generator.GetLib(), _key, nullptr), &EVP_PKEY_CTX_free);
     EVP_MD_CTX_set_pkey_ctx(_ctx, keyCtx.get());
 
     std::unique_ptr<OSSL_PARAM[]> params = generator.GetParams();
     int result = EVP_DigestSignInit_ex(_ctx, nullptr, EVP_MD_get0_name(digestGenerator.get()), generator.GetLib(),  nullptr, _key, params.get());
-#else
-    int result = EVP_DigestSignInit(_ctx, nullptr, digestGenerator.get(), nullptr, _key);
-    generator.PostInitCustomizeContext(_ctx);
-#endif
+
     if (result == 0)
         return false;
 
