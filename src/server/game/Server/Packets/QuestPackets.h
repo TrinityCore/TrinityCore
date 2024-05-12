@@ -430,6 +430,7 @@ namespace WorldPackets
             bool DisplayPopup = false;
             bool StartCheat = false;
             bool AutoLaunched = false;
+            bool FromContentPush = false;
         };
 
         struct QuestObjectiveCollect

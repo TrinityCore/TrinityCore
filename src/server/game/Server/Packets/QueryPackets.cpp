@@ -149,21 +149,6 @@ void QueryPlayerNames::Read()
         _worldPacket >> player;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupHint const& lookupHint)
-{
-    data.WriteBit(lookupHint.VirtualRealmAddress.has_value());
-    data.WriteBit(lookupHint.NativeRealmAddress.has_value());
-    data.FlushBits();
-
-    if (lookupHint.VirtualRealmAddress)
-        data << uint32(*lookupHint.VirtualRealmAddress);
-
-    if (lookupHint.NativeRealmAddress)
-        data << uint32(*lookupHint.NativeRealmAddress);
-
-    return data;
-}
-
 bool PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* player /*= nullptr*/)
 {
     CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid);
@@ -181,6 +166,7 @@ bool PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* play
         Sex           = player->GetNativeGender();
         ClassID       = player->GetClass();
         Level         = player->GetLevel();
+        TimerunningSeasonID = player->m_activePlayerData->TimerunningSeasonID;
 
         if (UF::DeclinedNames const* names = player->GetDeclinedNames())
             DeclinedNames = *names;
@@ -228,6 +214,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupData const& lookupData)
     data << uint8(lookupData.ClassID);
     data << uint8(lookupData.Level);
     data << uint8(lookupData.Unused915);
+    data << int32(lookupData.TimerunningSeasonID);
     data.WriteString(lookupData.Name);
 
     return data;

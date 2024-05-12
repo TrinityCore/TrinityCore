@@ -574,7 +574,7 @@ enum class CriteriaType : int16
     KillPlayer                                     = 70,  // Kill a player (no honor check)
     CompleteChallengeMode                          = 71,  /*NYI*/ // Complete a challenge mode on map "{Map}"
     CatchFishInFishingHole                         = 72,  // Catch fish in the "{GameObjects}" fishing hole
-    PlayerTriggerGameEvent                         = 73,  /*NYI*/ // Player will Trigger game event "{GameEvents}"
+    PlayerTriggerGameEvent                         = 73,  // Player will Trigger game event "{GameEvents}"
     Login                                          = 74,  // Login (USE SPARINGLY!)
     LearnSpellFromSkillLine                        = 75,  // Learn spell from the "{SkillLine}" skill line
     WinDuel                                        = 76,  // Win a duel
@@ -748,7 +748,13 @@ enum class CriteriaType : int16
     CompleteTrackingQuest                          = 250, /*NYI*/
 
     GainLevels                                     = 253, // Gain levels
-    Count                                          = 257
+
+    CompleteQuestsCountOnAccount                   = 257, /*NYI*/
+
+    WarbandBankTabPurchased                        = 260, /*NYI*/
+
+    LearnTaxiNode                                  = 262,
+    Count                                          = 263
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -1162,6 +1168,11 @@ enum class ItemContext : uint8
     Template_Character_2                = 98,
     Template_Character_3                = 99,
     Template_Character_4                = 100,
+    Dungeon_Normal_Jackpot              = 101,
+    Dungeon_Heroic_Jackpot              = 102,
+    Dungeon_Mythic_Jackpot              = 103,
+    Delves                              = 104,
+    Timerunning                         = 105,
 
     Max
 };

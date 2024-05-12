@@ -1244,6 +1244,8 @@ uint16 Player::GetChatFlags() const
         tag |= CHAT_FLAG_AFK;
     if (IsDeveloper())
         tag |= CHAT_FLAG_DEV;
+    if (m_activePlayerData->TimerunningSeasonID)
+        tag |= CHAT_FLAG_TIMERUNNING;
 
     return tag;
 }
@@ -21689,6 +21691,48 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     }
 }
 
+void Player::DeletePetFromDB(uint32 petNumber)
+{
+    if (m_activePlayerData->PetStable.has_value())
+    {
+        int32 ufIndex = m_activePlayerData->PetStable->Pets.FindIndexIf([petNumber](UF::StablePetInfo const& p) { return p.PetNumber == petNumber; });
+        if (ufIndex >= 0)
+            RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                .ModifyValue(&UF::ActivePlayerData::PetStable, 0)
+                .ModifyValue(&UF::StableInfo::Pets), ufIndex);
+    }
+
+    if (!m_petStable)
+        return;
+
+    if (Optional<uint32> petIndex = m_petStable->GetCurrentActivePetIndex())
+        if (m_petStable->ActivePets[*petIndex] && m_petStable->ActivePets[*petIndex]->PetNumber == petNumber)
+            m_petStable->CurrentPetIndex.reset();
+
+    auto petNumberPred = [petNumber](Optional<PetStable::PetInfo> const& pet)
+    {
+        return pet && pet->PetNumber == petNumber && pet->Type == HUNTER_PET;
+    };
+
+    bool foundPet = false;
+    auto activeItr = std::ranges::find_if(m_petStable->ActivePets, petNumberPred);
+    if (activeItr != m_petStable->ActivePets.end())
+    {
+        activeItr->reset();
+        foundPet = true;
+    }
+
+    auto stabledItr = std::ranges::find_if(m_petStable->StabledPets, petNumberPred);
+    if (stabledItr != m_petStable->StabledPets.end())
+    {
+        stabledItr->reset();
+        foundPet = true;
+    }
+
+    if (foundPet)
+        Pet::DeleteFromDB(petNumber);
+}
+
 void Player::SendTameFailure(PetTameResult result)
 {
     WorldPackets::Pet::PetTameFailure petTameFailure;
@@ -28871,18 +28915,48 @@ void Player::SetPetSlot(uint32 petNumber, PetSaveMode dstPetSlot)
 
                 if (srcPetIndex >= 0)
                 {
-                    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                    PetStableFlags flagToAdd, flagToRemove;
+                    if (IsActivePetSlot(dstPetSlot))
+                    {
+                        flagToAdd = PET_STABLE_ACTIVE;
+                        flagToRemove = PET_STABLE_INACTIVE;
+                    }
+                    else
+                    {
+                        flagToAdd = PET_STABLE_INACTIVE;
+                        flagToRemove = PET_STABLE_ACTIVE;
+                    }
+
+                    auto petSetter = m_values.ModifyValue(&Player::m_activePlayerData)
                         .ModifyValue(&UF::ActivePlayerData::PetStable, 0)
-                        .ModifyValue(&UF::StableInfo::Pets, srcPetIndex)
-                        .ModifyValue(&UF::StablePetInfo::PetSlot), dstPetSlot);
+                        .ModifyValue(&UF::StableInfo::Pets, srcPetIndex);
+
+                    SetUpdateFieldValue(petSetter.ModifyValue(&UF::StablePetInfo::PetSlot), dstPetSlot);
+                    SetUpdateFieldFlagValue(petSetter.ModifyValue(&UF::StablePetInfo::PetFlags), flagToAdd);
+                    RemoveUpdateFieldFlagValue(petSetter.ModifyValue(&UF::StablePetInfo::PetFlags), flagToRemove);
                 }
 
                 if (dstPetIndex >= 0)
                 {
-                    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                    PetStableFlags flagToAdd, flagToRemove;
+                    if (IsActivePetSlot(srcPetSlot))
+                    {
+                        flagToAdd = PET_STABLE_ACTIVE;
+                        flagToRemove = PET_STABLE_INACTIVE;
+                    }
+                    else
+                    {
+                        flagToAdd = PET_STABLE_INACTIVE;
+                        flagToRemove = PET_STABLE_ACTIVE;
+                    }
+
+                    auto petSetter = m_values.ModifyValue(&Player::m_activePlayerData)
                         .ModifyValue(&UF::ActivePlayerData::PetStable, 0)
-                        .ModifyValue(&UF::StableInfo::Pets, dstPetIndex)
-                        .ModifyValue(&UF::StablePetInfo::PetSlot), srcPetSlot);
+                        .ModifyValue(&UF::StableInfo::Pets, dstPetIndex);
+
+                    SetUpdateFieldValue(petSetter.ModifyValue(&UF::StablePetInfo::PetSlot), srcPetSlot);
+                    SetUpdateFieldFlagValue(petSetter.ModifyValue(&UF::StablePetInfo::PetFlags), flagToAdd);
+                    RemoveUpdateFieldFlagValue(petSetter.ModifyValue(&UF::StablePetInfo::PetFlags), flagToRemove);
                 }
 
                 sess->SendPetStableResult(StableResult::StableSuccess);
