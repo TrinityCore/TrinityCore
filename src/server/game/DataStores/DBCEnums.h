@@ -689,8 +689,8 @@ enum class CriteriaType : int16
     LearnToy                                       = 185, /*NYI*/ // Learn Toy "{Item}"
     LearnAnyToy                                    = 186, /*NYI*/ // Learn Any Toy
     QualityUpgradedForGarrisonFollower             = 187, /*NYI*/ // Garrison Follower: Quality Upgraded
-    LearnHeirloom                                  = 188, /*NYI*/ // Learn Heirloom "{Item}"
-    LearnAnyHeirloom                               = 189, /*NYI*/ // Learn Any Heirloom
+    LearnHeirloom                                  = 188, // Learn Heirloom "{Item}"
+    LearnAnyHeirloom                               = 189, // Learn Any Heirloom
     EarnArtifactXP                                 = 190, /*NYI*/ // Earn Artifact XP
     AnyArtifactPowerRankPurchased                  = 191, /*NYI*/ // Artifact Power Ranks Purchased
     LearnTransmog                                  = 192, /*NYI*/ // Learn Transmog "{ItemModifiedAppearance}"

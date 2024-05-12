@@ -237,7 +237,11 @@ void CollectionMgr::LoadHeirlooms()
 void CollectionMgr::AddHeirloom(uint32 itemId, uint32 flags)
 {
     if (UpdateAccountHeirlooms(itemId, flags))
+    {
+        _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnHeirloom, itemId);
+        _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyHeirloom, 1);
         _owner->GetPlayer()->AddHeirloom(itemId, flags);
+    }
 }
 
 void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
