@@ -552,13 +552,13 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::DefeatDungeonEncounter:
             case CriteriaType::PlaceGarrisonBuilding:
             case CriteriaType::ActivateAnyGarrisonBuilding:
+            case CriteriaType::LearnAnyHeirloom:
             case CriteriaType::HonorLevelIncrease:
             case CriteriaType::PrestigeLevelIncrease:
             case CriteriaType::LearnAnyTransmogInSlot:
             case CriteriaType::CompleteAnyReplayQuest:
             case CriteriaType::BuyItemsFromVendors:
             case CriteriaType::SellItemsToVendors:
-            case CriteriaType::LearnAnyHeirloom:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -678,6 +678,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterArea:
             case CriteriaType::LeaveArea:
             case CriteriaType::RecruitGarrisonFollower:
+            case CriteriaType::LearnHeirloom:
             case CriteriaType::ActivelyReachLevel:
             case CriteriaType::CollectTransmogSetFromGroup:
             case CriteriaType::EnterTopLevelArea:
@@ -1207,6 +1208,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BattlePetReachLevel:
         case CriteriaType::ActivelyEarnPetLevel:
         case CriteriaType::DefeatDungeonEncounter:
+        case CriteriaType::LearnHeirloom:
+        case CriteriaType::LearnAnyHeirloom:
         case CriteriaType::LearnAnyTransmogInSlot:
         case CriteriaType::ParagonLevelIncreaseWithFaction:
         case CriteriaType::PlayerHasEarnedHonor:
@@ -1218,7 +1221,6 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
-        case CriteriaType::LearnAnyHeirloom:
         case CriteriaType::EarnArtifactXP:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
