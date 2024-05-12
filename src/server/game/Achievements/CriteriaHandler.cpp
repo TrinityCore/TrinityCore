@@ -552,6 +552,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::DefeatDungeonEncounter:
             case CriteriaType::PlaceGarrisonBuilding:
             case CriteriaType::ActivateAnyGarrisonBuilding:
+            case CriteriaType::LearnAnyHeirloom:
             case CriteriaType::HonorLevelIncrease:
             case CriteriaType::PrestigeLevelIncrease:
             case CriteriaType::LearnAnyTransmogInSlot:
@@ -596,6 +597,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HighestDamageTaken:
             case CriteriaType::HighestHealCast:
             case CriteriaType::HighestHealReceived:
+            case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::AzeriteLevelReached:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;
@@ -679,6 +681,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterArea:
             case CriteriaType::LeaveArea:
             case CriteriaType::RecruitGarrisonFollower:
+            case CriteriaType::LearnHeirloom:
             case CriteriaType::ActivelyReachLevel:
             case CriteriaType::CollectTransmogSetFromGroup:
             case CriteriaType::EnterTopLevelArea:
@@ -815,7 +818,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::LevelChangedForGarrisonFollower:
             case CriteriaType::LearnToy:
             case CriteriaType::LearnAnyToy:
-            case CriteriaType::LearnAnyHeirloom:
             case CriteriaType::FindResearchObject:
             case CriteriaType::ExhaustAnyResearchSite:
             case CriteriaType::CompleteInternalCriteria:
@@ -835,7 +837,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterAreaTriggerWithActionSet:
             case CriteriaType::StartGarrisonMission:
             case CriteriaType::QualityUpgradedForGarrisonFollower:
-            case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::CompleteResearchGarrisonTalent:
             case CriteriaType::RecruitAnyGarrisonTroop:
             case CriteriaType::CompleteAnyWorldQuest:
@@ -1207,6 +1208,10 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BattlePetReachLevel:
         case CriteriaType::ActivelyEarnPetLevel:
         case CriteriaType::DefeatDungeonEncounter:
+        case CriteriaType::LearnHeirloom:
+        case CriteriaType::LearnAnyHeirloom:
+        case CriteriaType::EarnArtifactXP:
+        case CriteriaType::AnyArtifactPowerRankPurchased:
         case CriteriaType::LearnAnyTransmogInSlot:
         case CriteriaType::ParagonLevelIncreaseWithFaction:
         case CriteriaType::PlayerHasEarnedHonor:
@@ -1218,7 +1223,6 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
-        case CriteriaType::EarnArtifactXP:
         case CriteriaType::CompleteAnyScenario:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
@@ -1255,6 +1259,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::KilledByCreature:
         case CriteriaType::KilledByPlayer:
         case CriteriaType::DieFromEnviromentalDamage:
+        case CriteriaType::ParticipateInArena:
         case CriteriaType::EarnTeamArenaRating:
         case CriteriaType::MoneyEarnedFromSales:
         case CriteriaType::MoneySpentOnRespecs:
