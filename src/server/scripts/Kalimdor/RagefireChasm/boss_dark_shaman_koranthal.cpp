@@ -22,16 +22,16 @@
 
 enum Spells
 {
-    SPELL_SHADOW_VORTEX 	= 119928,
-    SPELL_TWISTED_ELEMENTS	= 119300,
-    SPELL_SHADOW_STORM		= 119971
+    SPELL_SHADOW_VORTEX     = 119928,
+    SPELL_TWISTED_ELEMENTS  = 119300,
+    SPELL_SHADOW_STORM      = 119971
 };
 
 enum Texts
 {
-    SAY_AGGRO 				= 0,
-    SAY_SHADOW_STORM    	= 1,
-    SAY_DEATH   			= 2
+    SAY_AGGRO               = 0,
+    SAY_SHADOW_STORM        = 1,
+    SAY_DEATH               = 2
 };
 
 enum Events
@@ -45,7 +45,7 @@ struct boss_dark_shaman_koranthal : public BossAI
 {
     boss_dark_shaman_koranthal(Creature* creature) : BossAI(creature, BOSS_DARK_SHAMAN_KORANTHAL)
     {
-    	DoCastSelf(SPELL_SHADOW_VORTEX);
+        DoCastSelf(SPELL_SHADOW_VORTEX);
     }
 
     void Reset() override
@@ -98,7 +98,7 @@ struct boss_dark_shaman_koranthal : public BossAI
                 }
                 case EVENT_SHADOW_STORM:
                 {
-                	Talk(SAY_SHADOW_STORM);
+                    Talk(SAY_SHADOW_STORM);
                     DoCast(SPELL_SHADOW_STORM);
                     events.Repeat(25s, 30s);
                     break;
@@ -115,8 +115,8 @@ class spell_rfc_shadow_storm : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-    	if (Unit* caster = GetCaster())
-        	caster->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetEffectValue(), true);
     }
 
     void Register() override
@@ -127,6 +127,6 @@ class spell_rfc_shadow_storm : public SpellScript
 
 void AddSC_boss_dark_shaman_koranthal()
 {
-	RegisterRagefireChasmCreatureAI(boss_dark_shaman_koranthal);
-	RegisterSpellScript(spell_rfc_shadow_storm);
+    RegisterRagefireChasmCreatureAI(boss_dark_shaman_koranthal);
+    RegisterSpellScript(spell_rfc_shadow_storm);
 }
