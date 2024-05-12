@@ -12855,10 +12855,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
         SetInvSlot(slot, pItem->GetGUID());
-        if (ItemTemplate const* proto = pItem->GetTemplate())
-            SetBuybackPrice(eslot, proto->GetSellPrice() * pItem->GetCount());
-        else
-            SetBuybackPrice(eslot, 0);
+        SetBuybackPrice(eslot, pItem->GetSellPrice(this) * pItem->GetCount());
 
         SetBuybackTimestamp(eslot, (uint32)etime);
 

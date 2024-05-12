@@ -2107,7 +2107,7 @@ uint32 Item::GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemL
         typeFactor = weaponPrice->Data;
     }
 
-    standardPrice = false;
+    standardPrice = true;
     return uint32(proto->GetPriceVariance() * typeFactor * baseFactor * qualityFactor * proto->GetPriceRandomValue());
 }
 
