@@ -542,6 +542,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::DeliveredKillingBlow:
             case CriteriaType::PVPKillInArea:
             case CriteriaType::WinArena: // This also behaves like CriteriaType::WinAnyRankedArena
+            case CriteriaType::ParticipateInArena:
             case CriteriaType::PlayerTriggerGameEvent:
             case CriteriaType::Login:
             case CriteriaType::AnyoneTriggerGameEventScenario:
@@ -775,7 +776,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                 break;
             // FIXME: not triggered in code as result, need to implement
             case CriteriaType::RunInstance:
-            case CriteriaType::ParticipateInArena:
             case CriteriaType::EarnTeamArenaRating:
             case CriteriaType::EarnTitle:
             case CriteriaType::MoneySpentOnGuildRepair:
@@ -1606,6 +1606,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CriteriaType::WinArena:
+        case CriteriaType::ParticipateInArena:
             if (miscValue1 != uint32(criteria->Entry->Asset.MapID))
                 return false;
             break;
