@@ -1,0 +1,132 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "ragefire_chasm.h"
+
+enum Spells
+{
+    SPELL_SHADOW_VORTEX 	= 119928,
+    SPELL_TWISTED_ELEMENTS	= 119300,
+    SPELL_SHADOW_STORM		= 119971
+};
+
+enum Texts
+{
+    SAY_AGGRO 				= 0,
+    SAY_SHADOW_STORM    	= 1,
+    SAY_DEATH   			= 2
+};
+
+enum Events
+{
+    EVENT_TWISTED_ELEMENTS  = 1,
+    EVENT_SHADOW_STORM      = 2
+};
+
+// 61412 - Dark Shaman Koranthal
+struct boss_dark_shaman_koranthal : public BossAI
+{
+    boss_dark_shaman_koranthal(Creature* creature) : BossAI(creature, BOSS_DARK_SHAMAN_KORANTHAL)
+    {
+    	DoCastSelf(SPELL_SHADOW_VORTEX);
+    }
+
+    void Reset() override
+    {
+        _Reset();
+    }
+
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
+        DoCastSelf(SPELL_SHADOW_VORTEX);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+        me->RemoveAurasDueToSpell(SPELL_SHADOW_VORTEX);
+
+        events.ScheduleEvent(EVENT_TWISTED_ELEMENTS, 4s);
+        events.ScheduleEvent(EVENT_SHADOW_STORM, 20s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TWISTED_ELEMENTS:
+                {
+                    DoCastVictim(SPELL_TWISTED_ELEMENTS);
+                    events.Repeat(8s, 10s);
+                    break;
+                }
+                case EVENT_SHADOW_STORM:
+                {
+                	Talk(SAY_SHADOW_STORM);
+                    DoCast(SPELL_SHADOW_STORM);
+                    events.Repeat(25s, 30s);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+};
+
+// 119973 - Shadow Storm
+class spell_rfc_shadow_storm : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/) const
+    {
+    	if (Unit* caster = GetCaster())
+        	caster->CastSpell(GetHitUnit(), GetEffectValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rfc_shadow_storm::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+void AddSC_boss_dark_shaman_koranthal()
+{
+	RegisterRagefireChasmCreatureAI(boss_dark_shaman_koranthal);
+	RegisterSpellScript(spell_rfc_shadow_storm);
+}
