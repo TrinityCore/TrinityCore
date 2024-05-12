@@ -542,6 +542,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::DeliveredKillingBlow:
             case CriteriaType::PVPKillInArea:
             case CriteriaType::WinArena: // This also behaves like CriteriaType::WinAnyRankedArena
+            case CriteriaType::ParticipateInArena:
             case CriteriaType::PlayerTriggerGameEvent:
             case CriteriaType::Login:
             case CriteriaType::AnyoneTriggerGameEventScenario:
@@ -576,6 +577,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HealingDone:
             case CriteriaType::EarnArtifactXPForAzeriteItem:
             case CriteriaType::GainLevels:
+            case CriteriaType::EarnArtifactXP:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             case CriteriaType::KillCreature:
@@ -775,7 +777,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                 break;
             // FIXME: not triggered in code as result, need to implement
             case CriteriaType::RunInstance:
-            case CriteriaType::ParticipateInArena:
             case CriteriaType::EarnTeamArenaRating:
             case CriteriaType::EarnTitle:
             case CriteriaType::MoneySpentOnGuildRepair:
@@ -834,7 +835,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterAreaTriggerWithActionSet:
             case CriteriaType::StartGarrisonMission:
             case CriteriaType::QualityUpgradedForGarrisonFollower:
-            case CriteriaType::EarnArtifactXP:
             case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::CompleteResearchGarrisonTalent:
             case CriteriaType::RecruitAnyGarrisonTroop:
@@ -1219,6 +1219,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
         case CriteriaType::LearnAnyHeirloom:
+        case CriteriaType::EarnArtifactXP:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:
@@ -1606,6 +1607,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CriteriaType::WinArena:
+        case CriteriaType::ParticipateInArena:
             if (miscValue1 != uint32(criteria->Entry->Asset.MapID))
                 return false;
             break;
