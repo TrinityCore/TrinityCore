@@ -1247,6 +1247,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::Login:
             return true;
         // handle all statistic-only criteria here
+        case CriteriaType::ParticipateInArena:
         case CriteriaType::ParticipateInBattleground:
         case CriteriaType::DieOnMap:
         case CriteriaType::DieAnywhere:
