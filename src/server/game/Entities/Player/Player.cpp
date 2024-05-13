@@ -20420,6 +20420,14 @@ void Player::ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8
     {
         ClearPreviousModelCustomizations(chrModel->ID);
     }
+
+    if (race == RACE_WORGEN)
+    {
+        if (ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(RACE_HUMAN, gender))
+        {
+            ClearPreviousModelCustomizations(chrModel->ID);
+        }
+    }
 }
 
 // Force apply race specific druid customizations if they are not set (at character creation & occasionally on race change when previously using race-specific forms)
