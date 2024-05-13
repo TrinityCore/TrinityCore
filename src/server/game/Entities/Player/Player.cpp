@@ -20401,32 +20401,29 @@ uint32 Player::GetCustomizationChoice(uint32 chrCustomizationOptionId) const
     return 0;
 }
 
+void Player::ClearPreviousCustomizations(std::vector<ChrCustomizationOptionEntry const*> const* oldCustomizations)
+{
+    for (const auto optionEntry : *oldCustomizations)
+    {
+        const int32 index = m_playerData->Customizations.FindIndexIf([optionEntry](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == optionEntry->ID; });
+        if (index >= 0)
+            RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
+    }
+}
+
 void Player::ClearPreviousModelCustomizations(const uint32 oldModel)
 {
     if (std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldModel))
     {
-        for (const auto optionEntry : *oldModelCustomizations)
-        {
-            const int32 index = m_playerData->Customizations.FindIndexIf([optionEntry](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == optionEntry->ID; });
-            if (index >= 0)
-                RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
-        }
+        ClearPreviousCustomizations(oldModelCustomizations);
     }
 }
 
 void Player::ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender)
 {
-    if (ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(race, gender))
+    if (std::vector<ChrCustomizationOptionEntry const*> const* oldRaceGenderCustomizations = sDB2Manager.GetCustomiztionOptions(race, gender))
     {
-        ClearPreviousModelCustomizations(chrModel->ID);
-    }
-
-    if (race == RACE_WORGEN)
-    {
-        if (ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(RACE_HUMAN, gender))
-        {
-            ClearPreviousModelCustomizations(chrModel->ID);
-        }
+        ClearPreviousCustomizations(oldRaceGenderCustomizations);
     }
 }
 

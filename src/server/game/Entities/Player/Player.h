@@ -2757,6 +2757,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetAverageItemLevelEquipped(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 1), newItemLevel); }
 
         uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const;
+        void ClearPreviousCustomizations(std::vector<ChrCustomizationOptionEntry const*> const* oldCustomizations);
         void ClearPreviousModelCustomizations(const uint32 oldModel);
         void ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender);
         void SetMissingCustomizations();
