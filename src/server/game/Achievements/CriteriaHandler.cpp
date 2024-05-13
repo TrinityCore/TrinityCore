@@ -553,6 +553,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::PlaceGarrisonBuilding:
             case CriteriaType::ActivateAnyGarrisonBuilding:
             case CriteriaType::LearnAnyHeirloom:
+            case CriteriaType::LearnAnyTransmog:
             case CriteriaType::HonorLevelIncrease:
             case CriteriaType::PrestigeLevelIncrease:
             case CriteriaType::LearnAnyTransmogInSlot:
@@ -1284,6 +1285,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::AbandonAnyQuest:
         case CriteriaType::BuyTaxi:
         case CriteriaType::AcceptSummon:
+        case CriteriaType::LearnAnyTransmog:
         default:
             break;
     }
@@ -1390,6 +1392,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
+        case CriteriaType::LearnAnyTransmog:
         case CriteriaType::CompleteAnyScenario:
             if (!miscValue1)
                 return false;
@@ -1512,6 +1515,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::UseItem:
         case CriteriaType::LootItem:
         case CriteriaType::EquipItem:
+        case CriteriaType::LearnHeirloom:
             if (!miscValue1 || uint32(criteria->Entry->Asset.ItemID )!= miscValue1)
                 return false;
             break;
