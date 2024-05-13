@@ -39,16 +39,8 @@ enum Spells
 
 enum Yells
 {
-    SAY_SPAWN_AVATAR = 0,
-    SAY_AGRO_AVATAR  = 1
+    SAY_AGRO_AVATAR  = 0
 };
-
-enum DisplayID
-{
-    DISPLAY_SHADE_OF_HAKKAR  = 7690,
-    DISPLAY_AVATAR_OF_HAKKAR = 8053
-};
-
 
 /*#####
 # boss_avatar_of_hakkar
