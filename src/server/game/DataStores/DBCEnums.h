@@ -694,7 +694,7 @@ enum class CriteriaType : int16
     EarnArtifactXP                                 = 190, /*NYI*/ // Earn Artifact XP
     AnyArtifactPowerRankPurchased                  = 191, /*NYI*/ // Artifact Power Ranks Purchased
     LearnTransmog                                  = 192, /*NYI*/ // Learn Transmog "{ItemModifiedAppearance}"
-    LearnAnyTransmog                               = 193, /*NYI*/ // Learn Any Transmog
+    LearnAnyTransmog                               = 193, // Learn Any Transmog
     HonorLevelIncrease                             = 194, // (Player) honor level increase
     PrestigeLevelIncrease                          = 195, /*NYI*/ // (Player) prestige level increase
     ActivelyReachLevel                             = 196, // Actively level to level {#Level}
