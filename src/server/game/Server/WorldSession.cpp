@@ -210,19 +210,14 @@ std::string WorldSession::GetPlayerInfo() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
 {
-    if (packet->GetOpcode() == NULL_OPCODE)
+    if (packet->GetOpcode() < MIN_SMSG_OPCODE_NUMBER || packet->GetOpcode() > MAX_SMSG_OPCODE_NUMBER)
     {
-        TC_LOG_ERROR("network.opcode", "Prevented sending of NULL_OPCODE to {}", GetPlayerInfo());
-        return;
-    }
-    else if (packet->GetOpcode() == UNKNOWN_OPCODE)
-    {
-        TC_LOG_ERROR("network.opcode", "Prevented sending of UNKNOWN_OPCODE to {}", GetPlayerInfo());
+        char const* specialName = packet->GetOpcode() == UNKNOWN_OPCODE ? "UNKNOWN_OPCODE" : "INVALID_OPCODE";
+        TC_LOG_ERROR("network.opcode", "Prevented sending of {} (0x{:04X}) to {}", specialName, packet->GetOpcode(), GetPlayerInfo());
         return;
     }
 
     ServerOpcodeHandler const* handler = opcodeTable[static_cast<OpcodeServer>(packet->GetOpcode())];
-
     if (!handler)
     {
         TC_LOG_ERROR("network.opcode", "Prevented sending of opcode {} with non existing handler to {}", packet->GetOpcode(), GetPlayerInfo());

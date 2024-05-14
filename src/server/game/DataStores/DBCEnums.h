@@ -534,7 +534,7 @@ enum class CriteriaType : int16
     TrackedWorldStateUIModified                    = 30,  // Tracked WorldStateUI value "{WorldStateUI}" is modified
     PVPKillInArea                                  = 31,  // Kill someone in PVP in "{AreaTable}"
     WinArena                                       = 32,  // Win arena "{Map}"
-    ParticipateInArena                             = 33,  /*NYI*/ // Participate in arena "{Map}"
+    ParticipateInArena                             = 33,  // Participate in arena "{Map}"
     LearnOrKnowSpell                               = 34,  // Learn or Know spell "{Spell}"
     EarnHonorableKill                              = 35,  // Earn an honorable kill
     AcquireItem                                    = 36,  // Acquire item "{Item}"
@@ -574,7 +574,7 @@ enum class CriteriaType : int16
     KillPlayer                                     = 70,  // Kill a player (no honor check)
     CompleteChallengeMode                          = 71,  /*NYI*/ // Complete a challenge mode on map "{Map}"
     CatchFishInFishingHole                         = 72,  // Catch fish in the "{GameObjects}" fishing hole
-    PlayerTriggerGameEvent                         = 73,  /*NYI*/ // Player will Trigger game event "{GameEvents}"
+    PlayerTriggerGameEvent                         = 73,  // Player will Trigger game event "{GameEvents}"
     Login                                          = 74,  // Login (USE SPARINGLY!)
     LearnSpellFromSkillLine                        = 75,  // Learn spell from the "{SkillLine}" skill line
     WinDuel                                        = 76,  // Win a duel
@@ -652,8 +652,8 @@ enum class CriteriaType : int16
     KickVoterInLFRDungeon                          = 148, /*NYI*/ // Kicked in an LFR dungeon (voter)
     KickTargetInLFRDungeon                         = 149, /*NYI*/ // Kicked in an LFR dungeon (target)
     GroupedTankLeftEarlyInLFRDungeon               = 150, /*NYI*/ // Grouped tank left early in an LFR dungeon
-    CompleteAnyScenario                            = 151, /*NYI*/ // Complete a Scenario
-    CompleteScenario                               = 152, /*NYI*/ // Complete scenario "{Scenario}"
+    CompleteAnyScenario                            = 151, // Complete a Scenario
+    CompleteScenario                               = 152, // Complete scenario "{Scenario}"
     EnterAreaTriggerWithActionSet                  = 153, /*NYI*/ // Enter area trigger "{AreaTriggerActionSet}"
     LeaveAreaTriggerWithActionSet                  = 154, /*NYI*/ // Leave area trigger "{AreaTriggerActionSet}"
     LearnedNewPet                                  = 155, // (Account Only) Learned a new pet
@@ -689,12 +689,12 @@ enum class CriteriaType : int16
     LearnToy                                       = 185, /*NYI*/ // Learn Toy "{Item}"
     LearnAnyToy                                    = 186, /*NYI*/ // Learn Any Toy
     QualityUpgradedForGarrisonFollower             = 187, /*NYI*/ // Garrison Follower: Quality Upgraded
-    LearnHeirloom                                  = 188, /*NYI*/ // Learn Heirloom "{Item}"
-    LearnAnyHeirloom                               = 189, /*NYI*/ // Learn Any Heirloom
-    EarnArtifactXP                                 = 190, /*NYI*/ // Earn Artifact XP
-    AnyArtifactPowerRankPurchased                  = 191, /*NYI*/ // Artifact Power Ranks Purchased
+    LearnHeirloom                                  = 188, // Learn Heirloom "{Item}"
+    LearnAnyHeirloom                               = 189, // Learn Any Heirloom
+    EarnArtifactXP                                 = 190, // Earn Artifact XP
+    AnyArtifactPowerRankPurchased                  = 191, // Artifact Power Ranks Purchased
     LearnTransmog                                  = 192, /*NYI*/ // Learn Transmog "{ItemModifiedAppearance}"
-    LearnAnyTransmog                               = 193, /*NYI*/ // Learn Any Transmog
+    LearnAnyTransmog                               = 193, // Learn Any Transmog
     HonorLevelIncrease                             = 194, // (Player) honor level increase
     PrestigeLevelIncrease                          = 195, /*NYI*/ // (Player) prestige level increase
     ActivelyReachLevel                             = 196, // Actively level to level {#Level}
@@ -748,7 +748,13 @@ enum class CriteriaType : int16
     CompleteTrackingQuest                          = 250, /*NYI*/
 
     GainLevels                                     = 253, // Gain levels
-    Count                                          = 257
+
+    CompleteQuestsCountOnAccount                   = 257, /*NYI*/
+
+    WarbandBankTabPurchased                        = 260, /*NYI*/
+
+    LearnTaxiNode                                  = 262,
+    Count                                          = 263
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -1162,6 +1168,11 @@ enum class ItemContext : uint8
     Template_Character_2                = 98,
     Template_Character_3                = 99,
     Template_Character_4                = 100,
+    Dungeon_Normal_Jackpot              = 101,
+    Dungeon_Heroic_Jackpot              = 102,
+    Dungeon_Mythic_Jackpot              = 103,
+    Delves                              = 104,
+    Timerunning                         = 105,
 
     Max
 };

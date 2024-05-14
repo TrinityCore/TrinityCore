@@ -140,6 +140,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
         data.Status = TAXISTATUS_LEARNED;
         SendPacket(data.Write());
 
+        GetPlayer()->UpdateCriteria(CriteriaType::LearnTaxiNode, curloc);
         return true;
     }
     else

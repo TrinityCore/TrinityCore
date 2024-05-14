@@ -332,7 +332,6 @@ struct boss_essence_of_suffering : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
 
         events.ScheduleEvent(EVENT_SOUL_DRAIN, 20s);
@@ -401,7 +400,6 @@ struct boss_essence_of_desire : public BossAI
         events.ScheduleEvent(EVENT_RUNE_SHIELD, 16s);
         events.ScheduleEvent(EVENT_DEADEN, 31s);
 
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         Talk(DESI_SAY_FREED);
     }
@@ -507,7 +505,6 @@ struct boss_essence_of_anger : public BossAI
         events.ScheduleEvent(EVENT_SPITE, 20s);
         events.ScheduleEvent(EVENT_FREED_2, Seconds(1), Minutes(3));
 
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
     }
 

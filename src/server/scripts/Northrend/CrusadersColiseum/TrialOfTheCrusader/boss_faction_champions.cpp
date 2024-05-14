@@ -632,7 +632,6 @@ struct boss_faction_championsAI : public BossAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_ANTI_AOE, true);
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         DoZoneInCombat();
         if (Creature* pChampionController = instance->GetCreature(DATA_FACTION_CRUSADERS))

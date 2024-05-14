@@ -2210,7 +2210,7 @@ uint32 Item::GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemL
         typeFactor = weaponPrice->Data;
     }
 
-    standardPrice = false;
+    standardPrice = true;
     return uint32(proto->GetPriceVariance() * typeFactor * baseFactor * qualityFactor * proto->GetPriceRandomValue());
 }
 
@@ -2756,6 +2756,8 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
     owner->SendDirectMessage(artifactXpGain.Write());
 
     SetState(ITEM_CHANGED, owner);
+
+    owner->UpdateCriteria(CriteriaType::EarnArtifactXP, amount);
 }
 
 void Item::SetFixedLevel(uint8 level)
