@@ -4699,14 +4699,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
     // MAW OF SOULS SPELLS
     //
-    // 193460 - Bane
-    ApplySpellFix({ 193460 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->ApplyAuraPeriod = 1000;
-        });
-    });
 
     // 193465 - Bane
     ApplySpellFix({ 193465 }, [](SpellInfo* spellInfo)

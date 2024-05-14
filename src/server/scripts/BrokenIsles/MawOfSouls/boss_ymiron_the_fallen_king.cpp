@@ -469,6 +469,18 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
 
     static constexpr int8 BANE_MAX_TOTAL_TICKS = 4 + 4 + 14;
 
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& /*isPeriodic*/, int32& amplitude)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->GetMap()->IsMythic() || caster->GetMap()->IsMythicPlus())
+            amplitude = 1 * IN_MILLISECONDS;
+
+        // defaults to 2000 for Normal and Heroic via. db2 data
+    }
+
     void SpawnBaneOrb(int8 tickNumber)
     {
         float dist = _distances[tickNumber - 1];
@@ -495,7 +507,7 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
 
     void OnPeriodic(AuraEffect const* aurEff)
     {
-        if (aurEff->GetTickNumber() <= 2)
+        if (aurEff->GetTickNumber() == 1 || (aurEff->GetTickNumber() == 2 && (GetTarget()->GetMap()->IsMythic() || GetTarget()->GetMap()->IsMythicPlus())))
         {
             for (int8 i = 0; i < 4; i++)
                 SpawnBaneOrb(aurEff->GetTickNumber() + i);
@@ -511,10 +523,12 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
 
     void Register() override
     {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_ymiron_the_fallen_king_bane_periodic_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         AfterEffectApply += AuraEffectApplyFn(spell_ymiron_the_fallen_king_bane_periodic_AuraScript::OnAfterApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_ymiron_the_fallen_king_bane_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         AfterEffectRemove += AuraEffectRemoveFn(spell_ymiron_the_fallen_king_bane_periodic_AuraScript::OnAfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
+
 private:
     std::array<float, BANE_MAX_TOTAL_TICKS * 2> _angles;
     std::array<float, BANE_MAX_TOTAL_TICKS * 2> _distances;
