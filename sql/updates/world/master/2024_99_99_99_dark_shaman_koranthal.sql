@@ -16,4 +16,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Spell
 DELETE FROM `spell_script_names` WHERE `spell_id`=119973;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(119973, 'spell_rfc_shadow_storm');
+(119973, 'spell_dark_shaman_koranthal_shadow_storm');

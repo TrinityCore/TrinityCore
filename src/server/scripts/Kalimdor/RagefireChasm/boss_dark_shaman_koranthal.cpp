@@ -20,21 +20,21 @@
 #include "SpellScript.h"
 #include "ragefire_chasm.h"
 
-enum Spells
+enum KoranthalSpells
 {
     SPELL_SHADOW_VORTEX     = 119928,
     SPELL_TWISTED_ELEMENTS  = 119300,
     SPELL_SHADOW_STORM      = 119971
 };
 
-enum Texts
+enum KoranthalTexts
 {
     SAY_AGGRO               = 0,
     SAY_SHADOW_STORM        = 1,
     SAY_DEATH               = 2
 };
 
-enum Events
+enum KoranthalEvents
 {
     EVENT_TWISTED_ELEMENTS  = 1,
     EVENT_SHADOW_STORM      = 2
@@ -43,7 +43,9 @@ enum Events
 // 61412 - Dark Shaman Koranthal
 struct boss_dark_shaman_koranthal : public BossAI
 {
-    boss_dark_shaman_koranthal(Creature* creature) : BossAI(creature, BOSS_DARK_SHAMAN_KORANTHAL)
+    boss_dark_shaman_koranthal(Creature* creature) : BossAI(creature, BOSS_DARK_SHAMAN_KORANTHAL) { }
+
+    void JustAppeared() override
     {
         DoCastSelf(SPELL_SHADOW_VORTEX);
     }
@@ -56,6 +58,7 @@ struct boss_dark_shaman_koranthal : public BossAI
     void JustReachedHome() override
     {
         _JustReachedHome();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCastSelf(SPELL_SHADOW_VORTEX);
     }
 
@@ -65,6 +68,7 @@ struct boss_dark_shaman_koranthal : public BossAI
 
         Talk(SAY_AGGRO);
         me->RemoveAurasDueToSpell(SPELL_SHADOW_VORTEX);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         events.ScheduleEvent(EVENT_TWISTED_ELEMENTS, 4s);
         events.ScheduleEvent(EVENT_SHADOW_STORM, 20s);
@@ -74,6 +78,7 @@ struct boss_dark_shaman_koranthal : public BossAI
     {
         _JustDied();
         Talk(SAY_DEATH);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void UpdateAI(uint32 diff) override
@@ -111,22 +116,21 @@ struct boss_dark_shaman_koranthal : public BossAI
 };
 
 // 119973 - Shadow Storm
-class spell_rfc_shadow_storm : public SpellScript
+class spell_dark_shaman_koranthal_shadow_storm : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_rfc_shadow_storm::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_dark_shaman_koranthal_shadow_storm::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 void AddSC_boss_dark_shaman_koranthal()
 {
     RegisterRagefireChasmCreatureAI(boss_dark_shaman_koranthal);
-    RegisterSpellScript(spell_rfc_shadow_storm);
+    RegisterSpellScript(spell_dark_shaman_koranthal_shadow_storm);
 }
