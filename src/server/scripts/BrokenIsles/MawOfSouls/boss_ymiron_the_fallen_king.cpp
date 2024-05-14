@@ -346,8 +346,8 @@ public:
 
         _runecarver->SendPlaySpellVisual(ymiron->GetPosition(), SPELL_VISUAL_SOUL_SIPHON, 0, 0, _travelSpeed, false, 0.0f);
 
-        _runecarver->m_Events.AddEventAtOffset(new YmironSoulSiphonVisual(_ymironGUID, _runecarver, _travelSpeed), 400ms);
-        return true;
+        _runecarver->m_Events.AddEventAtOffset(this, 400ms);
+        return false;
     }
 
 private:
@@ -439,9 +439,9 @@ public:
         _remainingVisualsToSpawn--;
 
         if (_remainingVisualsToSpawn > 0)
-            _caster->m_Events.AddEventAtOffset(new YmironBanePrecastVisual(_caster, _remainingVisualsToSpawn), 200ms);
+            _caster->m_Events.AddEventAtOffset(this, 200ms);
 
-        return true;
+        return false;
     }
 
 private:
@@ -482,12 +482,12 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
         for (int8 i = 0; i < BANE_MAX_TOTAL_TICKS; i++)
         {
             float angle = Position::NormalizeOrientation(GetCaster()->GetOrientation() + (i * BANE_MISSILE_ANGLE_OFFSET));
-            _angles.push_back(angle);
-            _angles.push_back(angle);
+            _angles[2 * i + 0] = angle;
+            _angles[2 * i + 1] = angle;
 
             float dist = BANE_MISSILE_DIST_BASE + (i * BANE_MISSILE_DIST_OFFSET);
-            _distances.push_back(dist);
-            _distances.push_back(dist);
+            _distances[2 * i + 0] = dist;
+            _distances[2 * i + 1] = dist;
         }
         Trinity::Containers::RandomShuffle(_angles);
         Trinity::Containers::RandomShuffle(_distances);
@@ -516,8 +516,8 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_ymiron_the_fallen_king_bane_periodic_AuraScript::OnAfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 private:
-    std::vector<float> _angles;
-    std::vector<float> _distances;
+    std::array<float, BANE_MAX_TOTAL_TICKS * 2> _angles;
+    std::array<float, BANE_MAX_TOTAL_TICKS * 2> _distances;
 };
 
 struct at_ymiron_the_fallen_king_bane : AreaTriggerAI
