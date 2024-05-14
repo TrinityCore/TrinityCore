@@ -440,9 +440,11 @@ public:
         _remainingVisualsToSpawn--;
 
         if (_remainingVisualsToSpawn > 0)
+        {
             _caster->m_Events.AddEventAtOffset(this, 200ms);
-
-        return false;
+            return false;
+        }
+        return true;
     }
 
 private:
