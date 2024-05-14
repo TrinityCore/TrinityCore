@@ -46,6 +46,7 @@ struct BarberShopStyleEntry;
 struct BattlegroundTemplate;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
+struct ChrCustomizationOptionEntry;
 struct ChrSpecializationEntry;
 struct CreatureTemplate;
 struct CurrencyTypesEntry;
