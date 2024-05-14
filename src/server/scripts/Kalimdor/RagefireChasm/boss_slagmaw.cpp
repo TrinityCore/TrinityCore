@@ -132,7 +132,6 @@ struct boss_slagmaw : public BossAI
                 do
                 {
                     teleportSpell = Trinity::Containers::SelectRandomContainerElement(TeleportSpells);
-                    
                 } while (teleportSpell == _lastTeleportSpell);
 
                 _lastTeleportSpell = teleportSpell;
