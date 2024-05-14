@@ -346,24 +346,24 @@ void ObjectMgr::LoadCreatureTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0           1            2            3     4        5
-    //                                       "SELECT CreatureId, KillCredit1, KillCredit2, Name, NameAlt, Title, "
-    //                                        6         7         8                  9
-    //                                       "TitleAlt, IconName, RequiredExpansion, VignetteId, "
-    //                                        10                 11        12         13        14     15      16            17              18               19            20
-    //                                       "FactionTemplateId, NpcFlags, SpeedWalk, SpeedRun, Scale, `rank`, DamageSchool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
-    //                                        21     22         23          24
-    //                                       "Class, UnitFlags, UnitFlags2, UnitFlags3, "
-    //                                        25                26            27              28         29      30
-    //                                       "CreatureFamilyId, TrainerClass, CreatureTypeId, VehicleId, AIName, MovementType, "
-    //                                        31                         32         33          34                        35
-    //                                       "ctm.HoverInitiallyEnabled, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ExperienceModifier, "
-    //                                        36            37              38           39                        40
-    //                                       "RacialLeader, MovementInfoId, WidgetSetId, WidgetSetUnitConditionId, RegenHealth, "
-    //                                        41                    42
-    //                                       "CreatureImmunitiesId, FlagsExtra, "
-    //                                        43          44
-    //                                       "ScriptName, StringId FROM creature_template WHERE entry = ? OR 1 = ?");
+    //                                               0              1               2               3        4           5
+    //                                       "SELECT ct.CreatureID, ct.KillCredit1, ct.KillCredit2, ct.Name, ct.NameAlt, ct.Title, "
+    //                                        6            7            8                     9
+    //                                       "ct.TitleAlt, ct.IconName, ct.RequiredExpansion, ct.VignetteID, "
+    //                                        10                     11          12            13          14         15         16               17                 18                  19               20
+    //                                       "ct.FactionTemplateID, ct.NpcFlags, ct.SpeedWalk, ct.SpeedRun, ct.Scale, ct.`rank`, ct.DamageSchool, ct.BaseAttackTime, ct.RangeAttackTime, ct.BaseVariance, ct.RangeVariance, "
+    //                                        21        22            23             24
+    //                                       "ct.Class, ct.UnitFlags, ct.UnitFlags2, ct.UnitFlags3, "
+    //                                        25                   26               27                 28            29         30
+    //                                       "ct.CreatureFamilyID, ct.TrainerClass, ct.CreatureTypeID, ct.VehicleID, ct.AIName, ct.MovementType, "
+    //                                        31                         32         33          34                         35
+    //                                       "ctm.HoverInitiallyEnabled, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ct.ExperienceModifier, "
+    //                                        36               37                 38              39                          40
+    //                                       "ct.RacialLeader, ct.MovementInfoID, ct.WidgetSetID, ct.WidgetSetUnitConditionId, ct.RegenHealth, "
+    //                                        41                       42
+    //                                       "ct.CreatureImmunitiesID, ct.FlagsExtra, "
+    //                                        43             44
+    //                                       "ct.ScriptName, ct.StringID FROM creature_template WHERE ct.CreatureID = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
     stmt->setUInt32(0, 0);
@@ -401,7 +401,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     uint32 creatureId = fields[0].GetUInt32();
     CreatureTemplate& creatureTemplate = _creatureTemplateStore[creatureId];
 
-    creatureTemplate.CreatureId = creatureId;
+    creatureTemplate.CreatureID = creatureId;
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
         creatureTemplate.KillCredit[i]      = fields[1 + i].GetUInt32();
@@ -412,8 +412,8 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.TitleAlt               = fields[6].GetString();
     creatureTemplate.IconName               = fields[7].GetString();
     creatureTemplate.RequiredExpansion      = fields[8].GetUInt32();
-    creatureTemplate.VignetteId             = fields[9].GetUInt32();
-    creatureTemplate.FactionTemplateId      = fields[10].GetUInt16();
+    creatureTemplate.VignetteID             = fields[9].GetUInt32();
+    creatureTemplate.FactionTemplateID      = fields[10].GetUInt16();
     creatureTemplate.NpcFlags               = fields[11].GetUInt64();
     creatureTemplate.SpeedWalk              = fields[12].GetFloat();
     creatureTemplate.SpeedRun               = fields[13].GetFloat();
@@ -428,9 +428,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.UnitFlags              = fields[22].GetUInt32();
     creatureTemplate.UnitFlags2             = fields[23].GetUInt32();
     creatureTemplate.UnitFlags3             = fields[24].GetUInt32();
-    creatureTemplate.CreatureFamilyId       = fields[25].GetInt32();
+    creatureTemplate.CreatureFamilyID       = fields[25].GetInt32();
     creatureTemplate.TrainerClass           = fields[26].GetUInt8();
-    creatureTemplate.CreatureTypeId         = fields[27].GetInt32();
+    creatureTemplate.CreatureTypeID         = fields[27].GetInt32();
 
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         creatureTemplate.Resistance[i] = 0;
@@ -438,7 +438,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         creatureTemplate.Spells[i] = 0;
 
-    creatureTemplate.VehicleId              = fields[28].GetUInt32();
+    creatureTemplate.VehicleID              = fields[28].GetUInt32();
     creatureTemplate.AIName                 = fields[29].GetString();
     creatureTemplate.MovementType           = uint32(fields[30].GetUInt8());
 
@@ -456,14 +456,14 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
 
     creatureTemplate.ModExperience          = fields[35].GetFloat();
     creatureTemplate.RacialLeader           = fields[36].GetBool();
-    creatureTemplate.CreatureMovementInfoId = fields[37].GetUInt32();
-    creatureTemplate.WidgetSetId            = fields[38].GetInt32();
-    creatureTemplate.WidgetSetUnitConditionId = fields[39].GetInt32();
+    creatureTemplate.CreatureMovementInfoID = fields[37].GetUInt32();
+    creatureTemplate.WidgetSetID            = fields[38].GetInt32();
+    creatureTemplate.WidgetSetUnitConditionID = fields[39].GetInt32();
     creatureTemplate.RegenHealth            = fields[40].GetBool();
-    creatureTemplate.CreatureImmunitiesId   = fields[41].GetInt32();
+    creatureTemplate.CreatureImmunitiesID   = fields[41].GetInt32();
     creatureTemplate.FlagsExtra             = fields[42].GetUInt32();
-    creatureTemplate.ScriptId               = GetScriptId(fields[43].GetString());
-    creatureTemplate.StringId               = fields[44].GetString();
+    creatureTemplate.ScriptID               = GetScriptId(fields[43].GetString());
+    creatureTemplate.StringID               = fields[44].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateGossip()
@@ -1013,7 +1013,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         auto registryItem = sCreatureAIRegistry->GetRegistryItem(cInfo->AIName);
         if (!registryItem)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has non-registered `AIName` '{}' set, removing", cInfo->CreatureId, cInfo->AIName);
+            TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has non-registered `AIName` '{}' set, removing", cInfo->CreatureID, cInfo->AIName);
             const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
         }
         else
@@ -1021,17 +1021,17 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             DBPermit const* permit = dynamic_cast<DBPermit const*>(registryItem);
             if (!ASSERT_NOTNULL(permit)->IsScriptNameAllowedInDB())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has not-allowed `AIName` '{}' set, removing", cInfo->CreatureId, cInfo->AIName);
+                TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has not-allowed `AIName` '{}' set, removing", cInfo->CreatureID, cInfo->AIName);
                 const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
             }
         }
     }
 
-    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->FactionTemplateId);
+    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->FactionTemplateID);
     if (!factionTemplate)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has non-existing faction template ({}). This can lead to crashes, set to faction 35.", cInfo->CreatureId, cInfo->FactionTemplateId);
-        const_cast<CreatureTemplate*>(cInfo)->FactionTemplateId = sFactionTemplateStore.AssertEntry(35)->ID; // this might seem stupid but all shit will would break if faction 35 did not exist
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has non-existing faction template ID ({}). This can lead to crashes, set to faction 35.", cInfo->CreatureID, cInfo->FactionTemplateID);
+        const_cast<CreatureTemplate*>(cInfo)->FactionTemplateID = sFactionTemplateStore.AssertEntry(35)->ID; // this might seem stupid but all shit will would break if faction 35 did not exist
     }
 
     for (uint8 k = 0; k < MAX_KILL_CREDIT; ++k)
@@ -1040,24 +1040,24 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             if (!GetCreatureTemplate(cInfo->KillCredit[k]))
             {
-                TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) lists non-existing creature Id {} in `KillCredit{}`.", cInfo->CreatureId, cInfo->KillCredit[k], k + 1);
+                TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) lists non-existing creature Id {} in `KillCredit{}`.", cInfo->CreatureID, cInfo->KillCredit[k], k + 1);
                 const_cast<CreatureTemplate*>(cInfo)->KillCredit[k] = 0;
             }
         }
     }
 
     if (cInfo->Models.empty())
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) does not have any existing display id in creature_template_model.", cInfo->CreatureId);
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) does not have any existing display id in creature_template_model.", cInfo->CreatureID);
 
     if (!cInfo->Class || ((1 << (cInfo->Class -1)) & CLASSMASK_ALL_CREATURES) == 0)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has invalid Class ({}) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->CreatureId, cInfo->Class);
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has invalid Class ({}) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->CreatureID, cInfo->Class);
         const_cast<CreatureTemplate*>(cInfo)->Class = UNIT_CLASS_WARRIOR;
     }
 
     if (cInfo->DamageSchool >= MAX_SPELL_SCHOOL)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has invalid spell school value ({}) in `dmgschool`.", cInfo->CreatureId, cInfo->DamageSchool);
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has invalid spell school value ({}) in `dmgschool`.", cInfo->CreatureID, cInfo->DamageSchool);
         const_cast<CreatureTemplate*>(cInfo)->DamageSchool = SPELL_SCHOOL_NORMAL;
     }
 
@@ -1069,37 +1069,37 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     if (cInfo->SpeedWalk == 0.0f)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has wrong value ({}) in SpeedWalk, set to 1.", cInfo->CreatureId, cInfo->SpeedWalk);
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has wrong value ({}) in SpeedWalk, set to 1.", cInfo->CreatureID, cInfo->SpeedWalk);
         const_cast<CreatureTemplate*>(cInfo)->SpeedWalk = 1.0f;
     }
 
     if (cInfo->SpeedRun == 0.0f)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has wrong value ({}) in SpeedRun, set to 1.14286.", cInfo->CreatureId, cInfo->SpeedRun);
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has wrong value ({}) in SpeedRun, set to 1.14286.", cInfo->CreatureID, cInfo->SpeedRun);
         const_cast<CreatureTemplate*>(cInfo)->SpeedRun = 1.14286f;
     }
 
-    if (cInfo->CreatureTypeId && !sCreatureTypeStore.LookupEntry(cInfo->CreatureTypeId))
+    if (cInfo->CreatureTypeID && !sCreatureTypeStore.LookupEntry(cInfo->CreatureTypeID))
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has invalid creature type ({}) in `CreatureTypeId`.", cInfo->CreatureId, cInfo->CreatureTypeId);
-        const_cast<CreatureTemplate*>(cInfo)->CreatureTypeId = CREATURE_TYPE_HUMANOID;
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has invalid creature type ({}) in `CreatureTypeID`.", cInfo->CreatureID, cInfo->CreatureTypeID);
+        const_cast<CreatureTemplate*>(cInfo)->CreatureTypeID = CREATURE_TYPE_HUMANOID;
     }
 
-    if (cInfo->CreatureFamilyId && !sCreatureFamilyStore.LookupEntry(cInfo->CreatureFamilyId))
+    if (cInfo->CreatureFamilyID && !sCreatureFamilyStore.LookupEntry(cInfo->CreatureFamilyID))
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has invalid creature family ({}) in `CreatureFamilyId`.", cInfo->CreatureId, cInfo->CreatureFamilyId);
-        const_cast<CreatureTemplate*>(cInfo)->CreatureFamilyId = CREATURE_FAMILY_NONE;
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has invalid creature family ({}) in `CreatureFamilyID`.", cInfo->CreatureID, cInfo->CreatureFamilyID);
+        const_cast<CreatureTemplate*>(cInfo)->CreatureFamilyID = CREATURE_FAMILY_NONE;
     }
 
-    CheckCreatureMovement("creature_template_movement", cInfo->CreatureId, const_cast<CreatureTemplate*>(cInfo)->Movement);
+    CheckCreatureMovement("creature_template_movement", cInfo->CreatureID, const_cast<CreatureTemplate*>(cInfo)->Movement);
 
-    if (cInfo->VehicleId)
+    if (cInfo->VehicleID)
     {
-        VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->VehicleId);
+        VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->VehicleID);
         if (!vehId)
         {
-             TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has a non-existing VehicleId ({}). This *WILL* cause the client to freeze!", cInfo->CreatureId, cInfo->VehicleId);
-             const_cast<CreatureTemplate*>(cInfo)->VehicleId = 0;
+             TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has a non-existing VehicleID ({}). This *WILL* cause the client to freeze!", cInfo->CreatureID, cInfo->VehicleID);
+             const_cast<CreatureTemplate*>(cInfo)->VehicleID = 0;
         }
     }
 
@@ -1107,56 +1107,56 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         if (cInfo->Spells[j] && !sSpellMgr->GetSpellInfo(cInfo->Spells[j], DIFFICULTY_NONE))
         {
-            TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has non-existing Spell{} ({}), set to 0.", cInfo->CreatureId, j+1, cInfo->Spells[j]);
+            TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has non-existing Spell{} ({}), set to 0.", cInfo->CreatureID, j+1, cInfo->Spells[j]);
             const_cast<CreatureTemplate*>(cInfo)->Spells[j] = 0;
         }
     }
 
     if (cInfo->MovementType >= MAX_DB_MOTION_TYPE)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (CreatureId: {}) has wrong movement generator type ({}), ignored and set to IDLE.", cInfo->CreatureId, cInfo->MovementType);
+        TC_LOG_ERROR("sql.sql", "Creature (CreatureID: {}) has wrong movement generator type ({}), ignored and set to IDLE.", cInfo->CreatureID, cInfo->MovementType);
         const_cast<CreatureTemplate*>(cInfo)->MovementType = IDLE_MOTION_TYPE;
     }
 
     if (cInfo->RequiredExpansion >= MAX_EXPANSIONS)
     {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureId: {}) with `RequiredExpansion` {}. Ignored and set to 0.", cInfo->CreatureId, cInfo->RequiredExpansion);
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureID: {}) with `RequiredExpansion` {}. Ignored and set to 0.", cInfo->CreatureID, cInfo->RequiredExpansion);
         const_cast<CreatureTemplate*>(cInfo)->RequiredExpansion = 0;
     }
 
     if (uint32 badFlags = (cInfo->FlagsExtra & ~CREATURE_FLAG_EXTRA_DB_ALLOWED))
     {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureId: {}) with disallowed `FlagsExtra` {}, removing incorrect flag.", cInfo->CreatureId, badFlags);
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureID: {}) with disallowed `FlagsExtra` {}, removing incorrect flag.", cInfo->CreatureID, badFlags);
         const_cast<CreatureTemplate*>(cInfo)->FlagsExtra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
     }
 
     if (uint32 disallowedUnitFlags = (cInfo->UnitFlags & ~UNIT_FLAG_ALLOWED))
     {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureId: {}) with disallowed `UnitFlags` {}, removing incorrect flag.", cInfo->CreatureId, disallowedUnitFlags);
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureID: {}) with disallowed `UnitFlags` {}, removing incorrect flag.", cInfo->CreatureID, disallowedUnitFlags);
         const_cast<CreatureTemplate*>(cInfo)->UnitFlags &= UNIT_FLAG_ALLOWED;
     }
 
     if (uint32 disallowedUnitFlags2 = (cInfo->UnitFlags2 & ~UNIT_FLAG2_ALLOWED))
     {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureId: {}) with disallowed `UnitFlags2` {}, removing incorrect flag.", cInfo->CreatureId, disallowedUnitFlags2);
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureID: {}) with disallowed `UnitFlags2` {}, removing incorrect flag.", cInfo->CreatureID, disallowedUnitFlags2);
         const_cast<CreatureTemplate*>(cInfo)->UnitFlags2 &= UNIT_FLAG2_ALLOWED;
     }
 
     if (uint32 disallowedUnitFlags3 = (cInfo->UnitFlags3 & ~UNIT_FLAG3_ALLOWED))
     {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureId: {}) with disallowed `UnitFlags3` {}, removing incorrect flag.", cInfo->CreatureId, disallowedUnitFlags3);
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (CreatureID: {}) with disallowed `UnitFlags3` {}, removing incorrect flag.", cInfo->CreatureID, disallowedUnitFlags3);
         const_cast<CreatureTemplate*>(cInfo)->UnitFlags3 &= UNIT_FLAG3_ALLOWED;
     }
 
     if (!cInfo->GossipMenuIds.empty() && !(cInfo->NpcFlags & UNIT_NPC_FLAG_GOSSIP))
-        TC_LOG_INFO("sql.sql", "Creature (CreatureId: {}) has assigned gossip menu, but NpcFlags does not include UNIT_NPC_FLAG_GOSSIP.", cInfo->CreatureId);
+        TC_LOG_INFO("sql.sql", "Creature (CreatureID: {}) has assigned gossip menu, but NpcFlags does not include UNIT_NPC_FLAG_GOSSIP.", cInfo->CreatureID);
     else if (cInfo->GossipMenuIds.empty() && cInfo->NpcFlags & UNIT_NPC_FLAG_GOSSIP)
-        TC_LOG_INFO("sql.sql", "Creature (CreatureId: {}) has NpcFlags UNIT_NPC_FLAG_GOSSIP, but gossip menu is unassigned.", cInfo->CreatureId);
+        TC_LOG_INFO("sql.sql", "Creature (CreatureID: {}) has NpcFlags UNIT_NPC_FLAG_GOSSIP, but gossip menu is unassigned.", cInfo->CreatureID);
 
-    if (cInfo->VignetteId && !sVignetteStore.HasRecord(cInfo->VignetteId))
+    if (cInfo->VignetteID && !sVignetteStore.HasRecord(cInfo->VignetteID))
     {
-        TC_LOG_INFO("sql.sql", "Creature (CreatureId: {}) has non-existing Vignette {}, set to 0.", cInfo->CreatureId, cInfo->VignetteId);
-        const_cast<CreatureTemplate*>(cInfo)->VignetteId = 0;
+        TC_LOG_INFO("sql.sql", "Creature (CreatureID: {}) has non-existing Vignette {}, set to 0.", cInfo->CreatureID, cInfo->VignetteID);
+        const_cast<CreatureTemplate*>(cInfo)->VignetteID = 0;
     }
 }
 
@@ -8042,7 +8042,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
         if (!cinfo)
             return std::string();
 
-        char const* petname = DB2Manager::GetCreatureFamilyPetName(cinfo->CreatureFamilyId, sWorld->GetDefaultDbcLocale());
+        char const* petname = DB2Manager::GetCreatureFamilyPetName(cinfo->CreatureFamilyID, sWorld->GetDefaultDbcLocale());
         if (petname)
             return std::string(petname);
         else

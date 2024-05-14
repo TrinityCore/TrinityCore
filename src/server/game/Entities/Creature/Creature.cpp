@@ -171,7 +171,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     WorldPackets::Query::QueryCreatureResponse queryTemp;
 
-    queryTemp.CreatureID = CreatureId;
+    queryTemp.CreatureID = CreatureID;
 
     queryTemp.Allow = true;
 
@@ -185,8 +185,8 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
     stats.Flags[0] = creatureDifficulty->TypeFlags;
     stats.Flags[1] = creatureDifficulty->TypeFlags2;
 
-    stats.CreatureType = CreatureTypeId;
-    stats.CreatureFamily = CreatureFamilyId;
+    stats.CreatureType = CreatureTypeID;
+    stats.CreatureFamily = CreatureFamilyID;
     stats.Classification = uint32(Classification);
 
     for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
@@ -202,27 +202,27 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
     stats.HpMulti = creatureDifficulty->HealthModifier;
     stats.EnergyMulti = creatureDifficulty->ManaModifier;
 
-    stats.CreatureMovementInfoID = CreatureMovementInfoId;
+    stats.CreatureMovementInfoID = CreatureMovementInfoID;
     stats.RequiredExpansion = RequiredExpansion;
     stats.HealthScalingExpansion = creatureDifficulty->HealthScalingExpansion;
-    stats.VignetteID = VignetteId;
+    stats.VignetteID = VignetteID;
     stats.Class = Class;
     stats.CreatureDifficultyID = creatureDifficulty->CreatureDifficultyID;
-    stats.WidgetSetID = WidgetSetId;
-    stats.WidgetSetUnitConditionID = WidgetSetUnitConditionId;
+    stats.WidgetSetID = WidgetSetID;
+    stats.WidgetSetUnitConditionID = WidgetSetUnitConditionID;
 
     stats.Title = Title;
     stats.TitleAlt = TitleAlt;
     stats.CursorName = IconName;
 
-    if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(CreatureId, difficulty))
+    if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(CreatureID, difficulty))
         stats.QuestItems.assign(items->begin(), items->end());
 
-    if (std::vector<int32> const* currencies = sObjectMgr->GetCreatureQuestCurrencyList(CreatureId))
+    if (std::vector<int32> const* currencies = sObjectMgr->GetCreatureQuestCurrencyList(CreatureID))
         stats.QuestCurrencies.assign(currencies->begin(), currencies->end());
 
     if (loc != LOCALE_enUS)
-        if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(CreatureId))
+        if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(CreatureID))
         {
             ObjectMgr::GetLocaleString(creatureLocale->Name, loc, stats.Name[0]);
             ObjectMgr::GetLocaleString(creatureLocale->NameAlt, loc, stats.NameAlt[0]);
@@ -565,7 +565,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     CreatureStaticFlagsHolder staticFlags = GenerateStaticFlags(m_creatureDifficulty, GetSpawnId(), GetMap()->GetDifficultyID());
     ApplyAllStaticFlags(staticFlags);
 
-    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_XP, creatureInfo->CreatureTypeId == CREATURE_TYPE_CRITTER
+    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_XP, creatureInfo->CreatureTypeID == CREATURE_TYPE_CRITTER
         || IsPet()
         || IsTotem()
         || creatureInfo->FlagsExtra & CREATURE_FLAG_EXTRA_NO_XP);
@@ -592,7 +592,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (!GetCreatureAddon())
         SetSheath(SHEATH_STATE_MELEE);
 
-    SetFaction(cInfo->FactionTemplateId);
+    SetFaction(cInfo->FactionTemplateID);
 
     uint64 npcFlags;
     uint32 unitFlags, unitFlags2, unitFlags3;
@@ -649,7 +649,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     }
 
     // checked and error show at loading templates
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->FactionTemplateId))
+    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->FactionTemplateID))
     {
         SetPvP((factionTemplate->Flags & FACTION_TEMPLATE_FLAG_PVP) != 0);
         if (IsTaxi())
@@ -691,14 +691,14 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     LoadCreaturesAddon();
     LoadCreaturesSparringHealth(true);
-    LoadTemplateImmunities(cInfo->CreatureImmunitiesId);
+    LoadTemplateImmunities(cInfo->CreatureImmunitiesID);
 
     GetThreatManager().EvaluateSuppressed();
 
     //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
     LastUsedScriptID = GetScriptId();
 
-    m_stringIds[AsUnderlyingType(StringIdType::Template)] = &cInfo->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Template)] = &cInfo->StringID;
 
     return true;
 }
@@ -1184,7 +1184,7 @@ Creature* Creature::CreateCreature(uint32 entry, Map* map, Position const& pos, 
         return nullptr;
 
     ObjectGuid::LowType lowGuid;
-    if (vehId || cInfo->VehicleId)
+    if (vehId || cInfo->VehicleID)
         lowGuid = map->GenerateLowGuid<HighGuid::Vehicle>();
     else
         lowGuid = map->GenerateLowGuid<HighGuid::Creature>();
@@ -1790,7 +1790,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
 
     SetOriginalEntry(entry);
 
-    if (vehId || cinfo->VehicleId)
+    if (vehId || cinfo->VehicleID)
         Object::_Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
     else
         Object::_Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
@@ -1800,13 +1800,13 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
 
     if (!vehId)
     {
-        if (GetCreatureTemplate()->VehicleId)
+        if (GetCreatureTemplate()->VehicleID)
         {
-            vehId = GetCreatureTemplate()->VehicleId;
-            entry = GetCreatureTemplate()->CreatureId;
+            vehId = GetCreatureTemplate()->VehicleID;
+            entry = GetCreatureTemplate()->CreatureID;
         }
         else
-            vehId = cinfo->VehicleId;
+            vehId = cinfo->VehicleID;
     }
 
     if (vehId)
@@ -1814,7 +1814,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
             UpdateDisplayPower();
 
     if (!IsPet())
-        if (uint32 vignetteId = GetCreatureTemplate()->VignetteId)
+        if (uint32 vignetteId = GetCreatureTemplate()->VignetteID)
             SetVignette(vignetteId);
 
     return true;
@@ -2262,7 +2262,7 @@ void Creature::setDeathState(DeathState s)
 
             SetMeleeDamageSchool(SpellSchools(cInfo->DamageSchool));
 
-            if (uint32 vignetteId = cInfo->VignetteId)
+            if (uint32 vignetteId = cInfo->VignetteID)
                 SetVignette(vignetteId);
         }
 
@@ -2440,7 +2440,7 @@ void Creature::LoadTemplateImmunities(int32 creatureImmunitiesId)
 bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster,
     bool requireImmunityPurgesEffectAttribute /*= false*/) const
 {
-    if (GetCreatureTemplate()->CreatureTypeId == CREATURE_TYPE_MECHANICAL && spellEffectInfo.IsEffect(SPELL_EFFECT_HEAL))
+    if (GetCreatureTemplate()->CreatureTypeID == CREATURE_TYPE_MECHANICAL && spellEffectInfo.IsEffect(SPELL_EFFECT_HEAL))
         return true;
 
     return Unit::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
@@ -2778,7 +2778,7 @@ bool Creature::LoadCreaturesAddon()
 
 void Creature::LoadCreaturesSparringHealth(bool force /*= false*/)
 {
-    if (std::vector<float> const* templateValues = sObjectMgr->GetCreatureTemplateSparringValues(GetCreatureTemplate()->CreatureId))
+    if (std::vector<float> const* templateValues = sObjectMgr->GetCreatureTemplateSparringValues(GetCreatureTemplate()->CreatureID))
         if (force || std::find(templateValues->begin(), templateValues->end(), _sparringHealthPct) != templateValues->end()) // only re-randomize sparring value if it was loaded from template (not when set to custom value from script)
             _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(*templateValues);
 }
@@ -3137,7 +3137,7 @@ uint32 Creature::GetScriptId() const
         if (uint32 scriptId = creatureData->scriptId)
             return scriptId;
 
-    return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptId;
+    return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptID;
 }
 
 void Creature::InheritStringIds(Creature const* parent)

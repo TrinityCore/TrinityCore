@@ -8487,7 +8487,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
             if (int32 normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
             {
                 if (Creature* creature = ToCreature())
-                    if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(creature->GetCreatureTemplate()->CreatureImmunitiesId))
+                    if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(creature->GetCreatureTemplate()->CreatureImmunitiesID))
                         if (immunities->Mechanic[MECHANIC_SNARE] || immunities->Mechanic[MECHANIC_DAZE])
                             break;
 
@@ -8930,7 +8930,7 @@ uint32 Unit::GetCreatureType() const
         }
     }
     else
-        return ToCreature()->GetCreatureTemplate()->CreatureTypeId;
+        return ToCreature()->GetCreatureTemplate()->CreatureTypeID;
 }
 
 uint32 Unit::GetCreatureTypeMask() const
@@ -11316,7 +11316,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 if (GetTypeId() == TYPEID_UNIT && charmer->GetClass() == CLASS_WARLOCK)
                 {
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
-                    if (cinfo && cinfo->CreatureTypeId == CREATURE_TYPE_DEMON)
+                    if (cinfo && cinfo->CreatureTypeID == CREATURE_TYPE_DEMON)
                     {
                         // to prevent client crash
                         SetClass(CLASS_MAGE);
@@ -11415,7 +11415,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                 if (GetTypeId() == TYPEID_UNIT && charmer->GetClass() == CLASS_WARLOCK)
                 {
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
-                    if (cinfo && cinfo->CreatureTypeId == CREATURE_TYPE_DEMON)
+                    if (cinfo && cinfo->CreatureTypeID == CREATURE_TYPE_DEMON)
                     {
                         SetClass(uint8(cinfo->Class));
                         if (GetCharmInfo())
@@ -11474,7 +11474,7 @@ void Unit::RestoreFaction()
         }
 
         if (CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate())  // normal creature
-            SetFaction(cinfo->FactionTemplateId);
+            SetFaction(cinfo->FactionTemplateID);
     }
 }
 

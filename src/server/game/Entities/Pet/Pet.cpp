@@ -790,7 +790,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 
     SetDisplayId(creature->GetDisplayId());
 
-    if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->CreatureFamilyId))
+    if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->CreatureFamilyID))
         SetName(cFamily->Name[GetOwner()->GetSession()->GetSessionDbcLocale()]);
     else
         SetName(creature->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
@@ -803,7 +803,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
     if (!CreateBaseAtTamed(cinfo, owner->GetMap()))
         return false;
 
-    if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->CreatureFamilyId))
+    if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->CreatureFamilyID))
         SetName(cFamily->Name[GetOwner()->GetSession()->GetSessionDbcLocale()]);
 
     Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
@@ -814,7 +814,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, cinfo->CreatureId, sObjectMgr->GeneratePetNumber()))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, cinfo->CreatureID, sObjectMgr->GeneratePetNumber()))
         return false;
 
     SetPetNameTimestamp(0);
@@ -823,7 +823,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
     ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
 
-    if (cinfo->CreatureTypeId == CREATURE_TYPE_BEAST)
+    if (cinfo->CreatureTypeID == CREATURE_TYPE_BEAST)
     {
         SetClass(CLASS_WARRIOR);
         SetGender(GENDER_NONE);
@@ -865,7 +865,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         }
     }
 
-    uint32 creature_ID = (petType == HUNTER_PET) ? 1 : cinfo->CreatureId;
+    uint32 creature_ID = (petType == HUNTER_PET) ? 1 : cinfo->CreatureID;
 
     SetMeleeDamageSchool(SpellSchools(cinfo->DamageSchool));
 
@@ -1098,7 +1098,7 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
     if (!cInfo)
         return false;
 
-    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->CreatureFamilyId);
+    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->CreatureFamilyID);
     if (!cFamily)
         return false;
 
@@ -1478,7 +1478,7 @@ void Pet::InitLevelupSpellsForLevel()
 {
     uint8 level = GetLevel();
 
-    if (PetLevelupSpellSet const* levelupSpells = GetCreatureTemplate()->CreatureFamilyId ? sSpellMgr->GetPetLevelupSpellList(GetCreatureTemplate()->CreatureFamilyId) : nullptr)
+    if (PetLevelupSpellSet const* levelupSpells = GetCreatureTemplate()->CreatureFamilyID ? sSpellMgr->GetPetLevelupSpellList(GetCreatureTemplate()->CreatureFamilyID) : nullptr)
     {
         // PetLevelupSpellSet ordered by levels, process in reversed order
         for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
@@ -1654,11 +1654,11 @@ bool Pet::IsPermanentPetFor(Player* owner) const
             switch (owner->GetClass())
             {
                 case CLASS_WARLOCK:
-                    return GetCreatureTemplate()->CreatureTypeId == CREATURE_TYPE_DEMON;
+                    return GetCreatureTemplate()->CreatureTypeID == CREATURE_TYPE_DEMON;
                 case CLASS_DEATH_KNIGHT:
-                    return GetCreatureTemplate()->CreatureTypeId == CREATURE_TYPE_UNDEAD;
+                    return GetCreatureTemplate()->CreatureTypeID == CREATURE_TYPE_UNDEAD;
                 case CLASS_MAGE:
-                    return GetCreatureTemplate()->CreatureTypeId == CREATURE_TYPE_ELEMENTAL;
+                    return GetCreatureTemplate()->CreatureTypeID == CREATURE_TYPE_ELEMENTAL;
                 default:
                     return false;
             }
@@ -1705,11 +1705,11 @@ void Pet::LearnPetPassives()
     if (!cInfo)
         return;
 
-    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->CreatureFamilyId);
+    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->CreatureFamilyID);
     if (!cFamily)
         return;
 
-    PetFamilySpellsStore::const_iterator petStore = sPetFamilySpellsStore.find(cInfo->CreatureFamilyId);
+    PetFamilySpellsStore::const_iterator petStore = sPetFamilySpellsStore.find(cInfo->CreatureFamilyID);
     if (petStore != sPetFamilySpellsStore.end())
     {
         // For general hunter pets skill 270
@@ -1797,7 +1797,7 @@ Player* Pet::GetOwner() const
 
 float Pet::GetNativeObjectScale() const
 {
-    CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->CreatureFamilyId);
+    CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(GetCreatureTemplate()->CreatureFamilyID);
     if (creatureFamily && creatureFamily->MinScale > 0.0f && getPetType() == HUNTER_PET)
     {
         float scale;

@@ -156,7 +156,7 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
         {
             PetCreatureDisplayID = fields[15].GetUInt32();
             PetExperienceLevel = fields[16].GetUInt16();
-            PetCreatureFamilyID = creatureInfo->CreatureFamilyId;
+            PetCreatureFamilyID = creatureInfo->CreatureFamilyID;
         }
     }
 

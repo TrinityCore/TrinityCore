@@ -388,7 +388,7 @@ public:
 
         // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureTemplate())
-            const_cast<CreatureTemplate*>(cinfo)->FactionTemplateId = factionId;
+            const_cast<CreatureTemplate*>(cinfo)->FactionTemplateID = factionId;
 
         // ..and DB
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
@@ -483,7 +483,7 @@ public:
         uint64 npcflags;
         memcpy(&npcflags, target->m_unitData->NpcFlags.begin(), sizeof(npcflags));
         uint64 mechanicImmuneMask = 0;
-        if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(cInfo->CreatureImmunitiesId))
+        if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(cInfo->CreatureImmunitiesID))
             mechanicImmuneMask = immunities->Mechanic.to_ullong();
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
@@ -1099,7 +1099,7 @@ public:
 
         if (!cInfo->IsTameable (player->CanTameExoticPets(), creatureTarget->GetCreatureDifficulty()))
         {
-            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->CreatureId);
+            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->CreatureID);
             handler->SetSentErrorMessage (true);
             return false;
         }
@@ -1108,7 +1108,7 @@ public:
         Pet* pet = player->CreateTamedPetFrom(creatureTarget);
         if (!pet)
         {
-            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->CreatureId);
+            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->CreatureID);
             handler->SetSentErrorMessage (true);
             return false;
         }
