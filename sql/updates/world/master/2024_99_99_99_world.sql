@@ -20,7 +20,7 @@ CHANGE COLUMN `movementId` `MovementInfoID` INT UNSIGNED NOT NULL DEFAULT 0 AFTE
 CHANGE COLUMN `VehicleId` `VehicleID` int UNSIGNED NOT NULL DEFAULT 0 AFTER `CreatureTypeID`,
 CHANGE COLUMN `CreatureImmunitiesId` `CreatureImmunitiesID` int NOT NULL DEFAULT 0 AFTER `RegenHealth`,
 CHANGE COLUMN `flags_extra` `FlagsExtra` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `CreatureImmunitiesID`,
-CHANGE COLUMN `StringId` `StringID` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL AFTER `ScriptName`;
+CHANGE COLUMN `StringId` `StringID` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL AFTER `ScriptName`,
 MODIFY COLUMN `Classification` INT NOT NULL DEFAULT 0 AFTER `Scale`,
 DROP PRIMARY KEY,
 ADD PRIMARY KEY (`CreatureId`) USING BTREE;
