@@ -388,7 +388,7 @@ public:
 
         // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureTemplate())
-            const_cast<CreatureTemplate*>(cinfo)->faction = factionId;
+            const_cast<CreatureTemplate*>(cinfo)->FactionTemplateId = factionId;
 
         // ..and DB
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
@@ -545,9 +545,9 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_REACTSTATE, DescribeReactState(target->GetReactState()));
         if (CreatureAI const* ai = target->AI())
             handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, Trinity::GetTypeName(*ai).c_str());
-        handler->PSendSysMessage(LANG_NPCINFO_FLAGS_EXTRA, cInfo->flags_extra);
+        handler->PSendSysMessage(LANG_NPCINFO_FLAGS_EXTRA, cInfo->FlagsExtra);
         for (CreatureFlagsExtra flag : EnumUtils::Iterate<CreatureFlagsExtra>())
-            if (cInfo->flags_extra & flag)
+            if (cInfo->FlagsExtra & flag)
                 handler->PSendSysMessage("%s (0x%X)", EnumUtils::ToTitle(flag), flag);
 
         handler->PSendSysMessage(LANG_NPCINFO_NPC_FLAGS, target->m_unitData->NpcFlags[0]);
@@ -1099,7 +1099,7 @@ public:
 
         if (!cInfo->IsTameable (player->CanTameExoticPets(), creatureTarget->GetCreatureDifficulty()))
         {
-            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->Entry);
+            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->CreatureId);
             handler->SetSentErrorMessage (true);
             return false;
         }
@@ -1108,7 +1108,7 @@ public:
         Pet* pet = player->CreateTamedPetFrom(creatureTarget);
         if (!pet)
         {
-            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->Entry);
+            handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->CreatureId);
             handler->SetSentErrorMessage (true);
             return false;
         }

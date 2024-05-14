@@ -6568,7 +6568,7 @@ void Player::RewardReputation(Unit* victim, float rate)
     if (victim->ToCreature()->IsReputationGainDisabled())
         return;
 
-    ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
+    ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->CreatureId);
     if (!Rep)
         return;
 
@@ -16524,8 +16524,8 @@ void Player::KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid)
 {
     ASSERT(cInfo);
 
-    if (cInfo->Entry)
-        KilledMonsterCredit(cInfo->Entry, guid);
+    if (cInfo->CreatureId)
+        KilledMonsterCredit(cInfo->CreatureId, guid);
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
         if (cInfo->KillCredit[i])
@@ -21845,7 +21845,7 @@ void Player::PetSpellInitialize()
 
     WorldPackets::Pet::PetSpells petSpellsPacket;
     petSpellsPacket.PetGUID = pet->GetGUID();
-    petSpellsPacket._CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
+    petSpellsPacket._CreatureFamily = pet->GetCreatureTemplate()->CreatureFamilyId;         // creature family (required for pet talents)
     petSpellsPacket.Specialization = pet->GetSpecialization();
     petSpellsPacket.TimeLimit = pet->GetDuration();
     petSpellsPacket.ReactState = pet->GetReactState();
