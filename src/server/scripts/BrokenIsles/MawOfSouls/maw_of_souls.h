@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_AZURE_VAULT_H_
-#define DEF_AZURE_VAULT_H_
+#ifndef DEF_MAW_OF_SOULS_H_
+#define DEF_MAW_OF_SOULS_H_
 
 #include "CreatureAIImpl.h"
 
