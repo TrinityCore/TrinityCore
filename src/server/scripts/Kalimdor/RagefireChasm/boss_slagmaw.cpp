@@ -19,7 +19,6 @@
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "ragefire_chasm.h"
 
 enum SlagmawSpells
