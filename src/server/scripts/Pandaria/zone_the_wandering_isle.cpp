@@ -1037,58 +1037,76 @@ struct npc_master_li_fei_summon : public ScriptedAI
 
         me->GetMotionMaster()->MovePath(PATH_MASTER_LI, false);
 
-        _scheduler.Schedule(23s, [this](TaskContext task)
+        Seconds delay = 23s;
+
+        _scheduler.Schedule(delay, [this](TaskContext)
         {
             FaceToPlayer();
+        });
 
-            task.Schedule(2s, [this](TaskContext task)
-            {
-                Talk(SAY_TEXT_0);
+        delay += 2s;
 
-                task.Schedule(10s, [this](TaskContext task)
-                {
-                    Talk(SAY_TEXT_1);
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            Talk(SAY_TEXT_0);
+        });
 
-                    task.Schedule(12s, [this](TaskContext task)
-                    {
-                        Talk(SAY_TEXT_2);
+        delay += 10s;
 
-                        task.Schedule(11s, [this](TaskContext task)
-                        {
-                            FaceToPlayer();
-                            Talk(SAY_TEXT_3);
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            Talk(SAY_TEXT_1);
+        });
 
-                            task.Schedule(11s, [this](TaskContext task)
-                            {
-                                Talk(SAY_TEXT_4);
+        delay += 12s;
 
-                                task.Schedule(9s, [this](TaskContext task)
-                                {
-                                    FaceToPlayer();
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            Talk(SAY_TEXT_2);
+        });
 
-                                    task.Schedule(2s, [this](TaskContext task)
-                                    {
-                                        Talk(SAY_TEXT_5);
+        delay += 11s;
 
-                                        task.Schedule(6s, [this](TaskContext /*task*/)
-                                        {
-                                            Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414" });
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            FaceToPlayer();
+            Talk(SAY_TEXT_3);
+        });
 
-                                            if (!aysa)
-                                                return;
+        delay += 11s;
 
-                                            aysa->AI()->DoAction(ACTION_FINISH_MEDITATION);
-                                            DoCastSelf(SPELL_UPDATE_PHASE_SHIFT_DEMON_CREATOR);
-                                            Talk(SAY_TEXT_6);
-                                            me->DespawnOrUnsummon(200ms);
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            Talk(SAY_TEXT_4);
+        });
+
+        delay += 9s;
+
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            FaceToPlayer();
+        });
+
+        delay += 2s;
+
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            Talk(SAY_TEXT_5);
+        });
+
+        delay += 6s;
+
+        _scheduler.Schedule(delay, [this](TaskContext)
+        {
+            Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414" });
+
+            if (!aysa)
+                return;
+
+            aysa->AI()->DoAction(ACTION_FINISH_MEDITATION);
+            DoCastSelf(SPELL_UPDATE_PHASE_SHIFT_DEMON_CREATOR);
+            Talk(SAY_TEXT_6);
+            me->DespawnOrUnsummon(200ms);
         });
     }
 
