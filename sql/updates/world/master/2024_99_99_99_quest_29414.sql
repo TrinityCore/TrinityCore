@@ -7,7 +7,7 @@ UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=2
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=268435456, `VerifiedBuild`=53913 WHERE (`Entry`=59642 AND `DifficultyID`=0); -- Aysa Cloudsinger
 
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048, `ScriptName`='npc_aysa_cloudsinger_summon' WHERE `entry`=59652; -- Aysa Cloudsinger
-UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=54856; -- Master Li Fei
+UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048, `ScriptName`='npc_master_li_fei_summon' WHERE `entry`=54856; -- Master Li Fei
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=524288 WHERE `entry`=59637; -- Amberleaf Troublemaker
 UPDATE `creature_template` SET `ScriptName`='npc_aysa_cloudsinger_cave_of_meditation', `StringId`='npc_aysa_quest_29414' WHERE `entry`=59642;
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 61801;
