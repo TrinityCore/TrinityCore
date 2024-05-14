@@ -87,7 +87,7 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (1492, 0, 'instance_maw_of_souls');
 
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='boss_ymiron_the_fallen_king' WHERE `entry`=96756;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_risen_warrior' WHERE `entry`=98246;
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_ymiron_the_fallen_king_risen_warrior' WHERE `entry`=98246;
 UPDATE `creature_template_addon` SET `auras`='342788' WHERE `entry`=96756; -- remove kneeling from template
 UPDATE `creature` SET `equipment_id`=-1 WHERE `guid`=650507; -- add weapon to ymiron
 

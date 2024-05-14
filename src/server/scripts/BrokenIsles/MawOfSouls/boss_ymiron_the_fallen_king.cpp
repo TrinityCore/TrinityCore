@@ -653,9 +653,9 @@ private:
 };
 
 // 98246 - Risen Warrior
-struct npc_risen_warrior : public ScriptedAI
+struct npc_ymiron_the_fallen_king_risen_warrior : public ScriptedAI
 {
-    npc_risen_warrior(Creature* creature) : ScriptedAI(creature) { }
+    npc_ymiron_the_fallen_king_risen_warrior(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -699,5 +699,5 @@ void AddSC_boss_ymiron_the_fallen_king()
     RegisterAreaTriggerAI(at_ymiron_the_fallen_king_bane);
 
     RegisterSpellScript(spell_ymiron_the_fallen_king_arise_fallen_selector);
-    RegisterMawOfSoulsCreatureAI(npc_risen_warrior);
+    RegisterMawOfSoulsCreatureAI(npc_ymiron_the_fallen_king_risen_warrior);
 }
