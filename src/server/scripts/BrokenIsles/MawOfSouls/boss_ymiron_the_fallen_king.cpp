@@ -647,7 +647,6 @@ class spell_ymiron_the_fallen_king_arise_fallen_selector : public SpellScript
 
 private:
     std::queue<ObjectGuid> _baneATGUIDs;
-    uint8 _targetsProcessed = 0;
     uint8 _atsPerTarget = 0;
     uint8 _remainingBaneATs = 0;
 };
