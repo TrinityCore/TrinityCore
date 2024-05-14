@@ -87,11 +87,12 @@ namespace WorldPackets
         class AreaTriggerPlaySpellVisual final : public ServerPacket
         {
         public:
-            AreaTriggerPlaySpellVisual() : ServerPacket(SMSG_AREA_TRIGGER_PLAY_SPELL_VISUAL, 20) { }
+            AreaTriggerPlaySpellVisual() : ServerPacket(SMSG_AREA_TRIGGER_PLAY_SPELL_VISUAL, 16 + 4) { }
 
             WorldPacket const* Write() override;
-            ObjectGuid TriggerGUID;
-            uint32 SpellVisualEventID = 0;
+
+            ObjectGuid AreaTriggerGUID;
+            uint32 SpellVisualID = 0;
         };
     }
 }

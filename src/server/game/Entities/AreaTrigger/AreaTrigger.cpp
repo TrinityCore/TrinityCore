@@ -101,11 +101,11 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-void AreaTrigger::PlaySpellVisual(uint32 spellVisualEventId) const
+void AreaTrigger::PlaySpellVisual(uint32 spellVisualId) const
 {
     WorldPackets::AreaTrigger::AreaTriggerPlaySpellVisual packet;
-    packet.TriggerGUID = GetGUID();
-    packet.SpellVisualEventID = spellVisualEventId;
+    packet.AreaTriggerGUID = GetGUID();
+    packet.SpellVisualID = spellVisualId;
     SendMessageToSet(packet.Write(), false);
 }
 
