@@ -119,7 +119,6 @@ struct boss_slagmaw : public BossAI
                 else if (_lavaSpitCounter == 5)
                 {
                     PhaseSubmerge();
-                    events.CancelEvent(EVENT_LAVA_SPIT);
                     break;
                 }
                 break;
