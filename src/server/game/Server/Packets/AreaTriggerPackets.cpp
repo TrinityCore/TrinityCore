@@ -99,3 +99,11 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerPlaySpellVisual::Write()
+{
+    _worldPacket << AreaTriggerGUID;
+    _worldPacket << uint32(SpellVisualID);
+
+    return &_worldPacket;
+}
