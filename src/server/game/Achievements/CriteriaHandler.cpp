@@ -1199,6 +1199,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot:
         case CriteriaType::GetLootByType:
         case CriteriaType::LearnTradeskillSkillLine:
+        case CriteriaType::CompletedLFGDungeon:
         case CriteriaType::CompletedLFGDungeonWithStrangers:
         case CriteriaType::DeliveredKillingBlow:
         case CriteriaType::CurrencyGained:
@@ -1247,7 +1248,6 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::Login:
             return true;
         // handle all statistic-only criteria here
-        case CriteriaType::CompletedLFGDungeon:
         case CriteriaType::ParticipateInBattleground:
         case CriteriaType::DieOnMap:
         case CriteriaType::DieAnywhere:
