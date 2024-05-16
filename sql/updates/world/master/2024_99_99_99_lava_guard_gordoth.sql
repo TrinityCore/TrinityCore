@@ -7,10 +7,11 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=61716;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=61822;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=61823;
 
-DELETE FROM `creature_template_addon` WHERE `entry` IN (61404, 61821);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (61404, 61821, 61716);
 
-DELETE FROM `creature_addon` WHERE `guid` IN (4000118, 4000124, 4000015, 4000019);
+DELETE FROM `creature_addon` WHERE `guid` IN (4000010, 4000118, 4000124, 4000015, 4000019);
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(4000010, 0, 0, 0, 8, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''),
 (4000118, 0, 0, 0, 0, 0, 0, 1, 0, 375, 0, 0, 0, 0, ''),
 (4000124, 0, 0, 0, 0, 0, 0, 1, 0, 375, 0, 0, 0, 0, ''),
 (4000015, 0, 0, 0, 0, 0, 0, 1, 0, 375, 0, 0, 0, 0, ''),
