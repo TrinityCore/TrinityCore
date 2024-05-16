@@ -1375,7 +1375,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         Item* GetUseableItemByPos(uint8 bag, uint8 slot) const;
         Bag*  GetBagByPos(uint8 slot) const;
         std::vector<Item*> GetCraftingReagentItemsToDeposit();
-        uint32 GetFreeInventorySpace() const;
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool useable = false) const;
         Item* GetShield(bool useable = false) const;
         Item* GetChildItemByGuid(ObjectGuid guid) const;

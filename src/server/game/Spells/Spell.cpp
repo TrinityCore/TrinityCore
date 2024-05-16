@@ -7700,7 +7700,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                     // SPELL_EFFECT_CREATE_ITEM_2 differs from SPELL_EFFECT_CREATE_ITEM in that it picks the random item to create from a pool of potential items,
                     // so we need to make sure there is at least one free space in the player's inventory
                     if (spellEffectInfo.Effect == SPELL_EFFECT_CREATE_LOOT)
-                        if (target->ToPlayer()->GetFreeInventorySpace() == 0)
+                        if (target->ToPlayer()->GetFreeInventorySlotCount(ItemSearchLocation::Inventory) == 0)
                         {
                             player->SendEquipError(EQUIP_ERR_INV_FULL, nullptr, nullptr, spellEffectInfo.ItemType);
                             return SPELL_FAILED_DONT_REPORT;
