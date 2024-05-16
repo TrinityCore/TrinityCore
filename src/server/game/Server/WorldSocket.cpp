@@ -604,7 +604,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         LoginDatabase.Execute(stmt);
     }
 
-    if (sWorld->getBoolConfig(CONFIG_IP_HISTORY))
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE))
     {
         // Update the ip history in the database as it was successful for login
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_IP_HISTORY);
