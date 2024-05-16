@@ -4042,6 +4042,7 @@ Allow.IP.Based.Action.Logging = 0
 #
 #    IPHistory
 #        Description: Enables the account ip history logging to account_ip_history.
+#                     Allow.IP.Based.Action.Loggin must be enabled first.
 #
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
