@@ -132,7 +132,7 @@ struct boss_lava_guard_gordoth : public BossAI
                 DoCastSelf(SPELL_JAIL_BREAK);
                 me->GetMotionMaster()->MoveJumpWithGravity(GordothJumpPoint, 50.0f, 55.5477f, POINT_JUMP);
 
-                scheduler.Schedule(30ms, [this](TaskContext task)
+                scheduler.Schedule(30ms, [this](TaskContext /*task*/)
                 {
                     if (GameObject* go = GetClosestGameObjectWithEntry(me, GORDOTH_CAGE, 50.0f))
                         go->SetGoState(GO_STATE_ACTIVE);
