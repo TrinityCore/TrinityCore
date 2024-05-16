@@ -16,6 +16,7 @@
  */
 
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -45,14 +46,13 @@ enum GordothEvents
 
 enum GordothActions
 {
-    ACTION_JUMP             = 1,
-    ACTION_KILL_RESEARCHERS = 2
+    ACTION_JUMP             = 1
 };
 
 enum GordothMisc
 {
     NPC_DARK_SHAMAN_RESEARCHER = 61644,
-    GORDOTH_CAGE               = 211792,
+    GO_GORDOTH_CAGE            = 211792,
     ANIMKIT_GORDOTH_NONE       = 0,
     POINT_JUMP                 = 1
 };
@@ -124,45 +124,18 @@ struct boss_lava_guard_gordoth : public BossAI
 
     void DoAction(int32 action) override
     {
-        switch (action)
+        if (action != ACTION_JUMP)
+            return;
+
+        me->SetAIAnimKitId(ANIMKIT_GORDOTH_NONE);
+        DoCastSelf(SPELL_JAIL_BREAK);
+        me->GetMotionMaster()->MoveJumpWithGravity(GordothJumpPoint, 50.0f, 55.5477f, POINT_JUMP);
+
+        scheduler.Schedule(30ms, [this](TaskContext /*task*/)
         {
-           case ACTION_JUMP:
-           {
-                me->SetAIAnimKitId(ANIMKIT_GORDOTH_NONE);
-                DoCastSelf(SPELL_JAIL_BREAK);
-                me->GetMotionMaster()->MoveJumpWithGravity(GordothJumpPoint, 50.0f, 55.5477f, POINT_JUMP);
-
-                scheduler.Schedule(30ms, [this](TaskContext /*task*/)
-                {
-                    if (GameObject* go = GetClosestGameObjectWithEntry(me, GORDOTH_CAGE, 50.0f))
-                        go->SetGoState(GO_STATE_ACTIVE);
-                });
-                break;
-            }
-            case ACTION_KILL_RESEARCHERS:
-            {
-                DoCast(SPELL_GROUND_SLAM);
-                me->SetFacingTo(0.244346f);
-                me->SetHomePosition(GordothJumpPoint);
-
-                std::vector<Creature*> darkShamanResearcherList;
-                GetCreatureListWithEntryInGrid(darkShamanResearcherList, me, NPC_DARK_SHAMAN_RESEARCHER, 25.0f);
-                for (Creature* darkShamanResearcher : darkShamanResearcherList)
-                {
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, TRIGGERED_FULL_MASK);
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, TRIGGERED_FULL_MASK);
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, TRIGGERED_FULL_MASK);
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, TRIGGERED_FULL_MASK);
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK);
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK);
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK); // According to sniff
-                    darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_BLOODY_SUICIDE, false);
-                }
-                break;
-            }
-            default:
-                break;
-        }
+            if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_GORDOTH_CAGE, 50.0f))
+                go->SetGoState(GO_STATE_ACTIVE);
+        });
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
@@ -171,7 +144,25 @@ struct boss_lava_guard_gordoth : public BossAI
             return;
 
         if (pointId == POINT_JUMP)
-            DoAction(ACTION_KILL_RESEARCHERS);
+        {
+            DoCast(SPELL_GROUND_SLAM);
+            me->SetFacingTo(0.244346f);
+            me->SetHomePosition(GordothJumpPoint);
+
+            std::vector<Creature*> darkShamanResearcherList;
+            GetCreatureListWithEntryInGrid(darkShamanResearcherList, me, NPC_DARK_SHAMAN_RESEARCHER, 25.0f);
+            for (Creature* darkShamanResearcher : darkShamanResearcherList)
+            {
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, TRIGGERED_FULL_MASK);
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, TRIGGERED_FULL_MASK);
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, TRIGGERED_FULL_MASK);
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, TRIGGERED_FULL_MASK);
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK);
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK);
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK); // According to sniff
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_BLOODY_SUICIDE, false);
+            }
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -191,9 +182,7 @@ struct boss_lava_guard_gordoth : public BossAI
                 case EVENT_GROUND_RUPTURE:
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    {
                         DoCast(target, SPELL_GROUND_RUPTURE);
-                    }
                     events.Repeat(12100ms);
                     break;
                 }

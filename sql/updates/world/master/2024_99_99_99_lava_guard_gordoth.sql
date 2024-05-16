@@ -1,5 +1,6 @@
 -- Creature
 SET @CGUID := 400000000;
+SET @SPAWNGROUP := 71;
 
 UPDATE `creature_template` SET `ScriptName`='boss_lava_guard_gordoth' WHERE `entry`=61528;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=61724;
@@ -37,31 +38,31 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+7, 61823, 389, 2437, 2437, '1', 0, 0, 0, 1, -299.02191162109375, 215.8939666748046875, -25.431009292602539, 2.871391773223876953, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54717); -- High Sorceress Aryna (Area: Ragefire Chasm - Difficulty: Normal) CreateObject2
 
 -- Spawn groups
-DELETE FROM `spawn_group_template` WHERE `groupId` IN (71, 72);
+DELETE FROM `spawn_group_template` WHERE `groupId` IN (@SPAWNGROUP+0, @SPAWNGROUP+1);
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
-(71, 'RFC - Alliance end dungeon spawns', 4),
-(72, 'RFC - Horde end dungeon spawns', 4);
+(@SPAWNGROUP+0, 'RFC - Alliance end dungeon spawns', 4),
+(@SPAWNGROUP+1, 'RFC - Horde end dungeon spawns', 4);
 
-DELETE FROM `spawn_group` WHERE `groupId` IN (71, 72) AND `spawnType`=0;
+DELETE FROM `spawn_group` WHERE `groupId` IN (@SPAWNGROUP+0, @SPAWNGROUP+1) AND `spawnType`=0;
 INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
-(71, 0, @CGUID+4),
-(71, 0, @CGUID+5),
-(71, 0, @CGUID+6),
-(71, 0, @CGUID+7),
-(72, 0, @CGUID+0),
-(72, 0, @CGUID+1),
-(72, 0, @CGUID+2),
-(72, 0, @CGUID+3);
+(@SPAWNGROUP+0, 0, @CGUID+4),
+(@SPAWNGROUP+0, 0, @CGUID+5),
+(@SPAWNGROUP+0, 0, @CGUID+6),
+(@SPAWNGROUP+0, 0, @CGUID+7),
+(@SPAWNGROUP+1, 0, @CGUID+0),
+(@SPAWNGROUP+1, 0, @CGUID+1),
+(@SPAWNGROUP+1, 0, @CGUID+2),
+(@SPAWNGROUP+1, 0, @CGUID+3);
 
 DELETE FROM `instance_spawn_groups` WHERE `instanceMapId`=389 AND `bossStateId`=3;
 INSERT INTO `instance_spawn_groups` (`instanceMapId`, `bossStateId`, `bossStates`, `spawnGroupId`, `flags`) VALUES
-(389, 3, 0x08, 71, 0x05),
-(389, 3, 0x08, 72, 0x09);
+(389, 3, 0x08, @SPAWNGROUP+0, 0x05),
+(389, 3, 0x08, @SPAWNGROUP+1, 0x09);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=33 AND `SourceGroup`=0 AND `SourceEntry` IN (71, 72);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=33 AND `SourceGroup`=0 AND `SourceEntry` IN (@SPAWNGROUP+0, @SPAWNGROUP+1);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(33, 0, 71, 0, 0, 11, 0, 6592, 1, 0, '', 0, 0, 0, '', 'RFC - Spawn Alliance NPCs if Lava Guard Gordoth encounter is done'),
-(33, 0, 72, 0, 0, 11, 0, 6592, 1, 0, '', 0, 0, 0, '', 'RFC - Spawn Horde NPCs if Lava Guard Gordoth encounter is done');
+(33, 0, @SPAWNGROUP+0, 0, 0, 11, 0, 6592, 1, 0, '', 0, 0, 0, '', 'RFC - Spawn Alliance NPCs if Lava Guard Gordoth encounter is done'),
+(33, 0, @SPAWNGROUP+1, 0, 0, 11, 0, 6592, 1, 0, '', 0, 0, 0, '', 'RFC - Spawn Horde NPCs if Lava Guard Gordoth encounter is done');
 
 DELETE FROM `creature_formations` WHERE `leaderGUID` IN (@CGUID+0, @CGUID+6);
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
