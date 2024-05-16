@@ -94,10 +94,12 @@ struct boss_lava_guard_gordoth : public BossAI
         _Reset();
     }
 
-    void JustReachedHome() override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        _JustReachedHome();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        _EnterEvadeMode();
+        _DespawnAtEvade();
     }
 
     void JustDied(Unit* /*killer*/) override
