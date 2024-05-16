@@ -40,8 +40,8 @@ DoorData const doorData[] =
 
 DungeonEncounterData const encounters[] =
 {
-    { BOSS_YMIRON,      {{ 1822 }} },
-    { BOSS_HARBARON,    {{ 1823 }} },
+    { DATA_YMIRON,      {{ 1822 }} },
+    { DATA_HARBARON,    {{ 1823 }} },
     { DATA_HELYA,       {{ 1824 }} },
 };
 
