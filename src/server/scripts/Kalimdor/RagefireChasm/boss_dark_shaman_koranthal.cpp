@@ -56,11 +56,12 @@ struct boss_dark_shaman_koranthal : public BossAI
         _Reset();
     }
 
-    void JustReachedHome() override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        _JustReachedHome();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        DoCastSelf(SPELL_SHADOW_VORTEX);
+
+        _EnterEvadeMode();
+        _DespawnAtEvade();
     }
 
     void JustEngagedWith(Unit* who) override
@@ -71,8 +72,8 @@ struct boss_dark_shaman_koranthal : public BossAI
         me->RemoveAurasDueToSpell(SPELL_SHADOW_VORTEX);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-        events.ScheduleEvent(EVENT_TWISTED_ELEMENTS, 4s);
-        events.ScheduleEvent(EVENT_SHADOW_STORM, 20s);
+        events.ScheduleEvent(EVENT_TWISTED_ELEMENTS, 6s);
+        events.ScheduleEvent(EVENT_SHADOW_STORM, 20500ms);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -99,19 +100,22 @@ struct boss_dark_shaman_koranthal : public BossAI
                 case EVENT_TWISTED_ELEMENTS:
                 {
                     DoCastVictim(SPELL_TWISTED_ELEMENTS);
-                    events.Repeat(8s, 10s);
+                    events.Repeat(7200ms);
                     break;
                 }
                 case EVENT_SHADOW_STORM:
                 {
                     Talk(SAY_SHADOW_STORM);
                     DoCast(SPELL_SHADOW_STORM);
-                    events.Repeat(25s, 30s);
+                    events.Repeat(47200ms);
                     break;
                 }
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
     }
 };

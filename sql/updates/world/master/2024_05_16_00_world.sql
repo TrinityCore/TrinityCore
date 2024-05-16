@@ -1,5 +1,6 @@
 -- Creature
 UPDATE `creature_template` SET `ScriptName`='boss_dark_shaman_koranthal' WHERE `entry`=61412;
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x80 WHERE `entry`=61413;
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` = 119927;
