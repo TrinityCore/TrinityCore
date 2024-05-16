@@ -51,10 +51,8 @@ auto OpenOpenSSLStore(boost::filesystem::path const& storePath, UI_METHOD const*
 boost::system::error_code GetLastOpenSSLError()
 {
     auto ossl_error = ::ERR_get_error();
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     if (ERR_SYSTEM_ERROR(ossl_error))
         return boost::system::error_code(static_cast<int>(::ERR_GET_REASON(ossl_error)), boost::asio::error::get_system_category());
-#endif
 
     return boost::system::error_code(static_cast<int>(ossl_error), boost::asio::error::get_ssl_category());
 }

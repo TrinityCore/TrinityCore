@@ -547,11 +547,15 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::Login:
             case CriteriaType::AnyoneTriggerGameEventScenario:
             case CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot:
+            case CriteriaType::CompleteAnyScenario:
+            case CriteriaType::CompleteScenario:
             case CriteriaType::BattlePetReachLevel:
             case CriteriaType::ActivelyEarnPetLevel:
             case CriteriaType::DefeatDungeonEncounter:
             case CriteriaType::PlaceGarrisonBuilding:
             case CriteriaType::ActivateAnyGarrisonBuilding:
+            case CriteriaType::LearnAnyHeirloom:
+            case CriteriaType::LearnAnyTransmog:
             case CriteriaType::HonorLevelIncrease:
             case CriteriaType::PrestigeLevelIncrease:
             case CriteriaType::LearnAnyTransmogInSlot:
@@ -594,6 +598,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HighestDamageTaken:
             case CriteriaType::HighestHealCast:
             case CriteriaType::HighestHealReceived:
+            case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::AzeriteLevelReached:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;
@@ -677,6 +682,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterArea:
             case CriteriaType::LeaveArea:
             case CriteriaType::RecruitGarrisonFollower:
+            case CriteriaType::LearnHeirloom:
             case CriteriaType::ActivelyReachLevel:
             case CriteriaType::CollectTransmogSetFromGroup:
             case CriteriaType::EnterTopLevelArea:
@@ -798,8 +804,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::KickVoterInLFRDungeon:
             case CriteriaType::KickTargetInLFRDungeon:
             case CriteriaType::GroupedTankLeftEarlyInLFRDungeon:
-            case CriteriaType::CompleteAnyScenario:
-            case CriteriaType::CompleteScenario:
             case CriteriaType::AccountObtainPetThroughBattle:
             case CriteriaType::WinPetBattle:
             case CriteriaType::PlayerObtainPetThroughBattle:
@@ -815,7 +819,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::LevelChangedForGarrisonFollower:
             case CriteriaType::LearnToy:
             case CriteriaType::LearnAnyToy:
-            case CriteriaType::LearnAnyHeirloom:
             case CriteriaType::FindResearchObject:
             case CriteriaType::ExhaustAnyResearchSite:
             case CriteriaType::CompleteInternalCriteria:
@@ -835,7 +838,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EnterAreaTriggerWithActionSet:
             case CriteriaType::StartGarrisonMission:
             case CriteriaType::QualityUpgradedForGarrisonFollower:
-            case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::CompleteResearchGarrisonTalent:
             case CriteriaType::RecruitAnyGarrisonTroop:
             case CriteriaType::CompleteAnyWorldQuest:
@@ -1202,11 +1204,17 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::CompletedLFGDungeonWithStrangers:
         case CriteriaType::DeliveredKillingBlow:
         case CriteriaType::CurrencyGained:
-        case CriteriaType::PlaceGarrisonBuilding:
+        case CriteriaType::CompleteAnyScenario:
+        case CriteriaType::CompleteScenario:
         case CriteriaType::UniquePetsOwned:
         case CriteriaType::BattlePetReachLevel:
         case CriteriaType::ActivelyEarnPetLevel:
         case CriteriaType::DefeatDungeonEncounter:
+        case CriteriaType::PlaceGarrisonBuilding:
+        case CriteriaType::LearnHeirloom:
+        case CriteriaType::LearnAnyHeirloom:
+        case CriteriaType::EarnArtifactXP:
+        case CriteriaType::AnyArtifactPowerRankPurchased:
         case CriteriaType::LearnAnyTransmogInSlot:
         case CriteriaType::ParagonLevelIncreaseWithFaction:
         case CriteriaType::PlayerHasEarnedHonor:
@@ -1218,7 +1226,6 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
-        case CriteriaType::EarnArtifactXP:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:
@@ -1254,6 +1261,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::KilledByCreature:
         case CriteriaType::KilledByPlayer:
         case CriteriaType::DieFromEnviromentalDamage:
+        case CriteriaType::ParticipateInArena:
         case CriteriaType::EarnTeamArenaRating:
         case CriteriaType::MoneyEarnedFromSales:
         case CriteriaType::MoneySpentOnRespecs:
@@ -1278,6 +1286,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::AbandonAnyQuest:
         case CriteriaType::BuyTaxi:
         case CriteriaType::AcceptSummon:
+        case CriteriaType::LearnAnyTransmog:
         default:
             break;
     }
@@ -1384,6 +1393,8 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
+        case CriteriaType::LearnAnyTransmog:
+        case CriteriaType::CompleteAnyScenario:
             if (!miscValue1)
                 return false;
             break;
@@ -1505,6 +1516,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::UseItem:
         case CriteriaType::LootItem:
         case CriteriaType::EquipItem:
+        case CriteriaType::LearnHeirloom:
             if (!miscValue1 || uint32(criteria->Entry->Asset.ItemID )!= miscValue1)
                 return false;
             break;
@@ -1647,6 +1659,10 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::PlayerTriggerGameEvent:
         case CriteriaType::AnyoneTriggerGameEventScenario:
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.EventID))
+                return false;
+            break;
+        case CriteriaType::CompleteScenario:
+            if (miscValue1 != uint32(criteria->Entry->Asset.ScenarioID))
                 return false;
             break;
         default:
