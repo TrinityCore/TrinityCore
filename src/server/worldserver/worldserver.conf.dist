@@ -4040,6 +4040,15 @@ Log.Async.Enable = 0
 Allow.IP.Based.Action.Logging = 0
 
 #
+#    IPHistory
+#        Description: Enables the account ip history logging to account_ip_history.
+#
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+IPHistory = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
