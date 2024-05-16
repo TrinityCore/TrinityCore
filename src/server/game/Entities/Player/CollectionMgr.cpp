@@ -763,6 +763,8 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         _temporaryAppearances.erase(temporaryAppearance);
     }
 
+    _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyTransmog, 1);
+
     if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
     {
         int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];

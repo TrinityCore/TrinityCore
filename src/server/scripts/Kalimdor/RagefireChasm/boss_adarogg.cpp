@@ -107,9 +107,19 @@ struct boss_adarogg : public BossAI
         _eatCounter = 0;
     }
 
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        _EnterEvadeMode();
+        _DespawnAtEvade();
+    }
+
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         scheduler.CancelAll();
 
@@ -119,6 +129,8 @@ struct boss_adarogg : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
         _JustDied();
     }
 
