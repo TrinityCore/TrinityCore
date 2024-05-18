@@ -42,6 +42,7 @@
 #include "Log.h"
 #include "Loot.h"
 #include "LootMgr.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PathGenerator.h"
@@ -3525,16 +3526,9 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
 
     m_casttime = CallScriptCalcCastTimeHandlers(m_spellInfo->CalcCastTime(this));
 
+    SpellCastResult movementResult = SPELL_CAST_OK;
     if (m_caster->IsUnit() && m_caster->ToUnit()->isMoving())
-    {
-        result = CheckMovement();
-        if (result != SPELL_CAST_OK)
-        {
-            SendCastResult(result);
-            finish(result);
-            return result;
-        }
-    }
+        movementResult = CheckMovement();
 
     // Creatures focus their target when possible
     if (m_casttime && m_caster->IsCreature() && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_caster->ToUnit()->HasUnitFlag(UNIT_FLAG_POSSESSED))
@@ -3545,6 +3539,24 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
             m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
         else
             m_caster->ToCreature()->SetSpellFocus(this, nullptr);
+    }
+
+    if (movementResult != SPELL_CAST_OK)
+    {
+        if (m_caster->ToUnit()->IsControlledByPlayer() || !CanStopMovementForSpellCasting(m_caster->ToUnit()->GetMotionMaster()->GetCurrentMovementGeneratorType()))
+        {
+            SendCastResult(movementResult);
+            finish(movementResult);
+            return movementResult;
+        }
+        else
+        {
+            // Creatures (not controlled) give priority to spell casting over movement.
+            // We assume that the casting is always valid and the current movement
+            // is stopped immediately (because spells are updated before movement, so next Unit::Update would cancel the spell before stopping movement)
+            // and future attempts are stopped by by Unit::IsMovementPreventedByCasting in movement generators to prevent casting interruption.
+            m_caster->ToUnit()->StopMoving();
+        }
     }
 
     CallScriptOnPrecastHandler();
@@ -4252,16 +4264,9 @@ void Spell::update(uint32 difftime)
         return;
     }
 
-    // check if the player caster has moved before the spell finished
-    // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
+    // check if the unit caster has moved before the spell finished
     if (m_timer != 0 && m_caster->IsUnit() && m_caster->ToUnit()->isMoving() && CheckMovement() != SPELL_CAST_OK)
-    {
-        // if charmed by creature, trust the AI not to cheat and allow the cast to proceed
-        // @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
-        // however, checking what type of movement the spline is for every single spline would be really expensive
-        if (!m_caster->ToUnit()->GetCharmerGUID().IsCreature())
-            cancel();
-    }
+        cancel();
 
     switch (m_spellState)
     {
@@ -7019,12 +7024,6 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 SpellCastResult Spell::CheckMovement() const
 {
     if (IsTriggered())
-        return SPELL_CAST_OK;
-
-    // Creatures (not controlled) give priority to spell casting over movement.
-    // We assume that the casting is always valid and the current movement
-    // is stopped by Unit:IsmovementPreventedByCasting to prevent casting interruption.
-    if (m_caster->IsCreature() && !m_caster->ToCreature()->IsControlledByPlayer())
         return SPELL_CAST_OK;
 
     if (Unit* unitCaster = m_caster->ToUnit())
