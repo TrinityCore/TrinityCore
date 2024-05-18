@@ -1,5 +1,5 @@
 -- Creature
-SET @CGUID := 400000000;
+SET @CGUID := 4000130;
 SET @SPAWNGROUP := 71;
 
 UPDATE `creature_template` SET `ScriptName`='boss_lava_guard_gordoth' WHERE `entry`=61528;
@@ -18,10 +18,10 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `MountCreatureID`, `Sta
 (4000015, 0, 0, 0, 0, 0, 0, 1, 0, 375, 0, 0, 0, 0, ''),
 (4000019, 0, 0, 0, 0, 0, 0, 1, 0, 375, 0, 0, 0, 0, '');
 
-DELETE FROM `creature_static_flags_override` WHERE `SpawnId` IN (@CGUID+2, @CGUID+7) AND `DifficultyId`=1;
+DELETE FROM `creature_static_flags_override` WHERE `SpawnId` IN (@CGUID+2, @CGUID+7) AND `DifficultyId`=0;
 INSERT INTO `creature_static_flags_override` (`SpawnId`, `DifficultyId`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`) VALUES
-(@CGUID+2, 1, 268435456, NULL, 0, NULL, NULL, NULL, NULL, NULL),
-(@CGUID+7, 1, 268435456, NULL, 0, NULL, NULL, NULL, NULL, NULL);
+(@CGUID+2, 0, 268435456, NULL, 0, NULL, NULL, NULL, NULL, NULL),
+(@CGUID+7, 0, 268435456, NULL, 0, NULL, NULL, NULL, NULL, NULL);
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+7;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curHealthPct`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
