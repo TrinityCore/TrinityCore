@@ -4309,10 +4309,6 @@ void Spell::EffectKnockBack()
     if (unitTarget->HasUnitState(UNIT_STATE_ROOT))
         return;
 
-    // Instantly interrupt non melee spells being cast
-    if (unitTarget->IsNonMeleeSpellCast(true))
-        unitTarget->InterruptNonMeleeSpells(true);
-
     float ratio = 0.1f;
     float speedxy = float(effectInfo->MiscValue) * ratio;
     float speedz = float(damage) * ratio;
