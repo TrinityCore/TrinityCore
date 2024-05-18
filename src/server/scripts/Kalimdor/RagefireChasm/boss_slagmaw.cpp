@@ -155,7 +155,7 @@ struct boss_slagmaw : public BossAI
             }
             case EVENT_BOUNDARY_CHECK:
             {
-                if (me->GetVictim() && me->GetVictim()->GetDistance(me) > 50.0f)
+                if (me->GetVictim()->GetDistance(me) > 50.0f)
                     EnterEvadeMode(EvadeReason::Other);
                 events.ScheduleEvent(EVENT_BOUNDARY_CHECK, 2500ms);
                 break;
