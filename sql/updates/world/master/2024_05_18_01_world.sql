@@ -1,5 +1,5 @@
 DELIMITER ;;
-CREATE PROCEDURE 2024_99_99_99_areatrigger_spellvisual() BEGIN
+CREATE PROCEDURE 2024_05_18_01_areatrigger_spellvisual() BEGIN
   IF NOT EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='areatrigger_create_properties' AND `column_name`='SpellsForVisuals') THEN
     
     ALTER TABLE `areatrigger`
@@ -12,6 +12,6 @@ CREATE PROCEDURE 2024_99_99_99_areatrigger_spellvisual() BEGIN
 END;;
 
 DELIMITER ;
-CALL 2024_99_99_99_areatrigger_spellvisual();
+CALL 2024_05_18_01_areatrigger_spellvisual();
 
-DROP PROCEDURE IF EXISTS 2024_99_99_99_areatrigger_spellvisual;
+DROP PROCEDURE IF EXISTS 2024_05_18_01_areatrigger_spellvisual;
