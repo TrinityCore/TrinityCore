@@ -34,19 +34,23 @@ enum SlagmawSpells
 enum SlagmawEvents
 {
     EVENT_LAVA_SPIT       = 1,
-    EVENT_TELEPORT        = 2,
-    EVENT_EMERGE          = 3
+    EVENT_TELEPORT,
+    EVENT_EMERGE,
+    EVENT_BOUNDARY_CHECK,
 };
 
-std::array<uint32, 4> const TeleportSpells =
+std::array<uint32, 4> const SlagmawTeleportSpells =
 {
-    SPELL_MAGNAW_TELEPORT_NORTH, SPELL_MAGNAW_TELEPORT_EAST, SPELL_MAGNAW_TELEPORT_SOUTH, SPELL_MAGNAW_TELEPORT_WEST
+    SPELL_MAGNAW_TELEPORT_NORTH,
+    SPELL_MAGNAW_TELEPORT_EAST,
+    SPELL_MAGNAW_TELEPORT_SOUTH,
+    SPELL_MAGNAW_TELEPORT_WEST
 };
 
 // 61463 - Slagmaw
 struct boss_slagmaw : public BossAI
 {
-    boss_slagmaw(Creature* creature) : BossAI(creature, BOSS_SLAGMAW), _lavaSpitCounter(0), _lastTeleportSpell(0) { }
+    boss_slagmaw(Creature* creature) : BossAI(creature, BOSS_SLAGMAW), _lavaSpitCounter(0), _lastTeleportSpell(SPELL_MAGNAW_TELEPORT_WEST) { }
 
     void JustAppeared() override
     {
@@ -57,7 +61,7 @@ struct boss_slagmaw : public BossAI
     {
         _Reset();
         _lavaSpitCounter = 0;
-        _lastTeleportSpell = 0;
+        _lastTeleportSpell = SPELL_MAGNAW_TELEPORT_WEST;
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -77,16 +81,33 @@ struct boss_slagmaw : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
         events.ScheduleEvent(EVENT_LAVA_SPIT, 1s);
+        events.ScheduleEvent(EVENT_BOUNDARY_CHECK, 2500ms);
     }
 
-    void PhaseSubmerge()
+    void HandleSubmergePhase()
     {
         DoCastSelf(SPELL_MAGNAW_SUBMERGE);
         _lavaSpitCounter = 0;
 
         events.ScheduleEvent(EVENT_TELEPORT, 3s);
+    }
+
+    uint32 GetNextTeleportSpell()
+    {
+        // Slagmaw should not repeat teleport for current position
+        uint32 teleportSpell = 0;
+        do
+        {
+            teleportSpell = Trinity::Containers::SelectRandomContainerElement(SlagmawTeleportSpells);
+        } while (teleportSpell == _lastTeleportSpell);
+
+        _lastTeleportSpell = teleportSpell;
+
+        return teleportSpell;
     }
 
     void UpdateAI(uint32 diff) override
@@ -98,9 +119,6 @@ struct boss_slagmaw : public BossAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-
-        if (me->GetVictim() && me->GetVictim()->GetDistance(me) > 50.0f)
-            EnterEvadeMode(EvadeReason::Other);
 
         switch (events.ExecuteEvent())
         {
@@ -118,22 +136,14 @@ struct boss_slagmaw : public BossAI
                 }
                 else if (_lavaSpitCounter == 5)
                 {
-                    PhaseSubmerge();
+                    HandleSubmergePhase();
                     break;
                 }
                 break;
             }
             case EVENT_TELEPORT:
             {
-                // Slagmaw should not repeat teleport for current position
-                uint32 teleportSpell = 0;
-                do
-                {
-                    teleportSpell = Trinity::Containers::SelectRandomContainerElement(TeleportSpells);
-                } while (teleportSpell == _lastTeleportSpell);
-
-                _lastTeleportSpell = teleportSpell;
-                DoCastSelf(teleportSpell);
+                DoCastSelf(GetNextTeleportSpell());
                 events.ScheduleEvent(EVENT_EMERGE, 1s);
                 break;
             }
@@ -141,6 +151,13 @@ struct boss_slagmaw : public BossAI
             {
                 me->RemoveAurasDueToSpell(SPELL_MAGNAW_SUBMERGE);
                 events.ScheduleEvent(EVENT_LAVA_SPIT, 1s);
+                break;
+            }
+            case EVENT_BOUNDARY_CHECK:
+            {
+                if (me->GetVictim() && me->GetVictim()->GetDistance(me) > 50.0f)
+                    EnterEvadeMode(EvadeReason::Other);
+                events.ScheduleEvent(EVENT_BOUNDARY_CHECK, 2500ms);
                 break;
             }
             default:
