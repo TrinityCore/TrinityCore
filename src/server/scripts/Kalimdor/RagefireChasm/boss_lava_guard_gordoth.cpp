@@ -53,12 +53,16 @@ enum GordothActions
 enum GordothMisc
 {
     NPC_DARK_SHAMAN_RESEARCHER = 61644,
+
     GO_GORDOTH_CAGE            = 211792,
+    GO_LAB_VIAL                = 211784,
+
     ANIMKIT_GORDOTH_NONE       = 0,
+
     POINT_JUMP                 = 1
 };
 
-constexpr Position GordothJumpPoint = { -363.357f, 203.486f, -22.0924f };
+constexpr Position GordothJumpPos = { -363.5392f, 203.36604f, -22.005634f, 0.308123469352722167f };
 
 // Areatrigger - 7899
 class at_lava_guard_gordoth_intro : public OnlyOnceAreaTriggerScript
@@ -88,11 +92,19 @@ public:
 // 61528 - Lava Guard Gordoth
 struct boss_lava_guard_gordoth : public BossAI
 {
-    boss_lava_guard_gordoth(Creature* creature) : BossAI(creature, BOSS_LAVA_GUARD_GORDOTH) { }
+    boss_lava_guard_gordoth(Creature* creature) : BossAI(creature, BOSS_LAVA_GUARD_GORDOTH), _enrageTriggered(false) { }
+
+    void InitializeAI() override
+    {
+        if (instance->GetBossState(BOSS_LAVA_GUARD_GORDOTH) != NOT_STARTED)
+            me->Relocate(GordothJumpPos);
+    }
 
     void Reset() override
     {
         _Reset();
+
+        _enrageTriggered = false;
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -119,8 +131,14 @@ struct boss_lava_guard_gordoth : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
+        if (_enrageTriggered)
+            return;
+
         if (me->HealthBelowPctDamaged(31, damage))
+        {
+            _enrageTriggered = true;
             DoCastSelf(SPELL_ENRAGE);
+        }
     }
 
     void DoAction(int32 action) override
@@ -130,7 +148,7 @@ struct boss_lava_guard_gordoth : public BossAI
 
         me->SetAIAnimKitId(ANIMKIT_GORDOTH_NONE);
         DoCastSelf(SPELL_JAIL_BREAK);
-        me->GetMotionMaster()->MoveJumpWithGravity(GordothJumpPoint, 50.0f, 55.5477f, POINT_JUMP);
+        me->GetMotionMaster()->MoveJumpWithGravity(GordothJumpPos, 50.0f, 55.5477f, POINT_JUMP, true);
 
         scheduler.Schedule(30ms, [this](TaskContext /*task*/)
         {
@@ -147,20 +165,26 @@ struct boss_lava_guard_gordoth : public BossAI
         if (pointId == POINT_JUMP)
         {
             DoCast(SPELL_GROUND_SLAM);
-            me->SetFacingTo(0.244346f);
-            me->SetHomePosition(GordothJumpPoint);
+            me->SetHomePosition(GordothJumpPos);
+
+            std::vector<GameObject*> labVialsList;
+            GetGameObjectListWithEntryInGrid(labVialsList, me, GO_LAB_VIAL, 25.0f);
+            for (GameObject* vial : labVialsList)
+            {
+                vial->SetGoState(GO_STATE_DESTROYED);
+            }
 
             std::vector<Creature*> darkShamanResearcherList;
             GetCreatureListWithEntryInGrid(darkShamanResearcherList, me, NPC_DARK_SHAMAN_RESEARCHER, 25.0f);
             for (Creature* darkShamanResearcher : darkShamanResearcherList)
             {
-                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, TRIGGERED_FULL_MASK);
-                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, TRIGGERED_FULL_MASK);
-                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, TRIGGERED_FULL_MASK);
-                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, TRIGGERED_FULL_MASK);
-                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK);
-                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK);
-                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, TRIGGERED_FULL_MASK); // According to sniff
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_1, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_2, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_MEAT_EXPLOSION_3, CastSpellExtraArgs(TRIGGERED_FULL_MASK)); // According to sniff
                 darkShamanResearcher->CastSpell(darkShamanResearcher, SPELL_BLOODY_SUICIDE, false);
             }
         }
@@ -189,7 +213,7 @@ struct boss_lava_guard_gordoth : public BossAI
                 }
                 case EVENT_SEISMIC_SLAM:
                 {
-                    DoCast(SPELL_SEISMIC_SLAM);
+                    DoCast(nullptr, SPELL_SEISMIC_SLAM, CastSpellExtraArgs(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)); // cast earlier than category cd
                     events.Repeat(36300ms);
                     break;
                 }
@@ -201,6 +225,9 @@ struct boss_lava_guard_gordoth : public BossAI
                 return;
         }
     }
+
+private:
+    bool _enrageTriggered;
 };
 
 void AddSC_boss_lava_guard_gordoth()

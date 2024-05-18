@@ -155,3 +155,5 @@ UPDATE `creature` SET `MovementType`= 2 WHERE `guid`= @CGUID+7;
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+7;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `SheathState`) VALUES
 (@CGUID+7, @PATH, 1);
+
+UPDATE `gameobject` SET `state`=1 WHERE `guid` IN(4000054, 4000055, 4000057);
