@@ -6398,15 +6398,15 @@ SpellCastResult Spell::CheckMovement() const
     if (IsTriggered())
         return SPELL_CAST_OK;
 
-        if (getState() == SPELL_STATE_PREPARING)
-        {
-            if (m_casttime > 0)
-                if (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT)
-                    return SPELL_FAILED_MOVING;
-        }
-        else if (getState() == SPELL_STATE_CASTING)
-            if (!m_spellInfo->IsMoveAllowedChannel())
+    if (getState() == SPELL_STATE_PREPARING)
+    {
+        if (m_casttime > 0)
+            if (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT)
                 return SPELL_FAILED_MOVING;
+    }
+    else if (getState() == SPELL_STATE_CASTING)
+        if (!m_spellInfo->IsMoveAllowedChannel())
+            return SPELL_FAILED_MOVING;
 
     return SPELL_CAST_OK;
 }
