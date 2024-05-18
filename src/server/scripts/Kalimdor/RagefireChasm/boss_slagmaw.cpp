@@ -93,9 +93,9 @@ struct boss_slagmaw : public BossAI
 
     uint32 GetNextTeleportSpell()
     {
-        std::array<uint32, 4> teleportSpells = { };
-        auto end = std::ranges::remove_copy(SlagmawTeleportSpells, teleportSpells.begin(), _lastTeleportSpell).out;
-        _lastTeleportSpell = Trinity::Containers::SelectRandomContainerElement(std::span(teleportSpells.begin(), end));
+        std::array<uint32, 3> teleportSpells = { };
+        std::ranges::remove_copy(SlagmawTeleportSpells, teleportSpells.begin(), _lastTeleportSpell);
+        _lastTeleportSpell = Trinity::Containers::SelectRandomContainerElement(teleportSpells);
         return _lastTeleportSpell;
     }
 
