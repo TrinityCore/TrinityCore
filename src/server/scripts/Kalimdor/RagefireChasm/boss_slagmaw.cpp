@@ -52,11 +52,6 @@ struct boss_slagmaw : public BossAI
 {
     boss_slagmaw(Creature* creature) : BossAI(creature, BOSS_SLAGMAW), _lavaSpitCounter(0), _lastTeleportSpell(SPELL_MAGNAW_TELEPORT_WEST) { }
 
-    void JustAppeared() override
-    {
-        me->SetCanMelee(false);
-    }
-
     void Reset() override
     {
         _Reset();
@@ -98,16 +93,10 @@ struct boss_slagmaw : public BossAI
 
     uint32 GetNextTeleportSpell()
     {
-        // Slagmaw should not repeat teleport for current position
-        uint32 teleportSpell = 0;
-        do
-        {
-            teleportSpell = Trinity::Containers::SelectRandomContainerElement(SlagmawTeleportSpells);
-        } while (teleportSpell == _lastTeleportSpell);
-
-        _lastTeleportSpell = teleportSpell;
-
-        return teleportSpell;
+        std::array<uint32, 4> teleportSpells = { };
+        auto end = std::ranges::remove_copy(SlagmawTeleportSpells, teleportSpells.begin(), _lastTeleportSpell).out;
+        _lastTeleportSpell = Trinity::Containers::SelectRandomContainerElement(std::span(teleportSpells.begin(), end));
+        return _lastTeleportSpell;
     }
 
     void UpdateAI(uint32 diff) override

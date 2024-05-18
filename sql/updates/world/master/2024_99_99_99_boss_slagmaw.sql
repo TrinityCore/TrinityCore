@@ -22,3 +22,5 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (119425, 0, 389, -226.477, 135.704, -19.721, 2.330294, 54630),
 (119426, 0, 389, -263.212, 136.244, -19.721, 0.7556769, 54630),
 (119428, 0, 389, -256.389, 172.884, -19.721, 5.577933, 54630);
+
+UPDATE `creature_template_difficulty` SET `StaticFlags4`=`StaticFlags4`|0x00000200 WHERE `Entry`=61463;
