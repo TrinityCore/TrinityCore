@@ -161,7 +161,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
         // should turn to highest threat target after standing up
         if (me->HasAura(SPELL_KNEELING))
         {
-            me->RemoveAura(SPELL_KNEELING);
+            me->RemoveAurasDueToSpell(SPELL_KNEELING);
             me->SetReactState(REACT_PASSIVE);
 
             scheduler.Schedule(1600ms, [this](TaskContext /*task*/)
@@ -243,7 +243,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
         if (param != ACTION_ACTIVATE)
             return;
 
-        me->RemoveAura(SPELL_KNEELING);
+        me->RemoveAurasDueToSpell(SPELL_KNEELING);
         scheduler.Schedule(2s, [this](TaskContext /*task*/)
         {
             me->GetMotionMaster()->MoveJumpWithGravity(YmironIntroJumpPos, 24.0f, 25.31545448303222656, EVENT_JUMP);
@@ -432,7 +432,7 @@ public:
     {
         float dist = frand(10.0f, 35.0f);
         float angle = frand(0.0f, 2.0f * float(M_PI));
-        Position dest = { _caster->GetPositionX() + dist * std::cos(angle), _caster->GetPositionY() + dist * std::sin(angle), _caster->GetPositionZ() };
+        Position dest(_caster->GetPositionX() + dist * std::cos(angle), _caster->GetPositionY() + dist * std::sin(angle), _caster->GetPositionZ());
         float travelSpeed = BANE_VISUAL_TIME_BASE + (BANE_VISUAL_TIME_OFFSET * _remainingVisualsToSpawn);
 
         _caster->SendPlaySpellVisual(dest, SPELL_VISUAL_BANE_PRECAST, 0, 0, travelSpeed, true);
@@ -609,7 +609,7 @@ class spell_ymiron_the_fallen_king_arise_fallen_selector : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->RemoveAura(SPELL_ARISE_FALLEN_ENABLER);
+        GetCaster()->RemoveAurasDueToSpell(SPELL_ARISE_FALLEN_ENABLER);
 
         std::vector<AreaTrigger*> atList = GetCaster()->GetAreaTriggers(SPELL_BANE_AT_NHC_HEROIC);
         Trinity::Containers::RandomShuffle(atList);
