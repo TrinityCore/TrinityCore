@@ -2496,7 +2496,7 @@ void Map::InitSpawnGroupState()
     for (uint32 spawnGroupId : *spawnGroups)
     {
         SpawnGroupTemplateData const* spawnGroupTemplate = ASSERT_NOTNULL(GetSpawnGroupData(spawnGroupId));
-        if (spawnGroupTemplate->flags & SPAWNGROUP_FLAG_SYSTEM)
+        if (spawnGroupTemplate->flags & (SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_MANUAL_SPAWN))
             continue;
 
         SetSpawnGroupActive(spawnGroupId, sConditionMgr->IsMapMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPAWN_GROUP, spawnGroupId, this));
