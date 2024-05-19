@@ -3123,6 +3123,11 @@ bool Unit::IsMovementPreventedByCasting() const
     if (!HasUnitState(UNIT_STATE_CASTING))
         return false;
 
+    if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
+        if (spell->getState() == SPELL_STATE_FINISHED ||
+            !(spell->m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
+            return false;
+
     // channeled spells during channel stage (after the initial cast timer) allow movement with a specific spell attribute
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
