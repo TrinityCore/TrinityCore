@@ -1225,11 +1225,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             _conditionalContentTuning[conditionalContentTuning->ParentContentTuningID].push_back(conditionalContentTuning);
 
         for (auto& [parentContentTuningId, conditionalContentTunings] : _conditionalContentTuning)
-        {
-            std::ranges::sort(conditionalContentTunings, [](ConditionalContentTuningEntry const* conditionalContentTuning1, ConditionalContentTuningEntry const* conditionalContentTuning2) {
-                return conditionalContentTuning1->OrderIndex > conditionalContentTuning2->OrderIndex;
-            });
-        }
+            std::ranges::sort(conditionalContentTunings, std::greater(), &ConditionalContentTuningEntry::OrderIndex);
     }
 
     for (ContentTuningXExpectedEntry const* contentTuningXExpectedStat : sContentTuningXExpectedStore)
@@ -2121,14 +2117,10 @@ ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(ui
 
 uint32 DB2Manager::GetRedirectedContentTuningId(uint32 contentTuningId, uint32 redirectFlag) const
 {
-    std::vector<ConditionalContentTuningEntry const*> const* conditionalContentTunings = Trinity::Containers::MapGetValuePtr(_conditionalContentTuning, contentTuningId);
-
-    if (conditionalContentTunings)
-    {
+    if (std::vector<ConditionalContentTuningEntry const*> const* conditionalContentTunings = Trinity::Containers::MapGetValuePtr(_conditionalContentTuning, contentTuningId))
         for (ConditionalContentTuningEntry const* conditionalContentTuning : *conditionalContentTunings)
             if (conditionalContentTuning->RedirectFlag & redirectFlag)
                 return conditionalContentTuning->RedirectContentTuningID;
-    }
 
     return contentTuningId;
 }
