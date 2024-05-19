@@ -615,6 +615,19 @@ void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
     }
 }
 
+void WorldSession::HandlePetAbandonByNumber(WorldPackets::Pet::PetAbandonByNumber const& petAbandonByNumber)
+{
+    if (Pet* pet = _player->GetPet())
+    {
+        if (pet->IsHunterPet() && pet->m_unitData->PetNumber == petAbandonByNumber.PetNumber)
+            _player->RemovePet(pet, PET_SAVE_AS_DELETED);
+    }
+    else
+    {
+        _player->DeletePetFromDB(petAbandonByNumber.PetNumber);
+    }
+}
+
 void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet)
 {
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.PetGUID);

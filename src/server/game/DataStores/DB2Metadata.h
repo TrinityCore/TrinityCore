@@ -30,7 +30,7 @@ struct AchievementMeta
         { FT_INT, 1, false },
         { FT_SHORT, 1, true },
         { FT_BYTE, 1, true },
-        { FT_SHORT, 1, true },
+        { FT_INT, 1, true },
         { FT_SHORT, 1, true },
         { FT_BYTE, 1, true },
         { FT_BYTE, 1, true },
@@ -45,7 +45,7 @@ struct AchievementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1260179, 3, 19, 19, 0x920E09CB, Fields, 11 };
+    static constexpr DB2Meta Instance{ 1260179, 3, 19, 19, 0x145BE391, Fields, 11 };
 };
 
 struct Achievement_CategoryMeta
@@ -2971,6 +2971,24 @@ struct ConfigurationWarningMeta
     static constexpr DB2Meta Instance{ 1709409, -1, 2, 2, 0x6E7F031C, Fields, -1 };
 };
 
+struct ContentPushMeta
+{
+    static constexpr DB2MetaField Fields[9] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, false },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5742435, -1, 9, 9, 0xA22779BB, Fields, -1 };
+};
+
 struct ContentRestrictionRuleMeta
 {
     static constexpr DB2MetaField Fields[8] =
@@ -3002,8 +3020,11 @@ struct ContentRestrictionRuleSetMeta
 
 struct ContentTuningMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[15] =
     {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -3018,7 +3039,7 @@ struct ContentTuningMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1962930, -1, 12, 12, 0x3E5D4B74, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1962930, 0, 15, 15, 0xE97AE065, Fields, -1 };
 };
 
 struct ContentTuningXExpectedMeta
@@ -3473,6 +3494,17 @@ struct CreatureDisplayInfoTrnMeta
     static constexpr DB2Meta Instance{ 1146698, -1, 6, 5, 0x7B61A667, Fields, 5 };
 };
 
+struct CreatureDisplayXUIModelSceneMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5551196, -1, 2, 2, 0xF6F7B883, Fields, -1 };
+};
+
 struct CreatureFamilyMeta
 {
     static constexpr DB2MetaField Fields[9] =
@@ -3491,6 +3523,17 @@ struct CreatureFamilyMeta
     static constexpr DB2Meta Instance{ 1351351, -1, 9, 9, 0x78019FD1, Fields, -1 };
 };
 
+struct CreatureFamilyXUIModelSceneMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5551197, -1, 2, 2, 0x67A62BDD, Fields, -1 };
+};
+
 struct CreatureImmunitiesMeta
 {
     static constexpr DB2MetaField Fields[9] =
@@ -3502,11 +3545,11 @@ struct CreatureImmunitiesMeta
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_INT, 2, true },
-        { FT_INT, 10, false },
+        { FT_INT, 11, false },
         { FT_INT, 20, false },
     };
 
-    static constexpr DB2Meta Instance{ 1131322, -1, 9, 9, 0x1B605529, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1131322, -1, 9, 9, 0x6103DDDA, Fields, -1 };
 };
 
 struct CreatureLabelMeta
@@ -4494,6 +4537,21 @@ struct GameObjectDiffAnimMapMeta
     };
 
     static constexpr DB2Meta Instance{ 1302847, -1, 4, 3, 0x7403DFA2, Fields, 3 };
+};
+
+struct GameObjectDisplayConditionMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5634246, 0, 6, 5, 0x676E8326, Fields, 5 };
 };
 
 struct GameObjectDisplayInfoMeta
@@ -6751,7 +6809,7 @@ struct ItemLogicalCostGroupMeta
 
 struct ItemModifiedAppearanceMeta
 {
-    static constexpr DB2MetaField Fields[6] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -6759,9 +6817,10 @@ struct ItemModifiedAppearanceMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 982457, 0, 6, 6, 0x0120090C, Fields, 1 };
+    static constexpr DB2Meta Instance{ 982457, 0, 7, 7, 0xF881E7D5, Fields, 1 };
 };
 
 struct ItemModifiedAppearanceExtraMeta
@@ -6848,6 +6907,20 @@ struct ItemRecraftMeta
     };
 
     static constexpr DB2Meta Instance{ 5150118, 0, 5, 4, 0xE00E7F34, Fields, 4 };
+};
+
+struct ItemReforgeMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_SHORT, 1, false },
+        { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
+        { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
+    };
+
+    static constexpr DB2Meta Instance{ 5633983, -1, 5, 5, 0xE91C7760, Fields, -1 };
 };
 
 struct ItemSalvageMeta
@@ -9821,16 +9894,17 @@ struct QuestLabelMeta
 
 struct QuestLineMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[6] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 973430, -1, 5, 5, 0xA360A782, Fields, -1 };
+    static constexpr DB2Meta Instance{ 973430, -1, 6, 6, 0x148A5F52, Fields, -1 };
 };
 
 struct QuestLineXQuestMeta
@@ -13433,6 +13507,19 @@ struct UISplashScreenMeta
     };
 
     static constexpr DB2Meta Instance{ 2960122, -1, 15, 15, 0x5C67BB80, Fields, -1 };
+};
+
+struct UiCamFbackTalkingHeadChrRaceMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 3055924, -1, 4, 3, 0xAABE2521, Fields, 3 };
 };
 
 struct UiCamFbackTransmogChrRaceMeta

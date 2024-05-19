@@ -671,14 +671,14 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         receiver->SendDirectMessage(achievementEarned.Write());
     };
 
+    achievementEarnedBuilder(_owner);
+
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
     {
         float dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
         Trinity::MessageDistDeliverer notifier(_owner, achievementEarnedBuilder, dist);
         Cell::VisitWorldObjects(_owner, notifier, dist);
     }
-    else
-        achievementEarnedBuilder(_owner);
 }
 
 void PlayerAchievementMgr::SendPacket(WorldPacket const* data) const
@@ -702,7 +702,7 @@ void GuildAchievementMgr::Reset()
     ObjectGuid guid = _owner->GetGUID();
     for (std::pair<uint32 const, CompletedAchievementData> const& completedAchievement : _completedAchievements)
     {
-        auto packetBuilder = [&](Player const* receiver)
+        _owner->BroadcastWorker([&](Player const* receiver)
         {
             WorldPackets::Achievement::GuildAchievementDeleted guildAchievementDeleted;
             guildAchievementDeleted.AchievementID = completedAchievement.first;
@@ -710,8 +710,7 @@ void GuildAchievementMgr::Reset()
             guildAchievementDeleted.TimeDeleted = *GameTime::GetUtcWowTime();
             guildAchievementDeleted.TimeDeleted += receiver->GetSession()->GetTimezoneOffset();
             receiver->SendDirectMessage(guildAchievementDeleted.Write());
-        };
-        _owner->BroadcastWorker(packetBuilder);
+        });
     }
 
     _achievementPoints = 0;
@@ -1020,7 +1019,7 @@ void GuildAchievementMgr::SendAchievementEarned(AchievementEntry const* achievem
         sWorld->SendGlobalMessage(serverFirstAchievement.Write());
     }
 
-    auto guildAchievementEarnedBuilder = [&](Player const* receiver)
+    _owner->BroadcastWorker([&](Player const* receiver)
     {
         WorldPackets::Achievement::GuildAchievementEarned guildAchievementEarned;
         guildAchievementEarned.AchievementID = achievement->ID;
@@ -1028,8 +1027,7 @@ void GuildAchievementMgr::SendAchievementEarned(AchievementEntry const* achievem
         guildAchievementEarned.TimeEarned = *GameTime::GetUtcWowTime();
         guildAchievementEarned.TimeEarned += receiver->GetSession()->GetTimezoneOffset();
         receiver->SendDirectMessage(guildAchievementEarned.Write());
-    };
-    _owner->BroadcastWorker(guildAchievementEarnedBuilder);
+    });
 }
 
 void GuildAchievementMgr::SendPacket(WorldPacket const* data) const
