@@ -1568,6 +1568,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled event_type({}), Entry {} SourceType {} Event {} Action {}, skipped.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
         }
+        if (e.event.event_flags & SMART_EVENT_FLAG_ACTIONLIST_WAITS)
+        {
+            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {}, uses SMART_EVENT_FLAG_ACTIONLIST_WAITS but is not part of a timed actionlist.",
+                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+            return false;
+        }
     }
 
     if (!CheckUnusedEventParams(e))
@@ -1723,6 +1729,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cast.spell, spellEffectInfo.TargetA.GetTarget(), spellEffectInfo.TargetB.GetTarget());
                 }
             }
+            if (e.action.cast.castFlags & SMARTCAST_WAIT_FOR_HIT && !(e.event.event_flags & SMART_EVENT_FLAG_ACTIONLIST_WAITS))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses SMARTCAST_WAIT_FOR_HIT but is not part of actionlist event that has SMART_EVENT_FLAG_ACTIONLIST_WAITS",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
             break;
         }
         case SMART_ACTION_CROSS_CAST:
@@ -1755,6 +1767,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
             }
+            if (e.action.crossCast.castFlags & SMARTCAST_WAIT_FOR_HIT && !(e.event.event_flags & SMART_EVENT_FLAG_ACTIONLIST_WAITS))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses SMARTCAST_WAIT_FOR_HIT but is not part of actionlist event that has SMART_EVENT_FLAG_ACTIONLIST_WAITS",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
             break;
         }
         case SMART_ACTION_INVOKER_CAST:
@@ -1767,6 +1785,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SELF_CAST:
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
+            if (e.action.cast.castFlags & SMARTCAST_WAIT_FOR_HIT && !(e.event.event_flags & SMART_EVENT_FLAG_ACTIONLIST_WAITS))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses SMARTCAST_WAIT_FOR_HIT but is not part of actionlist event that has SMART_EVENT_FLAG_ACTIONLIST_WAITS",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
             break;
         case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
@@ -2030,6 +2054,33 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                     }
                 }
+
+                auto isValidEquipmentSlot = [&](uint32 itemEntry, uint8 slot)
+                {
+                    ItemEntry const* dbcItem = sItemStore.LookupEntry(itemEntry);
+                    if (!dbcItem)
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses unknown item {} (slot {}) for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
+                        return false;
+                    }
+
+                    if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses item {} (slot {}) not equipable in a hand for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
+                        return false;
+                    }
+
+                    return true;
+                };
+
+                if (e.action.equip.slot1 && !isValidEquipmentSlot(e.action.equip.slot1, 0))
+                    return false;
+
+                if (e.action.equip.slot2 && !isValidEquipmentSlot(e.action.equip.slot2, 1))
+                    return false;
+
+                if (e.action.equip.slot3 && !isValidEquipmentSlot(e.action.equip.slot3, 2))
+                    return false;
             }
             break;
         }

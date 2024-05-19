@@ -1,0 +1,15 @@
+ALTER TABLE `characters`
+  ADD `inventoryBagFlags` int unsigned NOT NULL DEFAULT '0' AFTER `inventorySlots`,
+  ADD `bagSlotFlags1` int unsigned NOT NULL DEFAULT '0' AFTER `inventoryBagFlags`,
+  ADD `bagSlotFlags2` int unsigned NOT NULL DEFAULT '0' AFTER `bagSlotFlags1`,
+  ADD `bagSlotFlags3` int unsigned NOT NULL DEFAULT '0' AFTER `bagSlotFlags2`,
+  ADD `bagSlotFlags4` int unsigned NOT NULL DEFAULT '0' AFTER `bagSlotFlags3`,
+  ADD `bagSlotFlags5` int unsigned NOT NULL DEFAULT '0' AFTER `bagSlotFlags4`,
+  ADD `bankBagFlags` int unsigned NOT NULL DEFAULT '0' AFTER `bankSlots`,
+  ADD `bankBagSlotFlags1` int unsigned NOT NULL DEFAULT '0' AFTER `bankBagFlags`,
+  ADD `bankBagSlotFlags2` int unsigned NOT NULL DEFAULT '0' AFTER `bankBagSlotFlags1`,
+  ADD `bankBagSlotFlags3` int unsigned NOT NULL DEFAULT '0' AFTER `bankBagSlotFlags2`,
+  ADD `bankBagSlotFlags4` int unsigned NOT NULL DEFAULT '0' AFTER `bankBagSlotFlags3`,
+  ADD `bankBagSlotFlags5` int unsigned NOT NULL DEFAULT '0' AFTER `bankBagSlotFlags4`,
+  ADD `bankBagSlotFlags6` int unsigned NOT NULL DEFAULT '0' AFTER `bankBagSlotFlags5`,
+  ADD `bankBagSlotFlags7` int unsigned NOT NULL DEFAULT '0' AFTER `bankBagSlotFlags6`;

@@ -25,6 +25,8 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
+enum class MovementStopReason : uint8;
+
 enum SmartEscortState : uint8
 {
     SMART_ESCORT_NONE       = 0x00, // nothing in progress
@@ -49,7 +51,8 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool IsAIControlled() const;
 
         // Start moving to the desired MovePoint
-        void StartPath(uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 0);
+        void StartPath(uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 0,
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         WaypointPath const* LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
         bool CanResumePath();

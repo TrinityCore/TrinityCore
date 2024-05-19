@@ -63,6 +63,7 @@ message LoginResult {
   optional string url = 4;
   optional string login_ticket = 5;
   optional string server_evidence_M2 = 6;
+  optional string next_url = 7;
 }
 
 message LoginRefreshResult {

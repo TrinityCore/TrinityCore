@@ -49,6 +49,21 @@ enum MovementGeneratorType : uint8
     MAX_MOTION_TYPE                          // SKIP
 };
 
+constexpr bool CanStopMovementForSpellCasting(MovementGeneratorType type)
+{
+    // MovementGenerators that don't check Unit::IsMovementPreventedByCasting
+    switch (type)
+    {
+        case HOME_MOTION_TYPE:
+        case FLIGHT_MOTION_TYPE:
+        case EFFECT_MOTION_TYPE:    // knockbacks, jumps, falling, land/takeoff transitions
+            return false;
+        default:
+            break;
+    }
+    return true;
+}
+
 enum MovementGeneratorMode : uint8
 {
     MOTION_MODE_DEFAULT = 0,
