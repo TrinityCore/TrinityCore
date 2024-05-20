@@ -566,4 +566,3 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 UPDATE `creature` SET `ScriptName` = '', `wander_distance` = 0, `MovementType` = 2 WHERE `guid` = @CGUID+56;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+56, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Flying Machine
-
