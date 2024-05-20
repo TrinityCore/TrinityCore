@@ -53,6 +53,8 @@ void AddSC_arena_ring_of_valor();
 void AddSC_battleground_twin_peaks();
 void AddSC_battleground_battle_for_gilneas();
 
+void AddSC_battleground_seething_shore();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBattlegroundsScripts()
@@ -92,4 +94,6 @@ void AddBattlegroundsScripts()
 
     AddSC_battleground_twin_peaks();
     AddSC_battleground_battle_for_gilneas();
+
+    AddSC_battleground_seething_shore();
 }
