@@ -15,53 +15,6 @@ DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
 (@ATID+0, 1, 1, 0);
 
-DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=23 AND `Entry` IN (35642,96759,97099,98246,98363,98693,98761,98989,99033,99307,99800,99801,99803,100188,100359,100360,100839,101502,101504,101814,102306,114288,114289));
-INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `VerifiedBuild`) VALUES
-(35642, 23, 0, 0, 391, 9, 3, 1, 43668, 0, 0, 52129), -- Jeeves
-(96759, 23, 2, 2, 629, 6, 249.600006103515625, 1, 115330, 2097260, 128, 52129), -- Helya
-(97099, 23, 0, 0, 1155, 6, 1, 1, 97598, 1024, 0, 52129), -- Swirling Pool
-(98246, 23, 2, 2, 629, 6, 0.899999976158142089, 1, 117106, 2097224, 128, 52129), -- Risen Warrior
-(98363, 23, 1, 1, 629, 6, 4, 1, 115313, 104, 128, 52129), -- Grasping Tentacle
-(98693, 23, 1, 1, 629, 6, 1.299999952316284179, 1, 115320, 2097224, 128, 52129), -- Shackled Servitor
-(98761, 23, 0, 0, 629, 6, 0.5, 1, 115333, 2097224, 128, 52129), -- Soul Fragment
-(98989, 23, 0, 0, 1155, 6, 1, 1, 99495, 1024, 0, 52129), -- Cosmic Scythe
-(99033, 23, 1, 1, 629, 6, 5.5, 1, 115321, 270532680, 0, 52129), -- Helarjar Mistcaller
-(99307, 23, 1, 1, 629, 6, 16, 1, 115338, 270532712, 0, 52129), -- Skjal
-(99800, 23, 2, 2, 1155, 6, 1, 1, 100308, 0, 128, 52129), -- Grasping Tentacle
-(99801, 23, 1, 1, 629, 6, 4, 1, 115322, 2097256, 128, 52129), -- Destructor Tentacle
-(99803, 23, 2, 2, 1155, 6, 1, 1, 100311, 0, 128, 52129), -- Destructor Tentacle
-(100188, 23, 1, 1, 1155, 6, 1, 1, 100697, 0, 128, 52129), -- Piercing Tentacle
-(100359, 23, 2, 2, 1155, 6, 1, 1, 100869, 0, 128, 52129), -- Grasping Tentacle
-(100360, 23, 1, 1, 629, 6, 4, 1, 115334, 104, 128, 52129), -- Grasping Tentacle
-(100839, 23, 0, 0, 1155, 6, 1, 1, 101356, 1024, 0, 52129), -- Cosmic Scythe
-(101502, 23, 0, 0, 1155, 6, 1, 1, 102076, 0, 0, 52129), -- Helya's Tentacle
-(101504, 23, 2, 2, 1155, 6, 1, 1, 102078, 0, 0, 52129), -- Grasping Tentacle
-(101814, 23, 2, 2, 1155, 6, 1, 1, 102424, 0, 0, 52129), -- Grasping Tentacle
-(102306, 23, 0, 0, 1155, 6, 1, 1, 103079, 1024, 0, 52129), -- Swirling Pool
-(114288, 23, 0, 0, 629, 6, 1.10000002384185791, 0.065200001001358032, 117625, 2097224, 0, 52129), -- Skeletal Warrior
-(114289, 23, 0, 0, 629, 6, 0.75, 1, 117628, 270532680, 0, 52129); -- Skeletal Sorcerer
-
-UPDATE `creature_template_difficulty` SET `VerifiedBuild`=52129 WHERE (`DifficultyID`=23 AND `Entry` IN (32641,32642,97208,98291,101013,102108,102325,102326,102327,102742,102769,102830,102894,102896,103115,104906,111374,120652));
-UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=6, `CreatureDifficultyID`=115314, `VerifiedBuild`=52129 WHERE (`Entry`=96754 AND `DifficultyID`=23); -- Harbaron
-UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=6, `ManaModifier`=0.000350554008036851, `CreatureDifficultyID`=115318, `VerifiedBuild`=52129 WHERE (`Entry`=96756 AND `DifficultyID`=23); -- Ymiron, the Fallen King
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115311, `VerifiedBuild`=52129 WHERE (`Entry`=97043 AND `DifficultyID`=23); -- Seacursed Slaver
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115312, `VerifiedBuild`=52129 WHERE (`Entry`=97097 AND `DifficultyID`=23); -- Helarjar Champion
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115331, `TypeFlags`=2097224, `VerifiedBuild`=52129 WHERE (`Entry`=97119 AND `DifficultyID`=23); -- Shroud Hound
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115325, `TypeFlags`=2097224, `VerifiedBuild`=52129 WHERE (`Entry`=97163 AND `DifficultyID`=23); -- Cursed Falke
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115324, `VerifiedBuild`=52129 WHERE (`Entry`=97182 AND `DifficultyID`=23); -- Night Watch Mariner
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115327, `VerifiedBuild`=52129 WHERE (`Entry`=97185 AND `DifficultyID`=23); -- The Grimewalker
-UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=6, `CreatureDifficultyID`=115332, `VerifiedBuild`=52129 WHERE (`Entry`=97200 AND `DifficultyID`=23); -- Seacursed Soulkeeper
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115336, `VerifiedBuild`=52129 WHERE (`Entry`=97365 AND `DifficultyID`=23); -- Seacursed Mistmender
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115317, `VerifiedBuild`=52129 WHERE (`Entry`=98919 AND `DifficultyID`=23); -- Seacursed Swiftblade
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115329, `VerifiedBuild`=52129 WHERE (`Entry`=98973 AND `DifficultyID`=23); -- Skeletal Warrior
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115316, `VerifiedBuild`=52129 WHERE (`Entry`=99188 AND `DifficultyID`=23); -- Waterlogged Soul Guard
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115335, `VerifiedBuild`=52129 WHERE (`Entry`=102104 AND `DifficultyID`=23); -- Enslaved Shieldmaiden
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=115315, `VerifiedBuild`=52129 WHERE (`Entry`=102375 AND `DifficultyID`=23); -- Runecarver Slave
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=629, `VerifiedBuild`=52129 WHERE (`Entry`=111221 AND `DifficultyID`=23); -- Xal'atath
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=629, `VerifiedBuild`=52129 WHERE (`Entry`=111833 AND `DifficultyID`=23); -- Thal'kiel
-UPDATE `creature_template_difficulty` SET `CreatureDifficultyID`=118183, `VerifiedBuild`=52129 WHERE (`Entry`=114712 AND `DifficultyID`=23); -- Runecarver Slave
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=877, `VerifiedBuild`=52129 WHERE (`Entry`=188142 AND `DifficultyID`=23); -- Motion Sick Peon's Soul
-
 UPDATE `creature_model_info` SET `VerifiedBuild`=52129 WHERE `DisplayID` IN (30076, 66346, 66348, 66681, 66345, 66238, 66121, 70528, 66688, 64208, 66852, 26725, 66184, 106378, 67556, 30710, 70529, 66102, 66181, 67179, 66183, 66103, 65823, 64467, 64200, 28120, 28118, 65214, 67001, 65079, 21342, 66119, 25801, 27824, 66091, 11686, 16925, 66090, 25630);
 UPDATE `creature_model_info` SET `BoundingRadius`=10.46424579620361328, `VerifiedBuild`=52129 WHERE `DisplayID`=65778;
 UPDATE `creature_model_info` SET `BoundingRadius`=52.32122802734375, `VerifiedBuild`=52129 WHERE `DisplayID`=66680;
@@ -143,3 +96,5 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (96756, 5, 0, 'The shadows of the underworld bend to me!', 14, 0, 100, 0, 0, 54357, 102171, 0, 'Ymiron, the Fallen King'),
 (96756, 6, 0, 'The shadows of Helheim cut deeper than steel!', 14, 0, 100, 0, 0, 54358, 102173, 0, 'Ymiron, the Fallen King'),
 (96756, 7, 0, 'Not... again... HARBARON! CAST THEIR SOULS INTO THE TIDES!', 14, 0, 100, 0, 0, 54366, 102182, 0, 'Ymiron, the Fallen King to Player');
+
+UPDATE `creature_template_difficulty` SET `StaticFlags2`=`StaticFlags2`|0x02|0x04 WHERE `Entry`=96756;
