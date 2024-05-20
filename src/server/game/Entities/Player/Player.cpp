@@ -140,8 +140,6 @@
 #include <G3D/g3dmath.h>
 #include <sstream>
 
-#define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
-
 // corpse reclaim times
 #define DEATH_EXPIRE_STEP (5*MINUTE)
 #define MAX_DEATH_COUNT 3
@@ -185,7 +183,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
-    m_zoneUpdateTimer = 0;
 
     m_areaUpdateId = 0;
     m_team = TEAM_OTHER;
@@ -1024,37 +1021,6 @@ void Player::Update(uint32 p_time)
             m_weaponChangeTimer -= p_time;
     }
 
-    if (m_zoneUpdateTimer > 0)
-    {
-        if (p_time >= m_zoneUpdateTimer)
-        {
-            // On zone update tick check if we are still in an inn if we are supposed to be in one
-            if (_restMgr->HasRestFlag(REST_FLAG_IN_TAVERN))
-            {
-                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(_restMgr->GetInnTriggerID());
-                if (!atEntry || !IsInAreaTriggerRadius(atEntry))
-                    _restMgr->RemoveRestFlag(REST_FLAG_IN_TAVERN);
-            }
-
-            uint32 newzone, newarea;
-            GetZoneAndAreaId(newzone, newarea);
-
-            if (m_zoneUpdateId != newzone)
-                UpdateZone(newzone, newarea);                // also update area
-            else
-            {
-                // use area updates as well
-                // needed for free far all arenas for example
-                if (m_areaUpdateId != newarea)
-                    UpdateArea(newarea);
-
-                m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
-            }
-        }
-        else
-            m_zoneUpdateTimer -= p_time;
-    }
-
     if (IsAlive())
     {
         m_regenTimer += p_time;
@@ -1161,6 +1127,9 @@ void Player::Update(uint32 p_time)
 void Player::Heartbeat()
 {
     Unit::Heartbeat();
+
+    // ZoneId and AreaId depending updats and mechanics (e.g. Resting, spell_area, phasing)
+    UpdateZoneAndArea();
 
     // Group update
     SendUpdateToOutOfRangeGroupMembers();
@@ -7454,6 +7423,30 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
     return zone;
 }
 
+void Player::UpdateZoneAndArea()
+{
+    // On zone update tick check if we are still in an inn if we are supposed to be in one
+    if (_restMgr->HasRestFlag(REST_FLAG_IN_TAVERN))
+    {
+        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(_restMgr->GetInnTriggerID());
+        if (!atEntry || !IsInAreaTriggerRadius(atEntry))
+            _restMgr->RemoveRestFlag(REST_FLAG_IN_TAVERN);
+    }
+
+    uint32 newzone, newarea;
+    GetZoneAndAreaId(newzone, newarea);
+
+    if (m_zoneUpdateId != newzone)
+        UpdateZone(newzone, newarea);                // also update area
+    else
+    {
+        // use area updates as well
+        // needed for free far all arenas for example
+        if (m_areaUpdateId != newarea)
+            UpdateArea(newarea);
+    }
+}
+
 void Player::UpdateArea(uint32 newArea)
 {
     // FFA_PVP flags are area and not zone id dependent
@@ -7519,7 +7512,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     uint32 const oldZone = m_zoneUpdateId;
     m_zoneUpdateId = newZone;
-    m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
 
     GetMap()->UpdatePlayerZoneStats(oldZone, newZone);
 
