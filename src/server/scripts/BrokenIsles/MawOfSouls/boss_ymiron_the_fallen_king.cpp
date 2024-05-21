@@ -59,7 +59,7 @@ enum YmironFallenKingSpells
     SPELL_VIGOR                     = 203816, // stacking every 6s
 };
 
-enum YmironSpellVisuals
+enum YmironFallenKingSpellVisuals
 {
     SPELL_VISUAL_SOUL_SIPHON        = 52528,
     SPELL_VISUAL_BANE_PRECAST       = 50121,
