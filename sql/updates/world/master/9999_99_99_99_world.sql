@@ -4,8 +4,8 @@ SET @ATSPAWNID := 68;
 SET @ATCP := 54;
 
 DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID+0;
-INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
-(@ATSPAWNID+0, @ATCP+0, 1, 1492, '1,2,8,23', 7380.5766, 7289.9389, 43.8447, 2.8720, 1, 0, 0, NULL, 'at_ymiron_the_fallen_king_activation', 'Maw of Souls - Ymiron Activation Trigger', 0);
+INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
+(@ATSPAWNID+0, @ATCP+0, 1, 1492, '1,2,8,23', 7380.5766, 7289.9389, 43.8447, 2.8720, 1, 0, 0, 'at_ymiron_the_fallen_king_activation', 'Maw of Souls - Ymiron Activation Trigger', 0);
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATCP+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
