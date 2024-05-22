@@ -1,7 +1,7 @@
 -- 
-SET @ATID := 66;
-SET @ATSPAWNID := 68;
-SET @ATCP := 54;
+SET @ATID := 65;
+SET @ATSPAWNID := 67;
+SET @ATCP := 53;
 
 DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID+0;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
