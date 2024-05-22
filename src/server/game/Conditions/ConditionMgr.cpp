@@ -155,6 +155,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "On Scenario Step",          true, false, false, false },
     { "Scene In Progress",         true, false, false, false },
     { "Player Condition",          true, false, false, false },
+    { "Private Object",           false, false, false, false },
     { "String ID",                false, false, false, true }
 };
 
@@ -2681,6 +2682,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_TAXI:
         case CONDITION_GAMEMASTER:
         case CONDITION_PRIVATE_OBJECT:
+        case CONDITION_STRING_ID:
             break;
         case CONDITION_DIFFICULTY_ID:
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
