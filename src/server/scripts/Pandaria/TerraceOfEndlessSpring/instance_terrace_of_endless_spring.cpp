@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
@@ -39,6 +40,11 @@ DungeonEncounterData const encounters[] =
     { DATA_SHA_OF_FEAR,               {{ 1431 }} }
 };
 
+BossBoundaryData const boundaries =
+{
+    { DATA_PROTECTORS_OF_THE_ENDLESS, new CircleBoundary(Position(-1017.799988f, -3049.110107f), 95.0f) }
+};
+
 class instance_terrace_of_endless_spring : public InstanceMapScript
 {
 public:
@@ -51,6 +57,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
+            LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
 
             _protectorsIntroState = NOT_STARTED;

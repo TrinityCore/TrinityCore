@@ -16,12 +16,14 @@
  */
 
 #include "Containers.h"
+#include "CreatureAI.h"
 #include "CreatureAIImpl.h" // for RAND()
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "terrace_of_endless_spring.h"
 
@@ -81,7 +83,7 @@ enum ProtectorsEvents
 enum ProtectorsTexts
 {
     // Shared texts
-    // SAY_NEW_POWER                  = 1, Not Implemented
+    SAY_NEW_POWER                  = 1, // NYI
     SAY_WARNING_CLEANSING_WATERS   = 2,
     SAY_DISPEL_CLEANSING_WATERS    = 3,
     SAY_FULL_POWER                 = 4,
@@ -113,17 +115,15 @@ enum ProtectorsMisc
     NPC_CORRUPTED_ORB         = 60621
 };
 
+uint32 const ProtectorsData[3] =
+{
+    DATA_PROTECTOR_KAOLAN,
+    DATA_ELDER_ASANI,
+    DATA_ELDER_REGAIL
+};
+
 namespace
 {
-void ProtectorsOfTheEndlessData(InstanceScript* instance, std::function<void(Creature* protector)> func)
-{
-    for (uint32 data = DATA_PROTECTOR_KAOLAN; data <= DATA_ELDER_ASANI; data++)
-    {
-        if (Creature* protector = instance->GetCreature(data))
-            func(protector);
-    }
-}
-
 void DespawnProtectors(InstanceScript* instance, EvadeReason why)
 {
     if (instance->GetBossState(DATA_PROTECTORS_OF_THE_ENDLESS) == FAIL)
@@ -131,11 +131,14 @@ void DespawnProtectors(InstanceScript* instance, EvadeReason why)
 
     instance->SetBossState(DATA_PROTECTORS_OF_THE_ENDLESS, FAIL);
 
-    ProtectorsOfTheEndlessData(instance, [instance, why](Creature* protector)
+    for (uint32 bossesData : ProtectorsData)
     {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, protector);
-        protector->AI()->EnterEvadeMode(why);
-    });
+        if (Creature* protectors = instance->GetCreature(bossesData))
+        {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, protectors);
+            protectors->AI()->EnterEvadeMode(why);
+        }
+    }
 }
 
 void ProtectorsEncounterDone(InstanceScript* instance)
@@ -143,15 +146,14 @@ void ProtectorsEncounterDone(InstanceScript* instance)
     if (instance->GetBossState(DATA_PROTECTORS_OF_THE_ENDLESS) == DONE)
         return;
 
-    bool protectorsDead = true;
-    ProtectorsOfTheEndlessData(instance, [&protectorsDead](Creature* protector)
+    for (uint32 bossesData : ProtectorsData)
     {
-        if (protector->IsAlive())
-            protectorsDead = false;
-    });
-
-    if (!protectorsDead)
-        return;
+        if (Creature* protectors = instance->GetCreature(bossesData))
+        {
+            if (protectors->IsAlive())
+                return;
+        }
+    }
 
     instance->SetBossState(DATA_PROTECTORS_OF_THE_ENDLESS, DONE);
 }
@@ -159,7 +161,10 @@ void ProtectorsEncounterDone(InstanceScript* instance)
 
 struct ProtectorsSharedAI : public BossAI
 {
-    ProtectorsSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _newPower(false), _fullPower(false) { }
+    ProtectorsSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _newPower(false), _fullPower(false)
+    {
+        SetBoundary(instance->GetBossBoundary(DATA_PROTECTORS_OF_THE_ENDLESS));
+    }
 
     void Reset() override
     {
@@ -173,19 +178,22 @@ struct ProtectorsSharedAI : public BossAI
     {
         if (instance->GetData(DATA_PROTECTORS_INTRO_STATE) == DONE)
         {
-            ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+            for (uint32 bossesData : ProtectorsData)
             {
-                protector->SetUninteractible(false);
-                protector->SetImmuneToPC(false);
-                protector->SetAIAnimKitId(ANIMKIT_NONE);
-            });
+                if (Creature* protectors = instance->GetCreature(bossesData))
+                {
+                    protectors->SetUninteractible(false);
+                    protectors->SetImmuneToPC(false);
+                    protectors->SetAIAnimKitId(ANIMKIT_NONE);
+                }
+            }
         }
     }
 
     void EnterEvadeMode(EvadeReason why) override
     {
         DespawnProtectors(instance, why);
- 
+
         events.Reset();
         summons.DespawnAll();
         _DespawnAtEvade();
@@ -200,10 +208,11 @@ struct ProtectorsSharedAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+        for (uint32 bossesData : ProtectorsData)
         {
-            DoZoneInCombat(protector);
-        });
+            if (Creature* protectors = instance->GetCreature(bossesData))
+                protectors->AI()->DoZoneInCombat();
+        }
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
@@ -279,31 +288,35 @@ struct boss_protector_kaolan : public ProtectorsSharedAI
 
         scheduler.Schedule(10s, [this](TaskContext context)
         {
-            ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+            for (uint32 bossesData : ProtectorsData)
             {
-                protector->SetAIAnimKitId(ANIMKIT_NONE);
-            });
+                if (Creature* protectors = instance->GetCreature(bossesData))
+                    protectors->SetAIAnimKitId(ANIMKIT_NONE);
+            }
 
             context.Schedule(2s + 500ms, [this](TaskContext context)
             {
                 Talk(SAY_INTRO);
 
-                ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+                for (uint32 bossesData : ProtectorsData)
                 {
-                    protector->PlayOneShotAnimKitId(ANIMKIT_PROTECTORS_AWAKEN);
-                });
+                    if (Creature* protectors = instance->GetCreature(bossesData))
+                        protectors->PlayOneShotAnimKitId(ANIMKIT_PROTECTORS_AWAKEN);
+                }
 
                 context.Schedule(2s + 440ms, [this](TaskContext context)
                 {
-                    me->SetUnitFlag3(UNIT_FLAG3_UNK23);
-
-                    ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+                    for (uint32 bossesData : ProtectorsData)
                     {
-                        protector->SetFacingTo(4.694935f);
-                        protector->SetUninteractible(false);
-                        protector->SetImmuneToPC(false);
-                        protector->SetHomePosition(protector->GetPositionX(), protector->GetPositionY(), protector->GetPositionZ(), protector->GetOrientation());
-                    });
+                        if (Creature* protectors = instance->GetCreature(bossesData))
+                        {
+                            protectors->SetFacingTo(4.694935f);
+                            protectors->SetOrientation(protectors->GetOrientation());
+                            protectors->SetUninteractible(false);
+                            protectors->SetImmuneToPC(false);
+                            protectors->SetHomePosition(protectors->GetPosition());
+                        }
+                    }
 
                     instance->SetData(DATA_PROTECTORS_INTRO_STATE, DONE);
                 });
@@ -399,15 +412,11 @@ struct boss_elder_regail : public ProtectorsSharedAI
         ProtectorsSharedAI::JustEngagedWith(who);
 
         Creature* protector = nullptr;
-        switch (urand(0, 1))
-        {
-            case 0:
-                protector = me;
-                break;
-            case 1:
-                protector = me->GetInstanceScript()->GetCreature(DATA_ELDER_ASANI);
-                break;
-        }
+
+        if (roll_chance_i(50))
+            protector = me;
+        else
+            protector = me->GetInstanceScript()->GetCreature(DATA_ELDER_ASANI);
 
         protector->AI()->Talk(SAY_PULL);
     }
@@ -530,7 +539,6 @@ struct boss_elder_asani : public ProtectorsSharedAI
             {
                 DoCast(SPELL_CORRUPTED_WATERS);
                 Talk(SAY_CORRUPTED_WATERS);
-                
                 events.Repeat(42500ms, 43800ms);
                 break;
             }
