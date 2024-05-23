@@ -2188,6 +2188,8 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, WorldObject*
     }
 }
 
+template TC_GAME_API void Spell::SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);
+
 WorldObject* Spell::SearchNearbyTarget(SpellEffectInfo const& spellEffectInfo, float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer const* condList)
 {
     WorldObject* target = nullptr;
