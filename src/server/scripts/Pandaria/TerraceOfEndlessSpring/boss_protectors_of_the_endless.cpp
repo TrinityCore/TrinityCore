@@ -304,7 +304,7 @@ struct boss_protector_kaolan : public ProtectorsSharedAI
                         protectors->PlayOneShotAnimKitId(ANIMKIT_PROTECTORS_AWAKEN);
                 }
 
-                context.Schedule(2s + 440ms, [this](TaskContext context)
+                context.Schedule(2s + 440ms, [this](TaskContext /*context*/)
                 {
                     for (uint32 bossesData : ProtectorsData)
                     {
