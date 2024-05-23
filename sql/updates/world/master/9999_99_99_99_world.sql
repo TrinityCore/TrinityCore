@@ -87,4 +87,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (148912, 1, 3, 'Your hope... wanes...', 12, 0, 100, 0, 0, 103727, 149677, 0, 'Drowned Harbinger to Player'),
 (148912, 1, 4, 'I am but one... of many...', 12, 0, 100, 0, 0, 103725, 149674, 0, 'Drowned Harbinger to Player'),
 (148912, 1, 5, 'Even death... may... die...', 12, 0, 100, 1, 0, 103723, 149672, 0, 'Drowned Harbinger to Frothing Pustule'),
-(148912, 1, 6, 'The endless shadow... embraces me...', 12, 0, 100, 1, 0, 103728, 149678, 0, 'Drowned Harbinger to Player'),
+(148912, 1, 6, 'The endless shadow... embraces me...', 12, 0, 100, 1, 0, 103728, 149678, 0, 'Drowned Harbinger to Player');
