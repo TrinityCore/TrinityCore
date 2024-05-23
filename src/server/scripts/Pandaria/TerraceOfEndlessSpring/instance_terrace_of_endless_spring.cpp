@@ -28,7 +28,6 @@ ObjectData const creatureData[] =
     { BOSS_TSULONG,               DATA_TSULONG               },
     { BOSS_LEI_SHI,               DATA_LEI_SHI               },
     { BOSS_SHA_OF_FEAR,           DATA_SHA_OF_FEAR           },
-    { NPC_PROTECTORS_CONTROLLER,  DATA_PROTECTORS_CONTROLLER },
     { 0,                          0                          }  // END
 };
 
@@ -107,11 +106,11 @@ public:
 
                 _protectorsIntroState = IN_PROGRESS;
 
-                Creature* controller = GetCreature(DATA_PROTECTORS_CONTROLLER);
-                if (!controller)
+                Creature* protectorKaolan = GetCreature(DATA_PROTECTOR_KAOLAN);
+                if (!protectorKaolan)
                     return;
 
-                controller->AI()->DoAction(ACTION_PROTECTORS_INTRO);
+                protectorKaolan->AI()->DoAction(ACTION_PROTECTORS_INTRO);
             }
         }
 

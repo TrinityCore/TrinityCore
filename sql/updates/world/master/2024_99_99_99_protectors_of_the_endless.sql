@@ -42,12 +42,11 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (60583, 0, 0, 0, 0, 0, 1, 0, 0, 2635, 0, 0, 3, '118221 93105'); -- 60583 (Protector Kaolan) - Sha Mask, Invisibility and Stealth Detection
 
 DELETE FROM `creature_template_difficulty` WHERE (`Entry`=60621 AND `DifficultyID`=3);
-INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`) VALUES
-(60621, 3, 4, 5.5, 1, 58739, 1024, 0); -- Corrupted Waters
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`, `VerifiedBuild`) VALUES
+(60621, 3, 2, 2, 1034, 4, 5.5, 1, 58739, 1024, 0, 536871168, 0, 0, 512, 0, 0, 0, 0, 54736); -- Corrupted Waters
 
-DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=3 AND `Entry` IN (60621,60646,60886,65736,63420,60906,60957));
+DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=3 AND `Entry` IN (60646,60886,65736,63420,60906,60957));
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`, `VerifiedBuild`) VALUES
-(60621, 3, 2, 2, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54736), -- Corrupted Waters
 (60646, 3, 3, 3, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54736), -- Cleansing Waters
 (60886, 3, 3, 3, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54762), -- Coalesced Corruption
 (65736, 3, 0, 0, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54736), -- Return to the Terrace
@@ -67,8 +66,8 @@ UPDATE `creature_template_difficulty` SET `ContentTuningID`=1034, `StaticFlags1`
 
 UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=33554688, `unit_flags2`=2048, `unit_flags3`=524289 WHERE `entry`=60906; -- Fissure
 UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=33554688, `unit_flags2`=2048, `unit_flags3`=524289 WHERE `entry`=60886; -- Coalesced Corruption
-UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags2`=2099200, `unit_flags3`=524289 WHERE `entry`=60621; -- Corrupted Waters
-UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=33554688, `unit_flags2`=2099200, `unit_flags3`=524289 WHERE `entry`=60646; -- Cleansing Waters
+UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=0, `unit_flags2`=2623488, `unit_flags3`=524289, `AIName`='SmartAI'  WHERE `entry`=60621; -- Corrupted Waters
+UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=33554688, `unit_flags2`=2099200, `unit_flags3`=524289, `AIName`='SmartAI' WHERE `entry`=60646; -- Cleansing Waters
 UPDATE `creature_template` SET `npcflag`=16777216, `unit_flags2`=67110912, `unit_flags3`=16777217 WHERE `entry`=65736; -- Return to the Terrace
 UPDATE `creature_template` SET `unit_flags2`=2048, `unit_flags3`=1 WHERE `entry`=60957; -- Minion of Fear Controller
 UPDATE `creature_template` SET `speed_walk`=1, `unit_flags2`=0, `unit_flags3`=335544320 WHERE `entry`=63025; -- Tsulong
@@ -124,6 +123,10 @@ DELETE FROM `areatrigger_create_properties` WHERE (`Id`=389 AND `IsCustom`=0);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `VerifiedBuild`) VALUES
 (389, 0, 3331, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 14, 14, 0, 0, 0, 0, 0, 0, 54736); -- Spell: 125666 (Sha Corruption Fountain)
 
+DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId`=3331 AND `IsCustom`=0;
+INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsCustom`, `ActionType`, `ActionParam`, `TargetType`) VALUES
+(3331, 0, 0, 125718, 0);
+
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (130023, 125713);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -148,6 +151,18 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (117227, 0, 996, -1017.82000732421875, -3049.2099609375, 12.82429981231689453, 54736); -- Spell: 117227 (Corrupted Waters) Efffect: 28 (SPELL_EFFECT_SUMMON)
 
 -- Spells
+DELETE FROM `spell_script_names` WHERE `spell_id`=122851;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(122851, 'spell_protectors_of_the_endless_warning_cleansing_waters');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=111850;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(111850, 'spell_protectors_of_the_endless_lightning_prison_marker');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=122874;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(122874, 'spell_protectors_of_the_endless_lightning_prison_cast');
+
 DELETE FROM `spell_script_names` WHERE `spell_id`=117052;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (117052, 'spell_protectors_of_the_endless_sha_corruption');
@@ -172,16 +187,72 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (118077, 'spell_protectors_of_the_endless_lightning_storm_cast');
 
 -- Texts
-DELETE FROM `creature_text` WHERE `CreatureID` = 60583;
+DELETE FROM `creature_text` WHERE `CreatureID` IN  (60583, 60585, 60586);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(60583, 0, 0, 'The terrace was not meant for your kind!', 14, 0, 100, 0, 0, 28369, 61520, 0, 'Protector Kaolan to SLG Generic MoP'),
-(60583, 1, 0, 'My strength grows!', 14, 0, 100, 0, 0, 28371, 61521, 0, 'Protector Kaolan to Ancestro Regail'),
+-- SAY_NEW_POWER
+(60583, 1, 0, 'My strength grows!', 14, 0, 100, 0, 0, 28371, 61521, 0, 'Protector Kaolan to Elder Regail'),
+(60585, 1, 0, 'I command the elements to destroy you!', 14, 0, 100, 0, 0, 28394, 61529, 0, 'Elder Regail to Protector Kaolan'),
+(60586, 1, 0, 'The tide cannot be stopped!', 14, 0, 100, 0, 0, 28383, 61536, 0, 'Elder Asani to Elder Regail'),
+
+-- SAY_WARNING_CLEANSING_WATERS and SAY_DISPEL_CLEANSING_WATERS
 (60583, 2, 0, '|TInterface\\Icons\\ability_shaman_fortifyingwaters.blp:20|t%s is about to be healed by |cFFF00000|Hspell:117283|h[Cleansing Waters]|h|r! Move him!', 42, 0, 100, 0, 0, 0, 62340, 0, 'Protector Kaolan to Player'),
-(60583, 3, 0, '|TInterface\\Icons\\ability_shaman_fortifyingwaters.blp:20|t%s is being healed by |cFFF00000|Hspell:117283|h[Cleansing Waters]|h|r! Dispel him!', 41, 0, 100, 0, 0, 0, 62341, 0, 'Protector Kaolan to Aguas purificadoras'),
-(60583, 4, 0, 'None can match my strength!', 14, 0, 100, 0, 0, 28373, 61523, 0, 'Protector Kaolan to Ancestro Asani'),
-(60583, 5, 0, 'I will not be controlled!', 14, 0, 100, 0, 0, 28372, 61522, 0, 'Protector Kaolan');
+(60583, 3, 0, '|TInterface\\Icons\\ability_shaman_fortifyingwaters.blp:20|t%s is being healed by |cFFF00000|Hspell:117283|h[Cleansing Waters]|h|r! Dispel him!', 41, 0, 100, 0, 0, 0, 62341, 0, 'Protector Kaolan to Cleansing Waters'),
+
+(60586, 2, 0, '|TInterface\\Icons\\ability_shaman_fortifyingwaters.blp:20|t%s is about to be healed by |cFFF00000|Hspell:117283|h[Cleansing Waters]|h|r! Move him!', 42, 0, 100, 0, 0, 0, 62340, 0, 'Elder Asani to Player'),
+(60586, 3, 0, '|TInterface\\Icons\\ability_shaman_fortifyingwaters.blp:20|t%s is being healed by |cFFF00000|Hspell:117283|h[Cleansing Waters]|h|r! Dispel him!', 41, 0, 100, 0, 0, 0, 62341, 0, 'Elder Asani to Cleansing Waters'),
+
+(60585, 2, 0, '|TInterface\\Icons\\ability_shaman_fortifyingwaters.blp:20|t%s is about to be healed by |cFFF00000|Hspell:117283|h[Cleansing Waters]|h|r! Move him!', 42, 0, 100, 0, 0, 0, 62340, 0, 'Elder Regail to Player'),
+(60585, 3, 0, '|TInterface\\Icons\\ability_shaman_fortifyingwaters.blp:20|t%s is being healed by |cFFF00000|Hspell:117283|h[Cleansing Waters]|h|r! Dispel him!', 41, 0, 100, 0, 0, 0, 62341, 0, 'Elder Regail to Cleansing Waters'),
+
+-- SAY_FULL_POWER
+(60583, 4, 0, 'None can match my strength!', 14, 0, 100, 0, 0, 28373, 61523, 0, 'Protector Kaolan'),
+(60585, 4, 0, 'Your fear will consume you!', 14, 0, 100, 0, 0, 28393, 61528, 0, 'Elder Regail'),
+(60586, 4, 0, 'Drown in fear!', 14, 0, 100, 0, 0, 28487, 61537, 0, 'Elder Asani'),
+
+-- SAY_SLAY
+(60583, 5, 0, 'Weakling!', 14, 0, 100, 0, 0, 28374, 61525, 0, 'Protector Kaolan'),
+(60583, 5, 1, 'Begone!', 14, 0, 100, 0, 0, 28375, 61526, 0, 'Protector Kaolan'),
+
+(60585, 5, 0, 'How dare you trespass here!', 14, 0, 100, 0, 0, 28396, 61532, 0, 'Elder Regail'),
+(60585, 5, 1, 'Shocking.', 14, 0, 100, 0, 0, 28397, 61533, 0, 'Elder Regail'),
+
+(60586, 5, 0, 'You are unfit to stand before me.', 14, 0, 100, 0, 0, 28385, 61539, 0, 'Elder Asani'),
+(60586, 5, 1, 'Flee, child.', 14, 0, 100, 0, 0, 28386, 61540, 0, 'Elder Asani'),
+
+-- SAY_DEAD
+(60583, 6, 0, 'We... are... endless...', 14, 0, 100, 0, 0, 28370, 61524, 0, 'Protector Kaolan'),
+(60586, 6, 0, 'The Sha... must be... stopped...', 14, 0, 100, 0, 0, 28381, 61538, 0, 'Elder Asani'),
+(60585, 6, 0, 'The terrace... must not... fall...', 14, 0, 100, 0, 0, 28392, 61531, 0, 'Elder Regail'),
+
+-- Protector Kaolan
+(60583, 0, 0, 'The terrace was not meant for your kind!', 14, 0, 100, 0, 0, 28369, 61520, 0, 'Protector Kaolan to SLG Generic MoP'),
+(60583, 7, 0, 'I will not be controlled!', 14, 0, 100, 0, 0, 28372, 61522, 0, 'Protector Kaolan'),
+
+-- Elder Asani
+(60586, 0, 0, 'The endless waters will cleanse you from this place!', 14, 0, 100, 0, 0, 28380, 61534, 0, 'Elder Asani to Player'),
+(60586, 7, 0, 'The waters will consume you!', 14, 0, 100, 0, 0, 28382, 61535, 0, 'Elder Asani'),
+(60586, 8, 0, 'An orb of |cFFF00000|Hspell:117227|h[Corrupted Water]|h|r forms!', 41, 0, 100, 0, 0, 0, 60186, 0, 'Elder Asani'),
+
+-- Elder Regail
+(60585, 0, 0, 'A storm approaches.', 14, 0, 100, 0, 0, 28391, 61527, 0, 'Elder Regail to Player'),
+(60585, 7, 0, '|TInterface\Icons\spell_shaman_staticshock.blp:20|t%s begins to cast |cFFF00000|Hspell:117436|h[Lightning Prison]|h|r!', 41, 0, 100, 0, 0, 0, 60720, 0, 'Elder Regail'),
+(60585, 8, 0, 'The air crackles as a |cFFF00000|Hspell:118077|h[Lightning Storm]|h|r forms!', 41, 0, 100, 0, 0, 0, 60470, 0, 'Elder Regail'),
+(60585, 9, 0, 'You cannot escape the storm!', 14, 0, 100, 0, 0, 28382, 61530, 0, 'Elder Regail');
 
 -- SAI
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 60646 AND `source_type`= 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 6064600 AND `source_type`= 9;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(60646, 0, 0, 0, 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 80, (60646 * 100), 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Cleansing Waters - On Just Created - Self: Start timed action list'),
+(6064600, 9, 0, 1, 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 117250, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Cleansing Waters - On Just Created - Self: Cast Spell 117250'),
+(6064600, 9, 1, 2, 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 117268, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Cleansing Waters - On Just Created - Self: Cast Spell 117268'),
+(6064600, 9, 2, 0, 0, 0, 100, 0, 6100, 6100, 0, 0, 0, '', 11, 117283, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Cleansing Waters - On Just Created - Self: Cast Spell 117283');
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 60621 AND `source_type`= 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(60621, 0, 0, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 122840, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Corrupted Waters - On Death - Self: Cast spell 122840');
+
+-- Only cosmetic SAI, these npcs have spells in combat with serverside spells that should be scripted
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (64368, 66100) AND `source_type`= 0;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (6436800, 6610000) AND `source_type`= 9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES

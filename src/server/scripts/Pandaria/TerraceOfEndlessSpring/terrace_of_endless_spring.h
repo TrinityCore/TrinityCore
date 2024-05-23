@@ -33,11 +33,11 @@ enum TOESDataTypes
     DATA_LEI_SHI,
     DATA_SHA_OF_FEAR,
 
+    // Protectors of the Endless Additional Data
     DATA_PROTECTOR_KAOLAN,
     DATA_ELDER_REGAIL,
     DATA_ELDER_ASANI,
 
-    DATA_PROTECTORS_CONTROLLER,
     DATA_PROTECTORS_INTRO_STATE,
 };
 
@@ -51,7 +51,7 @@ enum TOESCreatureIds
     BOSS_LEI_SHI                    = 62983,
     BOSS_SHA_OF_FEAR                = 60999,
 
-    NPC_PROTECTORS_CONTROLLER       = 63420
+    NPC_CORRUPTION_DUMMY            = 63420
 };
 
 enum TOESSharedActions

@@ -15,9 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CellImpl.h"
-#include "GameObject.h"
-#include "GridNotifiersImpl.h"
+#include "Containers.h"
+#include "CreatureAIImpl.h" // for RAND()
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"
@@ -36,6 +35,7 @@ enum ProtectorsSpells
     // Elder Regail
     SPELL_LIGHTNING_BOLT                  = 117187,
     SPELL_LIGHTNING_PRISON                = 122874,
+    SPELL_LIGHTNING_PRISON_MARKER         = 111850,
     SPELL_LIGHTNING_STORM_CAST            = 118077,
     SPELL_LIGHTNING_STORM_10_YARDS        = 118064,
     SPELL_LIGHTNING_STORM_30_YARDS        = 118040,
@@ -51,15 +51,13 @@ enum ProtectorsSpells
     // Elder Asani
     SPELL_WATER_BOLT                      = 118312,
     SPELL_CLEANSING_WATERS                = 117309,
-
-    // Cleansing Waters
-    SPELL_CLEANSING_WATERS_AURA           = 117250,
-    SPELL_CLEANSING_WATERS_SPHERE         = 117268,
     SPELL_CLEANSING_WATERS_HEAL           = 117283,
+    SPELL_CORRUPTED_WATERS                = 117227,
 
     SPELL_SHA_CORRUPTION                  = 117052,
     SPELL_OVERWHELMING_CORRUPTION         = 117351,
-    SPELL_SHA_CORRUPTION_FOUNTAIN         = 125651
+    SPELL_SHA_CORRUPTION_FOUNTAIN         = 125651,
+    SPELL_RAID_WARNING_CLEANSING_WATERS   = 122851
 };
 
 enum ProtectorsEvents
@@ -71,38 +69,48 @@ enum ProtectorsEvents
 
     // Elder Regail
     EVENT_LIGHTNING_BOLT                  = 4,
-    EVENT_LIGHTNING_STORM                 = 5,
+    EVENT_LIGHTNING_PRISON                = 5,
+    EVENT_LIGHTNING_STORM                 = 6,
 
     // Elder Asani
-    EVENT_WATER_BOLT                      = 6,
-    EVENT_CLEANSING_WATERS                = 7,
-
-    // Cleansing Waters
-    EVENT_CLEANSING_WATERS_HEAL           = 8
+    EVENT_WATER_BOLT                      = 7,
+    EVENT_CLEANSING_WATERS                = 8,
+    EVENT_CORRUPTED_WATERS                = 9
 };
 
 enum ProtectorsTexts
 {
+    // Shared texts
+    // SAY_NEW_POWER                  = 1, Not Implemented
+    SAY_WARNING_CLEANSING_WATERS   = 2,
+    SAY_DISPEL_CLEANSING_WATERS    = 3,
+    SAY_FULL_POWER                 = 4,
+    SAY_SLAY                       = 5,
+    SAY_DEAD                       = 6,
+
     // Protector Kaolan
-    SAY_INTRO   = 0,
-    SAY_INTRO2   = 1,
-    SAY_INTRO1   = 2,
-    SAY_INTRO3   = 3,
-    SAY_INTRO4   = 4,
-    SAY_INTRO5   = 5,
+    SAY_INTRO                      = 0,
+    SAY_EXPEL_CORRUPTION           = 7,
+
+    // Elder Asani
+    // Elder Regail
+    SAY_PULL                       = 0,
 
     // Elder Regail
+    SAY_LIGHTNING_PRISON           = 7,
+    SAY_LIGHTNING_STORM_CAST       = 8,
+    SAY_LIGHTNING_STORM            = 9,
 
-    // Cleansing Waters
+    // Elder Asani
+    SAY_CORRUPTED_WATERS           = 7,
+    SAY_CORRUPTED_ORB              = 8
 };
-
-enum ProtectorsActions
-{};
 
 enum ProtectorsMisc
 {
     ANIMKIT_NONE              = 0,
-    ANIMKIT_PROTECTORS_AWAKEN = 2636
+    ANIMKIT_PROTECTORS_AWAKEN = 2636,
+    NPC_CORRUPTED_ORB         = 60621
 };
 
 namespace
@@ -129,16 +137,36 @@ void DespawnProtectors(InstanceScript* instance, EvadeReason why)
         protector->AI()->EnterEvadeMode(why);
     });
 }
+
+void ProtectorsEncounterDone(InstanceScript* instance)
+{
+    if (instance->GetBossState(DATA_PROTECTORS_OF_THE_ENDLESS) == DONE)
+        return;
+
+    bool protectorsDead = true;
+    ProtectorsOfTheEndlessData(instance, [&protectorsDead](Creature* protector)
+    {
+        if (protector->IsAlive())
+            protectorsDead = false;
+    });
+
+    if (!protectorsDead)
+        return;
+
+    instance->SetBossState(DATA_PROTECTORS_OF_THE_ENDLESS, DONE);
+}
 }
 
 struct ProtectorsSharedAI : public BossAI
 {
-    ProtectorsSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId) { }
+    ProtectorsSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _newPower(false), _fullPower(false) { }
 
     void Reset() override
     {
         events.Reset();
         summons.DespawnAll();
+        _newPower = false;
+        _fullPower = false;
     }
 
     void JustAppeared() override
@@ -149,6 +177,7 @@ struct ProtectorsSharedAI : public BossAI
             {
                 protector->SetUninteractible(false);
                 protector->SetImmuneToPC(false);
+                protector->SetAIAnimKitId(ANIMKIT_NONE);
             });
         }
     }
@@ -160,96 +189,6 @@ struct ProtectorsSharedAI : public BossAI
         events.Reset();
         summons.DespawnAll();
         _DespawnAtEvade();
-    }
-
-    void OnHealthDepleted(Unit* /*attacker*/, bool /*isKill*/) override
-    {
-        DoCast(SPELL_SHA_CORRUPTION);
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        ProtectorsOfTheEndlessData(instance, [](Creature* protector)
-        {
-            DoZoneInCombat(protector);
-        });
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        summons.DespawnAll();
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (Aura* shaCorruption = me->GetAura(SPELL_SHA_CORRUPTION))
-        {
-            if (shaCorruption->GetStackAmount() >= 1)
-            {
-                if (GetProtectorKaolan())
-                    events.ScheduleEvent(EVENT_DEFILED_GROUND, 5100ms);
-                else if (GetElderRegail())
-                    events.ScheduleEvent(EVENT_LIGHTNING_STORM, 21200ms);
-                //else if (Creature* asani = GetElderAsani())
-            }
-            else if (shaCorruption->GetStackAmount() == 2)
-            {
-                if (GetProtectorKaolan())
-                    events.ScheduleEvent(EVENT_EXPEL_CORRUPTION, 6100ms);
-                else if (GetElderRegail() || GetElderAsani())
-                    DoCastSelf(SPELL_OVERWHELMING_CORRUPTION);
-            }
-        }
-    }
-
-protected:
-    Creature* GetProtectorKaolan()
-    {
-        return instance->GetCreature(me->GetEntry() == BOSS_PROTECTOR_KAOLAN);
-    }
-
-    Creature* GetElderRegail()
-    {
-        return instance->GetCreature(me->GetEntry() == BOSS_ELDER_REGAIL);
-    }
-
-    Creature* GetElderAsani()
-    {
-        return instance->GetCreature(me->GetEntry() == BOSS_ELDER_ASANI);
-    }
-};
-
-// 60583 - Protector Kaolan
-struct boss_protector_kaolan : public ProtectorsSharedAI
-{
-    boss_protector_kaolan(Creature* creature) : ProtectorsSharedAI(creature, DATA_PROTECTOR_KAOLAN) { }
-
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        DespawnProtectors(instance, why);
- 
-        events.Reset();
-        summons.DespawnAll();
-        _DespawnAtEvade();
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        ProtectorsSharedAI::JustEngagedWith(who);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-
-        events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 35200ms);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-
-        DoCastSelf(SPELL_SHA_CORRUPTION);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        summons.DespawnAll();
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
         for (auto i = players.begin(); i != players.end(); ++i)
@@ -259,51 +198,189 @@ struct boss_protector_kaolan : public ProtectorsSharedAI
         }
     }
 
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+        {
+            DoZoneInCombat(protector);
+        });
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+        ScheduleEvents();
+    }
+
+    virtual void ScheduleEvents() = 0;
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        summons.DespawnAll();
+
+        DoCast(SPELL_SHA_CORRUPTION);
+
+        Talk(SAY_DEAD);
+
+        ProtectorsEncounterDone(instance);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_CLEANSING_WATERS_HEAL)
+            Talk(SAY_DISPEL_CLEANSING_WATERS);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        Talk(SAY_SLAY);
+    }
+
+protected:
+    bool _newPower;
+    bool _fullPower;
+};
+
+// 60583 - Protector Kaolan
+struct boss_protector_kaolan : public ProtectorsSharedAI
+{
+    boss_protector_kaolan(Creature* creature) : ProtectorsSharedAI(creature, DATA_PROTECTOR_KAOLAN) { }
+
+    void ScheduleEvents() override
+    {
+        events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 35200ms);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        ProtectorsSharedAI::JustDied(killer);
+
+        Map::PlayerList const& players = me->GetMap()->GetPlayers();
+        for (auto i = players.begin(); i != players.end(); ++i)
+        {
+            Player* player = i->GetSource();
+            player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_SHA);
+        }
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        if (actionId != ACTION_PROTECTORS_INTRO)
+            return;
+
+        if (Creature* corruptionDummy = me->FindNearestCreature(NPC_CORRUPTION_DUMMY, 30.0f))
+        {
+            corruptionDummy->RemoveAllAuras();
+            corruptionDummy->DespawnOrUnsummon(12s);
+            corruptionDummy->AI()->DoCastSelf(SPELL_SHA_CORRUPTION_FOUNTAIN);
+        }
+
+        scheduler.Schedule(10s, [this](TaskContext context)
+        {
+            ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+            {
+                protector->SetAIAnimKitId(ANIMKIT_NONE);
+            });
+
+            context.Schedule(2s + 500ms, [this](TaskContext context)
+            {
+                Talk(SAY_INTRO);
+
+                ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+                {
+                    protector->PlayOneShotAnimKitId(ANIMKIT_PROTECTORS_AWAKEN);
+                });
+
+                context.Schedule(2s + 440ms, [this](TaskContext context)
+                {
+                    me->SetUnitFlag3(UNIT_FLAG3_UNK23);
+
+                    ProtectorsOfTheEndlessData(instance, [](Creature* protector)
+                    {
+                        protector->SetFacingTo(4.694935f);
+                        protector->SetUninteractible(false);
+                        protector->SetImmuneToPC(false);
+                        protector->SetHomePosition(protector->GetPositionX(), protector->GetPositionY(), protector->GetPositionZ(), protector->GetOrientation());
+                    });
+
+                    instance->SetData(DATA_PROTECTORS_INTRO_STATE, DONE);
+                });
+            });
+        });
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_TOUCH_OF_SHA:
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_TOUCH_OF_SHA);
+                events.Repeat(35200ms);
+                break;
+            }
+            case EVENT_DEFILED_GROUND:
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_DEFILED_GROUND);
+                events.Repeat(15800ms);
+                break;
+            }
+            case EVENT_EXPEL_CORRUPTION:
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                {
+                    DoCast(target, SPELL_EXPEL_CORRUPTION);
+                    Talk(SAY_EXPEL_CORRUPTION);
+                }
+                events.Repeat(38900ms, 41300ms);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
     void UpdateAI(uint32 diff) override
     {
-        ProtectorsSharedAI::UpdateAI(diff);
+        scheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
-        
+
         events.Update(diff);
-        
+
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
+        if (Aura* shaCorruption = me->GetAura(SPELL_SHA_CORRUPTION))
+        {
+            if (shaCorruption->GetStackAmount() >= 1 && !_newPower)
+            {
+                events.ScheduleEvent(EVENT_DEFILED_GROUND, 5100ms);
+                _newPower = true;
+            }
+            else if (shaCorruption->GetStackAmount() == 2 && !_fullPower)
+            {
+                Talk(SAY_FULL_POWER);
+                events.ScheduleEvent(EVENT_EXPEL_CORRUPTION, 6100ms);
+                _fullPower = true;
+            }
+        }
+
         while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
-            {
-                case EVENT_TOUCH_OF_SHA:
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_TOUCH_OF_SHA);
-                    events.Repeat(35200ms);
-                    break;
-                }
-                case EVENT_DEFILED_GROUND:
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_DEFILED_GROUND);
-                    events.Repeat(15800ms);
-                    break;
-                }
-                case EVENT_EXPEL_CORRUPTION:
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_EXPEL_CORRUPTION);
-                    events.Repeat(38900ms, 41300ms);
-                    break;
-                }
-                default:
-                    break;
-            }
-
+            ExecuteEvent(eventId);
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
     }
+
+private:
+    TaskScheduler scheduler;
 };
 
 // 60585 - Elder Regail
@@ -311,37 +388,63 @@ struct boss_elder_regail : public ProtectorsSharedAI
 {
     boss_elder_regail(Creature* creature) : ProtectorsSharedAI(creature, DATA_ELDER_REGAIL) { }
 
-    void JustDied(Unit* /*killer*/) override
+    void ScheduleEvents() override
     {
-        _JustDied();
-
-        DoCastSelf(SPELL_SHA_CORRUPTION);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        summons.DespawnAll();
-    }
-
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        DespawnProtectors(instance, why);
- 
-        events.Reset();
-        summons.DespawnAll();
-        _DespawnAtEvade();
+        events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 800ms);
+        events.ScheduleEvent(EVENT_LIGHTNING_PRISON, 15500ms);
     }
 
     void JustEngagedWith(Unit* who) override
     {
         ProtectorsSharedAI::JustEngagedWith(who);
 
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        Creature* protector = nullptr;
+        switch (urand(0, 1))
+        {
+            case 0:
+                protector = me;
+                break;
+            case 1:
+                protector = me->GetInstanceScript()->GetCreature(DATA_ELDER_ASANI);
+                break;
+        }
 
-        events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 800ms);
+        protector->AI()->Talk(SAY_PULL);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_LIGHTNING_BOLT:
+            {
+                DoCastVictim(SPELL_LIGHTNING_BOLT);
+                events.Repeat(2400ms);
+                break;
+            }
+            case EVENT_LIGHTNING_PRISON:
+            {
+                DoCast(SPELL_LIGHTNING_PRISON);
+                Talk(SAY_LIGHTNING_PRISON);
+                events.Repeat(25400ms);
+                break;
+            }
+            case EVENT_LIGHTNING_STORM:
+            {
+                DoCast(SPELL_LIGHTNING_STORM_CAST);
+                Talk(SAY_LIGHTNING_STORM);
+                Talk(SAY_LIGHTNING_STORM_CAST);
+                events.RescheduleEvent(EVENT_LIGHTNING_BOLT, 16s);
+                events.Repeat(42200ms);
+                break;
+            }
+            default:
+                break;
+        }
     }
 
     void UpdateAI(uint32 diff) override
     {
-        ProtectorsSharedAI::UpdateAI(diff);
-
         if (!UpdateVictim())
             return;
 
@@ -350,27 +453,24 @@ struct boss_elder_regail : public ProtectorsSharedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
+        if (Aura* shaCorruption = me->GetAura(SPELL_SHA_CORRUPTION))
+        {
+            if (shaCorruption->GetStackAmount() >= 1 && !_newPower)
+            {
+                events.ScheduleEvent(EVENT_LIGHTNING_STORM, 21200ms);
+                _newPower = true;
+            }
+            else if (shaCorruption->GetStackAmount() == 2 && !_fullPower)
+            {
+                Talk(SAY_FULL_POWER);
+                DoCastSelf(SPELL_OVERWHELMING_CORRUPTION);
+                _fullPower = true;
+            }
+        }
+
         while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
-            {
-                case EVENT_LIGHTNING_BOLT:
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_LIGHTNING_BOLT);
-                    events.Repeat(2400ms);
-                    break;
-                }
-                case EVENT_LIGHTNING_STORM:
-                {
-                    DoCastSelf(SPELL_LIGHTNING_STORM_CAST);
-                    events.Repeat(42200ms);
-                    break;
-                }
-                default:
-                    break;
-            }
-
+            ExecuteEvent(eventId);
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
@@ -382,37 +482,71 @@ struct boss_elder_asani : public ProtectorsSharedAI
 {
     boss_elder_asani(Creature* creature) : ProtectorsSharedAI(creature, DATA_ELDER_ASANI) { }
 
-    void JustDied(Unit* /*killer*/) override
+    void ScheduleEvents() override
     {
-        _JustDied();
-
-        DoCastSelf(SPELL_SHA_CORRUPTION);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        summons.DespawnAll();
-    }
-
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        DespawnProtectors(instance, why);
- 
-        events.Reset();
-        summons.DespawnAll();
-        _DespawnAtEvade();
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        ProtectorsSharedAI::JustEngagedWith(who);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-
         events.ScheduleEvent(EVENT_WATER_BOLT, 800ms);
         events.ScheduleEvent(EVENT_CLEANSING_WATERS, 10600ms);
     }
 
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_WATER_BOLT:
+            {
+                DoCastVictim(SPELL_WATER_BOLT);
+                events.Repeat(2400ms);
+                break;
+            }
+            case EVENT_CLEANSING_WATERS:
+            {
+                Unit* target = nullptr;
+                switch (urand(0, 2))
+                {
+                    if (!target->IsAlive())
+                        return;
+
+                    case 0:
+                        target = me->GetInstanceScript()->GetCreature(DATA_ELDER_REGAIL);
+                        break;
+                    case 1:
+                        target = me->GetInstanceScript()->GetCreature(DATA_PROTECTOR_KAOLAN);
+                        break;
+                    case 2:
+                        target = me;
+                        break;
+                }
+
+                if (target)
+                {
+                    DoCast(target, SPELL_CLEANSING_WATERS);
+                    target->GetAI()->DoCastVictim(SPELL_RAID_WARNING_CLEANSING_WATERS);
+                }
+
+                events.Repeat(31500ms, 36400ms);
+                break;
+            }
+            case EVENT_CORRUPTED_WATERS:
+            {
+                DoCast(SPELL_CORRUPTED_WATERS);
+                Talk(SAY_CORRUPTED_WATERS);
+                
+                events.Repeat(42500ms, 43800ms);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_CORRUPTED_ORB)
+            Talk(SAY_CORRUPTED_ORB);
+    }
+
     void UpdateAI(uint32 diff) override
     {
-        ProtectorsSharedAI::UpdateAI(diff);
-
         if (!UpdateVictim())
             return;
 
@@ -421,135 +555,77 @@ struct boss_elder_asani : public ProtectorsSharedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
+        if (Aura* shaCorruption = me->GetAura(SPELL_SHA_CORRUPTION))
+        {
+            if (shaCorruption->GetStackAmount() >= 1 && !_newPower)
+            {
+                events.ScheduleEvent(EVENT_CORRUPTED_WATERS, 5100ms);
+                _newPower = true;
+            }
+            else if (shaCorruption->GetStackAmount() == 2 && !_fullPower)
+            {
+                Talk(SAY_FULL_POWER);
+                DoCastSelf(SPELL_OVERWHELMING_CORRUPTION);
+                _fullPower = true;
+            }
+        }
+
         while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (events.ExecuteEvent())
-            {
-                case EVENT_WATER_BOLT:
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_WATER_BOLT);
-                    events.Repeat(2400ms);
-                    break;
-                }
-                case EVENT_CLEANSING_WATERS:
-                {
-                    //DoCastSelf(GetNextTeleportSpell());
-                    events.Repeat(31500ms, 36400ms);
-                    break;
-                }
-                default:
-                    break;
-            }
-
+            ExecuteEvent(eventId);
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
     }
 };
 
-// 63420 - Protector's controller
-struct npc_protectors_controller : public ScriptedAI
+// 122851 - Raid Warning: I'm Standing In Cleansing Waters
+class spell_protectors_of_the_endless_warning_cleansing_waters : public SpellScript
 {
-    npc_protectors_controller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-    void DoAction(int32 actionId) override
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        switch (actionId)
-        {
-            case ACTION_PROTECTORS_INTRO:
-            {
-                me->RemoveAllAuras();
-                me->DespawnOrUnsummon(15s);
-                DoCast(SPELL_SHA_CORRUPTION_FOUNTAIN);
-
-                _scheduler.Schedule(10s, [this](TaskContext context)
-                {
-                    ProtectorsOfTheEndlessData(_instance, [](Creature* protector)
-                    {
-                        protector->SetAIAnimKitId(ANIMKIT_NONE);
-                    });
-
-                    context.Schedule(2s + 500ms, [this](TaskContext context)
-                    {
-                        if (Creature* kaolan = _instance->GetCreature(DATA_PROTECTOR_KAOLAN))
-                            kaolan->AI()->Talk(SAY_INTRO);
-
-                        ProtectorsOfTheEndlessData(_instance, [](Creature* protector)
-                        {
-                            protector->PlayOneShotAnimKitId(ANIMKIT_PROTECTORS_AWAKEN);
-                        });
-
-                        context.Schedule(2s + 440ms, [this](TaskContext context)
-                        {
-                            if (Creature* kaolan = _instance->GetCreature(DATA_PROTECTOR_KAOLAN))
-                                kaolan->SetUnitFlag3(UNIT_FLAG3_UNK23);
-
-                            ProtectorsOfTheEndlessData(_instance, [](Creature* protector)
-                            {
-                                protector->SetFacingTo(4.694935f);
-                                protector->SetUninteractible(false);
-                                protector->SetImmuneToPC(false);
-                                protector->SetHomePosition(protector->GetPosition());
-                            });
-                        });
-                    });
-                });
-                break;
-            }
-            default:
-                break;
-        }
+        if (Creature* protector = GetCaster()->ToCreature())
+            if (protector->GetEntry() == BOSS_PROTECTOR_KAOLAN || protector->GetEntry() == BOSS_ELDER_ASANI || protector->GetEntry() == BOSS_ELDER_REGAIL)
+                protector->AI()->Talk(SAY_WARNING_CLEANSING_WATERS, GetHitUnit()->ToPlayer());
     }
 
-    void UpdateAI(uint32 diff) override
+    void Register() override
     {
-        _scheduler.Update(diff);
+       OnEffectHitTarget += SpellEffectFn(spell_protectors_of_the_endless_warning_cleansing_waters::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
-
-private:
-    InstanceScript* _instance;
-    TaskScheduler _scheduler;
 };
 
-// sai
-struct npc_cleansing_waters : public ScriptedAI
+// 111850 - Lightning Prison Marker
+class spell_protectors_of_the_endless_lightning_prison_marker : public SpellScript
 {
-    npc_cleansing_waters(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-    void JustAppeared() override
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        DoCastSelf(SPELL_CLEANSING_WATERS_AURA);
-        DoCastSelf(SPELL_CLEANSING_WATERS_SPHERE);
-        _events.ScheduleEvent(EVENT_CLEANSING_WATERS_HEAL, 6900ms);
+        Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 2);
     }
 
-    void UpdateAI(uint32 diff) override
+    void Register()
     {
-        if (!UpdateVictim())
-            return;
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_protectors_of_the_endless_lightning_prison_marker::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
 
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_CLEANSING_WATERS_HEAL:
-                    DoCastSelf(SPELL_CLEANSING_WATERS_HEAL);
-                    break;
-                default:
-                    break;
-            }
-        }
+// 122874 - Lightning Prison Cast
+class spell_protectors_of_the_endless_lightning_prison_cast : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LIGHTNING_PRISON_MARKER });
     }
 
-private:
-    InstanceScript* _instance;
-    EventMap _events;
+    void HandleCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_LIGHTNING_PRISON_MARKER, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_protectors_of_the_endless_lightning_prison_cast::HandleCast);
+    }
 };
 
 // 117052 - Sha Corruption
@@ -571,7 +647,7 @@ class spell_protectors_of_the_endless_lightning_storm_cast : public SpellScript
 {
     void HandleCast()
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_LIGHTNING_STORM_10_YARDS, true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_LIGHTNING_STORM_10_YARDS, CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS));
     }
 
     void Register() override
@@ -670,8 +746,10 @@ void AddSC_boss_protectors_of_the_endless()
     RegisterTerraceOfEndlessSpringCreatureAI(boss_protector_kaolan);
     RegisterTerraceOfEndlessSpringCreatureAI(boss_elder_regail);
     RegisterTerraceOfEndlessSpringCreatureAI(boss_elder_asani);
-    RegisterTerraceOfEndlessSpringCreatureAI(npc_protectors_controller);
 
+    RegisterSpellScript(spell_protectors_of_the_endless_warning_cleansing_waters);
+    RegisterSpellScript(spell_protectors_of_the_endless_lightning_prison_marker);
+    RegisterSpellScript(spell_protectors_of_the_endless_lightning_prison_cast);
     RegisterSpellScript(spell_protectors_of_the_endless_sha_corruption);
     RegisterSpellScript(spell_protectors_of_the_endless_lightning_storm_cast);
     RegisterSpellScript(spell_protectors_of_the_endless_lightning_storm);
