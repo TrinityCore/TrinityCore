@@ -25,6 +25,8 @@
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "World.h"
