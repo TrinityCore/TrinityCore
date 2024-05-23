@@ -500,6 +500,8 @@ struct BattlemasterListEntry
     int8 Flags;
     int32 IconFileDataID;
     int32 RequiredPlayerConditionID;
+    int32 Field_4_4_0_54339_016;
+    int32 Field_4_4_0_54339_017;
     std::array<int16, 16> MapID;
 
     EnumFlag<BattlemasterListFlags> GetFlags() const { return static_cast<BattlemasterListFlags>(Flags); }
@@ -1276,7 +1278,8 @@ struct CurrencyTypesEntry
     uint32 MaxEarnablePerWeek;
     int8 Quality;
     int32 FactionID;
-    int32 AwardConditionID;
+    int32 Field_3_4_3_51278_010;
+    int32 Field_4_4_0_54137_011;
     std::array<int32, 2> Flags;
 
     EnumFlag<CurrencyTypesFlags> GetFlags() const { return static_cast<CurrencyTypesFlags>(Flags[0]); }
@@ -1402,8 +1405,10 @@ struct DungeonEncounterEntry
     int16 MapID;
     int32 DifficultyID;
     int32 OrderIndex;
+    int32 CompleteWorldStateID;
     int8 Bit;
     int32 Flags;
+    int32 SpellIconFileID;
     int32 Faction;
 };
 
@@ -2044,6 +2049,10 @@ struct ItemBonusTreeNodeEntry
     uint16 ChildItemBonusTreeID;
     uint16 ChildItemBonusListID;
     uint16 ChildItemLevelSelectorID;
+    int32 ChildItemBonusListGroupID;
+    int32 IblGroupPointsModSetID;
+    int32 MinMythicPlusLevel;
+    int32 MaxMythicPlusLevel;
     uint32 ParentItemBonusTreeID;
 };
 
@@ -2205,7 +2214,7 @@ struct ItemModifiedAppearanceEntry
     int32 ItemAppearanceModifierID;
     int32 ItemAppearanceID;
     int32 OrderIndex;
-    int32 TransmogSourceTypeEnum;
+    uint8 TransmogSourceTypeEnum;
 };
 
 struct ItemModifiedAppearanceExtraEntry
@@ -2414,9 +2423,9 @@ struct JournalEncounterSectionEntry
 
 struct JournalInstanceEntry
 {
+    uint32 ID;
     LocalizedString Name;
     LocalizedString Description;
-    uint32 ID;
     uint16 MapID;
     int32 BackgroundFileDataID;
     int32 ButtonFileDataID;
@@ -2887,7 +2896,7 @@ struct PlayerConditionEntry
     int32 PhaseUseFlags;
     uint16 PhaseID;
     uint32 PhaseGroupID;
-    uint8 Flags;
+    int32 Flags;
     int8 ChrSpecializationIndex;
     int8 ChrSpecializationRole;
     uint32 ModifierTreeID;
@@ -3262,7 +3271,7 @@ struct SoundKitEntry
     uint32 ID;
     uint8 SoundType;
     float VolumeFloat;
-    uint16 Flags;
+    int32 Flags;
     float MinDistance;
     float DistanceCutoff;
     uint8 EAXDef;

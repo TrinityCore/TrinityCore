@@ -695,7 +695,7 @@ struct BattlePetSpeciesStateLoadInfo
 
 struct BattlemasterListLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[33] =
+    static constexpr DB2FieldMeta Fields[35] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -714,6 +714,8 @@ struct BattlemasterListLoadInfo
         { true, FT_BYTE, "Flags" },
         { true, FT_INT, "IconFileDataID" },
         { true, FT_INT, "RequiredPlayerConditionID" },
+        { true, FT_INT, "Field_4_4_0_54339_016" },
+        { true, FT_INT, "Field_4_4_0_54339_017" },
         { true, FT_SHORT, "MapID1" },
         { true, FT_SHORT, "MapID2" },
         { true, FT_SHORT, "MapID3" },
@@ -732,7 +734,7 @@ struct BattlemasterListLoadInfo
         { true, FT_SHORT, "MapID16" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 33, &BattlemasterListMeta::Instance, HOTFIX_SEL_BATTLEMASTER_LIST };
+    static constexpr DB2LoadInfo Instance{ Fields, 35, &BattlemasterListMeta::Instance, HOTFIX_SEL_BATTLEMASTER_LIST };
 };
 
 struct BroadcastTextLoadInfo
@@ -1452,7 +1454,7 @@ struct CurrencyContainerLoadInfo
 
 struct CurrencyTypesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[14] =
+    static constexpr DB2FieldMeta Fields[15] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -1465,12 +1467,13 @@ struct CurrencyTypesLoadInfo
         { false, FT_INT, "MaxEarnablePerWeek" },
         { true, FT_BYTE, "Quality" },
         { true, FT_INT, "FactionID" },
-        { true, FT_INT, "AwardConditionID" },
+        { true, FT_INT, "Field_3_4_3_51278_010" },
+        { true, FT_INT, "Field_4_4_0_54137_011" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 14, &CurrencyTypesMeta::Instance, HOTFIX_SEL_CURRENCY_TYPES };
+    static constexpr DB2LoadInfo Instance{ Fields, 15, &CurrencyTypesMeta::Instance, HOTFIX_SEL_CURRENCY_TYPES };
 };
 
 struct CurveLoadInfo
@@ -1558,19 +1561,21 @@ struct DifficultyLoadInfo
 
 struct DungeonEncounterLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[8] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
         { true, FT_SHORT, "MapID" },
         { true, FT_INT, "DifficultyID" },
         { true, FT_INT, "OrderIndex" },
+        { true, FT_INT, "CompleteWorldStateID" },
         { true, FT_BYTE, "Bit" },
         { true, FT_INT, "Flags" },
+        { true, FT_INT, "SpellIconFileID" },
         { true, FT_INT, "Faction" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 8, &DungeonEncounterMeta::Instance, HOTFIX_SEL_DUNGEON_ENCOUNTER };
+    static constexpr DB2LoadInfo Instance{ Fields, 10, &DungeonEncounterMeta::Instance, HOTFIX_SEL_DUNGEON_ENCOUNTER };
 };
 
 struct DurabilityCostsLoadInfo
@@ -2560,17 +2565,21 @@ struct ItemBonusListLevelDeltaLoadInfo
 
 struct ItemBonusTreeNodeLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[6] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "ItemContext" },
         { false, FT_SHORT, "ChildItemBonusTreeID" },
         { false, FT_SHORT, "ChildItemBonusListID" },
         { false, FT_SHORT, "ChildItemLevelSelectorID" },
+        { true, FT_INT, "ChildItemBonusListGroupID" },
+        { true, FT_INT, "IblGroupPointsModSetID" },
+        { true, FT_INT, "MinMythicPlusLevel" },
+        { true, FT_INT, "MaxMythicPlusLevel" },
         { false, FT_INT, "ParentItemBonusTreeID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 6, &ItemBonusTreeNodeMeta::Instance, HOTFIX_SEL_ITEM_BONUS_TREE_NODE };
+    static constexpr DB2LoadInfo Instance{ Fields, 10, &ItemBonusTreeNodeMeta::Instance, HOTFIX_SEL_ITEM_BONUS_TREE_NODE };
 };
 
 struct ItemChildEquipmentLoadInfo
@@ -2861,7 +2870,7 @@ struct ItemModifiedAppearanceLoadInfo
         { true, FT_INT, "ItemAppearanceModifierID" },
         { true, FT_INT, "ItemAppearanceID" },
         { true, FT_INT, "OrderIndex" },
-        { true, FT_INT, "TransmogSourceTypeEnum" },
+        { false, FT_BYTE, "TransmogSourceTypeEnum" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 6, &ItemModifiedAppearanceMeta::Instance, HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE };
@@ -3218,9 +3227,9 @@ struct JournalInstanceLoadInfo
 {
     static constexpr DB2FieldMeta Fields[10] =
     {
+        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
         { false, FT_STRING, "Description" },
-        { false, FT_INT, "ID" },
         { false, FT_SHORT, "MapID" },
         { true, FT_INT, "BackgroundFileDataID" },
         { true, FT_INT, "ButtonFileDataID" },
@@ -3872,7 +3881,7 @@ struct PlayerConditionLoadInfo
         { true, FT_INT, "PhaseUseFlags" },
         { false, FT_SHORT, "PhaseID" },
         { false, FT_INT, "PhaseGroupID" },
-        { false, FT_BYTE, "Flags" },
+        { true, FT_INT, "Flags" },
         { true, FT_BYTE, "ChrSpecializationIndex" },
         { true, FT_BYTE, "ChrSpecializationRole" },
         { false, FT_INT, "ModifierTreeID" },
@@ -4506,7 +4515,7 @@ struct SoundKitLoadInfo
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "SoundType" },
         { false, FT_FLOAT, "VolumeFloat" },
-        { false, FT_SHORT, "Flags" },
+        { true, FT_INT, "Flags" },
         { false, FT_FLOAT, "MinDistance" },
         { false, FT_FLOAT, "DistanceCutoff" },
         { false, FT_BYTE, "EAXDef" },

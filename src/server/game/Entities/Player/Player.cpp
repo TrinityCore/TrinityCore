@@ -6920,8 +6920,8 @@ void Player::SendCurrencies() const
             continue;
 
         // Check award condition
-        if (!ConditionMgr::IsPlayerMeetingCondition(this, currency->AwardConditionID))
-            continue;
+        //if (!ConditionMgr::IsPlayerMeetingCondition(this, currency->AwardConditionID))
+        //    continue;
 
         WorldPackets::Misc::SetupCurrency::Record record;
         record.Type = currency->ID;
@@ -6987,8 +6987,8 @@ void Player::ModifyCurrency(uint32 id, int32 amount, CurrencyGainSource gainSour
         return;
 
     // Check award condition
-    if (!ConditionMgr::IsPlayerMeetingCondition(this, currency->AwardConditionID))
-        return;
+    //if (!ConditionMgr::IsPlayerMeetingCondition(this, currency->AwardConditionID))
+    //    return;
 
     bool isGainOnRefund = [&]() -> bool
     {

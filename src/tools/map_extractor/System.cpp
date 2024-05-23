@@ -109,7 +109,7 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 
 uint32 CONF_Locale = 0;
 
-char const* CONF_Product = "wow_classic_beta";
+char const* CONF_Product = "wow_classic";
 char const* CONF_Region = "eu";
 bool CONF_UseRemoteCasc = false;
 
