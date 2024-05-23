@@ -305,7 +305,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
 
         // if inventory item was moved, check if we can remove dependent auras, because they were not removed in Player::RemoveItem (update was set to false)
         // do this after swaps are done, we pass nullptr because both weapons could be swapped and none of them should be ignored
-        if ((autoEquipItem.PackSlot == INVENTORY_SLOT_BAG_0 && autoEquipItem.Slot < INVENTORY_SLOT_BAG_END) || (dstbag == INVENTORY_SLOT_BAG_0 && dstslot < INVENTORY_SLOT_BAG_END))
+        if ((autoEquipItem.PackSlot == INVENTORY_SLOT_BAG_0 && autoEquipItem.Slot < REAGENT_BAG_SLOT_END) || (dstbag == INVENTORY_SLOT_BAG_0 && dstslot < REAGENT_BAG_SLOT_END))
             _player->ApplyItemDependentAuras((Item*)nullptr, false);
     }
 }
@@ -450,54 +450,57 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
             }
         }
 
-        ItemTemplate const* pProto = pItem->GetTemplate();
-        if (pProto)
+        if (uint32 sellPrice = pItem->GetSellPrice(_player); sellPrice > 0)
         {
-            if (pProto->GetSellPrice() > 0)
-            {
-                uint64 money = uint64(pProto->GetSellPrice()) * packet.Amount;
+            uint64 money = uint64(sellPrice) * packet.Amount;
 
-                if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
+            using BuybackStorageType = std::remove_cvref_t<decltype(_player->m_activePlayerData->BuybackPrice[0])>;
+            if (money > std::numeric_limits<BuybackStorageType>::max()) // ensure sell price * amount doesn't overflow buyback price
+            {
+                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
+                return;
+            }
+
+            if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
+            {
+                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
+                return;
+            }
+
+            _player->UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
+            _player->UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
+
+            if (packet.Amount < pItem->GetCount())               // need split items
+            {
+                Item* pNewItem = pItem->CloneItem(packet.Amount, _player);
+                if (!pNewItem)
                 {
+                    TC_LOG_ERROR("network", "WORLD: HandleSellItemOpcode - could not create clone of item {}; count = {}", pItem->GetEntry(), packet.Amount);
                     _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
                     return;
                 }
 
-                _player->UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
-                _player->UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
+                pItem->SetCount(pItem->GetCount() - packet.Amount);
+                _player->ItemRemovedQuestCheck(pItem->GetEntry(), packet.Amount);
+                if (_player->IsInWorld())
+                    pItem->SendUpdateToPlayer(_player);
+                pItem->SetState(ITEM_CHANGED, _player);
 
-                if (packet.Amount < pItem->GetCount())               // need split items
-                {
-                    Item* pNewItem = pItem->CloneItem(packet.Amount, _player);
-                    if (!pNewItem)
-                    {
-                        TC_LOG_ERROR("network", "WORLD: HandleSellItemOpcode - could not create clone of item {}; count = {}", pItem->GetEntry(), packet.Amount);
-                        _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-                        return;
-                    }
-
-                    pItem->SetCount(pItem->GetCount() - packet.Amount);
-                    _player->ItemRemovedQuestCheck(pItem->GetEntry(), packet.Amount);
-                    if (_player->IsInWorld())
-                        pItem->SendUpdateToPlayer(_player);
-                    pItem->SetState(ITEM_CHANGED, _player);
-
-                    _player->AddItemToBuyBackSlot(pNewItem);
-                    if (_player->IsInWorld())
-                        pNewItem->SendUpdateToPlayer(_player);
-                }
-                else
-                {
-                    _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                    _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-                    RemoveItemFromUpdateQueueOf(pItem, _player);
-                    _player->AddItemToBuyBackSlot(pItem);
-                }
+                _player->AddItemToBuyBackSlot(pNewItem);
+                if (_player->IsInWorld())
+                    pNewItem->SendUpdateToPlayer(_player);
             }
             else
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-            return;
+            {
+                _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
+                _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+                RemoveItemFromUpdateQueueOf(pItem, _player);
+                _player->AddItemToBuyBackSlot(pItem);
+            }
         }
+        else
+            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
+        return;
     }
     _player->SendSellError(SELL_ERR_CANT_FIND_ITEM, creature, packet.ItemGUID);
     return;
@@ -884,23 +887,25 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
 
     switch (item->GetEntry())
     {
-        case 5042:
-            item->SetEntry(5043);
+        case ITEM_RED_RIBBONED_WRAPPING_PAPER:
+            item->SetEntry(ITEM_RED_RIBBONED_GIFT);
             break;
-        case 5048:
-            item->SetEntry(5044);
+        case ITEM_BLUE_RIBBONED_WRAPPING_PAPER:
+            item->SetEntry(ITEM_BLUE_RIBBONED_GIFT);
             break;
-        case 17303:
-            item->SetEntry(17302);
+        case ITEM_BLUE_RIBBONED_HOLIDAY_WRAPPING_PAPER:
+            item->SetEntry(ITEM_BLUE_RIBBONED_HOLIDAY_GIFT);
             break;
-        case 17304:
-            item->SetEntry(17305);
+        case ITEM_GREEN_RIBBONED_WRAPPING_PAPER:
+            item->SetEntry(ITEM_GREEN_RIBBONED_HOLIDAY_GIFT);
             break;
-        case 17307:
-            item->SetEntry(17308);
+        case ITEM_PURPLE_RIBBONED_WRAPPING_PAPER:
+            item->SetEntry(ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT);
             break;
-        case 21830:
-            item->SetEntry(21831);
+        case ITEM_EMPTY_WRAPPER:
+            item->SetEntry(ITEM_WRAPPED_GIFT);
+            break;
+        default:
             break;
     }
 
