@@ -1941,7 +1941,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
     }
     else
     {
-        auto validateIllusion = [this](uint32 enchantId) -> bool
+        auto validateIllusion = [](uint32 enchantId) -> bool
         {
             SpellItemEnchantmentEntry const* illusion = sSpellItemEnchantmentStore.LookupEntry(enchantId);
             if (!illusion)
