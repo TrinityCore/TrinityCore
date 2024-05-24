@@ -15,32 +15,38 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is where scripts' loading functions should be declared:
+#ifndef DEF_MAW_OF_SOULS_H_
+#define DEF_MAW_OF_SOULS_H_
 
-// Maw of Souls
-void AddSC_boss_ymiron_the_fallen_king();
-void AddSC_instance_maw_of_souls();
+#include "CreatureAIImpl.h"
 
-// Trial of Valor
-void AddSC_boss_guarm();
-void AddSC_instance_trial_of_valor();
+#define DataHeader "MawOfSouls"
+#define MOSScriptName "instance_maw_of_souls"
 
-// Orderhalls
-void AddSC_orderhall_warrior();
-void AddSC_zone_mardum();
+uint32 const EncounterCount = 3;
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
-void AddBrokenIslesScripts()
+enum MOSDataTypes
 {
-    // Maw of Souls
-    AddSC_boss_ymiron_the_fallen_king();
-    AddSC_instance_maw_of_souls();
+    // Encounters
+    DATA_YMIRON                     = 0,
+    DATA_HARBARON,
+    DATA_HELYA,
+};
 
-    // Trial of Valor
-    AddSC_boss_guarm();
-    AddSC_instance_trial_of_valor();
+enum MOSCreatureIds
+{
+    // Bosses
+    BOSS_YMIRON                     = 96756,
+    BOSS_HARBARON                   = 96754,
+    BOSS_HELYA                      = 96759,
+};
 
-    AddSC_orderhall_warrior();
-    AddSC_zone_mardum();
+template <class AI, class T>
+inline AI* GetMawOfSoulsAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MOSScriptName);
 }
+
+#define RegisterMawOfSoulsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMawOfSoulsAI)
+
+#endif
