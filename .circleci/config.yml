@@ -31,16 +31,20 @@ jobs:
             dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
             mysql -h 127.0.0.1 -uroot < sql/create/create_mysql.sql
             mysql -h 127.0.0.1 -uroot auth < sql/base/auth_database.sql
+            ./contrib/check_updates.sh auth master auth 127.0.0.1
             ./contrib/check_updates.sh auth cata_classic auth 127.0.0.1
             mysql -h 127.0.0.1 -uroot characters < sql/base/characters_database.sql
+            ./contrib/check_updates.sh characters master characters 127.0.0.1
             ./contrib/check_updates.sh characters cata_classic characters 127.0.0.1
             echo "Importing world database structure"
             mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
             echo "Importing hotfixes database structure"
             mysql -h 127.0.0.1 -uroot hotfixes < sql/base/dev/hotfixes_database.sql
             echo "Importing world database updates"
+            cat sql/updates/world/master/*.sql | mysql -h 127.0.0.1 -uroot world
             cat sql/updates/world/cata_classic/*.sql | mysql -h 127.0.0.1 -uroot world
             echo "Importing hotfixes database updates"
+            cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
             cat sql/updates/hotfixes/cata_classic/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
   pch:
     docker:
