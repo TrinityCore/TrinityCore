@@ -17,6 +17,7 @@
 
 #include "AreaBoundary.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "terrace_of_endless_spring.h"
