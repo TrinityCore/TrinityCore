@@ -2643,7 +2643,7 @@ void Item::CopyArtifactDataFromParent(Item* parent)
     SetAppearanceModId(parent->GetAppearanceModId());
 }
 
-void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId)
+void Item::GiveArtifactXp(uint64 amount, Item* /*sourceItem*/, uint32 artifactCategoryId)
 {
     Player* owner = GetOwner();
     if (!owner)
