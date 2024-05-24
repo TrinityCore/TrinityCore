@@ -1866,7 +1866,7 @@ bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
     return false;
 }
 
-ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* areaEntry)
+ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* /*areaEntry*/)
 {
     return nullptr;
 }
@@ -1955,7 +1955,7 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
     return broadcastText->Text[DEFAULT_LOCALE];
 }
 
-int32 const* DB2Manager::GetBroadcastTextDuration(int32 broadcastTextId, LocaleConstant locale /*= DEFAULT_LOCALE*/) const
+int32 const* DB2Manager::GetBroadcastTextDuration(int32 /*broadcastTextId*/, LocaleConstant /*locale*/ /*= DEFAULT_LOCALE*/) const
 {
     return nullptr;
 }
@@ -2039,12 +2039,12 @@ uint32 DB2Manager::GetRedirectedContentTuningId(uint32 contentTuningId, uint32 r
     return contentTuningId;
 }
 
-Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag, bool forItem /*= false*/) const
+Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 /*contentTuningId*/, uint32 /*redirectFlag*/, bool /*forItem*/ /*= false*/) const
 {
     return {};
 }
 
-bool DB2Manager::HasContentTuningLabel(uint32 contentTuningId, int32 label) const
+bool DB2Manager::HasContentTuningLabel(uint32 /*contentTuningId*/, int32 /*label*/) const
 {
     return false;
 }
@@ -2239,7 +2239,7 @@ EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8
     return nullptr;
 }
 
-float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass, int32 mythicPlusMilestoneSeason) const
+float DB2Manager::EvaluateExpectedStat(ExpectedStatType /*stat*/, uint32 /*level*/, int32 /*expansion*/, uint32 /*contentTuningId*/, Classes /*unitClass*/, int32 /*mythicPlusMilestoneSeason*/) const
 {
     return 1.0f;
 }
@@ -2254,7 +2254,7 @@ DB2Manager::FriendshipRepReactionSet const* DB2Manager::GetFriendshipRepReaction
     return Trinity::Containers::MapGetValuePtr(_friendshipRepReactions, friendshipRepID);
 }
 
-uint32 DB2Manager::GetGlobalCurveId(GlobalCurve globalCurveType) const
+uint32 DB2Manager::GetGlobalCurveId(GlobalCurve /*globalCurveType*/) const
 {
     return 0;
 }
@@ -3120,7 +3120,7 @@ WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, 
     return Trinity::Containers::MapGetValuePtr(_wmoAreaTableLookup, WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
 }
 
-std::unordered_set<uint32> const* DB2Manager::GetPVPStatIDsForMap(uint32 mapId) const
+std::unordered_set<uint32> const* DB2Manager::GetPVPStatIDsForMap(uint32 /*mapId*/) const
 {
     return nullptr;
 }

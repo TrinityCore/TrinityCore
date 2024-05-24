@@ -697,7 +697,7 @@ void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality
     // _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(qualityValue);
 }
 
-void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource)
+void BattlePetMgr::GrantBattlePetExperience(ObjectGuid /*guid*/, uint16 /*xp*/, BattlePetXpSource /*xpSource*/)
 {
     return;
 

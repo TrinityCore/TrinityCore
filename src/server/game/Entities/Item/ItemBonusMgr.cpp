@@ -81,8 +81,6 @@ ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player 
 
     if (mapDifficulty->ItemContextPickerID)
     {
-        uint32 contentTuningId = sDB2Manager.GetRedirectedContentTuningId(mapDifficulty->ContentTuningID, 0 /*player->m_playerData->CtrOptions->ContentTuningConditionMask*/);
-
         ItemContextPickerEntryEntry const* selectedPickerEntry = nullptr;
         for (ItemContextPickerEntryEntry const* itemContextPickerEntry : sItemContextPickerEntryStore)
         {
@@ -129,21 +127,21 @@ uint32 GetItemBonusListForItemLevelDelta(int16 delta)
     return 0;
 }
 
-bool CanApplyBonusTreeToItem(ItemTemplate const* itemTemplate, uint32 itemBonusTreeId, ItemBonusGenerationParams const& params)
+bool CanApplyBonusTreeToItem(ItemTemplate const* /*itemTemplate*/, uint32 /*itemBonusTreeId*/, ItemBonusGenerationParams const& /*params*/)
 {
     return false;
 }
 
-uint32 GetBonusTreeIdOverride(uint32 itemBonusTreeId, ItemBonusGenerationParams const& params)
+uint32 GetBonusTreeIdOverride(uint32 itemBonusTreeId, ItemBonusGenerationParams const& /*params*/)
 {
     return itemBonusTreeId;
 }
 
-void ApplyBonusTreeHelper(ItemTemplate const* itemTemplate, uint32 itemBonusTreeId, ItemBonusGenerationParams const& params, int32 sequenceLevel, uint32* itemLevelSelectorId, std::vector<int32>* bonusListIDs)
+void ApplyBonusTreeHelper(ItemTemplate const* /*itemTemplate*/, uint32 /*itemBonusTreeId*/, ItemBonusGenerationParams const& /*params*/, int32 /*sequenceLevel*/, uint32* /*itemLevelSelectorId*/, std::vector<int32>* /*bonusListIDs*/)
 {
 }
 
-int32 GetAzeriteUnlockBonusList(uint16 azeriteUnlockMappingSetId, uint16 minItemLevel, InventoryType inventoryType)
+int32 GetAzeriteUnlockBonusList(uint16 /*azeriteUnlockMappingSetId*/, uint16 /*minItemLevel*/, InventoryType /*inventoryType*/)
 {
     return 0;
 }

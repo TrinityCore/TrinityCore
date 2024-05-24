@@ -26463,7 +26463,7 @@ void Player::ResetTalentSpecialization()
     */
 }
 
-TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown)
+TalentLearnResult Player::LearnPvpTalent(uint32 /*talentID*/, uint8 /*slot*/, int32* /*spellOnCooldown*/)
 {
     return TALENT_FAILED_UNKNOWN;
 }

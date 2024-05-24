@@ -550,7 +550,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
+int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 /*itemId*/, int32 /*itemLevel*/) const
 {
     if (Scaling.Coefficient != 0.0f)
     {

@@ -6904,7 +6904,6 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
 
     // at entrance map for corpse map
     bool foundEntr = false;
-    float distEntr = 10000;
     WorldSafeLocsEntry const* entryEntr = nullptr;
 
     // some where other

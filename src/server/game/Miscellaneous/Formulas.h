@@ -136,7 +136,7 @@ namespace Trinity
             return diff;
         }
 
-        inline uint32 BaseGain(uint8 pl_level, uint8 mob_level)
+        inline uint32 BaseGain(uint8 /*pl_level*/, uint8 /*mob_level*/)
         {
             return 0;
 

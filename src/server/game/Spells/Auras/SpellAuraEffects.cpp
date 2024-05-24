@@ -4097,7 +4097,7 @@ void AuraEffect::HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aur
     }
 }
 
-void AuraEffect::HandleModManaCostPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModManaCostPct(AuraApplication const* /*aurApp*/, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4646,7 +4646,7 @@ void AuraEffect::HandleShieldBlockValuePercent(AuraApplication const* aurApp, ui
 /***        POWER COST        ***/
 /********************************/
 
-void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModPowerCost(AuraApplication const* /*aurApp*/, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
@@ -4654,12 +4654,6 @@ void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, b
     // handled in SpellInfo::CalcPowerCost, this is only for client UI
     if (!(GetMiscValueB() & (1 << POWER_MANA)))
         return;
-
-    // Unit* target = aurApp->GetTarget();
-    // 
-    // for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-    //     if (GetMiscValue() & (1 << i))
-    //         target->ApplyModManaCostModifier(SpellSchools(i), GetAmount(), apply);
 }
 
 void AuraEffect::HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const

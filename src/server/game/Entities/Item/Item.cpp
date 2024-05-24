@@ -923,11 +923,11 @@ void Item::LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppea
                     switch (enchant->Effect[i])
                     {
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE:
-                            if (uint32(artifactPower->Label) == enchant->EffectArg[i])
+                            if (artifactPower->Label == enchant->EffectArg[i])
                                 power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
                             break;
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
-                            if (artifactPower->ID == enchant->EffectArg[i])
+                            if (int32(artifactPower->ID) == enchant->EffectArg[i])
                                 power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
                             break;
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_PICKER:
@@ -1235,7 +1235,7 @@ bool Item::HasEnchantRequiredSkill(Player const* player) const
 
 uint32 Item::GetEnchantRequiredLevel() const
 {
-    uint32 level = 0;
+    int32 level = 0;
 
     // Check all enchants for required level
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
@@ -1244,7 +1244,7 @@ uint32 Item::GetEnchantRequiredLevel() const
                 if (enchantEntry->MinLevel > level)
                     level = enchantEntry->MinLevel;
 
-    return level;
+    return static_cast<uint32>(level);
 }
 
 bool Item::IsBoundByEnchant() const
@@ -2520,7 +2520,7 @@ uint32 Item::GetTotalUnlockedArtifactPowers() const
 {
     uint32 purchased = GetTotalPurchasedArtifactPowers();
     uint64 artifactXp = m_itemData->ArtifactXP;
-    uint32 currentArtifactTier = GetModifier(ITEM_MODIFIER_ARTIFACT_TIER);
+    //uint32 currentArtifactTier = GetModifier(ITEM_MODIFIER_ARTIFACT_TIER);
     uint32 extraUnlocked = 0;
     do
     {
@@ -2560,7 +2560,7 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                     for (uint32 artifactPowerIndex = 0; artifactPowerIndex < m_itemData->ArtifactPowers.size(); ++artifactPowerIndex)
                     {
                         UF::ArtifactPower const& artifactPower = m_itemData->ArtifactPowers[artifactPowerIndex];
-                        if (uint32(sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerID)->Label) == enchant->EffectArg[i])
+                        if (sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerID)->Label == enchant->EffectArg[i])
                         {
                             uint8 newRank = artifactPower.CurrentRankWithBonus;
                             if (apply)

@@ -9234,7 +9234,7 @@ void Unit::UpdateResistances(uint32 school)
         UpdateArmor();
 }
 
-float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapon /*= true*/) const
+float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool /*includeWeapon*/ /*= true*/) const
 {
     if (attType == RANGED_ATTACK)
     {
