@@ -513,9 +513,6 @@ struct boss_elder_asani : public ProtectorsSharedAI
                 Unit* target = nullptr;
                 switch (urand(0, 2))
                 {
-                    if (!target->IsAlive())
-                        return;
-
                     case 0:
                         target = me->GetInstanceScript()->GetCreature(DATA_ELDER_REGAIL);
                         break;
@@ -525,6 +522,9 @@ struct boss_elder_asani : public ProtectorsSharedAI
                     case 2:
                         target = me;
                         break;
+
+                    if (!target->IsAlive())
+                        return;
                 }
 
                 if (target)
