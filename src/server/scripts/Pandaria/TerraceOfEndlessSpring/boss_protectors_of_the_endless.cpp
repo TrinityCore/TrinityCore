@@ -16,8 +16,8 @@
  */
 
 #include "Containers.h"
-#include "Creature.h"
-#include "CreatureAIImpl.h" // for RAND()
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"
