@@ -16,13 +16,14 @@
  */
 
 #include "Containers.h"
-#include "CreatureAI.h"
+#include "Creature.h"
 #include "CreatureAIImpl.h" // for RAND()
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "terrace_of_endless_spring.h"
