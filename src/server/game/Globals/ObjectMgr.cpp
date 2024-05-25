@@ -7011,8 +7011,8 @@ void ObjectMgr::LoadWorldSafeLocs()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                   0   1      2     3     4     5
-    if (QueryResult result = WorldDatabase.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs"))
+    //                                                   0   1      2     3     4     5       6
+    if (QueryResult result = WorldDatabase.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing, TransportSpawnId FROM world_safe_locs"))
     {
         do
         {
@@ -7025,9 +7025,22 @@ void ObjectMgr::LoadWorldSafeLocs()
                 continue;
             }
 
+            Optional<ObjectGuid::LowType> transportSpawnId = {};
+            if (!fields[6].IsNull())
+            {
+                if (!sTransportMgr->GetTransportSpawn(fields[6].GetUInt64()))
+                {
+                    TC_LOG_ERROR("sql.sql", "World location (ID: {}) has a invalid transportSpawnID {}, skipped.", id, fields[6].GetUInt64());
+                    continue;
+                }
+
+                transportSpawnId = fields[6].GetUInt64();
+            }
+
             WorldSafeLocsEntry& worldSafeLocs = _worldSafeLocs[id];
             worldSafeLocs.ID = id;
             worldSafeLocs.Loc.WorldRelocate(loc);
+            worldSafeLocs.TransportSpawnId = transportSpawnId;
 
         } while (result->NextRow());
 
