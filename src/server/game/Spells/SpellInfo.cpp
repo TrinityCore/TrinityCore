@@ -236,6 +236,7 @@ struct SpellEffectInfo::ImmunityInfo
     uint32 DispelImmuneMask = 0;
     uint32 DamageSchoolMask = 0;
     uint8 OtherImmuneMask = 0;
+    bool RemoveEffectsWithMechanic = false;
 
     Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
     Trinity::Containers::FlatSet<SpellEffects> SpellEffectImmune;
@@ -3392,6 +3393,7 @@ void SpellInfo::_LoadImmunityInfo()
         uint32 dispelImmunityMask = 0;
         uint32 damageImmunityMask = 0;
         uint8 otherImmunityMask = 0;
+        bool removeEffectsWithMechanic = false;
 
         int32 miscVal = effect.MiscValue;
 
@@ -3422,6 +3424,7 @@ void SpellInfo::_LoadImmunityInfo()
                     case 59752: // Every Man for Himself
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED);
+                        removeEffectsWithMechanic = true;
                         break;
                     case 34471: // The Beast Within
                     case 19574: // Bestial Wrath
@@ -3433,6 +3436,7 @@ void SpellInfo::_LoadImmunityInfo()
                     case 195710: // Honorable Medallion
                     case 208683: // Gladiator's Medallion
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
+                        removeEffectsWithMechanic = true;
                         break;
                     case 54508: // Demonic Empowerment
                         mechanicImmunityMask |= (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN);
@@ -3444,6 +3448,11 @@ void SpellInfo::_LoadImmunityInfo()
                         mechanicImmunityMask |= UI64LIT(1) << miscVal;
                         break;
                 }
+
+                // Special 100 ms duration spells - PvP trinket, Every Man for Himself and some other
+                if (GetMaxDuration() == 100)
+                    removeEffectsWithMechanic = true;
+
                 break;
             }
             case SPELL_AURA_EFFECT_IMMUNITY:
@@ -3486,6 +3495,7 @@ void SpellInfo::_LoadImmunityInfo()
         immuneInfo.DispelImmuneMask = dispelImmunityMask;
         immuneInfo.DamageSchoolMask = damageImmunityMask;
         immuneInfo.OtherImmuneMask = otherImmunityMask;
+        immuneInfo.RemoveEffectsWithMechanic = removeEffectsWithMechanic;
 
         immuneInfo.AuraTypeImmune.shrink_to_fit();
         immuneInfo.SpellEffectImmune.shrink_to_fit();
@@ -3636,8 +3646,8 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
         if (HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
             if (apply)
-                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
-            else
+                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id, immuneInfo->RemoveEffectsWithMechanic);
+            else if (!immuneInfo->RemoveEffectsWithMechanic)
             {
                 std::vector<Aura*> aurasToUpdateTargets;
                 target->RemoveAppliedAuras([mechanicImmunity, &aurasToUpdateTargets](AuraApplication const* aurApp)
