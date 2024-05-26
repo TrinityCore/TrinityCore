@@ -210,15 +210,11 @@ class spell_ioc_gunship_portal : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Player* caster = GetCaster()->ToPlayer();
-        /*
-         * HACK: GetWorldLocation() returns real position and not transportposition.
-         * ServertoClient: SMSG_MOVE_TELEPORT (0x0B39)
-         * counter: 45
-         * Tranpsort Guid: Full: xxxx Type: MOTransport Low: xxx
-         * Transport Position X: 0 Y: 0 Z: 0 O: 0
-         * Position: X: 7.305609 Y: -0.095246 Z: 34.51022 O: 0
-         */
-        caster->TeleportTo(GetHitCreature()->GetWorldLocation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+        Optional<ObjectGuid> transportGuid;
+        if (TransportBase const* transport = GetHitCreature()->GetTransport())
+            transportGuid = transport->GetTransportGUID();
+
+        caster->TeleportTo({ .Location = WorldLocation(GetHitCreature()->GetMapId(), GetHitCreature()->GetTransOffset()), .TransportGuid = transportGuid });
     }
 
     void Register() override
