@@ -848,6 +848,18 @@ class TC_PROTO_API LoginResult : public ::google::protobuf::Message {
   inline ::std::string* release_server_evidence_m2();
   inline void set_allocated_server_evidence_m2(::std::string* server_evidence_m2);
 
+  // optional string next_url = 7;
+  inline bool has_next_url() const;
+  inline void clear_next_url();
+  static const int kNextUrlFieldNumber = 7;
+  inline const ::std::string& next_url() const;
+  inline void set_next_url(const ::std::string& value);
+  inline void set_next_url(const char* value);
+  inline void set_next_url(const char* value, size_t size);
+  inline ::std::string* mutable_next_url();
+  inline ::std::string* release_next_url();
+  inline void set_allocated_next_url(::std::string* next_url);
+
   // @@protoc_insertion_point(class_scope:Battlenet.JSON.Login.LoginResult)
  private:
   inline void set_has_authentication_state();
@@ -862,6 +874,8 @@ class TC_PROTO_API LoginResult : public ::google::protobuf::Message {
   inline void clear_has_login_ticket();
   inline void set_has_server_evidence_m2();
   inline void clear_has_server_evidence_m2();
+  inline void set_has_next_url();
+  inline void clear_has_next_url();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -872,6 +886,7 @@ class TC_PROTO_API LoginResult : public ::google::protobuf::Message {
   ::std::string* url_;
   ::std::string* login_ticket_;
   ::std::string* server_evidence_m2_;
+  ::std::string* next_url_;
   int authentication_state_;
   friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
   friend void protobuf_AssignDesc_Login_2eproto();
@@ -2983,6 +2998,82 @@ inline void LoginResult::set_allocated_server_evidence_m2(::std::string* server_
     server_evidence_m2_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:Battlenet.JSON.Login.LoginResult.server_evidence_M2)
+}
+
+// optional string next_url = 7;
+inline bool LoginResult::has_next_url() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void LoginResult::set_has_next_url() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void LoginResult::clear_has_next_url() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void LoginResult::clear_next_url() {
+  if (next_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    next_url_->clear();
+  }
+  clear_has_next_url();
+}
+inline const ::std::string& LoginResult::next_url() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.LoginResult.next_url)
+  return *next_url_;
+}
+inline void LoginResult::set_next_url(const ::std::string& value) {
+  set_has_next_url();
+  if (next_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    next_url_ = new ::std::string;
+  }
+  next_url_->assign(value);
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.LoginResult.next_url)
+}
+inline void LoginResult::set_next_url(const char* value) {
+  set_has_next_url();
+  if (next_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    next_url_ = new ::std::string;
+  }
+  next_url_->assign(value);
+  // @@protoc_insertion_point(field_set_char:Battlenet.JSON.Login.LoginResult.next_url)
+}
+inline void LoginResult::set_next_url(const char* value, size_t size) {
+  set_has_next_url();
+  if (next_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    next_url_ = new ::std::string;
+  }
+  next_url_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:Battlenet.JSON.Login.LoginResult.next_url)
+}
+inline ::std::string* LoginResult::mutable_next_url() {
+  set_has_next_url();
+  if (next_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    next_url_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:Battlenet.JSON.Login.LoginResult.next_url)
+  return next_url_;
+}
+inline ::std::string* LoginResult::release_next_url() {
+  clear_has_next_url();
+  if (next_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = next_url_;
+    next_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LoginResult::set_allocated_next_url(::std::string* next_url) {
+  if (next_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete next_url_;
+  }
+  if (next_url) {
+    set_has_next_url();
+    next_url_ = next_url;
+  } else {
+    clear_has_next_url();
+    next_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:Battlenet.JSON.Login.LoginResult.next_url)
 }
 
 // -------------------------------------------------------------------

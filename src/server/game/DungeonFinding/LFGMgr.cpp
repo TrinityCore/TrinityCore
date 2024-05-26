@@ -1538,6 +1538,8 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
             continue;
         }
 
+        player->UpdateCriteria(CriteriaType::CompletedLFGDungeon, 1);
+
         // Update achievements
         if (dungeon->difficulty == DIFFICULTY_HEROIC)
         {

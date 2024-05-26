@@ -38,8 +38,8 @@ void WaypointMgr::_LoadPaths()
 
     _pathStore.clear();
 
-    //                                                    0         1      2
-    QueryResult result = WorldDatabase.Query("SELECT PathId, MoveType, Flags FROM waypoint_path");
+    //                                                    0         1      2         3
+    QueryResult result = WorldDatabase.Query("SELECT PathId, MoveType, Flags, Velocity FROM waypoint_path");
 
     if (!result)
     {
@@ -80,7 +80,6 @@ void WaypointMgr::_LoadPathNodes()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} waypoint path nodes in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    DoPostLoadingChecks();
 }
 
 void WaypointMgr::LoadPathFromDB(Field* fields)
@@ -88,15 +87,25 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
     uint32 pathId = fields[0].GetUInt32();
 
     WaypointPath& path = _pathStore[pathId];
-    path.Id = pathId;
-    path.MoveType = WaypointMoveType(fields[1].GetUInt8());
 
+    path.MoveType = WaypointMoveType(fields[1].GetUInt8());
     if (path.MoveType >= WaypointMoveType::Max)
     {
         TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid MoveType {}, ignoring", pathId, AsUnderlyingType(path.MoveType));
         return;
     }
+
+    path.Id = pathId;
     path.Flags = WaypointPathFlags(fields[2].GetUInt8());
+
+    if (!fields[3].IsNull())
+    {
+        if (fields[3].GetFloat() > 0.0f)
+            path.Velocity = fields[3].GetFloat();
+        else
+            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid velocity {}, using default velocity instead", pathId, fields[3].GetFloat());
+    }
+
     path.Nodes.clear();
 }
 
@@ -118,17 +127,22 @@ void WaypointMgr::LoadPathNodesFromDB(Field* fields)
     if (!fields[5].IsNull())
         o = fields[5].GetFloat();
 
+    Optional<Milliseconds> delay;
+    if (uint32 delayMs = fields[6].GetUInt32())
+        delay.emplace(delayMs);
+
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    path->Nodes.emplace_back(fields[1].GetUInt32(), x, y, z, o, fields[6].GetUInt32());
+    path->Nodes.emplace_back(fields[1].GetUInt32(), x, y, z, o, delay);
 }
 
 void WaypointMgr::DoPostLoadingChecks()
 {
-    for (auto const& path : _pathStore)
+    for (auto& [pathId, pathInfo] : _pathStore)
     {
-        WaypointPath pathInfo = path.second;
+        pathInfo.BuildSegments();
+
         if (pathInfo.Nodes.empty())
             TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has no assigned nodes in `waypoint_path_node`", pathInfo.Id);
 
@@ -181,6 +195,9 @@ void WaypointMgr::ReloadPath(uint32 pathId)
         {
             LoadPathNodesFromDB(result->Fetch());
         } while (result->NextRow());
+
+        if (WaypointPath* path = Trinity::Containers::MapGetValuePtr(_pathStore, pathId))
+            path->BuildSegments();
     }
 }
 
@@ -316,4 +333,17 @@ ObjectGuid const& WaypointMgr::GetVisualGUIDByNode(uint32 pathId, uint32 nodeId)
         return ObjectGuid::Empty;
 
     return itr->second;
+}
+
+void WaypointPath::BuildSegments()
+{
+    ContinuousSegments.assign(1, { 0, 0 });
+    for (std::size_t i = 0; i < Nodes.size(); ++i)
+    {
+        ++ContinuousSegments.back().second;
+
+        // split on delay
+        if (i + 1 != Nodes.size() && Nodes[i].Delay)
+            ContinuousSegments.emplace_back(i, 1);
+    }
 }

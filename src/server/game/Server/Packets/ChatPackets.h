@@ -61,8 +61,10 @@ namespace WorldPackets
             void Read() override;
 
             int32 Language = LANG_UNIVERSAL;
-            std::string Text;
+            ObjectGuid TargetGUID;
+            uint32 TargetVirtualRealmAddress = 0;
             std::string Target;
+            std::string Text;
         };
 
         // CMSG_CHAT_MESSAGE_CHANNEL
@@ -105,14 +107,16 @@ namespace WorldPackets
         public:
             ChatAddonMessageTargeted(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_TARGETED, std::move(packet))
             {
-                ChannelGUID.emplace();
             }
 
             void Read() override;
 
-            std::string Target;
             ChatAddonMessageParams Params;
-            Optional<ObjectGuid> ChannelGUID; // not optional in the packet. Optional for api reasons
+            std::string PlayerName;
+            ObjectGuid PlayerGUID;
+            uint32 PlayerVirtualRealmAddress = 0;
+            std::string ChannelName;
+            ObjectGuid ChannelGUID;
         };
 
         class ChatMessageDND final : public ClientPacket

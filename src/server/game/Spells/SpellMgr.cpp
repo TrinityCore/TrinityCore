@@ -743,12 +743,6 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
         if (!player || (auraSpell > 0 && !player->HasAura(auraSpell)) || (auraSpell < 0 && player->HasAura(-auraSpell)))
             return false;
 
-    if (player)
-    {
-        if (Battleground* bg = player->GetBattleground())
-            return bg->IsSpellAllowed(spellId, player);
-    }
-
     // Extra conditions
     switch (spellId)
     {
@@ -2554,6 +2548,18 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellCooldownsEntry const* cooldowns : sSpellCooldownsStore)
         loadData[{ cooldowns->SpellID, Difficulty(cooldowns->DifficultyID) }].Cooldowns = cooldowns;
 
+    for (SpellEmpowerStageEntry const* empowerStage : sSpellEmpowerStageStore)
+    {
+        if (SpellEmpowerEntry const* empower = sSpellEmpowerStore.LookupEntry(empowerStage->SpellEmpowerID))
+        {
+            std::vector<SpellEmpowerStageEntry const*>& empowerStages = loadData[{empower->SpellID, DIFFICULTY_NONE}].EmpowerStages;
+
+            auto where = std::ranges::lower_bound(empowerStages, empowerStage->Stage, std::ranges::less(), &SpellEmpowerStageEntry::Stage);
+
+            empowerStages.insert(where, empowerStage);
+        }
+    }
+
     for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
         loadData[{ equippedItems->SpellID, DIFFICULTY_NONE }].EquippedItems = equippedItems;
 
@@ -2604,98 +2610,98 @@ void SpellMgr::LoadSpellInfoStore()
     {
         SpellVisualVector& visuals = loadData[{ visual->SpellID, Difficulty(visual->DifficultyID) }].Visuals;
 
-        auto where = std::lower_bound(visuals.begin(), visuals.end(), visual, [](SpellXSpellVisualEntry const* first, SpellXSpellVisualEntry const* second)
-        {
-            return first->CasterPlayerConditionID > second->CasterPlayerConditionID;
-        });
+        auto where = std::ranges::lower_bound(visuals, visual->CasterPlayerConditionID, std::ranges::greater(), &SpellXSpellVisualEntry::CasterPlayerConditionID);
 
         // sorted with unconditional visuals being last
         visuals.insert(where, visual);
     }
 
-    for (std::pair<std::pair<uint32, Difficulty> const, SpellInfoLoadHelper>& data : loadData)
+    for (auto& [key, data] : loadData)
     {
-        SpellNameEntry const* spellNameEntry = sSpellNameStore.LookupEntry(data.first.first);
+        SpellNameEntry const* spellNameEntry = sSpellNameStore.LookupEntry(key.first);
         if (!spellNameEntry)
             continue;
 
         // fill blanks
-        if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(data.first.second))
+        if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(key.second))
         {
             do
             {
-                if (SpellInfoLoadHelper const* fallbackData = Trinity::Containers::MapGetValuePtr(loadData, { data.first.first, Difficulty(difficultyEntry->FallbackDifficultyID) }))
+                if (SpellInfoLoadHelper const* fallbackData = Trinity::Containers::MapGetValuePtr(loadData, { key.first, Difficulty(difficultyEntry->FallbackDifficultyID) }))
                 {
-                    if (!data.second.AuraOptions)
-                        data.second.AuraOptions = fallbackData->AuraOptions;
+                    if (!data.AuraOptions)
+                        data.AuraOptions = fallbackData->AuraOptions;
 
-                    if (!data.second.AuraRestrictions)
-                        data.second.AuraRestrictions = fallbackData->AuraRestrictions;
+                    if (!data.AuraRestrictions)
+                        data.AuraRestrictions = fallbackData->AuraRestrictions;
 
-                    if (!data.second.CastingRequirements)
-                        data.second.CastingRequirements = fallbackData->CastingRequirements;
+                    if (!data.CastingRequirements)
+                        data.CastingRequirements = fallbackData->CastingRequirements;
 
-                    if (!data.second.Categories)
-                        data.second.Categories = fallbackData->Categories;
+                    if (!data.Categories)
+                        data.Categories = fallbackData->Categories;
 
-                    if (!data.second.ClassOptions)
-                        data.second.ClassOptions = fallbackData->ClassOptions;
+                    if (!data.ClassOptions)
+                        data.ClassOptions = fallbackData->ClassOptions;
 
-                    if (!data.second.Cooldowns)
-                        data.second.Cooldowns = fallbackData->Cooldowns;
+                    if (!data.Cooldowns)
+                        data.Cooldowns = fallbackData->Cooldowns;
 
-                    for (std::size_t i = 0; i < data.second.Effects.size(); ++i)
-                        if (!data.second.Effects[i])
-                            data.second.Effects[i] = fallbackData->Effects[i];
+                    for (std::size_t i = 0; i < data.Effects.size(); ++i)
+                        if (!data.Effects[i])
+                            data.Effects[i] = fallbackData->Effects[i];
 
-                    if (!data.second.EquippedItems)
-                        data.second.EquippedItems = fallbackData->EquippedItems;
+                    if (data.EmpowerStages.empty())
+                        data.EmpowerStages = fallbackData->EmpowerStages;
 
-                    if (!data.second.Interrupts)
-                        data.second.Interrupts = fallbackData->Interrupts;
+                    if (!data.EquippedItems)
+                        data.EquippedItems = fallbackData->EquippedItems;
 
-                    if (data.second.Labels.empty())
-                        data.second.Labels = fallbackData->Labels;
+                    if (!data.Interrupts)
+                        data.Interrupts = fallbackData->Interrupts;
 
-                    if (!data.second.Levels)
-                        data.second.Levels = fallbackData->Levels;
+                    if (data.Labels.empty())
+                        data.Labels = fallbackData->Labels;
 
-                    if (!data.second.Misc)
-                        data.second.Misc = fallbackData->Misc;
+                    if (!data.Levels)
+                        data.Levels = fallbackData->Levels;
+
+                    if (!data.Misc)
+                        data.Misc = fallbackData->Misc;
 
                     for (std::size_t i = 0; i < fallbackData->Powers.size(); ++i)
-                        if (!data.second.Powers[i])
-                            data.second.Powers[i] = fallbackData->Powers[i];
+                        if (!data.Powers[i])
+                            data.Powers[i] = fallbackData->Powers[i];
 
-                    if (!data.second.Reagents)
-                        data.second.Reagents = fallbackData->Reagents;
+                    if (!data.Reagents)
+                        data.Reagents = fallbackData->Reagents;
 
-                    if (data.second.ReagentsCurrency.empty())
-                        data.second.ReagentsCurrency = fallbackData->ReagentsCurrency;
+                    if (data.ReagentsCurrency.empty())
+                        data.ReagentsCurrency = fallbackData->ReagentsCurrency;
 
-                    if (!data.second.Scaling)
-                        data.second.Scaling = fallbackData->Scaling;
+                    if (!data.Scaling)
+                        data.Scaling = fallbackData->Scaling;
 
-                    if (!data.second.Shapeshift)
-                        data.second.Shapeshift = fallbackData->Shapeshift;
+                    if (!data.Shapeshift)
+                        data.Shapeshift = fallbackData->Shapeshift;
 
-                    if (!data.second.TargetRestrictions)
-                        data.second.TargetRestrictions = fallbackData->TargetRestrictions;
+                    if (!data.TargetRestrictions)
+                        data.TargetRestrictions = fallbackData->TargetRestrictions;
 
-                    if (!data.second.Totems)
-                        data.second.Totems = fallbackData->Totems;
+                    if (!data.Totems)
+                        data.Totems = fallbackData->Totems;
 
                     // visuals fall back only to first difficulty that defines any visual
                     // they do not stack all difficulties in fallback chain
-                    if (data.second.Visuals.empty())
-                        data.second.Visuals = fallbackData->Visuals;
+                    if (data.Visuals.empty())
+                        data.Visuals = fallbackData->Visuals;
                 }
 
                 difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
             } while (difficultyEntry);
         }
 
-        mSpellInfoMap.emplace(spellNameEntry, data.first.second, data.second);
+        mSpellInfoMap.emplace(spellNameEntry, key.second, data);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in {} ms", GetMSTimeDiffToNow(oldMSTime));
@@ -4003,6 +4009,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
 
+    // Inescapable Torment
+    ApplySpellFix({ 373427 }, [](SpellInfo* spellInfo)
+    {
+        // Remove self-damage from passive aura on learn
+        ApplySpellEffectFix(spellInfo, EFFECT_3, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_DUMMY;
+        });
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
@@ -4627,6 +4643,34 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF FIRELANDS
 
     //
+    // SCARLET HALLS SPELLS
+    //
+
+    // 111755 - Call Reinforcement
+    ApplySpellFix({ 111755 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
+    // 111756 - Call Reinforcement
+    ApplySpellFix({ 111756 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
+    // ENDOF SCARLET HALLS SPELLS
+
+    //
     // MARDUM SPELLS
     //
 
@@ -4651,6 +4695,22 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // ENDOF MARDUM SPELLS
+
+    //
+    // MAW OF SOULS SPELLS
+    //
+
+    // 193465 - Bane
+    ApplySpellFix({ 193465 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Normal difficulty should also be using the regular heroic+ AreaTriggerCreateProperties
+            spellEffectInfo->MiscValue = 5838;
+        });
+    });
+
+    // ENDOF MAW OF SOULS SPELLS
 
     //
     // ANTORUS THE BURNING THRONE SPELLS

@@ -25,6 +25,7 @@ Script Data End */
 #include "ScriptedCreature.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "WaypointDefines.h"
 
 enum DumpyKeeshan
 {
@@ -283,17 +284,20 @@ const Emote EmoteID[6] =
     EMOTE_ONESHOT_NO
 };
 
-uint32 const pathSize = 8;
-Position const TownhallPath[pathSize] =
+WaypointPath const TownhallPath =
 {
-    { -9221.39f, -2198.45f, 66.34846f },
-    { -9221.39f, -2198.45f, 66.34846f },
-    { -9226.39f, -2196.45f, 66.34846f },
-    { -9231.64f, -2196.45f, 65.34846f },
-    { -9231.39f, -2205.45f, 66.34846f },
-    { -9231.64f, -2210.45f, 66.34846f },
-    { -9244.14f, -2211.20f, 66.34846f },
-    { -9255.31f, -2211.62f, 63.93340f }
+    8,
+    {
+        { 0, -9221.39f, -2198.45f, 66.34846f },
+        { 1, -9221.39f, -2198.45f, 66.34846f },
+        { 2, -9226.39f, -2196.45f, 66.34846f },
+        { 3, -9231.64f, -2196.45f, 65.34846f },
+        { 4, -9231.39f, -2205.45f, 66.34846f },
+        { 5, -9231.64f, -2210.45f, 66.34846f },
+        { 6, -9244.14f, -2211.20f, 66.34846f },
+        { 7, -9255.31f, -2211.62f, 63.93340f }
+    },
+    WaypointMoveType::Walk
 };
 
 class npc_redridge_citizen : public CreatureScript
@@ -343,7 +347,7 @@ public:
                         _events.Repeat(Seconds(30), Seconds(60));
                         break;
                     case EVENT_LEAVE_TOWNHALL:
-                        me->GetMotionMaster()->MoveSmoothPath(pathSize, TownhallPath, pathSize, true, false);
+                        me->GetMotionMaster()->MovePath(TownhallPath, false);
                         me->DespawnOrUnsummon(Seconds(30), Seconds(60));
                         break;
                     default:

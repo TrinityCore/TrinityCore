@@ -48,9 +48,11 @@ void WorldPackets::Scenes::SceneTriggerEvent::Read()
 void WorldPackets::Scenes::ScenePlaybackComplete::Read()
 {
     _worldPacket >> SceneInstanceID;
+    _worldPacket >> TimePassed;
 }
 
 void WorldPackets::Scenes::ScenePlaybackCanceled::Read()
 {
     _worldPacket >> SceneInstanceID;
+    _worldPacket >> TimePassed;
 }

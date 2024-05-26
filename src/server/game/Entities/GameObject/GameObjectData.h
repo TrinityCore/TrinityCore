@@ -27,6 +27,15 @@
 #include <set>
 #include <string>
 
+struct DestructibleHitpoint
+{
+    uint32 Id;
+    uint32 IntactNumHits;
+    uint32 DamagedNumHits;
+
+    uint32 GetMaxHealth() const { return IntactNumHits + DamagedNumHits; }
+};
+
 // from `gameobject_template`
 struct GameObjectTemplate
 {
@@ -862,6 +871,18 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_SPELLCASTER:   return spellCaster.allowMounted != 0;
             case GAMEOBJECT_TYPE_UI_LINK:       return UILink.allowMounted != 0;
             default: return false;
+        }
+    }
+
+    uint32 GetQuestID() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST: return chest.questID;
+            case GAMEOBJECT_TYPE_GENERIC: return generic.questID;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.questID;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.questID;
+            default: return 0;
         }
     }
 

@@ -18,7 +18,6 @@
 #include "Field.h"
 #include "Errors.h"
 #include "FieldValueConverter.h"
-#include "Log.h"
 #include <cstring>
 
 Field::Field() : _value(nullptr), _length(0), _meta(nullptr)
@@ -105,6 +104,14 @@ double Field::GetDouble() const
         return 0.0;
 
     return _meta->Converter->GetDouble(_value, _length, _meta);
+}
+
+SystemTimePoint Field::GetDate() const
+{
+    if (!_value)
+        return SystemTimePoint::min();
+
+    return _meta->Converter->GetDate(_value, _length, _meta);
 }
 
 char const* Field::GetCString() const

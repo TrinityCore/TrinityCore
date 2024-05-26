@@ -393,6 +393,39 @@ void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannellin
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
+void WorldSession::HandleSetEmpowerMinHoldStagePercent(WorldPackets::Spells::SetEmpowerMinHoldStagePercent const& setEmpowerMinHoldStagePercent)
+{
+    _player->SetEmpowerMinHoldStagePercent(setEmpowerMinHoldStagePercent.MinHoldStagePercent);
+}
+
+void WorldSession::HandleSpellEmpowerRelease(WorldPackets::Spells::SpellEmpowerRelease const& spellEmpowerRelease)
+{
+    // ignore for remote control state (for player case)
+    Unit* mover = _player->GetUnitBeingMoved();
+    if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    Spell* spell = mover->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+    if (!spell || spell->GetSpellInfo()->Id != uint32(spellEmpowerRelease.SpellID) || !spell->IsEmpowerSpell())
+        return;
+
+    spell->SetEmpowerReleasedByClient(true);
+}
+
+void WorldSession::HandleSpellEmpowerRestart(WorldPackets::Spells::SpellEmpowerRestart const& spellEmpowerRestart)
+{
+    // ignore for remote control state (for player case)
+    Unit* mover = _player->GetUnitBeingMoved();
+    if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    Spell* spell = mover->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+    if (!spell || spell->GetSpellInfo()->Id != uint32(spellEmpowerRestart.SpellID) || !spell->IsEmpowerSpell())
+        return;
+
+    spell->SetEmpowerReleasedByClient(false);
+}
+
 void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)
 {
     // ignore for remote control state

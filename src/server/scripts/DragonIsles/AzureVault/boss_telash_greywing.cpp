@@ -126,8 +126,8 @@ struct boss_telash_greywing : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
+        _JustDied();
         Talk(SAY_DEATH);
-        summons.DespawnAll();
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override

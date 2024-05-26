@@ -45,7 +45,8 @@ bool SmartAI::IsAIControlled() const
     return !_charmed;
 }
 
-void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/)
+void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult/* = {}*/)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();
@@ -71,7 +72,7 @@ void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* in
         me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
-    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath);
+    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, {}, {}, {}, true, std::move(scriptResult));
 }
 
 WaypointPath const* SmartAI::LoadPath(uint32 entry)
@@ -832,7 +833,7 @@ void SmartAI::StopFollow(bool complete)
     _followGUID.Clear();
     _followDistance = 0;
     _followAngle = 0;
-    _followCredit = 0;
+    uint32 followCredit = std::exchange(_followCredit, 0);
     _followArrivedTimer = 1000;
     _followArrivedEntry = 0;
     _followCreditType = 0;
@@ -846,9 +847,9 @@ void SmartAI::StopFollow(bool complete)
     if (player)
     {
         if (!_followCreditType)
-            player->RewardPlayerAndGroupAtEvent(_followCredit, me);
+            player->RewardPlayerAndGroupAtEvent(followCredit, me);
         else
-            player->GroupEventHappens(_followCredit, me);
+            player->GroupEventHappens(followCredit, me);
     }
 
     SetDespawnTime(5000);

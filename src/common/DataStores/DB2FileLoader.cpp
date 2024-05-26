@@ -2076,19 +2076,23 @@ void DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     if (loadInfo)
     {
         uint32 fieldIndex = 0;
+        std::string signValidationResult;
         if (!loadInfo->Meta->HasIndexFieldInData())
         {
-            ASSERT(!loadInfo->Fields[0].IsSigned, "ID must be unsigned in %s", source->GetFileName());
+            if (loadInfo->Fields[0].IsSigned)
+                signValidationResult += Trinity::StringFormat("ID must be unsigned in {}", source->GetFileName());
             ++fieldIndex;
         }
         for (uint32 f = 0; f < loadInfo->Meta->FieldCount; ++f)
         {
-            ASSERT(loadInfo->Fields[fieldIndex].IsSigned == _impl->IsSignedField(f),
-                "Field %s in %s must be %s%s", loadInfo->Fields[fieldIndex].Name, source->GetFileName(), _impl->IsSignedField(f) ? "signed" : "unsigned",
-                _impl->GetExpectedSignMismatchReason(f));
+            if (loadInfo->Fields[fieldIndex].IsSigned != _impl->IsSignedField(f))
+                signValidationResult += Trinity::StringFormat("Field {} in {} must be {}{}", loadInfo->Fields[fieldIndex].Name,
+                    source->GetFileName(), _impl->IsSignedField(f) ? "signed" : "unsigned", _impl->GetExpectedSignMismatchReason(f));
 
             fieldIndex += loadInfo->Meta->Fields[f].ArraySize;
         }
+        if (!signValidationResult.empty())
+            throw DB2FileLoadException(std::move(signValidationResult));
     }
 }
 

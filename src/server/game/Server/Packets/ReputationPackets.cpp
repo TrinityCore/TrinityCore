@@ -53,6 +53,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::FactionStandi
 {
     data << int32(factionStanding.Index);
     data << int32(factionStanding.Standing);
+    data << int32(factionStanding.FactionID);
     return data;
 }
 

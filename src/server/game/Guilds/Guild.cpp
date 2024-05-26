@@ -377,7 +377,7 @@ void Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[53].GetUInt8();
+    uint8 slotId = fields[54].GetUInt8();
     ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
     uint32 itemEntry = fields[1].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
@@ -2642,7 +2642,7 @@ void Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[52].GetUInt8();
+    uint8 tabId = fields[53].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         TC_LOG_ERROR("guild", "Invalid tab for item (GUID: {}, id: #{}) in guild bank, skipped.",
@@ -3761,7 +3761,7 @@ void Guild::AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value
     NewsLogEntry& news = m_newsLog.AddEvent(trans, m_id, m_newsLog.GetNextGUID(), GuildNews(type), guid, flags, value);
     CharacterDatabase.CommitTransaction(trans);
 
-    auto packetBuilder = [&](Player const* receiver)
+    BroadcastWorker([&](Player const* receiver)
     {
         WorldPackets::Guild::GuildNews newsPacket;
         newsPacket.NewsEvents.reserve(1);
@@ -3769,8 +3769,7 @@ void Guild::AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value
         newsPacket.NewsEvents.back().CompletedDate += receiver->GetSession()->GetTimezoneOffset();
 
         receiver->SendDirectMessage(newsPacket.Write());
-    };
-    BroadcastWorker(packetBuilder);
+    });
 }
 
 bool Guild::HasAchieved(uint32 achievementId) const

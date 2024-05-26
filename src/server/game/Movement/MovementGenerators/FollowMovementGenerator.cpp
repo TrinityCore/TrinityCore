@@ -35,13 +35,15 @@ static void DoMovementInform(Unit* owner, Unit* target)
         AI->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
-FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration)
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
     : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _checkTimer(CHECK_INTERVAL)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FOLLOW;
+    ScriptResult = std::move(scriptResult);
     if (duration)
         _duration.emplace(*duration);
 }
@@ -196,13 +198,15 @@ void FollowMovementGenerator::Deactivate(Unit* owner)
     owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
 }
 
-void FollowMovementGenerator::Finalize(Unit* owner, bool active, bool/* movementInform*/)
+void FollowMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (active)
     {
         owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
         UpdatePetSpeed(owner);
+        if (movementInform)
+            SetScriptResult(MovementStopReason::Finished);
     }
 }
 

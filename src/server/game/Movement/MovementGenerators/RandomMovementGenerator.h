@@ -29,7 +29,8 @@ template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovementGenerator<T>>
 {
     public:
-        explicit RandomMovementGenerator(float distance = 0.0f, Optional<Milliseconds> duration = {});
+        explicit RandomMovementGenerator(float distance = 0.0f, Optional<Milliseconds> duration = {},
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 

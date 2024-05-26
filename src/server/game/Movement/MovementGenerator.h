@@ -22,6 +22,8 @@
 #include "FactoryHolder.h"
 #include "MovementDefines.h"
 #include "ObjectRegistry.h"
+#include "Optional.h"
+#include "ScriptActionResult.h"
 
 class Creature;
 class Unit;
@@ -85,6 +87,10 @@ class TC_GAME_API MovementGenerator
         uint8 Priority;
         uint16 Flags;
         uint32 BaseUnitState;
+        Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> ScriptResult;
+
+    protected:
+        void SetScriptResult(MovementStopReason reason);
 };
 
 template<class T, class D>
@@ -119,34 +125,23 @@ class MovementGeneratorMedium : public MovementGenerator
 
 typedef FactoryHolder<MovementGenerator, Unit, MovementGeneratorType> MovementGeneratorCreator;
 
-template<class Movement>
-struct MovementGeneratorFactory : public MovementGeneratorCreator
-{
-    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : MovementGeneratorCreator(movementGeneratorType) { }
-
-    MovementGenerator* Create(Unit* /*object*/) const override
-    {
-        return new Movement();
-    }
-};
-
 struct IdleMovementFactory : public MovementGeneratorCreator
 {
-    IdleMovementFactory();
+    IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
 
     MovementGenerator* Create(Unit* object) const override;
 };
 
 struct RandomMovementFactory : public MovementGeneratorCreator
 {
-    RandomMovementFactory();
+    RandomMovementFactory() : MovementGeneratorCreator(RANDOM_MOTION_TYPE) { }
 
     MovementGenerator* Create(Unit* object) const override;
 };
 
 struct WaypointMovementFactory : public MovementGeneratorCreator
 {
-    WaypointMovementFactory();
+    WaypointMovementFactory() : MovementGeneratorCreator(WAYPOINT_MOTION_TYPE) { }
 
     MovementGenerator* Create(Unit* object) const override;
 };

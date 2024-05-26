@@ -19,6 +19,7 @@
 #define TRINITY_FIELD_VALUE_CONVERTER_H
 
 #include "Define.h"
+#include "Duration.h"
 
 struct QueryResultFieldMetadata;
 
@@ -42,6 +43,7 @@ public:
     virtual int64 GetInt64(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const = 0;
     virtual float GetFloat(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const = 0;
     virtual double GetDouble(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const = 0;
+    virtual SystemTimePoint GetDate(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const = 0;
     virtual char const* GetCString(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const = 0;
 
     static void LogTruncation(char const* getter, QueryResultFieldMetadata const* meta);

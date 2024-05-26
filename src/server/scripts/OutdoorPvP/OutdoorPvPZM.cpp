@@ -119,7 +119,7 @@ void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, uint32 zone)
         if (m_Graveyard->GetGraveyardState() & ZM_GRAVEYARD_A)
             player->CastSpell(player, ZM_CAPTURE_BUFF, true);
     }
-    else
+    else if (player->GetTeam() == HORDE)
     {
         if (m_Graveyard->GetGraveyardState() & ZM_GRAVEYARD_H)
             player->CastSpell(player, ZM_CAPTURE_BUFF, true);

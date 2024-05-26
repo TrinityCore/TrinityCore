@@ -217,7 +217,7 @@ struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
         else if (pointId == POINT_KAYN_MOVE_TO_DEMON)
         {
             me->SetAIAnimKitId(ANIM_DH_RUN);
-            me->GetMotionMaster()->MovePath(PATH_KAYN_ATTACK_DEMON, false, {}, 4.0f);
+            me->GetMotionMaster()->MovePath(PATH_KAYN_ATTACK_DEMON, false);
         }
     }
 
@@ -1609,6 +1609,364 @@ public:
     }
 };
 
+enum GiveMeSightBeyondSightData
+{
+    QUEST_GIVE_ME_SIGHT_BEYOND_SIGHT    = 39262,
+
+    KILLCREDIT_FACE_THE_CAVE            = 96437,
+    KILLCREDIT_SPEAK_WITH_JAYCE         = 96436,
+
+    GOSSIP_MENU_USE_SPECTRAL_SIGHT      = 19175,
+    GOSSIP_OPTION_USE_SPECTRAL_SIGHT    = 0,
+
+    SAY_JAYCE_USE_SPECTRAL_SIGHT        = 0,
+
+    SPELL_DH_SPECTRAL_SIGHT             = 188501,
+    SPELL_GIVE_ME_SIGHT_PERIODIC_AURA   = 191095,
+    SPELL_GIVE_ME_SIGHT_PERIODIC_DUMMY  = 191097
+};
+
+Position const RockslideCavePosition = { 1237.1528f, 1642.6180f, 103.1518f, 5.8055872f };
+
+// 191097 - Give Me Sight Beyond Sight: Periodic Trigger Dummy
+class spell_give_me_sight_beyond_sight_periodic : public AuraScript
+{
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player || !player->HasAura(SPELL_DH_SPECTRAL_SIGHT))
+            return;
+
+        float angleToWall = player->GetAbsoluteAngle(RockslideCavePosition);
+        float playerOrientation = player->GetOrientation();
+        if (playerOrientation >= Position::NormalizeOrientation(angleToWall - float(M_PI) / 4) && playerOrientation <= Position::NormalizeOrientation(angleToWall + float(M_PI) / 4))
+        {
+            player->KilledMonsterCredit(KILLCREDIT_FACE_THE_CAVE);
+            player->RemoveAurasDueToSpell(SPELL_GIVE_ME_SIGHT_PERIODIC_AURA);
+            player->RemoveAurasDueToSpell(SPELL_GIVE_ME_SIGHT_PERIODIC_DUMMY);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_give_me_sight_beyond_sight_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+enum HiddenNoMoreData
+{
+    QUEST_HIDDEN_NO_MORE                = 39495,
+
+    NPC_JAYCE_CRYPTIC_HOLLOW            = 96436,
+    NPC_SHIVARRA_CRYPTIC_HOLLOW         = 96504,
+    NPC_ROCKSLIDE_KILLCREDIT            = 98755,
+
+    SAY_JAYCE_ATTACK_ILLIDARI           = 1,
+
+    ACTION_HIDDEN_NO_MORE_EYEBEAM       = 1,
+    ACTION_HIDDEN_NO_MORE_MOVE          = 2,
+
+    SPELL_VISUAL_KIT_SHIVARRA_TELEPORT  = 43182,
+    SPELL_VISUAL_KIT_SHIVARRA_TELEPORT2 = 43576,
+    SPELL_VISUAL_KIT_SHIVARRA_TELEPORT3 = 45431,
+
+    SPELL_ABANDON_HIDDEN_NO_MORE        = 194376,
+    SPELL_COSMETIC_EYE_BEAM_01_FEMALE   = 200754,
+    SPELL_COSMETIC_EYE_BEAM_01_MALE     = 194326
+};
+
+enum HiddenNoMorePaths
+{
+    POINT_JAYCE_DARKWEAVER_PREPARE_JUMP     = 1,
+    POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE     = 2,
+
+    PATH_JAYCE_DARKWEAVER_RUN_INTO_CAVE     = 9643600,
+
+    PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_01     = 10178700,
+    PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_02     = 10178701,
+    PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_03     = 10178800,
+    PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_04     = 10178900,
+    PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_05     = 10179000,
+    PATH_CRYPTIC_HOLLOW_COILSKAR_01         = 9650200,
+    PATH_CRYPTIC_HOLLOW_COILSKAR_02         = 9650201,
+    PATH_CRYPTIC_HOLLOW_COILSKAR_03         = 9650300,
+    PATH_CRYPTIC_HOLLOW_ASHTONGUE_01        = 9650000,
+    PATH_CRYPTIC_HOLLOW_ASHTONGUE_02        = 9650001,
+    PATH_CRYPTIC_HOLLOW_ASHTONGUE_03        = 9650100
+};
+
+// 39495 - Hidden No More
+class quest_hidden_no_more : public QuestScript
+{
+public:
+    quest_hidden_no_more() : QuestScript("quest_hidden_no_more") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->CastSpell(nullptr, SPELL_ABANDON_HIDDEN_NO_MORE, true);
+        }
+    }
+};
+
+// 96436 - Jayce Darkweaver
+struct npc_jayce_darkweaver_cryptic_hollow : public ScriptedAI
+{
+    npc_jayce_darkweaver_cryptic_hollow(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_HIDDEN_NO_MORE)
+            me->SummonPersonalClone(me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+    }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        if (menuId == GOSSIP_MENU_USE_SPECTRAL_SIGHT && gossipListId == GOSSIP_OPTION_USE_SPECTRAL_SIGHT)
+        {
+            Talk(SAY_JAYCE_USE_SPECTRAL_SIGHT);
+            player->KilledMonsterCredit(KILLCREDIT_SPEAK_WITH_JAYCE);
+            player->CastSpell(player, SPELL_GIVE_ME_SIGHT_PERIODIC_AURA);
+            player->CastSpell(player, SPELL_GIVE_ME_SIGHT_PERIODIC_DUMMY);
+            CloseGossipMenuFor(player);
+        }
+        return true;
+    }
+};
+
+struct HiddenNoMorePathDelay
+{
+    uint32 PathId;
+    Milliseconds ActionDelay;
+    Milliseconds MoveDelay;
+};
+
+std::unordered_map<std::string_view, HiddenNoMorePathDelay> HiddenNoMorePathMap = {
+    { "CrypticHollowDh01",          { PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_01, 554ms, 2990ms } },
+    { "CrypticHollowDh02",          { PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_02, 270ms, 1690ms } },
+    { "CrypticHollowDh03",          { PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_03, 554ms, 1690ms } },
+    { "CrypticHollowDh04",          { PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_04, 554ms, 2990ms } },
+    { "CrypticHollowDh05",          { PATH_CRYPTIC_HOLLOW_DEMON_HUNTER_05, 402ms, 2990ms } },
+    { "CrypticHollowCoilskar01",    { PATH_CRYPTIC_HOLLOW_COILSKAR_01, 0ms, 1521ms } },
+    { "CrypticHollowCoilskar02",    { PATH_CRYPTIC_HOLLOW_COILSKAR_02, 0ms, 2024ms } },
+    { "CrypticHollowCoilskar03",    { PATH_CRYPTIC_HOLLOW_COILSKAR_03, 0ms, 1521ms } },
+    { "CrypticHollowAshtongue01",   { PATH_CRYPTIC_HOLLOW_ASHTONGUE_01, 0ms, 1521ms } },
+    { "CrypticHollowAshtongue02",   { PATH_CRYPTIC_HOLLOW_ASHTONGUE_02, 0ms, 1521ms } },
+    { "CrypticHollowAshtongue03",   { PATH_CRYPTIC_HOLLOW_ASHTONGUE_03, 0ms, 1521ms } },
+};
+
+constexpr Position JaycePrepareJump = { 1263.948f, 1632.9402f, 102.08563f };
+constexpr Position JayceJumpPosition = { 1245.257f, 1639.049f, 101.223f };
+
+// 96436 - Jayce Darkweaver
+struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
+{
+    npc_jayce_darkweaver_cryptic_hollow_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Player* player = me->GetDemonCreatorPlayer();
+        if (!player)
+            return;
+
+        me->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+        me->CastSpell(nullptr, SPELL_COSMETIC_EYE_BEAM_01_MALE, false);
+
+        Creature* shivarraObject = me->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_SHIVARRA_CRYPTIC_HOLLOW, .IgnorePhases = true });
+        if (!shivarraObject)
+            return;
+
+        Creature* shivarraClone = shivarraObject->SummonPersonalClone(shivarraObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        if (!shivarraClone)
+            return;
+
+        _scheduler.Schedule(4s, [this, shivarraGuid = shivarraClone->GetGUID()](TaskContext task)
+        {
+            Creature* shivarraClone = ObjectAccessor::GetCreature(*me, shivarraGuid);
+            if (!shivarraClone)
+                return;
+
+            shivarraClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SHIVARRA_TELEPORT, 4, 2000);
+            shivarraClone->SetEmoteState(EMOTE_STATE_READY_SPELL_OMNI);
+            task.Schedule(3s, [this, shivarraGuid](TaskContext /*task*/)
+            {
+                Creature* shivarraClone = ObjectAccessor::GetCreature(*me, shivarraGuid);
+                if (!shivarraClone)
+                    return;
+
+                shivarraClone->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST_OMNI);
+                shivarraClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SHIVARRA_TELEPORT2, 4, 1000);
+                shivarraClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SHIVARRA_TELEPORT3, 4, 2000);
+                shivarraClone->DespawnOrUnsummon(1s);
+            });
+        });
+
+        for (std::pair<std::string_view const, HiddenNoMorePathDelay>& npcPair : HiddenNoMorePathMap)
+        {
+            Creature* originalObject = me->FindNearestCreatureWithOptions(25.0f, { .StringId = npcPair.first, .IgnorePhases = true });
+            if (!originalObject)
+                continue;
+
+            Creature* clone = originalObject->SummonPersonalClone(originalObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, me->GetDemonCreatorPlayer());
+            if (!clone)
+                continue;
+
+            _cloneGuids.push_back(clone->GetGUID());
+            clone->AI()->DoAction(ACTION_HIDDEN_NO_MORE_EYEBEAM);
+        }
+    }
+
+    void OnChannelFinished(SpellInfo const* spell) override
+    {
+        if (spell->Id != SPELL_COSMETIC_EYE_BEAM_01_MALE)
+            return;
+
+        Player* player = me->GetDemonCreatorPlayer();
+
+        player->KilledMonsterCredit(NPC_ROCKSLIDE_KILLCREDIT);
+        Talk(SAY_JAYCE_ATTACK_ILLIDARI);
+        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        {
+            me->GetMotionMaster()->MovePoint(POINT_JAYCE_DARKWEAVER_PREPARE_JUMP, JaycePrepareJump);
+            for (ObjectGuid const& guid : _cloneGuids)
+            {
+                Creature* clone = ObjectAccessor::GetCreature(*me, guid);
+                if (!clone)
+                    continue;
+
+                clone->AI()->DoAction(ACTION_HIDDEN_NO_MORE_MOVE);
+            }
+        });
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != EFFECT_MOTION_TYPE && type != POINT_MOTION_TYPE)
+            return;
+
+        if (pointId == POINT_JAYCE_DARKWEAVER_PREPARE_JUMP)
+            me->GetMotionMaster()->MoveJumpWithGravity(JayceJumpPosition, 19.880844f, 32.78205f, POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE);
+        else if (pointId == POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE)
+        {
+            me->GetMotionMaster()->MovePath(PATH_JAYCE_DARKWEAVER_RUN_INTO_CAVE, false);
+            me->DespawnOrUnsummon(5s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    std::vector<ObjectGuid> _cloneGuids;
+};
+
+CreatureAI* JayceDarkweaverCrypticHollowAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_jayce_darkweaver_cryptic_hollow_private(creature);
+    return new npc_jayce_darkweaver_cryptic_hollow(creature);
+};
+
+struct npc_basic_hidden_no_more_private : public ScriptedAI
+{
+    npc_basic_hidden_no_more_private(Creature* creature) : ScriptedAI(creature) { }
+
+    HiddenNoMorePathDelay const* GetPathDelay()
+    {
+        if (HiddenNoMorePathDelay const* pathDelay = Trinity::Containers::MapGetValuePtr(HiddenNoMorePathMap, me->GetStringId(StringIdType::Spawn)))
+            return pathDelay;
+        return nullptr;
+    }
+
+    void DoAction(int32 param) override
+    {
+        HiddenNoMorePathDelay const* pathDelay = GetPathDelay();
+        if (!pathDelay)
+            return;
+
+        switch (param)
+        {
+            case ACTION_HIDDEN_NO_MORE_MOVE:
+            {
+                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(pathDelay->PathId, false);
+                    me->DespawnOrUnsummon(6s);
+                });
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+protected:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* BasicHiddenNoMoreAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_basic_hidden_no_more_private(creature);
+    return new NullCreatureAI(creature);
+};
+
+// 101787 - Demon Hunter
+// 101788 - Demon Hunter
+// 101789 - Demon Hunter
+// 101790 - Demon Hunter
+struct npc_demon_hunter_hidden_no_more_private : public npc_basic_hidden_no_more_private
+{
+    npc_demon_hunter_hidden_no_more_private(Creature* creature) : npc_basic_hidden_no_more_private(creature) { }
+
+    void DoAction(int32 param) override
+    {
+        HiddenNoMorePathDelay const* pathDelay = GetPathDelay();
+        if (!pathDelay)
+            return;
+
+        switch (param)
+        {
+            case ACTION_HIDDEN_NO_MORE_EYEBEAM:
+            {
+                _scheduler.Schedule(pathDelay->ActionDelay, [this](TaskContext /*task*/)
+                {
+                    me->CastSpell(me, (me->GetGender() == GENDER_FEMALE ? SPELL_COSMETIC_EYE_BEAM_01_FEMALE : SPELL_COSMETIC_EYE_BEAM_01_MALE), false);
+                });
+                break;
+            }
+            case ACTION_HIDDEN_NO_MORE_MOVE:
+            {
+                me->SetAIAnimKitId(ANIM_DH_RUN);
+                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePath(pathDelay->PathId, false);
+                    me->DespawnOrUnsummon(6s);
+                });
+                break;
+            }
+            default:
+                break;
+        }
+    }
+};
+
+CreatureAI* DemonHunterHiddenNoMoreAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_demon_hunter_hidden_no_more_private(creature);
+    return new NullCreatureAI(creature);
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -1631,6 +1989,9 @@ void AddSC_zone_mardum()
     new FactoryCreatureScript<CreatureAI, &IzalWhitemoonFreedAISelector>("npc_izal_whitemoon_freed_private");
     new FactoryCreatureScript<CreatureAI, &BelathDawnbladeFreedAISelector>("npc_belath_dawnblade_freed_private");
     new FactoryCreatureScript<CreatureAI, &MannethrelDarkstarFreedAISelector>("npc_mannethrel_darkstar_freed_private");
+    new FactoryCreatureScript<CreatureAI, &JayceDarkweaverCrypticHollowAISelector>("npc_jayce_darkweaver_cryptic_hollow");
+    new FactoryCreatureScript<CreatureAI, &DemonHunterHiddenNoMoreAISelector>("npc_demon_hunter_hidden_no_more_private");
+    new FactoryCreatureScript<CreatureAI, &BasicHiddenNoMoreAISelector>("npc_basic_hidden_no_more_private");
 
     // AreaTrigger
     RegisterAreaTriggerAI(at_enter_the_illidari_ashtongue_allari_killcredit);
@@ -1648,17 +2009,19 @@ void AddSC_zone_mardum()
     new scene_enter_the_illidari_ashtongue();
     new scene_enter_the_illidari_coilskar();
 
+    // Quests
+    new quest_enter_the_illidari_shivarra();
+    new quest_hidden_no_more();
+
     // Spells
     RegisterSpellScript(spell_demon_hunter_intro_aura);
     RegisterSpellScript(spell_accepting_felsaber_gift);
     RegisterSpellScript(spell_mardum_baleful_legion_aegis);
     RegisterSpellScript(spell_mardum_coloss_infernal_smash_selector);
     RegisterSpellScript(spell_mardum_baleful_beaming_gaze_selector);
+    RegisterSpellScript(spell_give_me_sight_beyond_sight_periodic);
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_CYANA_NIGHTGLAIVE_FREED>, "spell_cyana_nightglaive_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
-
-    // Quests
-    new quest_enter_the_illidari_shivarra();
 };

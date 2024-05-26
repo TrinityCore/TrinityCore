@@ -35,6 +35,7 @@ class AuraScript;
 class Battlefield;
 class Battleground;
 class BattlegroundMap;
+class BattlegroundScript;
 class Channel;
 class Conversation;
 class Creature;
@@ -372,6 +373,9 @@ class TC_GAME_API BattlegroundMapScript : public ScriptObject, public MapScript<
     public:
 
         ~BattlegroundMapScript();
+
+        // Gets an BattlegroundScript object for this battleground.
+        virtual BattlegroundScript* GetBattlegroundScript(BattlegroundMap* map) const;
 };
 
 class TC_GAME_API ItemScript : public ScriptObject
@@ -499,20 +503,6 @@ class TC_GAME_API BattlefieldScript : public ScriptObject
         ~BattlefieldScript();
 
         virtual Battlefield* GetBattlefield(Map* map) const = 0;
-};
-
-class TC_GAME_API BattlegroundScript : public ScriptObject
-{
-    protected:
-
-        explicit BattlegroundScript(char const* name);
-
-    public:
-
-        ~BattlegroundScript();
-
-        // Should return a fully valid Battleground object for the type ID.
-        virtual Battleground* GetBattleground() const = 0;
 };
 
 class TC_GAME_API OutdoorPvPScript : public ScriptObject
@@ -1151,7 +1141,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* BattlegroundScript */
 
-        Battleground* CreateBattleground(BattlegroundTypeId typeId);
+        BattlegroundScript* CreateBattlegroundData(BattlegroundMap* map);
 
     public: /* OutdoorPvPScript */
 
@@ -1414,6 +1404,16 @@ class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
         AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
 };
 #define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
+
+template<class Script>
+class GenericBattlegroundMapScript : public BattlegroundMapScript
+{
+public:
+    GenericBattlegroundMapScript(char const* name, uint32 mapId) : BattlegroundMapScript(name, mapId) { }
+
+    BattlegroundScript* GetBattlegroundScript(BattlegroundMap* map) const override { return new Script(map); }
+};
+#define RegisterBattlegroundMapScript(script_name, mapId) new GenericBattlegroundMapScript<script_name>(#script_name, mapId)
 
 #define sScriptMgr ScriptMgr::instance()
 

@@ -46,6 +46,7 @@
 
 class Battleground;
 class BattlegroundMap;
+class BattlegroundScript;
 class CreatureGroup;
 class GameObjectModel;
 class Group;
@@ -909,12 +910,22 @@ class TC_GAME_API BattlegroundMap : public Map
         void SetUnload();
         //void UnloadAll(bool pForce);
         void RemoveAllPlayers() override;
+        void Update(uint32 diff) override;
 
         virtual void InitVisibilityDistance() override;
         Battleground* GetBG() const { return m_bg; }
         void SetBG(Battleground* bg) { m_bg = bg; }
+
+        uint32 GetScriptId() const { return _scriptId; }
+        std::string const& GetScriptName() const;
+        BattlegroundScript* GetBattlegroundScript() { return _battlegroundScript.get(); }
+        BattlegroundScript const* GetBattlegroundScript() const { return _battlegroundScript.get(); }
+
+        void InitScriptData();
     private:
         Battleground* m_bg;
+        std::unique_ptr<BattlegroundScript> _battlegroundScript;
+        uint32 _scriptId;
 };
 
 template<class T, class CONTAINER>

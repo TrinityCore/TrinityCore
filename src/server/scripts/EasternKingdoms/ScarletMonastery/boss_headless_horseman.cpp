@@ -34,6 +34,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
+#include "WaypointDefines.h"
 
 enum HeadlessHorsemanSays
 {
@@ -152,29 +153,33 @@ enum HeadlessHorsemanMisc
     QUEST_CALL_THE_HEADLESS_HORSEMAN    = 11405
 };
 
-uint32 const HorsemanPathSize = 20;
-Position const HeadlessHorsemanFlightPoints[HorsemanPathSize] =
+WaypointPath const HeadlessHorsemanFlightPoints =
 {
-    { 1765.00f, 1347.00f, 19.00f },
-    { 1784.00f, 1346.80f, 25.40f },
-    { 1803.30f, 1347.60f, 33.00f },
-    { 1824.00f, 1350.00f, 42.60f },
-    { 1838.80f, 1353.20f, 49.80f },
-    { 1852.00f, 1357.60f, 55.70f },
-    { 1861.30f, 1364.00f, 59.40f },
-    { 1866.30f, 1374.80f, 61.70f },
-    { 1864.00f, 1387.30f, 63.20f },
-    { 1854.80f, 1399.40f, 64.10f },
-    { 1844.00f, 1406.90f, 64.10f },
-    { 1824.30f, 1411.40f, 63.30f },
-    { 1801.00f, 1412.30f, 60.40f },
-    { 1782.00f, 1410.10f, 55.50f },
-    { 1770.50f, 1405.20f, 50.30f },
-    { 1765.20f, 1400.70f, 46.60f },
-    { 1761.40f, 1393.40f, 41.70f },
-    { 1759.10f, 1386.70f, 36.60f },
-    { 1757.80f, 1378.20f, 29.00f },
-    { 1758.00f, 1367.00f, 19.51f }
+    POINT_HORSEMAN_FINISH_PATH,
+    {
+        { 0, 1765.00f, 1347.00f, 19.00f },
+        { 1, 1784.00f, 1346.80f, 25.40f },
+        { 2, 1803.30f, 1347.60f, 33.00f },
+        { 3, 1824.00f, 1350.00f, 42.60f },
+        { 4, 1838.80f, 1353.20f, 49.80f },
+        { 5, 1852.00f, 1357.60f, 55.70f },
+        { 6, 1861.30f, 1364.00f, 59.40f },
+        { 7, 1866.30f, 1374.80f, 61.70f },
+        { 8, 1864.00f, 1387.30f, 63.20f },
+        { 9, 1854.80f, 1399.40f, 64.10f },
+        { 10, 1844.00f, 1406.90f, 64.10f },
+        { 11, 1824.30f, 1411.40f, 63.30f },
+        { 12, 1801.00f, 1412.30f, 60.40f },
+        { 13, 1782.00f, 1410.10f, 55.50f },
+        { 14, 1770.50f, 1405.20f, 50.30f },
+        { 15, 1765.20f, 1400.70f, 46.60f },
+        { 16, 1761.40f, 1393.40f, 41.70f },
+        { 17, 1759.10f, 1386.70f, 36.60f },
+        { 18, 1757.80f, 1378.20f, 29.00f },
+        { 19, 1758.00f, 1367.00f, 19.51f }
+    },
+    WaypointMoveType::Run,
+    WaypointPathFlags::FlyingPath
 };
 
 std::vector<uint32> HeadlessHorsemanRandomLaughSound = { SOUNDID_MANIACAL_LAUGH, SOUNDID_MANIACAL_LAUGH_2, SOUNDID_MANIACAL_LAUGH_3 };
@@ -378,7 +383,6 @@ struct boss_headless_horseman : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         _events.ScheduleEvent(EVENT_HORSEMAN_CLEAVE, 13s, 0, PHASE_1);
         _events.ScheduleEvent(EVENT_RANDOM_LAUGH, 30s, 60s);
@@ -411,7 +415,7 @@ struct boss_headless_horseman : public ScriptedAI
             case ACTION_HORSEMAN_EVENT_START:
                 DoCastSelf(SPELL_HEADLESS_HORSEMAN_YELL_TIMER, true);
                 DoCastSelf(SPELL_HEADLESS_HORSEMAN_MANIACAL_LAUGH, true);
-                me->GetMotionMaster()->MoveSmoothPath(POINT_HORSEMAN_FINISH_PATH, HeadlessHorsemanFlightPoints, HorsemanPathSize, false);
+                me->GetMotionMaster()->MovePath(HeadlessHorsemanFlightPoints, false);
                 break;
             case ACTION_HORSEMAN_REQUEST_BODY:
                 me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_C_BODY_REGEN_CONFUSE);
@@ -512,21 +516,11 @@ struct boss_headless_horseman : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id) override
     {
-        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
 
         switch (id)
         {
-            case POINT_HORSEMAN_FINISH_PATH:
-                _introDone = true;
-                me->SetImmuneToPC(false);
-                me->SetDisableGravity(false);
-                me->SetHover(false);
-                me->SetHomePosition(me->GetPosition());
-                DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_BODY_STAGE_1);
-                me->SetReactState(REACT_AGGRESSIVE);
-                DoZoneInCombat();
-                break;
             case POINT_HEAD:
                 me->SetWalk(false);
                 me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_C_HORSEMANS_WHIRLWIND);
@@ -535,6 +529,21 @@ struct boss_headless_horseman : public ScriptedAI
             default:
                 break;
         }
+    }
+
+    void WaypointPathEnded(uint32 /*waypointId*/, uint32 pathId) override
+    {
+        if (pathId != POINT_HORSEMAN_FINISH_PATH)
+            return;
+
+        _introDone = true;
+        me->SetImmuneToPC(false);
+        me->SetDisableGravity(false);
+        me->SetHover(false);
+        me->SetHomePosition(me->GetPosition());
+        DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_BODY_STAGE_1);
+        me->SetReactState(REACT_AGGRESSIVE);
+        DoZoneInCombat();
     }
 
     void UpdateAI(uint32 diff) override

@@ -49,7 +49,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
 
         virtual void UpdateEscortAI(uint32 diff); // used when it's needed to add code in update (abilities, scripted events, etc)
         void AddWaypoint(uint32 id, float x, float y, float z, bool run);
-        void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, Milliseconds waitTime = 0s, bool run = false);
+        void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, Optional<Milliseconds> waitTime = {}, bool run = false);
         void ResetPath();
         void LoadPath(uint32 pathId);
         void Start(bool isActiveAttacker = true, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = nullptr, bool instantRespawn = false, bool canLoopPath = false);

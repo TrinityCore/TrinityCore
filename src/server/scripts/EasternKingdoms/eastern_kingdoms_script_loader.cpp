@@ -16,12 +16,6 @@
  */
 
 // This is where scripts' loading functions should be declared:
-void AddSC_alterac_valley();                 //Alterac Valley
-void AddSC_boss_balinda();
-void AddSC_boss_drekthar();
-void AddSC_boss_galvangar();
-void AddSC_boss_vanndar();
-void AddSC_arathi_basin();                   //Arathi Basin
 void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_occuthar();
 void AddSC_boss_argaloth();
@@ -118,6 +112,8 @@ void AddSC_boss_interrogator_vishas();
 void AddSC_boss_scorn();
 void AddSC_instance_scarlet_monastery();
 void AddSC_boss_mograine_and_whitemane();
+void AddSC_instance_scarlet_halls();        // Scarlet Halls
+void AddSC_boss_armsmaster_harlan();
 void AddSC_boss_darkmaster_gandling();       //Scholomance
 void AddSC_boss_death_knight_darkreaver();
 void AddSC_boss_theolenkrastinov();
@@ -211,12 +207,6 @@ void AddSC_undercity();
 // void Add${NameOfDirectory}Scripts()
 void AddEasternKingdomsScripts()
 {
-    AddSC_alterac_valley();                 //Alterac Valley
-    AddSC_boss_balinda();
-    AddSC_boss_drekthar();
-    AddSC_boss_galvangar();
-    AddSC_boss_vanndar();
-    AddSC_arathi_basin();                   //Arathi Basin
     AddSC_boss_alizabal();                  //Baradin Hold
     AddSC_boss_occuthar();
     AddSC_boss_argaloth();
@@ -313,6 +303,8 @@ void AddEasternKingdomsScripts()
     AddSC_boss_scorn();
     AddSC_instance_scarlet_monastery();
     AddSC_boss_mograine_and_whitemane();
+    AddSC_instance_scarlet_halls();        // Scarlet Halls
+    AddSC_boss_armsmaster_harlan();
     AddSC_boss_darkmaster_gandling();       //Scholomance
     AddSC_boss_death_knight_darkreaver();
     AddSC_boss_theolenkrastinov();
