@@ -2748,17 +2748,12 @@ class spell_pri_schism : public SpellScript
     }
 };
 
-// 585 - Smite
+// Smite - 585
 class spell_pri_smite : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_SANCTUARY,
-            SPELL_PRIEST_SANCTUARY_AURA,
-            SPELL_PRIEST_SANCTUARY_ABSORB
-        });
+        return ValidateSpellInfo({ SPELL_PRIEST_SANCTUARY, SPELL_PRIEST_SANCTUARY_AURA, SPELL_PRIEST_SANCTUARY_ABSORB });
     }
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
@@ -2767,8 +2762,11 @@ class spell_pri_smite : public SpellScript
 
         if (caster->HasAura(SPELL_PRIEST_SANCTUARY))
         {
-            caster->CastSpell(GetHitUnit(), SPELL_PRIEST_SANCTUARY_AURA, true);
-            caster->CastSpell(caster, SPELL_PRIEST_SANCTUARY_ABSORB, true);
+            if (Unit* target = GetHitUnit())
+            {
+                caster->CastSpell(target, SPELL_PRIEST_SANCTUARY_AURA, true);
+                caster->CastSpell(caster, SPELL_PRIEST_SANCTUARY_ABSORB, true);
+            }
         }
     }
 
@@ -2783,29 +2781,29 @@ class spell_pri_smite : public SpellScript
 // 208772 - Sanctuary (Aura)
 class spell_pri_sanctuary_aura : public AuraScript
 {
-    /*bool Validate(SpellInfo const* / *spellInfo* /) override
-    {
-        return ValidateSpellEffect ({ {SPELL_PRIEST_SANCTUARY, EFFECT_0} });
-    }*/
-
     bool Load() override
     {
-        Player* player = GetCaster()->ToPlayer();
-        if (!player)
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
             return false;
 
-        float sanctuaryEffect = player->GetAuraEffect(SPELL_PRIEST_SANCTUARY, EFFECT_0)->GetAmount() / 100.f;
-        float initialAbsorb = player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * sanctuaryEffect;
-        AddPct(initialAbsorb, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+        if (AuraEffect* sanctuaryEffect = caster->GetAuraEffect(SPELL_PRIEST_SANCTUARY, EFFECT_0))
+        {
+            float sanctuaryMultiplier = sanctuaryEffect->GetAmount() / 100.0f;
+            float initialAbsorb = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * sanctuaryMultiplier;
+            AddPct(initialAbsorb, caster->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
 
-        remainingAbsorb = initialAbsorb;
-        initAbsorb = initialAbsorb;
-        return true;
+            remainingAbsorb = initialAbsorb;
+            initAbsorb = initialAbsorb;
+            return true;
+        }
+        return false;
     }
 
     void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        remainingAbsorb += initAbsorb;
+        remainingAbsorb = initAbsorb;
+        SetAmount(remainingAbsorb);
     }
 
     void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated) const
@@ -2814,53 +2812,60 @@ class spell_pri_sanctuary_aura : public AuraScript
         amount = remainingAbsorb;
     }
 
+    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        int32 damage = dmgInfo.GetDamage();
+        absorbAmount = std::min(remainingAbsorb, damage);
+        remainingAbsorb -= absorbAmount;
+
+        if (remainingAbsorb <= 0)
+            GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+    }
+
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_pri_sanctuary_aura::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAPPLY);
+        OnEffectApply += AuraEffectApplyFn(spell_pri_sanctuary_aura::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_sanctuary_aura::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_sanctuary_aura::HandleAbsorb, EFFECT_0);
     }
 
 private:
     int32 remainingAbsorb = 0;
     int32 initAbsorb = 0;
 
-public:
-    void SetRemainingAbsorb(int32 absorb)
+    void SetAmount(int32 amount) const
     {
-        remainingAbsorb = absorb;
+        if (AuraEffect* effect = GetEffect(EFFECT_0))
+            effect->SetAmount(amount);
     }
 };
 
 // 208771 - Sanctuary (Absorb)
 class spell_pri_sanctuary_absorb : public AuraScript
 {
-    /*bool Validate(SpellInfo const* / *spellInfo* /) override
-    {
-        return ValidateSpellInfo({ SPELL_PRIEST_SANCTUARY_AURA });
-    }*/
-
-    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
+    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount) const
     {
         Unit* caster = GetCaster();
-        Unit* attacker = dmgInfo.GetAttacker();
-        if (!caster || !attacker)
+        if (!caster)
             return;
 
-        Aura* attackerAura = attacker->GetAura(SPELL_PRIEST_SANCTUARY_AURA);
-        if (!attackerAura)
+        Aura* absorbAura = caster->GetAura(SPELL_PRIEST_SANCTUARY_ABSORB);
+        if (!absorbAura)
             return;
 
-        spell_pri_sanctuary_aura* sanctuaryAuraScript = attackerAura->GetScript<spell_pri_sanctuary_aura>();
-        if (!sanctuaryAuraScript)
-            return;
+        int32 remainingAbsorb = aurEff->GetAmount();
+        int32 damage = dmgInfo.GetDamage();
 
-        int32 remainingAbsorb = sanctuaryAuraScript->GetEffect(EFFECT_0)->GetAmount() - dmgInfo.GetDamage();
-        remainingAbsorb = std::max(remainingAbsorb, 0);
-        if (!remainingAbsorb)
-            attacker->RemoveAurasDueToSpell(SPELL_PRIEST_SANCTUARY_AURA);
+        absorbAmount = std::min(remainingAbsorb, damage);
+        remainingAbsorb -= absorbAmount;
 
-        sanctuaryAuraScript->SetRemainingAbsorb(remainingAbsorb);
-        absorbAmount = remainingAbsorb;
+        aurEff->SetAmount(remainingAbsorb);
+
+        if (remainingAbsorb <= 0)
+            caster->RemoveAurasDueToSpell(SPELL_PRIEST_SANCTUARY_ABSORB);
+
+        caster->Say("Sanctuary absorbed: " + std::to_string(absorbAmount) + " damage.", LANG_UNIVERSAL);
+        caster->Say("Sanctuary remaining absorb: " + std::to_string(remainingAbsorb), LANG_UNIVERSAL);
     }
 
     void Register() override
