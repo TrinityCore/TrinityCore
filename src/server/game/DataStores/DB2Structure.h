@@ -3004,6 +3004,16 @@ struct PathNodeEntry
     int32 LocationID;
 };
 
+struct PathPropertyEntry
+{
+    uint32 ID;
+    uint16 PathID;
+    uint8 PropertyIndex;
+    int32 Value;
+
+    PathPropertyIndex GetPropertyIndex() const { return static_cast<PathPropertyIndex>(PropertyIndex); }
+};
+
 struct PhaseEntry
 {
     uint32 ID;

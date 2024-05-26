@@ -2039,9 +2039,12 @@ bool Player::IsInAreaTrigger(AreaTriggerEntry const* areaTrigger) const
                 return false;
             break;
         case 3: // Polygon
-            if (!IsInPolygon2D(areaTriggerPos, sObjectMgr->GetVerticesForAreaTrigger(areaTrigger)))
+        {
+            AreaTriggerPolygon const* polygon = sObjectMgr->GetAreaTriggerPolygon(areaTrigger->ID);
+            if (!polygon || (polygon->Height && GetPositionZ() > areaTrigger->Pos.Z + *polygon->Height) || !IsInPolygon2D(areaTriggerPos, polygon->Vertices))
                 return false;
             break;
+        }
         case 4: // Cylinder
             if (!IsWithinVerticalCylinder(areaTriggerPos, areaTrigger->Radius, areaTrigger->BoxHeight))
                 return false;

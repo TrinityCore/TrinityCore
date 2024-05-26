@@ -1235,6 +1235,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_PATH_NODE, "SELECT ID, PathID, Sequence, LocationID FROM path_node WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PATH_NODE, "SELECT MAX(ID) + 1 FROM path_node", CONNECTION_SYNCH);
 
+    // PathProperty.db2
+    PrepareStatement(HOTFIX_SEL_PATH_PROPERTY, "SELECT ID, PathID, PropertyIndex, Value FROM path_property WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PATH_PROPERTY, "SELECT MAX(ID) + 1 FROM path_property", CONNECTION_SYNCH);
+
     // Phase.db2
     PrepareStatement(HOTFIX_SEL_PHASE, "SELECT ID, Flags FROM phase WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PHASE, "SELECT MAX(ID) + 1 FROM phase", CONNECTION_SYNCH);
