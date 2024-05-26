@@ -1,0 +1,3 @@
+-- Update two Levers position in Shadowfang Keep
+UPDATE `gameobject` SET `orientation`=5.312439441680908203, `rotation0`=-0.58448696136474609, `rotation1`=-0.39796257019042968, `rotation2`=-0.58448696136474609, `rotation3`=0.397964507341384887, `spawntimesecs`=7200, `animprogress`=255, `VerifiedBuild`=54737 WHERE `guid`=32443 AND `id`=101812;
+UPDATE `gameobject` SET `position_x`=-113.761627197265625, `position_z`=157.854644775390625, `rotation0`=0.694697380065917968, `rotation1`=-0.13189220428466796, `rotation2`=0.694696426391601562, `rotation3`=0.131897181272506713, `VerifiedBuild`=54737 WHERE `guid`=32480 AND `id`=18899;
