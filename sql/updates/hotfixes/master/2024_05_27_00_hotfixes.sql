@@ -43,3 +43,16 @@ CREATE TABLE `path_node` (
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `path_property`
+--
+DROP TABLE IF EXISTS `path_property`;
+CREATE TABLE `path_property` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `PathID` smallint unsigned NOT NULL DEFAULT '0',
+  `PropertyIndex` tinyint unsigned NOT NULL DEFAULT '0',
+  `Value` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

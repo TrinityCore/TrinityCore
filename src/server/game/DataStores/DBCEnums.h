@@ -1735,6 +1735,25 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
+enum class PathPropertyIndex : uint8
+{
+    UseNewLiquidGenerateCode    = 0,
+    AnimaCableId                = 1,
+    AnimaPlayerCondition        = 2,
+    AnimaStartTaper             = 3,
+    AnimaEndTaper               = 4,
+    VolumeHeight                = 5,
+    AiPathGraphMaxStartDist     = 6,
+    AiPathGraphMinTotalDist     = 7,
+    AiPathGraphAreaControl      = 8,
+    AiPathGraphAreaId           = 9,
+    AiPathGraphWidth            = 10,
+    AiPathDefaultFollowStyle    = 11,
+    AiPathConstrainSteering     = 12,
+    Phase                       = 13,
+    SteepSlopeDegrees           = 14
+};
+
 enum class PhaseEntryFlags : int32
 {
     ReadOnly                = 0x001,

@@ -195,8 +195,6 @@ TC_GAME_API extern DB2Storage<MovieEntry>                           sMovieStore;
 TC_GAME_API extern DB2Storage<MythicPlusSeasonEntry>                sMythicPlusSeasonStore;
 TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
 TC_GAME_API extern DB2Storage<ParagonReputationEntry>               sParagonReputationStore;
-TC_GAME_API extern DB2Storage<PathEntry>                            sPathStore;
-TC_GAME_API extern DB2Storage<PathNodeEntry>                        sPathNodeStore;
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
 TC_GAME_API extern DB2Storage<PowerDisplayEntry>                    sPowerDisplayStore;
@@ -316,6 +314,13 @@ struct ContentTuningLevels
     int16 MaxLevelWithDelta = 0;
     int16 TargetLevelMin = 0;
     int16 TargetLevelMax = 0;
+};
+
+struct PathDb2
+{
+    uint32 ID;
+    std::vector<DBCPosition3D> Locations;
+    std::vector<PathPropertyEntry const*> Properties;
 };
 
 struct ShapeshiftFormModelData
@@ -495,7 +500,7 @@ public:
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     static int32 GetNumTalentsAtLevel(uint32 level, Classes playerClass);
     ParagonReputationEntry const* GetParagonReputation(uint32 factionId) const;
-    std::vector<DBCPosition3D> const* GetNodesForPath(uint32 pathId) const;
+    PathDb2 const* GetPath(uint32 pathId) const;
     std::vector<uint32> const* GetPhasesForGroup(uint32 group) const;
     PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
     PowerTypeEntry const* GetPowerTypeByName(std::string const& name) const;

@@ -6761,25 +6761,9 @@ Quest const* ObjectMgr::GetQuestTemplate(uint32 quest_id) const
     return itr != _questTemplates.end() ? itr->second.get() : nullptr;
 }
 
-std::vector<Position> ObjectMgr::GetVerticesForAreaTrigger(AreaTriggerEntry const* areaTrigger) const
+AreaTriggerPolygon const* ObjectMgr::GetAreaTriggerPolygon(uint32 areaTriggerId) const
 {
-    std::vector<Position> vertices;
-    if (areaTrigger && areaTrigger->ShapeType == 3 /* Polygon */)
-    {
-        if (std::vector<DBCPosition3D> const* pathNodes = sDB2Manager.GetNodesForPath(areaTrigger->ShapeID))
-        {
-            vertices.resize(pathNodes->size());
-            std::transform(pathNodes->cbegin(), pathNodes->cend(), vertices.begin(), [](DBCPosition3D dbcPosition)
-            {
-                return Position(dbcPosition.X, dbcPosition.Y, dbcPosition.Z);
-            });
-        }
-
-        // Drop first node (areatrigger position)
-        vertices.erase(vertices.begin());
-    }
-
-    return vertices;
+    return Trinity::Containers::MapGetValuePtr(_areaTriggerPolygons, areaTriggerId);
 }
 
 void ObjectMgr::LoadGraveyardZones()
@@ -7198,6 +7182,30 @@ void ObjectMgr::LoadAreaTriggerTeleports()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} area trigger teleport definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadAreaTriggerPolygons()
+{
+    for (AreaTriggerEntry const* areaTrigger : sAreaTriggerStore)
+    {
+        if (areaTrigger->ShapeType != 3)
+            continue;
+
+        PathDb2 const* path = sDB2Manager.GetPath(areaTrigger->ShapeID);
+        if (!path || path->Locations.size() < 4)
+            continue;
+
+        AreaTriggerPolygon& polygon = _areaTriggerPolygons[areaTrigger->ID];
+        polygon.Vertices.resize(path->Locations.size() - 1);
+        std::ranges::transform(path->Locations.begin() + 1, path->Locations.end(), polygon.Vertices.begin(), [](DBCPosition3D const& pos)
+        {
+            return Position(pos.X, pos.Y, pos.Z);
+        });
+
+        for (PathPropertyEntry const* pathProperty : path->Properties)
+            if (pathProperty->GetPropertyIndex() == PathPropertyIndex::VolumeHeight)
+                polygon.Height = pathProperty->Value * 0.001f + 0.02f;
+    }
 }
 
 void ObjectMgr::LoadAccessRequirements()
