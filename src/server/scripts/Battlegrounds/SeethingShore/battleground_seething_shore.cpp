@@ -648,7 +648,7 @@ struct transport_seething_shore : TransportScript
             if (bg->GetStatus() != STATUS_IN_PROGRESS)
             {
                 WorldSafeLocsEntry const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(player->GetBGTeam()));
-                player->TeleportTo(WorldLocation(pos->Loc));
+                player->TeleportTo({ .Location = pos->Loc, .TransportGuid = pos->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*pos->TransportSpawnId) : ObjectGuid::Empty });
                 return;
             }
 
