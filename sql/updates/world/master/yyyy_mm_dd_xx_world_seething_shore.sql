@@ -7,6 +7,9 @@ INSERT INTO `transports` (`guid`, `entry`, `name` , `ScriptName`) VALUES
 (@TGUID+0, 278407, 'Sword of Dawn', 'transport_seething_shore'),
 (@TGUID+1, 279254, 'The warbringer', 'transport_seething_shore');
 
+UPDATE `world_safe_locs` SET `TransportSpawnId`=@TGUID+0  WHERE `ID` = 6337;
+UPDATE `world_safe_locs` SET `TransportSpawnId`=@TGUID+1  WHERE `ID` = 6380;
+
 DELETE FROM `battleground_template` WHERE `ID` = 894;
 INSERT INTO `battleground_template` (`ID`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `Comment`) VALUES
 (894, 6337, 6380, 0, 1, 'Seething Shore');
