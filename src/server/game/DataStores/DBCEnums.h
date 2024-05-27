@@ -399,9 +399,10 @@ enum class ChrSpecialization : uint32
 
 enum class ContentTuningCalcType : int32
 {
-    Base                        = 0,
-    PlusOne                     = 1,
-    PlusMaxLevelForExpansion    = 2
+    None                    = 0,
+    MinLevel                = 1,
+    MaxLevel                = 2,
+    PrevExpansionMaxLevel   = 3,
 };
 
 enum class ContentTuningFlag : int32
@@ -619,7 +620,7 @@ enum class CriteriaType : int16
     EarnAchievementPoints                          = 115, // Earn achievement points
     RollDisenchant                                 = 116, /*NYI*/ // Roll disenchant and get {#Disenchant Roll}
     RollAnyDisenchant                              = 117, /*NYI*/ // Roll any number on disenchant
-    CompletedLFGDungeon                            = 118, /*NYI*/ // Completed an LFG dungeon
+    CompletedLFGDungeon                            = 118, // Completed an LFG dungeon
     CompletedLFGDungeonWithStrangers               = 119, // Completed an LFG dungeon with strangers
     KickInitiatorInLFGDungeon                      = 120, /*NYI*/ // Kicked in an LFG dungeon (initiator)
     KickVoterInLFGDungeon                          = 121, /*NYI*/ // Kicked in an LFG dungeon (voter)
@@ -1734,6 +1735,25 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
+enum class PathPropertyIndex : uint8
+{
+    UseNewLiquidGenerateCode    = 0,
+    AnimaCableId                = 1,
+    AnimaPlayerCondition        = 2,
+    AnimaStartTaper             = 3,
+    AnimaEndTaper               = 4,
+    VolumeHeight                = 5,
+    AiPathGraphMaxStartDist     = 6,
+    AiPathGraphMinTotalDist     = 7,
+    AiPathGraphAreaControl      = 8,
+    AiPathGraphAreaId           = 9,
+    AiPathGraphWidth            = 10,
+    AiPathDefaultFollowStyle    = 11,
+    AiPathConstrainSteering     = 12,
+    Phase                       = 13,
+    SteepSlopeDegrees           = 14
+};
+
 enum class PhaseEntryFlags : int32
 {
     ReadOnly                = 0x001,
@@ -2110,7 +2130,7 @@ enum class SummonPropertiesFlags : uint32
     DespawnOnSummonerDeath            = 0x00000008, // NYI
     OnlyVisibleToSummoner             = 0x00000010,
     CannotDismissPet                  = 0x00000020, // NYI
-    UseDemonTimeout                   = 0x00000040, // NYI
+    UseDemonTimeout                   = 0x00000040,
     UnlimitedSummons                  = 0x00000080, // NYI
     UseCreatureLevel                  = 0x00000100,
     JoinSummonerSpawnGroup            = 0x00000200, // NYI
