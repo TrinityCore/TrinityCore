@@ -36,10 +36,8 @@ namespace boost
 class TC_DATABASE_API UpdateException : public std::exception
 {
 public:
-    UpdateException(std::string const& msg) : _msg(msg) { }
-    ~UpdateException() throw() { }
-
-    char const* what() const throw() override { return _msg.c_str(); }
+    UpdateException(std::string_view msg) : _msg(msg) { }
+    char const* what() const noexcept override { return _msg.c_str(); }
 
 private:
     std::string const _msg;
