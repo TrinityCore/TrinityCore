@@ -398,7 +398,7 @@ struct CustomTabardInfo : public IsUpdateFieldStructureTag, public HasChangesMas
     void ClearChangesMask();
 };
 
-struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<113>
+struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<115>
 {
     DynamicUpdateField<UF::ChrCustomizationChoice, 0, 1> Customizations;
     DynamicUpdateField<UF::ArenaCooldown, 0, 2> ArenaCooldowns;
@@ -431,15 +431,17 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<113>
     UpdateField<int32, 0, 29> HonorLevel;
     UpdateField<int64, 0, 30> LogoutTime;
     UpdateField<std::string, 0, 31> Name;
-    UpdateField<int32, 32, 33> CurrentBattlePetSpeciesID;
-    UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 34> DungeonScore;
-    OptionalUpdateField<UF::DeclinedNames, 32, 35> DeclinedNames;
-    UpdateField<UF::CustomTabardInfo, 32, 36> PersonalTabard;
-    UpdateFieldArray<uint8, 2, 37, 38> PartyType;
-    UpdateFieldArray<UF::QuestLog, 25, 40, 41> QuestLog;
-    UpdateFieldArray<UF::VisibleItem, 19, 66, 67> VisibleItems;
-    UpdateFieldArray<float, 6, 86, 87> AvgItemLevel;
-    UpdateFieldArray<uint32, 19, 93, 94> Field_3120;
+    UpdateField<int32, 32, 33> Field_13C;
+    UpdateField<int32, 32, 34> Field_140;
+    UpdateField<int32, 32, 35> CurrentBattlePetSpeciesID;
+    UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 36> DungeonScore;
+    OptionalUpdateField<UF::DeclinedNames, 32, 37> DeclinedNames;
+    UpdateField<UF::CustomTabardInfo, 32, 38> PersonalTabard;
+    UpdateFieldArray<uint8, 2, 39, 40> PartyType;
+    UpdateFieldArray<UF::QuestLog, 25, 42, 43> QuestLog;
+    UpdateFieldArray<UF::VisibleItem, 19, 68, 69> VisibleItems;
+    UpdateFieldArray<float, 6, 88, 89> AvgItemLevel;
+    UpdateFieldArray<uint32, 19, 95, 96> Field_3120;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
@@ -610,7 +612,7 @@ struct WeeklySpellUse : public IsUpdateFieldStructureTag
     bool operator!=(WeeklySpellUse const& right) const { return !(*this == right); }
 };
 
-struct StablePetInfo : public IsUpdateFieldStructureTag, public HasChangesMask<8>
+struct StablePetInfo : public IsUpdateFieldStructureTag, public HasChangesMask<9>
 {
     UpdateField<uint32, 0, 1> PetSlot;
     UpdateField<uint32, 0, 2> PetNumber;
@@ -619,6 +621,7 @@ struct StablePetInfo : public IsUpdateFieldStructureTag, public HasChangesMask<8
     UpdateField<uint32, 0, 5> ExperienceLevel;
     UpdateField<std::string, 0, 6> Name;
     UpdateField<uint8, 0, 7> PetFlags;
+    UpdateField<uint8, 0, 8> Field_96;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;

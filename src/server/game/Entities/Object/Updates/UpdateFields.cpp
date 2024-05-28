@@ -1922,6 +1922,8 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     data << int32(HonorLevel);
     data << int64(LogoutTime);
     data << uint32(ArenaCooldowns.size());
+    data << int32(Field_13C);
+    data << int32(Field_140);
     data << int32(CurrentBattlePetSpeciesID);
     data << uint32(VisualItemReplacements.size());
     for (uint32 i = 0; i < 19; ++i)
@@ -2150,9 +2152,17 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
     {
         if (changesMask[33])
         {
+            data << int32(Field_13C);
+        }
+        if (changesMask[34])
+        {
+            data << int32(Field_140);
+        }
+        if (changesMask[35])
+        {
             data << int32(CurrentBattlePetSpeciesID);
         }
-        if (changesMask[36])
+        if (changesMask[38])
         {
             PersonalTabard->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
@@ -2168,7 +2178,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
     {
         data.WriteBits(DeclinedNames.has_value(), 1);
         data.FlushBits();
-        if (changesMask[34])
+        if (changesMask[36])
         {
             data << DungeonScore;
         }
@@ -2182,7 +2192,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
     }
     if (changesMask[32])
     {
-        if (changesMask[35])
+        if (changesMask[37])
         {
             if (DeclinedNames.has_value())
             {
@@ -2190,21 +2200,21 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
             }
         }
     }
-    if (changesMask[37])
+    if (changesMask[39])
     {
         for (uint32 i = 0; i < 2; ++i)
         {
-            if (changesMask[38 + i])
+            if (changesMask[40 + i])
             {
                 data << uint8(PartyType[i]);
             }
         }
     }
-    if (changesMask[40])
+    if (changesMask[42])
     {
         for (uint32 i = 0; i < 25; ++i)
         {
-            if (changesMask[41 + i])
+            if (changesMask[43 + i])
             {
                 if (noQuestLogChangesMask)
                     QuestLog[i].WriteCreate(data, owner, receiver);
@@ -2213,31 +2223,31 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
             }
         }
     }
-    if (changesMask[66])
+    if (changesMask[68])
     {
         for (uint32 i = 0; i < 19; ++i)
         {
-            if (changesMask[67 + i])
+            if (changesMask[69 + i])
             {
                 VisibleItems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[86])
+    if (changesMask[88])
     {
         for (uint32 i = 0; i < 6; ++i)
         {
-            if (changesMask[87 + i])
+            if (changesMask[89 + i])
             {
                 data << float(AvgItemLevel[i]);
             }
         }
     }
-    if (changesMask[93])
+    if (changesMask[95])
     {
         for (uint32 i = 0; i < 19; ++i)
         {
-            if (changesMask[94 + i])
+            if (changesMask[96 + i])
             {
                 data << uint32(Field_3120[i]);
             }
@@ -2279,6 +2289,8 @@ void PlayerData::ClearChangesMask()
     Base::ClearChangesMask(HonorLevel);
     Base::ClearChangesMask(LogoutTime);
     Base::ClearChangesMask(Name);
+    Base::ClearChangesMask(Field_13C);
+    Base::ClearChangesMask(Field_140);
     Base::ClearChangesMask(CurrentBattlePetSpeciesID);
     Base::ClearChangesMask(DungeonScore);
     Base::ClearChangesMask(DeclinedNames);
@@ -2898,6 +2910,7 @@ void StablePetInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player co
     data << uint32(DisplayID);
     data << uint32(ExperienceLevel);
     data << uint8(PetFlags);
+    data << uint8(Field_96);
     data.WriteBits(Name->size(), 8);
     data.WriteString(Name);
     data.FlushBits();
@@ -2909,7 +2922,7 @@ void StablePetInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 8);
+    data.WriteBits(changesMask.GetBlock(0), 9);
 
     data.FlushBits();
     if (changesMask[0])
@@ -2938,6 +2951,10 @@ void StablePetInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player
         {
             data << uint8(PetFlags);
         }
+        if (changesMask[8])
+        {
+            data << uint8(Field_96);
+        }
         if (changesMask[6])
         {
             data.WriteBits(Name->size(), 8);
@@ -2956,6 +2973,7 @@ void StablePetInfo::ClearChangesMask()
     Base::ClearChangesMask(ExperienceLevel);
     Base::ClearChangesMask(Name);
     Base::ClearChangesMask(PetFlags);
+    Base::ClearChangesMask(Field_96);
     _changesMask.ResetAll();
 }
 
