@@ -188,7 +188,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
         UF::ConversationLine& lineField = lines.emplace_back();
         lineField.ConversationLineID = line->Id;
-        lineField.BroadcastTextID = convoLine->BroadcastTextID;
+        //lineField.BroadcastTextID = convoLine->BroadcastTextID;
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
