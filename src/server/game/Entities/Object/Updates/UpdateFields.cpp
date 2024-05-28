@@ -1956,7 +1956,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 
 void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFFFu, 0x000000FFu, 0xFFFFFFFCu, 0x0001FFFFu });
+    Mask allowedMaskForTarget({ 0xFFFFFFFFu, 0x000003FFu, 0xFFFFFFF0u, 0x0007FFFFu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
@@ -1964,12 +1964,12 @@ void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
-        allowedMaskForTarget |= { 0x00000000u, 0xFFFFFF00u, 0x00000003u, 0x00000000u };
+        allowedMaskForTarget |= { 0x00000000u, 0xFFFFFC00u, 0x0000000Fu, 0x00000000u };
 }
 
 void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFFFu, 0x000000FFu, 0xFFFFFFFCu, 0x0001FFFFu });
+    Mask allowedMaskForTarget({ 0xFFFFFFFFu, 0x000003FFu, 0xFFFFFFF0u, 0x0007FFFFu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     changesMask &= allowedMaskForTarget;
 }
@@ -2550,6 +2550,21 @@ void PVPInfo::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
+void Research::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int16(ResearchProjectID);
+}
+
+void Research::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    data << int16(ResearchProjectID);
+}
+
+bool Research::operator==(Research const& right) const
+{
+    return ResearchProjectID == right.ResearchProjectID;
+}
+
 void CharacterRestriction::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << int32(Field_0);
@@ -3030,21 +3045,6 @@ void StableInfo::ClearChangesMask()
     Base::ClearChangesMask(Pets);
     Base::ClearChangesMask(StableMaster);
     _changesMask.ResetAll();
-}
-
-void Research::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
-{
-    data << int16(ResearchProjectID);
-}
-
-void Research::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
-{
-    data << int16(ResearchProjectID);
-}
-
-bool Research::operator==(Research const& right) const
-{
-    return ResearchProjectID == right.ResearchProjectID;
 }
 
 void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
@@ -5155,7 +5155,6 @@ void SceneObjectData::ClearChangesMask()
 void ConversationLine::WriteCreate(ByteBuffer& data, Conversation const* owner, Player const* receiver) const
 {
     data << int32(ConversationLineID);
-    data << int32(BroadcastTextID);
     data << uint32(ViewerDependentValue<StartTimeTag>::GetValue(this, owner, receiver));
     data << int32(UiCameraID);
     data << uint8(ActorIndex);
@@ -5165,7 +5164,6 @@ void ConversationLine::WriteCreate(ByteBuffer& data, Conversation const* owner, 
 void ConversationLine::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Conversation const* owner, Player const* receiver) const
 {
     data << int32(ConversationLineID);
-    data << int32(BroadcastTextID);
     data << uint32(ViewerDependentValue<StartTimeTag>::GetValue(this, owner, receiver));
     data << int32(UiCameraID);
     data << uint8(ActorIndex);
@@ -5175,7 +5173,6 @@ void ConversationLine::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Con
 bool ConversationLine::operator==(ConversationLine const& right) const
 {
     return ConversationLineID == right.ConversationLineID
-        && BroadcastTextID == right.BroadcastTextID
         && StartTime == right.StartTime
         && UiCameraID == right.UiCameraID
         && ActorIndex == right.ActorIndex
@@ -5296,6 +5293,7 @@ void ConversationData::ClearChangesMask()
     Base::ClearChangesMask(LastLineEndTime);
     _changesMask.ResetAll();
 }
+
 }
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
