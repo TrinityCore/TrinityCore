@@ -1467,8 +1467,8 @@ struct CurrencyTypesLoadInfo
         { false, FT_INT, "MaxEarnablePerWeek" },
         { true, FT_BYTE, "Quality" },
         { true, FT_INT, "FactionID" },
-        { true, FT_INT, "Field_3_4_3_51278_010" },
-        { true, FT_INT, "Field_4_4_0_54137_011" },
+        { true, FT_INT, "AwardConditionID" },
+        { true, FT_INT, "MaxQtyWorldStateID" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
     };

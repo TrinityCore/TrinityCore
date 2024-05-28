@@ -1278,8 +1278,8 @@ struct CurrencyTypesEntry
     uint32 MaxEarnablePerWeek;
     int8 Quality;
     int32 FactionID;
-    int32 Field_3_4_3_51278_010;
-    int32 Field_4_4_0_54137_011;
+    int32 AwardConditionID;
+    int32 MaxQtyWorldStateID;
     std::array<int32, 2> Flags;
 
     EnumFlag<CurrencyTypesFlags> GetFlags() const { return static_cast<CurrencyTypesFlags>(Flags[0]); }
