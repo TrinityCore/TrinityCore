@@ -325,7 +325,7 @@ void ItemData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
 void ItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x07F58D80u, 0x00000000u };
+        allowedMaskForTarget |= std::array<uint32, 2>{ 0x07F58D80u, 0x00000000u };
 }
 
 void ItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
@@ -707,7 +707,7 @@ void AzeriteItemData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
 void AzeriteItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x000003E2u };
+        allowedMaskForTarget |= std::array<uint32, 1>{ 0x000003E2u };
 }
 
 void AzeriteItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
@@ -1145,11 +1145,11 @@ void UnitData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
 void UnitData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x00002000u, 0x0F004000u, 0xFFF08000u, 0x000000FEu, 0xFF800004u, 0xFFFC07FFu, 0x01FFFFFFu };
+        allowedMaskForTarget |= std::array<uint32, 7>{ 0x00002000u, 0x0F004000u, 0xFFF08000u, 0x000000FEu, 0xFF800004u, 0xFFFC07FFu, 0x01FFFFFFu };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::UnitAll))
-        allowedMaskForTarget |= { 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFF800004u, 0x000007FFu, 0x00000000u };
+        allowedMaskForTarget |= std::array<uint32, 7>{ 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFF800004u, 0x000007FFu, 0x00000000u };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
-        allowedMaskForTarget |= { 0x00000000u, 0x0F000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x000007F8u };
+        allowedMaskForTarget |= std::array<uint32, 7>{ 0x00000000u, 0x0F000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x000007F8u };
 }
 
 void UnitData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
@@ -2394,7 +2394,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
-        allowedMaskForTarget |= { 0x00000022u, 0xFFFE0000u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000001u, 0x00000000u, 0x00000000u };
+        allowedMaskForTarget |= std::array<uint32, 10>{ 0x00000022u, 0xFFFE0000u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000001u, 0x00000000u, 0x00000000u };
 }
 
 void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
