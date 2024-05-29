@@ -41,6 +41,7 @@
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
 #    PVP SETTINGS
+#	 LOADING SETTINGS
 #
 ###################################################################################################
 
@@ -4422,5 +4423,15 @@ Pvp.FactionBalance.Pct10 = 0.7
 
 Pvp.FactionBalance.Pct20 = 0.8
 
+#
+###################################################################################################
+
+###################################################################################################
+# LOADING SETTINGS
+#    Loading.Locales
+#        Description: Enable/Disable  the load of Locales for Creatures, gossips, quests and gameobjects.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+Load.Locales = 0
 #
 ###################################################################################################
