@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include <stdexcept>
 #include <string>
 
 template <class T>
@@ -33,14 +34,10 @@ namespace boost
     }
 }
 
-class TC_DATABASE_API UpdateException : public std::exception
+class TC_DATABASE_API UpdateException : public std::runtime_error
 {
 public:
-    UpdateException(std::string_view msg) : _msg(msg) { }
-    char const* what() const noexcept override { return _msg.c_str(); }
-
-private:
-    std::string const _msg;
+    using std::runtime_error::runtime_error;
 };
 
 enum BaseLocation
