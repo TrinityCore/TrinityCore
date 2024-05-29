@@ -5,14 +5,13 @@
 
 #if EFSW_PLATFORM == EFSW_PLATFORM_KQUEUE || EFSW_PLATFORM == EFSW_PLATFORM_FSEVENTS
 
-#include <map>
-#include <vector>
-#include <sys/types.h>
-#include <sys/event.h>
 #include <efsw/DirectorySnapshot.hpp>
+#include <map>
+#include <sys/event.h>
+#include <sys/types.h>
+#include <vector>
 
-namespace efsw
-{
+namespace efsw {
 
 class FileWatcherKqueue;
 class WatcherKqueue;
@@ -22,72 +21,76 @@ typedef struct kevent KEvent;
 /// type for a map from WatchID to WatcherKqueue pointer
 typedef std::map<WatchID, Watcher*> WatchMap;
 
-class WatcherKqueue : public Watcher
-{
-	public:
-		WatcherKqueue( WatchID watchid, const std::string& dirname, FileWatchListener* listener, bool recursive, FileWatcherKqueue * watcher, WatcherKqueue * parent = NULL );
+class WatcherKqueue : public Watcher {
+  public:
+	WatcherKqueue( WatchID watchid, const std::string& dirname, FileWatchListener* listener,
+				   bool recursive, FileWatcherKqueue* watcher, WatcherKqueue* parent = NULL );
 
-		virtual ~WatcherKqueue();
+	virtual ~WatcherKqueue();
 
-		void addFile(  const std::string& name, bool emitEvents = true );
+	void addFile( const std::string& name, bool emitEvents = true );
 
-		void removeFile( const std::string& name, bool emitEvents = true );
+	void removeFile( const std::string& name, bool emitEvents = true );
 
-		// called when the directory is actually changed
-		// means a file has been added or removed
-		// rescans the watched directory adding/removing files and sending notices
-		void rescan();
+	// called when the directory is actually changed
+	// means a file has been added or removed
+	// rescans the watched directory adding/removing files and sending notices
+	void rescan();
 
-		void handleAction( const std::string& filename, efsw::Action action, const std::string& oldFilename = "" );
+	void handleAction( const std::string& filename, efsw::Action action,
+					   const std::string& oldFilename = "" );
 
-		void handleFolderAction( std::string filename, efsw::Action action, const std::string& oldFilename = "" );
+	void handleFolderAction( std::string filename, efsw::Action action,
+							 const std::string& oldFilename = "" );
 
-		void addAll();
+	void addAll();
 
-		void removeAll();
+	void removeAll();
 
-		WatchID watchingDirectory( std::string dir );
+	WatchID watchingDirectory( std::string dir );
 
-		void watch();
+	void watch() override;
 
-		WatchID addWatch(const std::string& directory, FileWatchListener* watcher, bool recursive, WatcherKqueue * parent);
+	WatchID addWatch( const std::string& directory, FileWatchListener* watcher, bool recursive,
+					  WatcherKqueue* parent );
 
-		void removeWatch (WatchID watchid );
-		
-		bool initOK();
+	void removeWatch( WatchID watchid );
 
-		int lastErrno();
-	protected:
-		WatchMap			mWatches;
-		int					mLastWatchID;
+	bool initOK();
 
-		// index 0 is always the directory
-		std::vector<KEvent>	mChangeList;
-		size_t				mChangeListCount;
-		DirectorySnapshot	mDirSnap;
+	int lastErrno();
 
-		/// The descriptor for the kqueue
-		int					mKqueue;
+  protected:
+	WatchMap mWatches;
+	int mLastWatchID;
 
-		FileWatcherKqueue *	mWatcher;
+	// index 0 is always the directory
+	std::vector<KEvent> mChangeList;
+	size_t mChangeListCount;
+	DirectorySnapshot mDirSnap;
 
-		WatcherKqueue *		mParent;
-		
-		bool				mInitOK;
-		int					mErrno;
+	/// The descriptor for the kqueue
+	int mKqueue;
 
-		bool pathInWatches( const std::string& path );
-		
-		bool pathInParent( const std::string& path );
+	FileWatcherKqueue* mWatcher;
 
-		Watcher * findWatcher( const std::string path );
+	WatcherKqueue* mParent;
 
-		void moveDirectory( std::string oldPath, std::string newPath, bool emitEvents = true );
+	bool mInitOK;
+	int mErrno;
 
-		void sendDirChanged();
+	bool pathInWatches( const std::string& path );
+
+	bool pathInParent( const std::string& path );
+
+	Watcher* findWatcher( const std::string path );
+
+	void moveDirectory( std::string oldPath, std::string newPath, bool emitEvents = true );
+
+	void sendDirChanged();
 };
 
-}
+} // namespace efsw
 
 #endif
 
