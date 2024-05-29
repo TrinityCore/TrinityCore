@@ -178,7 +178,7 @@ struct DB2RecordCopy
 class TC_COMMON_API DB2FileLoadException : public std::exception
 {
 public:
-    DB2FileLoadException(std::string_view msg) : _msg(msg) { }
+    DB2FileLoadException(std::string msg) : _msg(std::move(msg)) { }
 
     char const* what() const noexcept override { return _msg.c_str(); }
 
