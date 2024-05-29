@@ -5,6 +5,7 @@
 
 #if defined( EFSW_PLATFORM_POSIX )
 
+#include <efsw/Atomic.hpp>
 #include <pthread.h>
 
 namespace efsw {
@@ -13,22 +14,25 @@ class Thread;
 
 namespace Platform {
 
-class ThreadImpl
-{
-	public:
-		ThreadImpl( Thread * owner );
-		
-		void wait();
-		
-		void terminate();
-	protected:
-		static void *	entryPoint( void* userData );
+class ThreadImpl {
+  public:
+	explicit ThreadImpl( efsw::Thread* owner );
 
-		pthread_t		mThread;
-		bool			mIsActive;
+	~ThreadImpl();
+
+	void wait();
+
+	void terminate();
+
+  protected:
+	static void* entryPoint( void* userData );
+
+	pthread_t mThread;
+	Atomic<bool> mIsActive;
 };
 
-}}
+} // namespace Platform
+} // namespace efsw
 
 #endif
 
