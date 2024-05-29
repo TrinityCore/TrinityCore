@@ -373,7 +373,6 @@ enum OpcodeClient : uint16
     CMSG_LFG_LIST_UPDATE_REQUEST                      = 0x32F2,
     CMSG_LIST_INVENTORY                               = 0x34A1,
     CMSG_LIVE_REGION_ACCOUNT_RESTORE                  = 0x36BE,
-    CMSG_LIVE_REGION_CHARACTER_COPY                   = 0x36BD,
     CMSG_LIVE_REGION_GET_ACCOUNT_CHARACTER_LIST       = 0x36BC,
     CMSG_LOADING_SCREEN_NOTIFY                        = 0x35F8,
     CMSG_LOGOUT_CANCEL                                = 0x34D8,
