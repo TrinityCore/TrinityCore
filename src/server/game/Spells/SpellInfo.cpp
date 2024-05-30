@@ -399,7 +399,7 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
 SpellEffectInfo::SpellEffectInfo(): _spellInfo(nullptr), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
     BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
     BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
-    TargetARadiusEntry(nullptr), TargetBRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
+    TargetARadiusEntry(nullptr), TargetBRadiusEntry(nullptr), ChainTargets(0), DieSides(0), ItemType(0), TriggerSpell(0),
     BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr),
     EffectAttributes(SpellEffectAttributes::None), Scaling(), _immunityInfo(nullptr)
 {
@@ -430,6 +430,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     TargetARadiusEntry = sSpellRadiusStore.LookupEntry(_effect.EffectRadiusIndex[0]);
     TargetBRadiusEntry = sSpellRadiusStore.LookupEntry(_effect.EffectRadiusIndex[1]);
     ChainTargets = _effect.EffectChainTargets;
+    DieSides = _effect.EffectDieSides;
     ItemType = _effect.EffectItemType;
     TriggerSpell = _effect.EffectTriggerSpell;
     SpellClassMask = _effect.EffectSpellClassMask;
@@ -513,6 +514,15 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
             *variance = valueVariance;
     }
 
+    // roll in a range <1;EffectDieSides> as of patch 3.3.3
+    if (DieSides)
+    {
+        if (DieSides == 1)
+            value += DieSides;
+        else
+            value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
+    }
+
     // base amount modification based on spell lvl vs caster lvl
     if (Scaling.Coefficient != 0.0f)
     {
@@ -550,7 +560,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 /*itemId*/, int32 /*itemLevel*/) const
+int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 /*itemId*/, int32 itemLevel) const
 {
     if (Scaling.Coefficient != 0.0f)
     {
@@ -570,10 +580,10 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             level = _spellInfo->Scaling.MaxScalingLevel;
 
         float value = 0.0f;
-        /*
+
         if (level > 0)
         {
-            if (!Scaling.Class)
+            if (!_spellInfo->Scaling.Class)
                 return 0;
 
             uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
@@ -582,20 +592,23 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 if (_spellInfo->Scaling.ScalesFromItemLevel)
                     effectiveItemLevel = _spellInfo->Scaling.ScalesFromItemLevel;
 
-                if (Scaling.Class == -8 || Scaling.Class == -9)
+                /*
+                if (_spellInfo->Scaling.Class == -8 || _spellInfo->Scaling.Class == -9)
                 {
                     RandPropPointsEntry const* randPropPoints = sRandPropPointsStore.LookupEntry(effectiveItemLevel);
                     if (!randPropPoints)
                         randPropPoints = sRandPropPointsStore.AssertEntry(sRandPropPointsStore.GetNumRows() - 1);
 
-                    value = Scaling.Class == -8 ? randPropPoints->DamageReplaceStatF : randPropPoints->DamageSecondaryF;
+                    value = _spellInfo->Scaling.Class == -8 ? randPropPoints->DamageReplaceStatF : randPropPoints->DamageSecondaryF;
                 }
                 else
+                */
                     value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
             }
             else
-                value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), Scaling.Class);
+                value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
 
+            /*
             if (Scaling.Class == -7)
                 if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
@@ -605,8 +618,14 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(effectiveItemLevel))
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
                         value *= GetIlvlStatMultiplier(staminaMult, InventoryType(itemSparse->InventoryType));
+            */
+
+            if (static_cast<int32>(level) < _spellInfo->Scaling.CastTimeMaxLevel && _spellInfo->Scaling.CastTimeMax)
+                value *= float(_spellInfo->Scaling.CastTimeMin + (level - 1) * (_spellInfo->Scaling.CastTimeMax - _spellInfo->Scaling.CastTimeMin) / (_spellInfo->Scaling.CastTimeMaxLevel - 1)) / float(_spellInfo->Scaling.CastTimeMax);
+
+            if (static_cast<int32>(level) < _spellInfo->Scaling.NerfMaxLevel)
+                value *= ((((1.0 - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
         }
-        */
 
         value *= Scaling.Coefficient;
         if (value > 0.0f && value < 1.0f)
@@ -1212,6 +1231,12 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     // SpellScalingEntry
     if (SpellScalingEntry const* _scaling = data.Scaling)
     {
+        Scaling.CastTimeMin = _scaling->CastTimeMin;
+        Scaling.CastTimeMax = _scaling->CastTimeMax;
+        Scaling.CastTimeMaxLevel = _scaling->CastTimeMaxLevel;
+        Scaling.Class = _scaling->Class;
+        Scaling.NerfFactor = _scaling->NerfFactor;
+        Scaling.NerfMaxLevel = _scaling->NerfMaxLevel;
         Scaling.MinScalingLevel = _scaling->MinScalingLevel;
         Scaling.MaxScalingLevel = _scaling->MaxScalingLevel;
         Scaling.ScalesFromItemLevel = _scaling->ScalesFromItemLevel;
@@ -4215,6 +4240,32 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
     }
 
     return ppm;
+}
+
+float SpellInfo::CalcSpellScalingMultiplier(WorldObject const* caster, bool isPowerCostRelated /*= false*/) const
+{
+    if (!caster || !caster->IsUnit() || Scaling.Class == 0)
+        return 1.f;
+
+    float multiplier = 1.f;
+    float scalingMultiplier = 1.f;
+
+    uint8 casterLevel = caster->ToUnit()->GetLevel();
+
+    if (casterLevel < Scaling.CastTimeMaxLevel && Scaling.CastTimeMax)
+    {
+        int32 castTime = Scaling.CastTimeMin + ((casterLevel - 1) * (Scaling.CastTimeMax - Scaling.CastTimeMin)) / (Scaling.CastTimeMaxLevel - 1);
+        multiplier = castTime / (float)Scaling.CastTimeMax;
+        scalingMultiplier = castTime / (float)Scaling.CastTimeMax;
+    }
+
+    if (!isPowerCostRelated)
+    {
+        if (casterLevel < Scaling.NerfMaxLevel)
+            scalingMultiplier = ((((1.f - Scaling.NerfFactor) * (casterLevel - 1)) / (Scaling.NerfMaxLevel - 1)) + Scaling.NerfFactor) * multiplier;
+    }
+
+    return scalingMultiplier;
 }
 
 bool SpellInfo::IsRanked() const

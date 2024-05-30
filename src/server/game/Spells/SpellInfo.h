@@ -231,6 +231,7 @@ public:
     SpellRadiusEntry const* TargetARadiusEntry;
     SpellRadiusEntry const* TargetBRadiusEntry;
     int32     ChainTargets;
+    int32     DieSides;
     uint32    ItemType;
     uint32    TriggerSpell;
     flag128   SpellClassMask;
@@ -410,6 +411,12 @@ class TC_GAME_API SpellInfo
         // SpellScalingEntry
         struct ScalingInfo
         {
+            int32 CastTimeMin = 0;
+            int32 CastTimeMax = 0;
+            int32 CastTimeMaxLevel = 0;
+            int32 Class = 0;
+            float NerfFactor = 0.0f;
+            int32 NerfMaxLevel = 0;
             uint32 MinScalingLevel = 0;
             uint32 MaxScalingLevel = 0;
             uint32 ScalesFromItemLevel = 0;
@@ -551,6 +558,8 @@ class TC_GAME_API SpellInfo
         std::vector<SpellPowerCost> CalcPowerCost(WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
 
         float CalcProcPPM(Unit* caster, int32 itemLevel) const;
+
+        float CalcSpellScalingMultiplier(WorldObject const* caster, bool isPowerCostRelated /*= false*/) const;
 
         bool IsRanked() const;
         uint8 GetRank() const;
