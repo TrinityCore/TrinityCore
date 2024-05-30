@@ -1,25 +1,23 @@
-#ifndef EFSW_WATCHERINOTIFY_HPP 
+#ifndef EFSW_WATCHERINOTIFY_HPP
 #define EFSW_WATCHERINOTIFY_HPP
 
-#include <efsw/FileWatcherImpl.hpp>
 #include <efsw/FileInfo.hpp>
+#include <efsw/FileWatcherImpl.hpp>
 
 namespace efsw {
 
-class WatcherInotify : public Watcher
-{
-	public:
-		WatcherInotify();
-		
-		WatcherInotify( WatchID id, std::string directory, FileWatchListener * listener, bool recursive, WatcherInotify * parent = NULL );
+class WatcherInotify : public Watcher {
+  public:
+	WatcherInotify();
 
-		bool inParentTree( WatcherInotify * parent );
+	bool inParentTree( WatcherInotify* parent );
 
-		WatcherInotify * Parent;
+	WatcherInotify* Parent;
+	WatchID InotifyID;
 
-		FileInfo DirInfo;
+	FileInfo DirInfo;
 };
 
-}
+} // namespace efsw
 
 #endif
