@@ -114,7 +114,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (31986, 3, 0, 0, '', 87, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 3, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'On SendEvent: 31986 - Set Data 0 3 to SI:7 Ranger'),
 (31986, 3, 1, 0, '', 87, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 3, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'On SendEvent: 31986 - Set Data 0 3 to Kor\'kron Scout');
 
--- Spell 120328: Save Cliffhanger 1 SPELL_EFFECT_SEND_EVENT (Npcs #5)
+-- Spell 120328: Save Cliffhanger 2 SPELL_EFFECT_SEND_EVENT (Npcs #5)
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=31989;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Ally
