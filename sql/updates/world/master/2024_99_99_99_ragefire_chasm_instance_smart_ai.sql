@@ -605,4 +605,4 @@ UPDATE `quest_template_locale` SET `LogDescription`='Recoge 5 insignias corrupta
 DELETE FROM `disables` WHERE `sourceType`=1 AND `entry` IN (30982, 30997);
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
 (1, 30982, 0, '', '', 'Deprecated quest: Animal Control (Horde)'),
-(1, 30997, 0, '', '', 'Deprecated quest: Animal Control (Alliance');
+(1, 30997, 0, '', '', 'Deprecated quest: Animal Control (Alliance)');
