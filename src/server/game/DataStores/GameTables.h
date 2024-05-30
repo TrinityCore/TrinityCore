@@ -265,8 +265,8 @@ struct GtSpellScalingEntry
     float Warlock = 0.0f;
     float Monk = 0.0f;
     float Druid = 0.0f;
-    float Unknown1 = 0.0f;
-    float Unknown2 = 0.0f;
+    float Item = 0.0f;
+    float Consumable = 0.0f;
 };
 
 struct GtTeamContributionPointsEntry
@@ -375,6 +375,11 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Monk;
         case CLASS_DRUID:
             return row->Druid;
+        case -1:
+        case -7:
+            return row->Item;
+        case -2:
+            return row->Consumable;
         default:
             break;
     }

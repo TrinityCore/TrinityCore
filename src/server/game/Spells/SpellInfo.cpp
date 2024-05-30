@@ -514,15 +514,6 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
             *variance = valueVariance;
     }
 
-    // roll in a range <1;EffectDieSides> as of patch 3.3.3
-    if (DieSides)
-    {
-        if (DieSides == 1)
-            value += DieSides;
-        else
-            value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
-    }
-
     // base amount modification based on spell lvl vs caster lvl
     if (Scaling.Coefficient != 0.0f)
     {
@@ -543,6 +534,16 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
                 level = 0;
             value += level * basePointsPerLevel;
         }
+
+        if (DieSides)
+        {
+            // roll in a range <1;EffectDieSides> as of patch 3.3.3
+
+            if (DieSides == 1)
+                value += DieSides;
+            else
+                value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
+        }
     }
 
     // random damage
@@ -560,7 +561,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 /*itemId*/, int32 itemLevel) const
+int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 /*itemId*/, int32 /*itemLevel*/) const
 {
     if (Scaling.Coefficient != 0.0f)
     {
@@ -586,50 +587,13 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             if (!_spellInfo->Scaling.Class)
                 return 0;
 
-            uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
-            if (_spellInfo->Scaling.ScalesFromItemLevel || _spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
-            {
-                if (_spellInfo->Scaling.ScalesFromItemLevel)
-                    effectiveItemLevel = _spellInfo->Scaling.ScalesFromItemLevel;
-
-                /*
-                if (_spellInfo->Scaling.Class == -8 || _spellInfo->Scaling.Class == -9)
-                {
-                    RandPropPointsEntry const* randPropPoints = sRandPropPointsStore.LookupEntry(effectiveItemLevel);
-                    if (!randPropPoints)
-                        randPropPoints = sRandPropPointsStore.AssertEntry(sRandPropPointsStore.GetNumRows() - 1);
-
-                    value = _spellInfo->Scaling.Class == -8 ? randPropPoints->DamageReplaceStatF : randPropPoints->DamageSecondaryF;
-                }
-                else
-                */
-                    value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
-            }
-            else
-                value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
-
-            /*
-            if (Scaling.Class == -7)
-                if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
-                    if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
-                        value *= GetIlvlStatMultiplier(ratingMult, InventoryType(itemSparse->InventoryType));
-
-            if (Scaling.Class == -6)
-                if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(effectiveItemLevel))
-                    if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
-                        value *= GetIlvlStatMultiplier(staminaMult, InventoryType(itemSparse->InventoryType));
-            */
-
-            if (static_cast<int32>(level) < _spellInfo->Scaling.CastTimeMaxLevel && _spellInfo->Scaling.CastTimeMax)
-                value *= float(_spellInfo->Scaling.CastTimeMin + (level - 1) * (_spellInfo->Scaling.CastTimeMax - _spellInfo->Scaling.CastTimeMin) / (_spellInfo->Scaling.CastTimeMaxLevel - 1)) / float(_spellInfo->Scaling.CastTimeMax);
-
-            if (static_cast<int32>(level) < _spellInfo->Scaling.NerfMaxLevel)
-                value *= ((((1.0 - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
+            value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
+            value *= _spellInfo->GetSpellScalingMultiplier(level, false);
         }
 
         value *= Scaling.Coefficient;
-        if (value > 0.0f && value < 1.0f)
-            value = 1.0f;
+        if (value > 0.0f)
+            value = std::max(value, 1.0f);
 
         return int32(round(value));
     }
@@ -3947,6 +3911,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
                     break;
                 case POWER_MANA:
                     powerCost += int32(CalculatePct(unitCaster->GetCreateMana(), power->PowerCostPct));
+                    powerCost = CalculatePct(powerCost, GetSpellScalingMultiplier(unitCaster->GetLevel(), true) * 100.f);
                     break;
                 case POWER_ALTERNATE_POWER:
                     TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type POWER_ALTERNATE_POWER in spell {}", Id);
@@ -4242,27 +4207,26 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
     return ppm;
 }
 
-float SpellInfo::CalcSpellScalingMultiplier(WorldObject const* caster, bool isPowerCostRelated /*= false*/) const
+// Based on client function (build 4.4.0.54737)
+float SpellInfo::GetSpellScalingMultiplier(int32 targetLevel, bool isPowerCostRelated /*= false*/) const
 {
-    if (!caster || !caster->IsUnit() || Scaling.Class == 0)
+    if (targetLevel <= 0 || Scaling.Class == 0)
         return 1.f;
 
     float multiplier = 1.f;
     float scalingMultiplier = 1.f;
 
-    uint8 casterLevel = caster->ToUnit()->GetLevel();
-
-    if (casterLevel < Scaling.CastTimeMaxLevel && Scaling.CastTimeMax)
+    if (targetLevel < Scaling.CastTimeMaxLevel && Scaling.CastTimeMax)
     {
-        int32 castTime = Scaling.CastTimeMin + ((casterLevel - 1) * (Scaling.CastTimeMax - Scaling.CastTimeMin)) / (Scaling.CastTimeMaxLevel - 1);
+        int32 castTime = Scaling.CastTimeMin + ((targetLevel - 1) * (Scaling.CastTimeMax - Scaling.CastTimeMin)) / (Scaling.CastTimeMaxLevel - 1);
         multiplier = castTime / (float)Scaling.CastTimeMax;
         scalingMultiplier = castTime / (float)Scaling.CastTimeMax;
     }
 
     if (!isPowerCostRelated)
     {
-        if (casterLevel < Scaling.NerfMaxLevel)
-            scalingMultiplier = ((((1.f - Scaling.NerfFactor) * (casterLevel - 1)) / (Scaling.NerfMaxLevel - 1)) + Scaling.NerfFactor) * multiplier;
+        if (targetLevel < Scaling.NerfMaxLevel)
+            scalingMultiplier = ((((1.f - Scaling.NerfFactor) * (targetLevel - 1)) / (Scaling.NerfMaxLevel - 1)) + Scaling.NerfFactor) * multiplier;
     }
 
     return scalingMultiplier;

@@ -559,7 +559,7 @@ class TC_GAME_API SpellInfo
 
         float CalcProcPPM(Unit* caster, int32 itemLevel) const;
 
-        float CalcSpellScalingMultiplier(WorldObject const* caster, bool isPowerCostRelated /*= false*/) const;
+        float GetSpellScalingMultiplier(int32 targetLevel, bool isPowerCostRelated /*= false*/) const;
 
         bool IsRanked() const;
         uint8 GetRank() const;

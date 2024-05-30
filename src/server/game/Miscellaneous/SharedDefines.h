@@ -165,6 +165,7 @@ enum Classes : uint8
 
 // max+1 for player class
 #define MAX_CLASSES       15
+constexpr uint32 MAX_CLASS_ID = CLASS_DRUID;
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \
