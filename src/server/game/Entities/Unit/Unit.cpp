@@ -7202,7 +7202,7 @@ int32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, int
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
-        float coeff = spellEffectInfo.BonusCoefficient * spellProto->GetSpellScalingMultiplier(GetLevel(), false);;
+        float coeff = spellEffectInfo.BonusCoefficient * spellProto->GetSpellScalingMultiplier(GetLevel(), false);
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
