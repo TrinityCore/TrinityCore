@@ -22,11 +22,11 @@
 
 enum RFCMisc
 {
-	PATH_RESCUED_1 = 6178805,
-	PATH_RESCUED_2 = 6178806,
-	PATH_RESCUED_3 = 6178807,
+    PATH_RESCUED_1 = 6178805,
+    PATH_RESCUED_2 = 6178806,
+    PATH_RESCUED_3 = 6178807,
 
-	POINT_INTRO	   = 0
+    POINT_INTRO    = 0
 };
 
 constexpr Position AdolescentFlameHoundIntro[4] =
@@ -45,7 +45,7 @@ public:
 
     bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-    	if (player->IsGameMaster())
+        if (player->IsGameMaster())
             return false;
 
         Creature* adolescentFlameHound1 = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_1" });
@@ -86,6 +86,6 @@ class spell_ragefire_chasm_general_trigger_221_to_self : public SpellScript
 
 void AddSC_ragefire_chasm()
 {
-	new at_rfc_cosmetic_intro();
+    new at_rfc_cosmetic_intro();
     RegisterSpellScript(spell_ragefire_chasm_general_trigger_221_to_self);
 }
