@@ -16,6 +16,7 @@
  */
 
 #include "MotionMaster.h"
+#include "Player.h"
 #include "Position.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
