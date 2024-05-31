@@ -15,13 +15,12 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-        
+
     - name: Set Environment Variables
       run: |
-        echo "BOOST_ROOT=C:/libs/boost_1_84_0" >> $env:GITHUB_ENV
         echo "OPENSSL_ROOT_DIR=C:/libs/openssl" >> $env:GITHUB_ENV
         echo "MYSQL_ROOT_DIR=C:/Program Files/MySQL/MySQL Server 8.0" >> $env:GITHUB_ENV
-        
+
     - name: Download and install Openssl 3.x
       run: |
         $Url = "https://slproweb.com/download/Win64OpenSSL-3_2_1.exe"
@@ -30,35 +29,51 @@ jobs:
 
         # Quick Openssl install test
         & ${{ env.OPENSSL_ROOT_DIR }}/bin/openssl.exe version
-        
+
     - name: Download and install Boost
-      run: |
-        $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.84.0/boost_1_84_0-msvc-14.3-64.exe"
-        (New-Object System.Net.WebClient).DownloadFile($Url, "${{ env.TEMP }}\boost.exe")
-        Start-Process -Wait -FilePath "${{ env.TEMP }}\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES",/DIR=${{ env.BOOST_ROOT }}
+      uses: MarkusJx/install-boost@v2.4.5
+      id: install-boost
+      with:
+        boost_version: 1.84.0
+        link: static
+        platform_version: 2022
+        toolset: msvc
+
+    - name: Initialize Visual Studio Environment
+      uses: egor-tensin/vs-shell@v2
+      with:
+        arch: x64
 
     - name: Configure CMake
+      env:
+        CXXFLAGS: /WX
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: >
-        cmake -G"Visual Studio 17 2022" -B ${{ steps.strings.outputs.build-output-dir }}
-        -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX"
-        -S ${{ github.workspace }}
+        cmake -GNinja -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
+        -DTOOLS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
     - name: Build
       run: |
-        cd ${{ steps.strings.outputs.build-output-dir }}
-        & "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin/amd64/MSBuild.exe" /nologo /p:Configuration=RelWithDebInfo /p:Platform=x64 /verbosity:minimal "TrinityCore.sln"
+        cmake --build ${{ steps.strings.outputs.build-output-dir }}
 
     - name: Copy Dependencies
       run: |
-        cd ${{ steps.strings.outputs.build-output-dir }}/bin/RelWithDebInfo
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin
         copy "${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.dll" libmysql.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/libssl-3-x64.dll" libssl-3-x64.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/libcrypto-3-x64.dll" libcrypto-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libssl-3-x64.dll" libssl-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libcrypto-3-x64.dll" libcrypto-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/legacy.dll" legacy.dll
+      
+    - name: Check binaries
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin
+        ./bnetserver --version
+        ./worldserver --version
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ steps.strings.outputs.build-output-dir }}/bin/RelWithDebInfo
+        path: ${{ steps.strings.outputs.build-output-dir }}/bin
         name: TrinityCoreMasterWin64VS2022
         # Set a custom retention for artifacts
         #retention-days: 7
