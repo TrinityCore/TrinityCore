@@ -809,7 +809,7 @@ void Player::UpdateManaRegen()
     // BaseRegen = 5% of Base Mana per five seconds
     float baseRegen = basemana / 100.f;
     // SPELL_AURA_MOD_POWER_REGEN flat bonus
-    baseRegen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
+    baseRegen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
 
     // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5 
     float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
