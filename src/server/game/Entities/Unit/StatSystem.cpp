@@ -802,18 +802,33 @@ void Player::UpdateManaRegen()
     // Get base of Mana Pool in sBaseMPGameTable
     uint32 basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
-    float base_regen = basemana / 100.f;
 
-    base_regen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
+    float powerRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    float manaRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
 
-    // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
-    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    // BaseRegen = 5% of Base Mana per five seconds
+    float baseRegen = basemana / 100.f;
+    // SPELL_AURA_MOD_POWER_REGEN flat bonus
+    baseRegen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
 
-    // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
-    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
+    // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5 
+    float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
+    if (GetStat(STAT_INTELLECT) > 0.0f)
+        spiritRegen *= std::sqrt(GetStat(STAT_INTELLECT));
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), base_regen);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), base_regen);
+    // SPELL_AURA_MOD_POWER_REGEN_PERCENT pct bonus
+    baseRegen *= powerRegenModPct;
+    spiritRegen *= powerRegenModPct;
+
+    // SPELL_AURA_MOD_MANA_REGEN_PCT pct bonus
+    baseRegen *= manaRegenModPct;
+    spiritRegen *= manaRegenModPct;
+
+    // SPELL_AURA_MOD_MANA_REGEN_INTERRUPT allow some of the spirit regeneration to bypass the combat restriction
+    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), baseRegen + spiritRegen);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), baseRegen + CalculatePct(spiritRegen, modManaRegenInterrupt));
 }
 
 void Player::UpdateAllRunesRegen()
