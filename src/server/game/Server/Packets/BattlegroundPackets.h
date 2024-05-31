@@ -43,7 +43,10 @@ namespace WorldPackets
             int32 CurrentArenaSeason = 0;
             int32 PvpSeasonID = 0;
             int32 ConquestWeeklyProgressCurrencyID = 0;
+            int32 Unknown1027_1 = 0;
             bool WeeklyRewardChestsEnabled = false;
+            bool Unknown1027_2 = false;
+            bool Unknown1027_3 = false;
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket
@@ -441,7 +444,7 @@ namespace WorldPackets
         class RatedPvpInfo final : public ServerPacket
         {
         public:
-            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 7 * sizeof(BracketInfo)) { }
+            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 9 * sizeof(BracketInfo)) { }
 
             WorldPacket const* Write() override;
 
@@ -467,7 +470,7 @@ namespace WorldPackets
                 int32 Unused4 = 0;
                 int32 Rank = 0;
                 bool Disqualified = false;
-            } Bracket[7];
+            } Bracket[9];
         };
 
         struct RatedMatchDeserterPenalty

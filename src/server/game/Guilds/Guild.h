@@ -25,6 +25,7 @@
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include <set>
 #include <unordered_map>
 
@@ -843,7 +844,7 @@ class TC_GAME_API Guild
         // Members
         // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
         bool AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optional<GuildRankId> rankId = {});
-        void DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
+        bool DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false);
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, GuildRankId newRank);
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
@@ -872,6 +873,9 @@ class TC_GAME_API Guild
         bool HasAchieved(uint32 achievementId) const;
         void UpdateCriteria(CriteriaType type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* player);
 
+        Trinity::unique_weak_ptr<Guild> GetWeakPtr() const { return m_weakRef; }
+        void SetWeakPtr(Trinity::unique_weak_ptr<Guild> weakRef) { m_weakRef = std::move(weakRef); }
+
     protected:
         ObjectGuid::LowType m_id;
         std::string m_name;
@@ -893,6 +897,8 @@ class TC_GAME_API Guild
         std::array<LogHolder<BankEventLogEntry>, GUILD_BANK_MAX_TABS + 1> m_bankEventLog = {};
         LogHolder<NewsLogEntry> m_newsLog;
         std::unique_ptr<GuildAchievementMgr> m_achievementMgr;
+
+        Trinity::unique_weak_ptr<Guild> m_weakRef;
 
     private:
         inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }

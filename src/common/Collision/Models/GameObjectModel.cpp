@@ -32,12 +32,11 @@ using G3D::AABox;
 
 struct GameobjectModelData
 {
-    GameobjectModelData(char const* name_, uint32 nameLength, Vector3 const& lowBound, Vector3 const& highBound, bool isWmo_) :
-        bound(lowBound, highBound), name(name_, nameLength), isWmo(isWmo_) { }
+    GameobjectModelData(char const* name_, uint32 nameLength, Vector3 const& lowBound, Vector3 const& highBound) :
+        bound(lowBound, highBound), name(name_, nameLength) { }
 
     AABox bound;
     std::string name;
-    bool isWmo;
 };
 
 typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
@@ -63,7 +62,6 @@ bool LoadGameObjectModelList(std::string const& dataPath)
     }
 
     uint32 name_length, displayId;
-    uint8 isWmo;
     char buff[500];
     while (true)
     {
@@ -72,8 +70,7 @@ bool LoadGameObjectModelList(std::string const& dataPath)
             if (feof(model_list_file.get()))  // EOF flag is only set after failed reading attempt
                 break;
 
-        if (fread(&isWmo, sizeof(uint8), 1, model_list_file.get()) != 1
-            || fread(&name_length, sizeof(uint32), 1, model_list_file.get()) != 1
+        if (fread(&name_length, sizeof(uint32), 1, model_list_file.get()) != 1
             || name_length >= sizeof(buff)
             || fread(&buff, sizeof(char), name_length, model_list_file.get()) != name_length
             || fread(&v1, sizeof(Vector3), 1, model_list_file.get()) != 1
@@ -89,7 +86,7 @@ bool LoadGameObjectModelList(std::string const& dataPath)
             continue;
         }
 
-        model_list.emplace(std::piecewise_construct, std::forward_as_tuple(displayId), std::forward_as_tuple(&buff[0], name_length, v1, v2, isWmo != 0));
+        model_list.emplace(std::piecewise_construct, std::forward_as_tuple(displayId), std::forward_as_tuple(&buff[0], name_length, v1, v2));
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded {} GameObject models in {} ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -144,7 +141,6 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
 #endif
 
     owner = std::move(modelOwner);
-    isWmo = it->second.isWmo;
     return true;
 }
 
@@ -158,6 +154,11 @@ GameObjectModel* GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBas
     }
 
     return mdl;
+}
+
+bool GameObjectModel::isMapObject() const
+{
+    return !iModel->IsM2();
 }
 
 bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const
@@ -183,33 +184,6 @@ bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool sto
         maxDist = distance;
     }
     return hit;
-}
-
-void GameObjectModel::intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, PhaseShift const& phaseShift) const
-{
-    if (!isCollisionEnabled() || !owner->IsSpawned() || !isMapObject())
-        return;
-
-    if (!owner->IsInPhase(phaseShift))
-        return;
-
-    if (!iBound.contains(point))
-        return;
-
-    // child bounds are defined in object space:
-    Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
-    Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
-    float zDist;
-    if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
-    {
-        Vector3 modelGround = pModel + zDist * zDirModel;
-        float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
-        if (info.ground_Z < world_Z)
-        {
-            info.ground_Z = world_Z;
-            info.adtId = owner->GetNameSetId();
-        }
-    }
 }
 
 bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const

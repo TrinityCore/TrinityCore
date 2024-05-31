@@ -70,6 +70,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 SceneInstanceID = 0;
+            int32 TimePassed = 0;
         };
 
         class ScenePlaybackCanceled final : public ClientPacket
@@ -80,6 +81,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 SceneInstanceID = 0;
+            int32 TimePassed = 0;
         };
     }
 }

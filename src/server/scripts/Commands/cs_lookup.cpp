@@ -684,17 +684,17 @@ public:
                         if (handler->GetSession())
                         {
                             int32 maxLevel = 0;
-                            if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId(),
+                            if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second->GetContentTuningId(),
                                 handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
                                 maxLevel = questLevels->MaxLevel;
 
                             int32 scalingFactionGroup = 0;
-                            if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second.GetContentTuningId()))
+                            if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second->GetContentTuningId()))
                                 scalingFactionGroup = contentTuning->GetScalingFactionGroup();
 
                             handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first,
-                                handler->GetSession()->GetPlayer()->GetQuestLevel(&questTemplatePair.second),
-                                handler->GetSession()->GetPlayer()->GetQuestMinLevel(&questTemplatePair.second),
+                                handler->GetSession()->GetPlayer()->GetQuestLevel(questTemplatePair.second.get()),
+                                handler->GetSession()->GetPlayer()->GetQuestMinLevel(questTemplatePair.second.get()),
                                 maxLevel, scalingFactionGroup,
                                 title.c_str(), statusStr);
                         }
@@ -709,7 +709,7 @@ public:
                 }
             }
 
-            std::string title = questTemplatePair.second.GetLogTitle();
+            std::string title = questTemplatePair.second->GetLogTitle();
             if (title.empty())
                 continue;
 
@@ -744,17 +744,17 @@ public:
                 if (handler->GetSession())
                 {
                     int32 maxLevel = 0;
-                    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second.GetContentTuningId(),
+                    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second->GetContentTuningId(),
                         handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
                         maxLevel = questLevels->MaxLevel;
 
                     int32 scalingFactionGroup = 0;
-                    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second.GetContentTuningId()))
+                    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(questTemplatePair.second->GetContentTuningId()))
                         scalingFactionGroup = contentTuning->GetScalingFactionGroup();
 
                     handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first,
-                        handler->GetSession()->GetPlayer()->GetQuestLevel(&questTemplatePair.second),
-                        handler->GetSession()->GetPlayer()->GetQuestMinLevel(&questTemplatePair.second),
+                        handler->GetSession()->GetPlayer()->GetQuestLevel(questTemplatePair.second.get()),
+                        handler->GetSession()->GetPlayer()->GetQuestMinLevel(questTemplatePair.second.get()),
                         maxLevel, scalingFactionGroup,
                         title.c_str(), statusStr);
                 }

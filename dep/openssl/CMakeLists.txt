@@ -11,7 +11,7 @@
 
 # basic packagesearching and setup
 # (further support will be needed, this is a preliminary release!)
-find_package(OpenSSL 1.1 REQUIRED COMPONENTS Crypto SSL)
+find_package(OpenSSL 3 REQUIRED COMPONENTS Crypto SSL)
 
 add_library(openssl INTERFACE)
 

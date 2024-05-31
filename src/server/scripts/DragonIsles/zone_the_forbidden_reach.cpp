@@ -17,12 +17,11 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
-#include "ScriptMgr.h"
 #include "Containers.h"
 #include "Player.h"
-#include "Spell.h"
+#include "ScriptMgr.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Log.h"
 
 enum DracthyrLoginSpells
 {
@@ -51,31 +50,29 @@ struct DracthyrLoginRoom
     Position SummonPosition;
 };
 
-std::array<DracthyrLoginRoom, 4> LoginRoomData =
-{
+static constexpr std::array<DracthyrLoginRoom, 4> LoginRoomData =
+{{
     {
-        {
-            SPELL_DRACTHYR_MOVIE_ROOM_01,
-            { 5725.32f, -3024.26f, 251.047f, 0.01745329238474369f },
-            { 5739.97216796875f, -3023.970458984375f, 251.172332763671875f, 3.193952560424804687f }
-        },
-        {
-            SPELL_DRACTHYR_MOVIE_ROOM_02,
-            { 5743.03f, -3067.28f, 251.047f, 0.798488140106201171f },
-            { 5754.3046875f, -3056.34716796875f, 251.1725006103515625f, 3.926990747451782226f }
-        },
-        {
-            SPELL_DRACTHYR_MOVIE_ROOM_03,
-            { 5787.1597f, -3083.3906f, 251.04698f, 1.570796370506286621f },
-            { 5787.44970703125f, -3069.335205078125f, 251.168121337890625f, 4.729842185974121093f }
-        },
-        {
-            SPELL_DRACTHYR_MOVIE_ROOM_04,
-            { 5829.32f, -3064.49f, 251.047f, 2.364955902099609375f },
-            { 5818.533203125f, -3054.5625f, 251.3630828857421875f, 5.480333805084228515f }
-        }
+        SPELL_DRACTHYR_MOVIE_ROOM_01,
+        { 5725.32f, -3024.26f, 251.047f, 0.01745329238474369f },
+        { 5739.97216796875f, -3023.970458984375f, 251.172332763671875f, 3.193952560424804687f }
+    },
+    {
+        SPELL_DRACTHYR_MOVIE_ROOM_02,
+        { 5743.03f, -3067.28f, 251.047f, 0.798488140106201171f },
+        { 5754.3046875f, -3056.34716796875f, 251.1725006103515625f, 3.926990747451782226f }
+    },
+    {
+        SPELL_DRACTHYR_MOVIE_ROOM_03,
+        { 5787.1597f, -3083.3906f, 251.04698f, 1.570796370506286621f },
+        { 5787.44970703125f, -3069.335205078125f, 251.168121337890625f, 4.729842185974121093f }
+    },
+    {
+        SPELL_DRACTHYR_MOVIE_ROOM_04,
+        { 5829.32f, -3064.49f, 251.047f, 2.364955902099609375f },
+        { 5818.533203125f, -3054.5625f, 251.3630828857421875f, 5.480333805084228515f }
     }
-};
+}};
 
 // 369728 - Dracthyr Login
 // 369744 - Awaken, Dracthyr OnquestAbandon
@@ -96,6 +93,11 @@ class spell_dracthyr_login : public SpellScript
         GetHitDest()->Relocate(room.PlayerPosition);
 
         GetCaster()->CastSpell(GetHitUnit(), room.MovieSpellId, true);
+
+        // relocate questgiver to new random room
+        if (GetSpellInfo()->Id == SPELL_AWAKEN_DRACTYHR_QUEST_ABANDON)
+            if (Player* player = GetCaster()->ToPlayer())
+                player->UpdateAreaDependentAuras(player->GetAreaId());
     }
 
     void Register() override
@@ -125,21 +127,14 @@ public:
 // 370111 - Summon Kodethi
 class spell_dracthyr_summon_dervishian : public SpellScript
 {
-    void SetDest(SpellDestination& dest)
+    void SetDest(SpellDestination& dest) const
     {
-        float currentDist = 1000.0f;
-        DracthyrLoginRoom const* currentRoom = nullptr;
-
-        for (DracthyrLoginRoom const& room : LoginRoomData)
+        auto currentRoom = std::ranges::min_element(LoginRoomData, [caster = GetCaster()](DracthyrLoginRoom const& left, DracthyrLoginRoom const& right)
         {
-            float dist = GetCaster()->GetDistance(room.PlayerPosition);
-            if (dist < currentDist)
-            {
-                currentDist = dist;
-                currentRoom = &room;
-            }
-        }
-        if (!currentRoom)
+            return caster->GetDistance(left.PlayerPosition) < caster->GetDistance(right.PlayerPosition);
+        });
+
+        if (currentRoom == LoginRoomData.end())
             return;
 
         dest.Relocate(currentRoom->SummonPosition);
@@ -160,7 +155,12 @@ public:
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         if (newStatus == QUEST_STATUS_NONE)
+        {
             player->CastSpell(player, SPELL_AWAKEN_DRACTYHR_QUEST_ABANDON, false);
+            // remove summon aura to relocate questgiver to new random room
+            player->RemoveAura(SPELL_MAINTAIN_DERVISHIAN);
+            player->RemoveAura(SPELL_MAINTAIN_KODETHI);
+        }
     }
 };
 

@@ -21,7 +21,6 @@
 #include "forge_of_souls.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Player.h"
 
 BossBoundaryData const boundaries =
 {
@@ -48,14 +47,6 @@ class instance_forge_of_souls : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);
-
-                teamInInstance = 0;
-            }
-
-            void OnPlayerEnter(Player* player) override
-            {
-                if (!teamInInstance)
-                    teamInInstance = player->GetTeam();
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -73,23 +64,15 @@ class instance_forge_of_souls : public InstanceMapScript
 
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
-                if (!teamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            teamInInstance = player->GetTeam();
-                }
-
                 uint32 entry = data->id;
                 switch (entry)
                 {
                     case NPC_SYLVANAS_PART1:
-                        return teamInInstance == ALLIANCE ? NPC_JAINA_PART1 : NPC_SYLVANAS_PART1;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_JAINA_PART1 : NPC_SYLVANAS_PART1;
                     case NPC_LORALEN:
-                        return teamInInstance == ALLIANCE ? NPC_ELANDRA : NPC_LORALEN;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_ELANDRA : NPC_LORALEN;
                     case NPC_KALIRA:
-                        return teamInInstance == ALLIANCE ? NPC_KORELN : NPC_KALIRA;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_KORELN : NPC_KALIRA;
                     default:
                         return entry;
                 }
@@ -100,7 +83,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_TEAM_IN_INSTANCE:
-                        return teamInInstance;
+                        return instance->GetTeamInInstance();
                     default:
                         break;
                 }
@@ -126,8 +109,6 @@ class instance_forge_of_souls : public InstanceMapScript
         private:
             ObjectGuid bronjahm;
             ObjectGuid devourerOfSouls;
-
-            uint32 teamInInstance;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

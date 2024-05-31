@@ -240,6 +240,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     data << uint32(charInfo.MailSenderTypes.size());
     data << uint32(charInfo.OverrideSelectScreenFileDataID);
     data << charInfo.PersonalTabard;
+    data << int32(charInfo.TimerunningSeasonID);
 
     for (ChrCustomizationChoice const& customization : charInfo.Customizations)
         data << customization;
@@ -352,11 +353,13 @@ void CreateCharacter::Read()
     bool const hasTemplateSet = _worldPacket.ReadBit();
     CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
     CreateInfo->UseNPE = _worldPacket.ReadBit();
+    CreateInfo->Unused1026 = _worldPacket.ReadBit();
 
     _worldPacket >> CreateInfo->Race;
     _worldPacket >> CreateInfo->Class;
     _worldPacket >> CreateInfo->Sex;
     CreateInfo->Customizations.resize(_worldPacket.read<uint32>());
+    _worldPacket >> CreateInfo->TimerunningSeasonID;
     CreateInfo->Name = _worldPacket.ReadString(nameLength);
     if (hasTemplateSet)
         CreateInfo->TemplateSet = _worldPacket.read<int32>();

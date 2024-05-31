@@ -739,13 +739,10 @@ void Player::UpdateCorruption()
             continue;
         }
 
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(corruptionEffect->PlayerConditionID))
+        if (!ConditionMgr::IsPlayerMeetingCondition(this, corruptionEffect->PlayerConditionID))
         {
-            if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
-            {
-                RemoveAura(corruptionEffect->Aura);
-                continue;
-            }
+            RemoveAura(corruptionEffect->Aura);
+            continue;
         }
 
         CastSpell(this, corruptionEffect->Aura, true);

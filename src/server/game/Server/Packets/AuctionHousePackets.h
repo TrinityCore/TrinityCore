@@ -157,6 +157,7 @@ namespace WorldPackets
             AuctionHouseFilterMask Filters = AuctionHouseFilterMask(0);
             std::vector<uint8> KnownPets; // size checked separately in Read()
             int8 MaxPetLevel = 0;
+            uint32 Unused1026 = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
             std::string Name;
             Array<AuctionListFilterClass, 7> ItemClassFilters;

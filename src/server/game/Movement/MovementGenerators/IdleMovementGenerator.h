@@ -43,7 +43,8 @@ class RotateMovementGenerator : public MovementGenerator
         static constexpr float MIN_ANGLE_DELTA_FOR_FACING_UPDATE = 0.05f;
 
         explicit RotateMovementGenerator(uint32 id, RotateDirection direction, Optional<Milliseconds> duration,
-            Optional<float> turnSpeed, Optional<float> totalTurnAngle);
+            Optional<float> turnSpeed, Optional<float> totalTurnAngle,
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
 
         void Initialize(Unit*) override;
         void Reset(Unit*) override;

@@ -5,24 +5,8 @@ init:
 - ps: ''
 environment:
   BOOST_ROOT: C:\Libraries\boost_1_83_0
-  MYSQL_ROOT_DIR: C:\mysql-8.1.0-winx64
-  OPENSSL_ROOT_DIR: C:\OpenSSL-v30-Win64
-install:
-- ps: >-
-    Write-Host "Installing MySQL Server 8.1" -ForegroundColor Cyan
-
-    Write-Host "Downloading MySQL..."
-
-    $zipPath = "$($env:temp)\mysql-8.1.0-winx64.zip"
-
-    (New-Object Net.WebClient).DownloadFile('https://cdn.mysql.com//Downloads/MySQL-8.1/mysql-8.1.0-winx64.zip', $zipPath)
-
-    Write-Host "Unpacking..."
-
-    7z x $zipPath -o"C:\" | Out-Null
-
-    Write-Host "MySQL Server 8.1 installed" -ForegroundColor Cyan
-
+  MYSQL_ROOT_DIR: C:\Program Files\MySQL\MySQL Server 8.0
+  OPENSSL_ROOT_DIR: C:\OpenSSL-v32-Win64
 build_script:
 - cmd: >-
     git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"

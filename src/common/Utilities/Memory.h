@@ -27,7 +27,7 @@ namespace Impl
 template<typename T, typename Del>
 struct unique_ptr_deleter
 {
-    using pointer = T;
+    using pointer = T*;
     unique_ptr_deleter(Del deleter) : _deleter(std::move(deleter)) { }
 
     void operator()(pointer ptr) const { _deleter(ptr); }
@@ -38,7 +38,7 @@ private:
 }
 
 template<typename T, typename Del>
-auto make_unique_ptr_with_deleter(T ptr, Del&& deleter)
+auto make_unique_ptr_with_deleter(T* ptr, Del&& deleter)
 {
     using Deleter_t = Impl::unique_ptr_deleter<T, Del>;
 

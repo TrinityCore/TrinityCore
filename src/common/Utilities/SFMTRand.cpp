@@ -24,7 +24,7 @@
 
 #if __has_include(<mm_malloc.h>)
 #include <mm_malloc.h>
-#elif __has_include(<malloc.h>)
+#elif __has_include(<malloc.h>) && TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 #include <malloc.h>
 #else
 static __inline__ void *__attribute__((__always_inline__, __nodebug__, __malloc__))

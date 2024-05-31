@@ -53,7 +53,8 @@ class Socket : public BaseSocket<Derived, Impl::BoostBeastSocketWrapper>
     using SocketBase = BaseSocket<Derived, Impl::BoostBeastSocketWrapper>;
 
 public:
-    explicit Socket(boost::asio::ip::tcp::socket&& socket)
+    template<typename... Args>
+    explicit Socket(boost::asio::ip::tcp::socket&& socket, Args&&...)
         : SocketBase(std::move(socket)) { }
 
     Socket(Socket const& other) = delete;

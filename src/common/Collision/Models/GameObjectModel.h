@@ -60,7 +60,7 @@ public:
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : _collisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr), isWmo(false) { }
+    GameObjectModel() : _collisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr) { }
 public:
     const G3D::AABox& getBounds() const { return iBound; }
 
@@ -71,11 +71,10 @@ public:
     /* Enables/disables collision */
     void enableCollision(bool enable) { _collisionEnabled = enable; }
     bool isCollisionEnabled() const { return _collisionEnabled; }
-    bool isMapObject() const { return isWmo; }
+    bool isMapObject() const;
     uint8 GetNameSetId() const { return owner->GetNameSetId(); }
 
     bool intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const;
-    void intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, PhaseShift const& phaseShift) const;
     bool GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const;
     bool GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const;
 
@@ -94,7 +93,6 @@ private:
     float iScale;
     VMAP::WorldModel* iModel;
     std::unique_ptr<GameObjectModelOwnerBase> owner;
-    bool isWmo;
 };
 
 TC_COMMON_API bool LoadGameObjectModelList(std::string const& dataPath);

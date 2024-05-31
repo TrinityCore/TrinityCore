@@ -27,6 +27,15 @@
 #include <set>
 #include <string>
 
+struct DestructibleHitpoint
+{
+    uint32 Id;
+    uint32 IntactNumHits;
+    uint32 DamagedNumHits;
+
+    uint32 GetMaxHealth() const { return IntactNumHits + DamagedNumHits; }
+};
+
 // from `gameobject_template`
 struct GameObjectTemplate
 {
@@ -865,6 +874,18 @@ struct GameObjectTemplate
         }
     }
 
+    uint32 GetQuestID() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST: return chest.questID;
+            case GAMEOBJECT_TYPE_GENERIC: return generic.questID;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.questID;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.questID;
+            default: return 0;
+        }
+    }
+
     uint32 GetConditionID1() const
     {
         switch (type)
@@ -1274,6 +1295,29 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.serverOnly;
             case GAMEOBJECT_TYPE_AURA_GENERATOR: return auraGenerator.serverOnly;
             default: return 0;
+        }
+    }
+
+    uint32 GetSpawnVignette() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:             return chest.SpawnVignette;
+            case GAMEOBJECT_TYPE_GOOBER:            return goober.SpawnVignette;
+            case GAMEOBJECT_TYPE_NEW_FLAG:          return newflag.SpawnVignette;
+            case GAMEOBJECT_TYPE_NEW_FLAG_DROP:     return newflagdrop.SpawnVignette;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:     return capturePoint.SpawnVignette;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.SpawnVignette;
+            default: return 0;
+        }
+    }
+
+    bool ClearObjectVignetteonOpening() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.ClearObjectVignetteonOpening != 0;
+            default: return false;
         }
     }
 

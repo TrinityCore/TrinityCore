@@ -69,6 +69,7 @@ class TC_COMMON_API BIH
         {
             tree.clear();
             objects.clear();
+            bounds = G3D::AABox::empty();
             // create space for the first node
             tree.push_back(3u << 30u); // dummy leaf
             tree.insert(tree.end(), 2, 0);
@@ -111,6 +112,7 @@ class TC_COMMON_API BIH
             delete[] dat.indices;
         }
         uint32 primCount() const { return uint32(objects.size()); }
+        G3D::AABox const& bound() const { return bounds; }
 
         template<typename RayCallback>
         void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst = false) const

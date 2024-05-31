@@ -18,24 +18,28 @@
 #include "RandomMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "MovementDefines.h"
 #include "PathGenerator.h"
 #include "Random.h"
 
 template<class T>
-RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration) : _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0)
+RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/) : _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0)
 {
     this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
+    this->ScriptResult = std::move(scriptResult);
     if (duration)
         _duration.emplace(*duration);
 }
 
-template RandomMovementGenerator<Creature>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration);
+template
+RandomMovementGenerator<Creature>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
 
 template<class T>
 MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() const
@@ -44,7 +48,7 @@ MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() con
 }
 
 template<class T>
-void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
+void RandomMovementGenerator<T>::Pause(uint32 timer)
 {
     if (timer)
     {
@@ -60,7 +64,7 @@ void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
 }
 
 template<class T>
-void RandomMovementGenerator<T>::Resume(uint32 overrideTimer /*= 0*/)
+void RandomMovementGenerator<T>::Resume(uint32 overrideTimer)
 {
     if (overrideTimer)
         _timer.Reset(overrideTimer);
@@ -265,6 +269,14 @@ void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active,
     }
 
     if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
+    {
+        SetScriptResult(MovementStopReason::Finished);
         if (owner->IsAIEnabled())
             owner->AI()->MovementInform(RANDOM_MOTION_TYPE, 0);
+    }
+}
+
+MovementGenerator* RandomMovementFactory::Create(Unit* /*object*/) const
+{
+    return new RandomMovementGenerator<Creature>();
 }

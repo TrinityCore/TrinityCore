@@ -33,13 +33,21 @@ struct EdgeCost
     uint32 Distance;
     uint32 EvaluateDistance(Player const* player) const
     {
-        TaxiNodeFlags requireFlag = (player->GetTeam() == ALLIANCE) ? TaxiNodeFlags::ShowOnAllianceMap : TaxiNodeFlags::ShowOnHordeMap;
-        if (!To->GetFlags().HasFlag(requireFlag))
+        bool isVisibleForFaction = [&]
+        {
+            switch (player->GetTeam())
+            {
+                case HORDE: return To->GetFlags().HasFlag(TaxiNodeFlags::ShowOnHordeMap);
+                case ALLIANCE: return To->GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap);
+                default: break;
+            }
+            return false;
+        }();
+        if (!isVisibleForFaction)
             return std::numeric_limits<uint16>::max();
 
-        if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
-            if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
-                return std::numeric_limits<uint16>::max();
+        if (!ConditionMgr::IsPlayerMeetingCondition(player, To->ConditionID))
+            return std::numeric_limits<uint16>::max();
 
         return Distance;
     }

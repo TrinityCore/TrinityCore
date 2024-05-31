@@ -325,7 +325,7 @@ struct boss_guarm : public BossAI
                 DoCastAOE(SPELL_HEADLONG_CHARGE_PERIODIC_DAMAGE, true);
                 DoCastAOE(SPELL_HEADLONG_CHARGE_AT, true);
 
-                me->GetMotionMaster()->MovePath(HeadlongChargePairs[headlongChargeId].PathID, false, {}, 35.0f);
+                me->GetMotionMaster()->MovePath(HeadlongChargePairs[headlongChargeId].PathID, false);
             }
             else if (pointId == POINT_BERSERK_JUMP)
             {
@@ -333,7 +333,7 @@ struct boss_guarm : public BossAI
                 DoCastAOE(SPELL_BERSERK_CHARGE_AT);
                 DoCastAOE(SPELL_ROARING_LEAP_INITIAL_KNOCKBACK, true);
 
-                me->GetMotionMaster()->MovePath(BerserkerPair.PathID, false, {}, 35.0f);
+                me->GetMotionMaster()->MovePath(BerserkerPair.PathID, false);
             }
         }
     }

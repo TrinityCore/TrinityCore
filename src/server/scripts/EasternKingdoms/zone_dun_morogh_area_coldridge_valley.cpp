@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "WaypointDefines.h"
 
 enum WoundedColdridgeMountaineer
 {
@@ -221,37 +222,42 @@ enum MilosGyro
     EVENT_MILO_SAY_4              = 10,
     EVENT_MILO_SAY_5              = 11,
     EVENT_MILO_SAY_6              = 12,
-    EVENT_MILO_DESPAWN            = 13
+    EVENT_MILO_DESPAWN            = 13,
+    PATH_MILO                     = 24
 };
 
-Position const kharanosPath[] =
+WaypointPath const kharanosPath =
 {
-    { -6247.328f, 299.5365f, 390.266f   },
-    { -6247.328f, 299.5365f, 390.266f   },
-    { -6250.934f, 283.5417f, 393.46f    },
-    { -6253.335f, 252.7066f, 403.0702f  },
-    { -6257.292f, 217.4167f, 424.3807f  },
-    { -6224.2f,   159.9861f, 447.0882f  },
-    { -6133.597f, 164.3177f, 491.0316f  },
-    { -6084.236f, 183.375f, 508.5401f   },
-    { -6020.382f, 179.5052f, 521.5396f  },
-    { -5973.592f, 161.7396f, 521.5396f  },
-    { -5953.665f, 151.6111f, 514.5687f  },
-    { -5911.031f, 146.4462f, 482.1806f  },
-    { -5886.389f, 124.125f, 445.6252f   },
-    { -5852.08f,  55.80903f, 406.7922f  },
-    { -5880.707f, 12.59028f, 406.7922f  },
-    { -5927.887f, -74.02257f, 406.7922f },
-    { -5988.436f, -152.0174f, 425.6251f },
-    { -6015.274f, -279.467f, 449.528f   },
-    { -5936.465f, -454.1875f, 449.528f  },
-    { -5862.575f, -468.0504f, 444.3899f },
-    { -5783.58f,  -458.6042f, 432.5026f },
-    { -5652.707f, -463.4427f, 415.0308f },
-    { -5603.897f, -466.3438f, 409.8931f },
-    { -5566.957f, -472.5642f, 399.0056f }
+    PATH_MILO,
+    {
+        { 0, -6247.328f, 299.5365f, 390.266f   },
+        { 1, -6247.328f, 299.5365f, 390.266f   },
+        { 2, -6250.934f, 283.5417f, 393.46f    },
+        { 3, -6253.335f, 252.7066f, 403.0702f  },
+        { 4, -6257.292f, 217.4167f, 424.3807f  },
+        { 5, -6224.2f,   159.9861f, 447.0882f  },
+        { 6, -6133.597f, 164.3177f, 491.0316f  },
+        { 7, -6084.236f, 183.375f, 508.5401f   },
+        { 8, -6020.382f, 179.5052f, 521.5396f  },
+        { 9, -5973.592f, 161.7396f, 521.5396f  },
+        { 10, -5953.665f, 151.6111f, 514.5687f  },
+        { 11, -5911.031f, 146.4462f, 482.1806f  },
+        { 12, -5886.389f, 124.125f, 445.6252f   },
+        { 13, -5852.08f,  55.80903f, 406.7922f  },
+        { 14, -5880.707f, 12.59028f, 406.7922f  },
+        { 15, -5927.887f, -74.02257f, 406.7922f },
+        { 16, -5988.436f, -152.0174f, 425.6251f },
+        { 17, -6015.274f, -279.467f, 449.528f   },
+        { 18, -5936.465f, -454.1875f, 449.528f  },
+        { 19, -5862.575f, -468.0504f, 444.3899f },
+        { 20, -5783.58f,  -458.6042f, 432.5026f },
+        { 21, -5652.707f, -463.4427f, 415.0308f },
+        { 22, -5603.897f, -466.3438f, 409.8931f },
+        { 23, -5566.957f, -472.5642f, 399.0056f }
+    },
+    WaypointMoveType::Run,
+    WaypointPathFlags::FlyingPath
 };
-size_t const pathSize = std::extent<decltype(kharanosPath)>::value;
 
 class npc_milos_gyro : public CreatureScript
 {
@@ -283,9 +289,9 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 pointId) override
+        void WaypointPathEnded(uint32 /*pointId*/, uint32 pathId) override
         {
-            if (type == EFFECT_MOTION_TYPE && pointId == pathSize)
+            if (pathId == PATH_MILO)
                 _events.ScheduleEvent(EVENT_MILO_DESPAWN, Seconds(1));
         }
 
@@ -304,7 +310,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_START_PATH:
-                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSize), kharanosPath, pathSize, false, true);
+                        me->GetMotionMaster()->MovePath(kharanosPath, false);
                         _events.ScheduleEvent(EVENT_MILO_SAY_0, Seconds(5));
                         break;
                     case EVENT_MILO_SAY_0:

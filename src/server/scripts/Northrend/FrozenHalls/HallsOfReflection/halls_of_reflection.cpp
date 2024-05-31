@@ -2739,7 +2739,7 @@ class spell_hor_start_halls_of_reflection_quest_ae : public SpellScriptLoader
                     // CanTakeQuest and CanAddQuest checks done in spell effect execution
                     if (target->GetTeam() == ALLIANCE)
                         target->CastSpell(target, SPELL_START_HALLS_OF_REFLECTION_QUEST_A, true);
-                    else
+                    else if (target->GetTeam() == HORDE)
                         target->CastSpell(target, SPELL_START_HALLS_OF_REFLECTION_QUEST_H, true);
                 }
             }

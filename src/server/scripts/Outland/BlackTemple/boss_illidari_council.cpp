@@ -248,14 +248,12 @@ struct IllidariCouncilBossAI : public BossAI
 
     void Reset() override
     {
-        me->SetCombatPulseDelay(0);
         events.Reset();
         DoCastSelf(SPELL_BALANCE_OF_POWER, true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
             DoZoneInCombat(illidari);

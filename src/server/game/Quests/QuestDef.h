@@ -25,6 +25,7 @@
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "WorldPacket.h"
 #include <bitset>
 #include <vector>
@@ -105,16 +106,19 @@ enum class QuestPushReason : uint8
     RaceToRecipient                 = 29,   // "%s's attempt to share quest "%s" failed. You are the wrong race for that quest."
     LowFaction                      = 30,   // "%s's reputation is too low for that quest."
     LowFactionToRecipient           = 31,   // "%s's attempt to share quest "%s" failed. Your reputation is too low for that quest."
-    Expansion                       = 32,   // "%s doesn't own the required expansion for that quest."
-    ExpansionToRecipient            = 33,   // "%s's attempt to share quest "%s" failed. You do not own the required expansion for that quest."
-    NotGarrisonOwner                = 34,   // "%s must own a garrison to accept that quest."
-    NotGarrisonOwnerToRecipient     = 35,   // "%s's attempt to share quest "%s" failed. You must own a garrison to accept that quest."
-    WrongCovenant                   = 36,   // "%s is in the wrong covenant for that quest."
-    WrongCovenantToRecipient        = 37,   // "%s's attempt to share quest "%s" failed. You are in the wrong covenant for that quest."
-    NewPlayerExperience             = 38,   // "%s must complete Exile's Reach to accept that quest."
-    NewPlayerExperienceToRecipient  = 39,   // "%s's attempt to share quest "%s" failed. You must complete Exile's Reach to accept that quest."
-    WrongFaction                    = 40,   // "%s is the wrong faction for that quest."
-    WrongFactionToRecipient         = 41    // "%s's attempt to share quest "%s" failed. You are the wrong faction for that quest."
+    HighFaction                     = 32,   // "%s's reputation is too high for that quest."
+    HighFactionToRecipient          = 33,   // "%s's attempt to share quest "%s" failed. Your reputation is too high for that quest."
+    Expansion                       = 34,   // "%s doesn't own the required expansion for that quest."
+    ExpansionToRecipient            = 35,   // "%s's attempt to share quest "%s" failed. You do not own the required expansion for that quest."
+    NotGarrisonOwner                = 36,   // "%s must own a garrison to accept that quest."
+    NotGarrisonOwnerToRecipient     = 37,   // "%s's attempt to share quest "%s" failed. You must own a garrison to accept that quest."
+    WrongCovenant                   = 38,   // "%s is in the wrong covenant for that quest."
+    WrongCovenantToRecipient        = 39,   // "%s's attempt to share quest "%s" failed. You are in the wrong covenant for that quest."
+    NewPlayerExperience             = 40,   // "%s must complete Exile's Reach to accept that quest."
+    NewPlayerExperienceToRecipient  = 41,   // "%s's attempt to share quest "%s" failed. You must complete Exile's Reach to accept that quest."
+    WrongFaction                    = 42,   // "%s is the wrong faction for that quest."
+    WrongFactionToRecipient         = 43,   // "%s's attempt to share quest "%s" failed. You are the wrong faction for that quest."
+    CrossFactionRestricted          = 44,   // "Quests can't be shared in cross-faction groups."
 };
 
 enum QuestTradeSkill
@@ -719,6 +723,8 @@ class TC_GAME_API Quest
         // Helpers
         static uint32 RoundXPValue(uint32 xp);
 
+        Trinity::unique_weak_ptr<Quest> GetWeakPtr() const { return _weakRef; }
+
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
         std::array<WorldPacket, TOTAL_LOCALES> QueryData;
@@ -828,6 +834,8 @@ class TC_GAME_API Quest
         uint32 _specialFlags = 0; // custom flags, not sniffed/WDB
         std::bitset<MAX_QUEST_OBJECTIVE_TYPE> _usedQuestObjectiveTypes;
         uint32 _scriptId = 0;
+
+        Trinity::unique_weak_ptr<Quest> _weakRef;
 };
 
 struct QuestStatusData

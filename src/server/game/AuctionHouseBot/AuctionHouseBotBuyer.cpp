@@ -412,12 +412,15 @@ void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auct
     auction->Bidder = newBidder;
     auction->BidAmount = auction->BuyoutOrUnitPrice;
 
-    // Mails must be under transaction control too to prevent data loss
-    auctionHouse->SendAuctionWon(auction, nullptr, trans);
-    auctionHouse->SendAuctionSold(auction, nullptr, trans);
-
-    // Remove auction
+    // Copy data before freeing AuctionPosting in auctionHouse->RemoveAuction
+    // Because auctionHouse->SendAuctionWon can unload items if bidder is offline
+    // we need to RemoveAuction before sending mails
+    AuctionPosting copy = *auction;
     auctionHouse->RemoveAuction(trans, auction);
+
+    // Mails must be under transaction control too to prevent data loss
+    auctionHouse->SendAuctionSold(&copy, nullptr, trans);
+    auctionHouse->SendAuctionWon(&copy, nullptr, trans);
 
     // Run SQLs
     CharacterDatabase.CommitTransaction(trans);

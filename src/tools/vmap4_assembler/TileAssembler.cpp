@@ -25,11 +25,6 @@
 #include <set>
 #include <sstream>
 
-using G3D::Vector3;
-using G3D::AABox;
-using G3D::inf;
-using std::pair;
-
 template<> struct BoundsTrait<VMAP::ModelSpawn*>
 {
     static void getBounds(VMAP::ModelSpawn const* const& obj, G3D::AABox& out) { out = obj->getBounds(); }
@@ -37,9 +32,9 @@ template<> struct BoundsTrait<VMAP::ModelSpawn*>
 
 namespace VMAP
 {
-    Vector3 ModelPosition::transform(Vector3 const& pIn) const
+    G3D::Vector3 ModelPosition::transform(G3D::Vector3 const& pIn) const
     {
-        Vector3 out = pIn * iScale;
+        G3D::Vector3 out = pIn * iScale;
         out = iRotation * out;
         return out;
     }
@@ -77,21 +72,21 @@ namespace VMAP
             for (auto entry = data.UniqueEntries.begin(); entry != data.UniqueEntries.end(); ++entry)
             {
                 // M2 models don't have a bound set in WDT/ADT placement data, they're not used for LoS but are needed for pathfinding
-                if (entry->second.flags & MOD_M2)
+                if (!(entry->second.flags & MOD_HAS_BOUND))
                     if (!calculateTransformedBound(entry->second))
                         continue;
 
                 mapSpawns.push_back(&entry->second);
                 spawnedModelFiles.insert(entry->second.name);
 
-                std::map<uint32, std::set<TileSpawn>>& tileEntries = (entry->second.flags & MOD_PARENT_SPAWN) ? data.ParentTileEntries : data.TileEntries;
+                std::map<uint32, std::set<uint32>>& tileEntries = (entry->second.flags & MOD_PARENT_SPAWN) ? data.ParentTileEntries : data.TileEntries;
 
                 G3D::AABox const& bounds = entry->second.iBound;
                 G3D::Vector2int16 low(int16(bounds.low().x * invTileSize), int16(bounds.low().y * invTileSize));
                 G3D::Vector2int16 high(int16(bounds.high().x * invTileSize), int16(bounds.high().y * invTileSize));
                 for (int x = low.x; x <= high.x; ++x)
                     for (int y = low.y; y <= high.y; ++y)
-                        tileEntries[StaticMapTree::packTileID(x, y)].emplace(entry->second.ID, entry->second.flags);
+                        tileEntries[StaticMapTree::packTileID(x, y)].insert(entry->second.ID);
             }
 
             printf("Creating map tree for map %u...\n", data.MapId);
@@ -147,7 +142,7 @@ namespace VMAP
                 std::string tileFileName = Trinity::StringFormat("{}/{:04}_{:02}_{:02}.vmtile", iDestDir, data.MapId, y, x);
                 if (FILE* tileFile = fopen(tileFileName.c_str(), "wb"))
                 {
-                    std::set<TileSpawn> const& parentTileEntries = data.ParentTileEntries[tileItr->first];
+                    std::set<uint32> const& parentTileEntries = data.ParentTileEntries[tileItr->first];
 
                     uint32 nSpawns = tileItr->second.size() + parentTileEntries.size();
 
@@ -157,10 +152,10 @@ namespace VMAP
                     if (success && fwrite(&nSpawns, sizeof(uint32), 1, tileFile) != 1) success = false;
                     // write tile spawns
                     for (auto spawnItr = tileItr->second.begin(); spawnItr != tileItr->second.end() && success; ++spawnItr)
-                        success = ModelSpawn::writeToFile(tileFile, data.UniqueEntries[spawnItr->Id]);
+                        success = ModelSpawn::writeToFile(tileFile, data.UniqueEntries[*spawnItr]);
 
                     for (auto spawnItr = parentTileEntries.begin(); spawnItr != parentTileEntries.end() && success; ++spawnItr)
-                        success = ModelSpawn::writeToFile(tileFile, data.UniqueEntries[spawnItr->Id]);
+                        success = ModelSpawn::writeToFile(tileFile, data.UniqueEntries[*spawnItr]);
 
                     fclose(tileFile);
                 }
@@ -247,7 +242,7 @@ namespace VMAP
         if (groups != 1)
             printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.c_str());
 
-        AABox rotated_bounds;
+        G3D::AABox rotated_bounds;
         for (int i = 0; i < 8; ++i)
             rotated_bounds.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.corner(i)));
 
@@ -281,6 +276,7 @@ namespace VMAP
 
         // write WorldModel
         WorldModel model;
+        model.setFlags(raw_model.Flags);
         model.setRootWmoID(raw_model.RootWMOID);
         if (!raw_model.groupsArray.empty())
         {
@@ -326,7 +322,6 @@ namespace VMAP
         fwrite(VMAP::VMAP_MAGIC, 1, 8, model_list_copy);
 
         uint32 name_length, displayId;
-        uint8 isWmo;
         char buff[500];
         while (true)
         {
@@ -334,8 +329,7 @@ namespace VMAP
                 if (feof(model_list))   // EOF flag is only set after failed reading attempt
                     break;
 
-            if (fread(&isWmo, sizeof(uint8), 1, model_list) != 1
-                || fread(&name_length, sizeof(uint32), 1, model_list) != 1
+            if (fread(&name_length, sizeof(uint32), 1, model_list) != 1
                 || name_length >= sizeof(buff)
                 || fread(&buff, sizeof(char), name_length, model_list) != name_length)
             {
@@ -350,7 +344,7 @@ namespace VMAP
                 continue;
 
             spawnedModelFiles.insert(model_name);
-            AABox bounds;
+            G3D::AABox bounds;
             for (GroupModel_Raw const& groupModel : raw_model.groupsArray)
                 for (G3D::Vector3 const& vertice : groupModel.vertexArray)
                     bounds.merge(vertice);
@@ -368,11 +362,10 @@ namespace VMAP
             }
 
             fwrite(&displayId, sizeof(uint32), 1, model_list_copy);
-            fwrite(&isWmo, sizeof(uint8), 1, model_list_copy);
             fwrite(&name_length, sizeof(uint32), 1, model_list_copy);
             fwrite(&buff, sizeof(char), name_length, model_list_copy);
-            fwrite(&bounds.low(), sizeof(Vector3), 1, model_list_copy);
-            fwrite(&bounds.high(), sizeof(Vector3), 1, model_list_copy);
+            fwrite(&bounds.low(), sizeof(G3D::Vector3), 1, model_list_copy);
+            fwrite(&bounds.high(), sizeof(G3D::Vector3), 1, model_list_copy);
         }
 
         fclose(model_list);
@@ -396,10 +389,10 @@ namespace VMAP
         READ_OR_RETURN(&mogpflags, sizeof(uint32));
         READ_OR_RETURN(&GroupWMOID, sizeof(uint32));
 
-        Vector3 vec1, vec2;
-        READ_OR_RETURN(&vec1, sizeof(Vector3));
+        G3D::Vector3 vec1, vec2;
+        READ_OR_RETURN(&vec1, sizeof(G3D::Vector3));
 
-        READ_OR_RETURN(&vec2, sizeof(Vector3));
+        READ_OR_RETURN(&vec2, sizeof(G3D::Vector3));
         bounds.set(vec1, vec2);
 
         READ_OR_RETURN(&liquidflags, sizeof(uint32));
@@ -429,7 +422,7 @@ namespace VMAP
             READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint32));
             triangles.reserve(nindexes / 3);
             for (uint32 i=0; i<nindexes; i+=3)
-                triangles.push_back(MeshTriangle(indexarray[i], indexarray[i+1], indexarray[i+2]));
+                triangles.push_back({ .idx0 = indexarray[i], .idx1 = indexarray[i + 1], .idx2 = indexarray[i + 2] });
 
             delete[] indexarray;
         }
@@ -446,7 +439,7 @@ namespace VMAP
             float *vectorarray = new float[nvectors*3];
             READ_OR_RETURN_WITH_DELETE(vectorarray, nvectors*sizeof(float)*3);
             for (uint32 i=0; i<nvectors; ++i)
-                vertexArray.push_back( Vector3(vectorarray + 3*i) );
+                vertexArray.push_back(G3D::Vector3(vectorarray + 3*i) );
 
             delete[] vectorarray;
         }
@@ -463,7 +456,7 @@ namespace VMAP
             {
                 WMOLiquidHeader hlq;
                 READ_OR_RETURN(&hlq, sizeof(WMOLiquidHeader));
-                liquid = new WmoLiquid(hlq.xtiles, hlq.ytiles, Vector3(hlq.pos_x, hlq.pos_y, hlq.pos_z), liquidType);
+                liquid = new WmoLiquid(hlq.xtiles, hlq.ytiles, G3D::Vector3(hlq.pos_x, hlq.pos_y, hlq.pos_z), liquidType);
                 uint32 size = hlq.xverts * hlq.yverts;
                 READ_OR_RETURN(liquid->GetHeightStorage(), size * sizeof(float));
                 size = hlq.xtiles * hlq.ytiles;
@@ -471,7 +464,7 @@ namespace VMAP
             }
             else
             {
-                liquid = new WmoLiquid(0, 0, Vector3::zero(), liquidType);
+                liquid = new WmoLiquid(0, 0, G3D::Vector3::zero(), liquidType);
                 liquid->GetHeightStorage()[0] = bounds.high().z;
             }
         }
@@ -506,6 +499,7 @@ namespace VMAP
         uint32 groups;
         READ_OR_RETURN(&groups, sizeof(uint32));
         READ_OR_RETURN(&RootWMOID, sizeof(uint32));
+        READ_OR_RETURN(&Flags, sizeof(Flags));
 
         groupsArray.resize(groups);
         bool succeed = true;

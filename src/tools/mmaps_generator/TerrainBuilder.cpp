@@ -609,21 +609,20 @@ namespace MMAP
 
             for (uint32 i = 0; i < count; ++i)
             {
-                ModelInstance instance = models[i];
+                ModelInstance const& instance = models[i];
 
                 // model instances exist in tree even though there are instances of that model in this tile
-                WorldModel* worldModel = instance.getWorldModel();
+                WorldModel const* worldModel = instance.getWorldModel();
                 if (!worldModel)
                     continue;
 
                 // now we have a model to add to the meshdata
                 retval = true;
 
-                std::vector<GroupModel> groupModels;
-                worldModel->getGroupModels(groupModels);
+                std::vector<GroupModel> const& groupModels = worldModel->getGroupModels();
 
                 // all M2s need to have triangle indices reversed
-                bool isM2 = (instance.flags & MOD_M2) != 0;
+                bool isM2 = worldModel->IsM2();
 
                 // transform data
                 float scale = instance.iScale;
@@ -632,14 +631,12 @@ namespace MMAP
                 position.x -= 32 * GRID_SIZE;
                 position.y -= 32 * GRID_SIZE;
 
-                for (std::vector<GroupModel>::iterator it = groupModels.begin(); it != groupModels.end(); ++it)
+                for (std::vector<GroupModel>::const_iterator it = groupModels.begin(); it != groupModels.end(); ++it)
                 {
-                    std::vector<G3D::Vector3> tempVertices;
+                    std::vector<G3D::Vector3> const& tempVertices = it->GetVertices();
                     std::vector<G3D::Vector3> transformedVertices;
-                    std::vector<MeshTriangle> tempTriangles;
-                    WmoLiquid* liquid = nullptr;
-
-                    it->getMeshData(tempVertices, tempTriangles, liquid);
+                    std::vector<MeshTriangle> const& tempTriangles = it->GetTriangles();
+                    WmoLiquid const* liquid = it->GetLiquid();
 
                     // first handle collision mesh
                     transform(tempVertices, transformedVertices, scale, rotation, position);
@@ -659,8 +656,8 @@ namespace MMAP
                         liquid->getPosInfo(tilesX, tilesY, corner);
                         vertsX = tilesX + 1;
                         vertsY = tilesY + 1;
-                        uint8* flags = liquid->GetFlagsStorage();
-                        float* data = liquid->GetHeightStorage();
+                        uint8 const* flags = liquid->GetFlagsStorage();
+                        float const* data = liquid->GetHeightStorage();
                         uint8 type = NAV_AREA_EMPTY;
 
                         // convert liquid type to NavTerrain
@@ -736,12 +733,13 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::transform(std::vector<G3D::Vector3> &source, std::vector<G3D::Vector3> &transformedVertices, float scale, G3D::Matrix3 &rotation, G3D::Vector3 &position)
+    void TerrainBuilder::transform(std::vector<G3D::Vector3> const& source, std::vector<G3D::Vector3>& transformedVertices, float scale, G3D::Matrix3 const& rotation, G3D::Vector3 const& position)
     {
-        for (std::vector<G3D::Vector3>::iterator it = source.begin(); it != source.end(); ++it)
+        transformedVertices.reserve(transformedVertices.size() + source.size());
+        for (G3D::Vector3 const& vertex : source)
         {
             // apply tranform, then mirror along the horizontal axes
-            G3D::Vector3 v((*it) * rotation * scale + position);
+            G3D::Vector3 v(vertex * rotation * scale + position);
             v.x *= -1.f;
             v.y *= -1.f;
             transformedVertices.push_back(v);
@@ -749,43 +747,46 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::copyVertices(std::vector<G3D::Vector3> &source, G3D::Array<float> &dest)
+    void TerrainBuilder::copyVertices(std::vector<G3D::Vector3> const& source, G3D::Array<float>& dest)
     {
-        for (std::vector<G3D::Vector3>::iterator it = source.begin(); it != source.end(); ++it)
+        dest.reserve(dest.size() + source.size() * 3);
+        for (G3D::Vector3 const& vertex : source)
         {
-            dest.push_back((*it).y);
-            dest.push_back((*it).z);
-            dest.push_back((*it).x);
+            dest.push_back(vertex.y);
+            dest.push_back(vertex.z);
+            dest.push_back(vertex.x);
         }
     }
 
     /**************************************************************************/
-    void TerrainBuilder::copyIndices(std::vector<MeshTriangle> &source, G3D::Array<int> &dest, int offset, bool flip)
+    void TerrainBuilder::copyIndices(std::vector<MeshTriangle> const& source, G3D::Array<int>& dest, int offset, bool flip)
     {
+        dest.reserve(dest.size() + source.size() * 3);
         if (flip)
         {
-            for (std::vector<MeshTriangle>::iterator it = source.begin(); it != source.end(); ++it)
+            for (MeshTriangle const& triangle : source)
             {
-                dest.push_back((*it).idx2+offset);
-                dest.push_back((*it).idx1+offset);
-                dest.push_back((*it).idx0+offset);
+                dest.push_back(triangle.idx2 + offset);
+                dest.push_back(triangle.idx1 + offset);
+                dest.push_back(triangle.idx0 + offset);
             }
         }
         else
         {
-            for (std::vector<MeshTriangle>::iterator it = source.begin(); it != source.end(); ++it)
+            for (MeshTriangle const& triangle : source)
             {
-                dest.push_back((*it).idx0+offset);
-                dest.push_back((*it).idx1+offset);
-                dest.push_back((*it).idx2+offset);
+                dest.push_back(triangle.idx0 + offset);
+                dest.push_back(triangle.idx1 + offset);
+                dest.push_back(triangle.idx2 + offset);
             }
         }
     }
 
     /**************************************************************************/
-    void TerrainBuilder::copyIndices(G3D::Array<int> &source, G3D::Array<int> &dest, int offset)
+    void TerrainBuilder::copyIndices(G3D::Array<int> const& source, G3D::Array<int>& dest, int offset)
     {
-        int* src = source.getCArray();
+        int const* src = source.getCArray();
+        dest.reserve(dest.size() + source.size());
         for (int32 i = 0; i < source.size(); ++i)
             dest.append(src[i] + offset);
     }

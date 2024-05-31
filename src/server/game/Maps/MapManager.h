@@ -23,6 +23,7 @@
 #include "MapUpdater.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include <boost/dynamic_bitset_fwd.hpp>
 #include <map>
 #include <shared_mutex>
@@ -132,7 +133,7 @@ class TC_GAME_API MapManager
 
     private:
         using MapKey = std::pair<uint32, uint32>;
-        typedef std::map<MapKey, Map*> MapMapType;
+        typedef std::map<MapKey, Trinity::unique_trackable_ptr<Map>> MapMapType;
         typedef boost::dynamic_bitset<size_t> InstanceIds;
 
         Map* FindMap_i(uint32 mapId, uint32 instanceId) const;
@@ -163,7 +164,7 @@ void MapManager::DoForAllMaps(Worker&& worker)
     std::shared_lock<std::shared_mutex> lock(_mapsLock);
 
     for (auto const& [key, map] : i_maps)
-        worker(map);
+        worker(map.get());
 }
 
 template<typename Worker>
@@ -177,7 +178,7 @@ void MapManager::DoForAllMapsWithMapId(uint32 mapId, Worker&& worker)
     );
 
     for (auto const& [key, map] : range)
-        worker(map);
+        worker(map.get());
 }
 
 #define sMapMgr MapManager::instance()

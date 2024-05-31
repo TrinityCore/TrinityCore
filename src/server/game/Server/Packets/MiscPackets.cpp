@@ -761,8 +761,13 @@ void WorldPackets::Misc::CloseInteraction::Read()
 WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 {
     _worldPacket << TotalTime;
-    _worldPacket << TimeLeft;
     _worldPacket << int32(Type);
+    _worldPacket << TimeLeft;
+    _worldPacket.WriteBit(PlayerGuid.has_value());
+    _worldPacket.FlushBits();
+
+    if (PlayerGuid)
+        _worldPacket << *PlayerGuid;
 
     return &_worldPacket;
 }

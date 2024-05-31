@@ -87,6 +87,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
     _worldPacket << PlayerNameQueryInterval;
 
+    _worldPacket << int32(AddonChatThrottle.MaxTries);
+    _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
+    _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
+
     for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
         _worldPacket << gameRuleValue;
 
@@ -122,10 +126,11 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(QuestSessionEnabled);
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
+    _worldPacket.WriteBit(CommunityFinderEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
-    _worldPacket.WriteBit(ChatDisabledByDefault);
 
+    _worldPacket.WriteBit(ChatDisabledByDefault);
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
     _worldPacket.WriteBit(AddonsDisabled);
@@ -133,10 +138,15 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ContentTrackingEnabled);
     _worldPacket.WriteBit(IsSellAllJunkEnabled);
     _worldPacket.WriteBit(IsGroupFinderEnabled);
-    _worldPacket.WriteBit(IsLFDEnabled);
 
+    _worldPacket.WriteBit(IsLFDEnabled);
     _worldPacket.WriteBit(IsLFREnabled);
     _worldPacket.WriteBit(IsPremadeGroupEnabled);
+    _worldPacket.WriteBit(CanShowSetRoleButton);
+    _worldPacket.WriteBit(false); // unused 10.2.7
+    _worldPacket.WriteBit(false); // unused 10.2.7
+
+    _worldPacket.WriteBits(Unknown1027.length(), 7);
 
     _worldPacket.FlushBits();
 
@@ -173,6 +183,8 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
+    _worldPacket.WriteString(Unknown1027);
+
     {
         _worldPacket.WriteBit(Squelch.IsSquelched);
         _worldPacket << Squelch.BnetAccountGuid;
@@ -198,7 +210,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
-    _worldPacket.WriteBit(false); // unused, 10.0.2
+    _worldPacket.WriteBit(IsBoostEnabled);
     _worldPacket.WriteBit(TrialBoostEnabled);
     _worldPacket.WriteBit(TokenBalanceEnabled);
     _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
@@ -209,17 +221,16 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(false); // unused, 10.0.2
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
-    _worldPacket.WriteBit(false); // unused, 10.0.2
+    _worldPacket.WriteBit(IsNameReservationEnabled);
     _worldPacket.WriteBit(LaunchETA.has_value());
+    _worldPacket.WriteBit(TimerunningEnabled);
     _worldPacket.WriteBit(AddonsDisabled);
-    _worldPacket.WriteBit(Unused1000);
 
+    _worldPacket.WriteBit(Unused1000);
     _worldPacket.WriteBit(AccountSaveDataExportEnabled);
     _worldPacket.WriteBit(AccountLockedByExport);
-    _worldPacket.WriteBit(RealmHiddenAlert.has_value());
 
-    if (RealmHiddenAlert)
-        _worldPacket.WriteBits(RealmHiddenAlert->length() + 1, 11);
+    _worldPacket.WriteBits(RealmHiddenAlert.length() + 1, 11);
 
     _worldPacket.FlushBits();
 
@@ -238,17 +249,20 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(MaximumExpansionLevel);
     _worldPacket << int32(ActiveSeason);
     _worldPacket << uint32(GameRuleValues.size());
+    _worldPacket << int32(ActiveTimerunningSeasonID);
+    _worldPacket << int32(RemainingTimerunningSeasonSeconds);
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
     _worldPacket << PlayerNameQueryInterval;
     _worldPacket << uint32(DebugTimeEvents.size());
     _worldPacket << int32(Unused1007);
+    _worldPacket << uint32(EventRealmQueues);
 
     if (LaunchETA)
         _worldPacket << int32(*LaunchETA);
 
-    if (RealmHiddenAlert && !RealmHiddenAlert->empty())
-        _worldPacket.WriteString(*RealmHiddenAlert);
+    if (!RealmHiddenAlert.empty())
+        _worldPacket << RealmHiddenAlert;
 
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());

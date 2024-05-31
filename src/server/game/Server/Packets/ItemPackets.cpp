@@ -373,3 +373,32 @@ void WorldPackets::Item::RemoveNewItem::Read()
 {
     _worldPacket >> ItemGuid;
 }
+
+void WorldPackets::Item::ChangeBagSlotFlag::Read()
+{
+    _worldPacket >> BagIndex;
+    FlagToChange = _worldPacket.read<BagSlotFlags, uint32>();
+    On = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Item::ChangeBankBagSlotFlag::Read()
+{
+    _worldPacket >> BagIndex;
+    FlagToChange = _worldPacket.read<BagSlotFlags, uint32>();
+    On = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Item::SetBackpackAutosortDisabled::Read()
+{
+    Disable = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Item::SetBackpackSellJunkDisabled::Read()
+{
+    Disable = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Item::SetBankAutosortDisabled::Read()
+{
+    Disable = _worldPacket.ReadBit();
+}

@@ -84,10 +84,10 @@ namespace Movement
         bool TransformForTransport;
 
         /** Returns true to show that the arguments were configured correctly and MoveSpline initialization will succeed. */
-        bool Validate(Unit* unit) const;
+        bool Validate(Unit const* unit);
 
     private:
-        bool _checkPathLengths() const;
+        bool _checkPathLengths();
     };
 }
 

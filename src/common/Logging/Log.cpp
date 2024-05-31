@@ -221,20 +221,18 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
     appenderFactory[index] = appenderCreateFn;
 }
 
-void Log::OutMessageImpl(std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs)
+void Log::OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
 {
-    write(std::make_unique<LogMessage>(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs)));
+    write(logger, std::make_unique<LogMessage>(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs)));
 }
 
-void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs)
+void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
 {
-    write(std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account)));
+    write(GetLoggerByType("commands.gm"), std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account)));
 }
 
-void Log::write(std::unique_ptr<LogMessage> msg) const
+void Log::write(Logger const* logger, std::unique_ptr<LogMessage> msg) const
 {
-    Logger const* logger = GetLoggerByType(msg->type);
-
     if (_ioContext)
     {
         std::shared_ptr<LogOperation> logOperation = std::make_shared<LogOperation>(logger, std::move(msg));
@@ -335,7 +333,7 @@ void Log::OutCharDump(char const* str, uint32 accountId, uint64 guid, char const
 
     msg->param1 = param.str();
 
-    write(std::move(msg));
+    write(GetLoggerByType("entities.player.dump"), std::move(msg));
 }
 
 void Log::SetRealmId(uint32 id)
@@ -366,6 +364,20 @@ bool Log::ShouldLog(std::string_view type, LogLevel level) const
 
     LogLevel logLevel = logger->getLogLevel();
     return logLevel != LOG_LEVEL_DISABLED && logLevel <= level;
+}
+
+Logger const* Log::GetEnabledLogger(std::string_view type, LogLevel level) const
+{
+    // Don't even look for a logger if the LogLevel is lower than lowest log levels across all loggers
+    if (level < lowestLogLevel)
+        return nullptr;
+
+    Logger const* logger = GetLoggerByType(type);
+    if (!logger)
+        return nullptr;
+
+    LogLevel logLevel = logger->getLogLevel();
+    return logLevel != LOG_LEVEL_DISABLED && logLevel <= level ? logger : nullptr;
 }
 
 Log* Log::instance()

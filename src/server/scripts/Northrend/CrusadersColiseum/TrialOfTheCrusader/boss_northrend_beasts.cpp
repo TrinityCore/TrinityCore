@@ -215,7 +215,6 @@ struct boss_northrend_beastsAI : public BossAI
         events.SetPhase(PHASE_EVENT);
         summons.DespawnAll();
         me->SetReactState(REACT_PASSIVE);
-        me->SetCombatPulseDelay(0);
         HandleInitialMovement();
     }
 
@@ -248,7 +247,6 @@ struct boss_northrend_beastsAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         ScheduleTasks();
         HandleInstanceProgress();
@@ -356,10 +354,7 @@ struct boss_gormok : public boss_northrend_beastsAI
                 me->SetReactState(REACT_AGGRESSIVE);
                 // Npc that should keep raid in combat while boss change
                 if (Creature* combatStalker = me->SummonCreature(NPC_BEASTS_COMBAT_STALKER, CombatStalkerPosition))
-                {
                     DoZoneInCombat(combatStalker);
-                    combatStalker->SetCombatPulseDelay(5);
-                }
                 DoZoneInCombat();
                 events.SetPhase(PHASE_COMBAT);
                 DoCastSelf(SPELL_TANKING_GORMOK, true);
