@@ -338,6 +338,7 @@ class TC_GAME_API Spell
         SpellCastResult CheckPower() const;
         SpellCastResult CheckRuneCost(uint32 runeCostID) const;
         SpellCastResult CheckCasterAuras(uint32* param1) const;
+        SpellCastResult CheckMovement() const;
 
         bool CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const;
         bool CheckSpellCancelsCharm(uint32* param1) const;

@@ -5773,18 +5773,18 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
 
 void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defense)
 {
-    uint8 plevel = GetLevel();                              // if defense than victim == attacker
-    uint8 greylevel = Trinity::XP::GetGrayLevel(plevel);
-    uint8 moblevel = victim->GetLevelForTarget(this);
+    int32 plevel = GetLevel();                              // if defense than victim == attacker
+    int32 greylevel = Trinity::XP::GetGrayLevel(plevel);
+    int32 moblevel = victim->GetLevelForTarget(this);
 
     if (moblevel > plevel + 5)
         moblevel = plevel + 5;
 
-    uint8 lvldif = moblevel - greylevel;
+    int32 lvldif = moblevel - greylevel;
     if (lvldif < 3)
         lvldif = 3;
 
-    uint32 skilldif = 5 * plevel - (defense ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType));
+    int32 skilldif = 5 * plevel - int32(defense ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType));
     if (skilldif <= 0)
         return;
 
@@ -5802,8 +5802,6 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool def
         else
             UpdateWeaponSkill(victim, attType);
     }
-    else
-        return;
 }
 
 void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
