@@ -1,0 +1,79 @@
+name: Windows x64
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Set Environment Variables
+      run: |
+        echo "OPENSSL_ROOT_DIR=C:/libs/openssl" >> $env:GITHUB_ENV
+        echo "MYSQL_ROOT_DIR=C:/Program Files/MySQL/MySQL Server 8.0" >> $env:GITHUB_ENV
+
+    - name: Download and install Openssl 3.x
+      run: |
+        $Url = "https://slproweb.com/download/Win64OpenSSL-3_2_1.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "${{ env.TEMP }}\openssl.exe")
+        Start-Process -Wait -FilePath "${{ env.TEMP }}\openssl.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES",/DIR=${{ env.OPENSSL_ROOT_DIR }}
+
+        # Quick Openssl install test
+        & ${{ env.OPENSSL_ROOT_DIR }}/bin/openssl.exe version
+
+    - name: Download and install Boost
+      uses: MarkusJx/install-boost@v2.4.5
+      id: install-boost
+      with:
+        boost_version: 1.84.0
+        link: static
+        platform_version: 2022
+        toolset: msvc
+
+    - name: Initialize Visual Studio Environment
+      uses: egor-tensin/vs-shell@v2
+      with:
+        arch: x64
+
+    - name: Configure CMake
+      env:
+        CXXFLAGS: /WX
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+      run: >
+        cmake -GNinja -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
+        -DTOOLS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+    - name: Build
+      run: |
+        cmake --build ${{ steps.strings.outputs.build-output-dir }}
+
+    - name: Copy Dependencies
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin
+        copy "${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.dll" libmysql.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libssl-3-x64.dll" libssl-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libcrypto-3-x64.dll" libcrypto-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/legacy.dll" legacy.dll
+      
+    - name: Check binaries
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin
+        ./bnetserver --version
+        ./worldserver --version
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}/bin
+        name: TrinityCoreMasterWin64VS2022
+        # Set a custom retention for artifacts
+        #retention-days: 7
