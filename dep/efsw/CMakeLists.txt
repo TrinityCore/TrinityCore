@@ -1,4 +1,4 @@
-if (BUILD_SHARED_LIBS)
+if (BUILD_ESFW)
   set(SRCS
     src/efsw/Debug.cpp
     src/efsw/DirectorySnapshot.cpp
