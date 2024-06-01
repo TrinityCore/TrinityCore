@@ -46,11 +46,13 @@ jobs:
 
     - name: Configure CMake
       env:
+        CFLAGS: /WX
         CXXFLAGS: /WX
         BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+        CMAKE_BUILD_TYPE: RelWithDebInfo
       run: >
         cmake -GNinja -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
-        -DTOOLS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        -DTOOLS=ON
 
     - name: Build
       run: |
