@@ -532,6 +532,19 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class ReforgeItem final : public ClientPacket
+        {
+        public:
+            ReforgeItem(WorldPacket&& packet) : ClientPacket(CMSG_REFORGE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ReforgerGUID;
+            int32 ContainerId = 0;
+            int32 SlotNum = 0;
+            int32 ItemReforgeRecId = 0;
+        };
     }
 }
 

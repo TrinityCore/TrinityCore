@@ -2242,6 +2242,16 @@ struct ItemPriceBaseEntry
     float Weapon;
 };
 
+struct ItemReforgeEntry
+{
+    uint32 ID;
+    uint16 SourceStat;
+    float SourceMultiplier;
+    uint16 TargetStat;
+    float TargetMultiplier;
+    uint16 LegacyItemReforgeID;
+};
+
 struct ItemSearchNameEntry
 {
     Trinity::RaceMask<int64> AllowableRace;

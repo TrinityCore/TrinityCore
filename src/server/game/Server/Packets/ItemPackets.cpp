@@ -361,3 +361,11 @@ void WorldPackets::Item::RemoveNewItem::Read()
 {
     _worldPacket >> ItemGuid;
 }
+
+void WorldPackets::Item::ReforgeItem::Read()
+{
+    _worldPacket >> ReforgerGUID;
+    _worldPacket >> ContainerId;
+    _worldPacket >> SlotNum;
+    _worldPacket >> ItemReforgeRecId;
+}

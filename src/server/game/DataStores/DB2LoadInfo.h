@@ -2916,6 +2916,21 @@ struct ItemPriceBaseLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &ItemPriceBaseMeta::Instance, HOTFIX_SEL_ITEM_PRICE_BASE };
 };
 
+struct ItemReforgeLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_SHORT, "SourceStat" },
+        { false, FT_FLOAT, "SourceMultiplier" },
+        { false, FT_SHORT, "TargetStat" },
+        { false, FT_FLOAT, "TargetMultiplier" },
+        { false, FT_SHORT, "LegacyItemReforgeID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ItemReforgeMeta::Instance, HOTFIX_SEL_ITEM_REFORGE };
+};
+
 struct ItemSearchNameLoadInfo
 {
     static constexpr DB2FieldMeta Fields[17] =

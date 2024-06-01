@@ -100,6 +100,7 @@ enum class InstanceResetMethod : uint8;
 enum class InstanceResetResult : uint8;
 enum InventoryType : uint8;
 enum ItemClass : uint8;
+enum ItemModType;
 enum LootError : uint8;
 enum LootType : uint8;
 enum class MovementStopReason : uint8;
@@ -1500,8 +1501,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void RemoveEnchantmentDurationsReferences(Item* item);
         void RemoveArenaEnchantments(EnchantmentSlot slot);
         void AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 duration);
+        void ApplyItemModModifier(ItemModType modifier, int32 amount, bool apply);
         void ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur = true, bool ignore_condition = false);
         void ApplyEnchantment(Item* item, bool apply);
+        void ApplyReforgedStats(Item* item, bool apply);
         void UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value);
         void SendEnchantmentDurations();
         void AddItemDurations(Item* item);

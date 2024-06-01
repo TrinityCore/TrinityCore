@@ -442,6 +442,7 @@ namespace WorldPackets
         class SortBankBags;
         class SortReagentBankBags;
         struct ItemInstance;
+        class ReforgeItem;
         class RemoveNewItem;
     }
 
@@ -1660,6 +1661,7 @@ class TC_GAME_API WorldSession
         void HandleSortBankBags(WorldPackets::Item::SortBankBags& sortBankBags);
         void HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& sortReagentBankBags);
         void HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem);
+        void HandleReforgeItem(WorldPackets::Item::ReforgeItem& reforgeItem);
 
         void HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment);
 

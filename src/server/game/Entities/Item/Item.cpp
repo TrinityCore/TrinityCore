@@ -650,7 +650,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
             static ItemModifier const modifiersTable[] =
             {
                 ITEM_MODIFIER_TIMEWALKER_LEVEL,
-                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL
+                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL,
+                ITEM_MODIFIER_REFORGE,
             };
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_MODIFIERS);
@@ -663,6 +664,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt32(1, GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL));
                 stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL));
+                stmt->setUInt32(3, GetModifier(ITEM_MODIFIER_REFORGE));
                 trans->Append(stmt);
             }
 
@@ -737,8 +739,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     //        secondaryItemModifiedAppearanceSpec3, secondaryItemModifiedAppearanceSpec4, secondaryItemModifiedAppearanceSpec5,
     //                38           39           40                41          42           43           44                45          46           47           48                49
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       50                      51
-    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
+    //                       50                      51             52
+    //        fixedScalingLevel, artifactKnowledgeLevel, itemReforgeId FROM item_instance
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -861,6 +863,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, fields[50].GetUInt32());
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[51].GetUInt32());
+    SetModifier(ITEM_MODIFIER_REFORGE, fields[52].GetUInt32());
 
     // Enchants must be loaded after all other bonus/scaling data
     std::vector<std::string_view> enchantmentTokens = Trinity::Tokenize(fields[8].GetStringView(), ' ', false);
@@ -1559,6 +1562,7 @@ Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
     newItem->SetExpiration(m_itemData->Expiration);
     newItem->SetBonuses(m_itemData->ItemBonusKey->BonusListIDs);
     newItem->SetFixedLevel(GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL));
+    newItem->SetReforgeId(GetModifier(ITEM_MODIFIER_REFORGE));
     // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
     if (player)
         newItem->SetItemRandomBonusList(m_randomBonusListId);
@@ -2663,6 +2667,19 @@ void Item::SetFixedLevel(uint8 level)
 
         SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, level);
     }
+}
+
+void Item::SetReforgeId(uint32 itemReforceRecId)
+{
+    if (itemReforceRecId == GetModifier(ITEM_MODIFIER_REFORGE))
+        return;
+
+    Player* owner = GetOwner();
+    if (!owner)
+        return;
+
+    SetModifier(ITEM_MODIFIER_REFORGE, itemReforceRecId);
+    SetState(ITEM_CHANGED, owner);
 }
 
 int32 Item::GetRequiredLevel() const

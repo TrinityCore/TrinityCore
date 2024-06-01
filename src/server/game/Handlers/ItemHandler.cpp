@@ -1256,3 +1256,48 @@ void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& remove
         item->SetState(ITEM_CHANGED, _player);
     }
 }
+
+void WorldSession::HandleReforgeItem(WorldPackets::Item::ReforgeItem& reforgeItem)
+{
+    if (!_player->GetNPCIfCanInteractWith(reforgeItem.ReforgerGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG_2_REFORGER))
+    {
+        TC_LOG_DEBUG("network", "WorldSession::HandleReforgeItem - Reforger {} not found or player can't interact with it (missing UNIT_NPC_FLAG_2_REFORGER)!", reforgeItem.ReforgerGUID.ToString());
+        return;
+    }
+
+    Item* item = _player->GetItemByPos(reforgeItem.ContainerId, reforgeItem.SlotNum);
+    if (!item)
+    {
+        TC_LOG_DEBUG("network", "WorldSession::HandleReforgeItem: {} tried to reforge a non-existing item! Possible cheater or malformed packet.", GetPlayerInfo());
+        return;
+    }
+
+    // Items must at least be of item level 200 to be allowed to get reforged
+    if (item->GetItemLevel(_player) < 200)
+        return;
+
+    if (reforgeItem.ItemReforgeRecId != 0)
+    {
+        if (!sItemReforgeStore.HasRecord(reforgeItem.ItemReforgeRecId))
+        {
+            TC_LOG_DEBUG("network", "WorldSession::HandleReforgeItem: {} tried to reforge an item with a non-existing reforge entry! Possible cheater or malformed packet.", GetPlayerInfo());
+            return;
+        }
+
+        if (!_player->HasEnoughMoney(uint64(item->GetTemplate()->GetSellPrice())))
+        {
+            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, nullptr, 0, 0);
+            return;
+        }
+        else
+            _player->ModifyMoney(-int64(item->GetTemplate()->GetSellPrice()));
+    }
+
+    if (item->IsEquipped())
+        _player->ApplyReforgedStats(item, false);
+
+    item->SetReforgeId(reforgeItem.ItemReforgeRecId);
+
+    if (item->IsEquipped())
+        _player->ApplyReforgedStats(item, true);
+}
