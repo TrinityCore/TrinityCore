@@ -100,7 +100,7 @@ enum class InstanceResetMethod : uint8;
 enum class InstanceResetResult : uint8;
 enum InventoryType : uint8;
 enum ItemClass : uint8;
-enum ItemModType;
+enum ItemModType : uint8;
 enum LootError : uint8;
 enum LootType : uint8;
 enum class MovementStopReason : uint8;

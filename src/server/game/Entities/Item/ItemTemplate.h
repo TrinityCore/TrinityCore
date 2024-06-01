@@ -25,7 +25,7 @@
 #include <bitset>
 #include <vector>
 
-enum ItemModType
+enum ItemModType : uint8
 {
     ITEM_MOD_MANA                     = 0,
     ITEM_MOD_HEALTH                   = 1,
