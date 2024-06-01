@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptMgr.h"
+#include "TaskScheduler.h"
 #include "sepulcher_of_the_first_ones.h"
 
 ObjectData const creatureData[] =

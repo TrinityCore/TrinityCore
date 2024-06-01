@@ -261,8 +261,8 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 (@ATID+0, 1, 0, 0); -- Introduction
 
 DELETE FROM `areatrigger` WHERE `SpawnId` IN(@ATSPAWNID+0);
-INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `SpellForVisuals`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
-(@ATSPAWNID+0, @ATCP+0, 1, 2481, '14,15,16,17', -5641.49, -4117.54, 153.65, 2.62, 1, 0, 0, NULL, 'at_lords_of_dread_introduction', 'Sepulcher of the First Ones - Lords of Dread Introduction', 0);
+INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
+(@ATSPAWNID+0, @ATCP+0, 1, 2481, '14,15,16,17', -5641.49, -4117.54, 153.65, 2.62, 1, 0, 0, 'at_lords_of_dread_introduction', 'Sepulcher of the First Ones - Lords of Dread Introduction', 0);
 
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` IN (185154, 185155, 181398, 181399);
