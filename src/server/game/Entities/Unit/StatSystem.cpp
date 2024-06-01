@@ -811,7 +811,7 @@ void Player::UpdateManaRegen()
     // SPELL_AURA_MOD_POWER_REGEN flat bonus
     baseRegen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
 
-    // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5 
+    // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5
     float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
     if (GetStat(STAT_INTELLECT) > 0.0f)
         spiritRegen *= std::sqrt(GetStat(STAT_INTELLECT));
