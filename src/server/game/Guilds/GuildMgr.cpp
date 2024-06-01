@@ -415,9 +415,9 @@ void GuildMgr::LoadGuilds()
         //        secondaryItemModifiedAppearanceSpec3, secondaryItemModifiedAppearanceSpec4, secondaryItemModifiedAppearanceSpec5,
         //                38           39           40                41          42           43           44                45          46           47           48                49
         //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-        //                       50                      51
-        //        fixedScalingLevel, artifactKnowledgeLevel
-        //             52     53      54
+        //                       50                      51             52
+        //        fixedScalingLevel, artifactKnowledgeLevel, itemReforgeId
+        //             53     54      55
         //        guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
@@ -431,7 +431,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint64 guildId = fields[52].GetUInt64();
+                uint64 guildId = fields[53].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);
