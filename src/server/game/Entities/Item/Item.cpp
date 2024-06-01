@@ -1842,7 +1842,7 @@ bool Item::HasStats() const
 bool Item::HasStats(WorldPackets::Item::ItemInstance const& /*itemInstance*/, BonusData const* bonus)
 {
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->StatPercentEditor[i] != 0)
+        if (bonus->ItemStatAmount[i] != 0)
             return true;
 
     return false;
@@ -2196,29 +2196,11 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
-float Item::GetItemStatValue(uint32 index, Player const* owner) const
+float Item::GetItemStatValue(uint32 index, Player const* /*owner*/) const
 {
     ASSERT(index < MAX_ITEM_PROTO_STATS);
-    switch (GetItemStatType(index))
-    {
-        case ITEM_MOD_CORRUPTION:
-        case ITEM_MOD_CORRUPTION_RESISTANCE:
-            return _bonusData.StatPercentEditor[index];
-        default:
-            break;
-    }
 
-    uint32 itemLevel = GetItemLevel(owner);
-    if (float randomPropPoints = GetRandomPropertyPoints(itemLevel, GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
-    {
-        float statValue = float(_bonusData.StatPercentEditor[index] * randomPropPoints) * 0.0001f;
-        //if (GtItemSocketCostPerLevelEntry const* gtCost = sItemSocketCostPerLevelGameTable.GetRow(itemLevel))
-        //    statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->SocketCost));
-
-        return statValue;
-    }
-
-    return 0.0f;
+    return static_cast<float>(_bonusData.ItemStatAmount[index]);
 }
 
 ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
@@ -2713,7 +2695,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
         ItemStatType[i] = proto->GetStatModifierBonusStat(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        StatPercentEditor[i] = proto->GetStatPercentEditor(i);
+        ItemStatAmount[i] = proto->GetStatModifierBonusAmount(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatSocketCostMultiplier[i] = proto->GetStatPercentageOfSocket(i);
@@ -2796,7 +2778,7 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
             if (statIndex < MAX_ITEM_PROTO_STATS)
             {
                 ItemStatType[statIndex] = values[0];
-                StatPercentEditor[statIndex] += values[1];
+                ItemStatAmount[statIndex] += values[1];
             }
             break;
         }
