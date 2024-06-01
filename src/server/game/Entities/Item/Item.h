@@ -417,6 +417,9 @@ class TC_GAME_API Item : public Object
         void SetPetitionId(uint32 petitionId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::ID), petitionId); }
         void SetPetitionNumSignatures(uint32 signatures) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::Duration), signatures); }
 
+        int32 GetRandomPropertiesId() const { return  m_itemData->RandomPropertiesID; };
+        int32 GetPropertySeed() const { return  m_itemData->PropertySeed; };
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::ItemData, 0, TYPEID_ITEM> m_itemData;

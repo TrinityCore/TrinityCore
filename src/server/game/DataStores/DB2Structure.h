@@ -2348,7 +2348,7 @@ struct ItemSparseEntry
     std::array<uint16, 5> MaxDamage;
     std::array<int16, 7> Resistances;
     uint16 ScalingStatDistributionID;
-    std::array<int16, 10> StatModifierBonusAmount;
+    std::array<int16, MAX_ITEM_PROTO_STATS> StatModifierBonusAmount;
     uint8 ExpansionID;
     uint8 ArtifactID;
     uint8 SpellWeight;
