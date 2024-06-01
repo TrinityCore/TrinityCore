@@ -772,7 +772,7 @@ class spell_dk_death_pact : public SpellScript
                         undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
                         undeadPet->IsWithinDist(player, 100.0f, false))
 
-                    if (undeadPet->HasAura(33786) || undeadPet->HasAura(65859)) return SPELL_FAILED_IMMUNE;
+                    if (undeadPet->IsImmunedToSpell(GetSpellInfo(), GetCaster())) return SPELL_FAILED_IMMUNE;
 
                     return SPELL_CAST_OK;
                 }
