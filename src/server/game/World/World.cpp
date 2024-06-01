@@ -2095,7 +2095,9 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Quest Greetings...");
     sObjectMgr->LoadQuestGreetings();
-    sObjectMgr->LoadQuestGreetingLocales();
+
+    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+        sObjectMgr->LoadQuestGreetingLocales();
 
     TC_LOG_INFO("server.loading", "Loading Objects Pooling Data...");
     sPoolMgr->LoadFromDB();
@@ -2186,9 +2188,11 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Player Choices...");
     sObjectMgr->LoadPlayerChoices();
 
-    TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
-    sObjectMgr->LoadPlayerChoicesLocale();
-
+    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    {
+        TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
+        sObjectMgr->LoadPlayerChoicesLocale();
+    }
     TC_LOG_INFO("server.loading", "Loading Jump Charge Params...");
     sObjectMgr->LoadJumpChargeParams();
 
@@ -2233,8 +2237,12 @@ bool World::SetInitialWorldSettings()
     sAchievementMgr->LoadAchievementScripts();
     TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
-    TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
-    sAchievementMgr->LoadRewardLocales();
+
+    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    {
+        TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
+        sAchievementMgr->LoadRewardLocales();
+    }
     TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
     sAchievementMgr->LoadCompletedAchievements();
 
@@ -2373,8 +2381,11 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature Texts...");
     sCreatureTextMgr->LoadCreatureTexts();
 
-    TC_LOG_INFO("server.loading", "Loading Creature Text Locales...");
-    sCreatureTextMgr->LoadCreatureTextLocales();
+    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    {
+        TC_LOG_INFO("server.loading", "Loading Creature Text Locales...");
+        sCreatureTextMgr->LoadCreatureTextLocales();
+    }
 
     TC_LOG_INFO("server.loading", "Loading creature StaticFlags overrides...");
     sObjectMgr->LoadCreatureStaticFlagsOverride(); // must be after LoadCreatures
