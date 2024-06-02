@@ -24,12 +24,10 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
-#include "MoveSplineInit.h"
 #include "MoveSplineInitArgs.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellHistory.h"
-#include "Transport.h"
 #include "TransportMgr.h"
 #include "TemporarySummon.h"
 
@@ -69,12 +67,22 @@ namespace SeethingShore
     namespace Creatures
     {
         static constexpr uint32 Controller = 125269;
-        static constexpr uint32 AzeriteFissure = 125253;
         static constexpr uint32 AirSupplies = 133532;
         static constexpr uint32 AirSupplyGroundDummy = 133542;
 
         static constexpr uint32 NathanosBlightCaller = 131773;
         static constexpr uint32 MathiasShaw = 130532;
+    }
+
+    namespace CommanderTexts
+    {
+        static constexpr uint8 Intro1 = 0;
+        static constexpr uint8 Intro2 = 1;
+        static constexpr uint8 Intro3 = 2;
+        static constexpr uint8 Intro4 = 3;
+
+        static constexpr uint8 SuppliesSpawned = 4;
+        static constexpr uint8 CapturedAzerite = 5;
     }
 
     namespace GameObjects
@@ -131,6 +139,7 @@ namespace SeethingShore
         static constexpr uint32 CreateHasteRuneBuffAreaTrigger = 295663;
 
         static constexpr uint32 DustCloudImpactBigger = 54740;
+        static constexpr uint32 SpeedUp = 294701;
     }
 
     namespace SpellVisuals
@@ -264,6 +273,9 @@ struct battleground_seething_shore final : BattlegroundScript
         capturePoint->DespawnOrUnsummon(2s);
 
         _activeAzeriteNodes.erase(capturePoint->GetAreaId());
+
+        if (Creature const* commander = battlegroundMap->GetCreature(_commanderGUIDs[teamId]))
+            commander->AI()->DoAction(SeethingShore::Actions::CaptureAzeriteNode);
 
         if (team == HORDE && battleground->GetTeamScore(TEAM_HORDE) >= static_cast<uint32>(battlegroundMap->GetWorldStateValue(SeethingShore::WorldStates::MaxScore)))
             battleground->EndBattleground(HORDE);
@@ -618,6 +630,23 @@ class spell_bg_seething_shore_parachute : public SpellScript
     }
 };
 
+// 294701 - Speed Up
+class spell_bg_seething_shore_speed_up : public SpellScript
+{
+    void ResetCooldowns(SpellEffIndex /*effIndex*/) const
+    {
+        // Unsure about which spells should reset and which not
+        // It's not the same list as the ones that reset on encounter reset
+        if (Player* player = GetCaster()->ToPlayer())
+            player->GetSpellHistory()->ResetAllCooldowns();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_bg_seething_shore_speed_up::ResetCooldowns, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 struct go_bg_seething_shore_azerite : GameObjectAI
 {
     explicit go_bg_seething_shore_azerite(GameObject* go) : GameObjectAI(go) { }
@@ -789,14 +818,56 @@ struct at_bg_seething_shore_haste_rune_buff : AreaTriggerAI
         {
             if (ZoneScript* zonescript = at->GetZoneScript())
             {
-                // Unsure about which spells should reset and which not
-                // It's not the same list as the ones that reset on encounter reset
-                player->GetSpellHistory()->ResetAllCooldowns();
+                player->CastSpell(player, SeethingShore::Spells::SpeedUp, true);
                 zonescript->DoAction(SeethingShore::Actions::ConsumeBuff, at);
                 at->Remove();
             }
         }
     }
+};
+
+struct npc_bg_seething_shore_commander : ScriptedAI
+{
+    explicit npc_bg_seething_shore_commander(Creature* creature) : ScriptedAI(creature) { }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        switch (actionId)
+        {
+            case SeethingShore::Actions::CommanderText1:
+                Talk(SeethingShore::CommanderTexts::Intro1);
+                _scheduler.Schedule(30s, [this](TaskContext context)
+                {
+                    Talk(SeethingShore::CommanderTexts::Intro2);
+                    context.Schedule(15s, [this](TaskContext context2)
+                    {
+                        Talk(SeethingShore::CommanderTexts::Intro3);
+                        context2.Schedule(12s, [this](TaskContext)
+                        {
+                            Talk(SeethingShore::CommanderTexts::Intro4);
+                        });
+                    });
+                });
+                break;
+            case SeethingShore::Actions::CaptureAzeriteNode:
+                if (urand(0, 1))
+                    Talk(SeethingShore::CommanderTexts::CapturedAzerite);
+                break;
+            case SeethingShore::Actions::SpawnBuff:
+                Talk(SeethingShore::CommanderTexts::SuppliesSpawned);
+                break;
+            default:
+                break;
+        }
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 void AddSC_battleground_seething_shore()
@@ -815,6 +886,9 @@ void AddSC_battleground_seething_shore()
 
     RegisterAreaTriggerAI(at_bg_seething_shore_haste_rune_buff);
     RegisterCreatureAI(npc_bg_seething_shore_air_supplies_drop);
+    RegisterCreatureAI(npc_bg_seething_shore_commander);
+
+    RegisterSpellScript(spell_bg_seething_shore_speed_up);
 
     new transport_seething_shore();
 }
