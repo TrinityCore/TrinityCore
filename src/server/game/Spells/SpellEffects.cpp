@@ -2797,7 +2797,7 @@ void Spell::EffectAddHonor()
         return;
 
     //maybe we have correct honor_gain in damage already
-    unitTarget->ToPlayer()->ModifyHonorPoints(damage);
+    unitTarget->ToPlayer()->RewardHonor(nullptr, 1, damage);
     TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (non scale) for player {}", m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID().ToString());
 }
 
