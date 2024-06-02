@@ -2180,6 +2180,18 @@ struct GlyphBindableSpellLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &GlyphBindableSpellMeta::Instance, HOTFIX_SEL_GLYPH_BINDABLE_SPELL };
 };
 
+struct GlyphSlotLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Tooltip" },
+        { false, FT_INT, "Type" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &GlyphSlotMeta::Instance, HOTFIX_SEL_GLYPH_SLOT };
+};
+
 struct GlyphPropertiesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
@@ -5431,6 +5443,40 @@ struct TalentLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 28, &TalentMeta::Instance, HOTFIX_SEL_TALENT };
+};
+
+struct TalentTabLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[12] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING_NOT_LOCALIZED, "BackgroundFile" },
+        { false, FT_STRING, "Description" },
+        { true, FT_INT, "OrderIndex" },
+        { true, FT_INT, "RaceMask" },
+        { true, FT_INT, "ClassMask" },
+        { true, FT_INT, "CategoryEnumID" },
+        { true, FT_INT, "SpellIconID" },
+        { true, FT_INT, "RoleMask" },
+        { true, FT_INT, "MasterySpellID1" },
+        { true, FT_INT, "MasterySpellID2" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &TalentTabMeta::Instance, HOTFIX_SEL_TALENT_TAB };
+};
+
+struct TalentTreePrimarySpellsLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "TalentTabID" },
+        { true, FT_INT, "SpellID" },
+        { true, FT_INT, "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &TalentTreePrimarySpellsMeta::Instance, HOTFIX_SEL_TALENT_TREE_PRIMARY_SPELLS };
 };
 
 struct TaxiNodesLoadInfo

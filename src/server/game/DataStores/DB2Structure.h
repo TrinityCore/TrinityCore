@@ -1838,6 +1838,13 @@ struct GlyphBindableSpellEntry
     uint32 GlyphPropertiesID;
 };
 
+struct GlyphSlotEntry
+{
+    uint32 ID;
+    int32 Tooltip;
+    uint32 Type;
+};
+
 struct GlyphPropertiesEntry
 {
     uint32 ID;
@@ -3850,6 +3857,29 @@ struct TalentEntry
     std::array<int32, 9> SpellRank;
     std::array<int32, 3> PrereqTalent;
     std::array<int32, 3> PrereqRank;
+};
+
+struct TalentTabEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    char const* BackgroundFile;
+    LocalizedString Description;
+    int32 OrderIndex;
+    int32 RaceMask;
+    int32 ClassMask;
+    int32 CategoryEnumID;
+    int32 SpellIconID;
+    int32 RoleMask;
+    std::array<int32, 2> MasterySpellID;
+};
+
+struct TalentTreePrimarySpellsEntry
+{
+    uint32 ID;
+    int32 TalentTabID;
+    int32 SpellID;
+    int32 Flags;
 };
 
 struct TaxiNodesEntry
