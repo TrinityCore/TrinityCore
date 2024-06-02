@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.36-0ubuntu0.20.04.1
+-- Server version	8.0.36-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -127,7 +127,6 @@ CREATE TABLE `areatrigger` (
   `PhaseUseFlags` tinyint unsigned DEFAULT '0',
   `PhaseId` int unsigned DEFAULT '0',
   `PhaseGroup` int unsigned DEFAULT '0',
-  `SpellForVisuals` int DEFAULT NULL,
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -155,6 +154,7 @@ CREATE TABLE `areatrigger_create_properties` (
   `AnimId` int NOT NULL DEFAULT '-1',
   `AnimKitId` int NOT NULL DEFAULT '0',
   `DecalPropertiesId` int unsigned NOT NULL DEFAULT '0',
+  `SpellForVisuals` int DEFAULT NULL,
   `TimeToTarget` int unsigned NOT NULL DEFAULT '0',
   `TimeToTargetScale` int unsigned NOT NULL DEFAULT '0',
   `Shape` tinyint unsigned NOT NULL DEFAULT '0',
@@ -364,6 +364,21 @@ CREATE TABLE `battlefield_template` (
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`TypeId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `battleground_scripts`
+--
+
+DROP TABLE IF EXISTS `battleground_scripts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battleground_scripts` (
+  `MapId` int NOT NULL,
+  `BattlemasterListId` int NOT NULL DEFAULT '0',
+  `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`MapId`,`BattlemasterListId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -593,8 +608,7 @@ CREATE TABLE `creature` (
   `spawntimesecs` int unsigned NOT NULL DEFAULT '120',
   `wander_distance` float NOT NULL DEFAULT '0',
   `currentwaypoint` int unsigned NOT NULL DEFAULT '0',
-  `curhealth` int unsigned NOT NULL DEFAULT '1',
-  `curmana` int unsigned NOT NULL DEFAULT '0',
+  `curHealthPct` int unsigned NOT NULL DEFAULT '100',
   `MovementType` tinyint unsigned NOT NULL DEFAULT '0',
   `npcflag` bigint unsigned DEFAULT NULL,
   `unit_flags` int unsigned DEFAULT NULL,
@@ -646,12 +660,21 @@ DROP TABLE IF EXISTS `creature_classlevelstats`;
 CREATE TABLE `creature_classlevelstats` (
   `level` tinyint NOT NULL,
   `class` tinyint NOT NULL,
+  `basehp0` int unsigned NOT NULL DEFAULT '1',
+  `basehp1` int unsigned NOT NULL DEFAULT '1',
+  `basehp2` int unsigned NOT NULL DEFAULT '1',
+  `basehp3` int unsigned NOT NULL DEFAULT '1',
   `basemana` int unsigned NOT NULL DEFAULT '1',
+  `basearmor` int unsigned NOT NULL DEFAULT '1',
   `attackpower` smallint NOT NULL DEFAULT '0',
   `rangedattackpower` smallint NOT NULL DEFAULT '0',
-  `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`level`,`class`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `damage_base` float NOT NULL DEFAULT '0',
+  `damage_exp1` float NOT NULL DEFAULT '0',
+  `damage_exp2` float NOT NULL DEFAULT '0',
+  `damage_exp3` float NOT NULL DEFAULT '0',
+  `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`level`,`class`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -781,10 +804,7 @@ DROP TABLE IF EXISTS `creature_movement_override`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_movement_override` (
   `SpawnId` bigint unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint unsigned DEFAULT NULL,
-  `Swim` tinyint unsigned DEFAULT NULL,
-  `Flight` tinyint unsigned DEFAULT NULL,
-  `Rooted` tinyint unsigned DEFAULT NULL,
+  `HoverInitiallyEnabled` tinyint unsigned DEFAULT NULL,
   `Chase` tinyint unsigned DEFAULT NULL,
   `Random` tinyint unsigned DEFAULT NULL,
   `InteractionPauseTimer` int unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
@@ -877,6 +897,28 @@ CREATE TABLE `creature_queststarter` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `creature_static_flags_override`
+--
+
+DROP TABLE IF EXISTS `creature_static_flags_override`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `creature_static_flags_override` (
+  `SpawnId` bigint unsigned NOT NULL,
+  `DifficultyId` tinyint unsigned NOT NULL DEFAULT '0',
+  `StaticFlags1` int unsigned DEFAULT NULL,
+  `StaticFlags2` int unsigned DEFAULT NULL,
+  `StaticFlags3` int unsigned DEFAULT NULL,
+  `StaticFlags4` int unsigned DEFAULT NULL,
+  `StaticFlags5` int unsigned DEFAULT NULL,
+  `StaticFlags6` int unsigned DEFAULT NULL,
+  `StaticFlags7` int unsigned DEFAULT NULL,
+  `StaticFlags8` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`SpawnId`,`DifficultyId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `creature_summon_groups`
 --
 
@@ -951,10 +993,12 @@ CREATE TABLE `creature_template` (
   `family` int NOT NULL DEFAULT '0',
   `trainer_class` tinyint unsigned NOT NULL DEFAULT '0',
   `type` tinyint unsigned NOT NULL DEFAULT '0',
+  `PetSpellDataId` int unsigned NOT NULL DEFAULT '0',
   `VehicleId` int unsigned NOT NULL DEFAULT '0',
   `AIName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `MovementType` tinyint unsigned NOT NULL DEFAULT '0',
   `ExperienceModifier` float NOT NULL DEFAULT '1',
+  `Civilian` tinyint unsigned NOT NULL DEFAULT '0',
   `RacialLeader` tinyint unsigned NOT NULL DEFAULT '0',
   `movementId` int unsigned NOT NULL DEFAULT '0',
   `WidgetSetID` int NOT NULL DEFAULT '0',
@@ -1006,9 +1050,8 @@ DROP TABLE IF EXISTS `creature_template_difficulty`;
 CREATE TABLE `creature_template_difficulty` (
   `Entry` int unsigned NOT NULL,
   `DifficultyID` tinyint unsigned NOT NULL DEFAULT '0',
-  `LevelScalingDeltaMin` smallint NOT NULL DEFAULT '0',
-  `LevelScalingDeltaMax` smallint NOT NULL DEFAULT '0',
-  `ContentTuningID` int NOT NULL DEFAULT '0',
+  `MinLevel` tinyint NOT NULL DEFAULT '1',
+  `MaxLevel` tinyint NOT NULL DEFAULT '1',
   `HealthScalingExpansion` int NOT NULL DEFAULT '0',
   `HealthModifier` float NOT NULL DEFAULT '1',
   `ManaModifier` float NOT NULL DEFAULT '1',
@@ -1096,10 +1139,7 @@ DROP TABLE IF EXISTS `creature_template_movement`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_template_movement` (
   `CreatureId` int unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint unsigned DEFAULT NULL,
-  `Swim` tinyint unsigned DEFAULT NULL,
-  `Flight` tinyint unsigned DEFAULT NULL,
-  `Rooted` tinyint unsigned DEFAULT NULL,
+  `HoverInitiallyEnabled` tinyint unsigned DEFAULT NULL,
   `Chase` tinyint unsigned DEFAULT NULL,
   `Random` tinyint unsigned DEFAULT NULL,
   `InteractionPauseTimer` int unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
@@ -1166,7 +1206,7 @@ CREATE TABLE `creature_text` (
   `ID` tinyint unsigned NOT NULL DEFAULT '0',
   `Text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
-  `Language` tinyint NOT NULL DEFAULT '0',
+  `Language` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability` float NOT NULL DEFAULT '0',
   `Emote` int unsigned NOT NULL DEFAULT '0',
   `Duration` int unsigned NOT NULL DEFAULT '0',
@@ -1227,6 +1267,21 @@ CREATE TABLE `criteria_data` (
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`criteria_id`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Achievment system';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `destructible_hitpoint`
+--
+
+DROP TABLE IF EXISTS `destructible_hitpoint`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `destructible_hitpoint` (
+  `Id` int unsigned NOT NULL,
+  `IntactNumHits` int unsigned NOT NULL,
+  `DamagedNumHits` int unsigned NOT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='This table contains data about destructible building health';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1583,7 +1638,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2151 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
+) ENGINE=InnoDB AUTO_INCREMENT=2167 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2485,6 +2540,7 @@ CREATE TABLE `player_classlevelstats` (
   `agi` smallint unsigned NOT NULL COMMENT 'agility',
   `sta` smallint unsigned NOT NULL COMMENT 'stamina',
   `inte` smallint unsigned NOT NULL COMMENT 'intellect',
+  `spi` smallint NOT NULL COMMENT 'spirit',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`class`,`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Stores levels stats.';
@@ -2575,6 +2631,7 @@ CREATE TABLE `player_racestats` (
   `agi` smallint NOT NULL COMMENT 'agility',
   `sta` smallint NOT NULL COMMENT 'stamina',
   `inte` smallint NOT NULL COMMENT 'intellect',
+  `spi` smallint NOT NULL COMMENT 'spirit',
   PRIMARY KEY (`race`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Stores race stats.';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4073,11 +4130,13 @@ CREATE TABLE `smart_scripts` (
   `action_param5` int unsigned NOT NULL DEFAULT '0',
   `action_param6` int unsigned NOT NULL DEFAULT '0',
   `action_param7` int unsigned NOT NULL DEFAULT '0',
+  `action_param_string` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `target_type` tinyint unsigned NOT NULL DEFAULT '0',
   `target_param1` int unsigned NOT NULL DEFAULT '0',
   `target_param2` int unsigned NOT NULL DEFAULT '0',
   `target_param3` int unsigned NOT NULL DEFAULT '0',
   `target_param4` int unsigned NOT NULL DEFAULT '0',
+  `target_param_string` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `target_x` float NOT NULL DEFAULT '0',
   `target_y` float NOT NULL DEFAULT '0',
   `target_z` float NOT NULL DEFAULT '0',
@@ -4758,6 +4817,7 @@ CREATE TABLE `waypoint_path` (
   `PathId` int unsigned NOT NULL,
   `MoveType` tinyint unsigned NOT NULL DEFAULT '0',
   `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Velocity` float DEFAULT NULL,
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`PathId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -4886,4 +4946,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-08  0:56:29
+-- Dump completed on 2024-06-02 23:04:48

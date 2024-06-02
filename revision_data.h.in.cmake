@@ -9,8 +9,8 @@
  #define _SOURCE_DIRECTORY          R"(@CMAKE_SOURCE_DIR@)"
  #define _BUILD_DIRECTORY           R"(@BUILDDIR@)"
  #define _MYSQL_EXECUTABLE          R"(@MYSQL_EXECUTABLE@)"
- #define _FULL_DATABASE             "TDB_full_world_1025.24021_2024_02_08.sql"
- #define _HOTFIXES_DATABASE         "TDB_full_hotfixes_1025.24021_2024_02_08.sql"
+ #define _FULL_DATABASE             "TDB_full_world_440.24061_2024_06_02.sql"
+ #define _HOTFIXES_DATABASE         "TDB_full_hotfixes_440.24061_2024_06_02.sql"
  #define VER_COMPANYNAME_STR        "TrinityCore Developers"
  #define VER_LEGALCOPYRIGHT_STR     "(c)2008-@rev_year@ TrinityCore"
  #define VER_FILEVERSION            0,0,0
