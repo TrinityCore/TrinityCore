@@ -6905,7 +6905,8 @@ void Player::ModifyHonorPoints(int32 value, CharacterDatabaseTransaction trans)
     int32 newValue = int32(GetHonorPoints()) + value;
     if (newValue < 0)
         newValue = 0;
-    AddItem(40752, value);
+    if(value > 0)
+        AddItem(40752, value);
     SetHonorPoints(uint32(newValue));
 
     if (trans)

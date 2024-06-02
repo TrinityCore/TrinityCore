@@ -605,7 +605,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             //test
             LoginDatabase.CommitTransaction(trans);
 
-            std::string str = "call createCopyOfChar (" + std::to_string(createInfo->Class) + ", " + std::to_string(createInfo->Race)  + ", " + std::to_string(newChar->GetGUID()) + ", true, true, false)";
+            std::string str = "call createCopyOfChar (" + std::to_string(createInfo->Class) + ", " + std::to_string(createInfo->Race)  + ", " + std::to_string(newChar->GetGUID()) + ", true, true)";
             CharacterDatabase.Execute(str.c_str());
 
             AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(characterTransaction)).AfterComplete([this, newChar = std::move(newChar)](bool success)
