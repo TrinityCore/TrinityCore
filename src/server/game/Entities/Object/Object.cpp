@@ -2871,10 +2871,10 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
         if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_INVISIBLE))
         {
             //pets keep chasing rogues that have since stealthed in classic
-            /*
+            
             if (!unit->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
                 return false;
-            */
+            
         }
     }
 
