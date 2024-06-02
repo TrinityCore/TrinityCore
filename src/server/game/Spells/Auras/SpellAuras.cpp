@@ -321,7 +321,12 @@ void AuraApplication::ClientUpdate(bool remove)
             lossData.Remaining = GetBase()->GetDuration();
             lossData.AuraSlot = GetSlot();
             lossData.EffectIndex = aurEff->GetEffIndex();
-            lossData.EffectMechanic = uint8(aurEff->GetSpellEffectInfo().Mechanic);
+
+            if (aurEff->GetSpellEffectInfo().Mechanic != Mechanics::MECHANIC_NONE)
+                lossData.EffectMechanic = uint8(aurEff->GetSpellEffectInfo().Mechanic);
+            else
+                lossData.EffectMechanic = GetBase()->GetSpellInfo()->Mechanic;
+
             lossData.LossType = uint8(aurEff->GetLossOfControlType());
             lossControlAuras.emplace_back(lossData);
         }
