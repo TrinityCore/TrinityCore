@@ -1725,7 +1725,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ENABLE_AE_LOOT] = sConfigMgr->GetBoolDefault("Loot.EnableAELoot", true);
 
     // Loading of Locales
-    m_bool_configs[CONFIG_LOADING_LOCALES] = sConfigMgr->GetBoolDefault("Load.Locales", true);
+    m_bool_configs[CONFIG_LOAD_LOCALES] = sConfigMgr->GetBoolDefault("Load.Locales", true);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -1908,7 +1908,7 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
-    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    if (m_bool_configs[CONFIG_LOAD_LOCALES])
     {
         sObjectMgr->LoadCreatureLocales();
         sObjectMgr->LoadGameObjectLocales();
@@ -2096,7 +2096,7 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Quest Greetings...");
     sObjectMgr->LoadQuestGreetings();
 
-    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    if (m_bool_configs[CONFIG_LOAD_LOCALES])
         sObjectMgr->LoadQuestGreetingLocales();
 
     TC_LOG_INFO("server.loading", "Loading Objects Pooling Data...");
@@ -2188,7 +2188,7 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Player Choices...");
     sObjectMgr->LoadPlayerChoices();
 
-    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    if (m_bool_configs[CONFIG_LOAD_LOCALES])
     {
         TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
         sObjectMgr->LoadPlayerChoicesLocale();
@@ -2238,7 +2238,7 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
 
-    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    if (m_bool_configs[CONFIG_LOAD_LOCALES])
     {
         TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
         sAchievementMgr->LoadRewardLocales();
@@ -2381,7 +2381,7 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature Texts...");
     sCreatureTextMgr->LoadCreatureTexts();
 
-    if (m_bool_configs[CONFIG_LOADING_LOCALES])
+    if (m_bool_configs[CONFIG_LOAD_LOCALES])
     {
         TC_LOG_INFO("server.loading", "Loading Creature Text Locales...");
         sCreatureTextMgr->LoadCreatureTextLocales();
