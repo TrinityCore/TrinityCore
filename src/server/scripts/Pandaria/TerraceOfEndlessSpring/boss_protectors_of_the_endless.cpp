@@ -179,15 +179,9 @@ struct ProtectorsSharedAI : public BossAI
     {
         if (instance->GetData(DATA_PROTECTORS_INTRO_STATE) == DONE)
         {
-            for (uint32 bossesData : ProtectorsData)
-            {
-                if (Creature* protectors = instance->GetCreature(bossesData))
-                {
-                    protectors->SetUninteractible(false);
-                    protectors->SetImmuneToPC(false);
-                    protectors->SetAIAnimKitId(ANIMKIT_NONE);
-                }
-            }
+            me->SetUninteractible(false);
+            me->SetImmuneToPC(false);
+            me->SetAIAnimKitId(ANIMKIT_NONE);
         }
     }
 
@@ -198,13 +192,6 @@ struct ProtectorsSharedAI : public BossAI
         events.Reset();
         summons.DespawnAll();
         _DespawnAtEvade();
-
-        Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        for (auto i = players.begin(); i != players.end(); ++i)
-        {
-            Player* player = i->GetSource();
-            player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_SHA);
-        }
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -242,7 +229,7 @@ struct ProtectorsSharedAI : public BossAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (victim->GetTypeId() != TYPEID_PLAYER)
+        if (!victim->IsPlayer())
             return;
 
         Talk(SAY_SLAY);
@@ -261,6 +248,18 @@ struct boss_protector_kaolan : public ProtectorsSharedAI
     void ScheduleEvents() override
     {
         events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 35200ms);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ProtectorsSharedAI::EnterEvadeMode(why);
+
+        Map::PlayerList const& players = me->GetMap()->GetPlayers();
+        for (auto i = players.begin(); i != players.end(); ++i)
+        {
+            if (Player* player = i->GetSource())
+                player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_SHA);
+        }
     }
 
     void JustDied(Unit* killer) override
