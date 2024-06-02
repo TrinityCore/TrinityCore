@@ -1848,6 +1848,11 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void RemoveTalent(TalentEntry const* talent);
         void ResetTalentSpecialization();
 
+        void InitGlyphsForLevel();
+        void SetGlyph(uint8 index, uint32 glyphRecId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Glyphs, index), glyphRecId); }
+        void SetGlyphSlot(uint8 index, uint32 glyphSlotRecId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphSlots, index), glyphSlotRecId); }
+        void SetGlyphsEnabled(uint32 slotMask) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), slotMask); }
+
         TalentLearnResult LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown);
         bool AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, uint8 slot);
         void RemovePvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup);

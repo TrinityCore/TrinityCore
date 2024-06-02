@@ -493,6 +493,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     // base stats and related field values
     InitStatsForLevel();
     InitTaxiNodesForLevel();
+    InitGlyphsForLevel();
     InitTalentForLevel();
     InitializeSkillFields();
     InitPrimaryProfessions();                               // to max set before any spell added
@@ -2281,6 +2282,7 @@ void Player::GiveLevel(uint8 level)
     SetCreateHealth(0);
     SetCreateMana(basemana);
 
+    InitGlyphsForLevel();
     InitTalentForLevel();
     InitTaxiNodesForLevel();
 
@@ -17718,6 +17720,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     _LoadRandomBGStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_RANDOM_BG));
 
     // after spell and quest load
+    InitGlyphsForLevel();
     InitTalentForLevel();
     LearnDefaultSkills();
     LearnCustomSpells();
@@ -26261,6 +26264,33 @@ void Player::ResetTalentSpecialization()
     */
 }
 
+void Player::InitGlyphsForLevel()
+{
+    uint8 slotIndex = 0;
+    for (GlyphSlotEntry const* glyphSlot : sGlyphSlotStore)
+    {
+        if (slotIndex >= m_activePlayerData->Glyphs.size())
+            break;
+
+        SetGlyphSlot(slotIndex, glyphSlot->ID);
+        SetGlyph(slotIndex, 0);
+
+        ++slotIndex;
+    }
+
+    uint8 level = GetLevel();
+    uint32 slotMask = 0;
+
+    if (level >= 25)
+        slotMask |= 0x01 | 0x02 | 0x40;
+    if (level >= 50)
+        slotMask |= 0x04 | 0x08 | 0x80;
+    if (level >= 75)
+        slotMask |= 0x10 | 0x20 | 0x100;
+
+    SetGlyphsEnabled(slotMask);
+}
+
 TalentLearnResult Player::LearnPvpTalent(uint32 /*talentID*/, uint8 /*slot*/, int32* /*spellOnCooldown*/)
 {
     return TALENT_FAILED_UNKNOWN;
@@ -26594,6 +26624,9 @@ void Player::SendTalentsInfoData()
     WorldPackets::Talent::UpdateTalentData packet;
     packet.Info.IsPetTalents = false;
     packet.Info.UnspentTalentPoints = DB2Manager::GetNumTalentsAtLevel(GetLevel(), static_cast<Classes>(GetClass()));
+    WorldPackets::Talent::TalentGroupInfo& talentGroup = packet.Info.TalentGroups.emplace_back();
+    for (uint8 i = 0; i < m_activePlayerData->Glyphs.size(); ++i)
+        talentGroup.Glyphs.push_back(m_activePlayerData->Glyphs[i]);
 
     SendDirectMessage(packet.Write());
 }
