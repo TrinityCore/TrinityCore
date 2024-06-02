@@ -1470,6 +1470,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CENTURION_BG_REWARD_HONOR_FLAG_CAP] = sConfigMgr->GetIntDefault("Centurion.Battleground.RewardHonorFlagCap", 10);
     m_float_configs[CONFIG_CENTURION_BG_ARENA_REWARD_MULTIPLIER] = sConfigMgr->GetFloatDefault("Centurion.Battleground.ArenaRewardMultiplier", .2f);
 
+    m_int_configs[CONFIG_CENTURION_LEAP_XY_SPEED] = sConfigMgr->GetIntDefault("Centurion.LeapXYSpeed", 100);
+    m_int_configs[CONFIG_CENTURION_LEAP_Z_SPEED] = sConfigMgr->GetIntDefault("Centurion.LeapZSpeed", 20);
+
     m_int_configs[CONFIG_CENTURION_HEARTBEATRESIST_NUMROLLS] = sConfigMgr->GetIntDefault("Centurion.HeartbeatResist.NumberRolls", 4);
     m_int_configs[CONFIG_CENTURION_HEARTBEATRESIST_REGRESSION] = sConfigMgr->GetIntDefault("Centurion.HeartbeatResist.Regression", 30);
     m_float_configs[CONFIG_CENTURION_HEARTBEATRESIST_REGRESSION_LERP] = sConfigMgr->GetFloatDefault("Centurion.HeartbeatResist.RegressionLerp", .2f);
