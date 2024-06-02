@@ -20,6 +20,7 @@
 #include "BattlegroundPackets.h"
 #include "BattlegroundScript.h"
 #include "Containers.h"
+#include "CreatureAI.h"
 #include "G3DPosition.hpp"
 #include "GameObject.h"
 #include "GameObjectAI.h"
