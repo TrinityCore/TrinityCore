@@ -88,6 +88,26 @@ enum MiscSpells
     SPELL_CATEGORY_SHIELD_SLAM                      = 1209
 };
 
+// 81271 - Leap
+class spell_warr_leap : public SpellScript
+{
+    PrepareSpellScript(spell_warr_leap);
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->GetTypeId() == TYPEID_PLAYER && !caster->IsInCombat())
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_warr_leap::CheckCast);
+    }
+};
+
 // 23881 - Bloodthirst
 class spell_warr_bloodthirst : public SpellScript
 {
@@ -943,4 +963,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vigilance);
     RegisterSpellScript(spell_warr_vigilance_redirect_threat);
     RegisterSpellScript(spell_warr_vigilance_trigger);
+    RegisterSpellScript(spell_warr_leap);
 }
