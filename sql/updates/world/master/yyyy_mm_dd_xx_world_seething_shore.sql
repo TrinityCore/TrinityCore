@@ -411,8 +411,13 @@ INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 
 DELETE FROM `gossip_menu_option` WHERE (`MenuID` IN (22094, 22093) AND `OptionID`=0);
 INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `Language`, `Flags`, `ActionMenuID`, `ActionPoiID`, `GossipNpcOptionID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `SpellID`, `OverrideIconID`, `VerifiedBuild`) VALUES
-(22093, 48128, 0, 0, 'Could you conjure me some food?', 0, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 54673),
-(22094, 48129, 0, 0, 'Could you conjure me some food?', 0, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 54904);
+(22093, 48128, 0, 0, 'Could you conjure me some food?', 90533, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 54673),
+(22094, 48129, 0, 0, 'Could you conjure me some food?', 90533, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 54904);
+
+DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=131776 AND `MenuID`=22094) OR (`CreatureID`=130682 AND `MenuID`=22093);
+INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`) VALUES
+(131776, 22094, 54904), -- Jeron Emberfall
+(130682, 22093, 54673);
 
 -- Waypoints
 -- lying Machine - 1
