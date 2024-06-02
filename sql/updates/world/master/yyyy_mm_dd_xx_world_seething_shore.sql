@@ -119,7 +119,7 @@ UPDATE `creature_template` SET `unit_flags`=512, `ScriptName`='npc_bg_seething_s
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=133047; -- Peon
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=133042; -- Sky Marshall Gabriel
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=130535; -- Sergeant Schmidt
-UPDATE `creature_template` SET `unit_flags`=33554432, `unit_flags3`=25165825 WHERE `entry`=125269; -- Controller
+UPDATE `creature_template` SET `unit_flags`=33554432, `unit_flags3`=25165825, `flags_extra` = `flags_extra`|0x80 WHERE `entry`=125269; -- Controller
 UPDATE `creature_template` SET `unit_flags`=512, `unit_flags3`=8388608 WHERE `entry`=93493; -- Goblin Sky Bomber
 UPDATE `creature_template` SET `unit_flags`=0, `unit_flags3`=16777216, `ScriptName`='npc_bg_seething_shore_air_supply_ground_dummy' WHERE `entry`=133542; -- Air Supply Ground Dummy
 UPDATE `creature_template` SET `unit_flags`=33554944, `unit_flags3`=16777217 WHERE `entry`=133220; -- Goblin Hot Air Balloon
