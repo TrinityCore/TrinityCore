@@ -1108,7 +1108,7 @@ WorldPacket const* LossOfControlAuraUpdate::Write()
         _worldPacket << data.Remaining;
         _worldPacket << data.AuraSlot;
         _worldPacket << data.EffectIndex;
-        _worldPacket << data.LossType;
+        _worldPacket << uint8(data.LossType);
         _worldPacket << data.EffectMechanic;
     }
 

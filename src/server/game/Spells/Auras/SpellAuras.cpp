@@ -318,7 +318,7 @@ void AuraApplication::ClientUpdate(bool remove)
             else
                 lossData.EffectMechanic = GetBase()->GetSpellInfo()->Mechanic;
 
-            lossData.LossType = uint8(aurEff->GetLossOfControlType());
+            lossData.LossType = aurEff->GetLossOfControlType();
             lossControlAuras.emplace_back(lossData);
         }
 

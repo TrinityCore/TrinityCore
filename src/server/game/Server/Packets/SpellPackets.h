@@ -1149,7 +1149,7 @@ namespace WorldPackets
             uint32 Remaining = 0;
             uint8 AuraSlot = 0;
             uint8 EffectIndex = 0;
-            uint8 LossType = 0;
+            LossOfControlType LossType = LossOfControlType(0);
             uint8 EffectMechanic = 0;
         };
 
