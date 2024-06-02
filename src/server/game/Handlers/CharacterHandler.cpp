@@ -590,7 +590,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             CharacterDatabaseTransaction characterTransaction = CharacterDatabase.BeginTransaction();
             LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
-            //another test
                                                                   // Player created, save it now
 
             newChar->SaveToDB(characterTransaction, true);
