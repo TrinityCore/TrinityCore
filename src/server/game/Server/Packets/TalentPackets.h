@@ -27,23 +27,26 @@ namespace WorldPackets
 {
     namespace Talent
     {
-        struct PvPTalent
+        struct TalentInfo
         {
-            uint16 PvPTalentID = 0;
-            uint8 Slot = 0;
+            uint32 TalentID = 0;
+            uint32 Rank = 0;
         };
 
         struct TalentGroupInfo
         {
-            uint32 SpecID = 0;
-            std::vector<uint16> TalentIDs;
-            std::vector<PvPTalent> PvPTalents;
+            uint8 SpecID = 0;
+            uint32 PrimarySpecialization = 0;
+            std::vector<TalentInfo> Talents;
+            std::vector<uint16> Glyphs;
         };
 
         struct TalentInfoUpdate
         {
+            uint32 UnspentTalentPoints;
             uint8 ActiveGroup = 0;
-            uint32 PrimarySpecialization = 0;
+            bool IsPetTalents = false;
+
             std::vector<TalentGroupInfo> TalentGroups;
         };
 
@@ -127,7 +130,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            Array<PvPTalent, 4> Talents;
+            //Array<PvPTalent, 4> Talents;
         };
 
         class LearnPvpTalentFailed final : public ServerPacket
@@ -139,7 +142,7 @@ namespace WorldPackets
 
             uint32 Reason = 0;
             int32 SpellID = 0;
-            std::vector<PvPTalent> Talents;
+            //std::vector<PvPTalent> Talents;
         };
     }
 }

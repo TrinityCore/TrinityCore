@@ -2357,9 +2357,10 @@ void Player::InitTalentForLevel()
                 if (PvpTalentEntry const* pvpTalent = sPvpTalentStore.LookupEntry(GetPvpTalentMap(spec)[slot]))
                     RemovePvpTalent(pvpTalent, spec);
 
+    */
+
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(); // update at client
-    */
 }
 
 void Player::InitStatsForLevel(bool reapplyMods)
@@ -26234,6 +26235,8 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
 
 void Player::ResetTalentSpecialization()
 {
+    SendTalentsInfoData();
+
     /*
     // Reset only talents that have different spells for each spec
     uint32 class_ = GetClass();
@@ -26589,80 +26592,10 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
 void Player::SendTalentsInfoData()
 {
     WorldPackets::Talent::UpdateTalentData packet;
-    packet.Info.PrimarySpecialization = AsUnderlyingType(GetPrimarySpecialization());
+    packet.Info.IsPetTalents = false;
+    packet.Info.UnspentTalentPoints = DB2Manager::GetNumTalentsAtLevel(GetLevel(), static_cast<Classes>(GetClass()));
 
-    for (uint8 i = 0; i < MAX_SPECIALIZATIONS; ++i)
-    {
-        ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i);
-        if (!spec)
-            continue;
-
-        PlayerTalentMap* talents = GetTalentMap(i);
-        PlayerPvpTalentMap const& pvpTalents = GetPvpTalentMap(i);
-
-        WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
-        groupInfoPkt.SpecID = spec->ID;
-        groupInfoPkt.TalentIDs.reserve(talents->size());
-
-        for (PlayerTalentMap::const_iterator itr = talents->begin(); itr != talents->end(); ++itr)
-        {
-            if (itr->second == PLAYERSPELL_REMOVED)
-                continue;
-
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(itr->first);
-            if (!talentInfo)
-            {
-                TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '{}' ({}) has unknown talent id: {}",
-                    GetName(), GetGUID().ToString(), itr->first);
-                continue;
-            }
-
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
-            if (!spellEntry)
-            {
-                TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '{}' ({}) has unknown talent spell: {}",
-                    GetName(), GetGUID().ToString(), talentInfo->SpellID);
-                continue;
-            }
-
-            groupInfoPkt.TalentIDs.push_back(uint16(itr->first));
-        }
-
-        for (std::size_t slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
-        {
-            if (!pvpTalents[slot])
-                continue;
-
-            PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(pvpTalents[slot]);
-            if (!talentInfo)
-            {
-                TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '{}' ({}) has unknown pvp talent id: {}",
-                    GetName(), GetGUID().ToString(), pvpTalents[slot]);
-                continue;
-            }
-
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
-            if (!spellEntry)
-            {
-                TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '{}' ({}) has unknown pvp talent spell: {}",
-                    GetName(), GetGUID().ToString(), talentInfo->SpellID);
-                continue;
-            }
-
-            groupInfoPkt.PvPTalents.emplace_back();
-            WorldPackets::Talent::PvPTalent& pvpTalent = groupInfoPkt.PvPTalents.back();
-            pvpTalent.PvPTalentID = pvpTalents[slot];
-            pvpTalent.Slot = slot;
-        }
-
-        if (i == GetActiveTalentGroup())
-            packet.Info.ActiveGroup = packet.Info.TalentGroups.size();
-
-        if (!groupInfoPkt.TalentIDs.empty() || !groupInfoPkt.PvPTalents.empty() || i == GetActiveTalentGroup())
-            packet.Info.TalentGroups.push_back(groupInfoPkt);
-    }
-
-    // SendDirectMessage(packet.Write());
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendEquipmentSetList()
