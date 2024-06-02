@@ -25,6 +25,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "MoveSplineInitArgs.h"
 #include "Player.h"
 #include "ScriptMgr.h"
