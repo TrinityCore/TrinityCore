@@ -31,7 +31,7 @@ if(SERVERS)
   add_subdirectory(gsoap)
 endif()
 
-if(SERVERS AND BUILD_ESFW)
+if(SERVERS AND BUILD_EFSW)
   add_subdirectory(efsw)
 endif()
 
