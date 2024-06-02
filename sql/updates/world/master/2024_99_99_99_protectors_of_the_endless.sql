@@ -186,6 +186,10 @@ DELETE FROM `spell_script_names` WHERE `spell_id` = 118077;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (118077, 'spell_protectors_of_the_endless_lightning_storm_cast');
 
+DELETE FROM `spell_script_names` WHERE `spell_id` = 117510;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(117510, 'spell_protectors_of_the_endless_touch_of_sha_selector');
+
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID` IN  (60583, 60585, 60586);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES

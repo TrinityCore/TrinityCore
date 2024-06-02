@@ -31,6 +31,7 @@
 enum ProtectorsSpells
 {
     // Protector Kaolan
+    SPELL_TOUCH_OF_SHA_SELECTOR           = 117510,
     SPELL_TOUCH_OF_SHA                    = 117519,
     SPELL_DEFILED_GROUND                  = 117986,
     SPELL_EXPEL_CORRUPTION                = 117975,
@@ -250,10 +251,8 @@ struct boss_protector_kaolan : public ProtectorsSharedAI
         events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 35200ms);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void CleanupPlayerAuras()
     {
-        ProtectorsSharedAI::EnterEvadeMode(why);
-
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
         for (auto i = players.begin(); i != players.end(); ++i)
         {
@@ -262,16 +261,18 @@ struct boss_protector_kaolan : public ProtectorsSharedAI
         }
     }
 
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ProtectorsSharedAI::EnterEvadeMode(why);
+
+        CleanupPlayerAuras();
+    }
+
     void JustDied(Unit* killer) override
     {
         ProtectorsSharedAI::JustDied(killer);
 
-        Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        for (auto i = players.begin(); i != players.end(); ++i)
-        {
-            Player* player = i->GetSource();
-            player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_SHA);
-        }
+        CleanupPlayerAuras();
     }
 
     void DoAction(int32 actionId) override
@@ -330,8 +331,7 @@ struct boss_protector_kaolan : public ProtectorsSharedAI
         {
             case EVENT_TOUCH_OF_SHA:
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    DoCast(target, SPELL_TOUCH_OF_SHA);
+                DoCast(SPELL_TOUCH_OF_SHA_SELECTOR);
                 events.Repeat(35200ms);
                 break;
             }
@@ -603,6 +603,28 @@ class spell_protectors_of_the_endless_warning_cleansing_waters : public SpellScr
     }
 };
 
+// 117510 - Touch of Sha
+class spell_protectors_of_the_endless_touch_of_sha_selector : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_TOUCH_OF_SHA));
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_TOUCH_OF_SHA, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_protectors_of_the_endless_touch_of_sha_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_protectors_of_the_endless_touch_of_sha_selector::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 111850 - Lightning Prison Marker
 class spell_protectors_of_the_endless_lightning_prison_marker : public SpellScript
 {
@@ -688,10 +710,18 @@ class spell_protectors_of_the_endless_lightning_storm : public SpellScript
 
         switch (GetSpellInfo()->Id)
         {
-            case SPELL_LIGHTNING_STORM_10_YARDS_DAMAGE: spellId = SPELL_LIGHTNING_STORM_30_YARDS; break;
-            case SPELL_LIGHTNING_STORM_30_YARDS_DAMAGE: spellId = SPELL_LIGHTNING_STORM_50_YARDS; break;
-            case SPELL_LIGHTNING_STORM_50_YARDS_DAMAGE: spellId = SPELL_LIGHTNING_STORM_70_YARDS; break;
-            case SPELL_LIGHTNING_STORM_70_YARDS_DAMAGE: spellId = SPELL_LIGHTNING_STORM_90_YARDS; break;
+            case SPELL_LIGHTNING_STORM_10_YARDS_DAMAGE:
+                spellId = SPELL_LIGHTNING_STORM_30_YARDS;
+                break;
+            case SPELL_LIGHTNING_STORM_30_YARDS_DAMAGE:
+                spellId = SPELL_LIGHTNING_STORM_50_YARDS;
+                break;
+            case SPELL_LIGHTNING_STORM_50_YARDS_DAMAGE:
+                spellId = SPELL_LIGHTNING_STORM_70_YARDS;
+                break;
+            case SPELL_LIGHTNING_STORM_70_YARDS_DAMAGE:
+                spellId = SPELL_LIGHTNING_STORM_90_YARDS;
+                break;
             default:
                 return;
         }
@@ -731,11 +761,21 @@ class spell_protectors_of_the_endless_lightning_storm_damage : public AuraScript
 
         switch (GetSpellInfo()->Id)
         {
-            case SPELL_LIGHTNING_STORM_10_YARDS: spellId = SPELL_LIGHTNING_STORM_10_YARDS_DAMAGE; break;
-            case SPELL_LIGHTNING_STORM_30_YARDS: spellId = SPELL_LIGHTNING_STORM_30_YARDS_DAMAGE; break;
-            case SPELL_LIGHTNING_STORM_50_YARDS: spellId = SPELL_LIGHTNING_STORM_50_YARDS_DAMAGE; break;
-            case SPELL_LIGHTNING_STORM_70_YARDS: spellId = SPELL_LIGHTNING_STORM_70_YARDS_DAMAGE; break;
-            case SPELL_LIGHTNING_STORM_90_YARDS: spellId = SPELL_LIGHTNING_STORM_90_YARDS_DAMAGE; break;
+            case SPELL_LIGHTNING_STORM_10_YARDS:
+                spellId = SPELL_LIGHTNING_STORM_10_YARDS_DAMAGE;
+                break;
+            case SPELL_LIGHTNING_STORM_30_YARDS:
+                spellId = SPELL_LIGHTNING_STORM_30_YARDS_DAMAGE;
+                break;
+            case SPELL_LIGHTNING_STORM_50_YARDS:
+                spellId = SPELL_LIGHTNING_STORM_50_YARDS_DAMAGE;
+                break;
+            case SPELL_LIGHTNING_STORM_70_YARDS:
+                spellId = SPELL_LIGHTNING_STORM_70_YARDS_DAMAGE;
+                break;
+            case SPELL_LIGHTNING_STORM_90_YARDS:
+                spellId = SPELL_LIGHTNING_STORM_90_YARDS_DAMAGE;
+                break;
             default:
                 return;
         }
@@ -756,6 +796,7 @@ void AddSC_boss_protectors_of_the_endless()
     RegisterTerraceOfEndlessSpringCreatureAI(boss_elder_asani);
 
     RegisterSpellScript(spell_protectors_of_the_endless_warning_cleansing_waters);
+    RegisterSpellScript(spell_protectors_of_the_endless_touch_of_sha_selector);
     RegisterSpellScript(spell_protectors_of_the_endless_lightning_prison_marker);
     RegisterSpellScript(spell_protectors_of_the_endless_lightning_prison_cast);
     RegisterSpellScript(spell_protectors_of_the_endless_sha_corruption);
