@@ -420,7 +420,7 @@ INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`)
 (130682, 22093, 54673);
 
 -- Waypoints
--- lying Machine - 1
+-- flying Machine - 1
 SET @ENTRY := 131149;
 SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -451,7 +451,7 @@ UPDATE `creature` SET `ScriptName` = '', `wander_distance` = 0, `MovementType` =
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+89, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Flying Machine
 
--- lying Machine - 2
+-- flying Machine - 2
 SET @ENTRY := 131149;
 SET @PATHOFFSET := 1;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -482,7 +482,7 @@ UPDATE `creature` SET `ScriptName` = '', `wander_distance` = 0, `MovementType` =
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+62, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Flying Machine
 
--- lying Machine - 3
+-- flying Machine - 3
 SET @ENTRY := 131149;
 SET @PATHOFFSET := 2;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -513,7 +513,7 @@ UPDATE `creature` SET `ScriptName` = '', `wander_distance` = 0, `MovementType` =
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+87, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Flying Machine
 
--- lying Machine - 4
+-- flying Machine - 4
 SET @ENTRY := 131149;
 SET @PATHOFFSET := 3;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -544,7 +544,7 @@ UPDATE `creature` SET `ScriptName` = '', `wander_distance` = 0, `MovementType` =
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+74, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Flying Machine
 
--- lying Machine - 5
+-- flying Machine - 5
 SET @ENTRY := 131149;
 SET @PATHOFFSET := 4;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -575,7 +575,7 @@ UPDATE `creature` SET `ScriptName` = '', `wander_distance` = 0, `MovementType` =
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+102, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Flying Machine
 
--- lying Machine - 6
+-- flying Machine - 6
 SET @ENTRY := 131149;
 SET @PATHOFFSET := 5;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -606,7 +606,7 @@ UPDATE `creature` SET `ScriptName` = '', `wander_distance` = 0, `MovementType` =
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+16, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Flying Machine
 
--- lying Machine - 7
+-- flying Machine - 7
 SET @ENTRY := 131149;
 SET @PATHOFFSET := 6;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
