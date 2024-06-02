@@ -18,6 +18,7 @@
 #include "Containers.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"
