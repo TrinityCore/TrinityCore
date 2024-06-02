@@ -5108,54 +5108,17 @@ void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing
     //nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
 }
 
-inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, uint32 rating)
-{
-    switch (rating)
-    {
-        case CR_DEFENSE_SKILL:
-            return row->DefenseSkill;
-        case CR_DODGE:
-            return row->Dodge;
-        case CR_PARRY:
-            return row->Parry;
-        case CR_BLOCK:
-            return row->Block;
-        case CR_HIT_MELEE:
-            return row->HitMelee;
-        case CR_HIT_RANGED:
-            return row->HitRanged;
-        case CR_HIT_SPELL:
-            return row->HitSpell;
-        case CR_CRIT_MELEE:
-            return row->CritMelee;
-        case CR_CRIT_RANGED:
-            return row->CritRanged;
-        case CR_CRIT_SPELL:
-            return row->CritSpell;
-        case CR_HASTE_MELEE:
-            return row->HasteMelee;
-        case CR_HASTE_RANGED:
-            return row->HasteRanged;
-        case CR_HASTE_SPELL:
-            return row->HasteSpell;
-        default:
-            break;
-    }
-
-    return 1.0f;
-}
-
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
-    GtCombatRatingsEntry const* Rating = sCombatRatingsGameTable.GetRow(GetLevel());
-    if (!Rating)
-        return 1.0f;
+    float combatRatingRatio = GetGameTableColumnForCombatRating(sCombatRatingsGameTable.GetRow(GetLevel()), cr);
+    if (combatRatingRatio == 0.0f)
+        return 1.0f;  // By default use minimum coefficient (not must be called)
 
-    float value = GetGameTableColumnForCombatRating(Rating, cr);
-    if (!value)
-        return 1.0f;                                        // By default use minimum coefficient (not must be called)
+    float classRatingRatio = GetGameTableColumnForClass(sOctClassCombatRatingScalarGameTable.GetRow(cr), GetClass());
+    if (classRatingRatio == 0.0f)
+        return 1.0f;  // By default use minimum coefficient (not must be called)
 
-    return 1.0f / value;
+    return classRatingRatio / combatRatingRatio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -5271,7 +5234,7 @@ void Player::UpdateRating(CombatRating cr)
 
     switch (cr)
     {
-        case CR_AMPLIFY:
+        case CR_UNUSED_0:
         case CR_DEFENSE_SKILL:
             break;
         case CR_DODGE:
@@ -5366,7 +5329,7 @@ void Player::UpdateRating(CombatRating cr)
             UpdateMastery();
             break;
         case CR_PVP_POWER:
-        case CR_CLEAVE:
+        case CR_UNUSED_27:
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
             UpdateVersatilityDamageDone();
@@ -7727,9 +7690,6 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         return;
 
     uint32 itemLevel = item->GetItemLevel(this);
-    //float combatRatingMultiplier = 1.0f;
-    //if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
-    //    combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
