@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "Log.h"
 #include <cstring>
+#include <tchar.h>
 #include <windows.h>
 #include <winsvc.h>
 
@@ -32,9 +33,9 @@
 #endif
 
 extern int main(int argc, char ** argv);
-extern char serviceLongName[];
-extern char serviceName[];
-extern char serviceDescription[];
+extern TCHAR serviceLongName[];
+extern TCHAR serviceName[];
+extern TCHAR serviceDescription[];
 
 extern int m_ServiceStatus;
 
@@ -50,11 +51,11 @@ bool WinServiceInstall()
 
     if (serviceControlManager)
     {
-        char path[_MAX_PATH + 10];
+        TCHAR path[_MAX_PATH + 10];
         if (GetModuleFileName( 0, path, sizeof(path)/sizeof(path[0]) ) > 0)
         {
             SC_HANDLE service;
-            std::strcat(path, " --service run");
+            _tcscat(path, _T(" --service run"));
             service = CreateService(serviceControlManager,
                 serviceName,                                // name of service
                 serviceLongName,                            // service name to display
@@ -71,7 +72,7 @@ bool WinServiceInstall()
                 0);                                         // no password
             if (service)
             {
-                HMODULE advapi32 = GetModuleHandle("ADVAPI32.DLL");
+                HMODULE advapi32 = GetModuleHandle(_T("ADVAPI32.DLL"));
                 if (!advapi32)
                 {
                     CloseServiceHandle(service);
@@ -183,7 +184,16 @@ void WINAPI ServiceControlHandler(DWORD controlCode)
     SetServiceStatus(serviceStatusHandle, &serviceStatus);
 }
 
-void WINAPI ServiceMain(DWORD argc, char *argv[])
+template<size_t size>
+void TCharToChar(TCHAR const* src, char(&dst)[size])
+{
+    if constexpr (std::is_same_v<TCHAR, char>)
+        ::strcpy_s(dst, src, size);
+    else
+        ::wcstombs_s(nullptr, dst, src, _TRUNCATE);
+}
+
+void WINAPI ServiceMain(DWORD /*argc*/, TCHAR *argv[])
 {
     // initialise service status
     serviceStatus.dwServiceType = SERVICE_WIN32;
@@ -198,12 +208,12 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
 
     if ( serviceStatusHandle )
     {
-        char path[_MAX_PATH + 1];
+        TCHAR path[_MAX_PATH + 1];
         unsigned int i, last_slash = 0;
 
         GetModuleFileName(0, path, sizeof(path)/sizeof(path[0]));
 
-        size_t pathLen = std::strlen(path);
+        size_t pathLen = _tcslen(path);
         for (i = 0; i < pathLen; i++)
         {
             if (path[i] == '\\') last_slash = i;
@@ -228,8 +238,12 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
         ////////////////////////
 
         m_ServiceStatus = 1;
-        argc = 1;
-        main(argc, argv);
+
+        char cArg[_MAX_PATH + 1];
+        TCharToChar(argv[0], cArg);
+        char* cArgv[] = { cArg };
+
+        main(1, cArgv);
 
         // service was stopped
         serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
