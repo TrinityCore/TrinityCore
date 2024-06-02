@@ -72,7 +72,7 @@ class spell_ragefire_chasm_general_trigger_221_to_self : public SpellScript
 {
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        Unit* casterCreature = GetCaster()->ToCreature();
+        Creature* casterCreature = GetCaster()->ToCreature();
 
         if (casterCreature->HasStringId("npc_rescued_cage_1"))
             casterCreature->GetMotionMaster()->MovePath(PATH_RESCUED_1, false);
