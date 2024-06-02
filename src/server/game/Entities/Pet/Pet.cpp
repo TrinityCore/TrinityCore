@@ -911,15 +911,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     if (!IsHunterPet())
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + 4), BASE_VALUE, float(cinfo->resistance[i]));
-    else
-    {
-        //we're emulating an optimized trainer point distribution for pvp
-        SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + SPELL_SCHOOL_FROST), BASE_VALUE, 120);
-        SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + SPELL_SCHOOL_SHADOW), BASE_VALUE, 120);
-        SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + SPELL_SCHOOL_ARCANE), BASE_VALUE, 30);
-        SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, 240);
-        SetStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, 13); 
-    }
 
     // Health, Mana or Power, Armor
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
