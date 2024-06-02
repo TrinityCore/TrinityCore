@@ -1144,17 +1144,6 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class ControlUpdate final : public ServerPacket
-        {
-        public:
-            ControlUpdate() : ServerPacket(SMSG_CONTROL_UPDATE) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid UnitGUID;
-            bool On = false;
-        };
-
         struct LossOfControlAuraData
         {
             uint32 Remaining = 0;

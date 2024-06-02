@@ -39,6 +39,7 @@
 #include "Vehicle.h"
 #include "World.h"
 #include <sstream>
+#include <MovementPackets.h>
 
 class ChargeDropEvent : public BasicEvent
 {
@@ -286,16 +287,6 @@ void AuraApplication::ClientUpdate(bool remove)
     _needClientUpdate = false;
 
     bool hasCrowdControl = GetBase()->HasCrowdControl();
-
-    if (hasCrowdControl)
-    {
-        WorldPackets::Spells::ControlUpdate controlUpdate;
-        controlUpdate.UnitGUID = GetTarget()->GetGUID();
-        controlUpdate.On = remove;
-
-        if (_target->IsPlayer())
-            _target->ToPlayer()->SendDirectMessage(controlUpdate.Write());
-    }
 
     WorldPackets::Spells::AuraUpdate update;
     update.UpdateAll = false;

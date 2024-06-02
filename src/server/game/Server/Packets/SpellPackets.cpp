@@ -1098,13 +1098,6 @@ void KeyboundOverride::Read()
     _worldPacket >> OverrideID;
 }
 
-WorldPacket const* ControlUpdate::Write()
-{
-    _worldPacket << UnitGUID;
-    _worldPacket.WriteBit(On);
-    return &_worldPacket;
-}
-
 WorldPacket const* LossOfControlAuraUpdate::Write()
 {
     _worldPacket << AffectedGUID;
@@ -1115,7 +1108,7 @@ WorldPacket const* LossOfControlAuraUpdate::Write()
         _worldPacket << data.Remaining;
         _worldPacket << data.AuraSlot;
         _worldPacket << data.EffectIndex;
-        _worldPacket << uint8(data.LossType);
+        _worldPacket << data.LossType;
         _worldPacket << data.EffectMechanic;
     }
 
