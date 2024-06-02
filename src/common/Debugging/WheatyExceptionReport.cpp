@@ -41,7 +41,7 @@ inline LPTSTR ErrorMessage(DWORD dw)
     else
     {
         LPTSTR msgBuf = (LPTSTR)LocalAlloc(LPTR, 30);
-        snprintf(msgBuf, 30, "Unknown error: %u", dw);
+        _sntprintf(msgBuf, 30, _T("Unknown error: %d"), (int)dw);
         return msgBuf;
     }
 
@@ -125,19 +125,25 @@ PEXCEPTION_POINTERS pExceptionInfo)
     ++pos;
 
     TCHAR crash_folder_path[MAX_PATH];
-    _stprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    _stprintf_s(crash_folder_path, _T("%s\\%s"), module_folder_name, CrashFolder);
     if (!CreateDirectory(crash_folder_path, nullptr))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
             return 0;
     }
 
+#ifdef _UNICODE
+#define PRSTRc "S"
+#else
+#define PRSTRc "s"
+#endif
+
     SYSTEMTIME systime;
     GetLocalTime(&systime);
-    _stprintf_s(m_szDumpFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].dmp",
+    _stprintf_s(m_szDumpFileName, _T("%s\\%" PRSTRc "_%s_[%u-%u_%u-%u-%u].dmp"),
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
-    _stprintf_s(m_szLogFileName, _T("%s\\%s_%s_[%u-%u_%u-%u-%u].txt"),
+    _stprintf_s(m_szLogFileName, _T("%s\\%" PRSTRc "_%s_[%u-%u_%u-%u-%u].txt"),
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
     m_hDumpFile = CreateFile(m_szDumpFileName,
@@ -226,7 +232,7 @@ template<size_t size>
 void ToTchar(wchar_t const* src, TCHAR (&dst)[size])
 {
     if constexpr (std::is_same_v<TCHAR, char>)
-        ::wcstombs_s(nullptr, dst, src, size);
+        ::wcstombs_s(nullptr, dst, src, _TRUNCATE);
     else
         ::wcscpy_s(dst, size, src);
 }
@@ -551,7 +557,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
                 _tcsncat(szVersion, _T(" "), cntMax);
                 memset(buf, 0, sizeof(buf));
                 ToTchar(field.bstrVal, buf);
-                if (strlen(buf))
+                if (_tcslen(buf))
                     _tcsncat(szVersion, buf, cntMax);
             }
             VariantClear(&field);
