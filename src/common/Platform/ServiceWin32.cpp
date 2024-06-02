@@ -187,7 +187,7 @@ template<size_t size>
 void TCharToChar(TCHAR const* src, char(&dst)[size])
 {
     if constexpr (std::is_same_v<TCHAR, char>)
-        ::strcpy_s(dst, src, size);
+        ::strcpy_s(dst, src);
     else
         ::wcstombs_s(nullptr, dst, src, _TRUNCATE);
 }
