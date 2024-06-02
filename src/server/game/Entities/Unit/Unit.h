@@ -739,7 +739,7 @@ struct TC_GAME_API CharmInfo
 };
 
 // for clearing special attacks
-#define REACTIVE_TIMER_START 4000
+#define REACTIVE_TIMER_START 5000
 
 enum ReactiveType
 {
