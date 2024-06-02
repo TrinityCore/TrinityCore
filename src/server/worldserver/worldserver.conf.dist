@@ -4431,7 +4431,7 @@ Pvp.FactionBalance.Pct20 = 0.8
 #
 # These settings control the load of content of game
 #
-#	Loading.Locales
+#    Load.Locales
 #        Description: Enable/Disable  the load of Locales for Creatures, gossips, quests and gameobjects.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
