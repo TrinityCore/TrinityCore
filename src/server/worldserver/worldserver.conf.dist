@@ -4391,7 +4391,6 @@ Metric.OverallStatusInterval = 1
 ###################################################################################################
 # PVP SETTINGS
 #
-#
 #    Pvp.FactionBalance.LevelCheckDiff
 #        Description: The amount of levels below the maximum level that accounts people for faction balance.
 #                     That is, if max level is 60 and this has a value of 5, all players that are level 55 and above (including) will be included in the check
