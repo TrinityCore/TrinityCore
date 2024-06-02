@@ -8,9 +8,9 @@ Boost Process (Proposed for boost, but its not an official part of it yet. Used 
   http://www.highscore.de/boost/process0.5/
   Version: 0.5
 
-efws (Entropia File System Watcher - crossplatform file system watcher)
-  https://bitbucket.org/SpartanJ/efsw
-  Version: 1.0.0 e6afbec564e249771046c714b0c7f2154e4c7fef
+efsw (Entropia File System Watcher - crossplatform file system watcher)
+  https://github.com/SpartanJ/efsw
+  Version: 1.3.1+ 36c1c7004a34b6f40719f0830bcfb10325415451
 
 fmt (a small, safe and fast formatting library)
   https://github.com/fmtlib/fmt

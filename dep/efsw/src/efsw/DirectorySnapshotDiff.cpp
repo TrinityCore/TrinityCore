@@ -2,8 +2,7 @@
 
 namespace efsw {
 
-void DirectorySnapshotDiff::clear()
-{
+void DirectorySnapshotDiff::clear() {
 	FilesCreated.clear();
 	FilesModified.clear();
 	FilesMoved.clear();
@@ -14,16 +13,10 @@ void DirectorySnapshotDiff::clear()
 	DirsDeleted.clear();
 }
 
-bool DirectorySnapshotDiff::changed()
-{
-	return	!FilesCreated.empty()	||
-			!FilesModified.empty()	||
-			!FilesMoved.empty()		||
-			!FilesDeleted.empty()	||
-			!DirsCreated.empty()	||
-			!DirsModified.empty()	||
-			!DirsMoved.empty()		||
-			!DirsDeleted.empty();
+bool DirectorySnapshotDiff::changed() {
+	return !FilesCreated.empty() || !FilesModified.empty() || !FilesMoved.empty() ||
+		   !FilesDeleted.empty() || !DirsCreated.empty() || !DirsModified.empty() ||
+		   !DirsMoved.empty() || !DirsDeleted.empty();
 }
 
-}
+} // namespace efsw

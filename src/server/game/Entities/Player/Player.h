@@ -1178,7 +1178,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
 
-        bool IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const;
+        bool IsInAreaTrigger(AreaTriggerEntry const* areaTrigger) const;
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();

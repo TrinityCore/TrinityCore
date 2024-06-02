@@ -2134,6 +2134,9 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Area Trigger Teleports definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 
+    TC_LOG_INFO("server.loading", "Loading Area Trigger Polygon data...");
+    sObjectMgr->LoadAreaTriggerPolygons();
+
     TC_LOG_INFO("server.loading", "Loading Access Requirements...");
     sObjectMgr->LoadAccessRequirements();                        // must be after item template load
 

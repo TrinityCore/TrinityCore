@@ -1,39 +1,39 @@
 /** NOTE:
-*	This code is based on the Utf implementation from SFML2. License zlib/png ( http://www.sfml-dev.org/license.php )
-*	The class was modified to fit efsw own needs. This is not the original implementation from SFML2.
-*	Functions and methods are the same that in std::string to facilitate portability.
-**/
+ *	This code is based on the Utf implementation from SFML2. License zlib/png (
+ *http://www.sfml-dev.org/license.php ) The class was modified to fit efsw own needs. This is not
+ *the original implementation from SFML2. Functions and methods are the same that in std::string to
+ *facilitate portability.
+ **/
 
 #ifndef EFSW_STRING_HPP
 #define EFSW_STRING_HPP
 
-#include <efsw/base.hpp>
-#include <locale>
-#include <string>
-#include <cstring>
 #include <cstdlib>
-#include <iostream>
+#include <cstring>
+#include <efsw/base.hpp>
 #include <fstream>
+#include <iostream>
+#include <locale>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace efsw {
 
-/** @brief Utility string class that automatically handles conversions between types and encodings **/
-class String
-{
-	public :
-	typedef Uint32								StringBaseType;
-	typedef std::basic_string<StringBaseType>	StringType;
-	typedef StringType::iterator				Iterator;				//! Iterator type
-	typedef StringType::const_iterator			ConstIterator;			//! Constant iterator type
-	typedef StringType::reverse_iterator		ReverseIterator;		//! Reverse Iterator type
-	typedef StringType::const_reverse_iterator	ConstReverseIterator;	//! Constant iterator type
+/** @brief Utility string class that automatically handles conversions between types and encodings
+ * **/
+class String {
+  public:
+	typedef Uint32 StringBaseType;
+	typedef std::basic_string<StringBaseType> StringType;
+	typedef StringType::iterator Iterator;							 //! Iterator type
+	typedef StringType::const_iterator ConstIterator;				 //! Constant iterator type
+	typedef StringType::reverse_iterator ReverseIterator;			 //! Reverse Iterator type
+	typedef StringType::const_reverse_iterator ConstReverseIterator; //! Constant iterator type
 
 	static const std::size_t InvalidPos; ///< Represents an invalid position in the string
 
-	template <class T>
-	static std::string toStr(const T& i) {
+	template <class T> static std::string toStr( const T& i ) {
 		std::ostringstream ss;
 		ss << i;
 		return ss.str();
@@ -41,23 +41,27 @@ class String
 
 	/** Converts from a string to type */
 	template <class T>
-	static bool fromString(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&) = std::dec  ) {
-		std::istringstream iss(s);
-		return !(iss >> f >> t).fail();
+	static bool fromString( T& t, const std::string& s,
+							std::ios_base& ( *f )( std::ios_base& ) = std::dec ) {
+		std::istringstream iss( s );
+		return !( iss >> f >> t ).fail();
 	}
 
 	/** Converts from a String to type */
 	template <class T>
-	static bool fromString(T& t, const String& s, std::ios_base& (*f)(std::ios_base&) = std::dec ) {
+	static bool fromString( T& t, const String& s,
+							std::ios_base& ( *f )( std::ios_base& ) = std::dec ) {
 		std::istringstream iss( s.toUtf8() );
-		return !(iss >> f >> t).fail();
+		return !( iss >> f >> t ).fail();
 	}
 
 	/** Split a string and hold it on a vector */
-	static std::vector < std::string > split( const std::string& str, const char& splitchar, const bool& pushEmptyString = false );
+	static std::vector<std::string> split( const std::string& str, const char& splitchar,
+										   const bool& pushEmptyString = false );
 
 	/** Split a string and hold it on a vector */
-	static std::vector < String > split( const String& str, const Uint32& splitchar, const bool& pushEmptyString = false );
+	static std::vector<String> split( const String& str, const Uint32& splitchar,
+									  const bool& pushEmptyString = false );
 
 	/** Determine if a string starts with the string passed
 	** @param start The substring expected to start
@@ -149,7 +153,6 @@ class String
 	**/
 	String( const StringType& utf32String );
 
-
 	/** @brief Copy constructor
 	** @param str Instance to copy
 	**/
@@ -196,17 +199,17 @@ class String
 	** @param right Instance to assign
 	** @return Reference to self
 	**/
-	String& operator =(const String& right);
+	String& operator=( const String& right );
 
-	String& operator =( const StringBaseType& right );
+	String& operator=( const StringBaseType& right );
 
 	/** @brief Overload of += operator to append an UTF-32 string
 	** @param right String to append
 	** @return Reference to self
 	**/
-	String& operator +=(const String& right);
+	String& operator+=( const String& right );
 
-	String& operator +=( const StringBaseType& right );
+	String& operator+=( const StringBaseType& right );
 
 	/** @brief Overload of [] operator to access a character by its position
 	** This function provides read-only access to characters.
@@ -214,7 +217,7 @@ class String
 	** @param index Index of the character to get
 	** @return Character at position \a index
 	**/
-	StringBaseType operator [](std::size_t index) const;
+	StringBaseType operator[]( std::size_t index ) const;
 
 	/** @brief Overload of [] operator to access a character by its position
 	** This function provides read and write access to characters.
@@ -223,14 +226,15 @@ class String
 	** @return Reference to the character at position \a index
 	**/
 
-	StringBaseType& operator [](std::size_t index);
+	StringBaseType& operator[]( std::size_t index );
 
 	/** @brief Get character in string
-	** Performs a range check, throwing an exception of type out_of_range in case that pos is not an actual position in the string.
+	** Performs a range check, throwing an exception of type out_of_range in case that pos is not an
+	*actual position in the string.
 	** @return The character at position pos in the string.
 	*/
 	StringBaseType at( std::size_t index ) const;
-	
+
 	/** @brief clear the string
 	** This function removes all the characters from the string.
 	** @see empty, erase
@@ -242,7 +246,7 @@ class String
 	** @see empty
 	**/
 	std::size_t size() const;
-	
+
 	/** @see size() */
 	std::size_t length() const;
 
@@ -258,8 +262,7 @@ class String
 	** @param position Position of the first character to erase
 	** @param count    Number of characters to erase
 	**/
-	void erase(std::size_t position, std::size_t count = 1);
-
+	void erase( std::size_t position, std::size_t count = 1 );
 
 	/** @brief Insert one or more characters into the string
 	** This function inserts the characters of \a str
@@ -267,23 +270,22 @@ class String
 	** @param position Position of insertion
 	** @param str      Characters to insert
 	**/
-	String& insert(std::size_t position, const String& str);
+	String& insert( std::size_t position, const String& str );
 
 	String& insert( std::size_t pos1, const String& str, std::size_t pos2, std::size_t n );
 
-	String& insert ( std::size_t pos1, const char* s, std::size_t n );
+	String& insert( std::size_t pos1, const char* s, std::size_t n );
 
-	String& insert ( std::size_t pos1, const char* s );
+	String& insert( std::size_t pos1, const char* s );
 
-	String& insert ( std::size_t pos1, size_t n, char c );
+	String& insert( std::size_t pos1, size_t n, char c );
 
-	Iterator insert ( Iterator p, char c );
+	Iterator insert( Iterator p, char c );
 
-	void insert ( Iterator p, std::size_t n, char c );
+	void insert( Iterator p, std::size_t n, char c );
 
-	template<class InputIterator>
-	void insert ( Iterator p, InputIterator first, InputIterator last )
-	{
+	template <class InputIterator>
+	void insert( Iterator p, InputIterator first, InputIterator last ) {
 		mString.insert( p, first, last );
 	}
 
@@ -296,11 +298,11 @@ class String
 	**/
 	std::size_t find( const String& str, std::size_t start = 0 ) const;
 
-	std::size_t find ( const char* s, std::size_t pos, std::size_t n ) const;
+	std::size_t find( const char* s, std::size_t pos, std::size_t n ) const;
 
-	std::size_t find ( const char* s, std::size_t pos = 0 ) const;
+	std::size_t find( const char* s, std::size_t pos = 0 ) const;
 
-	std::size_t find ( char c, std::size_t pos = 0 ) const;
+	std::size_t find( char c, std::size_t pos = 0 ) const;
 
 	/** @brief Get a pointer to the C-style array of characters
 	** This functions provides a read-only access to a
@@ -310,11 +312,14 @@ class String
 	** @return Read-only pointer to the array of characters
 	**/
 	const StringBaseType* c_str() const;
-	
+
 	/** @brief Get string data
-	** Notice that no terminating null character is appended (see member c_str for such a functionality).
-	** The returned array points to an internal location which should not be modified directly in the program.
-	** Its contents are guaranteed to remain unchanged only until the next call to a non-constant member function of the string object.
+	** Notice that no terminating null character is appended (see member c_str for such a
+	*functionality).
+	** The returned array points to an internal location which should not be modified directly in
+	*the program.
+	** Its contents are guaranteed to remain unchanged only until the next call to a non-constant
+	*member function of the string object.
 	** @return Pointer to an internal array containing the same content as the string.
 	**/
 	const StringBaseType* data() const;
@@ -348,7 +353,7 @@ class String
 	** @see begin
 	**/
 	ConstIterator end() const;
-	
+
 	/** @brief Return an reverse iterator to the beginning of the string
 	** @return Read-write reverse iterator to the beginning of the string characters
 	** @see end
@@ -370,7 +375,6 @@ class String
 	**/
 	ReverseIterator rend();
 
-
 	/** @brief Return an reverse iterator to the beginning of the string
 	** The end reverse iterator refers to 1 position past the last character;
 	** thus it represents an invalid character and should never be
@@ -379,147 +383,145 @@ class String
 	** @see begin
 	**/
 	ConstReverseIterator rend() const;
-	
+
 	/** @brief Resize String */
-	void resize ( std::size_t n, StringBaseType c );
-	
+	void resize( std::size_t n, StringBaseType c );
+
 	/** @brief Resize String */
-	void resize ( std::size_t n );
-	
+	void resize( std::size_t n );
+
 	/** @return Maximum size of string */
 	std::size_t max_size() const;
-	
+
 	/** @brief Request a change in capacity */
-	void reserve ( size_t res_arg=0 );
-	
+	void reserve( size_t res_arg = 0 );
+
 	/** @return Size of allocated storage */
 	std::size_t capacity() const;
 
 	/** @brief Append character to string */
 	void push_back( StringBaseType c );
-	
+
 	/** @brief Swap contents with another string */
-	void swap ( String& str );
-	
-	String& assign ( const String& str );
+	void swap( String& str );
 
-	String& assign ( const String& str, std::size_t pos, std::size_t n );
+	String& assign( const String& str );
 
-	String& assign ( const char* s, std::size_t n );
+	String& assign( const String& str, std::size_t pos, std::size_t n );
 
-	String& assign ( const char* s );
+	String& assign( const char* s, std::size_t n );
 
-	String& assign ( std::size_t n, char c );
+	String& assign( const char* s );
 
-	template <class InputIterator>
-	String& assign ( InputIterator first, InputIterator last )
-	{
+	String& assign( std::size_t n, char c );
+
+	template <class InputIterator> String& assign( InputIterator first, InputIterator last ) {
 		mString.assign( first, last );
 		return *this;
 	}
 
-	String& append ( const String& str );
+	String& append( const String& str );
 
-	String& append ( const String& str, std::size_t pos, std::size_t n );
+	String& append( const String& str, std::size_t pos, std::size_t n );
 
-	String& append ( const char* s, std::size_t n );
+	String& append( const char* s, std::size_t n );
 
-	String& append ( const char* s );
+	String& append( const char* s );
 
-	String& append ( std::size_t n, char c );
+	String& append( std::size_t n, char c );
 
-	String& append ( std::size_t n, StringBaseType c );
+	String& append( std::size_t n, StringBaseType c );
 
-	template <class InputIterator>
-	String& append ( InputIterator first, InputIterator last )
-	{
+	template <class InputIterator> String& append( InputIterator first, InputIterator last ) {
 		mString.append( first, last );
 		return *this;
 	}
 
-	String& replace ( std::size_t pos1, std::size_t n1,   const String& str );
+	String& replace( std::size_t pos1, std::size_t n1, const String& str );
 
-	String& replace ( Iterator i1, Iterator i2, const String& str );
+	String& replace( Iterator i1, Iterator i2, const String& str );
 
-	String& replace ( std::size_t pos1, std::size_t n1, const String& str, std::size_t pos2, std::size_t n2 );
+	String& replace( std::size_t pos1, std::size_t n1, const String& str, std::size_t pos2,
+					 std::size_t n2 );
 
-	String& replace ( std::size_t pos1, std::size_t n1, const char* s, std::size_t n2 );
+	String& replace( std::size_t pos1, std::size_t n1, const char* s, std::size_t n2 );
 
-	String& replace ( Iterator i1, Iterator i2, const char* s, std::size_t n2 );
+	String& replace( Iterator i1, Iterator i2, const char* s, std::size_t n2 );
 
-	String& replace ( std::size_t pos1, std::size_t n1,   const char* s );
+	String& replace( std::size_t pos1, std::size_t n1, const char* s );
 
-	String& replace ( Iterator i1, Iterator i2, const char* s );
+	String& replace( Iterator i1, Iterator i2, const char* s );
 
-	String& replace ( std::size_t pos1, std::size_t n1, std::size_t n2, char c );
+	String& replace( std::size_t pos1, std::size_t n1, std::size_t n2, char c );
 
-	String& replace ( Iterator i1, Iterator i2, std::size_t n2, char c );
+	String& replace( Iterator i1, Iterator i2, std::size_t n2, char c );
 
-	template<class InputIterator>
-	String& replace ( Iterator i1, Iterator i2, InputIterator j1, InputIterator j2 )
-	{
+	template <class InputIterator>
+	String& replace( Iterator i1, Iterator i2, InputIterator j1, InputIterator j2 ) {
 		mString.replace( i1, i2, j1, j2 );
 		return *this;
 	}
 
-	std::size_t rfind ( const String& str, std::size_t pos = StringType::npos ) const;
+	std::size_t rfind( const String& str, std::size_t pos = StringType::npos ) const;
 
-	std::size_t rfind ( const char* s, std::size_t pos, std::size_t n ) const;
+	std::size_t rfind( const char* s, std::size_t pos, std::size_t n ) const;
 
-	std::size_t rfind ( const char* s, std::size_t pos = StringType::npos ) const;
+	std::size_t rfind( const char* s, std::size_t pos = StringType::npos ) const;
 
-	std::size_t rfind ( char c, std::size_t pos = StringType::npos ) const;
+	std::size_t rfind( char c, std::size_t pos = StringType::npos ) const;
 
-	String substr ( std::size_t pos = 0, std::size_t n = StringType::npos ) const;
+	String substr( std::size_t pos = 0, std::size_t n = StringType::npos ) const;
 
-	std::size_t copy ( StringBaseType* s, std::size_t n, std::size_t pos = 0 ) const;
+	std::size_t copy( StringBaseType* s, std::size_t n, std::size_t pos = 0 ) const;
 
-	int compare ( const String& str ) const;
+	int compare( const String& str ) const;
 
-	int compare ( const char* s ) const;
+	int compare( const char* s ) const;
 
-	int compare ( std::size_t pos1, std::size_t n1, const String& str ) const;
+	int compare( std::size_t pos1, std::size_t n1, const String& str ) const;
 
-	int compare ( std::size_t pos1, std::size_t n1, const char* s) const;
+	int compare( std::size_t pos1, std::size_t n1, const char* s ) const;
 
-	int compare ( std::size_t pos1, std::size_t n1, const String& str, std::size_t pos2, std::size_t n2 ) const;
+	int compare( std::size_t pos1, std::size_t n1, const String& str, std::size_t pos2,
+				 std::size_t n2 ) const;
 
-	int compare ( std::size_t pos1, std::size_t n1, const char* s, std::size_t n2) const;
+	int compare( std::size_t pos1, std::size_t n1, const char* s, std::size_t n2 ) const;
 
-	std::size_t find_first_of ( const String& str, std::size_t pos = 0 ) const;
+	std::size_t find_first_of( const String& str, std::size_t pos = 0 ) const;
 
-	std::size_t find_first_of ( const char* s, std::size_t pos, std::size_t n ) const;
+	std::size_t find_first_of( const char* s, std::size_t pos, std::size_t n ) const;
 
-	std::size_t find_first_of ( const char* s, std::size_t pos = 0 ) const;
+	std::size_t find_first_of( const char* s, std::size_t pos = 0 ) const;
 
-	std::size_t find_first_of ( StringBaseType c, std::size_t pos = 0 ) const;
+	std::size_t find_first_of( StringBaseType c, std::size_t pos = 0 ) const;
 
-	std::size_t find_last_of ( const String& str, std::size_t pos = StringType::npos ) const;
+	std::size_t find_last_of( const String& str, std::size_t pos = StringType::npos ) const;
 
-	std::size_t find_last_of ( const char* s, std::size_t pos, std::size_t n ) const;
+	std::size_t find_last_of( const char* s, std::size_t pos, std::size_t n ) const;
 
-	std::size_t find_last_of ( const char* s, std::size_t pos = StringType::npos ) const;
+	std::size_t find_last_of( const char* s, std::size_t pos = StringType::npos ) const;
 
-	std::size_t find_last_of ( StringBaseType c, std::size_t pos = StringType::npos ) const;
+	std::size_t find_last_of( StringBaseType c, std::size_t pos = StringType::npos ) const;
 
-	std::size_t find_first_not_of ( const String& str, std::size_t pos = 0 ) const;
+	std::size_t find_first_not_of( const String& str, std::size_t pos = 0 ) const;
 
-	std::size_t find_first_not_of ( const char* s, std::size_t pos, std::size_t n ) const;
+	std::size_t find_first_not_of( const char* s, std::size_t pos, std::size_t n ) const;
 
-	std::size_t find_first_not_of ( const char* s, std::size_t pos = 0 ) const;
+	std::size_t find_first_not_of( const char* s, std::size_t pos = 0 ) const;
 
-	std::size_t find_first_not_of ( StringBaseType c, std::size_t pos = 0 ) const;
+	std::size_t find_first_not_of( StringBaseType c, std::size_t pos = 0 ) const;
 
-	std::size_t find_last_not_of ( const String& str, std::size_t pos = StringType::npos ) const;
+	std::size_t find_last_not_of( const String& str, std::size_t pos = StringType::npos ) const;
 
-	std::size_t find_last_not_of ( const char* s, std::size_t pos, std::size_t n ) const;
+	std::size_t find_last_not_of( const char* s, std::size_t pos, std::size_t n ) const;
 
-	std::size_t find_last_not_of ( const char* s, std::size_t pos = StringType::npos ) const;
+	std::size_t find_last_not_of( const char* s, std::size_t pos = StringType::npos ) const;
 
-	std::size_t find_last_not_of ( StringBaseType c, std::size_t pos = StringType::npos ) const;
-private :
-	friend  bool operator ==(const String& left, const String& right);
-	friend  bool operator <(const String& left, const String& right);
+	std::size_t find_last_not_of( StringBaseType c, std::size_t pos = StringType::npos ) const;
+
+  private:
+	friend bool operator==( const String& left, const String& right );
+	friend bool operator<( const String& left, const String& right );
 
 	StringType mString; ///< Internal string of UTF-32 characters
 };
@@ -530,7 +532,7 @@ private :
 ** @param right Right operand (a string)
 ** @return True if both strings are equal
 **/
- bool operator ==(const String& left, const String& right);
+bool operator==( const String& left, const String& right );
 
 /** @relates String
 ** @brief Overload of != operator to compare two UTF-32 strings
@@ -538,7 +540,7 @@ private :
 ** @param right Right operand (a string)
 ** @return True if both strings are different
 **/
- bool operator !=(const String& left, const String& right);
+bool operator!=( const String& left, const String& right );
 
 /** @relates String
 ** @brief Overload of < operator to compare two UTF-32 strings
@@ -546,7 +548,7 @@ private :
 ** @param right Right operand (a string)
 ** @return True if \a left is alphabetically lesser than \a right
 **/
- bool operator <(const String& left, const String& right);
+bool operator<( const String& left, const String& right );
 
 /** @relates String
 ** @brief Overload of > operator to compare two UTF-32 strings
@@ -554,7 +556,7 @@ private :
 ** @param right Right operand (a string)
 ** @return True if \a left is alphabetically greater than \a right
 **/
- bool operator >(const String& left, const String& right);
+bool operator>( const String& left, const String& right );
 
 /** @relates String
 ** @brief Overload of <= operator to compare two UTF-32 strings
@@ -562,7 +564,7 @@ private :
 ** @param right Right operand (a string)
 ** @return True if \a left is alphabetically lesser or equal than \a right
 **/
- bool operator <=(const String& left, const String& right);
+bool operator<=( const String& left, const String& right );
 
 /** @relates String
 ** @brief Overload of >= operator to compare two UTF-32 strings
@@ -570,7 +572,7 @@ private :
 ** @param right Right operand (a string)
 ** @return True if \a left is alphabetically greater or equal than \a right
 **/
- bool operator >=(const String& left, const String& right);
+bool operator>=( const String& left, const String& right );
 
 /** @relates String
 ** @brief Overload of binary + operator to concatenate two strings
@@ -578,9 +580,9 @@ private :
 ** @param right Right operand (a string)
 ** @return Concatenated string
 **/
- String operator +( const String& left, const String& right );
+String operator+( const String& left, const String& right );
 
-}
+} // namespace efsw
 
 #endif
 
