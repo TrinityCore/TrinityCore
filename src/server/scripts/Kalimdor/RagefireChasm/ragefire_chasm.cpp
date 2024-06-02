@@ -51,18 +51,17 @@ public:
         if (player->IsGameMaster())
             return false;
 
-        Creature* adolescentFlameHound1 = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_1" });
-        Creature* adolescentFlameHound2 = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_2" });
-        Creature* adolescentFlameHound3 = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_3" });
-        Creature* adolescentFlameHound4 = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_4" });
+        if (Creature* adolescentFlameHound = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_1" }))
+            adolescentFlameHound->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[0]);
 
-        if (!adolescentFlameHound1 || !adolescentFlameHound2 || !adolescentFlameHound3 || !adolescentFlameHound4)
-            return false;
+        if (Creature* adolescentFlameHound = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_2" }))
+            adolescentFlameHound->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[1]);
 
-        adolescentFlameHound1->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[0]);
-        adolescentFlameHound2->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[1]);
-        adolescentFlameHound3->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[2]);
-        adolescentFlameHound4->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[3]);
+        if (Creature* adolescentFlameHound = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_3" }))
+            adolescentFlameHound->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[2]);
+
+        if (Creature* adolescentFlameHound = player->FindNearestCreatureWithOptions(80.0f, { .StringId = "npc_adolescent_flame_hound_4" }))
+            adolescentFlameHound->GetMotionMaster()->MovePoint(POINT_INTRO, AdolescentFlameHoundIntro[3]);
 
         return true;
     }
@@ -73,12 +72,14 @@ class spell_ragefire_chasm_general_trigger_221_to_self : public SpellScript
 {
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        if (GetCaster()->ToCreature()->HasStringId("npc_rescued_cage_1"))
-            GetCaster()->ToCreature()->GetMotionMaster()->MovePath(PATH_RESCUED_1, false);
-        else if (GetCaster()->ToCreature()->HasStringId("npc_rescued_cage_2"))
-            GetCaster()->ToCreature()->GetMotionMaster()->MovePath(PATH_RESCUED_2, false);
-       else if (GetCaster()->ToCreature()->HasStringId("npc_rescued_cage_3"))
-            GetCaster()->ToCreature()->GetMotionMaster()->MovePath(PATH_RESCUED_3, false);
+        Unit* casterCreature = GetCaster()->ToCreature();
+
+        if (casterCreature->HasStringId("npc_rescued_cage_1"))
+            casterCreature->GetMotionMaster()->MovePath(PATH_RESCUED_1, false);
+        else if (casterCreature->HasStringId("npc_rescued_cage_2"))
+            casterCreature->GetMotionMaster()->MovePath(PATH_RESCUED_2, false);
+        else if (casterCreature->HasStringId("npc_rescued_cage_3"))
+            casterCreature->GetMotionMaster()->MovePath(PATH_RESCUED_3, false);
     }
 
     void Register() override
