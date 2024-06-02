@@ -2716,6 +2716,7 @@ void SpellInfo::_LoadImmunityInfo()
                     case 34471: // The Beast Within
                     case 19574: // Bestial Wrath
                     case 53490: // Bullheaded
+                    case 81272: //death wish: unstoppable
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
                         break;
                     case 54508: // Demonic Empowerment
