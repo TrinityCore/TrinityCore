@@ -28,6 +28,7 @@
 #include "MoveSplineInitArgs.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "SpellHistory.h"
 #include "TaskScheduler.h"
 #include "TransportMgr.h"
