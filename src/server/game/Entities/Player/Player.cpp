@@ -5108,6 +5108,43 @@ void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing
     //nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
 }
 
+inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, CombatRating combatRating)
+{
+    switch (combatRating)
+    {
+        case CR_DEFENSE_SKILL:
+            return row->DefenseSkill;
+        case CR_DODGE:
+            return row->Dodge;
+        case CR_PARRY:
+            return row->Parry;
+        case CR_BLOCK:
+            return row->Block;
+        case CR_HIT_MELEE:
+            return row->HitMelee;
+        case CR_HIT_RANGED:
+            return row->HitRanged;
+        case CR_HIT_SPELL:
+            return row->HitSpell;
+        case CR_CRIT_MELEE:
+            return row->CritMelee;
+        case CR_CRIT_RANGED:
+            return row->CritRanged;
+        case CR_CRIT_SPELL:
+            return row->CritSpell;
+        case CR_HASTE_MELEE:
+            return row->HasteMelee;
+        case CR_HASTE_RANGED:
+            return row->HasteRanged;
+        case CR_HASTE_SPELL:
+            return row->HasteSpell;
+        default:
+            break;
+    }
+
+    return 0.0f;
+};
+
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
     float combatRatingRatio = GetGameTableColumnForCombatRating(sCombatRatingsGameTable.GetRow(GetLevel()), cr);

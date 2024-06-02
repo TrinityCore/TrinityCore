@@ -22,7 +22,6 @@
 #include "Common.h"
 #include <vector>
 
-enum CombatRating : uint8;
 enum InventoryType : uint8;
 
 struct GtBarberShopCostBaseEntry
@@ -387,43 +386,5 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
 
     return 0.0f;
 }
-
-template<class T>
-inline float GetGameTableColumnForCombatRating(T const* row, CombatRating combatRating)
-{
-    switch (combatRating)
-    {
-        case CR_DEFENSE_SKILL:
-            return row->DefenseSkill;
-        case CR_DODGE:
-            return row->Dodge;
-        case CR_PARRY:
-            return row->Parry;
-        case CR_BLOCK:
-            return row->Block;
-        case CR_HIT_MELEE:
-            return row->HitMelee;
-        case CR_HIT_RANGED:
-            return row->HitRanged;
-        case CR_HIT_SPELL:
-            return row->HitSpell;
-        case CR_CRIT_MELEE:
-            return row->CritMelee;
-        case CR_CRIT_RANGED:
-            return row->CritRanged;
-        case CR_CRIT_SPELL:
-            return row->CritSpell;
-        case CR_HASTE_MELEE:
-            return row->HasteMelee;
-        case CR_HASTE_RANGED:
-            return row->HasteRanged;
-        case CR_HASTE_SPELL:
-            return row->HasteSpell;
-        default:
-            break;
-    }
-
-    return 0.0f;
-};
 
 #endif // GameTables_h__
