@@ -316,7 +316,7 @@ void AuraApplication::ClientUpdate(bool remove)
             if (aurEff->GetSpellEffectInfo().Mechanic != Mechanics::MECHANIC_NONE)
                 lossData.EffectMechanic = uint8(aurEff->GetSpellEffectInfo().Mechanic);
             else
-                lossData.EffectMechanic = GetBase()->GetSpellInfo()->Mechanic;
+                lossData.EffectMechanic = uint8(GetBase()->GetSpellInfo()->Mechanic);
 
             lossData.LossType = aurEff->GetLossOfControlType();
             lossControlAuras.emplace_back(lossData);
