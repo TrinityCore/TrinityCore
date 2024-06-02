@@ -325,7 +325,7 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* player)
     }
     uint32 flag_honor = sWorld->getIntConfig(CONFIG_CENTURION_BG_REWARD_HONOR_FLAG_CAP);
 
-    CenturionRewardHonorToTeam(flag_honor, player->GetTeam());
+    RewardHonorToTeam(flag_honor, player->GetTeam());
 
     SpawnBGObject(BG_WS_OBJECT_H_FLAG, BG_WS_FLAG_RESPAWN_TIME);
     SpawnBGObject(BG_WS_OBJECT_A_FLAG, BG_WS_FLAG_RESPAWN_TIME);

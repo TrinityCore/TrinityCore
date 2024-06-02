@@ -645,13 +645,6 @@ void Battleground::CenturionRewardHonorToTeam(uint32 Honor, uint32 TeamID)
         if (Player* player = _GetPlayerForTeam(TeamID, itr, "CenturionRewardHonorToTeam"))
         {
             player->ModifyHonorPoints(Honor);
-            uint32 thrallsSocks = Honor / 10;
-            //add thrall's socks
-            if (thrallsSocks <= 0)
-            {
-                thrallsSocks = 1;
-            }
-            player->AddItem(40752, thrallsSocks);
         }
 }
 
@@ -836,8 +829,6 @@ void Battleground::EndBattleground(uint32 winner)
             winner_money *= arenaMultiplier;
             loser_money *= arenaMultiplier;
         }
-        uint32 thrallsSocksWinner = winner_honor / 10;
-        uint32 thrallsSocksLoser = loser_honor / 10;
 
         // Rewards
         // only grant rewards if battle has lasted 15 seconds
@@ -845,7 +836,7 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if (team == winner)
             {
-                player->ModifyHonorPoints(winner_honor);
+                player->RewardHonor(nullptr, 1, winner_honor);
                 if (CanAwardArenaPoints())
                     player->ModifyArenaPoints(winner_arena);
                 if (!player->GetRandomWinner())
@@ -853,11 +844,6 @@ void Battleground::EndBattleground(uint32 winner)
 
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, player->GetMapId());
                 player->ModifyMoney(winner_money);
-
-                //add thrall's socks
-                if (thrallsSocksWinner <= 0)
-                    thrallsSocksWinner = 1;
-                player->AddItem(40752, thrallsSocksWinner);
 
                 for (int i = 20559; i <= 20575; i++)
                 {
@@ -874,12 +860,8 @@ void Battleground::EndBattleground(uint32 winner)
             }
             else
             {
-                player->ModifyHonorPoints(loser_honor);
+                player->RewardHonor(nullptr, 1, loser_honor);
                 player->ModifyMoney(loser_money);
-                //add thrall's socks
-                if (thrallsSocksLoser <= 0)
-                    thrallsSocksLoser = 1;
-                player->AddItem(40752, thrallsSocksLoser);
             }
         }
         player->ResetAllPowers();
@@ -1339,7 +1321,11 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
     if (type == SCORE_BONUS_HONOR && doAddHonor && isBattleground())
         player->RewardHonor(nullptr, 1, value); // RewardHonor calls UpdatePlayerScore with doAddHonor = false
     else
-        itr->second->UpdateScore(type, value);
+    {
+        //don't update bonus honor
+        if (type != SCORE_BONUS_HONOR)
+            itr->second->UpdateScore(type, value);
+    }
 
     return true;
 }
