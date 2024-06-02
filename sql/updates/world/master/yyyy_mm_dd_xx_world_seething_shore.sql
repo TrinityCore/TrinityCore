@@ -2,6 +2,8 @@ SET @OGUID := 10000000;
 SET @CGUID := 10000000;
 SET @TGUID = 100;
 
+SET @NPCTEXTID := 100000000;
+
 DELETE FROM `transports` WHERE `guid` IN (@TGUID+0, @TGUID+1);
 INSERT INTO `transports` (`guid`, `entry`, `name` , `ScriptName`) VALUES
 (@TGUID+0, 278407, 'Sword of Dawn', 'transport_seething_shore'),
@@ -18,13 +20,14 @@ DELETE FROM `battleground_scripts` WHERE `MapId` = 1803;
 INSERT INTO `battleground_scripts` (`MapId`, `ScriptName`) VALUES
 (1803, 'battleground_seething_shore');
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_bg_seething_shore_activate_azerite', 'aura_bg_seething_shore_azerite_geyser', 'aura_bg_seething_shore_rocket_parachute_trigger', 'aura_bg_seething_shore_rocket_parachute_ground_check', 'spell_bg_seething_shore_parachute');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_bg_seething_shore_activate_azerite', 'aura_bg_seething_shore_azerite_geyser', 'aura_bg_seething_shore_rocket_parachute_trigger', 'aura_bg_seething_shore_rocket_parachute_ground_check', 'spell_bg_seething_shore_parachute', 'spell_bg_seething_shore_speed_up');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (248688, 'spell_bg_seething_shore_activate_azerite'),
 (248668, 'aura_bg_seething_shore_azerite_geyser'),
 (269779, 'spell_bg_seething_shore_parachute'),
 (250917, 'aura_bg_seething_shore_rocket_parachute_trigger'),
-(250921, 'aura_bg_seething_shore_rocket_parachute_ground_check');
+(250921, 'aura_bg_seething_shore_rocket_parachute_ground_check'),
+(294701, 'spell_bg_seething_shore_speed_up');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=248688 AND `ConditionTypeOrReference`=31;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
@@ -103,7 +106,7 @@ UPDATE `creature_template` SET `unit_flags`=0, `unit_flags3`=8388608 WHERE `entr
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=130682; -- Rylai Crestfall
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=133056; -- Xander Silberman
 UPDATE `creature_template` SET `unit_flags`=33554432, `unit_flags2`=0 WHERE `entry`=132702; -- Alliance Gunship Cannon
-UPDATE `creature_template` SET `unit_flags`=768 WHERE `entry`=131773; -- Nathanos Blightcaller
+UPDATE `creature_template` SET `unit_flags`=768, `ScriptName`='npc_bg_seething_shore_commander' WHERE `entry`=131773; -- Nathanos Blightcaller
 UPDATE `creature_template` SET `unit_flags`=768 WHERE `entry`=132972; -- Skyguard Cannoneer
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=132739; -- Feezzel Gingersnap
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=130677; -- Gunship Grunt
@@ -112,7 +115,7 @@ UPDATE `creature_template` SET `unit_flags`=768 WHERE `entry`=133048; -- Tevs Ru
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=130542; -- Deckhand
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=130537; -- Sergeant Blackwell
 UPDATE `creature_template` SET `unit_flags`=0, `unit_flags2`=67110912, `unit_flags3`=16777216 WHERE `entry`=125253; -- Azerite Fissure
-UPDATE `creature_template` SET `unit_flags`=512 WHERE `entry`=130532; -- Master Mathias Shaw
+UPDATE `creature_template` SET `unit_flags`=512, `ScriptName`='npc_bg_seething_shore_commander' WHERE `entry`=130532; -- Master Mathias Shaw
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=133047; -- Peon
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=133042; -- Sky Marshall Gabriel
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry`=130535; -- Sergeant Schmidt
@@ -351,6 +354,65 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier
 (@CGUID+122, 0, 0, 0, 0, 0, 1, 0, 0, 2923, 0, 0, 0, ''), -- Skyguard Marine
 (@CGUID+123, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, ''), -- Deckhand
 (@CGUID+129, 0, 0, 0, 0, 0, 1, 0, 0, 2923, 0, 0, 0, ''); -- Skyguard Marine
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 131773;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(131773, 0, 0, 'Let me have a look at you. Ugh... pathetic! Why aren''t there any dark rangers in your ranks? Well, you''ll have to do.', 12, 0, 100, 1, 0, 79286, 143504, 0, 'Nathanos Blightcaller'),
+(131773, 1, 0, 'Champions of the Horde! We have found Azerite deposits on some wretched island off the Feralas coast. It is your duty to secure it in the name of the Dark Lady!', 12, 0, 100, 1, 0, 79286, 143501, 0, 'Nathanos Blightcaller'),
+(131773, 2, 0, 'Your mission here is simple. Collect every bit of Azerite and leave nothing for the Alliance to find. I trust that isn''t too hard to grasp.', 12, 0, 100, 1, 0, 79286, 143502, 0, 'Nathanos Blightcaller'),
+(131773, 3, 0, 'Down there... Azerite! Take it for our warchief. And should those Alliance get in your way, litter the beach with their corpses. Move!', 12, 0, 100, 1, 0, 79286, 143505, 0, 'Nathanos Blightcaller'),
+(131773, 4, 0, 'Supplies are on the way. I better not see the Alliance getting them before you do!', 12, 0, 100, 1, 0, 94760, 143506, 0, 'Nathanos Blightcaller'),
+(131773, 4, 1, 'Grab these supplies, if you need them. But don''t lose sight of the Banshee Queen''s prize!', 12, 0, 100, 1, 0, 79286, 143507, 0, 'Nathanos Blightcaller'),
+(131773, 5, 0, 'Zounds! There''s even more Azerite to be had. Follow your map and lock down those sites!', 12, 0, 100, 1, 0, 79286, 143512, 0, 'Nathanos Blightcaller'),
+(131773, 5, 1, 'Almost there. Do not relent. More Azerite!', 12, 0, 100, 1, 0, 94746, 143510, 0, 'Nathanos Blightcaller');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 130532;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(130532, 0, 0, 'You all look like a sturdy lot. Hmm... could use another rogue or two, I''d say... but you''ll do!', 12, 0, 100, 1, 0, 94736, 143496, 0, 'Master Mathias Shaw'),
+(130532, 1, 0, 'Champions, Azerite deposits have been located on an island off the coast of Feralas. We must secure them before the Horde does.', 12, 0, 100, 1, 0, 79286, 143483, 0, 'Master Mathias Shaw'),
+(130532, 2, 0, 'We''ve brought our ship around to the center of the island. Collect as much Azerite as you can. It is the key to victory!', 12, 0, 100, 1, 0, 79286, 143484, 0, 'Master Mathias Shaw'),
+(130532, 3, 0, 'There''s a rich Azerite deposit below us, heroes. Get down there and collect all you can. And if those Horde marauders gets in your way... put them down!', 12, 0, 100, 1, 0, 94737, 143486, 0, 'Master Mathias Shaw'),
+(130532, 4, 0, 'Supplies incoming! Grab them, champions!', 12, 0, 100, 603, 0, 48260, 143493, 0, 'Master Mathias Shaw'),
+(130532, 5, 0, 'You kept that Azerite out of the Horde''s hands. Well done!', 12, 0, 100, 1, 0, 8173, 143490, 0, 'Master Mathias Shaw'),
+(130532, 5, 1, 'You''re doing well so far, heroes. But we need more Azerite!', 12, 0, 100, 0, 0, 8173, 143489, 0, 'Master Mathias Shaw'),
+(130532, 5, 2, 'You''re doing good work. Just a bit more Azerite and the day is ours!', 12, 0, 100, 1, 0, 79286, 143491, 0, 'Master Mathias Shaw'),
+(130532, 6, 0, 'Nicely done, champions! King Wrynn will be pleased to learn of your victory. For the Alliance!', 12, 0, 100, 1, 0, 124132, 143494, 0, 'Master Mathias Shaw');
+
+DELETE FROM `npc_vendor` WHERE `entry` IN (132960, 133056);
+INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
+(132960, 10, 138478, 0, 6182, 1, 0, 0, 54673), -- Feast of Ribs
+(132960, 9, 138479, 0, 6182, 1, 0, 0, 54673), -- Potato Stew Feast
+(132960, 8, 163604, 0, 5986, 1, 0, 0, 54673), -- Net-o-Matic 5000
+(132960, 6, 167862, 0, 6501, 1, 0, 0, 54673), -- Horde Glider Kit
+(132960, 5, 138486, 0, 6181, 1, 0, 0, 54673), -- "Third Wind" Potion
+(132960, 4, 138729, 0, 6181, 1, 0, 0, 54673), -- Potion of Heightened Senses
+(132960, 3, 138488, 0, 6181, 1, 0, 0, 54673), -- Saltwater Potion
+(132960, 2, 138728, 0, 6181, 1, 0, 0, 54673), -- Potion of Trivial Invisibility
+(132960, 1, 138727, 0, 6181, 1, 0, 0, 54673), -- Potion of Defiance
+(133056, 10, 138478, 0, 6182, 1, 0, 0, 54904), -- Feast of Ribs
+(133056, 9, 138479, 0, 6182, 1, 0, 0, 54904), -- Potato Stew Feast
+(133056, 8, 163604, 0, 5986, 1, 0, 0, 54904), -- Net-o-Matic 5000
+(133056, 6, 167862, 0, 6501, 1, 0, 0, 54904), -- Horde Glider Kit
+(133056, 5, 138486, 0, 6181, 1, 0, 0, 54904), -- "Third Wind" Potion
+(133056, 4, 138729, 0, 6181, 1, 0, 0, 54904), -- Potion of Heightened Senses
+(133056, 3, 138488, 0, 6181, 1, 0, 0, 54904), -- Saltwater Potion
+(133056, 2, 138728, 0, 6181, 1, 0, 0, 54904), -- Potion of Trivial Invisibility
+(133056, 1, 138727, 0, 6181, 1, 0, 0, 54904); -- Potion of Defiance
+
+DELETE FROM `npc_text` WHERE `ID` BETWEEN @NPCTEXTID+0 AND @NPCTEXTID+1;
+INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
+(@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 146214, 0, 0, 0, 0, 0, 0, 0, 54904), -- 131776
+(@NPCTEXTID+1, 1, 0, 0, 0, 0, 0, 0, 0, 146213, 0, 0, 0, 0, 0, 0, 0, 54673); -- 130682
+
+DELETE FROM `gossip_menu` WHERE (`MenuID`=22094 AND `TextID`=@NPCTEXTID+0) OR (`menuID`=22093 AND `TextID`=@NPCTEXTID+1);
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(22094, @NPCTEXTID+0, 54904), -- 131776
+(22093, @NPCTEXTID+1, 54673); -- 130682
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID` IN (22094, 22093) AND `OptionID`=0);
+INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `Language`, `Flags`, `ActionMenuID`, `ActionPoiID`, `GossipNpcOptionID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `SpellID`, `OverrideIconID`, `VerifiedBuild`) VALUES
+(22093, 48128, 0, 0, 'Could you conjure me some food?', 0, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 54673),
+(22094, 48129, 0, 0, 'Could you conjure me some food?', 0, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 54904);
 
 -- Waypoints
 -- lying Machine - 1
