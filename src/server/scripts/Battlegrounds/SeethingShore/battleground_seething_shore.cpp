@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellHistory.h"
+#include "TaskScheduler.h"
 #include "TransportMgr.h"
 #include "TemporarySummon.h"
 
