@@ -5534,6 +5534,70 @@ bool AuraEffect::IsAreaAuraEffect() const
     return GetSpellEffectInfo().IsAreaAuraEffect();
 }
 
+bool AuraEffect::IsCrowdControl() const
+{
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_STUN:
+        case SPELL_AURA_MOD_STUN_DISABLE_GRAVITY:
+        case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_MOD_FEAR_2:
+        case SPELL_AURA_MOD_CONFUSE:
+        case SPELL_AURA_MOD_POSSESS:
+        case SPELL_AURA_MOD_PACIFY:
+        case SPELL_AURA_MOD_PACIFY_SILENCE:
+        case SPELL_AURA_MOD_SILENCE:
+        case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_MOD_ROOT_2:
+        case SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY:
+        case SPELL_AURA_MOD_DISARM:
+            return true;
+        default:
+            return false;
+    }
+}
+
+LossOfControlType AuraEffect::GetLossOfControlType() const
+{
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_STUN:
+        case SPELL_AURA_MOD_STUN_DISABLE_GRAVITY:
+        {
+            if (GetSpellEffectInfo().Mechanic == Mechanics::MECHANIC_STUN)
+                return LossOfControlType::StunMechanic;
+            else
+                return LossOfControlType::Stun;
+        }
+        case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_MOD_FEAR_2:
+        {
+            if (GetSpellEffectInfo().Mechanic == Mechanics::MECHANIC_FEAR)
+                return LossOfControlType::FearMechanic;
+            else
+                return LossOfControlType::Fear;
+        }
+        case SPELL_AURA_MOD_CONFUSE:
+            return LossOfControlType::Confuse;
+        case SPELL_AURA_MOD_POSSESS:
+            return LossOfControlType::Possess;
+        case SPELL_AURA_MOD_PACIFY:
+            return LossOfControlType::Pacify;
+        case SPELL_AURA_MOD_PACIFY_SILENCE:
+            return LossOfControlType::PacifySilence;
+        case SPELL_AURA_MOD_SILENCE:
+            return LossOfControlType::Silence;
+        case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_MOD_ROOT_2:
+        case SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY:
+            return LossOfControlType::Root;
+        case SPELL_AURA_MOD_DISARM:
+            return LossOfControlType::Disarm;
+        default:
+            return LossOfControlType::None;
+    }
+}
+
 void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const
 {
     if (!target->IsAlive())

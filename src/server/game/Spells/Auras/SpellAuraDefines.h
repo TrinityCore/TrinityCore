@@ -89,6 +89,23 @@ enum class AuraTriggerOnHealthChangeDirection : int32
     Below   = 1,
 };
 
+enum class LossOfControlType : uint8
+{
+    None                = 0,
+    Possess             = 1,
+    Confuse             = 2,
+    Fear                = 3,
+    Stun                = 4,
+    Pacify              = 5,
+    Root                = 6,
+    Silence             = 7,
+    PacifySilence       = 8,
+    Disarm              = 9,
+    SchoolInterrupt     = 10,
+    FearMechanic        = 11,
+    StunMechanic        = 12,
+};
+
 enum AuraType : uint32
 {
     SPELL_AURA_NONE                                         = 0,

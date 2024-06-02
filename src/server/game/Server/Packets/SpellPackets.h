@@ -1144,6 +1144,37 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class ControlUpdate final : public ServerPacket
+        {
+        public:
+            ControlUpdate() : ServerPacket(SMSG_CONTROL_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool On = false;
+        };
+
+        struct LossOfControlAuraData
+        {
+            uint32 Remaining = 0;
+            uint8 AuraSlot = 0;
+            uint8 EffectIndex = 0;
+            uint8 LossType = 0;
+            uint8 EffectMechanic = 0;
+        };
+
+        class LossOfControlAuraUpdate final : public ServerPacket
+        {
+        public:
+            LossOfControlAuraUpdate() : ServerPacket(SMSG_LOSS_OF_CONTROL_AURA_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid AffectedGUID;
+            std::vector< LossOfControlAuraData> LossOfControlInfo;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request);
     }
 }

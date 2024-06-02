@@ -285,6 +285,18 @@ void AuraApplication::ClientUpdate(bool remove)
 {
     _needClientUpdate = false;
 
+    bool hasCrowdControl = GetBase()->HasCrowdControl();
+
+    if (hasCrowdControl)
+    {
+        WorldPackets::Spells::ControlUpdate controlUpdate;
+        controlUpdate.UnitGUID = GetTarget()->GetGUID();
+        controlUpdate.On = remove;
+
+        if (_target->IsPlayer())
+            _target->ToPlayer()->SendDirectMessage(controlUpdate.Write());
+    }
+
     WorldPackets::Spells::AuraUpdate update;
     update.UpdateAll = false;
     update.UnitGUID = GetTarget()->GetGUID();
@@ -294,6 +306,37 @@ void AuraApplication::ClientUpdate(bool remove)
     update.Auras.push_back(auraInfo);
 
     _target->SendMessageToSet(update.Write(), true);
+
+    if (hasCrowdControl && !remove) 
+    {
+        std::vector<WorldPackets::Spells::LossOfControlAuraData> lossControlAuras;
+
+        for (AuraEffect const* aurEff : GetBase()->GetAuraEffects())
+        {
+            if (!aurEff || !aurEff->IsCrowdControl())
+                continue;
+
+            WorldPackets::Spells::LossOfControlAuraData lossData;
+
+            lossData.Remaining = GetBase()->GetDuration();
+            lossData.AuraSlot = GetSlot();
+            lossData.EffectIndex = aurEff->GetEffIndex();
+            lossData.EffectMechanic = uint8(aurEff->GetSpellEffectInfo().Mechanic);
+            lossData.LossType = uint8(aurEff->GetLossOfControlType());
+            lossControlAuras.emplace_back(lossData);
+        }
+
+        if (_target->IsPlayer() && !lossControlAuras.empty())
+        {
+            _target->m_Events.AddEvent([lossControlAuras, target = _target]()
+            {
+                WorldPackets::Spells::LossOfControlAuraUpdate loss;
+                loss.AffectedGUID = target->GetGUID();
+                loss.LossOfControlInfo = std::move(lossControlAuras);
+                target->ToPlayer()->SendDirectMessage(loss.Write());
+            }, 100ms);
+        }
+    }
 }
 
 std::string AuraApplication::GetDebugInfo() const
@@ -1122,6 +1165,15 @@ bool Aura::IsPassive() const
 bool Aura::IsDeathPersistent() const
 {
     return GetSpellInfo()->IsDeathPersistent();
+}
+
+bool Aura::HasCrowdControl() const
+{
+    for (AuraEffect const* aurEff : GetAuraEffects())
+        if (aurEff && aurEff->IsCrowdControl())
+            return true;
+
+    return false;
 }
 
 bool Aura::IsRemovedOnShapeLost(Unit* target) const
