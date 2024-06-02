@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
 #include "SpellHistory.h"
 #include "TaskScheduler.h"
