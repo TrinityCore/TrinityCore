@@ -274,6 +274,7 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
     bool gmMessage = false;
     ObjectGuid receiverGUID;
     std::string receiverName = "";
+    language = LANG_UNIVERSAL;
     if (sender)
     {
         senderGUID = sender->GetGUID();
