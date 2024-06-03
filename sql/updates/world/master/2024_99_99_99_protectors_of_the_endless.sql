@@ -42,27 +42,24 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (60583, 0, 0, 0, 0, 0, 1, 0, 0, 2635, 0, 0, 3, '118221 93105'); -- 60583 (Protector Kaolan) - Sha Mask, Invisibility and Stealth Detection
 
 DELETE FROM `creature_template_difficulty` WHERE (`Entry`=60621 AND `DifficultyID`=3);
-INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`, `VerifiedBuild`) VALUES
-(60621, 3, 2, 2, 1034, 4, 5.5, 1, 58739, 1024, 0, 536871168, 0, 0, 512, 0, 0, 0, 0, 54736); -- Corrupted Waters
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`) VALUES
+(60621, 3, 4, 5.5, 1, 58739, 1024, 0); -- Corrupted Waters
 
-DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=3 AND `Entry` IN (60646,60886,65736,63420,60906,60957));
-INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`, `VerifiedBuild`) VALUES
-(60646, 3, 3, 3, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54736), -- Cleansing Waters
-(60886, 3, 3, 3, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54762), -- Coalesced Corruption
-(65736, 3, 0, 0, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54736), -- Return to the Terrace
-(63420, 3, 0, 0, 657, 536871168, 0, 0, 0, 0, 0, 0, 0, 54736), -- SLG Generic MoP
-(60906, 3, 3, 3, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54762), -- Fissure
-(60957, 3, 3, 3, 1034, 536871168, 0, 0, 0, 0, 0, 0, 0, 54736); -- Minion of Fear Controller
-
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags1`=536870912, `StaticFlags2`=0, `VerifiedBuild`=54736 WHERE (`Entry`=63025 AND `DifficultyID`=3); -- Tsulong
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags1`=536871168, `StaticFlags2`=0, `VerifiedBuild`=54736 WHERE (`Entry`=60999 AND `DifficultyID`=3); -- Sha of Fear
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=328, `VerifiedBuild`=54736 WHERE (`Entry`=36737 AND `DifficultyID`=3); -- Invisible Stalker
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags2`=0, `VerifiedBuild`=54736 WHERE (`Entry`=60586 AND `DifficultyID`=3); -- Elder Asani
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags2`=0, `VerifiedBuild`=54736 WHERE (`Entry`=60585 AND `DifficultyID`=3); -- Elder Regail
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=1034, `StaticFlags1`=268435456, `VerifiedBuild`=54736 WHERE (`Entry`=64368 AND `DifficultyID`=3); -- Apparition of Fear
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=1034, `StaticFlags1`=268435456, `VerifiedBuild`=54736 WHERE (`Entry`=66100 AND `DifficultyID`=3); -- Apparition of Terror
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags2`=0, `VerifiedBuild`=54736 WHERE (`Entry`=60583 AND `DifficultyID`=3); -- Protector Kaolan
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1034, `StaticFlags1`=268435456, `VerifiedBuild`=54736 WHERE (`Entry`=64846 AND `DifficultyID`=3); -- Springtender Ashani
+DELETE FROM `creature_template_difficulty` WHERE (`Entry`=60621 AND `DifficultyID`IN (1,2,23));
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=1034, `StaticFlags1`=536871168, `VerifiedBuild`=54736 WHERE (`Entry`=60621 AND `DifficultyID`=3); -- 60621 (Corrupted Waters) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags1`=536871168, `VerifiedBuild`=54736 WHERE (`Entry`=60646 AND `DifficultyID`=0); -- 60646 (Cleansing Waters) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1034, `StaticFlags1`=536871168, `VerifiedBuild`=54736 WHERE (`Entry`=65736 AND `DifficultyID`=0); -- 65736 (Return to the Terrace) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=536871168, `VerifiedBuild`=54736 WHERE (`Entry`=63420 AND `DifficultyID`=0); -- 63420 (SLG Generic MoP) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags1`=536871168, `VerifiedBuild`=54736 WHERE (`Entry`=60957 AND `DifficultyID`=0); -- 60957 (Minion of Fear Controller) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags1`=`StaticFlags1`|536870912, `VerifiedBuild`=54736 WHERE (`Entry`=63025 AND `DifficultyID`=0); -- 63025 (Tsulong) - Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `StaticFlags1`=536871168, `VerifiedBuild`=54736 WHERE (`Entry`=60999 AND `DifficultyID`=0); -- 60999 (Sha of Fear) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=328, `VerifiedBuild`=54736 WHERE (`Entry`=36737 AND `DifficultyID`=0); -- 36737 (Invisible Stalker) - 
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `VerifiedBuild`=54736 WHERE (`Entry`=60586 AND `DifficultyID`=0); -- 60586 (Elder Asani) - 
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `VerifiedBuild`=54736 WHERE (`Entry`=60585 AND `DifficultyID`=0); -- 60585 (Elder Regail) - 
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=1034, `StaticFlags1`=`StaticFlags1`|268435456, `VerifiedBuild`=54736 WHERE (`Entry`=64368 AND `DifficultyID`=0); -- 64368 (Apparition of Fear) - CanSwim
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=1034, `StaticFlags1`=`StaticFlags1`|268435456, `VerifiedBuild`=54736 WHERE (`Entry`=66100 AND `DifficultyID`=0); -- 66100 (Apparition of Terror) - CanSwim
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=1034, `VerifiedBuild`=54736 WHERE (`Entry`=60583 AND `DifficultyID`=0); -- 60583 (Protector Kaolan) - 
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1034, `StaticFlags1`=`StaticFlags1`|268435456, `VerifiedBuild`=54736 WHERE (`Entry`=64846 AND `DifficultyID`=0); -- 64846 (Springtender Ashani) - CanSwim
 
 UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=33554688, `unit_flags2`=2048, `unit_flags3`=524289 WHERE `entry`=60906; -- Fissure
 UPDATE `creature_template` SET `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=33554688, `unit_flags2`=2048, `unit_flags3`=524289 WHERE `entry`=60886; -- Coalesced Corruption
