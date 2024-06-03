@@ -730,7 +730,7 @@ class spell_dru_idol_lifebloom : public AuraScript
 class spell_dru_innervate : public AuraScript
 {
     PrepareAuraScript(spell_dru_innervate);
-
+    
     void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
         if (!aurEff->GetTotalTicks())
