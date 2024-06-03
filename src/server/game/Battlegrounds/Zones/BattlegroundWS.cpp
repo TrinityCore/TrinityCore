@@ -357,7 +357,7 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* player)
         UpdateWorldState(BG_WS_FLAG_STATE_HORDE, 1);
         UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 0);
 
-        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_WIN], winner);
+        //RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_WIN], winner);
         EndBattleground(winner);
     }
     else
@@ -766,6 +766,7 @@ void BattlegroundWS::Reset()
 void BattlegroundWS::EndBattleground(uint32 winner)
 {
     // Win reward
+    /*
     if (winner == ALLIANCE)
         RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), ALLIANCE);
     if (winner == HORDE)
@@ -773,7 +774,7 @@ void BattlegroundWS::EndBattleground(uint32 winner)
     // Complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
-
+    */
     Battleground::EndBattleground(winner);
 }
 

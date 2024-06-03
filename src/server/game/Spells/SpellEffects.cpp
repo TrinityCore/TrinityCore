@@ -2578,6 +2578,11 @@ void Spell::EffectDispel()
     if (dispelList.empty())
         return;
 
+    // Shield Slam 50% chance dispel
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR && (m_spellInfo->GetCategory() == 1209) &&
+        !roll_chance_i(50))
+        return;
+
     size_t remaining = dispelList.size();
 
     // Ok if exist some buffs for dispel try dispel it
