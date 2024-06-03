@@ -3628,8 +3628,7 @@ void Spell::cancel()
             CancelGlobalCooldown();
             [[fallthrough]];
         case SPELL_STATE_LAUNCHED:
-            SendInterrupted(0);
-            SendCastResult(SPELL_FAILED_INTERRUPTED);
+            SendInterrupted(SPELL_FAILED_INTERRUPTED);
             break;
         case SPELL_STATE_CHANNELING:
             {
@@ -3647,8 +3646,7 @@ void Spell::cancel()
             }
 
             SendChannelUpdate(0, SPELL_FAILED_INTERRUPTED);
-            SendInterrupted(0);
-            SendCastResult(SPELL_FAILED_INTERRUPTED);
+            SendInterrupted(SPELL_FAILED_INTERRUPTED);
             break;
         default:
             break;
