@@ -2329,6 +2329,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
             }
             case SPELLFAMILY_WARRIOR:
             {
+                if (Id == 355)
+                    return DIMINISHING_FEAR;
                 // Hamstring - limit duration to 10s in PvP
                 if (SpellFamilyFlags[0] & 0x2)
                     return DIMINISHING_LIMITONLY;

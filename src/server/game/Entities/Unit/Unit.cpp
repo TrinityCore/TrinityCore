@@ -9401,7 +9401,7 @@ float Unit::GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange typ
 bool Unit::CanFreeMove() const
 {
     return !HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT |
-        UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) && GetOwnerGUID().IsEmpty();
+        UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED | UNIT_STATE_TAUNTED) && GetOwnerGUID().IsEmpty();
 }
 
 void Unit::SetLevel(uint8 lvl, bool sendUpdate/* = true*/)
@@ -11346,6 +11346,12 @@ void Unit::SetControlled(bool apply, UnitState state)
                     SetFeared(true);
                 }
                 break;
+            case UNIT_STATE_TAUNTED:
+                if (!HasUnitState(UNIT_STATE_STUNNED | UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
+                {
+                    SetTaunted(true);
+                    break;
+                }
             default:
                 break;
         }
@@ -11382,6 +11388,13 @@ void Unit::SetControlled(bool apply, UnitState state)
                 ClearUnitState(state);
                 SetFeared(false);
                 break;
+
+            case UNIT_STATE_TAUNTED:
+                if (HasAuraType(SPELL_AURA_MOD_TAUNT))
+                    return;
+                ClearUnitState(state);
+                SetTaunted(false);
+                break;
             default:
                 return;
         }
@@ -11404,6 +11417,9 @@ void Unit::ApplyControlStatesIfNeeded()
 
     if (HasUnitState(UNIT_STATE_FLEEING) || HasAuraType(SPELL_AURA_MOD_FEAR))
         SetFeared(true);
+
+    if (HasUnitState(UNIT_STATE_TAUNTED) || HasAuraType(SPELL_AURA_MOD_TAUNT))
+        SetTaunted(true);
 }
 
 void Unit::SetStunned(bool apply)
@@ -11553,6 +11569,44 @@ void Unit::SetFeared(bool apply)
                 GetMotionMaster()->MoveTargetedHome();
         }
 
+        // allow control to real player in control (eg charmer)
+        if (GetCharmerOrSelfPlayer())
+            GetCharmerOrSelfPlayer()->SetClientControl(this, true);
+    }
+}
+
+void Unit::SetTaunted(bool apply)
+{
+    if (apply)
+    {
+        // block control to real player in control (eg charmer)
+        if (GetCharmerOrSelfPlayer())
+            GetCharmerOrSelfPlayer()->SetClientControl(this, false);
+
+        Unit* caster = nullptr;
+        Unit::AuraEffectList const& tauntAuras = GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
+        if (!tauntAuras.empty())
+            caster = ObjectAccessor::GetUnit(*this, tauntAuras.front()->GetCasterGUID());
+        if (!caster)
+            caster = getAttackerForHelper();
+
+        SetTarget(ObjectGuid::Empty);
+        if (IsPlayer())
+        {
+            ToPlayer()->Dismount();
+        }
+        GetMotionMaster()->MoveChase(caster);
+        Attack(caster, true);
+    }
+    else
+    {
+        AttackStop();
+        if (IsAlive())
+        {
+            GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
+            if (GetVictim())
+                SetTarget(EnsureVictim()->GetGUID());
+        }
         // allow control to real player in control (eg charmer)
         if (GetCharmerOrSelfPlayer())
             GetCharmerOrSelfPlayer()->SetClientControl(this, true);

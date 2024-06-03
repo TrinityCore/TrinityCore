@@ -246,6 +246,7 @@ enum UnitState : uint32
     UNIT_STATE_FOLLOW_MOVE           = 0x08000000,
     UNIT_STATE_IGNORE_PATHFINDING    = 0x10000000, // do not use pathfinding in any MovementGenerator
     UNIT_STATE_FOLLOW_FORMATION_MOVE = 0x20000000,
+    UNIT_STATE_TAUNTED               = 0x40000000,
 
     UNIT_STATE_ALL_STATE_SUPPORTED = UNIT_STATE_DIED | UNIT_STATE_MELEE_ATTACKING | UNIT_STATE_CHARMED | UNIT_STATE_STUNNED | UNIT_STATE_ROAMING | UNIT_STATE_CHASE
                                    | UNIT_STATE_FOCUSING | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT | UNIT_STATE_FOLLOW | UNIT_STATE_ROOT | UNIT_STATE_CONFUSED
@@ -1934,6 +1935,7 @@ class TC_GAME_API Unit : public WorldObject
 
     protected:
         void SetFeared(bool apply);
+        void SetTaunted(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
         void SetRooted(bool apply);

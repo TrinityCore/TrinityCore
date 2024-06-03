@@ -2787,12 +2787,18 @@ void AuraEffect::HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 m
         caster->GetThreatManager().UpdateMyTempModifiers();
 }
 
-void AuraEffect::HandleModTaunt(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModTaunt(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     Unit* target = aurApp->GetTarget();
+
+    if (target->IsPlayer() && target->IsAlive())
+    {
+        target->SetControlled(apply, UNIT_STATE_TAUNTED);
+        return;
+    }
 
     if (!target->IsAlive() || !target->CanHaveThreatList())
         return;
@@ -5626,6 +5632,7 @@ void AuraEffect::HandleModAttackPowerOfArmorAuraTick(Unit* target, Unit* caster)
     target->UpdateAttackPowerAndDamage(true);
 }
 
+//ttopper: breakable roots/fears
 void AuraEffect::HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
     Unit* caster = aurApp->GetBase()->GetCaster()->ToUnit();

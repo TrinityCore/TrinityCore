@@ -6248,13 +6248,18 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     if (m_spellInfo->Id == 33206 && !unitCaster->HasAura(63248))
         usableWhileStunned = false;
 
+    if (unitCaster->HasUnitState(UNIT_STATE_TAUNTED) && !usableWhileFeared)
+    {
+        return SPELL_FAILED_CONFUSED;
+    }
+
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult result = SPELL_CAST_OK;
 
     // Get unit state
     uint32 const unitflag = unitCaster->GetUnitFlags();
-
-    if (m_fromClient && unitCaster->IsCharmed() && unitCaster->IsPlayer() && !CheckSpellCancelsCharm(param1))
+    bool charmed = unitCaster->HasUnitState(UNIT_STATE_TAUNTED) || unitCaster->IsCharmed();
+    if (m_fromClient && charmed && unitCaster->IsPlayer() && !CheckSpellCancelsCharm(param1))
         result = SPELL_FAILED_CHARMED;
 
     // spell has attribute usable while having a cc state, check if caster has allowed mechanic auras, another mechanic types must prevent cast spell
@@ -6290,6 +6295,8 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
                 case SPELL_AURA_MOD_FEAR:
                     return SPELL_FAILED_FLEEING;
                 case SPELL_AURA_MOD_CONFUSE:
+                    return SPELL_FAILED_CONFUSED;
+                case SPELL_AURA_MOD_TAUNT:
                     return SPELL_FAILED_CONFUSED;
                 default:
                     ABORT();
