@@ -2228,6 +2228,15 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
+        if (data.display.has_value())
+        {
+            if (!GetCreatureModelInfo(data.display->CreatureDisplayID))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with invalid `modelid` {}, ignoring.", guid, data.id, data.display->CreatureDisplayID);
+                data.display.reset();
+            }
+        }
+
         // -1 random, 0 no equipment
         if (data.equipmentId != 0)
         {
