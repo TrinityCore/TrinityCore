@@ -286,8 +286,6 @@ void AuraApplication::ClientUpdate(bool remove)
 {
     _needClientUpdate = false;
 
-    bool hasCrowdControl = GetBase()->HasCrowdControl();
-
     WorldPackets::Spells::AuraUpdate update;
     update.UpdateAll = false;
     update.UnitGUID = GetTarget()->GetGUID();
@@ -298,7 +296,7 @@ void AuraApplication::ClientUpdate(bool remove)
 
     _target->SendMessageToSet(update.Write(), true);
 
-    if (hasCrowdControl && !remove) 
+    if (_target->IsPlayer() && !remove) 
     {
         std::vector<WorldPackets::Spells::LossOfControlAuraData> lossControlAuras;
 
@@ -322,15 +320,15 @@ void AuraApplication::ClientUpdate(bool remove)
             lossControlAuras.emplace_back(lossData);
         }
 
-        if (_target->IsPlayer() && !lossControlAuras.empty())
+        if (!lossControlAuras.empty())
         {
             _target->m_Events.AddEvent([lossControlAuras, target = _target]()
             {
-                WorldPackets::Spells::LossOfControlAuraUpdate loss;
-                loss.AffectedGUID = target->GetGUID();
-                loss.LossOfControlInfo = std::move(lossControlAuras);
-                target->ToPlayer()->SendDirectMessage(loss.Write());
-            }, 100ms);
+                    WorldPackets::Spells::LossOfControlAuraUpdate loss;
+                    loss.AffectedGUID = target->GetGUID();
+                    loss.LossOfControlInfo = std::move(lossControlAuras);
+                    target->ToPlayer()->SendDirectMessage(loss.Write());
+            }, 0ms);
         }
     }
 }
