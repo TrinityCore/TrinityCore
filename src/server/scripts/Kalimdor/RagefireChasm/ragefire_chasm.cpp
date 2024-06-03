@@ -74,6 +74,9 @@ class spell_ragefire_chasm_general_trigger_221_to_self : public SpellScript
     {
         Creature* casterCreature = GetCaster()->ToCreature();
 
+        if (!casterCreature)
+            return;
+
         if (casterCreature->HasStringId("npc_rescued_cage_1"))
             casterCreature->GetMotionMaster()->MovePath(PATH_RESCUED_1, false);
         else if (casterCreature->HasStringId("npc_rescued_cage_2"))
