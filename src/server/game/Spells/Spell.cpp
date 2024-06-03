@@ -6248,11 +6248,6 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     if (m_spellInfo->Id == 33206 && !unitCaster->HasAura(63248))
         usableWhileStunned = false;
 
-    if (unitCaster->HasUnitState(UNIT_STATE_TAUNTED) && !usableWhileFeared)
-    {
-        return SPELL_FAILED_CONFUSED;
-    }
-
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult result = SPELL_CAST_OK;
 
