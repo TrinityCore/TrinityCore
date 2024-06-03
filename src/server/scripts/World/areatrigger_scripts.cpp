@@ -508,9 +508,9 @@ struct at_void_orb_harbinger : AreaTriggerAI
 };
 
 // 18242 - Abyssal Portal
-struct at_abyssal_portal : AreaTriggerAI
+struct at_abyssal_portal_harbinger : AreaTriggerAI
 {
-    at_abyssal_portal(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _remainingSummons(0) { }
+    at_abyssal_portal_harbinger(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _remainingSummons(0) { }
 
     enum Spells
     {
@@ -558,5 +558,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_battleground_buffs();
     RegisterAreaTriggerAI(areatrigger_action_capture_flag);
     RegisterAreaTriggerAI(at_void_orb_harbinger);
-    RegisterAreaTriggerAI(at_abyssal_portal);
+    RegisterAreaTriggerAI(at_abyssal_portal_harbinger);
 }

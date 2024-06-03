@@ -57,7 +57,7 @@ INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsCustom`, `Action
 (20893, 0, 1, 294504, 2); -- Spell: 294503 (Pooled Corruption)
 
 UPDATE `areatrigger_create_properties` SET `ScriptName`='at_void_orb_harbinger' WHERE `Id`=13734 AND `IsCustom`=0;
-UPDATE `areatrigger_create_properties` SET `ScriptName`='at_abyssal_portal' WHERE `Id`=13744 AND `IsCustom`=0;
+UPDATE `areatrigger_create_properties` SET `ScriptName`='at_abyssal_portal_harbinger' WHERE `Id`=13744 AND `IsCustom`=0;
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN(148911, 148912);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
