@@ -31,6 +31,8 @@ namespace UF
     struct ChrCustomizationChoice;
 }
 
+enum LossOfControlType;
+
 namespace WorldPackets
 {
     namespace Spells
