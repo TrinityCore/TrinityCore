@@ -296,7 +296,7 @@ void AuraApplication::ClientUpdate(bool remove)
 
     _target->SendMessageToSet(update.Write(), true);
 
-    if (_target->IsPlayer() && !remove) 
+    if (_target->IsPlayer() && !remove)
     {
         std::vector<WorldPackets::Spells::LossOfControlAuraData> lossControlAuras;
 
