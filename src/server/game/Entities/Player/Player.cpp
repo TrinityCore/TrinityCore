@@ -6727,17 +6727,6 @@ void Player::UpdateHonorFields()
 ///An exact honor value can also be given (overriding the calcs)
 bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken)
 {
-    // do not reward honor in arenas, but enable onkill spellproc
-    if (InArena())
-    {
-        if (!victim || victim == this || victim->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (GetBGTeam() == victim->ToPlayer()->GetBGTeam())
-            return false;
-
-        return true;
-    }
 
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
     if (HasAura(SPELL_AURA_PLAYER_INACTIVE))
@@ -6748,10 +6737,6 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
-
-    // do not reward honor in arenas, but return true to enable onkill spellproc
-    if (InBattleground() && GetBattleground() && GetBattleground()->isArena())
-        return true;
 
     // Promote to float for calculations
     float honor_f = (float)honor;
