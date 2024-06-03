@@ -635,7 +635,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         while (db2PathItr != end)
         {
             LocaleConstant locale = GetLocaleByName(db2PathItr->path().filename().string());
-            if (IsValidLocale(locale))
+            if (IsValidLocale(locale) && (sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) || locale == defaultLocale))
                 foundLocales[locale] = true;
 
             ++db2PathItr;
