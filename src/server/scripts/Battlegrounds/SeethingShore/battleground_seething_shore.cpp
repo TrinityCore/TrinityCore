@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
@@ -26,17 +27,17 @@
 #include "GameObjectAI.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "MoveSplineInitArgs.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "SpellHistory.h"
 #include "TaskScheduler.h"
-#include "TransportMgr.h"
 #include "TemporarySummon.h"
+#include "WaypointDefines.h"
 
 #include <unordered_map>
 
