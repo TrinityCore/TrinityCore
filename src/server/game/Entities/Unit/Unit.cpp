@@ -1489,6 +1489,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         Aura* judgeWisdomAura = victim->GetAuraOfRankedSpell(20186);
         Aura* judgeLightAura = victim->GetAuraOfRankedSpell(20185);
         Aura* judgeCrusaderAura = victim->GetAuraOfRankedSpell(20188);
+        Aura* judgeJusticeAura = victim->GetAura(20184);
 
         //if paladin that cast judgement hits with auto attack, it refreshes duration
         if (judgeWisdomAura && judgeWisdomAura->GetCaster()->GetGUID() == attacker->GetGUID())
@@ -1504,6 +1505,11 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         if (judgeCrusaderAura && judgeCrusaderAura->GetCaster()->GetGUID() == attacker->GetGUID())
         {
             judgeCrusaderAura->RefreshDuration();
+        }
+
+        if (judgeJusticeAura && judgeJusticeAura->GetCaster()->GetGUID() == attacker->GetGUID())
+        {
+            judgeJusticeAura->RefreshDuration();
         }
     }
 
