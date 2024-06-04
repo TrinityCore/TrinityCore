@@ -91,6 +91,5 @@ class TC_GAME_API Weather
         float m_intensity;
         IntervalTimer m_timer;
         WeatherData const* m_weatherChances;
-        Map* m_map;
 };
 #endif
