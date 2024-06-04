@@ -106,7 +106,6 @@ class TC_GAME_API AuraEffect
         bool IsEffect() const { return m_effectInfo.Effect != 0; }
         bool IsEffect(SpellEffectName effectName) const { return m_effectInfo.Effect == effectName; }
         bool IsAreaAuraEffect() const;
-        bool IsCrowdControl() const;
         LossOfControlType GetLossOfControlType() const;
 
     private:

@@ -39,7 +39,6 @@
 #include "Vehicle.h"
 #include "World.h"
 #include <sstream>
-#include <MovementPackets.h>
 
 class ChargeDropEvent : public BasicEvent
 {
@@ -302,7 +301,7 @@ void AuraApplication::ClientUpdate(bool remove)
 
         for (AuraEffect const* aurEff : GetBase()->GetAuraEffects())
         {
-            if (!aurEff || !aurEff->IsCrowdControl())
+            if (!aurEff || aurEff->GetLossOfControlType() == LossOfControlType::None)
                 continue;
 
             WorldPackets::Spells::LossOfControlAuraData lossData;
@@ -1159,15 +1158,6 @@ bool Aura::IsPassive() const
 bool Aura::IsDeathPersistent() const
 {
     return GetSpellInfo()->IsDeathPersistent();
-}
-
-bool Aura::HasCrowdControl() const
-{
-    for (AuraEffect const* aurEff : GetAuraEffects())
-        if (aurEff && aurEff->IsCrowdControl())
-            return true;
-
-    return false;
 }
 
 bool Aura::IsRemovedOnShapeLost(Unit* target) const

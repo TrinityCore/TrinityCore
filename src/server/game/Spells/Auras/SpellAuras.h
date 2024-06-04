@@ -198,7 +198,6 @@ class TC_GAME_API Aura
         bool IsArea() const;
         bool IsPassive() const;
         bool IsDeathPersistent() const;
-        bool HasCrowdControl() const;
         bool IsRemovedOnShapeLost(Unit* target) const;
 
         bool CanBeSaved() const;
