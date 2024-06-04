@@ -27,6 +27,7 @@
 #include "Timer.h"
 
 class Player;
+class Map;
 
 #define WEATHER_SEASONS 4
 struct WeatherSeasonChances
@@ -66,7 +67,7 @@ class TC_GAME_API Weather
 {
     public:
 
-        Weather(uint32 zoneId, WeatherData const* weatherChances);
+        Weather(Map* map, uint32 zoneId, WeatherData const* weatherChances);
         ~Weather() { };
 
         bool Update(uint32 diff);
@@ -89,5 +90,6 @@ class TC_GAME_API Weather
         float m_intensity;
         IntervalTimer m_timer;
         WeatherData const* m_weatherChances;
+        Map* m_map;
 };
 #endif

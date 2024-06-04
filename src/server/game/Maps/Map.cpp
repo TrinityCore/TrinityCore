@@ -18,6 +18,7 @@
 #include "Map.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
@@ -4756,7 +4757,7 @@ Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     if (!info.DefaultWeather)
     {
-        info.DefaultWeather = std::make_unique<Weather>(zoneId, weatherData);
+        info.DefaultWeather = std::make_unique<Weather>(this, zoneId, weatherData);
         info.DefaultWeather->ReGenerate();
         info.DefaultWeather->UpdateWeather();
     }
@@ -4831,6 +4832,37 @@ void Map::UpdateAreaDependentAuras()
             }
         }
     }
+}
+
+/// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
+bool Map::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self, uint32 team)
+{
+    bool foundPlayerToSend = false;
+
+    Map::PlayerList const& players = GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+    {
+        Player* player = itr->GetSource();
+        if (player &&
+            player->IsInWorld() &&
+            player->GetZoneId() == zone &&
+            player->GetSession() != self &&
+            (team == 0 || player->GetTeam() == team))
+        {
+            player->GetSession()->SendPacket(packet);
+            foundPlayerToSend = true;
+        }
+    }
+
+    return foundPlayerToSend;
+}
+
+/// Send a System Message to all players in the zone (except self if mentioned)
+void Map::SendZoneText(uint32 zone, char const* text, WorldSession* self, uint32 team)
+{
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
+    SendZoneMessage(zone, &data, self, team);
 }
 
 std::string Map::GetDebugInfo() const

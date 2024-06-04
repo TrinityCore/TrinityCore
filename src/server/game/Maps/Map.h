@@ -55,6 +55,7 @@ class Unit;
 class Weather;
 class WorldObject;
 class WorldPacket;
+class WorldSession;
 struct MapDifficulty;
 struct MapEntry;
 struct Position;
@@ -653,6 +654,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         }
 
         virtual std::string GetDebugInfo() const;
+
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendZoneText(uint32 zone, const char* text, WorldSession* self = nullptr, uint32 team = 0);
 
     private:
         void LoadMapAndVMap(int gx, int gy);
