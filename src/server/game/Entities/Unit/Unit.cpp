@@ -8948,24 +8948,8 @@ bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool trigg
     }
 
     float mod = 1.0f;
-    if (group == DIMINISHING_TAUNT)
-    {
-        if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS))
-        {
-            DiminishingLevels diminish = previousLevel;
-            switch (diminish)
-            {
-                case DIMINISHING_LEVEL_0: break;
-                case DIMINISHING_LEVEL_1: mod = 0.65f; break;
-                case DIMINISHING_LEVEL_2: mod = 0.4225f; break;
-                case DIMINISHING_LEVEL_3: mod = 0.274625f; break;
-                case DIMINISHING_LEVEL_TAUNT_IMMUNE: mod = 0.0f; break;
-                default: break;
-            }
-        }
-    }
     // Some diminishings applies to mobs too (for example, Stun)
-    else if (auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_ALL ||
+    if (auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_ALL ||
         (auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_PLAYER &&
         (targetOwner ? targetOwner->IsAffectedByDiminishingReturns() : IsAffectedByDiminishingReturns())))
     {
