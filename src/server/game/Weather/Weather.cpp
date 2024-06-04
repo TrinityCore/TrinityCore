@@ -29,7 +29,6 @@
 #include "ScriptMgr.h"
 #include "Util.h"
 #include "World.h"
-#include "Map.h"
 
 /// Create the Weather object
 Weather::Weather(Map* map, uint32 zoneId, WeatherData const* weatherChances)
