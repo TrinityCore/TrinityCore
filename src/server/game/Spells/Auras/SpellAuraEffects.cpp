@@ -1230,7 +1230,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     if (aurEff->GetSpellInfo()->SpellIconID == 240 && aurEff->GetMiscValue() == 3)
                     {
                         CastSpellExtraArgs args(this);
-                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount() / 2); // For each 2% Intelligence, you get 1% stamina and 1% attack power.
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
 
                         target->CastSpell(target, HotWSpellId, args);
                         break;
