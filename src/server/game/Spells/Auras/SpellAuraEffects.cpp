@@ -5534,29 +5534,6 @@ bool AuraEffect::IsAreaAuraEffect() const
     return GetSpellEffectInfo().IsAreaAuraEffect();
 }
 
-bool AuraEffect::IsCrowdControl() const
-{
-    switch (GetAuraType())
-    {
-        case SPELL_AURA_MOD_STUN:
-        case SPELL_AURA_MOD_STUN_DISABLE_GRAVITY:
-        case SPELL_AURA_MOD_FEAR:
-        case SPELL_AURA_MOD_FEAR_2:
-        case SPELL_AURA_MOD_CONFUSE:
-        case SPELL_AURA_MOD_POSSESS:
-        case SPELL_AURA_MOD_PACIFY:
-        case SPELL_AURA_MOD_PACIFY_SILENCE:
-        case SPELL_AURA_MOD_SILENCE:
-        case SPELL_AURA_MOD_ROOT:
-        case SPELL_AURA_MOD_ROOT_2:
-        case SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY:
-        case SPELL_AURA_MOD_DISARM:
-            return true;
-        default:
-            return false;
-    }
-}
-
 LossOfControlType AuraEffect::GetLossOfControlType() const
 {
     switch (GetAuraType())

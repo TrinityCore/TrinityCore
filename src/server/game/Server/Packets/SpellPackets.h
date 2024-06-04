@@ -31,7 +31,7 @@ namespace UF
     struct ChrCustomizationChoice;
 }
 
-enum LossOfControlType;
+enum class LossOfControlType : uint8;
 
 namespace WorldPackets
 {
