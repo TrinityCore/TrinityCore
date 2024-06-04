@@ -34,7 +34,7 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
-    SPELL_WARRIOR_BLOODTHIRST                       = 23885,
+    SPELL_WARRIOR_BLOODTHIRST                       = 23888,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
     SPELL_WARRIOR_BLOODSURGE_R1                     = 46913,
     SPELL_WARRIOR_CHARGE                            = 34846,
