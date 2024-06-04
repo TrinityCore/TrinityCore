@@ -33,6 +33,10 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_FERAL_SWIFTNESS_R1 = 17002,
+    SPELL_DRUID_FERAL_SWIFTNESS_R2 = 24866,
+    SPELL_DRUID_FERAL_SWIFTNESS_PASSIVE_1 = 24867,
+    SPELL_DRUID_FERAL_SWIFTNESS_PASSIVE_2 = 24864,
     SPELL_DRUID_BEAR_FORM_PASSIVE           = 1178,
     SPELL_DRUID_DIRE_BEAR_FORM_PASSIVE      = 9635,
     SPELL_DRUID_ECLIPSE_LUNAR_PROC          = 48518,
@@ -162,6 +166,31 @@ class spell_dru_bear_form_passive : public AuraScript
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_bear_form_passive::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_BASE_RESISTANCE_PCT);
     }
 };
+
+class spell_dru_feral_swiftness : public AuraScript
+{
+    PrepareAuraScript(spell_dru_feral_swiftness);
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* player = GetTarget()->ToPlayer())
+            if (uint8 rank = player->HasTalent(SPELL_DRUID_FERAL_SWIFTNESS_R1, player->GetActiveSpec()) ? 1 : (player->HasTalent(SPELL_DRUID_FERAL_SWIFTNESS_R2, player->GetActiveSpec()) ? 2 : 0))
+                player->CastSpell(player, rank == 1 ? SPELL_DRUID_FERAL_SWIFTNESS_PASSIVE_1 : SPELL_DRUID_FERAL_SWIFTNESS_PASSIVE_2);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_FERAL_SWIFTNESS_PASSIVE_1);
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_FERAL_SWIFTNESS_PASSIVE_2);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_feral_swiftness::AfterApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_feral_swiftness::AfterRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 
 // 50334 - Berserk
 class spell_dru_berserk : public AuraScript
@@ -1932,6 +1961,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_bear_form_passive);
     RegisterSpellScript(spell_dru_berserk);
+    RegisterSpellScript(spell_dru_feral_swiftness);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_eclipse);
     RegisterSpellScript(spell_dru_enrage);
