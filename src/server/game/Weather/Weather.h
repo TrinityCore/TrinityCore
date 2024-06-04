@@ -85,6 +85,7 @@ class TC_GAME_API Weather
     private:
 
         WeatherState GetWeatherState() const;
+        Map* m_map;
         uint32 m_zone;
         WeatherType m_type;
         float m_intensity;

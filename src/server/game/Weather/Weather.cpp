@@ -22,6 +22,7 @@
 #include "Weather.h"
 #include "GameTime.h"
 #include "Log.h"
+#include "Map.h"
 #include "MiscPackets.h"
 #include "Player.h"
 #include "Random.h"
