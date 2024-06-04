@@ -323,10 +323,10 @@ void AuraApplication::ClientUpdate(bool remove)
         {
             _target->m_Events.AddEvent([lossControlAuras, target = _target]()
             {
-                    WorldPackets::Spells::LossOfControlAuraUpdate loss;
-                    loss.AffectedGUID = target->GetGUID();
-                    loss.LossOfControlInfo = std::move(lossControlAuras);
-                    target->ToPlayer()->SendDirectMessage(loss.Write());
+                WorldPackets::Spells::LossOfControlAuraUpdate loss;
+                loss.AffectedGUID = target->GetGUID();
+                loss.LossOfControlInfo = std::move(lossControlAuras);
+                target->ToPlayer()->SendDirectMessage(loss.Write());
             }, 0ms);
         }
     }
