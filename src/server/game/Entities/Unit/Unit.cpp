@@ -10168,6 +10168,12 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
                         ModifyAuraState(AURA_STATE_DEFENSE, true);
                         StartReactiveTimer(REACTIVE_DEFENSE);
                     }
+                    // For Hunters only improved Counterattack
+                    if (GetClass() == CLASS_HUNTER && HasAura(81283))
+                    {
+                        ModifyAuraState(AURA_STATE_HUNTER_PARRY, true);
+                        StartReactiveTimer(REACTIVE_HUNTER_PARRY);
+                    }
                 }
                 // if victim and parry attack
                 if (hitMask & PROC_HIT_PARRY)

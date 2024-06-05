@@ -2193,7 +2193,7 @@ void SpellInfo::_LoadSpellSpecific()
                     )
                     return SPELL_SPECIFIC_SEAL;
 
-                if (SpellFamilyFlags[0] & 0x00002190)
+                if (Id == 1044 || Id == 1022 || Id == 5599 || Id == 10278 || Id == 6940 || Id == 20729 || Id == 81277)
                     return SPELL_SPECIFIC_HAND;
 
                 // Judgement of Wisdom, Judgement of Light, Judgement of Justice, Judgement of Righteousness
