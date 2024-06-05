@@ -4108,49 +4108,6 @@ struct PvpSeasonLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &PvpSeasonMeta::Instance, HOTFIX_SEL_PVP_SEASON };
 };
 
-struct PvpTalentLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[9] =
-    {
-        { false, FT_STRING, "Description" },
-        { false, FT_INT, "ID" },
-        { false, FT_INT, "SpecID" },
-        { true, FT_INT, "SpellID" },
-        { true, FT_INT, "OverridesSpellID" },
-        { true, FT_INT, "Flags" },
-        { true, FT_INT, "ActionBarSpellID" },
-        { true, FT_INT, "PvpTalentCategoryID" },
-        { true, FT_INT, "LevelRequired" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 9, &PvpTalentMeta::Instance, HOTFIX_SEL_PVP_TALENT };
-};
-
-struct PvpTalentCategoryLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[2] =
-    {
-        { false, FT_INT, "ID" },
-        { false, FT_BYTE, "TalentSlotMask" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 2, &PvpTalentCategoryMeta::Instance, HOTFIX_SEL_PVP_TALENT_CATEGORY };
-};
-
-struct PvpTalentSlotUnlockLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[5] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_BYTE, "Slot" },
-        { true, FT_INT, "LevelRequired" },
-        { true, FT_INT, "DeathKnightLevelRequired" },
-        { true, FT_INT, "DemonHunterLevelRequired" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &PvpTalentSlotUnlockMeta::Instance, HOTFIX_SEL_PVP_TALENT_SLOT_UNLOCK };
-};
-
 struct PvpTierLoadInfo
 {
     static constexpr DB2FieldMeta Fields[9] =

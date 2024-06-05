@@ -957,11 +957,6 @@ void Player::Update(uint32 p_time)
 
     UpdateAfkReport(now);
 
-    if (GetCombatManager().HasPvPCombat())
-        if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
-            if (!aura->IsPermanent())
-                aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());
-
     Unit::AIUpdateTick(p_time);
 
     // Update items that have just a limited lifetime
@@ -3551,14 +3546,6 @@ bool Player::ResetTalents(bool noCost)
     */
 
     return true;
-}
-
-void Player::ResetPvpTalents()
-{
-    for (uint8 spec = 0; spec < MAX_SPECIALIZATIONS; ++spec)
-        for (uint32 talentId : GetPvpTalentMap(spec))
-            if (PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(talentId))
-                RemovePvpTalent(talentInfo, spec);
 }
 
 Mail* Player::GetMail(uint64 id)
@@ -7334,11 +7321,6 @@ void Player::UpdateArea(uint32 newArea)
     PhasingHandler::OnAreaChange(this);
     UpdateAreaDependentAuras(newArea);
 
-    if (IsAreaThatActivatesPvpTalents(newArea))
-        EnablePvpRules();
-    else
-        DisablePvpRules();
-
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
     pvpInfo.IsInNoPvPArea = false;
     if (area && area->IsSanctuary())    // in sanctuary
@@ -7598,9 +7580,6 @@ void Player::DuelComplete(DuelCompleteType type)
 
         SendMessageToSet(duelWinner.Write(), true);
     }
-
-    opponent->DisablePvpRules();
-    DisablePvpRules();
 
     sScriptMgr->OnPlayerDuelEnd(opponent, this, type);
 
@@ -17689,7 +17668,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     UpdateDisplayPower();
     _LoadTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
-    _LoadPvpTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PVP_TALENTS));
     _LoadSpells(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES));
     GetSession()->GetCollectionMgr()->LoadToys();
     GetSession()->GetCollectionMgr()->LoadHeirlooms();
@@ -25433,8 +25411,6 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<
 void Player::AtEnterCombat()
 {
     Unit::AtEnterCombat();
-    if (GetCombatManager().HasPvPCombat())
-        EnablePvpRules(true);
 }
 
 void Player::AtExitCombat()
@@ -26291,163 +26267,6 @@ void Player::InitGlyphsForLevel()
     SetGlyphsEnabled(slotMask);
 }
 
-TalentLearnResult Player::LearnPvpTalent(uint32 /*talentID*/, uint8 /*slot*/, int32* /*spellOnCooldown*/)
-{
-    return TALENT_FAILED_UNKNOWN;
-}
-
-bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, uint8 slot)
-{
-    ASSERT(talent);
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE);
-    if (!spellInfo)
-    {
-        TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) does not exist.", talent->SpellID);
-        return false;
-    }
-
-    if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: {}) is invalid", talent->SpellID);
-        return false;
-    }
-
-    if (activeTalentGroup == GetActiveTalentGroup() && HasAuraType(SPELL_AURA_PVP_TALENTS))
-    {
-        LearnSpell(talent->SpellID, true);
-
-        // Move this to toggle ?
-        if (talent->OverridesSpellID)
-            AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
-    }
-
-    GetPvpTalentMap(activeTalentGroup)[slot] = talent->ID;
-
-    return true;
-}
-
-void Player::RemovePvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup)
-{
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE);
-    if (!spellInfo)
-        return;
-
-    RemoveSpell(talent->SpellID, true);
-
-    // Move this to toggle ?
-    if (talent->OverridesSpellID)
-        RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
-
-    // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-    auto plrPvpTalent = std::find(GetPvpTalentMap(activeTalentGroup).begin(), GetPvpTalentMap(activeTalentGroup).end(), talent->ID);
-    if (plrPvpTalent != GetPvpTalentMap(activeTalentGroup).end())
-        *plrPvpTalent = 0;
-}
-
-void Player::TogglePvpTalents(bool enable)
-{
-    PlayerPvpTalentMap const& pvpTalents = GetPvpTalentMap(GetActiveTalentGroup());
-    for (uint32 pvpTalentId : pvpTalents)
-    {
-        if (PvpTalentEntry const* pvpTalentInfo = sPvpTalentStore.LookupEntry(pvpTalentId))
-        {
-            if (enable)
-            {
-                LearnSpell(pvpTalentInfo->SpellID, false);
-                if (pvpTalentInfo->OverridesSpellID)
-                    AddOverrideSpell(pvpTalentInfo->OverridesSpellID, pvpTalentInfo->SpellID);
-            }
-            else
-            {
-                if (pvpTalentInfo->OverridesSpellID)
-                    RemoveOverrideSpell(pvpTalentInfo->OverridesSpellID, pvpTalentInfo->SpellID);
-                RemoveSpell(pvpTalentInfo->SpellID, true);
-            }
-        }
-    }
-}
-
-bool Player::HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const
-{
-    return std::find(GetPvpTalentMap(activeTalentGroup).begin(), GetPvpTalentMap(activeTalentGroup).end(), talentID) != GetPvpTalentMap(activeTalentGroup).end();
-}
-
-void Player::EnablePvpRules(bool dueToCombat /*= false*/)
-{
-    if (!HasPvpRulesEnabled())
-    {
-        if (!HasSpell(195710)) // Honorable Medallion
-            CastSpell(this, 208682, true); // Learn Gladiator's Medallion
-
-        CastSpell(this, SPELL_PVP_RULES_ENABLED, true);
-    }
-
-    if (!dueToCombat)
-    {
-        if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
-        {
-            if (!aura->IsPermanent())
-            {
-                aura->SetMaxDuration(-1);
-                aura->SetDuration(-1);
-            }
-        }
-    }
-
-    UpdateItemLevelAreaBasedScaling();
-}
-
-void Player::DisablePvpRules()
-{
-    // Don't disable pvp rules when in pvp zone.
-    if (IsInAreaThatActivatesPvpTalents())
-        return;
-
-    if (!GetCombatManager().HasPvPCombat())
-    {
-        RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
-        UpdateItemLevelAreaBasedScaling();
-    }
-    else if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
-        aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());
-}
-
-bool Player::HasPvpRulesEnabled() const
-{
-    return HasAura(SPELL_PVP_RULES_ENABLED);
-}
-
-bool Player::IsInAreaThatActivatesPvpTalents() const
-{
-    return IsAreaThatActivatesPvpTalents(GetAreaId());
-}
-
-bool Player::IsAreaThatActivatesPvpTalents(uint32 areaID) const
-{
-    if (InBattleground())
-        return true;
-
-    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaID))
-    {
-        do
-        {
-            if (area->IsSanctuary())
-                return false;
-
-            if (area->GetFlags().HasFlag(AreaFlags::FreeForAllPvP))
-                return true;
-
-            if (sBattlefieldMgr->IsWorldPvpArea(area->ID))
-                return true;
-
-            area = sAreaTableStore.LookupEntry(area->ParentAreaID);
-
-        } while (area);
-    }
-
-    return false;
-}
-
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
 {
     if (m_lastFallTime >= minfo.jump.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == CMSG_MOVE_FALL_LAND)
@@ -26900,19 +26719,6 @@ void Player::_LoadTalents(PreparedQueryResult result)
     }
 }
 
-void Player::_LoadPvpTalents(PreparedQueryResult result)
-{
-    // "SELECT talentID0, talentID1, talentID2, talentID3, talentGroup FROM character_pvp_talent WHERE guid = ?"
-    if (result)
-    {
-        do
-            for (uint8 slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
-                if (PvpTalentEntry const* talent = sPvpTalentStore.LookupEntry((*result)[slot].GetUInt32()))
-                    AddPvpTalent(talent, (*result)[4].GetUInt8(), slot);
-        while (result->NextRow());
-    }
-}
-
 void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult entriesResult)
 {
     std::unordered_multimap<int32, WorldPackets::Traits::TraitEntry> traitEntriesByConfig;
@@ -27077,23 +26883,6 @@ void Player::_SaveTalents(CharacterDatabaseTransaction trans)
             trans->Append(stmt);
             ++itr;
         }
-    }
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PVP_TALENT);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    for (uint8 group = 0; group < MAX_SPECIALIZATIONS; ++group)
-    {
-        PlayerPvpTalentMap const& talents = GetPvpTalentMap(group);
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PVP_TALENT);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        stmt->setUInt32(1, talents[0]);
-        stmt->setUInt32(2, talents[1]);
-        stmt->setUInt32(3, talents[2]);
-        stmt->setUInt32(4, talents[3]);
-        stmt->setUInt8(5, group);
-        trans->Append(stmt);
     }
 }
 
@@ -27264,27 +27053,6 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
             RemoveOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
     }
 
-    for (uint32 pvpTalentID = 0; pvpTalentID < sPvpTalentStore.GetNumRows(); ++pvpTalentID)
-    {
-        PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(pvpTalentID);
-        if (!talentInfo)
-            continue;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
-        if (!spellInfo)
-            continue;
-
-        RemoveSpell(talentInfo->SpellID, true);
-
-        // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-            if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
-                RemoveSpell(spellEffectInfo.TriggerSpell, true);
-
-        if (talentInfo->OverridesSpellID)
-            RemoveOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
-    }
-
     ApplyTraitConfig(m_activePlayerData->ActiveCombatTraitConfigID, false);
 
     // Remove spec specific spells
@@ -27326,18 +27094,6 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
             if (talentInfo->OverridesSpellID)
                 AddOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
         }
-    }
-
-    for (uint8 slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
-    {
-        PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
-        if (!talentInfo)
-            continue;
-
-        if (!talentInfo->SpellID)
-            continue;
-
-        AddPvpTalent(talentInfo, GetActiveTalentGroup(), slot);
     }
 
     LearnSpecializationSpells();
@@ -29088,7 +28844,7 @@ void Player::UpdateItemLevelAreaBasedScaling()
 {
     // @todo Activate pvp item levels during world pvp
     Map* map = GetMap();
-    bool pvpActivity = map->IsBattlegroundOrArena() || map->GetEntry()->Flags[1] & 0x40 || HasPvpRulesEnabled();
+    bool pvpActivity = map->IsBattlegroundOrArena() || map->GetEntry()->Flags[1] & 0x40;
 
     if (_usePvpItemLevels != pvpActivity)
     {
@@ -29254,10 +29010,6 @@ void Player::SetWarModeDesired(bool enabled)
         return;
 
     if (enabled && !CanEnableWarModeInArea())
-        return;
-
-    // Don't allow to chang when aura SPELL_PVP_RULES_ENABLED is on
-    if (HasAura(SPELL_PVP_RULES_ENABLED))
         return;
 
     if (enabled)

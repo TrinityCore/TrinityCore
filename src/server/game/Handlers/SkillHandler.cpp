@@ -50,32 +50,6 @@ void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& 
         _player->SendTalentsInfoData();
 }
 
-void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& /*packet*/)
-{
-    /*
-    WorldPackets::Talent::LearnPvpTalentFailed learnPvpTalentFailed;
-    bool anythingLearned = false;
-    for (WorldPackets::Talent::PvPTalent pvpTalent : packet.Talents)
-    {
-        if (TalentLearnResult result = _player->LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, &learnPvpTalentFailed.SpellID))
-        {
-            if (!learnPvpTalentFailed.Reason)
-                learnPvpTalentFailed.Reason = result;
-
-            learnPvpTalentFailed.Talents.push_back(pvpTalent);
-        }
-        else
-            anythingLearned = true;
-    }
-
-    if (learnPvpTalentFailed.Reason)
-        SendPacket(learnPvpTalentFailed.Write());
-
-    if (anythingLearned)
-        _player->SendTalentsInfoData();
-    */
-}
-
 void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, UNIT_NPC_FLAG_TRAINER, UNIT_NPC_FLAG_2_NONE);

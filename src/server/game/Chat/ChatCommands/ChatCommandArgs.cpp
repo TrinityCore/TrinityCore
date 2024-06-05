@@ -117,7 +117,6 @@ struct SpellInfoVisitor
     value_type operator()(Hyperlink<apower> artifactPower) const { return operator()(artifactPower->ArtifactPower->SpellID); }
     value_type operator()(Hyperlink<enchant> enchant) const { return enchant; }
     value_type operator()(Hyperlink<mount> const& mount) const { return mount->Spell; }
-    value_type operator()(Hyperlink<pvptal> pvpTalent) const { return operator()((*pvpTalent)->SpellID); }
     value_type operator()(Hyperlink<spell> spell) const { return spell->Spell; }
     value_type operator()(Hyperlink<talent> talent) const { return operator()((*talent)->SpellID); }
     value_type operator()(Hyperlink<trade> trade) const { return trade->Spell; }
@@ -126,7 +125,7 @@ struct SpellInfoVisitor
 };
 ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, ChatHandler const* handler, std::string_view args)
 {
-    Variant<Hyperlink<apower>, Hyperlink<enchant>, Hyperlink<mount>, Hyperlink<pvptal>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
+    Variant<Hyperlink<apower>, Hyperlink<enchant>, Hyperlink<mount>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
     ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
     if (!result || (data = val.visit(SpellInfoVisitor())))
         return result;

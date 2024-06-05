@@ -122,28 +122,6 @@ namespace WorldPackets
             std::vector<GlyphBinding> Glyphs;
             bool IsFullUpdate = false;
         };
-
-        class LearnPvpTalents final : public ClientPacket
-        {
-        public:
-            LearnPvpTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PVP_TALENTS, std::move(packet)) { }
-
-            void Read() override;
-
-            //Array<PvPTalent, 4> Talents;
-        };
-
-        class LearnPvpTalentFailed final : public ServerPacket
-        {
-        public:
-            LearnPvpTalentFailed() : ServerPacket(SMSG_LEARN_PVP_TALENT_FAILED, 1 + 4 + 4 + (2 + 1) * MAX_PVP_TALENT_SLOTS) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 Reason = 0;
-            int32 SpellID = 0;
-            //std::vector<PvPTalent> Talents;
-        };
     }
 }
 

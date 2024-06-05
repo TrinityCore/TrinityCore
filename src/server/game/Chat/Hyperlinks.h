@@ -42,7 +42,6 @@ struct ItemTemplate;
 struct LocalizedString;
 struct MapEntry;
 struct MapChallengeModeEntry;
-struct PvpTalentEntry;
 class Quest;
 struct SkillLineEntry;
 class SpellInfo;
@@ -441,13 +440,6 @@ namespace Trinity::Hyperlinks
             using value_type = MountLinkData const&;
             static constexpr std::string_view tag() { return "mount"; }
             static bool StoreTo(MountLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API pvptal
-        {
-            using value_type = PvpTalentEntry const*;
-            static constexpr std::string_view tag() { return "pvptal"; }
-            static bool StoreTo(PvpTalentEntry const*& val, std::string_view text);
         };
 
         struct TC_GAME_API quest

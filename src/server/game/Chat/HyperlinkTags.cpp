@@ -408,17 +408,6 @@ bool Trinity::Hyperlinks::LinkTags::mount::StoreTo(MountLinkData& val, std::stri
     return t.TryConsumeTo(val.Customizations) && t.IsEmpty();
 }
 
-bool Trinity::Hyperlinks::LinkTags::pvptal::StoreTo(PvpTalentEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 pvpTalentId;
-    if (!(t.TryConsumeTo(pvpTalentId) && t.IsEmpty()))
-        return false;
-    if (!(val = sPvpTalentStore.LookupEntry(pvpTalentId)))
-        return false;
-    return true;
-}
-
 bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);

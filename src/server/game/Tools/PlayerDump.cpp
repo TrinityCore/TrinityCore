@@ -106,7 +106,6 @@ DumpTable const DumpTables[] =
     { "character_inventory",              DTT_INVENTORY  },
     { "character_pet",                    DTT_PET        },
     { "character_pet_declinedname",       DTT_PET        },
-    { "character_pvp_talent",             DTT_CHAR_TABLE },
     { "character_queststatus",            DTT_CHAR_TABLE },
     { "character_queststatus_daily",      DTT_CHAR_TABLE },
     { "character_queststatus_monthly",    DTT_CHAR_TABLE },

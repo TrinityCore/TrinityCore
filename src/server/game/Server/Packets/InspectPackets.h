@@ -137,7 +137,7 @@ namespace WorldPackets
             PlayerModelDisplayInfo DisplayInfo;
             std::vector<uint16> Glyphs;
             std::vector<uint16> Talents;
-            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
+            std::array<uint16, 3> PvpTalents;
             Optional<InspectGuildData> GuildData;
             std::array<PVPBracketData, 9> Bracket;
             Optional<int32> AzeriteLevel;

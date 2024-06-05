@@ -510,22 +510,6 @@ struct LinkValidator<LinkTags::outfit>
 };
 
 template <>
-struct LinkValidator<LinkTags::pvptal>
-{
-    static bool IsTextValid(PvpTalentEntry const* pvpTalent, std::string_view text)
-    {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(pvpTalent->SpellID, DIFFICULTY_NONE))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
-    }
-
-    static bool IsColorValid(PvpTalentEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_TALENT;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::talent>
 {
     static bool IsTextValid(TalentEntry const* talent, std::string_view text)
@@ -665,7 +649,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(mount);
     TryValidateAs(outfit);
     TryValidateAs(player);
-    TryValidateAs(pvptal);
     TryValidateAs(quest);
     TryValidateAs(skill);
     TryValidateAs(spell);

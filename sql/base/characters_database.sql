@@ -1094,33 +1094,6 @@ LOCK TABLES `character_pet_declinedname` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `character_pvp_talent`
---
-
-DROP TABLE IF EXISTS `character_pvp_talent`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `character_pvp_talent` (
-  `guid` bigint unsigned NOT NULL,
-  `talentId0` int unsigned NOT NULL,
-  `talentId1` int unsigned NOT NULL,
-  `talentId2` int unsigned NOT NULL,
-  `talentId3` int unsigned NOT NULL,
-  `talentGroup` tinyint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`talentGroup`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `character_pvp_talent`
---
-
-LOCK TABLES `character_pvp_talent` WRITE;
-/*!40000 ALTER TABLE `character_pvp_talent` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_pvp_talent` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `character_queststatus`
 --
 
@@ -3480,7 +3453,8 @@ INSERT INTO `updates` VALUES
 ('2024_04_09_00_characters.sql','07AC79B4E489B1CD073852EC57D12939C2A1D4B1','ARCHIVED','2024-04-09 12:54:11',0),
 ('2024_04_12_00_characters.sql','043E023F998DA77170C9D2D0162CAA340290B215','ARCHIVED','2024-04-12 00:23:51',0),
 ('2024_06_01_00_characters.sql','0440E0A8BE109101B390A640397D9B024C8E124B','ARCHIVED','2024-06-01 19:29:34',0),
-('2024_06_02_00_characters.sql','18D12ED7A1D30675AAB807BAEB886FCCC76CED21','ARCHIVED','2024-06-02 23:04:45',0);
+('2024_06_02_00_characters.sql','18D12ED7A1D30675AAB807BAEB886FCCC76CED21','ARCHIVED','2024-06-02 23:04:45',0),
+('2024_06_05_00_characters.sql','3BE1839524918827D4C0C8F9FBE9890CDF759FB4','RELEASED','2024-06-05 21:44:36',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
