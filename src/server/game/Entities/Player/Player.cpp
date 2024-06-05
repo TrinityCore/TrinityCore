@@ -30181,6 +30181,18 @@ void Player::SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 
     SendDirectMessage(areaSpiritHealerTime.Write());
 }
 
+void Player::SendLossOfControlAuraUpdate(std::vector<WorldPackets::Spells::LossOfControlAuraData>& lossOfControlAuraData)
+{
+    // @TODO: find a better way to delay sending by 1 tick, otherwise spellid of related LossOfControlEvent is == 0 on client
+    m_Events.AddEvent([this, lossOfControlAuraData]()
+    {
+        WorldPackets::Spells::LossOfControlAuraUpdate locAuraUpdate;
+        locAuraUpdate.AffectedGUID = GetGUID();
+        locAuraUpdate.LossOfControlInfo = std::move(lossOfControlAuraData);
+        SendDirectMessage(locAuraUpdate.Write());
+    }, 0ms);
+}
+
 void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId, Item* item /*= nullptr*/) const
 {
     WorldPackets::Misc::DisplayToast displayToast;

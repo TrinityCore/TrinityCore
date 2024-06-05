@@ -294,45 +294,33 @@ void AuraApplication::ClientUpdate(bool remove)
     update.Auras.push_back(auraInfo);
 
     _target->SendMessageToSet(update.Write(), true);
+}
 
-    if (_target->IsPlayer() && !remove)
+void AuraApplication::AddLossOfControlAuraData(std::vector<WorldPackets::Spells::LossOfControlAuraData>& lossOfControlAuraData)
+{
+    Aura* aura = GetBase();
+    for (AuraEffect const* aurEff : aura->GetAuraEffects())
     {
-        std::vector<WorldPackets::Spells::LossOfControlAuraData> lossControlAuras;
+        if (!aurEff)
+            continue;
 
-        for (AuraEffect const* aurEff : GetBase()->GetAuraEffects())
-        {
-            if (!aurEff)
-                continue;
+        LossOfControlType locType = aurEff->GetLossOfControlType();
+        if (locType == LossOfControlType::None)
+            continue;
 
-            LossOfControlType locType = aurEff->GetLossOfControlType();
-            if (locType == LossOfControlType::None)
-                continue;
+        WorldPackets::Spells::LossOfControlAuraData locAuraData;
+        locAuraData.Duration = aura->GetDuration();
+        locAuraData.AuraSlot = GetSlot();
+        locAuraData.EffectIndex = aurEff->GetEffIndex();
 
-            WorldPackets::Spells::LossOfControlAuraData lossData;
+        if (aurEff->GetSpellEffectInfo().Mechanic != Mechanics::MECHANIC_NONE)
+            locAuraData.EffectMechanic = uint8(aurEff->GetSpellEffectInfo().Mechanic);
+        else
+            locAuraData.EffectMechanic = uint8(aura->GetSpellInfo()->Mechanic);
 
-            lossData.Duration = GetBase()->GetDuration();
-            lossData.AuraSlot = GetSlot();
-            lossData.EffectIndex = aurEff->GetEffIndex();
+        locAuraData.LocType = locType;
 
-            if (aurEff->GetSpellEffectInfo().Mechanic != Mechanics::MECHANIC_NONE)
-                lossData.EffectMechanic = uint8(aurEff->GetSpellEffectInfo().Mechanic);
-            else
-                lossData.EffectMechanic = uint8(GetBase()->GetSpellInfo()->Mechanic);
-
-            lossData.LocType = locType;
-            lossControlAuras.push_back(lossData);
-        }
-
-        if (!lossControlAuras.empty())
-        {
-            _target->m_Events.AddEvent([lossControlAuras, target = _target]()
-            {
-                WorldPackets::Spells::LossOfControlAuraUpdate loss;
-                loss.AffectedGUID = target->GetGUID();
-                loss.LossOfControlInfo = std::move(lossControlAuras);
-                target->ToPlayer()->SendDirectMessage(loss.Write());
-            }, 0ms);
-        }
+        lossOfControlAuraData.push_back(locAuraData);
     }
 }
 

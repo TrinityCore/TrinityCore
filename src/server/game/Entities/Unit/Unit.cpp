@@ -2903,8 +2903,18 @@ void Unit::_UpdateSpells(uint32 time)
             ++i;
     }
 
+    std::vector<WorldPackets::Spells::LossOfControlAuraData> lossOfControlAuraData;
     for (AuraApplication* visibleAura : m_visibleAurasToUpdate)
+    {
         visibleAura->ClientUpdate();
+
+        if (IsPlayer())
+            visibleAura->AddLossOfControlAuraData(lossOfControlAuraData);
+    }
+
+    // always empty for non players
+    if (!lossOfControlAuraData.empty())
+        ToPlayer()->SendLossOfControlAuraUpdate(lossOfControlAuraData);
 
     m_visibleAurasToUpdate.clear();
 
