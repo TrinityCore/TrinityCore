@@ -1163,7 +1163,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid AffectedGUID;
-            std::vector< LossOfControlAuraData> LossOfControlInfo;
+            std::vector<LossOfControlAuraData> LossOfControlInfo;
         };
 
         ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request);
