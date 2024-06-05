@@ -23,8 +23,12 @@ jobs:
 
     - name: Download and install Openssl 3.x
       run: |
-        $VersionsUrl = "https://raw.githubusercontent.com/slproweb/opensslhashes/master/win32_openssl_hashes.json"
-        $Url = (Invoke-RestMethod $VersionsUrl).files.PSObject.Properties |
+        $VersionsUrl = "https://api.github.com/repos/slproweb/opensslhashes/contents/win32_openssl_hashes.json"
+        $Headers = @{
+          Accept="application/vnd.github.raw+json"
+          Authorization="Bearer ${{ secrets.GITHUB_TOKEN }}"
+        }
+        $Url = (Invoke-RestMethod $VersionsUrl -Headers $Headers).files.PSObject.Properties |
           Select-Object -ExpandProperty Value |
           Where-Object { $_.arch -eq 'INTEL' } |
           Where-Object { $_.bits -eq '64' } |
