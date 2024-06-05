@@ -22,6 +22,10 @@ void AddSC_instance_underrot();
 void AddSC_boss_elder_leaxa();
 void AddSC_boss_cragmaw_the_infested();
 
+// KingsRest
+void AddSC_instance_kingsrest();
+void AddSC_kingsrest();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddZandalarScripts()
@@ -30,4 +34,8 @@ void AddZandalarScripts()
     AddSC_instance_underrot();
     AddSC_boss_elder_leaxa();
     AddSC_boss_cragmaw_the_infested();
+
+    //KingsRest
+    AddSC_instance_kingsrest();
+    AddSC_kingsrest();
 }
