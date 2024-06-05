@@ -5,7 +5,7 @@ SET @ATIDSPAWN := 100;
 -- Instance Template
 DELETE FROM `instance_template` WHERE `map` = 1762;
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
-(1762, 0, 'instance_kingsrest');
+(1762, 0, 'instance_kings_rest');
 
 -- Creature Template Addon
 DELETE FROM `creature_template_addon` WHERE `entry` IN (137020 /*137020 (Shadow of Zul) - Zul Shadowform*/);

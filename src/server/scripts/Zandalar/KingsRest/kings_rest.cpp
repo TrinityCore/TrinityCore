@@ -19,11 +19,11 @@
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
 #include "InstanceScript.h"
-#include "ScriptMgr.h"
+#include "TemporarySummon.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Unit.h"
-#include "kingsrest.h"
+#include "kings_rest.h"
 
 enum KingsRestData
 {
@@ -56,7 +56,6 @@ struct at_kingsrest_trigger_intro_event_with_zul : AreaTriggerAI
         if (!player)
             return;
 
-        at->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulIntro, TEMPSUMMON_MANUAL_DESPAWN);
         Conversation::CreateConversation(CONV_ZUL_KINGSREST_INTRO, unit, unit->GetPosition(), unit->GetGUID());
         at->Remove();
     }
@@ -81,9 +80,9 @@ public:
         EVENT_ZUL_INTRO_DESPAWN,
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnConversationCreate(Conversation* conversation, Unit* /*creator*/) override
     {
-        Creature* shadowOfZul = GetClosestCreatureWithOptions(creator, 100.0f, { .CreatureId = NPC_SHADOW_OF_ZUL, .IgnorePhases = true });
+        TempSummon* shadowOfZul = conversation->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulIntro, TEMPSUMMON_MANUAL_DESPAWN);
         if (!shadowOfZul)
             return;
 
@@ -102,37 +101,37 @@ public:
 
         switch (_events.ExecuteEvent())
         {
-        case EVENT_ZUL_OPEN_INTRO_DOOR:
-        {
-            Creature* shadowOfZul = conversation->GetActorCreature(0);
-            if (!shadowOfZul)
-                return;
-
-            shadowOfZul->RemoveAurasDueToSpell(ZUL_SHADOWFORM);
-            _events.ScheduleEvent(EVENT_ZUL_INTRO_DESPAWN, 1s);
-
-            if (InstanceScript* instance = conversation->GetInstanceScript())
+            case EVENT_ZUL_OPEN_INTRO_DOOR:
             {
-                if (GameObject* gate = instance->GetGameObject(DATA_KINGSREST_INTRO_DOOR))
-                {
-                    gate->SetGoState(GO_STATE_ACTIVE);
-                    gate->SetSpellVisualId(SPELL_VISUAL_ZUL_OPEN_GOB);
-                }
-            }
-            break;
-        }
-        case EVENT_ZUL_INTRO_DESPAWN:
-        {
-            Creature* shadowOfZul = conversation->GetActorCreature(0);
-            if (!shadowOfZul)
-                return;
+                Creature* shadowOfZul = conversation->GetActorCreature(0);
+                if (!shadowOfZul)
+                    break;
 
-            shadowOfZul->SetDisplayId(DISPLAY_INVISIBLE_ZUL);
-            shadowOfZul->DespawnOrUnsummon(1s);
-            break;
-        }
-        default:
-            break;
+                shadowOfZul->RemoveAurasDueToSpell(ZUL_SHADOWFORM);
+                _events.ScheduleEvent(EVENT_ZUL_INTRO_DESPAWN, 1s);
+
+                if (InstanceScript* instance = conversation->GetInstanceScript())
+                {
+                    if (GameObject* gate = instance->GetGameObject(DATA_KINGS_REST_INTRO_DOOR))
+                    {
+                        gate->SetGoState(GO_STATE_ACTIVE);
+                        gate->SetSpellVisualId(SPELL_VISUAL_ZUL_OPEN_GOB);
+                    }
+                }
+                break;
+            }
+            case EVENT_ZUL_INTRO_DESPAWN:
+            {
+                Creature* shadowOfZul = conversation->GetActorCreature(0);
+                if (!shadowOfZul)
+                    break;
+
+                shadowOfZul->SetDisplayId(DISPLAY_INVISIBLE_ZUL);
+                shadowOfZul->DespawnOrUnsummon(1s);
+                break;
+            }
+            default:
+                break;
         }
     }
 
@@ -140,7 +139,7 @@ private:
     EventMap _events;
 };
 
-void AddSC_kingsrest()
+void AddSC_kings_rest()
 {
     // Areatrigger
     RegisterAreaTriggerAI(at_kingsrest_trigger_intro_event_with_zul);

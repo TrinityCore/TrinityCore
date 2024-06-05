@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_KINGSREST_H_
-#define DEF_KINGSREST_H_
+#ifndef DEF_KINGS_REST_H_
+#define DEF_KINGS_REST_H_
 
 #include "CreatureAIImpl.h"
 
 #define DataHeader "KingsRest"
-#define KingsRestScriptName "instance_kingsrest"
+#define KingsRestScriptName "instance_kings_rest"
 
 uint32 const EncounterCount = 4;
 
@@ -39,7 +39,7 @@ enum KingsRestDataTypes
     DATA_KULA_THE_BUTCHER,
 
     // GameObjects
-    DATA_KINGSREST_INTRO_DOOR,
+    DATA_KINGS_REST_INTRO_DOOR,
 };
 
 enum KingsRestCreatureIds
@@ -56,8 +56,8 @@ enum KingsRestCreatureIds
 
 enum KingsRestGameObjectIds
 {
-    GO_KINGSREST_ENTRYWAY_DOOR          = 282652,
-    GO_KINGSREST_SERPERNT_POST_DOOR     = 287392
+    GO_KINGS_REST_ENTRYWAY_DOOR          = 282652,
+    GO_KINGS_REST_SERPENT_POST_DOOR      = 287392
 };
 
 template <class AI, class T>

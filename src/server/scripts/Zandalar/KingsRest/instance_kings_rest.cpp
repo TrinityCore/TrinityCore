@@ -17,7 +17,7 @@
 
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
-#include "kingsrest.h"
+#include "kings_rest.h"
 
 ObjectData const creatureData[] =
 {
@@ -32,14 +32,14 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_KINGSREST_SERPERNT_POST_DOOR,      DATA_GOLDEN_SERPENT,        EncounterDoorBehavior::OpenWhenDone          },
-    { 0,                                    0,                          EncounterDoorBehavior::OpenWhenNotInProgress }  // END
+    { GO_KINGS_REST_SERPENT_POST_DOOR,     DATA_GOLDEN_SERPENT,        EncounterDoorBehavior::OpenWhenDone          },
+    { 0,                                   0,                          EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 ObjectData const objectData[] =
 {
-    { GO_KINGSREST_ENTRYWAY_DOOR, DATA_KINGSREST_INTRO_DOOR },
-    { 0,                          0                         }  // END
+    { GO_KINGS_REST_ENTRYWAY_DOOR, DATA_KINGS_REST_INTRO_DOOR },
+    { 0,                           0                          }  // END
 };
 
 DungeonEncounterData const encounters[] =
@@ -50,14 +50,14 @@ DungeonEncounterData const encounters[] =
     { DATA_KING_DAZAR,              {{ 2143 }} },
 };
 
-class instance_kingsrest : public InstanceMapScript
+class instance_kings_rest : public InstanceMapScript
 {
 public:
-    instance_kingsrest() : InstanceMapScript(KingsRestScriptName, 1762) { }
+    instance_kings_rest() : InstanceMapScript(KingsRestScriptName, 1762) { }
 
-    struct instance_kingsrest_InstanceMapScript : public InstanceScript
+    struct instance_kings_rest_InstanceMapScript : public InstanceScript
     {
-        instance_kingsrest_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+        instance_kings_rest_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
@@ -69,11 +69,11 @@ public:
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
-        return new instance_kingsrest_InstanceMapScript(map);
+        return new instance_kings_rest_InstanceMapScript(map);
     }
 };
 
-void AddSC_instance_kingsrest()
+void AddSC_instance_kings_rest()
 {
-    new instance_kingsrest();
+    new instance_kings_rest();
 }
