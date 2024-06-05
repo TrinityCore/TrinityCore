@@ -19,6 +19,7 @@
 #define Trinity_game_Position_h__
 
 #include "Define.h"
+#include <span>
 #include <string>
 #include <cmath>
 
@@ -138,16 +139,18 @@ public:
     float GetRelativeAngle(Position const* pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
 
     constexpr bool IsInDist2d(float x, float y, float dist) const { return GetExactDist2dSq(x, y) < dist * dist; }
+    constexpr bool IsInDist2d(Position const& pos, float dist) const { return GetExactDist2dSq(pos) < dist * dist; }
     constexpr bool IsInDist2d(Position const* pos, float dist) const { return GetExactDist2dSq(pos) < dist * dist; }
 
     constexpr bool IsInDist(float x, float y, float z, float dist) const { return GetExactDistSq(x, y, z) < dist * dist; }
     constexpr bool IsInDist(Position const& pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
     constexpr bool IsInDist(Position const* pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
 
-    bool IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const;
+    bool IsWithinBox(Position const& boxOrigin, float length, float width, float height) const;
 
-    // dist2d < radius && abs(dz) < height
-    bool IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const;
+    bool IsWithinVerticalCylinder(Position const& cylinderOrigin, float radius, float height, bool isDoubleVertical = false) const;
+
+    bool IsInPolygon2D(Position const& polygonOrigin, std::span<Position const> vertices) const;
 
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
     bool HasInLine(Position const* pos, float objSize, float width) const;

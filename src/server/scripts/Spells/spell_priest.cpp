@@ -164,6 +164,9 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
+    SPELL_PRIEST_SANCTUARY                          = 231682,
+    SPELL_PRIEST_SANCTUARY_ABSORB                   = 208771,
+    SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
     SPELL_PRIEST_RHAPSODY_PROC                      = 390636,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
@@ -2841,6 +2844,83 @@ class spell_pri_schism : public SpellScript
     }
 };
 
+// 208771 - Sanctuary (Absorb)
+class spell_pri_sanctuary_absorb : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SANCTUARY_AURA });
+    }
+
+    void CalcAbsorbAmount(AuraEffect const* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    {
+        PreventDefaultAction();
+
+        Unit const* attacker = dmgInfo.GetAttacker();
+        if (!attacker)
+            return;
+
+        AuraEffect* amountHolderEffect = attacker->GetAuraEffect(SPELL_PRIEST_SANCTUARY_AURA, EFFECT_0, GetCasterGUID());
+        if (!amountHolderEffect)
+            return;
+
+        if (dmgInfo.GetDamage() >= uint32(amountHolderEffect->GetAmount()))
+        {
+            amountHolderEffect->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            dmgInfo.AbsorbDamage(amountHolderEffect->GetAmount());
+        }
+        else
+        {
+            amountHolderEffect->ChangeAmount(amountHolderEffect->GetAmount() - int32(dmgInfo.GetDamage()));
+            dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_sanctuary_absorb::CalcAbsorbAmount, EFFECT_0);
+    }
+};
+
+// Smite - 585
+class spell_pri_sanctuary_trigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SANCTUARY, SPELL_PRIEST_SANCTUARY_AURA, SPELL_PRIEST_SANCTUARY_ABSORB });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Player* caster = Object::ToPlayer(GetCaster());
+        if (!caster)
+            return;
+
+        if (AuraEffect const* sanctuaryEffect = caster->GetAuraEffect(SPELL_PRIEST_SANCTUARY, EFFECT_0))
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                float absorbAmount = CalculatePct<float, float>(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW), sanctuaryEffect->GetAmount());
+                AddPct(absorbAmount, caster->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+                caster->CastSpell(caster, SPELL_PRIEST_SANCTUARY_ABSORB, CastSpellExtraArgs()
+                    .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                    .SetTriggeringSpell(GetSpell()));
+
+                caster->CastSpell(target, SPELL_PRIEST_SANCTUARY_AURA, CastSpellExtraArgs()
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, absorbAmount)
+                    .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                    .SetTriggeringSpell(GetSpell()));
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_sanctuary_trigger::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 280391 - Sins of the Many
 class spell_pri_sins_of_the_many : public AuraScript
 {
@@ -3509,6 +3589,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_sanctuary_absorb);
+    RegisterSpellScript(spell_pri_sanctuary_trigger);
     RegisterSpellScript(spell_pri_rhapsody);
     RegisterSpellScript(spell_pri_rhapsody_proc);
     RegisterSpellScript(spell_pri_schism);

@@ -20,6 +20,7 @@
 #include "ConditionMgr.h"
 #include "Creature.h"
 #include "DB2Stores.h"
+#include "DisableMgr.h"
 #include "Language.h"
 #include "Map.h"
 #include "MiscPackets.h"
@@ -318,6 +319,9 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
                     continue;
 
                 uint32 phaseId = phaseArea.PhaseInfo->Id;
+                if (DisableMgr::IsDisabledFor(DISABLE_TYPE_PHASE_AREA, phaseId, object))
+                    continue;
+
                 if (sConditionMgr->IsObjectMeetToConditions(srcInfo, phaseArea.Conditions))
                     phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), &phaseArea.Conditions);
                 else
@@ -388,7 +392,7 @@ bool PhasingHandler::OnConditionChange(WorldObject* object, bool updateVisibilit
 
     for (auto itr = suppressedPhaseShift.Phases.begin(); itr != suppressedPhaseShift.Phases.end();)
     {
-        if (sConditionMgr->IsObjectMeetToConditions(srcInfo, *ASSERT_NOTNULL(itr->AreaConditions)))
+        if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_PHASE_AREA, itr->Id, object) && sConditionMgr->IsObjectMeetToConditions(srcInfo, *ASSERT_NOTNULL(itr->AreaConditions)))
         {
             changed = phaseShift.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References) || changed;
             suppressedPhaseShift.ModifyPhasesReferences(itr, -itr->References);
@@ -642,6 +646,8 @@ void PhasingHandler::PrintToChat(ChatHandler* chat, WorldObject const* target)
                 phases << ' ' << '(' << cosmetic << ')';
             if (phase.Flags.HasFlag(PhaseFlags::Personal))
                 phases << ' ' << '(' << personal << ')';
+            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_PHASE_AREA, phase.Id, nullptr))
+                phases << " (Disabled)";
         }
 
         chat->PSendSysMessage(LANG_PHASESHIFT_PHASES, phases.str().c_str());

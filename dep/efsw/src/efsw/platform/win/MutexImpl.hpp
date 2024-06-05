@@ -6,29 +6,28 @@
 #if EFSW_PLATFORM == EFSW_PLATFORM_WIN32
 
 #ifndef WIN32_LEAN_AND_MEAN
-	#define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
 
 namespace efsw { namespace Platform {
 
-class MutexImpl
-{
-	public:
-		MutexImpl();
+class MutexImpl {
+  public:
+	MutexImpl();
 
-		~MutexImpl();
+	~MutexImpl();
 
-		void lock();
+	void lock();
 
-		void unlock();
-	private:
-		CRITICAL_SECTION mMutex;
+	void unlock();
+
+  private:
+	CRITICAL_SECTION mMutex;
 };
 
-}}
+}} // namespace efsw::Platform
 
 #endif
 
 #endif
- 
