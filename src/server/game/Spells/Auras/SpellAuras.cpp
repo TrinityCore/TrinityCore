@@ -301,12 +301,16 @@ void AuraApplication::ClientUpdate(bool remove)
 
         for (AuraEffect const* aurEff : GetBase()->GetAuraEffects())
         {
-            if (!aurEff || aurEff->GetLossOfControlType() == LossOfControlType::None)
+            if (!aurEff)
+                continue;
+
+            LossOfControlType locType = aurEff->GetLossOfControlType();
+            if (locType == LossOfControlType::None)
                 continue;
 
             WorldPackets::Spells::LossOfControlAuraData lossData;
 
-            lossData.Remaining = GetBase()->GetDuration();
+            lossData.Duration = GetBase()->GetDuration();
             lossData.AuraSlot = GetSlot();
             lossData.EffectIndex = aurEff->GetEffIndex();
 
@@ -315,8 +319,8 @@ void AuraApplication::ClientUpdate(bool remove)
             else
                 lossData.EffectMechanic = uint8(GetBase()->GetSpellInfo()->Mechanic);
 
-            lossData.LossType = aurEff->GetLossOfControlType();
-            lossControlAuras.emplace_back(lossData);
+            lossData.LocType = locType;
+            lossControlAuras.push_back(lossData);
         }
 
         if (!lossControlAuras.empty())

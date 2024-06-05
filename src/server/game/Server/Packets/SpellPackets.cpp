@@ -1105,11 +1105,11 @@ WorldPacket const* LossOfControlAuraUpdate::Write()
 
     for (LossOfControlAuraData data : LossOfControlInfo)
     {
-        _worldPacket << data.Remaining;
-        _worldPacket << data.AuraSlot;
-        _worldPacket << data.EffectIndex;
-        _worldPacket << uint8(data.LossType);
-        _worldPacket << data.EffectMechanic;
+        _worldPacket << uint32(data.Duration);
+        _worldPacket << uint8(data.AuraSlot);
+        _worldPacket << uint8(data.EffectIndex);
+        _worldPacket << uint8(data.LocType);
+        _worldPacket << uint8(data.EffectMechanic);
     }
 
     return &_worldPacket;
