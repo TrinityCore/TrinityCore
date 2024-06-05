@@ -24,6 +24,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentInfo const&
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Talent::TalentInfo& talent)
+{
+    data >> talent.TalentID;
+    data >> talent.Rank;
+    return data;
+}
+
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
     _worldPacket << uint32(Info.UnspentTalentPoints);
@@ -102,4 +109,13 @@ WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
     _worldPacket.FlushBits();
 
     return &_worldPacket;
+}
+
+void WorldPackets::Talent::LearnPreviewTalents::Read()
+{
+    Talents.resize(_worldPacket.read<uint32>());
+    _worldPacket >> TalentTab;
+
+    for (TalentInfo& talent : Talents)
+        _worldPacket >> talent;
 }

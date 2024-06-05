@@ -69,6 +69,17 @@ namespace WorldPackets
             Array<uint16, MAX_TALENT_TIERS> Talents;
         };
 
+        class LearnPreviewTalents final : public ClientPacket
+        {
+        public:
+            LearnPreviewTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PREVIEW_TALENTS, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TalentTab = 0;
+            Array<TalentInfo, 100> Talents;
+        };
+
         class RespecWipeConfirm final : public ServerPacket
         {
         public:
