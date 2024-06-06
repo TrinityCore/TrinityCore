@@ -37,7 +37,7 @@ enum KingsRestData
     SPELL_VISUAL_ZUL_OPEN_GOB   = 77330,
 
     // Conversation
-    CONV_ZUL_KINGSREST_INTRO    = 7690,
+    CONV_ZUL_KINGS_REST_INTRO   = 7690,
 
     // Spells
     SPELL_ZUL_SHADOWFORM        = 269058
@@ -56,7 +56,7 @@ struct at_kings_rest_trigger_intro_event_with_zul : AreaTriggerAI
         if (!player)
             return;
 
-        Conversation::CreateConversation(CONV_ZUL_KINGSREST_INTRO, unit, unit->GetPosition(), unit->GetGUID());
+        Conversation::CreateConversation(CONV_ZUL_KINGS_REST_INTRO, unit, unit->GetPosition(), unit->GetGUID());
         at->Remove();
     }
 };
