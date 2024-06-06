@@ -56,7 +56,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PlayerGuid;
-            uint8 DataType = 0; ///< @see enum AccountDataType
+            int32 DataType = 0; ///< @see enum AccountDataType
         };
 
         class UpdateAccountData final : public ServerPacket
@@ -69,7 +69,7 @@ namespace WorldPackets
             ObjectGuid Player;
             Timestamp<> Time;
             uint32 Size    = 0; ///< decompressed size
-            uint8 DataType = 0; ///< @see enum AccountDataType
+            int32 DataType = 0; ///< @see enum AccountDataType
             ByteBuffer CompressedData;
         };
 
@@ -83,7 +83,7 @@ namespace WorldPackets
             ObjectGuid PlayerGuid;
             Timestamp<> Time;
             uint32 Size    = 0; ///< decompressed size
-            uint8 DataType = 0; ///< @see enum AccountDataType
+            int32 DataType = 0; ///< @see enum AccountDataType
             ByteBuffer CompressedData;
         };
 
