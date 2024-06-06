@@ -5341,7 +5341,7 @@ void Spell::SendChannelStart(uint32 duration)
 
     m_timer = duration;
 
-    if (!m_targets.HasDst())
+    if (!m_UniqueTargetInfo.empty() || !m_UniqueGOTargetInfo.empty())
     {
         uint32 channelAuraMask = 0;
         uint32 explicitTargetEffectMask = 0xFFFFFFFF;
