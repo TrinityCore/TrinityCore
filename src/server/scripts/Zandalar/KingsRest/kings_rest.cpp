@@ -40,10 +40,10 @@ enum KingsRestData
     CONV_ZUL_KINGSREST_INTRO    = 7690,
 
     // Spells
-    ZUL_SHADOWFORM              = 269058
+    SPELL_ZUL_SHADOWFORM        = 269058
 };
 
-constexpr Position ShadowOfZulIntro = { -944.9617f, 2646.5268f, 832.8684f, 4.716575f };
+constexpr Position ShadowOfZulIntroSpawnPosition = { -944.9617f, 2646.5268f, 832.8684f, 4.716575f };
 
 // XX - KingsRest - Trigger Intro Event with Shadow of Zul
 struct at_kingsrest_trigger_intro_event_with_zul : AreaTriggerAI
@@ -82,7 +82,7 @@ public:
 
     void OnConversationCreate(Conversation* conversation, Unit* /*creator*/) override
     {
-        TempSummon* shadowOfZul = conversation->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulIntro, TEMPSUMMON_MANUAL_DESPAWN);
+        TempSummon* shadowOfZul = conversation->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulIntroSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN);
         if (!shadowOfZul)
             return;
 
@@ -107,7 +107,7 @@ public:
                 if (!shadowOfZul)
                     break;
 
-                shadowOfZul->RemoveAurasDueToSpell(ZUL_SHADOWFORM);
+                shadowOfZul->RemoveAurasDueToSpell(SPELL_ZUL_SHADOWFORM);
                 _events.ScheduleEvent(EVENT_ZUL_INTRO_DESPAWN, 1s);
 
                 if (InstanceScript* instance = conversation->GetInstanceScript())
