@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "TemporarySummon.h"
 #include "ScriptMgr.h"
