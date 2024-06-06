@@ -23,7 +23,20 @@ jobs:
 
     - name: Download and install Openssl 3.x
       run: |
-        $Url = "https://slproweb.com/download/Win64OpenSSL-3_2_1.exe"
+        $VersionsUrl = "https://api.github.com/repos/slproweb/opensslhashes/contents/win32_openssl_hashes.json"
+        $Headers = @{
+          Accept="application/vnd.github.raw+json"
+          Authorization="Bearer ${{ secrets.GITHUB_TOKEN }}"
+        }
+        $Url = (Invoke-RestMethod $VersionsUrl -Headers $Headers).files.PSObject.Properties |
+          Select-Object -ExpandProperty Value |
+          Where-Object { $_.arch -eq 'INTEL' } |
+          Where-Object { $_.bits -eq '64' } |
+          Where-Object { $_.light -eq $false } |
+          Where-Object { $_.installer  -eq 'exe' } |
+          Sort-Object -Descending @{ Expression = { [version]$_.basever } } |
+          Select-Object -First 1 -ExpandProperty url
+
         (New-Object System.Net.WebClient).DownloadFile($Url, "${{ env.TEMP }}\openssl.exe")
         Start-Process -Wait -FilePath "${{ env.TEMP }}\openssl.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES",/DIR=${{ env.OPENSSL_ROOT_DIR }}
 
