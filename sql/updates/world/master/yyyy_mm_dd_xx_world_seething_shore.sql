@@ -357,26 +357,26 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 131773;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(131773, 0, 0, 'Let me have a look at you. Ugh... pathetic! Why aren''t there any dark rangers in your ranks? Well, you''ll have to do.', 12, 0, 100, 1, 0, 79286, 143504, 0, 'Nathanos Blightcaller'),
-(131773, 1, 0, 'Champions of the Horde! We have found Azerite deposits on some wretched island off the Feralas coast. It is your duty to secure it in the name of the Dark Lady!', 12, 0, 100, 1, 0, 79286, 143501, 0, 'Nathanos Blightcaller'),
-(131773, 2, 0, 'Your mission here is simple. Collect every bit of Azerite and leave nothing for the Alliance to find. I trust that isn''t too hard to grasp.', 12, 0, 100, 1, 0, 79286, 143502, 0, 'Nathanos Blightcaller'),
-(131773, 3, 0, 'Down there... Azerite! Take it for our warchief. And should those Alliance get in your way, litter the beach with their corpses. Move!', 12, 0, 100, 1, 0, 79286, 143505, 0, 'Nathanos Blightcaller'),
-(131773, 4, 0, 'Supplies are on the way. I better not see the Alliance getting them before you do!', 12, 0, 100, 1, 0, 94760, 143506, 0, 'Nathanos Blightcaller'),
-(131773, 4, 1, 'Grab these supplies, if you need them. But don''t lose sight of the Banshee Queen''s prize!', 12, 0, 100, 1, 0, 79286, 143507, 0, 'Nathanos Blightcaller'),
-(131773, 5, 0, 'Zounds! There''s even more Azerite to be had. Follow your map and lock down those sites!', 12, 0, 100, 1, 0, 79286, 143512, 0, 'Nathanos Blightcaller'),
+(131773, 0, 0, 'Let me have a look at you. Ugh... pathetic! Why aren''t there any dark rangers in your ranks? Well, you''ll have to do.', 12, 0, 100, 1, 0, 0, 143504, 0, 'Nathanos Blightcaller'),
+(131773, 1, 0, 'Champions of the Horde! We have found Azerite deposits on some wretched island off the Feralas coast. It is your duty to secure it in the name of the Dark Lady!', 12, 0, 100, 1, 0, 0, 143501, 0, 'Nathanos Blightcaller'),
+(131773, 2, 0, 'Your mission here is simple. Collect every bit of Azerite and leave nothing for the Alliance to find. I trust that isn''t too hard to grasp.', 12, 0, 100, 1, 0, 0, 143502, 0, 'Nathanos Blightcaller'),
+(131773, 3, 0, 'Down there... Azerite! Take it for our warchief. And should those Alliance get in your way, litter the beach with their corpses. Move!', 12, 0, 100, 1, 0, 0, 143505, 0, 'Nathanos Blightcaller'),
+(131773, 4, 0, 'Supplies are on the way. I better not see the Alliance getting them before you do!', 12, 0, 100, 1, 0, 0, 143506, 0, 'Nathanos Blightcaller'),
+(131773, 4, 1, 'Grab these supplies, if you need them. But don''t lose sight of the Banshee Queen''s prize!', 12, 0, 100, 1, 0, 0, 143507, 0, 'Nathanos Blightcaller'),
+(131773, 5, 0, 'Zounds! There''s even more Azerite to be had. Follow your map and lock down those sites!', 12, 0, 100, 1, 0, 0, 143512, 0, 'Nathanos Blightcaller'),
 (131773, 5, 1, 'Almost there. Do not relent. More Azerite!', 12, 0, 100, 1, 0, 94746, 143510, 0, 'Nathanos Blightcaller');
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 130532;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(130532, 0, 0, 'You all look like a sturdy lot. Hmm... could use another rogue or two, I''d say... but you''ll do!', 12, 0, 100, 1, 0, 94736, 143496, 0, 'Master Mathias Shaw'),
-(130532, 1, 0, 'Champions, Azerite deposits have been located on an island off the coast of Feralas. We must secure them before the Horde does.', 12, 0, 100, 1, 0, 79286, 143483, 0, 'Master Mathias Shaw'),
-(130532, 2, 0, 'We''ve brought our ship around to the center of the island. Collect as much Azerite as you can. It is the key to victory!', 12, 0, 100, 1, 0, 79286, 143484, 0, 'Master Mathias Shaw'),
-(130532, 3, 0, 'There''s a rich Azerite deposit below us, heroes. Get down there and collect all you can. And if those Horde marauders gets in your way... put them down!', 12, 0, 100, 1, 0, 94737, 143486, 0, 'Master Mathias Shaw'),
-(130532, 4, 0, 'Supplies incoming! Grab them, champions!', 12, 0, 100, 603, 0, 48260, 143493, 0, 'Master Mathias Shaw'),
-(130532, 5, 0, 'You kept that Azerite out of the Horde''s hands. Well done!', 12, 0, 100, 1, 0, 8173, 143490, 0, 'Master Mathias Shaw'),
-(130532, 5, 1, 'You''re doing well so far, heroes. But we need more Azerite!', 12, 0, 100, 0, 0, 8173, 143489, 0, 'Master Mathias Shaw'),
-(130532, 5, 2, 'You''re doing good work. Just a bit more Azerite and the day is ours!', 12, 0, 100, 1, 0, 79286, 143491, 0, 'Master Mathias Shaw'),
-(130532, 6, 0, 'Nicely done, champions! King Wrynn will be pleased to learn of your victory. For the Alliance!', 12, 0, 100, 1, 0, 124132, 143494, 0, 'Master Mathias Shaw');
+(130532, 0, 0, 'You all look like a sturdy lot. Hmm... could use another rogue or two, I''d say... but you''ll do!', 12, 0, 100, 1, 0, 0, 143496, 0, 'Master Mathias Shaw'),
+(130532, 1, 0, 'Champions, Azerite deposits have been located on an island off the coast of Feralas. We must secure them before the Horde does.', 12, 0, 100, 1, 0, 0, 143483, 0, 'Master Mathias Shaw'),
+(130532, 2, 0, 'We''ve brought our ship around to the center of the island. Collect as much Azerite as you can. It is the key to victory!', 12, 0, 100, 1, 0, 0, 143484, 0, 'Master Mathias Shaw'),
+(130532, 3, 0, 'There''s a rich Azerite deposit below us, heroes. Get down there and collect all you can. And if those Horde marauders gets in your way... put them down!', 12, 0, 100, 1, 0, 0, 143486, 0, 'Master Mathias Shaw'),
+(130532, 4, 0, 'Supplies incoming! Grab them, champions!', 12, 0, 100, 603, 0, 0, 143493, 0, 'Master Mathias Shaw'),
+(130532, 5, 0, 'You kept that Azerite out of the Horde''s hands. Well done!', 12, 0, 100, 1, 0, 0, 143490, 0, 'Master Mathias Shaw'),
+(130532, 5, 1, 'You''re doing well so far, heroes. But we need more Azerite!', 12, 0, 100, 0, 0, 0, 143489, 0, 'Master Mathias Shaw'),
+(130532, 5, 2, 'You''re doing good work. Just a bit more Azerite and the day is ours!', 12, 0, 100, 1, 0, 0, 143491, 0, 'Master Mathias Shaw'),
+(130532, 6, 0, 'Nicely done, champions! King Wrynn will be pleased to learn of your victory. For the Alliance!', 12, 0, 100, 1, 0, 0, 143494, 0, 'Master Mathias Shaw');
 
 DELETE FROM `npc_vendor` WHERE `entry` IN (132960, 133056);
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
