@@ -23,14 +23,14 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 
 DELETE FROM `areatrigger` WHERE `SpawnId` = @ATIDSPAWN+0;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
-(@ATIDSPAWN+0, @ATCP+0, 1, 1762, '23,8,2', -945.071, 2602.210, 833.052, 1.556985, 0, 0, 0, 'at_kingsrest_trigger_intro_event_with_zul', 'KingsRest - Trigger intro Conversation for Zul', 0);
+(@ATIDSPAWN+0, @ATCP+0, 1, 1762, '23,8,2', -945.071, 2602.210, 833.052, 1.556985, 0, 0, 0, 'at_kings_rest_trigger_intro_event_with_zul', 'KingsRest - Trigger intro Conversation for Zul', 0);
 
 -- Conversation
 DELETE FROM `conversation_template` WHERE `Id`=7690;
 INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `VerifiedBuild`) VALUES
 (7690, 17525, 0, 54904);
 
-UPDATE `conversation_template` SET `ScriptName` = 'conversation_kingsrest_intro' WHERE `Id` = 7690;
+UPDATE `conversation_template` SET `ScriptName` = 'conversation_kings_rest_intro' WHERE `Id` = 7690;
 
 DELETE FROM `conversation_actors` WHERE (`ConversationId`=7690 AND `Idx`=0);
 INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `NoActorObject`, `ActivePlayerObject`, `VerifiedBuild`) VALUES

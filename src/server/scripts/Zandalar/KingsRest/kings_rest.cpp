@@ -46,9 +46,9 @@ enum KingsRestData
 constexpr Position ShadowOfZulIntroSpawnPosition = { -944.9617f, 2646.5268f, 832.8684f, 4.716575f };
 
 // XX - KingsRest - Trigger Intro Event with Shadow of Zul
-struct at_kingsrest_trigger_intro_event_with_zul : AreaTriggerAI
+struct at_kings_rest_trigger_intro_event_with_zul : AreaTriggerAI
 {
-    at_kingsrest_trigger_intro_event_with_zul(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_kings_rest_trigger_intro_event_with_zul(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -62,10 +62,10 @@ struct at_kingsrest_trigger_intro_event_with_zul : AreaTriggerAI
 };
 
 // 7690 - Shadow of Zul - KingsRest Intro
-class conversation_kingsrest_intro : public ConversationScript
+class conversation_kings_rest_intro : public ConversationScript
 {
 public:
-    conversation_kingsrest_intro() : ConversationScript("conversation_kingsrest_intro") { }
+    conversation_kings_rest_intro() : ConversationScript("conversation_kings_rest_intro") { }
 
     enum KingsRestIntroConversationData
     {
@@ -142,8 +142,8 @@ private:
 void AddSC_kings_rest()
 {
     // Areatrigger
-    RegisterAreaTriggerAI(at_kingsrest_trigger_intro_event_with_zul);
+    RegisterAreaTriggerAI(at_kings_rest_trigger_intro_event_with_zul);
 
     // Conversation
-    new conversation_kingsrest_intro();
+    new conversation_kings_rest_intro();
 }

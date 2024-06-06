@@ -51,7 +51,6 @@ enum KingsRestCreatureIds
     BOSS_KULA_THE_BUTCHER       = 135475,
     BOSS_MCHIMBA_THE_EMBALMER   = 134993,
     BOSS_KING_DAZAR             = 136160
-
 };
 
 enum KingsRestGameObjectIds
