@@ -7047,9 +7047,11 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
                 DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetStat(usedStat), aurEff->GetAmount()));
             }
         }
-
+        float meleeAttackPower = GetTotalAttackPowerValue(BASE_ATTACK);
+        float rangedAttackPower = GetTotalAttackPowerValue(RANGED_ATTACK);
+        float attackPower = meleeAttackPower > rangedAttackPower ? meleeAttackPower : rangedAttackPower;
         // ... and attack power
-        DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
+        DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(attackPower, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
     }
 
     return DoneAdvertisedBenefit;

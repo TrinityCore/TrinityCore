@@ -181,13 +181,13 @@ class spell_rog_deadly_brew : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ROGUE_CRIPPLING_POISON });
+        return true;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_CRIPPLING_POISON, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), 11201, aurEff);
     }
 
     void Register() override

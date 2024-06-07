@@ -77,7 +77,21 @@ enum HunterSpells
     SPELL_HUNTER_WYVERN_STING_DOT_R3                = 24135,
     SPELL_HUNTER_WYVERN_STING_DOT_R4                = 27069,
     SPELL_HUNTER_WYVERN_STING_DOT_R5                = 49009,
-    SPELL_HUNTER_WYVERN_STING_DOT_R6                = 49010
+    SPELL_HUNTER_WYVERN_STING_DOT_R6                = 49010,
+    SPELL_HUNTER_HUNTERS_MARK                       = 1130,
+    SPELL_HUNTER_IMPROVED_HUNTERS_MARK              = 19421,
+    SPELL_HUNTER_MONGOOSE_BITE                      = 81285,
+    SPELL_HUNTER_MONGOOSE_BITE_MAIN                 = 81286,
+    SPELL_HUNTER_MONGOOSE_BITE_OFF                  = 81287,
+    SPELL_HUNTER_MONGOOSE_CD_REDUCE                 = 81290,
+    SPELL_HUNTER_SCORPID_HEALING                    = 81291,
+    SPELL_HUNTER_ROUGH_PLAY_BUFF_R1                 = 81294,
+    SPELL_HUNTER_ROUGH_PLAY_BUFF_R2                 = 81295,
+    SPELL_HUNTER_OUTMANEUVER                        = 81297,
+    SPELL_HUNTER_WEAVING_R1                         = 81288,
+    SPELL_HUNTER_WEAVING_R2                         = 81289,
+    SPELL_HUNTER_WEAVING_AUTOSHOT_R1                = 81290,
+    SPELL_HUNTER_WEAVING_AUTOSHOT_R2                = 81291
 };
 
 enum HunterSpellIcons
@@ -1367,6 +1381,298 @@ class spell_hun_wyvern_sting : public AuraScript
     }
 };
 
+// hunter's mark
+class spell_hun_hunters_mark : public AuraScript
+{
+    PrepareAuraScript(spell_hun_hunters_mark);
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Aura* impHuntersMark = GetCaster()->GetAuraOfRankedSpell(SPELL_HUNTER_IMPROVED_HUNTERS_MARK);
+        if (impHuntersMark)
+        {
+            uint32 rangedBonus = GetEffect(1)->CalculateAmount(GetCaster());
+            float ratio = (impHuntersMark->GetEffect(2)->GetBaseAmount() + 1);
+            amount += (rangedBonus * ratio) * .01;
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_hunters_mark::CalculateAmount, EFFECT_2, SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS);
+    }
+};
+
+// 81286,81287 - Mongoose Bite
+class spell_hun_mongoose_bite : public SpellScript
+{
+    PrepareSpellScript(spell_hun_mongoose_bite);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return true;
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (Unit* unitTarget = GetHitUnit())
+        {
+            uint32 spellId = 0;
+            int32 basePoint = 0;
+            Unit::AuraApplicationMap const& auras = unitTarget->GetAppliedAuras();
+            AuraApplication* aa = nullptr;
+            for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
+            {
+                Aura* aura = i->second->GetBase();
+                if (aura->GetCasterGUID() != caster->GetGUID())
+                    continue;
+
+                // Search only Serpent Sting, Viper Sting, Scorpid Sting auras
+                flag96 familyFlag = aura->GetSpellInfo()->SpellFamilyFlags;
+                bool isViperSting = aura->GetSpellInfo()->Id == 3034 || aura->GetSpellInfo()->Id == 14279 || aura->GetSpellInfo()->Id == 14280;
+                if (!(familyFlag[1] & 0x00000080 || familyFlag[0] & 0x0000C000 || isViperSting))
+                    continue;
+                if (AuraEffect const* aurEff = aura->GetEffect(EFFECT_0))
+                {
+                    // Serpent Sting - Instantly deals 100% of the damage done by your Serpent Sting.
+                    if (familyFlag[0] & 0x4000)
+                    {
+                        spellId = SPELL_HUNTER_CHIMERA_SHOT_SERPENT;
+
+                        // calculate damage of basic tick (bonuses are already factored in AuraEffect)
+                        basePoint = aurEff->GetAmount() * aurEff->GetTotalTicks();
+                        ApplyPct(basePoint, 80);
+                    }
+                    // Viper Sting - Instantly restores mana to you equal to 40% of the total amount drained by your Viper Sting.
+                    else if (isViperSting)
+                    {
+                        spellId = SPELL_HUNTER_CHIMERA_SHOT_VIPER;
+
+                        // % of mana drained in max duration
+                        basePoint = aurEff->GetAmount() * aurEff->GetTotalTicks();
+
+                        ApplyPct(basePoint, 50);
+                    }
+                    // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
+                    else if (familyFlag[0] & 0x00008000)
+                        spellId = SPELL_HUNTER_SCORPID_HEALING;
+
+                    aa = i->second;
+                    // Refresh aura duration
+                }
+                break;
+            }
+
+            if (aa)
+            {
+                unitTarget->RemoveAura(aa, AURA_REMOVE_BY_ENEMY_SPELL);
+            }
+
+            if (spellId)
+            {
+                if (spellId == SPELL_HUNTER_SCORPID_HEALING)
+                {
+                    CastSpellExtraArgs args(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
+                    caster->CastSpell(caster, spellId, args);
+                    Pet* pet = caster->ToPlayer()->GetPet();
+                    if (pet && pet->IsAlive())
+                    {
+                        caster->CastSpell(pet, spellId, args);
+                    }
+                }
+                else
+                {
+                    CastSpellExtraArgs args(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
+                    args.AddSpellBP0(basePoint);
+                    caster->CastSpell(unitTarget, spellId, args);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_mongoose_bite::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+
+// 81290 - mongoose bite cd reduce
+class spell_hun_mongoose_bite_cd_reduce : public SpellScript
+{
+    PrepareSpellScript(spell_hun_mongoose_bite_cd_reduce);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        uint32 cdreduce = GetEffectValue();
+        GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_MONGOOSE_BITE, cdreduce);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_mongoose_bite_cd_reduce::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// -81292, 81293 - rough play
+class spell_hun_rough_play : public AuraScript
+{
+    PrepareAuraScript(spell_hun_rough_play);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_ROUGH_PLAY_BUFF_R1,
+                SPELL_HUNTER_ROUGH_PLAY_BUFF_R2
+            });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTarget()->IsPet())
+        {
+            Pet* pet = GetTarget()->ToPet();
+            if (pet->GetOwner()->GetGUID() == GetCasterGUID())
+            {
+                uint8 rank = GetSpellInfo()->GetRank();
+                uint32 spellId = SPELL_HUNTER_ROUGH_PLAY_BUFF_R2;
+                if (rank == 1)
+                {
+                    spellId = SPELL_HUNTER_ROUGH_PLAY_BUFF_R1;
+                }
+                GetCaster()->AddAura(spellId, GetCaster());
+            }
+        }
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTarget()->IsPet())
+        {
+            Pet* pet = GetTarget()->ToPet();
+            if (pet->GetOwner()->GetGUID() == GetCasterGUID())
+            {
+                uint8 rank = GetSpellInfo()->GetRank();
+                uint32 spellId = SPELL_HUNTER_ROUGH_PLAY_BUFF_R2;
+                if (rank == 1)
+                {
+                    spellId = SPELL_HUNTER_ROUGH_PLAY_BUFF_R1;
+                }
+                GetCaster()->RemoveAurasDueToSpell(spellId);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_rough_play::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_rough_play::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 81297 - outmaneuver
+class spell_hun_outmaneuver : public SpellScript
+{
+    PrepareSpellScript(spell_hun_outmaneuver);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    SpellCastResult DoCheckCast()
+    {
+        Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
+        ASSERT(pet); // checked in Spell::CheckCast
+
+        if (!pet->IsPet() || !pet->IsAlive())
+            return SPELL_FAILED_NO_PET;
+
+        // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
+        SpellCastResult result = SPELL_CAST_OK;
+        uint32 const unitflag = pet->GetUnitFlags();
+        if (pet->GetCharmerGUID())
+            result = SPELL_FAILED_CHARMED;
+
+        if (result != SPELL_CAST_OK)
+            return result;
+
+
+        if (!pet->IsWithinLOSInMap(GetCaster()))
+            return SPELL_FAILED_LINE_OF_SIGHT;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+        Pet* pet = player->GetPet();
+        if (!pet || !pet->IsAlive())
+            return;
+
+        WorldLocation hunterPosition = player->GetWorldLocation();
+        WorldLocation petPosition = pet->GetWorldLocation();
+        player->NearTeleportTo(petPosition);
+        pet->NearTeleportTo(hunterPosition);
+        pet->GetCharmInfo()->SetIsAtStay(true);
+        pet->GetCharmInfo()->SetIsCommandAttack(false);
+        pet->GetCharmInfo()->SetIsCommandFollow(true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_hun_outmaneuver::DoCheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_hun_outmaneuver::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_hun_weaving : public AuraScript
+{
+    PrepareAuraScript(spell_hun_weaving);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_WEAVING_AUTOSHOT_R1,
+                SPELL_HUNTER_WEAVING_AUTOSHOT_R2
+            });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        uint8 rank = GetSpellInfo()->GetRank();
+        if(rank == 1)
+            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_WEAVING_AUTOSHOT_R1);
+        else
+            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_WEAVING_AUTOSHOT_R2);
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        uint8 rank = GetSpellInfo()->GetRank();
+        if (rank == 1)
+            GetCaster()->RemoveAurasDueToSpell(SPELL_HUNTER_WEAVING_AUTOSHOT_R1);
+        else
+            GetCaster()->RemoveAurasDueToSpell(SPELL_HUNTER_WEAVING_AUTOSHOT_R2);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_weaving::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_weaving::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
 
 void AddSC_hunter_spell_scripts()
 {
@@ -1406,4 +1712,10 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_viper_attack_speed);
     RegisterSpellScript(spell_hun_wyvern_sting);
+    RegisterSpellScript(spell_hun_hunters_mark);
+    RegisterSpellScript(spell_hun_mongoose_bite);
+    RegisterSpellScript(spell_hun_rough_play);
+    RegisterSpellScript(spell_hun_mongoose_bite_cd_reduce);
+    RegisterSpellScript(spell_hun_outmaneuver);
+    RegisterSpellScript(spell_hun_weaving);
 }
