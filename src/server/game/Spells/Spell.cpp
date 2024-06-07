@@ -6511,6 +6511,14 @@ SpellCastResult Spell::CheckRange(bool strict) const
     maxRange *= maxRange;
 
     Unit* target = m_targets.GetUnitTarget();
+    if (!target && GetSpellInfo()->GetEffect(EFFECT_0).TargetA.GetTarget() == TARGET_UNIT_PET)
+    {
+        Player* p = m_caster->ToPlayer();
+        if (p && p->GetPet())
+        {
+            target = p->GetPet();
+        }
+    }
     if (target && target != m_caster)
     {
         if (m_caster->GetExactDistSq(target) > maxRange)
