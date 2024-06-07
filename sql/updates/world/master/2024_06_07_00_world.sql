@@ -1,6 +1,6 @@
-SET @ATID := 100;
-SEt @ATCP := 100;
-SET @ATIDSPAWN := 100;
+SET @ATID := 67;
+SEt @ATCP := 55;
+SET @ATIDSPAWN := 69;
 
 -- Instance Template
 DELETE FROM `instance_template` WHERE `map` = 1762;
