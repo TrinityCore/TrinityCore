@@ -66,6 +66,7 @@ class Unit;
 class Weather;
 class WorldObject;
 class WorldPacket;
+class WorldSession;
 struct DungeonEncounterEntry;
 struct MapDifficultyEntry;
 struct MapEntry;
@@ -399,6 +400,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveWorldObject(WorldObject* obj);
 
         void SendToPlayers(WorldPacket const* data) const;
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession const* self = nullptr, Optional<Team> team = { }) const;
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
@@ -546,6 +548,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SendZoneDynamicInfo(uint32 zoneId, Player* player) const;
         void SendZoneWeather(uint32 zoneId, Player* player) const;
         void SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const;
+        void SendZoneText(uint32 zoneId, const char* text, WorldSession const* self = nullptr, Optional<Team> team = { }) const;
 
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
         Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
