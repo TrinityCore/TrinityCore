@@ -26,8 +26,8 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 
-class Player;
 class Map;
+class Player;
 
 #define WEATHER_SEASONS 4
 struct WeatherSeasonChances
