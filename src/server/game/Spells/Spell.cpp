@@ -576,7 +576,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_procAttacker = 0;
     m_procVictim = 0;
     m_hitMask = 0;
-    focusObject = nullptr;
+    focusObjectGUID = ObjectGuid::Empty;
     m_cast_count = 0;
     m_glyphIndex = 0;
     m_triggeredByAuraSpell  = nullptr;
@@ -850,6 +850,7 @@ void Spell::SelectSpellTargets()
 
         if (m_spellInfo->IsChanneled())
         {
+            GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
             // maybe do this for all spells?
             if (!focusObject && m_UniqueTargetInfo.empty() && m_UniqueGOTargetInfo.empty() && m_UniqueItemInfo.empty() && !m_targets.HasDst())
             {
@@ -1100,6 +1101,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
             case TARGET_OBJECT_TYPE_GOBJ:
                 if (m_spellInfo->RequiresSpellFocus)
                 {
+                    GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
                     if (focusObject)
                         AddGOTarget(focusObject, effMask);
                     else
@@ -1113,6 +1115,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
             case TARGET_OBJECT_TYPE_DEST:
                 if (m_spellInfo->RequiresSpellFocus)
                 {
+                    GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
                     if (focusObject)
                     {
                         SpellDestination dest(*focusObject);
@@ -5425,8 +5428,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     // check spell focus object
     if (m_spellInfo->RequiresSpellFocus)
     {
-        focusObject = SearchSpellFocus();
-        if (!focusObject)
+        if (GameObject* focusObject = SearchSpellFocus())
+            focusObjectGUID = focusObject->GetGUID();
+        else
             return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
     }
 

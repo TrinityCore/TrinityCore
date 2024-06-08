@@ -530,7 +530,7 @@ class TC_GAME_API Spell
         DynObjAura* _dynObjAura;
 
         // -------------------------------------------
-        GameObject* focusObject;
+        ObjectGuid focusObjectGUID;
 
         // Damage and healing in effects need just calculate
         int32 m_damage;           // Damage  in effects count here
