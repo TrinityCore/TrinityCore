@@ -1435,7 +1435,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
 {
     switch (value)
     {
-        case SPELL_ATTR9_UNK0: return { "SPELL_ATTR9_UNK0", "Unknown attribute 0@Attr9", "" };
+        case SPELL_ATTR9_FORCE_DEST_LOCATION: return { "SPELL_ATTR9_FORCE_DEST_LOCATION", "Force Dest Location", "Ignores collision with terrain (unsure if it also ignores terrain height and can go under map)" };
         case SPELL_ATTR9_UNK1: return { "SPELL_ATTR9_UNK1", "Unknown attribute 1@Attr9", "" };
         case SPELL_ATTR9_RESTRICTED_FLIGHT_AREA: return { "SPELL_ATTR9_RESTRICTED_FLIGHT_AREA", "Only When Illegally Mounted", "" };
         case SPELL_ATTR9_UNK3: return { "SPELL_ATTR9_UNK3", "Unknown attribute 3@Attr9", "" };
@@ -1479,7 +1479,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return SPELL_ATTR9_UNK0;
+        case 0: return SPELL_ATTR9_FORCE_DEST_LOCATION;
         case 1: return SPELL_ATTR9_UNK1;
         case 2: return SPELL_ATTR9_RESTRICTED_FLIGHT_AREA;
         case 3: return SPELL_ATTR9_UNK3;
@@ -1520,7 +1520,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
 {
     switch (value)
     {
-        case SPELL_ATTR9_UNK0: return 0;
+        case SPELL_ATTR9_FORCE_DEST_LOCATION: return 0;
         case SPELL_ATTR9_UNK1: return 1;
         case SPELL_ATTR9_RESTRICTED_FLIGHT_AREA: return 2;
         case SPELL_ATTR9_UNK3: return 3;

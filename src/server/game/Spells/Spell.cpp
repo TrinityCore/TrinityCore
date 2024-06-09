@@ -1185,7 +1185,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                         {
                             float randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex);
                             if (randomRadius > 0.0f)
-                                m_caster->MovePositionToFirstCollision(dest._position, randomRadius, targetType.CalcDirectionAngle());
+                                MovePosition(dest._position, m_caster, randomRadius, targetType.CalcDirectionAngle());
                         }
 
                         CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
@@ -1272,7 +1272,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
         {
             SpellDestination dest(*target);
             if (randomRadius > 0.0f)
-                target->MovePositionToFirstCollision(dest._position, randomRadius, targetType.CalcDirectionAngle());
+                MovePosition(dest._position, target, randomRadius, targetType.CalcDirectionAngle());
 
             if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
                 dest._position.SetOrientation(spellEffectInfo.PositionFacing);
@@ -1597,7 +1597,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
 
             Position pos = dest._position;
 
-            unitCaster->MovePositionToFirstCollision(pos, dist, angle);
+            MovePosition(pos, unitCaster, dist, angle);
             dest.Relocate(pos);
             break;
         }
@@ -1644,7 +1644,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                 dist = objSize;
 
             Position pos = dest._position;
-            m_caster->MovePositionToFirstCollision(pos, dist, angle);
+            MovePosition(pos, m_caster, dist, angle);
 
             dest.Relocate(pos);
             break;
@@ -1677,7 +1677,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectIn
             float dist = spellEffectInfo.CalcRadius(nullptr, targetIndex);
 
             Position pos = dest._position;
-            target->MovePositionToFirstCollision(pos, dist, angle);
+            MovePosition(pos, target, dist, angle);
 
             dest.Relocate(pos);
             break;
@@ -1717,7 +1717,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
             Position pos = dest._position;
             float angle = pos.GetAbsoluteAngle(m_caster) - m_caster->GetOrientation();
 
-            m_caster->MovePositionToFirstCollision(pos, dist, angle);
+            MovePosition(pos, m_caster, dist, angle);
             pos.SetOrientation(m_caster->GetAbsoluteAngle(dest._position));
 
             dest.Relocate(pos);
@@ -1729,7 +1729,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
             float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
 
             Position pos = dest._position;
-            m_caster->MovePositionToFirstCollision(pos, dist, angle);
+            MovePosition(pos, m_caster, dist, angle);
 
             dest.Relocate(pos);
             break;
@@ -9293,6 +9293,14 @@ bool Spell::IsWithinLOS(WorldObject const* source, Position const& target, VMAP:
         return true;
 
     return source->IsWithinLOS(target.GetPositionX(), target.GetPositionY(), target.GetPositionZ(), LINEOFSIGHT_ALL_CHECKS, ignoreFlags);
+}
+
+void Spell::MovePosition(Position& pos, WorldObject const* from, float dist, float angle) const
+{
+    if (m_spellInfo->HasAttribute(SPELL_ATTR9_FORCE_DEST_LOCATION))
+        from->MovePosition(pos, dist, angle);
+    else
+        from->MovePositionToFirstCollision(pos, dist, angle);
 }
 
 namespace Trinity
