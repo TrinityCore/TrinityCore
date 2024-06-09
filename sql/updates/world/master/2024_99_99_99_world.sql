@@ -27,6 +27,8 @@ DELETE FROM `ui_map_quest_lines` WHERE (`QuestLineId`=566 AND `UIMapId` IN (47,5
 DELETE FROM `ui_map_quest_lines` WHERE (`QuestLineId`=589 AND `UIMapId` IN (87,97,84,57,27,37)) OR (`QuestLineId`=289 AND `UIMapId` IN (52,84,37,224,50,49,17,47,42)) OR (`QuestLineId`=579 AND `UIMapId` IN (84,971)) OR (`QuestLineId`=308 AND `UIMapId` IN (650,641));
 DELETE FROM `ui_map_quest_lines` WHERE (`UIMapId`=535 AND `QuestLineId` IN (114,103,41,40)) OR (`UIMapId`=89 AND `QuestLineId`=589) OR (`UIMapId`=550 AND `QuestLineId` IN (114,103)) OR (`UIMapId`=2024 AND `QuestLineId` IN (5464,5381,1398,1362,1331,1308)) OR (`UIMapId`=542 AND `QuestLineId`=40) OR (`UIMapId`=534 AND `QuestLineId`=57) OR (`UIMapId`=2200 AND `QuestLineId` IN (5381,1331,1308)) OR (`UIMapId`=543 AND `QuestLineId` IN (114,103)) OR (`UIMapId`=2025 AND `QuestLineId` IN (5538,5511,5464,5462,5381,1416,1413,1398,1362,1333,1331,1308)) OR (`UIMapId`=2022 AND `QuestLineId` IN (5538,5511,5464,5462,5381,1416,1413,1398,1362,1333,1331,1308)) OR (`UIMapId`=2112 AND `QuestLineId` IN (5538,5511,5464,5381,1416,1413,1398,1362,1333,1331,1308)) OR (`UIMapId`=2239 AND `QuestLineId` IN (5381,1308)) OR (`UIMapId`=103 AND `QuestLineId`=589) OR (`UIMapId`=2133 AND `QuestLineId` IN (5538,5511,5464,5462,5381,1416,1413,1398,1362,1333,1331,1308)) OR (`UIMapId`=2151 AND `QuestLineId`=1413) OR (`UIMapId`=525 AND `QuestLineId` IN (114,103)) OR (`UIMapId`=539 AND `QuestLineId` IN (41,40)) OR (`UIMapId`=2023 AND `QuestLineId` IN (5464,5381,1331,1308));
 DELETE FROM `ui_map_quest_lines` WHERE (`QuestLineId`=1261 AND `UIMapId` IN (2118,2109)) OR (`QuestLineId`=5536 AND `UIMapId` IN (371,554)) OR (`QuestLineId`=1289 AND `UIMapId` IN (2025,2022,84)) OR (`QuestLineId`=1379 AND `UIMapId`=84);
+DELETE FROM `ui_map_quest_lines` WHERE (`UIMapId`=830 AND `QuestLineId`=369) OR (`UIMapId`=882 AND `QuestLineId`=369) OR (`UIMapId`=680 AND `QuestLineId` IN (343,341,340,339,154,153)) OR (`UIMapId`=2022 AND `QuestLineId`=1367) OR (`UIMapId`=1543 AND `QuestLineId`=1065) OR (`UIMapId`=2025 AND `QuestLineId`=1367) OR (`UIMapId`=1525 AND `QuestLineId`=1065) OR (`UIMapId`=831 AND `QuestLineId`=369) OR (`UIMapId`=1536 AND `QuestLineId`=1294) OR (`UIMapId`=1670 AND `QuestLineId` IN (1294,1065)) OR (`UIMapId`=1672 AND `QuestLineId`=1235) OR (`UIMapId`=84 AND `QuestLineId` IN (5511,5399,547));
+DELETE FROM `ui_map_quest_lines` WHERE (`QuestLineId`=1289 AND `UIMapId` IN (85,1,76)) OR (`QuestLineId`=860 AND `UIMapId` IN (85,1)) OR (`QuestLineId`=1368 AND `UIMapId` IN (2133,2022,2024,2025)) OR (`QuestLineId`=1367 AND `UIMapId`=2133) OR (`QuestLineId`=1314 AND `UIMapId` IN (2133,2024,2239,2023)) OR (`QuestLineId`=1310 AND `UIMapId` IN (2133,2022,2024,2025,2023)) OR (`QuestLineId`=1303 AND `UIMapId` IN (2133,2022,2025,2023)) OR (`QuestLineId`=5388 AND `UIMapId` IN (942,896));
 INSERT INTO `ui_map_quest_lines` (`UIMapId`, `QuestLineId`, `VerifiedBuild`) VALUES
 (371, 5557, 54988),
 (371, 5502, 54988),
@@ -1064,8 +1066,56 @@ INSERT INTO `ui_map_quest_lines` (`UIMapId`, `QuestLineId`, `VerifiedBuild`) VAL
 (2022, 1289, 54988),
 (2109, 1261, 54988),
 (84, 1379, 54988),
-(84, 1289, 54988);
+(84, 1289, 54988),
+(830, 369, 54988),
+(882, 369, 54988),
+(680, 343, 54988),
+(680, 341, 54988),
+(680, 340, 54988),
+(680, 339, 54988),
+(680, 154, 54988),
+(680, 153, 54988),
+(2022, 1367, 54988),
+(1543, 1065, 54988),
+(2025, 1367, 54988),
+(1525, 1065, 54988),
+(831, 369, 54988),
+(1536, 1294, 54988),
+(1670, 1294, 54988),
+(1670, 1065, 54988),
+(1672, 1235, 54988),
+(84, 5511, 54988),
+(84, 5399, 54988),
+(84, 547, 54988),
+(85, 1289, 54988),
+(85, 860, 54988),
+(2133, 1368, 54988),
+(2133, 1367, 54988),
+(2133, 1314, 54988),
+(2133, 1310, 54988),
+(2133, 1303, 54988),
+(2022, 1368, 54988),
+(2022, 1310, 54988),
+(2022, 1303, 54988),
+(2024, 1368, 54988),
+(2024, 1314, 54988),
+(2024, 1310, 54988),
+(1, 1289, 54988),
+(1, 860, 54988),
+(2239, 1314, 54988),
+(76, 1289, 54988),
+(2025, 1368, 54988),
+(2025, 1310, 54988),
+(2025, 1303, 54988),
+(2023, 1314, 54988),
+(2023, 1310, 54988),
+(2023, 1303, 54988),
+(942, 5388, 54988),
+(896, 5388, 54988);
 
 DELETE FROM `ui_map_quests` WHERE (`UIMapId`=371 AND `QuestId`=30134);
+DELETE FROM `ui_map_quests` WHERE (`UIMapId`=1536 AND `QuestId` IN (59867,57301));
 INSERT INTO `ui_map_quests` (`UIMapId`, `QuestId`, `VerifiedBuild`) VALUES
-(371, 30134, 54988); -- Wild Things
+(371, 30134, 54988), -- Wild Things
+(1536, 59867, 54988), -- WANTED: Appraiser Vix
+(1536, 57301, 54988); -- Callous Concoctions
