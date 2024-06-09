@@ -29,24 +29,30 @@
 enum KingsRestData
 {
     // Creature
-    NPC_SHADOW_OF_ZUL           = 137020,
+    NPC_SHADOW_OF_ZUL               = 137020,
+
+    // Creature text
+    SAY_ANIMATED_GUARDIAN_ENGAGE    = 0,
 
     // DisplayIDs
-    DISPLAY_INVISIBLE_ZUL       = 11686,
+    DISPLAY_INVISIBLE_ZUL           = 11686,
 
     // Spell Visuals
-    SPELL_VISUAL_ZUL_OPEN_GOB   = 77330,
+    SPELL_VISUAL_ZUL_OPEN_GOB       = 77330,
 
     // Conversation
-    CONV_ZUL_KINGS_REST_INTRO   = 7690,
+    CONV_ZUL_KINGS_REST_INTRO       = 7690,
 
     // Spells
-    SPELL_ZUL_SHADOWFORM        = 269058
+    SPELL_ZUL_SHADOWFORM            = 269058,
+    SPELL_SUPPRESSION_SLAM_SELECTOR = 270002,
+    SPELL_SUPPRESSION_SLAM_DAMAGE   = 270003,
+    SPELL_RELEASED_INHIBITORS       = 270016
 };
 
 constexpr Position ShadowOfZulIntroSpawnPosition = { -944.9617f, 2646.5268f, 832.8684f, 4.716575f };
 
-// XX - KingsRest - Trigger Intro Event with Shadow of Zul
+// 67 - KingsRest - Trigger Intro Event with Shadow of Zul
 struct at_kings_rest_trigger_intro_event_with_zul : AreaTriggerAI
 {
     at_kings_rest_trigger_intro_event_with_zul(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
@@ -139,11 +145,116 @@ private:
     EventMap _events;
 };
 
+enum AnimatedGuardianEvent
+{
+    EVENT_SUPPRESSION_SLAM = 1
+};
+
+// 133935 - Animated Guardian
+struct npc_kings_rest_animated_guardian : public ScriptedAI
+{
+    npc_kings_rest_animated_guardian(Creature* creature) : ScriptedAI(creature), _suppressionSlamCasts(0) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_ANIMATED_GUARDIAN_ENGAGE);
+        _events.ScheduleEvent(EVENT_SUPPRESSION_SLAM, 12s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->HealthBelowPctDamaged(50, damage))
+        {
+            DoCast(SPELL_RELEASED_INHIBITORS);
+            _events.DelayEvents(1200ms);
+        }
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _suppressionSlamCasts = 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SUPPRESSION_SLAM:
+                    DoCast(SPELL_SUPPRESSION_SLAM_SELECTOR);
+                    _suppressionSlamCasts++;
+                    _events.ScheduleEvent(EVENT_SUPPRESSION_SLAM, _suppressionSlamCasts % 2 == 0 ? 12s : 13300ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    int32 _suppressionSlamCasts;
+};
+
+// 270002 - Suppression Slam
+class spell_kings_rest_suppression_slam : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUPPRESSION_SLAM_DAMAGE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        // @TODO: sniff doesnt contain dest - causes visual to be offset
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_SUPPRESSION_SLAM_DAMAGE, false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_kings_rest_suppression_slam::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 269935 - Bound by Shadow
+class spell_kings_rest_bound_by_shadow : public AuraScript
+{
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+            return;
+
+        GetTarget()->KillSelf();
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_kings_rest_bound_by_shadow::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_kings_rest()
 {
+    // Creature
+    RegisterKingsRestCreatureAI(npc_kings_rest_animated_guardian);
+
     // Areatrigger
     RegisterAreaTriggerAI(at_kings_rest_trigger_intro_event_with_zul);
 
     // Conversation
     new conversation_kings_rest_intro();
+
+    // Spells
+    RegisterSpellScript(spell_kings_rest_suppression_slam);
+    RegisterSpellScript(spell_kings_rest_bound_by_shadow);
 }
