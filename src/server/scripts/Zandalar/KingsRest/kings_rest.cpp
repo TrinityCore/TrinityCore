@@ -20,9 +20,11 @@
 #include "Conversation.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "TemporarySummon.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Unit.h"
 #include "kings_rest.h"
 
