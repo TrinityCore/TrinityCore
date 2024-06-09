@@ -21,23 +21,36 @@ jobs:
         echo "OPENSSL_ROOT_DIR=C:/libs/openssl" >> $env:GITHUB_ENV
         echo "MYSQL_ROOT_DIR=C:/Program Files/MySQL/MySQL Server 8.0" >> $env:GITHUB_ENV
 
-    - name: Download and install Openssl 3.x
+    - name: Get current OpenSSL version
+      id: openssl-info
       run: |
         $VersionsUrl = "https://api.github.com/repos/slproweb/opensslhashes/contents/win32_openssl_hashes.json"
         $Headers = @{
           Accept="application/vnd.github.raw+json"
           Authorization="Bearer ${{ secrets.GITHUB_TOKEN }}"
         }
-        $Url = (Invoke-RestMethod $VersionsUrl -Headers $Headers).files.PSObject.Properties |
+        $openSSL = (Invoke-RestMethod $VersionsUrl -Headers $Headers).files.PSObject.Properties |
           Select-Object -ExpandProperty Value |
           Where-Object { $_.arch -eq 'INTEL' } |
           Where-Object { $_.bits -eq '64' } |
           Where-Object { $_.light -eq $false } |
           Where-Object { $_.installer  -eq 'exe' } |
           Sort-Object -Descending @{ Expression = { [version]$_.basever } } |
-          Select-Object -First 1 -ExpandProperty url
+          Select-Object -First 1
+        [System.String]::Format("cache-key=openssl-{0}-{1}-{2}", $openSSL.basever, $openSSL.arch, $openSSL.bits) >> $env:GITHUB_OUTPUT
+        [System.String]::Format("url={0}", $openSSL.url) >> $env:GITHUB_OUTPUT
 
-        (New-Object System.Net.WebClient).DownloadFile($Url, "${{ env.TEMP }}\openssl.exe")
+    - name: Cache OpenSSL
+      id: cache-openssl
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.OPENSSL_ROOT_DIR }}
+        key: ${{ steps.openssl-info.outputs.cache-key }}
+
+    - name: Download and install Openssl 3.x
+      if: ${{ steps.cache-openssl.outputs.cache-hit != 'true' }}
+      run: |
+        (New-Object System.Net.WebClient).DownloadFile("${{ steps.openssl-info.outputs.url }}", "${{ env.TEMP }}\openssl.exe")
         Start-Process -Wait -FilePath "${{ env.TEMP }}\openssl.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES",/DIR=${{ env.OPENSSL_ROOT_DIR }}
 
         # Quick Openssl install test

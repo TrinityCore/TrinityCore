@@ -522,7 +522,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&model, creatureInfo);
     if (!minfo)                                             // Cancel load if no model defined
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid model {} defined in table `creature_template`, can't load.", entry, model.CreatureDisplayID);
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid model {} defined in table `creature_template_model`, can't load.", entry, model.CreatureDisplayID);
         return false;
     }
 
