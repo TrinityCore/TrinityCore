@@ -77,7 +77,10 @@ enum PriestSpells
     SPELL_PRIEST_TWIN_DISCIPLINE_R1                 = 47586,
     SPELL_PRIEST_SPIRITUAL_HEALING_R1               = 14898,
     SPELL_PRIEST_DIVINE_PROVIDENCE_R1               = 47562,
-    SPELL_PRIEST_SHADOW_GUARD_DAMAGE_R1             = 28377
+    SPELL_PRIEST_SHADOW_GUARD_DAMAGE_R1             = 28377,
+    SPELL_PRIEST_SPIRIT_DURATION_INCREASE_R1        = 81322,
+    SPELL_PRIEST_SPIRIT_DURATION_INCREASE_R2        = 81323,
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827
 };
 
 enum PriestSpellIcons
@@ -1328,6 +1331,71 @@ class spell_pri_shadow_guard : public AuraScript
     }
 };
 
+class spell_pri_spirit_duration_increase: public SpellScript
+{
+    PrepareSpellScript(spell_pri_spirit_duration_increase);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_SPIRIT_OF_REDEMPTION))
+        {
+            Aura* spiritOfRedemption = GetCaster()->GetAura(SPELL_PRIEST_SPIRIT_OF_REDEMPTION);
+            spiritOfRedemption->SetDuration(spiritOfRedemption->GetDuration() + GetEffectValue());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_spirit_duration_increase::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_pri_smite : public SpellScript
+{
+    PrepareSpellScript(spell_pri_smite);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SPIRIT_DURATION_INCREASE_R1);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_smite::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_pri_holy_fire : public SpellScript
+{
+    PrepareSpellScript(spell_pri_holy_fire);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SPIRIT_DURATION_INCREASE_R2);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_fire::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+    }
+};
+
+
 
 void AddSC_priest_spell_scripts()
 {
@@ -1363,4 +1431,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);
     RegisterSpellScript(spell_pri_power_infusion);
     RegisterSpellScript(spell_pri_shadow_guard);
+    RegisterSpellScript(spell_pri_spirit_duration_increase);
+    RegisterSpellScript(spell_pri_smite);
+    RegisterSpellScript(spell_pri_holy_fire);
 }

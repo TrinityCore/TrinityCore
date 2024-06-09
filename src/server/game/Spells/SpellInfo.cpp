@@ -2720,6 +2720,7 @@ void SpellInfo::_LoadImmunityInfo()
                     case 53490: // Bullheaded
                     case 81272: //death wish: unstoppable
                     case 81296: //unstoppable
+                    case 81300: //bestial wrath (new)
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
                         break;
                     case 54508: // Demonic Empowerment

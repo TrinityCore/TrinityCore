@@ -1565,13 +1565,7 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 m
             if (!target->IsStandState())
                 target->SetStandState(UNIT_STAND_STATE_STAND);
         }
-
-        target->SetHealth(1);
     }
-    // die at aura end
-    else if (target->IsAlive())
-        // call functions which may have additional effects after changing state of unit
-        target->setDeathState(JUST_DIED);
 }
 
 void AuraEffect::HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const
