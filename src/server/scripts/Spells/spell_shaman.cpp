@@ -94,7 +94,9 @@ enum ShamanSpells
     SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832,
     SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554,
     SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS         = 29192,
-    SPELL_SHAMAN_FOCUSED_INSIGHT                = 77800
+    SPELL_SHAMAN_FOCUSED_INSIGHT                = 77800,
+    SPELL_SHAMAN_EXPUNGE                        = 81326,
+    SPELL_SHAMAN_BRAIN_DRAIN                    = 81327
 };
 
 enum ShamanSpellIcons
@@ -1985,6 +1987,78 @@ class spell_sha_focused_insight : public AuraScript
     }
 };
 
+class spell_sha_purge : public SpellScript
+{
+    PrepareSpellScript(spell_sha_purge);
+
+    SpellCastResult CheckMagicDispel()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        bool hasDispellableAura = false;
+        bool hasNonDispelEffect = false;
+        uint32 dispelMask = DISPEL_MAGIC;
+
+        //if target doesn't have expunge, go through dispel check
+        if(!caster->HasAura(SPELL_SHAMAN_EXPUNGE))
+        {
+            if (target && caster)
+            {
+                // do not allow to cast on hostile targets in sanctuary
+                if (!caster->IsFriendlyTo(target))
+                {
+                    if (caster->IsInSanctuary() || target->IsInSanctuary())
+                    {
+                        // fix for duels
+                        Player* player = caster->ToPlayer();
+                        if (!player || !player->duel || target != player->duel->Opponent)
+                            return SPELL_FAILED_NOTHING_TO_DISPEL;
+                    }
+                }
+
+                DispelChargesList dispelList;
+                target->GetDispellableAuraList(caster, dispelMask, dispelList);
+                if (dispelList.empty())
+                    return SPELL_FAILED_NOTHING_TO_DISPEL;
+            }
+        }
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_sha_purge::CheckMagicDispel);
+        //OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_sha_old_purge : public SpellScript
+{
+    PrepareSpellScript(spell_sha_old_purge);
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        AuraApplication* aa = GetCaster()->GetAuraApplication(SPELL_SHAMAN_BRAIN_DRAIN);
+        if (aa)
+        {
+            int32 bp0 = GetSpellInfo()->CalcPowerCost(GetCaster(), SPELL_SCHOOL_MASK_ARCANE);
+            bp0 *= -aa->GetBase()->GetEffect(EFFECT_0)->GetAmount();
+            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+            args.AddSpellBP0(bp0);
+            //lifebloom energize because i'm lazy
+            GetCaster()->CastSpell(GetCaster(), 64372, args);
+        }
+    }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_old_purge::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     RegisterSpellScript(spell_sha_ancestral_awakening);
@@ -2041,4 +2115,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_healing_wave);
     RegisterSpellScript(spell_sha_windfury_totem);
     RegisterSpellScript(spell_sha_focused_insight);
+    RegisterSpellScript(spell_sha_purge);
+    RegisterSpellScript(spell_sha_old_purge);
 }
