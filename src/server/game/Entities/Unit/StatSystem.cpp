@@ -70,6 +70,11 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
         CalculateMinMaxDamage(attType, false, true, tmpMin, tmpMax, i);
         totalMin += tmpMin;
         totalMax += tmpMax;
+        if (IsPlayer())
+        {
+            totalMin += ToPlayer()->GetEnchantmentModifier(attType);
+            totalMax += ToPlayer()->GetEnchantmentModifier(attType);
+        }
     }
 
     switch (attType)
@@ -514,6 +519,19 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         if (guardian && guardian->IsSpiritWolf()) // At melee attack power change for Shaman feral spirit
             guardian->UpdateAttackPowerAndDamage();
     }
+}
+
+void Player::SetEnchantmentModifier(uint32 value, WeaponAttackType attType, bool apply)
+{
+    if (apply)
+        m_enchantmentFlatMod[attType] += value;
+    else
+        m_enchantmentFlatMod[attType] -= value;
+}
+
+uint32 Player::GetEnchantmentModifier(WeaponAttackType attType)
+{
+    return m_enchantmentFlatMod[attType];
 }
 
 void Player::UpdateShieldBlockValue()

@@ -149,6 +149,9 @@ class TC_GAME_API Item : public Object
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
 
+        uint32 GetEnchantmentModifier() { return m_enchantmentModifier; }
+        void SetEnchantmentModifier(uint32 value) { m_enchantmentModifier = value; }
+
         std::string const& GetText() const { return m_text; }
         void SetText(std::string const& text) { m_text = text; }
 
@@ -220,5 +223,6 @@ class TC_GAME_API Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
+        uint32 m_enchantmentModifier; // used by one script and removed in wotlk
 };
 #endif

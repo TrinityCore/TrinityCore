@@ -58,7 +58,8 @@ enum RogueSpells
     SPELL_ROGUE_OVERKILL_BUFF                   = 58427,
     SPELL_ROGUE_STEALTH                         =  1784,
     SPELL_ROGUE_IMPROVED_SAP                    = 14095,
-    SPELL_ROGUE_DEADLY_BREW                     = 81301
+    SPELL_ROGUE_DEADLY_BREW                     = 81301,
+    SPELL_ROGUE_SEAL_FATE                       = 14186
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -215,9 +216,13 @@ class spell_rog_poison : public SpellScript
 
     void HandleAfterHit()
     {
-        if (GetCaster()->HasAura(SPELL_ROGUE_DEADLY_BREW))
+        AuraApplication* sealFate = GetCaster()->GetAuraApplicationOfRankedSpell(SPELL_ROGUE_SEAL_FATE);
+        if (sealFate)
         {
-            GetCaster()->AddAura(11201, GetHitUnit());
+            if (roll_chance_f(sealFate->GetBase()->GetSpellInfo()->ProcChance))
+            {
+                GetCaster()->AddAura(11201, GetHitUnit());
+            }
         }
     }
 

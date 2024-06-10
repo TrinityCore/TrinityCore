@@ -93,6 +93,8 @@ enum ShamanSpells
     SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
     SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832,
     SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554,
+    SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS         = 29192,
+    SPELL_SHAMAN_FOCUSED_INSIGHT                = 77800
 };
 
 enum ShamanSpellIcons
@@ -1933,6 +1935,36 @@ class spell_sha_healing_wave : public SpellScript
     }
 };
 
+class spell_sha_focused_insight : public AuraScript
+{
+    PrepareAuraScript(spell_sha_focused_insight);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_FOCUSED_INSIGHT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetSpellInfo()->GetCategory() == 19;
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        int32 bp0 = -CalculatePct(eventInfo.GetSpellInfo()->CalcPowerCost(GetUnitOwner(), SpellSchoolMask(eventInfo.GetSpellInfo()->SchoolMask)), aurEff->GetAmount());
+        int32 bp1 = aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
+
+        GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_FOCUSED_INSIGHT, CastSpellExtraArgs(aurEff).AddSpellBP0(bp0).AddSpellMod(SPELLVALUE_BASE_POINT1, bp1).AddSpellMod(SPELLVALUE_BASE_POINT2, bp1));
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_focused_insight::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_focused_insight::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     RegisterSpellScript(spell_sha_ancestral_awakening);
@@ -1987,4 +2019,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_healing_wave);
+    RegisterSpellScript(spell_sha_windfury_totem);
+    RegisterSpellScript(spell_sha_focused_insight);
 }

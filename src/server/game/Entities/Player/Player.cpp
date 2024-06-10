@@ -3780,6 +3780,13 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (spell_id == 674 && m_canDualWield)
         SetCanDualWield(false);
 
+    if (spell_id == 16269)
+    {
+        SetSkill(172, 0, 0, 0);
+        SetSkill(160, 0, 0, 0);
+        AutoUnequipMainhandIfNeed();
+    }
+
     if (sWorld->getBoolConfig(CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN))
         AutoUnequipOffhandIfNeed();
 
@@ -13748,10 +13755,27 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                 case ITEM_ENCHANTMENT_TYPE_NONE:
                     break;
                 case ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL:
+                    if (!apply) // clear modifier set by some spells
+                        item->SetEnchantmentModifier(0);
                     // processed in Player::CastItemCombatSpell
                     break;
                 case ITEM_ENCHANTMENT_TYPE_DAMAGE:
                 {
+                    if (item->GetSlot() == EQUIPMENT_SLOT_MAINHAND)
+                    {
+                        SetEnchantmentModifier(enchant_amount, BASE_ATTACK, apply);
+                        UpdateDamagePhysical(BASE_ATTACK);
+                    }
+                    else if (item->GetSlot() == EQUIPMENT_SLOT_OFFHAND)
+                    {
+                        SetEnchantmentModifier(enchant_amount, OFF_ATTACK, apply);
+                        UpdateDamagePhysical(OFF_ATTACK);
+                    }
+                    else if (item->GetSlot() == EQUIPMENT_SLOT_RANGED)
+                    {
+                        SetEnchantmentModifier(enchant_amount, RANGED_ATTACK, apply);
+                        UpdateDamagePhysical(RANGED_ATTACK);
+                    }
                     WeaponAttackType const attackType = Player::GetAttackBySlot(item->GetSlot());
                     if (attackType != MAX_ATTACK)
                         UpdateDamageDoneMods(attackType, apply ? -1 : slot);
@@ -23721,6 +23745,35 @@ void Player::AddItemDurations(Item* item)
     {
         m_itemDuration.push_back(item);
         item->SendTimeUpdate(this);
+    }
+}
+
+void Player::AutoUnequipMainhandIfNeed(bool force)
+{
+    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    if (!mainItem)
+        return;
+
+    ItemPosCountVec main_dest;
+    if (GetSkillValue(172) <= 0 && IsTwoHandUsed())
+    {
+        if (CanStoreItem(NULL_BAG, NULL_SLOT, main_dest, mainItem, false) == EQUIP_ERR_OK)
+        {
+            RemoveItem(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND, true);
+            StoreItem(main_dest, mainItem, true);
+        }
+        else
+        {
+            MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+            mainItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
+            mainItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
+
+            std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
+            MailDraft(subject, "There were problems with equipping one or several items").AddItem(mainItem).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+
+            CharacterDatabase.CommitTransaction(trans);
+        }
     }
 }
 
