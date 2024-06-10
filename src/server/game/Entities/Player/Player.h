@@ -1132,6 +1132,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
+        void AutoUnequipMainhandIfNeed(bool force = false);
         void AutoUnequipOffhandIfNeed(bool force = false);
         void AutoUnequipMainhandIfNeed(bool force = false);
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);

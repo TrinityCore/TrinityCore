@@ -1935,6 +1935,26 @@ class spell_sha_healing_wave : public SpellScript
     }
 };
 
+// 8516 - Windfury Totem
+class spell_sha_windfury_totem : public AuraScript
+{
+    PrepareAuraScript(spell_sha_windfury_totem);
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        // Set absorbtion amount to unlimited
+        AuraApplication* aa = GetCaster()->GetAuraApplicationOfRankedSpell(SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS);
+
+        if (aa)
+        {
+            amount += (amount * aa->GetBase()->GetEffect(EFFECT_0)->GetAmount() * .01);
+        }
+    }
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_windfury_totem::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER);
+    }
+};
+
 class spell_sha_focused_insight : public AuraScript
 {
     PrepareAuraScript(spell_sha_focused_insight);
