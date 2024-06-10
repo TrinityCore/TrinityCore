@@ -4525,7 +4525,8 @@ void Unit::GetDispellableAuraList(WorldObject const* caster, uint32 dispelMask, 
         if (aura->IsPassive())
             continue;
 
-        if (aura->GetSpellInfo()->GetDispelMask() & dispelMask)
+        uint32 dispel = aura->GetSpellInfo()->GetDispelMask();
+        if (dispel & dispelMask)
         {
             // do not remove positive auras if friendly target
             //               negative auras if non-friendly

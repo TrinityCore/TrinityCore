@@ -1998,7 +1998,7 @@ class spell_sha_purge : public SpellScript
 
         bool hasDispellableAura = false;
         bool hasNonDispelEffect = false;
-        uint32 dispelMask = DISPEL_MAGIC;
+        uint32 dispelMask = DISPEL_CURSE;
 
         //if target doesn't have expunge, go through dispel check
         if(!caster->HasAura(SPELL_SHAMAN_EXPUNGE))
@@ -2029,13 +2029,43 @@ class spell_sha_purge : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_sha_purge::CheckMagicDispel);
-        //OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        //OnEffectHitTarget += SpellEffectFn(spell_sha_purge::OnLaunch, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
     }
 };
 
 class spell_sha_old_purge : public SpellScript
 {
     PrepareSpellScript(spell_sha_old_purge);
+    SpellCastResult CheckMagicDispel()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+
+        bool hasDispellableAura = false;
+        bool hasNonDispelEffect = false;
+        uint32 dispelMask = DISPEL_CURSE;
+
+        if (target && caster)
+        {
+            // do not allow to cast on hostile targets in sanctuary
+            if (!caster->IsFriendlyTo(target))
+            {
+                if (caster->IsInSanctuary() || target->IsInSanctuary())
+                {
+                    // fix for duels
+                    Player* player = caster->ToPlayer();
+                    if (!player || !player->duel || target != player->duel->Opponent)
+                        return SPELL_FAILED_NOTHING_TO_DISPEL;
+                }
+            }
+
+            DispelChargesList dispelList;
+            target->GetDispellableAuraList(caster, dispelMask, dispelList);
+            if (dispelList.empty())
+                return SPELL_FAILED_NOTHING_TO_DISPEL;
+        }
+        return SPELL_CAST_OK;
+    }
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
@@ -2046,7 +2076,8 @@ class spell_sha_old_purge : public SpellScript
         if (aa)
         {
             int32 bp0 = GetSpellInfo()->CalcPowerCost(GetCaster(), SPELL_SCHOOL_MASK_ARCANE);
-            bp0 *= -aa->GetBase()->GetEffect(EFFECT_0)->GetAmount();
+            bp0 *= aa->GetBase()->GetEffect(EFFECT_0)->GetAmount();
+            bp0 *= .01;
             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
             args.AddSpellBP0(bp0);
             //lifebloom energize because i'm lazy
@@ -2055,7 +2086,8 @@ class spell_sha_old_purge : public SpellScript
     }
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_old_purge::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnCheckCast += SpellCheckCastFn(spell_sha_old_purge::CheckMagicDispel);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_old_purge::HandleDummy, EFFECT_0, SPELL_EFFECT_DISPEL);
     }
 };
 
