@@ -2035,19 +2035,8 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         if (!(mountFlags.HasFlag(AreaMountFlags::AllowFlyingMounts)))
             return SPELL_FAILED_INCORRECT_AREA;
 
-        if (player)
-        {
-            uint32 mapToCheck = map_id;
-            if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
-                mapToCheck = mapEntry->CosmeticParentMapID;
-
-            if ((mapToCheck == 1116 || mapToCheck == 1464) && !player->HasSpell(191645)) // Draenor Pathfinder
-                return SPELL_FAILED_INCORRECT_AREA;
-            else if (mapToCheck == 1220 && !player->HasSpell(233368)) // Broken Isles Pathfinder
-                return SPELL_FAILED_INCORRECT_AREA;
-            else if ((mapToCheck == 1642 || mapToCheck == 1643) && !player->HasSpell(278833)) // Battle for Azeroth Pathfinder
-                return SPELL_FAILED_INCORRECT_AREA;
-        }
+        if (player && !ConditionMgr::IsPlayerMeetingCondition(player, 72968)) // Hardcoded PlayerCondition id for attribute check in client
+            return SPELL_FAILED_INCORRECT_AREA;
     }
 
     // raid instance limitation
