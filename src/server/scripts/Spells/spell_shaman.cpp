@@ -93,6 +93,7 @@ enum ShamanSpells
     SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
     SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832,
     SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554,
+    SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS         = 29192
 };
 
 enum ShamanSpellIcons
@@ -1930,6 +1931,25 @@ class spell_sha_healing_wave : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sha_healing_wave::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+// 8516 - Windfury Totem
+class spell_sha_windfury_totem : public AuraScript
+{
+    PrepareAuraScript(spell_sha_windfury_totem);
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        // Set absorbtion amount to unlimited
+        AuraApplication* aa = GetCaster()->GetAuraApplicationOfRankedSpell(SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS);
+        if (aa)
+        {
+            amount += (amount * aa->GetBase()->GetEffect(EFFECT_0)->GetAmount() * .01);
+        }
+    }
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_windfury_totem::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER);
     }
 };
 
