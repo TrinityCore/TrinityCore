@@ -789,7 +789,7 @@ void Spell::MangosDummyPort()
                             }
 
                         if (roll_chance_f(chance))
-                            m_caster->ToUnit()->AddAura(19185, unitTarget);
+                            m_caster->CastSpell(unitTarget, 19185, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
                         break;
                     }
 
