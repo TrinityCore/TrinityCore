@@ -2009,5 +2009,5 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_healing_wave);
-    RegisterSpellScript(spell_sha_focused_insight);
+    RegisterSpellScript(spell_sha_windfury_totem);
 }
