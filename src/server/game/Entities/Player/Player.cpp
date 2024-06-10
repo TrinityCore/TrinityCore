@@ -3778,6 +3778,13 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (spell_id == 674 && m_canDualWield)
         SetCanDualWield(false);
 
+    if (spell_id == 16269)
+    {
+        SetSkill(172, 0, 0, 0);
+        SetSkill(160, 0, 0, 0);
+        AutoUnequipMainhandIfNeed();
+    }
+
     if (sWorld->getBoolConfig(CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN))
         AutoUnequipOffhandIfNeed();
 
@@ -23719,6 +23726,35 @@ void Player::AddItemDurations(Item* item)
     {
         m_itemDuration.push_back(item);
         item->SendTimeUpdate(this);
+    }
+}
+
+void Player::AutoUnequipMainhandIfNeed(bool force)
+{
+    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    if (!mainItem)
+        return;
+
+    ItemPosCountVec main_dest;
+    if (GetSkillValue(172) <= 0 && IsTwoHandUsed())
+    {
+        if (CanStoreItem(NULL_BAG, NULL_SLOT, main_dest, mainItem, false) == EQUIP_ERR_OK)
+        {
+            RemoveItem(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND, true);
+            StoreItem(main_dest, mainItem, true);
+        }
+        else
+        {
+            MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+            mainItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
+            mainItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
+
+            std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
+            MailDraft(subject, "There were problems with equipping one or several items").AddItem(mainItem).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+
+            CharacterDatabase.CommitTransaction(trans);
+        }
     }
 }
 

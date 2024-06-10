@@ -93,7 +93,8 @@ enum ShamanSpells
     SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
     SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832,
     SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554,
-    SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS         = 29192
+    SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS         = 29192,
+    SPELL_SHAMAN_FOCUSED_INSIGHT                = 77800
 };
 
 enum ShamanSpellIcons
@@ -1942,6 +1943,7 @@ class spell_sha_windfury_totem : public AuraScript
     {
         // Set absorbtion amount to unlimited
         AuraApplication* aa = GetCaster()->GetAuraApplicationOfRankedSpell(SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS);
+
         if (aa)
         {
             amount += (amount * aa->GetBase()->GetEffect(EFFECT_0)->GetAmount() * .01);
@@ -2007,4 +2009,5 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_healing_wave);
+    RegisterSpellScript(spell_sha_focused_insight);
 }
