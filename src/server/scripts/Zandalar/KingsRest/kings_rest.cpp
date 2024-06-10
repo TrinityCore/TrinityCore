@@ -155,7 +155,7 @@ enum AnimatedGuardianEvent
 // 133935 - Animated Guardian
 struct npc_kings_rest_animated_guardian : public ScriptedAI
 {
-    npc_kings_rest_animated_guardian(Creature* creature) : ScriptedAI(creature), _suppressionSlamCasts(0) { }
+    npc_kings_rest_animated_guardian(Creature* creature) : ScriptedAI(creature), _suppressionSlamCasts(0), _releasedInhibitors(false) { }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
@@ -165,10 +165,11 @@ struct npc_kings_rest_animated_guardian : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(50, damage))
+        if (!_releasedInhibitors && me->HealthBelowPctDamaged(50, damage))
         {
-            DoCast(SPELL_RELEASED_INHIBITORS);
+            _releasedInhibitors = true;
             _events.DelayEvents(1200ms);
+            DoCast(SPELL_RELEASED_INHIBITORS);
         }
     }
 
@@ -176,6 +177,7 @@ struct npc_kings_rest_animated_guardian : public ScriptedAI
     {
         _events.Reset();
         _suppressionSlamCasts = 0;
+        _releasedInhibitors = false;
     }
 
     void UpdateAI(uint32 diff) override
@@ -206,6 +208,7 @@ struct npc_kings_rest_animated_guardian : public ScriptedAI
 private:
     EventMap _events;
     int32 _suppressionSlamCasts;
+    bool _releasedInhibitors;
 };
 
 // 270002 - Suppression Slam
@@ -245,6 +248,20 @@ class spell_kings_rest_bound_by_shadow : public AuraScript
     }
 };
 
+// 276031 - Pit of Despair
+class spell_kings_rest_pit_of_despair : public AuraScript
+{
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->KillSelf();
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_kings_rest_pit_of_despair::OnApply, EFFECT_0, SPELL_AURA_MOD_FEAR, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_kings_rest()
 {
     // Creature
@@ -259,4 +276,5 @@ void AddSC_kings_rest()
     // Spells
     RegisterSpellScript(spell_kings_rest_suppression_slam);
     RegisterSpellScript(spell_kings_rest_bound_by_shadow);
+    RegisterSpellScript(spell_kings_rest_pit_of_despair);
 }
