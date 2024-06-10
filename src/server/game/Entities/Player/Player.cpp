@@ -3763,7 +3763,27 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-        return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS;
+        uint32 maxCooldown = std::max(spellInfo->RecoveryTime, spellInfo->CategoryRecoveryTime);
+        if (Milliseconds(maxCooldown) < Minutes(10))
+        {
+            // Also check item spell cooldowns
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itr->second.ItemId))
+            {
+                for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+                {
+                    if (int32(spellInfo->Id) != itemTemplate->Spells[i].SpellId)
+                        continue;
+
+                    int32 itemMaxCooldown = std::max(itemTemplate->Spells[i].SpellCooldown, itemTemplate->Spells[i].SpellCategoryCooldown);
+                    if (itemMaxCooldown > 0 && Milliseconds(itemMaxCooldown) >= Minutes(10))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }, true);
 
     // pet cooldowns
