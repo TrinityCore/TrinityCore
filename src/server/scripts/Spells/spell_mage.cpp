@@ -70,7 +70,10 @@ enum MageSpells
     SPELL_MAGE_MISSILE_BARRAGE                   = 44401,
     SPELL_MAGE_FINGERS_OF_FROST_AURASTATE_AURA   = 44544,
     SPELL_MAGE_PERMAFROST_AURA                   = 68391,
-    SPELL_MAGE_ARCANE_MISSILES_R1                = 5143
+    SPELL_MAGE_ARCANE_MISSILES_R1                = 5143,
+    SPELL_MAGE_BROKEN_MANA_SHIELD                = 81331,
+    SPELL_MAGE_IMPLOSION                         = 81332,
+    SPELL_MAGE_RECALIBRATING                     = 81333
 };
 
 enum MageSpellIcons
@@ -974,6 +977,18 @@ class spell_mage_mana_shield : public spell_mage_incanters_absorbtion_base_AuraS
         }
     }
 
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL
+            && GetCaster()->HasAura(SPELL_MAGE_IMPLOSION)
+            && !GetCaster()->HasAura(SPELL_MAGE_RECALIBRATING)
+            )
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BROKEN_MANA_SHIELD);
+            GetCaster()->AddAura(SPELL_MAGE_RECALIBRATING, GetCaster());
+        }
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActionTarget();
@@ -984,7 +999,7 @@ class spell_mage_mana_shield : public spell_mage_incanters_absorbtion_base_AuraS
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_mana_shield::CalculateAmount, EFFECT_0, SPELL_AURA_MANA_SHIELD);
         AfterEffectManaShield += AuraEffectManaShieldFn(spell_mage_mana_shield::Trigger, EFFECT_0);
-
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_mana_shield::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectProc += AuraEffectProcFn(spell_mage_mana_shield::HandleProc, EFFECT_0, SPELL_AURA_MANA_SHIELD);
     }
 };

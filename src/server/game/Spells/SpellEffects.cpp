@@ -3652,7 +3652,7 @@ void Spell::EffectInterruptCast()
             {
                 if (Unit* unitCaster = GetUnitCasterForEffectHandlers())
                 {
-                    int32 duration = m_spellInfo->GetDuration();
+                    int32 duration = Aura::CalcMaxDuration(m_spellInfo, unitCaster);
                     unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effectInfo->EffectIndex));
                     if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
                         Unit::ProcSkillsAndAuras(unitCaster, unitTarget, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG,

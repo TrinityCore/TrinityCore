@@ -3787,6 +3787,26 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         AutoUnequipMainhandIfNeed();
     }
 
+    //spellstone
+    if (spell_id == 17728)
+    {
+        Item* stone = GetItemByEntry(13603);
+        if (stone)
+        {
+            DestroyItem(stone->GetBagSlot(), stone->GetSlot(), true); //remove old one
+        }
+    }
+
+    //firestone
+    if (spell_id == 17953)
+    {
+        Item* stone = GetItemByEntry(13701);
+        if (stone)
+        {
+            DestroyItem(stone->GetBagSlot(), stone->GetSlot(), true); //remove old one
+        }
+    }
+
     if (sWorld->getBoolConfig(CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN))
         AutoUnequipOffhandIfNeed();
 

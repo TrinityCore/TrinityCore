@@ -53,6 +53,8 @@ enum WarlockPetCalculate
      SPELL_WARLOCK_PET_SCALING_03       = 34957,
      SPELL_WARLOCK_PET_SCALING_04       = 34958,
      SPELL_WARLOCK_PET_SCALING_05       = 61013,
+     SPELL_WARLOCK_IMP_FIREBOLT         = 18126,
+     SPELL_WARLOCK_HECKIN_DAZED         = 81336,
      ENTRY_FELGUARD                     = 17252,
      ENTRY_VOIDWALKER                   = 1860,
      ENTRY_FELHUNTER                    = 417,

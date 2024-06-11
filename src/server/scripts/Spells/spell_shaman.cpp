@@ -96,7 +96,8 @@ enum ShamanSpells
     SPELL_SHAMAN_IMPROVED_WEAPON_TOTEMS         = 29192,
     SPELL_SHAMAN_FOCUSED_INSIGHT                = 77800,
     SPELL_SHAMAN_EXPUNGE                        = 81326,
-    SPELL_SHAMAN_BRAIN_DRAIN                    = 81327
+    SPELL_SHAMAN_BRAIN_DRAIN                    = 81327,
+    SPELL_SHAMAN_SHOCKING                       = 81328
 };
 
 enum ShamanSpellIcons
@@ -1994,7 +1995,7 @@ class spell_sha_purge : public SpellScript
     SpellCastResult CheckMagicDispel()
     {
         Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
+        Unit* target = GetExplTargetUnit();
 
         bool hasDispellableAura = false;
         bool hasNonDispelEffect = false;
@@ -2082,6 +2083,7 @@ class spell_sha_old_purge : public SpellScript
             args.AddSpellBP0(bp0);
             //lifebloom energize because i'm lazy
             GetCaster()->CastSpell(GetCaster(), 64372, args);
+            GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_SHOCKING, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
         }
     }
     void Register() override

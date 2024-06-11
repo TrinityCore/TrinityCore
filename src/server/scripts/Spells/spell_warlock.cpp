@@ -32,6 +32,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "Pet.h"
 
 enum WarlockSpells
 {
@@ -86,7 +87,11 @@ enum WarlockSpells
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
     SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1            = 18213,
-    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371
+    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371,
+    SPELL_WARLOCK_SUMMON_IMP                        = 688,
+    SPELL_WARLOCK_INVIS                             = 81335,
+    SPELL_WARLOCK_IMP_FIREBOLT                      = 18126,
+    SPELL_WARLOCK_HECKIN_DAZED                      = 81336
 };
 
 enum WarlockSpellIcons
@@ -1265,6 +1270,101 @@ class spell_warl_unstable_affliction : public AuraScript
     }
 };
 
+// 81337 - demonic concealment
+class spell_warl_demon_conceal : public SpellScript
+{
+    PrepareSpellScript(spell_warl_demon_conceal);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    SpellCastResult DoCheckCast()
+    {
+        Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
+
+
+        if (!pet || !pet->IsPet() || !pet->IsAlive())
+            return SPELL_FAILED_NO_PET;
+
+        //pet isn't succubus
+        if (pet->GetEntry() != 1863)
+        {
+            return SPELL_FAILED_NO_PET;
+        }
+
+        // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
+        SpellCastResult result = SPELL_CAST_OK;
+        uint32 const unitflag = pet->GetUnitFlags();
+        if (pet->GetCharmerGUID())
+            result = SPELL_FAILED_CHARMED;
+
+        if (result != SPELL_CAST_OK)
+            return result;
+
+
+        if (!pet->IsWithinLOSInMap(GetCaster()))
+            return SPELL_FAILED_LINE_OF_SIGHT;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        Pet* pet = player->GetPet();
+        player->CastSpell(player, SPELL_WARLOCK_SUMMON_IMP, new CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        player->CastSpell(player, SPELL_WARLOCK_INVIS, new CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        pet->GetCharmInfo()->SetIsAtStay(true);
+        pet->GetCharmInfo()->SetIsCommandAttack(false);
+        pet->GetCharmInfo()->SetIsCommandFollow(true);
+    }
+
+    void SetStay()
+    {
+        Player* player = GetCaster()->ToPlayer();
+        Pet* pet = player->GetPet();
+        pet->GetCharmInfo()->SetIsAtStay(true);
+        pet->GetCharmInfo()->SetIsCommandAttack(false);
+        pet->GetCharmInfo()->SetIsCommandFollow(true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_warl_demon_conceal::DoCheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_warl_demon_conceal::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterHit += SpellHitFn(spell_warl_demon_conceal::SetStay);
+    }
+};
+
+class spell_pet_firebolt : public SpellScript
+{
+    PrepareSpellScript(spell_pet_firebolt);
+
+    void HandleAfterHit()
+    {
+        if (GetCaster()->IsPet())
+        {
+            Pet* pet = GetCaster()->ToPet();
+            Player* player = pet->GetOwner();
+            AuraApplication* impFireBolt = player->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_IMP_FIREBOLT);
+            if (impFireBolt)
+            {
+                if (roll_chance_f(impFireBolt->GetBase()->GetSpellInfo()->ProcChance))
+                {
+                    player->AddAura(SPELL_WARLOCK_HECKIN_DAZED, GetHitUnit());
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pet_firebolt::HandleAfterHit);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_curse_of_agony);
@@ -1298,4 +1398,6 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>, "spell_warl_t4_2p_bonus_shadow");
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
+    RegisterSpellScript(spell_warl_demon_conceal);
+    RegisterSpellScript(spell_pet_firebolt);
 }
