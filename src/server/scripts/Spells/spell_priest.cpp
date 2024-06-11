@@ -23,7 +23,6 @@
 
 #include "ScriptMgr.h"
 
-
 void AddSC_priest_spell_scripts()
 {
 }
