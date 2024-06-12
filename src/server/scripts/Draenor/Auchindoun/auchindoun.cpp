@@ -279,7 +279,7 @@ struct at_npc_reaction : AreaTriggerAI
             unit->SetFacingToObject(at->GetCaster());
             unit->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
-            task.Schedule(4s, [this, unit](TaskContext /*task*/)
+            task.Schedule(4s, [unit](TaskContext /*task*/)
             {
                 unit->SetFacingTo(unit->ToCreature()->GetHomePosition().GetOrientation());
             });
