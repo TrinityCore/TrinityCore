@@ -147,7 +147,7 @@ struct npc_auchindoun_auchenai_defender : public ScriptedAI
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
 
-            _scheduler.Schedule(1s + 300ms, [this](TaskContext task)
+            _scheduler.Schedule(1s + 300ms, [this](TaskContext /*task*/)
             {
                 me->SetFacingTo(3.8194849f);
                 Talk(SAY_NYAMI_AWAITS);
@@ -207,7 +207,7 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
                     {
                         Talk(SAY_BREAK_BARRIER_2);
 
-                        task.Schedule(1s + 300ms, [this](TaskContext task)
+                        task.Schedule(1s + 300ms, [this](TaskContext /*task*/)
                         {
                             me->GetMotionMaster()->MovePath(PATH_MOVE_TO_BOSS, false);
                         });
