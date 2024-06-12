@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include <future>
 #include <vector>
 
 class MySQLConnection;
@@ -59,7 +60,7 @@ public:
 class TC_DATABASE_API SQLQueryHolderCallback
 {
 public:
-    SQLQueryHolderCallback(std::shared_ptr<SQLQueryHolderBase>&& holder, QueryResultHolderFuture&& future)
+    SQLQueryHolderCallback(std::shared_ptr<SQLQueryHolderBase>&& holder, std::future<void>&& future)
         : m_holder(std::move(holder)), m_future(std::move(future)) { }
 
     SQLQueryHolderCallback(SQLQueryHolderCallback&&) = default;
@@ -74,7 +75,7 @@ public:
     bool InvokeIfReady();
 
     std::shared_ptr<SQLQueryHolderBase> m_holder;
-    QueryResultHolderFuture m_future;
+    std::future<void> m_future;
     std::function<void(SQLQueryHolderBase const&)> m_callback;
 };
 

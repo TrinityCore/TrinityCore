@@ -200,7 +200,7 @@ bool QueryCallback::InvokeIfReady()
     {
         if (_string.valid() && _string.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
         {
-            QueryResultFuture f(std::move(_string));
+            std::future<QueryResult> f(std::move(_string));
             std::function<void(QueryCallback&, QueryResult)> cb(std::move(callback._string));
             cb(*this, f.get());
             return checkStateAndReturnCompletion();
@@ -210,7 +210,7 @@ bool QueryCallback::InvokeIfReady()
     {
         if (_prepared.valid() && _prepared.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
         {
-            PreparedQueryResultFuture f(std::move(_prepared));
+            std::future<PreparedQueryResult> f(std::move(_prepared));
             std::function<void(QueryCallback&, PreparedQueryResult)> cb(std::move(callback._prepared));
             cb(*this, f.get());
             return checkStateAndReturnCompletion();
