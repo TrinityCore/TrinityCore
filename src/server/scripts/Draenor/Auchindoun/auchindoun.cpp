@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
