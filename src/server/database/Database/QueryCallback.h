@@ -21,14 +21,15 @@
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include <functional>
+#include <future>
 #include <list>
 #include <queue>
 
 class TC_DATABASE_API QueryCallback
 {
 public:
-    explicit QueryCallback(QueryResultFuture&& result);
-    explicit QueryCallback(PreparedQueryResultFuture&& result);
+    explicit QueryCallback(std::future<QueryResult>&& result);
+    explicit QueryCallback(std::future<PreparedQueryResult>&& result);
     QueryCallback(QueryCallback&& right) noexcept;
     QueryCallback& operator=(QueryCallback&& right) noexcept;
     ~QueryCallback();
@@ -55,8 +56,8 @@ private:
 
     union
     {
-        QueryResultFuture _string;
-        PreparedQueryResultFuture _prepared;
+        std::future<QueryResult> _string;
+        std::future<PreparedQueryResult> _prepared;
     };
     bool _isPrepared;
 

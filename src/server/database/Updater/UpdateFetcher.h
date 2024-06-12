@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include <functional>
 #include <set>
 #include <string>
 #include <unordered_map>
