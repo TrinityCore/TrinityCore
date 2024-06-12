@@ -24,6 +24,7 @@
 #include <future>
 #include <list>
 #include <queue>
+#include <variant>
 
 class TC_DATABASE_API QueryCallback
 {
@@ -50,18 +51,9 @@ private:
     QueryCallback(QueryCallback const& right) = delete;
     QueryCallback& operator=(QueryCallback const& right) = delete;
 
-    template<typename T> friend void ConstructActiveMember(T* obj);
-    template<typename T> friend void DestroyActiveMember(T* obj);
-    template<typename T> friend void MoveFrom(T* to, T&& from);
+    std::variant<std::future<QueryResult>, std::future<PreparedQueryResult>> _query;
 
-    union
-    {
-        std::future<QueryResult> _string;
-        std::future<PreparedQueryResult> _prepared;
-    };
-    bool _isPrepared;
-
-    struct QueryCallbackData;
+    using QueryCallbackData = std::variant<std::function<void(QueryCallback&, QueryResult)>, std::function<void(QueryCallback&, PreparedQueryResult)>>;
     std::queue<QueryCallbackData, std::list<QueryCallbackData>> _callbacks;
 };
 
