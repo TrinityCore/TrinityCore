@@ -536,19 +536,6 @@ uint32 Player::GetEnchantmentModifier(WeaponAttackType attType)
     return m_enchantmentFlatMod[attType];
 }
 
-void Player::SetEnchantmentModifier(uint32 value, WeaponAttackType attType, bool apply)
-{
-    if (apply)
-        m_enchantmentFlatMod[attType] += value;
-    else
-        m_enchantmentFlatMod[attType] -= value;
-}
-
-uint32 Player::GetEnchantmentModifier(WeaponAttackType attType)
-{
-    return m_enchantmentFlatMod[attType];
-}
-
 
 void Player::UpdateShieldBlockValue()
 {
