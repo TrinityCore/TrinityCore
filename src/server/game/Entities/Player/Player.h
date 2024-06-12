@@ -1872,6 +1872,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _ApplyAllStatBonuses();
         void _RemoveAllStatBonuses();
 
+        void SetEnchantmentModifier(uint32 value, WeaponAttackType attType, bool apply);
+        uint32 GetEnchantmentModifier(WeaponAttackType attType);
+
         void ResetAllPowers();
 
         SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = BASE_ATTACK, uint8 damageIndex = 0) const override;
@@ -2391,6 +2394,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerSpellMap m_spells;
         PlayerTalentMap* m_talents[MAX_TALENT_SPECS];
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
+
+        uint32 m_enchantmentFlatMod[MAX_ATTACK]; // TODO: Stat system - incorporate generically, exposes a required hidden weapon stat that does not apply when unarmed
 
         uint8 m_activeSpec;
         uint8 m_specsCount;

@@ -327,6 +327,11 @@ Player::Player(WorldSession* session): Unit(true)
         m_talents[i] = new PlayerTalentMap();
     }
 
+    for (uint8 i = 0; i < MAX_ATTACK; ++i)
+    {
+        m_enchantmentFlatMod[i] = 0;
+    }
+
     for (uint8 i = 0; i < BASEMOD_END; ++i)
     {
         m_auraBaseFlatMod[i] = 0.0f;
@@ -13753,10 +13758,27 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                 case ITEM_ENCHANTMENT_TYPE_NONE:
                     break;
                 case ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL:
+                    if (!apply) // clear modifier set by some spells
+                        item->SetEnchantmentModifier(0);
                     // processed in Player::CastItemCombatSpell
                     break;
                 case ITEM_ENCHANTMENT_TYPE_DAMAGE:
                 {
+                    if (item->GetSlot() == EQUIPMENT_SLOT_MAINHAND)
+                    {
+                        SetEnchantmentModifier(enchant_amount, BASE_ATTACK, apply);
+                        UpdateDamagePhysical(BASE_ATTACK);
+                    }
+                    else if (item->GetSlot() == EQUIPMENT_SLOT_OFFHAND)
+                    {
+                        SetEnchantmentModifier(enchant_amount, OFF_ATTACK, apply);
+                        UpdateDamagePhysical(OFF_ATTACK);
+                    }
+                    else if (item->GetSlot() == EQUIPMENT_SLOT_RANGED)
+                    {
+                        SetEnchantmentModifier(enchant_amount, RANGED_ATTACK, apply);
+                        UpdateDamagePhysical(RANGED_ATTACK);
+                    }
                     WeaponAttackType const attackType = Player::GetAttackBySlot(item->GetSlot());
                     if (attackType != MAX_ATTACK)
                         UpdateDamageDoneMods(attackType, apply ? -1 : slot);
