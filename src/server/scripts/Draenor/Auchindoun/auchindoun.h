@@ -28,21 +28,31 @@ constexpr uint32 const EncounterCount = 4;
 enum AuchindounDataTypes
 {
     // Encounters
-    DATA_VIGILANT_KAATHAR = 0,
-    DATA_SOULBINDER_NYAMI = 1,
-    DATA_AZZAKEL          = 2,
-    DATA_TERONGOR         = 3
+    DATA_VIGILANT_KAATHAR  = 0,
+    DATA_SOULBINDER_NYAMI  = 1,
+    DATA_AZZAKEL           = 2,
+    DATA_TERONGOR          = 3,
+
+    DATA_SOULBINDER_TUULANI,
+
+    // GameObjects
+    DATA_HOLY_BARRIER,
 };
 
 enum AuchindounCreatureIds
 {
     // Bosses
-    BOSS_VIGILANT_KAATHAR = 75839,
-    BOSS_SOULBINDER_NYAMI = 76177,
-    BOSS_AZZAKEL          = 75927,
-    BOSS_TERONGOR         = 77734,
+    BOSS_VIGILANT_KAATHAR  = 75839,
+    BOSS_SOULBINDER_NYAMI  = 76177,
+    BOSS_AZZAKEL           = 75927,
+    BOSS_TERONGOR          = 77734,
 
-    NPC_SOULBINDER_NYAMI  = 79248
+    NPC_SOULBINDER_TUULANI = 79248
+};
+
+enum AuchindounGameobjectIds
+{
+    GO_HOLY_BARRIER        = 230398
 };
 
 template <class AI, class T>

@@ -21,11 +21,18 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_VIGILANT_KAATHAR, DATA_VIGILANT_KAATHAR },
-    { BOSS_SOULBINDER_NYAMI, DATA_SOULBINDER_NYAMI },
-    { BOSS_AZZAKEL,          DATA_AZZAKEL          },
-    { BOSS_TERONGOR,         DATA_TERONGOR         },
-    { 0,                     0                     }  // END
+    { BOSS_VIGILANT_KAATHAR,  DATA_VIGILANT_KAATHAR   },
+    { BOSS_SOULBINDER_NYAMI,  DATA_SOULBINDER_NYAMI   },
+    { BOSS_AZZAKEL,           DATA_AZZAKEL            },
+    { BOSS_TERONGOR,          DATA_TERONGOR           },
+    { NPC_SOULBINDER_TUULANI, DATA_SOULBINDER_TUULANI },
+    { 0,                      0                       }  // END
+};
+
+ObjectData const objectData[] =
+{
+    { GO_HOLY_BARRIER, DATA_HOLY_BARRIER },
+    { 0,               0                 }  // END
 };
 
 DungeonEncounterData const encounters[] =
@@ -47,7 +54,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, objectData);
             LoadDungeonEncounterData(encounters);
         }
     };
