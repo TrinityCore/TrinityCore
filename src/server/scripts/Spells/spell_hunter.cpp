@@ -1624,9 +1624,10 @@ class spell_hun_outmaneuver : public SpellScript
         WorldLocation petPosition = pet->GetWorldLocation();
         player->NearTeleportTo(petPosition);
         pet->NearTeleportTo(hunterPosition);
+        pet->GetCharmInfo()->SetCommandState(COMMAND_STAY);
         pet->GetCharmInfo()->SetIsAtStay(true);
         pet->GetCharmInfo()->SetIsCommandAttack(false);
-        pet->GetCharmInfo()->SetIsCommandFollow(true);
+        pet->GetCharmInfo()->SetIsCommandFollow(false);
     }
 
     void Register() override

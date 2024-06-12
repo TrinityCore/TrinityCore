@@ -88,7 +88,7 @@ enum WarlockSpells
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
     SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1            = 18213,
     SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371,
-    SPELL_WARLOCK_SUMMON_IMP                        = 688,
+    SPELL_WARLOCK_SUMMON_IMP                        = 81338,
     SPELL_WARLOCK_INVIS                             = 81335,
     SPELL_WARLOCK_IMP_FIREBOLT                      = 18126,
     SPELL_WARLOCK_HECKIN_DAZED                      = 81336
@@ -1314,27 +1314,29 @@ class spell_warl_demon_conceal : public SpellScript
     {
         Player* player = GetCaster()->ToPlayer();
         Pet* pet = player->GetPet();
+        pet->UnSummon();
         player->CastSpell(player, SPELL_WARLOCK_SUMMON_IMP, new CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-        player->CastSpell(player, SPELL_WARLOCK_INVIS, new CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-        pet->GetCharmInfo()->SetIsAtStay(true);
-        pet->GetCharmInfo()->SetIsCommandAttack(false);
-        pet->GetCharmInfo()->SetIsCommandFollow(true);
+        player->AddAura(SPELL_WARLOCK_INVIS, player);
     }
 
     void SetStay()
     {
         Player* player = GetCaster()->ToPlayer();
         Pet* pet = player->GetPet();
-        pet->GetCharmInfo()->SetIsAtStay(true);
-        pet->GetCharmInfo()->SetIsCommandAttack(false);
-        pet->GetCharmInfo()->SetIsCommandFollow(true);
+        if (pet)
+        {
+            pet->GetCharmInfo()->SetCommandState(COMMAND_STAY);
+            pet->GetCharmInfo()->SetIsAtStay(true);
+            pet->GetCharmInfo()->SetIsCommandAttack(false);
+            pet->GetCharmInfo()->SetIsCommandFollow(false);
+        }
     }
 
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_warl_demon_conceal::DoCheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_warl_demon_conceal::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        AfterHit += SpellHitFn(spell_warl_demon_conceal::SetStay);
+        AfterCast += SpellCastFn(spell_warl_demon_conceal::SetStay);
     }
 };
 
