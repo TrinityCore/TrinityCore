@@ -5332,8 +5332,23 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         if (target != m_caster)
         {
             // Must be behind the target
-            if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET) && target->HasInArc(static_cast<float>(M_PI), m_caster))
-                return SPELL_FAILED_NOT_BEHIND;
+            if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
+                && target->HasInArc(static_cast<float>(M_PI), m_caster))
+            {
+                //pounce
+                bool pounceOk = false;
+                if (m_spellInfo->SpellIconID == 495)
+                {
+                    if (m_caster->IsPlayer() && m_caster->ToPlayer()->HasAura(48410))//primal precision
+                    {
+                        pounceOk = true;
+                    }
+                }
+                if (!pounceOk)
+                {
+                    return SPELL_FAILED_NOT_BEHIND;
+                }
+            }
 
             // Target must be facing you
             if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER) && !target->HasInArc(static_cast<float>(M_PI), m_caster))

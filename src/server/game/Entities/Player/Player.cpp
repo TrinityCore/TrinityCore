@@ -327,6 +327,11 @@ Player::Player(WorldSession* session): Unit(true)
         m_talents[i] = new PlayerTalentMap();
     }
 
+    for (uint8 i = 0; i < MAX_ATTACK; ++i)
+    {
+        m_enchantmentFlatMod[i] = 0;
+    }
+
     for (uint8 i = 0; i < BASEMOD_END; ++i)
     {
         m_auraBaseFlatMod[i] = 0.0f;

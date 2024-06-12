@@ -97,7 +97,9 @@ enum DruidSpells
     SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845,
     SPELL_DRUID_GLYPH_OF_NOURISH            = 62971,
     SPELL_DRUID_NURTURING_INSTINCT_R1       = 47179,
-    SPELL_DRUID_NURTURING_INSTINCT_R2       = 47180
+    SPELL_DRUID_NURTURING_INSTINCT_R2       = 47180,
+    SPELL_DRUID_PRIMAL_PRECISION            = 48410,
+    SPELL_DRUID_MANGLE                      = 33876
 };
 
 enum MiscSpells
@@ -1956,6 +1958,30 @@ class spell_dru_wild_growth_aura : public AuraScript
     float _baseReduction = 2.f;
 };
 
+//claw 1082
+class spell_dru_claw : public SpellScript
+{
+    PrepareSpellScript(spell_dru_claw);
+
+    void HandleAfterHit()
+    {
+        if (GetCaster()->IsPlayer())
+        {
+            Player* p = GetCaster()->ToPlayer();
+            if (p->HasAura(SPELL_DRUID_PRIMAL_PRECISION))
+            {
+                p->AddAura(SPELL_DRUID_MANGLE, GetHitUnit());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_dru_claw::HandleAfterHit);
+    }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_barkskin);
@@ -2009,4 +2035,5 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus_dummy);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
+    RegisterSpellScript(spell_dru_claw);
 }

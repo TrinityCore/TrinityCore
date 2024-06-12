@@ -6900,7 +6900,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             if (spellProto->SpellFamilyFlags[0] & 0x100)
             {
                 // Brambles
-                if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(16836, 0))
+                if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(16918, 0))
                     AddPct(DoneTotalMod, aurEff->GetAmount());
             }
             break;
