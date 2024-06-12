@@ -401,6 +401,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                         levelBonus = CalculatePct(1.0f, levelMod->GetAmount());
 
                     // = 0 if removing the weapon, do not calculate bonus (uses template)
+                    /*
                     if (m_baseFeralAP)
                     {
                         if (Item const* weapon = m_items[EQUIPMENT_SLOT_MAINHAND])
@@ -413,6 +414,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                             }
                         }
                     }
+                    */
                 }
 
                 switch (GetShapeshiftForm())
