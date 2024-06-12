@@ -23,6 +23,7 @@
 #include "DatabaseEnvFwd.h"
 #include "StringFormat.h"
 #include <array>
+#include <atomic>
 #include <string>
 #include <vector>
 
