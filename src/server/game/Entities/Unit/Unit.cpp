@@ -11602,6 +11602,7 @@ void Unit::SetTaunted(bool apply)
             ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
         }
         GetMotionMaster()->MoveChase(caster);
+        ToPlayer()->CastStop();
         Attack(caster, true);
     }
     else
