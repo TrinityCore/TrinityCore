@@ -13813,23 +13813,10 @@ uint32 Player::GetGossipMenuForSource(WorldObject const* source) const
 
 int32 Player::GetQuestMinLevel(Quest const* quest) const
 {
-    return GetQuestMinLevel(quest->GetContentTuningId());
-}
+    if (!quest)
+        return 0;
 
-int32 Player::GetQuestMinLevel(uint32 contentTuningId) const
-{
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId, 0 /*m_playerData->CtrOptions->ContentTuningConditionMask*/))
-    {
-        ChrRacesEntry const* race = sChrRacesStore.AssertEntry(GetRace());
-        FactionTemplateEntry const* raceFaction = sFactionTemplateStore.AssertEntry(race->FactionID);
-        int32 questFactionGroup = sContentTuningStore.AssertEntry(contentTuningId)->GetScalingFactionGroup();
-        if (questFactionGroup && raceFaction->FactionGroup != questFactionGroup)
-            return questLevels->MaxLevel;
-
-        return questLevels->MinLevelWithDelta;
-    }
-
-    return 0;
+    return quest->GetQuestMinLevel();
 }
 
 int32 Player::GetQuestLevel(Quest const* quest) const
@@ -13837,23 +13824,7 @@ int32 Player::GetQuestLevel(Quest const* quest) const
     if (!quest)
         return 0;
 
-    return GetQuestLevel(quest->GetContentTuningId());
-}
-
-int32 Player::GetQuestLevel(uint32 contentTuningId) const
-{
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId, 0 /*m_playerData->CtrOptions->ContentTuningConditionMask*/))
-    {
-        int32 minLevel = GetQuestMinLevel(contentTuningId);
-        int32 maxLevel = questLevels->MaxLevel;
-        int32 level = GetLevel();
-        if (level >= minLevel)
-            return std::min(level, maxLevel);
-
-        return minLevel;
-    }
-
-    return 0;
+    return quest->GetQuestLevel();
 }
 
 void Player::PrepareQuestMenu(ObjectGuid guid)
