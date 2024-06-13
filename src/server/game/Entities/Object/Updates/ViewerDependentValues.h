@@ -241,6 +241,23 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::UnitData::Flags2Tag>
+{
+public:
+    using value_type = UF::UnitData::Flags2Tag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* /*unit*/, Player const* receiver)
+    {
+        value_type flags = unitData->Flags2;
+        // Gamemasters should be always able to interact with units - remove uninteractible flag
+        if (receiver->IsGameMaster())
+            flags &= ~UNIT_FLAG2_UNTARGETABLE_BY_CLIENT;
+
+        return flags;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::UnitData::Flags3Tag>
 {
 public:
