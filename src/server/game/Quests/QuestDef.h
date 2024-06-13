@@ -532,7 +532,7 @@ class TC_GAME_API Quest
         void LoadConditionalConditionalQuestCompletionLog(Field* fields);
 
         uint32 XPValue(Player const* player) const;
-        static uint32 XPValue(Player const* player, uint32 contentTuningId, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
+        static uint32 XPValue(Player const* player, int32 questLevel, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
         uint32 MoneyValue(Player const* player) const;
         uint32 MaxMoneyValue() const;
         uint32 GetMaxMoneyReward() const;
