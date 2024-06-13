@@ -860,7 +860,7 @@ void Aura::Update(uint32 diff, Unit* caster)
         }
 
        
-        if (m_duration && m_heartbeatDurationCap >= 0 && m_heartbeatResistChance > 0 && m_owner->IsPlayer() && !IsRemoved())
+        if (m_duration && m_heartbeatDurationCap >= 0 && m_heartbeatResistChance > 0 && !IsRemoved())
             UpdateHeartbeatResist(diff, this->GetUnitOwner());
     }
 }
