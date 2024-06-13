@@ -2811,13 +2811,15 @@ void AuraEffect::HandleModTaunt(AuraApplication const* aurApp, uint8 mode, bool 
     target->GetThreatManager().TauntUpdate();
 }
 
-void AuraEffect::HandleModDetaunt(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModDetaunt(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     Unit* caster = GetCaster();
     Unit* target = aurApp->GetTarget();
+
+    target->SetControlled(!apply, UNIT_STATE_TAUNTED);
 
     if (!caster || !caster->IsAlive() || !target->IsAlive() || !caster->CanHaveThreatList())
         return;
