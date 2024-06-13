@@ -7013,9 +7013,15 @@ void Player::UpdateArea(uint32 newArea)
         pvpInfo.IsInNoPvPArea = true;
         if (!duel && GetCombatManager().HasPvPCombat())
             CombatStopWithPets();
+        for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+            (*itr)->SetPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
     }
     else
+    {
         RemovePvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
+        for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+            (*itr)->RemovePvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
+    }
 
     uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
     if (area && area->Flags & areaRestFlag)
