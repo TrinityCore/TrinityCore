@@ -6345,7 +6345,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
         else if (!CheckSpellCancelsFear(param1))
             result = SPELL_FAILED_FLEEING;
     }
-    else if (unitflag & UNIT_FLAG_CONFUSED)
+    else if ((unitflag & UNIT_FLAG_CONFUSED) || (unitflag & UNIT_FLAG_TAUNTED))
     {
         if (usableWhileConfused)
         {

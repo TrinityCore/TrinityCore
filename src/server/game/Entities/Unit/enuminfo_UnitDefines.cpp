@@ -37,7 +37,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_PLAYER_CONTROLLED: return { "UNIT_FLAG_PLAYER_CONTROLLED", "UNIT_FLAG_PLAYER_CONTROLLED", "controlled by player, use _IMMUNE_TO_PC instead of _IMMUNE_TO_NPC" };
         case UNIT_FLAG_RENAME: return { "UNIT_FLAG_RENAME", "UNIT_FLAG_RENAME", "" };
         case UNIT_FLAG_PREPARATION: return { "UNIT_FLAG_PREPARATION", "UNIT_FLAG_PREPARATION", "don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP" };
-        case UNIT_FLAG_UNK_6: return { "UNIT_FLAG_UNK_6", "UNIT_FLAG_UNK_6", "" };
+        case UNIT_FLAG_TAUNTED: return { "UNIT_FLAG_TAUNTED", "UNIT_FLAG_TAUNTED", "" };
         case UNIT_FLAG_NOT_ATTACKABLE_1: return { "UNIT_FLAG_NOT_ATTACKABLE_1", "UNIT_FLAG_NOT_ATTACKABLE_1", "?? (UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_NOT_ATTACKABLE_1) is NON_PVP_ATTACKABLE" };
         case UNIT_FLAG_IMMUNE_TO_PC: return { "UNIT_FLAG_IMMUNE_TO_PC", "UNIT_FLAG_IMMUNE_TO_PC", "disables combat/assistance with PlayerCharacters (PC) - see Unit::IsValidAttackTarget, Unit::IsValidAssistTarget" };
         case UNIT_FLAG_IMMUNE_TO_NPC: return { "UNIT_FLAG_IMMUNE_TO_NPC", "UNIT_FLAG_IMMUNE_TO_NPC", "disables combat/assistance with NonPlayerCharacters (NPC) - see Unit::IsValidAttackTarget, Unit::IsValidAssistTarget" };
@@ -81,7 +81,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 3: return UNIT_FLAG_PLAYER_CONTROLLED;
         case 4: return UNIT_FLAG_RENAME;
         case 5: return UNIT_FLAG_PREPARATION;
-        case 6: return UNIT_FLAG_UNK_6;
+        case 6: return UNIT_FLAG_TAUNTED;
         case 7: return UNIT_FLAG_NOT_ATTACKABLE_1;
         case 8: return UNIT_FLAG_IMMUNE_TO_PC;
         case 9: return UNIT_FLAG_IMMUNE_TO_NPC;
@@ -122,7 +122,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
         case UNIT_FLAG_PLAYER_CONTROLLED: return 3;
         case UNIT_FLAG_RENAME: return 4;
         case UNIT_FLAG_PREPARATION: return 5;
-        case UNIT_FLAG_UNK_6: return 6;
+        case UNIT_FLAG_TAUNTED: return 6;
         case UNIT_FLAG_NOT_ATTACKABLE_1: return 7;
         case UNIT_FLAG_IMMUNE_TO_PC: return 8;
         case UNIT_FLAG_IMMUNE_TO_NPC: return 9;
