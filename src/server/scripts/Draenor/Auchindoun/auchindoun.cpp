@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "PhasingHandler.h"
 #include "Player.h"
