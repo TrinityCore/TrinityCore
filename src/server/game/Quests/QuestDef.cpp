@@ -391,42 +391,30 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
 
 uint32 Quest::XPValue(Player const* player) const
 {
-    return XPValue(player, _level, _rewardXPDifficulty, _rewardXPMultiplier, _expansion);
+    return XPValue(player, GetQuestLevelForPlayer(player) , _minLevel, _rewardXPDifficulty, _rewardXPMultiplier, _expansion);
 }
 
-uint32 Quest::XPValue(Player const* player, int32 questLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/, int32 expansion /*= -1*/)
+uint32 Quest::XPValue(Player const* player, uint32 questLevel, int32 questMinLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/, int32 expansion /*= -1*/)
 {
-    if (player)
+    QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
+    if (!questXp || xpDifficulty >= 10)
+        return 0;
+
+    int32 diffFactor = 2 * (questLevel - (questMinLevel == -1 ? 0 : -5) - (player ? player->GetLevel() : 0)) + 10;
+    if (diffFactor < 1)
+        diffFactor = 1;
+    else if (diffFactor > 10)
+        diffFactor = 10;
+
+    uint32 xp = RoundXPValue(diffFactor * questXp->Difficulty[xpDifficulty] * xpMultiplier / 10);
+
+    if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
     {
-        uint32 effectiveQuestLevel = questLevel == -1 ? player->GetLevel() : questLevel;
-        QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(effectiveQuestLevel);
-        if (!questXp || xpDifficulty >= 10)
-            return 0;
-
-        uint32 xp = questXp->Difficulty[xpDifficulty];
-
-        int32 diffFactor = 2 * (effectiveQuestLevel - player->GetLevel()) + 20;
-        if (diffFactor < 1)
-            diffFactor = 1;
-        else if (diffFactor > 10)
-            diffFactor = 10;
-
-        xp = diffFactor * xp * xpMultiplier / 10;
-        if (player->GetLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && expansion >= 0 && expansion < CURRENT_EXPANSION)
-            xp = uint32(xp / 9.0f);
-
-        xp = RoundXPValue(xp);
-
-        if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
-        {
-            uint32 minScaledXP = RoundXPValue(questXp->Difficulty[xpDifficulty] * xpMultiplier) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
-            xp = std::max(minScaledXP, xp);
-        }
-
-        return xp;
+        uint32 minScaledXP = RoundXPValue(questXp->Difficulty[xpDifficulty] * xpMultiplier) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+        xp = std::max(minScaledXP, xp);
     }
 
-    return 0;
+    return xp;
 }
 
 /*static*/ bool Quest::IsTakingQuestEnabled(uint32 questId)
@@ -474,6 +462,26 @@ bool Quest::IsImportant() const
         return (questInfo->Modifiers & 0x400) != 0;
 
     return false;
+}
+
+uint32 Quest::GetQuestLevelForPlayer(Player const* player) const
+{
+    if (_level != -1)
+        return static_cast<uint32>(_level);
+
+    int32 questLevel = _minLevel;
+    if (_level == -1 && _scalingFactionGroup != 0 && player->m_unitData->ScalingFactionGroup != _scalingFactionGroup)
+        questLevel = _maxScalingLevel;
+
+    int32 playerLevel = player->GetLevel();
+    if (playerLevel >= questLevel)
+    {
+        questLevel = playerLevel;
+        if (_maxScalingLevel < playerLevel)
+            return static_cast<uint32>(_maxScalingLevel);
+    }
+
+    return static_cast<uint32>(questLevel);
 }
 
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const

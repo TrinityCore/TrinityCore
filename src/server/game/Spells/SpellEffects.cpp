@@ -5406,7 +5406,7 @@ void Spell::EffectGiveExperience()
     if (!playerTarget)
         return;
 
-    uint32 xp = Quest::XPValue(playerTarget, effectInfo->MiscValue, effectInfo->MiscValueB);
+    uint32 xp = Quest::XPValue(playerTarget, 0, 0, effectInfo->MiscValueB);
     playerTarget->GiveXP(xp, nullptr);
 }
 

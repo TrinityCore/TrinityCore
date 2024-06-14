@@ -532,12 +532,13 @@ class TC_GAME_API Quest
         void LoadConditionalConditionalQuestCompletionLog(Field* fields);
 
         uint32 XPValue(Player const* player) const;
-        static uint32 XPValue(Player const* player, int32 questLevel, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
+        static uint32 XPValue(Player const* player, uint32 questLevel, int32 questMinLevel, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
         uint32 MoneyValue(Player const* player) const;
         uint32 MaxMoneyValue() const;
         uint32 GetMaxMoneyReward() const;
         Optional<QuestTagType> GetQuestTag() const;
         bool IsImportant() const;
+        uint32 GetQuestLevelForPlayer(Player const* player) const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
         bool HasFlagEx(QuestFlagsEx flag) const { return (_flagsEx & uint32(flag)) != 0; }
