@@ -1223,10 +1223,11 @@ private:
                             {
                                 //refund mana of original seal
                                 const SpellInfo* originalSpell = (*i)->GetSpellInfo();
-                                //uint32 bp = (*i)->GetSpellInfo()->CalcPowerCost(GetCaster(), originalSpell->GetSchoolMask()) * .8f;
-                                //CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                                //args.AddSpellBP0(bp);
-                                //GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
+                                uint32 mana = originalSpell->ManaCost;
+                                uint32 bp = mana * .8f;
+                                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                                args.AddSpellBP0(bp);
+                                GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
                             }
                         }
                         
