@@ -54,9 +54,9 @@ Quest::Quest(Field* questRecord)
     _rewardArtifactXPDifficulty = questRecord[20].GetUInt32();
     _rewardArtifactXPMultiplier = questRecord[21].GetFloat();
     _rewardArtifactCategoryID = questRecord[22].GetUInt32();
-    _flags = questRecord[21].GetUInt32();
-    _flagsEx = questRecord[22].GetUInt32();
-    _flagsEx2 = questRecord[23].GetUInt32();
+    _flags = questRecord[23].GetUInt32();
+    _flagsEx = questRecord[24].GetUInt32();
+    _flagsEx2 = questRecord[25].GetUInt32();
 
     for (uint32 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
     {
