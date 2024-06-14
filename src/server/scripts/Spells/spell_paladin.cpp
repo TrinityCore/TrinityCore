@@ -1214,28 +1214,27 @@ private:
                     if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
                     {
                         spellId2 = (*i)->GetAmount();
-                        //found seal remove and break
-                        GetCaster()->RemoveAurasDueToSpell((*i)->GetSpellInfo()->Id);
 
-                        TC_LOG_FATAL("server.loading", "testing 3 blah blah");
+                        TC_LOG_FATAL("all", "testing 3 blah blah");
                         Aura* sanctifiedSeals = GetCaster()->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_SEALS);
-                        TC_LOG_FATAL("server.loading", "testing 4 blah blah");
+                        TC_LOG_FATAL("all", "testing 4 blah blah");
                         if (sanctifiedSeals && sanctifiedSeals->GetSpellInfo())
                         {
                             if (true)
                             {
                                 //refund mana of original seal
-                                TC_LOG_FATAL("server.loading", "testing 2 blah blah");
+                                TC_LOG_FATAL("all", "testing 2 blah blah");
                                 const SpellInfo* originalSpell = (*i)->GetSpellInfo();
                                 uint32 mana = originalSpell->ManaCost;
-                                TC_LOG_FATAL("server.loading", "mana cost {}", mana);
+                                TC_LOG_FATAL("all", "mana cost {}", mana);
                                 uint32 bp = (uint32)(mana * 0.8);
                                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                                 args.AddSpellBP0(bp);
                                 GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
                             }
                         }
-                        
+                        //found seal remove and break
+                        GetCaster()->RemoveAurasDueToSpell((*i)->GetSpellInfo()->Id);
 
                         break;
                     }
