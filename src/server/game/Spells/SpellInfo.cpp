@@ -3786,7 +3786,22 @@ int32 SpellInfo::GetMaxDuration() const
 uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
 {
     int32 castTime = 0;
-    if (CastTimeEntry)
+
+    uint8 casterLevel = [spell]()->uint8
+    {
+        if (spell && spell->GetCaster() && spell->GetCaster()->IsUnit())
+            return spell->GetCaster()->ToUnit()->GetLevel();;
+
+        return 0;
+    }();
+
+    if (casterLevel > 0 && Scaling.CastTimeMax > 0)
+    {
+        castTime = Scaling.CastTimeMax;
+        if (Scaling.CastTimeMaxLevel > casterLevel)
+            castTime = Scaling.CastTimeMin + int32(casterLevel - 1) * (Scaling.CastTimeMax - Scaling.CastTimeMin) / (Scaling.CastTimeMaxLevel - 1);
+    }
+    else if (CastTimeEntry)
         castTime = std::max(CastTimeEntry->Base, CastTimeEntry->Minimum);
 
     if (castTime <= 0)
