@@ -6271,9 +6271,6 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     uint32 const unitflag = unitCaster->GetUnitFlags();
     if (m_fromClient && unitCaster->IsCharmed() && unitCaster->IsPlayer() && !CheckSpellCancelsCharm(param1))
         result = SPELL_FAILED_CHARMED;
-    uint32 taunt = 11;
-    if (m_fromClient && unitCaster->IsTaunted() && unitCaster->IsPlayer() && !CheckSpellCancelsTaunt(&taunt))
-        result = SPELL_FAILED_CHARMED;
 
     // spell has attribute usable while having a cc state, check if caster has allowed mechanic auras, another mechanic types must prevent cast spell
     auto mechanicCheck = [&](AuraType type) -> SpellCastResult
