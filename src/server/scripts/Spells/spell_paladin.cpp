@@ -1215,7 +1215,7 @@ private:
                         spellId2 = (*i)->GetAmount();
                         //found seal remove and break
                         GetCaster()->RemoveAurasDueToSpell((*i)->GetSpellInfo()->Id);
-
+                        /*
                         Aura* sanctifiedSeals = GetCaster()->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_SEALS);
                         if (sanctifiedSeals)
                         {
@@ -1229,6 +1229,7 @@ private:
                                 GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
                             }
                         }
+                        */
 
                         break;
                     }
