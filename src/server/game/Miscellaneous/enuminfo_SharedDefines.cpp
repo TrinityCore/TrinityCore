@@ -1443,8 +1443,8 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING: return { "SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING", "Ignore Totem Requirements for Casting", "" };
         case SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN: return { "SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN", "Item Cast Grants Skill Gain", "" };
         case SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST: return { "SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST", "Do Not Add to Unlearn List", "" };
-        case SPELL_ATTR9_AIMED_SHOT: return { "SPELL_ATTR9_AIMED_SHOT", "Cooldown Ignores Ranged Weapon", "" };
-        case SPELL_ATTR9_NOT_USABLE_IN_ARENA: return { "SPELL_ATTR9_NOT_USABLE_IN_ARENA", "Not In Arena", "" };
+        case SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON: return { "SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON", "Cooldown Ignores Ranged Weapon", "" };
+        case SPELL_ATTR9_NOT_IN_ARENA: return { "SPELL_ATTR9_NOT_IN_ARENA", "Not In Arena", "" };
         case SPELL_ATTR9_UNK10: return { "SPELL_ATTR9_UNK10", "Unknown attribute 10@Attr9", "" };
         case SPELL_ATTR9_UNK11: return { "SPELL_ATTR9_UNK11", "Unknown attribute 11@Attr9", "" };
         case SPELL_ATTR9_UNK12: return { "SPELL_ATTR9_UNK12", "Unknown attribute 12@Attr9", "" };
@@ -1487,8 +1487,8 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 5: return SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING;
         case 6: return SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN;
         case 7: return SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST;
-        case 8: return SPELL_ATTR9_AIMED_SHOT;
-        case 9: return SPELL_ATTR9_NOT_USABLE_IN_ARENA;
+        case 8: return SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON;
+        case 9: return SPELL_ATTR9_NOT_IN_ARENA;
         case 10: return SPELL_ATTR9_UNK10;
         case 11: return SPELL_ATTR9_UNK11;
         case 12: return SPELL_ATTR9_UNK12;
@@ -1528,8 +1528,8 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING: return 5;
         case SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN: return 6;
         case SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST: return 7;
-        case SPELL_ATTR9_AIMED_SHOT: return 8;
-        case SPELL_ATTR9_NOT_USABLE_IN_ARENA: return 9;
+        case SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON: return 8;
+        case SPELL_ATTR9_NOT_IN_ARENA: return 9;
         case SPELL_ATTR9_UNK10: return 10;
         case SPELL_ATTR9_UNK11: return 11;
         case SPELL_ATTR9_UNK12: return 12;
