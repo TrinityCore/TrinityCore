@@ -1883,11 +1883,18 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
                 jumpRadius = 10.0f;
             break;
     }
+    bool avengersShield = m_spellInfo->SpellIconID == 2172;
+    if (avengersShield)
+    {
+        jumpRadius = 10;
+    }
 
     // chain lightning/heal spells and similar - allow to jump at larger distance and go out of los
     bool isBouncingFar = (m_spellInfo->HasAttribute(SPELL_ATTR4_AREA_TARGET_CHAIN)
         || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE
-        || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC);
+        || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC
+        || avengersShield
+        );
 
     // max dist which spell can reach
     float searchRadius = jumpRadius;
