@@ -33,6 +33,7 @@
 #include "SpellScript.h"
 #include "Item.h"
 #include "Spell.h"
+#include "Log.h"
 
 enum PaladinSpells
 {
@@ -1219,9 +1220,10 @@ private:
                         Aura* sanctifiedSeals = GetCaster()->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_SEALS);
                         if (sanctifiedSeals && sanctifiedSeals->GetSpellInfo())
                         {
-                            if (roll_chance_f(sanctifiedSeals->GetSpellInfo()->ProcChance))
+                            if (true)
                             {
                                 //refund mana of original seal
+                                TC_LOG_ERROR("test", "test");
                                 const SpellInfo* originalSpell = (*i)->GetSpellInfo();
                                 uint32 mana = originalSpell->ManaCost;
                                 uint32 bp = mana * .8f;
