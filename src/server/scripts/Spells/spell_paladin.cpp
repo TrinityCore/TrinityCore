@@ -1202,7 +1202,7 @@ private:
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         uint32 spellId2 = SPELL_PALADIN_JUDGEMENT_DAMAGE;
-
+        TC_LOG_ERROR("sql.sql", "testing 1 blah blah");
         // some seals have SPELL_AURA_DUMMY in EFFECT_2
         Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
         for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
@@ -1227,7 +1227,7 @@ private:
                                 const SpellInfo* originalSpell = (*i)->GetSpellInfo();
                                 uint32 mana = originalSpell->ManaCost;
                                 TC_LOG_ERROR("sql.sql", "mana cost {}", mana);
-                                uint32 bp = (uint32)(mana * .8f);
+                                uint32 bp = (uint32)(mana * 0.8);
                                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                                 args.AddSpellBP0(bp);
                                 GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
