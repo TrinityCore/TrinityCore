@@ -11312,7 +11312,10 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         }
     }
 }
-
+bool Unit::IsTaunted()
+{
+    return HasUnitState(UNIT_STATE_TAUNTED);
+}
 void Unit::SetControlled(bool apply, UnitState state)
 {
     if (apply)

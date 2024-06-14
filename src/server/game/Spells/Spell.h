@@ -341,6 +341,7 @@ class TC_GAME_API Spell
 
         bool CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const;
         bool CheckSpellCancelsCharm(uint32* param1) const;
+        bool CheckSpellCancelsTaunt(uint32* param1) const;
         bool CheckSpellCancelsStun(uint32* param1) const;
         bool CheckSpellCancelsSilence(uint32* param1) const;
         bool CheckSpellCancelsPacify(uint32* param1) const;

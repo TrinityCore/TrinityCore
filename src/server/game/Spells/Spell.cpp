@@ -5274,7 +5274,8 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 return SPELL_FAILED_MOVING;
         }
 
-        if (unitCaster->IsCharmed() && m_spellInfo->HasAttribute(SPELL_ATTR5_NOT_USABLE_WHILE_CHARMED))
+        bool taunted = unitCaster->IsTaunted();
+        if ((unitCaster->IsCharmed() || taunted) && m_spellInfo->HasAttribute(SPELL_ATTR5_NOT_USABLE_WHILE_CHARMED))
             return SPELL_FAILED_CHARMED;
 
         // Check vehicle flags
@@ -6026,7 +6027,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (!unitCaster)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (unitCaster->GetCharmerGUID())
+                if (unitCaster->GetCharmerGUID() || unitCaster->IsTaunted())
                     return SPELL_FAILED_CHARMED;
 
                 if (spellEffectInfo.ApplyAuraName == SPELL_AURA_MOD_CHARM
@@ -6268,8 +6269,10 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
 
     // Get unit state
     uint32 const unitflag = unitCaster->GetUnitFlags();
-    bool charmed = unitCaster->HasUnitState(UNIT_STATE_TAUNTED) || unitCaster->IsCharmed();
-    if (m_fromClient && charmed && unitCaster->IsPlayer() && !CheckSpellCancelsCharm(param1))
+    if (m_fromClient && unitCaster->IsCharmed() && unitCaster->IsPlayer() && !CheckSpellCancelsCharm(param1))
+        result = SPELL_FAILED_CHARMED;
+    uint32 taunt = 11;
+    if (m_fromClient && unitCaster->IsTaunted() && unitCaster->IsPlayer() && !CheckSpellCancelsTaunt(&taunt))
         result = SPELL_FAILED_CHARMED;
 
     // spell has attribute usable while having a cc state, check if caster has allowed mechanic auras, another mechanic types must prevent cast spell
@@ -6345,7 +6348,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
         else if (!CheckSpellCancelsFear(param1))
             result = SPELL_FAILED_FLEEING;
     }
-    else if ((unitflag & UNIT_FLAG_CONFUSED) || (unitflag & UNIT_FLAG_TAUNTED))
+    else if ((unitflag & UNIT_FLAG_CONFUSED))
     {
         if (usableWhileConfused)
         {
@@ -6399,6 +6402,11 @@ bool Spell::CheckSpellCancelsCharm(uint32* param1) const
     return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_CHARM, param1) &&
         CheckSpellCancelsAuraEffect(SPELL_AURA_AOE_CHARM, param1) &&
         CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_POSSESS, param1);
+}
+
+bool Spell::CheckSpellCancelsTaunt(uint32* param1) const
+{
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_TAUNT, param1);
 }
 
 bool Spell::CheckSpellCancelsStun(uint32* param1) const

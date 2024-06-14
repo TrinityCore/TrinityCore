@@ -1286,6 +1286,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsCharmed() const { return !GetCharmerGUID().IsEmpty(); }
         bool IsCharming() const { return !GetCharmedGUID().IsEmpty(); }
         bool isPossessed() const { return HasUnitState(UNIT_STATE_POSSESSED); }
+        bool IsTaunted();
         bool isPossessedByPlayer() const;
         bool isPossessing() const;
         bool isPossessing(Unit* u) const;
