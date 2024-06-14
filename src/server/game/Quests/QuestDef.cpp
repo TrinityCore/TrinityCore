@@ -391,16 +391,16 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
 
 uint32 Quest::XPValue(Player const* player) const
 {
-    return XPValue(player, GetQuestLevelForPlayer(player) , _minLevel, _rewardXPDifficulty, _rewardXPMultiplier, _expansion);
+    return XPValue(player, GetQuestLevelForPlayer(player) , _level, _rewardXPDifficulty, _rewardXPMultiplier);
 }
 
-uint32 Quest::XPValue(Player const* player, uint32 questLevel, int32 questMinLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/, int32 expansion /*= -1*/)
+uint32 Quest::XPValue(Player const* player, uint32 questLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/)
 {
     QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
     if (!questXp || xpDifficulty >= 10)
         return 0;
 
-    int32 diffFactor = 2 * (questLevel - (questMinLevel == -1 ? 0 : -5) - (player ? player->GetLevel() : 0)) + 10;
+    int32 diffFactor = 2 * (questLevel - (unscaledQuestLevel == -1 ? 0 : -5) - (player ? player->GetLevel() : 0)) + 10;
     if (diffFactor < 1)
         diffFactor = 1;
     else if (diffFactor > 10)
