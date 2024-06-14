@@ -984,7 +984,7 @@ class spell_mage_mana_shield : public spell_mage_incanters_absorbtion_base_AuraS
             && !GetCaster()->HasAura(SPELL_MAGE_RECALIBRATING)
             )
         {
-            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BROKEN_MANA_SHIELD);
+            GetCaster()->AddAura(SPELL_MAGE_BROKEN_MANA_SHIELD, GetCaster());
             GetCaster()->AddAura(SPELL_MAGE_RECALIBRATING, GetCaster());
         }
     }
