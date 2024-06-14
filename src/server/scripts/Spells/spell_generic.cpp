@@ -3503,7 +3503,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScript
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_pvp_trinket_wotf_shared_cd::HandleScript);
+        //AfterCast += SpellCastFn(spell_pvp_trinket_wotf_shared_cd::HandleScript);
     }
 };
 
