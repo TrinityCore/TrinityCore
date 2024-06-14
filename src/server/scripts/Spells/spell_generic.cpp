@@ -44,6 +44,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "PetAI.h"
 
 class spell_gen_absorb0_hitlimit1 : public AuraScript
 {
@@ -66,6 +67,65 @@ class spell_gen_absorb0_hitlimit1 : public AuraScript
     void Register() override
     {
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_absorb0_hitlimit1::Absorb, EFFECT_0);
+    }
+};
+
+//pet move to - 81354
+class spell_pet_moveto : public SpellScript
+{
+    PrepareSpellScript(spell_pet_moveto);
+
+    SpellCastResult DoCheckCast()
+    {
+        Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
+        ASSERT(pet); // checked in Spell::CheckCast
+
+        if (!pet->IsPet() || !pet->IsAlive())
+            return SPELL_FAILED_NO_PET;
+
+        // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
+        SpellCastResult result = SPELL_CAST_OK;
+        uint32 const unitflag = pet->GetUnitFlags();
+        if (pet->GetCharmerGUID())
+            result = SPELL_FAILED_CHARMED;
+        else if (unitflag & UNIT_FLAG_STUNNED)
+            result = SPELL_FAILED_STUNNED;
+        else if (unitflag & UNIT_FLAG_FLEEING)
+            result = SPELL_FAILED_FLEEING;
+        else if (unitflag & UNIT_FLAG_CONFUSED)
+            result = SPELL_FAILED_CONFUSED;
+
+        if (result != SPELL_CAST_OK)
+            return result;
+
+        return SPELL_CAST_OK;
+    }
+
+    void CommandMove()
+    {
+        Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
+        if (!pet)
+            return;
+        pet->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+        pet->GetMotionMaster()->MoveIdle();
+        CharmInfo* charmInfo = pet->GetCharmInfo();
+        charmInfo->SetCommandState(COMMAND_STAY);
+        charmInfo->SetIsCommandAttack(false);
+        charmInfo->SetIsAtStay(false);
+        charmInfo->SetIsCommandFollow(false);
+        charmInfo->SetIsFollowing(false);
+        charmInfo->SetIsReturning(false);
+        const WorldLocation* stayPos = GetExplTargetDest();
+        charmInfo->SetStayPosition(stayPos->GetPositionX(), stayPos->GetPositionY(), stayPos->GetPositionZ());
+        CreatureAI* AI = pet->ToCreature()->AI();
+        if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
+            petAI->HandleReturnMovement();
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pet_moveto::DoCheckCast);
+        AfterCast += SpellCastFn(spell_pet_moveto::CommandMove);
     }
 };
 
@@ -4711,4 +4771,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
     RegisterSpellScript(spell_gen_cannon_blast);
     RegisterSpellScript(spell_gen_submerged);
+    RegisterSpellScript(spell_pet_moveto);
 }

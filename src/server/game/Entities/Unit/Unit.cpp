@@ -13371,6 +13371,20 @@ void CharmInfo::SaveStayPosition()
     _stayZ = stayPos.z;
 }
 
+void CharmInfo::SetStayPosition(float x, float y, float z)
+{
+    //! At this point a new spline destination is enabled because of Unit::StopMoving()
+    G3D::Vector3 stayPos = _unit->movespline->FinalDestination();
+
+    if (_unit->movespline->onTransport)
+        if (TransportBase* transport = _unit->GetDirectTransport())
+            transport->CalculatePassengerPosition(x, y, z);
+
+    _stayX = x;
+    _stayY = y;
+    _stayZ = z;
+}
+
 void CharmInfo::GetStayPosition(float &x, float &y, float &z)
 {
     x = _stayX;

@@ -3003,15 +3003,24 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
 
         ApplySpellFix({
+            81354 //Pet Move To
+        }, [](SpellInfo* spellInfo)
+        {
+            // first effect has correct amplitude
+            spellInfo->AttributesEx4 = 128;
+        });
+
+        ApplySpellFix({
             24707, // Food
             26263, // Dim Sum
             29055, // Refreshing Red Apple
             37504  // Karazhan - Chess NPC AI, action timer
-        }, [](SpellInfo* spellInfo)
+            }, [](SpellInfo* spellInfo)
         {
             // first effect has correct amplitude
             spellInfo->_GetEffect(EFFECT_1).Amplitude = spellInfo->GetEffect(EFFECT_0).Amplitude;
         });
+
 
         // Vomit
         ApplySpellFix({ 43327 }, [](SpellInfo* spellInfo)
