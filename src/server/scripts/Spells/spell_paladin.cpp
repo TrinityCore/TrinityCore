@@ -1202,7 +1202,7 @@ private:
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         uint32 spellId2 = SPELL_PALADIN_JUDGEMENT_DAMAGE;
-        TC_LOG_FATAL("sql.sql", "testing 1 blah blah");
+        TC_LOG_INFO("server.loading", "testing 1 blah blah");
         // some seals have SPELL_AURA_DUMMY in EFFECT_2
         Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
         for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
@@ -1216,17 +1216,19 @@ private:
                         spellId2 = (*i)->GetAmount();
                         //found seal remove and break
                         GetCaster()->RemoveAurasDueToSpell((*i)->GetSpellInfo()->Id);
-                        
+
+                        TC_LOG_INFO("server.loading", "testing 3 blah blah");
                         Aura* sanctifiedSeals = GetCaster()->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_SEALS);
+                        TC_LOG_INFO("server.loading", "testing 4 blah blah");
                         if (sanctifiedSeals && sanctifiedSeals->GetSpellInfo())
                         {
                             if (true)
                             {
                                 //refund mana of original seal
-                                TC_LOG_FATAL("all", "testing 2 blah blah");
+                                TC_LOG_INFO("server.loading", "testing 2 blah blah");
                                 const SpellInfo* originalSpell = (*i)->GetSpellInfo();
                                 uint32 mana = originalSpell->ManaCost;
-                                TC_LOG_FATAL("all", "mana cost {}", mana);
+                                TC_LOG_INFO("server.loading", "mana cost {}", mana);
                                 uint32 bp = (uint32)(mana * 0.8);
                                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                                 args.AddSpellBP0(bp);
