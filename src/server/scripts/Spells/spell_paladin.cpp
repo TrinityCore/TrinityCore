@@ -1223,10 +1223,11 @@ private:
                             if (true)
                             {
                                 //refund mana of original seal
-                                TC_LOG_ERROR("test", "test");
+                                TC_LOG_ERROR("sql.sql", "testing blah blah");
                                 const SpellInfo* originalSpell = (*i)->GetSpellInfo();
                                 uint32 mana = originalSpell->ManaCost;
-                                uint32 bp = mana * .8f;
+                                TC_LOG_ERROR("sql.sql", "mana cost {}", mana);
+                                uint32 bp = (uint32)(mana * .8f);
                                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                                 args.AddSpellBP0(bp);
                                 GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
