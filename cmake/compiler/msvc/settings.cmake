@@ -59,23 +59,13 @@ else()
   message(STATUS "MSVC: Disabled Safe Exception Handlers for debug builds")
 endif()
 
-# Set build-directive (used in core to tell which buildtype we used)
 # msbuild/devenv don't set CMAKE_MAKE_PROGRAM, you can choose build type from a dropdown after generating projects
 if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-  target_compile_definitions(trinity-compile-option-interface
-    INTERFACE
-      -D_BUILD_DIRECTIVE="$(ConfigurationName)")
-
   # multithreaded compiling on VS
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       /MP)
 else()
-  # while all make-like generators do (nmake, ninja)
-  target_compile_definitions(trinity-compile-option-interface
-    INTERFACE
-      -D_BUILD_DIRECTIVE="$<CONFIG>")
-
   # Forces writes to the PDB file to be serialized through mspdbsrv.exe (/FS)
   # Enable faster PDB generation in parallel builds by minimizing RPC calls to mspdbsrv.exe (/Zf)
   target_compile_options(trinity-compile-option-interface

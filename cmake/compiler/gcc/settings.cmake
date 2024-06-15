@@ -1,8 +1,3 @@
-# Set build-directive (used in core to tell which buildtype we used)
-target_compile_definitions(trinity-compile-option-interface
-  INTERFACE
-    -D_BUILD_DIRECTIVE="$<CONFIG>")
-
 set(GCC_EXPECTED_VERSION 11.1.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
