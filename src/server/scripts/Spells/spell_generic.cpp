@@ -78,7 +78,8 @@ class spell_pet_moveto : public SpellScript
     SpellCastResult DoCheckCast()
     {
         Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
-        ASSERT(pet); // checked in Spell::CheckCast
+        if(!pet)
+            return SPELL_FAILED_NO_PET;
 
         if (!pet->IsPet() || !pet->IsAlive())
             return SPELL_FAILED_NO_PET;
