@@ -172,6 +172,7 @@ WorldPacket const* TrainerList::Write()
         _worldPacket << uint32(spell.ReqSkillLine);
         _worldPacket << uint32(spell.ReqSkillRank);
         _worldPacket.append(spell.ReqAbility.data(), spell.ReqAbility.size());
+        _worldPacket << uint32(spell.Unk440);
         _worldPacket << uint8(spell.Usable);
         _worldPacket << uint8(spell.ReqLevel);
     }
