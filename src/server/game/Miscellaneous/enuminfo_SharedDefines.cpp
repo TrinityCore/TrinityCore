@@ -1445,7 +1445,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST: return { "SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST", "Do Not Add to Unlearn List", "" };
         case SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON: return { "SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON", "Cooldown Ignores Ranged Weapon", "" };
         case SPELL_ATTR9_NOT_IN_ARENA: return { "SPELL_ATTR9_NOT_IN_ARENA", "Not In Arena", "" };
-        case SPELL_ATTR9_UNK10: return { "SPELL_ATTR9_UNK10", "Unknown attribute 10@Attr9", "" };
+        case SPELL_ATTR9_TARGET_MUST_BE_GROUNDED: return { "SPELL_ATTR9_TARGET_MUST_BE_GROUNDED", "Target Must Be Grounded", "" };
         case SPELL_ATTR9_UNK11: return { "SPELL_ATTR9_UNK11", "Unknown attribute 11@Attr9", "" };
         case SPELL_ATTR9_UNK12: return { "SPELL_ATTR9_UNK12", "Unknown attribute 12@Attr9", "" };
         case SPELL_ATTR9_SLAM: return { "SPELL_ATTR9_SLAM", "Haste Affects Melee Ability Casttime", "" };
@@ -1489,7 +1489,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 7: return SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST;
         case 8: return SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON;
         case 9: return SPELL_ATTR9_NOT_IN_ARENA;
-        case 10: return SPELL_ATTR9_UNK10;
+        case 10: return SPELL_ATTR9_TARGET_MUST_BE_GROUNDED;
         case 11: return SPELL_ATTR9_UNK11;
         case 12: return SPELL_ATTR9_UNK12;
         case 13: return SPELL_ATTR9_SLAM;
@@ -1530,7 +1530,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST: return 7;
         case SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON: return 8;
         case SPELL_ATTR9_NOT_IN_ARENA: return 9;
-        case SPELL_ATTR9_UNK10: return 10;
+        case SPELL_ATTR9_TARGET_MUST_BE_GROUNDED: return 10;
         case SPELL_ATTR9_UNK11: return 11;
         case SPELL_ATTR9_UNK12: return 12;
         case SPELL_ATTR9_SLAM: return 13;

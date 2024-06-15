@@ -2252,6 +2252,11 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
         if (HasAttribute(SPELL_ATTR3_NOT_ON_AOE_IMMUNE))
             if (unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::AoETarget))
                 return SPELL_FAILED_BAD_TARGETS;
+
+        if (HasAttribute(SPELL_ATTR9_TARGET_MUST_BE_GROUNDED) &&
+            (unitTarget->HasUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING | MOVEMENTFLAG_HOVER) ||
+                unitTarget->HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING)))
+            return SPELL_FAILED_TARGET_NOT_GROUNDED;
     }
     // corpse specific target checks
     else if (Corpse const* corpseTarget = target->ToCorpse())

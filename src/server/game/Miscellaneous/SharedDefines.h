@@ -769,7 +769,7 @@ enum SpellAttr9 : uint32
     SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST                          = 0x00000080, /* NYI - unlearn list not maintained SMSG_SEND_UNLEARN_SPELLS always empty */ // TITLE Do Not Add to Unlearn List
     SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON                      = 0x00000100, // TITLE Cooldown Ignores Ranged Weapon
     SPELL_ATTR9_NOT_IN_ARENA                                        = 0x00000200, // TITLE Not In Arena
-    SPELL_ATTR9_UNK10                            = 0x00000400, // TITLE Unknown attribute 10@Attr9
+    SPELL_ATTR9_TARGET_MUST_BE_GROUNDED                             = 0x00000400, // TITLE Target Must Be Grounded
     SPELL_ATTR9_UNK11                            = 0x00000800, // TITLE Unknown attribute 11@Attr9
     SPELL_ATTR9_UNK12                            = 0x00001000, // TITLE Unknown attribute 12@Attr9
     SPELL_ATTR9_SLAM                             = 0x00002000, // TITLE Haste Affects Melee Ability Casttime
