@@ -3455,7 +3455,8 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint8 effMask)
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         bool frostTrapStart = i == 0 && aurApp->GetBase()->m_spellInfo->Id == 13810;
-        if (frostTrapStart || (effMask & 1 << i && (!aurApp->GetRemoveMode())))
+        bool flareStart = i == 0 && aurApp->GetBase()->m_spellInfo->Id == 1543;
+        if (frostTrapStart || flareStart || (effMask & 1 << i && (!aurApp->GetRemoveMode())))
             aurApp->_HandleEffect(i, true);
     }
 

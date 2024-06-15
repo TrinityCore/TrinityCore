@@ -386,7 +386,7 @@ void PetAI::HandleReturnMovement()
             if (me->HasUnitState(UNIT_STATE_CHASE))
                 me->GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
 
-            me->GetMotionMaster()->MovePoint(me->GetGUID().GetCounter(), x, y, z);
+            me->GetMotionMaster()->MovePoint(me->GetGUID().GetCounter(), x, y, z, true);
         }
     }
     else // COMMAND_FOLLOW

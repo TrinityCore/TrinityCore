@@ -426,7 +426,8 @@ enum CommandStates : uint8
     COMMAND_STAY    = 0,
     COMMAND_FOLLOW  = 1,
     COMMAND_ATTACK  = 2,
-    COMMAND_ABANDON = 3
+    COMMAND_ABANDON = 3,
+    COMMAND_MOVE_TO = 4
 };
 
 #endif // UnitDefines_h__

@@ -83,7 +83,9 @@ class spell_pet_moveto : public SpellScript
 
         if (!pet->IsPet() || !pet->IsAlive())
             return SPELL_FAILED_NO_PET;
-
+        // The client shows an area as unreachable once the target destination is 4 yards above your position
+        if (!GetExplTargetDest() || GetExplTargetDest()->GetPositionZ() - GetCaster()->GetPositionZ() > 8.f)
+            return SPELL_FAILED_NOPATH;
         // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
         SpellCastResult result = SPELL_CAST_OK;
         uint32 const unitflag = pet->GetUnitFlags();
@@ -118,6 +120,7 @@ class spell_pet_moveto : public SpellScript
         charmInfo->SetIsReturning(false);
         const WorldLocation* stayPos = GetExplTargetDest();
         charmInfo->SetStayPosition(stayPos->GetPositionX(), stayPos->GetPositionY(), stayPos->GetPositionZ());
+        //pet->GetMotionMaster()->MoveChase();
         CreatureAI* AI = pet->ToCreature()->AI();
         if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
             petAI->HandleReturnMovement();
