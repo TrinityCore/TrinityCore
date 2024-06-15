@@ -1,7 +1,7 @@
 # output generic information about the core and buildtype chosen
 message("")
 message("* TrinityCore revision   : ${rev_hash} ${rev_date} (${rev_branch} branch)")
-if(NOT "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
+if(NOT ("${CMAKE_GENERATOR}" MATCHES "Visual Studio" OR "${CMAKE_GENERATOR}" STREQUAL "Ninja Multi-Config"))
   message("* TrinityCore buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()
 message("")
