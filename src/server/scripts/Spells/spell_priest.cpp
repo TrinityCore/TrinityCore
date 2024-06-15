@@ -1395,6 +1395,30 @@ class spell_pri_holy_fire : public SpellScript
     }
 };
 
+// 81352 - wisp form
+class spell_pri_wisp_form : public AuraScript
+{
+    PrepareAuraScript(spell_pri_wisp_form);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        player->RestoreDisplayId();
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        player->SetDisplayId(10045);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_wisp_form::OnApply, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_wisp_form::OnRemove, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 
 
 void AddSC_priest_spell_scripts()
@@ -1434,4 +1458,5 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_spirit_duration_increase);
     RegisterSpellScript(spell_pri_smite);
     RegisterSpellScript(spell_pri_holy_fire);
+    RegisterSpellScript(spell_pri_wisp_form);
 }
