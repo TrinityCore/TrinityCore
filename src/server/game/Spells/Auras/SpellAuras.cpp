@@ -1596,7 +1596,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 81351: // Elune's Grace
                         if (removeMode != AURA_REMOVE_BY_EXPIRE)
                             break;
-                        if (target->IsPlayer())
+                        if (target->IsPlayer() || target->IsPet())
                         {
                             target->CastSpell(target, 32612, GetEffect(1));
                             target->Dismount();
