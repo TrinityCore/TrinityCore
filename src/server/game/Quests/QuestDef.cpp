@@ -72,8 +72,8 @@ Quest::Quest(Field* questRecord)
     for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
         RewardChoiceItemId[i] = questRecord[42 + i * 3].GetUInt32();
-        RewardChoiceItemCount[i] = questRecord[44 + i * 3].GetUInt32();
-        RewardChoiceItemDisplayId[i] = questRecord[45 + i * 3].GetUInt32();
+        RewardChoiceItemCount[i] = questRecord[43 + i * 3].GetUInt32();
+        RewardChoiceItemDisplayId[i] = questRecord[44 + i * 3].GetUInt32();
 
         if (RewardChoiceItemId[i])
             ++_rewChoiceItemsCount;
