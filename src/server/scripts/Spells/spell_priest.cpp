@@ -1116,7 +1116,7 @@ class spell_pri_vampiric_embrace : public AuraScript
             return;
 
         int32 selfHeal = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-        int32 partyHeal = selfHeal / 5;
+        int32 partyHeal = selfHeal;
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(partyHeal);
         args.AddSpellMod(SPELLVALUE_BASE_POINT1, selfHeal);
