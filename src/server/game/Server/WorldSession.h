@@ -456,6 +456,8 @@ namespace WorldPackets
         class DFTeleport;
         class DFGetSystemInfo;
         class DFGetJoinStatus;
+        class LFGListGetStatus;
+        class LFGRequestLFGListBlacklist;
     }
 
     namespace Loot
@@ -1639,6 +1641,8 @@ class TC_GAME_API WorldSession
         void HandleLfgTeleportOpcode(WorldPackets::LFG::DFTeleport& dfTeleport);
         void HandleDFGetSystemInfo(WorldPackets::LFG::DFGetSystemInfo& dfGetSystemInfo);
         void HandleDFGetJoinStatus(WorldPackets::LFG::DFGetJoinStatus& dfGetJoinStatus);
+        void HandleLfgListGetStatus(WorldPackets::LFG::LFGListGetStatus& lfgListGetStatus);
+        void HandleLfgRequestLFGListBlacklist(WorldPackets::LFG::LFGRequestLFGListBlacklist& lfgListGetStatus);
 
         void SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, bool party);
         void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);

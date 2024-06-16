@@ -120,6 +120,22 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class LFGListGetStatus final : public ClientPacket
+        {
+        public:
+            LFGListGetStatus(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_GET_STATUS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class LFGRequestLFGListBlacklist final : public ClientPacket
+        {
+        public:
+            LFGRequestLFGListBlacklist(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_LFG_LIST_BLACKLIST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         struct LFGBlackListSlot
         {
             LFGBlackListSlot() = default;
