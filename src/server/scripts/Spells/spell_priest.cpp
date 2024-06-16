@@ -80,7 +80,8 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_GUARD_DAMAGE_R1             = 28377,
     SPELL_PRIEST_SPIRIT_DURATION_INCREASE_R1        = 81322,
     SPELL_PRIEST_SPIRIT_DURATION_INCREASE_R2        = 81323,
-    SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
+    SPELL_PRIEST_VAMPIRIC_EMBRACE_MANA              = 81356
 };
 
 enum PriestSpellIcons
@@ -1121,6 +1122,13 @@ class spell_pri_vampiric_embrace : public AuraScript
         args.AddSpellBP0(partyHeal);
         args.AddSpellMod(SPELLVALUE_BASE_POINT1, selfHeal);
         eventInfo.GetActor()->CastSpell(nullptr, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, args);
+
+        CastSpellExtraArgs args2(aurEff);
+        int32 manaRegen = int32(partyHeal / 10.0f);
+        args2.AddSpellBP0(manaRegen);
+        args2.AddSpellMod(SPELLVALUE_BASE_POINT1, 0);
+        eventInfo.GetActor()->CastSpell(nullptr, SPELL_PRIEST_VAMPIRIC_EMBRACE_MANA, args2);
+
     }
 
     void Register() override
