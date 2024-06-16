@@ -43,6 +43,7 @@
 #include "GuildMgr.h"
 #include "Item.h"
 #include "Language.h"
+#include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
 #include "Metric.h"
@@ -1429,6 +1430,10 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
     features.TutorialsEnabled = true;
     features.NPETutorialsEnabled = true;
+
+    features.AddonChatThrottle.MaxTries = 10;
+    features.AddonChatThrottle.TriesRestoredPerSecond = 1;
+    features.AddonChatThrottle.UsedTriesPerMessage = 1;
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
@@ -1441,6 +1446,9 @@ void WorldSession::SendFeatureSystemStatus()
     features.IsMuted = !CanSpeak();
 
     features.TextToSpeechFeatureEnabled = false;
+
+    features.IsGroupFinderEnabled = true;
+    features.IsLFDEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER);
 
     SendPacket(features.Write());
 }

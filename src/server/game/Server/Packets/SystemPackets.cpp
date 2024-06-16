@@ -87,6 +87,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
     _worldPacket << PlayerNameQueryInterval;
 
+    _worldPacket << int32(AddonChatThrottle.MaxTries);
+    _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
+    _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
+
     for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
         _worldPacket << gameRuleValue;
 
@@ -122,25 +126,30 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(QuestSessionEnabled);
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
+    _worldPacket.WriteBit(IsCommunityFinderEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
-    _worldPacket.WriteBit(ChatDisabledByDefault);
 
+    _worldPacket.WriteBit(ChatDisabledByDefault);
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
     _worldPacket.WriteBit(AddonsDisabled);
     _worldPacket.WriteBit(WarGamesEnabled);
-    _worldPacket.WriteBit(false);                   // unk, unused 4.4.0
+    _worldPacket.WriteBit(Unk440_1);                // unk, unused 4.4.0
     _worldPacket.WriteBit(false);                   // unk, unused 4.4.0
     _worldPacket.WriteBit(ContentTrackingEnabled);
-    _worldPacket.WriteBit(IsSellAllJunkEnabled);
 
+    _worldPacket.WriteBit(IsSellAllJunkEnabled);
     _worldPacket.WriteBit(IsGroupFinderEnabled);
     _worldPacket.WriteBit(IsLFDEnabled);
     _worldPacket.WriteBit(IsLFREnabled);
     _worldPacket.WriteBit(IsPremadeGroupEnabled);
+    _worldPacket.WriteBit(CanShowSetRoleButton);
+    _worldPacket.WriteBit(PetHappinessEnabled);
+    _worldPacket.WriteBit(CanEditGuildEvent);
 
-    _worldPacket.WriteBits(Field_16F.size(), 8);
+    _worldPacket.WriteBit(IsGuildTradeSkillsEnabled);
+    _worldPacket.WriteBits(Field_16F.size(), 7);
 
     _worldPacket.FlushBits();
 
@@ -177,8 +186,13 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
-    if (!Field_16F.empty())
-        _worldPacket.WriteString(Field_16F);
+    if (Unk440_1)
+    {
+        _worldPacket << uint32(Unk440_2.size());
+        _worldPacket.append(Unk440_2.data(), Unk440_2.size());
+    }
+
+    _worldPacket.WriteString(Field_16F);
 
     {
         _worldPacket.WriteBit(Squelch.IsSquelched);

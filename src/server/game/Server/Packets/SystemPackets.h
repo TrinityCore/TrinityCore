@@ -106,6 +106,13 @@ namespace WorldPackets
                 uint32 Unknown1007 = 0;
             };
 
+            struct AddonChatThrottleInfo
+            {
+                int32 MaxTries = 0;
+                int32 TriesRestoredPerSecond = 0;
+                int32 UsedTriesPerMessage = 0;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 200) { }
 
             WorldPacket const* Write() override;
@@ -151,6 +158,7 @@ namespace WorldPackets
             bool QuestSessionEnabled                 = false;
             bool IsMuted                             = false;
             bool ClubFinderEnabled                   = false;
+            bool IsCommunityFinderEnabled            = false;
             bool Unknown901CheckoutRelated           = false;
             bool TextToSpeechFeatureEnabled          = false;
             bool ChatDisabledByDefault               = false;
@@ -158,17 +166,24 @@ namespace WorldPackets
             bool LFGListCustomRequiresAuthenticator  = false;
             bool AddonsDisabled                      = false;
             bool WarGamesEnabled                     = false; // classic only
+            bool Unk440_1                            = false; // classic only
             bool ContentTrackingEnabled              = false;
             bool IsSellAllJunkEnabled                = false;
-            bool IsGroupFinderEnabled                = true;  // classic only
-            bool IsLFDEnabled                        = true;  // classic only
-            bool IsLFREnabled                        = true;  // classic only
-            bool IsPremadeGroupEnabled               = true;  // classic only
+            bool IsGroupFinderEnabled                = false;  // classic only
+            bool IsLFDEnabled                        = false;  // classic only
+            bool IsLFREnabled                        = false;  // classic only
+            bool IsPremadeGroupEnabled               = false;  // classic only
+            bool CanShowSetRoleButton                = false;  // classic only
+            bool PetHappinessEnabled                 = false;  // classic only
+            bool CanEditGuildEvent                   = false;  // classic only
+            bool IsGuildTradeSkillsEnabled           = false;  // classic only
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
+            AddonChatThrottleInfo AddonChatThrottle;
             std::vector<GameRuleValuePair> GameRuleValues;
+            std::vector<uint8> Unk440_2;
             std::string Field_16F = "";
         };
 
