@@ -1352,9 +1352,9 @@ Command.LookupMaxResults = 0
 #           LFG_OPTION_ENABLE_DUNGEON_FINDER = 1,     Enable the dungeon finder
 #           LFG_OPTION_ENABLE_RAID_FINDER    = 2,     Enable the raid finder
 #           LFG_OPTION_ENABLE_PREMADE_GROUP  = 4      Enable the premade groups browser
-#        Default:     5
+#        Default:     1
 
-DungeonFinder.OptionsMask = 5
+DungeonFinder.OptionsMask = 1
 
 #
 #   DBC.EnforceItemAttributes
