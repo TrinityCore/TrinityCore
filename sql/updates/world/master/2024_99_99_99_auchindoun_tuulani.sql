@@ -91,6 +91,8 @@ DELETE FROM `areatrigger_scripts` WHERE `entry`=10280;
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (10280, 'at_auchindoun_soulbinder_nyami_scene');
 
+UPDATE `areatrigger_create_properties` SET `ScriptName`= 'at_npc_reaction' WHERE `Id` = 1725;
+
 -- Scene
 DELETE FROM `scene_template` WHERE `SceneId`=913;
 INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`, `ScriptName`) VALUES
