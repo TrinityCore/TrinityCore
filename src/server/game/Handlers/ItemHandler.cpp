@@ -477,8 +477,11 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
                     RemoveItemFromUpdateQueueOf(pItem, _player);
                     _player->AddItemToBuyBackSlot(pItem);
                 }
-
-                _player->ModifyMoney(money);
+                //1 copper is a special price we ignore
+                if (money != 1 && money != -1)
+                {
+                    _player->ModifyMoney(money);
+                }
                 _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
             else
@@ -524,6 +527,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg == EQUIP_ERR_OK)
         {
+            //1 copper is a special price we ignore
             if (price != 1 && price != -1)
             {
                 _player->ModifyMoney(-(int32)price);

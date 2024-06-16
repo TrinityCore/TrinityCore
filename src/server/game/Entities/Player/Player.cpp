@@ -21717,11 +21717,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         return false;
     }
 
-    //1 copper is a special price that we ignore
-    if (price != 1 && price != -1)
-    {
-        ModifyMoney(-price);
-    }
+    ModifyMoney(-price);
 
     if (crItem->ExtendedCost)                            // case for new honor system
     {
