@@ -21717,7 +21717,10 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         return false;
     }
 
-    ModifyMoney(-price);
+    if (price > 1)
+    {
+        ModifyMoney(-price);
+    }
 
     if (crItem->ExtendedCost)                            // case for new honor system
     {
