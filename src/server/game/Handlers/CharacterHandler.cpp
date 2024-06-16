@@ -1447,8 +1447,10 @@ void WorldSession::SendFeatureSystemStatus()
 
     features.TextToSpeechFeatureEnabled = false;
 
-    features.IsGroupFinderEnabled = true;
     features.IsLFDEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER);
+    features.IsLFREnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_RAID_FINDER);
+    features.IsPremadeGroupEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_PREMADE_GROUP);
+    features.IsGroupFinderEnabled = features.IsLFDEnabled || features.IsLFREnabled || features.IsPremadeGroupEnabled;
 
     SendPacket(features.Write());
 }
