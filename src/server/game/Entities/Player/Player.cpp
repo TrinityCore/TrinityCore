@@ -14456,7 +14456,7 @@ void Player::IncompleteQuest(uint32 quest_id)
 
 uint32 Player::GetQuestMoneyReward(Quest const* quest) const
 {
-    return quest->MoneyValue(this) * sWorld->getRate(RATE_MONEY_QUEST);
+    return quest->GetMoneyReward(this) * sWorld->getRate(RATE_MONEY_QUEST);
 }
 
 uint32 Player::GetQuestXPReward(Quest const* quest)

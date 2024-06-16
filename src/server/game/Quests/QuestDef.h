@@ -533,9 +533,7 @@ class TC_GAME_API Quest
 
         uint32 XPValue(Player const* player) const;
         static uint32 XPValue(Player const* player, uint32 questLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier = 1.0f);
-        uint32 MoneyValue(Player const* player) const;
-        uint32 MaxMoneyValue() const;
-        uint32 GetMaxMoneyReward() const;
+        uint32 GetMoneyReward(Player const* player) const;
         Optional<QuestTagType> GetQuestTag() const;
         bool IsImportant() const;
         uint32 GetQuestLevelForPlayer(Player const* player) const;

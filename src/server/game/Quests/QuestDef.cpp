@@ -425,27 +425,12 @@ uint32 Quest::XPValue(Player const* player, uint32 questLevel, int32 unscaledQue
     return true;
 }
 
-uint32 Quest::MoneyValue(Player const* player) const
+uint32 Quest::GetMoneyReward(Player const* player) const
 {
-    if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(player->GetQuestLevel(this)))
+    if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(player ? GetQuestLevelForPlayer(player) : _level))
         return money->Difficulty[GetRewMoneyDifficulty()] * GetMoneyMultiplier();
     else
         return 0;
-}
-
-uint32 Quest::MaxMoneyValue() const
-{
-    uint32 value = 0;
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(0, 0))
-        if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(questLevels->MaxLevel))
-            value = money->Difficulty[GetRewMoneyDifficulty()] * GetMoneyMultiplier();
-
-    return value;
-}
-
-uint32 Quest::GetMaxMoneyReward() const
-{
-    return MaxMoneyValue() * sWorld->getRate(RATE_MONEY_QUEST);
 }
 
 Optional<QuestTagType> Quest::GetQuestTag() const
@@ -664,7 +649,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardXPMultiplier = GetXPMultiplier();
 
     if (!HasFlag(QUEST_FLAGS_HIDE_REWARD))
-        response.Info.RewardMoney = player ? player->GetQuestMoneyReward(this) : GetMaxMoneyReward();
+        response.Info.RewardMoney = GetMoneyReward(player);
 
     response.Info.RewardMoneyDifficulty = GetRewMoneyDifficulty();
     response.Info.RewardMoneyMultiplier = GetMoneyMultiplier();
