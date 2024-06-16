@@ -524,7 +524,10 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg == EQUIP_ERR_OK)
         {
-            _player->ModifyMoney(-(int32)price);
+            if (price != 1 && price != -1)
+            {
+                _player->ModifyMoney(-(int32)price);
+            }
             _player->RemoveItemFromBuyBackSlot(slot, false);
             _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
             _player->StoreItem(dest, pItem, true);
