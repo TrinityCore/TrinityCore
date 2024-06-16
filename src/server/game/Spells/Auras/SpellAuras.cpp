@@ -1596,9 +1596,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 81351: // Elune's Grace
                         if (removeMode != AURA_REMOVE_BY_EXPIRE)
                             break;
-                        target->CastSpell(target, 32612, GetEffect(1));
-                        target->Dismount();
-                        target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                        if (target->IsPlayer())
+                        {
+                            target->CastSpell(target, 32612, GetEffect(1));
+                            target->Dismount();
+                            target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                        }
                         break;
                     default:
                         break;
