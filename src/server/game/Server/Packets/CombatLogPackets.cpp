@@ -50,11 +50,6 @@ WorldPacket const* SpellNonMeleeDamageLog::Write()
     *this << int32(Absorbed);
     *this << int32(Resisted);
     *this << int32(ShieldBlock);
-    *this << uint32(WorldTextViewers.size());
-    *this << uint32(Supporters.size());
-
-    for (Spells::SpellSupportInfo const& supportInfo : Supporters)
-        *this << supportInfo;
 
     WriteBit(Periodic);
     WriteBits(Flags, 7);
@@ -62,9 +57,6 @@ WorldPacket const* SpellNonMeleeDamageLog::Write()
     WriteLogDataBit();
     WriteBit(ContentTuning.has_value());
     FlushBits();
-
-    for (CombatWorldTextViewerInfo const& worldTextViewer : WorldTextViewers)
-        *this << worldTextViewer;
 
     WriteLogData();
     if (ContentTuning)

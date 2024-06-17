@@ -56,8 +56,6 @@ namespace WorldPackets
             int32 Flags = 0;
             // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
             Optional<Spells::ContentTuningParams> ContentTuning;
-            std::vector<CombatWorldTextViewerInfo> WorldTextViewers;
-            std::vector<Spells::SpellSupportInfo> Supporters;
         };
 
         class EnvironmentalDamageLog final : public CombatLogServerPacket
