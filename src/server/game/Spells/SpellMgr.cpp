@@ -2523,7 +2523,11 @@ void SpellMgr::LoadSpellInfoStore()
             case SPELL_AURA_ADD_PCT_MODIFIER:
             case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
             case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
-                ASSERT(effect->EffectMiscValue[0] < MAX_SPELLMOD, "MAX_SPELLMOD must be at least %d", effect->EffectMiscValue[0] + 1);
+                if (effect->EffectMiscValue[0] >= MAX_SPELLMOD)
+                {
+                    TC_LOG_ERROR("server.loading", "Invalid spell modifier type {} found on spell {} effect index {}, consider increasing MAX_SPELLMOD",
+                        effect->EffectMiscValue[0], effect->SpellID, effect->EffectIndex);
+                }
                 break;
             default:
                 break;
