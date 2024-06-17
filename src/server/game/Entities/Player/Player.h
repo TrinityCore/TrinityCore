@@ -2781,8 +2781,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendRaidInfo();
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, TransferAbortParams* params = nullptr, bool report = false);
         bool CheckInstanceValidity(bool /*isLogin*/);
-        bool CheckInstanceCount(uint32 instanceId) const;
+        bool UpdateAndCheckInstanceCount(uint32 instanceId);
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime);
+        void UpdateInstanceEnterTimes();
         WorldSafeLocsEntry const* GetInstanceEntrance(uint32 targetMapId);
 
         // last used pet number (for BG's)

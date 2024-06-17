@@ -1836,7 +1836,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
                 return denyReason;
 
         // players are only allowed to enter 10 instances per hour
-        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
+        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->UpdateAndCheckInstanceCount(instanceIdToCheck) && !player->isDead())
             return TRANSFER_ABORT_TOO_MANY_INSTANCES;
     }
 

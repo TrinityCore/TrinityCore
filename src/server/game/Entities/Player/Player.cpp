@@ -1097,17 +1097,6 @@ void Player::Update(uint32 p_time)
     UpdateEnchantTime(p_time);
     UpdateHomebindTime(p_time);
 
-    if (!_instanceResetTimes.empty())
-    {
-        for (InstanceTimeMap::iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end();)
-        {
-            if (itr->second < now)
-                _instanceResetTimes.erase(itr++);
-            else
-                ++itr;
-        }
-    }
-
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
@@ -18263,6 +18252,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::YesterdayHonorableKills), fields.yesterdayKills);
 
     _LoadInstanceTimeRestrictions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
+    UpdateInstanceEnterTimes();
+
     _LoadBGData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BG_DATA));
 
     GetSession()->SetPlayer(this);
@@ -20174,10 +20165,16 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
     return true;
 }
 
-bool Player::CheckInstanceCount(uint32 instanceId) const
+bool Player::UpdateAndCheckInstanceCount(uint32 instanceId)
 {
+    UpdateInstanceEnterTimes();
+
     if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
         return true;
+
+    if (instanceId == 0)
+        return false;
+
     return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
 }
 
@@ -20185,6 +20182,22 @@ void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
 {
     if (_instanceResetTimes.find(instanceId) == _instanceResetTimes.end())
         _instanceResetTimes.insert(InstanceTimeMap::value_type(instanceId, enterTime + HOUR));
+}
+
+void Player::UpdateInstanceEnterTimes()
+{
+    if (_instanceResetTimes.empty())
+        return;
+
+    time_t now = GameTime::GetGameTime();
+
+    for (InstanceTimeMap::iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end();)
+    {
+        if (itr->second < now)
+            itr = _instanceResetTimes.erase(itr);
+        else
+            ++itr;
+    }
 }
 
 WorldSafeLocsEntry const* Player::GetInstanceEntrance(uint32 targetMapId)
