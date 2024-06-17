@@ -1297,17 +1297,6 @@ void Player::Update(uint32 p_time)
     UpdateEnchantTime(p_time);
     UpdateHomebindTime(p_time);
 
-    if (!_instanceResetTimes.empty())
-    {
-        for (InstanceTimeMap::iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end();)
-        {
-            if (itr->second < now)
-                _instanceResetTimes.erase(itr++);
-            else
-                ++itr;
-        }
-    }
-
     if (GetClass() == CLASS_DEATH_KNIGHT)
     {
         // Update rune timers
@@ -17265,7 +17254,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetUInt16Value(PLAYER_FIELD_KILLS, 1, fields[50].GetUInt16());
 
     _LoadBoundInstances(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES));
+
     _LoadInstanceTimeRestrictions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
+    UpdateInstanceEnterTimes();
+
     _LoadBGData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BG_DATA));
 
     GetSession()->SetPlayer(this);
@@ -19113,10 +19105,16 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
     return true;
 }
 
-bool Player::CheckInstanceCount(uint32 instanceId) const
+bool Player::UpdateAndCheckInstanceCount(uint32 instanceId)
 {
+    UpdateInstanceEnterTimes();
+
     if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
         return true;
+
+    if (instanceId == 0)
+        return false;
+
     return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
 }
 
@@ -19124,6 +19122,22 @@ void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
 {
     if (_instanceResetTimes.find(instanceId) == _instanceResetTimes.end())
         _instanceResetTimes.insert(InstanceTimeMap::value_type(instanceId, enterTime + HOUR));
+}
+
+void Player::UpdateInstanceEnterTimes()
+{
+    if (_instanceResetTimes.empty())
+        return;
+
+    time_t now = GameTime::GetGameTime();
+
+    for (InstanceTimeMap::iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end();)
+    {
+        if (itr->second < now)
+            itr = _instanceResetTimes.erase(itr);
+        else
+            ++itr;
+    }
 }
 
 bool Player::_LoadHomeBind(PreparedQueryResult result)

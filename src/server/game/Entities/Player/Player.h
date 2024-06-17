@@ -2090,8 +2090,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendSavedInstances();
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceValidity(bool /*isLogin*/);
-        bool CheckInstanceCount(uint32 instanceId) const;
+        bool UpdateAndCheckInstanceCount(uint32 instanceId);
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime);
+        void UpdateInstanceEnterTimes();
 
         // last used pet number (for BG's)
         uint32 GetLastPetNumber() const { return m_lastpetnumber; }
