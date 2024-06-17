@@ -1442,7 +1442,7 @@ class spell_hun_mongoose_bite : public SpellScript
 
                         // calculate damage of basic tick (bonuses are already factored in AuraEffect)
                         basePoint = aurEff->GetAmount() * aurEff->GetTotalTicks();
-                        ApplyPct(basePoint, 80);
+                        ApplyPct(basePoint, 75);
                     }
                     // Viper Sting - Instantly restores mana to you equal to 40% of the total amount drained by your Viper Sting.
                     else if (isViperSting)
@@ -1452,7 +1452,7 @@ class spell_hun_mongoose_bite : public SpellScript
                         // % of mana drained in max duration
                         basePoint = aurEff->GetAmount() * aurEff->GetTotalTicks();
 
-                        ApplyPct(basePoint, 50);
+                        ApplyPct(basePoint, 55);
                     }
                     // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
                     else if (familyFlag[0] & 0x00008000)
