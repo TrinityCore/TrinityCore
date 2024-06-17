@@ -2083,7 +2083,10 @@ class spell_sha_old_purge : public SpellScript
             args.AddSpellBP0(bp0);
             //lifebloom energize because i'm lazy
             GetCaster()->CastSpell(GetCaster(), 64372, args);
+            //shocking
             GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_SHOCKING, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+            //lightning shield
+            GetCaster()->CastSpell(GetCaster(), 10432, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
         }
     }
     void Register() override
