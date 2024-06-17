@@ -225,7 +225,7 @@ public:
         }
 
         // If player doesn't have the quest
-        if (player->GetQuestStatus(quest->GetQuestId()) == QUEST_STATUS_NONE
+        if ((player->GetQuestStatus(quest->GetQuestId()) == QUEST_STATUS_NONE && !quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
             || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, quest->GetQuestId());
