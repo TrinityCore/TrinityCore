@@ -257,6 +257,22 @@ struct SpellModifierByLabel : SpellModifier
 using SpellFlatModifierByLabel = SpellModifierByLabel<UF::SpellFlatModByLabel>;
 using SpellPctModifierByLabel = SpellModifierByLabel<UF::SpellPctModByLabel>;
 
+struct SpellModifierCompare
+{
+    bool operator()(SpellModifier const* left, SpellModifier const* right) const
+    {
+        // first sort by SpellModOp
+        if (left->op != right->op)
+            return left->op < right->op;
+
+        // then by type (flat/pct)
+        if (left->type != right->type)
+            return left->type < right->type;
+
+        return left < right;
+    }
+};
+
 enum PlayerCurrencyState
 {
     PLAYERCURRENCY_UNCHANGED = 0,
@@ -278,7 +294,7 @@ struct PlayerCurrency
 
 typedef std::unordered_map<uint32, PlayerSpellState> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
-typedef std::unordered_set<SpellModifier*> SpellModContainer;
+typedef Trinity::Containers::FlatSet<SpellModifier*, SpellModifierCompare> SpellModContainer;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
@@ -3018,7 +3034,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
 
-        SpellModContainer m_spellMods[MAX_SPELLMOD][SPELLMOD_END];
+        SpellModContainer m_spellMods;
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
