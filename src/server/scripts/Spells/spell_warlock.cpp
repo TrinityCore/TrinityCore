@@ -92,6 +92,8 @@ enum WarlockSpells
     SPELL_WARLOCK_INVIS                             = 81335,
     SPELL_WARLOCK_IMP_FIREBOLT                      = 18126,
     SPELL_WARLOCK_HECKIN_DAZED                      = 81336
+    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371,
+    SPELL_WARLOCK_PYROCLASM                         = 18093
 };
 
 enum WarlockSpellIcons
@@ -1364,6 +1366,37 @@ class spell_pet_firebolt : public SpellScript
     void Register() override
     {
         AfterHit += SpellHitFn(spell_pet_firebolt::HandleAfterHit);
+    }
+};
+
+// -18096 - Pyroclasm
+class spell_warl_pyroclasm : public AuraScript
+{
+    PrepareAuraScript(spell_warl_pyroclasm);
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        const SpellInfo* originalSpell = eventInfo.GetSpellInfo();
+        const SpellInfo* pyroclasm = GetSpellInfo();
+        float procChance = 13  * pyroclasm->GetRank();
+        float tick = 1;
+        if (originalSpell->SpellIconID == 547) //rain of fire
+            tick *= 4;
+        if (originalSpell->SpellIconID == 937) //hellfire
+            tick *= 15;
+        procChance /= tick;
+        if (roll_chance_f(procChance))
+        {
+            uint32 triggerSpell = SPELL_WARLOCK_PYROCLASM;
+            Unit* target = eventInfo.GetActionTarget();
+            target->CastSpell(target, triggerSpell, new CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_pyroclasm::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
