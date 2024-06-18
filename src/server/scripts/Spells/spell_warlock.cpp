@@ -1368,34 +1368,35 @@ class spell_pet_firebolt : public SpellScript
     }
 };
 
-// -18096 - Pyroclasm
-class spell_warl_pyroclasm : public AuraScript
+// -5857 - hellfire effect, rain of fire, soul fire
+class spell_warl_pyroclasm : public SpellScript
 {
-    PrepareAuraScript(spell_warl_pyroclasm);
+    PrepareSpellScript(spell_warl_pyroclasm);
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleAfterHit()
     {
-        PreventDefaultAction();
-        const SpellInfo* originalSpell = eventInfo.GetSpellInfo();
-        const SpellInfo* pyroclasm = GetSpellInfo();
-        float procChance = 13  * pyroclasm->GetRank();
-        float tick = 1;
-        if (originalSpell->SpellIconID == 547) //rain of fire
-            tick *= 4;
-        if (originalSpell->SpellIconID == 937) //hellfire
-            tick *= 15;
-        procChance /= tick;
-        if (roll_chance_f(procChance))
+        const SpellInfo* originalSpell = GetSpellInfo();
+        AuraApplication* pyroclasm = GetCaster()->GetAuraApplicationOfRankedSpell(18096); //pyroclasm talent
+        if (pyroclasm)
         {
-            uint32 triggerSpell = SPELL_WARLOCK_PYROCLASM;
-            Unit* target = eventInfo.GetActionTarget();
-            target->CastSpell(target, triggerSpell, new CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+            float procChance = 13 * pyroclasm->GetBase()->GetSpellInfo()->GetRank();
+            float tick = 1;
+            if (originalSpell->SpellIconID == 547) //rain of fire
+                tick *= 4;
+            if (originalSpell->SpellIconID == 937) //hellfire
+                tick *= 15;
+            procChance /= tick;
+            if (roll_chance_f(procChance))
+            {
+                uint32 triggerSpell = SPELL_WARLOCK_PYROCLASM;
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_WARLOCK_PYROCLASM, new CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+            }
         }
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_warl_pyroclasm::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+        AfterHit += SpellHitFn(spell_warl_pyroclasm::HandleAfterHit);
     }
 };
 
