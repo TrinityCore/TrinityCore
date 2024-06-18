@@ -22332,16 +22332,24 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                     if (mod->type == SPELLMOD_FLAT)
                     {
                         modData.ModifierValue = 0.0f;
-                        for (SpellModifier* spellMod : std::ranges::equal_range(m_spellMods, std::make_pair(mod->op, SPELLMOD_FLAT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); }))
-                            if (static_cast<SpellModifierByClassMask const*>(spellMod)->mask[classIndex / 32] & (1u << (classIndex % 32)))
-                                modData.ModifierValue += static_cast<SpellModifierByClassMask const*>(spellMod)->value;
+                        auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_FLAT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
+                        while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_FLAT)
+                        {
+                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
+                                modData.ModifierValue += spellMod->value;
+                        }
                     }
                     else
                     {
                         modData.ModifierValue = 1.0f;
-                        for (SpellModifier* spellMod : std::ranges::equal_range(m_spellMods, std::make_pair(mod->op, SPELLMOD_PCT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); }))
-                            if (static_cast<SpellModifierByClassMask const*>(spellMod)->mask[classIndex / 32] & (1u << (classIndex % 32)))
-                                modData.ModifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(spellMod)->value);
+                        auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_PCT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
+                        while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_PCT)
+                        {
+                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
+                                modData.ModifierValue *= 1.0f + CalculatePct(1.0f, spellMod->value);
+                        }
                     }
 
                     modData.ClassIndex = classIndex;
