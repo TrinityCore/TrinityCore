@@ -2165,11 +2165,13 @@ struct ChrCustomizationMaterialMeta
 
 struct ChrCustomizationOptionMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[14] =
     {
         { FT_STRING, 1, true },
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -2181,7 +2183,7 @@ struct ChrCustomizationOptionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3384247, 1, 12, 12, 0x26DBFCD5, Fields, 4 };
+    static constexpr DB2Meta Instance{ 3384247, 1, 14, 14, 0xD362B49A, Fields, 4 };
 };
 
 struct ChrCustomizationReqMeta

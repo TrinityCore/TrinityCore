@@ -969,12 +969,14 @@ struct ChrCustomizationElementLoadInfo
 
 struct ChrCustomizationOptionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[14] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
         { false, FT_SHORT, "SecondaryID" },
         { true, FT_INT, "Flags" },
+        { false, FT_INT, "Field110055087004" },
+        { true, FT_INT, "Field110055087005" },
         { true, FT_INT, "ChrModelID" },
         { true, FT_INT, "SortIndex" },
         { true, FT_INT, "ChrCustomizationCategoryID" },
@@ -985,7 +987,7 @@ struct ChrCustomizationOptionLoadInfo
         { true, FT_INT, "UiOrderIndex" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &ChrCustomizationOptionMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION };
+    static constexpr DB2LoadInfo Instance{ Fields, 14, &ChrCustomizationOptionMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION };
 };
 
 struct ChrCustomizationReqLoadInfo

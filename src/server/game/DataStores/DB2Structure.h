@@ -683,6 +683,8 @@ struct ChrCustomizationOptionEntry
     uint32 ID;
     uint16 SecondaryID;
     int32 Flags;
+    uint32 Field110055087004;
+    int32 Field110055087005;
     int32 ChrModelID;
     int32 SortIndex;
     int32 ChrCustomizationCategoryID;
