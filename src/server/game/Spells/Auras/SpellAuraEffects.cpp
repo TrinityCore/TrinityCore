@@ -539,7 +539,7 @@ uint32 AuraEffect::GetTotalTicks() const
     uint32 totalTicks = 0;
     if (_amplitude && !GetBase()->IsPermanent())
     {
-        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / _amplitude);
+        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / abs(_amplitude));
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
             ++totalTicks;
     }
