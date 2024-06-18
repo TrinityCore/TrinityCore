@@ -91,7 +91,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SUMMON_IMP                        = 81338,
     SPELL_WARLOCK_INVIS                             = 81335,
     SPELL_WARLOCK_IMP_FIREBOLT                      = 18126,
-    SPELL_WARLOCK_HECKIN_DAZED                      = 81336
+    SPELL_WARLOCK_HECKIN_DAZED                      = 81336,
     SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371,
     SPELL_WARLOCK_PYROCLASM                         = 18093
 };
