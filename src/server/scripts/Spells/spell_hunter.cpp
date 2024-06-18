@@ -1442,7 +1442,7 @@ class spell_hun_mongoose_bite : public SpellScript
 
                         // calculate damage of basic tick (bonuses are already factored in AuraEffect)
                         basePoint = aurEff->GetAmount() * aurEff->GetTotalTicks();
-                        ApplyPct(basePoint, 75);
+                        ApplyPct(basePoint, 80);
                     }
                     // Viper Sting - Instantly restores mana to you equal to 40% of the total amount drained by your Viper Sting.
                     else if (isViperSting)
