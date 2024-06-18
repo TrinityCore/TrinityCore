@@ -1434,4 +1434,5 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_demon_conceal);
     RegisterSpellScript(spell_pet_firebolt);
+    RegisterSpellScript(spell_warl_pyroclasm);
 }
