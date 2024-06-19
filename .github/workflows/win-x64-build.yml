@@ -7,6 +7,10 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      CMAKE_BUILD_TYPE: RelWithDebInfo
+      MYSQL_ROOT_DIR: C:/Program Files/MySQL/MySQL Server 8.0
+      OPENSSL_ROOT_DIR: C:/libs/openssl
     steps:
     - uses: actions/checkout@v4
 
@@ -15,11 +19,6 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
-    - name: Set Environment Variables
-      run: |
-        echo "OPENSSL_ROOT_DIR=C:/libs/openssl" >> $env:GITHUB_ENV
-        echo "MYSQL_ROOT_DIR=C:/Program Files/MySQL/MySQL Server 8.0" >> $env:GITHUB_ENV
 
     - name: Get current OpenSSL version
       id: openssl-info
@@ -37,7 +36,7 @@ jobs:
           Where-Object { $_.installer  -eq 'exe' } |
           Sort-Object -Descending @{ Expression = { [version]$_.basever } } |
           Select-Object -First 1
-        [System.String]::Format("cache-key=openssl-{0}-{1}-{2}", $openSSL.basever, $openSSL.arch, $openSSL.bits) >> $env:GITHUB_OUTPUT
+        [System.String]::Format("cache-key=openssl-{0}-win-{1}-{2}", $openSSL.basever, $openSSL.arch, $openSSL.bits) >> $env:GITHUB_OUTPUT
         [System.String]::Format("url={0}", $openSSL.url) >> $env:GITHUB_OUTPUT
 
     - name: Cache OpenSSL
@@ -75,7 +74,6 @@ jobs:
         CFLAGS: /WX
         CXXFLAGS: /WX
         BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        CMAKE_BUILD_TYPE: RelWithDebInfo
       run: >
         cmake -GNinja -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
         -DTOOLS=ON
@@ -86,7 +84,7 @@ jobs:
 
     - name: Copy Dependencies
       run: |
-        cd ${{ steps.strings.outputs.build-output-dir }}/bin
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
         copy "${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.dll" libmysql.dll
         copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libssl-3-x64.dll" libssl-3-x64.dll
         copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libcrypto-3-x64.dll" libcrypto-3-x64.dll
@@ -94,14 +92,14 @@ jobs:
       
     - name: Check binaries
       run: |
-        cd ${{ steps.strings.outputs.build-output-dir }}/bin
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
         ./bnetserver --version
         ./worldserver --version
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ steps.strings.outputs.build-output-dir }}/bin
+        path: ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
         name: TrinityCoreMasterWin64VS2022
         # Set a custom retention for artifacts
         #retention-days: 7

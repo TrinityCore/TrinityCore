@@ -1435,17 +1435,17 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
 {
     switch (value)
     {
-        case SPELL_ATTR9_UNK0: return { "SPELL_ATTR9_UNK0", "Unknown attribute 0@Attr9", "" };
-        case SPELL_ATTR9_UNK1: return { "SPELL_ATTR9_UNK1", "Unknown attribute 1@Attr9", "" };
-        case SPELL_ATTR9_RESTRICTED_FLIGHT_AREA: return { "SPELL_ATTR9_RESTRICTED_FLIGHT_AREA", "Only When Illegally Mounted", "" };
-        case SPELL_ATTR9_UNK3: return { "SPELL_ATTR9_UNK3", "Unknown attribute 3@Attr9", "" };
-        case SPELL_ATTR9_SPECIAL_DELAY_CALCULATION: return { "SPELL_ATTR9_SPECIAL_DELAY_CALCULATION", "Missile Speed is Delay (in sec)", "" };
-        case SPELL_ATTR9_SUMMON_PLAYER_TOTEM: return { "SPELL_ATTR9_SUMMON_PLAYER_TOTEM", "Ignore Totem Requirements for Casting", "" };
-        case SPELL_ATTR9_UNK6: return { "SPELL_ATTR9_UNK6", "Unknown attribute 6@Attr9", "" };
-        case SPELL_ATTR9_UNK7: return { "SPELL_ATTR9_UNK7", "Unknown attribute 7@Attr9", "" };
-        case SPELL_ATTR9_AIMED_SHOT: return { "SPELL_ATTR9_AIMED_SHOT", "Cooldown Ignores Ranged Weapon", "" };
-        case SPELL_ATTR9_NOT_USABLE_IN_ARENA: return { "SPELL_ATTR9_NOT_USABLE_IN_ARENA", "Not In Arena", "" };
-        case SPELL_ATTR9_UNK10: return { "SPELL_ATTR9_UNK10", "Unknown attribute 10@Attr9", "" };
+        case SPELL_ATTR9_FORCE_DEST_LOCATION: return { "SPELL_ATTR9_FORCE_DEST_LOCATION", "Force Dest Location", "Ignores collision with terrain (unsure if it also ignores terrain height and can go under map)" };
+        case SPELL_ATTR9_MOD_INVIS_INCLUDES_PARTY: return { "SPELL_ATTR9_MOD_INVIS_INCLUDES_PARTY", "Mod Invis Includes Party 1@Attr9", "Causes invisibility auras to ignore \042can always see party member invis\042 rule" };
+        case SPELL_ATTR9_ONLY_WHEN_ILLEGALLY_MOUNTED: return { "SPELL_ATTR9_ONLY_WHEN_ILLEGALLY_MOUNTED", "Only When Illegally Mounted", "" };
+        case SPELL_ATTR9_DO_NOT_LOG_AURA_REFRESH: return { "SPELL_ATTR9_DO_NOT_LOG_AURA_REFRESH", "Do Not Log Aura Refresh (client only)", "" };
+        case SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC: return { "SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC", "Missile Speed is Delay (in sec)", "" };
+        case SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING: return { "SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING", "Ignore Totem Requirements for Casting", "" };
+        case SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN: return { "SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN", "Item Cast Grants Skill Gain", "" };
+        case SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST: return { "SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST", "Do Not Add to Unlearn List", "" };
+        case SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON: return { "SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON", "Cooldown Ignores Ranged Weapon", "" };
+        case SPELL_ATTR9_NOT_IN_ARENA: return { "SPELL_ATTR9_NOT_IN_ARENA", "Not In Arena", "" };
+        case SPELL_ATTR9_TARGET_MUST_BE_GROUNDED: return { "SPELL_ATTR9_TARGET_MUST_BE_GROUNDED", "Target Must Be Grounded", "" };
         case SPELL_ATTR9_UNK11: return { "SPELL_ATTR9_UNK11", "Unknown attribute 11@Attr9", "" };
         case SPELL_ATTR9_UNK12: return { "SPELL_ATTR9_UNK12", "Unknown attribute 12@Attr9", "" };
         case SPELL_ATTR9_SLAM: return { "SPELL_ATTR9_SLAM", "Haste Affects Melee Ability Casttime", "" };
@@ -1479,17 +1479,17 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return SPELL_ATTR9_UNK0;
-        case 1: return SPELL_ATTR9_UNK1;
-        case 2: return SPELL_ATTR9_RESTRICTED_FLIGHT_AREA;
-        case 3: return SPELL_ATTR9_UNK3;
-        case 4: return SPELL_ATTR9_SPECIAL_DELAY_CALCULATION;
-        case 5: return SPELL_ATTR9_SUMMON_PLAYER_TOTEM;
-        case 6: return SPELL_ATTR9_UNK6;
-        case 7: return SPELL_ATTR9_UNK7;
-        case 8: return SPELL_ATTR9_AIMED_SHOT;
-        case 9: return SPELL_ATTR9_NOT_USABLE_IN_ARENA;
-        case 10: return SPELL_ATTR9_UNK10;
+        case 0: return SPELL_ATTR9_FORCE_DEST_LOCATION;
+        case 1: return SPELL_ATTR9_MOD_INVIS_INCLUDES_PARTY;
+        case 2: return SPELL_ATTR9_ONLY_WHEN_ILLEGALLY_MOUNTED;
+        case 3: return SPELL_ATTR9_DO_NOT_LOG_AURA_REFRESH;
+        case 4: return SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC;
+        case 5: return SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING;
+        case 6: return SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN;
+        case 7: return SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST;
+        case 8: return SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON;
+        case 9: return SPELL_ATTR9_NOT_IN_ARENA;
+        case 10: return SPELL_ATTR9_TARGET_MUST_BE_GROUNDED;
         case 11: return SPELL_ATTR9_UNK11;
         case 12: return SPELL_ATTR9_UNK12;
         case 13: return SPELL_ATTR9_SLAM;
@@ -1520,17 +1520,17 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
 {
     switch (value)
     {
-        case SPELL_ATTR9_UNK0: return 0;
-        case SPELL_ATTR9_UNK1: return 1;
-        case SPELL_ATTR9_RESTRICTED_FLIGHT_AREA: return 2;
-        case SPELL_ATTR9_UNK3: return 3;
-        case SPELL_ATTR9_SPECIAL_DELAY_CALCULATION: return 4;
-        case SPELL_ATTR9_SUMMON_PLAYER_TOTEM: return 5;
-        case SPELL_ATTR9_UNK6: return 6;
-        case SPELL_ATTR9_UNK7: return 7;
-        case SPELL_ATTR9_AIMED_SHOT: return 8;
-        case SPELL_ATTR9_NOT_USABLE_IN_ARENA: return 9;
-        case SPELL_ATTR9_UNK10: return 10;
+        case SPELL_ATTR9_FORCE_DEST_LOCATION: return 0;
+        case SPELL_ATTR9_MOD_INVIS_INCLUDES_PARTY: return 1;
+        case SPELL_ATTR9_ONLY_WHEN_ILLEGALLY_MOUNTED: return 2;
+        case SPELL_ATTR9_DO_NOT_LOG_AURA_REFRESH: return 3;
+        case SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC: return 4;
+        case SPELL_ATTR9_IGNORE_TOTEM_REQUIREMENTS_FOR_CASTING: return 5;
+        case SPELL_ATTR9_ITEM_CAST_GRANTS_SKILL_GAIN: return 6;
+        case SPELL_ATTR9_DO_NOT_ADD_TO_UNLEARN_LIST: return 7;
+        case SPELL_ATTR9_COOLDOWN_IGNORES_RANGED_WEAPON: return 8;
+        case SPELL_ATTR9_NOT_IN_ARENA: return 9;
+        case SPELL_ATTR9_TARGET_MUST_BE_GROUNDED: return 10;
         case SPELL_ATTR9_UNK11: return 11;
         case SPELL_ATTR9_UNK12: return 12;
         case SPELL_ATTR9_SLAM: return 13;
