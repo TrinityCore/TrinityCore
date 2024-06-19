@@ -221,7 +221,7 @@ class spell_kings_rest_suppression_slam : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        // @TODO: sniff doesnt contain dest - causes visual to be offset
+        // @TODO: visual is a bit off - requires SPELL_ATTR12_UNK11 impl
         GetCaster()->CastSpell(GetHitUnit(), SPELL_SUPPRESSION_SLAM_DAMAGE, false);
     }
 
