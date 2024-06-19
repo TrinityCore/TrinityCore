@@ -74,6 +74,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: ${{ steps.strings.outputs.build-output-dir }}/bin
-        name: TrinityCoreMasterWin64VS2022
+        name: TrinityCoreCataClassicWin64VS2022
         # Set a custom retention for artifacts
         #retention-days: 7
