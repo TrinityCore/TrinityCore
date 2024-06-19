@@ -1836,7 +1836,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
                 return denyReason;
 
         // players are only allowed to enter 10 instances per hour
-        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->UpdateAndCheckInstanceCount(instanceIdToCheck) && !player->isDead())
+        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->GetSession()->UpdateAndCheckInstanceCount(instanceIdToCheck) && !player->isDead())
             return TRANSFER_ABORT_TOO_MANY_INSTANCES;
     }
 
@@ -2943,7 +2943,7 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
 bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     // increase current instances (hourly limit)
-    player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
+    player->GetSession()->AddInstanceEnterTime(GetInstanceId(), GameTime::GetSystemTime());
 
     MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
     if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && !i_instanceLock->IsNew() && i_data)
