@@ -1848,24 +1848,6 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
 
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
 {
-    // aura can't be pierced
-    if (!auraSpellInfo || auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return false;
-
-    // these spells pierce all available spells (Resurrection Sickness for example)
-    if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return true;
-
-    // these spells (Cyclone for example) can pierce all...
-    if (HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
-    {
-        // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
-        if (auraSpellInfo->Mechanic != MECHANIC_IMMUNE_SHIELD &&
-               auraSpellInfo->Mechanic != MECHANIC_INVULNERABILITY &&
-               (auraSpellInfo->Mechanic != MECHANIC_BANISH || (IsRankOf(auraSpellInfo) && auraSpellInfo->Dispel != DISPEL_NONE))) // Banish shouldn't be immune to itself, but Cyclone should
-            return true;
-    }
-
     // Dispels other auras on immunity, check if this spell makes the unit immune to aura
     if (HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT) && CanSpellProvideImmunityAgainstAura(auraSpellInfo))
         return true;
@@ -1877,15 +1859,6 @@ bool SpellInfo::CanDispelAura(SpellInfo const* auraSpellInfo) const
 {
     // These auras (like Divine Shield) can't be dispelled
     if (auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return false;
-
-    // These spells (like Mass Dispel) can dispel all auras
-    if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
-        return true;
-
-    // These auras (Cyclone for example) are not dispelable
-    if ((auraSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && auraSpellInfo->Mechanic != MECHANIC_NONE)
-        || auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
         return false;
 
     return true;
@@ -3521,14 +3494,24 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
 
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
-            target->RemoveAppliedAuras([this, schoolImmunity](AuraApplication const* aurApp) -> bool
+            target->RemoveAppliedAuras([this, target, schoolImmunity](AuraApplication const* aurApp) -> bool
             {
                 SpellInfo const* auraSpellInfo = aurApp->GetBase()->GetSpellInfo();
-                return ((auraSpellInfo->GetSchoolMask() & schoolImmunity) != 0 && // Check for school mask
-                    CanDispelAura(auraSpellInfo) &&
-                    (IsPositive() != aurApp->IsPositive()) &&                     // Check spell vs aura possitivity
-                    !auraSpellInfo->IsPassive() &&                                // Don't remove passive auras
-                    auraSpellInfo->Id != Id);                                     // Don't remove self
+                if (auraSpellInfo->Id == Id)                                      // Don't remove self
+                    return false;
+                if (auraSpellInfo->IsPassive())                                   // Don't remove passive auras
+                    return false;
+                if (!(auraSpellInfo->GetSchoolMask() & schoolImmunity))           // Check for school mask
+                    return false;
+                if (!CanDispelAura(auraSpellInfo))
+                    return false;
+                if (!HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS))
+                {
+                    WorldObject const* existingAuraCaster = aurApp->GetBase()->GetWorldObjectCaster();
+                    if (existingAuraCaster && existingAuraCaster->IsFriendlyTo(target)) // Check spell vs aura possitivity
+                        return false;
+                }
+                return true;
             });
         }
 
@@ -3597,10 +3580,9 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
     {
         target->ApplySpellImmune(Id, IMMUNITY_STATE, auraType, apply);
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
-            target->RemoveAurasByType(auraType, [](AuraApplication const* aurApp) -> bool
+            target->RemoveAurasByType(auraType, [this](AuraApplication const* aurApp) -> bool
             {
-                // if the aura has SPELL_ATTR0_NO_IMMUNITIES, then it cannot be removed by immunity
-                return !aurApp->GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES);
+                return CanDispelAura(aurApp->GetBase()->GetSpellInfo());
             });
     }
 
@@ -3625,7 +3607,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
         if (!immuneInfo)
             continue;
 
-        if (!auraSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+        if (!auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
         {
             if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
                 if ((auraSpellInfo->SchoolMask & schoolImmunity) != 0)

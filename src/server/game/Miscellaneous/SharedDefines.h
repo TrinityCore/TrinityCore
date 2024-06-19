@@ -479,7 +479,7 @@ enum SpellAttr1 : uint32
     SPELL_ATTR1_TOGGLE_FAR_SIGHT                                    = 0x00002000, // TITLE Toggle Far Sight (client only)
     SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL                             = 0x00004000, // TITLE Track Target in Channel DESCRIPTION While channeling, adjust facing to face target
     SPELL_ATTR1_IMMUNITY_PURGES_EFFECT                              = 0x00008000, // TITLE Immunity Purges Effect DESCRIPTION For immunity spells, cancel all auras that this spell would make you immune to when the spell is applied
-    SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS            = 0x00010000, /*WRONG IMPL*/ // TITLE Immunity to Hostile & Friendly Effects DESCRIPTION Will not pierce Divine Shield, Ice Block and other full invulnerabilities
+    SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS            = 0x00010000, // TITLE Immunity to Hostile & Friendly Effects DESCRIPTION Immunity applied by this aura will also be checked for friendly spells (school immunity only) - used by Cyclone for example to cause friendly spells and healing over time to be immuned
     SPELL_ATTR1_NO_AUTOCAST_AI                                      = 0x00020000, // TITLE No AutoCast (AI)
     SPELL_ATTR1_PREVENTS_ANIM                                       = 0x00040000, /*NYI*/ // TITLE Prevents Anim DESCRIPTION Auras apply UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT
     SPELL_ATTR1_EXCLUDE_CASTER                                      = 0x00080000, // TITLE Exclude Caster
@@ -2549,7 +2549,7 @@ enum AuraStateType
     AURA_STATE_MARKED                       = 5,            // C  t| NYI
     AURA_STATE_WOUNDED_25_PERCENT           = 6,            //   T |
     AURA_STATE_DEFENSIVE_2                  = 7,            // Cc  | NYI
-    AURA_STATE_BANISHED                     = 8,            //  c  | NYI
+    AURA_STATE_BANISHED                     = 8,            //  c  |
     AURA_STATE_DAZED                        = 9,            //    t|
     AURA_STATE_VICTORIOUS                   = 10,           // C   |
     AURA_STATE_RAMPAGE                      = 11,           //     | NYI

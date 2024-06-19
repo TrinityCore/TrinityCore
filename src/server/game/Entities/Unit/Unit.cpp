@@ -1584,7 +1584,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             }
 
             // ...or immuned
-            if (IsImmunedToDamage(spellInfo))
+            if (IsImmunedToDamage(this, spellInfo))
             {
                 victim->SendSpellDamageImmune(this, spellInfo->Id, false);
                 continue;
@@ -7420,61 +7420,6 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
     return advertisedBenefit;
 }
 
-bool Unit::IsImmunedToDamage(SpellSchoolMask schoolMask) const
-{
-    if (schoolMask == SPELL_SCHOOL_MASK_NONE)
-        return false;
-
-    // If m_immuneToSchool type contain this school type, IMMUNE damage.
-    uint32 schoolImmunityMask = GetSchoolImmunityMask();
-    if ((schoolImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
-        return true;
-
-    // If m_immuneToDamage type contain magic, IMMUNE damage.
-    uint32 damageImmunityMask = GetDamageImmunityMask();
-    if ((damageImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
-        return true;
-
-    return false;
-}
-
-bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo /*= nullptr*/) const
-{
-    if (!spellInfo)
-        return false;
-
-    // for example 40175
-    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) && spellInfo->HasAttribute(SPELL_ATTR3_ALWAYS_HIT))
-        return false;
-
-    if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
-        return false;
-
-    if (spellEffectInfo && spellEffectInfo->EffectAttributes.HasFlag(SpellEffectAttributes::NoImmunity))
-        return false;
-
-    if (uint32 schoolMask = spellInfo->GetSchoolMask())
-    {
-        // If m_immuneToSchool type contain this school type, IMMUNE damage.
-        uint32 schoolImmunityMask = 0;
-        SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
-        for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-            if ((itr->first & schoolMask) && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->second, GetMap()->GetDifficultyID())))
-                schoolImmunityMask |= itr->first;
-
-        // // We need to be immune to all types
-        if ((schoolImmunityMask & schoolMask) == schoolMask)
-            return true;
-
-        // If m_immuneToDamage type contain magic, IMMUNE damage.
-        uint32 damageImmunityMask = GetDamageImmunityMask();
-        if ((damageImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
-            return true;
-    }
-
-    return false;
-}
-
 bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute /*= false*/) const
 {
     if (!spellInfo)
@@ -7552,11 +7497,13 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
                 if (!immuneSpellInfo || !immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
                     continue;
 
-            // Consider the school immune if any of these conditions are not satisfied.
-            // In case of no immuneSpellInfo, ignore that condition and check only the other conditions
-            if ((immuneSpellInfo && !immuneSpellInfo->IsPositive()) || !spellInfo->IsPositive() || !caster || !IsFriendlyTo(caster))
-                if (!spellInfo->CanPierceImmuneAura(immuneSpellInfo))
-                    schoolImmunityMask |= itr->first;
+            if (immuneSpellInfo && !immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && caster && !caster->IsFriendlyTo(this))
+                continue;
+
+            if (spellInfo->CanPierceImmuneAura(immuneSpellInfo))
+                continue;
+
+            schoolImmunityMask |= itr->first;
         }
         if ((schoolImmunityMask & schoolMask) == schoolMask)
             return true;
@@ -7603,6 +7550,68 @@ EnumFlag<SpellOtherImmunity> Unit::GetSpellOtherImmunityMask() const
         mask |= SpellOtherImmunity(itr->first);
 
     return mask;
+}
+
+bool Unit::IsImmunedToDamage(SpellSchoolMask schoolMask) const
+{
+    if (schoolMask == SPELL_SCHOOL_MASK_NONE)
+        return false;
+
+    // If m_immuneToSchool type contain this school type, IMMUNE damage.
+    uint32 schoolImmunityMask = GetSchoolImmunityMask();
+    if ((schoolImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
+        return true;
+
+    // If m_immuneToDamage type contain magic, IMMUNE damage.
+    uint32 damageImmunityMask = GetDamageImmunityMask();
+    if ((damageImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
+        return true;
+
+    return false;
+}
+
+bool Unit::IsImmunedToDamage(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo /*= nullptr*/) const
+{
+    if (!spellInfo)
+        return false;
+
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) || spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+        return false;
+
+    if (spellEffectInfo && spellEffectInfo->EffectAttributes.HasFlag(SpellEffectAttributes::NoImmunity))
+        return false;
+
+    if (uint32 schoolMask = spellInfo->GetSchoolMask())
+    {
+        auto hasImmunity = [&](SpellImmuneContainer const& container)
+        {
+            uint32 schoolImmunityMask = 0;
+            for (auto&& [immunitySchoolMask, immunityAuraId] : container)
+            {
+                SpellInfo const* immuneAuraInfo = sSpellMgr->GetSpellInfo(immunityAuraId, GetMap()->GetDifficultyID());
+                if (immuneAuraInfo && !immuneAuraInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && caster && caster->IsFriendlyTo(this))
+                    continue;
+
+                if (immuneAuraInfo && spellInfo->CanPierceImmuneAura(immuneAuraInfo))
+                    continue;
+
+                schoolImmunityMask |= immunitySchoolMask;
+            }
+
+            // // We need to be immune to all types
+            return (schoolImmunityMask & schoolMask) == schoolMask;
+        };
+
+        // If m_immuneToSchool type contain this school type, IMMUNE damage.
+        if (hasImmunity(m_spellImmune[IMMUNITY_SCHOOL]))
+            return true;
+
+        // If m_immuneToDamage type contain magic, IMMUNE damage.
+        if (hasImmunity(m_spellImmune[IMMUNITY_DAMAGE]))
+            return true;
+    }
+
+    return false;
 }
 
 bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster,
@@ -7657,12 +7666,52 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
         if (!spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
         {
             // Check for immune to application of harmful magical effects
-            AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
-            for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-                if (((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&                   // Check school
-                    ((caster && !IsFriendlyTo(caster)) || !spellInfo->IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
+            for (AuraEffect const* immuneAuraApply : GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL))
+            {
+                if (!(immuneAuraApply->GetMiscValue() & spellInfo->GetSchoolMask()))               // Check school
+                    continue;
+
+                if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || (caster && !IsFriendlyTo(caster))) // Harmful
                     return true;
+            }
         }
+    }
+
+    return false;
+}
+
+bool Unit::IsImmunedToAuraPeriodicTick(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo) const
+{
+    if (!spellInfo)
+        return false;
+
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) || spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES) /*only school immunities are checked in this function*/)
+        return false;
+
+    if (spellEffectInfo && spellEffectInfo->EffectAttributes.HasFlag(SpellEffectAttributes::NoImmunity))
+        return false;
+
+    if (uint32 schoolMask = spellInfo->GetSchoolMask())
+    {
+        auto hasImmunity = [&](SpellImmuneContainer const& container)
+        {
+            uint32 schoolImmunityMask = 0;
+            for (auto&& [immunitySchoolMask, immunityAuraId] : container)
+            {
+                SpellInfo const* immuneAuraInfo = sSpellMgr->GetSpellInfo(immunityAuraId, GetMap()->GetDifficultyID());
+                if (immuneAuraInfo && !immuneAuraInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && caster && caster->IsFriendlyTo(this))
+                    continue;
+
+                schoolImmunityMask |= immunitySchoolMask;
+            }
+
+            // // We need to be immune to all types
+            return (schoolImmunityMask & schoolMask) == schoolMask;
+        };
+
+        // If m_immuneToSchool type contain this school type, IMMUNE damage.
+        if (hasImmunity(m_spellImmune[IMMUNITY_SCHOOL]))
+            return true;
     }
 
     return false;

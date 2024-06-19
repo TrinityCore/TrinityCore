@@ -419,7 +419,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr1>::ToString(SpellAttr1 value)
         case SPELL_ATTR1_TOGGLE_FAR_SIGHT: return { "SPELL_ATTR1_TOGGLE_FAR_SIGHT", "Toggle Far Sight (client only)", "" };
         case SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL: return { "SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL", "Track Target in Channel", "While channeling, adjust facing to face target" };
         case SPELL_ATTR1_IMMUNITY_PURGES_EFFECT: return { "SPELL_ATTR1_IMMUNITY_PURGES_EFFECT", "Immunity Purges Effect", "For immunity spells, cancel all auras that this spell would make you immune to when the spell is applied" };
-        case SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS: return { "SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS", "Immunity to Hostile & Friendly Effects", "Will not pierce Divine Shield, Ice Block and other full invulnerabilities" };
+        case SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS: return { "SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS", "Immunity to Hostile & Friendly Effects", "Immunity applied by this aura will also be checked for friendly spells (school immunity only) - used by Cyclone for example to cause friendly spells and healing over time to be immuned" };
         case SPELL_ATTR1_NO_AUTOCAST_AI: return { "SPELL_ATTR1_NO_AUTOCAST_AI", "No AutoCast (AI)", "" };
         case SPELL_ATTR1_PREVENTS_ANIM: return { "SPELL_ATTR1_PREVENTS_ANIM", "Prevents Anim", "Auras apply UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT" };
         case SPELL_ATTR1_EXCLUDE_CASTER: return { "SPELL_ATTR1_EXCLUDE_CASTER", "Exclude Caster", "" };
@@ -3216,7 +3216,7 @@ TC_API_EXPORT EnumText EnumUtils<AuraStateType>::ToString(AuraStateType value)
         case AURA_STATE_MARKED: return { "AURA_STATE_MARKED", "AURA_STATE_MARKED", "C  t| NYI" };
         case AURA_STATE_WOUNDED_25_PERCENT: return { "AURA_STATE_WOUNDED_25_PERCENT", "AURA_STATE_WOUNDED_25_PERCENT", "T |" };
         case AURA_STATE_DEFENSIVE_2: return { "AURA_STATE_DEFENSIVE_2", "AURA_STATE_DEFENSIVE_2", "Cc  | NYI" };
-        case AURA_STATE_BANISHED: return { "AURA_STATE_BANISHED", "AURA_STATE_BANISHED", "c  | NYI" };
+        case AURA_STATE_BANISHED: return { "AURA_STATE_BANISHED", "AURA_STATE_BANISHED", "c  |" };
         case AURA_STATE_DAZED: return { "AURA_STATE_DAZED", "AURA_STATE_DAZED", "t|" };
         case AURA_STATE_VICTORIOUS: return { "AURA_STATE_VICTORIOUS", "AURA_STATE_VICTORIOUS", "C   |" };
         case AURA_STATE_RAMPAGE: return { "AURA_STATE_RAMPAGE", "AURA_STATE_RAMPAGE", "| NYI" };

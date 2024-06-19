@@ -2541,7 +2541,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         if (!GetUnitOwner()->IsInWorld())
             continue;
 
-        if (GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
+        if (GetUnitOwner()->HasAuraState(AURA_STATE_BANISHED, GetSpellInfo(), caster))
             continue;
 
         std::vector<WorldObject*> units;

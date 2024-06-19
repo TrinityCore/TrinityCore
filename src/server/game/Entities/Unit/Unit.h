@@ -266,7 +266,7 @@ enum UnitState : uint32
     UNIT_STATE_ROOT                  = 0x00000400,
     UNIT_STATE_CONFUSED              = 0x00000800,
     UNIT_STATE_DISTRACTED            = 0x00001000,
-    UNIT_STATE_ISOLATED              = 0x00002000, // area auras do not affect other players
+    UNIT_STATE_ISOLATED_DEPRECATED   = 0x00002000, // REUSE
     UNIT_STATE_ATTACK_PLAYER         = 0x00004000,
     UNIT_STATE_CASTING               = 0x00008000,
     UNIT_STATE_POSSESSED             = 0x00010000, // being possessed by another unit
@@ -286,7 +286,7 @@ enum UnitState : uint32
 
     UNIT_STATE_ALL_STATE_SUPPORTED = UNIT_STATE_DIED | UNIT_STATE_MELEE_ATTACKING | UNIT_STATE_CHARMED | UNIT_STATE_STUNNED | UNIT_STATE_ROAMING | UNIT_STATE_CHASE
                                    | UNIT_STATE_FOCUSING | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT | UNIT_STATE_FOLLOW | UNIT_STATE_ROOT | UNIT_STATE_CONFUSED
-                                   | UNIT_STATE_DISTRACTED | UNIT_STATE_ISOLATED | UNIT_STATE_ATTACK_PLAYER | UNIT_STATE_CASTING
+                                   | UNIT_STATE_DISTRACTED | UNIT_STATE_ATTACK_PLAYER | UNIT_STATE_CASTING
                                    | UNIT_STATE_POSSESSED | UNIT_STATE_CHARGING | UNIT_STATE_JUMPING | UNIT_STATE_MOVE | UNIT_STATE_ROTATING
                                    | UNIT_STATE_EVADE | UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE
                                    | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE | UNIT_STATE_IGNORE_PATHFINDING | UNIT_STATE_FOLLOW_FORMATION_MOVE,
@@ -1638,8 +1638,10 @@ class TC_GAME_API Unit : public WorldObject
         EnumFlag<SpellOtherImmunity> GetSpellOtherImmunityMask() const;
 
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask) const;
-        bool IsImmunedToDamage(SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo = nullptr) const;
+        bool IsImmunedToDamage(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo = nullptr) const;
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const;
+
+        bool IsImmunedToAuraPeriodicTick(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo = nullptr) const;
 
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr);
         static uint32 CalcArmorReducedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK, uint8 attackerLevel = 0);
