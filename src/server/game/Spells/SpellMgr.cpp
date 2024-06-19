@@ -4749,6 +4749,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF STORMSONG VALLEY SPELLS
 
     //
+    // KINGS REST SPELLS
+    //
+
+    // Fixate
+    ApplySpellFix({ 269936 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // ENDOF KINGS REST SPELLS
+
+    //
     // SEPULCHER OF THE FIRST ONES
     //
 
