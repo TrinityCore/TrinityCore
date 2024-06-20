@@ -2529,6 +2529,13 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             targets.emplace(target, targetPair.second);
     }
 
+    // skip area update if owner is not in world!
+    if (!GetUnitOwner()->IsInWorld())
+        return;
+
+    if (GetUnitOwner()->HasAuraState(AURA_STATE_BANISHED, GetSpellInfo(), caster))
+        return;
+
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
         if (!HasEffect(spellEffectInfo.EffectIndex))
@@ -2536,13 +2543,6 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
 
         // area auras only
         if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA))
-            continue;
-
-        // skip area update if owner is not in world!
-        if (!GetUnitOwner()->IsInWorld())
-            continue;
-
-        if (GetUnitOwner()->HasAuraState(AURA_STATE_BANISHED, GetSpellInfo(), caster))
             continue;
 
         std::vector<WorldObject*> units;
