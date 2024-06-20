@@ -3247,11 +3247,11 @@ void Spell::cancel()
     {
         case SPELL_STATE_PREPARING:
             CancelGlobalCooldown();
-            [[fallthrough]];
+            SendCastResult(SPELL_FAILED_INTERRUPTED);
+            break;
         case SPELL_STATE_DELAYED:
             SendInterrupted(SPELL_FAILED_INTERRUPTED);
             break;
-
         case SPELL_STATE_CASTING:
             for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
                 if (targetInfo.MissCondition == SPELL_MISS_NONE)
@@ -3263,7 +3263,6 @@ void Spell::cancel()
 
             m_appliedMods.clear();
             break;
-
         default:
             break;
     }
