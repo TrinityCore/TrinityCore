@@ -3608,7 +3608,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     return SPELL_CAST_OK;
 }
 
-void Spell::cancel()
+void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Optional<SpellCastResult> resultOther /*= {}*/)
 {
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
@@ -3621,10 +3621,11 @@ void Spell::cancel()
     {
         case SPELL_STATE_PREPARING:
             CancelGlobalCooldown();
-            SendCastResult(SPELL_FAILED_INTERRUPTED);
+            SendCastResult(result);
+            SendInterrupted(result, resultOther);
             break;
         case SPELL_STATE_LAUNCHED:
-            SendInterrupted(SPELL_FAILED_INTERRUPTED);
+            SendInterrupted(result, resultOther);
             break;
         case SPELL_STATE_CHANNELING:
             {
@@ -3642,7 +3643,7 @@ void Spell::cancel()
             }
 
             SendChannelUpdate(0);
-            SendInterrupted(SPELL_FAILED_INTERRUPTED);
+            SendInterrupted(result, resultOther);
             break;
         default:
             break;
@@ -3736,7 +3737,7 @@ void Spell::_cast(bool skipCheck)
         auto cleanupSpell = [this, modOwner](SpellCastResult res, int32* p1 = nullptr, int32* p2 = nullptr)
         {
             SendCastResult(res, p1, p2);
-            SendInterrupted(0);
+            SendInterrupted(res);
 
             if (modOwner)
                 modOwner->SetSpellModTakingSpell(this, false);
@@ -3811,7 +3812,7 @@ void Spell::_cast(bool skipCheck)
     // Spell may be finished after target map check
     if (m_spellState == SPELL_STATE_FINISHED)
     {
-        SendInterrupted(0);
+        SendInterrupted(SPELL_FAILED_DONT_REPORT);
 
         // cleanup after mod system
         // triggered spell pointer can be not removed in some cases
@@ -5072,7 +5073,7 @@ void Spell::ExecuteLogEffectResurrect(SpellEffects effect, Unit* target)
     GetExecuteLogEffectTargets(effect, &SpellLogEffect::GenericVictimTargets).push_back(spellLogEffectGenericVictimParams);
 }
 
-void Spell::SendInterrupted(uint8 result)
+void Spell::SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther /*= {}*/)
 {
     WorldPackets::Spells::SpellFailure failurePacket;
     failurePacket.CasterUnit = m_caster->GetGUID();
@@ -5087,7 +5088,7 @@ void Spell::SendInterrupted(uint8 result)
     failedPacket.CastID = m_castId;
     failedPacket.SpellID = m_spellInfo->Id;
     failedPacket.Visual = m_SpellVisual;
-    failedPacket.Reason = result;
+    failedPacket.Reason = resultOther.value_or(result);
     m_caster->SendMessageToSet(failedPacket.Write(), true);
 }
 
