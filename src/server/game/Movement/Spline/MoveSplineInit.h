@@ -19,6 +19,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
+#include <variant>
 
 class ObjectGuid;
 class Unit;
