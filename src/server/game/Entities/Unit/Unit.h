@@ -1451,7 +1451,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetSpellEmpowerStage(int8 stage) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SpellEmpowerStage), stage); }
 
         void SetCurrentCastSpell(Spell* pSpell);
-        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
+        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
         void FinishSpell(CurrentSpellTypes spellType, SpellCastResult result = SPELL_CAST_OK);
 
         // set withDelayed to true to account delayed spells as cast

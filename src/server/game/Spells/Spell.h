@@ -504,7 +504,7 @@ class TC_GAME_API Spell
         GameObject* SearchSpellFocus();
 
         SpellCastResult prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura = nullptr);
-        void cancel();
+        void cancel(SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
         void finish(SpellCastResult result = SPELL_CAST_OK);
@@ -587,7 +587,7 @@ class TC_GAME_API Spell
         void ExecuteLogEffectUnsummonObject(SpellEffects effect, WorldObject* obj);
         void ExecuteLogEffectResurrect(SpellEffects effect, Unit* target);
         void SendSpellInterruptLog(Unit* victim, uint32 spellId);
-        void SendInterrupted(uint8 result);
+        void SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther = {});
         void SendChannelUpdate(uint32 time, Optional<SpellCastResult> result = {});
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
