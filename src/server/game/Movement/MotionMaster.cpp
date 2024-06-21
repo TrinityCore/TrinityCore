@@ -843,18 +843,18 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     _owner->GetNearPoint2D(nullptr, x, y, dist, _owner->GetOrientation() + angle);
     _owner->UpdateAllowedPositionZ(x, y, z);
 
-    MoveJump(x, y, z, 0.0f, speedXY, speedZ);
+    MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
+void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id/* = EVENT_JUMP*/, MovementFacingTarget const& facing/* = {}*/,
     JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
-    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation,
-        arrivalCast, spellEffectExtraData, std::move(scriptResult));
+    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), speedXY, speedZ, id, facing, arrivalCast,
+        spellEffectExtraData, std::move(scriptResult));
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/,
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, MovementFacingTarget const& facing /* = {}*/,
     JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
@@ -874,8 +874,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
         init.MoveTo(x, y, z, false);
         init.SetParabolic(max_height, 0);
         init.SetVelocity(speedXY);
-        if (hasOrientation)
-            init.SetFacing(o);
+        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };
@@ -895,7 +894,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     Add(movement);
 }
 
-void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
+void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, MovementFacingTarget const& facing/* = {}*/,
     JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
@@ -914,8 +913,7 @@ void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float
         init.SetUncompressed();
         init.SetVelocity(speedXY);
         init.SetUnlimitedSpeed();
-        if (hasOrientation)
-            init.SetFacing(pos.GetOrientation());
+        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };

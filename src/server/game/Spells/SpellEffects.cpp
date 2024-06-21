@@ -908,7 +908,7 @@ void Spell::EffectJump()
     JumpArrivalCastArgs arrivalCast;
     arrivalCast.SpellId = effectInfo->TriggerSpell;
     arrivalCast.Target = unitTarget->GetGUID();
-    unitCaster->GetMotionMaster()->MoveJump(*unitTarget, speedXY, speedZ, EVENT_JUMP, false, &arrivalCast);
+    unitCaster->GetMotionMaster()->MoveJump(*unitTarget, speedXY, speedZ, EVENT_JUMP, {}, &arrivalCast);
 }
 
 void Spell::EffectJumpDest()
@@ -928,9 +928,12 @@ void Spell::EffectJumpDest()
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effectInfo, unitCaster->GetExactDist2d(destTarget), speedXY, speedZ);
+    MovementFacingTarget facing;
+    if (!m_targets.GetUnitTargetGUID().IsEmpty())
+        facing = destTarget->GetOrientation();
     JumpArrivalCastArgs arrivalCast;
     arrivalCast.SpellId = effectInfo->TriggerSpell;
-    unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty(), &arrivalCast);
+    unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, facing, &arrivalCast);
 }
 
 TeleportToOptions GetTeleportOptions(WorldObject const* caster, Unit const* unitTarget, SpellDestination const& targetDest)
@@ -5751,7 +5754,7 @@ void Spell::EffectJumpCharge()
             effectExtra->ParabolicCurveId = *params->ParabolicCurveId;
     }
 
-    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, false,
+    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, {},
         arrivalCast ? &*arrivalCast : nullptr,
         effectExtra ? &*effectExtra : nullptr);
 }
