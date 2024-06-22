@@ -3663,7 +3663,7 @@ void Spell::EffectQuestComplete()
             if (questStatus == QUEST_STATUS_INCOMPLETE)
                 player->AreaExploredOrEventHappens(questId);
         }
-        else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))  // Check if the quest is used as a serverside flag
+        else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT)) // Check if the quest is used as a serverside flag
             player->CompleteQuest(questId);
     }
 }

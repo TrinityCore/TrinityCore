@@ -2617,8 +2617,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (questStatus == QUEST_STATUS_INCOMPLETE)
                         player->AreaExploredOrEventHappens(questId);
                 }
-                else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))  // Check if the quest is used as a serverside flag
-                        player->CompleteQuest(questId);
+                else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT)) // Check if the quest is used as a serverside flag
+                    player->CompleteQuest(questId);
             }
 
             break;
