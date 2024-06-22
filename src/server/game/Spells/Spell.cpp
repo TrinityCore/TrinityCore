@@ -2198,7 +2198,8 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         Unit* unitCaster = ASSERT_NOTNULL(m_caster->ToUnit());
 
         // Calculate reflected spell result on caster
-        if (m_spellInfo->CheckTarget(target, unitCaster, implicit) == SPELL_CAST_OK)
+        SpellCastResult castResult = m_spellInfo->CheckTarget(target, unitCaster, implicit);
+        if (castResult == SPELL_CAST_OK || castResult == SPELL_FAILED_TARGET_AURASTATE)
             targetInfo.ReflectResult = unitCaster->SpellHitResult(unitCaster, m_spellInfo, false); // can't reflect twice
         else
             targetInfo.ReflectResult = SPELL_MISS_IMMUNE;
