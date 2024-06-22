@@ -96,7 +96,7 @@ public:
                     {
                         dynFlags |= GO_DYNFLAG_LO_HIGHLIGHT;
                         if (gameObject->GetGoStateFor(receiver->GetGUID()) != GO_STATE_ACTIVE)
-                                dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     }
                     break;
                 case GAMEOBJECT_TYPE_QUESTGIVER:
@@ -111,9 +111,8 @@ public:
                     break;
                 case GAMEOBJECT_TYPE_GENERIC:
                 case GAMEOBJECT_TYPE_SPELL_FOCUS:
-                    if (gameObject->HasConditionalInteraction())
-                        if (gameObject->CanActivateForPlayer(receiver))
-                            dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                    if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
+                        dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
