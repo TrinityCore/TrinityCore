@@ -200,7 +200,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         if (!dungeon)
             continue;
 
-        if (!sDB2Manager.GetMapDifficultyData(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
+        if (dungeon->MapID != -1 && !sDB2Manager.GetMapDifficultyData(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
             continue;
 
         switch (dungeon->TypeID)
@@ -842,8 +842,11 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& playe
                 {
                     LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId);
                     ASSERT(dungeon);
+                    if (dungeon->map == -1)
+                        continue;
+
                     ASSERT(player);
-                    MapDb2Entries entries{ dungeon->map, Difficulty(dungeon->difficulty) };
+                    MapDb2Entries entries{ static_cast<uint32>(dungeon->map), Difficulty(dungeon->difficulty) };
                     if (InstanceLock* playerBind = sInstanceLockMgr.FindActiveInstanceLock(guid, entries))
                     {
                         uint32 dungeonInstanceId = playerBind->GetInstanceId();
@@ -1755,12 +1758,15 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 return LFG_LOCKSTATUS_RAID_LOCKED;
             if (dungeon->expansion > expansion)
                 return LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
-            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
-                return LFG_LOCKSTATUS_NOT_IN_SEASON;
-            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
-                return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (sInstanceLockMgr.FindActiveInstanceLock(guid, { dungeon->map, Difficulty(dungeon->difficulty) }))
-                return LFG_LOCKSTATUS_RAID_LOCKED;
+            if (dungeon->map != -1)
+            {
+                if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
+                    return LFG_LOCKSTATUS_NOT_IN_SEASON;
+                if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
+                    return LFG_LOCKSTATUS_RAID_LOCKED;
+                if (sInstanceLockMgr.FindActiveInstanceLock(guid, { static_cast<uint32>(dungeon->map), Difficulty(dungeon->difficulty) }))
+                    return LFG_LOCKSTATUS_RAID_LOCKED;
+            }
             if (dungeon->minLevel > level)
                 return LFG_LOCKSTATUS_TOO_LOW_LEVEL;
             if (dungeon->maxLevel < level)
@@ -1769,22 +1775,25 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 return LFG_LOCKSTATUS_NOT_IN_SEASON;
             if (dungeon->requiredItemLevel > player->GetAverageItemLevel())
                 return LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
-            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
+            if (dungeon->map != -1)
             {
-                if (ar->achievement && !player->HasAchieved(ar->achievement))
-                    return LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
-                if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
-                    return LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-                if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
-                    return LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-
-                if (ar->item)
+                if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
                 {
-                    if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
+                    if (ar->achievement && !player->HasAchieved(ar->achievement))
+                        return LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
+                    if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
+                        return LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                    if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
+                        return LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+
+                    if (ar->item)
+                    {
+                        if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
+                            return LFG_LOCKSTATUS_MISSING_ITEM;
+                    }
+                    else if (ar->item2 && !player->HasItemCount(ar->item2))
                         return LFG_LOCKSTATUS_MISSING_ITEM;
                 }
-                else if (ar->item2 && !player->HasItemCount(ar->item2))
-                    return LFG_LOCKSTATUS_MISSING_ITEM;
             }
 
             /* @todo VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
