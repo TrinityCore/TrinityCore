@@ -15,28 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef LFGPacketsCommon_h__
+#define LFGPacketsCommon_h__
 
-#include "BankPackets.h"
-#include "BattlefieldPackets.h"
-#include "CalendarPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "LFGPackets.h"
-#include "MailPackets.h"
-#include "MiscPackets.h"
-#include "NPCPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TalentPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "ObjectGuid.h"
+#include "PacketUtilities.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace LFG
+    {
+        enum class RideType : uint32
+        {
+            None = 0,
+            Battlegrounds = 1,
+            Lfg = 2
+        };
+
+        struct RideTicket
+        {
+            ObjectGuid RequesterGuid;
+            RideType Type = RideType::None;
+            uint8 BgType = 0;
+            bool Unknown925 = false;
+        };
+    }
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket);
+
+#endif // LFGPacketsCommon_h__
