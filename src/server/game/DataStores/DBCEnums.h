@@ -198,6 +198,18 @@ enum class AreaTriggerActionSetFlag : uint32
 
 DEFINE_ENUM_FLAG(AreaTriggerActionSetFlag);
 
+enum class AreaTriggerShapeType : int8
+{
+    Sphere                         = 0,
+    Box                            = 1,
+    Unk                            = 2,
+    Polygon                        = 3,
+    Cylinder                       = 4,
+    Disk                           = 5,
+    BoundedPlane                   = 6,
+    Max
+};
+
 enum ArtifactCategory : uint32
 {
     ARTIFACT_CATEGORY_PRIMARY = 1,

@@ -7197,7 +7197,7 @@ void ObjectMgr::LoadAreaTriggerPolygons()
 {
     for (AreaTriggerEntry const* areaTrigger : sAreaTriggerStore)
     {
-        if (static_cast<AreaTriggerShapeType>(areaTrigger->ShapeType) != AreaTriggerShapeType::Polygon)
+        if (areaTrigger->GetShapeType() != AreaTriggerShapeType::Polygon)
             continue;
 
         PathDb2 const* path = sDB2Manager.GetPath(areaTrigger->ShapeID);

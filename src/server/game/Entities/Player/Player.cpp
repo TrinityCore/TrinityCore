@@ -2028,21 +2028,29 @@ bool Player::IsInAreaTrigger(AreaTriggerEntry const* areaTrigger) const
         if (!PhasingHandler::InDbPhaseShift(this, areaTrigger->PhaseUseFlags, areaTrigger->PhaseID, areaTrigger->PhaseGroupID))
             return false;
 
-    if (isDead())
+    auto hasActionSetFlag = [=](AreaTriggerActionSetFlag flag)
     {
         if (AreaTriggerActionSetEntry const* areaTriggerActionSet = sAreaTriggerActionSetStore.LookupEntry(areaTrigger->AreaTriggerActionSetID))
-        {
-            bool isGhostAllowed = m_deathState == DEAD && areaTriggerActionSet->GetFlags().HasFlag(AreaTriggerActionSetFlag::AllowWhileGhost);
-            bool isCorpseAllowed = m_deathState == CORPSE && areaTriggerActionSet->GetFlags().HasFlag(AreaTriggerActionSetFlag::AllowWhileDead);
+            return areaTriggerActionSet->GetFlags().HasFlag(flag);
+        return false;
+    };
 
-            if (!isGhostAllowed && !isCorpseAllowed)
+    switch (getDeathState())
+    {
+        case DEAD:
+            if (!hasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileGhost))
                 return false;
-        }
+            break;
+        case CORPSE:
+            if (!hasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileDead))
+                return false;
+            break;
+        default:
+            break;
     }
 
     Position areaTriggerPos(areaTrigger->Pos.X, areaTrigger->Pos.Y, areaTrigger->Pos.Z, areaTrigger->BoxYaw);
-    AreaTriggerShapeType shape = static_cast<AreaTriggerShapeType>(areaTrigger->ShapeType);
-    switch (shape)
+    switch (areaTrigger->GetShapeType())
     {
         case AreaTriggerShapeType::Sphere:
             if (!IsInDist(&areaTriggerPos, areaTrigger->Radius))
