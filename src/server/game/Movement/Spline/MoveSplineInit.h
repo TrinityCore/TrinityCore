@@ -19,10 +19,12 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
+#include <variant>
 
 class ObjectGuid;
 class Unit;
 
+struct Position;
 enum class AnimTier : uint8;
 
 namespace Movement
@@ -222,5 +224,17 @@ namespace Movement
     {
         args.spellEffectExtra = spellEffectExtraData;
     }
+
+    struct TC_GAME_API MoveSplineInitFacingVisitor
+    {
+        explicit MoveSplineInitFacingVisitor(MoveSplineInit& init_) : init(init_) { }
+
+        void operator()(std::monostate) const { }
+        void operator()(Position const& point) const;
+        void operator()(Unit const* target) const { init.SetFacing(target); }
+        void operator()(float angle) const { init.SetFacing(angle); }
+
+        MoveSplineInit& init;
+    };
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H
