@@ -1447,7 +1447,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_NOT_IN_ARENA: return { "SPELL_ATTR9_NOT_IN_ARENA", "Not In Arena", "" };
         case SPELL_ATTR9_TARGET_MUST_BE_GROUNDED: return { "SPELL_ATTR9_TARGET_MUST_BE_GROUNDED", "Target Must Be Grounded", "" };
         case SPELL_ATTR9_ALLOW_WHILE_BANISHED_AURA_STATE: return { "SPELL_ATTR9_ALLOW_WHILE_BANISHED_AURA_STATE", "Allow While Banished Aura State", "Doesn't seem to be doing anything, banish behaves like a regular stun now - tested on patch 10.2.7 with spell 17767 (doesn't have this attribute, only SPELL_ATTR5_ALLOW_WHILE_STUNNED and was castable while banished)" };
-        case SPELL_ATTR9_UNK12: return { "SPELL_ATTR9_UNK12", "Unknown attribute 12@Attr9", "" };
+        case SPELL_ATTR9_FACE_UNIT_TARGET_UPON_COMPLETION_OF_JUMP_CHARGE: return { "SPELL_ATTR9_FACE_UNIT_TARGET_UPON_COMPLETION_OF_JUMP_CHARGE", "Face unit target upon completion of jump charge", "" };
         case SPELL_ATTR9_SLAM: return { "SPELL_ATTR9_SLAM", "Haste Affects Melee Ability Casttime", "" };
         case SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS: return { "SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS", "Ignore Default Rated Battleground Restrictions", "" };
         case SPELL_ATTR9_UNK15: return { "SPELL_ATTR9_UNK15", "Unknown attribute 15@Attr9", "" };
@@ -1491,7 +1491,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 9: return SPELL_ATTR9_NOT_IN_ARENA;
         case 10: return SPELL_ATTR9_TARGET_MUST_BE_GROUNDED;
         case 11: return SPELL_ATTR9_ALLOW_WHILE_BANISHED_AURA_STATE;
-        case 12: return SPELL_ATTR9_UNK12;
+        case 12: return SPELL_ATTR9_FACE_UNIT_TARGET_UPON_COMPLETION_OF_JUMP_CHARGE;
         case 13: return SPELL_ATTR9_SLAM;
         case 14: return SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS;
         case 15: return SPELL_ATTR9_UNK15;
@@ -1532,7 +1532,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_NOT_IN_ARENA: return 9;
         case SPELL_ATTR9_TARGET_MUST_BE_GROUNDED: return 10;
         case SPELL_ATTR9_ALLOW_WHILE_BANISHED_AURA_STATE: return 11;
-        case SPELL_ATTR9_UNK12: return 12;
+        case SPELL_ATTR9_FACE_UNIT_TARGET_UPON_COMPLETION_OF_JUMP_CHARGE: return 12;
         case SPELL_ATTR9_SLAM: return 13;
         case SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS: return 14;
         case SPELL_ATTR9_UNK15: return 15;
