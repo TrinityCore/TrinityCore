@@ -2028,25 +2028,46 @@ bool Player::IsInAreaTrigger(AreaTriggerEntry const* areaTrigger) const
         if (!PhasingHandler::InDbPhaseShift(this, areaTrigger->PhaseUseFlags, areaTrigger->PhaseID, areaTrigger->PhaseGroupID))
             return false;
 
-    Position areaTriggerPos(areaTrigger->Pos.X, areaTrigger->Pos.Y, areaTrigger->Pos.Z, areaTrigger->BoxYaw);
-    switch (areaTrigger->ShapeType)
+    auto hasActionSetFlag = [=](AreaTriggerActionSetFlag flag)
     {
-        case 0: // Sphere
+        if (AreaTriggerActionSetEntry const* areaTriggerActionSet = sAreaTriggerActionSetStore.LookupEntry(areaTrigger->AreaTriggerActionSetID))
+            return areaTriggerActionSet->GetFlags().HasFlag(flag);
+        return false;
+    };
+
+    switch (getDeathState())
+    {
+        case DEAD:
+            if (!hasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileGhost))
+                return false;
+            break;
+        case CORPSE:
+            if (!hasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileDead))
+                return false;
+            break;
+        default:
+            break;
+    }
+
+    Position areaTriggerPos(areaTrigger->Pos.X, areaTrigger->Pos.Y, areaTrigger->Pos.Z, areaTrigger->BoxYaw);
+    switch (areaTrigger->GetShapeType())
+    {
+        case AreaTriggerShapeType::Sphere:
             if (!IsInDist(&areaTriggerPos, areaTrigger->Radius))
                 return false;
             break;
-        case 1: // Box
+        case AreaTriggerShapeType::Box:
             if (!IsWithinBox(areaTriggerPos, areaTrigger->BoxLength / 2.f, areaTrigger->BoxWidth / 2.f, areaTrigger->BoxHeight / 2.f))
                 return false;
             break;
-        case 3: // Polygon
+        case AreaTriggerShapeType::Polygon:
         {
             AreaTriggerPolygon const* polygon = sObjectMgr->GetAreaTriggerPolygon(areaTrigger->ID);
             if (!polygon || (polygon->Height && GetPositionZ() > areaTrigger->Pos.Z + *polygon->Height) || !IsInPolygon2D(areaTriggerPos, polygon->Vertices))
                 return false;
             break;
         }
-        case 4: // Cylinder
+        case AreaTriggerShapeType::Cylinder:
             if (!IsWithinVerticalCylinder(areaTriggerPos, areaTrigger->Radius, areaTrigger->BoxHeight))
                 return false;
             break;
