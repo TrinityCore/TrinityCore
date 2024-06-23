@@ -266,7 +266,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+56, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1242.7576904296875, 2700.78369140625, 168.1562042236328125, 2.716730833053588867, 7200, 10, 0, 100, 1, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+57, 133220, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1300.8194580078125, 3144.25439453125, 398.692626953125, 1.46281898021697998, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Goblin Hot Air Balloon (Area: Seething Shore - Difficulty: 0) CreateObject1 (Auras: )
 (@CGUID+58, 132702, 1856, 9136, 9136, '0', '0', 0, 0, 0, -5.01992988586425781, 24.43457603454589843, 21.732025146484375, 1.59703218936920166, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Alliance Gunship Cannon (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+60, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1003.94927978515625, 2756.8291015625, 279.31463623046875, 0.652265906333923339, 7200, 10, 0, 100, 1, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+60, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1003.94927978515625, 2756.8291015625, 279.31463623046875, 0.652265906333923339, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+61, 133056, 1857, 9136, 9136, '0', '0', 0, 0, 0, 46.39287567138671875, 4.546421527862548828, 30.17881011962890625, 3.780830860137939453, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Xander Silberman (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+62, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1016.74444580078125, 2773.197021484375, 278.314697265625, 6.227115154266357421, 7200, 10, 0, 100, 1, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+63, 133047, 1857, 9136, 9136, '0', '0', 0, 0, 0, -25.6241531372070312, 24.48468971252441406, 33.9487762451171875, 0.139996454119682312, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Peon (Area: Seething Shore - Difficulty: 0) CreateObject1 (Auras: 261772 - Hold Torch) (possible waypoints or random movement)
@@ -292,7 +292,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+85, 132702, 1856, 9136, 9136, '0', '0', 0, 0, 0, -18.5591468811035156, 23.65011024475097656, 21.697662353515625, 1.613786101341247558, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Alliance Gunship Cannon (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+86, 130540, 1856, 9136, 9136, '0', '0', 0, 0, 1, -24.6669921875, -13.0236759185791015, 20.53484916687011718, 4.678329944610595703, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Skyguard Marine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+87, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1413.3603515625, 2961.130859375, 461.298370361328125, 0.445346832275390625, 7200, 10, 0, 100, 1, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+88, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1006.18939208984375, 2782.48583984375, 279.314605712890625, 0.496292382478713989, 7200, 10, 0, 100, 1, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+88, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1006.18939208984375, 2782.48583984375, 279.314605712890625, 0.496292382478713989, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+89, 131149, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1395.7989501953125, 2580.189453125, 116.3642196655273437, 3.136027336120605468, 7200, 10, 0, 100, 1, NULL, NULL, NULL, NULL, 54205), -- Flying Machine (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+90, 133220, 1803, 9136, 9136, '0', '0', 0, 0, 0, 1097.88720703125, 2477.08154296875, 208.8053741455078125, 0, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Goblin Hot Air Balloon (Area: Seething Shore - Difficulty: 0) CreateObject1 (Auras: )
 (@CGUID+91, 131776, 1857, 9136, 9136, '0', '0', 0, 0, 1, 44.24065017700195312, 5.620276927947998046, 30.17880630493164062, 4.541813373565673828, 7200, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 54205), -- Jeron Emberfall (Area: Seething Shore - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
@@ -354,6 +354,12 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier
 (@CGUID+122, 0, 0, 0, 0, 0, 1, 0, 0, 2923, 0, 0, 0, ''), -- Skyguard Marine
 (@CGUID+123, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, ''), -- Deckhand
 (@CGUID+129, 0, 0, 0, 0, 0, 1, 0, 0, 2923, 0, 0, 0, ''); -- Skyguard Marine
+
+DELETE FROM `creature_formations` WHERE `leaderGUID` = @CGUID+62;
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES
+(@CGUID+62, @CGUID+62, 0, 0, 515),
+(@CGUID+62, @CGUID+60, 10, 45, 515),
+(@CGUID+62, @CGUID+88, 10, 315, 515);
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 131773;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
