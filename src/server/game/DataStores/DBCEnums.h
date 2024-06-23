@@ -177,6 +177,39 @@ enum class AreaMountFlags : uint8
 
 DEFINE_ENUM_FLAG(AreaMountFlags);
 
+enum class AreaTriggerActionSetFlag : uint32
+{
+    None                            = 0x0000,
+    OnlyTriggeredByCaster           = 0x0001,
+    ResurrectIfConditionFails       = 0x0002,
+    Obsolete                        = 0x0004,
+    AllowWhileGhost                 = 0x0008,
+    AllowWhileDead                  = 0x0010,
+    UnifyAllInstances               = 0x0020,
+    SuppressConditionError          = 0x0040, // NYI
+    NotTriggeredbyCaster            = 0x0080,
+    CreatorsPartyOnly               = 0x0100,
+    DontRunOnLeaveWhenExpiring      = 0x0200,
+    CanAffectUninteractible         = 0x0400,
+    DontDespawnWithCreator          = 0x0800,
+    CanAffectBeastmaster            = 0x1000,
+    RequiresLineOfSight             = 0x2000
+};
+
+DEFINE_ENUM_FLAG(AreaTriggerActionSetFlag);
+
+enum class AreaTriggerShapeType : int8
+{
+    Sphere                         = 0,
+    Box                            = 1,
+    Unk                            = 2,
+    Polygon                        = 3,
+    Cylinder                       = 4,
+    Disk                           = 5,
+    BoundedPlane                   = 6,
+    Max
+};
+
 enum ArtifactCategory : uint32
 {
     ARTIFACT_CATEGORY_PRIMARY = 1,
