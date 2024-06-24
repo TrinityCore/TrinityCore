@@ -1453,7 +1453,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_DO_NOT_DISPLAY_POWER_COST: return { "SPELL_ATTR9_DO_NOT_DISPLAY_POWER_COST", "Do Not Display Power Cost (client only)", "" };
         case SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET: return { "SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET", "Next modal spell requires same unit target", "Prevents automatically casting the spell from SpellClassOptions::ModalNextSpell after current spell if target was changed (client only)" };
         case SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT: return { "SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT", "AutoCast Off By Default", "" };
-        case SPELL_ATTR9_UNK18: return { "SPELL_ATTR9_UNK18", "Unknown attribute 18@Attr9", "" };
+        case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return { "SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT", "Ignore School Lockout", "" };
         case SPELL_ATTR9_UNK19: return { "SPELL_ATTR9_UNK19", "Unknown attribute 19@Attr9", "" };
         case SPELL_ATTR9_UNK20: return { "SPELL_ATTR9_UNK20", "Unknown attribute 20@Attr9", "" };
         case SPELL_ATTR9_UNK21: return { "SPELL_ATTR9_UNK21", "Unknown attribute 21@Attr9", "" };
@@ -1497,7 +1497,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 15: return SPELL_ATTR9_DO_NOT_DISPLAY_POWER_COST;
         case 16: return SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET;
         case 17: return SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT;
-        case 18: return SPELL_ATTR9_UNK18;
+        case 18: return SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT;
         case 19: return SPELL_ATTR9_UNK19;
         case 20: return SPELL_ATTR9_UNK20;
         case 21: return SPELL_ATTR9_UNK21;
@@ -1538,7 +1538,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_DO_NOT_DISPLAY_POWER_COST: return 15;
         case SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET: return 16;
         case SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT: return 17;
-        case SPELL_ATTR9_UNK18: return 18;
+        case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return 18;
         case SPELL_ATTR9_UNK19: return 19;
         case SPELL_ATTR9_UNK20: return 20;
         case SPELL_ATTR9_UNK21: return 21;
