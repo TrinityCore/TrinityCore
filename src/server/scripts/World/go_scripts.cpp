@@ -440,7 +440,7 @@ class go_soulwell : public GameObjectScript
                         }
                         break;
                     case GO_SOUL_WELL_R2:
-                        _stoneSpell = SPELL_CREATE_FEL_HEALTH_STONE_R0;
+                        _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R0;
                         if (Unit* owner = go->GetOwner())
                         {
                             if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
