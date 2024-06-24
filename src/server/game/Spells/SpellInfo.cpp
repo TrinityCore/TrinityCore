@@ -2266,7 +2266,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
         if (IsPositive())
             return DIMINISHING_NONE;
 
-        if (HasAura(SPELL_AURA_MOD_TAUNT)) 
+        if (HasAura(SPELL_AURA_MOD_TAUNT))
             return DIMINISHING_TAUNT;
 
         // Explicit Diminishing Groups
