@@ -5693,7 +5693,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
 bool Unit::AttackStop()
 {
-    if (!m_attacking || IsTaunted())
+    if (!m_attacking)
         return false;
 
     Unit* victim = m_attacking;
@@ -11321,6 +11321,7 @@ void Unit::SetControlled(bool apply, UnitState state)
 {
     if (apply)
     {
+        SetUnitFlag(UNIT_FLAG_TAUNTED);
         if (HasUnitState(state))
             return;
 
@@ -11356,7 +11357,6 @@ void Unit::SetControlled(bool apply, UnitState state)
                 }
                 break;
             case UNIT_STATE_TAUNTED:
-                SetUnitFlag(UNIT_FLAG_TAUNTED);
                 if (!HasUnitState(UNIT_STATE_STUNNED | UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
                 {
                     SetTaunted(true);
@@ -11368,6 +11368,7 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
     else
     {
+        RemoveUnitFlag(UNIT_FLAG_TAUNTED);
         switch (state)
         {
             case UNIT_STATE_STUNNED:
@@ -11400,7 +11401,6 @@ void Unit::SetControlled(bool apply, UnitState state)
                 break;
 
             case UNIT_STATE_TAUNTED:
-                RemoveUnitFlag(UNIT_FLAG_TAUNTED);
                 if (HasAuraType(SPELL_AURA_MOD_TAUNT))
                     return;
                 ClearUnitState(state);
