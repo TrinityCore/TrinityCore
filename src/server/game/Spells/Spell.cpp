@@ -7235,7 +7235,7 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 
     // check USABLE attributes
     // USABLE takes precedence over NOT_USABLE
-    if (isRatedBattleground && m_spellInfo->HasAttribute(SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS))
+    if (isRatedBattleground && m_spellInfo->HasAttribute(SPELL_ATTR9_IGNORE_DEFAULT_RATED_BATTLEGROUND_RESTRICTIONS))
         return SPELL_CAST_OK;
 
     if (isArena && m_spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_DEFAULT_ARENA_RESTRICTIONS))

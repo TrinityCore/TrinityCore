@@ -773,9 +773,9 @@ enum SpellAttr9 : uint32
     SPELL_ATTR9_ALLOW_WHILE_BANISHED_AURA_STATE                     = 0x00000800, // TITLE Allow While Banished Aura State DESCRIPTION Doesn't seem to be doing anything, banish behaves like a regular stun now - tested on patch 10.2.7 with spell 17767 (doesn't have this attribute, only SPELL_ATTR5_ALLOW_WHILE_STUNNED and was castable while banished)
     SPELL_ATTR9_FACE_UNIT_TARGET_UPON_COMPLETION_OF_JUMP_CHARGE     = 0x00001000, // TITLE Face unit target upon completion of jump charge
     SPELL_ATTR9_HASTE_AFFECTS_MELEE_ABILITY_CASTTIME                = 0x00002000, // TITLE Haste Affects Melee Ability Casttime
-    SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS    = 0x00004000, // TITLE Ignore Default Rated Battleground Restrictions
-    SPELL_ATTR9_UNK15                            = 0x00008000, // TITLE Unknown attribute 15@Attr9
-    SPELL_ATTR9_UNK16                            = 0x00010000, // TITLE Unknown attribute 16@Attr9
+    SPELL_ATTR9_IGNORE_DEFAULT_RATED_BATTLEGROUND_RESTRICTIONS      = 0x00004000, // TITLE Ignore Default Rated Battleground Restrictions
+    SPELL_ATTR9_DO_NOT_DISPLAY_POWER_COST                           = 0x00008000, // TITLE Do Not Display Power Cost (client only)
+    SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET          = 0x00010000, // TITLE Next modal spell requires same unit target DESCRIPTION Prevents automatically casting the spell from SpellClassOptions::ModalNextSpell after current spell if target was changed (client only)
     SPELL_ATTR9_UNK17                            = 0x00020000, // TITLE Unknown attribute 17@Attr9
     SPELL_ATTR9_UNK18                            = 0x00040000, // TITLE Unknown attribute 18@Attr9
     SPELL_ATTR9_UNK19                            = 0x00080000, // TITLE Unknown attribute 19@Attr9
