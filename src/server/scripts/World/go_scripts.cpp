@@ -425,43 +425,45 @@ class go_soulwell : public GameObjectScript
         {
             go_soulwellAI(GameObject* go) : GameObjectAI(go)
             {
-                _stoneSpell = 0;
-                _stoneId = 0;
-                switch (go->GetEntry())
-                {
-                    case GO_SOUL_WELL_R1:
-                        _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R0;
-                        if (Unit* owner = go->GetOwner())
-                        {
-                            if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
-                                _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R1;
-                            else if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R2))
-                                _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R2;
-                        }
-                        break;
-                    case GO_SOUL_WELL_R2:
-                        _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R0;
-                        if (Unit* owner = go->GetOwner())
-                        {
-                            if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
-                                _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R1;
-                            else if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R2))
-                                _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R2;
-                        }
-                        break;
-                }
-                if (_stoneSpell == 0) // Should never happen
-                    return;
-
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_stoneSpell);
-                if (!spellInfo)
-                    return;
-
-                _stoneId = spellInfo->GetEffect(EFFECT_0).ItemType;
             }
 
             bool OnGossipHello(Player* player) override
             {
+                _stoneSpell = 0;
+                _stoneId = 0;
+                ObjectGuid idkmanplease = me->GetOwnerGUID();
+                switch (me->GetEntry())
+                {
+                case GO_SOUL_WELL_R1:
+                    _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R0;
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
+                            _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R1;
+                        else if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R2))
+                            _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R2;
+                    }
+                    break;
+                case GO_SOUL_WELL_R2:
+                    _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R0;
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
+                            _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R1;
+                        else if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R2))
+                            _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R2;
+                    }
+                    break;
+                }
+                if (_stoneSpell == 0) // Should never happen
+                    return true;
+
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_stoneSpell);
+                if (!spellInfo)
+                    return true;
+
+                _stoneId = spellInfo->GetEffect(EFFECT_0).ItemType;
+
                 Unit* owner = me->GetOwner();
                 if (_stoneSpell == 0 || _stoneId == 0)
                     return true;
@@ -477,7 +479,8 @@ class go_soulwell : public GameObjectScript
                     return true;
                 }
 
-                owner->CastSpell(player, _stoneSpell, true);
+                //SpellCastResult result = owner->CastSpell(player, _stoneSpell, true);
+                player->AddItem(_stoneId, 1);
                 // Item has to actually be created to remove a charge on the well.
                 if (player->HasItemCount(_stoneId))
                     me->AddUse();
