@@ -5091,7 +5091,7 @@ void Spell::EffectCastButtons()
             continue;
 
         CastSpellExtraArgs args;
-        args.TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR;
         args.OriginalCastId = m_castId;
         args.CastDifficulty = GetCastDifficulty();
         m_caster->CastSpell(m_caster, spellInfo->Id, args);
