@@ -5693,7 +5693,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
 bool Unit::AttackStop()
 {
-    if (!m_attacking)
+    if (!m_attacking || IsTaunted())
         return false;
 
     Unit* victim = m_attacking;
@@ -11321,7 +11321,6 @@ void Unit::SetControlled(bool apply, UnitState state)
 {
     if (apply)
     {
-        SetUnitFlag(UNIT_FLAG_TAUNTED);
         if (HasUnitState(state))
             return;
 
@@ -11368,7 +11367,6 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
     else
     {
-        RemoveUnitFlag(UNIT_FLAG_TAUNTED);
         switch (state)
         {
             case UNIT_STATE_STUNNED:
