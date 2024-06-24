@@ -11356,6 +11356,7 @@ void Unit::SetControlled(bool apply, UnitState state)
                 }
                 break;
             case UNIT_STATE_TAUNTED:
+                SetUnitFlag(UNIT_FLAG_TAUNTED);
                 if (!HasUnitState(UNIT_STATE_STUNNED | UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
                 {
                     SetTaunted(true);
@@ -11399,6 +11400,7 @@ void Unit::SetControlled(bool apply, UnitState state)
                 break;
 
             case UNIT_STATE_TAUNTED:
+                RemoveUnitFlag(UNIT_FLAG_TAUNTED);
                 if (HasAuraType(SPELL_AURA_MOD_TAUNT))
                     return;
                 ClearUnitState(state);
