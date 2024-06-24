@@ -6342,7 +6342,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
         else if ((m_spellInfo->Mechanic & MECHANIC_IMMUNE_SHIELD) && m_caster->ToUnit() && m_caster->ToUnit()->HasAuraWithMechanic(1 << MECHANIC_BANISH))
             result = SPELL_FAILED_STUNNED;
     }
-    else if (unitflag & UNIT_FLAG_TAUNTED && !CheckSpellCancelsTaunt(param1))
+    else if (unitCaster->HasAura(SPELL_AURA_MOD_TAUNT) && !CheckSpellCancelsTaunt(param1))
         result = SPELL_FAILED_CHARMED;
     else if (unitflag & UNIT_FLAG_SILENCED && m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && !CheckSpellCancelsSilence(param1))
         result = SPELL_FAILED_SILENCED;
