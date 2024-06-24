@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "ScriptMgr.h"
 #include "auchindoun.h"
 
 ObjectData const creatureData[] =
@@ -37,10 +37,10 @@ ObjectData const objectData[] =
 
 DungeonEncounterData const encounters[] =
 {
-    { BOSS_VIGILANT_KAATHAR, {{ 1678 }}  },
-    { BOSS_SOULBINDER_NYAMI, {{ 1685 }}  },
-    { BOSS_AZZAKEL,          {{ 1686 }}  },
-    { BOSS_TERONGOR,         {{ 1714 }}  }
+    { DATA_VIGILANT_KAATHAR, {{ 1678 }}  },
+    { DATA_SOULBINDER_NYAMI, {{ 1685 }}  },
+    { DATA_AZZAKEL,          {{ 1686 }}  },
+    { DATA_TERONGOR,         {{ 1714 }}  }
 };
 
 class instance_auchindoun : public InstanceMapScript

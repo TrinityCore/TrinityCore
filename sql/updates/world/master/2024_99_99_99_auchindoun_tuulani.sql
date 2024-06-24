@@ -1,5 +1,4 @@
--- Uncomment when spawns are merged
--- UPDATE `creature` SET `StringId`='npc_auchenai_defender_intro' WHERE `guid`= @GUID+11; -- Auchenai Defender
+UPDATE `creature` SET `StringId`='npc_auchenai_defender_intro' WHERE `guid`= @GUID+11; -- Auchenai Defender
 
 UPDATE `creature_template` SET `ScriptName` = 'npc_auchindoun_soulbinder_tuulani' WHERE `entry`=79248; -- Soulbinder Tuulani
 UPDATE `creature_template` SET `ScriptName` = 'npc_auchindoun_auchenai_defender' WHERE `entry`=77693; -- Auchenai Defender
