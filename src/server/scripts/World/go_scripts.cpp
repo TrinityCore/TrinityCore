@@ -407,9 +407,9 @@ enum SoulWellData
     SPELL_IMPROVED_HEALTH_STONE_R1      = 18692,
     SPELL_IMPROVED_HEALTH_STONE_R2      = 18693,
 
-    SPELL_CREATE_MASTER_HEALTH_STONE_R0 = 34130,
-    SPELL_CREATE_MASTER_HEALTH_STONE_R1 = 34149,
-    SPELL_CREATE_MASTER_HEALTH_STONE_R2 = 34150,
+    SPELL_CREATE_MAJOR_HEALTH_STONE_R0 = 23819,
+    SPELL_CREATE_MAJOR_HEALTH_STONE_R1 = 23820,
+    SPELL_CREATE_MAJOR_HEALTH_STONE_R2 = 23821,
 
     SPELL_CREATE_FEL_HEALTH_STONE_R0    = 58890,
     SPELL_CREATE_FEL_HEALTH_STONE_R1    = 58896,
@@ -430,13 +430,13 @@ class go_soulwell : public GameObjectScript
                 switch (go->GetEntry())
                 {
                     case GO_SOUL_WELL_R1:
-                        _stoneSpell = SPELL_CREATE_MASTER_HEALTH_STONE_R0;
+                        _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R0;
                         if (Unit* owner = go->GetOwner())
                         {
                             if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
-                                _stoneSpell = SPELL_CREATE_MASTER_HEALTH_STONE_R1;
-                            else if (owner->HasAura(SPELL_CREATE_MASTER_HEALTH_STONE_R2))
-                                _stoneSpell = SPELL_CREATE_MASTER_HEALTH_STONE_R2;
+                                _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R1;
+                            else if (owner->HasAura(SPELL_CREATE_MAJOR_HEALTH_STONE_R2))
+                                _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R2;
                         }
                         break;
                     case GO_SOUL_WELL_R2:
@@ -445,7 +445,7 @@ class go_soulwell : public GameObjectScript
                         {
                             if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
                                 _stoneSpell = SPELL_CREATE_FEL_HEALTH_STONE_R1;
-                            else if (owner->HasAura(SPELL_CREATE_MASTER_HEALTH_STONE_R2))
+                            else if (owner->HasAura(SPELL_CREATE_MAJOR_HEALTH_STONE_R2))
                                 _stoneSpell = SPELL_CREATE_FEL_HEALTH_STONE_R2;
                         }
                         break;
