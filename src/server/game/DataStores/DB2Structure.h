@@ -183,7 +183,7 @@ struct AreaTriggerEntry
 struct AreaTriggerActionSetEntry
 {
     uint32 ID;
-    int32 Flags;
+    int16 Flags;
 
     EnumFlag<AreaTriggerActionSetFlag> GetFlags() const { return static_cast<AreaTriggerActionSetFlag>(Flags); }
 };

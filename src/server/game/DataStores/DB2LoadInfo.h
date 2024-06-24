@@ -227,7 +227,7 @@ struct AreaTriggerActionSetLoadInfo
     static constexpr DB2FieldMeta Fields[2] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "Flags" },
+        { true, FT_SHORT, "Flags" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 2, &AreaTriggerActionSetMeta::Instance, HOTFIX_SEL_AREA_TRIGGER_ACTION_SET };
