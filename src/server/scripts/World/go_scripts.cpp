@@ -445,7 +445,7 @@ class go_soulwell : public GameObjectScript
                         {
                             if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
                                 _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R1;
-                            else if (owner->HasAura(SPELL_CREATE_MAJOR_HEALTH_STONE_R2))
+                            else if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R2))
                                 _stoneSpell = SPELL_CREATE_MAJOR_HEALTH_STONE_R2;
                         }
                         break;
