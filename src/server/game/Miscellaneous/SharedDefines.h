@@ -776,7 +776,7 @@ enum SpellAttr9 : uint32
     SPELL_ATTR9_IGNORE_DEFAULT_RATED_BATTLEGROUND_RESTRICTIONS      = 0x00004000, // TITLE Ignore Default Rated Battleground Restrictions
     SPELL_ATTR9_DO_NOT_DISPLAY_POWER_COST                           = 0x00008000, // TITLE Do Not Display Power Cost (client only)
     SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET          = 0x00010000, // TITLE Next modal spell requires same unit target DESCRIPTION Prevents automatically casting the spell from SpellClassOptions::ModalNextSpell after current spell if target was changed (client only)
-    SPELL_ATTR9_UNK17                            = 0x00020000, // TITLE Unknown attribute 17@Attr9
+    SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT                             = 0x00020000, // TITLE AutoCast Off By Default
     SPELL_ATTR9_UNK18                            = 0x00040000, // TITLE Unknown attribute 18@Attr9
     SPELL_ATTR9_UNK19                            = 0x00080000, // TITLE Unknown attribute 19@Attr9
     SPELL_ATTR9_UNK20                            = 0x00100000, // TITLE Unknown attribute 20@Attr9
