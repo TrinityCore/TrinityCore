@@ -4841,6 +4841,7 @@ void Spell::TakePower()
 void Spell::TakeAmmo()
 {
     // Only players use ammo
+    return;
     Player* player = m_caster->ToPlayer();
     if (!player)
         return;
