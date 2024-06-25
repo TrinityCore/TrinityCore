@@ -24915,8 +24915,8 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
         {
             if (!spellInfo->HasAttribute(SPELL_ATTR8_REQUIRES_EQUIPPED_INV_TYPES))
             {
-                if (spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_ARMOR_SHIELD) || (1 << ITEM_SUBCLASS_ARMOR_IDOL) ||
-                    (1 << ITEM_SUBCLASS_ARMOR_TOTEM) || (1 << ITEM_SUBCLASS_ARMOR_SIGIL) || (1 << ITEM_SUBCLASS_ARMOR_RELIC))
+                if (spellInfo->EquippedItemSubClassMask & ((1 << ITEM_SUBCLASS_ARMOR_SHIELD) | (1 << ITEM_SUBCLASS_ARMOR_IDOL) |
+                    (1 << ITEM_SUBCLASS_ARMOR_TOTEM) | (1 << ITEM_SUBCLASS_ARMOR_SIGIL) | (1 << ITEM_SUBCLASS_ARMOR_RELIC)))
                 {
                     if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                         if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
