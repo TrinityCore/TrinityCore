@@ -407,8 +407,6 @@ class TC_GAME_API Spell
         void EffectApplyEnchantIllusion();
         void EffectUpdatePlayerPhase();
         void EffectUpdateZoneAurasAndPhases();
-        void EffectGiveArtifactPower();
-        void EffectGiveArtifactPowerNoBonus();
         void EffectPlaySceneScriptPackage();
         void EffectCreateSceneObject();
         void EffectCreatePrivateSceneObject();

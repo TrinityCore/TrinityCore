@@ -121,13 +121,6 @@ namespace WorldPackets
         class AreaTrigger;
     }
 
-    namespace Artifact
-    {
-        class ArtifactAddPower;
-        class ArtifactSetAppearance;
-        class ConfirmArtifactRespec;
-    }
-
     namespace AuctionHouse
     {
         class AuctionBrowseQuery;
@@ -1819,11 +1812,6 @@ class TC_GAME_API WorldSession
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
 
         void HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName);
-
-        // Artifact
-        void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
-        void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
-        void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
 
         // Scenario
         void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);

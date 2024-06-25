@@ -1113,7 +1113,6 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     {
         if (childItem->IsEquipped())
             _player->_ApplyItemMods(childItem, childItem->GetSlot(), false);
-        childItem->CopyArtifactDataFromParent(itemTarget);
         if (childItem->IsEquipped())
             _player->_ApplyItemMods(childItem, childItem->GetSlot(), true);
     }

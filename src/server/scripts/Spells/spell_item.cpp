@@ -3933,54 +3933,6 @@ class spell_item_zandalarian_charm : public SpellScriptLoader
         uint32 _spellId;
 };
 
-class spell_item_artifical_stamina : public AuraScript
-{
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
-    }
-
-    bool Load() override
-    {
-        return GetOwner()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-    {
-        if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
-            amount = GetEffectInfo(EFFECT_1).BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
-    }
-
-    void Register() override
-    {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_artifical_stamina::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
-    }
-};
-
-class spell_item_artifical_damage : public AuraScript
-{
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
-    }
-
-    bool Load() override
-    {
-        return GetOwner()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-    {
-        if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
-            amount = GetSpellInfo()->GetEffect(EFFECT_1).BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
-    }
-
-    void Register() override
-    {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_artifical_damage::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    }
-};
-
 enum AuraProcRemoveSpells
 {
     SPELL_TALISMAN_OF_ASCENDANCE    = 28200,
@@ -4824,8 +4776,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_universal_remote);
     new spell_item_zandalarian_charm("spell_item_unstable_power", SPELL_UNSTABLE_POWER_AURA_STACK);
     new spell_item_zandalarian_charm("spell_item_restless_strength", SPELL_RESTLESS_STRENGTH_AURA_STACK);
-    RegisterSpellScript(spell_item_artifical_stamina);
-    RegisterSpellScript(spell_item_artifical_damage);
     RegisterSpellScript(spell_item_talisman_of_ascendance);
     RegisterSpellScript(spell_item_battle_trance);
     RegisterSpellScript(spell_item_world_queller_focus);

@@ -325,9 +325,9 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectGiveRestedExperience,                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
     &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
     &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
-    &Spell::EffectGiveArtifactPower,                        //240 SPELL_EFFECT_GIVE_ARTIFACT_POWER
+    &Spell::EffectUnused,                                   //240 SPELL_EFFECT_GIVE_ARTIFACT_POWER
     &Spell::EffectUnused,                                   //241 SPELL_EFFECT_241
-    &Spell::EffectGiveArtifactPowerNoBonus,                 //242 SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS
+    &Spell::EffectUnused,                                   //242 SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS
     &Spell::EffectApplyEnchantIllusion,                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
@@ -5603,33 +5603,6 @@ void Spell::EffectUpdateZoneAurasAndPhases()
         return;
 
     unitTarget->ToPlayer()->UpdateAreaDependentAuras(unitTarget->GetAreaId());
-}
-
-void Spell::EffectGiveArtifactPower()
-{
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
-        return;
-
-    Player* playerCaster = m_caster->ToPlayer();
-    if (!playerCaster)
-        return;
-
-    if (Aura* artifactAura = playerCaster->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-        if (Item* artifact = playerCaster->GetItemByGuid(artifactAura->GetCastItemGUID()))
-            artifact->GiveArtifactXp(damage, m_CastItem, uint32(effectInfo->MiscValue));
-}
-
-void Spell::EffectGiveArtifactPowerNoBonus()
-{
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
-        return;
-
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    if (Aura* artifactAura = unitTarget->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-        if (Item* artifact = unitTarget->ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID()))
-            artifact->GiveArtifactXp(damage, m_CastItem, 0);
 }
 
 void Spell::EffectPlaySceneScriptPackage()

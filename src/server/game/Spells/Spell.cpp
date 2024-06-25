@@ -6581,27 +6581,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             }
             case SPELL_EFFECT_GIVE_ARTIFACT_POWER:
             case SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS:
-            {
-                Player* playerCaster = m_caster->ToPlayer();
-                if (!playerCaster)
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                Aura* artifactAura = playerCaster->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
-                if (!artifactAura)
-                    return SPELL_FAILED_NO_ARTIFACT_EQUIPPED;
-
-                Item* artifact = playerCaster->GetItemByGuid(artifactAura->GetCastItemGUID());
-                if (!artifact)
-                    return SPELL_FAILED_NO_ARTIFACT_EQUIPPED;
-
-                if (spellEffectInfo.Effect == SPELL_EFFECT_GIVE_ARTIFACT_POWER)
-                {
-                    ArtifactEntry const* artifactEntry = sArtifactStore.LookupEntry(artifact->GetTemplate()->GetArtifactID());
-                    if (!artifactEntry || artifactEntry->ArtifactCategoryID != spellEffectInfo.MiscValue)
-                        return SPELL_FAILED_WRONG_ARTIFACT_EQUIPPED;
-                }
-                break;
-            }
             case SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY:
             case SPELL_EFFECT_GRANT_BATTLEPET_LEVEL:
             case SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE:

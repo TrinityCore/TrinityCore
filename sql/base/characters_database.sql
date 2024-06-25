@@ -2569,55 +2569,6 @@ LOCK TABLES `item_instance` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `item_instance_artifact`
---
-
-DROP TABLE IF EXISTS `item_instance_artifact`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `item_instance_artifact` (
-  `itemGuid` bigint unsigned NOT NULL,
-  `xp` bigint unsigned NOT NULL DEFAULT '0',
-  `artifactAppearanceId` int unsigned NOT NULL DEFAULT '0',
-  `artifactTierId` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`itemGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `item_instance_artifact`
---
-
-LOCK TABLES `item_instance_artifact` WRITE;
-/*!40000 ALTER TABLE `item_instance_artifact` DISABLE KEYS */;
-/*!40000 ALTER TABLE `item_instance_artifact` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `item_instance_artifact_powers`
---
-
-DROP TABLE IF EXISTS `item_instance_artifact_powers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `item_instance_artifact_powers` (
-  `itemGuid` bigint unsigned NOT NULL,
-  `artifactPowerId` int unsigned NOT NULL,
-  `purchasedRank` tinyint unsigned DEFAULT '0',
-  PRIMARY KEY (`itemGuid`,`artifactPowerId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `item_instance_artifact_powers`
---
-
-LOCK TABLES `item_instance_artifact_powers` WRITE;
-/*!40000 ALTER TABLE `item_instance_artifact_powers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `item_instance_artifact_powers` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `item_instance_gems`
 --
 
@@ -3454,7 +3405,8 @@ INSERT INTO `updates` VALUES
 ('2024_04_12_00_characters.sql','043E023F998DA77170C9D2D0162CAA340290B215','ARCHIVED','2024-04-12 00:23:51',0),
 ('2024_06_01_00_characters.sql','0440E0A8BE109101B390A640397D9B024C8E124B','ARCHIVED','2024-06-01 19:29:34',0),
 ('2024_06_02_00_characters.sql','18D12ED7A1D30675AAB807BAEB886FCCC76CED21','ARCHIVED','2024-06-02 23:04:45',0),
-('2024_06_05_00_characters.sql','3BE1839524918827D4C0C8F9FBE9890CDF759FB4','RELEASED','2024-06-05 21:44:36',0);
+('2024_06_05_00_characters.sql','3BE1839524918827D4C0C8F9FBE9890CDF759FB4','RELEASED','2024-06-05 21:44:36',0),
+('2024_06_25_00_characters.sql','046AC59E8B828B0C81A1A3C79860E464D96228B8','RELEASED','2024-06-25 17:56:15',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -23,7 +23,6 @@
 #include "AdventureJournalPackets.h"
 #include "AdventureMapPackets.h"
 #include "AreaTriggerPackets.h"
-#include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"

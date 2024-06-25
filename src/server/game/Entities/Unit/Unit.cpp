@@ -11975,12 +11975,6 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
 
     if (Player const* player = ToPlayer())
     {
-        if (Aura* artifactAura = GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-            if (Item* artifact = player->GetItemByGuid(artifactAura->GetCastItemGUID()))
-                if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))
-                    if (ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID) == form)
-                        return artifactAppearance->OverrideShapeshiftDisplayID;
-
         if (ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(GetRace(), player->GetNativeGender(), form))
         {
             bool useRandom = false;

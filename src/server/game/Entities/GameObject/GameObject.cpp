@@ -16,7 +16,6 @@
  */
 
 #include "GameObject.h"
-#include "ArtifactPackets.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
 #include "CellImpl.h"
@@ -3294,44 +3293,6 @@ void GameObject::Use(Unit* user)
                 return;
 
             AssaultCapturePoint(player);
-            return;
-        }
-        case GAMEOBJECT_TYPE_ITEM_FORGE:
-        {
-            GameObjectTemplate const* info = GetGOInfo();
-            if (!info)
-                return;
-
-            if (user->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Player* player = user->ToPlayer();
-
-            if (!MeetsInteractCondition(player))
-                return;
-
-            switch (info->itemForge.ForgeType)
-            {
-                case 0: // Artifact Forge
-                case 1: // Relic Forge
-                {
-                    Aura const* artifactAura = player->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
-                    Item const* item = artifactAura ? player->GetItemByGuid(artifactAura->GetCastItemGUID()) : nullptr;
-                    if (!item)
-                    {
-                        player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_MUST_EQUIP_ARTIFACT).Write());
-                        return;
-                    }
-
-                    WorldPackets::Artifact::OpenArtifactForge openArtifactForge;
-                    openArtifactForge.ArtifactGUID = item->GetGUID();
-                    openArtifactForge.ForgeGUID = GetGUID();
-                    player->SendDirectMessage(openArtifactForge.Write());
-                    break;
-                }
-                default:
-                    break;
-            }
             return;
         }
         case GAMEOBJECT_TYPE_UI_LINK:

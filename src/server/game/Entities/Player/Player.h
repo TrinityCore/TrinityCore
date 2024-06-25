@@ -38,7 +38,6 @@ struct AccessRequirement;
 struct AchievementEntry;
 struct AreaTableEntry;
 struct AreaTriggerEntry;
-struct ArtifactPowerRankEntry;
 struct AzeriteEssencePowerEntry;
 struct AzeriteItemMilestonePowerEntry;
 struct AzeritePowerEntry;
@@ -50,7 +49,6 @@ struct ChrSpecializationEntry;
 struct CreatureTemplate;
 struct CurrencyTypesEntry;
 struct FactionEntry;
-struct ItemAdditionalLoadInfo;
 struct ItemExtendedCostEntry;
 struct ItemLimitCategoryEntry;
 struct ItemSetEffect;
@@ -868,10 +866,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_REPUTATION,
     PLAYER_LOGIN_QUERY_LOAD_INVENTORY,
-    PLAYER_LOGIN_QUERY_LOAD_ARTIFACTS,
     PLAYER_LOGIN_QUERY_LOAD_MAILS,
     PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS,
-    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_ARTIFACT,
     PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST,
     PLAYER_LOGIN_QUERY_LOAD_HOME_BIND,
     PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS,
@@ -2360,8 +2356,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool formChange = false);
         void UpdateEquipSpellsAtFormChange();
         void UpdateItemSetAuras(bool formChange = false);
-        void ApplyArtifactPowers(Item* item, bool apply);
-        void ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const* artifactPowerRank, bool apply);
 
         void CastItemCombatSpell(DamageInfo const& damageInfo);
         void CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemTemplate const* proto);
@@ -2906,10 +2900,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadActions(PreparedQueryResult result);
         void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
         void _LoadGlyphAuras();
-        void _LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, uint32 timeDiff);
+        void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
-        void _LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult, PreparedQueryResult artifactResult);
-        static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData);
+        void _LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult);
+        static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusObjectives(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
