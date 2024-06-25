@@ -123,6 +123,8 @@ public:
     void GetPositionOffsetTo(Position const & endPos, Position & retOffset) const;
     Position GetPositionWithOffset(Position const& offset) const;
 
+    void RelocatePositionByAngle(Position& pos, float dist, float angle, bool relative = false) const;
+
     float GetAbsoluteAngle(float x, float y) const
     {
         float dx = x - m_positionX;

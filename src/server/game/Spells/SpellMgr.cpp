@@ -4854,8 +4854,65 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // ENDOF THE AZURE VAULT SPELLS
+    // END OF THE AZURE VAULT SPELLS
+	
     //
+    // SANCTUM OF DOMINATION
+    //
+
+    // Domination Chain (Player)
+    ApplySpellFix({ 349451 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
+    // Rive Marker
+    ApplySpellFix({ 353419 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(65); // 1.5s
+    });
+
+    // Banshee Wail (Marker)
+    ApplySpellFix({ 357719 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // Activate Invigorating Fields
+    ApplySpellFix({ 353660 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(550); // -1s
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_CREATE_AREATRIGGER;
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+            spellEffectInfo->MiscValue = 40001;
+        });
+    });
+
+    // Invigorating Field Jump
+    ApplySpellFix({ 353642 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_3, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
+            spellEffectInfo->ApplyAuraName = SPELL_AURA_TRIGGER_SPELL_ON_EXPIRE;
+        });
+    });
+
+    // Veil of Darkness (Cast - Phase 3)
+    ApplySpellFix({ 354142 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+        });
+    });
+
+    // END OF SANCTUM OF DOMINATION
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
