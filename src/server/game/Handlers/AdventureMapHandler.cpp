@@ -17,54 +17,11 @@
 
 #include "WorldSession.h"
 #include "AdventureMapPackets.h"
-#include "DB2Stores.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 
-void WorldSession::HandleCheckIsAdventureMapPoiValid(WorldPackets::AdventureMap::CheckIsAdventureMapPoiValid& checkIsAdventureMapPoiValid)
+void WorldSession::HandleCheckIsAdventureMapPoiValid(WorldPackets::AdventureMap::CheckIsAdventureMapPoiValid& /*checkIsAdventureMapPoiValid*/)
 {
-    AdventureMapPOIEntry const* entry = sAdventureMapPOIStore.LookupEntry(checkIsAdventureMapPoiValid.AdventureMapPoiID);
-    if (!entry)
-        return;
-
-    auto sendIsPoiValid = [this](uint32 adventureMapPoiId, bool isVisible) -> void
-    {
-        WorldPackets::AdventureMap::PlayerIsAdventureMapPoiValid isMapPoiValid;
-        isMapPoiValid.AdventureMapPoiID = adventureMapPoiId;
-        isMapPoiValid.IsVisible = isVisible;
-        SendPacket(isMapPoiValid.Write());
-    };
-
-    Quest const* quest = sObjectMgr->GetQuestTemplate(entry->QuestID);
-    if (!quest)
-    {
-        sendIsPoiValid(entry->ID, false);
-        return;
-    }
-
-    if (!_player->MeetPlayerCondition(entry->PlayerConditionID))
-    {
-        sendIsPoiValid(entry->ID, false);
-        return;
-    }
-
-    sendIsPoiValid(entry->ID, true);
 }
 
-void WorldSession::HandleAdventureMapStartQuest(WorldPackets::AdventureMap::AdventureMapStartQuest& startQuest)
+void WorldSession::HandleAdventureMapStartQuest(WorldPackets::AdventureMap::AdventureMapStartQuest& /*startQuest*/)
 {
-    Quest const* quest = sObjectMgr->GetQuestTemplate(startQuest.QuestID);
-    if (!quest)
-        return;
-
-    auto itr = std::find_if(sAdventureMapPOIStore.begin(), sAdventureMapPOIStore.end(), [&](AdventureMapPOIEntry const* adventureMap)
-    {
-        return adventureMap->QuestID == uint32(startQuest.QuestID) && _player->MeetPlayerCondition(adventureMap->PlayerConditionID);
-    });
-
-    if (itr == sAdventureMapPOIStore.end())
-        return;
-
-    if (_player->CanTakeQuest(quest, true))
-        _player->AddQuestAndCheckCompletion(quest, _player);
 }

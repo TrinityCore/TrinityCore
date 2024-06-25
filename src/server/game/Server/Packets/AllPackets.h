@@ -20,7 +20,6 @@
 
 #include "AchievementPackets.h"
 #include "AddonPackets.h"
-#include "AdventureJournalPackets.h"
 #include "AdventureMapPackets.h"
 #include "AreaTriggerPackets.h"
 #include "AuctionHousePackets.h"
@@ -42,7 +41,6 @@
 #include "DuelPackets.h"
 #include "EquipmentSetPackets.h"
 #include "GameObjectPackets.h"
-#include "GarrisonPackets.h"
 #include "GuildPackets.h"
 #include "HotfixPackets.h"
 #include "InspectPackets.h"

@@ -170,39 +170,6 @@ struct LinkValidator<LinkTags::achievement>
 };
 
 template <>
-struct LinkValidator<LinkTags::apower>
-{
-    static bool IsTextValid(ArtifactPowerLinkData const& data, std::string_view text)
-    {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.ArtifactPower->SpellID, DIFFICULTY_NONE))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
-    }
-
-    static bool IsColorValid(ArtifactPowerLinkData const&, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_ARTIFACT_POWER;
-    }
-};
-
-template <>
-struct LinkValidator<LinkTags::azessence>
-{
-    static bool IsTextValid(AzeriteEssenceLinkData const& data, std::string_view text)
-    {
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (data.Essence->Name[i] == text)
-                return true;
-        return false;
-    }
-
-    static bool IsColorValid(AzeriteEssenceLinkData const& data, HyperlinkColor c)
-    {
-        return c == ItemQualityColors[data.Rank + 1];
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::battlepet>
 {
     static bool IsTextValid(BattlePetLinkData const& data, std::string_view text)
@@ -287,55 +254,6 @@ struct LinkValidator<LinkTags::enchant>
     static bool IsColorValid(SpellInfo const*, HyperlinkColor c)
     {
         return c == CHAT_LINK_COLOR_ENCHANT;
-    }
-};
-
-template <>
-struct LinkValidator<LinkTags::garrfollower>
-{
-    static bool IsTextValid(GarrisonFollowerLinkData const& data, std::string_view text)
-    {
-        return IsCreatureNameValid(data.Follower->HordeCreatureID, text)
-            || IsCreatureNameValid(data.Follower->AllianceCreatureID, text);
-    }
-
-    static bool IsColorValid(GarrisonFollowerLinkData const& data, HyperlinkColor c)
-    {
-        return c == ItemQualityColors[data.Quality];
-    }
-};
-
-template <>
-struct LinkValidator<LinkTags::garrfollowerability>
-{
-    static bool IsTextValid(GarrAbilityEntry const* ability, std::string_view text)
-    {
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (ability->Name[i] == text)
-                return true;
-        return false;
-    }
-
-    static bool IsColorValid(GarrAbilityEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_GARR_ABILITY;
-    }
-};
-
-template <>
-struct LinkValidator<LinkTags::garrmission>
-{
-    static bool IsTextValid(GarrisonMissionLinkData const& data, std::string_view text)
-    {
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (data.Mission->Name[i] == text)
-                return true;
-        return false;
-    }
-
-    static bool IsColorValid(GarrisonMissionLinkData const&, HyperlinkColor c)
-    {
-        return c == QuestDifficultyColors[2];
     }
 };
 
@@ -622,8 +540,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     using namespace LinkTags;
     TryValidateAs(achievement);
     TryValidateAs(api);
-    TryValidateAs(apower);
-    TryValidateAs(azessence);
     TryValidateAs(area);
     TryValidateAs(areatrigger);
     TryValidateAs(battlepet);
@@ -638,9 +554,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(gameevent);
     TryValidateAs(gameobject);
     TryValidateAs(gameobject_entry);
-    TryValidateAs(garrfollower);
-    TryValidateAs(garrfollowerability);
-    TryValidateAs(garrmission);
     TryValidateAs(instancelock);
     TryValidateAs(item);
     TryValidateAs(itemset);

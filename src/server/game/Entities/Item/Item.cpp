@@ -2306,9 +2306,6 @@ void BonusData::Initialize(ItemTemplate const* proto)
     RelicType = -1;
     HasFixedLevel = false;
     RequiredLevelOverride = 0;
-    AzeriteTierUnlockSetId = 0;
-    if (AzeriteEmpoweredItemEntry const* azeriteEmpoweredItem = sDB2Manager.GetAzeriteEmpoweredItem(proto->GetId()))
-        AzeriteTierUnlockSetId = azeriteEmpoweredItem->AzeriteTierUnlockSetID;
 
     Suffix = 0;
     RequiredLevelCurve = 0;
@@ -2433,11 +2430,6 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
             RequiredLevelOverride = values[0];
             break;
         case ITEM_BONUS_AZERITE_TIER_UNLOCK_SET:
-            if (values[1] < _state.AzeriteTierUnlockSetPriority)
-            {
-                AzeriteTierUnlockSetId = values[0];
-                _state.AzeriteTierUnlockSetPriority = values[1];
-            }
             break;
         case ITEM_BONUS_OVERRIDE_CAN_DISENCHANT:
             CanDisenchant = values[0] != 0;

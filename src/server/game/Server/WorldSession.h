@@ -104,12 +104,6 @@ namespace WorldPackets
         class GuildGetAchievementMembers;
     }
 
-    namespace AdventureJournal
-    {
-        class AdventureJournalOpenQuest;
-        class AdventureJournalUpdateSuggestions;
-    }
-
     namespace AdventureMap
     {
         class CheckIsAdventureMapPoiValid;
@@ -325,15 +319,6 @@ namespace WorldPackets
     {
         class GameObjReportUse;
         class GameObjUse;
-    }
-
-    namespace Garrison
-    {
-        class GetGarrisonInfo;
-        class GarrisonPurchaseBuilding;
-        class GarrisonCancelConstruction;
-        class GarrisonRequestBlueprintAndSpecializationData;
-        class GarrisonGetMapData;
     }
 
     namespace Guild
@@ -1746,10 +1731,6 @@ class TC_GAME_API WorldSession
         void HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride);
         void HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& queryCountdownTimer);
 
-        // Adventure Journal
-        void HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest);
-        void HandleAdventureJournalUpdateSuggestions(WorldPackets::AdventureJournal::AdventureJournalUpdateSuggestions& updateSuggestions);
-
         // Adventure Map
         void HandleCheckIsAdventureMapPoiValid(WorldPackets::AdventureMap::CheckIsAdventureMapPoiValid& CheckIsAdventureMapPoiValid);
         void HandleAdventureMapStartQuest(WorldPackets::AdventureMap::AdventureMapStartQuest& startQuest);
@@ -1773,13 +1754,6 @@ class TC_GAME_API WorldSession
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPackets::Misc::SaveCUFProfiles& packet);
         void SendLoadCUFProfiles();
-
-        // Garrison
-        void HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& getGarrisonInfo);
-        void HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& garrisonPurchaseBuilding);
-        void HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& garrisonCancelConstruction);
-        void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& garrisonRequestBlueprintAndSpecializationData);
-        void HandleGarrisonGetMapData(WorldPackets::Garrison::GarrisonGetMapData& garrisonGetMapData);
 
         // Battle Pets
         void HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& battlePetRequestJournal);

@@ -85,7 +85,6 @@ struct BonusData
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 RelicType;
     int32 RequiredLevelOverride;
-    int32 AzeriteTierUnlockSetId;
     uint32 Suffix;
     int32 RequiredLevelCurve;
     std::array<ItemEffectEntry const*, 13> Effects;

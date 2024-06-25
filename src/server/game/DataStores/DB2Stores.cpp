@@ -43,8 +43,6 @@
 
 DB2Storage<AchievementEntry>                    sAchievementStore("Achievement.db2", &AchievementLoadInfo::Instance);
 DB2Storage<Achievement_CategoryEntry>           sAchievementCategoryStore("Achievement_Category.db2", &AchievementCategoryLoadInfo::Instance);
-DB2Storage<AdventureJournalEntry>               sAdventureJournalStore("AdventureJournal.db2", &AdventureJournalLoadInfo::Instance);
-DB2Storage<AdventureMapPOIEntry>                sAdventureMapPOIStore("AdventureMapPOI.db2", &AdventureMapPoiLoadInfo::Instance);
 DB2Storage<AnimationDataEntry>                  sAnimationDataStore("AnimationData.db2", &AnimationDataLoadInfo::Instance);
 DB2Storage<AnimKitEntry>                        sAnimKitStore("AnimKit.db2", &AnimKitLoadInfo::Instance);
 DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroupMember.db2", &AreaGroupMemberLoadInfo::Instance);
@@ -52,29 +50,7 @@ DB2Storage<AreaTableEntry>                      sAreaTableStore("AreaTable.db2",
 DB2Storage<AreaTriggerEntry>                    sAreaTriggerStore("AreaTrigger.db2", &AreaTriggerLoadInfo::Instance);
 DB2Storage<AreaTriggerActionSetEntry>           sAreaTriggerActionSetStore("AreaTriggerActionSet.db2", &AreaTriggerActionSetLoadInfo::Instance);
 DB2Storage<ArmorLocationEntry>                  sArmorLocationStore("ArmorLocation.db2", &ArmorLocationLoadInfo::Instance);
-DB2Storage<ArtifactEntry>                       sArtifactStore("Artifact.db2", &ArtifactLoadInfo::Instance);
-DB2Storage<ArtifactAppearanceEntry>             sArtifactAppearanceStore("ArtifactAppearance.db2", &ArtifactAppearanceLoadInfo::Instance);
-DB2Storage<ArtifactAppearanceSetEntry>          sArtifactAppearanceSetStore("ArtifactAppearanceSet.db2", &ArtifactAppearanceSetLoadInfo::Instance);
-DB2Storage<ArtifactCategoryEntry>               sArtifactCategoryStore("ArtifactCategory.db2", &ArtifactCategoryLoadInfo::Instance);
-DB2Storage<ArtifactPowerEntry>                  sArtifactPowerStore("ArtifactPower.db2", &ArtifactPowerLoadInfo::Instance);
-DB2Storage<ArtifactPowerLinkEntry>              sArtifactPowerLinkStore("ArtifactPowerLink.db2", &ArtifactPowerLinkLoadInfo::Instance);
-DB2Storage<ArtifactPowerPickerEntry>            sArtifactPowerPickerStore("ArtifactPowerPicker.db2", &ArtifactPowerPickerLoadInfo::Instance);
-DB2Storage<ArtifactPowerRankEntry>              sArtifactPowerRankStore("ArtifactPowerRank.db2", &ArtifactPowerRankLoadInfo::Instance);
-DB2Storage<ArtifactQuestXPEntry>                sArtifactQuestXPStore("ArtifactQuestXP.db2", &ArtifactQuestXpLoadInfo::Instance);
-DB2Storage<ArtifactTierEntry>                   sArtifactTierStore("ArtifactTier.db2", &ArtifactTierLoadInfo::Instance);
-DB2Storage<ArtifactUnlockEntry>                 sArtifactUnlockStore("ArtifactUnlock.db2", &ArtifactUnlockLoadInfo::Instance);
 DB2Storage<AuctionHouseEntry>                   sAuctionHouseStore("AuctionHouse.db2", &AuctionHouseLoadInfo::Instance);
-DB2Storage<AzeriteEmpoweredItemEntry>           sAzeriteEmpoweredItemStore("AzeriteEmpoweredItem.db2", &AzeriteEmpoweredItemLoadInfo::Instance);
-DB2Storage<AzeriteEssenceEntry>                 sAzeriteEssenceStore("AzeriteEssence.db2", &AzeriteEssenceLoadInfo::Instance);
-DB2Storage<AzeriteEssencePowerEntry>            sAzeriteEssencePowerStore("AzeriteEssencePower.db2", &AzeriteEssencePowerLoadInfo::Instance);
-DB2Storage<AzeriteItemEntry>                    sAzeriteItemStore("AzeriteItem.db2", &AzeriteItemLoadInfo::Instance);
-DB2Storage<AzeriteItemMilestonePowerEntry>      sAzeriteItemMilestonePowerStore("AzeriteItemMilestonePower.db2", &AzeriteItemMilestonePowerLoadInfo::Instance);
-DB2Storage<AzeriteKnowledgeMultiplierEntry>     sAzeriteKnowledgeMultiplierStore("AzeriteKnowledgeMultiplier.db2", &AzeriteKnowledgeMultiplierLoadInfo::Instance);
-DB2Storage<AzeriteLevelInfoEntry>               sAzeriteLevelInfoStore("AzeriteLevelInfo.db2", &AzeriteLevelInfoLoadInfo::Instance);
-DB2Storage<AzeritePowerEntry>                   sAzeritePowerStore("AzeritePower.db2", &AzeritePowerLoadInfo::Instance);
-DB2Storage<AzeritePowerSetMemberEntry>          sAzeritePowerSetMemberStore("AzeritePowerSetMember.db2", &AzeritePowerSetMemberLoadInfo::Instance);
-DB2Storage<AzeriteTierUnlockEntry>              sAzeriteTierUnlockStore("AzeriteTierUnlock.db2", &AzeriteTierUnlockLoadInfo::Instance);
-DB2Storage<AzeriteTierUnlockSetEntry>           sAzeriteTierUnlockSetStore("AzeriteTierUnlockSet.db2", &AzeriteTierUnlockSetLoadInfo::Instance);
 DB2Storage<BankBagSlotPricesEntry>              sBankBagSlotPricesStore("BankBagSlotPrices.db2", &BankBagSlotPricesLoadInfo::Instance);
 DB2Storage<BannedAddonsEntry>                   sBannedAddonsStore("BannedAddons.db2", &BannedAddonsLoadInfo::Instance);
 DB2Storage<BarberShopStyleEntry>                sBarberShopStyleStore("BarberShopStyle.db2", &BarberShopStyleLoadInfo::Instance);
@@ -138,19 +114,6 @@ DB2Storage<FriendshipReputationEntry>           sFriendshipReputationStore("Frie
 DB2Storage<GameObjectArtKitEntry>               sGameObjectArtKitStore("GameObjectArtKit.db2", &GameobjectArtKitLoadInfo::Instance);
 DB2Storage<GameObjectDisplayInfoEntry>          sGameObjectDisplayInfoStore("GameObjectDisplayInfo.db2", &GameobjectDisplayInfoLoadInfo::Instance);
 DB2Storage<GameObjectsEntry>                    sGameObjectsStore("GameObjects.db2", &GameobjectsLoadInfo::Instance);
-DB2Storage<GarrAbilityEntry>                    sGarrAbilityStore("GarrAbility.db2", &GarrAbilityLoadInfo::Instance);
-DB2Storage<GarrBuildingEntry>                   sGarrBuildingStore("GarrBuilding.db2", &GarrBuildingLoadInfo::Instance);
-DB2Storage<GarrBuildingPlotInstEntry>           sGarrBuildingPlotInstStore("GarrBuildingPlotInst.db2", &GarrBuildingPlotInstLoadInfo::Instance);
-DB2Storage<GarrClassSpecEntry>                  sGarrClassSpecStore("GarrClassSpec.db2", &GarrClassSpecLoadInfo::Instance);
-DB2Storage<GarrFollowerEntry>                   sGarrFollowerStore("GarrFollower.db2", &GarrFollowerLoadInfo::Instance);
-DB2Storage<GarrFollowerXAbilityEntry>           sGarrFollowerXAbilityStore("GarrFollowerXAbility.db2", &GarrFollowerXAbilityLoadInfo::Instance);
-DB2Storage<GarrMissionEntry>                    sGarrMissionStore("GarrMission.db2", &GarrMissionLoadInfo::Instance);
-DB2Storage<GarrPlotEntry>                       sGarrPlotStore("GarrPlot.db2", &GarrPlotLoadInfo::Instance);
-DB2Storage<GarrPlotBuildingEntry>               sGarrPlotBuildingStore("GarrPlotBuilding.db2", &GarrPlotBuildingLoadInfo::Instance);
-DB2Storage<GarrPlotInstanceEntry>               sGarrPlotInstanceStore("GarrPlotInstance.db2", &GarrPlotInstanceLoadInfo::Instance);
-DB2Storage<GarrSiteLevelEntry>                  sGarrSiteLevelStore("GarrSiteLevel.db2", &GarrSiteLevelLoadInfo::Instance);
-DB2Storage<GarrSiteLevelPlotInstEntry>          sGarrSiteLevelPlotInstStore("GarrSiteLevelPlotInst.db2", &GarrSiteLevelPlotInstLoadInfo::Instance);
-DB2Storage<GarrTalentTreeEntry>                 sGarrTalentTreeStore("GarrTalentTree.db2", &GarrTalentTreeLoadInfo::Instance);
 DB2Storage<GemPropertiesEntry>                  sGemPropertiesStore("GemProperties.db2", &GemPropertiesLoadInfo::Instance);
 DB2Storage<GlyphBindableSpellEntry>             sGlyphBindableSpellStore("GlyphBindableSpell.db2", &GlyphBindableSpellLoadInfo::Instance);
 DB2Storage<GlyphSlotEntry>                      sGlyphSlotStore("GlyphSlot.db2", &GlyphSlotLoadInfo::Instance);
@@ -378,9 +341,6 @@ DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry)
 
 typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
-typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> ArtifactPowersContainer;
-typedef std::unordered_map<uint32, std::vector<uint32>> ArtifactPowerLinksContainer;
-typedef std::unordered_map<std::pair<uint32, uint8>, ArtifactPowerRankEntry const*> ArtifactPowerRanksContainer;
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
 typedef std::unordered_map<uint32 /*curveID*/, std::vector<DBCPosition2D>> CurvePointsContainer;
 typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
@@ -432,15 +392,6 @@ namespace
     std::array<std::map<HotfixBlobKey, std::vector<DB2Manager::HotfixOptionalData>>, TOTAL_LOCALES> _hotfixOptionalData;
 
     AreaGroupMemberContainer _areaGroupMembers;
-    ArtifactPowersContainer _artifactPowers;
-    ArtifactPowerLinksContainer _artifactPowerLinks;
-    ArtifactPowerRanksContainer _artifactPowerRanks;
-    std::unordered_map<uint32 /*itemId*/, AzeriteEmpoweredItemEntry const*> _azeriteEmpoweredItems;
-    std::unordered_map<std::pair<uint32 /*azeriteEssenceId*/, uint32 /*rank*/>, AzeriteEssencePowerEntry const*> _azeriteEssencePowersByIdAndRank;
-    std::vector<AzeriteItemMilestonePowerEntry const*> _azeriteItemMilestonePowers;
-    std::array<AzeriteItemMilestonePowerEntry const*, MAX_AZERITE_ESSENCE_SLOT> _azeriteItemMilestonePowerByEssenceSlot;
-    std::unordered_map<uint32 /*azeritePowerSetId*/, std::vector<AzeritePowerSetMemberEntry const*>> _azeritePowers;
-    std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
@@ -629,8 +580,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     LOAD_DB2(sAchievementStore);
     LOAD_DB2(sAchievementCategoryStore);
-    LOAD_DB2(sAdventureJournalStore);
-    LOAD_DB2(sAdventureMapPOIStore);
     LOAD_DB2(sAnimationDataStore);
     LOAD_DB2(sAnimKitStore);
     LOAD_DB2(sAreaGroupMemberStore);
@@ -638,28 +587,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sAreaTriggerStore);
     LOAD_DB2(sAreaTriggerActionSetStore);
     LOAD_DB2(sArmorLocationStore);
-    LOAD_DB2(sArtifactStore);
-    LOAD_DB2(sArtifactAppearanceStore);
-    LOAD_DB2(sArtifactAppearanceSetStore);
-    LOAD_DB2(sArtifactCategoryStore);
-    LOAD_DB2(sArtifactPowerStore);
-    LOAD_DB2(sArtifactPowerLinkStore);
-    LOAD_DB2(sArtifactPowerPickerStore);
-    LOAD_DB2(sArtifactPowerRankStore);
-    LOAD_DB2(sArtifactTierStore);
-    LOAD_DB2(sArtifactUnlockStore);
     LOAD_DB2(sAuctionHouseStore);
-    LOAD_DB2(sAzeriteEmpoweredItemStore);
-    LOAD_DB2(sAzeriteEssenceStore);
-    LOAD_DB2(sAzeriteEssencePowerStore);
-    LOAD_DB2(sAzeriteItemStore);
-    LOAD_DB2(sAzeriteItemMilestonePowerStore);
-    LOAD_DB2(sAzeriteKnowledgeMultiplierStore);
-    LOAD_DB2(sAzeriteLevelInfoStore);
-    LOAD_DB2(sAzeritePowerStore);
-    LOAD_DB2(sAzeritePowerSetMemberStore);
-    LOAD_DB2(sAzeriteTierUnlockStore);
-    LOAD_DB2(sAzeriteTierUnlockSetStore);
     LOAD_DB2(sBankBagSlotPricesStore);
     LOAD_DB2(sBannedAddonsStore);
     LOAD_DB2(sBarberShopStyleStore);
@@ -723,19 +651,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGameObjectsStore);
     LOAD_DB2(sGameObjectArtKitStore);
     LOAD_DB2(sGameObjectDisplayInfoStore);
-    LOAD_DB2(sGarrAbilityStore);
-    LOAD_DB2(sGarrBuildingStore);
-    LOAD_DB2(sGarrBuildingPlotInstStore);
-    LOAD_DB2(sGarrClassSpecStore);
-    LOAD_DB2(sGarrFollowerStore);
-    LOAD_DB2(sGarrFollowerXAbilityStore);
-    LOAD_DB2(sGarrMissionStore);
-    LOAD_DB2(sGarrPlotStore);
-    LOAD_DB2(sGarrPlotBuildingStore);
-    LOAD_DB2(sGarrPlotInstanceStore);
-    LOAD_DB2(sGarrSiteLevelStore);
-    LOAD_DB2(sGarrSiteLevelPlotInstStore);
-    LOAD_DB2(sGarrTalentTreeStore);
     LOAD_DB2(sGemPropertiesStore);
     LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphSlotStore);
@@ -985,53 +900,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         ASSERT(areaTable->AreaBit <= 0 || (size_t(areaTable->AreaBit / 64) < PLAYER_EXPLORED_ZONES_SIZE),
             "PLAYER_EXPLORED_ZONES_SIZE must be at least %d", (areaTable->AreaBit + 63) / 64);
     }
-
-    for (ArtifactPowerEntry const* artifactPower : sArtifactPowerStore)
-        _artifactPowers[artifactPower->ArtifactID].push_back(artifactPower);
-
-    for (ArtifactPowerLinkEntry const* artifactPowerLink : sArtifactPowerLinkStore)
-    {
-        _artifactPowerLinks[artifactPowerLink->PowerA].push_back(artifactPowerLink->PowerB);
-        _artifactPowerLinks[artifactPowerLink->PowerB].push_back(artifactPowerLink->PowerA);
-    }
-
-    for (ArtifactPowerRankEntry const* artifactPowerRank : sArtifactPowerRankStore)
-        _artifactPowerRanks[std::pair<uint32, uint8>{ artifactPowerRank->ArtifactPowerID, artifactPowerRank->RankIndex }] = artifactPowerRank;
-
-    for (AzeriteEmpoweredItemEntry const* azeriteEmpoweredItem : sAzeriteEmpoweredItemStore)
-        _azeriteEmpoweredItems[azeriteEmpoweredItem->ItemID] = azeriteEmpoweredItem;
-
-    for (AzeriteEssencePowerEntry const* azeriteEssencePower : sAzeriteEssencePowerStore)
-        _azeriteEssencePowersByIdAndRank[std::pair<uint32, uint32>{ azeriteEssencePower->AzeriteEssenceID, azeriteEssencePower->Tier }] = azeriteEssencePower;
-
-    for (AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower : sAzeriteItemMilestonePowerStore)
-        _azeriteItemMilestonePowers.push_back(azeriteItemMilestonePower);
-
-    std::sort(_azeriteItemMilestonePowers.begin(), _azeriteItemMilestonePowers.end(), [](AzeriteItemMilestonePowerEntry const* a1, AzeriteItemMilestonePowerEntry const* a2)
-    {
-        return a1->RequiredLevel < a2->RequiredLevel;
-    });
-
-    {
-        uint32 azeriteEssenceSlot = 0;
-        for (AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower : _azeriteItemMilestonePowers)
-        {
-            AzeriteItemMilestoneType type = AzeriteItemMilestoneType(azeriteItemMilestonePower->Type);
-            if (type == AzeriteItemMilestoneType::MajorEssence || type == AzeriteItemMilestoneType::MinorEssence)
-            {
-                ASSERT(azeriteEssenceSlot < MAX_AZERITE_ESSENCE_SLOT);
-                _azeriteItemMilestonePowerByEssenceSlot[azeriteEssenceSlot] = azeriteItemMilestonePower;
-                ++azeriteEssenceSlot;
-            }
-        }
-    }
-
-    for (AzeritePowerSetMemberEntry const* azeritePowerSetMember : sAzeritePowerSetMemberStore)
-        if (sAzeritePowerStore.LookupEntry(azeritePowerSetMember->AzeritePowerID))
-            _azeritePowers[azeritePowerSetMember->AzeritePowerSetID].push_back(azeritePowerSetMember);
-
-    for (AzeriteTierUnlockEntry const* azeriteTierUnlock : sAzeriteTierUnlockStore)
-        _azeriteTierUnlockLevels[std::pair<uint32, ItemContext>{ azeriteTierUnlock->AzeriteTierUnlockSetID, ItemContext(azeriteTierUnlock->ItemCreationContext) }][azeriteTierUnlock->Tier] = azeriteTierUnlock->AzeriteLevel;
 
     for (BattlemasterListEntry const* battlemaster : sBattlemasterListStore)
     {
@@ -1890,74 +1758,6 @@ bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
 ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* /*areaEntry*/)
 {
     return nullptr;
-}
-
-std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const
-{
-    auto itr = _artifactPowers.find(artifactId);
-    if (itr != _artifactPowers.end())
-        return itr->second;
-
-    return std::vector<ArtifactPowerEntry const*>{};
-}
-
-std::vector<uint32> const* DB2Manager::GetArtifactPowerLinks(uint32 artifactPowerId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_artifactPowerLinks, artifactPowerId);
-}
-
-ArtifactPowerRankEntry const* DB2Manager::GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const
-{
-    return Trinity::Containers::MapGetValuePtr(_artifactPowerRanks, { artifactPowerId, rank });
-}
-
-AzeriteEmpoweredItemEntry const* DB2Manager::GetAzeriteEmpoweredItem(uint32 itemId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_azeriteEmpoweredItems, itemId);
-}
-
-bool DB2Manager::IsAzeriteItem(uint32 itemId) const
-{
-    return std::find_if(sAzeriteItemStore.begin(), sAzeriteItemStore.end(),
-        [&](AzeriteItemEntry const* azeriteItem) { return azeriteItem->ItemID == int32(itemId); }) != sAzeriteItemStore.end();
-}
-
-AzeriteEssencePowerEntry const* DB2Manager::GetAzeriteEssencePower(uint32 azeriteEssenceId, uint32 rank) const
-{
-    return Trinity::Containers::MapGetValuePtr(_azeriteEssencePowersByIdAndRank, std::make_pair(azeriteEssenceId, rank));
-}
-
-std::vector<AzeriteItemMilestonePowerEntry const*> const& DB2Manager::GetAzeriteItemMilestonePowers() const
-{
-    return _azeriteItemMilestonePowers;
-}
-
-AzeriteItemMilestonePowerEntry const* DB2Manager::GetAzeriteItemMilestonePower(uint8 slot) const
-{
-    ASSERT(slot < MAX_AZERITE_ESSENCE_SLOT, "Slot %u must be lower than MAX_AZERITE_ESSENCE_SLOT (%u)", uint32(slot), MAX_AZERITE_ESSENCE_SLOT);
-    return _azeriteItemMilestonePowerByEssenceSlot[slot];
-}
-
-std::vector<AzeritePowerSetMemberEntry const*> const* DB2Manager::GetAzeritePowers(uint32 itemId) const
-{
-    if (AzeriteEmpoweredItemEntry const* azeriteEmpoweredItem = GetAzeriteEmpoweredItem(itemId))
-        return Trinity::Containers::MapGetValuePtr(_azeritePowers, azeriteEmpoweredItem->AzeritePowerSetID);
-
-    return nullptr;
-}
-
-uint32 DB2Manager::GetRequiredAzeriteLevelForAzeritePowerTier(uint32 azeriteUnlockSetId, ItemContext context, uint32 tier) const
-{
-    ASSERT(tier < MAX_AZERITE_EMPOWERED_TIER);
-    if (std::array<uint8, MAX_AZERITE_EMPOWERED_TIER> const* levels = Trinity::Containers::MapGetValuePtr(_azeriteTierUnlockLevels, std::make_pair(azeriteUnlockSetId, context)))
-        return (*levels)[tier];
-
-    AzeriteTierUnlockSetEntry const* azeriteTierUnlockSet = sAzeriteTierUnlockSetStore.LookupEntry(azeriteUnlockSetId);
-    if (azeriteTierUnlockSet && azeriteTierUnlockSet->Flags & AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT)
-        if (std::array<uint8, MAX_AZERITE_EMPOWERED_TIER> const* levels = Trinity::Containers::MapGetValuePtr(_azeriteTierUnlockLevels, std::make_pair(azeriteUnlockSetId, ItemContext::NONE)))
-            return (*levels)[tier];
-
-    return sAzeriteLevelInfoStore.GetNumRows();
 }
 
 char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)

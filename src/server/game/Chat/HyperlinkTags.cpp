@@ -106,30 +106,6 @@ bool Trinity::Hyperlinks::LinkTags::api::StoreTo(ApiLinkData& val, std::string_v
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::apower::StoreTo(ArtifactPowerLinkData& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 artifactPowerId;
-    if (!(t.TryConsumeTo(artifactPowerId) && t.TryConsumeTo(val.PurchasedRank) && t.TryConsumeTo(val.CurrentRankWithBonus) && t.IsEmpty()))
-        return false;
-    if (!sArtifactPowerStore.LookupEntry(artifactPowerId))
-        return false;
-    val.ArtifactPower = sDB2Manager.GetArtifactPowerRank(artifactPowerId, std::max<uint8>(val.CurrentRankWithBonus, 1));
-    if (val.ArtifactPower)
-        return false;
-    return true;
-}
-
-bool Trinity::Hyperlinks::LinkTags::azessence::StoreTo(AzeriteEssenceLinkData& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 azeriteEssenceId;
-    if (!t.TryConsumeTo(azeriteEssenceId))
-        return false;
-    return (val.Essence = sAzeriteEssenceStore.LookupEntry(azeriteEssenceId)) && t.TryConsumeTo(val.Rank)
-        && sDB2Manager.GetAzeriteEssencePower(azeriteEssenceId, val.Rank) && t.IsEmpty();
-}
-
 bool Trinity::Hyperlinks::LinkTags::battlepet::StoreTo(BattlePetLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -200,52 +176,6 @@ bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std:
     if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
         return false;
     return !!(val = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE)) && val->HasAttribute(SPELL_ATTR0_IS_TRADESKILL);
-}
-
-bool Trinity::Hyperlinks::LinkTags::garrfollower::StoreTo(GarrisonFollowerLinkData& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 garrFollowerId;
-    if (!t.TryConsumeTo(garrFollowerId))
-        return false;
-
-    val.Follower = sGarrFollowerStore.LookupEntry(garrFollowerId);
-    if (!val.Follower || !t.TryConsumeTo(val.Quality) || val.Quality >= MAX_ITEM_QUALITY || !t.TryConsumeTo(val.Level) || !t.TryConsumeTo(val.ItemLevel)
-        || !t.TryConsumeTo(val.Abilities[0]) || !t.TryConsumeTo(val.Abilities[1]) || !t.TryConsumeTo(val.Abilities[2]) || !t.TryConsumeTo(val.Abilities[3])
-        || !t.TryConsumeTo(val.Traits[0]) || !t.TryConsumeTo(val.Traits[1]) || !t.TryConsumeTo(val.Traits[2]) || !t.TryConsumeTo(val.Traits[3])
-        || !t.TryConsumeTo(val.Specialization) || !t.IsEmpty())
-        return false;
-
-    for (uint32 ability : val.Abilities)
-        if (ability && !sGarrAbilityStore.LookupEntry(ability))
-            return false;
-
-    for (uint32 trait : val.Traits)
-        if (trait && !sGarrAbilityStore.LookupEntry(trait))
-            return false;
-
-    if (val.Specialization && !sGarrAbilityStore.LookupEntry(val.Specialization))
-        return false;
-
-    return true;
-}
-
-bool Trinity::Hyperlinks::LinkTags::garrfollowerability::StoreTo(GarrAbilityEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 garrAbilityId;
-    if (!t.TryConsumeTo(garrAbilityId))
-        return false;
-    return !!(val = sGarrAbilityStore.LookupEntry(garrAbilityId)) && t.IsEmpty();
-}
-
-bool Trinity::Hyperlinks::LinkTags::garrmission::StoreTo(GarrisonMissionLinkData& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 garrMissionId;
-    if (!t.TryConsumeTo(garrMissionId))
-        return false;
-    return !!(val.Mission = sGarrMissionStore.LookupEntry(garrMissionId)) && t.TryConsumeTo(val.DbID) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::instancelock::StoreTo(InstanceLockLinkData& val, std::string_view text)
