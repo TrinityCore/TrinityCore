@@ -985,7 +985,7 @@ class spell_gen_clone_weapon_aura : public AuraScript
 
                 if (Player* player = caster->ToPlayer())
                 {
-                    if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                    if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
                         target->SetVirtualItem(2, rangedItem->GetEntry());
                 }
                 else

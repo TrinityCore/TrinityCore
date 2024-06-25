@@ -1908,10 +1908,12 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
 
                 if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
                 {
-                    if (damageInfo->GetAttackType() != OFF_ATTACK)
+                    if (damageInfo->GetAttackType() == BASE_ATTACK)
                         item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                    else
+                    else if (damageInfo->GetAttackType() == OFF_ATTACK)
                         item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                    else
+                        item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
                 }
             }
             else if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_ARMOR)

@@ -8202,7 +8202,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
                                 slot = EQUIPMENT_SLOT_OFFHAND;
                                 break;
                             case RANGED_ATTACK:
-                                slot = EQUIPMENT_SLOT_MAINHAND;
+                                slot = EQUIPMENT_SLOT_RANGED;
                                 break;
                             default:
                                 slot = EQUIPMENT_SLOT_END;
@@ -9177,7 +9177,7 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     {
         case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
         case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-        case RANGED_ATTACK: slot = EQUIPMENT_SLOT_MAINHAND;   break;
+        case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
         default: return nullptr;
     }
 
@@ -9241,8 +9241,9 @@ WeaponAttackType Player::GetAttackBySlot(uint8 slot, InventoryType inventoryType
 {
     switch (slot)
     {
-        case EQUIPMENT_SLOT_MAINHAND: return inventoryType != INVTYPE_RANGED && inventoryType != INVTYPE_RANGEDRIGHT ? BASE_ATTACK : RANGED_ATTACK;
+        case EQUIPMENT_SLOT_MAINHAND: return BASE_ATTACK;
         case EQUIPMENT_SLOT_OFFHAND:  return OFF_ATTACK;
+        case EQUIPMENT_SLOT_RANGED:   return (inventoryType == INVTYPE_RANGED || inventoryType == INVTYPE_THROWN || inventoryType == INVTYPE_RANGEDRIGHT) ? RANGED_ATTACK : MAX_ATTACK;
         default:                      return MAX_ATTACK;
     }
 }
@@ -11321,6 +11322,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         {
             case EQUIPMENT_SLOT_MAINHAND:
             case EQUIPMENT_SLOT_OFFHAND:
+            case EQUIPMENT_SLOT_RANGED:
                 RecalculateRating(CR_ARMOR_PENETRATION);
                 break;
             default:
@@ -11595,6 +11597,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                     {
                         case EQUIPMENT_SLOT_MAINHAND:
                         case EQUIPMENT_SLOT_OFFHAND:
+                        case EQUIPMENT_SLOT_RANGED:
                             RecalculateRating(CR_ARMOR_PENETRATION);
                             break;
                         default:
@@ -11732,6 +11735,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                 {
                     case EQUIPMENT_SLOT_MAINHAND:
                     case EQUIPMENT_SLOT_OFFHAND:
+                    case EQUIPMENT_SLOT_RANGED:
                         RecalculateRating(CR_ARMOR_PENETRATION);
                         break;
                     default:
@@ -24902,16 +24906,23 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
             if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                 if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
                     return true;
+            if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
+                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                    return true;
             break;
         }
         case ITEM_CLASS_ARMOR:
         {
             if (!spellInfo->HasAttribute(SPELL_ATTR8_REQUIRES_EQUIPPED_INV_TYPES))
             {
-                // most used check: shield only
-                if (spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_ARMOR_SHIELD))
+                if (spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_ARMOR_SHIELD) || (1 << ITEM_SUBCLASS_ARMOR_IDOL) ||
+                    (1 << ITEM_SUBCLASS_ARMOR_TOTEM) || (1 << ITEM_SUBCLASS_ARMOR_SIGIL) || (1 << ITEM_SUBCLASS_ARMOR_RELIC))
                 {
                     if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                        if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                            return true;
+
+                    if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
                         if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
                             return true;
 

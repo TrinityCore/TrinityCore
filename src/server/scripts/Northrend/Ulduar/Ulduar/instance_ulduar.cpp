@@ -686,7 +686,7 @@ class instance_ulduar : public InstanceMapScript
                             Map::PlayerList const& players = instance->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 if (Player* player = itr->GetSource())
-                                    for (uint8 slot = EQUIPMENT_SLOT_MAINHAND; slot <= EQUIPMENT_SLOT_OFFHAND; ++slot)
+                                    for (uint8 slot = EQUIPMENT_SLOT_MAINHAND; slot <= EQUIPMENT_SLOT_RANGED; ++slot)
                                         if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
                                             if (item->GetItemLevel(player) > _maxWeaponItemLevel)
                                                 _maxWeaponItemLevel = item->GetItemLevel(player);
@@ -707,7 +707,7 @@ class instance_ulduar : public InstanceMapScript
 
                                         if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
                                         {
-                                            if (slot >= EQUIPMENT_SLOT_MAINHAND && slot <= EQUIPMENT_SLOT_OFFHAND)
+                                            if (slot >= EQUIPMENT_SLOT_MAINHAND && slot <= EQUIPMENT_SLOT_RANGED)
                                             {
                                                 if (item->GetItemLevel(player) > _maxWeaponItemLevel)
                                                     _maxWeaponItemLevel = item->GetItemLevel(player);
