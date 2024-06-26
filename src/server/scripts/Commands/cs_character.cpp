@@ -424,17 +424,15 @@ public:
 
         if (Player* target = player->GetConnectedPlayer())
         {
-            // Check if the player is below level 10
             if (target->GetLevel() < 10)
             {
-                handler->PSendSysMessage("Players below level 10 cannot change faction.");
+                handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_10);
                 return false;
             }
 
-            // Check if the Death Knight below level 60
             if (target->GetClass() == CLASS_DEATH_KNIGHT && target->GetLevel() < 60)
             {
-                handler->PSendSysMessage("Death Knights below level 60 cannot change faction.");
+                handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_60);
                 return false;
             }
 

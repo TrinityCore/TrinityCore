@@ -1209,6 +1209,8 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_HORDE             = 10055,
 
     // 10056-10066 - free
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_10    = 10056,
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_60    = 10057,
 
     // Use for custom patches               11000-11999
     LANG_AUTO_BROADCAST                   = 11000,
