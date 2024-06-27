@@ -1454,7 +1454,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET: return { "SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET", "Next modal spell requires same unit target", "Prevents automatically casting the spell from SpellClassOptions::ModalNextSpell after current spell if target was changed (client only)" };
         case SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT: return { "SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT", "AutoCast Off By Default", "" };
         case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return { "SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT", "Ignore School Lockout", "" };
-        case SPELL_ATTR9_UNK19: return { "SPELL_ATTR9_UNK19", "Unknown attribute 19@Attr9", "" };
+        case SPELL_ATTR9_ALLOW_DARK_SIMULACRUM: return { "SPELL_ATTR9_ALLOW_DARK_SIMULACRUM", "Allow Dark Simulacrum", "" };
         case SPELL_ATTR9_UNK20: return { "SPELL_ATTR9_UNK20", "Unknown attribute 20@Attr9", "" };
         case SPELL_ATTR9_UNK21: return { "SPELL_ATTR9_UNK21", "Unknown attribute 21@Attr9", "" };
         case SPELL_ATTR9_UNK22: return { "SPELL_ATTR9_UNK22", "Unknown attribute 22@Attr9", "" };
@@ -1498,7 +1498,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 16: return SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET;
         case 17: return SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT;
         case 18: return SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT;
-        case 19: return SPELL_ATTR9_UNK19;
+        case 19: return SPELL_ATTR9_ALLOW_DARK_SIMULACRUM;
         case 20: return SPELL_ATTR9_UNK20;
         case 21: return SPELL_ATTR9_UNK21;
         case 22: return SPELL_ATTR9_UNK22;
@@ -1539,7 +1539,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_NEXT_MODAL_SPELL_REQUIRES_SAME_UNIT_TARGET: return 16;
         case SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT: return 17;
         case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return 18;
-        case SPELL_ATTR9_UNK19: return 19;
+        case SPELL_ATTR9_ALLOW_DARK_SIMULACRUM: return 19;
         case SPELL_ATTR9_UNK20: return 20;
         case SPELL_ATTR9_UNK21: return 21;
         case SPELL_ATTR9_UNK22: return 22;
