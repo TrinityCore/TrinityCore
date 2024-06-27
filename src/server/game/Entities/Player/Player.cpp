@@ -3752,7 +3752,10 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-        return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS;
+        int32 cooldown = -1;
+        int32 categoryCooldown = -1;
+        SpellHistory::GetCooldownDurations(spellInfo, itr->second.ItemId, &cooldown, nullptr, &categoryCooldown);
+        return cooldown < 10 * MINUTE * IN_MILLISECONDS && categoryCooldown < 10 * MINUTE * IN_MILLISECONDS;
     }, true);
 
     // pet cooldowns
