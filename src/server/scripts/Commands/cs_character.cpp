@@ -422,20 +422,24 @@ public:
         if (!player)
             return false;
 
+        CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(player->GetGUID());
+        if (!characterInfo)
+            return false;
+
+        if (characterInfo->Level < 10)
+        {
+            handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_10);
+            return false;
+        }
+
+        if (characterInfo->Class == CLASS_DEATH_KNIGHT && characterInfo->Level < 60)
+        {
+            handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_60);
+            return false;
+        }
+
         if (Player* target = player->GetConnectedPlayer())
         {
-            if (target->GetLevel() < 10)
-            {
-                handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_10);
-                return false;
-            }
-
-            if (target->GetClass() == CLASS_DEATH_KNIGHT && target->GetLevel() < 60)
-            {
-                handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_60);
-                return false;
-            }
-
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
         }
