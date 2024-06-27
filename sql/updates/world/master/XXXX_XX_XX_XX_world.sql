@@ -47,10 +47,6 @@ DELETE FROM `areatrigger_template` WHERE (`Id`=17933 AND `IsCustom`=0);
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
 (17933, 0, 0, 55165);
 
-DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` = 17933 AND `IsCustom` = 0;
-INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsCustom`, `ActionType`, `ActionParam`, `TargetType`) VALUES
-(17933, 0, 0, 269932, 0);
-
 DELETE FROM `areatrigger_create_properties` WHERE (`Id`=13339 AND `IsCustom`=0);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `VerifiedBuild`) VALUES
 (13339, 0, 17933, 0, 1040, 0, 0, 0, 0, -1, 0, 0, 6283, 30000, 4, 1.5, 1.5, 5, 5, 1, 1, 0, 0, 55165); -- Spell: 269931 (Gust Slash)
@@ -58,6 +54,18 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 DELETE FROM `areatrigger_create_properties_orbit` WHERE (`AreaTriggerCreatePropertiesId`=13339 AND `IsCustom`=0);
 INSERT INTO `areatrigger_create_properties_orbit` (`AreaTriggerCreatePropertiesId`, `IsCustom`, `StartDelay`, `CircleRadius`, `BlendFromRadius`, `InitialAngle`, `ZOffset`, `CounterClockwise`, `CanLoop`, `VerifiedBuild`) VALUES
 (13339, 0, 0, 5, 0, 0, 0, 0, 1, 55165); -- Spell: 269931 (Gust Slash)
+
+-- Clientside area trigger 17933 smart ai
+SET @ENTRY := 17933;
+DELETE FROM `areatrigger_scripts` WHERE `entry` = @ENTRY;
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES (@ENTRY, 'SmartTrigger');
+DELETE FROM `smart_scripts` WHERE `source_type` = 2 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(@ENTRY, 2, 0, 0, '', 46, 0, 100, 0, 17933, 0, 0, 0, 85, 269932, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On trigger - Triggering player: Cast spell 269932 on self');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 17933 AND `SourceId` = 2;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 17933, 2, 0, 31, 0, 4, 0, 0, '', 0, 'Action invoker is player');
 
 -- Spawngroups
 DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWNGROUPID;

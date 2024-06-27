@@ -278,7 +278,7 @@ class spell_kings_rest_pit_of_despair : public AuraScript
     }
 };
 
-constexpr Position ShadowOfZulPreBossSpawnPosition = { -1066.0365f, 2643.302f, 819.37024f, 5.028946f };
+constexpr Position ShadowOfZulSerpentBossEventSpawnPosition = { -1066.0365f, 2643.302f, 819.37024f, 5.028946f };
 
 // 288466 - Serpentine Seal
 struct go_kings_rest_serpentine_seal : public GameObjectAI
@@ -290,8 +290,8 @@ struct go_kings_rest_serpentine_seal : public GameObjectAI
         me->UseDoorOrButton();
         _scheduler.Schedule(3s, [this](TaskContext)
         {
-            if (TempSummon* zul = me->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulPreBossSpawnPosition))
-                zul->SetScriptStringId("PreBossEvent");
+            if (TempSummon* zul = me->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulSerpentBossEventSpawnPosition))
+                zul->SetScriptStringId("SerpentBossEvent");
         });
         return true;
     }
@@ -312,11 +312,11 @@ struct npc_kings_rest_shadow_of_zul : public ScriptedAI
 
     void JustAppeared() override
     {
-        if (me->HasStringId("PreBossEvent"))
-            PreBossEvent();
+        if (me->HasStringId("SerpentBossEvent"))
+            SerpentBossEvent();
     }
 
-    void PreBossEvent()
+    void SerpentBossEvent()
     {
         Seconds delay = 1s;
 
@@ -478,6 +478,9 @@ struct npc_kings_rest_shadow_borne_witch_doctor : public npc_kings_rest_temple_b
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
     }
 
@@ -532,6 +535,9 @@ struct npc_kings_rest_shadow_borne_champion : public npc_kings_rest_temple_basic
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
     }
 
