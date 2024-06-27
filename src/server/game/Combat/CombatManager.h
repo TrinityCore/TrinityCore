@@ -105,7 +105,7 @@ class TC_GAME_API CombatManager
         void Update(uint32 tdiff); // called from Unit::Update
 
         Unit* GetOwner() const { return _owner; }
-        bool HasCombat() const { return HasPvECombat() || HasPvPCombat(); }
+        bool HasCombat() const { return HasPvECombat() || HasPvPCombat() || _owner->HasAura(2687) || _owner->HasAura(5229); }
         bool HasPvECombat() const;
         bool HasPvECombatWithPlayers() const;
         std::unordered_map<ObjectGuid, CombatReference*> const& GetPvECombatRefs() const { return _pveRefs; }
@@ -126,6 +126,7 @@ class TC_GAME_API CombatManager
         void RevalidateCombat();
         void EndAllPvPCombat();
         void EndAllCombat() { EndAllPvECombat(); EndAllPvPCombat(); }
+        void SetForcedCombat(bool state) { m_forcedCombat = state; }
 
         CombatManager(CombatManager const&) = delete;
         CombatManager& operator=(CombatManager const&) = delete;
@@ -138,6 +139,8 @@ class TC_GAME_API CombatManager
         Unit* const _owner;
         std::unordered_map<ObjectGuid, CombatReference*> _pveRefs;
         std::unordered_map<ObjectGuid, PvPCombatReference*> _pvpRefs;
+
+        bool m_forcedCombat;
 
     friend struct CombatReference;
     friend struct PvPCombatReference;
