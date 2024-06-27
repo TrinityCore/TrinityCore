@@ -1460,7 +1460,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetChannelObjectGuid(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, guid); }
 
         void SetCurrentCastSpell(Spell* pSpell);
-        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
+        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
 
         // set withDelayed to true to account delayed spells as cast
