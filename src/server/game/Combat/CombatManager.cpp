@@ -157,6 +157,11 @@ bool CombatManager::HasPvECombat() const
     return false;
 }
 
+bool CombatManager::HasCombat() const
+{
+    return HasPvECombat() || HasPvPCombat() || GetOwner()->HasAura(2687) || GetOwner()->HasAura(5229);
+}
+
 bool CombatManager::HasPvECombatWithPlayers() const
 {
     for (std::pair<ObjectGuid const, CombatReference*> const& reference : _pveRefs)
