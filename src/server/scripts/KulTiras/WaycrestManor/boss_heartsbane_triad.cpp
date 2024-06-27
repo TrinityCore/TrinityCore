@@ -396,7 +396,7 @@ struct boss_sister_malady : public TriadSharedAI
             DoCastSelf(SPELL_RUNIC_WARD);
 
             if (Creature* sisterBriar = instance->GetCreature(DATA_SISTER_BRIAR))
-                sisterBriar->AI()->DoAction(ACTION_BRIAR_CLAIM_THE_IRIS);  
+                sisterBriar->AI()->DoAction(ACTION_BRIAR_CLAIM_THE_IRIS);
 
             events.CancelEvent(EVENT_RUINOUS_BOLT_ENHANCED);
             events.CancelEvent(EVENT_UNSTABLE_RUNIC_MARK);
