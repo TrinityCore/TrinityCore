@@ -69,6 +69,19 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (131825, 2, 0, 'My thorns will rip you to shreds!', 14, 0, 50, 0, 0, 97508, 144961, 0, 'Sister Briar to Player'),
 (131825, 2, 1, 'The more you struggle, the more you\'ll bleed!', 14, 0, 50, 0, 0, 97507, 144960, 0, 'Sister Briar to Player');
 
+-- Areatrigger
+DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (13196, 13179, 13177));
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `VerifiedBuild`) VALUES
+(13196, 0, 17807, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 52485), -- Spell: 268122 (Aura of Thorns)
+(13179, 0, 17791, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 52485), -- Spell: 268088 (Aura of Dread)
+(13177, 0, 17789, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 52485); -- Spell: 268077 (Aura of Apathy)
+
+DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (17807, 17791, 17789));
+INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
+(17807, 0, 0, 52485),
+(17791, 0, 0, 52485),
+(17789, 0, 0, 52485);
+
 -- Spells
 DELETE FROM `spell_script_names` WHERE `spell_id`=260741;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -97,3 +110,19 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=260773;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (260773, 'spell_dire_ritual');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=268077;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(268077, 'spell_aura_of_apathy');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=268088;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(268088, 'spell_aura_of_dread');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=268085;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(268085, 'spell_aura_of_dread_movement_check');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=268125;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(268125, 'spell_aura_of_thorns');

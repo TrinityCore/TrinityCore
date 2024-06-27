@@ -16,7 +16,9 @@
  */
 
 #include "Creature.h"
+#include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -30,6 +32,8 @@ enum HeartsbaneTriadSpells
     SPELL_BRAMBLE_BOLT_ENHANCED = 260697,
     SPELL_JAGGED_NETTLES        = 260741,
     SPELL_IRONBARK_SHIELD       = 261265,
+    SPELL_AURA_OF_THORNS        = 268122,
+    SPELL_AURA_OF_THORNS_CHECK_PROC = 268125,
 
     // Sister Malady
     SPELL_RUINOUS_BOLT          = 260700,
@@ -37,6 +41,9 @@ enum HeartsbaneTriadSpells
     SPELL_RUNIC_WARD            = 261266,
     SPELL_UNSTABLE_RUNIC_MARK   = 260703,
     SPELL_UNSTABLE_RUNIC_MARK_DAMAGE = 260702,
+    SPELL_AURA_OF_DREAD         = 268088,
+    SPELL_AURA_OF_DREAD_DAMAGE  = 268086,
+    SPELL_AURA_OF_DREAD_MOVE_CHECK = 268085,
 
     // Sister Solena
     SPELL_SOUL_BOLT             = 260699,
@@ -46,6 +53,8 @@ enum HeartsbaneTriadSpells
     SPELL_SOUL_MANIPULATION_CHARM            = 260900,
     SPELL_SOUL_MANIPULATION_DAMAGE_REDUCTION = 260923,
     SPELL_SOUL_MANIPULATION_VISUAL           = 260926,
+    SPELL_AURA_OF_APATHY        = 268077,
+    SPELL_AURA_OF_APATHY_DEBUFF = 268080,
 
     SPELL_DIRE_RITUAL           = 260773,
     SPELL_CLAIM_THE_IRIS        = 260852,
@@ -80,20 +89,23 @@ enum HeartsbaneTriadEvents
     EVENT_BRAMBLE_BOLT_ENHANCED = 2,
     EVENT_JAGGED_NETTLES        = 3,
     EVENT_BRIAR_TAKE_IRIS       = 4,
+    EVENT_AURA_OF_THORNS        = 5,
 
     // Sister Malady
-    EVENT_RUINOUS_BOLT          = 5,
-    EVENT_RUINOUS_BOLT_ENHANCED = 6,
-    EVENT_UNSTABLE_RUNIC_MARK   = 7,
-    EVENT_MALADY_TAKE_IRIS      = 8,
+    EVENT_RUINOUS_BOLT          = 6,
+    EVENT_RUINOUS_BOLT_ENHANCED = 7,
+    EVENT_UNSTABLE_RUNIC_MARK   = 8,
+    EVENT_MALADY_TAKE_IRIS      = 9,
+    EVENT_AURA_OF_DREAD         = 10,
 
     // Sister Solena
-    EVENT_SOUL_BOLT             = 9,
-    EVENT_SOUL_BOLT_ENHANCED    = 10,
-    EVENT_SOUL_MANIPULATION     = 11,
-    EVENT_SOLENA_TAKE_IRIS      = 12,
+    EVENT_SOUL_BOLT             = 11,
+    EVENT_SOUL_BOLT_ENHANCED    = 12,
+    EVENT_SOUL_MANIPULATION     = 13,
+    EVENT_SOLENA_TAKE_IRIS      = 14,
+    EVENT_AURA_OF_APATHY        = 15,
 
-    EVENT_CHECK_POWER           = 13
+    EVENT_CHECK_POWER           = 16
 };
 
 enum HeartsbaneTriadActions
@@ -129,6 +141,7 @@ void DespawnTriad(InstanceScript* instance, EvadeReason why)
     {
         if (Creature* triad = instance->GetCreature(bossesData))
         {
+            triad->RemoveAurasDueToSpell(SPELL_FOCUSING_IRIS);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, triad);
             triad->AI()->EnterEvadeMode(why);
         }
@@ -197,19 +210,19 @@ struct TriadSharedAI : public BossAI
     {
         if (eventId == EVENT_CHECK_POWER)
         {
-            if (me->GetPower(me->GetPowerType()) >= 100)
+            if (me->GetPower(POWER_ENERGY) >= 100)
             {
                 Talk(SAY_DIRE_RITUAL_ALERT);
                 Talk(SAY_DIRE_RITUAL);
                 DoCast(SPELL_DIRE_RITUAL);
             }
-            events.Repeat(500ms);
+            events.Repeat(1000ms);
         }
     }
 
     virtual void ScheduleEvents()
     {
-        events.ScheduleEvent(EVENT_CHECK_POWER, 500ms);
+        events.ScheduleEvent(EVENT_CHECK_POWER, 1000ms);
     };
 
     void JustDied(Unit* /*killer*/) override
@@ -327,10 +340,18 @@ struct boss_sister_briar : public TriadSharedAI
                 if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
                     DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
 
+                if (IsHeroic() || IsMythic())
+                    events.ScheduleEvent(EVENT_AURA_OF_THORNS, 1600ms);
+
                 me->RemoveAurasDueToSpell(SPELL_IRONBARK_SHIELD);
                 events.CancelEvent(EVENT_BRAMBLE_BOLT);
                 events.ScheduleEvent(EVENT_BRAMBLE_BOLT_ENHANCED, 4700ms);
                 events.ScheduleEvent(EVENT_JAGGED_NETTLES, 14600ms);
+                break;
+            }
+            case EVENT_AURA_OF_THORNS:
+            {
+                DoCastSelf(SPELL_AURA_OF_THORNS);
                 break;
             }
             default:
@@ -447,11 +468,19 @@ struct boss_sister_malady : public TriadSharedAI
                 if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
                     DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
 
+                if (IsHeroic() || IsMythic())
+                    events.ScheduleEvent(EVENT_AURA_OF_DREAD, 1600ms);
+
                 me->RemoveAurasDueToSpell(SPELL_RUNIC_WARD);
 
                 events.CancelEvent(EVENT_RUINOUS_BOLT);
                 events.ScheduleEvent(EVENT_RUINOUS_BOLT_ENHANCED, 4700ms);
                 events.ScheduleEvent(EVENT_UNSTABLE_RUNIC_MARK, 14600ms);
+                break;
+            }
+            case EVENT_AURA_OF_DREAD:
+            {
+                DoCastSelf(SPELL_AURA_OF_DREAD);
                 break;
             }
             default:
@@ -533,6 +562,9 @@ struct boss_sister_solena : public TriadSharedAI
             {
                 if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
                     DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
+
+                if (IsHeroic() || IsMythic())
+                    events.ScheduleEvent(EVENT_AURA_OF_APATHY, 1600ms);
                 break;
             }
             case ACTION_SOLENA_CLAIM_THE_IRIS:
@@ -607,11 +639,19 @@ struct boss_sister_solena : public TriadSharedAI
                 if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
                     DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
 
+                if (IsHeroic() || IsMythic())
+                    events.ScheduleEvent(EVENT_AURA_OF_APATHY, 1600ms);
+
                 me->RemoveAurasDueToSpell(SPELL_SOUL_ARMOR);
 
                 events.CancelEvent(EVENT_SOUL_BOLT);
                 events.ScheduleEvent(EVENT_SOUL_BOLT_ENHANCED, 4700ms);
                 events.ScheduleEvent(EVENT_SOUL_MANIPULATION, 14600ms);
+                break;
+            }
+            case EVENT_AURA_OF_APATHY:
+            {
+                DoCastSelf(SPELL_AURA_OF_APATHY);
                 break;
             }
             default:
@@ -788,6 +828,140 @@ class spell_dire_ritual : public SpellScript
     }
 };
 
+// 268077 - Aura of Apathy
+class spell_aura_of_apathy : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AURA_OF_APATHY_DEBUFF });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        for (MapReference const& players : caster->GetMap()->GetPlayers())
+        {
+            if (Player* player = players.GetSource())
+            {
+                player->CastSpell(player, SPELL_AURA_OF_APATHY_DEBUFF, true);
+
+                if (!caster->HasAura(SPELL_FOCUSING_IRIS))
+                {
+                    GetAura()->Remove();
+                    player->RemoveAurasDueToSpell(SPELL_AURA_OF_APATHY_DEBUFF);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_apathy::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 268088 - Aura of Dread
+class spell_aura_of_dread : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AURA_OF_DREAD_DAMAGE, SPELL_AURA_OF_DREAD_MOVE_CHECK });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        for (MapReference const& players : caster->GetMap()->GetPlayers())
+        {
+            if (Player* player = players.GetSource())
+            {
+                player->CastSpell(player, SPELL_AURA_OF_DREAD_DAMAGE, true);
+                player->CastSpell(player, SPELL_AURA_OF_DREAD_MOVE_CHECK, true);
+
+                if (!caster->HasAura(SPELL_FOCUSING_IRIS))
+                {
+                    GetAura()->Remove();
+                    player->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_MOVE_CHECK);
+                    player->GetAura(SPELL_AURA_OF_DREAD_DAMAGE)->Remove();
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_dread::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 268085 - Aura of Dread
+class spell_aura_of_dread_movement_check : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AURA_OF_DREAD_DAMAGE });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->isMoving())
+        {
+            if (Aura* stack = caster->GetAura(SPELL_AURA_OF_DREAD_DAMAGE, caster->GetGUID()))
+            {
+                if (stack->GetStackAmount() > 1)
+                    caster->RemoveAuraFromStack(SPELL_AURA_OF_DREAD_DAMAGE);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_dread_movement_check::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 268122 - Aura of Thorns
+class spell_aura_of_thorns : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AURA_OF_THORNS_CHECK_PROC });
+    }
+
+    bool CheckPlayer(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetActor()->HasAura(SPELL_AURA_OF_THORNS_CHECK_PROC);
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        for (MapReference const& players : caster->GetMap()->GetPlayers())
+        {
+            if (Player* player = players.GetSource())
+            {
+                player->CastSpell(player, SPELL_AURA_OF_THORNS_CHECK_PROC, true);
+
+                if (!caster->HasAura(SPELL_FOCUSING_IRIS))
+                {
+                    GetAura()->Remove();
+                    player->RemoveAurasDueToSpell(SPELL_AURA_OF_THORNS_CHECK_PROC);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_aura_of_thorns::CheckPlayer, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_thorns::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_boss_heartsbane_triad()
 {
     RegisterWaycrestManorCreatureAI(boss_sister_briar);
@@ -801,4 +975,8 @@ void AddSC_boss_heartsbane_triad()
     RegisterSpellScript(spell_soul_manipulation_selector);
     RegisterSpellScript(spell_unstable_runic_mark);
     RegisterSpellScript(spell_dire_ritual);
+    RegisterSpellScript(spell_aura_of_apathy);
+    RegisterSpellScript(spell_aura_of_dread);
+    RegisterSpellScript(spell_aura_of_dread_movement_check);
+    RegisterSpellScript(spell_aura_of_thorns);
 }
