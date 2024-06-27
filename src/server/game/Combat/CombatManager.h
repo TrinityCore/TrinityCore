@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
+#include "Unit.h"
 
 class Unit;
 
