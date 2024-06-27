@@ -123,6 +123,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=268085;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (268085, 'spell_aura_of_dread_movement_check');
 
-DELETE FROM `spell_script_names` WHERE `spell_id`=268125;
+DELETE FROM `spell_script_names` WHERE `spell_id`=268122;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(268125, 'spell_aura_of_thorns');
+(268122, 'spell_aura_of_thorns');
