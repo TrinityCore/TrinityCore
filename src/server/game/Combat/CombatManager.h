@@ -21,7 +21,6 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
-#include "Unit.h"
 
 class Unit;
 
@@ -106,7 +105,7 @@ class TC_GAME_API CombatManager
         void Update(uint32 tdiff); // called from Unit::Update
 
         Unit* GetOwner() const { return _owner; }
-        bool HasCombat() const { return HasPvECombat() || HasPvPCombat() || _owner->HasAura(2687) || _owner->HasAura(5229); }
+        bool HasCombat() const;
         bool HasPvECombat() const;
         bool HasPvECombatWithPlayers() const;
         std::unordered_map<ObjectGuid, CombatReference*> const& GetPvECombatRefs() const { return _pveRefs; }
