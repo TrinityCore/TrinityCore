@@ -114,6 +114,31 @@ class spell_warr_bloodthirst : public SpellScript
     }
 };
 
+//29131 - bloodrage
+class spell_warr_bloodrage : public AuraScript
+{
+    PrepareAuraScript(spell_warr_bloodrage);
+
+    bool Load() override
+    {
+        return GetOwner()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void UpdateCombat(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+
+        Player* player = GetTarget()->ToPlayer();
+        player->GetCombatManager().UpdateOwnerCombatState();
+
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_warr_bloodrage::UpdateCombat, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warr_bloodrage::UpdateCombat, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 23880 - Bloodthirst (Heal)
 class spell_warr_bloodthirst_heal : public SpellScript
 {
@@ -943,4 +968,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vigilance);
     RegisterSpellScript(spell_warr_vigilance_redirect_threat);
     RegisterSpellScript(spell_warr_vigilance_trigger);
+    RegisterSpellScript(spell_warr_bloodrage);
 }
