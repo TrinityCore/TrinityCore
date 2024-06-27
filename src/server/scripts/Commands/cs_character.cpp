@@ -429,12 +429,14 @@ public:
         if (characterInfo->Level < 10)
         {
             handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_10);
+            handler->SetSentErrorMessage(true);
             return false;
         }
 
         if (characterInfo->Class == CLASS_DEATH_KNIGHT && characterInfo->Level < 60)
         {
             handler->PSendSysMessage(LANG_CHANGEFACTION_NOT_ELIGIBLE_60);
+            handler->SetSentErrorMessage(true);
             return false;
         }
 
