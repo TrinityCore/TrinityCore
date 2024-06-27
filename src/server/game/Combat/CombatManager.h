@@ -126,7 +126,7 @@ class TC_GAME_API CombatManager
         void RevalidateCombat();
         void EndAllPvPCombat();
         void EndAllCombat() { EndAllPvECombat(); EndAllPvPCombat(); }
-        void SetForcedCombat(bool state) { m_forcedCombat = state; }
+        bool UpdateOwnerCombatState() const;
 
         CombatManager(CombatManager const&) = delete;
         CombatManager& operator=(CombatManager const&) = delete;
@@ -135,7 +135,6 @@ class TC_GAME_API CombatManager
         static void NotifyAICombat(Unit* me, Unit* other);
         void PutReference(ObjectGuid const& guid, CombatReference* ref);
         void PurgeReference(ObjectGuid const& guid, bool pvp);
-        bool UpdateOwnerCombatState() const;
         Unit* const _owner;
         std::unordered_map<ObjectGuid, CombatReference*> _pveRefs;
         std::unordered_map<ObjectGuid, PvPCombatReference*> _pvpRefs;
