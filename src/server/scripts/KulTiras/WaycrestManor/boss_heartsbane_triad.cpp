@@ -732,7 +732,7 @@ class spell_soul_manipulation_selector : public SpellScript
     {
         targets.remove_if([&](WorldObject const* target)
         {
-            if (target = GetCaster()->GetThreatManager().GetCurrentVictim())
+            if (target == GetCaster()->GetThreatManager().GetCurrentVictim())
                 return true;
             return false;
         });
