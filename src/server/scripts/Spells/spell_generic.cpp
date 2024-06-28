@@ -70,6 +70,38 @@ class spell_gen_absorb0_hitlimit1 : public AuraScript
     }
 };
 
+class spell_shadowmeld : public SpellScript
+{
+    PrepareSpellScript(spell_shadowmeld);
+
+    void HandleShadowmeld()
+    {
+        Unit* target = GetCaster();
+
+        target->CombatStop(false, false);
+
+        UnitList targets;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetMap()->GetVisibilityRange());
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
+        Cell::VisitAllObjects(target, searcher, target->GetMap()->GetVisibilityRange());
+        for (auto& pair : target->GetThreatManager().GetThreatenedByMeList())
+            pair.second->ScaleThreat(0.0f);
+
+        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+
+        // prevent interrupt message
+        if (GetCaster()->GetGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
+            target->FinishSpell(CURRENT_GENERIC_SPELL, false);
+        target->InterruptNonMeleeSpells(true);
+        //target->InterruptSpell(75);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_shadowmeld::HandleShadowmeld);
+    }
+};
+
 //pet move to - 81354
 class spell_pet_moveto : public SpellScript
 {
@@ -4776,4 +4808,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_cannon_blast);
     RegisterSpellScript(spell_gen_submerged);
     RegisterSpellScript(spell_pet_moveto);
+    RegisterSpellScript(spell_shadowmeld);
 }
