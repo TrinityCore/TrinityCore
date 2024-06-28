@@ -1167,7 +1167,6 @@ void Spell::EffectSendEvent()
         if (effectInfo->GetProvidedTargetMask() & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK))
             return;
         // some spells have no target entries in dbc and they use focus target
-        GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
         if (focusObject)
             target = focusObject;
         /// @todo there should be a possibility to pass dest target to event script
@@ -3376,7 +3375,6 @@ void Spell::EffectSummonObjectWild()
 
     GameObject* pGameObj = new GameObject();
 
-    GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
     WorldObject* target = focusObject;
     if (!target)
         target = m_caster;

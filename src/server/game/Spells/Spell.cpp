@@ -576,7 +576,8 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_procAttacker = 0;
     m_procVictim = 0;
     m_hitMask = 0;
-    focusObjectGUID = ObjectGuid::Empty;
+    focusObject = nullptr;
+    m_focusObjectGUID.Clear();
     m_cast_count = 0;
     m_glyphIndex = 0;
     m_triggeredByAuraSpell  = nullptr;
@@ -850,7 +851,6 @@ void Spell::SelectSpellTargets()
 
         if (m_spellInfo->IsChanneled())
         {
-            GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
             // maybe do this for all spells?
             if (!focusObject && m_UniqueTargetInfo.empty() && m_UniqueGOTargetInfo.empty() && m_UniqueItemInfo.empty() && !m_targets.HasDst())
             {
@@ -1101,7 +1101,6 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
             case TARGET_OBJECT_TYPE_GOBJ:
                 if (m_spellInfo->RequiresSpellFocus)
                 {
-                    GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
                     if (focusObject)
                         AddGOTarget(focusObject, effMask);
                     else
@@ -1115,7 +1114,6 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
             case TARGET_OBJECT_TYPE_DEST:
                 if (m_spellInfo->RequiresSpellFocus)
                 {
-                    GameObject* focusObject = !focusObjectGUID.IsEmpty() ? ObjectAccessor::GetGameObject(*m_caster, focusObjectGUID) : nullptr;
                     if (focusObject)
                     {
                         SpellDestination dest(*focusObject);
@@ -5428,7 +5426,8 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     // check spell focus object
     if (m_spellInfo->RequiresSpellFocus)
     {
-        if (GameObject* focusObject = SearchSpellFocus())
+        focusObject = SearchSpellFocus();
+        if (focusObject)
             focusObjectGUID = focusObject->GetGUID();
         else
             return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
@@ -7286,6 +7285,13 @@ bool Spell::UpdatePointers()
         m_originalCaster = ObjectAccessor::GetUnit(*m_caster, m_originalCasterGUID);
         if (m_originalCaster && !m_originalCaster->IsInWorld())
             m_originalCaster = nullptr;
+    }
+
+    if (m_focusObjectGUID)
+    {
+        focusObject = ObjectAccessor::GetGameObject(*m_caster, m_focusObjectGUID);
+        if (focusObject && !focusObject->IsInWorld())
+            focusObject = nullptr;
     }
 
     if (m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
