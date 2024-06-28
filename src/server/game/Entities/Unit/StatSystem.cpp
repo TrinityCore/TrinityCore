@@ -145,7 +145,7 @@ bool Player::UpdateStats(Stats stat)
 
     UpdateArmor();
     UpdateSpellDamageAndHealingBonus();
-    UpdateManaRegen();
+    UpdatePowerRegen(POWER_MANA);
     return true;
 }
 
@@ -219,11 +219,13 @@ bool Player::UpdateAllStats()
     UpdateParryPercentage();
     UpdateDodgePercentage();
     UpdateSpellDamageAndHealingBonus();
-    UpdateManaRegen();
     UpdateExpertise(BASE_ATTACK);
     UpdateExpertise(OFF_ATTACK);
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
+
+    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+        UpdatePowerRegen(Powers(i));
 
     return true;
 }
@@ -785,7 +787,7 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 void Player::ApplyManaRegenBonus(int32 amount, bool apply)
 {
     _ModifyUInt32(apply, m_baseManaRegen, amount);
-    UpdateManaRegen();
+    UpdatePowerRegen(POWER_MANA);
 }
 
 void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
@@ -793,42 +795,90 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
     _ModifyUInt32(apply, m_baseHealthRegen, amount);
 }
 
-void Player::UpdateManaRegen()
+void Player::UpdatePowerRegen(Powers powerType)
 {
-    uint32 manaIndex = GetPowerIndex(POWER_MANA);
-    if (manaIndex == MAX_POWERS)
+    uint32 powerIndex = GetPowerIndex(powerType);
+    if (powerIndex == MAX_POWERS && powerType != POWER_RUNES)
         return;
 
-    // Get base of Mana Pool in sBaseMPGameTable
-    uint32 basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
+    float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
+    float powerRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, powerType);
 
-    float powerRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-    float manaRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
+    switch (powerType)
+    {
+        case POWER_MANA:
+        {
+            // Get base of Mana Pool in sBaseMPGameTable
+            uint32 basemana = 0;
+            sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
 
-    // BaseRegen = 5% of Base Mana per five seconds
-    float baseRegen = basemana / 100.f;
-    // SPELL_AURA_MOD_POWER_REGEN flat bonus
-    baseRegen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
+            float manaRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
 
-    // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5
-    float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
-    if (GetStat(STAT_INTELLECT) > 0.0f)
-        spiritRegen *= std::sqrt(GetStat(STAT_INTELLECT));
+            // BaseRegen = 5% of Base Mana per five seconds
+            float baseRegen = basemana / 100.f;
+            // SPELL_AURA_MOD_POWER_REGEN flat bonus
+            baseRegen += powerRegenMod;
 
-    // SPELL_AURA_MOD_POWER_REGEN_PERCENT pct bonus
-    baseRegen *= powerRegenModPct;
-    spiritRegen *= powerRegenModPct;
+            // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5
+            float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
+            if (GetStat(STAT_INTELLECT) > 0.0f)
+                spiritRegen *= std::sqrt(GetStat(STAT_INTELLECT));
 
-    // SPELL_AURA_MOD_MANA_REGEN_PCT pct bonus
-    baseRegen *= manaRegenModPct;
-    spiritRegen *= manaRegenModPct;
+            // SPELL_AURA_MOD_POWER_REGEN_PERCENT pct bonus
+            baseRegen *= powerRegenModPct;
+            spiritRegen *= powerRegenModPct;
 
-    // SPELL_AURA_MOD_MANA_REGEN_INTERRUPT allow some of the spirit regeneration to bypass the combat restriction
-    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+            // SPELL_AURA_MOD_MANA_REGEN_PCT pct bonus
+            baseRegen *= manaRegenModPct;
+            spiritRegen *= manaRegenModPct;
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), baseRegen + spiritRegen);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), baseRegen + CalculatePct(spiritRegen, modManaRegenInterrupt));
+            // SPELL_AURA_MOD_MANA_REGEN_INTERRUPT allow some of the spirit regeneration to bypass the combat restriction
+            int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), baseRegen + spiritRegen);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), baseRegen + CalculatePct(spiritRegen, modManaRegenInterrupt));
+            break;
+        }
+        case POWER_FOCUS:
+        case POWER_ENERGY:
+        {
+            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), powerTypeEntry->RegenPeace * powerRegenModPct - powerTypeEntry->RegenPeace + powerRegenMod);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), powerTypeEntry->RegenCombat * powerRegenModPct - powerTypeEntry->RegenCombat + powerRegenMod);
+            break;
+        }
+        case POWER_RUNIC_POWER:
+        case POWER_RAGE:
+            // Butchery and Anger Management
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), powerRegenMod);
+            break;
+        case POWER_RUNES:
+        {
+            UpdateAllRunesRegen(); // @todo: replace this with the code below once runes have been downgraded for Cataclysm Classic
+            break;
+
+            /*
+            // Formular: base cooldown / (1 - haste)
+            float regeneration = 0.1f;
+            float haste = m_unitData->ModHasteRegen;
+            if (haste != 0.f)
+                regeneration /= haste;
+
+            for (int8 i = 0; i < NUM_RUNE_TYPES; i++)
+            {
+                float mod = 0.f;
+                for (AuraEffect const* effect : GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN))
+                    if (effect->GetMiscValue() == int32(powerType) && effect->GetMiscValueB() == i)
+                        mod += effect->GetAmount();
+
+                SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regeneration + mod);
+            }
+            break;
+            */
+        }
+        default:
+            break;
+    }
 }
 
 void Player::UpdateAllRunesRegen()
