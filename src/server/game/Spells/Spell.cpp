@@ -577,7 +577,6 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_procVictim = 0;
     m_hitMask = 0;
     focusObject = nullptr;
-    m_focusObjectGUID.Clear();
     m_cast_count = 0;
     m_glyphIndex = 0;
     m_triggeredByAuraSpell  = nullptr;
@@ -7288,11 +7287,7 @@ bool Spell::UpdatePointers()
     }
 
     if (m_focusObjectGUID)
-    {
         focusObject = ObjectAccessor::GetGameObject(*m_caster, m_focusObjectGUID);
-        if (focusObject && !focusObject->IsInWorld())
-            focusObject = nullptr;
-    }
 
     if (m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
