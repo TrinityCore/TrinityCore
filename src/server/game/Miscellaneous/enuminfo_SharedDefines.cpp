@@ -1455,7 +1455,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT: return { "SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT", "AutoCast Off By Default", "" };
         case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return { "SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT", "Ignore School Lockout", "" };
         case SPELL_ATTR9_ALLOW_DARK_SIMULACRUM: return { "SPELL_ATTR9_ALLOW_DARK_SIMULACRUM", "Allow Dark Simulacrum", "" };
-        case SPELL_ATTR9_UNK20: return { "SPELL_ATTR9_UNK20", "Unknown attribute 20@Attr9", "" };
+        case SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING: return { "SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING", "Allow Cast While Channeling", "" };
         case SPELL_ATTR9_UNK21: return { "SPELL_ATTR9_UNK21", "Unknown attribute 21@Attr9", "" };
         case SPELL_ATTR9_UNK22: return { "SPELL_ATTR9_UNK22", "Unknown attribute 22@Attr9", "" };
         case SPELL_ATTR9_UNK23: return { "SPELL_ATTR9_UNK23", "Unknown attribute 23@Attr9", "" };
@@ -1499,7 +1499,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 17: return SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT;
         case 18: return SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT;
         case 19: return SPELL_ATTR9_ALLOW_DARK_SIMULACRUM;
-        case 20: return SPELL_ATTR9_UNK20;
+        case 20: return SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING;
         case 21: return SPELL_ATTR9_UNK21;
         case 22: return SPELL_ATTR9_UNK22;
         case 23: return SPELL_ATTR9_UNK23;
@@ -1540,7 +1540,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT: return 17;
         case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return 18;
         case SPELL_ATTR9_ALLOW_DARK_SIMULACRUM: return 19;
-        case SPELL_ATTR9_UNK20: return 20;
+        case SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING: return 20;
         case SPELL_ATTR9_UNK21: return 21;
         case SPELL_ATTR9_UNK22: return 22;
         case SPELL_ATTR9_UNK23: return 23;

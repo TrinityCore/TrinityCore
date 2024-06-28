@@ -779,7 +779,7 @@ enum SpellAttr9 : uint32
     SPELL_ATTR9_AUTOCAST_OFF_BY_DEFAULT                             = 0x00020000, // TITLE AutoCast Off By Default
     SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT                               = 0x00040000, // TITLE Ignore School Lockout
     SPELL_ATTR9_ALLOW_DARK_SIMULACRUM                               = 0x00080000, // TITLE Allow Dark Simulacrum
-    SPELL_ATTR9_UNK20                            = 0x00100000, // TITLE Unknown attribute 20@Attr9
+    SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING                         = 0x00100000, // TITLE Allow Cast While Channeling
     SPELL_ATTR9_UNK21                            = 0x00200000, // TITLE Unknown attribute 21@Attr9
     SPELL_ATTR9_UNK22                            = 0x00400000, // TITLE Unknown attribute 22@Attr9
     SPELL_ATTR9_UNK23                            = 0x00800000, // TITLE Unknown attribute 23@Attr9
