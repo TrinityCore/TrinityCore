@@ -5428,7 +5428,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     {
         focusObject = SearchSpellFocus();
         if (focusObject)
-            focusObjectGUID = focusObject->GetGUID();
+            m_focusObjectGUID = focusObject->GetGUID();
         else
             return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
     }
