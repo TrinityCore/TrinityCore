@@ -623,10 +623,13 @@ struct boss_sister_solena : public TriadSharedAI
             }
             case EVENT_SOUL_MANIPULATION:
             {
-                Talk(SAY_SOUL_MANIPULATION);
-                DoCast(SPELL_SOUL_MANIPULATION_SELECTOR);
-                events.RescheduleEvent(EVENT_SOUL_BOLT_ENHANCED, 12s + 100ms);
-                events.Repeat(23100ms, 24200ms);
+                if (unit->GetMap()->GetPlayersCountExceptGMs() > 1) // This event doesn't happen if you go solo because it resets boss
+                {
+                    Talk(SAY_SOUL_MANIPULATION);
+                    DoCast(SPELL_SOUL_MANIPULATION_SELECTOR);
+                    events.RescheduleEvent(EVENT_SOUL_BOLT_ENHANCED, 12s + 100ms);
+                    events.Repeat(23100ms, 24200ms);
+                }
                 break;
             }
             case EVENT_SOLENA_TAKE_IRIS:
@@ -768,16 +771,6 @@ class spell_soul_manipulation_selector : public SpellScript
         return ValidateSpellInfo({ SPELL_SOUL_MANIPULATION_CHARM, SPELL_SOUL_MANIPULATION_DAMAGE_REDUCTION, SPELL_SOUL_MANIPULATION_VISUAL });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if([&](WorldObject const* target)
-        {
-            if (target == GetCaster()->GetThreatManager().GetCurrentVictim())
-                return true;
-            return false;
-        });
-    }
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_SOUL_MANIPULATION_CHARM, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -787,7 +780,6 @@ class spell_soul_manipulation_selector : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_soul_manipulation_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_soul_manipulation_selector::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
