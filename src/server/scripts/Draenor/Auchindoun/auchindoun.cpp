@@ -191,10 +191,10 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
         }
         else if (action == ACTION_TUULANI_BREAK_BARRIER)
         {
-            if (!isAtBarrier || actionStarted)
+            if (!_isAtBarrier || _actionStarted)
                 return;
 
-            actionStarted = true;
+            _actionStarted = true;
 
             Talk(SAY_BREAK_BARRIER_1);
 
@@ -237,7 +237,7 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
                 }
                 case POINT_BARRIER:
                 {
-                    isAtBarrier = true;
+                    _isAtBarrier = true;
                     break;
                 }
                 default:
@@ -264,28 +264,32 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    bool isAtBarrier = false;
-    bool actionStarted = false;
+    bool _isAtBarrier = false;
+    bool _actionStarted = false;
 };
 
 // 155647 - NPC Reaction
-struct at_npc_reaction : AreaTriggerAI
+struct at_auchindoun_npc_reaction : AreaTriggerAI
 {
-    at_npc_reaction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_auchindoun_npc_reaction(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (unit->IsPlayer() || unit->IsPet() || unit->GetEmoteState() == EMOTE_STATE_READY1H_ALLOW_MOVEMENT || unit->GetEntry() == NPC_SOULBINDER_TUULANI)
+        if (!unit->IsCreature() || unit->GetEmoteState() == EMOTE_STATE_READY1H_ALLOW_MOVEMENT || unit->GetEntry() == NPC_SOULBINDER_TUULANI)
             return;
 
-        _scheduler.Schedule(1500ms, [this, unit](TaskContext task)
+        _scheduler.Schedule(1500ms, [this, unitGUID = unit->GetGUID()](TaskContext task)
         {
-            unit->SetFacingToObject(at->GetCaster());
-            unit->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+            Creature* auchenaiDefender = ObjectAccessor::GetCreature(*at, unitGUID);
+            if (!auchenaiDefender)
+                return;
 
-            task.Schedule(4s, [unit](TaskContext /*task*/)
+            auchenaiDefender->SetFacingToObject(at->GetCaster());
+            auchenaiDefender->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+
+            task.Schedule(4s, [this, auchenaiDefender](TaskContext /*task*/)
             {
-                unit->SetFacingTo(unit->ToCreature()->GetHomePosition().GetOrientation());
+                auchenaiDefender->SetFacingTo(auchenaiDefender->GetHomePosition().GetOrientation());
             });
         });
     }
@@ -309,7 +313,7 @@ class spell_auchindoun_halo : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (GetHitUnit()->IsPlayer() || GetHitUnit()->IsPet())
+        if (!GetHitUnit()->IsCreature())
             return;
 
         GetCaster()->CastSpell(GetHitUnit(), SPELL_HALO_HEAL, true);
@@ -389,7 +393,7 @@ void AddSC_auchindoun()
 
     RegisterAuchindounCreatureAI(npc_auchindoun_auchenai_defender);
     RegisterAuchindounCreatureAI(npc_auchindoun_soulbinder_tuulani);
-    RegisterAreaTriggerAI(at_npc_reaction);
+    RegisterAreaTriggerAI(at_auchindoun_npc_reaction);
     RegisterSpellScript(spell_auchindoun_halo);
     RegisterSpellScript(spell_auchindoun_grimrail_depot_scene_selector);
 

@@ -65,32 +65,20 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Spells
 UPDATE `spell_target_position` SET `PositionX`=1855.673583984375, `PositionY`=3198.618896484375, `VerifiedBuild`=54988 WHERE (`ID`=178799 AND `EffectIndex`=0); -- Spell: 178799 (Grimrail Depot) Efffect: 252 (SPELL_EFFECT_TELEPORT_UNITS)
 
-DELETE FROM `spell_script_names` WHERE `spell_id`=157762;
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (157762, 178800);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(157762, 'spell_auchindoun_halo');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=178800;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(157762, 'spell_auchindoun_halo'),
 (178800, 'spell_auchindoun_grimrail_depot_scene_selector');
 
 -- Areatrigger
-DELETE FROM `areatrigger_scripts` WHERE `entry`=9973;
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (9973, 10072, 9974, 10280);
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
-(9973, 'at_auchindoun_entrance');
-
-DELETE FROM `areatrigger_scripts` WHERE `entry`=10072;
-INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
-(10072, 'at_auchindoun_auchenai_defender_intro');
-
-DELETE FROM `areatrigger_scripts` WHERE `entry`=9974;
-INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
-(9974, 'at_auchindoun_barrier');
-
-DELETE FROM `areatrigger_scripts` WHERE `entry`=10280;
-INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
+(9973, 'at_auchindoun_entrance'),
+(10072, 'at_auchindoun_auchenai_defender_intro'),
+(9974, 'at_auchindoun_barrier'),
 (10280, 'at_auchindoun_soulbinder_nyami_scene');
 
-UPDATE `areatrigger_create_properties` SET `ScriptName`= 'at_npc_reaction' WHERE `Id` = 1725;
+UPDATE `areatrigger_create_properties` SET `ScriptName`= 'at_auchindoun_npc_reaction' WHERE `Id` = 1725;
 
 -- Scene
 DELETE FROM `scene_template` WHERE `SceneId`=913;
