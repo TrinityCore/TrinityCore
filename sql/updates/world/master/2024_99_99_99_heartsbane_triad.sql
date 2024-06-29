@@ -71,10 +71,10 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Areatrigger
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (13196, 13179, 13177));
-INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `VerifiedBuild`) VALUES
-(13196, 0, 17807, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 52485), -- Spell: 268122 (Aura of Thorns)
-(13179, 0, 17791, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 52485), -- Spell: 268088 (Aura of Dread)
-(13177, 0, 17789, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 52485); -- Spell: 268077 (Aura of Apathy)
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
+(13196, 0, 17807, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 'at_aura_of_thorns', 52485), -- Spell: 268122 (Aura of Thorns)
+(13179, 0, 17791, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 'at_aura_of_dread', 52485), -- Spell: 268088 (Aura of Dread)
+(13177, 0, 17789, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0, 'at_aura_of_apathy', 52485); -- Spell: 268077 (Aura of Apathy)
 
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (17807, 17791, 17789));
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES

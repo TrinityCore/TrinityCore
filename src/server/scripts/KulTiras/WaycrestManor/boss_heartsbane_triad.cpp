@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Creature.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
@@ -86,34 +88,30 @@ enum HeartsbaneTriadEvents
 {
     // Sister Briar
     EVENT_BRAMBLE_BOLT          = 1,
-    EVENT_BRAMBLE_BOLT_ENHANCED = 2,
-    EVENT_JAGGED_NETTLES        = 3,
-    EVENT_BRIAR_TAKE_IRIS       = 4,
-    EVENT_AURA_OF_THORNS        = 5,
+    EVENT_BRAMBLE_BOLT_ENHANCED,
+    EVENT_JAGGED_NETTLES,
+    EVENT_AURA_OF_THORNS,
 
     // Sister Malady
-    EVENT_RUINOUS_BOLT          = 6,
-    EVENT_RUINOUS_BOLT_ENHANCED = 7,
-    EVENT_UNSTABLE_RUNIC_MARK   = 8,
-    EVENT_MALADY_TAKE_IRIS      = 9,
-    EVENT_AURA_OF_DREAD         = 10,
+    EVENT_RUINOUS_BOLT,
+    EVENT_RUINOUS_BOLT_ENHANCED,
+    EVENT_UNSTABLE_RUNIC_MARK,
+    EVENT_AURA_OF_DREAD,
 
     // Sister Solena
-    EVENT_SOUL_BOLT             = 11,
-    EVENT_SOUL_BOLT_ENHANCED    = 12,
-    EVENT_SOUL_MANIPULATION     = 13,
-    EVENT_SOLENA_TAKE_IRIS      = 14,
-    EVENT_AURA_OF_APATHY        = 15,
+    EVENT_SOUL_BOLT,
+    EVENT_SOUL_BOLT_ENHANCED,
+    EVENT_SOUL_MANIPULATION,
+    EVENT_AURA_OF_APATHY,
 
-    EVENT_CHECK_POWER           = 16
+    EVENT_CHECK_POWER,
+    EVENT_CLAIM_IRIS,
 };
 
 enum HeartsbaneTriadActions
 {
     ACTION_CLAIM_THE_IRIS_INTRO  = 1,
-    ACTION_MALADY_CLAIM_THE_IRIS = 2,
-    ACTION_BRIAR_CLAIM_THE_IRIS  = 3,
-    ACTION_SOLENA_CLAIM_THE_IRIS = 4
+    ACTION_CLAIM_THE_IRIS,
 };
 
 enum HeartsbaneTriadSummonGroups
@@ -130,7 +128,24 @@ uint32 const HeartsbaneTriadData[3] =
 
 namespace
 {
-void DespawnTriad(InstanceScript* instance, EvadeReason why, Creature* creature)
+void HeartsbaneTriadEncounterStart(InstanceScript* instance)
+{
+    if (instance->GetBossState(DATA_HEARTSBANE_TRIAD) == IN_PROGRESS)
+        return;
+
+    instance->SetBossState(DATA_HEARTSBANE_TRIAD, IN_PROGRESS);
+
+    for (uint32 bossesData : HeartsbaneTriadData)
+    {
+        if (Creature* sister = instance->GetCreature(bossesData))
+        {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, sister, 1);
+            sister->AI()->DoZoneInCombat();
+        }
+    }
+}
+
+void HeartsbaneTriadEncounterFail(InstanceScript* instance, EvadeReason why, Creature* invoker)
 {
     if (instance->GetBossState(DATA_HEARTSBANE_TRIAD) == FAIL)
         return;
@@ -141,7 +156,7 @@ void DespawnTriad(InstanceScript* instance, EvadeReason why, Creature* creature)
     {
         if (Creature* triad = instance->GetCreature(bossesData))
         {
-            if (triad == creature)
+            if (triad == invoker)
                 continue;
 
             triad->AI()->EnterEvadeMode(why);
@@ -156,11 +171,17 @@ void HeartsbaneTriadEncounterDone(InstanceScript* instance)
 
     for (uint32 bossesData : HeartsbaneTriadData)
     {
-        if (Creature* triad = instance->GetCreature(bossesData))
+        if (Creature* sister = instance->GetCreature(bossesData))
         {
-            if (triad->IsAlive())
+            if (sister->IsAlive())
                 return;
         }
+    }
+
+    for (uint32 bossesData : HeartsbaneTriadData)
+    {
+        if (Creature* sister = instance->GetCreature(bossesData))
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, sister);
     }
 
     instance->SetBossState(DATA_HEARTSBANE_TRIAD, DONE);
@@ -169,65 +190,120 @@ void HeartsbaneTriadEncounterDone(InstanceScript* instance)
 
 struct HeartsbaneTriadSharedAI : public BossAI
 {
-    HeartsbaneTriadSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _healthTriggered(false)
+    HeartsbaneTriadSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _healthTriggered(false), _claimedIris(false)
     {
         SetBoundary(instance->GetBossBoundary(DATA_HEARTSBANE_TRIAD));
-    }
-
-    void Reset() override
-    {
-        events.Reset();
-        _healthTriggered = false;
-    }
-
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        DespawnTriad(instance, why, me);
--
-        me->RemoveAurasDueToSpell(SPELL_FOCUSING_IRIS);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
-        events.Reset();
-        _DespawnAtEvade();
-    }
-
-    void JustAppeared() override
-    {
-        me->SetPowerType(POWER_ENERGY);
-        me->SetPower(POWER_ENERGY, 0);
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        for (uint32 bossesData : HeartsbaneTriadData)
-        {
-            if (Creature* triad = instance->GetCreature(bossesData))
-                triad->AI()->DoZoneInCombat();
-        }
-
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-
-        ScheduleEvents();
-    }
-
-    void HandleSharedEvents(uint32 eventId)
-    {
-        if (eventId == EVENT_CHECK_POWER)
-        {
-            if (me->GetPower(POWER_ENERGY) >= 100)
-            {
-                Talk(SAY_DIRE_RITUAL_ALERT);
-                Talk(SAY_DIRE_RITUAL);
-                DoCast(SPELL_DIRE_RITUAL);
-            }
-            events.Repeat(1000ms);
-        }
     }
 
     virtual void ScheduleEvents()
     {
         events.ScheduleEvent(EVENT_CHECK_POWER, 1000ms);
     };
+
+    virtual void HandleDropIris(bool /*skipShieldPhase*/, bool /*skipIrisDrop*/)
+    {
+        _claimedIris = false;
+    }
+
+    virtual void HandleClaimIris()
+    {
+        _claimedIris = true;
+
+        Talk(SAY_CLAIM_THE_IRIS);
+
+        me->AttackStop();
+        me->InterruptNonMeleeSpells(true);
+
+        if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 200.0f))
+            me->CastSpell(focusingIris, SPELL_CLAIM_THE_IRIS);
+
+        me->SetUnkillable(false);
+    }
+
+    void Reset() override
+    {
+        events.Reset();
+        _healthTriggered = false;
+        _claimedIris = false;
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        HeartsbaneTriadEncounterFail(instance, why, me);
+
+        me->RemoveAurasDueToSpell(SPELL_FOCUSING_IRIS);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        summons.DespawnAll();
+        _EnterEvadeMode();
+        _DespawnAtEvade();
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->HealthBelowPctDamaged(50, damage) && !_healthTriggered)
+        {
+            _healthTriggered = true;
+            me->AttackStop();
+            me->InterruptNonMeleeSpells(true);
+
+            me->SetUnkillable(true);
+
+            HandleDropIris(false, !_claimedIris);
+        }
+    }
+
+    void JustAppeared() override
+    {
+        me->SetPowerType(POWER_ENERGY);
+        me->SetPower(POWER_ENERGY, 0);
+
+        me->SetUnkillable(true);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        HeartsbaneTriadEncounterStart(instance);
+        ScheduleEvents();
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_CHECK_POWER:
+            {
+                if (me->GetPower(POWER_ENERGY) >= 100)
+                {
+                    Talk(SAY_DIRE_RITUAL_ALERT);
+                    Talk(SAY_DIRE_RITUAL);
+                    DoCast(SPELL_DIRE_RITUAL);
+                }
+                events.Repeat(1000ms);
+                break;
+            }
+            case EVENT_CLAIM_IRIS:
+            {
+                HandleClaimIris();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        switch (actionId)
+        {
+            case ACTION_CLAIM_THE_IRIS:
+                events.Reset();
+                events.ScheduleEvent(EVENT_CLAIM_IRIS, 1500ms);
+                break;
+            default:
+                break;
+        }
+    }
 
     void JustDied(Unit* /*killer*/) override
     {
@@ -246,8 +322,29 @@ struct HeartsbaneTriadSharedAI : public BossAI
         Talk(SAY_SLAY);
     }
 
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+    }
+
 protected:
-    bool _healthTriggered = false;
+    bool _claimedIris; // to prevent dropping multiple iris if a sister dies during claim process
+
+private:
+    bool _healthTriggered;
 };
 
 // 131825 - Sister Briar
@@ -257,6 +354,8 @@ struct boss_sister_briar : public HeartsbaneTriadSharedAI
 
     void ScheduleEvents() override
     {
+        HeartsbaneTriadSharedAI::ScheduleEvents();
+
         events.ScheduleEvent(EVENT_BRAMBLE_BOLT, 2000ms);
     }
 
@@ -267,39 +366,45 @@ struct boss_sister_briar : public HeartsbaneTriadSharedAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JAGGED_NETTLES);
     }
 
+    void HandleDropIris(bool skipShieldPhase, bool skipIrisDrop) override
+    {
+        HeartsbaneTriadSharedAI::HandleDropIris(skipIrisDrop, skipIrisDrop);
+
+        me->RemoveAurasDueToSpell(SPELL_AURA_OF_THORNS);
+
+        events.CancelEvent(EVENT_BRAMBLE_BOLT_ENHANCED);
+        events.CancelEvent(EVENT_JAGGED_NETTLES);
+
+        if (skipShieldPhase)
+            return;
+
+        if (!skipIrisDrop)
+            DoCastSelf(SPELL_DROP_THE_IRIS);
+        DoCastSelf(SPELL_IRONBARK_SHIELD);
+
+        if (Creature* solena = instance->GetCreature(DATA_SISTER_SOLENA))
+            solena->AI()->DoAction(ACTION_CLAIM_THE_IRIS);
+
+        events.ScheduleEvent(EVENT_BRAMBLE_BOLT, 3200ms);
+    }
+
+    void HandleClaimIris() override
+    {
+        HeartsbaneTriadSharedAI::HandleClaimIris();
+
+        if (IsHeroic() || IsMythic())
+            events.ScheduleEvent(EVENT_AURA_OF_THORNS, 1600ms);
+
+        me->RemoveAurasDueToSpell(SPELL_IRONBARK_SHIELD);
+        events.ScheduleEvent(EVENT_BRAMBLE_BOLT_ENHANCED, 4700ms);
+        events.ScheduleEvent(EVENT_JAGGED_NETTLES, 14600ms);
+    }
+
     void EnterEvadeMode(EvadeReason why) override
     {
         HeartsbaneTriadSharedAI::EnterEvadeMode(why);
 
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JAGGED_NETTLES);
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (me->HealthBelowPctDamaged(50, damage) && !_healthTriggered)
-        {
-            _healthTriggered = true;
-            me->AttackStop();
-            me->InterruptNonMeleeSpells(true);
-
-            DoCastSelf(SPELL_DROP_THE_IRIS);
-            DoCastSelf(SPELL_IRONBARK_SHIELD);
-
-            if (Creature* sisterSolena = instance->GetCreature(DATA_SISTER_SOLENA))
-                sisterSolena->AI()->DoAction(ACTION_SOLENA_CLAIM_THE_IRIS);
-
-            events.CancelEvent(EVENT_BRAMBLE_BOLT_ENHANCED);
-            events.CancelEvent(EVENT_JAGGED_NETTLES);
-            events.ScheduleEvent(EVENT_BRAMBLE_BOLT, 3200ms);
-        }
-    }
-
-    void DoAction(int32 actionId) override
-    {
-        if (actionId != ACTION_BRIAR_CLAIM_THE_IRIS)
-            return;
-
-        events.ScheduleEvent(EVENT_BRIAR_TAKE_IRIS, 1500ms);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -328,51 +433,14 @@ struct boss_sister_briar : public HeartsbaneTriadSharedAI
                 events.Repeat(14600ms);
                 break;
             }
-            case EVENT_BRIAR_TAKE_IRIS:
-            {
-                Talk(SAY_CLAIM_THE_IRIS);
-
-                me->AttackStop();
-                me->InterruptNonMeleeSpells(true);
-
-                if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
-                    DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
-
-                if (IsHeroic() || IsMythic())
-                    events.ScheduleEvent(EVENT_AURA_OF_THORNS, 1600ms);
-
-                me->RemoveAurasDueToSpell(SPELL_IRONBARK_SHIELD);
-                events.CancelEvent(EVENT_BRAMBLE_BOLT);
-                events.ScheduleEvent(EVENT_BRAMBLE_BOLT_ENHANCED, 4700ms);
-                events.ScheduleEvent(EVENT_JAGGED_NETTLES, 14600ms);
-                break;
-            }
             case EVENT_AURA_OF_THORNS:
             {
                 DoCastSelf(SPELL_AURA_OF_THORNS);
                 break;
             }
             default:
-                HandleSharedEvents(EVENT_CHECK_POWER);
+                HeartsbaneTriadSharedAI::ExecuteEvent(eventId);
                 break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            ExecuteEvent(eventId);
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
 };
@@ -384,6 +452,8 @@ struct boss_sister_malady : public HeartsbaneTriadSharedAI
 
     void ScheduleEvents() override
     {
+        HeartsbaneTriadSharedAI::ScheduleEvents();
+
         events.ScheduleEvent(EVENT_RUINOUS_BOLT, 3200ms);
     }
 
@@ -391,38 +461,39 @@ struct boss_sister_malady : public HeartsbaneTriadSharedAI
     {
         HeartsbaneTriadSharedAI::JustDied(killer);
 
-        DoCastSelf(SPELL_DROP_THE_IRIS);
-
-        if (Creature* sisterBriar = instance->GetCreature(DATA_SISTER_BRIAR))
-            sisterBriar->AI()->DoAction(ACTION_BRIAR_CLAIM_THE_IRIS);
+        HandleDropIris(true, _claimedIris);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void HandleDropIris(bool skipShieldPhase, bool skipIrisDrop) override
     {
-        if (me->HealthBelowPctDamaged(50, damage) && !_healthTriggered)
-        {
-            _healthTriggered = true;
-            me->AttackStop();
-            me->InterruptNonMeleeSpells(true);
-
+        me->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD);
+        if (!skipIrisDrop)
             DoCastSelf(SPELL_DROP_THE_IRIS);
-            DoCastSelf(SPELL_RUNIC_WARD);
 
-            if (Creature* sisterBriar = instance->GetCreature(DATA_SISTER_BRIAR))
-                sisterBriar->AI()->DoAction(ACTION_BRIAR_CLAIM_THE_IRIS);
+        if (Creature* briar = instance->GetCreature(DATA_SISTER_BRIAR))
+            briar->AI()->DoAction(ACTION_CLAIM_THE_IRIS);
 
-            events.CancelEvent(EVENT_RUINOUS_BOLT_ENHANCED);
-            events.CancelEvent(EVENT_UNSTABLE_RUNIC_MARK);
-            events.ScheduleEvent(EVENT_RUINOUS_BOLT, 3200ms);
-        }
-    }
+        events.CancelEvent(EVENT_RUINOUS_BOLT_ENHANCED);
+        events.CancelEvent(EVENT_UNSTABLE_RUNIC_MARK);
 
-    void DoAction(int32 actionId) override
-    {
-        if (actionId != ACTION_MALADY_CLAIM_THE_IRIS)
+        if (skipShieldPhase)
             return;
 
-        events.ScheduleEvent(EVENT_MALADY_TAKE_IRIS, 1500ms);
+        DoCastSelf(SPELL_RUNIC_WARD);
+        events.ScheduleEvent(EVENT_RUINOUS_BOLT, 3200ms);
+    }
+
+    void HandleClaimIris() override
+    {
+        HeartsbaneTriadSharedAI::HandleClaimIris();
+
+        if (IsHeroic() || IsMythic())
+            events.ScheduleEvent(EVENT_AURA_OF_DREAD, 1600ms);
+
+        me->RemoveAurasDueToSpell(SPELL_RUNIC_WARD);
+
+        events.ScheduleEvent(EVENT_RUINOUS_BOLT_ENHANCED, 4700ms);
+        events.ScheduleEvent(EVENT_UNSTABLE_RUNIC_MARK, 14600ms);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -450,24 +521,9 @@ struct boss_sister_malady : public HeartsbaneTriadSharedAI
                 events.Repeat(12100ms);
                 break;
             }
-            case EVENT_MALADY_TAKE_IRIS:
+            case EVENT_CLAIM_IRIS:
             {
-                Talk(SAY_CLAIM_THE_IRIS);
-
-                me->AttackStop();
-                me->InterruptNonMeleeSpells(true);
-
-                if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
-                    DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
-
-                if (IsHeroic() || IsMythic())
-                    events.ScheduleEvent(EVENT_AURA_OF_DREAD, 1600ms);
-
-                me->RemoveAurasDueToSpell(SPELL_RUNIC_WARD);
-
-                events.CancelEvent(EVENT_RUINOUS_BOLT);
-                events.ScheduleEvent(EVENT_RUINOUS_BOLT_ENHANCED, 4700ms);
-                events.ScheduleEvent(EVENT_UNSTABLE_RUNIC_MARK, 14600ms);
+                HandleClaimIris();
                 break;
             }
             case EVENT_AURA_OF_DREAD:
@@ -476,26 +532,8 @@ struct boss_sister_malady : public HeartsbaneTriadSharedAI
                 break;
             }
             default:
-                HandleSharedEvents(EVENT_CHECK_POWER);
+                HeartsbaneTriadSharedAI::ExecuteEvent(eventId);
                 break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            ExecuteEvent(eventId);
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
 };
@@ -507,6 +545,8 @@ struct boss_sister_solena : public HeartsbaneTriadSharedAI
 
     void ScheduleEvents() override
     {
+        HeartsbaneTriadSharedAI::ScheduleEvents();
+
         events.ScheduleEvent(EVENT_SOUL_BOLT_ENHANCED, 4700ms);
         events.ScheduleEvent(EVENT_SOUL_MANIPULATION, 12000ms);
     }
@@ -514,36 +554,50 @@ struct boss_sister_solena : public HeartsbaneTriadSharedAI
     void JustEngagedWith(Unit* who) override
     {
         HeartsbaneTriadSharedAI::JustEngagedWith(who);
-        HeartsbaneTriadSharedAI::ScheduleEvents();
 
         DoAction(ACTION_CLAIM_THE_IRIS_INTRO);
 
-        Creature* sister = nullptr;
-
-        switch (urand(0, 2))
-        {
-            case 0:
-                sister = me->GetInstanceScript()->GetCreature(DATA_SISTER_BRIAR);
-                break;
-            case 1:
-                sister = me->GetInstanceScript()->GetCreature(DATA_SISTER_MALADY);
-                break;
-            case 2:
-                sister = me;
-                break;
-        }
-
-        sister->AI()->Talk(SAY_AGGRO);
+        if (Creature* sister = me->GetInstanceScript()->GetCreature(RAND(DATA_SISTER_SOLENA, DATA_SISTER_BRIAR, DATA_SISTER_MALADY)))
+            sister->AI()->Talk(SAY_AGGRO);
     }
 
     void JustDied(Unit* killer) override
     {
         HeartsbaneTriadSharedAI::JustDied(killer);
 
-        DoCastSelf(SPELL_DROP_THE_IRIS);
+        HandleDropIris(true, _claimedIris);
+    }
 
-        if (Creature* sisterMalady = instance->GetCreature(DATA_SISTER_MALADY))
-            sisterMalady->AI()->DoAction(ACTION_MALADY_CLAIM_THE_IRIS);
+    void HandleDropIris(bool skipShieldPhase, bool skipIrisDrop) override
+    {
+        me->RemoveAurasDueToSpell(SPELL_AURA_OF_APATHY);
+        if (!skipIrisDrop)
+            DoCastSelf(SPELL_DROP_THE_IRIS);
+
+        if (Creature* malady = instance->GetCreature(DATA_SISTER_MALADY))
+            malady->AI()->DoAction(ACTION_CLAIM_THE_IRIS);
+
+        events.CancelEvent(EVENT_SOUL_BOLT_ENHANCED);
+        events.CancelEvent(EVENT_SOUL_MANIPULATION);
+
+        if (skipShieldPhase)
+            return;
+
+        DoCastSelf(SPELL_SOUL_ARMOR);
+        events.ScheduleEvent(EVENT_SOUL_BOLT, 3200ms);
+    }
+
+    void HandleClaimIris() override
+    {
+        HeartsbaneTriadSharedAI::HandleClaimIris();
+
+        if (IsHeroic() || IsMythic())
+            events.ScheduleEvent(EVENT_AURA_OF_APATHY, 1600ms);
+
+        me->RemoveAurasDueToSpell(SPELL_SOUL_ARMOR);
+
+        events.ScheduleEvent(EVENT_SOUL_BOLT_ENHANCED, 4700ms);
+        events.ScheduleEvent(EVENT_SOUL_MANIPULATION, 14600ms);
     }
 
     void DoAction(int32 actionId) override
@@ -552,6 +606,8 @@ struct boss_sister_solena : public HeartsbaneTriadSharedAI
         {
             case ACTION_CLAIM_THE_IRIS_INTRO:
             {
+                _claimedIris = true;
+
                 if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
                     DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
 
@@ -559,12 +615,8 @@ struct boss_sister_solena : public HeartsbaneTriadSharedAI
                     events.ScheduleEvent(EVENT_AURA_OF_APATHY, 1600ms);
                 break;
             }
-            case ACTION_SOLENA_CLAIM_THE_IRIS:
-            {
-                events.ScheduleEvent(EVENT_SOLENA_TAKE_IRIS, 1500ms);
-                break;
-            }
             default:
+                HeartsbaneTriadSharedAI::DoAction(actionId);
                 break;
         }
     }
@@ -573,26 +625,6 @@ struct boss_sister_solena : public HeartsbaneTriadSharedAI
     {
         HeartsbaneTriadSharedAI::JustAppeared();
         me->SummonCreatureGroup(SUMMON_GROUP_TRIAD_FOCUSING_IRIS);
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (me->HealthBelowPctDamaged(50, damage) && !_healthTriggered)
-        {
-            _healthTriggered = true;
-            me->AttackStop();
-            me->InterruptNonMeleeSpells(true);
-
-            DoCastSelf(SPELL_DROP_THE_IRIS);
-            DoCastSelf(SPELL_SOUL_ARMOR);
-
-            if (Creature* sisterMalady = instance->GetCreature(DATA_SISTER_MALADY))
-                sisterMalady->AI()->DoAction(ACTION_MALADY_CLAIM_THE_IRIS);
-
-            events.CancelEvent(EVENT_SOUL_BOLT_ENHANCED);
-            events.CancelEvent(EVENT_SOUL_MANIPULATION);
-            events.ScheduleEvent(EVENT_SOUL_BOLT, 3200ms);
-        }
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -624,49 +656,14 @@ struct boss_sister_solena : public HeartsbaneTriadSharedAI
                 }
                 break;
             }
-            case EVENT_SOLENA_TAKE_IRIS:
-            {
-                Talk(SAY_CLAIM_THE_IRIS);
-
-                me->AttackStop();
-                me->InterruptNonMeleeSpells(true);
-
-                if (Creature* focusingIris = me->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
-                    DoCast(focusingIris, SPELL_CLAIM_THE_IRIS);
-
-                if (IsHeroic() || IsMythic())
-                    events.ScheduleEvent(EVENT_AURA_OF_APATHY, 1600ms);
-
-                me->RemoveAurasDueToSpell(SPELL_SOUL_ARMOR);
-
-                events.CancelEvent(EVENT_SOUL_BOLT);
-                events.ScheduleEvent(EVENT_SOUL_BOLT_ENHANCED, 4700ms);
-                events.ScheduleEvent(EVENT_SOUL_MANIPULATION, 14600ms);
-                break;
-            }
             case EVENT_AURA_OF_APATHY:
             {
                 DoCastSelf(SPELL_AURA_OF_APATHY);
                 break;
             }
             default:
-                HandleSharedEvents(EVENT_CHECK_POWER);
+                HeartsbaneTriadSharedAI::ExecuteEvent(eventId);
                 break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            ExecuteEvent(eventId);
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
 };
@@ -678,8 +675,7 @@ class spell_jagged_nettles : public AuraScript
     {
         if (aurEff->GetTickNumber() > 1)
         {
-            Unit* target = GetTarget();
-            if (target->GetHealthPct() >= float(GetEffectInfo(EFFECT_2).CalcValue(target)))
+            if (GetTarget()->GetHealthPct() >= float(GetEffectInfo(EFFECT_2).CalcValue(GetCaster())))
                 Remove();
         }
     }
@@ -698,14 +694,14 @@ class spell_claim_the_iris : public SpellScript
         return ValidateSpellInfo({ SPELL_FOCUSING_IRIS });
     }
 
-    void HandleAfterCast()
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         Creature* casterCreature = GetCaster()->ToCreature();
         if (!casterCreature)
             return;
 
-        if (Creature* focusingIris = casterCreature->FindNearestCreature(NPC_FOCUSING_IRIS, 100.0f))
-            focusingIris->DespawnOrUnsummon();
+        if (Creature* hitCreature = GetHitCreature())
+            hitCreature->DespawnOrUnsummon();
 
         casterCreature->CastSpell(casterCreature, SPELL_FOCUSING_IRIS, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         casterCreature->SetSessile(false);
@@ -714,7 +710,7 @@ class spell_claim_the_iris : public SpellScript
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_claim_the_iris::HandleAfterCast);
+        OnEffectHitTarget += SpellEffectFn(spell_claim_the_iris::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -740,13 +736,15 @@ class spell_drop_the_iris : public SpellScript
 // 260923 - Soul Manipulation
 class spell_soul_manipulation_periodic : public AuraScript
 {
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (aurEff->GetTickNumber() == 10)
-        {
-            Remove();
-            GetCaster()->InterruptSpell(CURRENT_CHANNELED_SPELL);
-        }
+        if (GetTarget()->GetHealthPct() > 50.0f)
+            return;
+
+        Remove();
+
+        if (Unit* caster = GetCaster())
+            caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
     }
 
     void Register() override
@@ -763,7 +761,7 @@ class spell_soul_manipulation_selector : public SpellScript
         return ValidateSpellInfo({ SPELL_SOUL_MANIPULATION_CHARM, SPELL_SOUL_MANIPULATION_DAMAGE_REDUCTION, SPELL_SOUL_MANIPULATION_VISUAL });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_SOUL_MANIPULATION_CHARM, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         GetCaster()->CastSpell(GetCaster(), SPELL_SOUL_MANIPULATION_DAMAGE_REDUCTION, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -772,7 +770,7 @@ class spell_soul_manipulation_selector : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_soul_manipulation_selector::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_soul_manipulation_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -786,7 +784,7 @@ class spell_unstable_runic_mark : public AuraScript
 
     void HandleDamage(AuraEffect const* /*aurEff*/ , AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
             return;
 
         GetTarget()->CastSpell(GetTarget(), SPELL_UNSTABLE_RUNIC_MARK_DAMAGE, true);
@@ -801,49 +799,77 @@ class spell_unstable_runic_mark : public AuraScript
 // 260773 - Dire Ritual
 class spell_dire_ritual : public SpellScript
 {
-    void HandlePower()
+    void HandleAfterCast()
     {
         GetCaster()->SetPower(POWER_ENERGY, 0);
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_dire_ritual::HandlePower);
+        AfterCast += SpellCastFn(spell_dire_ritual::HandleAfterCast);
     }
 };
 
-// 268077 - Aura of Apathy
-class spell_aura_of_apathy : public AuraScript
+// 17789 - Aura of Apathy
+struct at_aura_of_apathy : AreaTriggerAI
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_AURA_OF_APATHY_DEBUFF });
-    }
+    at_aura_of_apathy(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void OnUnitEnter(Unit* unit) override
     {
-        Unit* caster = GetCaster();
-        if (!caster)
+        if (!unit->IsPlayer())
             return;
 
-        for (MapReference const& players : caster->GetMap()->GetPlayers())
-        {
-            if (Player* player = players.GetSource())
-            {
-                player->CastSpell(player, SPELL_AURA_OF_APATHY_DEBUFF, true);
-
-                if (!caster->HasAura(SPELL_FOCUSING_IRIS))
-                {
-                    Remove();
-                    player->RemoveAurasDueToSpell(SPELL_AURA_OF_APATHY_DEBUFF);
-                }
-            }
-        }
+        unit->CastSpell(unit, SPELL_AURA_OF_APATHY_DEBUFF, true);
     }
 
-    void Register() override
+    void OnUnitExit(Unit* unit) override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_apathy::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        unit->RemoveAurasDueToSpell(SPELL_AURA_OF_APATHY_DEBUFF);
+    }
+
+    void OnRemove() override
+    {
+        for (ObjectGuid const& guid : at->GetInsideUnits())
+        {
+            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
+            if (!unit)
+                continue;
+
+            OnUnitExit(unit);
+        }
+    }
+};
+
+// 17791 - Aura of Dread
+struct at_aura_of_dread : AreaTriggerAI
+{
+    at_aura_of_dread(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        unit->CastSpell(unit, SPELL_AURA_OF_DREAD_MOVE_CHECK, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_MOVE_CHECK);
+        unit->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_DAMAGE);
+    }
+
+    void OnRemove() override
+    {
+        for (ObjectGuid const& guid : at->GetInsideUnits())
+        {
+            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
+            if (!unit)
+                continue;
+
+            OnUnitExit(unit);
+        }
     }
 };
 
@@ -865,15 +891,10 @@ class spell_aura_of_dread : public AuraScript
         {
             if (Player* player = players.GetSource())
             {
-                player->CastSpell(player, SPELL_AURA_OF_DREAD_DAMAGE, true);
-                player->CastSpell(player, SPELL_AURA_OF_DREAD_MOVE_CHECK, true);
+                if (!player->HasAura(SPELL_AURA_OF_DREAD_MOVE_CHECK))
+                    continue;
 
-                if (!caster->HasAura(SPELL_FOCUSING_IRIS))
-                {
-                    Remove();
-                    player->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_MOVE_CHECK);
-                    player->GetAura(SPELL_AURA_OF_DREAD_DAMAGE)->Remove();
-                }
+                player->CastSpell(player, SPELL_AURA_OF_DREAD_DAMAGE, true);
             }
         }
     }
@@ -914,6 +935,37 @@ class spell_aura_of_dread_movement_check : public AuraScript
     }
 };
 
+// 17807 - Aura of Thorns
+struct at_aura_of_thorns : AreaTriggerAI
+{
+    at_aura_of_thorns(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        unit->CastSpell(unit, SPELL_AURA_OF_THORNS_CHECK_PROC, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_AURA_OF_THORNS_CHECK_PROC);
+    }
+
+    void OnRemove() override
+    {
+        for (ObjectGuid const& guid : at->GetInsideUnits())
+        {
+            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
+            if (!unit)
+                continue;
+
+            OnUnitExit(unit);
+        }
+    }
+};
+
 // 268122 - Aura of Thorns
 class spell_aura_of_thorns : public AuraScript
 {
@@ -922,36 +974,14 @@ class spell_aura_of_thorns : public AuraScript
         return ValidateSpellInfo({ SPELL_AURA_OF_THORNS_CHECK_PROC });
     }
 
-    bool CheckPlayer(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    bool HandleCheckProc(ProcEventInfo& eventInfo)
     {
         return eventInfo.GetActor()->HasAura(SPELL_AURA_OF_THORNS_CHECK_PROC);
     }
 
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        for (MapReference const& players : caster->GetMap()->GetPlayers())
-        {
-            if (Player* player = players.GetSource())
-            {
-                player->CastSpell(player, SPELL_AURA_OF_THORNS_CHECK_PROC, true);
-
-                if (!caster->HasAura(SPELL_FOCUSING_IRIS))
-                {
-                    Remove();
-                    player->RemoveAurasDueToSpell(SPELL_AURA_OF_THORNS_CHECK_PROC);
-                }
-            }
-        }
-    }
-
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_aura_of_thorns::CheckPlayer, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_thorns::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        DoCheckProc += AuraCheckProcFn(spell_aura_of_thorns::HandleCheckProc);
     }
 };
 
@@ -968,8 +998,11 @@ void AddSC_boss_heartsbane_triad()
     RegisterSpellScript(spell_soul_manipulation_selector);
     RegisterSpellScript(spell_unstable_runic_mark);
     RegisterSpellScript(spell_dire_ritual);
-    RegisterSpellScript(spell_aura_of_apathy);
+
+    RegisterAreaTriggerAI(at_aura_of_apathy);
+    RegisterAreaTriggerAI(at_aura_of_dread);
     RegisterSpellScript(spell_aura_of_dread);
     RegisterSpellScript(spell_aura_of_dread_movement_check);
+    RegisterAreaTriggerAI(at_aura_of_thorns);
     RegisterSpellScript(spell_aura_of_thorns);
 }
