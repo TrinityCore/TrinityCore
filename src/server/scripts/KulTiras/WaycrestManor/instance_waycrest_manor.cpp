@@ -22,7 +22,7 @@
 
 static BossBoundaryData const boundaries =
 {
-    { DATA_HEARTSBANE_TRIAD, new BoundaryUnionBoundary(new ZRangeBoundary(235.0f, 243.0f), new RectangleBoundary(-618.580f, -524.305f, -188.971f, -137.363f)) },
+    { DATA_HEARTSBANE_TRIAD, new BoundaryIntersectionBoundary(new ZRangeBoundary(235.0f, 243.0f), new RectangleBoundary(-618.580f, -524.305f, -188.971f, -137.363f)) },
 };
 
 ObjectData const creatureData[] =
