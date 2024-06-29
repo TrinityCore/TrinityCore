@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -287,8 +288,12 @@ struct at_auchindoun_npc_reaction : AreaTriggerAI
             auchenaiDefender->SetFacingToObject(at->GetCaster());
             auchenaiDefender->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
-            task.Schedule(4s, [this, auchenaiDefender](TaskContext /*task*/)
+            task.Schedule(4s, [this, unitGUID](TaskContext /*task*/)
             {
+                Creature* auchenaiDefender = ObjectAccessor::GetCreature(*at, unitGUID);
+                if (!auchenaiDefender)
+                    return;
+
                 auchenaiDefender->SetFacingTo(auchenaiDefender->GetHomePosition().GetOrientation());
             });
         });
