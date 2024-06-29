@@ -59,7 +59,8 @@ enum KingsRestData
     SPELL_SUPPRESSION_SLAM_SELECTOR     = 270002,
     SPELL_SUPPRESSION_SLAM_DAMAGE       = 270003,
     SPELL_RELEASED_INHIBITORS           = 270016,
-    SPELL_GUST_SLAH                     = 269931,
+    SPELL_GUST_SLASH                    = 269931,
+    SPELL_GUST_SLASH_DAMAGE             = 269932,
     SPELL_DEATHLY_CHILL                 = 269973,
     SPELL_SHADOW_BOLT_VOLLEY            = 269972,
     SPELL_ANCESTRAL_FURY                = 269976,
@@ -418,7 +419,7 @@ struct npc_kings_rest_shadow_borne_warrior : public npc_kings_rest_temple_basic
             switch (eventId)
             {
                 case EVENT_GUST_SLASH:
-                    DoCast(SPELL_GUST_SLAH);
+                    DoCast(SPELL_GUST_SLASH);
                     _events.ScheduleEvent(EVENT_GUST_SLASH, 17s);
                     break;
                 default:
@@ -564,6 +565,20 @@ struct npc_kings_rest_minion_of_zul : public npc_kings_rest_temple_basic
     }
 };
 
+// 17933 - Gust Slash - Areatrigger
+struct at_kings_rest_gust_slash : AreaTriggerAI
+{
+    at_kings_rest_gust_slash(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        unit->CastSpell(nullptr, SPELL_GUST_SLASH_DAMAGE, true);
+    }
+};
+
 void AddSC_kings_rest()
 {
     // Creature
@@ -579,6 +594,7 @@ void AddSC_kings_rest()
 
     // Areatrigger
     RegisterAreaTriggerAI(at_kings_rest_trigger_intro_event_with_zul);
+    RegisterAreaTriggerAI(at_kings_rest_gust_slash);
 
     // Conversation
     new conversation_kings_rest_intro();
