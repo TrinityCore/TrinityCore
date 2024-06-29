@@ -3673,7 +3673,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::PlayerSpellShapeshiftFormCreatureDisplayInfoSelection: // 308
         {
-            ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(referencePlayer->GetRace(), referencePlayer->GetNativeGender(), secondaryAsset);
+            ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(referencePlayer->GetRace(), secondaryAsset);
             if (!formModelData)
                 return false;
             uint32 formChoice = referencePlayer->GetCustomizationChoice(formModelData->OptionID);
