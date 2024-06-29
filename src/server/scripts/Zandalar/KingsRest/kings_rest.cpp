@@ -433,7 +433,7 @@ private:
     EventMap _events;
 };
 
-enum ShadowBorneWithDoctorEvent
+enum ShadowBorneWitchDoctorEvent
 {
     EVENT_DEATHLY_CHILL         = 1,
     EVENT_SHADOW_BOLT_VOLLEY
@@ -490,7 +490,7 @@ private:
     EventMap _events;
 };
 
-enum ShadoeBorneChampionEvent
+enum ShadowBorneChampionEvent
 {
     EVENT_ANCESTRAL_FURY    = 1,
     EVENT_VIGILANT_DEFENSE
