@@ -28,58 +28,58 @@
 enum HeartsbaneTriadSpells
 {
     // Sister Briar
-    SPELL_BRAMBLE_BOLT          = 260701,
-    SPELL_BRAMBLE_BOLT_ENHANCED = 260697,
-    SPELL_JAGGED_NETTLES        = 260741,
-    SPELL_IRONBARK_SHIELD       = 261265,
-    SPELL_AURA_OF_THORNS        = 268122,
-    SPELL_AURA_OF_THORNS_CHECK_PROC = 268125,
+    SPELL_BRAMBLE_BOLT                       = 260701,
+    SPELL_BRAMBLE_BOLT_ENHANCED              = 260697,
+    SPELL_JAGGED_NETTLES                     = 260741,
+    SPELL_IRONBARK_SHIELD                    = 261265,
+    SPELL_AURA_OF_THORNS                     = 268122,
+    SPELL_AURA_OF_THORNS_CHECK_PROC          = 268125,
 
     // Sister Malady
-    SPELL_RUINOUS_BOLT          = 260700,
-    SPELL_RUINOUS_BOLT_ENHANCED = 260696,
-    SPELL_RUNIC_WARD            = 261266,
-    SPELL_UNSTABLE_RUNIC_MARK   = 260703,
-    SPELL_UNSTABLE_RUNIC_MARK_DAMAGE = 260702,
-    SPELL_AURA_OF_DREAD         = 268088,
-    SPELL_AURA_OF_DREAD_DAMAGE  = 268086,
-    SPELL_AURA_OF_DREAD_MOVE_CHECK = 268085,
+    SPELL_RUINOUS_BOLT                       = 260700,
+    SPELL_RUINOUS_BOLT_ENHANCED              = 260696,
+    SPELL_RUNIC_WARD                         = 261266,
+    SPELL_UNSTABLE_RUNIC_MARK                = 260703,
+    SPELL_UNSTABLE_RUNIC_MARK_DAMAGE         = 260702,
+    SPELL_AURA_OF_DREAD                      = 268088,
+    SPELL_AURA_OF_DREAD_DAMAGE               = 268086,
+    SPELL_AURA_OF_DREAD_MOVE_CHECK           = 268085,
 
     // Sister Solena
-    SPELL_SOUL_BOLT             = 260699,
-    SPELL_SOUL_BOLT_ENHANCED    = 260698,
-    SPELL_SOUL_ARMOR            = 261264,
+    SPELL_SOUL_BOLT                          = 260699,
+    SPELL_SOUL_BOLT_ENHANCED                 = 260698,
+    SPELL_SOUL_ARMOR                         = 261264,
     SPELL_SOUL_MANIPULATION_SELECTOR         = 260907,
     SPELL_SOUL_MANIPULATION_CHARM            = 260900,
     SPELL_SOUL_MANIPULATION_DAMAGE_REDUCTION = 260923,
     SPELL_SOUL_MANIPULATION_VISUAL           = 260926,
-    SPELL_AURA_OF_APATHY        = 268077,
-    SPELL_AURA_OF_APATHY_DEBUFF = 268080,
+    SPELL_AURA_OF_APATHY                     = 268077,
+    SPELL_AURA_OF_APATHY_DEBUFF              = 268080,
 
-    SPELL_DIRE_RITUAL           = 260773,
-    SPELL_CLAIM_THE_IRIS        = 260852,
-    SPELL_DROP_THE_IRIS         = 260853,
-    SPELL_FOCUSING_IRIS         = 260805
+    SPELL_DIRE_RITUAL                        = 260773,
+    SPELL_CLAIM_THE_IRIS                     = 260852,
+    SPELL_DROP_THE_IRIS                      = 260853,
+    SPELL_FOCUSING_IRIS                      = 260805
 };
 
 enum HeartsbaneTriadTexts
 {
     // Shared
-    SAY_AGGRO                 = 0,
-    SAY_CLAIM_THE_IRIS        = 1,
-    SAY_SLAY                  = 3,
-    SAY_DEATH                 = 4,
-    SAY_DIRE_RITUAL_ALERT     = 5,
-    SAY_DIRE_RITUAL           = 6,
+    SAY_AGGRO               = 0,
+    SAY_CLAIM_THE_IRIS      = 1,
+    SAY_SLAY                = 3,
+    SAY_DEATH               = 4,
+    SAY_DIRE_RITUAL_ALERT   = 5,
+    SAY_DIRE_RITUAL         = 6,
 
     // Sister Solena
-    SAY_SOUL_MANIPULATION     = 2,
+    SAY_SOUL_MANIPULATION   = 2,
 
     // Sister Malady
-    SAY_UNSTABLE_RUNIC_MARK   = 2,
+    SAY_UNSTABLE_RUNIC_MARK = 2,
 
     // Sister Briar
-    SAY_JAGGED_NETTLES        = 2
+    SAY_JAGGED_NETTLES      = 2
 };
 
 enum HeartsbaneTriadEvents

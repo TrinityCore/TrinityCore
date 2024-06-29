@@ -83,46 +83,16 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 (17789, 0, 0, 52485);
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id`=260741;
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (260741, 260852, 260854, 260907, 260923, 260703, 260773, 268077, 268088, 268085, 268122);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(260741, 'spell_jagged_nettles');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=260852;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(260852, 'spell_claim_the_iris');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=260854;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(260854, 'spell_drop_the_iris');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=260907;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(260907, 'spell_soul_manipulation_selector');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=260923;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(260923, 'spell_soul_manipulation_periodic');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=260703;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(260703, 'spell_unstable_runic_mark');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=260773;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(260773, 'spell_dire_ritual');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=268077;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(268077, 'spell_aura_of_apathy');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=268088;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(268088, 'spell_aura_of_dread');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=268085;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(268085, 'spell_aura_of_dread_movement_check');
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=268122;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(260741, 'spell_jagged_nettles'),
+(260852, 'spell_claim_the_iris'),
+(260854, 'spell_drop_the_iris'),
+(260907, 'spell_soul_manipulation_selector'),
+(260923, 'spell_soul_manipulation_periodic'),
+(260703, 'spell_unstable_runic_mark'),
+(260773, 'spell_dire_ritual'),
+(268077, 'spell_aura_of_apathy'),
+(268088, 'spell_aura_of_dread'),
+(268085, 'spell_aura_of_dread_movement_check'),
 (268122, 'spell_aura_of_thorns');
