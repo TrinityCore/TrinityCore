@@ -758,42 +758,42 @@ class spell_dk_death_pact : public SpellScript
 {
     PrepareSpellScript(spell_dk_death_pact);
 
-    SpellCastResult CheckCast()
-    {
-        // Check if we have valid targets, otherwise skip spell casting here
-        if (Player* player = GetCaster()->ToPlayer())
-            for (Unit::ControlList::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
-                if (Creature* undeadPet = (*itr)->ToCreature())
-                    if (undeadPet->IsAlive() &&
-                        undeadPet->GetOwnerGUID() == player->GetGUID() &&
-                        undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
-                        undeadPet->IsWithinDist(player, 100.0f, false))
-                        return SPELL_CAST_OK;
-
-        return SPELL_FAILED_NO_PET;
-    }
-
     void FilterTargets(std::list<WorldObject*>& targetList)
     {
-        Unit* target = nullptr;
-        for (std::list<WorldObject*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+        targetList.remove_if([&](WorldObject* target)
         {
-            if (Unit* unit = (*itr)->ToUnit())
-                if (unit->GetOwnerGUID() == GetCaster()->GetGUID() && unit->GetCreatureType() == CREATURE_TYPE_UNDEAD)
-                {
-                    target = unit;
-                    break;
-                }
+            Unit* unit = target->ToUnit();
+            if (!unit)
+                return true;
+            if (unit->GetOwnerGUID() != GetCaster()->GetGUID())
+                return true;
+            if (unit->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                return true;
+            return false;
+        });
+
+        if (targetList.empty())
+        {
+            FinishCast(SPELL_FAILED_NO_PET);
+            return;
         }
 
-        targetList.clear();
-        if (target)
-            targetList.push_back(target);
+        targetList.remove_if([&](WorldObject* target)
+        {
+            return target->ToUnit()->IsImmunedToSpell(GetSpellInfo(), GetCaster());
+        });
+
+        if (targetList.empty())
+        {
+            FinishCast(SPELL_FAILED_IMMUNE);
+            return;
+        }
+
+        Trinity::Containers::RandomResize(targetList, 1);
     }
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_dk_death_pact::CheckCast);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_death_pact::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
