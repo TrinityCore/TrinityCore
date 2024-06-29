@@ -145,9 +145,13 @@ namespace Movement
          */
         void SetBackward();
 
-        /* Fixes unit's model rotation. Disabled by default
+        /* Fixes unit's model rotation (plays knockback animation). Disabled by default
          */
         void SetOrientationFixed(bool enable);
+
+        /* Fixes unit's model rotation (plays jump animation). Disabled by default
+         */
+        void SetJumpOrientationFixed(bool enable);
 
         /* Enables avoiding minor obstacles clientside (might cause visual position on client to not be accurate with the serverside one). Disabled by default
          */
@@ -188,6 +192,7 @@ namespace Movement
     inline void MoveSplineInit::SetTransportEnter() { args.flags.TransportEnter = true; }
     inline void MoveSplineInit::SetTransportExit() { args.flags.TransportExit = true; }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.OrientationFixed = enable; }
+    inline void MoveSplineInit::SetJumpOrientationFixed(bool enable) { args.flags.JumpOrientationFixed = enable; }
     inline void MoveSplineInit::SetSteering() { args.flags.Steering = true; }
     inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.UnlimitedSpeed = true; }
 
@@ -227,14 +232,14 @@ namespace Movement
 
     struct TC_GAME_API MoveSplineInitFacingVisitor
     {
-        explicit MoveSplineInitFacingVisitor(MoveSplineInit& init_) : init(init_) { }
+        explicit MoveSplineInitFacingVisitor(MoveSplineInit& init) : _init(init) { }
 
         void operator()(std::monostate) const { }
         void operator()(Position const& point) const;
-        void operator()(Unit const* target) const { init.SetFacing(target); }
-        void operator()(float angle) const { init.SetFacing(angle); }
+        void operator()(Unit const* target) const { _init.SetFacing(target); }
+        void operator()(float angle) const { _init.SetFacing(angle); }
 
-        MoveSplineInit& init;
+        MoveSplineInit& _init;
     };
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H
