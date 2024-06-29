@@ -23,6 +23,8 @@ void AddSC_boss_sylvanas_windrunner();
 void AddSC_instance_sanctum_of_domination();
 
 void AddSC_boss_anduin_wrynn();
+void AddSC_boss_lords_of_dread();
+void AddSC_sepulcher_of_the_first_ones();
 void AddSC_instance_sepulcher_of_the_first_ones();
 
 // The name of this function should match:
@@ -38,5 +40,7 @@ void AddShadowlandsScripts()
 
     // Sepulcher of The First Ones
     AddSC_boss_anduin_wrynn();
+    AddSC_boss_lords_of_dread();
+    AddSC_sepulcher_of_the_first_ones();
     AddSC_instance_sepulcher_of_the_first_ones();
 }

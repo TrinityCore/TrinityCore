@@ -53,6 +53,12 @@ enum SepulcherOfTheFirstOnesDataTypes
     DATA_BOLVAR_FORDRAGON_ANDUIN,
     DATA_THRALL_ANDUIN,
     DATA_QUARTERMASTER_RAHM_ANDUIN,
+
+    // Lords of Dread Encounter
+    DATA_MALGANIS,
+    DATA_KINTESSA,
+    DATA_LORDS_OF_DREAD_RETREAT_COUNTER,
+    DATA_DOOR_TO_LORDS_OF_DREAD,
 };
 
 enum SepulcherOfTheFirstOnesCreatureIds
@@ -62,6 +68,8 @@ enum SepulcherOfTheFirstOnesCreatureIds
     BOSS_VIGILANT_GUARDIAN              = 180773,
     BOSS_ANDUIN_WRYNN                   = 181954,
     BOSS_REMNANT_OF_A_FALLEN_KING       = 183463,
+    BOSS_MALGANIS                       = 181398,
+    BOSS_KINTESSA                       = 181399,
 
     // Anduin Wrynn Encounter
     NPC_LADY_JAINA_PROUDMOORE_ANDUIN    = 183664,
@@ -84,6 +92,12 @@ enum SepulcherOfTheFirstOnesCreatureIds
     NPC_QUARTERMASTER_RAHM_ANDUIN       = 186785,
     NPC_THRALL_ANDUIN                   = 184599,
     NPC_KNIGHT_OF_EBON_BLADE_ANDUIN     = 184613,
+
+    // Lords of Dread Encounter
+    NPC_OVERTHROWN_PROTECTOR_MALGANIS   = 185154,
+    NPC_OVERTHROWN_PROTECTOR_KINTESSA   = 185155,
+    NPC_SWARM_OF_SHADOWS                = 182039,
+
 };
 
 enum SepulcherOfTheFirstOnesTranslocatorIds
@@ -93,9 +107,17 @@ enum SepulcherOfTheFirstOnesTranslocatorIds
 
 enum SepulcherOfTheFirstOnesGameObjectIds
 {
-    GAMEOBJECT_BRIDGE_TO_ANDUIN     = 375110,
-    GAMEOBJECT_BRIDGE_AFTER_ANDUIN  = 375035,
-    GAMEOBJECT_ANDUIN_CHEST_LOOT    = 375901,
+    GAMEOBJECT_BRIDGE_TO_ANDUIN                     = 375110,
+    GAMEOBJECT_BRIDGE_AFTER_ANDUIN                  = 375035,
+    GAMEOBJECT_ANDUIN_CHEST_LOOT                    = 375901,
+
+    // Lords of Dread gameobjects
+    GAMEOBJECT_DOOR_TO_LORDS_OF_DREAD               = 375410,
+    GAMEOBJECT_DOOR_AFTER_LORDS_OF_DREAD            = 375409,
+    GAMEOBJECT_BARRIER_BEFORE_LORDS_OF_DREAD_RIGHT  = 375198,
+    GAMEOBJECT_BARRIER_BEFORE_LORDS_OF_DREAD_LEFT   = 375199,
+    GAMEOBJECT_BARRIER_AFTER_LORDS_OF_DREAD_RIGHT   = 375201,
+    GAMEOBJECT_BARRIER_AFTER_LORDS_OF_DREAD_LEFT   = 375200,
 };
 
 enum SepulcherOfTheFirstOnesEvents
@@ -116,9 +138,11 @@ enum SepulcherOfTheFirstOnesAreas
 
 enum SepulcherOfTheFirstOnesWorldStates
 {
-    WORLD_STATE_ANDUIN_ENCOUNTER_STARTED    = 21243,
-    WORLD_STATE_ANDUIN_INTERMISSION         = 21433,
-    WORLD_STATE_ANDUIN_ENCOUNTER_COMPLETED  = 21242,
+    WORLD_STATE_ANDUIN_ENCOUNTER_STARTED            = 21243,
+    WORLD_STATE_ANDUIN_INTERMISSION                 = 21433,
+    WORLD_STATE_ANDUIN_ENCOUNTER_COMPLETED          = 21242,
+    WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_STARTED    = 21219,
+    WORLD_STATE_LORDS_OF_DREAD_ENCOUNTER_COMPLETED  = 21220,
 };
 
 template <class AI, class T>
