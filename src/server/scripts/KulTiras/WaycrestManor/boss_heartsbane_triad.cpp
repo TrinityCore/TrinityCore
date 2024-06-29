@@ -858,7 +858,7 @@ class spell_aura_of_dread : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetCaster();
-        if (!caster) 
+        if (!caster)
             return;
 
         for (MapReference const& players : caster->GetMap()->GetPlayers())
