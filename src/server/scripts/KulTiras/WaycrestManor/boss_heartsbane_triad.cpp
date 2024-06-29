@@ -121,7 +121,7 @@ enum HeartsbaneTriadSummonGroups
     SUMMON_GROUP_TRIAD_FOCUSING_IRIS = 0
 };
 
-uint32 const TriadData[3] =
+uint32 const HeartsbaneTriadData[3] =
 {
     DATA_SISTER_BRIAR,
     DATA_SISTER_MALADY,
@@ -130,7 +130,7 @@ uint32 const TriadData[3] =
 
 namespace
 {
-void DespawnTriad(InstanceScript* instance, EvadeReason why)
+void DespawnTriad(InstanceScript* instance, EvadeReason why, Creature* creature)
 {
     if (instance->GetBossState(DATA_HEARTSBANE_TRIAD) == FAIL)
         return;
@@ -141,8 +141,9 @@ void DespawnTriad(InstanceScript* instance, EvadeReason why)
     {
         if (Creature* triad = instance->GetCreature(bossesData))
         {
-            triad->RemoveAurasDueToSpell(SPELL_FOCUSING_IRIS);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, triad);
+            if (triad == creature)
+                continue;
+
             triad->AI()->EnterEvadeMode(why);
         }
     }
@@ -153,7 +154,7 @@ void HeartsbaneTriadEncounterDone(InstanceScript* instance)
     if (instance->GetBossState(DATA_HEARTSBANE_TRIAD) == DONE)
         return;
 
-    for (uint32 bossesData : TriadData)
+    for (uint32 bossesData : HeartsbaneTriadData)
     {
         if (Creature* triad = instance->GetCreature(bossesData))
         {
@@ -166,9 +167,9 @@ void HeartsbaneTriadEncounterDone(InstanceScript* instance)
 }
 }
 
-struct TriadSharedAI : public BossAI
+struct HeartsbaneTriadSharedAI : public BossAI
 {
-    TriadSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _healthTriggered(false)
+    HeartsbaneTriadSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _healthTriggered(false)
     {
         SetBoundary(instance->GetBossBoundary(DATA_HEARTSBANE_TRIAD));
     }
@@ -181,7 +182,10 @@ struct TriadSharedAI : public BossAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        DespawnTriad(instance, why);
+        DespawnTriad(instance, why, me);
+-
+        me->RemoveAurasDueToSpell(SPELL_FOCUSING_IRIS);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
         events.Reset();
         _DespawnAtEvade();
@@ -195,7 +199,7 @@ struct TriadSharedAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        for (uint32 bossesData : TriadData)
+        for (uint32 bossesData : HeartsbaneTriadData)
         {
             if (Creature* triad = instance->GetCreature(bossesData))
                 triad->AI()->DoZoneInCombat();
@@ -247,31 +251,25 @@ protected:
 };
 
 // 131825 - Sister Briar
-struct boss_sister_briar : public TriadSharedAI
+struct boss_sister_briar : public HeartsbaneTriadSharedAI
 {
-    boss_sister_briar(Creature* creature) : TriadSharedAI(creature, DATA_SISTER_BRIAR) { }
+    boss_sister_briar(Creature* creature) : HeartsbaneTriadSharedAI(creature, DATA_SISTER_BRIAR) { }
 
     void ScheduleEvents() override
     {
         events.ScheduleEvent(EVENT_BRAMBLE_BOLT, 2000ms);
     }
 
-    void JustEngagedWith(Unit* who) override
-    {
-        TriadSharedAI::JustEngagedWith(who);
-        TriadSharedAI::ScheduleEvents();
-    }
-
     void JustDied(Unit* killer) override
     {
-        TriadSharedAI::JustDied(killer);
+        HeartsbaneTriadSharedAI::JustDied(killer);
 
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JAGGED_NETTLES);
     }
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        TriadSharedAI::EnterEvadeMode(why);
+        HeartsbaneTriadSharedAI::EnterEvadeMode(why);
 
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JAGGED_NETTLES);
     }
@@ -380,24 +378,18 @@ struct boss_sister_briar : public TriadSharedAI
 };
 
 // 131823 - Sister Malady
-struct boss_sister_malady : public TriadSharedAI
+struct boss_sister_malady : public HeartsbaneTriadSharedAI
 {
-    boss_sister_malady(Creature* creature) : TriadSharedAI(creature, DATA_SISTER_MALADY) { }
+    boss_sister_malady(Creature* creature) : HeartsbaneTriadSharedAI(creature, DATA_SISTER_MALADY) { }
 
     void ScheduleEvents() override
     {
         events.ScheduleEvent(EVENT_RUINOUS_BOLT, 3200ms);
     }
 
-    void JustEngagedWith(Unit* who) override
-    {
-        TriadSharedAI::JustEngagedWith(who);
-        TriadSharedAI::ScheduleEvents();
-    }
-
     void JustDied(Unit* killer) override
     {
-        TriadSharedAI::JustDied(killer);
+        HeartsbaneTriadSharedAI::JustDied(killer);
 
         DoCastSelf(SPELL_DROP_THE_IRIS);
 
@@ -509,9 +501,9 @@ struct boss_sister_malady : public TriadSharedAI
 };
 
 // 131824 - Sister Solena
-struct boss_sister_solena : public TriadSharedAI
+struct boss_sister_solena : public HeartsbaneTriadSharedAI
 {
-    boss_sister_solena(Creature* creature) : TriadSharedAI(creature, DATA_SISTER_SOLENA) { }
+    boss_sister_solena(Creature* creature) : HeartsbaneTriadSharedAI(creature, DATA_SISTER_SOLENA) { }
 
     void ScheduleEvents() override
     {
@@ -521,8 +513,8 @@ struct boss_sister_solena : public TriadSharedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        TriadSharedAI::JustEngagedWith(who);
-        TriadSharedAI::ScheduleEvents();
+        HeartsbaneTriadSharedAI::JustEngagedWith(who);
+        HeartsbaneTriadSharedAI::ScheduleEvents();
 
         DoAction(ACTION_CLAIM_THE_IRIS_INTRO);
 
@@ -546,7 +538,7 @@ struct boss_sister_solena : public TriadSharedAI
 
     void JustDied(Unit* killer) override
     {
-        TriadSharedAI::JustDied(killer);
+        HeartsbaneTriadSharedAI::JustDied(killer);
 
         DoCastSelf(SPELL_DROP_THE_IRIS);
 
@@ -579,7 +571,7 @@ struct boss_sister_solena : public TriadSharedAI
 
     void JustAppeared() override
     {
-        TriadSharedAI::JustAppeared();
+        HeartsbaneTriadSharedAI::JustAppeared();
         me->SummonCreatureGroup(SUMMON_GROUP_TRIAD_FOCUSING_IRIS);
     }
 
@@ -688,7 +680,7 @@ class spell_jagged_nettles : public AuraScript
         {
             Unit* target = GetTarget();
             if (target->GetHealthPct() >= float(GetEffectInfo(EFFECT_2).CalcValue(target)))
-                GetAura()->Remove();
+                Remove();
         }
     }
 
@@ -752,7 +744,7 @@ class spell_soul_manipulation_periodic : public AuraScript
     {
         if (aurEff->GetTickNumber() == 10)
         {
-            GetAura()->Remove();
+            Remove();
             GetCaster()->InterruptSpell(CURRENT_CHANNELED_SPELL);
         }
     }
@@ -831,6 +823,9 @@ class spell_aura_of_apathy : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         for (MapReference const& players : caster->GetMap()->GetPlayers())
         {
             if (Player* player = players.GetSource())
@@ -839,7 +834,7 @@ class spell_aura_of_apathy : public AuraScript
 
                 if (!caster->HasAura(SPELL_FOCUSING_IRIS))
                 {
-                    GetAura()->Remove();
+                    Remove();
                     player->RemoveAurasDueToSpell(SPELL_AURA_OF_APATHY_DEBUFF);
                 }
             }
@@ -863,6 +858,9 @@ class spell_aura_of_dread : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetCaster();
+        if (!caster) 
+            return;
+
         for (MapReference const& players : caster->GetMap()->GetPlayers())
         {
             if (Player* player = players.GetSource())
@@ -872,7 +870,7 @@ class spell_aura_of_dread : public AuraScript
 
                 if (!caster->HasAura(SPELL_FOCUSING_IRIS))
                 {
-                    GetAura()->Remove();
+                    Remove();
                     player->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_MOVE_CHECK);
                     player->GetAura(SPELL_AURA_OF_DREAD_DAMAGE)->Remove();
                 }
@@ -932,6 +930,9 @@ class spell_aura_of_thorns : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         for (MapReference const& players : caster->GetMap()->GetPlayers())
         {
             if (Player* player = players.GetSource())
@@ -940,7 +941,7 @@ class spell_aura_of_thorns : public AuraScript
 
                 if (!caster->HasAura(SPELL_FOCUSING_IRIS))
                 {
-                    GetAura()->Remove();
+                    Remove();
                     player->RemoveAurasDueToSpell(SPELL_AURA_OF_THORNS_CHECK_PROC);
                 }
             }
