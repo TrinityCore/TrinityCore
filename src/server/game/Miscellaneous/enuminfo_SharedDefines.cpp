@@ -1456,8 +1456,8 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return { "SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT", "Ignore School Lockout", "" };
         case SPELL_ATTR9_ALLOW_DARK_SIMULACRUM: return { "SPELL_ATTR9_ALLOW_DARK_SIMULACRUM", "Allow Dark Simulacrum", "" };
         case SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING: return { "SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING", "Allow Cast While Channeling", "" };
-        case SPELL_ATTR9_UNK21: return { "SPELL_ATTR9_UNK21", "Unknown attribute 21@Attr9", "" };
-        case SPELL_ATTR9_UNK22: return { "SPELL_ATTR9_UNK22", "Unknown attribute 22@Attr9", "" };
+        case SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS: return { "SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS", "Suppress Visual Kit Errors (client only)", "" };
+        case SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK: return { "SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK", "Spellcast Override In Spellbook (client only)", "" };
         case SPELL_ATTR9_UNK23: return { "SPELL_ATTR9_UNK23", "Unknown attribute 23@Attr9", "" };
         case SPELL_ATTR9_UNK24: return { "SPELL_ATTR9_UNK24", "Unknown attribute 24@Attr9", "" };
         case SPELL_ATTR9_UNK25: return { "SPELL_ATTR9_UNK25", "Unknown attribute 25@Attr9", "" };
@@ -1500,8 +1500,8 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 18: return SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT;
         case 19: return SPELL_ATTR9_ALLOW_DARK_SIMULACRUM;
         case 20: return SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING;
-        case 21: return SPELL_ATTR9_UNK21;
-        case 22: return SPELL_ATTR9_UNK22;
+        case 21: return SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS;
+        case 22: return SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK;
         case 23: return SPELL_ATTR9_UNK23;
         case 24: return SPELL_ATTR9_UNK24;
         case 25: return SPELL_ATTR9_UNK25;
@@ -1541,8 +1541,8 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT: return 18;
         case SPELL_ATTR9_ALLOW_DARK_SIMULACRUM: return 19;
         case SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING: return 20;
-        case SPELL_ATTR9_UNK21: return 21;
-        case SPELL_ATTR9_UNK22: return 22;
+        case SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS: return 21;
+        case SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK: return 22;
         case SPELL_ATTR9_UNK23: return 23;
         case SPELL_ATTR9_UNK24: return 24;
         case SPELL_ATTR9_UNK25: return 25;

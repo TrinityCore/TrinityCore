@@ -780,8 +780,8 @@ enum SpellAttr9 : uint32
     SPELL_ATTR9_IGNORE_SCHOOL_LOCKOUT                               = 0x00040000, // TITLE Ignore School Lockout
     SPELL_ATTR9_ALLOW_DARK_SIMULACRUM                               = 0x00080000, // TITLE Allow Dark Simulacrum
     SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING                         = 0x00100000, // TITLE Allow Cast While Channeling
-    SPELL_ATTR9_UNK21                            = 0x00200000, // TITLE Unknown attribute 21@Attr9
-    SPELL_ATTR9_UNK22                            = 0x00400000, // TITLE Unknown attribute 22@Attr9
+    SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS                          = 0x00200000, // TITLE Suppress Visual Kit Errors (client only)
+    SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK                     = 0x00400000, // TITLE Spellcast Override In Spellbook (client only)
     SPELL_ATTR9_UNK23                            = 0x00800000, // TITLE Unknown attribute 23@Attr9
     SPELL_ATTR9_UNK24                            = 0x01000000, // TITLE Unknown attribute 24@Attr9
     SPELL_ATTR9_UNK25                            = 0x02000000, // TITLE Unknown attribute 25@Attr9
