@@ -150,6 +150,8 @@ class TC_GAME_API UnitAI
         // When replacement is made, OnCharmed is called with isNew = true
         virtual void OnCharmed(bool isNew);
 
+        virtual void OnHeartbeat() { }
+
         // Pass parameters between AI
         virtual void DoAction(int32 /*param*/) { }
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
