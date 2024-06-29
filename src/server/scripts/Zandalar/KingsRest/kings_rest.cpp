@@ -314,10 +314,10 @@ struct npc_kings_rest_shadow_of_zul : public ScriptedAI
     void JustAppeared() override
     {
         if (me->HasStringId("SerpentBossEvent"))
-            SerpentBossEvent();
+            TriggerSerpentBossEvent();
     }
 
-    void SerpentBossEvent()
+    void TriggerSerpentBossEvent()
     {
         Seconds delay = 1s;
 
