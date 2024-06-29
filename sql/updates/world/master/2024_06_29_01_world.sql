@@ -1,4 +1,4 @@
-SET @CGUID := 11000000;
+SET @CGUID := 7001350;
 SET @SPAWNGROUPID := 1255;
 
 -- Creature
@@ -60,7 +60,7 @@ UPDATE `areatrigger_create_properties` SET `ScriptName` = 'at_kings_rest_gust_sl
 -- Spawngroups
 DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWNGROUPID;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
-(@SPAWNGROUPID, 'KingsRest - Zul activates temple spawns', 0x04);
+(@SPAWNGROUPID, 'Kings Rest - Zul activates temple spawns', 0x04);
 
 DELETE FROM `spawn_group` WHERE `groupId` = @SPAWNGROUPID AND `spawnType`= 0;
 INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
