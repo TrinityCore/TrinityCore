@@ -2920,7 +2920,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             // Fill base damage struct (unitTarget - is real spell target)
             SpellNonMeleeDamage damageInfo(caster, spell->unitTarget, spell->m_spellInfo, spell->m_SpellVisual, spell->m_spellSchoolMask, spell->m_castId);
             // Check damage immunity
-            if (spell->unitTarget->IsImmunedToDamage(spell->m_spellInfo))
+            if (spell->unitTarget->IsImmunedToDamage(caster, spell->m_spellInfo))
             {
                 hitMask = PROC_HIT_IMMUNE;
                 spell->m_damage = 0;
@@ -3482,7 +3482,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     }
 
     // Prevent casting at cast another spell (ServerSide check)
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->ToUnit() && m_caster->ToUnit()->IsNonMeleeSpellCast(false, true, true, m_spellInfo->Id == 75) && !m_castId.IsEmpty())
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->ToUnit() && m_caster->ToUnit()->IsNonMeleeSpellCast(false, true, true, m_spellInfo->Id == 75))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(SPELL_FAILED_SPELL_IN_PROGRESS);
@@ -3529,7 +3529,9 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     // Prepare data for triggers
     prepareDataForTriggerSystem();
 
-    m_casttime = CallScriptCalcCastTimeHandlers(m_spellInfo->CalcCastTime(this));
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_TIME))
+        m_casttime = m_spellInfo->CalcCastTime(this);
+    m_casttime = CallScriptCalcCastTimeHandlers(m_casttime);
 
     SpellCastResult movementResult = SPELL_CAST_OK;
     if (m_caster->IsUnit() && m_caster->ToUnit()->isMoving())
@@ -4793,7 +4795,7 @@ void Spell::SendSpellStart()
     if (schoolImmunityMask || mechanicImmunityMask)
         castFlags |= CAST_FLAG_IMMUNITY;
 
-    if (((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell) && !m_fromClient)
+    if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) || m_spellInfo->HasAttribute(SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
@@ -4892,7 +4894,7 @@ void Spell::SendSpellGo()
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
 
     // triggered spells with spell visual != 0
-    if (((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell) && !m_fromClient)
+    if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) || m_spellInfo->HasAttribute(SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
@@ -7122,8 +7124,6 @@ SpellCastResult Spell::CheckCasterAuras(int32* param1) const
         }
         else if (!CheckSpellCancelsStun(param1))
             result = SPELL_FAILED_STUNNED;
-        else if ((m_spellInfo->Mechanic & MECHANIC_IMMUNE_SHIELD) && m_caster->ToUnit() && m_caster->ToUnit()->HasAuraWithMechanic(1 << MECHANIC_BANISH))
-            result = SPELL_FAILED_STUNNED;
     }
     else if (unitCaster->IsSilenced(m_spellSchoolMask) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE && !CheckSpellCancelsSilence(param1))
         result = SPELL_FAILED_SILENCED;
@@ -7237,7 +7237,7 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 
     // check USABLE attributes
     // USABLE takes precedence over NOT_USABLE
-    if (isRatedBattleground && m_spellInfo->HasAttribute(SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS))
+    if (isRatedBattleground && m_spellInfo->HasAttribute(SPELL_ATTR9_IGNORE_DEFAULT_RATED_BATTLEGROUND_RESTRICTIONS))
         return SPELL_CAST_OK;
 
     if (isArena && m_spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_DEFAULT_ARENA_RESTRICTIONS))
@@ -8342,7 +8342,8 @@ bool Spell::CheckEffectTarget(Item const* /*target*/, SpellEffectInfo const& /*s
 
 bool Spell::IsTriggered() const
 {
-    return (_triggeredCastFlags & TRIGGERED_FULL_MASK) != 0;
+    return (!m_fromClient && (_triggeredCastFlags & TRIGGERED_FULL_MASK) != 0)
+        || !m_originalCastId.IsEmpty();
 }
 
 bool Spell::IsIgnoringCooldowns() const

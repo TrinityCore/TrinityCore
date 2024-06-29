@@ -291,4 +291,9 @@ namespace Movement
 
         return input;
     }
+
+    void MoveSplineInitFacingVisitor::operator()(Position const& point) const
+    {
+        _init.SetFacing(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
+    }
 }

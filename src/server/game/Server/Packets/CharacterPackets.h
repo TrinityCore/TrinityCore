@@ -172,7 +172,7 @@ namespace WorldPackets
                     uint8 Subclass          = 0;
                 };
 
-                std::array<VisualItemInfo, 35> VisualItems = { };
+                std::array<VisualItemInfo, 19> VisualItems = { };
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
                 bool RpeResetAvailable = false;
@@ -187,6 +187,7 @@ namespace WorldPackets
                 bool HasAchievement   = false;
                 bool HasHeritageArmor = false;
                 bool IsLocked         = false;
+                bool Unused1027       = false;
             };
 
             struct UnlockedConditionalAppearance

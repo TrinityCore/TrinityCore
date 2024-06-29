@@ -47,7 +47,7 @@ void WorldPackets::Chat::ChatMessageWhisper::Read()
     _worldPacket >> TargetGUID;
     _worldPacket >> TargetVirtualRealmAddress;
 
-    uint32 targetLen = _worldPacket.ReadBits(6);
+    uint32 targetLen = _worldPacket.ReadBits(9);
     uint32 textLen = _worldPacket.ReadBits(11);
 
     if (targetLen > 1)
@@ -100,8 +100,8 @@ void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
     _worldPacket >> PlayerGUID;
     _worldPacket >> PlayerVirtualRealmAddress;
 
-    uint32 playerNameLength = _worldPacket.ReadBits(6);
-    uint32 channelNameLength = _worldPacket.ReadBits(6);
+    uint32 playerNameLength = _worldPacket.ReadBits(9);
+    uint32 channelNameLength = _worldPacket.ReadBits(8);
 
     if (playerNameLength > 1)
     {
