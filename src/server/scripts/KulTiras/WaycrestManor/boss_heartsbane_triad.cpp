@@ -137,7 +137,7 @@ void DespawnTriad(InstanceScript* instance, EvadeReason why, Creature* creature)
 
     instance->SetBossState(DATA_HEARTSBANE_TRIAD, FAIL);
 
-    for (uint32 bossesData : TriadData)
+    for (uint32 bossesData : HeartsbaneTriadData)
     {
         if (Creature* triad = instance->GetCreature(bossesData))
         {
