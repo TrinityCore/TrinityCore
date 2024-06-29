@@ -623,7 +623,7 @@ struct boss_sister_solena : public TriadSharedAI
             }
             case EVENT_SOUL_MANIPULATION:
             {
-                if (unit->GetMap()->GetPlayersCountExceptGMs() > 1) // This event doesn't happen if you go solo because it resets boss
+                if (me->GetMap()->GetPlayersCountExceptGMs() > 1) // This event doesn't happen if you go solo because it resets boss
                 {
                     Talk(SAY_SOUL_MANIPULATION);
                     DoCast(SPELL_SOUL_MANIPULATION_SELECTOR);
