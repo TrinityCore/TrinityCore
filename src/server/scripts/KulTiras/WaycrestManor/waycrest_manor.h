@@ -54,6 +54,11 @@ enum WaycrestManorCreatureIds
     NPC_FOCUSING_IRIS        = 132361
 };
 
+enum WaycrestManorGameObjectIds
+{
+    GO_HEARTSBANE_TRIAD_DOOR = 282410
+};
+
 template <class AI, class T>
 inline AI* GetWaycrestManorAI(T* obj)
 {

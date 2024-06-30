@@ -33,6 +33,12 @@ ObjectData const creatureData[] =
     { 0,                  0                  }  // END
 };
 
+DoorData const doorData[] =
+{
+    { GO_HEARTSBANE_TRIAD_DOOR,                 DATA_HEARTSBANE_TRIAD,          EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                                        0,                              EncounterDoorBehavior::OpenWhenNotInProgress }  // END
+};
+
 DungeonEncounterData const encounters[] =
 {
     { DATA_HEARTSBANE_TRIAD,       {{ 2113 }} },
@@ -53,8 +59,9 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadBossBoundaries(boundaries);
             LoadObjectData(creatureData, nullptr);
+            LoadDoorData(doorData);
+            LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }
     };
