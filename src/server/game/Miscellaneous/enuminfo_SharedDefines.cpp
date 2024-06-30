@@ -1458,7 +1458,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING: return { "SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING", "Allow Cast While Channeling", "" };
         case SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS: return { "SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS", "Suppress Visual Kit Errors (client only)", "" };
         case SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK: return { "SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK", "Spellcast Override In Spellbook (client only)", "" };
-        case SPELL_ATTR9_UNK23: return { "SPELL_ATTR9_UNK23", "Unknown attribute 23@Attr9", "" };
+        case SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL: return { "SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL", "JumpCharge - no facing control", "" };
         case SPELL_ATTR9_UNK24: return { "SPELL_ATTR9_UNK24", "Unknown attribute 24@Attr9", "" };
         case SPELL_ATTR9_UNK25: return { "SPELL_ATTR9_UNK25", "Unknown attribute 25@Attr9", "" };
         case SPELL_ATTR9_UNK26: return { "SPELL_ATTR9_UNK26", "Unknown attribute 26@Attr9", "" };
@@ -1502,7 +1502,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 20: return SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING;
         case 21: return SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS;
         case 22: return SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK;
-        case 23: return SPELL_ATTR9_UNK23;
+        case 23: return SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL;
         case 24: return SPELL_ATTR9_UNK24;
         case 25: return SPELL_ATTR9_UNK25;
         case 26: return SPELL_ATTR9_UNK26;
@@ -1543,7 +1543,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING: return 20;
         case SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS: return 21;
         case SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK: return 22;
-        case SPELL_ATTR9_UNK23: return 23;
+        case SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL: return 23;
         case SPELL_ATTR9_UNK24: return 24;
         case SPELL_ATTR9_UNK25: return 25;
         case SPELL_ATTR9_UNK26: return 26;
