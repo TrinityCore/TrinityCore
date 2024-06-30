@@ -783,7 +783,7 @@ enum SpellAttr9 : uint32
     SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS                          = 0x00200000, // TITLE Suppress Visual Kit Errors (client only)
     SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK                     = 0x00400000, // TITLE Spellcast Override In Spellbook (client only)
     SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL                       = 0x00800000, // TITLE JumpCharge - no facing control
-    SPELL_ATTR9_UNK24                            = 0x01000000, // TITLE Unknown attribute 24@Attr9
+    SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS                     = 0x01000000, // TITLE Ignore Caster Healing Modifiers
     SPELL_ATTR9_UNK25                            = 0x02000000, // TITLE Unknown attribute 25@Attr9
     SPELL_ATTR9_UNK26                            = 0x04000000, // TITLE Unknown attribute 26@Attr9
     SPELL_ATTR9_UNK27                            = 0x08000000, // TITLE Unknown attribute 27@Attr9
@@ -933,7 +933,7 @@ enum SpellAttr13 : uint32
     SPELL_ATTR13_UNK23                           = 0x00800000, // TITLE Unknown attribute 23@Attr13
     SPELL_ATTR13_UNK24                           = 0x01000000, // TITLE Unknown attribute 24@Attr13
     SPELL_ATTR13_UNK25                           = 0x02000000, // TITLE Unknown attribute 25@Attr13
-    SPELL_ATTR13_UNK26                           = 0x04000000, // TITLE Unknown attribute 26@Attr13
+    SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS    = 0x04000000, // TITLE Always Allow Negative Healing Percent Modifiers
     SPELL_ATTR13_DO_NOT_ALLOW_DISABLE_MOVEMENT_INTERRUPT            = 0x08000000, // TITLE Do Not Allow "Disable Movement Interrupt"
     SPELL_ATTR13_UNK28                           = 0x10000000, // TITLE Unknown attribute 28@Attr13
     SPELL_ATTR13_UNK29                           = 0x20000000, // TITLE Unknown attribute 29@Attr13

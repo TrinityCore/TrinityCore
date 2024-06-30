@@ -1459,7 +1459,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS: return { "SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS", "Suppress Visual Kit Errors (client only)", "" };
         case SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK: return { "SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK", "Spellcast Override In Spellbook (client only)", "" };
         case SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL: return { "SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL", "JumpCharge - no facing control", "" };
-        case SPELL_ATTR9_UNK24: return { "SPELL_ATTR9_UNK24", "Unknown attribute 24@Attr9", "" };
+        case SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS: return { "SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS", "Ignore Caster Healing Modifiers", "" };
         case SPELL_ATTR9_UNK25: return { "SPELL_ATTR9_UNK25", "Unknown attribute 25@Attr9", "" };
         case SPELL_ATTR9_UNK26: return { "SPELL_ATTR9_UNK26", "Unknown attribute 26@Attr9", "" };
         case SPELL_ATTR9_UNK27: return { "SPELL_ATTR9_UNK27", "Unknown attribute 27@Attr9", "" };
@@ -1503,7 +1503,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 21: return SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS;
         case 22: return SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK;
         case 23: return SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL;
-        case 24: return SPELL_ATTR9_UNK24;
+        case 24: return SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS;
         case 25: return SPELL_ATTR9_UNK25;
         case 26: return SPELL_ATTR9_UNK26;
         case 27: return SPELL_ATTR9_UNK27;
@@ -1544,7 +1544,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_SUPPRESS_VISUAL_KIT_ERRORS: return 21;
         case SPELL_ATTR9_SPELLCAST_OVERRIDE_IN_SPELLBOOK: return 22;
         case SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL: return 23;
-        case SPELL_ATTR9_UNK24: return 24;
+        case SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS: return 24;
         case SPELL_ATTR9_UNK25: return 25;
         case SPELL_ATTR9_UNK26: return 26;
         case SPELL_ATTR9_UNK27: return 27;
@@ -1977,7 +1977,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr13>::ToString(SpellAttr13 value)
         case SPELL_ATTR13_UNK23: return { "SPELL_ATTR13_UNK23", "Unknown attribute 23@Attr13", "" };
         case SPELL_ATTR13_UNK24: return { "SPELL_ATTR13_UNK24", "Unknown attribute 24@Attr13", "" };
         case SPELL_ATTR13_UNK25: return { "SPELL_ATTR13_UNK25", "Unknown attribute 25@Attr13", "" };
-        case SPELL_ATTR13_UNK26: return { "SPELL_ATTR13_UNK26", "Unknown attribute 26@Attr13", "" };
+        case SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS: return { "SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS", "Always Allow Negative Healing Percent Modifiers", "" };
         case SPELL_ATTR13_DO_NOT_ALLOW_DISABLE_MOVEMENT_INTERRUPT: return { "SPELL_ATTR13_DO_NOT_ALLOW_DISABLE_MOVEMENT_INTERRUPT", "Do Not Allow \042Disable Movement Interrupt\042", "" };
         case SPELL_ATTR13_UNK28: return { "SPELL_ATTR13_UNK28", "Unknown attribute 28@Attr13", "" };
         case SPELL_ATTR13_UNK29: return { "SPELL_ATTR13_UNK29", "Unknown attribute 29@Attr13", "" };
@@ -2021,7 +2021,7 @@ TC_API_EXPORT SpellAttr13 EnumUtils<SpellAttr13>::FromIndex(size_t index)
         case 23: return SPELL_ATTR13_UNK23;
         case 24: return SPELL_ATTR13_UNK24;
         case 25: return SPELL_ATTR13_UNK25;
-        case 26: return SPELL_ATTR13_UNK26;
+        case 26: return SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS;
         case 27: return SPELL_ATTR13_DO_NOT_ALLOW_DISABLE_MOVEMENT_INTERRUPT;
         case 28: return SPELL_ATTR13_UNK28;
         case 29: return SPELL_ATTR13_UNK29;
@@ -2062,7 +2062,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr13>::ToIndex(SpellAttr13 value)
         case SPELL_ATTR13_UNK23: return 23;
         case SPELL_ATTR13_UNK24: return 24;
         case SPELL_ATTR13_UNK25: return 25;
-        case SPELL_ATTR13_UNK26: return 26;
+        case SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS: return 26;
         case SPELL_ATTR13_DO_NOT_ALLOW_DISABLE_MOVEMENT_INTERRUPT: return 27;
         case SPELL_ATTR13_UNK28: return 28;
         case SPELL_ATTR13_UNK29: return 29;
