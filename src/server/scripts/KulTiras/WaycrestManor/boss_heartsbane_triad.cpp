@@ -135,9 +135,9 @@ void HeartsbaneTriadEncounterStart(InstanceScript* instance)
 
     instance->SetBossState(DATA_HEARTSBANE_TRIAD, IN_PROGRESS);
 
-    for (uint32 bossesData : HeartsbaneTriadData)
+    for (uint32 data : HeartsbaneTriadData)
     {
-        if (Creature* sister = instance->GetCreature(bossesData))
+        if (Creature* sister = instance->GetCreature(data))
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, sister, 1);
             sister->AI()->DoZoneInCombat();
@@ -152,9 +152,9 @@ void HeartsbaneTriadEncounterFail(InstanceScript* instance, EvadeReason why, Cre
 
     instance->SetBossState(DATA_HEARTSBANE_TRIAD, FAIL);
 
-    for (uint32 bossesData : HeartsbaneTriadData)
+    for (uint32 data : HeartsbaneTriadData)
     {
-        if (Creature* triad = instance->GetCreature(bossesData))
+        if (Creature* triad = instance->GetCreature(data))
         {
             if (triad == invoker)
                 continue;
@@ -169,18 +169,18 @@ void HeartsbaneTriadEncounterDone(InstanceScript* instance)
     if (instance->GetBossState(DATA_HEARTSBANE_TRIAD) == DONE)
         return;
 
-    for (uint32 bossesData : HeartsbaneTriadData)
+    for (uint32 data : HeartsbaneTriadData)
     {
-        if (Creature* sister = instance->GetCreature(bossesData))
+        if (Creature* sister = instance->GetCreature(data))
         {
             if (sister->IsAlive())
                 return;
         }
     }
 
-    for (uint32 bossesData : HeartsbaneTriadData)
+    for (uint32 data : HeartsbaneTriadData)
     {
-        if (Creature* sister = instance->GetCreature(bossesData))
+        if (Creature* sister = instance->GetCreature(data))
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, sister);
     }
 
@@ -340,11 +340,11 @@ struct HeartsbaneTriadSharedAI : public BossAI
         }
     }
 
-protected:
-    bool _claimedIris; // to prevent dropping multiple iris if a sister dies during claim process
-
 private:
     bool _healthTriggered;
+
+protected:
+    bool _claimedIris; // to prevent dropping multiple iris if a sister dies during claim process
 };
 
 // 131825 - Sister Briar
@@ -669,7 +669,7 @@ struct boss_sister_solena : public HeartsbaneTriadSharedAI
 };
 
 // 260741 - Jagged Nettles
-class spell_jagged_nettles : public AuraScript
+class spell_heartsbane_triad_jagged_nettles : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* aurEff)
     {
@@ -682,12 +682,12 @@ class spell_jagged_nettles : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_jagged_nettles::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_heartsbane_triad_jagged_nettles::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
 // 260852 - Claim the Iris
-class spell_claim_the_iris : public SpellScript
+class spell_heartsbane_triad_claim_the_iris : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -710,12 +710,12 @@ class spell_claim_the_iris : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_claim_the_iris::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_heartsbane_triad_claim_the_iris::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 260854 - Drop the Iris
-class spell_drop_the_iris : public SpellScript
+class spell_heartsbane_triad_drop_the_iris : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -729,12 +729,12 @@ class spell_drop_the_iris : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_drop_the_iris::RemoveIris, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectHit += SpellEffectFn(spell_heartsbane_triad_drop_the_iris::RemoveIris, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
 // 260923 - Soul Manipulation
-class spell_soul_manipulation_periodic : public AuraScript
+class spell_heartsbane_triad_soul_manipulation_periodic : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -749,12 +749,12 @@ class spell_soul_manipulation_periodic : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_soul_manipulation_periodic::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_heartsbane_triad_soul_manipulation_periodic::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 260907 Soul Manipulation (Selector)
-class spell_soul_manipulation_selector : public SpellScript
+class spell_heartsbane_triad_soul_manipulation_selector : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -770,12 +770,12 @@ class spell_soul_manipulation_selector : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_soul_manipulation_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_heartsbane_triad_soul_manipulation_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 260703 - Unstable Runic Mark
-class spell_unstable_runic_mark : public AuraScript
+class spell_heartsbane_triad_unstable_runic_mark : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -792,12 +792,12 @@ class spell_unstable_runic_mark : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_unstable_runic_mark::HandleDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_heartsbane_triad_unstable_runic_mark::HandleDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 260773 - Dire Ritual
-class spell_dire_ritual : public SpellScript
+class spell_heartsbane_triad_dire_ritual : public SpellScript
 {
     void HandleAfterCast()
     {
@@ -806,14 +806,14 @@ class spell_dire_ritual : public SpellScript
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_dire_ritual::HandleAfterCast);
+        AfterCast += SpellCastFn(spell_heartsbane_triad_dire_ritual::HandleAfterCast);
     }
 };
 
 // 17789 - Aura of Apathy
-struct at_aura_of_apathy : AreaTriggerAI
+struct at_heartsbane_triad_aura_of_apathy : AreaTriggerAI
 {
-    at_aura_of_apathy(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_heartsbane_triad_aura_of_apathy(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -842,9 +842,9 @@ struct at_aura_of_apathy : AreaTriggerAI
 };
 
 // 17791 - Aura of Dread
-struct at_aura_of_dread : AreaTriggerAI
+struct at_heartsbane_triad_aura_of_dread : AreaTriggerAI
 {
-    at_aura_of_dread(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_heartsbane_triad_aura_of_dread(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -874,7 +874,7 @@ struct at_aura_of_dread : AreaTriggerAI
 };
 
 // 268088 - Aura of Dread
-class spell_aura_of_dread : public AuraScript
+class spell_heartsbane_triad_aura_of_dread : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -901,12 +901,12 @@ class spell_aura_of_dread : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_dread::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_heartsbane_triad_aura_of_dread::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 268085 - Aura of Dread
-class spell_aura_of_dread_movement_check : public AuraScript
+class spell_heartsbane_triad_aura_of_dread_movement_check : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -931,14 +931,14 @@ class spell_aura_of_dread_movement_check : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_dread_movement_check::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_heartsbane_triad_aura_of_dread_movement_check::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 17807 - Aura of Thorns
-struct at_aura_of_thorns : AreaTriggerAI
+struct at_heartsbane_triad_aura_of_thorns : AreaTriggerAI
 {
-    at_aura_of_thorns(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_heartsbane_triad_aura_of_thorns(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -967,7 +967,7 @@ struct at_aura_of_thorns : AreaTriggerAI
 };
 
 // 268122 - Aura of Thorns
-class spell_aura_of_thorns : public AuraScript
+class spell_heartsbane_triad_aura_of_thorns : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -981,7 +981,7 @@ class spell_aura_of_thorns : public AuraScript
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_aura_of_thorns::HandleCheckProc);
+        DoCheckProc += AuraCheckProcFn(spell_heartsbane_triad_aura_of_thorns::HandleCheckProc);
     }
 };
 
@@ -991,18 +991,18 @@ void AddSC_boss_heartsbane_triad()
     RegisterWaycrestManorCreatureAI(boss_sister_malady);
     RegisterWaycrestManorCreatureAI(boss_sister_solena);
 
-    RegisterSpellScript(spell_jagged_nettles);
-    RegisterSpellScript(spell_claim_the_iris);
-    RegisterSpellScript(spell_drop_the_iris);
-    RegisterSpellScript(spell_soul_manipulation_periodic);
-    RegisterSpellScript(spell_soul_manipulation_selector);
-    RegisterSpellScript(spell_unstable_runic_mark);
-    RegisterSpellScript(spell_dire_ritual);
+    RegisterSpellScript(spell_heartsbane_triad_jagged_nettles);
+    RegisterSpellScript(spell_heartsbane_triad_claim_the_iris);
+    RegisterSpellScript(spell_heartsbane_triad_drop_the_iris);
+    RegisterSpellScript(spell_heartsbane_triad_soul_manipulation_periodic);
+    RegisterSpellScript(spell_heartsbane_triad_soul_manipulation_selector);
+    RegisterSpellScript(spell_heartsbane_triad_unstable_runic_mark);
+    RegisterSpellScript(spell_heartsbane_triad_dire_ritual);
 
-    RegisterAreaTriggerAI(at_aura_of_apathy);
-    RegisterAreaTriggerAI(at_aura_of_dread);
-    RegisterSpellScript(spell_aura_of_dread);
-    RegisterSpellScript(spell_aura_of_dread_movement_check);
-    RegisterAreaTriggerAI(at_aura_of_thorns);
-    RegisterSpellScript(spell_aura_of_thorns);
+    RegisterAreaTriggerAI(at_heartsbane_triad_aura_of_apathy);
+    RegisterAreaTriggerAI(at_heartsbane_triad_aura_of_dread);
+    RegisterSpellScript(spell_heartsbane_triad_aura_of_dread);
+    RegisterSpellScript(spell_heartsbane_triad_aura_of_dread_movement_check);
+    RegisterAreaTriggerAI(at_heartsbane_triad_aura_of_thorns);
+    RegisterSpellScript(spell_heartsbane_triad_aura_of_thorns);
 }
