@@ -4856,6 +4856,20 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF THE AZURE VAULT SPELLS
     //
+
+    //
+    // TERRACE OF ENDLESS SPRING SPELLS
+    //
+
+    // Lightning Storm
+    ApplySpellFix({ 118077 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->ChannelInterruptFlags = SpellAuraInterruptFlags::Moving;
+    });
+
+    // END OF TERRACE OF ENDLESS SPRING SPELLS
+    //
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
