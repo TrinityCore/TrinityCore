@@ -19,9 +19,17 @@
 
 void AddSC_zone_boralus();
 
+// Waycrest Manor
+void AddSC_boss_heartsbane_triad();
+void AddSC_instance_waycrest_manor();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKulTirasScripts()
 {
     AddSC_zone_boralus();
+
+    // Waycrest Manor
+    AddSC_boss_heartsbane_triad();
+    AddSC_instance_waycrest_manor();
 }
