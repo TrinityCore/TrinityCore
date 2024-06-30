@@ -15,28 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#include "LFGPacketsCommon.h"
 
-#include "BankPackets.h"
-#include "BattlefieldPackets.h"
-#include "CalendarPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "LFGPackets.h"
-#include "MailPackets.h"
-#include "MiscPackets.h"
-#include "NPCPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TalentPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket)
+{
+    data >> ticket.RequesterGuid;
+    ticket.Type = data.read<WorldPackets::LFG::RideType>();
+    data >> ticket.BgType;
+    data >> ticket.Unknown925;
 
-#endif // AllPackets_h__
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket)
+{
+    data << ticket.RequesterGuid;
+    data << uint32(ticket.Type);
+    data << ticket.BgType;
+    data << ticket.Unknown925;
+
+    return data;
+}
