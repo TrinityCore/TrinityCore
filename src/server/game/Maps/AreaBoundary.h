@@ -164,4 +164,18 @@ class TC_GAME_API BoundaryUnionBoundary : public AreaBoundary
         AreaBoundary const* const _b2;
 };
 
+class TC_GAME_API BoundaryIntersectionBoundary : public AreaBoundary
+{
+public:
+    BoundaryIntersectionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted = false);
+
+protected:
+    virtual ~BoundaryIntersectionBoundary();
+    bool IsWithinBoundaryArea(Position const* pos) const override;
+
+private:
+    AreaBoundary const* const _b1;
+    AreaBoundary const* const _b2;
+};
+
 #endif //TRINITY_AREA_BOUNDARY_H
