@@ -374,7 +374,8 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 if (GameObject* door = instance->GetGameObject(*i))
                     UpdateDoorState(door);
 
-        for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+        GuidSet minions = bossInfo->minion; // Copy to prevent iterator invalidation (minion might be unsummoned in UpdateMinionState)
+        for (GuidSet::iterator i = minions.begin(); i != minions.end(); ++i)
             if (Creature* minion = instance->GetCreature(*i))
                 UpdateMinionState(minion, state);
 
