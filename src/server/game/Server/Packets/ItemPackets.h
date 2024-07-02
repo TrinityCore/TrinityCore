@@ -545,6 +545,36 @@ namespace WorldPackets
             int32 SlotNum = 0;
             int32 ItemReforgeRecId = 0;
         };
+
+        class AddItemPassive final : public ServerPacket
+        {
+        public:
+            AddItemPassive() : ServerPacket(SMSG_ADD_ITEM_PASSIVE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+        };
+
+        class RemoveItemPassive final : public ServerPacket
+        {
+        public:
+            RemoveItemPassive() : ServerPacket(SMSG_REMOVE_ITEM_PASSIVE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+        };
+
+        class SendItemPassives final : public ServerPacket
+        {
+        public:
+            SendItemPassives() : ServerPacket(SMSG_SEND_ITEM_PASSIVES, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<int32> SpellID;
+        };
     }
 }
 
