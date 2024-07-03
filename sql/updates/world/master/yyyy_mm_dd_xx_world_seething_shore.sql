@@ -138,6 +138,8 @@ UPDATE `creature_template` SET `unit_flags2`=67110912, `ScriptName`='npc_bg_seet
 UPDATE `creature_template` SET `unit_flags`=768, `unit_flags3`=16777216 WHERE `entry`=133266; -- Byron Holungo
 UPDATE `creature_template` SET `unit_flags`=768 WHERE `entry`=133267; -- Byron Holungo
 
+UPDATE `creature_template` SET `ScriptName`='npc_bg_seething_shore_vignette_dummy' WHERE `entry`=129344;
+
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 133533 AND `SourceId` = 0;
 
 UPDATE `creature_template` SET `unit_flags2`=0, `ScriptName`='npc_bg_seething_shore_air_supplies_drop' WHERE `entry`=133532; -- Air Supplies
@@ -148,7 +150,7 @@ UPDATE `creature_template_difficulty` SET `StaticFlags1`=536870912, `VerifiedBui
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=536871168, `VerifiedBuild`=54205 WHERE (`Entry`=88238 AND `DifficultyID`=0); -- Alliance Spirit Guide
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=536871168, `VerifiedBuild`=54205 WHERE (`Entry`=88239 AND `DifficultyID`=0); -- Horde Spirit Guide
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=971, `StaticFlags1`=536871168, `VerifiedBuild`=54205 WHERE (`Entry`=129344 AND `DifficultyID`=0); -- Vignette Dummy
--- to verify
+
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=268435456, `VerifiedBuild`=54205 WHERE (`Entry`=131776 AND `DifficultyID`=0); -- Jeron Emberfall
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=268435456, `VerifiedBuild`=54205 WHERE (`Entry`=132800 AND `DifficultyID`=0); -- Mavvus Gingersnap
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=268435456, `VerifiedBuild`=54205 WHERE (`Entry`=133059 AND `DifficultyID`=0); -- General Harris

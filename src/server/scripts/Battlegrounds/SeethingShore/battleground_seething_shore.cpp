@@ -80,6 +80,7 @@ namespace SeethingShore
 
         static constexpr uint32 NathanosBlightCaller = 131773;
         static constexpr uint32 MathiasShaw = 130532;
+        static constexpr uint32 AzeriteFissure = 125253;
     }
 
     namespace CommanderTexts
@@ -878,6 +879,28 @@ private:
     TaskScheduler _scheduler;
 };
 
+struct npc_bg_seething_shore_vignette_dummy : ScriptedAI
+{
+    explicit npc_bg_seething_shore_vignette_dummy(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(38s, [this](TaskContext)
+        {
+            if (Creature* fissure = me->FindNearestCreature(SeethingShore::Creatures::AzeriteFissure, 5.0f))
+                me->SendPlaySpellVisual(fissure, 74145, 0, 0, 0.0f);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_battleground_seething_shore()
 {
     RegisterBattlegroundMapScript(battleground_seething_shore, 1803);
@@ -897,6 +920,8 @@ void AddSC_battleground_seething_shore()
     RegisterCreatureAI(npc_bg_seething_shore_commander);
 
     RegisterSpellScript(spell_bg_seething_shore_speed_up);
+
+    RegisterCreatureAI(npc_bg_seething_shore_vignette_dummy);
 
     new transport_seething_shore();
 }
