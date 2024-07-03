@@ -7407,6 +7407,13 @@ SpellCastResult Spell::CheckRange(bool strict) const
     return SPELL_CAST_OK;
 }
 
+bool Spell::CanIncreaseRangeByMovement(Unit const* unit)
+{
+    // forward running only
+    return unit->HasUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_FALLING)
+        && !unit->IsWalking();
+}
+
 std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
 {
     float rangeMod = 0.0f;
@@ -7448,7 +7455,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
             }
         }
 
-        if (target && unitCaster && unitCaster->isMoving() && target->isMoving() && !unitCaster->IsWalking() && !target->IsWalking() &&
+        if (target && unitCaster && CanIncreaseRangeByMovement(target) && CanIncreaseRangeByMovement(unitCaster) &&
             ((m_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE) || target->GetTypeId() == TYPEID_PLAYER))
             rangeMod += 8.0f / 3.0f;
     }

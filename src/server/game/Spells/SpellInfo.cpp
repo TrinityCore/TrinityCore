@@ -699,7 +699,7 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
 
     if (caster)
     {
-        if (Unit* casterUnit = caster->ToUnit())
+        if (Unit const* casterUnit = caster->ToUnit())
             radius += entry->RadiusPerLevel * casterUnit->GetLevel();
 
         radius = std::min(radius, entry->RadiusMax);
@@ -708,7 +708,7 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
             modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius, spell);
 
         if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
-            if (Unit* casterUnit = caster->ToUnit(); casterUnit && casterUnit->isMoving() && !casterUnit->IsWalking())
+            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
                 radius += 2.0f;
     }
 
