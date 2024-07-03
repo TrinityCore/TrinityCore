@@ -706,6 +706,10 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
 
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius, spell);
+
+        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
+            if (Unit* casterUnit = caster->ToUnit(); casterUnit && casterUnit->isMoving() && !casterUnit->IsWalking())
+                radius += 2.0f;
     }
 
     return radius;
