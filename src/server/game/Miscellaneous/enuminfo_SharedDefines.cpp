@@ -1463,7 +1463,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED: return { "SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED", "(Programmer Only) Don't consume charge if item deleted", "" };
         case SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT: return { "SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT", "Item Passive On Client", "" };
         case SPELL_ATTR9_FORCE_CORPSE_TARGET: return { "SPELL_ATTR9_FORCE_CORPSE_TARGET", "Force Corpse Target", "Causes the spell to continue executing effects on the target even if one of them kills it" };
-        case SPELL_ATTR9_UNK28: return { "SPELL_ATTR9_UNK28", "Unknown attribute 28@Attr9", "" };
+        case SPELL_ATTR9_CANNOT_KILL_TARGET: return { "SPELL_ATTR9_CANNOT_KILL_TARGET", "Cannot Kill Target", "" };
         case SPELL_ATTR9_UNK29: return { "SPELL_ATTR9_UNK29", "Unknown attribute 29@Attr9", "" };
         case SPELL_ATTR9_UNK30: return { "SPELL_ATTR9_UNK30", "Unknown attribute 30@Attr9", "" };
         case SPELL_ATTR9_UNK31: return { "SPELL_ATTR9_UNK31", "Unknown attribute 31@Attr9", "" };
@@ -1507,7 +1507,7 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 25: return SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED;
         case 26: return SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT;
         case 27: return SPELL_ATTR9_FORCE_CORPSE_TARGET;
-        case 28: return SPELL_ATTR9_UNK28;
+        case 28: return SPELL_ATTR9_CANNOT_KILL_TARGET;
         case 29: return SPELL_ATTR9_UNK29;
         case 30: return SPELL_ATTR9_UNK30;
         case 31: return SPELL_ATTR9_UNK31;
@@ -1548,7 +1548,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED: return 25;
         case SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT: return 26;
         case SPELL_ATTR9_FORCE_CORPSE_TARGET: return 27;
-        case SPELL_ATTR9_UNK28: return 28;
+        case SPELL_ATTR9_CANNOT_KILL_TARGET: return 28;
         case SPELL_ATTR9_UNK29: return 29;
         case SPELL_ATTR9_UNK30: return 30;
         case SPELL_ATTR9_UNK31: return 31;

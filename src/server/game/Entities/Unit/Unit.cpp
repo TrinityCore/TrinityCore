@@ -940,6 +940,9 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         }
     }
 
+    if (spellProto && spellProto->HasAttribute(SPELL_ATTR9_CANNOT_KILL_TARGET) && damageTaken >= health)
+        damageTaken = health - 1;
+
     if (attacker && attacker != victim)
     {
         if (Player* killer = attacker->ToPlayer())
