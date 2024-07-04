@@ -7298,6 +7298,10 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     if (spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS))
         return 1.0f;
 
+    // Some spells don't benefit from done mods
+    if (spellProto->HasAttribute(SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS))
+        return 1.0f;
+
     // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return 1.0f;
@@ -7336,50 +7340,85 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 
 int32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 healamount, DamageEffectType damagetype) const
 {
+    bool allowPositive = !spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS);
+    bool allowNegative = !spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS) || spellProto->HasAttribute(SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS);
+    if (!allowPositive && !allowNegative)
+        return healamount;
+
     float TakenTotalMod = 1.0f;
 
     // Healing taken percent
-    float minval = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
-    if (minval)
-        AddPct(TakenTotalMod, minval);
-
-    float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
-    if (maxval)
-        AddPct(TakenTotalMod, maxval);
-
-    // Nourish cast
-    if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[1] & 0x2000000)
+    if (allowNegative)
     {
-        // Rejuvenation, Regrowth, Lifebloom, or Wild Growth
-        if (GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, flag128(0x50, 0x4000010, 0)))
-            // increase healing by 20%
-            TakenTotalMod *= 1.2f;
+        float minval = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
+        if (minval)
+            AddPct(TakenTotalMod, minval);
+
+        if (damagetype == DOT)
+        {
+            // Healing over time taken percent
+            float minval_hot = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT));
+            if (minval_hot)
+                AddPct(TakenTotalMod, minval_hot);
+        }
     }
 
-    if (damagetype == DOT)
+    if (allowPositive)
     {
-        // Healing over time taken percent
-        float minval_hot = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT));
-        if (minval_hot)
-            AddPct(TakenTotalMod, minval_hot);
+        float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
+        if (maxval)
+            AddPct(TakenTotalMod, maxval);
 
-        float maxval_hot = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT));
-        if (maxval_hot)
-            AddPct(TakenTotalMod, maxval_hot);
+        if (damagetype == DOT)
+        {
+            // Healing over time taken percent
+            float maxval_hot = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT));
+            if (maxval_hot)
+                AddPct(TakenTotalMod, maxval_hot);
+        }
+
+        // Nourish cast
+        if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[1] & 0x2000000)
+        {
+            // Rejuvenation, Regrowth, Lifebloom, or Wild Growth
+            if (GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, flag128(0x50, 0x4000010, 0)))
+                // increase healing by 20%
+                TakenTotalMod *= 1.2f;
+        }
     }
 
     if (caster)
     {
-        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_RECEIVED, [caster, spellProto](AuraEffect const* aurEff) -> bool
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_RECEIVED, [caster, spellProto, allowPositive, allowNegative](AuraEffect const* aurEff) -> bool
         {
-            if (caster->GetGUID() == aurEff->GetCasterGUID() && aurEff->IsAffectingSpell(spellProto))
-                return true;
-            return false;
+            if (caster->GetGUID() != aurEff->GetCasterGUID() || !aurEff->IsAffectingSpell(spellProto))
+                return false;
+
+            if (aurEff->GetAmount() > 0)
+            {
+                if (!allowPositive)
+                    return false;
+            }
+            else if (!allowNegative)
+                return false;
+
+            return true;
         });
 
-        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER, [caster](AuraEffect const* aurEff) -> bool
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER, [caster, allowPositive, allowNegative](AuraEffect const* aurEff) -> bool
         {
-            return aurEff->GetCasterGUID() == caster->GetGUID();
+            if (aurEff->GetCasterGUID() != caster->GetGUID())
+                return false;
+
+            if (aurEff->GetAmount() > 0)
+            {
+                if (!allowPositive)
+                    return false;
+            }
+            else if (!allowNegative)
+                return false;
+
+            return true;
         });
     }
 

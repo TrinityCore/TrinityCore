@@ -38,8 +38,9 @@ DoorData const doorData[] =
 
 ObjectData const objectData[] =
 {
-    { GO_KINGS_REST_ENTRYWAY_DOOR, DATA_KINGS_REST_INTRO_DOOR },
-    { 0,                           0                          }  // END
+    { GO_KINGS_REST_ENTRYWAY_DOOR,      DATA_KINGS_REST_INTRO_DOOR  },
+    { GO_KINGS_REST_LIQUID_GOLD_POOL,   DATA_KINGS_REST_LIQUID_POOL },
+    { 0,                                0                           }  // END
 };
 
 DungeonEncounterData const encounters[] =
