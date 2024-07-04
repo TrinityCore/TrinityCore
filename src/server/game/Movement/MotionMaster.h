@@ -160,8 +160,8 @@ class TC_GAME_API MotionMaster
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         void MoveFollow(Unit* target, float dist, ChaseAngle angle, Optional<Milliseconds> duration = {}, MovementSlot slot = MOTION_SLOT_ACTIVE,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
-        void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
-        void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
+        void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {}, bool skipLostTargetCheck = false);
+        void MoveChase(Unit* target, float dist, float angle, bool skipLostTargetCheck = false) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle), skipLostTargetCheck); }
         void MoveConfused();
         void MoveFleeing(Unit* enemy, Milliseconds time = 0ms,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});

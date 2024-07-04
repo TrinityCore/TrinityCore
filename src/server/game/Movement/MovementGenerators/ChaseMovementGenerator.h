@@ -31,7 +31,7 @@ class Unit;
 class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
 {
     public:
-        explicit ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {});
+        explicit ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {}, bool skipLostTargetCheck = false);
         ~ChaseMovementGenerator();
 
         void Initialize(Unit*) override;
@@ -54,6 +54,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         TimeTracker _rangeCheckTimer;
         bool _movingTowards = true;
         bool _mutualChase = true;
+        bool _skipLostTargetCheck = false;
 };
 
 #endif

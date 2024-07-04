@@ -624,14 +624,14 @@ void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, Option
     Add(new FollowMovementGenerator(target, dist, angle, duration, std::move(scriptResult)), slot);
 }
 
-void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle)
+void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle, bool skipLostTargetCheck /*= false*/)
 {
     // Ignore movement request if target not exist
     if (!target || target == _owner)
         return;
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveChase: '{}', starts chasing '{}'", _owner->GetGUID(), target->GetGUID());
-    Add(new ChaseMovementGenerator(target, dist, angle));
+    Add(new ChaseMovementGenerator(target, dist, angle, skipLostTargetCheck));
 }
 
 void MotionMaster::MoveConfused()

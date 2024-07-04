@@ -65,8 +65,8 @@ static void DoMovementInform(Unit* owner, Unit* target)
         AI->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
-ChaseMovementGenerator::ChaseMovementGenerator(Unit *target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range),
-    _angle(angle), _rangeCheckTimer(RANGE_CHECK_INTERVAL)
+ChaseMovementGenerator::ChaseMovementGenerator(Unit *target, Optional<ChaseRange> range, Optional<ChaseAngle> angle, bool skipLostTargetCheck /*= false*/) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range),
+    _angle(angle), _rangeCheckTimer(RANGE_CHECK_INTERVAL), _skipLostTargetCheck(skipLostTargetCheck)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -103,7 +103,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     // the owner might be unable to move (rooted or casting), or we have lost the target, pause movement
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner, target))
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || (!_skipLostTargetCheck && HasLostTarget(owner, target)))
     {
         owner->StopMoving();
         _lastTargetPosition.reset();
