@@ -174,6 +174,7 @@ enum PriestSpells
     SPELL_PRIEST_SEARING_LIGHT                      = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
+    SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE                  = 197045,
@@ -3079,6 +3080,45 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
     }
 };
 
+// 32379 - Shadow Word: Death
+class spell_pri_shadow_word_death : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect
+        ({
+            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_1 },
+            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_2 },
+            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_4 }
+        });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        if (target->GetHealthPct() < GetEffectInfo(EFFECT_1).BasePoints)
+            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetEffectInfo(EFFECT_2).CalcValue(GetCaster())));
+
+        if (GetHitDamage() > target->GetHealth())
+            return;
+
+        int32 backlashDmg = CalculatePct(GetCaster()->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(GetCaster()));
+
+        CastSpellExtraArgs args(TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.AddSpellBP0(backlashDmg);
+        caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 109186 - Surge of Light
 class spell_pri_surge_of_light : public AuraScript
 {
@@ -3599,6 +3639,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_shadow_covenant);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
+    RegisterSpellScript(spell_pri_shadow_word_death);
     RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_train_of_thought);
