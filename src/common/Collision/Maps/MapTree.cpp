@@ -18,6 +18,7 @@
 #include "MapTree.h"
 #include "Errors.h"
 #include "Log.h"
+#include "Memory.h"
 #include "Metric.h"
 #include "ModelInstance.h"
 #include "VMapDefinitions.h"
@@ -276,56 +277,48 @@ namespace VMAP
     {
         TC_LOG_DEBUG("maps", "StaticMapTree::InitMap() : initializing StaticMapTree '{}'", fname);
         std::string fullname = iBasePath + fname;
-        FILE* rf = fopen(fullname.c_str(), "rb");
+        auto rf = Trinity::make_unique_ptr_with_deleter(fopen(fullname.c_str(), "rb"), &::fclose);
         if (!rf)
             return LoadResult::FileNotFound;
 
-        LoadResult result = LoadResult::Success;
         char chunk[8];
 
-        if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
-            result = LoadResult::VersionMismatch;
+        if (!readChunk(rf.get(), chunk, VMAP_MAGIC, 8))
+            return LoadResult::VersionMismatch;
 
-        if (result == LoadResult::Success &&
-            readChunk(rf, chunk, "NODE", 4) &&
-            iTree.readFromFile(rf))
+        if (!readChunk(rf.get(), chunk, "NODE", 4)
+            || !iTree.readFromFile(rf.get()))
+            return LoadResult::ReadFromFileFailed;
+
+        iNTreeValues = iTree.primCount();
+        iTreeValues = new ModelInstance[iNTreeValues];
+
+        if (!readChunk(rf.get(), chunk, "SIDX", 4))
+            return LoadResult::ReadFromFileFailed;
+
+        uint32 spawnIndicesSize = 0;
+        if (fread(&spawnIndicesSize, sizeof(uint32), 1, rf.get()) != 1)
+            return LoadResult::ReadFromFileFailed;
+
+        uint32 spawnId;
+        for (uint32 i = 0; i < spawnIndicesSize; ++i)
         {
-            iNTreeValues = iTree.primCount();
-            iTreeValues = new ModelInstance[iNTreeValues];
-            result = LoadResult::Success;
+            if (fread(&spawnId, sizeof(uint32), 1, rf.get()) == 1)
+                iSpawnIndices[spawnId] = i;
+            else
+                return LoadResult::ReadFromFileFailed;
         }
 
-        if (result == LoadResult::Success)
-        {
-            result = readChunk(rf, chunk, "SIDX", 4) ? LoadResult::Success : LoadResult::ReadFromFileFailed;
-            uint32 spawnIndicesSize = 0;
-            uint32 spawnId;
-            if (result == LoadResult::Success && fread(&spawnIndicesSize, sizeof(uint32), 1, rf) != 1)
-                result = LoadResult::ReadFromFileFailed;
-            for (uint32 i = 0; i < spawnIndicesSize && result == LoadResult::Success; ++i)
-            {
-                if (fread(&spawnId, sizeof(uint32), 1, rf) == 1)
-                    iSpawnIndices[spawnId] = i;
-                else
-                    result = LoadResult::ReadFromFileFailed;
-            }
-        }
-
-        fclose(rf);
-        return result;
+        return LoadResult::Success;
     }
 
     //=========================================================
 
-    void StaticMapTree::UnloadMap(VMapManager2* vm)
+    void StaticMapTree::UnloadMap()
     {
         for (std::pair<uint32 const, uint32>& iLoadedSpawn : iLoadedSpawns)
-        {
-            for (uint32 refCount = 0; refCount < iLoadedSpawn.second; ++refCount)
-                vm->releaseModelInstance(iTreeValues[iLoadedSpawn.first].getWorldModel()->GetName());
-
             iTreeValues[iLoadedSpawn.first].setUnloaded();
-        }
+
         iLoadedSpawns.clear();
         iLoadedTiles.clear();
     }
@@ -359,7 +352,7 @@ namespace VMAP
                 if (ModelSpawn::readFromFile(fileResult.File, spawn))
                 {
                     // acquire model instance
-                    WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
+                    std::shared_ptr<WorldModel> model = vm->acquireModelInstance(iBasePath, spawn.name);
                     if (!model)
                         TC_LOG_ERROR("misc", "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [{}, {}]", tileX, tileY);
 
@@ -376,7 +369,7 @@ namespace VMAP
                                 continue;
                             }
 
-                            iTreeValues[referencedVal] = ModelInstance(spawn, model);
+                            iTreeValues[referencedVal] = ModelInstance(spawn, std::move(model));
                             iLoadedSpawns[referencedVal] = 1;
                         }
                         else
@@ -445,9 +438,6 @@ namespace VMAP
                     result = ModelSpawn::readFromFile(fileResult.File, spawn);
                     if (result)
                     {
-                        // release model instance
-                        vm->releaseModelInstance(spawn.name);
-
                         // update tree
                         auto spawnIndex = iSpawnIndices.find(spawn.ID);
                         if (spawnIndex != iSpawnIndices.end())

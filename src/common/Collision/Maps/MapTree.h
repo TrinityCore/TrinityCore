@@ -91,7 +91,7 @@ namespace VMAP
             bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
 
             LoadResult InitMap(std::string const& fname);
-            void UnloadMap(VMapManager2* vm);
+            void UnloadMap();
             LoadResult LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }

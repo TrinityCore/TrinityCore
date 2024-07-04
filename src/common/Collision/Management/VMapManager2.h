@@ -18,11 +18,12 @@
 #ifndef _VMAPMANAGER2_H
 #define _VMAPMANAGER2_H
 
+#include "Define.h"
+#include "IVMapManager.h"
+#include <memory>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
-#include "Define.h"
-#include "IVMapManager.h"
 
 //===========================================================
 
@@ -52,7 +53,7 @@ namespace VMAP
     class WorldModel;
 
     typedef std::unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
-    typedef std::unordered_map<std::string, ManagedModel*> ModelFileMap;
+    typedef std::unordered_map<std::string, std::weak_ptr<ManagedModel>> ModelFileMap;
 
     enum DisableTypes
     {
@@ -105,7 +106,7 @@ namespace VMAP
 
             bool getAreaAndLiquidData(uint32 mapId, float x, float y, float z, Optional<uint8> reqLiquidType, AreaAndLiquidData& data) const override;
 
-            WorldModel* acquireModelInstance(std::string const& basepath, std::string const& filename);
+            std::shared_ptr<WorldModel> acquireModelInstance(std::string const& basepath, std::string const& filename);
             void releaseModelInstance(std::string const& filename);
 
             // what's the use of this? o.O
