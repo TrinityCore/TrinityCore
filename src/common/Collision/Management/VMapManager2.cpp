@@ -33,14 +33,18 @@ namespace VMAP
 {
     class ManagedModel
     {
-        public:
-            ManagedModel() : iRefCount(0) { }
-            WorldModel* getModel() { return &iModel; }
-            void incRefCount() { ++iRefCount; }
-            int decRefCount() { return --iRefCount; }
-        protected:
-            WorldModel iModel;
-            int iRefCount;
+    public:
+        explicit ManagedModel(VMapManager2& mgr) : _mgr(mgr) { }
+
+        ~ManagedModel()
+        {
+            _mgr.releaseModelInstance(Model.GetName());
+        }
+
+        WorldModel Model;
+
+    private:
+        VMapManager2& _mgr;
     };
 
     bool readChunk(FILE* rf, char* dest, const char* compare, uint32 len)
@@ -60,9 +64,6 @@ namespace VMAP
     {
         for (std::pair<uint32 const, StaticMapTree*>& iInstanceMapTree : iInstanceMapTrees)
             delete iInstanceMapTree.second;
-
-        for (std::pair<std::string const, ManagedModel*>& iLoadedModelFile : iLoadedModelFiles)
-            delete iLoadedModelFile.second;
     }
 
     InstanceTreeMap::const_iterator VMapManager2::GetMapTree(uint32 mapId) const
@@ -159,7 +160,7 @@ namespace VMAP
         auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
         {
-            instanceTree->second->UnloadMap(this);
+            instanceTree->second->UnloadMap();
             if (instanceTree->second->numLoadedTiles() == 0)
             {
                 delete instanceTree->second;
@@ -267,29 +268,29 @@ namespace VMAP
         return false;
     }
 
-    WorldModel* VMapManager2::acquireModelInstance(std::string const& basepath, std::string const& filename)
+    std::shared_ptr<WorldModel> VMapManager2::acquireModelInstance(std::string const& basepath, std::string const& filename)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
 
-        auto model = iLoadedModelFiles.find(filename);
-        if (model == iLoadedModelFiles.end())
+        auto& [key, model] = *iLoadedModelFiles.try_emplace(filename).first;
+        std::shared_ptr<ManagedModel> worldmodel = model.lock();
+        if (worldmodel)
+            return std::shared_ptr<WorldModel>(worldmodel, &worldmodel->Model);
+
+        worldmodel = std::make_shared<ManagedModel>(*this);
+        if (!worldmodel->Model.readFile(basepath + filename + ".vmo"))
         {
-            ManagedModel* worldmodel = new ManagedModel();
-            if (!worldmodel->getModel()->readFile(basepath + filename + ".vmo"))
-            {
-                TC_LOG_ERROR("misc", "VMapManager2: could not load '{}{}.vmo'", basepath, filename);
-                delete worldmodel;
-                return nullptr;
-            }
-            TC_LOG_DEBUG("maps", "VMapManager2: loading file '{}{}'", basepath, filename);
-
-            worldmodel->getModel()->SetName(filename);
-
-            model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel*>(filename, worldmodel)).first;
+            TC_LOG_ERROR("misc", "VMapManager2: could not load '{}{}.vmo'", basepath, filename);
+            return nullptr;
         }
-        model->second->incRefCount();
-        return model->second->getModel();
+        TC_LOG_DEBUG("maps", "VMapManager2: loading file '{}{}'", basepath, filename);
+
+        worldmodel->Model.SetName(&key);
+
+        model = worldmodel;
+
+        return std::shared_ptr<WorldModel>(worldmodel, &worldmodel->Model);
     }
 
     void VMapManager2::releaseModelInstance(std::string const& filename)
@@ -297,18 +298,13 @@ namespace VMAP
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
 
-        auto model = iLoadedModelFiles.find(filename);
-        if (model == iLoadedModelFiles.end())
+        std::size_t erased = iLoadedModelFiles.erase(filename);
+        if (!erased)
         {
             TC_LOG_ERROR("misc", "VMapManager2: trying to unload non-loaded file '{}'", filename);
             return;
         }
-        if (model->second->decRefCount() == 0)
-        {
-            TC_LOG_DEBUG("maps", "VMapManager2: unloading file '{}'", filename);
-            delete model->second;
-            iLoadedModelFiles.erase(model);
-        }
+        TC_LOG_DEBUG("maps", "VMapManager2: unloading file '{}'", filename);
     }
 
     LoadResult VMapManager2::existsMap(char const* basePath, unsigned int mapId, int x, int y)

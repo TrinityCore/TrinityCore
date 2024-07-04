@@ -117,7 +117,7 @@ namespace VMAP
     class TC_COMMON_API WorldModel
     {
         public:
-            WorldModel(): Flags(ModelFlags::None), RootWMOID(0) { }
+            WorldModel(): Flags(ModelFlags::None), RootWMOID(0), name(nullptr) { }
 
             //! pass group models to WorldModel and create BIH. Passed vector is swapped with old geometry!
             void setGroupModels(std::vector<GroupModel> &models);
@@ -129,14 +129,14 @@ namespace VMAP
             bool readFile(const std::string &filename);
             bool IsM2() const { return Flags.HasFlag(ModelFlags::IsM2); }
             std::vector<GroupModel> const& getGroupModels() const { return groupModels; }
-            std::string const& GetName() const { return name; }
-            void SetName(std::string newName) { name = std::move(newName); }
+            std::string const& GetName() const { return *name; }
+            void SetName(std::string const* newName) { name = newName; }
         protected:
             EnumFlag<ModelFlags> Flags;
             uint32 RootWMOID;
             std::vector<GroupModel> groupModels;
             BIH groupTree;
-            std::string name;
+            std::string const* name;    // valid only while model is held in VMapManager2::iLoadedModelFiles
     };
 } // namespace VMAP
 
