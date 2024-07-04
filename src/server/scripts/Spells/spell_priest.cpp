@@ -3097,16 +3097,16 @@ class spell_pri_shadow_word_death : public SpellScript
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-        if (!caster || !target)
-            return;
+
+        uint64 hitDamage = GetHitDamage();
 
         if (target->GetHealthPct() < GetEffectInfo(EFFECT_1).BasePoints)
-            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetEffectInfo(EFFECT_2).CalcValue(GetCaster())));
+            SetHitDamage(hitDamage + CalculatePct(hitDamage, GetEffectInfo(EFFECT_2).CalcValue(caster)));
 
-        if (GetHitDamage() > target->GetHealth())
+        if (hitDamage > target->GetHealth())
             return;
 
-        int32 backlashDmg = CalculatePct(GetCaster()->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(GetCaster()));
+        int32 backlashDmg = CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(caster));
 
         CastSpellExtraArgs args(TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
         args.AddSpellBP0(backlashDmg);
