@@ -1628,6 +1628,10 @@ class spell_hun_outmaneuver : public SpellScript
         pet->GetCharmInfo()->SetIsAtStay(true);
         pet->GetCharmInfo()->SetIsCommandAttack(false);
         pet->GetCharmInfo()->SetIsCommandFollow(false);
+
+        //blink graphic
+        player->CastSpell(player, 81358);
+        pet->CastSpell(pet, 81358);
     }
 
     void Register() override
