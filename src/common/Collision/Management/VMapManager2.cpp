@@ -23,8 +23,6 @@
 #include "VMapDefinitions.h"
 #include "WorldModel.h"
 #include <G3D/Vector3.h>
-#include <iomanip>
-#include <sstream>
 #include <string>
 
 using G3D::Vector3;
@@ -103,11 +101,7 @@ namespace VMAP
     // move to MapTree too?
     std::string VMapManager2::getMapFileName(unsigned int mapId)
     {
-        std::stringstream fname;
-        fname.width(4);
-        fname << std::setfill('0') << mapId << std::string(MAP_FILENAME_EXTENSION2);
-
-        return fname.str();
+        return Trinity::StringFormat("{:04}.vmtree", mapId);
     }
 
     LoadResult VMapManager2::loadMap(char const* basePath, unsigned int mapId, int x, int y)

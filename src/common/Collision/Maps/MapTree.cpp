@@ -24,9 +24,7 @@
 #include "VMapDefinitions.h"
 #include "VMapManager2.h"
 #include "WorldModel.h"
-#include <iomanip>
 #include <limits>
-#include <sstream>
 #include <string>
 
 using G3D::Vector3;
@@ -71,14 +69,9 @@ namespace VMAP
 
     //=========================================================
 
-    std::string StaticMapTree::getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY)
+    std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY)
     {
-        std::stringstream tilefilename;
-        tilefilename.fill('0');
-        tilefilename << std::setw(4) << mapID << '_';
-        //tilefilename << std::setw(2) << tileX << '_' << std::setw(2) << tileY << ".vmtile";
-        tilefilename << std::setw(2) << tileY << '_' << std::setw(2) << tileX << ".vmtile";
-        return tilefilename.str();
+        return Trinity::StringFormat("{:04}_{:02}_{:02}.vmtile", mapID, tileY, tileX);
     }
 
     bool StaticMapTree::GetLocationInfo(Vector3 const& pos, LocationInfo& info) const
@@ -204,11 +197,20 @@ namespace VMAP
         return(height);
     }
 
-    StaticMapTree::TileFileOpenResult StaticMapTree::OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
+    struct TileFileOpenResult
+    {
+        using FileHandle = decltype(Trinity::make_unique_ptr_with_deleter<FILE>(nullptr, &::fclose));
+
+        std::string Name;
+        FileHandle File = { nullptr, &::fclose };
+        int32 UsedMapId;
+    };
+
+    TileFileOpenResult OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
     {
         TileFileOpenResult result;
         result.Name = basePath + getTileFileName(mapID, tileX, tileY);
-        result.File = fopen(result.Name.c_str(), "rb");
+        result.File.reset(fopen(result.Name.c_str(), "rb"));
         result.UsedMapId = mapID;
         if (!result.File)
         {
@@ -216,7 +218,7 @@ namespace VMAP
             while (parentMapId != -1)
             {
                 result.Name = basePath + getTileFileName(parentMapId, tileX, tileY);
-                result.File = fopen(result.Name.c_str(), "rb");
+                result.File.reset(fopen(result.Name.c_str(), "rb"));
                 result.UsedMapId = parentMapId;
                 if (result.File)
                     break;
@@ -236,39 +238,22 @@ namespace VMAP
             basePath.push_back('/');
         std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
 
-        LoadResult result = LoadResult::Success;
-
-        FILE* rf = fopen(fullname.c_str(), "rb");
+        auto rf = Trinity::make_unique_ptr_with_deleter(fopen(fullname.c_str(), "rb"), &::fclose);
         if (!rf)
             return LoadResult::FileNotFound;
 
         char chunk[8];
-        if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
-        {
-            fclose(rf);
+        if (!readChunk(rf.get(), chunk, VMAP_MAGIC, 8))
             return LoadResult::VersionMismatch;
-        }
-        FILE* tf = OpenMapTileFile(basePath, mapID, tileX, tileY, vm).File;
+
+        auto tf = OpenMapTileFile(basePath, mapID, tileX, tileY, vm).File;
         if (!tf)
-        {
-            fclose(rf);
             return LoadResult::FileNotFound;
-        }
-        else
-        {
-            std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);
-            FILE* tf = fopen(tilefile.c_str(), "rb");
-            if (!tf)
-                result = LoadResult::FileNotFound;
-            else
-            {
-                if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
-                    result = LoadResult::VersionMismatch;
-                fclose(tf);
-            }
-        }
-        fclose(rf);
-        return result;
+
+        if (!readChunk(tf.get(), chunk, VMAP_MAGIC, 8))
+            return LoadResult::VersionMismatch;
+
+        return LoadResult::Success;
     }
 
     //=========================================================
@@ -340,16 +325,16 @@ namespace VMAP
             char chunk[8];
 
             result = LoadResult::Success;
-            if (!readChunk(fileResult.File, chunk, VMAP_MAGIC, 8))
+            if (!readChunk(fileResult.File.get(), chunk, VMAP_MAGIC, 8))
                 result = LoadResult::VersionMismatch;
             uint32 numSpawns = 0;
-            if (result == LoadResult::Success && fread(&numSpawns, sizeof(uint32), 1, fileResult.File) != 1)
+            if (result == LoadResult::Success && fread(&numSpawns, sizeof(uint32), 1, fileResult.File.get()) != 1)
                 result = LoadResult::ReadFromFileFailed;
             for (uint32 i = 0; i < numSpawns && result == LoadResult::Success; ++i)
             {
                 // read model spawns
                 ModelSpawn spawn;
-                if (ModelSpawn::readFromFile(fileResult.File, spawn))
+                if (ModelSpawn::readFromFile(fileResult.File.get(), spawn))
                 {
                     // acquire model instance
                     std::shared_ptr<WorldModel> model = vm->acquireModelInstance(iBasePath, spawn.name);
@@ -399,7 +384,6 @@ namespace VMAP
                 }
             }
             iLoadedTiles[packTileID(tileX, tileY)] = true;
-            fclose(fileResult.File);
         }
         else
             iLoadedTiles[packTileID(tileX, tileY)] = false;
@@ -426,16 +410,16 @@ namespace VMAP
             {
                 bool result = true;
                 char chunk[8];
-                if (!readChunk(fileResult.File, chunk, VMAP_MAGIC, 8))
+                if (!readChunk(fileResult.File.get(), chunk, VMAP_MAGIC, 8))
                     result = false;
                 uint32 numSpawns;
-                if (fread(&numSpawns, sizeof(uint32), 1, fileResult.File) != 1)
+                if (fread(&numSpawns, sizeof(uint32), 1, fileResult.File.get()) != 1)
                     result = false;
                 for (uint32 i = 0; i < numSpawns && result; ++i)
                 {
                     // read model spawns
                     ModelSpawn spawn;
-                    result = ModelSpawn::readFromFile(fileResult.File, spawn);
+                    result = ModelSpawn::readFromFile(fileResult.File.get(), spawn);
                     if (result)
                     {
                         // update tree
@@ -455,7 +439,6 @@ namespace VMAP
                             result = false;
                     }
                 }
-                fclose(fileResult.File);
             }
         }
         iLoadedTiles.erase(tile);
