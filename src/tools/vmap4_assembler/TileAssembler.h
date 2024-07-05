@@ -72,11 +72,10 @@ namespace VMAP
         uint32 liquidflags;
         std::vector<MeshTriangle> triangles;
         std::vector<G3D::Vector3> vertexArray;
-        class WmoLiquid* liquid;
+        std::unique_ptr<WmoLiquid> liquid;
 
         GroupModel_Raw() : mogpflags(0), GroupWMOID(0), liquidflags(0),
             liquid(nullptr) { }
-        ~GroupModel_Raw();
 
         bool Read(FILE* f);
     };
@@ -99,8 +98,7 @@ namespace VMAP
             std::set<std::string> spawnedModelFiles;
 
         public:
-            TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName);
-            virtual ~TileAssembler();
+            TileAssembler(std::string pSrcDirName, std::string pDestDirName);
 
             bool convertWorld2();
             bool readMapSpawns();
