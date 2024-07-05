@@ -97,7 +97,6 @@ namespace VMAP
                 return false;
             }
 
-
             // write map tree file
             std::string mapfilename = Trinity::StringFormat("{}/{:04}.vmtree", iDestDir, data.MapId);
             auto mapfile = Trinity::make_unique_ptr_with_deleter(fopen(mapfilename.c_str(), "wb"), &::fclose);
