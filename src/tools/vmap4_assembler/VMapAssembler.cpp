@@ -15,13 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string>
-#include <iostream>
-
-#include "TileAssembler.h"
 #include "Banner.h"
+#include "GitRevision.h"
 #include "Locales.h"
+#include "Optional.h"
+#include "TileAssembler.h"
 #include "Util.h"
+#include <boost/program_options.hpp>
+#include <iostream>
+#include <string>
+
+namespace po = boost::program_options;
+
+/**
+ * Parses command line arguments
+ *
+ * @param [in] argc command line argument count
+ * @param [in] argv raw command line arguments
+ * @param [out] src raw data dir
+ * @param [out] dest vmap dest dir
+ * @return Non-empty optional if program should exit immediately (holds exit code in that case)
+ */
+Optional<int> HandleArgs(int argc, char* argv[], std::string* src, std::string* dest);
 
 int main(int argc, char* argv[])
 {
@@ -29,23 +44,11 @@ int main(int argc, char* argv[])
 
     Trinity::Locale::Init();
 
+    std::string src, dest;
+    if (Optional<int> exitCode = HandleArgs(argc, argv, &src, &dest))
+        return *exitCode;
+
     Trinity::Banner::Show("VMAP assembler", [](char const* text) { std::cout << text << std::endl; }, nullptr);
-
-    std::string src = "Buildings";
-    std::string dest = "vmaps";
-
-    if (argc > 3)
-    {
-        std::cout << "usage: " << argv[0] << " <raw data dir> <vmap dest dir>" << std::endl;
-        return 1;
-    }
-    else
-    {
-        if (argc > 1)
-            src = argv[1];
-        if (argc > 2)
-            dest = argv[2];
-    }
 
     std::cout << "using " << src << " as source directory and writing output to " << dest << std::endl;
 
@@ -59,4 +62,48 @@ int main(int argc, char* argv[])
 
     std::cout << "Ok, all done" << std::endl;
     return 0;
+}
+
+Optional<int> HandleArgs(int argc, char* argv[], std::string* src, std::string* dest)
+{
+    po::options_description visible("Usage: vmap4assembler [OPTION]... [SRC] [DEST]\n\nWhere OPTION can be any of");
+    visible.add_options()
+        ("help,h", "print usage message")
+        ("version,v", "print version build info");
+
+    po::options_description all;
+    all.add(visible);
+    all.add_options()
+        ("src", po::value(src)->default_value("Buildings"), "raw data dir")
+        ("dest", po::value(dest)->default_value("vmaps"), "vmap dest dir");
+
+    po::positional_options_description positional;
+    positional.add("src", 1);
+    positional.add("dest", 1);
+
+    po::variables_map variablesMap;
+    try
+    {
+        store(po::command_line_parser(argc, argv).options(all).positional(positional).run(), variablesMap);
+        notify(variablesMap);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+
+    if (variablesMap.contains("help"))
+    {
+        std::cout << visible << '\n';
+        return 0;
+    }
+
+    if (variablesMap.contains("version"))
+    {
+        std::cout << GitRevision::GetFullVersion() << '\n';
+        return 0;
+    }
+
+    return {};
 }
