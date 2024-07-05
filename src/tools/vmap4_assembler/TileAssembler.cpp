@@ -97,6 +97,10 @@ namespace VMAP
                 return false;
             }
 
+            std::unordered_map<uint32, uint32> modelNodeIdx;
+            for (uint32 i = 0; i < mapSpawns.size(); ++i)
+                modelNodeIdx.try_emplace(mapSpawns[i]->ID, i);
+
             // write map tree file
             std::string mapfilename = Trinity::StringFormat("{}/{:04}.vmtree", iDestDir, data.MapId);
             auto mapfile = Trinity::make_unique_ptr_with_deleter(fopen(mapfilename.c_str(), "wb"), &::fclose);
@@ -113,15 +117,6 @@ namespace VMAP
             if (success && fwrite("NODE", 4, 1, mapfile.get()) != 1) success = false;
             if (success) success = pTree.writeToFile(mapfile.get());
 
-            // spawn id to index map
-            uint32 mapSpawnsSize = mapSpawns.size();
-            if (success && fwrite("SIDX", 4, 1, mapfile.get()) != 1) success = false;
-            if (success && fwrite(&mapSpawnsSize, sizeof(uint32), 1, mapfile.get()) != 1) success = false;
-            for (uint32 i = 0; i < mapSpawnsSize; ++i)
-            {
-                if (success && fwrite(&mapSpawns[i]->ID, sizeof(uint32), 1, mapfile.get()) != 1) success = false;
-            }
-
             mapfile = nullptr;
 
             // <====
@@ -133,7 +128,9 @@ namespace VMAP
                 StaticMapTree::unpackTileID(tileId, x, y);
                 std::string tileFileName = Trinity::StringFormat("{}/{:04}_{:02}_{:02}.vmtile", iDestDir, data.MapId, y, x);
                 auto tileFile = Trinity::make_unique_ptr_with_deleter(fopen(tileFileName.c_str(), "wb"), &::fclose);
-                if (tileFile)
+                std::string tileSpawnIndicesFileName = Trinity::StringFormat("{}/{:04}_{:02}_{:02}.vmtileidx", iDestDir, data.MapId, y, x);
+                auto tileSpawnIndicesFile = Trinity::make_unique_ptr_with_deleter(fopen(tileSpawnIndicesFileName.c_str(), "wb"), &::fclose);
+                if (tileFile && tileSpawnIndicesFile)
                 {
                     std::set<uint32> const& parentTileEntries = data.ParentTileEntries[tileId];
 
@@ -141,14 +138,46 @@ namespace VMAP
 
                     // file header
                     if (success && fwrite(VMAP_MAGIC, 1, 8, tileFile.get()) != 8) success = false;
+                    if (success && fwrite(VMAP_MAGIC, 1, 8, tileSpawnIndicesFile.get()) != 8) success = false;
                     // write number of tile spawns
                     if (success && fwrite(&nSpawns, sizeof(uint32), 1, tileFile.get()) != 1) success = false;
+                    if (success && fwrite(&nSpawns, sizeof(uint32), 1, tileSpawnIndicesFile.get()) != 1) success = false;
                     // write tile spawns
                     for (auto spawnItr = spawns.begin(); spawnItr != spawns.end() && success; ++spawnItr)
+                    {
                         success = ModelSpawn::writeToFile(tileFile.get(), data.UniqueEntries[*spawnItr]);
+                        if (success && fwrite(&modelNodeIdx[*spawnItr], sizeof(uint32), 1, tileSpawnIndicesFile.get()) != 1) success = false;
+                    }
 
                     for (auto spawnItr = parentTileEntries.begin(); spawnItr != parentTileEntries.end() && success; ++spawnItr)
+                    {
                         success = ModelSpawn::writeToFile(tileFile.get(), data.UniqueEntries[*spawnItr]);
+                        if (success && fwrite(&modelNodeIdx[*spawnItr], sizeof(uint32), 1, tileSpawnIndicesFile.get()) != 1) success = false;
+                    }
+                }
+            }
+
+            for (auto const& [tileId, spawns] : data.ParentTileEntries)
+            {
+                if (data.TileEntries.contains(tileId))
+                    continue;
+
+                uint32 x, y;
+                StaticMapTree::unpackTileID(tileId, x, y);
+                std::string tileSpawnIndicesFileName = Trinity::StringFormat("{}/{:04}_{:02}_{:02}.vmtileidx", iDestDir, data.MapId, y, x);
+                auto tileSpawnIndicesFile = Trinity::make_unique_ptr_with_deleter(fopen(tileSpawnIndicesFileName.c_str(), "wb"), &::fclose);
+                if (tileSpawnIndicesFile)
+                {
+                    uint32 nSpawns = spawns.size();
+
+                    // file header
+                    if (success && fwrite(VMAP_MAGIC, 1, 8, tileSpawnIndicesFile.get()) != 8) success = false;
+                    // write number of tile spawns
+                    if (success && fwrite(&nSpawns, sizeof(uint32), 1, tileSpawnIndicesFile.get()) != 1) success = false;
+                    // write tile spawns
+                    for (auto spawnItr = spawns.begin(); spawnItr != spawns.end() && success; ++spawnItr)
+                        if (fwrite(&modelNodeIdx[*spawnItr], sizeof(uint32), 1, tileSpawnIndicesFile.get()) != 1)
+                            success = false;
                 }
             }
         }

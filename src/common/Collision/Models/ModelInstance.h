@@ -69,7 +69,7 @@ namespace VMAP
     class TC_COMMON_API ModelInstance : public ModelMinimalData
     {
         public:
-            ModelInstance() : iInvScale(0.0f), iModel(nullptr) { }
+            ModelInstance() : iInvScale(0.0f), iModel(nullptr), referencingTiles(0) { }
             ModelInstance(ModelSpawn const& spawn, std::shared_ptr<WorldModel> model);
             void setUnloaded() { iModel = nullptr; }
             bool intersectRay(G3D::Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
@@ -77,10 +77,13 @@ namespace VMAP
             bool GetLiquidLevel(G3D::Vector3 const& p, LocationInfo& info, float& liqHeight) const;
             G3D::Matrix3 const& GetInvRot() const { return iInvRot; }
             WorldModel const* getWorldModel() const { return iModel.get(); }
+            void AddTileReference() { ++referencingTiles; }
+            uint32 RemoveTileReference() { return --referencingTiles; }
         protected:
             G3D::Matrix3 iInvRot;
             float iInvScale;
             std::shared_ptr<WorldModel> iModel;
+            uint32 referencingTiles;
     };
 } // namespace VMAP
 
