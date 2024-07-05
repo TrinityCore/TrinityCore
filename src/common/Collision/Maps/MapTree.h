@@ -48,21 +48,15 @@ namespace VMAP
     class TC_COMMON_API StaticMapTree
     {
         typedef std::unordered_map<uint32, bool> loadedTileMap;
-        typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
         private:
             uint32 iMapID;
             BIH iTree;
-            ModelInstance* iTreeValues; // the tree entries
-            uint32 iNTreeValues;
-            std::unordered_map<uint32, uint32> iSpawnIndices;
+            std::vector<ModelInstance> iTreeValues; // the tree entries
 
             // Store all the map tile idents that are loaded for that map
             // some maps are not splitted into tiles and we have to make sure, not removing the map before all tiles are removed
             // empty tiles have no tile file, hence map with bool instead of just a set (consistency check)
             loadedTileMap iLoadedTiles;
-            std::vector<std::pair<int32, int32>> iLoadedPrimaryTiles;
-            // stores <tree_index, reference_count> to invalidate tree values, unload map, and to be able to report errors
-            loadedSpawnMap iLoadedSpawns;
             std::string iBasePath;
 
         private:
