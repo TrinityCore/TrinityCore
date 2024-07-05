@@ -147,8 +147,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger splines. DB table `areatrigger_create_properties_spline_point` is empty.");
     }
 
-    //                                                      0   1         2
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, IsCustom, Flags FROM `areatrigger_template`"))
+    //                                                      0   1         2      3            4
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, IsCustom, Flags, ActionSetId, ActionSetFlags FROM `areatrigger_template`"))
     {
         do
         {
@@ -158,6 +158,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             areaTriggerTemplate.Id.Id = fields[0].GetUInt32();
             areaTriggerTemplate.Id.IsCustom = fields[1].GetBool();
             areaTriggerTemplate.Flags = AreaTriggerFlag(fields[2].GetUInt32());
+            areaTriggerTemplate.ActionSetId = fields[3].GetUInt32();
+            areaTriggerTemplate.ActionSetFlags = AreaTriggerActionSetFlag(fields[4].GetUInt32());
             areaTriggerTemplate.Actions = std::move(actionsByAreaTrigger[areaTriggerTemplate.Id]);
 
             _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
