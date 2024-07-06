@@ -56,6 +56,7 @@ namespace VMAP
     {
         uint32 MapId = 0;
         std::map<uint32, ModelSpawn> UniqueEntries;
+        std::set<std::string> SpawnedModelFiles;
         std::map<uint32 /*packedTileId*/, std::set<uint32 /*Id*/>> TileEntries;
         std::map<uint32 /*packedTileId*/, std::set<uint32 /*Id*/>> ParentTileEntries;
     };
@@ -92,17 +93,18 @@ namespace VMAP
     class TileAssembler
     {
         private:
-            std::string iDestDir;
             std::string iSrcDir;
+            std::string iDestDir;
+            uint32 iThreads;
             std::set<std::string> spawnedModelFiles;
 
         public:
-            TileAssembler(std::string pSrcDirName, std::string pDestDirName);
+            TileAssembler(std::string srcDirName, std::string destDirName, uint32 threads);
 
             bool convertWorld2();
-            bool convertMap(MapSpawns& data);
+            bool convertMap(MapSpawns& data) const;
             static bool readMapSpawns(FILE* dirf, MapSpawns* data);
-            bool calculateTransformedBound(ModelSpawn &spawn);
+            bool calculateTransformedBound(ModelSpawn &spawn) const;
             void exportGameobjectModels();
 
             bool convertRawFile(const std::string& pModelFilename);
