@@ -142,9 +142,16 @@ Quest::~Quest()
 
 void Quest::LoadRewardDisplaySpell(Field* fields)
 {
-    uint32 spellId = fields[1].GetUInt32();
-    uint32 playerConditionId = fields[2].GetUInt32();
-    uint32 type = fields[3].GetUInt32();
+    uint32 idx = fields[1].GetUInt32();
+    uint32 spellId = fields[2].GetUInt32();
+    uint32 playerConditionId = fields[3].GetUInt32();
+    uint32 type = fields[4].GetUInt32();
+
+    if (idx >= QUEST_REWARD_DISPLAY_SPELL_COUNT)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has an out of range Idx ({}) set for quest {} and spell {}. Skipped.", idx, fields[0].GetUInt32(), spellId);
+        return;
+    }
 
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
@@ -167,7 +174,7 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
         type = AsUnderlyingType(QuestCompleteSpellType::LegacyBehavior);
     }
 
-    RewardDisplaySpell.emplace_back(spellId, playerConditionId, QuestCompleteSpellType(type));
+    RewardDisplaySpell[idx] = QuestRewardDisplaySpell(spellId, playerConditionId, QuestCompleteSpellType(type));
 }
 
 void Quest::LoadRewardChoiceItems(Field* fields)
@@ -673,12 +680,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
 
     for (uint8 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
-    {
-        if (RewardDisplaySpell.empty() || RewardDisplaySpell.size() < i)
-            continue;
-
         response.Info.RewardDisplaySpell[i] = RewardDisplaySpell[i].SpellId;
-    }
 
     response.Info.RewardSpell = GetRewSpell();
 

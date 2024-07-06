@@ -659,7 +659,7 @@ class TC_GAME_API Quest
         bool CanIncreaseRewardedQuestCounters() const;
 
         // multiple values
-        std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
+        std::array<QuestRewardDisplaySpell, QUEST_REWARD_DISPLAY_SPELL_COUNT> RewardDisplaySpell = { };
         std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemId = { };
         std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemCount = { };
         std::array<uint32, QUEST_ITEM_DROP_COUNT> ItemDrop = { };
