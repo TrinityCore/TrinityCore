@@ -32,17 +32,18 @@ namespace VMAP
     class ManagedModel
     {
     public:
-        explicit ManagedModel(VMapManager2& mgr) : _mgr(mgr) { }
+        explicit ManagedModel(VMapManager2& mgr, std::string const& name) : _mgr(mgr), _name(name) { }
 
         ~ManagedModel()
         {
-            _mgr.releaseModelInstance(Model.GetName());
+            _mgr.releaseModelInstance(_name);
         }
 
         WorldModel Model;
 
     private:
         VMapManager2& _mgr;
+        std::string const& _name;   // valid only while model is held in VMapManager2::iLoadedModelFiles
     };
 
     bool readChunk(FILE* rf, char* dest, const char* compare, uint32 len)
@@ -264,23 +265,23 @@ namespace VMAP
 
     std::shared_ptr<WorldModel> VMapManager2::acquireModelInstance(std::string const& basepath, std::string const& filename)
     {
+        std::shared_ptr<ManagedModel> worldmodel; // this is intentionally declared before lock so that it is destroyed after it to prevent deadlocks in releaseModelInstance
+
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
 
         auto& [key, model] = *iLoadedModelFiles.try_emplace(filename).first;
-        std::shared_ptr<ManagedModel> worldmodel = model.lock();
+        worldmodel = model.lock();
         if (worldmodel)
             return std::shared_ptr<WorldModel>(worldmodel, &worldmodel->Model);
 
-        worldmodel = std::make_shared<ManagedModel>(*this);
+        worldmodel = std::make_shared<ManagedModel>(*this, key);
         if (!worldmodel->Model.readFile(basepath + filename + ".vmo"))
         {
             TC_LOG_ERROR("misc", "VMapManager2: could not load '{}{}.vmo'", basepath, filename);
             return nullptr;
         }
         TC_LOG_DEBUG("maps", "VMapManager2: loading file '{}{}'", basepath, filename);
-
-        worldmodel->Model.SetName(&key);
 
         model = worldmodel;
 
@@ -292,13 +293,11 @@ namespace VMAP
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
 
+        TC_LOG_DEBUG("maps", "VMapManager2: unloading file '{}'", filename);
+
         std::size_t erased = iLoadedModelFiles.erase(filename);
         if (!erased)
-        {
             TC_LOG_ERROR("misc", "VMapManager2: trying to unload non-loaded file '{}'", filename);
-            return;
-        }
-        TC_LOG_DEBUG("maps", "VMapManager2: unloading file '{}'", filename);
     }
 
     LoadResult VMapManager2::existsMap(char const* basePath, unsigned int mapId, int x, int y)

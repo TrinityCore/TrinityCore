@@ -335,12 +335,13 @@ namespace VMAP
                     {
                         TC_LOG_ERROR("maps", "StaticMapTree::LoadMapTile() : invalid tree element (spawn {}) referenced in tile {} by map {}", spawn.ID, fileResult.Name, iMapID);
                         result = LoadResult::ReadFromFileFailed;
-                        break;
+                        continue;
                     }
 
                     if (referencedVal >= iTreeValues.size())
                     {
                         TC_LOG_ERROR("maps", "StaticMapTree::LoadMapTile() : invalid tree element ({}/{}) referenced in tile {}", referencedVal, iTreeValues.size(), fileResult.Name);
+                        result = LoadResult::ReadFromFileFailed;
                         continue;
                     }
 
@@ -404,29 +405,29 @@ namespace VMAP
                 {
                     // read model spawns
                     ModelSpawn spawn;
-                    result = ModelSpawn::readFromFile(fileResult.TileFile.get(), spawn);
-                    if (result)
+                    if (!ModelSpawn::readFromFile(fileResult.TileFile.get(), spawn))
+                        break;
+
+                    // update tree
+                    uint32 referencedNode = 0;
+                    if (fread(&referencedNode, sizeof(uint32), 1, fileResult.SpawnIndicesFile.get()) != 1)
                     {
-                        // update tree
-                        uint32 referencedNode = 0;
-                        if (fread(&referencedNode, sizeof(uint32), 1, fileResult.SpawnIndicesFile.get()) != 1)
-                        {
-                            TC_LOG_ERROR("maps", "StaticMapTree::LoadMapTile() : invalid tree element (spawn {}) referenced in tile {} by map {}", spawn.ID, fileResult.Name, iMapID);
-                            result = false;
-                            break;
-                        }
-
-                        if (referencedNode >= iTreeValues.size())
-                        {
-                            TC_LOG_ERROR("maps", "StaticMapTree::LoadMapTile() : invalid tree element ({}/{}) referenced in tile {}", referencedNode, iTreeValues.size(), fileResult.Name);
-                            continue;
-                        }
-
-                        if (!iTreeValues[referencedNode].getWorldModel())
-                            TC_LOG_ERROR("misc", "StaticMapTree::UnloadMapTile() : trying to unload non-referenced model '{}' (ID:{})", spawn.name, spawn.ID);
-                        else if (!iTreeValues[referencedNode].RemoveTileReference())
-                            iTreeValues[referencedNode].setUnloaded();
+                        TC_LOG_ERROR("maps", "StaticMapTree::LoadMapTile() : invalid tree element (spawn {}) referenced in tile {} by map {}", spawn.ID, fileResult.Name, iMapID);
+                        result = false;
+                        continue;
                     }
+
+                    if (referencedNode >= iTreeValues.size())
+                    {
+                        TC_LOG_ERROR("maps", "StaticMapTree::LoadMapTile() : invalid tree element ({}/{}) referenced in tile {}", referencedNode, iTreeValues.size(), fileResult.Name);
+                        result = false;
+                        continue;
+                    }
+
+                    if (!iTreeValues[referencedNode].getWorldModel())
+                        TC_LOG_ERROR("misc", "StaticMapTree::UnloadMapTile() : trying to unload non-referenced model '{}' (ID:{})", spawn.name, spawn.ID);
+                    else if (!iTreeValues[referencedNode].RemoveTileReference())
+                        iTreeValues[referencedNode].setUnloaded();
                 }
             }
         }
