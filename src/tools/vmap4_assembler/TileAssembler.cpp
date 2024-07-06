@@ -100,7 +100,6 @@ namespace VMAP
             threadPool.PostWork([this, file = directoryEntry.path(), &abortThreads, &workerIndexGen, &spawnedModelFilesByThread, &mapsToProcess]
             {
                 thread_local std::size_t workerIndex = workerIndexGen++;
-                --mapsToProcess;
 
                 auto dirf = OpenFile(file, "rb");
                 if (!dirf)
@@ -127,6 +126,7 @@ namespace VMAP
                     return abortThreads();
 
                 spawnedModelFilesByThread[workerIndex].merge(data.SpawnedModelFiles);
+                --mapsToProcess;
             });
         }
 
