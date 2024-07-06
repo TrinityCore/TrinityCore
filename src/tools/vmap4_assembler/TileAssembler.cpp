@@ -17,11 +17,13 @@
 
 #include "TileAssembler.h"
 #include "BoundingIntervalHierarchy.h"
+#include "Duration.h"
 #include "IteratorPair.h"
 #include "MapTree.h"
 #include "Memory.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
+#include "ThreadPool.h"
 #include "VMapDefinitions.h"
 #include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -43,8 +45,8 @@ namespace VMAP
 
     //=================================================================
 
-    TileAssembler::TileAssembler(std::string pSrcDirName, std::string pDestDirName)
-        : iDestDir(std::move(pDestDirName)), iSrcDir(std::move(pSrcDirName))
+    TileAssembler::TileAssembler(std::string srcDirName, std::string destDirName, uint32 threads)
+        : iSrcDir(std::move(srcDirName)), iDestDir(std::move(destDirName)), iThreads(threads)
     {
     }
 
@@ -69,45 +71,68 @@ namespace VMAP
             // else already exists - this is fine, continue
         }
 
-        std::deque<boost::filesystem::path> mapSpawnFiles;
+        // export Map data
+        Trinity::ThreadPool threadPool(iThreads);
+        bool aborted = false;
+        std::once_flag abortedFlag;
+        auto abortThreads = [&threadPool, &aborted, &abortedFlag]
+        {
+            std::call_once(abortedFlag, [&] { threadPool.Stop(); aborted = true; });
+        };
+
+        // Every worker thread gets its dedicated output container to avoid having to synchronize access
+        std::atomic<std::size_t> workerIndexGen;
+        std::vector<std::set<std::string>> spawnedModelFilesByThread(iThreads);
+
+        std::atomic<std::size_t> mapsToProcess;
+
         for (boost::filesystem::directory_entry const& directoryEntry : dirBin)
         {
             if (!boost::filesystem::is_regular_file(directoryEntry))
                 continue;
 
-            mapSpawnFiles.push_back(directoryEntry.path());
+            ++mapsToProcess;
+            threadPool.PostWork([this, file = directoryEntry.path(), &abortThreads, &workerIndexGen, &spawnedModelFilesByThread, &mapsToProcess]
+            {
+                thread_local std::size_t workerIndex = workerIndexGen++;
+                --mapsToProcess;
+
+                auto dirf = Trinity::make_unique_ptr_with_deleter(fopen(file.string().c_str(), "rb"), &::fclose);
+                if (!dirf)
+                {
+                    printf("Could not read dir_bin file!\n");
+                    return abortThreads();
+                }
+
+                Optional<uint32> mapId = Trinity::StringTo<uint32>(file.filename().string());
+                if (!mapId)
+                {
+                    printf("Invalid Map ID %s\n", file.filename().string().c_str());
+                    return abortThreads();
+                }
+
+                printf("spawning Map %u\n", *mapId);
+
+                MapSpawns data;
+                data.MapId = *mapId;
+                if (!readMapSpawns(dirf.get(), &data))
+                    return abortThreads();
+
+                if (!convertMap(data))
+                    return abortThreads();
+
+                spawnedModelFilesByThread[workerIndex].merge(data.SpawnedModelFiles);
+            });
         }
 
-        // export Map data
-        while (!mapSpawnFiles.empty())
-        {
-            boost::filesystem::path file = std::move(mapSpawnFiles.front());
-            mapSpawnFiles.pop_front();
+        while (mapsToProcess && !aborted)
+            std::this_thread::sleep_for(1s);
 
-            auto dirf = Trinity::make_unique_ptr_with_deleter(fopen(file.string().c_str(), "rb"), &::fclose);
-            if (!dirf)
-            {
-                printf("Could not read dir_bin file!\n");
-                return false;
-            }
+        if (aborted)
+            return false;
 
-            Optional<uint32> mapId = Trinity::StringTo<uint32>(file.filename().string());
-            if (!mapId)
-            {
-                printf("Invalid Map ID %s\n", file.filename().string().c_str());
-                return false;
-            }
-
-            printf("spawning Map %u\n", *mapId);
-
-            MapSpawns data;
-            data.MapId = *mapId;
-            if (!readMapSpawns(dirf.get(), &data))
-                return false;
-
-            if (!convertMap(data))
-                return false;
-        }
+        for (std::set<std::string>& modelsForThread : spawnedModelFilesByThread)
+            spawnedModelFiles.merge(modelsForThread);
 
         // add an object models, listed in temp_gameobject_models file
         exportGameobjectModels();
@@ -115,18 +140,26 @@ namespace VMAP
         printf("\nConverting Model Files\n");
         for (std::string const& spawnedModelFile : spawnedModelFiles)
         {
-            printf("Converting %s\n", spawnedModelFile.c_str());
-            if (!convertRawFile(spawnedModelFile))
+            threadPool.PostWork([&]
             {
-                printf("error converting %s\n", spawnedModelFile.c_str());
-                break;
-            }
+                printf("Converting %s\n", spawnedModelFile.c_str());
+                if (!convertRawFile(spawnedModelFile))
+                {
+                    printf("error converting %s\n", spawnedModelFile.c_str());
+                    abortThreads();
+                }
+            });
         }
+
+        threadPool.Join();
+
+        if (aborted)
+            return false;
 
         return true;
     }
 
-    bool TileAssembler::convertMap(MapSpawns& data)
+    bool TileAssembler::convertMap(MapSpawns& data) const
     {
         float constexpr invTileSize = 1.0f / 533.33333f;
 
@@ -142,7 +175,6 @@ namespace VMAP
                     continue;
 
             mapSpawns.push_back(&spawn);
-            spawnedModelFiles.insert(spawn.name);
 
             std::map<uint32, std::set<uint32>>& tileEntries = (spawn.flags & MOD_PARENT_SPAWN) ? data.ParentTileEntries : data.TileEntries;
 
@@ -285,12 +317,13 @@ namespace VMAP
             }
 
             data->UniqueEntries.emplace(spawn.ID, spawn);
+            data->SpawnedModelFiles.insert(spawn.name);
         }
 
         return true;
     }
 
-    bool TileAssembler::calculateTransformedBound(ModelSpawn &spawn)
+    bool TileAssembler::calculateTransformedBound(ModelSpawn &spawn) const
     {
         std::string modelFilename(iSrcDir);
         modelFilename.push_back('/');
