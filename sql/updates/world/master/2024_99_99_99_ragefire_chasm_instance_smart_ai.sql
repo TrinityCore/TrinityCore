@@ -1,4 +1,6 @@
 -- Ragefire Chasm Quests and SAI for Scouts/Rangers and Misc
+DELETE FROM `creature_template_difficulty` WHERE (`Entry` IN (61644, 61528, 61780, 61800, 61669, 61463, 61601, 61408, 61705, 61666, 61795, 61790, 61788, 61680, 61672, 61413, 61412, 61678, 61630, 61560, 61659, 61658, 61823, 61825, 61822, 61821, 61657, 61716, 61404, 61724) AND `DifficultyID`=1);
+
 UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61644 AND `DifficultyID`=0); -- 61644 (Dark Shaman Researcher) - CanSwim
 UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61528 AND `DifficultyID`=0); -- 61528 (Lava Guard Gordoth) - CanSwim
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=536871168, `VerifiedBuild`=54717 WHERE (`Entry`=61780 AND `DifficultyID`=0); -- 61780 (Suspicious Rock) - Sessile, Floating - CannotTurn
