@@ -101,7 +101,7 @@ namespace VMAP
     // move to MapTree too?
     std::string VMapManager2::getMapFileName(unsigned int mapId)
     {
-        return Trinity::StringFormat("{:04}.vmtree", mapId);
+        return Trinity::StringFormat("{:04}/{:04}.vmtree", mapId, mapId);
     }
 
     LoadResult VMapManager2::loadMap(char const* basePath, unsigned int mapId, int x, int y)

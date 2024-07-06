@@ -71,7 +71,7 @@ namespace VMAP
 
     std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY, std::string_view extension)
     {
-        return Trinity::StringFormat("{:04}_{:02}_{:02}.{}", mapID, tileY, tileX, extension);
+        return Trinity::StringFormat("{:04}/{:04}_{:02}_{:02}.{}", mapID, mapID, tileY, tileX, extension);
     }
 
     bool StaticMapTree::GetLocationInfo(Vector3 const& pos, LocationInfo& info) const

@@ -208,7 +208,10 @@ namespace VMAP
         for (uint32 i = 0; i < mapSpawns.size(); ++i)
             modelNodeIdx.try_emplace(mapSpawns[i]->ID, i);
 
-        boost::filesystem::path mapDestDir = iDestDir;
+        boost::filesystem::path mapDestDir = iDestDir / Trinity::StringFormat("{:04}", data.MapId);
+
+        boost::system::error_code ec;
+        boost::filesystem::create_directory(mapDestDir, ec);
 
         // write map tree file
         boost::filesystem::path mapfilename = mapDestDir / Trinity::StringFormat("{:04}.vmtree", data.MapId);
