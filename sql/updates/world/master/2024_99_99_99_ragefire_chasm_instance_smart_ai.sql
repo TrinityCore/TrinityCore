@@ -1,8 +1,35 @@
 -- Ragefire Chasm Quests and SAI for Scouts/Rangers and Misc
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=0 WHERE `Entry`=61788; -- SI:7 Ranger
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=0 WHERE `Entry`=61680; -- Kor'kron Scout
-UPDATE `creature_template` SET `unit_flags`=32832, `unit_flags2`=2048 WHERE `entry`=61680; -- Kor'kron Scout
-UPDATE `creature_template` SET `unit_flags`=32832, `unit_flags2`=2048 WHERE `entry`=61788; -- SI:7 Ranger
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61644 AND `DifficultyID`=0); -- 61644 (Dark Shaman Researcher) - CanSwim
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61528 AND `DifficultyID`=0); -- 61528 (Lava Guard Gordoth) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=536871168, `VerifiedBuild`=54717 WHERE (`Entry`=61780 AND `DifficultyID`=0); -- 61780 (Suspicious Rock) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=805830912, `VerifiedBuild`=54717 WHERE (`Entry`=61800 AND `DifficultyID`=0); -- 61800 (Magnaw's Head) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61669 AND `DifficultyID`=0); -- 61669 (Oggleflint) - CanSwim
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=207, `StaticFlags1`=805830912, `VerifiedBuild`=54717 WHERE (`Entry`=61463 AND `DifficultyID`=0); -- 61463 (Slagmaw) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=207, `StaticFlags1`=536870912, `VerifiedBuild`=54717 WHERE (`Entry`=61601 AND `DifficultyID`=0); -- 61601 (Lava) - Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61408 AND `DifficultyID`=0); -- 61408 (Adarogg) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61705 AND `DifficultyID`=0); -- 61705 (Corrupted Flamecaller) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61666 AND `DifficultyID`=0); -- 61666 (Corrupted Houndmaster) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=805830912, `VerifiedBuild`=54717 WHERE (`Entry`=61795 AND `DifficultyID`=0); -- 61795 (Dancing Flames) - CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=536871168, `VerifiedBuild`=54717 WHERE (`Entry`=61790 AND `DifficultyID`=0); -- 61790 (Inconspicuous Crate) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61788 AND `DifficultyID`=0); -- 61788 (SI:7 Ranger) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61680 AND `DifficultyID`=0); -- 61788 (Kor'kron Scout) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61672 AND `DifficultyID`=0); -- 61672 (Dark Shaman Acolyte) - CanSwim
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=207, `StaticFlags1`=536871168, `VerifiedBuild`=54717 WHERE (`Entry`=61413 AND `DifficultyID`=0); -- 61413 (Flame Visual) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61412 AND `DifficultyID`=0); -- 61412 (Dark Shaman Koranthal) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61678 AND `DifficultyID`=0); -- 61678 (Corrupted Reaver) - CanSwim
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=207, `StaticFlags1`=536871168, `VerifiedBuild`=54717 WHERE (`Entry`=61630 AND `DifficultyID`=0); -- 61630 (Ground Runes) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=3, `LevelScalingDeltaMax`=3, `ContentTuningID`=207, `StaticFlags1`=536870912, `VerifiedBuild`=54717 WHERE (`Entry`=61560 AND `DifficultyID`=0); -- 61560 (Lava) - Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61659 AND `DifficultyID`=0); -- 61659 (Slain Trogg) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61658 AND `DifficultyID`=0); -- 61658 (Mature Flame Hound) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=805830912, `StaticFlags3`=33554432, `VerifiedBuild`=54717 WHERE (`Entry`=61823 AND `DifficultyID`=0); -- 61823 (High Sorceress Aryna) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `VerifiedBuild`=54717 WHERE (`Entry`=61825 AND `DifficultyID`=0); -- 61825 (Stormwind Portal) - 
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61822 AND `DifficultyID`=0); -- 61822 (SI:7 Field Commander Dirken) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61821 AND `DifficultyID`=0); -- 61821 (SI:7 Commando) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61657 AND `DifficultyID`=0); -- 61657 (Adolescent Flame Hound) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=805830912, `VerifiedBuild`=54717 WHERE (`Entry`=61716 AND `DifficultyID`=0); -- 61716 (Invoker Xorenth) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61404 AND `DifficultyID`=0); -- 61404 (Kor'kron Elite) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=207, `StaticFlags1`=268959744, `VerifiedBuild`=54717 WHERE (`Entry`=61724 AND `DifficultyID`=0); -- 61724 (Commander Bagran) - CanSwim
+
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (61680, 61788, 61658, 61666, 61678, 61672, 61705, 61780, 61790);
 UPDATE `creature_template` SET `unit_flags`=33555200 WHERE `entry` IN (61560, 61601); -- Lava
 
@@ -74,7 +101,7 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 
 DELETE FROM `smart_scripts` WHERE `source_type` = 2 AND `entryOrGuid` = 7897;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7897, 2, 0, 0, 46, 0, 100, 0, 7897, 0, 0, 0, 0, 86, 119742, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cast Lava on Invoker');
+(7897, 2, 0, 0, 46, 0, 100, 0, 7897, 0, 0, 0, 0, 134, 119742, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cast Lava on Invoker');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` = 7897;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -86,7 +113,7 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 
 DELETE FROM `smart_scripts` WHERE `source_type` = 2 AND `entryOrGuid` = 7898;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7898, 2, 0, 0, 46, 0, 100, 0, 7898, 0, 0, 0, 0, 86, 119741, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cast Lava on Invoker');
+(7898, 2, 0, 0, 46, 0, 100, 0, 7898, 0, 0, 0, 0, 134, 119741, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cast Lava on Invoker');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` = 7898;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -138,36 +165,35 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`IN 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Ally
 (22, 1, 211883, 1, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Alliance Player'),
-(22, 2, 211883, 1, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Alliance Player'),
+
 -- Horde
 (22, 3, 211883, 1, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Horde Player'),
-(22, 4, 211883, 1, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Horde Player'),
+
 -- Ally
 (22, 1, 211884, 1, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Alliance Player'),
-(22, 2, 211884, 1, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Alliance Player'),
+
 -- Horde
 (22, 3, 211884, 1, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Horde Player'),
-(22, 4, 211884, 1, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Horde Player'),
+
 -- Ally
 (22, 1, 211885, 1, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Alliance Player'),
-(22, 2, 211885, 1, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Alliance Player'),
+
 -- Horde
-(22, 3, 211885, 1, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Horde Player'),
-(22, 4, 211885, 1, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Horde Player');
+(22, 3, 211885, 1, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted gameobject does Smart Script if you are Horde Player');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (211883, 211884, 211885) AND `source_type`=1;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(211883, 1, 0, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120026 to player'),
+(211883, 1, 0, 1, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120026 to player'),
 (211883, 1, 1, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
-(211883, 1, 2, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
+(211883, 1, 2, 3, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
 (211883, 1, 3, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout'),
-(211884, 1, 0, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120026 to player'),
+(211884, 1, 0, 1, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120026 to player'),
 (211884, 1, 1, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
-(211884, 1, 2, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
+(211884, 1, 2, 3, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
 (211884, 1, 3, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout'),
-(211885, 1, 0, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed -  Cast spell 120026 to player'),
+(211885, 1, 0, 1, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed -  Cast spell 120026 to player'),
 (211885, 1, 1, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
-(211885, 1, 2, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
+(211885, 1, 2, 3, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
 (211885, 1, 3, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout');
 
 -- Inconspicuous Crate
@@ -177,21 +203,22 @@ DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=61790 AND `MenuID`=13
 INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`) VALUES
 (61790, 13815, 54717); -- Inconspicuous Crate
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=61780;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=61790;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Ally
-(22, 3, 61780, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
+(22, 4, 61790, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
 -- Horde
-(22, 4, 61780, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
+(22, 5, 61790, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=61790 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6179000 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(61790, 0, 0, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 80, (61790 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Action List'),
-(61790, 0, 1, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Remove Gossip flag'),
-(61790, 0, 2, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to SI:7 Ranger'),
-(61790, 0, 3, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to Kor\'kron Scout'),
-(61790, 0, 4, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Reached Point 1 - Despawn'),
+(61790, 0, 0, 1, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 80, (61790 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Action List'),
+(61790, 0, 1, 2, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Remove Gossip flag'),
+(61790, 0, 2, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Reached Point 1 - Despawn'),
+(61790, 0, 3, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to SI:7 Ranger'),
+(61790, 0, 4, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to Kor\'kron Scout'),
+
 ((61790 * 100), 9, 0, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 103, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Action list - Set Root Off'),
 ((61790 * 100), 9, 1, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 60, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Action list - Enable Gravity'),
 ((61790 * 100), 9, 2, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 97, 14, 0, 57, 0, 1, 0, 0, NULL, 8, 0, 0, 0, 0, NULL, -87.7343, 57.2282, -18.1655, 0, 'Action list - Self: Jump To Pos');
@@ -202,9 +229,9 @@ UPDATE `gossip_menu_option` SET `GossipOptionID`=37665, `VerifiedBuild`=54717 WH
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=61780;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Ally
-(22, 3, 61780, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
+(22, 5, 61780, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
 -- Horde
-(22, 4, 61780, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
+(22, 6, 61780, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
 
 DELETE FROM `creature_template_addon` WHERE `entry` = 61780;
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
@@ -213,12 +240,13 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 DELETE FROM `smart_scripts` WHERE `entryorguid`=61780 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6178000 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(61780, 0, 0, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 80, (61780 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Action List'),
-(61780, 0, 1, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Remove Gossip flag'),
-(61780, 0, 2, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 45, 0, 2, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Set Data 0 2 to SI:7 Ranger'),
-(61780, 0, 3, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 45, 0, 2, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Set Data 0 2 to Kor\'kron Scout'),
-(61780, 0, 4, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 128, 1443, 1, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - SetAIAnimKitId to 1443'),
-(61780, 0, 5, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - Despawn'),
+(61780, 0, 0, 1, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 80, (61780 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Action List'),
+(61780, 0, 1, 2, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Remove Gossip flag'),
+(61780, 0, 2, 3, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 128, 1443, 1, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - SetAIAnimKitId to 1443'),
+(61780, 0, 3, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - Despawn'),
+(61780, 0, 4, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 45, 0, 2, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Set Data 0 2 to SI:7 Ranger'),
+(61780, 0, 5, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 45, 0, 2, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Set Data 0 2 to Kor\'kron Scout'),
+
 ((61780 * 100), 9, 0, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 128, 0, 1, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Action list - SetAIAnimKitId to 0'),
 ((61780 * 100), 9, 1, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 60, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Action list - Enable Gravity'),
 ((61780 * 100), 9, 2, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 103, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Action list - Set Root Off'),
@@ -482,13 +510,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Ally
 (22, 4, 61658, 0, 0, 58, 1, 0, 0, 0, 'mature_flame_hound_rescued_1', 0, 0, 0, '', 'Scripted creature has StringId \'mature_flame_hound_rescued_1\''),
 (22, 4, 61658, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
-(22, 5, 61658, 0, 0, 58, 1, 0, 0, 0, 'mature_flame_hound_rescued_1', 0, 0, 0, '', 'Scripted creature has StringId \'mature_flame_hound_rescued_1\''),
-(22, 5, 61658, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
 -- Horde
 (22, 6, 61658, 0, 0, 58, 1, 0, 0, 0, 'mature_flame_hound_rescued_1', 0, 0, 0, '', 'Scripted creature has StringId \'mature_flame_hound_rescued_1\''),
-(22, 6, 61658, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player'),
-(22, 7, 61658, 0, 0, 58, 1, 0, 0, 0, 'mature_flame_hound_rescued_1', 0, 0, 0, '', 'Scripted creature has StringId \'mature_flame_hound_rescued_1\''),
-(22, 7, 61658, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
+(22, 6, 61658, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=61658 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
@@ -499,11 +523,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 
 -- only the one with the quest npc
 -- Alliance version
-(61658, 0, 3, 0, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Set Data 0 1 to SI:7 Ranger'),
+(61658, 0, 3, 4, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Set Data 0 1 to SI:7 Ranger'),
 (61658, 0, 4, 0, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 120026, 0, 0, 0, 0, 0, 0, NULL, 16, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Cast spell 120026 on Invoker Party'),
 
 -- Horde version
-(61658, 0, 5, 0, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound (IC) - Set Data 0 1 to Kor\'kron Scout'),
+(61658, 0, 5, 6, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound (IC) - Set Data 0 1 to Kor\'kron Scout'),
 (61658, 0, 6, 0, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 120292, 0, 0, 0, 0, 0, 0, NULL, 16, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Cast spell 120292 on Invoker Party');
 
 -- Adolescent Flame Hound
