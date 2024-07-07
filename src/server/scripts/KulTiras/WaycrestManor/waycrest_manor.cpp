@@ -32,16 +32,16 @@ enum WaycrestManorSpells
     SPELL_DRAIN_GOLIATH_ESSENCE         = 265741,
     SPELL_DRAIN_GOLIATH_ESSENCE_AREA    = 265743,
     SPELL_SPLINTER_SPIKE_MISSILE        = 265758,
-    SPELL_SPLINTER_SPIKE_SELECTOR		= 265759,
+    SPELL_SPLINTER_SPIKE_SELECTOR       = 265759,
     SPELL_THORNED_BARRAGE               = 265760,
-    SPELL_WILDFIRE_DAMAGE				= 260569,
-    SPELL_BURNING_BRUSH					= 260541
+    SPELL_WILDFIRE_DAMAGE               = 260569,
+    SPELL_BURNING_BRUSH                 = 260541
 };
 
 enum WaycrestManorEvents
 {
     // Matron Bryndle
-    EVENT_SPLINTER_SPIKE	= 1,
+    EVENT_SPLINTER_SPIKE    = 1,
     EVENT_THORNED_BARRAGE
 };
 
@@ -62,7 +62,7 @@ struct npc_matron_bryndle : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-    	InstanceScript* instance = me->GetInstanceScript();
+        InstanceScript* instance = me->GetInstanceScript();
         if (instance->GetData(DATA_SOULBOUND_GOLIATH_INTRO) != DONE)
         {
             me->RemoveAurasDueToSpell(SPELL_GOLIATH_DRAIN_FLAVOR_PERIODIC);
@@ -197,7 +197,7 @@ struct at_waycrest_manor_wildfire : AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         if (unit->IsPlayer())
-        	unit->CastSpell(unit, SPELL_WILDFIRE_DAMAGE, true);
+            unit->CastSpell(unit, SPELL_WILDFIRE_DAMAGE, true);
         else if (unit->GetEntry() == BOSS_SOULBOUND_GOLIATH)
         {
             // Prevent the random lightning to cast the spell on the boss before combat
@@ -208,7 +208,7 @@ struct at_waycrest_manor_wildfire : AreaTriggerAI
             if (instance->GetBossState(DATA_SOULBOUND_GOLIATH) != IN_PROGRESS)
                 return;
 
-        	unit->CastSpell(unit, SPELL_BURNING_BRUSH, true);
+            unit->CastSpell(unit, SPELL_BURNING_BRUSH, true);
         }
     }
 
@@ -232,7 +232,7 @@ struct at_waycrest_manor_wildfire : AreaTriggerAI
 
 void AddSC_waycrest_manor()
 {
-	// Matron Bryndle
+    // Matron Bryndle
     RegisterWaycrestManorCreatureAI(npc_matron_bryndle);
 
     RegisterSpellScript(spell_waycrest_manor_goliath_drain_flavor_selector);
