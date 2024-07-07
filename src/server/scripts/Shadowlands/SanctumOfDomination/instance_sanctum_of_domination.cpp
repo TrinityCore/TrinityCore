@@ -16,6 +16,8 @@
  */
 
 #include "Creature.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -30,6 +32,7 @@ ObjectData const creatureData[] =
     { NPC_BOLVAR_FORDRAGON_PINNACLE,   DATA_BOLVAR_FORDRAGON_PINNACLE   },
     { NPC_JAINA_PROUDMOORE_PINNACLE,   DATA_JAINA_PROUDMOORE_PINNACLE   },
     { NPC_THRALL_PINNACLE,             DATA_THRALL_PINNACLE             },
+    { NPC_ANDUIN_CRUCIBLE,             DATA_ANDUIN_CRUCIBLE             },
     { NPC_THRONE_OF_THE_DAMNED,        DATA_THRONE_OF_THE_DAMNED        },
     { 0,                               0                                } // END
 };
@@ -62,7 +65,9 @@ public:
             LoadDungeonEncounterData(encounters);
             LoadObjectData(creatureData, nullptr);
 
-            SylvanasIntroductionState = NOT_STARTED;
+            // TODO: set NOT_STARTED on merge.
+            SylvanasIntroductionState = DONE;
+            SylvanasIntermissionData = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -71,6 +76,10 @@ public:
 
             switch (creature->GetEntry())
             {
+                case NPC_SYLVANAS_SHADOWCOPY_FIGHTER:
+                    SylvanasShadowcopyGUIDs.push_back(creature->GetGUID());
+                    break;
+
                 case BOSS_SYLVANAS_WINDRUNNER:
                     SylvanasGUID = creature->GetGUID();
                     break;
@@ -119,6 +128,10 @@ public:
                     TorghastSpikeGUIDs.push_back(go->GetGUID());
                     break;
 
+                case GAMEOBJECT_INVISIBLE_WALL_PHASE_2:
+                    InvisibleWallPhaseTwoGUIDs.push_back(go->GetGUID());
+                    break;
+
                 default:
                     break;
             }
@@ -128,6 +141,30 @@ public:
         {
             switch (type)
             {
+                case DATA_SYLVANAS_SHADOWCOPY_00:
+                    return SylvanasShadowcopyGUIDs[0];
+                case DATA_SYLVANAS_SHADOWCOPY_01:
+                    return SylvanasShadowcopyGUIDs[1];
+                case DATA_SYLVANAS_SHADOWCOPY_02:
+                    return SylvanasShadowcopyGUIDs[2];
+                case DATA_SYLVANAS_SHADOWCOPY_03:
+                    return SylvanasShadowcopyGUIDs[3];
+                case DATA_SYLVANAS_SHADOWCOPY_04:
+                    return SylvanasShadowcopyGUIDs[4];
+                case DATA_SYLVANAS_SHADOWCOPY_05:
+                    return SylvanasShadowcopyGUIDs[5];
+                case DATA_SYLVANAS_SHADOWCOPY_06:
+                    return SylvanasShadowcopyGUIDs[6];
+                case DATA_SYLVANAS_SHADOWCOPY_07:
+                    return SylvanasShadowcopyGUIDs[7];
+                case DATA_SYLVANAS_SHADOWCOPY_08:
+                    return SylvanasShadowcopyGUIDs[8];
+                case DATA_SYLVANAS_SHADOWCOPY_09:
+                    return SylvanasShadowcopyGUIDs[9];
+                case DATA_SYLVANAS_SHADOWCOPY_10:
+                    return SylvanasShadowcopyGUIDs[10];
+                case DATA_SYLVANAS_SHADOWCOPY_11:
+                    return SylvanasShadowcopyGUIDs[11];
                 case DATA_SYLVANAS_WINDRUNNER:
                     return SylvanasGUID;
                 case DATA_BOLVAR_FORDRAGON_PINNACLE:
@@ -142,7 +179,7 @@ public:
                     break;
             }
 
-            return ObjectGuid::Empty;
+            return InstanceScript::GetGuidData(type);
         }
 
         bool SetBossState(uint32 id, EncounterState state) override
@@ -154,26 +191,85 @@ public:
             {
                 case DATA_SYLVANAS_WINDRUNNER:
                 {
-                    if (state == NOT_STARTED)
+                    switch (state)
                     {
-                        DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
+                        case NOT_STARTED:
+                        {
+                            DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
 
-                        if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
-                            throneTeleporter->SetVisible(true);
+                            if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
+                                throneTeleporter->SetVisible(true);
 
-                        for (ObjectGuid const& spikeGUID : TorghastSpikeGUIDs)
-                            if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
-                                torghastSpike->SetSpellVisualId(0);
+                            for (ObjectGuid const& spikeGUID : TorghastSpikeGUIDs)
+                                if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
+                                    torghastSpike->SetSpellVisualId(0);
+
+                            for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUIDs)
+                                if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
+                                    invisibleWall->Respawn();
+
+                            SylvanasIntermissionData = 0;
+                            break;
+                        }
+
+                        case IN_PROGRESS:
+                        {
+                            Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER);
+                            if (!sylvanas)
+                                return false;
+
+                            DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
+
+                            if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
+                                throneTeleporter->SetVisible(false);
+
+                            if (Creature* bolvar = GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                            {
+                                bolvar->CastSpell(bolvar, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
+
+                                if (bolvar->IsAIEnabled())
+                                    bolvar->AI()->JustEngagedWith(sylvanas);
+                            }
+
+                            if (Creature* thrall = GetCreature(DATA_THRALL_PINNACLE))
+                            {
+                                thrall->CastSpell(thrall, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
+
+                                if (thrall->IsAIEnabled())
+                                    thrall->AI()->JustEngagedWith(sylvanas);
+                            }
+
+                            if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                            {
+                                jaina->CastSpell(jaina, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
+
+                                if (jaina->IsAIEnabled())
+                                    jaina->AI()->JustEngagedWith(sylvanas);
+                            }
+
+                            Map::PlayerList const& playerList = instance->GetPlayers();
+
+                            for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                            {
+                                if (Player* player = itr->GetSource())
+                                {
+                                    if (player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
+                                        ++SylvanasIntermissionData;
+                                }
+                            }
+                            break;
+                        }
+
+                        case FAIL:
+                        {
+                            SylvanasShadowcopyGUIDs.clear();
+                            Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
+                            break;
+                        }
+
+                        default:
+                            break;
                     }
-                    else if (state == IN_PROGRESS)
-                    {
-                        DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
-
-                        if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
-                            throneTeleporter->SetVisible(false);
-                    }
-
-                    break;
                 }
 
                 default:
@@ -192,13 +288,18 @@ public:
                     switch (data)
                     {
                         case IN_PROGRESS:
+                        {
                             SylvanasIntroductionState = IN_PROGRESS;
+
                             if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                 sylvanas->SetHomePosition(SylvanasRespawnPos);
                             break;
+                        }
 
                         case DONE:
+                        {
                             SylvanasIntroductionState = DONE;
+
                             if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             {
                                 sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
@@ -206,10 +307,22 @@ public:
                                 sylvanas->SetSpeed(MOVE_RUN, 14.0f);
                             }
                             break;
+                        }
 
                         default:
                             break;
                     }
+                    break;
+                }
+
+                case DATA_SYLVANAS_INTERMISSION_FINISH:
+                {
+                    --SylvanasIntermissionData;
+
+                    if (GetBossState(DATA_SYLVANAS_WINDRUNNER) == IN_PROGRESS && SylvanasIntermissionData == 0)
+                        if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                            if (sylvanas->IsAIEnabled())
+                                sylvanas->GetAI()->DoAction(ACTION_START_PHASE_TWO_ON_SYLVANAS);
                     break;
                 }
 
@@ -224,6 +337,9 @@ public:
             {
                 case DATA_SYLVANAS_INTRODUCTION:
                     return SylvanasIntroductionState;
+                case DATA_SYLVANAS_INTERMISSION_FINISH:
+                    return SylvanasIntermissionData;
+
                 default:
                     break;
             }
@@ -231,15 +347,73 @@ public:
             return 0;
         }
 
-    protected:
+        void Update(uint32 diff) override
+        {
+            DoCheckEvadeForSylvanasEncounter();
+
+            Events.Update(diff);
+
+            while (uint32 eventId = Events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_RESET_PLAYERS_ON_SYLVANAS:
+                    {
+                        Map::PlayerList const& playerList = instance->GetPlayers();
+
+                        for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        {
+                            if (Player* player = itr->GetSource())
+                            {
+                                if (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_VOID_IN_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_THE_CRUCIBLE)
+                                    player->NearTeleportTo(SylvanasPlatformRevivePos, false);
+                            }
+                        }
+
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        void DoCheckEvadeForSylvanasEncounter()
+        {
+            if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != IN_PROGRESS)
+                return;
+
+            Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER);
+
+            if (sylvanas && DoCheckEvadeForBossIfNoPlayerIsEngaged(sylvanas))
+            {
+                if (sylvanas->IsAIEnabled())
+                    sylvanas->AI()->EnterEvadeMode(EvadeReason::NoHostiles);
+            }
+        }
+
+        bool DoCheckEvadeForBossIfNoPlayerIsEngaged(Creature* boss)
+        {
+            for (ThreatReference const* ref : boss->GetThreatManager().GetUnsortedThreatList())
+                if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+                    return false;
+            return true;
+        }
+
+protected:
+        EventMap Events;
+        std::vector<ObjectGuid> TorghastSpikeGUIDs;
+        std::vector<ObjectGuid> InvisibleWallPhaseTwoGUIDs;
+        std::vector<ObjectGuid> SylvanasShadowcopyGUIDs;
+        uint8 SylvanasIntroductionState;
+        uint8 SylvanasIntermissionData;
         ObjectGuid SylvanasGUID;
         ObjectGuid SylvanasShadowcopyRidingGUID;
         ObjectGuid BolvarPinnacleGUID;
         ObjectGuid JainaPinnacleGUID;
         ObjectGuid ThrallPinnacleGUID;
         ObjectGuid ThroneOfTheDamnedGUID;
-        std::vector<ObjectGuid> TorghastSpikeGUIDs;
-        uint8 SylvanasIntroductionState;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
