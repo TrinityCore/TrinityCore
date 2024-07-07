@@ -1,7 +1,7 @@
 R"(Generator command line args
 
 --threads           [#]             Max number of threads used by the generator
-                                    Default: 3
+                                    Default: Same as CPU cores
 
 --offMeshInput      [file.*]        Path to file containing off mesh connections data.
                                     Format must be: (see offmesh_example.txt)
@@ -18,7 +18,7 @@ R"(Generator command line args
 
 --maxAngle          [#]             Max walkable inclination angle
 
-                                    float between 45 and 90 degrees (default 60)
+                                    float between 45 and 90 degrees (default 55)
 
 --skipLiquid        [true|false]    extract liquid data for maps
 
@@ -57,15 +57,15 @@ R"(Generator command line args
 
 examples:
 
-movement_extractor
+mmaps_generator
 builds maps using the default settings (see above for defaults)
 
-movement_extractor --skipContinents true
+mmaps_generator --skipContinents true
 builds the default maps, except continents
 
-movement_extractor 0
+mmaps_generator 0
 builds all tiles of map 0
 
-movement_extractor 0 --tile 34,46
+mmaps_generator 0 --tile 34,46
 builds only tile 34,46 of map 0 (this is the southern face of blackrock mountain)
 )"

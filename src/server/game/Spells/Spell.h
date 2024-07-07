@@ -695,6 +695,8 @@ class TC_GAME_API Spell
         bool IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const;
         void MovePosition(Position& pos, WorldObject const* from, float dist, float angle) const;
 
+        static bool CanIncreaseRangeByMovement(Unit const* unit);
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();

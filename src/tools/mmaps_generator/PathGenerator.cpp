@@ -79,7 +79,7 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
     }
 
     dirFiles.clear();
-    if (getDirContents(dirFiles, "vmaps", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         printf("'vmaps' directory is empty or does not exist\n");
         return false;
