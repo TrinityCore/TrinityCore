@@ -36,7 +36,8 @@ enum WaycrestManorDataTypes
 
     DATA_SISTER_BRIAR,
     DATA_SISTER_MALADY,
-    DATA_SISTER_SOLENA
+    DATA_SISTER_SOLENA,
+    DATA_SOULBOUND_GOLIATH_INTRO
 };
 
 enum WaycrestManorCreatureIds
@@ -57,6 +58,11 @@ enum WaycrestManorCreatureIds
 enum WaycrestManorGameObjectIds
 {
     GO_HEARTSBANE_TRIAD_DOOR = 282410
+};
+
+enum WaycrestManorSharedActions
+{
+    ACTION_SOULBOUND_GOLIATH_INTRO = 1
 };
 
 template <class AI, class T>

@@ -4856,6 +4856,12 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF THE AZURE VAULT SPELLS
     //
+
+    ApplySpellFix({ 260570, 260566 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {

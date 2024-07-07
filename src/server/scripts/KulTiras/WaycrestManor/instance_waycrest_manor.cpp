@@ -27,10 +27,11 @@ static BossBoundaryData const boundaries =
 
 ObjectData const creatureData[] =
 {
-    { BOSS_SISTER_BRIAR,  DATA_SISTER_BRIAR  },
-    { BOSS_SISTER_MALADY, DATA_SISTER_MALADY },
-    { BOSS_SISTER_SOLENA, DATA_SISTER_SOLENA },
-    { 0,                  0                  }  // END
+    { BOSS_SISTER_BRIAR,      DATA_SISTER_BRIAR      },
+    { BOSS_SISTER_MALADY,     DATA_SISTER_MALADY     },
+    { BOSS_SISTER_SOLENA,     DATA_SISTER_SOLENA     },
+    { BOSS_SOULBOUND_GOLIATH, DATA_SOULBOUND_GOLIATH },
+    { 0,                      0                      }  // END
 };
 
 DoorData const doorData[] =
@@ -63,7 +64,36 @@ public:
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
+
+            _soulboundGoliathIntroState = NOT_STARTED;
         }
+
+        uint32 GetData(uint32 dataId) const override
+        {
+            switch (dataId)
+            {
+                case DATA_SOULBOUND_GOLIATH_INTRO:
+                    return _soulboundGoliathIntroState;
+                default:
+                    break;
+            }
+            return 0;
+        }
+
+        void SetData(uint32 dataId, uint32 value) override
+        {
+            switch (dataId)
+            {
+                case DATA_SOULBOUND_GOLIATH_INTRO:
+                    _soulboundGoliathIntroState = value;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    private:
+        uint8 _soulboundGoliathIntroState;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
