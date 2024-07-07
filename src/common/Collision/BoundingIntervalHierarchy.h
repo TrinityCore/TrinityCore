@@ -18,37 +18,17 @@
 #ifndef _BIH_H
 #define _BIH_H
 
-#include <G3D/Vector3.h>
-#include <G3D/Ray.h>
-#include <G3D/AABox.h>
-
 #include "Define.h"
-
-#include <stdexcept>
-#include <vector>
+#include "advstd.h"
+#include <G3D/AABox.h>
+#include <G3D/Ray.h>
+#include <G3D/Vector3.h>
 #include <algorithm>
 #include <limits>
-#include "string.h"
+#include <stdexcept>
+#include <vector>
 
 #define MAX_STACK_SIZE 64
-
-// https://stackoverflow.com/a/4328396
-
-static inline uint32 floatToRawIntBits(float f)
-{
-    static_assert(sizeof(float) == sizeof(uint32), "Size of uint32 and float must be equal for this to work");
-    uint32 ret;
-    memcpy(&ret, &f, sizeof(float));
-    return ret;
-}
-
-static inline float intBitsToFloat(uint32 i)
-{
-    static_assert(sizeof(float) == sizeof(uint32), "Size of uint32 and float must be equal for this to work");
-    float ret;
-    memcpy(&ret, &i, sizeof(uint32));
-    return ret;
-}
 
 struct AABound
 {
@@ -154,7 +134,7 @@ class TC_COMMON_API BIH
 
             for (int i=0; i<3; ++i)
             {
-                offsetFront[i] = floatToRawIntBits(dir[i]) >> 31;
+                offsetFront[i] = advstd::bit_cast<uint32>(dir[i]) >> 31;
                 offsetBack[i] = offsetFront[i] ^ 1;
                 offsetFront3[i] = offsetFront[i] * 3;
                 offsetBack3[i] = offsetBack[i] * 3;
@@ -180,8 +160,8 @@ class TC_COMMON_API BIH
                         if (axis < 3)
                         {
                             // "normal" interior node
-                            float tf = (intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
-                            float tb = (intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
+                            float tf = (advstd::bit_cast<float>(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
+                            float tb = (advstd::bit_cast<float>(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
                             // ray passes between clip zones
                             if (tf < intervalMin && tb > intervalMax)
                                 break;
@@ -225,8 +205,8 @@ class TC_COMMON_API BIH
                     {
                         if (axis>2)
                             return; // should not happen
-                        float tf = (intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
-                        float tb = (intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
+                        float tf = (advstd::bit_cast<float>(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
+                        float tb = (advstd::bit_cast<float>(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
                         node = offset;
                         intervalMin = (tf >= intervalMin) ? tf : intervalMin;
                         intervalMax = (tb <= intervalMax) ? tb : intervalMax;
@@ -274,8 +254,8 @@ class TC_COMMON_API BIH
                         if (axis < 3)
                         {
                             // "normal" interior node
-                            float tl = intBitsToFloat(tree[node + 1]);
-                            float tr = intBitsToFloat(tree[node + 2]);
+                            float tl = advstd::bit_cast<float>(tree[node + 1]);
+                            float tr = advstd::bit_cast<float>(tree[node + 2]);
                             // point is between clip zones
                             if (tl < p[axis] && tr > p[axis])
                                 break;
@@ -312,8 +292,8 @@ class TC_COMMON_API BIH
                     {
                         if (axis>2)
                             return; // should not happen
-                        float tl = intBitsToFloat(tree[node + 1]);
-                        float tr = intBitsToFloat(tree[node + 2]);
+                        float tl = advstd::bit_cast<float>(tree[node + 1]);
+                        float tr = advstd::bit_cast<float>(tree[node + 2]);
                         node = offset;
                         if (tl > p[axis] || tr < p[axis])
                             break;

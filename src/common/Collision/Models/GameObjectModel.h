@@ -18,12 +18,11 @@
 #ifndef _GAMEOBJECT_MODEL_H
 #define _GAMEOBJECT_MODEL_H
 
-#include <G3D/Matrix3.h>
-#include <G3D/Vector3.h>
-#include <G3D/AABox.h>
-#include <G3D/Ray.h>
-
 #include "Define.h"
+#include <G3D/AABox.h>
+#include <G3D/Matrix3.h>
+#include <G3D/Ray.h>
+#include <G3D/Vector3.h>
 #include <memory>
 
 namespace G3D
@@ -91,7 +90,7 @@ private:
     G3D::Vector3 iPos;
     float iInvScale;
     float iScale;
-    VMAP::WorldModel* iModel;
+    std::shared_ptr<VMAP::WorldModel> iModel;
     std::unique_ptr<GameObjectModelOwnerBase> owner;
 };
 
