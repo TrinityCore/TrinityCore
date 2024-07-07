@@ -166,6 +166,9 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
+    SPELL_PRIEST_SANCTUARY                          = 231682,
+    SPELL_PRIEST_SANCTUARY_ABSORB                   = 208771,
+    SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
     SPELL_PRIEST_RHAPSODY_PROC                      = 390636,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
@@ -173,7 +176,7 @@ enum PriestSpells
     SPELL_PRIEST_SEARING_LIGHT                      = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
-    SPELL_PRIEST_SHADOW_WORD_DEATH_BACKLASH         = 32409,
+    SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE                  = 197045,
@@ -2844,6 +2847,83 @@ class spell_pri_schism : public SpellScript
     }
 };
 
+// 208771 - Sanctuary (Absorb)
+class spell_pri_sanctuary_absorb : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SANCTUARY_AURA });
+    }
+
+    void CalcAbsorbAmount(AuraEffect const* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    {
+        PreventDefaultAction();
+
+        Unit const* attacker = dmgInfo.GetAttacker();
+        if (!attacker)
+            return;
+
+        AuraEffect* amountHolderEffect = attacker->GetAuraEffect(SPELL_PRIEST_SANCTUARY_AURA, EFFECT_0, GetCasterGUID());
+        if (!amountHolderEffect)
+            return;
+
+        if (dmgInfo.GetDamage() >= uint32(amountHolderEffect->GetAmount()))
+        {
+            amountHolderEffect->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            dmgInfo.AbsorbDamage(amountHolderEffect->GetAmount());
+        }
+        else
+        {
+            amountHolderEffect->ChangeAmount(amountHolderEffect->GetAmount() - int32(dmgInfo.GetDamage()));
+            dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_sanctuary_absorb::CalcAbsorbAmount, EFFECT_0);
+    }
+};
+
+// Smite - 585
+class spell_pri_sanctuary_trigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SANCTUARY, SPELL_PRIEST_SANCTUARY_AURA, SPELL_PRIEST_SANCTUARY_ABSORB });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Player* caster = Object::ToPlayer(GetCaster());
+        if (!caster)
+            return;
+
+        if (AuraEffect const* sanctuaryEffect = caster->GetAuraEffect(SPELL_PRIEST_SANCTUARY, EFFECT_0))
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                float absorbAmount = CalculatePct<float, float>(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW), sanctuaryEffect->GetAmount());
+                AddPct(absorbAmount, caster->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+                caster->CastSpell(caster, SPELL_PRIEST_SANCTUARY_ABSORB, CastSpellExtraArgs()
+                    .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                    .SetTriggeringSpell(GetSpell()));
+
+                caster->CastSpell(target, SPELL_PRIEST_SANCTUARY_AURA, CastSpellExtraArgs()
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, absorbAmount)
+                    .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                    .SetTriggeringSpell(GetSpell()));
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_sanctuary_trigger::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 280391 - Sins of the Many
 class spell_pri_sins_of_the_many : public AuraScript
 {
@@ -3007,70 +3087,37 @@ class spell_pri_shadow_word_death : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
+        return ValidateSpellEffect
         ({
-            SPELL_PRIEST_DEATHSPEAKER,
-            SPELL_PRIEST_DEATHSPEAKER_AURA,
-        }) && ValidateSpellEffect
-        ({
-            {SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_1},
-            {SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_2},
-            {SPELL_PRIEST_DEATHSPEAKER_AURA, EFFECT_1}
+            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_1 },
+            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_2 },
+            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_4 }
         });
     }
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/)
     {
-        uint32 backlashDmg = CalculatePct(GetCaster()->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(GetCaster()));
-        GetCaster()->Yell("back:" + std::to_string(backlashDmg), LANG_UNIVERSAL);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
-        if (GetCaster()->HasAura(SPELL_PRIEST_DEATHSPEAKER_AURA))
-        {
-            int32 increaseBP = sSpellMgr->GetSpellInfo(SPELL_PRIEST_DEATHSPEAKER_AURA, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(GetCaster());
-            GetCaster()->Yell(std::to_string(increaseBP), LANG_UNIVERSAL);
-            int32 dmgIncrease = GetHitDamage() + CalculatePct(GetHitDamage(), increaseBP);
-            GetCaster()->Yell("25inc:" + std::to_string(dmgIncrease), LANG_UNIVERSAL);
-            AddPct(dmgIncrease, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
-            GetCaster()->Yell("250inc:" + std::to_string(dmgIncrease), LANG_UNIVERSAL);
+        uint64 hitDamage = GetHitDamage();
 
-            SetHitDamage(dmgIncrease);
+        if (target->GetHealthPct() < GetEffectInfo(EFFECT_1).BasePoints)
+            SetHitDamage(hitDamage + CalculatePct(hitDamage, GetEffectInfo(EFFECT_2).CalcValue(caster)));
 
-            GetCaster()->RemoveAurasDueToSpell(SPELL_PRIEST_DEATHSPEAKER_AURA);
-        }
+        if (hitDamage > target->GetHealth())
+            return;
 
-        if (GetHitUnit()->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())))
-        {
-            int32 dmgIncrease = GetHitDamage();
-            AddPct(dmgIncrease, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
-            GetCaster()->Yell("inc:" + std::to_string(dmgIncrease), LANG_UNIVERSAL);
-            SetHitDamage(dmgIncrease);
-        }
+        int32 backlashDmg = CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(caster));
 
-        if (GetHitDamage() < GetHitUnit()->GetHealth())
-            GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH_BACKLASH, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(backlashDmg));
+        CastSpellExtraArgs args(TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.AddSpellBP0(backlashDmg);
+        caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, args);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-// 392507 - Deathspeaker
-class spell_pri_deathspeaker : public AuraScript
-{
-    void HandleOnProc(ProcEventInfo& /*eventInfo*/) const
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->GetSpellHistory()->ResetCooldown(SPELL_PRIEST_SHADOW_WORD_DEATH);
-    }
-
-    void Register() override
-    {
-        OnProc += AuraProcFn(spell_pri_deathspeaker::HandleOnProc);
     }
 };
 
@@ -3506,7 +3553,7 @@ class spell_pri_whispering_shadows_effect : public SpellScript
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_VAMPIRIC_TOUCH, CastSpellExtraArgs()
             .SetTriggeringSpell(GetSpell())
-            .SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR));
+            .SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_DONT_REPORT_CAST_ERROR));
     }
 
     void Register() override
@@ -3585,6 +3632,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_sanctuary_absorb);
+    RegisterSpellScript(spell_pri_sanctuary_trigger);
     RegisterSpellScript(spell_pri_rhapsody);
     RegisterSpellScript(spell_pri_rhapsody_proc);
     RegisterSpellScript(spell_pri_schism);

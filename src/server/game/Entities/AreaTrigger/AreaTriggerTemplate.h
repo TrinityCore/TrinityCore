@@ -37,18 +37,6 @@ enum class AreaTriggerFlag : uint32
 
 DEFINE_ENUM_FLAG(AreaTriggerFlag);
 
-enum class AreaTriggerShapeType : uint8
-{
-    Sphere                         = 0,
-    Box                            = 1,
-    Unk                            = 2,
-    Polygon                        = 3,
-    Cylinder                       = 4,
-    Disk                           = 5,
-    BoundedPlane                   = 6,
-    Max
-};
-
 enum AreaTriggerActionTypes
 {
     AREATRIGGER_ACTION_CAST        = 0,

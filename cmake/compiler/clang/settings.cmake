@@ -1,10 +1,5 @@
 include(CheckCXXSourceCompiles)
 
-# Set build-directive (used in core to tell which buildtype we used)
-target_compile_definitions(trinity-compile-option-interface
-  INTERFACE
-    -D_BUILD_DIRECTIVE="$<CONFIG>")
-
 set(CLANG_EXPECTED_VERSION 11.0.0)
 if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   # apple doesnt like to do the sane thing which would be to use the same version numbering as regular clang

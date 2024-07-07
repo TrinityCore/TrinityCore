@@ -1,6 +1,3 @@
-# set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 set(MSVC_EXPECTED_VERSION 19.32)
 set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17.2")
 
@@ -31,10 +28,6 @@ target_compile_options(trinity-compile-option-interface
   INTERFACE
     /permissive-)
 
-# set up output paths ofr static libraries etc (commented out - shown here as an example only)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 if(PLATFORM EQUAL 64)
   # This definition is necessary to work around a bug with Intellisense described
   # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
@@ -59,23 +52,18 @@ else()
   message(STATUS "MSVC: Disabled Safe Exception Handlers for debug builds")
 endif()
 
-# Set build-directive (used in core to tell which buildtype we used)
-# msbuild/devenv don't set CMAKE_MAKE_PROGRAM, you can choose build type from a dropdown after generating projects
 if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-  target_compile_definitions(trinity-compile-option-interface
+  # multithreaded compiling on VS
+  target_compile_options(trinity-compile-option-interface
     INTERFACE
-      -D_BUILD_DIRECTIVE="$(ConfigurationName)")
+      /MP)
 else()
-  # while all make-like generators do (nmake, ninja)
-  target_compile_definitions(trinity-compile-option-interface
+  # Forces writes to the PDB file to be serialized through mspdbsrv.exe (/FS)
+  # Enable faster PDB generation in parallel builds by minimizing RPC calls to mspdbsrv.exe (/Zf)
+  target_compile_options(trinity-compile-option-interface
     INTERFACE
-      -D_BUILD_DIRECTIVE="$<CONFIG>")
+      $<$<CONFIG:Debug,RelWithDebInfo>:/FS /Zf>)
 endif()
-
-# multithreaded compiling on VS
-target_compile_options(trinity-compile-option-interface
-  INTERFACE
-    /MP)
 
 if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0) OR BUILD_SHARED_LIBS)
   # Enable extended object support
@@ -86,14 +74,16 @@ if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.2302
   message(STATUS "MSVC: Enabled increased number of sections in object files")
 endif()
 
-# /Zc:throwingNew.
-# When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
-# that the program will eventually be linked with a conforming operator new implementation,
-# and can omit all of these extra null checks from your program.
-# http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
-target_compile_options(trinity-compile-option-interface
-  INTERFACE
-    /Zc:throwingNew)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # /Zc:throwingNew.
+  # When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
+  # that the program will eventually be linked with a conforming operator new implementation,
+  # and can omit all of these extra null checks from your program.
+  # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      /Zc:throwingNew)
+endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 target_compile_definitions(trinity-compile-option-interface
