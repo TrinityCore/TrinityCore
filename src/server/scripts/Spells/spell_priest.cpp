@@ -3097,22 +3097,19 @@ class spell_pri_shadow_word_death : public SpellScript
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
         uint64 hitDamage = GetHitDamage();
 
-        if (target->GetHealthPct() < GetEffectInfo(EFFECT_1).BasePoints)
-            SetHitDamage(hitDamage + CalculatePct(hitDamage, GetEffectInfo(EFFECT_2).CalcValue(caster)));
+        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+            SetHitDamage(hitDamage + CalculatePct(hitDamage, GetEffectInfo(EFFECT_2).CalcValue(GetCaster())));
 
-        if (hitDamage > target->GetHealth())
+        if (hitDamage > GetHitUnit()->GetHealth())
             return;
 
-        int32 backlashDmg = CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(caster));
+        int32 backlashDmg = CalculatePct(GetCaster()->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(GetCaster()));
 
         CastSpellExtraArgs args(TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
         args.AddSpellBP0(backlashDmg);
-        caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, args);
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, args);
     }
 
     void Register() override
@@ -3579,7 +3576,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
-    RegisterSpellScript(spell_pri_deathspeaker);
     RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
