@@ -20,21 +20,32 @@
 #include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
+#include "TemporarySummon.h"
 #include "waycrest_manor.h"
 
 enum SoulboundGoliathSpells
 {
-    SPELL_CRUSH                         = 260508,
-    SPELL_SOUL_HARVEST_PERIODIC         = 261580,
-    SPELL_SOUL_HARVEST_DAMAGE           = 260512,
-    SPELL_SOUL_THORNS_SELECTOR          = 260551,
-    SPELL_SOUL_THORNS_STUN              = 267907
+    SPELL_BURNING_SOULS         = 268045,
+    SPELL_CRUSH                 = 260508,
+    SPELL_KILL_SOUL_THORN       = 278792,
+    SPELL_SOUL_HARVEST_PERIODIC = 261580,
+    SPELL_SOUL_HARVEST_DAMAGE   = 260512,
+    SPELL_SOUL_THORNS_SELECTOR  = 260551,
+    SPELL_SOUL_THORNS_STUN      = 267907
 };
 
 enum SoulboundGoliathTexts
 {
+    SAY_AGGRO           = 0,
+    SAY_SLAY            = 1,
+    SAY_THORNS          = 2,
+    SAY_BURNING_BRUSH   = 3,
+    SAY_DEATH           = 4,
+    SAY_PLAYER_THORNS   = 5,
+    SAY_SOUL_HARVEST    = 6 // NYI I don't know when is used
 };
 
 enum SoulboundGoliathEvents
@@ -47,10 +58,11 @@ enum SoulboundGoliathEvents
 
 enum SoulboundGoliathMisc
 {
-    ANIMKIT_NONE = 0,
+    ANIMKIT_NONE  = 0,
     ANIMKIT_AWAKE = 6550
 };
 
+// 131667 - Soulbound Goliath
 struct boss_soulbound_goliath : public BossAI
 {
     boss_soulbound_goliath(Creature* creature) : BossAI(creature, DATA_SOULBOUND_GOLIATH) { }
@@ -78,20 +90,20 @@ struct boss_soulbound_goliath : public BossAI
     {
         BossAI::JustEngagedWith(who);
 
-        //Talk(SAY_AGGRO);
+        Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         instance->SetBossState(DATA_SOULBOUND_GOLIATH, IN_PROGRESS);
 
         DoCastSelf(SPELL_SOUL_HARVEST_PERIODIC);
 
-        events.ScheduleEvent(EVENT_CRUSH, 5100ms);
-        events.ScheduleEvent(EVENT_SOUL_THORNS, 9100ms);
+        events.ScheduleEvent(EVENT_CRUSH, 5800ms);
+        events.ScheduleEvent(EVENT_SOUL_THORNS, 9800ms);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
-        //Talk(SAY_DEATH);
+        Talk(SAY_DEATH);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_SOULBOUND_GOLIATH, DONE);
     }
@@ -114,6 +126,26 @@ struct boss_soulbound_goliath : public BossAI
             default:
                 break;
         }
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (!victim->IsPlayer())
+            return;
+
+        Talk(SAY_SLAY);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_BURNING_BRUSH)
+            Talk(SAY_BURNING_BRUSH);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SOUL_THORNS_SELECTOR)
+            Talk(SAY_PLAYER_THORNS, target);
     }
 
     void UpdateAI(uint32 diff) override
@@ -140,7 +172,7 @@ struct boss_soulbound_goliath : public BossAI
                 }
                 case EVENT_SOUL_THORNS:
                 {
-                    //Talk(SAY_SHADOW_STORM);
+                    Talk(SAY_THORNS);
                     DoCast(SPELL_SOUL_THORNS_SELECTOR);
                     events.Repeat(22500ms);
                     break;
@@ -169,6 +201,13 @@ class spell_soulbound_goliath_soul_harvest : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
+        InstanceScript* instance = target->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (instance->GetBossState(DATA_SOULBOUND_GOLIATH) != IN_PROGRESS)
+            return;
+
         target->CastSpell(target, SPELL_SOUL_HARVEST_DAMAGE, true);
     }
 
@@ -188,12 +227,52 @@ class spell_soulbound_goliath_soul_thorns_selector : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_SOUL_THORNS_STUN, true);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SOUL_THORNS_STUN, true);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_soulbound_goliath_soul_thorns_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 267907 - Soul Thorns
+class spell_soulbound_goliath_soul_thorns_damage : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KILL_SOUL_THORN });
+    }
+
+    void HandleDamage(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+            return;
+
+        GetTarget()->CastSpell(nullptr, SPELL_KILL_SOUL_THORN, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_soulbound_goliath_soul_thorns_damage::HandleDamage, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 267911 - Soul Thorns
+class spell_soulbound_goliath_soul_thorns_remove_stun : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* target = GetHitUnit()->ToTempSummon())
+        {
+            if (Unit* summoner = target->GetSummonerUnit())
+                summoner->RemoveAurasDueToSpell(GetEffectValue());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_soulbound_goliath_soul_thorns_remove_stun::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -218,13 +297,19 @@ class spell_soulbound_goliath_burning_brush_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SOUL_HARVEST_DAMAGE });
+        return ValidateSpellInfo({ SPELL_SOUL_HARVEST_DAMAGE, SPELL_BURNING_SOULS });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_SOUL_HARVEST_DAMAGE, EFFECT_0))
+        Unit* target = GetTarget();
+        Map* map = target->GetMap();
+
+        if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_SOUL_HARVEST_DAMAGE, EFFECT_0))
             aurEff->GetBase()->ModStackAmount(-7);
+
+        if (map->IsDungeon() && map->IsHeroicOrHigher())
+            target->CastSpell(target, SPELL_BURNING_SOULS, false);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -246,5 +331,7 @@ void AddSC_boss_soulbound_goliath()
 
     RegisterSpellScript(spell_soulbound_goliath_soul_harvest);
     RegisterSpellScript(spell_soulbound_goliath_soul_thorns_selector);
+    RegisterSpellScript(spell_soulbound_goliath_soul_thorns_damage);
+    RegisterSpellScript(spell_soulbound_goliath_soul_thorns_remove_stun);
     RegisterSpellAndAuraScriptPair(spell_soulbound_goliath_burning_brush, spell_soulbound_goliath_burning_brush_aura);
 }

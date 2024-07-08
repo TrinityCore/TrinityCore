@@ -4854,13 +4854,24 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // ENDOF THE AZURE VAULT SPELLS
+    // END OF THE AZURE VAULT SPELLS
     //
 
-    ApplySpellFix({ 260570, 260566 }, [](SpellInfo* spellInfo)
+    //
+    // WAYCREST MANOR SPELLS
+    //
+
+    ApplySpellFix({
+        260566, // Wildfire Missile
+        260570  // Wildfire Missile Impact
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
     });
+    
+    // END OF WAYCREST MANOR SPELLS
+    //
 
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)

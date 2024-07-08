@@ -34,8 +34,7 @@ enum WaycrestManorSpells
     SPELL_SPLINTER_SPIKE_MISSILE        = 265758,
     SPELL_SPLINTER_SPIKE_SELECTOR       = 265759,
     SPELL_THORNED_BARRAGE               = 265760,
-    SPELL_WILDFIRE_DAMAGE               = 260569,
-    SPELL_BURNING_BRUSH                 = 260541
+    SPELL_WILDFIRE_DAMAGE               = 260569
 };
 
 enum WaycrestManorEvents
@@ -173,12 +172,12 @@ class spell_waycrest_manor_wildfire : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        if (aurEff->GetTickNumber() % 4)
+        if (aurEff->GetTickNumber() % 6)
         {
             // this spell should be casted across the whole garden
             constexpr Position CenterPos = { -422.13f, -258.28f, 233.8286f, 0.0f };
             Position randomPos = CenterPos;
-            GetTarget()->MovePosition(randomPos, frand(7.0f, 30.0f) * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI)); // creature could be any creature, like the boss, its used for map checks
+            GetTarget()->MovePosition(randomPos, 30.0f * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI)); // creature could be any creature, like the boss, its used for map checks
             GetTarget()->CastSpell(randomPos, aurEff->GetSpellEffectInfo().CalcValue(), TRIGGERED_FULL_MASK);
         }
     }
@@ -206,6 +205,9 @@ struct at_waycrest_manor_wildfire : AreaTriggerAI
                 return;
 
             if (instance->GetBossState(DATA_SOULBOUND_GOLIATH) != IN_PROGRESS)
+                return;
+
+            if (unit->HasAura(SPELL_BURNING_BRUSH))
                 return;
 
             unit->CastSpell(unit, SPELL_BURNING_BRUSH, true);
