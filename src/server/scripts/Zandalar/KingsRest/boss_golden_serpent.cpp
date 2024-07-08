@@ -52,6 +52,16 @@ enum GoldenSerpentEvents
     EVENT_LUCRES_CALL
 };
 
+enum GoldenSerpentTexts
+{
+    SAY_ANNOUNCE_ABSORB_ANIMATED_GOLD   = 0
+};
+
+enum GoldenSerpentActions
+{
+    ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD    = 1
+};
+
 enum GoldenSerpentNPCs
 {
     NPC_ANIMATED_GOLD   = 135406
@@ -135,6 +145,12 @@ struct boss_the_golden_serpent : public BossAI
         }
     }
 
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD)
+            Talk(SAY_ANNOUNCE_ABSORB_ANIMATED_GOLD);
+    }
+
     void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
@@ -181,7 +197,7 @@ struct boss_the_golden_serpent : public BossAI
 // 135406 - Animated Gold
 struct npc_animated_gold : public ScriptedAI
 {
-    npc_animated_gold(Creature* creature) : ScriptedAI(creature) { }
+    npc_animated_gold(Creature* creature) : ScriptedAI(creature), _isMoltenGoldCast(false) { }
 
     void JustAppeared() override
     {
@@ -193,14 +209,60 @@ struct npc_animated_gold : public ScriptedAI
     {
         if (spellInfo->Id == SPELL_LUCRES_CALL)
         {
+            _scheduler.Schedule(3s, [this](TaskContext)
+            {
+                Creature* goldenSerpent = me->GetInstanceScript()->GetCreature(DATA_GOLDEN_SERPENT);
+                if (!goldenSerpent)
+                    return;
+
+                _isMoltenGoldCast = false;
+                me->GetMotionMaster()->Clear();
+                me->SetWalk(true);
+                me->GetMotionMaster()->MoveFollow(goldenSerpent, 2.0f, me->GetFollowAngle());
+            });
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetHealth() <= damage)
+        {
+            damage = me->GetHealth() - 1;
+
+            if (!_isMoltenGoldCast)
+            {
+                me->GetMotionMaster()->Clear();
+                me->CastSpell(nullptr, SPELL_MOLTEN_GOLD, false);
+                _isMoltenGoldCast = true;
+            }
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 /*pointId*/) override
+    {
+        if (type == FOLLOW_MOTION_TYPE)
+        {
             Creature* goldenSerpent = me->GetInstanceScript()->GetCreature(DATA_GOLDEN_SERPENT);
             if (!goldenSerpent)
                 return;
 
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveChase(goldenSerpent, 2.0f);
+            if (!goldenSerpent->IsAIEnabled())
+                return;
+
+            me->CastSpell(goldenSerpent, SPELL_LUSTER, false);
+            goldenSerpent->AI()->DoAction(ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD);
+            me->DespawnOrUnsummon();
         }
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    bool _isMoltenGoldCast;
 };
 
 // 265773 - Spit Gold

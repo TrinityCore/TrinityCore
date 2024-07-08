@@ -41,6 +41,11 @@ DELETE FROM `areatrigger_create_properties` WHERE (`Id`=12928 AND `IsCustom`=0);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `VerifiedBuild`) VALUES
 (12928, 0, 17570, 0, 4, 0, 0, 0, 0, -1, 0, 336, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 55261); -- Spell: 265915 (Molten Gold)
 
+-- Creature Text
+DELETE FROM `creature_text` WHERE `CreatureID` = 135322;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(135322, 0, 0, '|TInterface\\ICONS\\INV_Misc_Gem_Pearl_04.blp:20|t The Golden Serpent absorbs an Animated Gold, gaining |cFFFF0000|Hspell:265991|h[Luster]|h|r!', 16, 0, 100, 0, 0, 0, 156383, 0, 'The Golden Serpent to Animated Gold');
+
 -- Difficulty
 DELETE FROM `creature_template_difficulty` WHERE (`Entry`=135406 AND `DifficultyID`=23);
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`) VALUES
