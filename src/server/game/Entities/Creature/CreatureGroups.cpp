@@ -266,7 +266,7 @@ void CreatureGroup::FormationReset(bool dismiss)
         if (pair.first != _leader && pair.first->IsAlive())
         {
             if (dismiss)
-                pair.first->GetMotionMaster()->Initialize();
+                pair.first->GetMotionMaster()->Remove(FORMATION_MOTION_TYPE, MOTION_SLOT_DEFAULT);
             else
                 pair.first->GetMotionMaster()->MoveIdle();
             TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set {} movement for member {}", dismiss ? "default" : "idle", pair.first->GetGUID().ToString());
