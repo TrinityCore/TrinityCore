@@ -259,18 +259,21 @@ void CreatureGroup::MemberEngagingTarget(Creature* member, Unit* target)
     _engaging = false;
 }
 
-void CreatureGroup::FormationReset(bool /*dismiss*/)
+void CreatureGroup::FormationReset(bool dismiss)
 {
     for (auto const& pair : _members)
     {
         if (pair.first != _leader && pair.first->IsAlive())
         {
-            pair.first->GetMotionMaster()->MoveIdle();
-            // TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set {} movement for member {}", dismiss ? "default" : "idle", pair.first->GetGUID().ToString());
+            if (dismiss)
+                pair.first->GetMotionMaster()->Initialize();
+            else
+                pair.first->GetMotionMaster()->MoveIdle();
+            TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set {} movement for member {}", dismiss ? "default" : "idle", pair.first->GetGUID().ToString());
         }
     }
 
-    // _formed = !dismiss;
+    _formed = !dismiss;
 }
 
 void CreatureGroup::LeaderStartedMoving()
