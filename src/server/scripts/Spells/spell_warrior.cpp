@@ -28,7 +28,7 @@
 // 78 - Heroic Strike
 class spell_warr_heroic_strike : public SpellScript
 {
-    // Damage = {8+$ap*60/100} 
+    // Damage = {8+$ap*60/100}
     void CalculateDamage(Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
     {
         damage = static_cast<int32>(8 + GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.6f);
