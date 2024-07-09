@@ -4869,7 +4869,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
         spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
     });
-    
+
     // END OF WAYCREST MANOR SPELLS
     //
 
