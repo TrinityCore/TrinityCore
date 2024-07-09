@@ -262,6 +262,11 @@ class spell_soulbound_goliath_soul_thorns_damage : public AuraScript
 // 267911 - Soul Thorns
 class spell_soulbound_goliath_soul_thorns_remove_stun : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SOUL_HARVEST_DAMAGE, SPELL_BURNING_SOULS });
+    }
+
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (TempSummon* target = GetHitUnit()->ToTempSummon())
@@ -309,14 +314,18 @@ class spell_soulbound_goliath_burning_brush_aura : public AuraScript
         if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_SOUL_HARVEST_DAMAGE, EFFECT_0))
             aurEff->GetBase()->ModStackAmount(-7);
 
-        if (map->IsDungeon() && map->IsHeroicOrHigher())
+        if (map->IsHeroicOrHigher())
             target->CastSpell(target, SPELL_BURNING_SOULS, false);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->ToCreature()->GetMotionMaster()->Clear();
-        GetTarget()->ToCreature()->SetReactState(REACT_AGGRESSIVE);
+        Creature* creatureTarget = GetTarget()->ToCreature();
+        if (!creatureCaster)
+            return;
+
+        creatureTarget->GetMotionMaster()->Clear();
+        creatureTarget->SetReactState(REACT_AGGRESSIVE);
     }
 
     void Register() override

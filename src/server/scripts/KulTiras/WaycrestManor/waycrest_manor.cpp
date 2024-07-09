@@ -35,6 +35,7 @@ enum WaycrestManorSpells
     SPELL_SPLINTER_SPIKE_MISSILE        = 265758,
     SPELL_SPLINTER_SPIKE_SELECTOR       = 265759,
     SPELL_THORNED_BARRAGE               = 265760,
+    SPELL_WILDFIRE_MISSILE              = 260566,
     SPELL_WILDFIRE_DAMAGE               = 260569
 };
 
@@ -171,6 +172,11 @@ class spell_waycrest_manor_splinter_spike_selector : public SpellScript
 // 260564 - Wildfire
 class spell_waycrest_manor_wildfire : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WILDFIRE_MISSILE });
+    }
+
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         if (aurEff->GetTickNumber() % 6)
