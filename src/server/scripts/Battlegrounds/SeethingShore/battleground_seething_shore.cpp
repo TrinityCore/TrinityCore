@@ -154,6 +154,7 @@ namespace SeethingShore
     namespace SpellVisuals
     {
         static constexpr uint32 HasteRuneBuff = 85696;
+        static constexpr uint32 AzeriteBirth = 74145;
     }
 
     namespace StringIds
@@ -456,15 +457,16 @@ private:
     std::array<ObjectGuid, PVP_TEAMS_COUNT> _commanderGUIDs;
 };
 
+// 248688 - Activate Azerite
 class spell_bg_seething_shore_activate_azerite : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-            {
-                SeethingShore::Spells::AzeriteGeyser,
-                SeethingShore::Spells::ActivateAzerite
-            });
+        {
+            SeethingShore::Spells::AzeriteGeyser,
+            SeethingShore::Spells::ActivateAzerite
+        });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets) const
@@ -510,7 +512,8 @@ class spell_bg_seething_shore_activate_azerite : public SpellScript
     }
 };
 
-class aura_bg_seething_shore_azerite_geyser : public AuraScript
+// 248668 - Azerite Geyser
+class spell_bg_seething_shore_azerite_geyser : public AuraScript
 {
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
@@ -524,19 +527,19 @@ class aura_bg_seething_shore_azerite_geyser : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(aura_bg_seething_shore_azerite_geyser::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_bg_seething_shore_azerite_geyser::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 250917 - Rocket Parachute
-class aura_bg_seething_shore_rocket_parachute_trigger : public AuraScript
+class spell_bg_seething_shore_rocket_parachute_trigger : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-            {
-                SeethingShore::Spells::RocketParachute2
-            });
+        {
+            SeethingShore::Spells::RocketParachute2
+        });
     }
 
     void HandlePeriodic(AuraEffect const* /*auraEffect*/) const
@@ -549,22 +552,22 @@ class aura_bg_seething_shore_rocket_parachute_trigger : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(aura_bg_seething_shore_rocket_parachute_trigger::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bg_seething_shore_rocket_parachute_trigger::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 250921 - Rocket Parachute
-class aura_bg_seething_shore_rocket_parachute_ground_check : public AuraScript
+class spell_bg_seething_shore_rocket_parachute_ground_check : public AuraScript
 {
 public:
-    aura_bg_seething_shore_rocket_parachute_ground_check() : AuraScript(), _parachuteDeployed(false) { }
+    spell_bg_seething_shore_rocket_parachute_ground_check() : AuraScript(), _parachuteDeployed(false) { }
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-            {
-                SeethingShore::Spells::Parachute
-            });
+        {
+            SeethingShore::Spells::Parachute
+        });
     }
 
     void HandlePeriodicTrigger(AuraEffect const* /*auraEffect*/)
@@ -590,8 +593,8 @@ public:
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(aura_bg_seething_shore_rocket_parachute_ground_check::HandlePeriodicTrigger, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        OnEffectRemove += AuraEffectRemoveFn(aura_bg_seething_shore_rocket_parachute_ground_check::HandleRemove, EFFECT_0, SPELL_AURA_CAN_TURN_WHILE_FALLING, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bg_seething_shore_rocket_parachute_ground_check::HandlePeriodicTrigger, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_bg_seething_shore_rocket_parachute_ground_check::HandleRemove, EFFECT_0, SPELL_AURA_CAN_TURN_WHILE_FALLING, AURA_EFFECT_HANDLE_REAL);
     }
 
 private:
@@ -656,6 +659,9 @@ class spell_bg_seething_shore_speed_up : public SpellScript
     }
 };
 
+// 272471 - Azerite
+// 281306 - Azerite
+// 281307 - Azerite
 struct go_bg_seething_shore_azerite : GameObjectAI
 {
     explicit go_bg_seething_shore_azerite(GameObject* go) : GameObjectAI(go) { }
@@ -675,6 +681,8 @@ struct go_bg_seething_shore_azerite : GameObjectAI
     }
 };
 
+// 278407 - Sword of Dawn
+// 279254 - The Warbringer
 struct transport_seething_shore : TransportScript
 {
     explicit transport_seething_shore() : TransportScript("transport_seething_shore") { }
@@ -696,6 +704,7 @@ struct transport_seething_shore : TransportScript
     }
 };
 
+// 133533 - Air Supplies
 struct npc_bg_seething_shore_air_supplies_crate : ScriptedAI
 {
     explicit npc_bg_seething_shore_air_supplies_crate(Creature* creature) : ScriptedAI(creature) { }
@@ -713,6 +722,7 @@ struct AirSupplyData
     Position Destination;
 };
 
+// 133542 - Air Supply Ground Dummy
 struct npc_bg_seething_shore_air_supply_ground_dummy : ScriptedAI
 {
     explicit npc_bg_seething_shore_air_supply_ground_dummy(Creature* creature) : ScriptedAI(creature) { }
@@ -772,6 +782,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 133532 - Air Supplies
 struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
 {
     explicit npc_bg_seething_shore_air_supplies_drop(Creature* creature) : ScriptedAI(creature) { }
@@ -835,6 +846,8 @@ struct at_bg_seething_shore_haste_rune_buff : AreaTriggerAI
     }
 };
 
+// 131773 - Nathanos Blightcaller
+// 130532 - Master Mathias Shaw
 struct npc_bg_seething_shore_commander : ScriptedAI
 {
     explicit npc_bg_seething_shore_commander(Creature* creature) : ScriptedAI(creature) { }
@@ -879,6 +892,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 129344 - Vignette Dummy
 struct npc_bg_seething_shore_vignette_dummy : ScriptedAI
 {
     explicit npc_bg_seething_shore_vignette_dummy(Creature* creature) : ScriptedAI(creature) { }
@@ -888,7 +902,7 @@ struct npc_bg_seething_shore_vignette_dummy : ScriptedAI
         _scheduler.Schedule(38s, [this](TaskContext)
         {
             if (Creature* fissure = me->FindNearestCreature(SeethingShore::Creatures::AzeriteFissure, 5.0f))
-                me->SendPlaySpellVisual(fissure, 74145, 0, 0, 0.0f);
+                me->SendPlaySpellVisual(fissure, SeethingShore::SpellVisuals::AzeriteBirth, 0, 0, 0.0f);
         });
     }
 
@@ -905,11 +919,11 @@ void AddSC_battleground_seething_shore()
 {
     RegisterBattlegroundMapScript(battleground_seething_shore, 1803);
     RegisterSpellScript(spell_bg_seething_shore_activate_azerite);
-    RegisterSpellScript(aura_bg_seething_shore_azerite_geyser);
+    RegisterSpellScript(spell_bg_seething_shore_azerite_geyser);
     RegisterGameObjectAI(go_bg_seething_shore_azerite);
 
-    RegisterSpellScript(aura_bg_seething_shore_rocket_parachute_trigger);
-    RegisterSpellScript(aura_bg_seething_shore_rocket_parachute_ground_check);
+    RegisterSpellScript(spell_bg_seething_shore_rocket_parachute_trigger);
+    RegisterSpellScript(spell_bg_seething_shore_rocket_parachute_ground_check);
     RegisterSpellScript(spell_bg_seething_shore_parachute);
 
     RegisterCreatureAI(npc_bg_seething_shore_air_supplies_crate);

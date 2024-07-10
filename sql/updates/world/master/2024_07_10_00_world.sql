@@ -1,16 +1,16 @@
-SET @OGUID := 10000000;
-SET @CGUID := 10000000;
-SET @TGUID = 100;
+SET @OGUID := 7000361;
+SET @CGUID := 7001367;
+SET @TGUID = 35;
 
-SET @NPCTEXTID := 100000000;
+SET @NPCTEXTID := 570044;
 
 DELETE FROM `transports` WHERE `guid` IN (@TGUID+0, @TGUID+1);
 INSERT INTO `transports` (`guid`, `entry`, `name` , `ScriptName`) VALUES
 (@TGUID+0, 278407, 'Sword of Dawn', 'transport_seething_shore'),
 (@TGUID+1, 279254, 'The warbringer', 'transport_seething_shore');
 
-UPDATE `world_safe_locs` SET `TransportSpawnId`=@TGUID+0  WHERE `ID` = 6337;
-UPDATE `world_safe_locs` SET `TransportSpawnId`=@TGUID+1  WHERE `ID` = 6380;
+UPDATE `world_safe_locs` SET `TransportSpawnId`=@TGUID+0 WHERE `ID` = 6337;
+UPDATE `world_safe_locs` SET `TransportSpawnId`=@TGUID+1 WHERE `ID` = 6380;
 
 DELETE FROM `battleground_template` WHERE `ID` = 894;
 INSERT INTO `battleground_template` (`ID`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `Comment`) VALUES
@@ -20,13 +20,13 @@ DELETE FROM `battleground_scripts` WHERE `MapId` = 1803;
 INSERT INTO `battleground_scripts` (`MapId`, `ScriptName`) VALUES
 (1803, 'battleground_seething_shore');
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_bg_seething_shore_activate_azerite', 'aura_bg_seething_shore_azerite_geyser', 'aura_bg_seething_shore_rocket_parachute_trigger', 'aura_bg_seething_shore_rocket_parachute_ground_check', 'spell_bg_seething_shore_parachute', 'spell_bg_seething_shore_speed_up');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_bg_seething_shore_activate_azerite', 'spell_bg_seething_shore_azerite_geyser', 'spell_bg_seething_shore_rocket_parachute_trigger', 'spell_bg_seething_shore_rocket_parachute_ground_check', 'spell_bg_seething_shore_parachute', 'spell_bg_seething_shore_speed_up');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (248688, 'spell_bg_seething_shore_activate_azerite'),
-(248668, 'aura_bg_seething_shore_azerite_geyser'),
+(248668, 'spell_bg_seething_shore_azerite_geyser'),
 (269779, 'spell_bg_seething_shore_parachute'),
-(250917, 'aura_bg_seething_shore_rocket_parachute_trigger'),
-(250921, 'aura_bg_seething_shore_rocket_parachute_ground_check'),
+(250917, 'spell_bg_seething_shore_rocket_parachute_trigger'),
+(250921, 'spell_bg_seething_shore_rocket_parachute_ground_check'),
 (294701, 'spell_bg_seething_shore_speed_up');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=248688 AND `ConditionTypeOrReference`=31;
@@ -138,7 +138,7 @@ UPDATE `creature_template` SET `unit_flags2`=67110912, `ScriptName`='npc_bg_seet
 UPDATE `creature_template` SET `unit_flags`=768, `unit_flags3`=16777216 WHERE `entry`=133266; -- Byron Holungo
 UPDATE `creature_template` SET `unit_flags`=768 WHERE `entry`=133267; -- Byron Holungo
 
-UPDATE `creature_template` SET `ScriptName`='npc_bg_seething_shore_vignette_dummy' WHERE `entry`=129344;
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x80, `ScriptName`='npc_bg_seething_shore_vignette_dummy' WHERE `entry`=129344;
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 133533 AND `SourceId` = 0;
 
