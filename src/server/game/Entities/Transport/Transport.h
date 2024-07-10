@@ -109,7 +109,7 @@ class TC_GAME_API Transport final : public GameObject, public TransportBase
 
     private:
         bool TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, float y, float z, float o);
-        void TeleportPassengersAndHideTransport(uint32 newMapid, float x, float y, float z, float o);
+        void TeleportPassengersAndHideTransport(uint32 newMapid);
         void UpdatePassengerPositions(PassengerSet const& passengers);
 
         TransportTemplate const* _transportInfo;

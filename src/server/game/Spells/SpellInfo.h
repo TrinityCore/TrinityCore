@@ -485,6 +485,7 @@ class TC_GAME_API SpellInfo
 
         bool IsPassive() const;
         bool IsAutocastable() const;
+        bool IsAutocastEnabledByDefault() const;
         bool IsStackableWithRanks() const;
         bool IsPassiveStackableWithRanks() const;
         bool IsMultiSlotAura() const;
@@ -585,6 +586,7 @@ class TC_GAME_API SpellInfo
         // spell immunities
         void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& spellEffectInfo, bool apply) const;
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
+        bool CanSpellEffectProvideImmunityAgainstAuraEffect(SpellEffectInfo const& immunityEffectInfo, SpellInfo const* auraSpellInfo, SpellEffectInfo const& auraEffectInfo) const;
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
         uint64 GetAllowedMechanicMask() const;

@@ -64,6 +64,9 @@ void AddSC_instance_dire_maul();
 void AddSC_instance_dragon_soul();
 // Ragefire Chasm
 void AddSC_boss_adarogg();
+void AddSC_boss_dark_shaman_koranthal();
+void AddSC_boss_slagmaw();
+void AddSC_boss_lava_guard_gordoth();
 void AddSC_instance_ragefire_chasm();
 // Maraudon
 void AddSC_boss_celebras_the_cursed();
@@ -206,6 +209,9 @@ void AddKalimdorScripts()
     AddSC_instance_dragon_soul();
     // Ragefire Chasm
     AddSC_boss_adarogg();
+    AddSC_boss_dark_shaman_koranthal();
+    AddSC_boss_slagmaw();
+    AddSC_boss_lava_guard_gordoth();
     AddSC_instance_ragefire_chasm();
     //Maraudon
     AddSC_boss_celebras_the_cursed();

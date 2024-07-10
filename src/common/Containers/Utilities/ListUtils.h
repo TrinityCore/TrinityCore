@@ -24,7 +24,7 @@
 namespace Trinity::Containers::Lists
 {
 template<typename T, typename Alloc = std::allocator<T>>
-inline typename std::list<T, Alloc>::iterator RemoveUnique(std::list<T, Alloc>& list, T const& value)
+inline typename std::list<T, Alloc>::iterator RemoveUnique(std::list<T, Alloc>& list, std::type_identity_t<T> const& value)
 {
     auto itr = std::find(list.begin(), list.end(), value);
     if (itr != list.end())
@@ -34,7 +34,7 @@ inline typename std::list<T, Alloc>::iterator RemoveUnique(std::list<T, Alloc>& 
 }
 
 template<typename T, typename Alloc = std::allocator<T>>
-inline typename std::forward_list<T, Alloc>::iterator RemoveUnique(std::forward_list<T, Alloc>& list, T const& value)
+inline typename std::forward_list<T, Alloc>::iterator RemoveUnique(std::forward_list<T, Alloc>& list, std::type_identity_t<T> const& value)
 {
     auto itr = list.before_begin();
     auto toErase = std::next(itr);

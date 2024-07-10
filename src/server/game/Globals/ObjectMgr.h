@@ -37,6 +37,7 @@
 #include "Trainer.h"
 #include "VehicleDefines.h"
 #include "UniqueTrackablePtr.h"
+#include <atomic>
 #include <iterator>
 #include <map>
 #include <unordered_map>
@@ -464,6 +465,12 @@ struct AreaTriggerStruct
     float  target_Orientation;
 };
 
+struct AreaTriggerPolygon
+{
+    std::vector<Position> Vertices;
+    Optional<float> Height;
+};
+
 struct AccessRequirement
 {
     uint8  levelMin;
@@ -835,6 +842,7 @@ struct WorldSafeLocsEntry
 {
     uint32 ID = 0;
     WorldLocation Loc;
+    Optional<ObjectGuid::LowType> TransportSpawnId = {};
 };
 
 struct GraveyardData
@@ -1196,6 +1204,8 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        AreaTriggerPolygon const* GetAreaTriggerPolygon(uint32 areaTriggerId) const;
+
         bool IsTavernAreaTrigger(uint32 Trigger_ID) const
         {
             return _tavernAreaTriggerStore.find(Trigger_ID) != _tavernAreaTriggerStore.end();
@@ -1359,6 +1369,7 @@ class TC_GAME_API ObjectMgr
         void LoadNPCText();
 
         void LoadAreaTriggerTeleports();
+        void LoadAreaTriggerPolygons();
         void LoadAccessRequirements();
         void LoadQuestAreaTriggers();
         void LoadQuestGreetings();
@@ -1792,6 +1803,7 @@ class TC_GAME_API ObjectMgr
         QuestGreetingLocaleContainer _questGreetingLocaleStore;
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
+        std::unordered_map<uint32, AreaTriggerPolygon> _areaTriggerPolygons;
         AccessRequirementContainer _accessRequirementStore;
         std::unordered_map<uint32, WorldSafeLocsEntry> _worldSafeLocs;
 

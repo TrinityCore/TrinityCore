@@ -20,6 +20,7 @@
 #include "adtfile.h"
 #include "Common.h"
 #include "Errors.h"
+#include "Memory.h"
 #include "StringFormat.h"
 #include <cstdio>
 
@@ -49,8 +50,8 @@ bool WDTFile::init(uint32 mapId)
     char fourcc[5];
     uint32 size;
 
-    std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
-    FILE* dirfile = fopen(dirname.c_str(), "ab");
+    std::string dirname = Trinity::StringFormat("{}/dir_bin/{:04}", szWorkDirWmo, mapId);
+    auto dirfile = Trinity::make_unique_ptr_with_deleter(fopen(dirname.c_str(), "ab"), &::fclose);
     if (!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
@@ -117,15 +118,15 @@ bool WDTFile::init(uint32 mapId)
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
                     if (!(mapObjDef.Flags & 0x8))
                     {
-                        MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), true, mapId, mapId, dirfile, nullptr);
-                        Doodad::ExtractSet(WmoDoodads[_wmoNames[mapObjDef.Id]], mapObjDef, true, mapId, mapId, dirfile, nullptr);
+                        MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), true, mapId, mapId, dirfile.get(), nullptr);
+                        Doodad::ExtractSet(WmoDoodads[_wmoNames[mapObjDef.Id]], mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
                     }
                     else
                     {
                         std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
                         ExtractSingleWmo(fileName);
-                        MapObject::Extract(mapObjDef, fileName.c_str(), true, mapId, mapId, dirfile, nullptr);
-                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, true, mapId, mapId, dirfile, nullptr);
+                        MapObject::Extract(mapObjDef, fileName.c_str(), true, mapId, mapId, dirfile.get(), nullptr);
+                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
                     }
                 }
             }
@@ -134,7 +135,6 @@ bool WDTFile::init(uint32 mapId)
     }
 
     _file.close();
-    fclose(dirfile);
     return true;
 }
 

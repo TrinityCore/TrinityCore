@@ -72,6 +72,9 @@ enum WeaponAttackType : uint8;
 namespace Trinity
 {
 enum class WorldObjectSpellAreaTargetSearchReason;
+
+template <class Check>
+struct WorldObjectListSearcher;
 }
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
@@ -690,6 +693,9 @@ class TC_GAME_API Spell
 
         bool IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const;
         bool IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const;
+        void MovePosition(Position& pos, WorldObject const* from, float dist, float angle) const;
+
+        static bool CanIncreaseRangeByMovement(Unit const* unit);
 
     protected:
         bool HasGlobalCooldown() const;
@@ -1037,6 +1043,8 @@ namespace Trinity
 
     TC_GAME_API void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf = nullptr);
 }
+
+extern template void Spell::SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);
 
 using SpellEffectHandlerFn = void(Spell::*)();
 

@@ -20,6 +20,7 @@
 #include "MapTree.h"
 #include "ModelIgnoreFlags.h"
 #include <array>
+#include <cstring>
 
 using G3D::Vector3;
 
@@ -294,10 +295,10 @@ namespace VMAP
             iLiquid = new WmoLiquid(*other.iLiquid);
     }
 
-    void GroupModel::setMeshData(std::vector<Vector3>& vert, std::vector<MeshTriangle>& tri)
+    void GroupModel::setMeshData(std::vector<Vector3>&& vert, std::vector<MeshTriangle>&& tri)
     {
-        vertices.swap(vert);
-        triangles.swap(tri);
+        vertices = std::move(vert);
+        triangles = std::move(tri);
         TriBoundFunc bFunc(vertices);
         meshTree.build(triangles, bFunc);
     }

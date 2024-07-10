@@ -78,6 +78,7 @@
 #include "Language.h"
 #include "LanguageMgr.h"
 #include "LFGMgr.h"
+#include "ListUtils.h"
 #include "Log.h"
 #include "Loot.h"
 #include "LootItemStorage.h"
@@ -137,6 +138,7 @@
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
+#include <boost/dynamic_bitset.hpp>
 #include <G3D/g3dmath.h>
 #include <sstream>
 
@@ -299,9 +301,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     // Player summoning
     m_summon_expire = 0;
-    m_summon_instanceId = 0;
-
-    m_recall_instanceId = 0;
 
     m_unitMovedByMe = this;
     m_playerMovingMe = this;
@@ -1032,7 +1031,7 @@ void Player::Update(uint32 p_time)
             if (_restMgr->HasRestFlag(REST_FLAG_IN_TAVERN))
             {
                 AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(_restMgr->GetInnTriggerID());
-                if (!atEntry || !IsInAreaTriggerRadius(atEntry))
+                if (!atEntry || !IsInAreaTrigger(atEntry))
                     _restMgr->RemoveRestFlag(REST_FLAG_IN_TAVERN);
             }
 
@@ -1252,24 +1251,34 @@ uint16 Player::GetChatFlags() const
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, TeleportToOptions options /*= TELE_TO_NONE*/, Optional<uint32> instanceId /*= {}*/)
 {
-    if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
+    return TeleportTo({ .Location = WorldLocation(mapid, x, y, z, orientation), .InstanceId = instanceId }, options);
+}
+
+bool Player::TeleportTo(WorldLocation const& loc, TeleportToOptions options, Optional<uint32> instanceId)
+{
+    return TeleportTo({ .Location = loc, .InstanceId = instanceId }, options);
+}
+
+bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOptions options /*= TELE_TO_NONE*/)
+{
+    if (!MapManager::IsValidMapCoord(teleportLocation.Location))
     {
-        TC_LOG_ERROR("maps", "Player::TeleportTo: Invalid map ({}) or invalid coordinates (X: {}, Y: {}, Z: {}, O: {}) given when teleporting player '{}' ({}, MapID: {}, X: {}, Y: {}, Z: {}, O: {}).",
-            mapid, x, y, z, orientation, GetGUID().ToString(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+        TC_LOG_ERROR("maps", "Player::TeleportTo: Invalid map ({}) or invalid coordinates ({}) given when teleporting player '{}' ({}, MapID: {}, {}).",
+            teleportLocation.Location.GetMapId(), teleportLocation.Location.ToString(), GetGUID().ToString(), GetName(), GetMapId(), GetPosition().ToString());
         return false;
     }
 
-    if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_DISABLE_MAP) && DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
+    if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_DISABLE_MAP) && DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, teleportLocation.Location.GetMapId(), this))
     {
-        TC_LOG_ERROR("entities.player.cheat", "Player::TeleportTo: Player '{}' ({}) tried to enter a forbidden map (MapID: {})", GetGUID().ToString(), GetName(), mapid);
-        SendTransferAborted(mapid, TRANSFER_ABORT_MAP_NOT_ALLOWED);
+        TC_LOG_ERROR("entities.player.cheat", "Player::TeleportTo: Player '{}' ({}) tried to enter a forbidden map (MapID: {})", GetGUID().ToString(), GetName(), teleportLocation.Location.GetMapId());
+        SendTransferAborted(teleportLocation.Location.GetMapId(), TRANSFER_ABORT_MAP_NOT_ALLOWED);
         return false;
     }
 
     // preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
     Pet* pet = GetPet();
 
-    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
+    MapEntry const* mEntry = sMapStore.LookupEntry(teleportLocation.Location.GetMapId());
 
     // don't let enter battlegrounds without assigned battleground id (for example through areatrigger)...
     // don't let gm level > 1 either
@@ -1280,7 +1289,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (GetSession()->GetExpansion() < mEntry->Expansion())
     {
         TC_LOG_DEBUG("maps", "Player '{}' ({}) using client without required expansion tried teleporting to non accessible map (MapID: {})",
-            GetName(), GetGUID().ToString(), mapid);
+            GetName(), GetGUID().ToString(), teleportLocation.Location.GetMapId());
 
         if (TransportBase* transport = GetTransport())
         {
@@ -1288,12 +1297,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
         }
 
-        SendTransferAborted(mapid, TRANSFER_ABORT_INSUF_EXPAN_LVL, mEntry->Expansion());
+        SendTransferAborted(teleportLocation.Location.GetMapId(), TRANSFER_ABORT_INSUF_EXPAN_LVL, mEntry->Expansion());
 
         return false;                                       // normal client can't teleport to this map...
     }
     else
-        TC_LOG_DEBUG("maps", "Player {} ({}) is being teleported to map (MapID: {})", GetName(), GetGUID().ToString(), mapid);
+        TC_LOG_DEBUG("maps", "Player {} ({}) is being teleported to map (MapID: {})", GetName(), GetGUID().ToString(), teleportLocation.Location.GetMapId());
 
     if (m_vehicle)
         ExitVehicle();
@@ -1305,18 +1314,17 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     GetMotionMaster()->Remove(EFFECT_MOTION_TYPE);
 
     if (TransportBase* transport = GetTransport())
-    {
-        if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT))
-            transport->RemovePassenger(this);
-    }
+        if (!teleportLocation.TransportGuid || teleportLocation.TransportGuid != transport->GetTransportGUID())
+            if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT))
+                transport->RemovePassenger(this);
 
     // The player was ported to another map and loses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
-    if (duel && GetMapId() != mapid && GetMap()->GetGameObject(m_playerData->DuelArbiter))
+    if (duel && GetMapId() != teleportLocation.Location.GetMapId() && GetMap()->GetGameObject(m_playerData->DuelArbiter))
         DuelComplete(DUEL_FLED);
 
-    if (GetMapId() == mapid && (!instanceId || GetInstanceId() == instanceId))
+    if (GetMapId() == teleportLocation.Location.GetMapId() && (!teleportLocation.InstanceId || GetInstanceId() == teleportLocation.InstanceId))
     {
         //lets reset far teleport flag if it wasn't reset during chained teleport
         SetSemaphoreTeleportFar(false);
@@ -1328,8 +1336,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             SetSemaphoreTeleportNear(true);
             //lets save teleport destination for player
-            m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-            m_teleport_instanceId = {};
+            m_teleport_dest = teleportLocation;
             m_teleport_options = options;
             return true;
         }
@@ -1337,7 +1344,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (!(options & TELE_TO_NOT_UNSUMMON_PET))
         {
             //same map, only remove pet if out of range for new position
-            if (pet && !pet->IsWithinDist3d(x, y, z, GetMap()->GetVisibilityRange()))
+            if (pet && !pet->IsWithinDist3d(&teleportLocation.Location, GetMap()->GetVisibilityRange()))
                 UnsummonPetTemporaryIfAny();
         }
 
@@ -1348,8 +1355,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             CombatStop();
 
         // this will be used instead of the current location in SaveToDB
-        m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-        m_teleport_instanceId = {};
+        m_teleport_dest = teleportLocation;
         m_teleport_options = options;
         SetFallInformation(0, GetPositionZ());
 
@@ -1364,7 +1370,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     {
         if (GetClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !IsGameMaster() && !HasSpell(50977))
         {
-            SendTransferAborted(mapid, TRANSFER_ABORT_UNIQUE_MESSAGE, 1);
+            SendTransferAborted(teleportLocation.Location.GetMapId(), TRANSFER_ABORT_UNIQUE_MESSAGE, 1);
             return false;
         }
 
@@ -1374,15 +1380,15 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // Check enter rights before map getting to avoid creating instance copy for player
         // this check not dependent from map instance copy and same for all instance copies of selected map
-        if (TransferAbortParams abortParams = Map::PlayerCannotEnter(mapid, this))
+        if (TransferAbortParams abortParams = Map::PlayerCannotEnter(teleportLocation.Location.GetMapId(), this))
         {
-            SendTransferAborted(mapid, abortParams.Reason, abortParams.Arg, abortParams.MapDifficultyXConditionId);
+            SendTransferAborted(teleportLocation.Location.GetMapId(), abortParams.Reason, abortParams.Arg, abortParams.MapDifficultyXConditionId);
             return false;
         }
 
         // Seamless teleport can happen only if cosmetic maps match
         if (!oldmap ||
-            (oldmap->GetEntry()->CosmeticParentMapID != int32(mapid) && int32(GetMapId()) != mEntry->CosmeticParentMapID &&
+            (oldmap->GetEntry()->CosmeticParentMapID != int32(teleportLocation.Location.GetMapId()) && int32(GetMapId()) != mEntry->CosmeticParentMapID &&
             !((oldmap->GetEntry()->CosmeticParentMapID != -1) ^ (oldmap->GetEntry()->CosmeticParentMapID != mEntry->CosmeticParentMapID))))
             options &= ~TELE_TO_SEAMLESS;
 
@@ -1396,8 +1402,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             SetSemaphoreTeleportFar(true);
             //lets save teleport destination for player
-            m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-            m_teleport_instanceId = instanceId;
+            m_teleport_dest = teleportLocation;
             m_teleport_options = options;
             return true;
         }
@@ -1414,7 +1419,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // Note: at battleground join battleground id set before teleport
             // and we already will found "current" battleground
             // just need check that this is targeted map or leave
-            if (bg->GetMapId() != mapid)
+            if (bg->GetMapId() != teleportLocation.Location.GetMapId())
                 LeaveBattleground(false);                   // don't teleport to entry point
         }
 
@@ -1450,13 +1455,19 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             // send transfer packets
             WorldPackets::Movement::TransferPending transferPending;
-            transferPending.MapID = mapid;
-            transferPending.OldMapPosition = GetPosition();
-            if (Transport* transport = dynamic_cast<Transport*>(GetTransport()))
+            transferPending.MapID = teleportLocation.Location.GetMapId();
+            transferPending.OldMapPosition = teleportLocation.Location.GetPosition();
+            if (teleportLocation.TransportGuid.has_value())
             {
                 transferPending.Ship.emplace();
-                transferPending.Ship->ID = transport->GetEntry();
-                transferPending.Ship->OriginMapID = GetMapId();
+                if (TransportSpawn const* transportSpawn = sTransportMgr->GetTransportSpawn(teleportLocation.TransportGuid->GetCounter()))
+                {
+                    transferPending.Ship->ID = transportSpawn->TransportGameObjectId;
+                    if (dynamic_cast<Transport*>(GetTransport()))
+                        transferPending.Ship->OriginMapID = GetMapId();
+                    else
+                        transferPending.Ship->OriginMapID = -1;
+                }
             }
 
             SendDirectMessage(transferPending.Write());
@@ -1469,8 +1480,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (oldmap)
             oldmap->RemovePlayerFromMap(this, false);
 
-        m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-        m_teleport_instanceId = instanceId;
+        m_teleport_dest = teleportLocation;
         m_teleport_options = options;
         SetFallInformation(0, GetPositionZ());
         // if the player is saved before worldportack (at logout for example)
@@ -1489,11 +1499,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         SetSemaphoreTeleportFar(true);
     }
     return true;
-}
-
-bool Player::TeleportTo(WorldLocation const& loc, TeleportToOptions options /*= TELE_TO_NONE*/, Optional<uint32> instanceId /*= {}*/)
-{
-    return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options, instanceId);
 }
 
 bool Player::TeleportToBGEntryPoint()
@@ -2012,29 +2017,62 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, Gameo
     return go;
 }
 
-bool Player::IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const
+bool Player::IsInAreaTrigger(AreaTriggerEntry const* areaTrigger) const
 {
-    if (!trigger)
+    if (!areaTrigger)
         return false;
 
-    if (int32(GetMapId()) != trigger->ContinentID && !GetPhaseShift().HasVisibleMapId(trigger->ContinentID))
+    if (int32(GetMapId()) != areaTrigger->ContinentID && !GetPhaseShift().HasVisibleMapId(areaTrigger->ContinentID))
         return false;
 
-    if (trigger->PhaseID || trigger->PhaseGroupID || trigger->PhaseUseFlags)
-        if (!PhasingHandler::InDbPhaseShift(this, trigger->PhaseUseFlags, trigger->PhaseID, trigger->PhaseGroupID))
+    if (areaTrigger->PhaseID || areaTrigger->PhaseGroupID || areaTrigger->PhaseUseFlags)
+        if (!PhasingHandler::InDbPhaseShift(this, areaTrigger->PhaseUseFlags, areaTrigger->PhaseID, areaTrigger->PhaseGroupID))
             return false;
 
-    if (trigger->Radius > 0.f)
+    auto hasActionSetFlag = [=](AreaTriggerActionSetFlag flag)
     {
-        // if we have radius check it
-        float dist = GetDistance(trigger->Pos.X, trigger->Pos.Y, trigger->Pos.Z);
-        if (dist > trigger->Radius)
-            return false;
+        if (AreaTriggerActionSetEntry const* areaTriggerActionSet = sAreaTriggerActionSetStore.LookupEntry(areaTrigger->AreaTriggerActionSetID))
+            return areaTriggerActionSet->GetFlags().HasFlag(flag);
+        return false;
+    };
+
+    switch (getDeathState())
+    {
+        case DEAD:
+            if (!hasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileGhost))
+                return false;
+            break;
+        case CORPSE:
+            if (!hasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileDead))
+                return false;
+            break;
+        default:
+            break;
     }
-    else
+
+    Position areaTriggerPos(areaTrigger->Pos.X, areaTrigger->Pos.Y, areaTrigger->Pos.Z, areaTrigger->BoxYaw);
+    switch (areaTrigger->GetShapeType())
     {
-        Position center(trigger->Pos.X, trigger->Pos.Y, trigger->Pos.Z, trigger->BoxYaw);
-        if (!IsWithinBox(center, trigger->BoxLength / 2.f, trigger->BoxWidth / 2.f, trigger->BoxHeight / 2.f))
+        case AreaTriggerShapeType::Sphere:
+            if (!IsInDist(&areaTriggerPos, areaTrigger->Radius))
+                return false;
+            break;
+        case AreaTriggerShapeType::Box:
+            if (!IsWithinBox(areaTriggerPos, areaTrigger->BoxLength / 2.f, areaTrigger->BoxWidth / 2.f, areaTrigger->BoxHeight / 2.f))
+                return false;
+            break;
+        case AreaTriggerShapeType::Polygon:
+        {
+            AreaTriggerPolygon const* polygon = sObjectMgr->GetAreaTriggerPolygon(areaTrigger->ID);
+            if (!polygon || (polygon->Height && GetPositionZ() > areaTrigger->Pos.Z + *polygon->Height) || !IsInPolygon2D(areaTriggerPos, polygon->Vertices))
+                return false;
+            break;
+        }
+        case AreaTriggerShapeType::Cylinder:
+            if (!IsWithinVerticalCylinder(areaTriggerPos, areaTrigger->Radius, areaTrigger->BoxHeight))
+                return false;
+            break;
+        default:
             return false;
     }
 
@@ -4828,7 +4866,7 @@ void Player::RepopAtGraveyard()
     // and don't show spirit healer location
     if (closestGrave)
     {
-        TeleportTo(closestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
+        TeleportTo({ .Location = closestGrave->Loc, .TransportGuid = closestGrave->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*closestGrave->TransportSpawnId) : ObjectGuid::Empty }, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPackets::Misc::DeathReleaseLoc packet;
@@ -6131,7 +6169,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) co
 
     if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
     {
-        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action {} not added into button {} for player {} ({}): action must be < " UI64FMTD,
+        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action {} not added into button {} for player {} ({}): action must be < {}",
             action, button, GetName(), GetGUID().ToString(), MAX_ACTION_BUTTON_ACTION_VALUE);
         return false;
     }
@@ -8339,6 +8377,17 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
         TC_LOG_DEBUG("entities.player", "Player::ApplyEquipSpell: Player '{}' ({}) cast {} equip spell (ID: {})",
             GetName(), GetGUID().ToString(), (item ? "item" : "itemset"), spellInfo->Id);
 
+        if (spellInfo->HasAttribute(SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT))
+        {
+            m_itemPassives.push_front(spellInfo->Id);
+            if (IsInWorld())
+            {
+                WorldPackets::Item::AddItemPassive addItemPassive;
+                addItemPassive.SpellID = spellInfo->Id;
+                SendDirectMessage(addItemPassive.Write());
+            }
+        }
+
         CastSpell(this, spellInfo->Id, item);
     }
     else
@@ -8348,6 +8397,17 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
             // Cannot be used in this stance/form
             if (spellInfo->CheckShapeshift(GetShapeshiftForm()) == SPELL_CAST_OK)
                 return;                                     // and remove only not compatible at form change
+        }
+
+        if (spellInfo->HasAttribute(SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT))
+        {
+            Trinity::Containers::Lists::RemoveUnique(m_itemPassives, spellInfo->Id);
+            if (IsInWorld())
+            {
+                WorldPackets::Item::RemoveItemPassive removeItemPassive;
+                removeItemPassive.SpellID = spellInfo->Id;
+                SendDirectMessage(removeItemPassive.Write());
+            }
         }
 
         if (item)
@@ -13804,6 +13864,16 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
+void Player::SendItemPassives()
+{
+    if (m_itemPassives.empty())
+        return;
+
+    WorldPackets::Item::SendItemPassives sendItemPassives;
+    sendItemPassives.SpellID.assign(m_itemPassives.begin(), m_itemPassives.end());
+    SendDirectMessage(sendItemPassives.Write());
+}
+
 void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created, bool broadcast /*= false*/, uint32 dungeonEncounterId /*= 0*/)
 {
     if (!item)  // prevent crash
@@ -16490,6 +16560,11 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count, Optional<bool> boun
 
     if (updatedObjectives.size() == 1 && updatedObjectives[0]->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM)
     {
+        // Quest source items should ignore QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(updatedObjectives[0]->QuestID))
+            if (quest->GetSrcItemId() == entry)
+                return;
+
         if (hadBoundItemObjective)
             *hadBoundItemObjective = updatedObjectives.size() == 1 && updatedObjectives[0]->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM;
 
@@ -20083,15 +20158,15 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         }
         else
         {
-            stmt->setUInt16(index++, (uint16)GetTeleportDest().GetMapId());
+            stmt->setUInt16(index++, (uint16)GetTeleportDest().Location.GetMapId());
             stmt->setUInt32(index++, (uint32)0);
             stmt->setUInt8(index++, uint8(GetDungeonDifficultyID()));
             stmt->setUInt8(index++, uint8(GetRaidDifficultyID()));
             stmt->setUInt8(index++, uint8(GetLegacyRaidDifficultyID()));
-            stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionX()));
-            stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionY()));
-            stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionZ()));
-            stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetOrientation()));
+            stmt->setFloat(index++, finiteAlways(GetTeleportDest().Location.GetPositionX()));
+            stmt->setFloat(index++, finiteAlways(GetTeleportDest().Location.GetPositionY()));
+            stmt->setFloat(index++, finiteAlways(GetTeleportDest().Location.GetPositionZ()));
+            stmt->setFloat(index++, finiteAlways(GetTeleportDest().Location.GetOrientation()));
         }
 
         stmt->setFloat(index++, finiteAlways(GetTransOffsetX()));
@@ -22047,9 +22122,48 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
     *flat = 0;
     *pct = 1.0f;
 
+    auto spellModOpBegin = std::ranges::lower_bound(m_spellMods, op, std::ranges::less(), &SpellModifier::op);
+    if (spellModOpBegin == m_spellMods.end() || (*spellModOpBegin)->op != op)
+        return;
+
     // Drop charges for triggering spells instead of triggered ones
     if (m_spellModTakingSpell)
         spell = m_spellModTakingSpell;
+
+    auto spellModTypeBegin = [&](SpellModType type)
+    {
+        auto typeBegin = spellModOpBegin;
+        auto end = m_spellMods.end();
+        while (typeBegin != end && (*typeBegin)->op == op)
+        {
+            if ((*typeBegin)->type == type)
+                return typeBegin;
+
+            ++typeBegin;
+        }
+
+        return end;
+    };
+
+    // end of our iterable range will be when we reach a spellmod with different op or type than expected
+    // we can do this because m_spellMods is sorted by op and type
+    auto spellModTypeEnd = [&](SpellModType type)
+    {
+        struct EndSentinel
+        {
+            bool operator==(std::vector<SpellModifier*>::const_iterator const& itr) const
+            {
+                return itr == end || (*itr)->op != op || (*itr)->type != type;
+            }
+
+            std::vector<SpellModifier*>::const_iterator end;
+            SpellModOp op;
+            SpellModType type;
+        };
+        return EndSentinel{ .end = m_spellMods.end(), .op = op, .type = type };
+    };
+
+    auto spellModTypeRange = [&](SpellModType type) { return Trinity::IteratorPair(spellModTypeBegin(type), spellModTypeEnd(type)); };
 
     switch (op)
     {
@@ -22057,7 +22171,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         case SpellModOp::ChangeCastTime:
         {
             SpellModifier* modInstantSpell = nullptr;
-            for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_PCT])
+            for (SpellModifier* mod : spellModTypeRange(SPELLMOD_PCT))
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
@@ -22071,7 +22185,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
 
             if (!modInstantSpell)
             {
-                for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_PCT])
+                for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_PCT))
                 {
                     if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                         continue;
@@ -22096,7 +22210,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         case SpellModOp::CritChance:
         {
             SpellModifier* modCritical = nullptr;
-            for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_FLAT])
+            for (SpellModifier* mod : spellModTypeRange(SPELLMOD_FLAT))
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
@@ -22110,7 +22224,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
 
             if (!modCritical)
             {
-                for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_FLAT])
+                for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_FLAT))
                 {
                     if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                         continue;
@@ -22135,7 +22249,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
             break;
     }
 
-    for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_FLAT])
+    for (SpellModifier* mod : spellModTypeRange(SPELLMOD_FLAT))
     {
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
@@ -22148,7 +22262,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         Player::ApplyModToSpell(mod, spell);
     }
 
-    for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_FLAT])
+    for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_FLAT))
     {
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
@@ -22161,7 +22275,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         Player::ApplyModToSpell(mod, spell);
     }
 
-    for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_PCT])
+    for (SpellModifier* mod : spellModTypeRange(SPELLMOD_PCT))
     {
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
@@ -22185,7 +22299,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         Player::ApplyModToSpell(mod, spell);
     }
 
-    for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_PCT])
+    for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_PCT))
     {
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
@@ -22237,9 +22351,9 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
     /// First, manipulate our spellmodifier container
     if (apply)
-        m_spellMods[AsUnderlyingType(mod->op)][mod->type].insert(mod);
+        m_spellMods.insert(mod);
     else
-        m_spellMods[AsUnderlyingType(mod->op)][mod->type].erase(mod);
+        m_spellMods.erase(mod);
 
     /// Now, send spellmodifier packet
     switch (mod->type)
@@ -22254,37 +22368,45 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
                 /// @todo Implement sending of bulk modifiers instead of single
                 packet.Modifiers.resize(1);
-                WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
+                WorldPackets::Spells::SpellModifier& spellModifier = packet.Modifiers[0];
 
-                spellMod.ModIndex = AsUnderlyingType(mod->op);
+                spellModifier.ModIndex = AsUnderlyingType(mod->op);
 
-                for (int eff = 0; eff < 128; ++eff)
+                boost::dynamic_bitset<uint32> mask;
+                mask.resize(128);
+
+                boost::from_block_range(
+                    &static_cast<SpellModifierByClassMask const*>(mod)->mask[0],
+                    &static_cast<SpellModifierByClassMask const*>(mod)->mask[0] + 4,
+                    mask);
+
+                for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
-                    flag128 mask;
-                    mask[eff / 32] = 1u << (eff % 32);
-                    if (static_cast<SpellModifierByClassMask const*>(mod)->mask & mask)
+                    WorldPackets::Spells::SpellModifierData& modData = spellModifier.ModifierData.emplace_back();
+                    if (mod->type == SPELLMOD_FLAT)
                     {
-                        WorldPackets::Spells::SpellModifierData modData;
-
-                        if (mod->type == SPELLMOD_FLAT)
+                        modData.ModifierValue = 0.0f;
+                        auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_FLAT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
+                        while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_FLAT)
                         {
-                            modData.ModifierValue = 0.0f;
-                            for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_FLAT])
-                                if (static_cast<SpellModifierByClassMask const*>(spellMod)->mask & mask)
-                                    modData.ModifierValue += static_cast<SpellModifierByClassMask const*>(spellMod)->value;
+                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
+                                modData.ModifierValue += spellMod->value;
                         }
-                        else
-                        {
-                            modData.ModifierValue = 1.0f;
-                            for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_PCT])
-                                if (static_cast<SpellModifierByClassMask const*>(spellMod)->mask & mask)
-                                    modData.ModifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(spellMod)->value);
-                        }
-
-                        modData.ClassIndex = eff;
-
-                        spellMod.ModifierData.push_back(modData);
                     }
+                    else
+                    {
+                        modData.ModifierValue = 1.0f;
+                        auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_PCT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
+                        while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_PCT)
+                        {
+                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
+                                modData.ModifierValue *= 1.0f + CalculatePct(1.0f, spellMod->value);
+                        }
+                    }
+
+                    modData.ClassIndex = classIndex;
                 }
 
                 SendDirectMessage(packet.Write());
@@ -22349,46 +22471,63 @@ void Player::SetSpellModTakingSpell(Spell* spell, bool apply)
 
 void Player::SendSpellModifiers() const
 {
+    auto getOrCreateModifierData = [](std::vector<WorldPackets::Spells::SpellModifierData>& datas, uint8 classIndex, float defaultValue) -> float&
+    {
+        auto itr = std::ranges::find(datas, classIndex, &WorldPackets::Spells::SpellModifierData::ClassIndex);
+        if (itr != datas.end())
+            return itr->ModifierValue;
+
+        WorldPackets::Spells::SpellModifierData& data = datas.emplace_back();
+        data.ModifierValue = defaultValue;
+        data.ClassIndex = classIndex;
+        return data.ModifierValue;
+    };
+
+    boost::dynamic_bitset<uint32> mask;
+    mask.resize(128);
+
     WorldPackets::Spells::SetSpellModifier flatMods(SMSG_SET_FLAT_SPELL_MODIFIER);
     WorldPackets::Spells::SetSpellModifier pctMods(SMSG_SET_PCT_SPELL_MODIFIER);
-    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+
+    WorldPackets::Spells::SpellModifier* flatModifier = nullptr;
+    WorldPackets::Spells::SpellModifier* pctModifier = nullptr;
+
+    for (SpellModifier const* mod : m_spellMods)
     {
-        WorldPackets::Spells::SpellModifier flatMod;
-        flatMod.ModifierData.resize(128);
-        WorldPackets::Spells::SpellModifier pctMod;
-        pctMod.ModifierData.resize(128);
-        flatMod.ModIndex = pctMod.ModIndex = i;
-        for (uint8 j = 0; j < 128; ++j)
+        if (mod->type != SPELLMOD_FLAT && mod->type != SPELLMOD_PCT)
+            continue;
+
+        switch (mod->type)
         {
-            flag128 mask;
-            mask[j / 32] = 1u << (j % 32);
-
-            flatMod.ModifierData[j].ClassIndex = j;
-            flatMod.ModifierData[j].ModifierValue = 0.0f;
-            pctMod.ModifierData[j].ClassIndex = j;
-            pctMod.ModifierData[j].ModifierValue = 1.0f;
-
-            for (SpellModifier* mod : m_spellMods[i][SPELLMOD_FLAT])
-                if (static_cast<SpellModifierByClassMask const*>(mod)->mask & mask)
-                    flatMod.ModifierData[j].ModifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
-
-            for (SpellModifier* mod : m_spellMods[i][SPELLMOD_PCT])
-                if (static_cast<SpellModifierByClassMask const*>(mod)->mask & mask)
-                    pctMod.ModifierData[j].ModifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(mod)->value);
+            case SPELLMOD_FLAT:
+                if (!flatModifier || flatModifier->ModIndex != uint8(mod->op))
+                {
+                    flatModifier = &flatMods.Modifiers.emplace_back();
+                    flatModifier->ModIndex = uint8(mod->op);
+                }
+                boost::from_block_range(&static_cast<SpellModifierByClassMask const*>(mod)->mask[0], &static_cast<SpellModifierByClassMask const*>(mod)->mask[0] + 4, mask);
+                for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
+                {
+                    float& modifierValue = getOrCreateModifierData(flatModifier->ModifierData, classIndex, 0.0f);
+                    modifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
+                }
+                break;
+            case SPELLMOD_PCT:
+                if (!pctModifier || pctModifier->ModIndex != uint8(mod->op))
+                {
+                    pctModifier = &flatMods.Modifiers.emplace_back();
+                    pctModifier->ModIndex = uint8(mod->op);
+                }
+                boost::from_block_range(&static_cast<SpellModifierByClassMask const*>(mod)->mask[0], &static_cast<SpellModifierByClassMask const*>(mod)->mask[0] + 4, mask);
+                for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
+                {
+                    float& modifierValue = getOrCreateModifierData(pctModifier->ModifierData, classIndex, 0.0f);
+                    modifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(mod)->value);
+                }
+                break;
+            default:
+                break;
         }
-
-        flatMod.ModifierData.erase(std::remove_if(flatMod.ModifierData.begin(), flatMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
-        {
-            return G3D::fuzzyEq(mod.ModifierValue, 0.0f);
-        }), flatMod.ModifierData.end());
-
-        pctMod.ModifierData.erase(std::remove_if(pctMod.ModifierData.begin(), pctMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
-        {
-            return G3D::fuzzyEq(mod.ModifierValue, 1.0f);
-        }), pctMod.ModifierData.end());
-
-        flatMods.Modifiers.emplace_back(std::move(flatMod));
-        pctMods.Modifiers.emplace_back(std::move(pctMod));
     }
 
     if (!flatMods.Modifiers.empty())
@@ -23732,7 +23871,8 @@ bool Player::IsAlwaysDetectableFor(WorldObject const* seer) const
         return false;
 
     if (Player const* seerPlayer = seer->ToPlayer())
-        if (IsGroupVisibleFor(seerPlayer))
+        if (IsGroupVisibleFor(seerPlayer)
+            && std::ranges::none_of(GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY), [](AuraEffect const* invis) { return invis->GetSpellInfo()->HasAttribute(SPELL_ATTR9_MOD_INVIS_INCLUDES_PARTY); }))
             return true;
 
     return false;
@@ -23929,11 +24069,13 @@ void Player::UpdateTriggerVisibility()
         {
             Creature* creature = GetMap()->GetCreature(*itr);
             // Update fields of triggers, transformed units or uninteractible units (values dependent on GM state)
-            if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->IsUninteractible()))
+            if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->IsUninteractible() &&
+                !creature->HasUnitFlag2(UNIT_FLAG2_UNTARGETABLE_BY_CLIENT)))
                 continue;
 
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID));
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags));
+            creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2));
             creature->BuildValuesUpdateBlockForPlayer(&udata, this);
         }
         else if (itr->IsAnyTypeGameObject())
@@ -24359,6 +24501,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
+    SendItemPassives();                                     // must be after add to map
 
     if (GetMap()->IsRaid())
     {
@@ -25282,8 +25425,8 @@ void Player::SendSummonRequestFrom(Unit* summoner)
         return;
 
     m_summon_expire = GameTime::GetGameTime() + MAX_PLAYER_SUMMON_DELAY;
-    m_summon_location.WorldRelocate(*summoner);
-    m_summon_instanceId = summoner->GetInstanceId();
+    m_summon_location.Location.WorldRelocate(*summoner);
+    m_summon_location.InstanceId = summoner->GetInstanceId();
 
     WorldPackets::Movement::SummonRequest summonRequest;
     summonRequest.SummonerGUID = summoner->GetGUID();
@@ -25334,7 +25477,7 @@ void Player::SummonIfPossible(bool agree)
     UpdateCriteria(CriteriaType::AcceptSummon, 1);
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Summon);
 
-    TeleportTo(m_summon_location, TELE_TO_NONE, m_summon_instanceId);
+    TeleportTo(m_summon_location, TELE_TO_NONE);
 
     broadcastSummonResponse(true);
 }
@@ -29984,25 +30127,42 @@ void Player::UpdateAverageItemLevelTotal()
         sum += std::get<1>(mainHand);
 
     sum /= 16.0f;
-    SetAverageItemLevelTotal(sum);
+    SetAverageItemLevel(sum, AvgItemLevelCategory::Base);
 }
 
 void Player::UpdateAverageItemLevelEquipped()
 {
     float totalItemLevel = 0;
+    float totalItemLevelEffective = 0;
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
     {
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
-            uint32 itemLevel = pItem->GetItemLevel(this);
+            uint32 azeriteLevel = 0;
+            if (AzeriteItem const* azeriteItem = pItem->ToAzeriteItem())
+                azeriteLevel = azeriteItem->GetEffectiveLevel();
+
+            uint32 itemLevel = Item::GetItemLevel(pItem->GetTemplate(), *pItem->GetBonus(), GetLevel(), pItem->GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL),
+                0, 0, 0,
+                false, azeriteLevel);
+            uint32 itemLevelEffective = Item::GetItemLevel(pItem->GetTemplate(), *pItem->GetBonus(), GetEffectiveLevel(), pItem->GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL),
+                m_unitData->MinItemLevel, m_unitData->MinItemLevelCutoff, IsUsingPvpItemLevels() && pItem->GetTemplate()->HasFlag(ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP) ? 0 : m_unitData->MaxItemLevel,
+                IsUsingPvpItemLevels(),
+                azeriteLevel);
             totalItemLevel += itemLevel;
+            totalItemLevelEffective += itemLevelEffective;
             if (!m_canTitanGrip && i == EQUIPMENT_SLOT_MAINHAND && pItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON) // 2h weapon counts twice
+            {
                 totalItemLevel += itemLevel;
+                totalItemLevelEffective += itemLevelEffective;
+            }
         }
     }
 
     totalItemLevel /= 16.0;
-    SetAverageItemLevelEquipped(totalItemLevel);
+    totalItemLevelEffective /= 16.0;
+    SetAverageItemLevel(totalItemLevel, AvgItemLevelCategory::EquippedBase);
+    SetAverageItemLevel(totalItemLevelEffective, AvgItemLevelCategory::EquippedEffective);
 }
 
 void Player::SetWarModeDesired(bool enabled)

@@ -21,6 +21,10 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Position.h"
+#include <variant>
+
+class Unit;
 
 #define SPEED_CHARGE 42.0f // assume it is 25 yard per 0.6 second
 
@@ -48,6 +52,21 @@ enum MovementGeneratorType : uint8
     FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
     MAX_MOTION_TYPE                          // SKIP
 };
+
+constexpr bool CanStopMovementForSpellCasting(MovementGeneratorType type)
+{
+    // MovementGenerators that don't check Unit::IsMovementPreventedByCasting
+    switch (type)
+    {
+        case HOME_MOTION_TYPE:
+        case FLIGHT_MOTION_TYPE:
+        case EFFECT_MOTION_TYPE:    // knockbacks, jumps, falling, land/takeoff transitions
+            return false;
+        default:
+            break;
+    }
+    return true;
+}
 
 enum MovementGeneratorMode : uint8
 {
@@ -135,6 +154,8 @@ struct JumpChargeParams
     Optional<uint32> ProgressCurveId;
     Optional<uint32> ParabolicCurveId;
 };
+
+using MovementFacingTarget = std::variant<std::monostate, Position, Unit const*, float>;
 
 inline bool IsInvalidMovementGeneratorType(uint8 const type) { return type == MAX_DB_MOTION_TYPE || type >= MAX_MOTION_TYPE; }
 inline bool IsInvalidMovementSlot(uint8 const slot) { return slot >= MAX_MOTION_SLOT; }

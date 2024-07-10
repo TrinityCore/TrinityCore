@@ -37,18 +37,6 @@ enum class AreaTriggerFlag : uint32
 
 DEFINE_ENUM_FLAG(AreaTriggerFlag);
 
-enum class AreaTriggerShapeType : uint8
-{
-    Sphere                         = 0,
-    Box                            = 1,
-    Unk                            = 2,
-    Polygon                        = 3,
-    Cylinder                       = 4,
-    Disk                           = 5,
-    BoundedPlane                   = 6,
-    Max
-};
-
 enum AreaTriggerActionTypes
 {
     AREATRIGGER_ACTION_CAST        = 0,
@@ -246,6 +234,8 @@ public:
 
     uint32 DecalPropertiesId;
 
+    Optional<int32> SpellForVisuals;
+
     uint32 TimeToTarget;
     uint32 TimeToTargetScale;
 
@@ -265,7 +255,6 @@ struct AreaTriggerSpawn : SpawnData
     AreaTriggerSpawn() : SpawnData(SPAWN_TYPE_AREATRIGGER) { }
 
     AreaTriggerCreatePropertiesId Id;
-    Optional<int32> SpellForVisuals;
 };
 
 #endif

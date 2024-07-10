@@ -21,14 +21,16 @@
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include <functional>
+#include <future>
 #include <list>
 #include <queue>
+#include <variant>
 
 class TC_DATABASE_API QueryCallback
 {
 public:
-    explicit QueryCallback(QueryResultFuture&& result);
-    explicit QueryCallback(PreparedQueryResultFuture&& result);
+    explicit QueryCallback(std::future<QueryResult>&& result);
+    explicit QueryCallback(std::future<PreparedQueryResult>&& result);
     QueryCallback(QueryCallback&& right) noexcept;
     QueryCallback& operator=(QueryCallback&& right) noexcept;
     ~QueryCallback();
@@ -49,18 +51,9 @@ private:
     QueryCallback(QueryCallback const& right) = delete;
     QueryCallback& operator=(QueryCallback const& right) = delete;
 
-    template<typename T> friend void ConstructActiveMember(T* obj);
-    template<typename T> friend void DestroyActiveMember(T* obj);
-    template<typename T> friend void MoveFrom(T* to, T&& from);
+    std::variant<std::future<QueryResult>, std::future<PreparedQueryResult>> _query;
 
-    union
-    {
-        QueryResultFuture _string;
-        PreparedQueryResultFuture _prepared;
-    };
-    bool _isPrepared;
-
-    struct QueryCallbackData;
+    using QueryCallbackData = std::variant<std::function<void(QueryCallback&, QueryResult)>, std::function<void(QueryCallback&, PreparedQueryResult)>>;
     std::queue<QueryCallbackData, std::list<QueryCallbackData>> _callbacks;
 };
 
