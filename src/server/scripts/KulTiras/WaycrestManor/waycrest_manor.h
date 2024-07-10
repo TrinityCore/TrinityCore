@@ -60,10 +60,13 @@ enum WaycrestManorGameObjectIds
     GO_HEARTSBANE_TRIAD_DOOR = 282410
 };
 
-enum WaycrestManorSharedMisc
+enum WaycrestManorActions
 {
-    ACTION_SOULBOUND_GOLIATH_INTRO = 1,
+    ACTION_SOULBOUND_GOLIATH_INTRO = 1
+};
 
+enum WaycrestManorSpells
+{
     SPELL_BURNING_BRUSH            = 260541
 };
 

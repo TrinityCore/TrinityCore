@@ -294,10 +294,14 @@ class spell_soulbound_goliath_burning_brush : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitCreature()->AttackStop();
-        GetHitCreature()->SetReactState(REACT_PASSIVE);
-        GetHitCreature()->GetMotionMaster()->Clear();
-        GetHitCreature()->GetMotionMaster()->MoveRandom(2.0f);
+        Creature* target = GetHitCreature();
+        if (!target)
+            return;
+
+        target->AttackStop();
+        target->SetReactState(REACT_PASSIVE);
+        target->GetMotionMaster()->Clear();
+        target->GetMotionMaster()->MoveRandom(2.0f);
     }
 
     void Register() override
