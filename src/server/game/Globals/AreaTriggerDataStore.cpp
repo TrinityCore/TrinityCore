@@ -341,7 +341,7 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             AreaTriggerCreateProperties const* createProperties =  GetAreaTriggerCreateProperties(createPropertiesId);
             if (!createProperties)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) that doesn't exist for SpawnId " UI64FMTD,
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) that doesn't exist for SpawnId {}",
                     createPropertiesId.Id, uint32(createPropertiesId.IsCustom), spawnId);
                 continue;
             }
