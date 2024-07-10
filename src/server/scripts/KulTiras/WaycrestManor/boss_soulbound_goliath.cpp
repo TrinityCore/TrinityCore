@@ -46,7 +46,7 @@ enum SoulboundGoliathTexts
     SAY_BURNING_BRUSH   = 3,
     SAY_DEATH           = 4,
     SAY_PLAYER_THORNS   = 5,
-    SAY_SOUL_HARVEST    = 6 // NYI I don't know when is used
+    SAY_SOUL_HARVEST    = 6
 };
 
 enum SoulboundGoliathEvents
@@ -54,7 +54,7 @@ enum SoulboundGoliathEvents
     // Matron Bryndle
     EVENT_CRUSH         = 1,
     EVENT_SOUL_THORNS,
-    EVENT_JAGGED_NETTLE
+    EVENT_SOUL_HARVEST_WARNING
 };
 
 enum SoulboundGoliathMisc
@@ -99,6 +99,7 @@ struct boss_soulbound_goliath : public BossAI
 
         events.ScheduleEvent(EVENT_CRUSH, 5800ms);
         events.ScheduleEvent(EVENT_SOUL_THORNS, 9800ms);
+        events.ScheduleEvent(EVENT_SOUL_HARVEST_WARNING, 23s);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -176,6 +177,12 @@ struct boss_soulbound_goliath : public BossAI
                     Talk(SAY_THORNS);
                     DoCast(SPELL_SOUL_THORNS_SELECTOR);
                     events.Repeat(22500ms);
+                    break;
+                }
+                case EVENT_SOUL_HARVEST_WARNING:
+                {
+                    Talk(SAY_SOUL_HARVEST);
+                    events.Repeat(32s);
                     break;
                 }
                 default:
@@ -264,7 +271,7 @@ class spell_soulbound_goliath_soul_thorns_remove_stun : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SOUL_HARVEST_DAMAGE, SPELL_BURNING_SOULS });
+        return ValidateSpellInfo({ SPELL_SOUL_THORNS_STUN });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -321,7 +328,7 @@ class spell_soulbound_goliath_burning_brush_aura : public AuraScript
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Creature* creatureTarget = GetTarget()->ToCreature();
-        if (!creatureCaster)
+        if (!creatureTarget)
             return;
 
         creatureTarget->GetMotionMaster()->Clear();
