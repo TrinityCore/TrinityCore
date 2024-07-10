@@ -51,7 +51,6 @@ enum SoulboundGoliathTexts
 
 enum SoulboundGoliathEvents
 {
-    // Matron Bryndle
     EVENT_CRUSH         = 1,
     EVENT_SOUL_THORNS,
     EVENT_SOUL_HARVEST_WARNING
