@@ -23,7 +23,7 @@
 static BossBoundaryData const boundaries =
 {
     { DATA_HEARTSBANE_TRIAD, new BoundaryIntersectionBoundary(new ZRangeBoundary(235.0f, 243.0f), new RectangleBoundary(-618.580f, -524.305f, -188.971f, -137.363f))  },
-    { BOSS_SOULBOUND_GOLIATH, new BoundaryIntersectionBoundary(new CircleBoundary(Position(-422.13f, -258.28f), 38.0f), new RectangleBoundary(-530.650f, -395.500f, -286.462f, -235.301f)) },
+    { DATA_SOULBOUND_GOLIATH, new BoundaryUnionBoundary(new CircleBoundary(Position(-422.13f, -258.28f), 32.0f), new RectangleBoundary(-530.650f, -446.580f, -293.130f, -227.150f)) },
 };
 
 ObjectData const creatureData[] =

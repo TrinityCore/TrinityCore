@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Creature.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
