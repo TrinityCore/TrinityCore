@@ -125,3 +125,13 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 3, 1130.528, 3425.503, 105.8864, NULL, 29017),
 (@PATH, 4, 1129.774, 3433.302, 105.5313, NULL, 0),
 (@PATH, 5, 1130.557, 3436.087, 105.4839, NULL, 0);
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=114698;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(114698, 'spell_summon_amberleaf_troublemaker');
+
+SET @ENTRY := 59637;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(@ENTRY, 0, 0, 0, '', 11, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 9, 59642, 0, 50, 0, 0, 0, 0, 'On respawn - Self: Attack Creature Aysa Cloudsinger (59642) in 0 - 50 yards');
