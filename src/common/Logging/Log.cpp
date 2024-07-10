@@ -21,9 +21,9 @@
 #include "Config.h"
 #include "Duration.h"
 #include "Errors.h"
-#include "Logger.h"
 #include "LogMessage.h"
 #include "LogOperation.h"
+#include "Logger.h"
 #include "Strand.h"
 #include "StringConvert.h"
 #include "Util.h"
@@ -223,23 +223,26 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
 
 void Log::OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
 {
-    write(logger, std::make_unique<LogMessage>(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs)));
+    if (_ioContext)
+        Trinity::Asio::post(*_strand, LogOperation(logger, new LogMessage(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs))));
+    else
+    {
+        LogMessage msg(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs));
+        logger->write(&msg);
+    }
 }
 
 void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
 {
-    write(GetLoggerByType("commands.gm"), std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account)));
-}
+    Logger const* logger = GetLoggerByType("commands.gm");
 
-void Log::write(Logger const* logger, std::unique_ptr<LogMessage> msg) const
-{
     if (_ioContext)
-    {
-        std::shared_ptr<LogOperation> logOperation = std::make_shared<LogOperation>(logger, std::move(msg));
-        Trinity::Asio::post(*_strand, [logOperation]() { logOperation->call(); });
-    }
+        Trinity::Asio::post(*_strand, LogOperation(logger, new LogMessage(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account))));
     else
-        logger->write(msg.get());
+    {
+        LogMessage msg(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account));
+        logger->write(&msg);
+    }
 }
 
 Logger const* Log::GetLoggerByType(std::string_view type) const
@@ -318,22 +321,23 @@ bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /*
     return true;
 }
 
-void Log::OutCharDump(char const* str, uint32 accountId, uint64 guid, char const* name)
+void Log::OutCharDump(std::string const& str, uint32 accountId, uint64 guid, std::string const& name) const
 {
-    if (!str || !ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
+    if (!ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
         return;
 
-    std::ostringstream ss;
-    ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
-       << ")\n" << str << "\n== END DUMP ==\n";
+    std::string ss = Trinity::StringFormat("== START DUMP == (account: {} guid: {} name: {})\n{}\n== END DUMP ==\n", accountId, guid, name, str);
+    std::string param = Trinity::StringFormat("{}_{}", guid, name);
 
-    std::unique_ptr<LogMessage> msg(new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", ss.str()));
-    std::ostringstream param;
-    param << guid << '_' << name;
+    Logger const* logger = GetLoggerByType("entities.player.dump");
 
-    msg->param1 = param.str();
-
-    write(GetLoggerByType("entities.player.dump"), std::move(msg));
+    if (_ioContext)
+        Trinity::Asio::post(*_strand, LogOperation(logger, new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", std::move(ss), std::move(param))));
+    else
+    {
+        LogMessage msg(LOG_LEVEL_INFO, "entities.player.dump", std::move(ss), std::move(param));
+        logger->write(&msg);
+    }
 }
 
 void Log::SetRealmId(uint32 id)
