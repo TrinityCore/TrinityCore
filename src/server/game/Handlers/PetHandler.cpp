@@ -167,7 +167,9 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     break;
                 case COMMAND_FOLLOW: // spellid = 1792 - FOLLOW
                     pet->AttackStop();
-                    pet->InterruptNonMeleeSpells(false);
+                    pet->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
+                    if (Spell const* channeledSpell = pet->GetCurrentSpell(CURRENT_CHANNELED_SPELL); channeledSpell && !channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR9_CHANNEL_PERSISTS_ON_PET_FOLLOW))
+                        pet->InterruptSpell(CURRENT_CHANNELED_SPELL, true, true);
                     pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, pet->GetFollowAngle());
 
                     charmInfo->SetCommandState(COMMAND_FOLLOW);

@@ -50,6 +50,7 @@ DB2Storage<AnimKitEntry>                        sAnimKitStore("AnimKit.db2", &An
 DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroupMember.db2", &AreaGroupMemberLoadInfo::Instance);
 DB2Storage<AreaTableEntry>                      sAreaTableStore("AreaTable.db2", &AreaTableLoadInfo::Instance);
 DB2Storage<AreaTriggerEntry>                    sAreaTriggerStore("AreaTrigger.db2", &AreaTriggerLoadInfo::Instance);
+DB2Storage<AreaTriggerActionSetEntry>           sAreaTriggerActionSetStore("AreaTriggerActionSet.db2", &AreaTriggerActionSetLoadInfo::Instance);
 DB2Storage<ArmorLocationEntry>                  sArmorLocationStore("ArmorLocation.db2", &ArmorLocationLoadInfo::Instance);
 DB2Storage<ArtifactEntry>                       sArtifactStore("Artifact.db2", &ArtifactLoadInfo::Instance);
 DB2Storage<ArtifactAppearanceEntry>             sArtifactAppearanceStore("ArtifactAppearance.db2", &ArtifactAppearanceLoadInfo::Instance);
@@ -635,7 +636,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         while (db2PathItr != end)
         {
             LocaleConstant locale = GetLocaleByName(db2PathItr->path().filename().string());
-            if (IsValidLocale(locale))
+            if (IsValidLocale(locale) && (sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) || locale == defaultLocale))
                 foundLocales[locale] = true;
 
             ++db2PathItr;
@@ -660,6 +661,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sAreaGroupMemberStore);
     LOAD_DB2(sAreaTableStore);
     LOAD_DB2(sAreaTriggerStore);
+    LOAD_DB2(sAreaTriggerActionSetStore);
     LOAD_DB2(sArmorLocationStore);
     LOAD_DB2(sArtifactStore);
     LOAD_DB2(sArtifactAppearanceStore);

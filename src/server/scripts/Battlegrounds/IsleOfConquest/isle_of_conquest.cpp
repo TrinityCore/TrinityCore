@@ -258,7 +258,7 @@ class StartLaunchEvent : public BasicEvent
             float dist = player->GetExactDist2d(&_pos);
 
             player->ExitVehicle();
-            player->GetMotionMaster()->MoveJump(_pos, dist, speedZ, EVENT_JUMP, true);
+            player->GetMotionMaster()->MoveJump(_pos, dist, speedZ, EVENT_JUMP, _pos.GetOrientation());
             return true;
         }
 

@@ -2228,6 +2228,15 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
+        if (data.display.has_value())
+        {
+            if (!GetCreatureModelInfo(data.display->CreatureDisplayID))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with invalid `modelid` {}, ignoring.", guid, data.id, data.display->CreatureDisplayID);
+                data.display.reset();
+            }
+        }
+
         // -1 random, 0 no equipment
         if (data.equipmentId != 0)
         {
@@ -7188,7 +7197,7 @@ void ObjectMgr::LoadAreaTriggerPolygons()
 {
     for (AreaTriggerEntry const* areaTrigger : sAreaTriggerStore)
     {
-        if (areaTrigger->ShapeType != 3)
+        if (areaTrigger->GetShapeType() != AreaTriggerShapeType::Polygon)
             continue;
 
         PathDb2 const* path = sDB2Manager.GetPath(areaTrigger->ShapeID);
@@ -8895,6 +8904,15 @@ void ObjectMgr::LoadGameObjectForQuests()
         ++count;
     }
 
+    for (auto [questObjectiveId, objective] : _questObjectives)
+    {
+        if (objective->Type != QUEST_OBJECTIVE_GAMEOBJECT)
+            continue;
+
+        _gameObjectForQuestStore.insert(objective->ObjectID);
+        ++count;
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded {} GameObjects for quests in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -9408,7 +9426,7 @@ void ObjectMgr::LoadTrainers()
             std::string localeName = fields[1].GetString();
 
             LocaleConstant locale = GetLocaleByName(localeName);
-            if (!IsValidLocale(locale) || locale == LOCALE_enUS)
+            if (!IsValidLocale(locale) || !sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) || locale == LOCALE_enUS)
                 continue;
 
             if (Trainer::Trainer* trainer = Trinity::Containers::MapGetValuePtr(_trainers, trainerId))

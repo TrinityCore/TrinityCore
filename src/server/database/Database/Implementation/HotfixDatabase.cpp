@@ -93,6 +93,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "BoxWidth, BoxHeight, BoxYaw, ShapeType, ShapeID, AreaTriggerActionSetID, Flags FROM area_trigger WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_AREA_TRIGGER, "SELECT MAX(ID) + 1 FROM area_trigger", CONNECTION_SYNCH);
 
+    // AreaTriggerActionSet.db2
+    PrepareStatement(HOTFIX_SEL_AREA_TRIGGER_ACTION_SET, "SELECT ID, Flags FROM area_trigger_action_set WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AREA_TRIGGER_ACTION_SET, "SELECT MAX(ID) + 1 FROM area_trigger_action_set", CONNECTION_SYNCH);
+
     // ArmorLocation.db2
     PrepareStatement(HOTFIX_SEL_ARMOR_LOCATION, "SELECT ID, Clothmodifier, Leathermodifier, Chainmodifier, Platemodifier, Modifier FROM armor_location"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

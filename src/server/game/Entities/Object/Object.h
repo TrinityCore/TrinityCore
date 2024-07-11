@@ -505,9 +505,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetNearPoint2D(WorldObject const* searcher, float& x, float& y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const;
         void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0) const;
-        void MovePosition(Position &pos, float dist, float angle);
+        void MovePosition(Position &pos, float dist, float angle) const;
         Position GetNearPosition(float dist, float angle);
-        void MovePositionToFirstCollision(Position &pos, float dist, float angle);
+        void MovePositionToFirstCollision(Position &pos, float dist, float angle) const;
         Position GetFirstCollisionPosition(float dist, float angle);
         Position GetRandomNearPosition(float radius);
         void GetContactPoint(WorldObject const* obj, float& x, float& y, float& z, float distance2d = CONTACT_DISTANCE) const;
@@ -693,6 +693,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // CastSpell's third arg can be a variety of things - check out CastSpellExtraArgs' constructors!
         SpellCastResult CastSpell(CastSpellTargetArg const& targets, uint32 spellId, CastSpellExtraArgs const& args = { });
 
+        void SendPlayOrphanSpellVisual(Position const& sourceLocation, ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
+        void SendPlayOrphanSpellVisual(Position const& sourceLocation, Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendCancelOrphanSpellVisual(uint32 id);

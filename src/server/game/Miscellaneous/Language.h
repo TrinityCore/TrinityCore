@@ -225,7 +225,6 @@ enum TrinityStrings
     LANG_PHASESHIFT_UI_WORLD_MAP_AREA_SWAPS = 182,
     LANG_PHASE_FLAG_COSMETIC              = 183,
     LANG_PHASE_FLAG_PERSONAL              = 184,
-
     //                                      185 not used
     LANG_TRANSPORT_POSITION               = 186,
     LANG_PARTIAL_GROUP_SUMMON             = 187,
@@ -448,7 +447,11 @@ enum TrinityStrings
     LANG_COMMAND_LEARN_ALL_RECIPES_HELP   = 392,
     LANG_COMMAND_LEARN_ALL_TALENTS_HELP   = 393,
     LANG_COMMAND_LEARN_ALL_PETTALENT_HELP = 394,
-    // Room for more level 2                395-399 not used
+    LANG_COMMAND_BG_START_HELP            = 395, // 3.3.5 RESERVED
+    LANG_COMMAND_BG_STOP_HELP             = 396, // 3.3.5 RESERVED
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_10    = 397, // 3.3.5 RESERVED
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_60    = 398, // 3.3.5 RESERVED
+    // Room for more level 2                399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED                 = 400,
@@ -1109,7 +1112,7 @@ enum TrinityStrings
     LANG_COMMAND_INST_STAT_PLAYERS_IN     = 5051,
     LANG_COMMAND_INST_STAT_SAVES          = 5052,
     LANG_COMMAND_INST_STAT_PLAYERSBOUND   = 5053,
-    //                                    = 5054, // old LANG_COMMAND_INST_STAT_GROUPSBOUND
+    LANG_COMMAND_INST_STAT_GROUPSBOUND    = 5054, // 3.3.5 RESERVED
     LANG_NOT_DUNGEON                      = 5055, // Map is not a dungeon.
     LANG_NO_INSTANCE_DATA                 = 5056, // Map has no instance data.
     LANG_COMMAND_INST_SET_BOSS_STATE      = 5057,

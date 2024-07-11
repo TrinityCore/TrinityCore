@@ -93,11 +93,7 @@ bool LoadGameObjectModelList(std::string const& dataPath)
     return true;
 }
 
-GameObjectModel::~GameObjectModel()
-{
-    if (iModel)
-        VMAP::VMapFactory::createOrGetVMapManager()->releaseModelInstance(iModel->GetName());
-}
+GameObjectModel::~GameObjectModel() = default;
 
 bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
 {

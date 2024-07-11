@@ -709,7 +709,7 @@ class boss_thorim : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetDisableGravity(false);
                             me->SetControlled(false, UNIT_STATE_ROOT);
-                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, me->GetOrientation(), 30.0f, 20.0f);
+                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, 30.0f, 20.0f);
                             events.ScheduleEvent(EVENT_START_PERIODIC_CHARGE, 2s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 15s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 20s, 0, PHASE_2);

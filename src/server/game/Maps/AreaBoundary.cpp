@@ -105,3 +105,21 @@ bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
     return (_b1->IsWithinBoundary(pos) || _b2->IsWithinBoundary(pos));
 }
+
+// ---== INTERSECTION OF 2 BOUNDARIES ==---
+BoundaryIntersectionBoundary::BoundaryIntersectionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted) :
+    AreaBoundary(isInverted), _b1(b1), _b2(b2)
+{
+    ASSERT(b1 && b2);
+}
+
+BoundaryIntersectionBoundary::~BoundaryIntersectionBoundary()
+{
+    delete _b1;
+    delete _b2;
+}
+
+bool BoundaryIntersectionBoundary::IsWithinBoundaryArea(Position const* pos) const
+{
+    return (_b1->IsWithinBoundary(pos) && _b2->IsWithinBoundary(pos));
+}
