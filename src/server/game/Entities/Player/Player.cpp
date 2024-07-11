@@ -14714,7 +14714,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     {
         for (QuestRewardDisplaySpell displaySpell : quest->RewardDisplaySpell)
         {
-            if (!ConditionMgr::IsPlayerMeetingCondition(this, displaySpell.PlayerConditionId))
+            if (!displaySpell || !ConditionMgr::IsPlayerMeetingCondition(this, displaySpell.PlayerConditionId))
                 continue;
 
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(displaySpell.SpellId, GetMap()->GetDifficultyID());
