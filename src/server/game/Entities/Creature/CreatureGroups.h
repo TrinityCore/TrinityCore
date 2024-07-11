@@ -54,10 +54,15 @@ class TC_GAME_API FormationMgr
         std::unordered_map<ObjectGuid::LowType /*spawnID*/, FormationInfo> _creatureGroupMap;
 
     public:
+        FormationMgr(FormationMgr const&) = delete;
+        FormationMgr(FormationMgr&&) = delete;
+        FormationMgr& operator=(FormationMgr const&) = delete;
+        FormationMgr& operator=(FormationMgr&&) = delete;
+
         static FormationMgr* instance();
 
-        void AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creature* creature);
-        void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
+        static void AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creature* creature);
+        static void RemoveCreatureFromGroup(CreatureGroup* group, Creature* member);
 
         void LoadCreatureFormations();
         FormationInfo* GetFormationInfo(ObjectGuid::LowType spawnId);
@@ -68,7 +73,7 @@ class TC_GAME_API FormationMgr
 class TC_GAME_API CreatureGroup
 {
     private:
-        Creature* _leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+        Creature* _leader;
         std::unordered_map<Creature*, FormationInfo*> _members;
 
         ObjectGuid::LowType _leaderSpawnId;
@@ -78,6 +83,10 @@ class TC_GAME_API CreatureGroup
     public:
         //Group cannot be created empty
         explicit CreatureGroup(ObjectGuid::LowType leaderSpawnId);
+        CreatureGroup(CreatureGroup const&) = delete;
+        CreatureGroup(CreatureGroup&&) = delete;
+        CreatureGroup& operator=(CreatureGroup const&) = delete;
+        CreatureGroup& operator=(CreatureGroup&&) = delete;
         ~CreatureGroup();
 
         Creature* GetLeader() const { return _leader; }
@@ -86,7 +95,7 @@ class TC_GAME_API CreatureGroup
         bool IsFormed() const { return _formed; }
         bool IsLeader(Creature const* creature) const { return _leader == creature; }
 
-        bool HasMember(Creature* member) const { return _members.count(member) > 0; }
+        bool HasMember(Creature* member) const { return _members.contains(member); }
         void AddMember(Creature* member);
         void RemoveMember(Creature* member);
         void FormationReset(bool dismiss);
