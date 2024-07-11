@@ -415,7 +415,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //327 SPELL_EFFECT_PULL
     &Spell::EffectNULL,                                     //328 SPELL_EFFECT_ADD_COMBO_POINTS
     &Spell::EffectResurrectNew,                             //329 SPELL_EFFECT_RESURRECT_NEW
-    &Spell::EffectNULL,                                     //330 SPELL_EFFECT_ACTIVATE_RUNE
+    &Spell::EffectActivateRune,                             //330 SPELL_EFFECT_ACTIVATE_RUNE
 };
 
 void Spell::EffectNULL()
@@ -5949,4 +5949,40 @@ void Spell::EffectTeleportGraveyard()
         return;
 
     target->RepopAtGraveyard();
+}
+
+void Spell::EffectActivateRune()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || !damage)
+        return;
+
+    Player* player = m_caster->ToPlayer();
+    if (player->GetClass() != CLASS_DEATH_KNIGHT)
+        return;
+
+    // needed later
+    m_runesState = player->GetRunesState();
+
+    uint32 count = damage;
+    int32 miscValue = (1 << effectInfo->MiscValue);
+
+    // Death Runes may also activate Blood Runes (Blood Tap)
+    if (miscValue & (1 << AsUnderlyingType(RuneType::Death)))
+        miscValue |= (1 << AsUnderlyingType(RuneType::Blood));
+
+    for (uint32 i = 0; i < MAX_RUNES && count > 0; ++i)
+    {
+        if ((1 << AsUnderlyingType(player->GetCurrentRune(i))) & miscValue && player->GetRuneCooldown(i))
+        {
+            player->SetRuneCooldown(i, 0);
+            --count;
+        }
+    }
+
+    // Send rune state diff
+    uint8 runesState = player->GetRunesState() & ~m_runesState;
+    player->AddRunePower(runesState);
 }
