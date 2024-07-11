@@ -6649,8 +6649,40 @@ void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damag
             if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt))
                 player->InterruptPowerRegen(powerType);
 
-    int32 gain = victim->ModifyPower(powerType, damage, false);
-    int32 overEnergize = damage - gain;
+    int32 gain = 0;
+    int32 overEnergize = 0;
+
+    if (powerType != POWER_RUNE_BLOOD && powerType != POWER_RUNE_FROST && powerType != POWER_RUNE_UNHOLY)
+    {
+        gain = victim->ModifyPower(powerType, damage, false);
+        overEnergize = damage - gain;
+    }
+
+    if (Player* player = ToPlayer())
+    {
+        // Runes behave a bit differently than regular power. While they do have a legit power type and value, they never are set or changed so we have to use the runes api instead
+        if (player->GetClass() == CLASS_DEATH_KNIGHT)
+        {
+            uint8 runesState = player->GetRunesState();
+            int32 runesToEnergize = damage;
+            for (uint32 i = 0; i < MAX_RUNES && runesToEnergize > 0; ++i)
+            {
+                if (player->GetPowerTypeForBaseRune(i) == powerType && player->GetRuneCooldown(i))
+                {
+                    player->SetRuneCooldown(i, 0);
+                    --runesToEnergize;
+                }
+            }
+
+            // Send rune state diff
+            if (uint8 changeMask = player->GetRunesState() & ~runesState)
+                player->AddRunePower(changeMask);
+
+            gain = damage - runesToEnergize;
+            overEnergize = runesToEnergize;
+        }
+    }
+
     victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage) / 2, spellInfo, true);
     SendEnergizeSpellLog(victim, spellInfo->Id, gain, overEnergize, powerType);
 }
