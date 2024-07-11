@@ -921,6 +921,18 @@ namespace WorldPackets
             RuneData Runes;
         };
 
+        class ConvertRune final : public ServerPacket
+        {
+        public:
+            ConvertRune(size_t size) : ServerPacket(SMSG_CONVERT_RUNE, 1 + 1 + 4 + size + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            RuneData Runes;
+            uint32 Index = 0;
+            uint32 Rune = 0;
+        };
+
         class AddRunePower final : public ServerPacket
         {
         public:

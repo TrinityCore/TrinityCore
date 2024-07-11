@@ -929,6 +929,16 @@ WorldPacket const* ResyncRunes::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* ConvertRune::Write()
+{
+    _worldPacket << Runes;
+
+    _worldPacket << uint32(Index);
+    _worldPacket << uint32(Rune);
+
+    return nullptr;
+}
+
 WorldPacket const* AddRunePower::Write()
 {
     _worldPacket << uint32(AddedRunesMask);
