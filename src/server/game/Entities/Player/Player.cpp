@@ -5335,6 +5335,10 @@ void Player::UpdateRating(CombatRating cr)
                     ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
                     ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
                     ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
+
+                    // Item and aura mods increase the haste of all three combat ratings so we only have to pick one
+                    ApplyHasteRegenMod(oldVal, false);
+                    ApplyHasteRegenMod(newVal, true);
                     break;
                 case CR_HASTE_RANGED:
                     ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);

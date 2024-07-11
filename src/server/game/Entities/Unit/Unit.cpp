@@ -10502,6 +10502,38 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
     }
 }
 
+void Unit::ApplyHasteRegenMod(float val, bool apply)
+{
+    if (val > 0.f)
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), val, !apply);
+    else
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
+
+    if (IsPlayer())
+    {
+        for (uint8 powerType = POWER_MANA; powerType != MAX_POWERS; ++powerType)
+        {
+            uint32 powerIndex = GetPowerIndex(static_cast<Powers>(powerType));
+            if (powerIndex == MAX_POWERS)
+                continue;
+
+            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(static_cast<Powers>(powerType));
+            if (!powerTypeEntry)
+                continue;
+
+            bool regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
+
+            // Classic Only - Death Knight Runes use the flags of the POWER_RUNES
+            if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
+                if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES))
+                    regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
+
+            if (regenAffectedByHaste)
+                ToPlayer()->UpdatePowerRegen(static_cast<Powers>(powerType));
+        }
+    }
+}
+
 void Unit::UpdateAuraForGroup()
 {
     if (Player* player = ToPlayer())

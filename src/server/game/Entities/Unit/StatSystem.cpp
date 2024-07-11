@@ -839,30 +839,38 @@ void Player::UpdatePowerRegen(Powers powerType)
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), baseRegen + CalculatePct(spiritRegen, modManaRegenInterrupt));
             break;
         }
-        case POWER_FOCUS:
-        case POWER_ENERGY:
-        {
-            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), powerTypeEntry->RegenPeace * powerRegenModPct - powerTypeEntry->RegenPeace + powerRegenMod);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), powerTypeEntry->RegenCombat * powerRegenModPct - powerTypeEntry->RegenCombat + powerRegenMod);
-            break;
-        }
-        case POWER_RUNIC_POWER:
-        case POWER_RAGE:
-            // Butchery and Anger Management
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), powerRegenMod);
-            break;
-        case POWER_RUNE_BLOOD:
-        case POWER_RUNE_FROST:
-        case POWER_RUNE_UNHOLY:
-        {
-            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), float(1 * IN_MILLISECONDS) / float(RUNE_BASE_COOLDOWN) - powerTypeEntry->RegenPeace);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), float(1 * IN_MILLISECONDS) / float(RUNE_BASE_COOLDOWN) - powerTypeEntry->RegenCombat);
-            break;
-        }
         default:
+        {
+            // Classic Only - Death Knight Runes use the flags of the POWER_RUNES
+            if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
+                powerType = POWER_RUNES;
+
+            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
+            // Base Regen
+            float peaceRegen = powerTypeEntry->RegenPeace;
+            float combatRegen = powerTypeEntry->RegenCombat;
+
+            // Haste Regen
+            if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste) && G3D::fuzzyNe(m_unitData->ModHaste, 0.0f))
+            {
+                peaceRegen /= m_unitData->ModHaste;
+                combatRegen /= m_unitData->ModHaste;
+            }
+
+            peaceRegen *= powerRegenModPct;
+            combatRegen *= powerRegenModPct;
+
+            // Subtract the base value to get the proper offset
+            peaceRegen -= powerTypeEntry->RegenPeace;
+            combatRegen -= powerTypeEntry->RegenCombat;
+
+            peaceRegen += powerRegenMod;
+            combatRegen += powerRegenMod;
+
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), peaceRegen);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), combatRegen);
             break;
+        }
     }
 }
 

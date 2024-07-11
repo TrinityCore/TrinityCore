@@ -1856,7 +1856,7 @@ enum class PowerTypeFlags : int16
     NotSetToDefaultOnResurrect    = 0x0040, // NYI
     IsUsedByNPCs                  = 0x0080,
     ContinueRegenWhileFatigued    = 0x0200, // NYI
-    RegenAffectedByHaste          = 0x0400, // NYI
+    RegenAffectedByHaste          = 0x0400,
     SetToMaxOnLevelUp             = 0x1000,
     SetToMaxOnInitialLogIn        = 0x2000, // NYI
     AllowCostModsForPlayers       = 0x4000  // NYI
