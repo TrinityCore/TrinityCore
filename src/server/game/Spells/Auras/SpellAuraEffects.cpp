@@ -581,7 +581,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //509
     &AuraEffect::HandleNULL,                                      //510 SPELL_AURA_MODIFIED_RAID_INSTANCE
     &AuraEffect::HandleNULL,                                      //511 SPELL_AURA_APPLY_PROFESSION_EFFECT
-    &AuraEffect::HandleNULL,                                      //512 SPELL_AURA_CONVERT_RUNE
+    &AuraEffect::HandleConvertRune,                               //512 SPELL_AURA_CONVERT_RUNE
     &AuraEffect::HandleNULL,                                      //513
     &AuraEffect::HandleNULL,                                      //514
     &AuraEffect::HandleNULL,                                      //515
@@ -6383,6 +6383,42 @@ void AuraEffect::HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode,
         return;
 
     playerTarget->UpdatePositionData();
+}
+
+void AuraEffect::HandleConvertRune(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* playerTarget = aurApp->GetTarget()->ToPlayer();
+    if (!playerTarget || playerTarget->GetClass() != CLASS_DEATH_KNIGHT)
+        return;
+
+    /*
+    * Converts a rune into a new rune type.
+    * MiscValueA describes what rune type can be converted
+    * MiscValueB describes into what rune the eligible rune will be converted into
+    * Amount is the number of runes that will be converted if available
+    */
+
+    uint32 runesToConvert = GetAmount();
+
+    if (apply)
+    {
+        for (uint8 i = 0; i < MAX_RUNES && runesToConvert; ++i)
+        {
+            if (RuneType(GetMiscValue()) != playerTarget->GetCurrentRune(i))
+                continue;
+
+            if (!playerTarget->GetRuneCooldown(i))
+            {
+                playerTarget->AddRuneByAuraEffect(i, RuneType(GetMiscValueB()), this, GetAuraType(), GetSpellInfo());
+                --runesToConvert;
+            }
+        }
+    }
+    else
+        playerTarget->RemoveRunesByAuraEffect(this);
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;

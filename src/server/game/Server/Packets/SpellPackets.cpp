@@ -936,7 +936,7 @@ WorldPacket const* ConvertRune::Write()
     _worldPacket << uint32(Index);
     _worldPacket << uint32(Rune);
 
-    return nullptr;
+    return &_worldPacket;
 }
 
 WorldPacket const* AddRunePower::Write()

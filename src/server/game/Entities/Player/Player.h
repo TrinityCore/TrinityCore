@@ -2673,7 +2673,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void RestoreBaseRune(uint8 index);
         void ConvertRune(uint8 index, RuneType newType);
         void ResyncRunes() const;
-        void SendConvertedRunes() const;
         void AddRunePower(uint8 mask) const;
         void InitRunes();
 

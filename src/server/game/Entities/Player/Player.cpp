@@ -25657,11 +25657,6 @@ void Player::ResyncRunes() const
     SendDirectMessage(data.Write());
 }
 
-void Player::SendConvertedRunes() const
-{
-
-}
-
 void Player::AddRunePower(uint8 mask) const
 {
     WorldPackets::Spells::AddRunePower packet;
@@ -25787,7 +25782,7 @@ void Player::ConvertRune(uint8 index, RuneType newType)
 {
     SetCurrentRune(index, newType);
 
-    WorldPackets::Spells::ConvertRune packet(MAX_RUNES);
+    WorldPackets::Spells::ConvertRune packet(0);
     packet.Index = index;
     packet.Rune = AsUnderlyingType(newType);
 
