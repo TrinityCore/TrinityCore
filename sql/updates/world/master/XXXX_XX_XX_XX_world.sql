@@ -41,10 +41,17 @@ DELETE FROM `areatrigger_create_properties` WHERE (`Id`=12928 AND `IsCustom`=0);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `VerifiedBuild`) VALUES
 (12928, 0, 17570, 0, 4, 0, 0, 0, 0, -1, 0, 336, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 55261); -- Spell: 265915 (Molten Gold)
 
+UPDATE `areatrigger_create_properties` SET `ScriptName` = 'at_kings_rest_molten_gold' WHERE (`Id`=12928 AND `IsCustom`=0);
+
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` = 135322;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (135322, 0, 0, '|TInterface\\ICONS\\INV_Misc_Gem_Pearl_04.blp:20|t The Golden Serpent absorbs an Animated Gold, gaining |cFFFF0000|Hspell:265991|h[Luster]|h|r!', 16, 0, 100, 0, 0, 0, 156383, 0, 'The Golden Serpent to Animated Gold');
+
+-- Spelltarget condition
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (265991));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(13, 3, 265991, 0, 0, 31, 0, 3, 135322, 0, '', 0, 'Potential target of the spell is creature, entry is The Golden Serpent (135322)');
 
 -- Difficulty
 DELETE FROM `creature_template_difficulty` WHERE (`Entry`=135406 AND `DifficultyID`=23);

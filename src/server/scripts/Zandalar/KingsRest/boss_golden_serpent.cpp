@@ -38,7 +38,8 @@ enum GoldenSerpentSpells
     SPELL_SERPENTINE_GUST               = 265781,
     SPELL_TAIL_TRASH                    = 265910,
     SPELL_LUCRES_CALL                   = 265923,
-    SPELL_MOLTEN_GOLD                   = 265915,
+    SPELL_MOLTEN_GOLD_DAMAGE            = 265914,
+    SPELL_MOLTEN_GOLD_AURA              = 265915,
     SPELL_LUSTER                        = 265991,
     SPELL_BREAK_PLAYER_TARGETTING       = 140562,
     SPELL_GOLDEN_SERPENT_EMERGE_STATE   = 271598
@@ -211,14 +212,17 @@ struct npc_animated_gold : public ScriptedAI
         {
             _scheduler.Schedule(3s, [this](TaskContext)
             {
-                Creature* goldenSerpent = me->GetInstanceScript()->GetCreature(DATA_GOLDEN_SERPENT);
-                if (!goldenSerpent)
-                    return;
+                if (!me->HasAura(SPELL_MOLTEN_GOLD_AURA))
+                {
+                    Creature* goldenSerpent = me->GetInstanceScript()->GetCreature(DATA_GOLDEN_SERPENT);
+                    if (!goldenSerpent)
+                        return;
 
-                _isMoltenGoldCast = false;
-                me->GetMotionMaster()->Clear();
-                me->SetWalk(true);
-                me->GetMotionMaster()->MoveFollow(goldenSerpent, 2.0f, me->GetFollowAngle());
+                    me->GetMotionMaster()->Clear();
+                    me->SetWalk(true); // @ToDo: cause of follow movement the follower always run if the target runs
+                    me->GetMotionMaster()->MoveFollow(goldenSerpent, 2.0f, me->GetFollowAngle());
+                    _isMoltenGoldCast = false;
+                }
             });
         }
     }
@@ -231,8 +235,9 @@ struct npc_animated_gold : public ScriptedAI
 
             if (!_isMoltenGoldCast)
             {
+                me->CastSpell(nullptr, SPELL_MOLTEN_GOLD_AURA, false);
                 me->GetMotionMaster()->Clear();
-                me->CastSpell(nullptr, SPELL_MOLTEN_GOLD, false);
+                me->StopMoving();
                 _isMoltenGoldCast = true;
             }
         }
@@ -249,7 +254,7 @@ struct npc_animated_gold : public ScriptedAI
             if (!goldenSerpent->IsAIEnabled())
                 return;
 
-            me->CastSpell(goldenSerpent, SPELL_LUSTER, false);
+            me->CastSpell(nullptr, SPELL_LUSTER, true);
             goldenSerpent->AI()->DoAction(ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD);
             me->DespawnOrUnsummon();
         }
@@ -263,6 +268,25 @@ struct npc_animated_gold : public ScriptedAI
 private:
     TaskScheduler _scheduler;
     bool _isMoltenGoldCast;
+};
+
+// 17570 - Molten Gold - Areatrigger
+struct at_kings_rest_molten_gold : AreaTriggerAI
+{
+    at_kings_rest_molten_gold(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        unit->CastSpell(nullptr, SPELL_MOLTEN_GOLD_DAMAGE , false);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_MOLTEN_GOLD_DAMAGE);
+    }
 };
 
 // 265773 - Spit Gold
@@ -308,6 +332,9 @@ void AddSC_boss_golden_serpent()
     // Creature
     RegisterKingsRestCreatureAI(boss_the_golden_serpent);
     RegisterKingsRestCreatureAI(npc_animated_gold);
+
+    // Areatrigger
+    RegisterAreaTriggerAI(at_kings_rest_molten_gold);
 
     // Spells
     RegisterSpellScript(spell_kings_rest_spit_gold);
