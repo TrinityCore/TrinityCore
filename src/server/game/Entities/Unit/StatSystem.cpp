@@ -798,7 +798,7 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 void Player::UpdatePowerRegen(Powers powerType)
 {
     uint32 powerIndex = GetPowerIndex(powerType);
-    if (powerIndex == MAX_POWERS && powerType != POWER_RUNES)
+    if (powerIndex == MAX_POWERS)
         return;
 
     float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
@@ -852,49 +852,18 @@ void Player::UpdatePowerRegen(Powers powerType)
             // Butchery and Anger Management
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), powerRegenMod);
             break;
-        case POWER_RUNES:
+        case POWER_RUNE_BLOOD:
+        case POWER_RUNE_FROST:
+        case POWER_RUNE_UNHOLY:
         {
-            UpdateAllRunesRegen(); // @todo: replace this with the code below once runes have been downgraded for Cataclysm Classic
+            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), float(1 * IN_MILLISECONDS) / float(RUNE_BASE_COOLDOWN) - powerTypeEntry->RegenPeace);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), float(1 * IN_MILLISECONDS) / float(RUNE_BASE_COOLDOWN) - powerTypeEntry->RegenCombat);
             break;
-
-            /*
-            // Formular: base cooldown / (1 - haste)
-            float regeneration = 0.1f;
-            float haste = m_unitData->ModHasteRegen;
-            if (haste != 0.f)
-                regeneration /= haste;
-
-            for (int8 i = 0; i < NUM_RUNE_TYPES; i++)
-            {
-                float mod = 0.f;
-                for (AuraEffect const* effect : GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN))
-                    if (effect->GetMiscValue() == int32(powerType) && effect->GetMiscValueB() == i)
-                        mod += effect->GetAmount();
-
-                SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regeneration + mod);
-            }
-            break;
-            */
         }
         default:
             break;
     }
-}
-
-void Player::UpdateAllRunesRegen()
-{
-    if (GetClass() != CLASS_DEATH_KNIGHT)
-        return;
-
-    uint32 runeIndex = GetPowerIndex(POWER_RUNES);
-    if (runeIndex == MAX_POWERS)
-        return;
-
-    PowerTypeEntry const* runeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES);
-
-    uint32 cooldown = GetRuneBaseCooldown();
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenPeace);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenCombat);
 }
 
 void Player::_ApplyAllStatBonuses()

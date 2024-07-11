@@ -4729,7 +4729,7 @@ void Spell::SendSpellStart()
         && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellPowerCost const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
-    if (HasPowerTypeCost(POWER_RUNES))
+    if (HasPowerTypeCost(POWER_RUNE_BLOOD) || HasPowerTypeCost(POWER_RUNE_FROST) || HasPowerTypeCost(POWER_RUNE_UNHOLY))
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR8_HEAL_PREDICTION) && m_casttime && m_caster->IsUnit())
@@ -4775,10 +4775,10 @@ void Spell::SendSpellStart()
         {
             castData.RemainingRunes->Start = m_runesState; // runes state before
             castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
-            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown());
+                float baseCd = float(RUNE_BASE_COOLDOWN);
                 castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
@@ -4786,7 +4786,7 @@ void Spell::SendSpellStart()
         {
             castData.RemainingRunes->Start = 0;
             castData.RemainingRunes->Count = 0;
-            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
                 castData.RemainingRunes->Cooldowns.push_back(0);
         }
     }
@@ -4830,7 +4830,7 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->ToPlayer()->GetClass() == CLASS_DEATH_KNIGHT)
-        && HasPowerTypeCost(POWER_RUNES)
+        && (HasPowerTypeCost(POWER_RUNE_BLOOD) || HasPowerTypeCost(POWER_RUNE_FROST) || HasPowerTypeCost(POWER_RUNE_UNHOLY))
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
@@ -4881,10 +4881,10 @@ void Spell::SendSpellGo()
         Player* player = ASSERT_NOTNULL(m_caster->ToPlayer());
         castData.RemainingRunes->Start = m_runesState; // runes state before
         castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
-        for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
             // float casts ensure the division is performed on floats as we need float result
-            float baseCd = float(player->GetRuneBaseCooldown());
+            float baseCd = float(RUNE_BASE_COOLDOWN);
             castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
         }
     }
@@ -5455,7 +5455,7 @@ void Spell::TakePower()
             }
         }
 
-        if (powerType == POWER_RUNES)
+        if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
         {
             TakeRunePower(hit);
             continue;
@@ -5483,12 +5483,12 @@ void Spell::TakePower()
 
 SpellCastResult Spell::CheckRuneCost() const
 {
-    int32 runeCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
+    int32 totalRuneCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
     {
-        return totalCost + (cost.Power == POWER_RUNES ? cost.Amount : 0);
+        return totalCost + ((cost.Power == POWER_RUNE_BLOOD || cost.Power == POWER_RUNE_FROST || cost.Power == POWER_RUNE_UNHOLY) ? cost.Amount : 0);
     });
 
-    if (!runeCost)
+    if (!totalRuneCost)
         return SPELL_CAST_OK;
 
     Player* player = m_caster->ToPlayer();
@@ -5498,12 +5498,31 @@ SpellCastResult Spell::CheckRuneCost() const
     if (player->GetClass() != CLASS_DEATH_KNIGHT)
         return SPELL_CAST_OK;
 
-    int32 readyRunes = 0;
-    for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
-        if (player->GetRuneCooldown(i) == 0)
-            ++readyRunes;
+    std::array<int32, AsUnderlyingType(RuneType::Max)> runeCost = { };        // blood, frost, unholy, death
+    for (SpellPowerCost const& cost : m_powerCost)
+    {
+        switch (cost.Power)
+        {
+            case POWER_RUNE_BLOOD:  runeCost[AsUnderlyingType(RuneType::Blood)] = cost.Amount; break;
+            case POWER_RUNE_FROST:  runeCost[AsUnderlyingType(RuneType::Frost)] = cost.Amount; break;
+            case POWER_RUNE_UNHOLY: runeCost[AsUnderlyingType(RuneType::Unholy)] = cost.Amount; break;
+            default:
+                break;
+        }
+    }
 
-    if (readyRunes < runeCost)
+    for (uint32 i = 0; i < MAX_RUNES; ++i)
+    {
+        RuneType rune = player->GetCurrentRune(i);
+        if ((player->GetRuneCooldown(i) == 0) && (runeCost[AsUnderlyingType(rune)] > 0))
+            runeCost[AsUnderlyingType(rune)]--;
+    }
+
+    for (uint8 i = 0; i < AsUnderlyingType(RuneType::Death); ++i)
+        if (runeCost[i] > 0)
+            runeCost[AsUnderlyingType(RuneType::Death)] += runeCost[i];
+
+    if (runeCost[AsUnderlyingType(RuneType::Death)] > MAX_RUNES)
         return SPELL_FAILED_NO_POWER;                       // not sure if result code is correct
 
     return SPELL_CAST_OK;
@@ -5514,20 +5533,70 @@ void Spell::TakeRunePower(bool didHit)
     if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    Player* player = m_caster->ToPlayer();
-    m_runesState = player->GetRunesState();                 // store previous state
-
-    int32 runeCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
+    int32 totalRuneCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
     {
-        return totalCost + (cost.Power == POWER_RUNES ? cost.Amount : 0);
+        return totalCost + ((cost.Power == POWER_RUNE_BLOOD || cost.Power == POWER_RUNE_FROST || cost.Power == POWER_RUNE_UNHOLY) ? cost.Amount : 0);
     });
 
-    for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+    // Spells that do not consume any runes, do not grant any Runic Power
+    if (!totalRuneCost)
+        return;
+
+    Player* player = m_caster->ToPlayer();
+    m_runesState = player->GetRunesState();                 // store previous state
+    player->ClearLastUsedRuneMask();
+
+    std::array<int32, AsUnderlyingType(RuneType::Max)> runeCost = { };        // blood, frost, unholy, death
+    for (SpellPowerCost const& cost : m_powerCost)
     {
-        if (!player->GetRuneCooldown(i) && runeCost > 0)
+        switch (cost.Power)
         {
-            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown() : uint32(RUNE_MISS_COOLDOWN));
-            --runeCost;
+            case POWER_RUNE_BLOOD:  runeCost[AsUnderlyingType(RuneType::Blood)] = cost.Amount; break;
+            case POWER_RUNE_FROST:  runeCost[AsUnderlyingType(RuneType::Frost)] = cost.Amount; break;
+            case POWER_RUNE_UNHOLY: runeCost[AsUnderlyingType(RuneType::Unholy)] = cost.Amount; break;
+            default:
+                break;
+        }
+    }
+
+    // Let's say we use a skill that requires a Frost rune. This is the order:
+    // - Frost rune
+    // - Death rune, originally a Frost rune
+    // - Death rune, any kind
+    for (uint32 i = 0; i < MAX_RUNES; ++i)
+    {
+        RuneType rune = player->GetCurrentRune(i);
+        if (!player->GetRuneCooldown(i) && runeCost[AsUnderlyingType(rune)] > 0)
+        {
+            player->SetRuneCooldown(i, didHit ? uint32(RUNE_BASE_COOLDOWN) : uint32(RUNE_MISS_COOLDOWN));
+            player->SetLastUsedRune(rune);
+            player->SetLastUsedRuneIndex(i);
+            --runeCost[AsUnderlyingType(rune)];
+        }
+    }
+
+    // Find a Death rune where the base rune matches the one we need
+    runeCost[AsUnderlyingType(RuneType::Death)] = runeCost[AsUnderlyingType(RuneType::Blood)] + runeCost[AsUnderlyingType(RuneType::Unholy)] + runeCost[AsUnderlyingType(RuneType::Frost)];
+
+    if (runeCost[AsUnderlyingType(RuneType::Death)] > 0)
+    {
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
+        {
+            RuneType rune = player->GetCurrentRune(i);
+            if (!player->GetRuneCooldown(i) && rune == RuneType::Death)
+            {
+                player->SetRuneCooldown(i, didHit ? uint32(RUNE_BASE_COOLDOWN) : uint32(RUNE_MISS_COOLDOWN));
+                player->SetLastUsedRune(rune);
+                player->SetLastUsedRuneIndex(i);
+                runeCost[AsUnderlyingType(rune)]--;
+
+                // keep Death Rune type if missed
+                if (didHit)
+                    player->RestoreBaseRune(i);
+
+                if (runeCost[AsUnderlyingType(RuneType::Death)] == 0)
+                    break;
+            }
         }
     }
 }
@@ -7260,8 +7329,8 @@ SpellCastResult Spell::CheckPower() const
             return SPELL_FAILED_UNKNOWN;
         }
 
-        //check rune cost only if a spell has PowerType == POWER_RUNES
-        if (cost.Power == POWER_RUNES)
+        // check rune cost only if a spell has PowerType == POWER_RUNE_BLOOD or POWER_RUNE_FROST or POWER_RUNE_UNHOLY
+        if (cost.Power == POWER_RUNE_BLOOD || cost.Power == POWER_RUNE_FROST || cost.Power == POWER_RUNE_UNHOLY)
         {
             SpellCastResult failReason = CheckRuneCost();
             if (failReason != SPELL_CAST_OK)

@@ -1622,27 +1622,30 @@ void Player::RegenerateAll()
     m_regenTimerCount += m_regenTimer;
 
     for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
-        if (power != POWER_RUNES)
+        if (power != POWER_RUNE_BLOOD && power != POWER_RUNE_FROST && power != POWER_RUNE_UNHOLY)
             Regenerate(power);
 
     // Runes act as cooldowns, and they don't need to send any data
     if (GetClass() == CLASS_DEATH_KNIGHT)
     {
-        uint32 regeneratedRunes = 0;
-        uint32 regenIndex = 0;
-        while (regeneratedRunes < MAX_RECHARGING_RUNES && m_runes->CooldownOrder.size() > regenIndex)
+        for (uint8 i = 0; i < MAX_RUNES; i += 2)
         {
-            uint8 runeToRegen = m_runes->CooldownOrder[regenIndex];
-            uint32 runeCooldown = GetRuneCooldown(runeToRegen);
-            if (runeCooldown > m_regenTimer)
+            uint8 runeToRegen = i;
+            uint32 runeCooldown = GetRuneCooldown(i);
+            uint32 secondRuneCd = GetRuneCooldown(i + 1);
+
+            //float cdmod = m_unitData->PowerRegenFlatModifier[GetPowerIndex(GetPowerTypeForBaseRune(runeToRegen))] * 10.0f;
+            // Regenerate second rune of the same type only after first rune is off the cooldown
+            if (secondRuneCd && (runeCooldown > secondRuneCd || !runeCooldown))
             {
-                SetRuneCooldown(runeToRegen, runeCooldown - m_regenTimer);
-                ++regenIndex;
+                runeToRegen = i + 1;
+                runeCooldown = secondRuneCd;
             }
+
+            if (runeCooldown > m_regenTimer)
+                SetRuneCooldown(runeToRegen, runeCooldown - m_regenTimer);
             else
                 SetRuneCooldown(runeToRegen, 0);
-
-            ++regeneratedRunes;
         }
     }
 
@@ -5332,8 +5335,6 @@ void Player::UpdateRating(CombatRating cr)
                     ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
                     ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
                     ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
-                    if (GetClass() == CLASS_DEATH_KNIGHT)
-                        UpdateAllRunesRegen();
                     break;
                 case CR_HASTE_RANGED:
                     ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
@@ -17734,18 +17735,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, loadedPowers), 0);
 
     SetPower(POWER_LUNAR_POWER, 0);
-    // Init rune recharge
-    if (GetPowerIndex(POWER_RUNES) != MAX_POWERS)
-    {
-        int32 runes = GetPower(POWER_RUNES);
-        int32 maxRunes = GetMaxPower(POWER_RUNES);
-        uint32 runeCooldown = GetRuneBaseCooldown();
-        while (runes < maxRunes)
-        {
-            SetRuneCooldown(runes, runeCooldown);
-            ++runes;
-        }
-    }
 
     SetPersonalTabard(fields.personalTabardEmblemStyle, fields.personalTabardEmblemColor, fields.personalTabardBorderStyle,
         fields.personalTabardBorderColor, fields.personalTabardBackgroundColor);
@@ -25647,91 +25636,162 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
     SendDirectMessage(packet.Write());
 }
 
-uint8 Player::GetRunesState() const
-{
-    return uint8(m_runes->RuneState & ((1 << GetMaxPower(POWER_RUNES)) - 1));
-}
-
-uint32 Player::GetRuneBaseCooldown() const
-{
-    float cooldown = RUNE_BASE_COOLDOWN;
-
-    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES)
-            cooldown *= 1.0f - (*i)->GetAmount() / 100.0f;
-
-    // Runes cooldown are now affected by player's haste from equipment ...
-    float hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
-
-    // ... and some auras.
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
-
-    cooldown *=  1.0f - (hastePct / 100.0f);
-
-    return cooldown;
-}
-
-void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
-{
-    m_runes->Cooldown[index] = cooldown;
-    m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
-    int32 activeRunes = std::count(std::begin(m_runes->Cooldown), &m_runes->Cooldown[std::min(GetMaxPower(POWER_RUNES), MAX_RUNES)], 0u);
-    if (activeRunes != GetPower(POWER_RUNES))
-        SetPower(POWER_RUNES, activeRunes);
-}
-
 void Runes::SetRuneState(uint8 index, bool set /*= true*/)
 {
-    auto itr = std::find(CooldownOrder.begin(), CooldownOrder.end(), index);
     if (set)
-    {
         RuneState |= (1 << index);                      // usable
-        if (itr != CooldownOrder.end())
-            CooldownOrder.erase(itr);
-    }
     else
-    {
         RuneState &= ~(1 << index);                     // on cooldown
-        if (itr == CooldownOrder.end())
-            CooldownOrder.push_back(index);
-    }
 }
 
 void Player::ResyncRunes() const
 {
-    uint32 maxRunes = uint32(GetMaxPower(POWER_RUNES));
-
-    WorldPackets::Spells::ResyncRunes data(maxRunes);
-    data.Runes.Start = uint8((1 << maxRunes) - 1);
+    WorldPackets::Spells::ResyncRunes data(MAX_RUNES);
+    data.Runes.Start = uint8((1 << MAX_RUNES) - 1);
     data.Runes.Count = GetRunesState();
 
-    float baseCd = float(GetRuneBaseCooldown());
-    for (uint32 i = 0; i < maxRunes; ++i)
-        data.Runes.Cooldowns.push_back(uint8((baseCd - float(GetRuneCooldown(i))) / baseCd * 255));
+    data.Runes.Cooldowns.reserve(MAX_RUNES);
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+        data.Runes.Cooldowns.push_back(uint8(GetRuneCooldown(i) * uint32(255) / uint32(RUNE_BASE_COOLDOWN)));
 
     SendDirectMessage(data.Write());
 }
+
+void Player::SendConvertedRunes() const
+{
+
+}
+
+void Player::AddRunePower(uint8 mask) const
+{
+    WorldPackets::Spells::AddRunePower packet;
+    packet.AddedRunesMask = mask; // mask (0x00-0x3F probably)
+    SendDirectMessage(packet.Write());
+}
+
+static RuneType runeSlotTypes[MAX_RUNES] =
+{
+    /*0*/ RuneType::Blood,
+    /*1*/ RuneType::Blood,
+    /*2*/ RuneType::Unholy,
+    /*3*/ RuneType::Unholy,
+    /*4*/ RuneType::Frost,
+    /*5*/ RuneType::Frost
+};
 
 void Player::InitRunes()
 {
     if (GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    uint32 runeIndex = GetPowerIndex(POWER_RUNES);
-    if (runeIndex == MAX_POWERS)
-        return;
-
     m_runes = std::make_unique<Runes>();
     m_runes->RuneState = 0;
+    m_runes->LastUsedRune = RuneType::Blood;
+    m_runes->LastUsedRuneMask = 0;
+
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    {
+        SetBaseRune(i, runeSlotTypes[i]);                              // init base types
+        SetCurrentRune(i, runeSlotTypes[i]);                           // init current types
+        SetRuneCooldown(i, 0);                                         // reset cooldowns
+        SetRuneConvertAura(i, nullptr, SPELL_AURA_NONE, nullptr);
+        m_runes->SetRuneState(i);
+    }
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)
         SetRuneCooldown(i, 0);                                          // reset cooldowns
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), 0.0f);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, runeIndex), 0.0f);
+    for (Powers rune : { POWER_RUNE_BLOOD, POWER_RUNE_FROST, POWER_RUNE_UNHOLY })
+    {
+        int32 powerIndex = GetPowerIndex(rune);
+        if (powerIndex == MAX_POWERS)
+            continue;
+
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), 0.0f);
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), 0.0f);
+    }
+}
+
+Powers Player::GetPowerTypeForBaseRune(uint8 index) const
+{
+    switch (GetBaseRune(index))
+    {
+        case RuneType::Blood: return POWER_RUNE_BLOOD;
+        case RuneType::Frost: return POWER_RUNE_FROST;
+        case RuneType::Unholy: return POWER_RUNE_UNHOLY;
+        default:
+            return MAX_POWERS;
+    }
+}
+
+bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
+{
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+        if (GetBaseRune(i) == runeType && GetRuneCooldown(i) == 0)
+            return false;
+
+    return true;
+}
+
+void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo)
+{
+    m_runes->_Runes[index].ConvertAura = aura;
+    m_runes->_Runes[index].ConvertAuraType = auraType;
+    m_runes->_Runes[index].ConvertAuraInfo = spellInfo;
+}
+
+void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo)
+{
+    SetRuneConvertAura(index, aura, auraType, spellInfo);
+    ConvertRune(index, newType);
+}
+
+void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
+{
+    m_runes->_Runes[index].Cooldown = cooldown;
+    m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
+}
+
+void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
+{
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    {
+        if (m_runes->_Runes[i].ConvertAura == aura)
+        {
+            ConvertRune(i, GetBaseRune(i));
+            SetRuneConvertAura(i, nullptr, SPELL_AURA_NONE, nullptr);
+        }
+    }
+}
+
+void Player::RestoreBaseRune(uint8 index)
+{
+    SpellInfo const* spellInfo = m_runes->_Runes[index].ConvertAuraInfo;
+    AuraType type = m_runes->_Runes[index].ConvertAuraType;
+    // If rune was converted by a non-pasive aura that still active we should keep it converted
+    if (spellInfo)
+    {
+        if (!(spellInfo->Attributes & SPELL_ATTR0_PASSIVE))
+            return;
+
+        // Don't even convert aura for passive convertion
+        if (spellInfo->IsPassive() && type == SPELL_AURA_CONVERT_RUNE)
+            return;
+    }
+
+    ConvertRune(index, GetBaseRune(index));
+    SetRuneConvertAura(index, nullptr, SPELL_AURA_NONE, nullptr);
+}
+
+void Player::ConvertRune(uint8 index, RuneType newType)
+{
+    SetCurrentRune(index, newType);
+
+    WorldPackets::Spells::ConvertRune packet(MAX_RUNES);
+    packet.Index = index;
+    packet.Rune = AsUnderlyingType(newType);
+
+    SendDirectMessage(packet.Write());
 }
 
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, ItemContext context, bool broadcast, bool createdByPlayer)

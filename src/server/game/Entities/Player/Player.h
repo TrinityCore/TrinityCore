@@ -396,8 +396,7 @@ struct Areas
     float y2;
 };
 
-#define MAX_RUNES 7
-#define MAX_RECHARGING_RUNES 3
+constexpr uint8 MAX_RUNES = 6;
 
 enum RuneCooldowns
 {
@@ -405,11 +404,31 @@ enum RuneCooldowns
     RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
 };
 
+enum class RuneType : uint8
+{
+    Blood   = 0,
+    Unholy  = 1,
+    Frost   = 2,
+    Death   = 3,
+    Max     = 4
+};
+
+struct RuneInfo
+{
+    RuneType BaseRune;
+    RuneType CurrentRune;
+    uint32 Cooldown;
+    AuraEffect const* ConvertAura;
+    AuraType ConvertAuraType;
+    SpellInfo const* ConvertAuraInfo;
+};
+
 struct Runes
 {
-    std::deque<uint8> CooldownOrder;
-    uint32 Cooldown[MAX_RUNES];
+    RuneInfo _Runes[MAX_RUNES];
     uint8 RuneState;                                        // mask of available runes
+    RuneType LastUsedRune;
+    uint8 LastUsedRuneMask;
 
     void SetRuneState(uint8 index, bool set = true);
 };
@@ -2086,7 +2105,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdatePowerRegen(Powers powerType);
-        void UpdateAllRunesRegen();
 
         void SetPetSpellPower(uint32 spellPower) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::PetSpellPower), spellPower); }
 
@@ -2633,11 +2651,30 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool isAllowedToLoot(Creature const* creature) const;
 
         UF::DeclinedNames const* GetDeclinedNames() const { return m_playerData->DeclinedNames.has_value() ? &*m_playerData->DeclinedNames : nullptr; }
-        uint8 GetRunesState() const;
-        uint32 GetRuneCooldown(uint8 index) const { return m_runes->Cooldown[index]; }
-        uint32 GetRuneBaseCooldown() const;
+
+        // Runes
+        uint8 GetRunesState() const { return m_runes->RuneState; }
+        RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->_Runes[index].BaseRune); }
+        RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->_Runes[index].CurrentRune); }
+        Powers GetPowerTypeForBaseRune(uint8 index) const;
+        uint32 GetRuneCooldown(uint8 index) const { return m_runes->_Runes[index].Cooldown; }
+        bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
+        RuneType GetLastUsedRune() { return m_runes->LastUsedRune; }
+        uint8 GetLastUsedRuneMask() { return m_runes->LastUsedRuneMask; }
+        void ClearLastUsedRuneMask() { m_runes->LastUsedRuneMask = 0; }
+        void SetLastUsedRune(RuneType type) { m_runes->LastUsedRune = type; }
+        void SetLastUsedRuneIndex(uint8 index) { m_runes->LastUsedRuneMask |= (1 << index); }
+        void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->_Runes[index].BaseRune = baseRune; }
+        void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->_Runes[index].CurrentRune = currentRune; }
+        void SetRuneConvertAura(uint8 index, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo);
+        void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo);
         void SetRuneCooldown(uint8 index, uint32 cooldown);
+        void RemoveRunesByAuraEffect(AuraEffect const* aura);
+        void RestoreBaseRune(uint8 index);
+        void ConvertRune(uint8 index, RuneType newType);
         void ResyncRunes() const;
+        void SendConvertedRunes() const;
+        void AddRunePower(uint8 mask) const;
         void InitRunes();
 
         void SendRespondInspectAchievements(Player* player) const;

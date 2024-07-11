@@ -758,7 +758,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         Player const* player = ToPlayer();
 
         bool HasSceneInstanceIDs = !player->GetSceneMgr().GetSceneTemplateByInstanceMap().empty();
-        bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
+        bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNE_BLOOD) != MAX_POWERS;
         bool HasActionButtons = true;
 
         data->WriteBit(HasSceneInstanceIDs);
@@ -773,14 +773,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         }
         if (HasRuneState)
         {
-            float baseCd = float(player->GetRuneBaseCooldown());
-            uint32 maxRunes = uint32(player->GetMaxPower(POWER_RUNES));
-
-            *data << uint8((1 << maxRunes) - 1);
+            *data << uint8((1 << MAX_RUNES) - 1);
             *data << uint8(player->GetRunesState());
-            *data << uint32(maxRunes);
-            for (uint32 i = 0; i < maxRunes; ++i)
-                *data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255);
+            *data << uint32(MAX_RUNES);
+            for (uint32 i = 0; i < MAX_RUNES; ++i)
+                *data << uint8(player->GetRuneCooldown(i) * uint32(255) / uint32(RUNE_BASE_COOLDOWN));
         }
         if (HasActionButtons)
         {
