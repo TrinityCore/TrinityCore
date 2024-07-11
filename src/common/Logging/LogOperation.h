@@ -24,14 +24,17 @@
 class Logger;
 struct LogMessage;
 
-class TC_COMMON_API LogOperation
+class LogOperation
 {
     public:
-        LogOperation(Logger const* _logger, std::unique_ptr<LogMessage>&& _msg);
-
+        LogOperation(Logger const* _logger, LogMessage* _msg);
+        LogOperation(LogOperation const&) = delete;
+        LogOperation(LogOperation&&) noexcept = default;
+        LogOperation& operator=(LogOperation const&) = delete;
+        LogOperation& operator=(LogOperation&&) noexcept = default;
         ~LogOperation();
 
-        int call();
+        void operator()() const;
 
     protected:
         Logger const* logger;
