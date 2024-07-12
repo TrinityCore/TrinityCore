@@ -4776,11 +4776,7 @@ void Spell::SendSpellStart()
             castData.RemainingRunes->Start = m_runesState; // runes state before
             castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
-            {
-                // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(RUNE_BASE_COOLDOWN);
-                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-            }
+                castData.RemainingRunes->Cooldowns.push_back((1.0f - player->GetRuneCooldown(i)) * uint32(255)); // rune cooldown passed
         }
         else
         {
@@ -4882,11 +4878,7 @@ void Spell::SendSpellGo()
         castData.RemainingRunes->Start = m_runesState; // runes state before
         castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
         for (uint8 i = 0; i < MAX_RUNES; ++i)
-        {
-            // float casts ensure the division is performed on floats as we need float result
-            float baseCd = float(RUNE_BASE_COOLDOWN);
-            castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-        }
+            castData.RemainingRunes->Cooldowns.push_back((1.0f - player->GetRuneCooldown(i)) * uint32(255)); // rune cooldown passed
     }
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
@@ -5514,7 +5506,7 @@ SpellCastResult Spell::CheckRuneCost() const
     for (uint32 i = 0; i < MAX_RUNES; ++i)
     {
         RuneType rune = player->GetCurrentRune(i);
-        if ((player->GetRuneCooldown(i) == 0) && (runeCost[AsUnderlyingType(rune)] > 0))
+        if (G3D::fuzzyEq(player->GetRuneCooldown(i), 0.0f) && (runeCost[AsUnderlyingType(rune)] > 0))
             runeCost[AsUnderlyingType(rune)]--;
     }
 
@@ -5568,7 +5560,7 @@ void Spell::TakeRunePower(bool didHit)
         RuneType rune = player->GetCurrentRune(i);
         if (!player->GetRuneCooldown(i) && runeCost[AsUnderlyingType(rune)] > 0)
         {
-            player->SetRuneCooldown(i, didHit ? uint32(RUNE_BASE_COOLDOWN) : uint32(RUNE_MISS_COOLDOWN));
+            player->SetRuneCooldown(i, didHit ? RUNE_BASE_COOLDOWN : RUNE_MISS_COOLDOWN);
             player->SetLastUsedRune(rune);
             player->SetLastUsedRuneIndex(i);
             --runeCost[AsUnderlyingType(rune)];
@@ -5583,9 +5575,9 @@ void Spell::TakeRunePower(bool didHit)
         for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
             RuneType rune = player->GetCurrentRune(i);
-            if (!player->GetRuneCooldown(i) && rune == RuneType::Death)
+            if (G3D::fuzzyEq(player->GetRuneCooldown(i), 0.0f) && rune == RuneType::Death)
             {
-                player->SetRuneCooldown(i, didHit ? uint32(RUNE_BASE_COOLDOWN) : uint32(RUNE_MISS_COOLDOWN));
+                player->SetRuneCooldown(i, didHit ? RUNE_BASE_COOLDOWN : RUNE_MISS_COOLDOWN);
                 player->SetLastUsedRune(rune);
                 player->SetLastUsedRuneIndex(i);
                 runeCost[AsUnderlyingType(rune)]--;

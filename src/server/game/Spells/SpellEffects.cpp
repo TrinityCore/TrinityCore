@@ -5975,9 +5975,9 @@ void Spell::EffectActivateRune()
 
     for (uint32 i = 0; i < MAX_RUNES && count > 0; ++i)
     {
-        if ((1 << AsUnderlyingType(player->GetCurrentRune(i))) & miscValue && player->GetRuneCooldown(i))
+        if ((1 << AsUnderlyingType(player->GetCurrentRune(i))) & miscValue && G3D::fuzzyNe(player->GetRuneCooldown(i), 0.0f))
         {
-            player->SetRuneCooldown(i, 0);
+            player->SetRuneCooldown(i, 0.0f);
             --count;
         }
     }

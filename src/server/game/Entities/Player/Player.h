@@ -398,11 +398,8 @@ struct Areas
 
 constexpr uint8 MAX_RUNES = 6;
 
-enum RuneCooldowns
-{
-    RUNE_BASE_COOLDOWN  = 10000,
-    RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
-};
+constexpr float RUNE_BASE_COOLDOWN = 1.0f;
+constexpr float RUNE_MISS_COOLDOWN = 0.15f; // cooldown applied on runes when the spell misses
 
 enum class RuneType : uint8
 {
@@ -417,7 +414,7 @@ struct RuneInfo
 {
     RuneType BaseRune;
     RuneType CurrentRune;
-    uint32 Cooldown;
+    float Cooldown;
     AuraEffect const* ConvertAura;
     AuraType ConvertAuraType;
     SpellInfo const* ConvertAuraInfo;
@@ -2657,7 +2654,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->_Runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->_Runes[index].CurrentRune); }
         Powers GetPowerTypeForBaseRune(uint8 index) const;
-        uint32 GetRuneCooldown(uint8 index) const { return m_runes->_Runes[index].Cooldown; }
+        float GetRuneCooldown(uint8 index) const { return m_runes->_Runes[index].Cooldown; }
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         RuneType GetLastUsedRune() { return m_runes->LastUsedRune; }
         uint8 GetLastUsedRuneMask() { return m_runes->LastUsedRuneMask; }
@@ -2668,7 +2665,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->_Runes[index].CurrentRune = currentRune; }
         void SetRuneConvertAura(uint8 index, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo);
         void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo);
-        void SetRuneCooldown(uint8 index, uint32 cooldown);
+        void SetRuneCooldown(uint8 index, float cooldown);
         void RemoveRunesByAuraEffect(AuraEffect const* aura);
         void RestoreBaseRune(uint8 index);
         void ConvertRune(uint8 index, RuneType newType);

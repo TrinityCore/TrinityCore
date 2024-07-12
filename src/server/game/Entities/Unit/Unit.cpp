@@ -6667,9 +6667,9 @@ void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damag
             int32 runesToEnergize = damage;
             for (uint32 i = 0; i < MAX_RUNES && runesToEnergize > 0; ++i)
             {
-                if (player->GetPowerTypeForBaseRune(i) == powerType && player->GetRuneCooldown(i))
+                if (player->GetPowerTypeForBaseRune(i) == powerType && G3D::fuzzyNe(player->GetRuneCooldown(i), 0.0f))
                 {
-                    player->SetRuneCooldown(i, 0);
+                    player->SetRuneCooldown(i, 0.0f);
                     --runesToEnergize;
                 }
             }

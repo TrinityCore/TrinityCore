@@ -776,8 +776,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
             *data << uint8((1 << MAX_RUNES) - 1);
             *data << uint8(player->GetRunesState());
             *data << uint32(MAX_RUNES);
-            for (uint32 i = 0; i < MAX_RUNES; ++i)
-                *data << uint8(player->GetRuneCooldown(i) * uint32(255) / uint32(RUNE_BASE_COOLDOWN));
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                *data << uint8((1.0f - player->GetRuneCooldown(i)) * uint32(255));
         }
         if (HasActionButtons)
         {

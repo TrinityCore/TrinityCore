@@ -6412,7 +6412,7 @@ void AuraEffect::HandleConvertRune(AuraApplication const* aurApp, uint8 mode, bo
             if (RuneType(GetMiscValue()) != playerTarget->GetCurrentRune(i))
                 continue;
 
-            if (!playerTarget->GetRuneCooldown(i))
+            if (G3D::fuzzyEq(playerTarget->GetRuneCooldown(i), 0.0f))
             {
                 playerTarget->AddRuneByAuraEffect(i, RuneType(GetMiscValueB()), this, GetAuraType(), GetSpellInfo());
                 --runesToConvert;
