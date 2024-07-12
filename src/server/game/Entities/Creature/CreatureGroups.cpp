@@ -25,6 +25,7 @@
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
 #include "ObjectMgr.h"
+#include "ZoneScript.h"
 
 FormationMgr::FormationMgr() = default;
 FormationMgr::~FormationMgr() = default;
@@ -73,6 +74,12 @@ void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* membe
 
     TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: {} from group {}", leaderSpawnId, member->GetSpawnId());
     group->RemoveMember(member);
+
+    // If removed member was alive we need to check if we have any other alive members
+    // if not - fire OnCreatureGroupDepleted
+    if (ZoneScript* script = member->GetZoneScript())
+        if (member->IsAlive() && !group->HasAliveMembers())
+            script->OnCreatureGroupDepleted(group);
 
     if (group->IsEmpty())
     {
@@ -301,4 +308,26 @@ bool CreatureGroup::CanLeaderStartMoving() const
     }
 
     return true;
+}
+
+bool CreatureGroup::HasAliveMembers() const
+{
+    return std::ranges::any_of(_members, [](Creature const* member) { return member->IsAlive(); }, &MembersMap::value_type::first);
+}
+
+bool CreatureGroup::LeaderHasStringId(std::string_view id) const
+{
+    if (_leader)
+        return _leader->HasStringId(id);
+
+    if (CreatureData const* leaderCreatureData = sObjectMgr->GetCreatureData(_leaderSpawnId))
+    {
+        if (leaderCreatureData->StringId == id)
+            return true;
+
+        if (ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(leaderCreatureData->id))->StringId == id)
+            return true;
+    }
+
+    return false;
 }

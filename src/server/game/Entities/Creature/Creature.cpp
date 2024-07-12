@@ -361,7 +361,7 @@ void Creature::RemoveFromWorld()
             GetZoneScript()->OnCreatureRemove(this);
 
         if (m_formation)
-            sFormationMgr->RemoveCreatureFromGroup(m_formation, this);
+            FormationMgr::RemoveCreatureFromGroup(m_formation, this);
 
         Unit::RemoveFromWorld();
 
@@ -2112,8 +2112,15 @@ void Creature::setDeathState(DeathState s)
         SetNoSearchAssistance(false);
 
         //Dismiss group if is leader
-        if (m_formation && m_formation->GetLeader() == this)
-            m_formation->FormationReset(true);
+        if (m_formation)
+        {
+            if (m_formation->GetLeader() == this)
+                m_formation->FormationReset(true);
+
+            if (ZoneScript* script = GetZoneScript())
+                if (!m_formation->HasAliveMembers())
+                    script->OnCreatureGroupDepleted(m_formation);
+        }
 
         bool needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater() && !HasUnitState(UNIT_STATE_ROOT);
         SetHover(false, false);
