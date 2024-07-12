@@ -4857,6 +4857,10 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE AZURE VAULT SPELLS
     //
 
+    //
+    // THE WANDERING ISLE SPELLS
+    //
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
@@ -4875,6 +4879,16 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
         });
     });
+
+    // Summon Living Air
+    ApplySpellFix({ 102207 }, [](SpellInfo* spellInfo)
+    {
+        // Needs UseDemonTimeout
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
+    });
+
+    // END OF THE WANDERING ISLE SPELLS
+    //
 
     // Earthquake
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
