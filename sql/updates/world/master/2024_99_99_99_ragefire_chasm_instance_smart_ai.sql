@@ -186,17 +186,17 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (211883, 211884, 211885) AND `source_type`=1;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (211883, 1, 0, 1, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120026 to player'),
-(211883, 1, 1, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
+(211883, 1, 1, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
 (211883, 1, 2, 3, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
-(211883, 1, 3, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout'),
+(211883, 1, 3, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout'),
 (211884, 1, 0, 1, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120026 to player'),
-(211884, 1, 1, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
+(211884, 1, 1, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
 (211884, 1, 2, 3, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
-(211884, 1, 3, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout'),
+(211884, 1, 3, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout'),
 (211885, 1, 0, 1, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120026, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed -  Cast spell 120026 to player'),
-(211885, 1, 1, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
+(211885, 1, 1, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61788, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to SI:7 Ranger'),
 (211885, 1, 2, 3, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 120292, 0, 21, 20, 0, 0, 0, NULL, 21, 20, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast spell 120292 to player'),
-(211885, 1, 3, 0, '', 70, 0, 100, 0, 2, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout');
+(211885, 1, 3, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 101163, 0, 19, 61680, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Scout Cage - On State Changed - Cast Spell 101163 to Kor\'kron Scout');
 
 -- Inconspicuous Crate
 UPDATE `gossip_menu_option` SET `GossipOptionID`=37666, `VerifiedBuild`=54717 WHERE (`MenuID`=13815 AND `OptionID`=0);
@@ -216,8 +216,8 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=61790 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6179000 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (61790, 0, 0, 1, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 80, (61790 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Action List'),
-(61790, 0, 1, 2, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Remove Gossip flag'),
-(61790, 0, 2, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Reached Point 1 - Despawn'),
+(61790, 0, 1, 2, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Remove Gossip flag'),
+(61790, 0, 2, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Reached Point 1 - Despawn'),
 (61790, 0, 3, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to SI:7 Ranger'),
 (61790, 0, 4, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to Kor\'kron Scout'),
 
@@ -243,9 +243,9 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=61780 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6178000 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (61780, 0, 0, 1, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 80, (61780 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Action List'),
-(61780, 0, 1, 2, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Remove Gossip flag'),
-(61780, 0, 2, 3, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 128, 1443, 1, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - SetAIAnimKitId to 1443'),
-(61780, 0, 3, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - Despawn'),
+(61780, 0, 1, 2, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Remove Gossip flag'),
+(61780, 0, 2, 3, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 128, 1443, 1, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - SetAIAnimKitId to 1443'),
+(61780, 0, 3, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Reached Point 1 - Despawn'),
 (61780, 0, 4, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 45, 0, 2, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Set Data 0 2 to SI:7 Ranger'),
 (61780, 0, 5, 0, '', 62, 0, 100, 0, 13814, 0, 0, 0, 0, '', 45, 0, 2, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Suspicious Rock - On Gossip Select - Set Data 0 2 to Kor\'kron Scout'),
 
@@ -526,11 +526,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 -- only the one with the quest npc
 -- Alliance version
 (61658, 0, 3, 4, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Set Data 0 1 to SI:7 Ranger'),
-(61658, 0, 4, 0, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 120026, 0, 0, 0, 0, 0, 0, NULL, 16, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Cast spell 120026 on Invoker Party'),
+(61658, 0, 4, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 120026, 0, 0, 0, 0, 0, 0, NULL, 16, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Cast spell 120026 on Invoker Party'),
 
 -- Horde version
 (61658, 0, 5, 6, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound (IC) - Set Data 0 1 to Kor\'kron Scout'),
-(61658, 0, 6, 0, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 120292, 0, 0, 0, 0, 0, 0, NULL, 16, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Cast spell 120292 on Invoker Party');
+(61658, 0, 6, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 120292, 0, 0, 0, 0, 0, 0, NULL, 16, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Mature Flame Hound - On Death - Cast spell 120292 on Invoker Party');
 
 -- Adolescent Flame Hound
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=61657;
