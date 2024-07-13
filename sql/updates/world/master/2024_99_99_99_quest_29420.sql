@@ -1,3 +1,5 @@
+SET @CGUID := 1000000000;
+
 -- Areatrigger 7736
 DELETE FROM `areatrigger_scripts` WHERE `entry`=7736;
 INSERT INTO `areatrigger_scripts` VALUES
@@ -25,9 +27,14 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (59626, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 80, 5962600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Update - Run Script'),
 (5962600, 9, 0, 0, 0, 0, 100, 0, 3000, 5000, 0, 0, 0, 85, 114684, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Cast Flame Spout damage');
 
+-- Spell
 DELETE FROM `spell_script_names` WHERE `spell_id`=114684;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (114684, 'spell_flame_spout');
+
+DELETE FROM `spell_area` WHERE `spell`=102399 AND `area`=5849;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES
+(102399, 5849, 0, 29423, 0, 0, 2, 3, 0, 9);
 
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID`=60176;
@@ -35,12 +42,16 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (60176, 0, 0, 'The fire spirit is upset. It\'s dangerous to enter the shrine now...', 12, 0, 100, 396, 0, 0, 59680, 0, 'Huojin Monk to Player');
 
 -- Creature
-UPDATE `creature_template` SET `unit_flags`='768', `AIName`='SmartAI' WHERE `entry`=59626; -- 59626 (Flame Spout) - Flame Spout
+UPDATE `creature_template` SET `unit_flags`=33555200, `AIName`='SmartAI' WHERE `entry`=59626; -- 59626 (Flame Spout) - Flame Spout
 UPDATE `creature_template_addon` SET `auras`='96112' WHERE `entry`=59626; -- 59626 (Flame Spout) - Shrink
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=60176;
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=536871168, `VerifiedBuild`=55461 WHERE (`Entry`=59626 AND `DifficultyID`=0); -- 59626 (Flame Spout) - Sessile, Floating
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=268435456, `VerifiedBuild`=55461 WHERE (`Entry`=60176 AND `DifficultyID`=0); -- 60176 (Huojin Monk) - CanSwim
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=268435456, `VerifiedBuild`=55461 WHERE (`Entry`=54135 AND `DifficultyID`=0); -- 54135 (Master Li Fei) - CanSwim
+
+DELETE FROM `creature` WHERE `guid` = @CGUID+0;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curHealthPct`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(@CGUID+0, 59626, 860, 5736, 5849, '0', 0, 0, 0, 0, 1393.7691650390625, 3900.11279296875, 101.0790328979492187, 1.522577166557312011, 120, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 55461); -- Flame Spout (Area: Shrine of Inner-Light - Difficulty: 0) CreateObject1
 
 -- Quest
 UPDATE `quest_template_locale` SET `LogTitle`='Más fuerte que el junco', `LogDescription`='Reúne 8 juncos parteleños duros.', `QuestDescription`='Reúne juncos de las charcas cercanas.$B$BNo preguntes por qué. Hazlo y observa los resultados.', `VerifiedBuild`=55461 WHERE (`ID`=29662 AND `locale`='esES');
