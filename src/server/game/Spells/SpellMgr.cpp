@@ -4873,18 +4873,10 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Summon Amberleaf Troublemaker
     ApplySpellFix({ 114698 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 2mins
         ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
         {
             spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
         });
-    });
-
-    // Summon Living Air
-    ApplySpellFix({ 102207 }, [](SpellInfo* spellInfo)
-    {
-        // Needs UseDemonTimeout
-        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
     });
 
     // END OF THE WANDERING ISLE SPELLS
