@@ -19,6 +19,7 @@
 #define _OBJECT_H
 
 #include "Common.h"
+#include "ControlZone.h"
 #include "Duration.h"
 #include "Errors.h"
 #include "EventProcessor.h"
@@ -64,6 +65,7 @@ class WorldObject;
 class WorldPacket;
 class ZoneScript;
 struct FactionTemplateEntry;
+struct GameObjectTemplate;
 struct Loot;
 struct QuaternionData;
 struct SpellPowerCost;
@@ -794,6 +796,12 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         SmoothPhasing* GetSmoothPhasing() { return _smoothPhasing.get(); }
         SmoothPhasing const* GetSmoothPhasing() const { return _smoothPhasing.get(); }
 
+        // Control Zone
+        ControlZone* GetControlZone() { return _controlZone.get();  }
+        ControlZone const* GetControlZone() const { return _controlZone.get(); }
+        ControlZone* CreateControlZone(GameObjectTemplate const* gameobjectTemplate);
+        void RemoveControlZone();
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -849,6 +857,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert = false) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
         bool CanDetectStealthOf(WorldObject const* obj, bool checkAlert = false) const;
+
+        std::unique_ptr<ControlZone> _controlZone;
 };
 
 namespace Trinity
