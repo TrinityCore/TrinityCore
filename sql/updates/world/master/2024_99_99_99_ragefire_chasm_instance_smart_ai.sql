@@ -208,18 +208,18 @@ INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`)
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=61790;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Ally
-(22, 4, 61790, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
+(22, 1, 61790, 0, 0, 11, 0, 4485, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Alliance Player'),
 -- Horde
-(22, 5, 61790, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
+(22, 2, 61790, 0, 0, 11, 0, 4486, 1, 0, '', 0, 0, 0, '', 'Scripted creature does Smart Script if you are Horde Player');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=61790 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6179000 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(61790, 0, 0, 1, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 80, (61790 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Action List'),
-(61790, 0, 1, 2, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Remove Gossip flag'),
-(61790, 0, 2, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Reached Point 1 - Despawn'),
-(61790, 0, 3, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to SI:7 Ranger'),
-(61790, 0, 4, 0, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 2 to Kor\'kron Scout'),
+(61790, 0, 0, 2, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61788, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 4 to SI:7 Ranger'),
+(61790, 0, 1, 2, '', 62, 0, 100, 0, 13815, 0, 0, 0, 0, '', 45, 0, 4, 0, 0, 0, 0, 0, NULL, 19, 61680, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Set Data 0 4 to Kor\'kron Scout'),
+(61790, 0, 2, 3, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 80, (61790 * 100), 2, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Action List'),
+(61790, 0, 3, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 83, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Gossip Select - Remove Gossip flag'),
+(61790, 0, 4, 0, '', 34, 0, 100, 0, 16, 1, 0, 0, 0, '', 41, 2000, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Inconspicuous Crate - On Reached Point 1 - Despawn'),
 
 ((61790 * 100), 9, 0, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 103, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Action list - Set Root Off'),
 ((61790 * 100), 9, 1, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 60, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Action list - Enable Gravity'),
