@@ -19,6 +19,7 @@
 
 #include "GameEventSender.h"
 #include "GridNotifiers.h"
+#include "Map.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 
