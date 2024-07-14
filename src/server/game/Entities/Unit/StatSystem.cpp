@@ -97,6 +97,89 @@ int32 Unit::GetCreatePowerValue(Powers power) const
     return 0;
 }
 
+void Unit::UpdatePowerRegen(Powers powerType)
+{
+    uint32 powerIndex = GetPowerIndex(powerType);
+    if (powerIndex == MAX_POWERS)
+        return;
+
+    float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
+    float powerRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, powerType);
+
+    switch (powerType)
+    {
+        case POWER_MANA:
+        {
+            // Get base of Mana Pool in sBaseMPGameTable
+            uint32 basemana = 0;
+
+            if (IsPlayer())
+                sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
+            else
+                basemana = GetCreateMana();
+
+            float manaRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
+
+            // BaseRegen = 5% of Base Mana per five seconds
+            float baseRegen = basemana / 100.f;
+            // SPELL_AURA_MOD_POWER_REGEN flat bonus
+            baseRegen += powerRegenMod;
+
+            // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5
+            float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
+            if (GetStat(STAT_INTELLECT) > 0.0f)
+                spiritRegen *= std::sqrt(GetStat(STAT_INTELLECT));
+
+            // SPELL_AURA_MOD_POWER_REGEN_PERCENT pct bonus
+            baseRegen *= powerRegenModPct;
+            spiritRegen *= powerRegenModPct;
+
+            // SPELL_AURA_MOD_MANA_REGEN_PCT pct bonus
+            baseRegen *= manaRegenModPct;
+            spiritRegen *= manaRegenModPct;
+
+            // SPELL_AURA_MOD_MANA_REGEN_INTERRUPT allow some of the spirit regeneration to bypass the combat restriction
+            int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), baseRegen + spiritRegen);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), baseRegen + CalculatePct(spiritRegen, modManaRegenInterrupt));
+            break;
+        }
+        default:
+        {
+            // Classic Only - Death Knight Runes use the flags of the POWER_RUNES
+            if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
+                powerType = POWER_RUNES;
+
+            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
+            // Base Regen
+            float peaceRegen = powerTypeEntry->RegenPeace;
+            float combatRegen = powerTypeEntry->RegenCombat;
+
+            // Haste Regen
+            if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste) && G3D::fuzzyNe(m_unitData->ModHaste, 0.0f))
+            {
+                peaceRegen /= m_unitData->ModHaste;
+                combatRegen /= m_unitData->ModHaste;
+            }
+
+            peaceRegen *= powerRegenModPct;
+            combatRegen *= powerRegenModPct;
+
+            // Subtract the base value to get the proper offset
+            peaceRegen -= powerTypeEntry->RegenPeace;
+            combatRegen -= powerTypeEntry->RegenCombat;
+
+            peaceRegen += powerRegenMod;
+            combatRegen += powerRegenMod;
+
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), peaceRegen);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), combatRegen);
+            break;
+        }
+    }
+}
+
 /*#######################################
 ########                         ########
 ########   PLAYERS STAT SYSTEM   ########
@@ -793,85 +876,6 @@ void Player::ApplyManaRegenBonus(int32 amount, bool apply)
 void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 {
     _ModifyUInt32(apply, m_baseHealthRegen, amount);
-}
-
-void Player::UpdatePowerRegen(Powers powerType)
-{
-    uint32 powerIndex = GetPowerIndex(powerType);
-    if (powerIndex == MAX_POWERS)
-        return;
-
-    float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
-    float powerRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, powerType);
-
-    switch (powerType)
-    {
-        case POWER_MANA:
-        {
-            // Get base of Mana Pool in sBaseMPGameTable
-            uint32 basemana = 0;
-            sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
-
-            float manaRegenModPct = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
-
-            // BaseRegen = 5% of Base Mana per five seconds
-            float baseRegen = basemana / 100.f;
-            // SPELL_AURA_MOD_POWER_REGEN flat bonus
-            baseRegen += powerRegenMod;
-
-            // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5
-            float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
-            if (GetStat(STAT_INTELLECT) > 0.0f)
-                spiritRegen *= std::sqrt(GetStat(STAT_INTELLECT));
-
-            // SPELL_AURA_MOD_POWER_REGEN_PERCENT pct bonus
-            baseRegen *= powerRegenModPct;
-            spiritRegen *= powerRegenModPct;
-
-            // SPELL_AURA_MOD_MANA_REGEN_PCT pct bonus
-            baseRegen *= manaRegenModPct;
-            spiritRegen *= manaRegenModPct;
-
-            // SPELL_AURA_MOD_MANA_REGEN_INTERRUPT allow some of the spirit regeneration to bypass the combat restriction
-            int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
-
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), baseRegen + spiritRegen);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), baseRegen + CalculatePct(spiritRegen, modManaRegenInterrupt));
-            break;
-        }
-        default:
-        {
-            // Classic Only - Death Knight Runes use the flags of the POWER_RUNES
-            if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
-                powerType = POWER_RUNES;
-
-            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
-            // Base Regen
-            float peaceRegen = powerTypeEntry->RegenPeace;
-            float combatRegen = powerTypeEntry->RegenCombat;
-
-            // Haste Regen
-            if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste) && G3D::fuzzyNe(m_unitData->ModHaste, 0.0f))
-            {
-                peaceRegen /= m_unitData->ModHaste;
-                combatRegen /= m_unitData->ModHaste;
-            }
-
-            peaceRegen *= powerRegenModPct;
-            combatRegen *= powerRegenModPct;
-
-            // Subtract the base value to get the proper offset
-            peaceRegen -= powerTypeEntry->RegenPeace;
-            combatRegen -= powerTypeEntry->RegenCombat;
-
-            peaceRegen += powerRegenMod;
-            combatRegen += powerRegenMod;
-
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), peaceRegen);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), combatRegen);
-            break;
-        }
-    }
 }
 
 void Player::_ApplyAllStatBonuses()
