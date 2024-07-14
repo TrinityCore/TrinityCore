@@ -36,7 +36,10 @@ enum WaycrestManorDataTypes
 
     DATA_SISTER_BRIAR,
     DATA_SISTER_MALADY,
-    DATA_SISTER_SOLENA
+    DATA_SISTER_SOLENA,
+
+    DATA_LADY_WAYCREST,
+    DATA_LORD_WAYCREST
 };
 
 enum WaycrestManorCreatureIds

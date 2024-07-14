@@ -30,6 +30,8 @@ ObjectData const creatureData[] =
     { BOSS_SISTER_BRIAR,  DATA_SISTER_BRIAR  },
     { BOSS_SISTER_MALADY, DATA_SISTER_MALADY },
     { BOSS_SISTER_SOLENA, DATA_SISTER_SOLENA },
+    { BOSS_LADY_WAYCREST, DATA_LADY_WAYCREST },
+    { BOSS_LORD_WAYCREST, DATA_LORD_WAYCREST },
     { 0,                  0                  }  // END
 };
 
