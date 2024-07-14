@@ -392,17 +392,7 @@ WorldPacket const* AttackerStateUpdate::Write()
     if (HitInfo & (HITINFO_BLOCK | HITINFO_UNK12))
         attackRoundInfo << float(Unk);
 
-    attackRoundInfo << uint8(ContentTuning.Type);
-    attackRoundInfo << uint8(ContentTuning.TargetLevel);
-    attackRoundInfo << uint8(ContentTuning.Expansion);
-    attackRoundInfo << int16(ContentTuning.PlayerLevelDelta);
-    attackRoundInfo << int8(ContentTuning.TargetScalingLevelDelta);
-    attackRoundInfo << float(ContentTuning.PlayerItemLevel);
-    attackRoundInfo << float(ContentTuning.TargetItemLevel);
-    attackRoundInfo << uint32(ContentTuning.ScalingHealthItemLevelCurveID);
-    attackRoundInfo << uint32(ContentTuning.Flags);
-    attackRoundInfo << int32(ContentTuning.PlayerContentTuningID);
-    attackRoundInfo << int32(ContentTuning.TargetContentTuningID);
+    attackRoundInfo << ContentTuning;
 
     WriteLogDataBit();
     FlushBits();

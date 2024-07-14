@@ -16,16 +16,19 @@
  */
 
 #include "AreaBoundary.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "CreatureGroups.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "azure_vault.h"
 
-BossBoundaryData const boundaries =
+static BossBoundaryData const boundaries =
 {
     { DATA_LEYMOR, new CircleBoundary(Position(-5129.39f, 1253.30f), 75.0f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_LEYMOR,              DATA_LEYMOR             },
     { BOSS_AZUREBLADE,          DATA_AZUREBLADE         },
@@ -34,14 +37,14 @@ ObjectData const creatureData[] =
     { 0,                        0                       }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_ARCANE_VAULTS_DOOR_LEYMOR_ENTRANCE,    DATA_LEYMOR,  EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT,        DATA_LEYMOR,  EncounterDoorBehavior::OpenWhenDone },
     { 0,                                        0,            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_LEYMOR,          {{ 2582 }} },
     { DATA_AZUREBLADE,      {{ 2585 }} },
@@ -80,15 +83,13 @@ class instance_azure_vault : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 dataId, uint32 /*value*/) override
+            void OnCreatureGroupDepleted(CreatureGroup const* creatureGroup) override
             {
-                switch (dataId)
+                if (!_leymorIntroDone && creatureGroup->LeaderHasStringId("leymor_arcane_tender"))
                 {
-                    case DATA_LEYMOR_INTRO_DONE:
-                        _leymorIntroDone = true; // no need to pass value, it will never reset to false
-                        break;
-                    default:
-                        break;
+                    _leymorIntroDone = true;
+                    if (Creature* leymor = GetCreature(DATA_LEYMOR); leymor && leymor->IsAIEnabled())
+                        leymor->AI()->DoAction(ACTION_FINISH_LEYMOR_INTRO);
                 }
             }
 
