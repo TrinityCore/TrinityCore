@@ -1755,7 +1755,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void SetBindPoint(ObjectGuid guid) const;
         void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost, SpecResetType respecType) const;
-        void RegenerateHealth() override;
+        void RegenerateAll();
+        void Regenerate(Powers power);
+        void InterruptPowerRegen(Powers power);
+        void RegenerateHealth();
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
@@ -2098,6 +2101,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
+        void UpdatePowerRegen(Powers powerType);
 
         void SetPetSpellPower(uint32 spellPower) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::PetSpellPower), spellPower); }
 
@@ -2876,6 +2880,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
+        TimePoint m_regenInterruptTimestamp;
+        uint32 m_regenTimerCount;
+        std::array<float, MAX_POWERS_PER_CLASS> m_powerFraction;
         uint32 m_contestedPvPTimer;
 
         /*********************************************************/

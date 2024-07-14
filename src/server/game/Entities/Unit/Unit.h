@@ -625,8 +625,6 @@ struct PositionUpdateInfo
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 30.0f               // max distance for detection targets by player
 
-constexpr uint32 HEALTH_REGENERATION_INTERVAL = 2 * IN_MILLISECONDS;
-
 class TC_GAME_API Unit : public WorldObject
 {
     public:
@@ -951,13 +949,6 @@ class TC_GAME_API Unit : public WorldObject
 
         virtual bool CanApplyResilience() const;
         static void ApplyResilience(Unit const* victim, int32* damage);
-
-        // Regeneration handling
-        void RegenerateAll(uint32 diff);
-        void Regenerate(Powers powerType, uint32 diff);
-        void InterruptPowerRegen(Powers power);
-        void UpdatePowerRegen(Powers powerType);
-        virtual void RegenerateHealth() = 0;
 
         int32 CalculateAOEAvoidance(int32 damage, uint32 schoolMask, bool npcCaster) const;
 
@@ -1902,6 +1893,7 @@ class TC_GAME_API Unit : public WorldObject
         std::unique_ptr<MotionMaster> i_motionMaster;
 
         std::array<uint32, MAX_REACTIVE> m_reactiveTimer;
+        uint32 m_regenTimer;
 
         Vehicle* m_vehicle;
         Trinity::unique_trackable_ptr<Vehicle> m_vehicleKit;
@@ -1995,11 +1987,6 @@ class TC_GAME_API Unit : public WorldObject
         PositionUpdateInfo _positionUpdateInfo;
 
         bool _isCombatDisallowed;
-
-        TimePoint _regenInterruptTimestamp;
-        uint32 _powerRegenUpdateTimer; // Controls the interval in which the regenerated power is being sent in update object packets
-        uint32 _healthRegenerationTimer;
-        std::array<float, MAX_POWERS_PER_CLASS> _powerFraction;
 };
 
 #endif
