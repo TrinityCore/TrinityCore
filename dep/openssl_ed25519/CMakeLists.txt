@@ -25,7 +25,7 @@ target_include_directories(openssl_ed25519
 
 target_compile_definitions(openssl_ed25519
   PRIVATE
-    -DOPENSSL_ED25519_EXPORT
+    OPENSSL_ED25519_EXPORT
 )
 
 target_link_libraries(openssl_ed25519
