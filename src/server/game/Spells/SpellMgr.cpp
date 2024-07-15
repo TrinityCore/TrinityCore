@@ -4857,6 +4857,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE AZURE VAULT SPELLS
     //
 
+    //
+    // WAYCREST MANOR SPELLS
+    //
+
+    ApplySpellFix({ 268308 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
+    // ENDOF WAYCREST MANOR SPELLS
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {

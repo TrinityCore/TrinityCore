@@ -50,7 +50,7 @@ enum WaycrestManorCreatureIds
     BOSS_SISTER_SOLENA       = 131824,
     BOSS_SOULBOUND_GOLIATH   = 131667,
     BOSS_RAAL_THE_GLUTTONOUS = 131863,
-    BOSS_LADY_WAYCREST       = 136918,
+    BOSS_LADY_WAYCREST       = 131545,
     BOSS_LORD_WAYCREST       = 131527,
     BOSS_GORAK_TUL           = 131863,
 
@@ -59,7 +59,8 @@ enum WaycrestManorCreatureIds
 
 enum WaycrestManorGameObjectIds
 {
-    GO_HEARTSBANE_TRIAD_DOOR = 282410
+    GO_HEARTSBANE_TRIAD_DOOR  = 282410,
+    GO_WAYCREST_ORGAN_BARRIER = 297809
 };
 
 template <class AI, class T>
