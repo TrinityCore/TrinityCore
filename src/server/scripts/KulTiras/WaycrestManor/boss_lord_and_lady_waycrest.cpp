@@ -57,7 +57,7 @@ enum LordAndLadyWaycrestTexts
 {
     // Lord Waycrest
     SAY_VIRULENT_PATHOGEN   = 0,
-    
+
     // Lady Waycrest
     SAY_AGGRO               = 0,
     SAY_DISCORDANT_CADENZA  = 2,
