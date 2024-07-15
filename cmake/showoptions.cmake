@@ -1,7 +1,8 @@
 # output generic information about the core and buildtype chosen
 message("")
 message("* TrinityCore revision   : ${rev_hash} ${rev_date} (${rev_branch} branch)")
-if(NOT ("${CMAKE_GENERATOR}" MATCHES "Visual Studio" OR "${CMAKE_GENERATOR}" STREQUAL "Ninja Multi-Config"))
+get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(NOT IS_MULTI_CONFIG)
   message("* TrinityCore buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()
 message("")
@@ -72,7 +73,9 @@ if(WITH_COREDEBUG)
   message(" *** -DCMAKE_BUILD_TYPE=RelWithDebInfo")
   message(" *** DO NOT ENABLE IT UNLESS YOU KNOW WHAT YOU'RE DOING!")
   message("* Use coreside debug     : Yes")
-  add_definitions(-DTRINITY_DEBUG)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      TRINITY_DEBUG)
 else()
   message("* Use coreside debug     : No  (default)")
 endif()
@@ -111,60 +114,70 @@ if(HELGRIND)
   message(" *** HELGRIND - WARNING!")
   message(" *** Please specify the valgrind include directory in VALGRIND_INCLUDE_DIR option if you get build errors")
   message(" *** Please note that this is for DEBUGGING WITH HELGRIND only!")
-  add_definitions(-DHELGRIND)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      HELGRIND)
 endif()
 
 if(ASAN)
   message("")
   message(" *** ASAN - WARNING!")
   message(" *** Please note that this is for DEBUGGING WITH ADDRESS SANITIZER only!")
-  add_definitions(-DASAN)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      ASAN)
 endif()
 
 if(MSAN)
   message("")
   message(" *** MSAN - WARNING!")
   message(" *** Please note that this is for DEBUGGING WITH MEMORY SANITIZER only!")
-  add_definitions(-DMSAN)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      MSAN)
 endif()
 
 if(UBSAN)
   message("")
   message(" *** UBSAN - WARNING!")
   message(" *** Please note that this is for DEBUGGING WITH UNDEFINED BEHAVIOR SANITIZER only!")
-  add_definitions(-DUBSAN)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      UBSAN)
 endif()
 
 if(TSAN)
   message("")
   message(" *** TSAN - WARNING!")
   message(" *** Please note that this is for DEBUGGING WITH THREAD SANITIZER only!")
-  add_definitions(-DTSAN -DNO_BUFFERPOOL)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      TSAN)
 endif()
 
 if(PERFORMANCE_PROFILING)
   message("")
   message(" *** PERFORMANCE_PROFILING - WARNING!")
   message(" *** Please note that this is for PERFORMANCE PROFILING only! Do NOT report any issue when enabling this configuration!")
-  add_definitions(-DPERFORMANCE_PROFILING)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      PERFORMANCE_PROFILING)
 endif()
 
 if(WITHOUT_METRICS)
   message("")
   message(" *** WITHOUT_METRICS - WARNING!")
   message(" *** Please note that this will disable all metrics output (i.e. InfluxDB and Grafana)")
-  add_definitions(-DWITHOUT_METRICS)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      WITHOUT_METRICS)
 elseif (WITH_DETAILED_METRICS)
   message("")
   message(" *** WITH_DETAILED_METRICS - WARNING!")
   message(" *** Please note that this will enable detailed metrics output (i.e. time each session takes to update)")
-  add_definitions(-DWITH_DETAILED_METRICS)
-endif()
-
-if(WITH_BOOST_STACKTRACE)
-  if (BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE)
-    add_definitions(-DBOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE="${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE}")
-  endif()
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      WITH_DETAILED_METRICS)
 endif()
 
 if(BUILD_SHARED_LIBS)
@@ -176,7 +189,9 @@ if(BUILD_SHARED_LIBS)
     message("")
     message(" *** Dynamic linking was enforced through a dynamic script module!")
   endif()
-  add_definitions(-DTRINITY_API_USE_DYNAMIC_LINKING)
+  target_compile_definitions(trinity-compile-option-interface
+    INTERFACE
+      TRINITY_API_USE_DYNAMIC_LINKING)
 
   WarnAboutSpacesInBuildPath()
 endif()
