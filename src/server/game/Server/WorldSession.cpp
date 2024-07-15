@@ -189,15 +189,13 @@ std::string const & WorldSession::GetPlayerName() const
 
 std::string WorldSession::GetPlayerInfo() const
 {
-    std::ostringstream ss;
+    if (_player)
+        return Trinity::StringFormat("[Player: {} {}, Account: {}]", _player->GetName(), _player->GetGUID(), GetAccountId());
 
-    ss << "[Player: ";
-    if (!m_playerLoading && _player)
-        ss << _player->GetName() << ' ' << _player->GetGUID().ToString() << ", ";
+    if (m_playerLoading)
+        return Trinity::StringFormat("[Player: Logging in, Account: {}]", GetAccountId());
 
-    ss << "Account: " << GetAccountId() << "]";
-
-    return ss.str();
+    return Trinity::StringFormat("[Player: Account: {}]", GetAccountId());
 }
 
 /// Get player guid if available. Use for logging purposes only
