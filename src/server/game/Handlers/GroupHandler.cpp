@@ -923,7 +923,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
     recvData >> Guid;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(Guid);
-    if (!player || !(player->GetGroup() != GetPlayer()->GetGroup()))
+    if (!player || !GetPlayer()->GetGroup() || !(player->GetGroup()->GetGUID() != GetPlayer()->GetGroup()->GetGUID()))
     {
         WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 3+4+2);
         data << uint8(0);                                   // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
