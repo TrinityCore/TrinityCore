@@ -15,28 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
-
-#include "BankPackets.h"
-#include "CalendarPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "LFGPackets.h"
-#include "MailPackets.h"
-#include "MiscPackets.h"
-#include "NPCPackets.h"
 #include "PartyPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TalentPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Player.h"
 
-#endif // AllPackets_h__
+void WorldPackets::Party::PartyInviteClient::Read()
+{
+    _worldPacket >> TargetName;
+    _worldPacket >> ProposedRoles;
+}
+
+WorldPacket const* WorldPackets::Party::PartyInvite::Write()
+{
+    _worldPacket << uint8(CanAccept);
+    _worldPacket << InviterName;
+    _worldPacket << uint32(ProposedRoles);
+    _worldPacket << uint8(LfgSlots.size());
+    if (!LfgSlots.empty())
+        _worldPacket.append(LfgSlots.data(), LfgSlots.size());
+
+    _worldPacket << uint32(LfgCompletedMask);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Party::PartyInvite::Initialize(Player const* inviter, uint32 proposedRoles, bool canAccept)
+{
+    CanAccept = canAccept;
+
+    InviterName = inviter->GetName();
+
+    ProposedRoles = proposedRoles;
+}
