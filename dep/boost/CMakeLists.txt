@@ -20,8 +20,6 @@ endif()
 
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 
-include (CheckCXXSourceCompiles)
-
 if (WIN32)
   # On windows the requirements are higher according to the wiki.
   set(BOOST_REQUIRED_VERSION 1.78)
@@ -49,19 +47,24 @@ target_include_directories(boost
 
 target_compile_definitions(boost
   INTERFACE
-    -DBOOST_ALL_NO_LIB
-    -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
-    -DBOOST_ASIO_NO_DEPRECATED
-    -DBOOST_BIND_NO_PLACEHOLDERS
-    -DBOOST_SYSTEM_USE_UTF8)
+    BOOST_ALL_NO_LIB
+    BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
+    BOOST_ASIO_NO_DEPRECATED
+    BOOST_BIND_NO_PLACEHOLDERS
+    BOOST_SYSTEM_USE_UTF8)
 
 if (WITH_BOOST_STACKTRACE AND NOT WIN32)
-  message("*** libbacktrace will be linked")
+  message(STATUS "libbacktrace will be linked")
+
+  include(CheckIncludeFile)
 
   if (BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE)
-    CHECK_INCLUDE_FILE(${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE} HAS_BACKTRACE)
+    check_include_file("${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE}" HAS_BACKTRACE)
+    target_compile_definitions(boost
+      INTERFACE
+        BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE=${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE})
   else()
-    CHECK_INCLUDE_FILE("backtrace.h" HAS_BACKTRACE)
+    check_include_file("backtrace.h" HAS_BACKTRACE)
   endif()
 
   if (NOT HAS_BACKTRACE)
@@ -70,7 +73,7 @@ if (WITH_BOOST_STACKTRACE AND NOT WIN32)
 
   target_compile_definitions(boost
     INTERFACE
-      -DBOOST_STACKTRACE_USE_BACKTRACE)
+      BOOST_STACKTRACE_USE_BACKTRACE)
 
   target_link_libraries(boost
     INTERFACE
