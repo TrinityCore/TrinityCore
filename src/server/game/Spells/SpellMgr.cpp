@@ -4861,6 +4861,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // WAYCREST MANOR SPELLS
     //
 
+    // Discordant Cadenza
     ApplySpellFix({ 268308 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
