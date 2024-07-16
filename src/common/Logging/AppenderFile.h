@@ -20,13 +20,14 @@
 
 #include "Appender.h"
 #include <atomic>
+#include <vector>
 
 class TC_COMMON_API AppenderFile : public Appender
 {
     public:
         static constexpr AppenderType type = APPENDER_FILE;
 
-        AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args);
+        AppenderFile(uint8 id, std::string name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args);
         ~AppenderFile();
         FILE* OpenFile(std::string const& name, std::string const& mode, bool backup);
         AppenderType getType() const override { return type; }
