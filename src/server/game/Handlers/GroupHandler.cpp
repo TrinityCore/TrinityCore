@@ -578,14 +578,15 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::Requ
     for (ObjectGuid const& target : packet.Targets)
     {
         WorldPackets::Party::PartyMemberFullState partyMemberStats;
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(target))
-        {
-            partyMemberStats.Initialize(player);
-        }
-        else
+        Player* player = ObjectAccessor::FindConnectedPlayer(target);
+        if (!player || !player->GetGroup() || !GetPlayer()->GetGroup() || (player->GetGroup() != GetPlayer()->GetGroup()))
         {
             partyMemberStats.MemberGuid = target;
             partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
+        }
+        else
+        {
+            partyMemberStats.Initialize(player);
         }
         SendPacket(partyMemberStats.Write());
     }
