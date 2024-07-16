@@ -22,6 +22,8 @@
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "MySQLWorkaround.h"
+#include <chrono>
+#include <cstring>
 
 namespace
 {
@@ -101,9 +103,10 @@ DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type, uint32 flags)
             return DatabaseFieldTypes::Decimal;
         case MYSQL_TYPE_TIMESTAMP:
         case MYSQL_TYPE_DATE:
-        case MYSQL_TYPE_TIME:
         case MYSQL_TYPE_DATETIME:
             return DatabaseFieldTypes::Date;
+        case MYSQL_TYPE_TIME:
+            return DatabaseFieldTypes::Time;
         case MYSQL_TYPE_TINY_BLOB:
         case MYSQL_TYPE_MEDIUM_BLOB:
         case MYSQL_TYPE_LONG_BLOB:
@@ -153,7 +156,193 @@ static char const* FieldTypeToString(enum_field_types type, uint32 flags)
     }
 }
 
-std::unique_ptr<BaseDatabaseResultValueConverter> FromStringValueConverters[14] =
+template <typename>
+class FromStringToMYSQL_TIME
+{
+public:
+    static MYSQL_TIME GetDatabaseValue(char const* data, uint32 size)
+    {
+        MYSQL_TIME result = {};
+        if (!data || !size)
+        {
+            result.time_type = MYSQL_TIMESTAMP_NONE;
+            return result;
+        }
+
+        std::string_view in(data, size);
+
+        size_t firstSeparatorIndex = in.find_first_of(":-");
+        if (firstSeparatorIndex == std::string_view::npos)
+        {
+            result.time_type = MYSQL_TIMESTAMP_NONE;
+            return result;
+        }
+
+        char firstSeparator = in[firstSeparatorIndex];
+
+        auto parseNextComponent = [&](uint32& value, char requiredSeparator = '\0') -> bool
+        {
+            std::from_chars_result parseResult = std::from_chars(in.data(), in.data() + in.size(), value);
+            if (parseResult.ec != std::errc())
+                return false;
+
+            in.remove_prefix(parseResult.ptr - in.data());
+            if (requiredSeparator)
+            {
+                if (in.empty() || in[0] != requiredSeparator)
+                    return false;
+
+                in.remove_prefix(1);
+            }
+
+            return true;
+        };
+
+        uint32 yearOrHours = 0;
+        uint32 monthOrMinutes = 0;
+        uint32 dayOrSeconds = 0;
+        if (!parseNextComponent(yearOrHours, firstSeparator)
+            || !parseNextComponent(monthOrMinutes, firstSeparator)
+            || !parseNextComponent(dayOrSeconds))
+        {
+            result.time_type = MYSQL_TIMESTAMP_ERROR;
+            return result;
+        }
+
+        if (firstSeparator == ':')
+        {
+            if (!in.empty())
+            {
+                result.time_type = MYSQL_TIMESTAMP_ERROR;
+                return result;
+            }
+
+            // time
+            result.hour = yearOrHours;
+            result.minute = monthOrMinutes;
+            result.second = dayOrSeconds;
+            result.time_type = MYSQL_TIMESTAMP_TIME;
+        }
+        else
+        {
+            if (in.empty())
+            {
+                // date
+                result.year = yearOrHours;
+                result.month = monthOrMinutes;
+                result.day = dayOrSeconds;
+                result.time_type = MYSQL_TIMESTAMP_DATE;
+                return result;
+            }
+
+            // date+time
+            if (in[0] != ' ')
+            {
+                result.time_type = MYSQL_TIMESTAMP_ERROR;
+                return result;
+            }
+
+            in.remove_prefix(1);
+
+            uint32 hours = 0;
+            uint32 minutes = 0;
+            uint32 seconds = 0;
+            if (!parseNextComponent(hours, ':')
+                || !parseNextComponent(minutes, ':')
+                || !parseNextComponent(seconds))
+            {
+                result.time_type = MYSQL_TIMESTAMP_ERROR;
+                return result;
+            }
+
+            uint32 microseconds = 0;
+            if (!in.empty())
+            {
+                if (in[0] != '.')
+                {
+                    result.time_type = MYSQL_TIMESTAMP_ERROR;
+                    return result;
+                }
+
+                in.remove_prefix(1);
+                if (!parseNextComponent(microseconds))
+                {
+                    result.time_type = MYSQL_TIMESTAMP_ERROR;
+                    return result;
+                }
+
+                if (!in.empty())
+                {
+                    result.time_type = MYSQL_TIMESTAMP_ERROR;
+                    return result;
+                }
+            }
+
+            result.year = yearOrHours;
+            result.month = monthOrMinutes;
+            result.day = dayOrSeconds;
+            result.hour = hours;
+            result.minute = minutes;
+            result.second = seconds;
+            result.second_part = microseconds;
+            result.time_type = MYSQL_TIMESTAMP_DATETIME;
+        }
+
+        return result;
+    }
+
+    static char const* GetStringValue(char const* data)
+    {
+        return data;
+    }
+};
+
+template<template<typename> typename ToDatabaseTypeConverter>
+class DateResultValueConverter : public BaseDatabaseResultValueConverter
+{
+    uint8 GetUInt8(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt8", meta); return 0; }
+    int8 GetInt8(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt8", meta); return 0; }
+    uint16 GetUInt16(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt16", meta); return 0; }
+    int16 GetInt16(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt16", meta); return 0; }
+    uint32 GetUInt32(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt32", meta); return 0; }
+    int32 GetInt32(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt32", meta); return 0; }
+    uint64 GetUInt64(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt64", meta); return 0; }
+    int64 GetInt64(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetInt64", meta); return 0; }
+    float GetFloat(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetFloat", meta); return 0.0f; }
+    double GetDouble(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetDouble", meta); return 0.0; }
+
+    SystemTimePoint GetDate(char const* data, uint32 size, QueryResultFieldMetadata const* meta) const override
+    {
+        using namespace std::chrono;
+        MYSQL_TIME source = ToDatabaseTypeConverter<MYSQL_TIME>::GetDatabaseValue(data, size);
+        switch (source.time_type)
+        {
+            case MYSQL_TIMESTAMP_DATE:
+                return sys_days(year(source.year) / month(source.month) / day(source.day));
+            case MYSQL_TIMESTAMP_DATETIME:
+                return sys_days(year(source.year) / month(source.month) / day(source.day))
+                    + hours(source.hour)
+                    + minutes(source.minute)
+                    + seconds(source.second)
+                    + microseconds(source.second_part);
+            default:
+                break;
+        }
+
+        LogTruncation("Field::GetDate", meta);
+        return SystemTimePoint();
+    }
+
+    char const* GetCString(char const* data, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override
+    {
+        char const* result = ToDatabaseTypeConverter<MYSQL_TIME>::GetStringValue(data);
+        if (data && !result)
+            LogTruncation("Field::GetCString", meta);
+        return result;
+    }
+};
+
+std::unique_ptr<BaseDatabaseResultValueConverter> const FromStringValueConverters[15] =
 {
     nullptr,
     std::make_unique<PrimitiveResultValueConverter<uint8, FromStringToDatabaseTypeConverter>>(),
@@ -167,11 +356,12 @@ std::unique_ptr<BaseDatabaseResultValueConverter> FromStringValueConverters[14] 
     std::make_unique<PrimitiveResultValueConverter<float, FromStringToDatabaseTypeConverter>>(),
     std::make_unique<PrimitiveResultValueConverter<double, FromStringToDatabaseTypeConverter>>(),
     std::make_unique<PrimitiveResultValueConverter<double, FromStringToDatabaseTypeConverter>>(),
-    nullptr,
+    std::make_unique<DateResultValueConverter<FromStringToMYSQL_TIME>>(),
+    std::make_unique<NotImplementedResultValueConverter>(),    // DatabaseFieldTypes::Time
     std::make_unique<StringResultValueConverter>()
 };
 
-std::unique_ptr<BaseDatabaseResultValueConverter> BinaryValueConverters[14] =
+std::unique_ptr<BaseDatabaseResultValueConverter> const BinaryValueConverters[15] =
 {
     nullptr,
     std::make_unique<PrimitiveResultValueConverter<uint8, FromBinaryToDatabaseTypeConverter>>(),
@@ -185,7 +375,8 @@ std::unique_ptr<BaseDatabaseResultValueConverter> BinaryValueConverters[14] =
     std::make_unique<PrimitiveResultValueConverter<float, FromBinaryToDatabaseTypeConverter>>(),
     std::make_unique<PrimitiveResultValueConverter<double, FromBinaryToDatabaseTypeConverter>>(),
     std::make_unique<PrimitiveResultValueConverter<double, FromStringToDatabaseTypeConverter>>(), // always sent as string
-    nullptr,
+    std::make_unique<DateResultValueConverter<FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<NotImplementedResultValueConverter>(),    // DatabaseFieldTypes::Time
     std::make_unique<StringResultValueConverter>()
 };
 
@@ -295,12 +486,12 @@ m_metadataResult(result)
         return;
     }
 
-    m_rows.resize(uint32(m_rowCount) * m_fieldCount);
+    m_rows.resize(std::size_t(m_rowCount) * m_fieldCount);
     while (_NextRow())
     {
         for (uint32 fIndex = 0; fIndex < m_fieldCount; ++fIndex)
         {
-            m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&m_fieldMetadata[fIndex]);
+            m_rows[std::size_t(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&m_fieldMetadata[fIndex]);
 
             unsigned long buffer_length = m_rBind[fIndex].buffer_length;
             unsigned long fetched_length = *m_rBind[fIndex].length;
@@ -327,7 +518,7 @@ m_metadataResult(result)
                         break;
                 }
 
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetValue(
+                m_rows[std::size_t(m_rowPosition) * m_fieldCount + fIndex].SetValue(
                     (char const*)buffer,
                     fetched_length);
 
@@ -336,7 +527,7 @@ m_metadataResult(result)
             }
             else
             {
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetValue(
+                m_rows[std::size_t(m_rowPosition) * m_fieldCount + fIndex].SetValue(
                     nullptr,
                     *m_rBind[fIndex].length);
             }
@@ -361,12 +552,10 @@ PreparedResultSet::~PreparedResultSet()
 
 bool ResultSet::NextRow()
 {
-    MYSQL_ROW row;
-
     if (!_result)
         return false;
 
-    row = mysql_fetch_row(_result);
+    MYSQL_ROW row = mysql_fetch_row(_result);
     if (!row)
     {
         CleanUp();
@@ -425,21 +614,33 @@ void ResultSet::CleanUp()
 
 Field const& ResultSet::operator[](std::size_t index) const
 {
-    ASSERT(index < _fieldCount);
+    ASSERT(index < std::size_t(_fieldCount));
     return _currentRow[index];
+}
+
+QueryResultFieldMetadata const& ResultSet::GetFieldMetadata(std::size_t index) const
+{
+    ASSERT(index < std::size_t(_fieldCount));
+    return _fieldMetadata[index];
 }
 
 Field* PreparedResultSet::Fetch() const
 {
     ASSERT(m_rowPosition < m_rowCount);
-    return const_cast<Field*>(&m_rows[uint32(m_rowPosition) * m_fieldCount]);
+    return const_cast<Field*>(&m_rows[std::size_t(m_rowPosition) * m_fieldCount]);
 }
 
 Field const& PreparedResultSet::operator[](std::size_t index) const
 {
     ASSERT(m_rowPosition < m_rowCount);
-    ASSERT(index < m_fieldCount);
-    return m_rows[uint32(m_rowPosition) * m_fieldCount + index];
+    ASSERT(index < std::size_t(m_fieldCount));
+    return m_rows[std::size_t(m_rowPosition) * m_fieldCount + index];
+}
+
+QueryResultFieldMetadata const& PreparedResultSet::GetFieldMetadata(std::size_t index) const
+{
+    ASSERT(index < std::size_t(m_fieldCount));
+    return m_fieldMetadata[index];
 }
 
 void PreparedResultSet::CleanUp()

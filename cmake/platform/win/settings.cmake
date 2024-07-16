@@ -4,7 +4,7 @@ add_definitions(-DWIN32_LEAN_AND_MEAN)
 add_definitions(-DNOMINMAX)
 add_definitions(-DTRINITY_REQUIRED_WINDOWS_BUILD=18362)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/msvc/settings.cmake)
 elseif(CMAKE_CXX_PLATFORM_ID MATCHES "MinGW")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/mingw/settings.cmake)

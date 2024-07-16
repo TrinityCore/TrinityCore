@@ -367,7 +367,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             Unit const* unitTarget = target->ToUnit();
             if (!unitTarget)
                 return false;
-            return unitTarget->GetGender() == gender.gender;
+            return unitTarget->GetGender() == Gender(gender.gender);
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
         {

@@ -9,11 +9,8 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 if(WIN32)
-  set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
     set(BOOST_ROOT $ENV{BOOST_ROOT})
-    list(APPEND BOOST_LIBRARYDIR
-      ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.2 )
   endif()
 
   set(Boost_USE_STATIC_LIBS        ON)
@@ -21,18 +18,15 @@ if(WIN32)
   set(Boost_USE_STATIC_RUNTIME     OFF)
 endif()
 
-if (CMAKE_VERSION VERSION_LESS "3.16.0")
-  # boost's own cmake file adds extra compile definitions that cotire fails to pick up
-  set(Boost_NO_BOOST_CMAKE ON)
-endif()
+set(Boost_NO_WARN_NEW_VERSIONS ON)
 
 include (CheckCXXSourceCompiles)
 
 if (WIN32)
   # On windows the requirements are higher according to the wiki.
-  set(BOOST_REQUIRED_VERSION 1.73)
+  set(BOOST_REQUIRED_VERSION 1.78)
 else()
-  set(BOOST_REQUIRED_VERSION 1.71)
+  set(BOOST_REQUIRED_VERSION 1.74)
 endif()
 
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem program_options iostreams regex locale)
@@ -42,20 +36,6 @@ if(NOT Boost_FOUND)
     message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
   endif()
 endif()
-
-# Find if Boost was compiled in C++03 mode because it requires -DBOOST_NO_CXX11_SCOPED_ENUMS
-
-set(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR})
-set(CMAKE_REQUIRED_LIBRARIES ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY})
-set(CMAKE_REQUIRED_FLAGS "-std=c++11")
-check_cxx_source_compiles("
-  #include <boost/filesystem/path.hpp>
-  #include <boost/filesystem/operations.hpp>
-  int main() { boost::filesystem::copy_file(boost::filesystem::path(), boost::filesystem::path()); }"
-boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
-unset(CMAKE_REQUIRED_INCLUDES)
-unset(CMAKE_REQUIRED_LIBRARIES)
-unset(CMAKE_REQUIRED_FLAGS)
 
 add_library(boost INTERFACE)
 
@@ -77,16 +57,6 @@ target_compile_definitions(boost
     -DBOOST_ASIO_NO_DEPRECATED
     -DBOOST_SYSTEM_USE_UTF8
     -DBOOST_BIND_NO_PLACEHOLDERS)
-
-if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
-  target_compile_definitions(boost
-    INTERFACE
-      -DBOOST_NO_CXX11_SCOPED_ENUMS)
-endif()
-
-target_compile_definitions(boost
-  INTERFACE
-    -DTC_HAS_BROKEN_WSTRING_REGEX)
 
 if (WITH_BOOST_STACKTRACE AND NOT WIN32)
   message("*** libbacktrace will be linked")

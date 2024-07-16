@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include <deque>
 #include <map>
 
@@ -496,6 +497,9 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
+        Trinity::unique_weak_ptr<Battleground> GetWeakPtr() const { return m_weakRef; }
+        void SetWeakPtr(Trinity::unique_weak_ptr<Battleground> weakRef) { m_weakRef = std::move(weakRef); }
+
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
@@ -626,5 +630,7 @@ class TC_GAME_API Battleground
         Position StartPosition[PVP_TEAMS_COUNT];
         float m_StartMaxDist;
         uint32 ScriptId;
+
+        Trinity::unique_weak_ptr<Battleground> m_weakRef;
 };
 #endif

@@ -39,38 +39,38 @@ target_include_directories(sfmt
 target_compile_definitions(sfmt PUBLIC -DSFMT_MEXP=19937)
 
 # enable SIMD instructions if available
-include(CheckCCompilerFlag)
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "(powerpc|ppc)64|(powerpc|ppc)64le")
-  check_c_compiler_flag("-maltivec" HAVE_ALTIVEC)
-  if (HAVE_ALTIVEC)
-    target_compile_options(sfmt PRIVATE -mabi=altivec -maltivec)
-    target_compile_definitions(sfmt PUBLIC -DHAVE_ALTIVEC)
-  else ()
-    message(WARNING "Altivec not available - performance will be poor!")
-  endif ()
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "arm|ARM")
-  check_c_compiler_flag(-mfpu=neon HAVE_NEON)
-  if (HAVE_NEON)
-    target_compile_options(sfmt PRIVATE -mfpu=neon -ftree-vectorize)
-    target_compile_definitions(sfmt PUBLIC -DHAVE_NEON)
-  else ()
-    message(WARNING "Neon not available - performance will be poor!")
-  endif ()
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|AARCH64")
-  check_c_compiler_flag(-march=armv8-a+simd HAVE_NEON)
-  if (HAVE_NEON)
-    target_compile_options(sfmt PRIVATE -ftree-vectorize)
-    target_compile_definitions(sfmt PUBLIC -DHAVE_NEON)
-  else ()
-    message(WARNING "Neon not available - performance will be poor!")
-  endif ()
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "i686|amd64|x86_64|AMD64")
-  #SSE2 is always available
-  set(HAVE_SSE2 1)
+include(CheckCXXCompilerFlag)
 
-  if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+# MSVC does not have any flags to check
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  if (TRINITY_SYSTEM_PROCESSOR MATCHES "^arm")
+    set(HAVE_NEON 1)
+  else ()
+    set(HAVE_SSE2 1)
+  endif ()
+else ()
+  if (TRINITY_SYSTEM_PROCESSOR STREQUAL "arm")
+    check_cxx_compiler_flag(-mfpu=neon HAVE_NEON)
+    if (HAVE_NEON)
+      target_compile_options(sfmt PRIVATE -mfpu=neon -ftree-vectorize)
+    endif()
+  elseif (TRINITY_SYSTEM_PROCESSOR STREQUAL "arm64")
+    check_cxx_compiler_flag(-march=armv8-a+simd HAVE_NEON)
+    if (HAVE_NEON)
+      target_compile_options(sfmt PRIVATE -ftree-vectorize)
+    endif ()
+  elseif (TRINITY_SYSTEM_PROCESSOR MATCHES "x86|amd64")
+    #SSE2 is always available
+    set(HAVE_SSE2 1)
     target_compile_options(sfmt PRIVATE -msse2)
   endif ()
+endif ()
+
+if (HAVE_NEON)
+  target_compile_definitions(sfmt PUBLIC -DHAVE_NEON)
+endif ()
+
+if (HAVE_SSE2)
   target_compile_definitions(sfmt PUBLIC -DHAVE_SSE2)
 endif ()
 
@@ -80,6 +80,6 @@ set_target_properties(sfmt PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(sfmt PRIVATE trinity-dependency-interface)
 
 set_target_properties(sfmt
-    PROPERTIES
-      FOLDER
-        "dep")
+  PROPERTIES
+    FOLDER
+      "dep")

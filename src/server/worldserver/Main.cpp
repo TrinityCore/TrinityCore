@@ -70,6 +70,10 @@ namespace fs = boost::filesystem;
     #define _TRINITY_CORE_CONFIG  "worldserver.conf"
 #endif
 
+#ifndef _TRINITY_CORE_CONFIG_DIR
+    #define _TRINITY_CORE_CONFIG_DIR "worldserver.conf.d"
+#endif
+
 #ifdef _WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "worldserver";
@@ -119,7 +123,7 @@ void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
 bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext);
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
@@ -132,19 +136,20 @@ extern int main(int argc, char** argv)
     Trinity::Locale::Init();
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);
-    std::string configService;
+    auto configDir  = fs::absolute(_TRINITY_CORE_CONFIG_DIR);
+    std::string winServiceAction;
 
-    auto vm = GetConsoleArguments(argc, argv, configFile, configService);
+    auto vm = GetConsoleArguments(argc, argv, configFile, configDir, winServiceAction);
     // exit if help or version is enabled
     if (vm.count("help") || vm.count("version"))
         return 0;
 
 #ifdef _WIN32
-    if (configService == "install")
+    if (winServiceAction == "install")
         return WinServiceInstall() ? 0 : 1;
-    else if (configService == "uninstall")
+    if (winServiceAction == "uninstall")
         return WinServiceUninstall() ? 0 : 1;
-    else if (configService == "run")
+    if (winServiceAction == "run")
         return WinServiceRun() ? 0 : 1;
 
     Optional<UINT> newTimerResolution;
@@ -192,6 +197,20 @@ extern int main(int argc, char** argv)
                                  configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
+        return 1;
+    }
+
+    std::vector<std::string> loadedConfigFiles;
+    std::vector<std::string> configDirErrors;
+    bool additionalConfigFileLoadSuccess = sConfigMgr->LoadAdditionalDir(configDir.generic_string(), true, loadedConfigFiles, configDirErrors);
+    for (std::string const& loadedConfigFile : loadedConfigFiles)
+        printf("Loaded additional config file %s\n", loadedConfigFile.c_str());
+
+    if (!additionalConfigFileLoadSuccess)
+    {
+        for (std::string const& configDirError : configDirErrors)
+            printf("Error in additional config files: %s\n", configDirError.c_str());
+
         return 1;
     }
 
@@ -689,23 +708,22 @@ void ClearOnlineAccounts()
 
 /// @}
 
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService)
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, [[maybe_unused]] std::string& winServiceAction)
 {
-    // Silences warning about configService not be used if the OS is not Windows
-    (void)configService;
-
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_CORE_CONFIG)),
                      "use <arg> as configuration file")
+        ("config-dir,cd", value<fs::path>(&configDir)->default_value(fs::absolute(_TRINITY_CORE_CONFIG_DIR)),
+                     "use <arg> as directory with additional config files")
         ("update-databases-only,u", "updates databases only")
         ;
 #ifdef _WIN32
     options_description win("Windows platform specific options");
     win.add_options()
-        ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]")
+        ("service,s", value<std::string>(&winServiceAction)->default_value(""), "Windows service options: [install | uninstall]")
         ;
 
     all.add(win);
