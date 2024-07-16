@@ -11962,11 +11962,15 @@ void Unit::RegenerateAll(uint32 diff)
         if (GetPowerIndex(power) == MAX_POWERS)
             continue;
 
-        if (power != POWER_RUNE_BLOOD && power != POWER_RUNE_FROST && power != POWER_RUNE_UNHOLY) // Classic only
-            Regenerate(power, diff);
-        else
-            RegenerateRunes(diff);
+        // Classic only - Runes are regenerated separately
+        if (power == POWER_RUNE_BLOOD || power == POWER_RUNE_FROST || power == POWER_RUNE_UNHOLY || power == POWER_RUNES)
+            continue;
+
+        Regenerate(power, diff);
     }
+
+    if (GetClass() == CLASS_DEATH_KNIGHT)
+        RegenerateRunes(diff);
 
     uint32 powerRegenUpdateInterval = IsPlayer() ? PLAYER_POWER_REGEN_UPDATE_INTERVAL : CREATURE_POWER_REGEN_UPDATE_INTERVAL;
     if (_powerRegenUpdateTimer >= powerRegenUpdateInterval)
