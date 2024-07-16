@@ -11,7 +11,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (261439, 'spell_lord_and_lady_waycrest_virulent_pathogen_selector'),
 (261441, 'spell_lord_and_lady_waycrest_virulent_pathogen_selector'),
 (261440, 'spell_lord_and_lady_waycrest_virulent_pathogen_damage'),
-(268307, 'spell_lord_and_lady_discordant_cadenza_selector'),
+(268307, 'spell_lord_and_lady_waycrest_discordant_cadenza_selector'),
 (268278, 'spell_lord_and_lady_waycrest_wracking_chord_selector'),
 (268272, 'spell_lord_and_lady_waycrest_wracking_bolt_missile'),
 (268387, 'spell_lord_and_lady_waycrest_contagious_remnants'),

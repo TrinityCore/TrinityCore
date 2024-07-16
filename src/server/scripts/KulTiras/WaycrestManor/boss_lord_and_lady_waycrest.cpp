@@ -109,11 +109,14 @@ struct boss_lord_waycrest : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VIRULENT_PATHOGEN_DAMAGE);
+
+        if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
+            ladyWaycrest->AI()->EnterEvadeMode(why);
 
         _EnterEvadeMode();
         _DespawnAtEvade();
@@ -162,6 +165,8 @@ struct boss_lord_waycrest : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
         if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
         {
             if (ladyWaycrest->IsAlive())
@@ -170,7 +175,6 @@ struct boss_lord_waycrest : public BossAI
                 instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, DONE);
         }
 
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VIRULENT_PATHOGEN_DAMAGE);
     }
 
@@ -243,10 +247,13 @@ struct boss_lady_waycrest : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        if (Creature* lordWaycrest = instance->GetCreature(DATA_LORD_WAYCREST))
+            lordWaycrest->AI()->EnterEvadeMode(why);
 
         _EnterEvadeMode();
         _DespawnAtEvade();
@@ -269,6 +276,8 @@ struct boss_lady_waycrest : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
         Talk(SAY_DIED);
 
         if (Creature* lordWaycrest = instance->GetCreature(DATA_LORD_WAYCREST))
@@ -278,8 +287,6 @@ struct boss_lady_waycrest : public BossAI
             else
                 instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, DONE);
         }
-
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void HealLordWaycrest()
@@ -408,7 +415,7 @@ class spell_lord_and_lady_waycrest_virulent_pathogen_damage : public AuraScript
 
         target->CastSpell(target, SPELL_VIRULENT_PATHOGEN_INFECT_AREA, true);
 
-        if (map->IsHeroicOrHigher())
+        if (caster && map->IsHeroicOrHigher())
             caster->CastSpell(target, SPELL_CONTAGIOUS_REMNANTS, false);
     }
 
@@ -435,7 +442,7 @@ private:
 };
 
 // 268307 - Discordant Cadenza
-class spell_lord_and_lady_discordant_cadenza_selector : public SpellScript
+class spell_lord_and_lady_waycrest_discordant_cadenza_selector : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -446,15 +453,15 @@ class spell_lord_and_lady_discordant_cadenza_selector : public SpellScript
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-        float travelSpeed = 2;
+        static constexpr Seconds TRAVEL_SPEED = 2s;
 
-        caster->SendPlayOrphanSpellVisual(target->GetPosition(), SPELL_VISUAL_DISCORDANT_CADENZA_MISSILE, travelSpeed, true);
-        caster->m_Events.AddEventAtOffset(new DiscordantCadenzaDamageEvent(caster, target->GetPosition()), 2s);
+        caster->SendPlayOrphanSpellVisual(target->GetPosition(), SPELL_VISUAL_DISCORDANT_CADENZA_MISSILE, float(TRAVEL_SPEED.count() / 1000), true);
+        caster->m_Events.AddEventAtOffset(new DiscordantCadenzaDamageEvent(caster, target->GetPosition()), TRAVEL_SPEED);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_lord_and_lady_discordant_cadenza_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_lord_and_lady_waycrest_discordant_cadenza_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -508,9 +515,15 @@ class spell_lord_and_lady_waycrest_vitality_transfer : public AuraScript
     {
         if (aurEff->GetTickNumber() == 5)
         {
-            GetCaster()->SetHealth(GetCaster()->GetHealth() - GetCaster()->CountPctFromMaxHealth(30));
-            GetTarget()->CastSpell(GetTarget(), SPELL_HEAL, true);
-            GetTarget()->CastSpell(GetTarget(), SPELL_PUTRID_VITALITY, true);
+            Unit* caster = GetCaster();
+            Unit* target = GetTarget();
+
+            if (!caster)
+                return;
+
+            caster->SetHealth(caster->GetHealth() - caster->CountPctFromMaxHealth(30));
+            target->CastSpell(target, SPELL_HEAL, true);
+            target->CastSpell(target, SPELL_PUTRID_VITALITY, true);
         }
     }
 
@@ -546,7 +559,7 @@ void AddSC_boss_lord_and_lady_waycrest()
 
     RegisterSpellScript(spell_lord_and_lady_waycrest_virulent_pathogen_selector);
     RegisterSpellScript(spell_lord_and_lady_waycrest_virulent_pathogen_damage);
-    RegisterSpellScript(spell_lord_and_lady_discordant_cadenza_selector);
+    RegisterSpellScript(spell_lord_and_lady_waycrest_discordant_cadenza_selector);
     RegisterSpellScript(spell_lord_and_lady_waycrest_wracking_chord_selector);
     RegisterSpellScript(spell_lord_and_lady_waycrest_wracking_bolt_missile);
     RegisterSpellScript(spell_lord_and_lady_waycrest_vitality_transfer);
