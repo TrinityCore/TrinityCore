@@ -157,7 +157,7 @@ float ControlZone::CalculatePointsPerSecond(std::vector<Player*> const& targetLi
     if (static_cast<uint32>(std::abs(delta)) < minSuperiority)
         return 0;
 
-    float const slope = (static_cast<float>(minTime) - maxTime) / (maxSuperiority - minSuperiority);
+    float const slope = (static_cast<float>(minTime) - maxTime) / std::max<uint32>((maxSuperiority - minSuperiority), 1);
     float const intercept = maxTime - slope * minSuperiority;
     float const timeNeeded = slope * std::abs(delta) + intercept;
     float percentageIncrease = 100.0f / timeNeeded;
