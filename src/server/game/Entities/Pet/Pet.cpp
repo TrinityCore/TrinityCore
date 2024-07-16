@@ -61,7 +61,6 @@ Pet::Pet(Player* owner, PetType type) :
     }
 
     m_name = "Pet";
-    m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
 }
 
 Pet::~Pet() = default;
@@ -665,39 +664,6 @@ void Pet::Update(uint32 diff)
                 {
                     Remove(getPetType() != SUMMON_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT);
                     return;
-                }
-            }
-
-            //regenerate focus for hunter pets or energy for deathknight's ghoul
-            if (m_focusRegenTimer)
-            {
-                if (m_focusRegenTimer > diff)
-                    m_focusRegenTimer -= diff;
-                else
-                {
-                    switch (GetPowerType())
-                    {
-                        case POWER_FOCUS:
-                            Regenerate(POWER_FOCUS);
-                            m_focusRegenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
-                            if (!m_focusRegenTimer) ++m_focusRegenTimer;
-
-                            // Reset if large diff (lag) causes focus to get 'stuck'
-                            if (m_focusRegenTimer > PET_FOCUS_REGEN_INTERVAL)
-                                m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
-
-                            break;
-
-                        // in creature::update
-                        //case POWER_ENERGY:
-                        //    Regenerate(POWER_ENERGY);
-                        //    m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
-                        //    if (!m_regenTimer) ++m_regenTimer;
-                        //    break;
-                        default:
-                            m_focusRegenTimer = 0;
-                            break;
-                    }
                 }
             }
             break;

@@ -2238,11 +2238,6 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
         // polymorph case
         if ((mode & AURA_EFFECT_HANDLE_REAL) && target->GetTypeId() == TYPEID_PLAYER && target->IsPolymorphed())
         {
-            // for players, start regeneration after 1s (in polymorph fast regeneration case)
-            // only if caster is Player (after patch 2.4.2)
-            if (GetCasterGUID().IsPlayer())
-                target->ToPlayer()->setRegenTimerCount(1*IN_MILLISECONDS);
-
             //dismount polymorphed target (after patch 2.4.2)
             if (target->IsMounted())
                 target->RemoveAurasByType(SPELL_AURA_MOUNTED);

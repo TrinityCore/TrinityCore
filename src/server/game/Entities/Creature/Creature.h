@@ -480,8 +480,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
 
         ReactStates m_reactState;                           // for AI, not charmInfo
-        void RegenerateHealth();
-        void Regenerate(Powers power);
+        void RegenerateHealth() override;
         MovementGeneratorType m_defaultMovementType;
         ObjectGuid::LowType m_spawnId;                               ///< For new or temporary creatures is 0 for saved it is lowguid
         uint8 m_equipmentId;

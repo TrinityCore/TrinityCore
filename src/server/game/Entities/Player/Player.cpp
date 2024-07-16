@@ -177,9 +177,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     if (!GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS))
         SetAcceptWhispers(true);
 
-    m_regenInterruptTimestamp = GameTime::Now();
-    m_regenTimer = 0;
-    m_regenTimerCount = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
@@ -317,8 +314,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     sWorld->IncreasePlayerCount();
 
     m_ChampioningFaction = 0;
-
-    m_powerFraction.fill(0.0f);
 
     isDebugAreaTriggers = false;
 
@@ -1045,12 +1040,6 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
-    if (IsAlive())
-    {
-        m_regenTimer += p_time;
-        RegenerateAll();
-    }
-
     if (m_deathState == JUST_DIED)
         KillPlayer();
 
@@ -1617,203 +1606,33 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo 
     return Unit::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
 }
 
-void Player::RegenerateAll()
+void Player::RegenerateRunes(uint32 diff)
 {
-    m_regenTimerCount += m_regenTimer;
-
-    for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
-        if (power != POWER_RUNE_BLOOD && power != POWER_RUNE_FROST && power != POWER_RUNE_UNHOLY)
-            Regenerate(power);
+    if (GetClass() != CLASS_DEATH_KNIGHT)
+        return;
 
     // Runes act as cooldowns, and they don't need to send any data
-    if (GetClass() == CLASS_DEATH_KNIGHT)
+    for (uint8 i = 0; i < MAX_RUNES; i += 2)
     {
-        for (uint8 i = 0; i < MAX_RUNES; i += 2)
+        uint8 runeToRegen = i;
+        float runeCooldown = GetRuneCooldown(i);
+        float secondRuneCd = GetRuneCooldown(i + 1);
+
+        // Regenerate second rune of the same type only after first rune is off the cooldown
+        if (G3D::fuzzyNe(secondRuneCd, 0.0f) && (runeCooldown > secondRuneCd || G3D::fuzzyEq(runeCooldown, 0.0f)))
         {
-            uint8 runeToRegen = i;
-            float runeCooldown = GetRuneCooldown(i);
-            float secondRuneCd = GetRuneCooldown(i + 1);
-
-            // Regenerate second rune of the same type only after first rune is off the cooldown
-            if (G3D::fuzzyNe(secondRuneCd, 0.0f) && (runeCooldown > secondRuneCd || G3D::fuzzyEq(runeCooldown, 0.0f)))
-            {
-                runeToRegen = i + 1;
-                runeCooldown = secondRuneCd;
-            }
-
-            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES);
-
-            float cdDiff = (powerTypeEntry->RegenPeace + m_unitData->PowerRegenFlatModifier[GetPowerIndex(GetPowerTypeForBaseRune(runeToRegen))]) * 0.001f * m_regenTimer;
-            if (runeCooldown > cdDiff)
-                SetRuneCooldown(runeToRegen, runeCooldown - cdDiff);
-            else
-                SetRuneCooldown(runeToRegen, 0.0f);
+            runeToRegen = i + 1;
+            runeCooldown = secondRuneCd;
         }
-    }
 
-    if (m_regenTimerCount >= 2000)
-    {
-        // Not in combat or they have regeneration
-        if (!IsInCombat() || IsPolymorphed() || m_baseHealthRegen || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) || HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT))
-            RegenerateHealth();
+        PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES);
 
-        m_regenTimerCount -= 2000;
-    }
-
-    m_regenTimer = 0;
-}
-
-void Player::Regenerate(Powers power)
-{
-    // Skip regeneration for power type we cannot have
-    uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
-        return;
-
-    /// @todo possible use of miscvalueb instead of amount
-    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power) || HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-        return;
-
-    int32 curValue = GetPower(power);
-
-    PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power);
-    if (!powerType)
-        return;
-
-    float addvalue = 0.0f;
-    if (!IsInCombat())
-    {
-        if (powerType->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt) && m_regenInterruptTimestamp + Milliseconds(powerType->RegenInterruptTimeMS) >= GameTime::Now())
-            return;
-
-        addvalue = (powerType->RegenPeace + m_unitData->PowerRegenFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
-    }
-    else
-        addvalue = (powerType->RegenCombat + m_unitData->PowerRegenInterruptedFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
-
-    static Rates const RatesForPower[MAX_POWERS] =
-    {
-        RATE_POWER_MANA,
-        RATE_POWER_RAGE_LOSS,
-        RATE_POWER_FOCUS,
-        RATE_POWER_ENERGY,
-        RATE_POWER_COMBO_POINTS_LOSS,
-        MAX_RATES, // runes
-        RATE_POWER_RUNIC_POWER_LOSS,
-        RATE_POWER_SOUL_SHARDS,
-        RATE_POWER_LUNAR_POWER,
-        RATE_POWER_HOLY_POWER,
-        MAX_RATES, // alternate
-        RATE_POWER_MAELSTROM,
-        RATE_POWER_CHI,
-        RATE_POWER_INSANITY,
-        MAX_RATES, // burning embers, unused
-        MAX_RATES, // demonic fury, unused
-        RATE_POWER_ARCANE_CHARGES,
-        RATE_POWER_FURY,
-        RATE_POWER_PAIN,
-        RATE_POWER_ESSENCE,
-        MAX_RATES, // runes
-        MAX_RATES, // runes
-        MAX_RATES, // runes
-        MAX_RATES, // alternate
-        MAX_RATES, // alternate
-        MAX_RATES, // alternate
-    };
-
-    if (RatesForPower[power] != MAX_RATES)
-        addvalue *= sWorld->getRate(RatesForPower[power]);
-
-    int32 minPower = powerType->MinPower;
-    int32 maxPower = GetMaxPower(power);
-
-    if (powerType->CenterPower)
-    {
-        if (curValue > powerType->CenterPower)
-        {
-            addvalue = -std::abs(addvalue);
-            minPower = powerType->CenterPower;
-        }
-        else if (curValue < powerType->CenterPower)
-        {
-            addvalue = std::abs(addvalue);
-            maxPower = powerType->CenterPower;
-        }
+        float cdDiff = (powerTypeEntry->RegenPeace + m_unitData->PowerRegenFlatModifier[GetPowerIndex(GetPowerTypeForBaseRune(runeToRegen))]) * 0.001f * diff;
+        if (runeCooldown > cdDiff)
+            SetRuneCooldown(runeToRegen, runeCooldown - cdDiff);
         else
-            return;
+            SetRuneCooldown(runeToRegen, 0.0f);
     }
-
-    addvalue += m_powerFraction[powerIndex];
-    int32 integerValue = int32(std::fabs(addvalue));
-
-    if (addvalue < 0.0f)
-    {
-        if (curValue <= minPower)
-            return;
-    }
-    else if (addvalue > 0.0f)
-    {
-        if (curValue >= maxPower)
-            return;
-    }
-    else
-        return;
-
-    bool forcesSetPower = false;
-    if (addvalue < 0.0f)
-    {
-        if (curValue > minPower + integerValue)
-        {
-            curValue -= integerValue;
-            m_powerFraction[powerIndex] = addvalue + integerValue;
-        }
-        else
-        {
-            curValue = minPower;
-            m_powerFraction[powerIndex] = 0;
-            forcesSetPower = true;
-        }
-    }
-    else
-    {
-        if (curValue + integerValue <= maxPower)
-        {
-            curValue += integerValue;
-            m_powerFraction[powerIndex] = addvalue - integerValue;
-        }
-        else
-        {
-            curValue = maxPower;
-            m_powerFraction[powerIndex] = 0;
-            forcesSetPower = true;
-        }
-    }
-
-    if (GetCommandStatus(CHEAT_POWER))
-        curValue = maxPower;
-
-    if (m_regenTimerCount >= 2000 || forcesSetPower)
-        SetPower(power, curValue);
-    else
-    {
-        // throttle packet sending
-        DoWithSuppressingObjectUpdates([&]()
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, powerIndex), curValue);
-            const_cast<UF::UnitData&>(*m_unitData).ClearChanged(&UF::UnitData::Power, powerIndex);
-        });
-    }
-}
-
-void Player::InterruptPowerRegen(Powers power)
-{
-    uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
-        return;
-
-    m_regenInterruptTimestamp = GameTime::Now();
-    m_powerFraction[powerIndex] = 0.0f;
-    SendDirectMessage(WorldPackets::Combat::InterruptPowerRegen(power).Write());
 }
 
 void Player::RegenerateHealth()
@@ -25422,7 +25241,6 @@ void Player::AtExitCombat()
 {
     Unit::AtExitCombat();
     UpdatePotionCooldown();
-    m_regenInterruptTimestamp = GameTime::Now();
 }
 
 float Player::GetBlockPercent(uint8 attackerLevel) const
