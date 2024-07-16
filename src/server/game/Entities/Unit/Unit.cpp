@@ -5563,7 +5563,14 @@ void Unit::SetPowerType(Powers power, bool sendUpdate/* = true*/, bool onInit /*
     if (IsCreature() && !powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::IsUsedByNPCs))
         return;
 
+    uint8 oldPowerType = m_unitData->DisplayPower;
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayPower), power);
+
+    // Creatures may switch out their power types at any given point, so we will keep track of it here
+    if (GetPowerIndex(Powers(oldPowerType)) == MAX_POWERS_PER_CLASS)
+        _usedPowerTypes.erase(oldPowerType);
+
+    _usedPowerTypes.insert(power);
 
     // Update max power
     UpdateMaxPower(power);
@@ -9741,6 +9748,15 @@ void Unit::AddToWorld()
     WorldObject::AddToWorld();
     i_motionMaster->AddToWorld();
 
+    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    {
+        uint32 powerIndex = GetPowerIndex(Powers(i));
+        if (powerIndex == MAX_POWERS || powerIndex == MAX_POWERS_PER_CLASS)
+            continue;
+
+        _usedPowerTypes.insert(i);
+    }
+
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnterWorld);
 }
 
@@ -10517,7 +10533,7 @@ void Unit::ApplyHasteRegenMod(float val, bool apply)
     else
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
 
-    for (uint8 powerType = POWER_MANA; powerType != MAX_POWERS; ++powerType)
+    for (uint8 powerType : GetUsedPowerTypes())
     {
         uint32 powerIndex = GetPowerIndex(static_cast<Powers>(powerType));
         if (powerIndex == MAX_POWERS)
@@ -11957,10 +11973,9 @@ void Unit::RegenerateAll(uint32 diff)
     _powerRegenUpdateTimer += diff;
     _healthRegenerationTimer += diff;
 
-    for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
+    for (uint8 powerType : GetUsedPowerTypes())
     {
-        if (GetPowerIndex(power) == MAX_POWERS)
-            continue;
+        Powers power = static_cast<Powers>(powerType);
 
         // Classic only - Runes are regenerated separately
         if (power == POWER_RUNE_BLOOD || power == POWER_RUNE_FROST || power == POWER_RUNE_UNHOLY || power == POWER_RUNES)

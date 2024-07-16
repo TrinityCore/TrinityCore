@@ -1997,10 +1997,14 @@ class TC_GAME_API Unit : public WorldObject
 
         bool _isCombatDisallowed;
 
+        // Power Regeneration
         TimePoint _regenInterruptTimestamp;
         uint32 _powerRegenUpdateTimer;
         uint32 _healthRegenerationTimer;
         std::array<float, MAX_POWERS_PER_CLASS> _powerFraction;
+        std::unordered_set<uint8> _usedPowerTypes;
+    public:
+        std::unordered_set<uint8> const& GetUsedPowerTypes() const { return _usedPowerTypes; }
 };
 
 #endif

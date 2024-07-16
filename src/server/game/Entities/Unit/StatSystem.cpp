@@ -100,7 +100,7 @@ int32 Unit::GetCreatePowerValue(Powers power) const
 void Unit::UpdatePowerRegen(Powers powerType)
 {
     uint32 powerIndex = GetPowerIndex(powerType);
-    if (powerIndex == MAX_POWERS)
+    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
@@ -295,7 +295,7 @@ bool Player::UpdateAllStats()
     UpdateAttackPowerAndDamage(true);
     UpdateMaxHealth();
 
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    for (uint8 i : GetUsedPowerTypes())
         UpdateMaxPower(Powers(i));
 
     UpdateAllRatings();
@@ -310,7 +310,7 @@ bool Player::UpdateAllStats()
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
 
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    for (uint8 i : GetUsedPowerTypes())
         UpdatePowerRegen(Powers(i));
 
     return true;
@@ -931,7 +931,7 @@ bool Creature::UpdateAllStats()
     UpdateAttackPowerAndDamage();
     UpdateAttackPowerAndDamage(true);
 
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    for (uint8 i : GetUsedPowerTypes())
     {
         UpdateMaxPower(Powers(i));
         UpdatePowerRegen(Powers(i));
@@ -1154,7 +1154,7 @@ bool Guardian::UpdateAllStats()
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         UpdateStats(Stats(i));
 
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    for (uint8 i : GetUsedPowerTypes())
         UpdateMaxPower(Powers(i));
 
     UpdateAllResistances();
