@@ -401,7 +401,7 @@ class spell_lord_and_lady_waycrest_virulent_pathogen_damage : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_VIRULENT_PATHOGEN_INFECT_AREA });
+        return ValidateSpellInfo({ SPELL_VIRULENT_PATHOGEN_INFECT_AREA, SPELL_CONTAGIOUS_REMNANTS });
     }
 
     void HandleDamage(AuraEffect const* /*aurEff*/ , AuraEffectHandleModes /*mode*/)
