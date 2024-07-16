@@ -9748,15 +9748,6 @@ void Unit::AddToWorld()
     WorldObject::AddToWorld();
     i_motionMaster->AddToWorld();
 
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
-    {
-        uint32 powerIndex = GetPowerIndex(Powers(i));
-        if (powerIndex == MAX_POWERS || powerIndex == MAX_POWERS_PER_CLASS)
-            continue;
-
-        _usedPowerTypes.insert(i);
-    }
-
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnterWorld);
 }
 
@@ -12154,6 +12145,18 @@ void Unit::InterruptPowerRegen(Powers power)
 
     if (IsPlayer())
         ToPlayer()->SendDirectMessage(WorldPackets::Combat::InterruptPowerRegen(power).Write());
+}
+
+void Unit::RegisterPowerTypes()
+{
+    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    {
+        uint32 powerIndex = GetPowerIndex(Powers(i));
+        if (powerIndex == MAX_POWERS || powerIndex == MAX_POWERS_PER_CLASS)
+            continue;
+
+        _usedPowerTypes.insert(i);
+    }
 }
 
 int32 Unit::CalculateAOEAvoidance(int32 damage, uint32 schoolMask, bool npcCaster) const

@@ -1155,7 +1155,10 @@ bool Guardian::UpdateAllStats()
         UpdateStats(Stats(i));
 
     for (uint8 i : GetUsedPowerTypes())
+    {
         UpdateMaxPower(Powers(i));
+        UpdatePowerRegen(Powers(i));
+    }
 
     UpdateAllResistances();
 

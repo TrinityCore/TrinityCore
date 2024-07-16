@@ -957,6 +957,7 @@ class TC_GAME_API Unit : public WorldObject
         void Regenerate(Powers powerType, uint32 diff);
         void InterruptPowerRegen(Powers power);
         void UpdatePowerRegen(Powers powerType);
+        void RegisterPowerTypes();
         virtual void RegenerateHealth() = 0;
         virtual void RegenerateRunes(uint32 /*diff*/) { }
 
