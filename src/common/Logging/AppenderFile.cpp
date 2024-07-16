@@ -21,8 +21,8 @@
 #include "StringConvert.h"
 #include <algorithm>
 
-AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args) :
-    Appender(id, name, level, flags),
+AppenderFile::AppenderFile(uint8 id, std::string name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args) :
+    Appender(id, std::move(name), level, flags),
     logfile(nullptr),
     _logDir(sLog->GetLogsDir()),
     _maxFileSize(0),
@@ -78,7 +78,9 @@ void AppenderFile::_write(LogMessage const* message)
         FILE* file = OpenFile(namebuf, "a", _backup || exceedMaxSize);
         if (!file)
             return;
-        fprintf(file, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+        fwrite(message->prefix.c_str(), 1, message->prefix.length(), file);
+        fwrite(message->text.c_str(), 1, message->text.length(), file);
+        fwrite("\n", 1, 1, file);
         fflush(file);
         _fileSize += uint64(message->Size());
         fclose(file);
@@ -90,7 +92,9 @@ void AppenderFile::_write(LogMessage const* message)
     if (!logfile)
         return;
 
-    fprintf(logfile, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+    fwrite(message->prefix.c_str(), 1, message->prefix.length(), logfile);
+    fwrite(message->text.c_str(), 1, message->text.length(), logfile);
+    fwrite("\n", 1, 1, logfile);
     fflush(logfile);
     _fileSize += uint64(message->Size());
 }
