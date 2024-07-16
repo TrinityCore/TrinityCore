@@ -579,7 +579,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::Requ
     {
         WorldPackets::Party::PartyMemberFullState partyMemberStats;
         Player* player = ObjectAccessor::FindConnectedPlayer(target);
-        if (!player || !player->GetGroup() || !GetPlayer()->GetGroup() || (player->GetGroup() != GetPlayer()->GetGroup()))
+        if (!player || !GetPlayer()->IsInSameRaidWith(player))
         {
             partyMemberStats.MemberGuid = target;
             partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
