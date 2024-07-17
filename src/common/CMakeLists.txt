@@ -29,21 +29,10 @@ endif(USE_COREPCH)
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_COMMON)
-
 add_library(common
   ${PRIVATE_SOURCES}
 )
 
-# Do NOT add any extra include directory here, as we don't want the common
-# library to depend on anything else than TC deps, and itself.
-# This way we ensure that if either a PR does that without modifying this file,
-# a compile error will be generated, either this file will be modified so it
-# is detected more easily.
-# While it is OK to include files from other libs as long as they don't require
-# linkage (enums, defines...) it is discouraged to do so unless necessary, as it will pullute
-# include_directories leading to further unnoticed dependency aditions
-# Linker Depencency requirements: none
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC_INCLUDES
@@ -57,6 +46,10 @@ target_include_directories(common
     ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
+
+target_compile_definitions(common
+  PRIVATE
+    TRINITY_API_EXPORT_COMMON)
 
 target_link_libraries(common
   PRIVATE

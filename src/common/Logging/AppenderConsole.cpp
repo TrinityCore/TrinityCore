@@ -18,22 +18,21 @@
 #include "AppenderConsole.h"
 #include "LogMessage.h"
 #include "SmartEnum.h"
-#include "StringFormat.h"
 #include "StringConvert.h"
+#include "StringFormat.h"
 #include "Util.h"
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
   #include <Windows.h>
 #endif
 
-AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args)
-    : Appender(id, name, level, flags), _colored(false)
+AppenderConsole::AppenderConsole(uint8 id, std::string name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args)
+    : Appender(id, std::move(name), level, flags), _colored(false)
 {
-    for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
-        _colors[i] = ColorTypes(NUM_COLOR_TYPES);
+    std::ranges::fill(_colors, NUM_COLOR_TYPES);
 
-    if (3 < args.size())
-        InitColors(name, args[3]);
+    if (args.size() > 3)
+        InitColors(getName(), args[3]);
 }
 
 void AppenderConsole::InitColors(std::string const& name, std::string_view str)
@@ -154,20 +153,23 @@ void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
 
 void AppenderConsole::ResetColor(bool stdout_stream)
 {
-    #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     HANDLE hConsole = GetStdHandle(stdout_stream ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
     SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
-    #else
-    fprintf((stdout_stream ? stdout : stderr), "\x1b[0m");
-    #endif
+#else
+    fputs("\x1b[0m", stdout_stream ? stdout : stderr);
+#endif
 }
 
-void AppenderConsole::Print(std::string const& str, bool error)
+void AppenderConsole::Print(std::string const& prefix, std::string const& text, bool error)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    WriteWinConsole(str + "\n", error);
+    WriteWinConsole(prefix + text + "\n", error);
 #else
-    utf8printf(error ? stderr : stdout, "%s\n", str.c_str());
+    FILE* out = error ? stderr : stdout;
+    fwrite(prefix.c_str(), 1, prefix.length(), out);
+    fwrite(text.c_str(), 1, text.length(), out);
+    fwrite("\n", 1, 1, out);
 #endif
 }
 
@@ -203,9 +205,9 @@ void AppenderConsole::_write(LogMessage const* message)
         }
 
         SetColor(stdout_stream, _colors[index]);
-        Print(message->prefix + message->text, !stdout_stream);
+        Print(message->prefix, message->text, !stdout_stream);
         ResetColor(stdout_stream);
     }
     else
-        Print(message->prefix + message->text, !stdout_stream);
+        Print(message->prefix, message->text, !stdout_stream);
 }
