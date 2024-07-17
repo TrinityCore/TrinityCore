@@ -5576,7 +5576,6 @@ void Unit::SetPowerType(Powers power, bool sendUpdate/* = true*/, bool onInit /*
     // Update max power
     UpdateMaxPower(power);
 
-
     // Update current power
     if (!onInit)
     {
