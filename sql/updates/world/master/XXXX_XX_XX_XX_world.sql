@@ -51,7 +51,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Spelltarget condition
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (265991));
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
-(13, 3, 265991, 0, 0, 31, 0, 3, 135322, 0, '', 0, 'Potential target of the spell is creature, entry is The Golden Serpent (135322)');
+(13, 3, 265991, 0, 0, 51, 0, 5, 135322, 0, '', 0, 'Potential target of the spell is creature, entry is The Golden Serpent (135322)');
 
 -- Difficulty
 DELETE FROM `creature_template_difficulty` WHERE (`Entry`=135406 AND `DifficultyID`=23);

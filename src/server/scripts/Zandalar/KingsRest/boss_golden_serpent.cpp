@@ -68,6 +68,11 @@ enum GoldenSerpentNPCs
     NPC_ANIMATED_GOLD   = 135406
 };
 
+enum GoldenSerpentMisc
+{
+    DISPLAY_INVISIBLE   = 11686
+};
+
 enum GoldenSerpentPaths
 {
     PATH_GOLDEN_SERPENT_SUBMERGE     = 13532200,
@@ -80,7 +85,7 @@ constexpr Position GoldenSerpentRespawnPos = { -1058.8403f, 2615.1667f, 810.1519
 // 135322 - The Golden Serpent
 struct boss_the_golden_serpent : public BossAI
 {
-    boss_the_golden_serpent(Creature* creature) : BossAI(creature, DATA_GOLDEN_SERPENT) { }
+    boss_the_golden_serpent(Creature* creature) : BossAI(creature, DATA_GOLDEN_SERPENT), _announceLuster(false) { }
 
     void JustAppeared() override
     {
@@ -117,6 +122,11 @@ struct boss_the_golden_serpent : public BossAI
         _DespawnAtEvade();
     }
 
+    void Reset() override
+    {
+        _announceLuster = false;
+    }
+
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
@@ -149,7 +159,13 @@ struct boss_the_golden_serpent : public BossAI
     void DoAction(int32 action) override
     {
         if (action == ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD)
-            Talk(SAY_ANNOUNCE_ABSORB_ANIMATED_GOLD);
+        {
+            if (!_announceLuster)
+            {
+                Talk(SAY_ANNOUNCE_ABSORB_ANIMATED_GOLD);
+                _announceLuster = true;
+            }
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -183,6 +199,7 @@ struct boss_the_golden_serpent : public BossAI
                     break;
                 case EVENT_LUCRES_CALL:
                     DoCastSelf(SPELL_LUCRES_CALL);
+                    _announceLuster = false;
                     events.ScheduleEvent(EVENT_LUCRES_CALL, 41s + 500ms);
                     break;
                 default:
@@ -193,6 +210,8 @@ struct boss_the_golden_serpent : public BossAI
                 return;
         }
     }
+private:
+    bool _announceLuster;
 };
 
 // 135406 - Animated Gold
@@ -220,7 +239,7 @@ struct npc_animated_gold : public ScriptedAI
 
                     me->GetMotionMaster()->Clear();
                     me->SetWalk(true); // @ToDo: cause of follow movement the follower always run if the target runs
-                    me->GetMotionMaster()->MoveFollow(goldenSerpent, 2.0f, me->GetFollowAngle());
+                    me->GetMotionMaster()->MoveFollow(goldenSerpent, 2.0f, 0.0f); // @ToDo: calculate shortest angle to boss
                     _isMoltenGoldCast = false;
                 }
             });
@@ -254,9 +273,13 @@ struct npc_animated_gold : public ScriptedAI
             if (!goldenSerpent->IsAIEnabled())
                 return;
 
+            me->DespawnOrUnsummon(4s);
+            me->GetMotionMaster()->Clear();
+            me->StopMoving();
             me->CastSpell(nullptr, SPELL_LUSTER, true);
             goldenSerpent->AI()->DoAction(ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD);
-            me->DespawnOrUnsummon();
+            me->SetDisplayId(DISPLAY_INVISIBLE);
+            me->SetUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
         }
     }
 
