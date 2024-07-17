@@ -146,22 +146,17 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             // select angle
             float tAngle;
             float const curAngle = target->GetRelativeAngle(owner);
-            if (_angle)
-            {
-                if (_angle->IsAngleOkay(curAngle))
-                    tAngle = curAngle;
-                else
-                {
-                    float const diffUpper = Position::NormalizeOrientation(curAngle - _angle->UpperBound());
-                    float const diffLower = Position::NormalizeOrientation(_angle->LowerBound() - curAngle);
-                    if (diffUpper < diffLower)
-                        tAngle = _angle->UpperBound();
-                    else
-                        tAngle = _angle->LowerBound();
-                }
-            }
-            else
+            if (!_angle || _angle->IsAngleOkay(curAngle))
                 tAngle = curAngle;
+            else
+            {
+                float const diffUpper = Position::NormalizeOrientation(curAngle - _angle->UpperBound());
+                float const diffLower = Position::NormalizeOrientation(_angle->LowerBound() - curAngle);
+                if (diffUpper < diffLower)
+                    tAngle = _angle->UpperBound();
+                else
+                    tAngle = _angle->LowerBound();
+            }
 
             target->GetNearPoint(owner, x, y, z, range, target->ToAbsoluteAngle(tAngle));
 
