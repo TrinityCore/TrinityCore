@@ -59,7 +59,7 @@ public:
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : iCollisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr) { }
+    GameObjectModel() : iCollisionEnabled(false), iLosBlockingDisabled(false), iInvScale(0), iScale(0), iModel(nullptr) { }
 public:
     const G3D::AABox& getBounds() const { return iBound; }
 
