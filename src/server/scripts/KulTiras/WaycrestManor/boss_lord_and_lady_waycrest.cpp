@@ -112,42 +112,44 @@ struct boss_lord_waycrest : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
+        if (me->IsInEvadeMode())
+            return;
+
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VIRULENT_PATHOGEN_DAMAGE);
 
-        //if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
-          //  ladyWaycrest->AI()->EnterEvadeMode(why);
-
         _EnterEvadeMode();
         _DespawnAtEvade();
+
+        if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
+            ladyWaycrest->AI()->EnterEvadeMode(why);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(30, damage))
+        if (_timesHealed != 3 && me->GetHealth() <= damage)
+            damage = me->GetHealth() - 1;
+
+        if (me->HealthBelowPctDamaged(30, damage) && !_healed)
         {
-            if (!_healed && _timesHealed < 2)
+            if (_timesHealed < 2)
             {
                 if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
-                {
                     ladyWaycrest->AI()->DoAction(ACTION_HEAL_LORD_WAYCREST);
-                    _timesHealed++;
-                    _healed = true;
-                }
 
                 events.ScheduleEvent(EVENT_RESET_HEAL, 3s);
             }
-            else if (!_healed && _timesHealed == 2)
+            else if (_timesHealed == 2)
             {
                 if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
-                {
                     ladyWaycrest->AI()->DoAction(ACTION_HEAL_AND_JOIN_FIGHT);
-                    _healed = true;
-                }
             }
+
+            _timesHealed++;
+            _healed = true;
         }
     }
 
@@ -253,16 +255,19 @@ struct boss_lady_waycrest : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
+        if (me->IsInEvadeMode())
+            return;
+
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-       // if (Creature* lordWaycrest = instance->GetCreature(DATA_LORD_WAYCREST))
-          //  lordWaycrest->AI()->EnterEvadeMode(why);
-
         _EnterEvadeMode();
         _DespawnAtEvade();
+
+        if (Creature* lordWaycrest = instance->GetCreature(DATA_LORD_WAYCREST))
+            lordWaycrest->AI()->EnterEvadeMode(why);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -416,13 +421,14 @@ class spell_lord_and_lady_waycrest_virulent_pathogen_damage : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        Unit* caster = GetCaster();
-        Map* map = target->GetMap();
 
         target->CastSpell(target, SPELL_VIRULENT_PATHOGEN_INFECT_AREA, true);
 
-        if (caster && map->IsHeroicOrHigher())
-            caster->CastSpell(target, SPELL_CONTAGIOUS_REMNANTS, false);
+        if (target->GetMap()->IsHeroicOrHigher())
+        {
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(target, SPELL_CONTAGIOUS_REMNANTS, false);
+        }
     }
 
     void Register() override
@@ -461,7 +467,7 @@ class spell_lord_and_lady_waycrest_discordant_cadenza_selector : public SpellScr
         Unit* target = GetHitUnit();
         static constexpr Seconds TRAVEL_SPEED = 2s;
 
-        caster->SendPlayOrphanSpellVisual(target->GetPosition(), SPELL_VISUAL_DISCORDANT_CADENZA_MISSILE, float(TRAVEL_SPEED.count() / 1000), true);
+        caster->SendPlayOrphanSpellVisual(target->GetPosition(), SPELL_VISUAL_DISCORDANT_CADENZA_MISSILE, float(TRAVEL_SPEED.count()), true);
         caster->m_Events.AddEventAtOffset(new DiscordantCadenzaDamageEvent(caster, target->GetPosition()), TRAVEL_SPEED);
     }
 
@@ -522,11 +528,10 @@ class spell_lord_and_lady_waycrest_vitality_transfer : public AuraScript
         if (aurEff->GetTickNumber() == 5)
         {
             Unit* caster = GetCaster();
-            Unit* target = GetTarget();
-
             if (!caster)
                 return;
 
+            Unit* target = GetTarget();
             caster->SetHealth(caster->GetHealth() - caster->CountPctFromMaxHealth(30));
             target->CastSpell(target, SPELL_HEAL, true);
             target->CastSpell(target, SPELL_PUTRID_VITALITY, true);
