@@ -92,7 +92,10 @@ constexpr Position LordWaycrestCombatPosition = { -549.781f, -260.094f, 185.267f
 // 131527 - Lord Waycrest
 struct boss_lord_waycrest : public BossAI
 {
-    boss_lord_waycrest(Creature* creature) : BossAI(creature, DATA_LORD_WAYCREST), _timesHealed(0), _healed(false) { }
+    boss_lord_waycrest(Creature* creature) : BossAI(creature, DATA_LORD_WAYCREST), _timesHealed(0), _healed(false)
+    {
+        SetBoundary(instance->GetBossBoundary(DATA_LORD_AND_LADY_WAYCREST));
+    }
 
     void Reset() override
     {
@@ -115,8 +118,8 @@ struct boss_lord_waycrest : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VIRULENT_PATHOGEN_DAMAGE);
 
-        if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
-            ladyWaycrest->AI()->EnterEvadeMode(why);
+        //if (Creature* ladyWaycrest = instance->GetCreature(DATA_LADY_WAYCREST))
+          //  ladyWaycrest->AI()->EnterEvadeMode(why);
 
         _EnterEvadeMode();
         _DespawnAtEvade();
@@ -231,7 +234,10 @@ private:
 // 136918 - Lady Waycrest
 struct boss_lady_waycrest : public BossAI
 {
-    boss_lady_waycrest(Creature* creature) : BossAI(creature, DATA_LADY_WAYCREST), _isInArena(false) { }
+    boss_lady_waycrest(Creature* creature) : BossAI(creature, DATA_LADY_WAYCREST), _isInArena(false)
+    {
+        SetBoundary(instance->GetBossBoundary(DATA_LORD_AND_LADY_WAYCREST));
+    }
 
     void Reset() override
     {
@@ -252,8 +258,8 @@ struct boss_lady_waycrest : public BossAI
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-        if (Creature* lordWaycrest = instance->GetCreature(DATA_LORD_WAYCREST))
-            lordWaycrest->AI()->EnterEvadeMode(why);
+       // if (Creature* lordWaycrest = instance->GetCreature(DATA_LORD_WAYCREST))
+          //  lordWaycrest->AI()->EnterEvadeMode(why);
 
         _EnterEvadeMode();
         _DespawnAtEvade();

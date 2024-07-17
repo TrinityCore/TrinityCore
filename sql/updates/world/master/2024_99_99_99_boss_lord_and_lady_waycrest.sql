@@ -1,6 +1,5 @@
 UPDATE `creature_template` SET `ScriptName`='boss_lady_waycrest' WHERE `entry`=131545; -- Lady Waycrest
 UPDATE `creature_template` SET `ScriptName`='boss_lord_waycrest' WHERE `entry`=131527; -- Lord Waycrest
-UPDATE `creature_template_difficulty` SET `StaticFlags4`=8192, `VerifiedBuild`=55461 WHERE `Entry` IN (131545, 131527); -- CREATURE_STATIC_FLAG_4_IGNORE_LOS_WHEN_CASTING_ON_ME
 
 DELETE FROM `spell_target_position` WHERE (`ID`=267082 AND `EffectIndex`=0);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
