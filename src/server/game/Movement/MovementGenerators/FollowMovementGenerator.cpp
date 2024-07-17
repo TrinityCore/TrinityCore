@@ -35,9 +35,9 @@ static void DoMovementInform(Unit* owner, Unit* target)
         AI->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
-FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
-    : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _checkTimer(CHECK_INTERVAL)
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle, Optional<Milliseconds> duration,
+    bool ignoreTargetWalk /*= false*/, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+    : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _ignoreTargetWalk(ignoreTargetWalk), _checkTimer(CHECK_INTERVAL)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -146,17 +146,22 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             // select angle
             float tAngle;
             float const curAngle = target->GetRelativeAngle(owner);
-            if (_angle.IsAngleOkay(curAngle))
-                tAngle = curAngle;
-            else
+            if (_angle)
             {
-                float const diffUpper = Position::NormalizeOrientation(curAngle - _angle.UpperBound());
-                float const diffLower = Position::NormalizeOrientation(_angle.LowerBound() - curAngle);
-                if (diffUpper < diffLower)
-                    tAngle = _angle.UpperBound();
+                if (_angle->IsAngleOkay(curAngle))
+                    tAngle = curAngle;
                 else
-                    tAngle = _angle.LowerBound();
+                {
+                    float const diffUpper = Position::NormalizeOrientation(curAngle - _angle->UpperBound());
+                    float const diffLower = Position::NormalizeOrientation(_angle->LowerBound() - curAngle);
+                    if (diffUpper < diffLower)
+                        tAngle = _angle->UpperBound();
+                    else
+                        tAngle = _angle->LowerBound();
+                }
             }
+            else
+                tAngle = curAngle;
 
             target->GetNearPoint(owner, x, y, z, range, target->ToAbsoluteAngle(tAngle));
 
@@ -183,7 +188,8 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 
             Movement::MoveSplineInit init(owner);
             init.MovebyPath(_path->GetPath());
-            init.SetWalk(target->IsWalking());
+            if (!_ignoreTargetWalk)
+                init.SetWalk(target->IsWalking());
             init.SetFacing(target->GetOrientation());
             init.Launch();
         }
