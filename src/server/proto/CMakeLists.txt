@@ -20,8 +20,6 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_PROTO)
-
 add_library(proto
   ${PRIVATE_SOURCES}
 )
@@ -39,6 +37,10 @@ target_include_directories(proto
     ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
+
+target_compile_definitions(proto
+  PRIVATE
+    TRINITY_API_EXPORT_PROTO)
 
 target_link_libraries(proto
   PRIVATE

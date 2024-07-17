@@ -1942,6 +1942,8 @@ void Spell::EffectSummonType()
                         summonType = TEMPSUMMON_DEAD_DESPAWN;
                     else if (duration == -1ms)
                         summonType = TEMPSUMMON_MANUAL_DESPAWN;
+                    else if (properties->GetFlags().HasFlag(SummonPropertiesFlags::UseDemonTimeout))
+                        summonType = TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT;
 
                     for (uint32 count = 0; count < numSummons; ++count)
                     {

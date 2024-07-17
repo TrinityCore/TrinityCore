@@ -19,6 +19,13 @@
 #include "Creature.h"
 #include "GameEventSender.h"
 
+ControlZoneHandler::ControlZoneHandler() = default;
+ControlZoneHandler::ControlZoneHandler(ControlZoneHandler const& right) = default;
+ControlZoneHandler::ControlZoneHandler(ControlZoneHandler&& right) noexcept = default;
+ControlZoneHandler& ControlZoneHandler::operator=(ControlZoneHandler const& right) = default;
+ControlZoneHandler& ControlZoneHandler::operator=(ControlZoneHandler&& right) noexcept = default;
+ControlZoneHandler::~ControlZoneHandler() = default;
+
 ZoneScript::ZoneScript() = default;
 ZoneScript::ZoneScript(ZoneScript const& right) = default;
 ZoneScript::ZoneScript(ZoneScript&& right) noexcept = default;
