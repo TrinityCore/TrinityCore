@@ -295,9 +295,6 @@ bool Player::UpdateAllStats()
     UpdateAttackPowerAndDamage(true);
     UpdateMaxHealth();
 
-    for (uint8 i : GetUsedPowerTypes())
-        UpdateMaxPower(Powers(i));
-
     UpdateAllRatings();
     UpdateAllCritPercentages();
     UpdateSpellCritChance();
@@ -310,8 +307,14 @@ bool Player::UpdateAllStats()
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
 
-    for (uint8 i : GetUsedPowerTypes())
-        UpdatePowerRegen(Powers(i));
+    for (Powers powerType : GetUsedPowerTypes())
+    {
+        if (powerType == MAX_POWERS)
+            continue;
+
+        UpdateMaxPower(powerType);
+        UpdatePowerRegen(powerType);
+    }
 
     return true;
 }
@@ -931,10 +934,13 @@ bool Creature::UpdateAllStats()
     UpdateAttackPowerAndDamage();
     UpdateAttackPowerAndDamage(true);
 
-    for (uint8 i : GetUsedPowerTypes())
+    for (Powers powerType : GetUsedPowerTypes())
     {
-        UpdateMaxPower(Powers(i));
-        UpdatePowerRegen(Powers(i));
+        if (powerType == MAX_POWERS)
+            continue;
+
+        UpdateMaxPower(powerType);
+        UpdatePowerRegen(powerType);
     }
 
     UpdateAllResistances();
@@ -1154,10 +1160,13 @@ bool Guardian::UpdateAllStats()
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         UpdateStats(Stats(i));
 
-    for (uint8 i : GetUsedPowerTypes())
+    for (Powers powerType : GetUsedPowerTypes())
     {
-        UpdateMaxPower(Powers(i));
-        UpdatePowerRegen(Powers(i));
+        if (powerType == MAX_POWERS)
+            continue;
+
+        UpdateMaxPower(powerType);
+        UpdatePowerRegen(powerType);
     }
 
     UpdateAllResistances();

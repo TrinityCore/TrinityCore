@@ -2003,9 +2003,10 @@ class TC_GAME_API Unit : public WorldObject
         uint32 _powerRegenUpdateTimer;
         uint32 _healthRegenerationTimer;
         std::array<float, MAX_POWERS_PER_CLASS> _powerFraction;
-        std::unordered_set<uint8> _usedPowerTypes;
+        std::array<Powers, MAX_POWERS_PER_CLASS> _usedPowerTypes;
     public:
-        std::unordered_set<uint8> const& GetUsedPowerTypes() const { return _usedPowerTypes; }
+        // Returns an array that contains information about which power type is used at which power index. MAX_POWERS implies that a power at given index is not used.
+        std::array<Powers, MAX_POWERS_PER_CLASS> const& GetUsedPowerTypes() const { return _usedPowerTypes; }
 };
 
 #endif

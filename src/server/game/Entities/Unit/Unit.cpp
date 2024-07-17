@@ -387,6 +387,7 @@ Unit::Unit(bool isWorldObject) :
     _powerRegenUpdateTimer = 0;
     _healthRegenerationTimer = 0;
     _powerFraction.fill(0.0f);
+    _usedPowerTypes.fill(MAX_POWERS);
 }
 
 ////////////////////////////////////////////////////////////
@@ -5563,17 +5564,18 @@ void Unit::SetPowerType(Powers power, bool sendUpdate/* = true*/, bool onInit /*
     if (IsCreature() && !powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::IsUsedByNPCs))
         return;
 
-    uint8 oldPowerType = m_unitData->DisplayPower;
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayPower), power);
 
-    // Creatures may switch out their power types at any given point, so we will keep track of it here
-    if (GetPowerIndex(Powers(oldPowerType)) == MAX_POWERS_PER_CLASS)
-        _usedPowerTypes.erase(oldPowerType);
-
-    _usedPowerTypes.insert(power);
+    // Creatures can swap out their power type at index 0 so we do keep track of the new power type here
+    if (IsCreature())
+    {
+        _usedPowerTypes[GetPowerIndex(power)] = power;
+        UpdatePowerRegen(power);
+    }
 
     // Update max power
     UpdateMaxPower(power);
+
 
     // Update current power
     if (!onInit)
@@ -10524,13 +10526,12 @@ void Unit::ApplyHasteRegenMod(float val, bool apply)
     else
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
 
-    for (uint8 powerType : GetUsedPowerTypes())
+    for (Powers powerType : GetUsedPowerTypes())
     {
-        uint32 powerIndex = GetPowerIndex(static_cast<Powers>(powerType));
-        if (powerIndex == MAX_POWERS)
+        if (powerType == MAX_POWERS || GetPowerIndex(powerType) == MAX_POWERS)
             continue;
 
-        PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(static_cast<Powers>(powerType));
+        PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
         if (!powerTypeEntry)
             continue;
 
@@ -10542,7 +10543,7 @@ void Unit::ApplyHasteRegenMod(float val, bool apply)
                 regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
 
         if (regenAffectedByHaste)
-            UpdatePowerRegen(static_cast<Powers>(powerType));
+            UpdatePowerRegen(powerType);
     }
 }
 
@@ -11964,15 +11965,16 @@ void Unit::RegenerateAll(uint32 diff)
     _powerRegenUpdateTimer += diff;
     _healthRegenerationTimer += diff;
 
-    for (uint8 powerType : GetUsedPowerTypes())
+    for (Powers powerType : GetUsedPowerTypes())
     {
-        Powers power = static_cast<Powers>(powerType);
-
-        // Classic only - Runes are regenerated separately
-        if (power == POWER_RUNE_BLOOD || power == POWER_RUNE_FROST || power == POWER_RUNE_UNHOLY || power == POWER_RUNES)
+        if (powerType == MAX_POWERS)
             continue;
 
-        Regenerate(power, diff);
+        // Classic only - Runes are regenerated separately
+        if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY || powerType == POWER_RUNES)
+            continue;
+
+        Regenerate(powerType, diff);
     }
 
     if (GetClass() == CLASS_DEATH_KNIGHT)
@@ -12155,7 +12157,7 @@ void Unit::RegisterPowerTypes()
         if (powerIndex == MAX_POWERS || powerIndex == MAX_POWERS_PER_CLASS)
             continue;
 
-        _usedPowerTypes.insert(i);
+        _usedPowerTypes[powerIndex] = static_cast<Powers>(i);
     }
 }
 
