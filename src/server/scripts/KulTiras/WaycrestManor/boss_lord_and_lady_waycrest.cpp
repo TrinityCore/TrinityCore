@@ -112,7 +112,7 @@ struct boss_lord_waycrest : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -253,7 +253,7 @@ struct boss_lady_waycrest : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
