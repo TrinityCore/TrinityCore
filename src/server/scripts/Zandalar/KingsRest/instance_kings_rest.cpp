@@ -17,6 +17,7 @@
 
 #include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 #include "kings_rest.h"
 
