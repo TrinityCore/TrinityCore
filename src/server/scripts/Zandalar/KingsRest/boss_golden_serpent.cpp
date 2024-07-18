@@ -85,7 +85,7 @@ constexpr Position GoldenSerpentRespawnPos = { -1058.8403f, 2615.1667f, 810.1519
 // 135322 - The Golden Serpent
 struct boss_the_golden_serpent : public BossAI
 {
-    boss_the_golden_serpent(Creature* creature) : BossAI(creature, DATA_GOLDEN_SERPENT), _announceLuster(false) { }
+    boss_the_golden_serpent(Creature* creature) : BossAI(creature, DATA_GOLDEN_SERPENT), _announcedLuster(false) { }
 
     void JustAppeared() override
     {
@@ -124,7 +124,7 @@ struct boss_the_golden_serpent : public BossAI
 
     void Reset() override
     {
-        _announceLuster = false;
+        _announcedLuster = false;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -160,10 +160,10 @@ struct boss_the_golden_serpent : public BossAI
     {
         if (action == ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD)
         {
-            if (!_announceLuster)
+            if (!_announcedLuster)
             {
                 Talk(SAY_ANNOUNCE_ABSORB_ANIMATED_GOLD);
-                _announceLuster = true;
+                _announcedLuster = true;
             }
         }
     }
@@ -199,7 +199,7 @@ struct boss_the_golden_serpent : public BossAI
                     break;
                 case EVENT_LUCRES_CALL:
                     DoCastSelf(SPELL_LUCRES_CALL);
-                    _announceLuster = false;
+                    _announcedLuster = false;
                     events.ScheduleEvent(EVENT_LUCRES_CALL, 41s + 500ms);
                     break;
                 default:
@@ -211,7 +211,7 @@ struct boss_the_golden_serpent : public BossAI
         }
     }
 private:
-    bool _announceLuster;
+    bool _announcedLuster;
 };
 
 // 135406 - Animated Gold
