@@ -46,9 +46,9 @@ target_include_directories(game
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-target_compile_definitions(game
-  PRIVATE
-    TRINITY_API_EXPORT_GAME)
+set_target_properties(game
+  PROPERTIES
+    DEFINE_SYMBOL TRINITY_API_EXPORT_GAME)
 
 target_link_libraries(game
   PRIVATE

@@ -47,9 +47,9 @@ target_include_directories(common
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-target_compile_definitions(common
-  PRIVATE
-    TRINITY_API_EXPORT_COMMON)
+set_target_properties(common
+  PROPERTIES
+    DEFINE_SYMBOL TRINITY_API_EXPORT_COMMON)
 
 target_link_libraries(common
   PRIVATE
