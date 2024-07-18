@@ -5311,11 +5311,18 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
 
     if (apply)
     {
+        // remove current vehicle kit before creating a new one
+        target->RemoveVehicleKit();
         if (!target->CreateVehicleKit(vehicleId, 0))
             return;
     }
     else if (target->GetVehicleKit())
+    {
         target->RemoveVehicleKit();
+        if (Creature* creature = target->ToCreature())
+            if (creature->GetCreatureTemplate()->VehicleId)
+                creature->CreateVehicleKit(creature->GetCreatureTemplate()->VehicleId, creature->GetEntry());
+    }
 
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
