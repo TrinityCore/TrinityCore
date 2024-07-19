@@ -2565,7 +2565,8 @@ enum AuraStateType
     AURA_STATE_WOUND_HEALTH_20_80           = 21,           //   T |
     AURA_STATE_RAID_ENCOUNTER               = 22,           // CcTt|
     AURA_STATE_HEALTHY_75_PERCENT           = 23,           // C   |
-    AURA_STATE_WOUND_HEALTH_35_80           = 24            //   T |
+    AURA_STATE_WOUND_HEALTH_35_80           = 24,           //   T |
+    AURA_STATE_WOUNDED_50_PERCENT           = 25            // C T |
 };
 
 #define PER_CASTER_AURA_STATE_MASK (\
