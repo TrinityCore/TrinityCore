@@ -38,9 +38,9 @@ target_include_directories(proto
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-target_compile_definitions(proto
-  PRIVATE
-    TRINITY_API_EXPORT_PROTO)
+set_target_properties(proto
+  PROPERTIES
+    DEFINE_SYMBOL TRINITY_API_EXPORT_PROTO)
 
 target_link_libraries(proto
   PRIVATE
