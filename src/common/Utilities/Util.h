@@ -250,64 +250,73 @@ inline bool isChineseString(std::wstring_view wstr, bool numericOrSpace)
     return true;
 }
 
-inline wchar_t wcharToUpper(wchar_t wchar)
+struct WcharToUpper
 {
-    if (wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
-        return wchar_t(0x1E9E);
-    if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar >= 0x0101 && wchar <= 0x012F)                  // LATIN SMALL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK (only %2=1)
+    wchar_t operator()(wchar_t wchar) const
     {
-        if (wchar % 2 == 1)
-            return wchar_t(uint16(wchar)-0x0001);
+        if (wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
+            return wchar_t(0x1E9E);
+        if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar >= 0x0101 && wchar <= 0x012F)                  // LATIN SMALL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK (only %2=1)
+        {
+            if (wchar % 2 == 1)
+                return wchar_t(uint16(wchar) - 0x0001);
+        }
+        if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
+            return wchar_t(0x0401);
+        if (wchar == 0x0153)                                     // LATIN SMALL LIGATURE OE
+            return wchar_t(0x0152);
+        if (wchar == 0x00FF)                                     // LATIN SMALL LETTER Y WITH DIAERESIS
+            return wchar_t(0x0178);
+
+        return wchar;
     }
-    if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
-        return wchar_t(0x0401);
-    if (wchar == 0x0153)                                     // LATIN SMALL LIGATURE OE
-        return wchar_t(0x0152);
-    if (wchar == 0x00FF)                                     // LATIN SMALL LETTER Y WITH DIAERESIS
-        return wchar_t(0x0178);
+} inline constexpr wcharToUpper;
 
-    return wchar;
-}
-
-inline wchar_t wcharToUpperOnlyLatin(wchar_t wchar)
+struct WcharToUpperOnlyLatin
 {
-    return isBasicLatinCharacter(wchar) ? wcharToUpper(wchar) : wchar;
-}
-
-inline wchar_t wcharToLower(wchar_t wchar)
-{
-    if (wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
-        return wchar_t(uint16(wchar)+0x0020);
-    if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
-        return wchar_t(uint16(wchar)+0x0020);
-    if (wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
-        return wchar_t(uint16(wchar)+0x0020);
-    if (wchar >= 0x0100 && wchar <= 0x012E)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN CAPITAL LETTER I WITH OGONEK (only %2=0)
+    wchar_t operator()(wchar_t wchar) const
     {
-        if (wchar % 2 == 0)
-            return wchar_t(uint16(wchar)+0x0001);
+        return isBasicLatinCharacter(wchar) ? wcharToUpper(wchar) : wchar;
     }
-    if (wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
-        return wchar_t(0x00DF);
-    if (wchar == 0x0401)                                     // CYRILLIC CAPITAL LETTER IO
-        return wchar_t(0x0451);
-    if (wchar == 0x0152)                                     // LATIN CAPITAL LIGATURE OE
-        return wchar_t(0x0153);
-    if (wchar == 0x0178)                                     // LATIN CAPITAL LETTER Y WITH DIAERESIS
-        return wchar_t(0x00FF);
-    if (wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
-        return wchar_t(uint16(wchar)+0x0020);
+} inline constexpr wcharToUpperOnlyLatin;
 
-    return wchar;
-}
+struct WcharToLower
+{
+    wchar_t operator()(wchar_t wchar) const
+    {
+        if (wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+            return wchar_t(uint16(wchar)+0x0020);
+        if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+            return wchar_t(uint16(wchar)+0x0020);
+        if (wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
+            return wchar_t(uint16(wchar)+0x0020);
+        if (wchar >= 0x0100 && wchar <= 0x012E)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN CAPITAL LETTER I WITH OGONEK (only %2=0)
+        {
+            if (wchar % 2 == 0)
+                return wchar_t(uint16(wchar)+0x0001);
+        }
+        if (wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
+            return wchar_t(0x00DF);
+        if (wchar == 0x0401)                                     // CYRILLIC CAPITAL LETTER IO
+            return wchar_t(0x0451);
+        if (wchar == 0x0152)                                     // LATIN CAPITAL LIGATURE OE
+            return wchar_t(0x0153);
+        if (wchar == 0x0178)                                     // LATIN CAPITAL LETTER Y WITH DIAERESIS
+            return wchar_t(0x00FF);
+        if (wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
+            return wchar_t(uint16(wchar)+0x0020);
+
+        return wchar;
+    }
+} inline constexpr wcharToLower;
 
 inline bool isLower(wchar_t wchar)
 {
@@ -327,8 +336,15 @@ inline bool isUpper(wchar_t wchar)
     return !isLower(wchar);
 }
 
-inline char charToUpper(char c) { return std::toupper(c); }
-inline char charToLower(char c) { return std::tolower(c); }
+struct CharToUpper
+{
+    char operator()(char c) const { return std::toupper(static_cast<unsigned char>(c)); }
+} inline constexpr charToUpper;
+
+struct CharToLower
+{
+    char operator()(char c) const { return std::tolower(static_cast<unsigned char>(c)); }
+} inline constexpr charToLower;
 
 TC_COMMON_API void wstrToUpper(std::wstring& str);
 TC_COMMON_API void wstrToLower(std::wstring& str);

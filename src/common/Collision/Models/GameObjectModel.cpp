@@ -152,14 +152,14 @@ GameObjectModel* GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBas
     return mdl;
 }
 
-bool GameObjectModel::isMapObject() const
+bool GameObjectModel::IsMapObject() const
 {
     return !iModel->IsM2();
 }
 
-bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const
+bool GameObjectModel::IntersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
-    if (!isCollisionEnabled() || !owner->IsSpawned())
+    if (!IsCollisionEnabled() || !owner->IsSpawned())
         return false;
 
     if (!owner->IsInPhase(phaseShift))
@@ -184,7 +184,7 @@ bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool sto
 
 bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const
 {
-    if (!isCollisionEnabled() || !owner->IsSpawned() || !isMapObject())
+    if (!IsCollisionEnabled() || !owner->IsSpawned() || !IsMapObject())
         return false;
 
     if (!owner->IsInPhase(phaseShift))
