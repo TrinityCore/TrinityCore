@@ -181,19 +181,19 @@ enum class AreaTriggerActionSetFlag : uint32
 {
     None                            = 0x0000,
     OnlyTriggeredByCaster           = 0x0001,
-    ResurrectIfConditionFails       = 0x0002,
+    ResurrectIfConditionFails       = 0x0002, /*NYI*/
     Obsolete                        = 0x0004,
     AllowWhileGhost                 = 0x0008,
     AllowWhileDead                  = 0x0010,
-    UnifyAllInstances               = 0x0020,
+    UnifyAllInstances               = 0x0020, /*NYI*/
     SuppressConditionError          = 0x0040, // NYI
     NotTriggeredbyCaster            = 0x0080,
     CreatorsPartyOnly               = 0x0100,
-    DontRunOnLeaveWhenExpiring      = 0x0200,
+    DontRunOnLeaveWhenExpiring      = 0x0200, /*NYI*/
     CanAffectUninteractible         = 0x0400,
-    DontDespawnWithCreator          = 0x0800,
-    CanAffectBeastmaster            = 0x1000,
-    RequiresLineOfSight             = 0x2000
+    DontDespawnWithCreator          = 0x0800, /*NYI*/
+    CanAffectBeastmaster            = 0x1000, // Can affect GMs
+    RequiresLineOfSight             = 0x2000  /*NYI*/
 };
 
 DEFINE_ENUM_FLAG(AreaTriggerActionSetFlag);
@@ -688,8 +688,8 @@ enum class CriteriaType : int16
     GroupedTankLeftEarlyInLFRDungeon               = 150, /*NYI*/ // Grouped tank left early in an LFR dungeon
     CompleteAnyScenario                            = 151, // Complete a Scenario
     CompleteScenario                               = 152, // Complete scenario "{Scenario}"
-    EnterAreaTriggerWithActionSet                  = 153, /*NYI*/ // Enter area trigger "{AreaTriggerActionSet}"
-    LeaveAreaTriggerWithActionSet                  = 154, /*NYI*/ // Leave area trigger "{AreaTriggerActionSet}"
+    EnterAreaTriggerWithActionSet                  = 153, // Enter area trigger "{AreaTriggerActionSet}"
+    LeaveAreaTriggerWithActionSet                  = 154, // Leave area trigger "{AreaTriggerActionSet}"
     LearnedNewPet                                  = 155, // (Account Only) Learned a new pet
     UniquePetsOwned                                = 156, // (Account Only) Unique pets owned
     AccountObtainPetThroughBattle                  = 157, /*NYI*/ // (Account Only) Obtain a pet through battle

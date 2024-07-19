@@ -6,6 +6,10 @@ else()
   message(STATUS "GCC: Minimum version required is ${GCC_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
+target_compile_options(trinity-compile-option-interface
+  INTERFACE
+    -fno-delete-null-pointer-checks)
+
 if(PLATFORM EQUAL 32)
   # Required on 32-bit systems to enable SSE2 (standard on x64)
   target_compile_options(trinity-compile-option-interface
@@ -16,8 +20,8 @@ endif()
 if(TRINITY_SYSTEM_PROCESSOR MATCHES "x86|amd64")
   target_compile_definitions(trinity-compile-option-interface
     INTERFACE
-      -DHAVE_SSE2
-      -D__SSE2__)
+      HAVE_SSE2
+      __SSE2__)
   message(STATUS "GCC: SFMT enabled, SSE2 flags forced")
 endif()
 
