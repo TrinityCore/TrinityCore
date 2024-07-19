@@ -70,8 +70,6 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
-    SPELL_PRIEST_DEATHSPEAKER                       = 392507,
-    SPELL_PRIEST_DEATHSPEAKER_AURA                  = 392511,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47515,
     SPELL_PRIEST_DIVINE_AEGIS_ABSORB                = 47753,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
@@ -3085,36 +3083,44 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
 // 32379 - Shadow Word: Death
 class spell_pri_shadow_word_death : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    static constexpr Seconds BACKLASH_DELAY = 1s;
+
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect
-        ({
-            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_1 },
-            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_2 },
-            { SPELL_PRIEST_SHADOW_WORD_DEATH, EFFECT_4 }
-        });
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_4 } });
     }
 
-    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    void HandleDamageCalculation(Unit const* victim, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
     {
-        uint64 hitDamage = GetHitDamage();
+        if (victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())))
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+    }
 
-        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
-            SetHitDamage(hitDamage + CalculatePct(hitDamage, GetEffectInfo(EFFECT_2).CalcValue(GetCaster())));
+    void DetermineKillStatus(DamageInfo const& damageInfo, uint32& /*resistAmount*/, int32& /*absorbAmount*/) const
+    {
+        bool killed = damageInfo.GetDamage() >= damageInfo.GetVictim()->GetHealth();
+        if (!killed)
+        {
+            Unit* caster = GetCaster();
+            int32 backlashDamage = caster->CountPctFromMaxHealth(GetEffectInfo(EFFECT_4).CalcValue(caster));
+            caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_castId, backlashDamage]
+            {
+                caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, CastSpellExtraArgs()
+                    .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                    .SetOriginalCastId(originalCastId)
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, backlashDamage));
 
-        if (hitDamage > GetHitUnit()->GetHealth())
-            return;
-
-        int32 backlashDmg = CalculatePct(GetCaster()->GetMaxHealth(), GetEffectInfo(EFFECT_4).CalcValue(GetCaster()));
-
-        CastSpellExtraArgs args(TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        args.AddSpellBP0(backlashDmg);
-        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, args);
+            }, BACKLASH_DELAY);
+        }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_pri_shadow_word_death::HandleDamageCalculation);
+
+        // abuse OnCalculateResistAbsorb to determine if this spell will kill target or not (its still not perfect - happens before absorbs are applied)
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_pri_shadow_word_death::DetermineKillStatus);
     }
 };
 
