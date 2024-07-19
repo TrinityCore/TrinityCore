@@ -174,6 +174,7 @@ enum PriestSpells
     SPELL_PRIEST_SEARING_LIGHT                      = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
+    SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE                  = 197045,
@@ -3079,6 +3080,50 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
     }
 };
 
+// 32379 - Shadow Word: Death
+class spell_pri_shadow_word_death : public SpellScript
+{
+    static constexpr Seconds BACKLASH_DELAY = 1s;
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_4 } });
+    }
+
+    void HandleDamageCalculation(Unit const* victim, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
+    {
+        if (victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())))
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+    }
+
+    void DetermineKillStatus(DamageInfo const& damageInfo, uint32& /*resistAmount*/, int32& /*absorbAmount*/) const
+    {
+        bool killed = damageInfo.GetDamage() >= damageInfo.GetVictim()->GetHealth();
+        if (!killed)
+        {
+            Unit* caster = GetCaster();
+            int32 backlashDamage = caster->CountPctFromMaxHealth(GetEffectInfo(EFFECT_4).CalcValue(caster));
+            caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_castId, backlashDamage]
+            {
+                caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, CastSpellExtraArgs()
+                    .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                    .SetOriginalCastId(originalCastId)
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, backlashDamage));
+
+            }, BACKLASH_DELAY);
+        }
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_pri_shadow_word_death::HandleDamageCalculation);
+
+        // abuse OnCalculateResistAbsorb to determine if this spell will kill target or not (its still not perfect - happens before absorbs are applied)
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_pri_shadow_word_death::DetermineKillStatus);
+    }
+};
+
 // 109186 - Surge of Light
 class spell_pri_surge_of_light : public AuraScript
 {
@@ -3599,6 +3644,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_shadow_covenant);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
+    RegisterSpellScript(spell_pri_shadow_word_death);
     RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_train_of_thought);
