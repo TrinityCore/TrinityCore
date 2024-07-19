@@ -509,10 +509,13 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (sScriptMgr->OnAreaTrigger(player, atEntry, packet.Entered))
         return;
 
-    if (packet.Entered)
-        player->UpdateCriteria(CriteriaType::EnterAreaTriggerWithActionSet, atEntry->AreaTriggerActionSetID);
-    else
-        player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, atEntry->AreaTriggerActionSetID);
+    if (atEntry->AreaTriggerActionSetID)
+    {
+        if (packet.Entered)
+            player->UpdateCriteria(CriteriaType::EnterAreaTriggerWithActionSet, atEntry->AreaTriggerActionSetID);
+        else
+            player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, atEntry->AreaTriggerActionSetID);
+    }
 
     if (player->IsAlive() && packet.Entered)
     {

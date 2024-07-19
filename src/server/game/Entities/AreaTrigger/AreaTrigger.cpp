@@ -645,7 +645,7 @@ void AreaTrigger::UpdateTargetList()
                     if (!caster)
                         return true;
 
-                    if (!caster->IsInRaidWith(target) && !caster->IsInPartyWith(target))
+                    if (!caster->IsInRaidWith(target))
                         return true;
                 }
             }
