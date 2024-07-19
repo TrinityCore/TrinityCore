@@ -5316,7 +5316,7 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
         if (!target->CreateVehicleKit(vehicleId, 0))
             return;
     }
-    else if (target->GetVehicleKit())
+    else
     {
         if (Creature* creature = target->ToCreature())
             if (uint32 originalVehicleId = creature->GetCreatureTemplate()->VehicleId)
