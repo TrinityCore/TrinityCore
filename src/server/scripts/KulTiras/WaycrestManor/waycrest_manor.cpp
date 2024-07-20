@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 #include "waycrest_manor.h"
 
 enum WaycrestManorSpells
