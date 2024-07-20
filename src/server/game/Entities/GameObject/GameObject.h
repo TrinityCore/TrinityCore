@@ -453,6 +453,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
 
+        TeamId GetControllingTeam() const;
+
     protected:
         void CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
