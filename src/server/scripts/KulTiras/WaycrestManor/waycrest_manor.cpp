@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "Creature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "waycrest_manor.h"
