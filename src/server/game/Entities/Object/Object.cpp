@@ -912,9 +912,6 @@ void WorldObject::Update(uint32 diff)
         _heartbeatTimer += HEARTBEAT_INTERVAL;
         Heartbeat();
     }
-
-    if (ControlZone* controlZone = GetControlZone())
-        controlZone->Update(diff);
 }
 
 void WorldObject::SetIsStoredInWorldObjectGridContainer(bool on)
@@ -1526,22 +1523,6 @@ SmoothPhasing* WorldObject::GetOrCreateSmoothPhasing()
         _smoothPhasing = std::make_unique<SmoothPhasing>();
 
     return _smoothPhasing.get();
-}
-
-ControlZone* WorldObject::CreateControlZone(GameObjectTemplate const* gameobjectTemplate)
-{
-    if (!_controlZone)
-        _controlZone = std::make_unique<ControlZone>(this, gameobjectTemplate);
-
-    return _controlZone.get();
-}
-
-void WorldObject::RemoveControlZone()
-{
-    if (ControlZone* controlZone = GetControlZone())
-        controlZone->Disable();
-
-    _controlZone.reset();
 }
 
 bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bool distanceCheck, bool checkAlert) const
