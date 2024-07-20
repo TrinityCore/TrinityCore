@@ -1821,6 +1821,7 @@ class TC_GAME_API Unit : public WorldObject
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;
+        void SetSpellOverrideNameID(int32 spellOverrideNameId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SpellOverrideNameID), spellOverrideNameId); }
 
     protected:
         explicit Unit (bool isWorldObject);

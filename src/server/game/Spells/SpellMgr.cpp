@@ -4836,6 +4836,32 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
         });
     });
+
+    // Slumber Cloud
+    ApplySpellFix({ 360239 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Swarm of Decay
+    ApplySpellFix({ 360300 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_ALLOW_WHILE_RIDING_VEHICLE;
+        spellInfo->ChannelInterruptFlags = SpellAuraInterruptFlags::None;
+    });
+
+    // Swarm of Darkness
+    ApplySpellFix({ 360304 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_ALLOW_WHILE_RIDING_VEHICLE;
+        spellInfo->ChannelInterruptFlags = SpellAuraInterruptFlags::None;
+    });
+
     // END OF SEPULCHER OF THE FIRST ONES
 
     //
