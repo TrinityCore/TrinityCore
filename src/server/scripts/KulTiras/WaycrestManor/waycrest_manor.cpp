@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
 #include "Creature.h"
+#include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
