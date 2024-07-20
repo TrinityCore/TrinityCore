@@ -65,7 +65,7 @@ namespace WorldPackets
             int32 TimerunningSeasonID = 0;
             bool IsTrialBoost     = false;
             bool UseNPE           = false;
-            bool Unused1026       = false;
+            bool HardcoreSelfFound = false;
             std::string Name;
 
             /// Server side data
