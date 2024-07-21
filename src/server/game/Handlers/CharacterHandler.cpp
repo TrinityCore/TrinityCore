@@ -1425,6 +1425,9 @@ void WorldSession::SendFeatureSystemStatus()
     features.AddonChatThrottle.MaxTries = 10;
     features.AddonChatThrottle.TriesRestoredPerSecond = 1;
     features.AddonChatThrottle.UsedTriesPerMessage = 1;
+
+    features.VoiceChatDisabledByParentalControl = true;
+    features.VoiceChatMutedByParentalControl = true;
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
