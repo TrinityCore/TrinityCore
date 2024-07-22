@@ -4480,7 +4480,7 @@ void GameObject::HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const
 TeamId GameObject::GetControllingTeam() const
 {
     if (GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
-        return TEAM_NEUTRAL;;
+        return TEAM_NEUTRAL;
 
     GameObjectType::ControlZone const* controlZone = dynamic_cast<GameObjectType::ControlZone const*>(m_goTypeImpl.get());
     if (!controlZone)
