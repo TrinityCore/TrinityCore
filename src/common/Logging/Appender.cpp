@@ -18,12 +18,11 @@
 #include "Appender.h"
 #include "LogMessage.h"
 #include "StringFormat.h"
-#include <sstream>
 
-Appender::Appender(uint8 _id, std::string const& _name, LogLevel _level /* = LOG_LEVEL_DISABLED */, AppenderFlags _flags /* = APPENDER_FLAGS_NONE */):
-id(_id), name(_name), level(_level), flags(_flags) { }
+Appender::Appender(uint8 _id, std::string _name, LogLevel _level /* = LOG_LEVEL_DISABLED */, AppenderFlags _flags /* = APPENDER_FLAGS_NONE */):
+id(_id), name(std::move(_name)), level(_level), flags(_flags) { }
 
-Appender::~Appender() { }
+Appender::~Appender() = default;
 
 uint8 Appender::getId() const
 {
@@ -55,18 +54,28 @@ void Appender::write(LogMessage* message)
     if (!level || level > message->level)
         return;
 
-    std::ostringstream ss;
+    if (flags & (APPENDER_FLAGS_PREFIX_TIMESTAMP | APPENDER_FLAGS_PREFIX_LOGLEVEL | APPENDER_FLAGS_PREFIX_LOGFILTERTYPE))
+    {
+        message->prefix.reserve(100);
+        message->prefix.clear();
 
-    if (flags & APPENDER_FLAGS_PREFIX_TIMESTAMP)
-        ss << message->getTimeStr() << ' ';
+        if (flags & APPENDER_FLAGS_PREFIX_TIMESTAMP)
+        {
+            message->prefix.append(message->getTimeStr());
+            message->prefix.append(1, ' ');
+        }
 
-    if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
-        ss << Trinity::StringFormat("{:<5} ", Appender::getLogLevelString(message->level));
+        if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
+            Trinity::StringFormatTo(std::back_inserter(message->prefix), "{:<5} ", getLogLevelString(message->level));
 
-    if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
-        ss << '[' << message->type << "] ";
+        if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
+        {
+            message->prefix.append(1, '[');
+            message->prefix.append(message->type);
+            message->prefix.append("] ", 2);
+        }
+    }
 
-    message->prefix = ss.str();
     _write(message);
 }
 

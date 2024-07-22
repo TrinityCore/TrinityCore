@@ -23,6 +23,7 @@
 static BossBoundaryData const boundaries =
 {
     { DATA_HEARTSBANE_TRIAD, new BoundaryIntersectionBoundary(new ZRangeBoundary(235.0f, 243.0f), new RectangleBoundary(-618.580f, -524.305f, -188.971f, -137.363f)) },
+    { DATA_LORD_AND_LADY_WAYCREST, new ZRangeBoundary(182.5f, 192.2f) }
 };
 
 ObjectData const creatureData[] =
@@ -30,13 +31,16 @@ ObjectData const creatureData[] =
     { BOSS_SISTER_BRIAR,  DATA_SISTER_BRIAR  },
     { BOSS_SISTER_MALADY, DATA_SISTER_MALADY },
     { BOSS_SISTER_SOLENA, DATA_SISTER_SOLENA },
+    { BOSS_LADY_WAYCREST, DATA_LADY_WAYCREST },
+    { BOSS_LORD_WAYCREST, DATA_LORD_WAYCREST },
     { 0,                  0                  }  // END
 };
 
 DoorData const doorData[] =
 {
-    { GO_HEARTSBANE_TRIAD_DOOR,                 DATA_HEARTSBANE_TRIAD,          EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                                        0,                              EncounterDoorBehavior::OpenWhenNotInProgress }  // END
+    { GO_HEARTSBANE_TRIAD_DOOR,  DATA_HEARTSBANE_TRIAD,       EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_WAYCREST_ORGAN_BARRIER, DATA_LORD_AND_LADY_WAYCREST, EncounterDoorBehavior::OpenWhenDone          },
+    { 0,                         0,                           EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 DungeonEncounterData const encounters[] =

@@ -476,6 +476,7 @@ void Unit::Update(uint32 p_time)
         ModifyAuraState(AURA_STATE_WOUND_HEALTH_20_80, HealthBelowPct(20) || HealthAbovePct(80));
         ModifyAuraState(AURA_STATE_HEALTHY_75_PERCENT, HealthAbovePct(75));
         ModifyAuraState(AURA_STATE_WOUND_HEALTH_35_80, HealthBelowPct(35) || HealthAbovePct(80));
+        ModifyAuraState(AURA_STATE_WOUNDED_50_PERCENT, HealthBelowPct(50));
     }
 
     UpdateSplineMovement(p_time);

@@ -4761,6 +4761,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF KINGS REST SPELLS
 
     //
+    // WAYCREST MANOR SPELLS
+    //
+
+    // Discordant Cadenza
+    ApplySpellFix({ 268308 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
+    // ENDOF WAYCREST MANOR SPELLS
+
+    //
     // SEPULCHER OF THE FIRST ONES
     //
 
