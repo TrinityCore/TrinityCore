@@ -19,7 +19,17 @@
 #include "BattlegroundScore.h"
 #include "BattlegroundScript.h"
 #include "Containers.h"
+#include "GameObject.h"
 #include "GameTime.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TaskScheduler.h"
 #include "TemporarySummon.h"
 
 namespace SilvershardMines
