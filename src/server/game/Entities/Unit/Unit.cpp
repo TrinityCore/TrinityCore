@@ -310,7 +310,7 @@ Unit::Unit(bool isWorldObject) :
     m_ControlledByPlayer(false), m_procDeep(0), m_procChainLength(0), m_transformSpell(0),
     m_removedAurasCount(0), m_interruptMask(SpellAuraInterruptFlags::None), m_interruptMask2(SpellAuraInterruptFlags2::None),
     m_unitMovedByMe(nullptr), m_playerMovingMe(nullptr), m_charmer(nullptr), m_charmed(nullptr),
-    i_motionMaster(std::make_unique<MotionMaster>(this)), m_regenTimer(0), m_vehicle(nullptr),
+    i_motionMaster(std::make_unique<MotionMaster>(this)), m_vehicle(nullptr),
     m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this),
     m_threatManager(this), m_aiLocked(false), _playHoverAnim(false), _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
     _spellHistory(std::make_unique<SpellHistory>(this))
@@ -382,6 +382,12 @@ Unit::Unit(bool isWorldObject) :
     _isCombatDisallowed = false;
 
     _lastExtraAttackSpell = 0;
+
+    _regenInterruptTimestamp = GameTime::Now();
+    _powerRegenUpdateTimer = 0;
+    _healthRegenerationTimer = 0;
+    _powerFraction.fill(0.0f);
+    _usedPowerTypes.fill(MAX_POWERS);
 }
 
 ////////////////////////////////////////////////////////////
@@ -470,6 +476,8 @@ void Unit::Update(uint32 p_time)
 
     if (IsAlive())
     {
+        RegenerateAll(p_time);
+
         ModifyAuraState(AURA_STATE_WOUNDED_20_PERCENT, HealthBelowPct(20));
         ModifyAuraState(AURA_STATE_WOUNDED_25_PERCENT, HealthBelowPct(25));
         ModifyAuraState(AURA_STATE_WOUNDED_35_PERCENT, HealthBelowPct(35));
@@ -5558,6 +5566,13 @@ void Unit::SetPowerType(Powers power, bool sendUpdate/* = true*/, bool onInit /*
 
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayPower), power);
 
+    // Creatures can swap out their power type at index 0 so we do keep track of the new power type here
+    if (IsCreature())
+    {
+        _usedPowerTypes[GetPowerIndex(power)] = power;
+        UpdatePowerRegen(power);
+    }
+
     // Update max power
     UpdateMaxPower(power);
 
@@ -6644,10 +6659,9 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int3
 
 void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType)
 {
-    if (Player* player = victim->ToPlayer())
-        if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType))
-            if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt))
-                player->InterruptPowerRegen(powerType);
+    if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType))
+        if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt))
+            victim->InterruptPowerRegen(powerType);
 
     int32 gain = 0;
     int32 overEnergize = 0;
@@ -8822,6 +8836,8 @@ void Unit::AtExitCombat()
 
     if (!IsInteractionAllowedInCombat())
         UpdateNearbyPlayersInteractions();
+
+    _regenInterruptTimestamp = GameTime::Now();
 }
 
 void Unit::AtTargetAttacked(Unit* target, bool canInitialAggro)
@@ -10492,13 +10508,11 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
     {
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), val, !apply);
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), val, !apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), val, !apply);
     }
     else
     {
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), -val, apply);
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), -val, apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
     }
 }
 
@@ -10509,28 +10523,24 @@ void Unit::ApplyHasteRegenMod(float val, bool apply)
     else
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
 
-    if (IsPlayer())
+    for (Powers powerType : GetUsedPowerTypes())
     {
-        for (uint8 powerType = POWER_MANA; powerType != MAX_POWERS; ++powerType)
-        {
-            uint32 powerIndex = GetPowerIndex(static_cast<Powers>(powerType));
-            if (powerIndex == MAX_POWERS)
-                continue;
+        if (powerType == MAX_POWERS || GetPowerIndex(powerType) == MAX_POWERS)
+            continue;
 
-            PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(static_cast<Powers>(powerType));
-            if (!powerTypeEntry)
-                continue;
+        PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
+        if (!powerTypeEntry)
+            continue;
 
-            bool regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
+        bool regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
 
-            // Classic Only - Death Knight Runes use the flags of the POWER_RUNES
-            if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
-                if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES))
-                    regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
+        // Classic Only - Death Knight Runes use the flags of the POWER_RUNES
+        if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
+            if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES))
+                regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
 
-            if (regenAffectedByHaste)
-                ToPlayer()->UpdatePowerRegen(static_cast<Powers>(powerType));
-        }
+        if (regenAffectedByHaste)
+            UpdatePowerRegen(powerType);
     }
 }
 
@@ -11941,6 +11951,211 @@ bool Unit::CanApplyResilience() const
         return;
 
     *damage -= target->GetDamageReduction(*damage);
+}
+
+// Players update their powers in 2 seconds intervals, creatures in 1 second ones
+constexpr uint32 CREATURE_POWER_REGEN_UPDATE_INTERVAL = 1 * IN_MILLISECONDS;
+constexpr uint32 PLAYER_POWER_REGEN_UPDATE_INTERVAL = 2 * IN_MILLISECONDS;
+
+void Unit::RegenerateAll(uint32 diff)
+{
+    _powerRegenUpdateTimer += diff;
+    _healthRegenerationTimer += diff;
+
+    for (Powers powerType : GetUsedPowerTypes())
+    {
+        if (powerType == MAX_POWERS)
+            continue;
+
+        // Classic only - Runes are regenerated separately
+        if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY || powerType == POWER_RUNES)
+            continue;
+
+        Regenerate(powerType, diff);
+    }
+
+    if (GetClass() == CLASS_DEATH_KNIGHT)
+        RegenerateRunes(diff);
+
+    uint32 powerRegenUpdateInterval = IsPlayer() ? PLAYER_POWER_REGEN_UPDATE_INTERVAL : CREATURE_POWER_REGEN_UPDATE_INTERVAL;
+    if (_powerRegenUpdateTimer >= powerRegenUpdateInterval)
+        _powerRegenUpdateTimer -= powerRegenUpdateInterval;
+
+    if (_healthRegenerationTimer >= HEALTH_REGENERATION_INTERVAL)
+    {
+        RegenerateHealth();
+        _healthRegenerationTimer -= HEALTH_REGENERATION_INTERVAL;
+    }
+}
+
+void Unit::Regenerate(Powers power, uint32 diff)
+{
+    if (!HasUnitFlag2(UNIT_FLAG2_REGENERATE_POWER))
+        return;
+
+    // Skip regeneration for power type we cannot have
+    uint32 powerIndex = GetPowerIndex(power);
+    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+        return;
+
+    /// @todo possible use of miscvalueb instead of amount
+    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power) || HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
+        return;
+
+    int32 curValue = GetPower(power);
+
+    PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power);
+    if (!powerType)
+        return;
+
+    float addvalue = 0.0f;
+    if (!IsInCombat())
+    {
+        if (powerType->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt) && _regenInterruptTimestamp + Milliseconds(powerType->RegenInterruptTimeMS) >= GameTime::Now())
+            return;
+
+        addvalue = (powerType->RegenPeace + m_unitData->PowerRegenFlatModifier[powerIndex]) * 0.001f * diff;
+    }
+    else
+        addvalue = (powerType->RegenCombat + m_unitData->PowerRegenInterruptedFlatModifier[powerIndex]) * 0.001f * diff;
+
+    static Rates const RatesForPower[MAX_POWERS] =
+    {
+        RATE_POWER_MANA,
+        RATE_POWER_RAGE_LOSS,
+        RATE_POWER_FOCUS,
+        RATE_POWER_ENERGY,
+        RATE_POWER_COMBO_POINTS_LOSS,
+        MAX_RATES, // runes
+        RATE_POWER_RUNIC_POWER_LOSS,
+        RATE_POWER_SOUL_SHARDS,
+        RATE_POWER_LUNAR_POWER,
+        RATE_POWER_HOLY_POWER,
+        MAX_RATES, // alternate
+        RATE_POWER_MAELSTROM,
+        RATE_POWER_CHI,
+        RATE_POWER_INSANITY,
+        MAX_RATES, // burning embers, unused
+        MAX_RATES, // demonic fury, unused
+        RATE_POWER_ARCANE_CHARGES,
+        RATE_POWER_FURY,
+        RATE_POWER_PAIN,
+        RATE_POWER_ESSENCE,
+        MAX_RATES, // runes
+        MAX_RATES, // runes
+        MAX_RATES, // runes
+        MAX_RATES, // alternate
+        MAX_RATES, // alternate
+        MAX_RATES, // alternate
+    };
+
+    if (RatesForPower[power] != MAX_RATES)
+        addvalue *= sWorld->getRate(RatesForPower[power]);
+
+    int32 minPower = powerType->MinPower;
+    int32 maxPower = GetMaxPower(power);
+
+    if (powerType->CenterPower)
+    {
+        if (curValue > powerType->CenterPower)
+        {
+            addvalue = -std::abs(addvalue);
+            minPower = powerType->CenterPower;
+        }
+        else if (curValue < powerType->CenterPower)
+        {
+            addvalue = std::abs(addvalue);
+            maxPower = powerType->CenterPower;
+        }
+        else
+            return;
+    }
+
+    addvalue += _powerFraction[powerIndex];
+    int32 integerValue = int32(std::fabs(addvalue));
+
+    if (addvalue < 0.0f)
+    {
+        if (curValue <= minPower)
+            return;
+    }
+    else if (addvalue > 0.0f)
+    {
+        if (curValue >= maxPower)
+            return;
+    }
+    else
+        return;
+
+    bool forcesSetPower = false;
+    if (addvalue < 0.0f)
+    {
+        if (curValue > minPower + integerValue)
+        {
+            curValue -= integerValue;
+            _powerFraction[powerIndex] = addvalue + integerValue;
+        }
+        else
+        {
+            curValue = minPower;
+            _powerFraction[powerIndex] = 0;
+            forcesSetPower = true;
+        }
+    }
+    else
+    {
+        if (curValue + integerValue <= maxPower)
+        {
+            curValue += integerValue;
+            _powerFraction[powerIndex] = addvalue - integerValue;
+        }
+        else
+        {
+            curValue = maxPower;
+            _powerFraction[powerIndex] = 0;
+            forcesSetPower = true;
+        }
+    }
+
+    if (IsPlayer() && ToPlayer()->GetCommandStatus(CHEAT_POWER))
+        curValue = maxPower;
+
+    if (_powerRegenUpdateTimer >= (IsPlayer() ? PLAYER_POWER_REGEN_UPDATE_INTERVAL : CREATURE_POWER_REGEN_UPDATE_INTERVAL) || forcesSetPower)
+        SetPower(power, curValue);
+    else
+    {
+        // throttle packet sending
+        DoWithSuppressingObjectUpdates([&]()
+        {
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, powerIndex), curValue);
+            const_cast<UF::UnitData&>(*m_unitData).ClearChanged(&UF::UnitData::Power, powerIndex);
+        });
+    }
+}
+
+void Unit::InterruptPowerRegen(Powers power)
+{
+    uint32 powerIndex = GetPowerIndex(power);
+    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+        return;
+
+    _regenInterruptTimestamp = GameTime::Now();
+    _powerFraction[powerIndex] = 0.0f;
+
+    if (IsPlayer())
+        ToPlayer()->SendDirectMessage(WorldPackets::Combat::InterruptPowerRegen(power).Write());
+}
+
+void Unit::RegisterPowerTypes()
+{
+    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    {
+        uint32 powerIndex = GetPowerIndex(Powers(i));
+        if (powerIndex == MAX_POWERS || powerIndex == MAX_POWERS_PER_CLASS)
+            continue;
+
+        _usedPowerTypes[powerIndex] = static_cast<Powers>(i);
+    }
 }
 
 int32 Unit::CalculateAOEAvoidance(int32 damage, uint32 schoolMask, bool npcCaster) const
