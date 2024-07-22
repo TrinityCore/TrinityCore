@@ -21,7 +21,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `creature_loot_template` WHERE `Entry`=54631;
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES 
-(54631, 72112, 0, 98.6623, 1, 1, 0, 1, 1, ''),
+(54631, 72112, 0, 100, 1, 1, 0, 1, 1, ''),
 (54631, 55983, 0, 29.5787, 0, 1, 0, 1, 1, ''),
 (54631, 55973, 0, 59.7762, 0, 1, 0, 1, 1, ''),
 (54631, 8182, 0, 0.00625078, 0, 1, 0, 1, 1, ''),
