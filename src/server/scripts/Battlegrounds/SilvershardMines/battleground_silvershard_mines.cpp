@@ -44,7 +44,6 @@ namespace SilvershardMines
     namespace Creatures
     {
         static constexpr uint32 MineCart = 60140;
-        static constexpr uint32 PointsTrigger = 60145;
 
         static constexpr uint32 MineCartCosmetic1 = 60379;
         static constexpr uint32 MineCartCosmetic2 = 60378;
@@ -176,10 +175,6 @@ namespace SilvershardMines
         static constexpr uint32 LongRiderAchievementNorthHorde = 128669;
         static constexpr uint32 LongRiderAchievementSouthAlliance = 128674;
         static constexpr uint32 LongRiderAchievementSouthHorde = 128670;
-
-        // Mine Mine Mine!
-        // Kill 250 enemies while you are defending a mine cart.
-        static constexpr uint32 MineMineMineDefendAura = 128648; // triggered by 128646
 
         // Five for Five
         // Capture five mine carts in a single Silvershard Mines battle without dying
@@ -365,7 +360,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
             creature->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::Spawned);
     }
 
-    void HandleNeutralEvent(GameObject* controlZone) const
+    void HandleNeutralEvent(GameObject const* controlZone) const
     {
         if (!controlZone)
             return;
@@ -380,7 +375,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
         UpdateCartWorldStates(controlZone);
     }
 
-    void HandleAllianceProgressEvent(GameObject* controlZone) const
+    void HandleAllianceProgressEvent(GameObject const* controlZone) const
     {
         if (!controlZone)
             return;
@@ -402,7 +397,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
                     battleground->UpdatePvpStat(player, SilvershardMines::PvpStats::CartsCaptured, 1);
     }
 
-    void HandleHordeProgressEvent(GameObject* controlZone) const
+    void HandleHordeProgressEvent(GameObject const* controlZone) const
     {
         if (!controlZone)
             return;
@@ -451,7 +446,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
         }
     }
 
-    void UpdateCartWorldStates(GameObject* controlZone) const
+    void UpdateCartWorldStates(GameObject const* controlZone) const
     {
         if (!controlZone)
             return;
@@ -482,7 +477,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
         UpdateWorldState(SilvershardMines::WorldStates::AllianceTeamScore, battleground->GetTeamScore(TEAM_ALLIANCE));
     }
 
-    void OnMineCartCaptured(Creature* mineCart)
+    void OnMineCartCaptured(Creature const* mineCart)
     {
         if (!mineCart)
             return;
