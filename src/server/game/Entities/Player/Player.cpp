@@ -10774,10 +10774,11 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         count += itr->count;
 
     // quest objectives must be processed twice - QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM prevents item creation
-    bool hadBoundItemObjective = false;
-    ItemAddedQuestCheck(itemId, count, true, &hadBoundItemObjective);
-    if (hadBoundItemObjective)
-        return nullptr;
+    // Classic Only - This feature has been disabled
+    // bool hadBoundItemObjective = false;
+    // ItemAddedQuestCheck(itemId, count, true, &hadBoundItemObjective);
+    // if (hadBoundItemObjective)
+    //     return nullptr;
 
     Item* item = Item::CreateItem(itemId, count, context, this, bonusListIDs == nullptr);
     if (item)
