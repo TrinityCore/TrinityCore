@@ -843,11 +843,6 @@ private:
 // 115904 - Cart Cap
 class spell_bg_silvershard_mines_cart_cap final : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
-    }
-
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
         Creature* hitCreature = GetHitCreature();
@@ -874,8 +869,7 @@ class spell_bg_silvershard_mines_capturing final : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
-            && ValidateSpellInfo({ SilvershardMines::Spells::Capturing });
+        return ValidateSpellInfo({ SilvershardMines::Spells::Capturing });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/) const
@@ -895,8 +889,7 @@ class spell_bg_silvershard_mines_capturing_switch_track final : public SpellScri
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
-            && ValidateSpellInfo({ SilvershardMines::Spells::TrackSwitchVisualClosed, SilvershardMines::Spells::TrackSwitchVisualOpened });
+        return ValidateSpellInfo({ SilvershardMines::Spells::TrackSwitchVisualClosed, SilvershardMines::Spells::TrackSwitchVisualOpened });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/) const
