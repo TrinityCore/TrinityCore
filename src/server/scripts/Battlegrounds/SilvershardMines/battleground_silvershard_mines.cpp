@@ -867,7 +867,7 @@ class spell_bg_silvershard_mines_cart_cap final : public SpellScript
 // 124491 - capturing
 class spell_bg_silvershard_mines_capturing final : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SilvershardMines::Spells::Capturing });
     }
@@ -887,7 +887,7 @@ class spell_bg_silvershard_mines_capturing final : public SpellScript
 // 97372 - Capturing
 class spell_bg_silvershard_mines_capturing_switch_track final : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SilvershardMines::Spells::TrackSwitchVisualClosed, SilvershardMines::Spells::TrackSwitchVisualOpened });
     }
