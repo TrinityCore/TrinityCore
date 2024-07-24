@@ -840,10 +840,14 @@ DEFINE_ENUM_FLAG(CurrencyTypesFlags);
 
 enum class CurrencyTypesFlagsB : uint32
 {
-    UseTotalEarnedForEarned             = 0x01,
-    ShowQuestXPGainInTooltip            = 0x02, // NYI
-    NoNotificationMailOnOfflineProgress = 0x04, // NYI
-    BattlenetVirtualCurrency            = 0x08  // NYI
+    UseTotalEarnedForEarned                     = 0x01,
+    ShowQuestXPGainInTooltip                    = 0x02, // NYI
+    NoNotificationMailOnOfflineProgress         = 0x04, // NYI
+    BattlenetVirtualCurrency                    = 0x08, // NYI
+    FutureCurrencyFlag                          = 0x10, // NYI
+    CurrencyBDontDisplayIfZero                  = 0x20, // NYI
+    CurrencyBScaleMaxQuantityBySeasonWeeks      = 0x40, // NYI
+    CurrencyBScaleMaxQuantityByWeeksSinceStart  = 0x80  // NYI
 };
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlagsB);
