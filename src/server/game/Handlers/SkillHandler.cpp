@@ -26,31 +26,15 @@
 #include "SpellPackets.h"
 #include "TalentPackets.h"
 
-void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
+void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& /*packet*/)
 {
-    WorldPackets::Talent::LearnTalentFailed learnTalentFailed;
-    bool anythingLearned = false;
-    for (uint32 talentId : packet.Talents)
-    {
-        if (TalentLearnResult result = _player->LearnTalent(talentId, &learnTalentFailed.SpellID))
-        {
-            if (!learnTalentFailed.Reason)
-                learnTalentFailed.Reason = result;
-
-            learnTalentFailed.Talents.push_back(talentId);
-        }
-        else
-            anythingLearned = true;
-    }
-
-    if (learnTalentFailed.Reason)
-        SendPacket(learnTalentFailed.Write());
-
-    if (anythingLearned)
-        _player->SendTalentsInfoData();
 }
 
 void WorldSession::HandleLearnPreviewTalentsOpcode(WorldPackets::Talent::LearnPreviewTalents& /*packet*/)
+{
+}
+
+void WorldSession::HandleSetPrimaryTalentTreeOpcode(WorldPackets::Talent::SetPrimaryTalentTree& /*packet*/)
 {
 }
 

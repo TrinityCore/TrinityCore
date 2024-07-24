@@ -60,11 +60,10 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Talent::LearnTalents::Read()
+void WorldPackets::Talent::LearnTalent::Read()
 {
-    Talents.resize(_worldPacket.ReadBits(6));
-    for (uint32 i = 0; i < Talents.size(); ++i)
-        _worldPacket >> Talents[i];
+    _worldPacket >> TalentID;
+    _worldPacket >> TalentTab;
 }
 
 WorldPacket const* WorldPackets::Talent::RespecWipeConfirm::Write()
@@ -118,4 +117,9 @@ void WorldPackets::Talent::LearnPreviewTalents::Read()
 
     for (TalentInfo& talent : Talents)
         _worldPacket >> talent;
+}
+
+void WorldPackets::Talent::SetPrimaryTalentTree::Read()
+{
+    _worldPacket >> TalentTab;
 }

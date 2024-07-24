@@ -516,7 +516,7 @@ void OpcodeTable::InitializeClientOpcodes()
     DEFINE_HANDLER(CMSG_KEYBOUND_OVERRIDE,                                  STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleKeyboundOverride);
     DEFINE_HANDLER(CMSG_LATENCY_REPORT,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_LEARN_PVP_TALENTS,                                  STATUS_UNHANDLED,  PROCESS_INPLACE,     &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_LEARN_TALENTS,                                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleLearnTalentsOpcode);
+    DEFINE_HANDLER(CMSG_LEARN_TALENT,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleLearnTalentOpcode);
     DEFINE_HANDLER(CMSG_LEARN_PREVIEW_TALENTS,                              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleLearnPreviewTalentsOpcode);
     DEFINE_HANDLER(CMSG_LEAVE_GROUP,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLeaveGroupOpcode);
     DEFINE_HANDLER(CMSG_LEAVE_PET_BATTLE_QUEUE,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
@@ -854,6 +854,7 @@ void OpcodeTable::InitializeClientOpcodes()
     DEFINE_HANDLER(CMSG_SET_PET_SLOT,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetPetSlot);
     DEFINE_HANDLER(CMSG_SET_PLAYER_DECLINED_NAMES,                          STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSetPlayerDeclinedNames);
     DEFINE_HANDLER(CMSG_SET_PREFERRED_CEMETERY,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_SET_PRIMARY_TALENT_TREE,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetPrimaryTalentTreeOpcode);
     DEFINE_HANDLER(CMSG_SET_PVP,                                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetPvP);
     DEFINE_HANDLER(CMSG_SET_RAID_DIFFICULTY,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetRaidDifficultyOpcode);
     DEFINE_HANDLER(CMSG_SET_RESTRICT_PINGS_TO_ASSISTANTS,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetRestrictPingsToAssistants);

@@ -710,9 +710,10 @@ namespace WorldPackets
 
     namespace Talent
     {
-        class LearnTalents;
+        class LearnTalent;
         class LearnPreviewTalents;
         class ConfirmRespecWipe;
+        class SetPrimaryTalentTree;
     }
 
     namespace Taxi
@@ -1492,8 +1493,9 @@ class TC_GAME_API WorldSession
         void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
         void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
 
-        void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
+        void HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet);
         void HandleLearnPreviewTalentsOpcode(WorldPackets::Talent::LearnPreviewTalents& packet);
+        void HandleSetPrimaryTalentTreeOpcode(WorldPackets::Talent::SetPrimaryTalentTree& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
         void HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite);

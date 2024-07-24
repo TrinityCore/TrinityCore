@@ -60,13 +60,15 @@ namespace WorldPackets
             TalentInfoUpdate Info;
         };
 
-        class LearnTalents final : public ClientPacket
+        class LearnTalent final : public ClientPacket
         {
         public:
-            LearnTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENTS, std::move(packet)) { }
+            LearnTalent(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENT, std::move(packet)) { }
 
             void Read() override;
-            Array<uint16, MAX_TALENT_TIERS> Talents;
+
+            uint32 TalentID = 0;
+            uint16 TalentTab = 0;
         };
 
         class LearnPreviewTalents final : public ClientPacket
@@ -78,6 +80,16 @@ namespace WorldPackets
 
             uint32 TalentTab = 0;
             Array<TalentInfo, 100> Talents;
+        };
+
+        class SetPrimaryTalentTree final : public ClientPacket
+        {
+        public:
+            SetPrimaryTalentTree(WorldPacket&& packet) : ClientPacket(CMSG_SET_PRIMARY_TALENT_TREE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TalentTab = 0;
         };
 
         class RespecWipeConfirm final : public ServerPacket
