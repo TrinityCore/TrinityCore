@@ -1075,7 +1075,7 @@ class TC_GAME_API WorldSession
             }
         }
         // Auction
-        void SendAuctionHello(ObjectGuid guid, Creature* unit);
+        void SendAuctionHello(ObjectGuid guid, Unit const* unit);
 
         /**
          * @fn  void WorldSession::SendAuctionCommandResult(uint32 auctionId, uint32 action, uint32 errorCode, uint32 bagError = 0);
