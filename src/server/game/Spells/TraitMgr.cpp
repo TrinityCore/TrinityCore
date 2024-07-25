@@ -252,10 +252,7 @@ void Load()
     {
         if (std::vector<TraitTreeLoadoutEntryEntry const*>* entries = Trinity::Containers::MapGetValuePtr(traitTreeLoadoutEntries, traitTreeLoadout->ID))
         {
-            std::sort(entries->begin(), entries->end(), [](TraitTreeLoadoutEntryEntry const* left, TraitTreeLoadoutEntryEntry const* right)
-            {
-                return left->OrderIndex < right->OrderIndex;
-            });
+            std::ranges::sort(*entries, std::ranges::less(), &TraitTreeLoadoutEntryEntry::OrderIndex);
             // there should be only one loadout per spec, we take last one encountered
             _traitTreeLoadoutsByChrSpecialization[traitTreeLoadout->ChrSpecializationID] = std::move(*entries);
         }
@@ -321,7 +318,7 @@ bool HasEnoughCurrency(WorldPackets::Traits::TraitEntry const& entry, std::map<i
             if (getCurrencyCount(cost->TraitCurrencyID) < cost->Amount * entry.Rank)
                 return false;
 
-    auto nodeEntryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
+    auto nodeEntryItr = std::ranges::find_if(node->Entries, [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
     if (nodeEntryItr != node->Entries.end())
         for (TraitCostEntry const* cost : nodeEntryItr->Costs)
             if (getCurrencyCount(cost->TraitCurrencyID) < cost->Amount * entry.Rank)
@@ -346,7 +343,7 @@ void TakeCurrencyCost(WorldPackets::Traits::TraitEntry const& entry, std::map<in
         for (TraitCostEntry const* cost : group->Costs)
             currencies[cost->TraitCurrencyID] -= cost->Amount * entry.Rank;
 
-    auto nodeEntryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
+    auto nodeEntryItr = std::ranges::find_if(node->Entries, [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
     if (nodeEntryItr != node->Entries.end())
         for (TraitCostEntry const* cost : nodeEntryItr->Costs)
             currencies[cost->TraitCurrencyID] -= cost->Amount * entry.Rank;
@@ -367,7 +364,7 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
 
     auto hasTraitNodeEntry = [&traitConfig](int32 traitNodeEntryId)
     {
-        return std::find_if(traitConfig.Entries.begin(), traitConfig.Entries.end(), [traitNodeEntryId](WorldPackets::Traits::TraitEntry const& traitEntry)
+        return std::ranges::find_if(traitConfig.Entries, [traitNodeEntryId](WorldPackets::Traits::TraitEntry const& traitEntry)
         {
             return traitEntry.TraitNodeEntryID == traitNodeEntryId && (traitEntry.Rank > 0 || traitEntry.GrantedRanks > 0);
         }) != traitConfig.Entries.end();
@@ -426,7 +423,7 @@ void FillSpentCurrenciesMap(WorldPackets::Traits::TraitEntry const& entry, std::
         for (TraitCostEntry const* cost : group->Costs)
             cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
 
-    auto nodeEntryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
+    auto nodeEntryItr = std::ranges::find_if(node->Entries, [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
     if (nodeEntryItr != node->Entries.end())
         for (TraitCostEntry const* cost : nodeEntryItr->Costs)
             cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
@@ -498,7 +495,7 @@ std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits
 
     auto getOrCreateEntry = [&entries](int32 nodeId, int32 entryId)
     {
-        auto itr = std::find_if(entries.begin(), entries.end(), [&](UF::TraitEntry const& traitEntry)
+        auto itr = std::ranges::find_if(entries, [&](UF::TraitEntry const& traitEntry)
         {
             return traitEntry.TraitNodeID == nodeId && traitEntry.TraitNodeEntryID == entryId;
         });
@@ -546,7 +543,7 @@ bool IsValidEntry(WorldPackets::Traits::TraitEntry const& traitEntry)
     if (!node)
         return false;
 
-    auto entryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&](NodeEntry const& entry) { return entry.Data->ID == uint32(traitEntry.TraitNodeEntryID); });
+    auto entryItr = std::ranges::find_if(node->Entries, [&](NodeEntry const& entry) { return entry.Data->ID == uint32(traitEntry.TraitNodeEntryID); });
     if (entryItr == node->Entries.end())
         return false;
 
@@ -560,15 +557,12 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig,
 {
     auto getNodeEntryCount = [&](int32 traitNodeId)
     {
-        return std::count_if(traitConfig.Entries.begin(), traitConfig.Entries.end(), [traitNodeId](WorldPackets::Traits::TraitEntry const& traitEntry)
-        {
-            return traitEntry.TraitNodeID == traitNodeId;
-        });
+        return std::ranges::count(traitConfig.Entries, traitNodeId, &WorldPackets::Traits::TraitEntry::TraitNodeID);
     };
 
     auto getNodeEntry = [&](int32 traitNodeId, int32 traitNodeEntryId)
     {
-        auto entryItr = std::find_if(traitConfig.Entries.begin(), traitConfig.Entries.end(), [=](WorldPackets::Traits::TraitEntry const& traitEntry)
+        auto entryItr = std::ranges::find_if(traitConfig.Entries, [=](WorldPackets::Traits::TraitEntry const& traitEntry)
         {
             return traitEntry.TraitNodeID == traitNodeId && traitEntry.TraitNodeEntryID == traitNodeEntryId;
         });
@@ -577,18 +571,16 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig,
 
     auto isNodeFullyFilled = [&](Node const* node)
     {
-        if (node->Data->GetType() == TraitNodeType::Selection)
-            return std::any_of(node->Entries.begin(), node->Entries.end(), [&](NodeEntry const& nodeEntry)
-            {
-                WorldPackets::Traits::TraitEntry const* traitEntry = getNodeEntry(node->Data->ID, nodeEntry.Data->ID);
-                return traitEntry && (traitEntry->Rank + traitEntry->GrantedRanks) == nodeEntry.Data->MaxRanks;
-            });
-
-        return std::all_of(node->Entries.begin(), node->Entries.end(), [&](NodeEntry const& nodeEntry)
+        auto nodeEntryMatches = [&](NodeEntry const& nodeEntry)
         {
             WorldPackets::Traits::TraitEntry const* traitEntry = getNodeEntry(node->Data->ID, nodeEntry.Data->ID);
             return traitEntry && (traitEntry->Rank + traitEntry->GrantedRanks) == nodeEntry.Data->MaxRanks;
-        });
+        };
+
+        if (node->Data->GetType() == TraitNodeType::Selection)
+            return std::ranges::any_of(node->Entries, nodeEntryMatches);
+
+        return std::ranges::all_of(node->Entries, nodeEntryMatches);
     };
 
     Optional<std::map<int32, int32>> spentCurrencies;
@@ -712,7 +704,7 @@ void InitializeStarterBuildTraitConfig(WorldPackets::Traits::TraitConfig& traitC
     {
         auto findEntry = [](WorldPackets::Traits::TraitConfig& config, int32 traitNodeId, int32 traitNodeEntryId) -> WorldPackets::Traits::TraitEntry*
         {
-            auto entryItr = std::find_if(config.Entries.begin(), config.Entries.end(), [=](WorldPackets::Traits::TraitEntry const& traitEntry)
+            auto entryItr = std::ranges::find_if(config.Entries, [=](WorldPackets::Traits::TraitEntry const& traitEntry)
             {
                 return traitEntry.TraitNodeID == traitNodeId && traitEntry.TraitNodeEntryID == traitNodeEntryId;
             });
