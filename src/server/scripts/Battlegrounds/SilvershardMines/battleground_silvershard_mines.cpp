@@ -492,10 +492,10 @@ struct battleground_silvershard_mines final : BattlegroundScript
         if (!mineCart)
             return;
 
-        GameObject* cz = nullptr;
+        GameObject* controlZone = nullptr;
         if (mineCart->HasAura(SilvershardMines::Spells::CartControlCapturePointUnitEast))
         {
-            cz = mineCart->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitEast);
+            controlZone = mineCart->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitEast);
             battleground->UpdateWorldState(SilvershardMines::WorldStates::AllianceControlsEastCart, 0);
             battleground->UpdateWorldState(SilvershardMines::WorldStates::HordeControlsEastCart, 0);
 
@@ -506,7 +506,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
         }
         else if (mineCart->HasAura(SilvershardMines::Spells::CartControlCapturePointUnitNorth))
         {
-            cz = mineCart->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitNorth);
+            controlZone = mineCart->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitNorth);
             battleground->UpdateWorldState(SilvershardMines::WorldStates::AllianceControlsNorthCart, 0);
             battleground->UpdateWorldState(SilvershardMines::WorldStates::HordeControlsNorthCart, 0);
 
@@ -517,7 +517,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
         }
         else if (mineCart->HasAura(SilvershardMines::Spells::CartControlCapturePointUnitSouth))
         {
-            cz = mineCart->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitSouth);
+            controlZone = mineCart->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitSouth);
             battleground->UpdateWorldState(SilvershardMines::WorldStates::AllianceControlsSouthCart, 0);
             battleground->UpdateWorldState(SilvershardMines::WorldStates::HordeControlsSouthCart, 0);
 
@@ -527,11 +527,11 @@ struct battleground_silvershard_mines final : BattlegroundScript
             });
         }
 
-        if (!cz || cz->GetControllingTeam() == TEAM_NEUTRAL)
+        if (!controlZone || controlZone->GetControllingTeam() == TEAM_NEUTRAL)
             return;
 
-        uint32 const scoreToAdd = std::min<uint32>(SilvershardMines::Score::Max - battleground->GetTeamScore(cz->GetControllingTeam()), SilvershardMines::Score::Capture);
-        if (cz->GetControllingTeam() == TEAM_HORDE)
+        uint32 const scoreToAdd = std::min<uint32>(SilvershardMines::Score::Max - battleground->GetTeamScore(controlZone->GetControllingTeam()), SilvershardMines::Score::Capture);
+        if (controlZone->GetControllingTeam() == TEAM_HORDE)
         {
             mineCart->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::CapturedByHorde);
             battleground->AddPoint(HORDE, scoreToAdd);
@@ -543,7 +543,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
                 battleground->EndBattleground(HORDE);
             }
         }
-        else if (cz->GetControllingTeam() == TEAM_ALLIANCE)
+        else if (controlZone->GetControllingTeam() == TEAM_ALLIANCE)
         {
             mineCart->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::CapturedByAlliance);
             battleground->AddPoint(ALLIANCE, scoreToAdd);
@@ -642,18 +642,18 @@ public:
             _theLongRidersSpawnTime = GameTime::GetGameTime();
 
             // initialize the long riders eligible players
-            DoForPlayersInControlZone([&](GameObject const* cz, Player const* player)
+            DoForPlayersInControlZone([&](GameObject const* controlZone, Player const* player)
             {
-                if (cz->GetControllingTeam() == GetTeamIdForTeam(player->GetBGTeam()))
+                if (controlZone->GetControllingTeam() == GetTeamIdForTeam(player->GetBGTeam()))
                     _theLongRidersPlayers.insert(player->GetGUID());
             });
 
             // each second, check if eligible players are still inside
             context.Schedule(1s, [&](TaskContext context2)
             {
-                if (GameObject const* cz = GetControlZone())
+                if (GameObject const* controlZone = GetControlZone())
                 {
-                    GuidUnorderedSet currentPlayers = *cz->GetInsidePlayers();
+                    GuidUnorderedSet currentPlayers = *controlZone->GetInsidePlayers();
                     GuidSet theLongRidersPlayers;
                     std::ranges::set_intersection(_theLongRidersPlayers, currentPlayers, std::inserter(theLongRidersPlayers, theLongRidersPlayers.begin()));
                     _theLongRidersPlayers = std::move(theLongRidersPlayers);
@@ -709,22 +709,22 @@ public:
 
     void DoForPlayersInControlZone(std::function<void(GameObject const*, Player*)> const& fn) const
     {
-        if (GameObject const* cz = GetControlZone())
-            for (ObjectGuid const& playerGuid : *cz->GetInsidePlayers())
+        if (GameObject const* controlZone = GetControlZone())
+            for (ObjectGuid const& playerGuid : *controlZone->GetInsidePlayers())
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-                    fn(cz, player);
+                    fn(controlZone, player);
     }
 
     void HandleCapture(uint32 pathId) const
     {
         if (uint32 const mineCartCourierSpell = GetMineCartCourierSpell(pathId))
         {
-            DoForPlayersInControlZone([&](GameObject const* cz, Player* player)
+            DoForPlayersInControlZone([&](GameObject const* controlZone, Player* player)
             {
-                if (GetTeamIdForTeam(player->GetBGTeam()) == cz->GetControllingTeam())
+                if (GetTeamIdForTeam(player->GetBGTeam()) == controlZone->GetControllingTeam())
                 {
                     player->CastSpell(player, mineCartCourierSpell, true);
-                    if (cz->GetControllingTeam() == _endOfTheLineTeam)
+                    if (controlZone->GetControllingTeam() == _endOfTheLineTeam)
                         player->CastSpell(player, SilvershardMines::Spells::EndOfTheLineAchievementCheck, true);
                 }
             });
@@ -732,9 +732,9 @@ public:
 
         if (_endOfTheLineTeam != TEAM_NEUTRAL)
         {
-            DoForPlayersInControlZone([&](GameObject const* cz, Player* player)
+            DoForPlayersInControlZone([&](GameObject const* controlZone, Player* player)
             {
-                if (GetTeamIdForTeam(player->GetBGTeam()) == cz->GetControllingTeam() && cz->GetControllingTeam() == _endOfTheLineTeam)
+                if (GetTeamIdForTeam(player->GetBGTeam()) == controlZone->GetControllingTeam() && controlZone->GetControllingTeam() == _endOfTheLineTeam)
                     player->CastSpell(player, SilvershardMines::Spells::EndOfTheLineAchievementCheck, true);
             });
         }
@@ -754,9 +754,9 @@ public:
                         player->CastSpell(player, longRiderSpell, true);
         }
 
-        DoForPlayersInControlZone([&](GameObject const* cz, Player* player)
+        DoForPlayersInControlZone([&](GameObject const* controlZone, Player* player)
         {
-            if (GetTeamIdForTeam(player->GetBGTeam()) != cz->GetControllingTeam())
+            if (GetTeamIdForTeam(player->GetBGTeam()) != controlZone->GetControllingTeam())
                 return;
 
             if (ZoneScript* zs = me->GetZoneScript())
@@ -815,8 +815,8 @@ public:
             return;
 
         if (me->FindNearestGameObjectWithOptions(20.0f, { .StringId = SilvershardMines::StringIds::MineDepot }))
-            if (GameObject const* cz = GetControlZone())
-                _endOfTheLineTeam = cz->GetControllingTeam();
+            if (GameObject const* controlZone = GetControlZone())
+                _endOfTheLineTeam = controlZone->GetControllingTeam();
     }
 
     GameObject* GetControlZone() const
