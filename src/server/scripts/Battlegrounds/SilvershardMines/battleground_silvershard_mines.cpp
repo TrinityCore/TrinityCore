@@ -788,8 +788,8 @@ public:
     uint32 GetTheLongRiderAchievementSpell(uint32 pathId) const
     {
         TeamId controllingTeam = TEAM_NEUTRAL;
-        if (GameObject const* cz = GetControlZone())
-            controllingTeam = cz->GetControllingTeam();
+        if (GameObject const* controlZone = GetControlZone())
+            controllingTeam = controlZone->GetControllingTeam();
 
         if (controllingTeam == TEAM_NEUTRAL)
             return 0;
