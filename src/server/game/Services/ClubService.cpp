@@ -22,13 +22,13 @@
 #include "Guild.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "club_listener.pb.h"
+#include "api/client/v1/club_listener.pb.h"
 
 namespace Battlenet::Services
 {
 ClubService::ClubService(WorldSession* session) : BaseService(session) { }
 
-uint32 ClubService::HandleGetClubType(club::v1::GetClubTypeRequest const* request, club::v1::GetClubTypeResponse* response,
+uint32 ClubService::HandleGetClubType(club::v1::client::GetClubTypeRequest const* request, club::v1::client::GetClubTypeResponse* response,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     // We only support guilds for now.
@@ -41,7 +41,7 @@ uint32 ClubService::HandleGetClubType(club::v1::GetClubTypeRequest const* reques
     return ERROR_NOT_IMPLEMENTED;
 }
 
-uint32 ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*/, NoData* /*response*/,
+uint32 ClubService::HandleSubscribe(club::v1::client::SubscribeRequest const* /*request*/, NoData* /*response*/,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     Player const* player = _session->GetPlayer();
@@ -55,7 +55,7 @@ uint32 ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*
         return ERROR_CLUB_NO_CLUB;
 
     // Subscibe the client to it's own guild club.
-    club::v1::SubscribeNotification subscribeNotification;
+    club::v1::client::SubscribeNotification subscribeNotification;
 
     Guild::Member const* guildMember = guild->GetMember(player->GetGUID());
 
@@ -70,7 +70,7 @@ uint32 ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*
     subscribeNotification.set_club_id(guild->GetId());
     subscribeNotification.set_allocated_agent_id(ClubMembershipService::CreateClubMemberId(player->GetGUID()).release());
 
-    club::v1::Club* guildClub = subscribeNotification.mutable_club();
+    club::v1::client::Club* guildClub = subscribeNotification.mutable_club();
 
     guildClub->set_id(guild->GetId());
     guildClub->set_allocated_type(CreateGuildClubType().release());
@@ -83,12 +83,12 @@ uint32 ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*
     guildClub->set_member_count(guild->GetMembersCount());
 
     // Set the club leader, guild master in this case.
-    club::v1::MemberDescription* guildLeaderDescription = guildClub->add_leader();
+    club::v1::client::MemberDescription* guildLeaderDescription = guildClub->add_leader();
 
-    guildLeaderDescription->mutable_id()->mutable_account_id()->set_id(guildLeader->GetAccountId());
+    guildLeaderDescription->mutable_id()->set_account_id(guildLeader->GetAccountId());
     guildLeaderDescription->mutable_id()->set_unique_id(guildLeader->GetGUID().GetCounter());
 
-    club::v1::Member* subscriber = subscribeNotification.mutable_member();
+    club::v1::client::Member* subscriber = subscribeNotification.mutable_member();
 
     // The member sending the notification data.
     subscriber->set_allocated_id(ClubMembershipService::CreateClubMemberId(player->GetGUID()).release());
@@ -103,32 +103,32 @@ uint32 ClubService::HandleSubscribe(club::v1::SubscribeRequest const* /*request*
     else
         subscriber->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
 
-    subscriber->set_presence_level(club::v1::PRESENCE_LEVEL_RICH);
-    subscriber->set_whisper_level(club::v1::WHISPER_LEVEL_OPEN);
+    subscriber->set_presence_level(club::v1::client::PRESENCE_LEVEL_RICH);
+    subscriber->set_whisper_level(club::v1::client::WHISPER_LEVEL_OPEN);
 
     // Member is online and active.
     subscriber->set_active(true);
 
-    WorldserverService<club::v1::ClubListener>(_session).OnSubscribe(&subscribeNotification, true, true);
+    WorldserverService<club::v1::client::ClubListener>(_session).OnSubscribe(&subscribeNotification, true, true);
 
     // Notify the client about the changed club state.
-    club::v1::SubscriberStateChangedNotification subscriberStateChangedNotification;
+    club::v1::client::SubscriberStateChangedNotification subscriberStateChangedNotification;
 
     subscriberStateChangedNotification.set_club_id(guild->GetId());
 
-    club::v1::SubscriberStateAssignment* assignment = subscriberStateChangedNotification.add_assignment();
+    club::v1::client::SubscriberStateAssignment* assignment = subscriberStateChangedNotification.add_assignment();
 
     assignment->set_allocated_member_id(ClubMembershipService::CreateClubMemberId(player->GetGUID()).release());
 
     // Member is online and active.
     assignment->set_active(true);
 
-    WorldserverService<club::v1::ClubListener>(_session).OnSubscriberStateChanged(&subscriberStateChangedNotification, true, true);
+    WorldserverService<club::v1::client::ClubListener>(_session).OnSubscriberStateChanged(&subscriberStateChangedNotification, true, true);
 
     return ERROR_OK;
 }
 
-uint32 ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*request*/, club::v1::GetMembersResponse* response,
+uint32 ClubService::HandleGetMembers(club::v1::client::GetMembersRequest const* /*request*/, club::v1::client::GetMembersResponse* response,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     Player const* player = _session->GetPlayer();
@@ -145,7 +145,7 @@ uint32 ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*reques
 
     for (auto const& [guid, member] : guild->GetMembers())
     {
-        club::v1::Member* clubMember = response->add_member();
+        club::v1::client::Member* clubMember = response->add_member();
 
         clubMember->set_allocated_id(ClubMembershipService::CreateClubMemberId(guid).release());
 
@@ -158,8 +158,8 @@ uint32 ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*reques
         else
             clubMember->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
 
-        clubMember->set_presence_level(club::v1::PresenceLevel::PRESENCE_LEVEL_RICH);
-        clubMember->set_whisper_level(club::v1::WhisperLevel::WHISPER_LEVEL_OPEN);
+        clubMember->set_presence_level(club::v1::client::PresenceLevel::PRESENCE_LEVEL_RICH);
+        clubMember->set_whisper_level(club::v1::client::WhisperLevel::WHISPER_LEVEL_OPEN);
         clubMember->set_note(member.GetPublicNote());
         clubMember->set_active(member.IsOnline());
     }
@@ -167,7 +167,7 @@ uint32 ClubService::HandleGetMembers(club::v1::GetMembersRequest const* /*reques
     return ERROR_OK;
 }
 
-uint32 ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*request*/, club::v1::GetStreamsResponse* response,
+uint32 ClubService::HandleGetStreams(club::v1::client::GetStreamsRequest const* /*request*/, club::v1::client::GetStreamsResponse* response,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     Player const* player = _session->GetPlayer();
@@ -181,7 +181,7 @@ uint32 ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*reques
         return ERROR_CLUB_NO_CLUB;
 
     // General guild channel.
-    club::v1::Stream* generalGuildChannelStream = response->add_stream();
+    club::v1::client::Stream* generalGuildChannelStream = response->add_stream();
 
     generalGuildChannelStream->set_club_id(guild->GetId());
     generalGuildChannelStream->set_id(AsUnderlyingType(ClubStreamType::Guild));
@@ -202,10 +202,10 @@ uint32 ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*reques
     generalGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Member));
 
     // No voice support.
-    generalGuildChannelStream->set_voice_level(club::v1::StreamVoiceLevel::VOICE_LEVEL_DISABLED);
+    generalGuildChannelStream->set_voice_level(club::v1::client::StreamVoiceLevel::VOICE_LEVEL_DISABLED);
 
     // Officer guild channel.
-    club::v1::Stream* officerGuildChannelStream = response->add_stream();
+    club::v1::client::Stream* officerGuildChannelStream = response->add_stream();
 
     officerGuildChannelStream->set_club_id(guild->GetId());
     officerGuildChannelStream->set_id(AsUnderlyingType(ClubStreamType::Officer));
@@ -225,15 +225,15 @@ uint32 ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*reques
     officerGuildChannelStream->mutable_access()->add_role(AsUnderlyingType(ClubRoleIdentifier::Moderator));
 
     // No voice support.
-    officerGuildChannelStream->set_voice_level(club::v1::StreamVoiceLevel::VOICE_LEVEL_DISABLED);
+    officerGuildChannelStream->set_voice_level(club::v1::client::StreamVoiceLevel::VOICE_LEVEL_DISABLED);
 
     // Enable channel view
-    club::v1::StreamView* generalView = response->add_view();
+    club::v1::client::StreamView* generalView = response->add_view();
 
     generalView->set_club_id(guild->GetId());
     generalView->set_stream_id(AsUnderlyingType(ClubStreamType::Guild));
 
-    club::v1::StreamView* officerView = response->add_view();
+    club::v1::client::StreamView* officerView = response->add_view();
 
     officerView->set_club_id(guild->GetId());
     officerView->set_stream_id(AsUnderlyingType(ClubStreamType::Officer));
@@ -241,7 +241,7 @@ uint32 ClubService::HandleGetStreams(club::v1::GetStreamsRequest const* /*reques
     return ERROR_OK;
 }
 
-uint32 ClubService::HandleSubscribeStream(club::v1::SubscribeStreamRequest const* request, NoData* /*response*/,
+uint32 ClubService::HandleSubscribeStream(club::v1::client::SubscribeStreamRequest const* request, NoData* /*response*/,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     Player const* player = _session->GetPlayer();
@@ -262,14 +262,14 @@ uint32 ClubService::HandleSubscribeStream(club::v1::SubscribeStreamRequest const
     return ERROR_OK;
 }
 
-uint32 ClubService::HandleUnsubscribeStream(club::v1::UnsubscribeStreamRequest const* /*request*/, NoData* /*response*/,
+uint32 ClubService::HandleUnsubscribeStream(club::v1::client::UnsubscribeStreamRequest const* /*request*/, NoData* /*response*/,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     // We just have to signal the client that the unsubscribe request came through.
     return ERROR_OK;
 }
 
-uint32 ClubService::HandleSetStreamFocus(club::v1::SetStreamFocusRequest const* /*request*/, NoData* /*response*/,
+uint32 ClubService::HandleSetStreamFocus(club::v1::client::SetStreamFocusRequest const* /*request*/, NoData* /*response*/,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     Player const* player = _session->GetPlayer();
@@ -285,7 +285,7 @@ uint32 ClubService::HandleSetStreamFocus(club::v1::SetStreamFocusRequest const* 
     return ERROR_OK;
 }
 
-uint32 ClubService::HandleAdvanceStreamViewTime(club::v1::AdvanceStreamViewTimeRequest const* /*request*/, NoData* /*response*/,
+uint32 ClubService::HandleAdvanceStreamViewTime(club::v1::client::AdvanceStreamViewTimeRequest const* /*request*/, NoData* /*response*/,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     Player const* player = _session->GetPlayer();
@@ -301,7 +301,7 @@ uint32 ClubService::HandleAdvanceStreamViewTime(club::v1::AdvanceStreamViewTimeR
     return ERROR_OK;
 }
 
-uint32 ClubService::HandleCreateMessage(club::v1::CreateMessageRequest const* request, club::v1::CreateMessageResponse* response,
+uint32 ClubService::HandleCreateMessage(club::v1::client::CreateMessageRequest const* request, club::v1::client::CreateMessageResponse* response,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation)
 {
     // Basic sanity check until full communities are implemented.
@@ -343,7 +343,7 @@ uint32 ClubService::HandleCreateMessage(club::v1::CreateMessageRequest const* re
 
         FillStreamMessage(response->mutable_message(), request->options().content(), messageTime, player->GetGUID());
 
-        club::v1::StreamMessageAddedNotification messageAddedNotification;
+        club::v1::client::StreamMessageAddedNotification messageAddedNotification;
         messageAddedNotification.set_allocated_agent_id(ClubMembershipService::CreateClubMemberId(player->GetGUID()).release());
         messageAddedNotification.set_club_id(guild->GetId());
         messageAddedNotification.set_stream_id(request->stream_id());
@@ -358,7 +358,7 @@ uint32 ClubService::HandleCreateMessage(club::v1::CreateMessageRequest const* re
             if (receiver->GetSocial()->HasIgnore(player->GetGUID(), _session->GetAccountGUID()))
                 return;
 
-            WorldserverService<club::v1::ClubListener>(receiver->GetSession()).OnStreamMessageAdded(&messageAddedNotification, true, true);
+            WorldserverService<club::v1::client::ClubListener>(receiver->GetSession()).OnStreamMessageAdded(&messageAddedNotification, true, true);
         }, player);
 
         return ERROR_OK;
@@ -378,14 +378,14 @@ std::unique_ptr<club::v1::UniqueClubType> ClubService::CreateGuildClubType()
     return type;
 }
 
-void ClubService::FillStreamMessage(club::v1::StreamMessage* message, std::string_view msg, std::chrono::microseconds messageTime, ObjectGuid author)
+void ClubService::FillStreamMessage(club::v1::client::StreamMessage* message, std::string_view msg, std::chrono::microseconds messageTime, ObjectGuid author)
 {
     message->mutable_id()->set_epoch(messageTime.count());
     message->mutable_id()->set_position(0);
 
     message->mutable_author()->set_allocated_id(ClubMembershipService::CreateClubMemberId(author).release());
 
-    club::v1::ContentChain* contentChain = message->add_content_chain();
+    club::v1::client::ContentChain* contentChain = message->add_content_chain();
 
     contentChain->set_content(msg.data(), msg.size());
     contentChain->set_edit_time(messageTime.count());

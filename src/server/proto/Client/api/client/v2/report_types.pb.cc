@@ -167,15 +167,15 @@ void protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
   ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_message_5ftypes_2eproto();
+  ::bgs::protocol::v2::protobuf_AddDesc_api_2fcommon_2fv2_2fattribute_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n api/client/v2/report_types.proto\022\026bgs."
-    "protocol.report.v2\032#api/client/v2/attrib"
-    "ute_types.proto\032\023account_types.proto\032\023me"
-    "ssage_types.proto\032%global_extensions/fie"
+    "protocol.report.v2\032\023account_types.proto\032"
+    "\023message_types.proto\032#api/common/v2/attr"
+    "ibute_types.proto\032%global_extensions/fie"
     "ld_options.proto\"C\n\nReportItem\022-\n\nmessag"
     "e_id\030\001 \001(\0132\027.bgs.protocol.MessageIdH\000B\006\n"
     "\004type\"\333\001\n\013UserOptions\0225\n\ttarget_id\030\001 \001(\013"
