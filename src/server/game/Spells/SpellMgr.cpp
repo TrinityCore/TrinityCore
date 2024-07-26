@@ -4868,7 +4868,7 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF THE AZURE VAULT SPELLS
     //
-    
+
     //
     // SHRINE OF THE STORM SPELLS
     //
