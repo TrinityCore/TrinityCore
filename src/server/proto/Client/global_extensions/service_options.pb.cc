@@ -60,10 +60,12 @@ void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto() {
       sizeof(BGSServiceOptions));
   BGSServiceOptions_ServiceType_descriptor_ = BGSServiceOptions_descriptor_->enum_type(0);
   SDKServiceOptions_descriptor_ = file->message_type(1);
-  static const int SDKServiceOptions_offsets_[3] = {
+  static const int SDKServiceOptions_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, inbound_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, outbound_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, use_client_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, deprecated_32_bit_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, obsolete_),
   };
   SDKServiceOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -121,15 +123,16 @@ void protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto() {
     "\001(\t\022\021\n\tis_global\030\t \001(\010\"z\n\013ServiceType\022\024\n"
     "\020SERVICE_TYPE_RPC\020\000\022\033\n\027SERVICE_TYPE_RPC_"
     "DIRECT\020\001\022\026\n\022SERVICE_TYPE_EVENT\020\002\022 \n\034SERV"
-    "ICE_TYPE_EVENT_BROADCAST\020\003\"M\n\021SDKService"
+    "ICE_TYPE_EVENT_BROADCAST\020\003\"z\n\021SDKService"
     "Options\022\017\n\007inbound\030\001 \001(\010\022\020\n\010outbound\030\002 \001"
-    "(\010\022\025\n\ruse_client_id\030\003 \001(\010:[\n\017service_opt"
-    "ions\022\037.google.protobuf.ServiceOptions\030\220\277"
-    "\005 \001(\0132\037.bgs.protocol.BGSServiceOptions:_"
-    "\n\023sdk_service_options\022\037.google.protobuf."
-    "ServiceOptions\030\221\277\005 \001(\0132\037.bgs.protocol.SD"
-    "KServiceOptionsB%\n\014bgs.protocolB\023Service"
-    "OptionsProtoH\002", 734);
+    "(\010\022\025\n\ruse_client_id\030\003 \001(\010\022\031\n\021deprecated_"
+    "32_bit\030\004 \001(\010\022\020\n\010obsolete\030\005 \001(\010:[\n\017servic"
+    "e_options\022\037.google.protobuf.ServiceOptio"
+    "ns\030\220\277\005 \001(\0132\037.bgs.protocol.BGSServiceOpti"
+    "ons:_\n\023sdk_service_options\022\037.google.prot"
+    "obuf.ServiceOptions\030\221\277\005 \001(\0132\037.bgs.protoc"
+    "ol.SDKServiceOptionsB%\n\014bgs.protocolB\023Se"
+    "rviceOptionsProtoH\002", 779);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/service_options.proto", &protobuf_RegisterTypes);
   BGSServiceOptions::default_instance_ = new BGSServiceOptions();
@@ -278,6 +281,8 @@ void BGSServiceOptions::Swap(BGSServiceOptions* other) {
 const int SDKServiceOptions::kInboundFieldNumber;
 const int SDKServiceOptions::kOutboundFieldNumber;
 const int SDKServiceOptions::kUseClientIdFieldNumber;
+const int SDKServiceOptions::kDeprecated32BitFieldNumber;
+const int SDKServiceOptions::kObsoleteFieldNumber;
 #endif  // !_MSC_VER
 
 SDKServiceOptions::SDKServiceOptions()
@@ -301,6 +306,8 @@ void SDKServiceOptions::SharedCtor() {
   inbound_ = false;
   outbound_ = false;
   use_client_id_ = false;
+  deprecated_32_bit_ = false;
+  obsolete_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
