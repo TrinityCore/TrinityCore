@@ -4869,6 +4869,35 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE AZURE VAULT SPELLS
     //
 
+    // SHRINE OF THE STORM SPELLS
+
+    // These spells have TARGET_DEST_NEARBY_ENTRY for serverside unit
+    ApplySpellFix({
+        274365, // Requiem of the Abyss
+        274367, // Requiem of the Abyss
+        264911, // Erupting Waters
+        264912, // Erupting Waters
+        264913, // Erupting Waters
+    }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Conversation
+    ApplySpellFix({ 274668, 274669 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_CREATE_CONVERSATION;
+        });
+    });
+
+    // ENDOF SHRINE OF THE STORM SPELLS
+    //
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
