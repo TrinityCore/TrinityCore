@@ -22,7 +22,7 @@
 
 static BossBoundaryData const boundaries =
 {
-    { DATA_AQUSIRR, new ZRangeBoundary(128.15f, 140.35f) }
+    { DATA_AQUSIRR, new ZRangeBoundary(128.15f, 119.89f) }
 };
 
 ObjectData const creatureData[] =
@@ -55,6 +55,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadBossBoundaries(boundaries);
             LoadObjectData(creatureData, nullptr);
             LoadDungeonEncounterData(encounters);
         }

@@ -27,7 +27,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
-#include "shrine_of_the_Storm.h"
+#include "shrine_of_the_storm.h"
 
 enum AqusirrSpells
 {
@@ -40,6 +40,7 @@ enum AqusirrSpells
 
     // Aqu'sirr
     SPELL_EMERGE_VISUAL                  = 274948,
+    SPELL_UNDERTOW                       = 264144,
     SPELL_SEA_BLAST                      = 265001,
     SPELL_SURGING_RUSH_DAMAGE            = 264155,
     SPELL_SURGING_RUSH                   = 264101,
@@ -52,6 +53,9 @@ enum AqusirrSpells
     SPELL_CHOKING_BRINE                  = 264560,
     SPELL_CHOKING_BRINE_MISSILE          = 264714,
     SPELL_CHOKING_BRINE_MISSILE_2        = 264703,
+    SPELL_GRASP_FROM_THE_DEPTHS_SELECTOR = 264477,
+    SPELL_GRASP_FROM_THE_DEPTHS_SUMMON   = 264522,
+    SPELL_GRASP_FROM_THE_DEPTHS_DAMAGE   = 264526,
 
     SPELL_CONVERSATION_HORDE             = 274669,
     SPELL_CONVERSATION_ALLIANCE          = 274668
@@ -62,6 +66,8 @@ enum AqusirrEvents
     EVENT_SURGING_RUSH = 1,
     EVENT_CHOKING_BRINE,
     EVENT_SEA_BLAST,
+    EVENT_UNDERTOW,
+    EVENT_GRASP_FROM_THE_DEPTHS
 };
 
 enum AqusirrActions
@@ -91,7 +97,11 @@ struct AqusirrSharedAI : public BossAI
     {
         events.ScheduleEvent(EVENT_SURGING_RUSH, 17s);
         events.ScheduleEvent(EVENT_CHOKING_BRINE, 8900ms);
+        events.ScheduleEvent(EVENT_UNDERTOW, 36800ms);
         events.ScheduleEvent(EVENT_SEA_BLAST, 1s);
+
+        if (IsHeroicOrHigher())
+            events.ScheduleEvent(EVENT_GRASP_FROM_THE_DEPTHS, 14300ms);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -106,7 +116,7 @@ struct AqusirrSharedAI : public BossAI
         {
             case EVENT_SEA_BLAST:
             {
-                if (!me->IsWithinMeleeRange(me->GetVictim()))
+                if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && !me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                         DoCast(target, SPELL_SEA_BLAST);
@@ -131,6 +141,19 @@ struct AqusirrSharedAI : public BossAI
                     DoCast(target, SPELL_SURGING_RUSH);
                 events.RescheduleEvent(EVENT_SEA_BLAST, 10s);
                 events.Repeat(31500ms, 39300ms);
+                break;
+            }
+            case EVENT_UNDERTOW:
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+                    DoCast(target, SPELL_UNDERTOW);
+                events.Repeat(32400ms, 34s);
+                break;
+            }
+            case EVENT_GRASP_FROM_THE_DEPTHS:
+            {
+                DoCast(SPELL_GRASP_FROM_THE_DEPTHS_SELECTOR);
+                events.Repeat(38s);
                 break;
             }
             default:
@@ -184,6 +207,7 @@ struct boss_aqusirr : public AqusirrSharedAI
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_AQUSIRR, FAIL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GRASP_FROM_THE_DEPTHS_DAMAGE);
 
         summons.DespawnAll();
         _EnterEvadeMode();
@@ -481,6 +505,25 @@ class spell_aqusirr_erupting_waters : public SpellScript
     }
 };
 
+// 264477 - Grasp from the Depths
+class spell_aqusirr_grasp_from_the_depths_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GRASP_FROM_THE_DEPTHS_SUMMON });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_GRASP_FROM_THE_DEPTHS_SUMMON, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_aqusirr_grasp_from_the_depths_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // XXXX - Areatrigger (TODO: Set on merge)
 struct at_aqusirr_intro : AreaTriggerAI
 {
@@ -550,6 +593,7 @@ void AddSC_boss_aqusirr()
     RegisterSpellScript(spell_aqusirr_surging_rush);
     RegisterSpellScript(spell_aqusirr_surging_rush_selector);
     RegisterSpellScript(spell_aqusirr_erupting_waters);
+    RegisterSpellScript(spell_aqusirr_grasp_from_the_depths_selector);
 
     RegisterAreaTriggerAI(at_aqusirr_intro);
     RegisterAreaTriggerAI(at_aqusirr_undertow);

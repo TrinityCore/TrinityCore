@@ -27,9 +27,10 @@ UPDATE `creature_template` SET `ScriptName`='boss_aqusirr' WHERE `entry`=134056;
 UPDATE `creature_template` SET `ScriptName`='boss_aqusirr_aqualing' WHERE `entry`=134828; -- 134828 (Aqualing)
 UPDATE `creature_template` SET `faction`=16, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags`=64, `unit_flags2`=2048, `unit_flags3`=524288 WHERE `entry`=134828; -- Aqualing
 
-DELETE FROM `creature_template_addon` WHERE `entry` = 134828;
+DELETE FROM `creature_template_addon` WHERE `entry` IN (134828, 134612);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(134828, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '264899'); -- 134828 (Aqualing) - Diminish
+(134828, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '264899'), -- 134828 (Aqualing) - Diminish
+(134612, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, ''); -- 134612 (Grasping Tentacles)
 
 -- Conversations
 DELETE FROM `conversation_actors` WHERE (`Idx`=0 AND `ConversationId` IN (8762, 8761));
@@ -76,11 +77,11 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (12773, 12775));
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(12773, 0, 17427, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 6000, 0, 100, 100, 0, 0, 0, 0, 0, 0, 'at_aqusirr_undertow', 55664), -- Spell: 264144 (Undertow)
+(12773, 0, 17427, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 6000, 0, 100, 100, 0, 0, 0, 0, 0, 0, 'at_aqusirr_undertow', 55664), -- Spell: 264144 (Undertow)
 (12775, 0, 17428, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 4000, 0, 6, 6, 0, 0, 0, 0, 0, 0, 'at_aqusirr_surging_rush', 55664); -- Spell: 264101 (Surging Rush)
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (274365, 274367, 274364, 264911, 264912, 264913, 274260, 264102, 264560, 264941);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (274365, 274367, 274364, 264911, 264912, 264913, 274260, 264102, 264560, 264941, 264477);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (274365, 'spell_aqusirr_requiem_of_the_abyss'),
 (274367, 'spell_aqusirr_requiem_of_the_abyss'),
@@ -91,7 +92,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (264560, 'spell_aqusirr_choking_brine'),
 (274260, 'spell_aqusirr_surging_rush'),
 (264102, 'spell_aqusirr_surging_rush_selector'),
-(264941, 'spell_aqusirr_erupting_waters');
+(264941, 'spell_aqusirr_erupting_waters'),
+(264477, 'spell_aqusirr_grasp_from_the_depths_selector');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=265030;
@@ -103,3 +105,9 @@ DELETE FROM `creature_text` WHERE `CreatureID` = 139737;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (139737, 0, 0, 'How dare you sully this holy place with your presence!', 14, 0, 100, 25, 0, 108219, 150520, 0, 'Lord Stormsong to Player'),
 (139737, 1, 0, 'I call upon the surging waters! Arise, and wipe out these intruders!', 14, 0, 100, 5, 0, 108220, 150521, 0, 'Lord Stormsong to Player');
+
+-- SAI
+UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=32800, `unit_flags3`=524288, `AIName`='SmartAI' WHERE `entry`=134612; -- Grasping Tentacles
+DELETE FROM `smart_scripts` WHERE `entryorguid`=134612 AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(134612, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 264526, 2, 128, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Grasping Tentacles - On Just Created - Self: Cast Spell 264526');
