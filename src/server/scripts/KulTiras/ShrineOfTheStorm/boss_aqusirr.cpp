@@ -319,7 +319,7 @@ struct npc_aqusirr_intro_lord_stormsong : public CreatureAI
                                 {
                                     me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_ID_AQUSIRR);
 
-                                    context.Schedule(3s + 800ms, [this](TaskContext context)
+                                    context.Schedule(3s + 800ms, [this](TaskContext /*context*/)
                                     {
                                         DoCastSelf(SPELL_SPLASHING_WATERS);
                                     });
