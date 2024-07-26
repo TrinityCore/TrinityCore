@@ -299,7 +299,7 @@ struct npc_aqusirr_intro_lord_stormsong : public CreatureAI
                                     {
                                         DoCastSelf(SPELL_SPLASHING_WATERS);
                                     });
-                                });                             
+                                });
                             });
                         });
                     });
