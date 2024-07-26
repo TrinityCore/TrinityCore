@@ -237,7 +237,6 @@ DB2Storage<SkillLineAbilityEntry>               sSkillLineAbilityStore("SkillLin
 DB2Storage<SkillLineXTraitTreeEntry>            sSkillLineXTraitTreeStore("SkillLineXTraitTree.db2", &SkillLineXTraitTreeLoadInfo::Instance);
 DB2Storage<SkillRaceClassInfoEntry>             sSkillRaceClassInfoStore("SkillRaceClassInfo.db2", &SkillRaceClassInfoLoadInfo::Instance);
 DB2Storage<SoundKitEntry>                       sSoundKitStore("SoundKit.db2", &SoundKitLoadInfo::Instance);
-DB2Storage<SpecializationSpellsEntry>           sSpecializationSpellsStore("SpecializationSpells.db2", &SpecializationSpellsLoadInfo::Instance);
 DB2Storage<SpecSetMemberEntry>                  sSpecSetMemberStore("SpecSetMember.db2", &SpecSetMemberLoadInfo::Instance);
 DB2Storage<SpellAuraOptionsEntry>               sSpellAuraOptionsStore("SpellAuraOptions.db2", &SpellAuraOptionsLoadInfo::Instance);
 DB2Storage<SpellAuraRestrictionsEntry>          sSpellAuraRestrictionsStore("SpellAuraRestrictions.db2", &SpellAuraRestrictionsLoadInfo::Instance);
@@ -363,7 +362,6 @@ typedef std::unordered_map<uint32, std::vector<uint32>> PhaseGroupContainer;
 typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
 typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
-typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
 typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
 typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
 typedef std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> SpellProcsPerMinuteModContainer;
@@ -438,7 +436,6 @@ namespace
     std::unordered_map<uint32, std::vector<SkillLineEntry const*>> _skillLinesByParentSkillLine;
     std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> _skillLineAbilitiesBySkillupSkill;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
-    SpecializationSpellsContainer _specializationSpellsBySpec;
     std::unordered_set<std::pair<int32, uint32>> _specsBySpecSet;
     std::unordered_set<uint8> _spellFamilyNames;
     SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
@@ -455,6 +452,8 @@ namespace
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByWmoGroup[MAX_UI_MAP_SYSTEM];
     std::unordered_set<int32> _uiMapPhases;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
+    std::array<std::unordered_map<int32, TalentTabEntry const*>, MAX_CLASSES> _talentTabsByIndex;
+    std::unordered_map<uint32, std::vector<uint32>> _primaryTalentTreeSpellsByTalentTab;
 }
 
 void LoadDB2(std::bitset<TOTAL_LOCALES>& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path,
@@ -774,7 +773,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSkillLineXTraitTreeStore);
     LOAD_DB2(sSkillRaceClassInfoStore);
     LOAD_DB2(sSoundKitStore);
-    LOAD_DB2(sSpecializationSpellsStore);
     LOAD_DB2(sSpecSetMemberStore);
     LOAD_DB2(sSpellAuraOptionsStore);
     LOAD_DB2(sSpellAuraRestrictionsStore);
@@ -1285,9 +1283,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         if (sSkillLineStore.LookupEntry(entry->SkillID))
             _skillRaceClassInfoBySkill.insert(SkillRaceClassInfoContainer::value_type(entry->SkillID, entry));
 
-    for (SpecializationSpellsEntry const* specSpells : sSpecializationSpellsStore)
-        _specializationSpellsBySpec[specSpells->SpecID].push_back(specSpells);
-
     for (SpecSetMemberEntry const* specSetMember : sSpecSetMemberStore)
         _specsBySpecSet.insert(std::make_pair(specSetMember->SpecSetID, uint32(specSetMember->ChrSpecializationID)));
 
@@ -1308,6 +1303,14 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
         _talentsByPosition[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
     }
+
+    for (TalentTabEntry const* talentTab : sTalentTabStore)
+        for (uint8 i = CLASS_WARRIOR; i < MAX_CLASSES; ++i)
+            if (talentTab->ClassMask & (1 << (i - 1)))
+                _talentTabsByIndex[i][talentTab->OrderIndex] = talentTab;
+
+    for (TalentTreePrimarySpellsEntry const* talentPrimarySpell : sTalentTreePrimarySpellsStore)
+        _primaryTalentTreeSpellsByTalentTab[talentPrimarySpell->TalentTabID].push_back(talentPrimarySpell->SpellID);
 
     for (TaxiPathEntry const* entry : sTaxiPathStore)
         _taxiPaths[{ entry->FromTaxiNode, entry->ToTaxiNode }] = entry;
@@ -2493,11 +2496,6 @@ std::vector<SkillRaceClassInfoEntry const*> DB2Manager::GetSkillRaceClassInfo(ui
     return result;
 }
 
-std::vector<SpecializationSpellsEntry const*> const* DB2Manager::GetSpecializationSpells(uint32 specId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_specializationSpellsBySpec, specId);
-}
-
 bool DB2Manager::IsSpecSetMember(int32 specSetId, uint32 specId) const
 {
     return _specsBySpecSet.count(std::make_pair(specSetId, specId)) > 0;
@@ -2525,6 +2523,16 @@ std::vector<SpellVisualMissileEntry const*> const* DB2Manager::GetSpellVisualMis
 std::vector<TalentEntry const*> const& DB2Manager::GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const
 {
     return _talentsByPosition[class_][tier][column];
+}
+
+TalentTabEntry const* DB2Manager::GetTalentTabByIndex(uint32 class_, int32 tabIndex) const
+{
+    return Trinity::Containers::MapGetValuePtr(_talentTabsByIndex[class_], tabIndex);
+}
+
+std::vector<uint32> const* DB2Manager::GetPrimaryTalentTreeSpells(uint32 talentTabId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_primaryTalentTreeSpellsByTalentTab, talentTabId);
 }
 
 TaxiPathEntry const* DB2Manager::GetTaxiPath(uint32 from, uint32 to) const

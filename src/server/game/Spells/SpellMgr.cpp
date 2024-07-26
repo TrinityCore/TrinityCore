@@ -810,8 +810,69 @@ void SpellMgr::UnloadSpellInfoChains()
     mSpellChains.clear();
 }
 
+void SpellMgr::LoadSpellTalentRanks()
+{
+    // cleanup core data before reload - remove reference to ChainNode from SpellInfo
+    UnloadSpellInfoChains();
+
+    for (TalentEntry const* talentInfo : sTalentStore)
+    {
+        SpellInfo const* lastSpell = nullptr;
+        for (size_t rank = talentInfo->SpellRank.size() - 1; rank > 0; --rank)
+        {
+            if (talentInfo->SpellRank[rank])
+            {
+                lastSpell = GetSpellInfo(talentInfo->SpellRank[rank], DIFFICULTY_NONE);
+                break;
+            }
+        }
+
+        if (!lastSpell)
+            continue;
+
+        SpellInfo const* firstSpell = GetSpellInfo(talentInfo->SpellRank[0], DIFFICULTY_NONE);
+        if (!firstSpell)
+        {
+            TC_LOG_ERROR("spells", "SpellMgr::LoadSpellTalentRanks: First Rank Spell {} for TalentEntry {} does not exist.", talentInfo->SpellRank[0], talentInfo->ID);
+            continue;
+        }
+
+        SpellInfo const* prevSpell = nullptr;
+        for (uint8 rank = 0; rank < talentInfo->SpellRank.size(); ++rank)
+        {
+            uint32 spellId = talentInfo->SpellRank[rank];
+            if (!spellId)
+                break;
+
+            SpellInfo const* currentSpell = GetSpellInfo(spellId, DIFFICULTY_NONE);
+            if (!currentSpell)
+            {
+                TC_LOG_ERROR("spells", "SpellMgr::LoadSpellTalentRanks: Spell {} (Rank: {}) for TalentEntry {} does not exist.", spellId, rank + 1, talentInfo->ID);
+                break;
+            }
+
+            SpellChainNode node;
+            node.first = firstSpell;
+            node.last = lastSpell;
+            node.rank = rank + 1;
+
+            node.prev = prevSpell;
+            node.next = node.rank < talentInfo->SpellRank.size() ? GetSpellInfo(talentInfo->SpellRank[node.rank], DIFFICULTY_NONE) : nullptr;
+
+            mSpellChains[spellId] = node;
+            for (SpellInfo const& difficultyInfo : _GetSpellInfo(spellId))
+                const_cast<SpellInfo&>(difficultyInfo).ChainEntry = &mSpellChains[spellId];
+
+            prevSpell = currentSpell;
+        }
+    }
+}
+
 void SpellMgr::LoadSpellRanks()
 {
+    // cleanup data and load spell ranks for talents from db2
+    LoadSpellTalentRanks();
+
     uint32 oldMSTime = getMSTime();
 
     std::map<uint32 /*spell*/, uint32 /*next*/> chains;
@@ -3003,7 +3064,8 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     std::set<uint32> talentSpells;
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(i))
-            talentSpells.insert(talentInfo->SpellID);
+            for (uint32 talentSpell : talentInfo->SpellRank)
+                talentSpells.insert(talentSpell);
 
     for (SpellInfo const& spellInfo : mSpellInfoMap)
     {

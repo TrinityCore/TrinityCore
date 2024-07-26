@@ -202,8 +202,8 @@ public:
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
-            player->AddTalent(talentInfo, player->GetActiveTalentGroup(), true);
-            player->LearnSpell(talentInfo->SpellID, false);
+            //player->AddTalent(talentInfo, player->GetActiveTalentGroup(), true);
+            //player->LearnSpell(talentInfo->SpellID, false);
         }
 
         player->SendTalentsInfoData();

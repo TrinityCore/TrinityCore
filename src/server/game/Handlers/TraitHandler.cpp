@@ -23,8 +23,9 @@
 #include "TraitMgr.h"
 #include "TraitPackets.h"
 
-void WorldSession::HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitConfig const& traitsCommitConfig)
+void WorldSession::HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitConfig const& /*traitsCommitConfig*/)
 {
+    /*
     int32 configId = traitsCommitConfig.Config.ID;
     UF::TraitConfig const* existingConfig = _player->GetTraitConfig(configId);
     if (!existingConfig)
@@ -139,6 +140,7 @@ void WorldSession::HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitCo
         newConfigState.LocalIdentifier = savedConfig->LocalIdentifier;
 
     _player->UpdateTraitConfig(std::move(newConfigState), traitsCommitConfig.SavedConfigID, needsCastTime);
+    */
 }
 
 void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::ClassTalentsRequestNewConfig& classTalentsRequestNewConfig)

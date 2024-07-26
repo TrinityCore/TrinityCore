@@ -3935,21 +3935,6 @@ struct SoundKitLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 17, &SoundKitMeta::Instance, HOTFIX_SEL_SOUND_KIT };
 };
 
-struct SpecializationSpellsLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[6] =
-    {
-        { false, FT_STRING, "Description" },
-        { false, FT_INT, "ID" },
-        { false, FT_SHORT, "SpecID" },
-        { true, FT_INT, "SpellID" },
-        { true, FT_INT, "OverridesSpellID" },
-        { false, FT_BYTE, "DisplayOrder" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 6, &SpecializationSpellsMeta::Instance, HOTFIX_SEL_SPECIALIZATION_SPELLS };
-};
-
 struct SpecSetMemberLoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =

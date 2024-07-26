@@ -43,7 +43,7 @@ namespace WorldPackets
 
         struct TalentInfoUpdate
         {
-            uint32 UnspentTalentPoints;
+            uint32 UnspentTalentPoints = 0;
             uint8 ActiveGroup = 0;
             bool IsPetTalents = false;
 
@@ -68,7 +68,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 TalentID = 0;
-            uint16 TalentTab = 0;
+            uint16 Rank = 0;
         };
 
         class LearnPreviewTalents final : public ClientPacket
@@ -78,7 +78,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 TalentTab = 0;
+            int32 TabIndex = 0;
             Array<TalentInfo, 100> Talents;
         };
 
@@ -89,7 +89,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 TalentTab = 0;
+            int32 TabIndex = 0;
         };
 
         class RespecWipeConfirm final : public ServerPacket

@@ -379,6 +379,7 @@ class TC_GAME_API Spell
         void EffectTitanGrip();
         void EffectEnchantItemPrismatic();
         void EffectPlayMusic();
+        void EffectTalentSpecCount();
         void EffectActivateSpec();
         void EffectPlaySound();
         void EffectRemoveAura();

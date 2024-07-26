@@ -6593,20 +6593,9 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             }
             case SPELL_EFFECT_TALENT_SPEC_SELECT:
             {
-                ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(m_misc.SpecializationId);
                 Player* player = m_caster->ToPlayer();
                 if (!player)
                     return SPELL_FAILED_TARGET_NOT_PLAYER;
-
-                if (!spec || (spec->ClassID != player->GetClass() && !spec->IsPetSpecialization()))
-                    return SPELL_FAILED_NO_SPEC;
-
-                if (spec->IsPetSpecialization())
-                {
-                    Pet* pet = player->GetPet();
-                    if (!pet || pet->getPetType() != HUNTER_PET || !pet->GetCharmInfo())
-                        return SPELL_FAILED_NO_PET;
-                }
 
                 // can't change during already started arena/battleground
                 if (Battleground const* bg = player->GetBattleground())

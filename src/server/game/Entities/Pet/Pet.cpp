@@ -1817,6 +1817,7 @@ void Pet::LearnSpecializationSpells()
 {
     std::vector<uint32> learnedSpells;
 
+    /*
     if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(m_petSpecialization))
     {
         for (size_t j = 0; j < specSpells->size(); ++j)
@@ -1829,6 +1830,7 @@ void Pet::LearnSpecializationSpells()
             learnedSpells.push_back(specSpell->SpellID);
         }
     }
+    */
 
     learnSpells(learnedSpells);
 }
@@ -1837,6 +1839,7 @@ void Pet::RemoveSpecializationSpells(bool clearActionBar)
 {
     std::vector<uint32> unlearnedSpells;
 
+    /*
     for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
     {
         if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(0, i))
@@ -1863,6 +1866,7 @@ void Pet::RemoveSpecializationSpells(bool clearActionBar)
             }
         }
     }
+    */
 
     unlearnSpells(unlearnedSpells, true, clearActionBar);
 }

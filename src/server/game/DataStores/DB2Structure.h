@@ -2874,16 +2874,6 @@ struct SoundKitEntry
     uint32 SoundMixGroupID;
 };
 
-struct SpecializationSpellsEntry
-{
-    LocalizedString Description;
-    uint32 ID;
-    uint16 SpecID;
-    int32 SpellID;
-    int32 OverridesSpellID;
-    uint8 DisplayOrder;
-};
-
 struct SpecSetMemberEntry
 {
     uint32 ID;

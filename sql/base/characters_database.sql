@@ -1558,8 +1558,9 @@ DROP TABLE IF EXISTS `character_talent`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `character_talent` (
   `guid` bigint unsigned NOT NULL,
-  `talentId` int unsigned NOT NULL,
   `talentGroup` tinyint unsigned NOT NULL DEFAULT '0',
+  `talentId` int unsigned NOT NULL,
+  `rank` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`talentId`,`talentGroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1571,6 +1572,30 @@ CREATE TABLE `character_talent` (
 LOCK TABLES `character_talent` WRITE;
 /*!40000 ALTER TABLE `character_talent` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_talent` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_talent_group`
+--
+
+DROP TABLE IF EXISTS `character_talent_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE `character_talent_group` (
+  `guid` bigint unsigned NOT NULL DEFAULT '0',
+  `id` tinyint unsigned NOT NULL DEFAULT '0',
+  `talentTabId` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `character_talent_group`
+--
+
+LOCK TABLES `character_talent_group` WRITE;
+/*!40000 ALTER TABLE `character_talent_group` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_talent_group` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3406,7 +3431,8 @@ INSERT INTO `updates` VALUES
 ('2024_06_01_00_characters.sql','0440E0A8BE109101B390A640397D9B024C8E124B','ARCHIVED','2024-06-01 19:29:34',0),
 ('2024_06_02_00_characters.sql','18D12ED7A1D30675AAB807BAEB886FCCC76CED21','ARCHIVED','2024-06-02 23:04:45',0),
 ('2024_06_05_00_characters.sql','3BE1839524918827D4C0C8F9FBE9890CDF759FB4','RELEASED','2024-06-05 21:44:36',0),
-('2024_06_25_00_characters.sql','046AC59E8B828B0C81A1A3C79860E464D96228B8','RELEASED','2024-06-25 17:56:15',0);
+('2024_06_25_00_characters.sql','046AC59E8B828B0C81A1A3C79860E464D96228B8','RELEASED','2024-06-25 17:56:15',0),
+('2024_07_27_00_characters.sql','912ADCAC4948C75386387251D6FAEFB841574606','RELEASED','2024-07-27 01:03:05',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

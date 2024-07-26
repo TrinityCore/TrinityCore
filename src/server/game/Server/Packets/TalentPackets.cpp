@@ -56,6 +56,7 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
     }
 
     _worldPacket.WriteBit(Info.IsPetTalents);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -63,7 +64,7 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 void WorldPackets::Talent::LearnTalent::Read()
 {
     _worldPacket >> TalentID;
-    _worldPacket >> TalentTab;
+    _worldPacket >> Rank;
 }
 
 WorldPacket const* WorldPackets::Talent::RespecWipeConfirm::Write()
@@ -113,7 +114,7 @@ WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
 void WorldPackets::Talent::LearnPreviewTalents::Read()
 {
     Talents.resize(_worldPacket.read<uint32>());
-    _worldPacket >> TalentTab;
+    _worldPacket >> TabIndex;
 
     for (TalentInfo& talent : Talents)
         _worldPacket >> talent;
@@ -121,5 +122,5 @@ void WorldPackets::Talent::LearnPreviewTalents::Read()
 
 void WorldPackets::Talent::SetPrimaryTalentTree::Read()
 {
-    _worldPacket >> TalentTab;
+    _worldPacket >> TabIndex;
 }

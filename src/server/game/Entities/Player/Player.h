@@ -58,6 +58,7 @@ struct RewardPackEntry;
 struct SkillRaceClassInfoEntry;
 struct SpellCastRequest;
 struct TalentEntry;
+struct TalentGroupInfo;
 struct TrainerSpell;
 struct TransferAbortParams;
 struct VendorItem;
@@ -895,6 +896,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
     PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
     PLAYER_LOGIN_QUERY_LOAD_TALENTS,
+    PLAYER_LOGIN_QUERY_LOAD_TALENT_GROUPS,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
     PLAYER_LOGIN_QUERY_LOAD_SKILLS,
     PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS,
@@ -1078,21 +1080,6 @@ struct GroupUpdateCounter
 {
     ObjectGuid GroupGuid;
     int32 UpdateSequenceNumber;
-};
-
-enum TalentLearnResult : int32
-{
-    TALENT_LEARN_OK                                     = 0,
-    TALENT_FAILED_UNKNOWN                               = 1,
-    TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE    = 2,
-    TALENT_FAILED_NO_PRIMARY_TREE_SELECTED              = 3,
-    TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW                = 4,
-    TALENT_FAILED_AFFECTING_COMBAT                      = 5,
-    TALENT_FAILED_CANT_REMOVE_TALENT                    = 6,
-    TALENT_FAILED_CANT_DO_THAT_CHALLENGE_MODE_ACTIVE    = 7,
-    TALENT_FAILED_REST_AREA                             = 8,
-    TALENT_FAILED_UNSPENT_TALENT_POINTS                 = 9,
-    TALENT_FAILED_IN_PVP_MATCH                          = 10
 };
 
 struct TC_GAME_API SpecializationInfo
@@ -1831,13 +1818,13 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo);
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
+        void LearnTalentTreePrimarySpells();
+        void UnlearnTalentTreePrimarySpells();
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetOverrideSpellsId(int32 overrideSpellsId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OverrideSpellsID), overrideSpellsId);  }
         void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
-        void LearnSpecializationSpells();
-        void RemoveSpecializationSpells();
         void AddSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
         void RemoveSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
         void SetSpellFavorite(uint32 spellId, bool favorite);
@@ -1864,28 +1851,27 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetTalentResetTime(time_t time_)  { _specializationInfo.ResetTalentsTime = time_; }
         ChrSpecialization GetPrimarySpecialization() const { return ChrSpecialization(*m_playerData->CurrentSpecID); }
         void SetPrimarySpecialization(uint32 spec) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec); }
-        uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
-        void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
         ChrSpecializationEntry const* GetPrimarySpecializationEntry() const;
+
+        uint8 GetActiveTalentGroup() const { return _activeTalentGroup; }
+        bool HasTalentGroupUnlocked(uint8 group) const;
+        void SetTalentGroupCount(uint8 count);
+        void SetActiveTalentGroup(uint8 group, bool withUpdate = true);
+        void SetPrimaryTalentTree(uint32 talentTabId, bool withUpdate = false);
+        uint32 GetPrimaryTalentTree() const;
+        bool LearnTalent(uint32 talentId, uint8 rank);
+        void UpdateAvailableTalentPoints();
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData();
-        TalentLearnResult LearnTalent(uint32 talentId, int32* spellOnCooldown);
-        bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
-        bool HasTalent(uint32 spell_id, uint8 spec) const;
-        void RemoveTalent(TalentEntry const* talent);
-        void ResetTalentSpecialization();
 
         void InitGlyphsForLevel();
         void SetGlyph(uint8 index, uint32 glyphRecId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Glyphs, index), glyphRecId); }
         void SetGlyphSlot(uint8 index, uint32 glyphSlotRecId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphSlots, index), glyphSlotRecId); }
         void SetGlyphsEnabled(uint32 slotMask) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), slotMask); }
-
-        // Dual Spec
-        void ActivateTalentGroup(ChrSpecializationEntry const* spec);
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
@@ -2947,7 +2933,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadTransmogOutfits(PreparedQueryResult result);
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
-        void _LoadTalents(PreparedQueryResult result);
+        void _LoadTalents(PreparedQueryResult talentGroupResult, PreparedQueryResult talentResult);
         void _LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult entriesResult);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result);
@@ -3039,6 +3025,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         std::unordered_map<uint32, StoredAuraTeleportLocation> m_storedAuraTeleportLocations;
 
         SpecializationInfo _specializationInfo;
+
+        // Talents
+        std::vector<TalentGroupInfo> _talentGroups;
+        uint8 _activeTalentGroup;
 
         std::unordered_map<int32, PlayerSpellState> m_traitConfigStates;
 
