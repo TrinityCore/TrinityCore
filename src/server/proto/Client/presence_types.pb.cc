@@ -203,32 +203,32 @@ void protobuf_AddDesc_presence_5ftypes_2eproto() {
 
   ::bgs::protocol::protobuf_AddDesc_attribute_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
-  ::bgs::protocol::channel::v1::protobuf_AddDesc_channel_5ftypes_2eproto();
+  ::bgs::protocol::channel::v1::protobuf_AddDesc_api_2fclient_2fv1_2fchannel_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\024presence_types.proto\022\030bgs.protocol.pre"
     "sence.v1\032\025attribute_types.proto\032\022entity_"
-    "types.proto\032\023channel_types.proto\"W\n\033Rich"
-    "PresenceLocalizationKey\022\017\n\007program\030\001 \002(\007"
-    "\022\016\n\006stream\030\002 \002(\007\022\027\n\017localization_id\030\003 \002("
-    "\r\"L\n\010FieldKey\022\017\n\007program\030\001 \002(\r\022\r\n\005group\030"
-    "\002 \002(\r\022\r\n\005field\030\003 \002(\r\022\021\n\tunique_id\030\004 \001(\004\""
-    "^\n\005Field\022/\n\003key\030\001 \002(\0132\".bgs.protocol.pre"
-    "sence.v1.FieldKey\022$\n\005value\030\002 \002(\0132\025.bgs.p"
-    "rotocol.Variant\"\265\001\n\016FieldOperation\022.\n\005fi"
-    "eld\030\001 \002(\0132\037.bgs.protocol.presence.v1.Fie"
-    "ld\022N\n\toperation\030\002 \001(\01626.bgs.protocol.pre"
-    "sence.v1.FieldOperation.OperationType:\003S"
-    "ET\"#\n\rOperationType\022\007\n\003SET\020\000\022\t\n\005CLEAR\020\001\""
-    "}\n\rPresenceState\022)\n\tentity_id\030\001 \001(\0132\026.bg"
-    "s.protocol.EntityId\022A\n\017field_operation\030\002"
-    " \003(\0132(.bgs.protocol.presence.v1.FieldOpe"
-    "ration\"\356\001\n\014ChannelState\022)\n\tentity_id\030\001 \001"
-    "(\0132\026.bgs.protocol.EntityId\022A\n\017field_oper"
-    "ation\030\002 \003(\0132(.bgs.protocol.presence.v1.F"
-    "ieldOperation\022\017\n\007healing\030\003 \001(\0102_\n\010presen"
-    "ce\022%.bgs.protocol.channel.v1.ChannelStat"
-    "e\030e \001(\0132&.bgs.protocol.presence.v1.Chann"
-    "elStateB\002H\002", 931);
+    "types.proto\032!api/client/v1/channel_types"
+    ".proto\"W\n\033RichPresenceLocalizationKey\022\017\n"
+    "\007program\030\001 \002(\007\022\016\n\006stream\030\002 \002(\007\022\027\n\017locali"
+    "zation_id\030\003 \002(\r\"L\n\010FieldKey\022\017\n\007program\030\001"
+    " \002(\r\022\r\n\005group\030\002 \002(\r\022\r\n\005field\030\003 \002(\r\022\021\n\tun"
+    "ique_id\030\004 \001(\004\"^\n\005Field\022/\n\003key\030\001 \002(\0132\".bg"
+    "s.protocol.presence.v1.FieldKey\022$\n\005value"
+    "\030\002 \002(\0132\025.bgs.protocol.Variant\"\265\001\n\016FieldO"
+    "peration\022.\n\005field\030\001 \002(\0132\037.bgs.protocol.p"
+    "resence.v1.Field\022N\n\toperation\030\002 \001(\01626.bg"
+    "s.protocol.presence.v1.FieldOperation.Op"
+    "erationType:\003SET\"#\n\rOperationType\022\007\n\003SET"
+    "\020\000\022\t\n\005CLEAR\020\001\"}\n\rPresenceState\022)\n\tentity"
+    "_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022A\n\017fie"
+    "ld_operation\030\002 \003(\0132(.bgs.protocol.presen"
+    "ce.v1.FieldOperation\"\356\001\n\014ChannelState\022)\n"
+    "\tentity_id\030\001 \001(\0132\026.bgs.protocol.EntityId"
+    "\022A\n\017field_operation\030\002 \003(\0132(.bgs.protocol"
+    ".presence.v1.FieldOperation\022\017\n\007healing\030\003"
+    " \001(\0102_\n\010presence\022%.bgs.protocol.channel."
+    "v1.ChannelState\030e \001(\0132&.bgs.protocol.pre"
+    "sence.v1.ChannelStateB\002H\002", 945);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_types.proto", &protobuf_RegisterTypes);
   RichPresenceLocalizationKey::default_instance_ = new RichPresenceLocalizationKey();

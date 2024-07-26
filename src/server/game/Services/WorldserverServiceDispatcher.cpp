@@ -21,16 +21,17 @@ Battlenet::WorldserverServiceDispatcher::WorldserverServiceDispatcher()
 {
     AddService<WorldserverService<account::v1::AccountService>>();
     AddService<WorldserverService<authentication::v1::AuthenticationService>>();
+    AddService<WorldserverService<block_list::v1::client::BlockListService>>();
     AddService<Services::ClubMembershipService>();
     AddService<Services::ClubService>();
     AddService<WorldserverService<connection::v1::ConnectionService>>();
     AddService<WorldserverService<friends::v1::FriendsService>>();
     AddService<Services::GameUtilitiesService>();
+    AddService<WorldserverService<notification::v2::client::NotificationService>>();
     AddService<WorldserverService<presence::v1::PresenceService>>();
-    AddService<WorldserverService<report::v1::ReportService>>();
     AddService<WorldserverService<report::v2::ReportService>>();
     AddService<WorldserverService<resources::v1::ResourcesService>>();
-    AddService<WorldserverService<user_manager::v1::UserManagerService>>();
+    AddService<WorldserverService<whisper::v2::client::WhisperService>>();
 }
 
 void Battlenet::WorldserverServiceDispatcher::Dispatch(WorldSession* session, uint32 serviceHash, uint32 token, uint32 methodId, MessageBuffer buffer)

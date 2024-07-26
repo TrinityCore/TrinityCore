@@ -168,7 +168,7 @@ class TC_PROTO_API AccountId : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required fixed32 id = 1;
+  // optional fixed32 id = 1;
   inline bool has_id() const;
   inline void clear_id();
   static const int kIdFieldNumber = 1;
@@ -310,21 +310,21 @@ class TC_PROTO_API GameAccountHandle : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required fixed32 id = 1;
+  // optional fixed32 id = 1;
   inline bool has_id() const;
   inline void clear_id();
   static const int kIdFieldNumber = 1;
   inline ::google::protobuf::uint32 id() const;
   inline void set_id(::google::protobuf::uint32 value);
 
-  // required fixed32 program = 2;
+  // optional fixed32 program = 2;
   inline bool has_program() const;
   inline void clear_program();
   static const int kProgramFieldNumber = 2;
   inline ::google::protobuf::uint32 program() const;
   inline void set_program(::google::protobuf::uint32 value);
 
-  // required uint32 region = 3;
+  // optional uint32 region = 3;
   inline bool has_region() const;
   inline void clear_region();
   static const int kRegionFieldNumber = 3;
@@ -917,12 +917,12 @@ class TC_PROTO_API GameAccountFieldTags : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 game_status_tag() const;
   inline void set_game_status_tag(::google::protobuf::uint32 value);
 
-  // optional fixed32 raf_info_tag = 5;
-  inline bool has_raf_info_tag() const;
-  inline void clear_raf_info_tag();
+  // optional fixed32 raf_info_tag = 5 [deprecated = true];
+  inline bool has_raf_info_tag() const PROTOBUF_DEPRECATED;
+  inline void clear_raf_info_tag() PROTOBUF_DEPRECATED;
   static const int kRafInfoTagFieldNumber = 5;
-  inline ::google::protobuf::uint32 raf_info_tag() const;
-  inline void set_raf_info_tag(::google::protobuf::uint32 value);
+  inline ::google::protobuf::uint32 raf_info_tag() const PROTOBUF_DEPRECATED;
+  inline void set_raf_info_tag(::google::protobuf::uint32 value) PROTOBUF_DEPRECATED;
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.GameAccountFieldTags)
  private:
@@ -1156,12 +1156,12 @@ class TC_PROTO_API GameAccountFieldOptions : public ::google::protobuf::Message 
   inline bool field_game_status() const;
   inline void set_field_game_status(bool value);
 
-  // optional bool field_raf_info = 5;
-  inline bool has_field_raf_info() const;
-  inline void clear_field_raf_info();
+  // optional bool field_raf_info = 5 [deprecated = true];
+  inline bool has_field_raf_info() const PROTOBUF_DEPRECATED;
+  inline void clear_field_raf_info() PROTOBUF_DEPRECATED;
   static const int kFieldRafInfoFieldNumber = 5;
-  inline bool field_raf_info() const;
-  inline void set_field_raf_info(bool value);
+  inline bool field_raf_info() const PROTOBUF_DEPRECATED;
+  inline void set_field_raf_info(bool value) PROTOBUF_DEPRECATED;
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.GameAccountFieldOptions)
  private:
@@ -1917,6 +1917,13 @@ class TC_PROTO_API ParentalControlInfo : public ::google::protobuf::Message {
   inline bool can_use_profile() const;
   inline void set_can_use_profile(bool value);
 
+  // optional bool in_game_purchase_disabled = 11;
+  inline bool has_in_game_purchase_disabled() const;
+  inline void clear_in_game_purchase_disabled();
+  static const int kInGamePurchaseDisabledFieldNumber = 11;
+  inline bool in_game_purchase_disabled() const;
+  inline void set_in_game_purchase_disabled(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.ParentalControlInfo)
  private:
   inline void set_has_timezone();
@@ -1933,6 +1940,8 @@ class TC_PROTO_API ParentalControlInfo : public ::google::protobuf::Message {
   inline void clear_has_can_join_group();
   inline void set_has_can_use_profile();
   inline void clear_has_can_use_profile();
+  inline void set_has_in_game_purchase_disabled();
+  inline void clear_has_in_game_purchase_disabled();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1946,6 +1955,7 @@ class TC_PROTO_API ParentalControlInfo : public ::google::protobuf::Message {
   bool can_send_voice_;
   bool can_join_group_;
   bool can_use_profile_;
+  bool in_game_purchase_disabled_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -3459,14 +3469,14 @@ class TC_PROTO_API GameAccountState : public ::google::protobuf::Message {
   inline ::bgs::protocol::account::v1::GameStatus* release_game_status();
   inline void set_allocated_game_status(::bgs::protocol::account::v1::GameStatus* game_status);
 
-  // optional .bgs.protocol.account.v1.RAFInfo raf_info = 4;
-  inline bool has_raf_info() const;
-  inline void clear_raf_info();
+  // optional .bgs.protocol.account.v1.RAFInfo raf_info = 4 [deprecated = true];
+  inline bool has_raf_info() const PROTOBUF_DEPRECATED;
+  inline void clear_raf_info() PROTOBUF_DEPRECATED;
   static const int kRafInfoFieldNumber = 4;
-  inline const ::bgs::protocol::account::v1::RAFInfo& raf_info() const;
-  inline ::bgs::protocol::account::v1::RAFInfo* mutable_raf_info();
-  inline ::bgs::protocol::account::v1::RAFInfo* release_raf_info();
-  inline void set_allocated_raf_info(::bgs::protocol::account::v1::RAFInfo* raf_info);
+  inline const ::bgs::protocol::account::v1::RAFInfo& raf_info() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::account::v1::RAFInfo* mutable_raf_info() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::account::v1::RAFInfo* release_raf_info() PROTOBUF_DEPRECATED;
+  inline void set_allocated_raf_info(::bgs::protocol::account::v1::RAFInfo* raf_info) PROTOBUF_DEPRECATED;
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.GameAccountState)
  private:
@@ -4358,7 +4368,7 @@ class TC_PROTO_API AccountPlatformRestrictionInfo : public ::google::protobuf::M
 
 // AccountId
 
-// required fixed32 id = 1;
+// optional fixed32 id = 1;
 inline bool AccountId::has_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -4438,7 +4448,7 @@ inline void AccountLicense::set_expires(::google::protobuf::uint64 value) {
 
 // GameAccountHandle
 
-// required fixed32 id = 1;
+// optional fixed32 id = 1;
 inline bool GameAccountHandle::has_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -4462,7 +4472,7 @@ inline void GameAccountHandle::set_id(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GameAccountHandle.id)
 }
 
-// required fixed32 program = 2;
+// optional fixed32 program = 2;
 inline bool GameAccountHandle::has_program() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -4486,7 +4496,7 @@ inline void GameAccountHandle::set_program(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GameAccountHandle.program)
 }
 
-// required uint32 region = 3;
+// optional uint32 region = 3;
 inline bool GameAccountHandle::has_region() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -5287,7 +5297,7 @@ inline void GameAccountFieldTags::set_game_status_tag(::google::protobuf::uint32
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GameAccountFieldTags.game_status_tag)
 }
 
-// optional fixed32 raf_info_tag = 5;
+// optional fixed32 raf_info_tag = 5 [deprecated = true];
 inline bool GameAccountFieldTags::has_raf_info_tag() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -5607,7 +5617,7 @@ inline void GameAccountFieldOptions::set_field_game_status(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GameAccountFieldOptions.field_game_status)
 }
 
-// optional bool field_raf_info = 5;
+// optional bool field_raf_info = 5 [deprecated = true];
 inline bool GameAccountFieldOptions::has_field_raf_info() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -7095,6 +7105,30 @@ inline void ParentalControlInfo::set_can_use_profile(bool value) {
   set_has_can_use_profile();
   can_use_profile_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.ParentalControlInfo.can_use_profile)
+}
+
+// optional bool in_game_purchase_disabled = 11;
+inline bool ParentalControlInfo::has_in_game_purchase_disabled() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void ParentalControlInfo::set_has_in_game_purchase_disabled() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void ParentalControlInfo::clear_has_in_game_purchase_disabled() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void ParentalControlInfo::clear_in_game_purchase_disabled() {
+  in_game_purchase_disabled_ = false;
+  clear_has_in_game_purchase_disabled();
+}
+inline bool ParentalControlInfo::in_game_purchase_disabled() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.ParentalControlInfo.in_game_purchase_disabled)
+  return in_game_purchase_disabled_;
+}
+inline void ParentalControlInfo::set_in_game_purchase_disabled(bool value) {
+  set_has_in_game_purchase_disabled();
+  in_game_purchase_disabled_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.ParentalControlInfo.in_game_purchase_disabled)
 }
 
 // -------------------------------------------------------------------
@@ -9162,7 +9196,7 @@ inline void GameAccountState::set_allocated_game_status(::bgs::protocol::account
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.GameAccountState.game_status)
 }
 
-// optional .bgs.protocol.account.v1.RAFInfo raf_info = 4;
+// optional .bgs.protocol.account.v1.RAFInfo raf_info = 4 [deprecated = true];
 inline bool GameAccountState::has_raf_info() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
