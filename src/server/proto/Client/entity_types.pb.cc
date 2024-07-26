@@ -107,7 +107,7 @@ void protobuf_AddDesc_entity_5ftypes_2eproto() {
     "\n\022entity_types.proto\022\014bgs.protocol\032%glob"
     "al_extensions/field_options.proto\032\'globa"
     "l_extensions/message_options.proto\"=\n\010En"
-    "tityId\022\024\n\004high\030\001 \002(\006B\006\202\371+\002\010\002\022\023\n\003low\030\002 \002("
+    "tityId\022\024\n\004high\030\001 \001(\006B\006\202\371+\002\010\002\022\023\n\003low\030\002 \001("
     "\006B\006\202\371+\002\010\002:\006\202\371+\002\010\001\"{\n\010Identity\0224\n\naccount"
     "_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB\010\212\371+\004:"
     "\002\020\001\0229\n\017game_account_id\030\002 \001(\0132\026.bgs.proto"
