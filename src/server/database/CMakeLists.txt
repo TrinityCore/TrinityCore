@@ -36,9 +36,9 @@ target_include_directories(database
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-target_compile_definitions(database
-  PRIVATE
-    TRINITY_API_EXPORT_DATABASE)
+set_target_properties(database
+  PROPERTIES
+    DEFINE_SYMBOL TRINITY_API_EXPORT_DATABASE)
 
 target_link_libraries(database
   PRIVATE

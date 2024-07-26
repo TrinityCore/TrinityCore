@@ -2100,7 +2100,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr14>::ToString(SpellAttr14 value)
         case SPELL_ATTR14_UNK17: return { "SPELL_ATTR14_UNK17", "Unknown attribute 17@Attr14", "" };
         case SPELL_ATTR14_UNK18: return { "SPELL_ATTR14_UNK18", "Unknown attribute 18@Attr14", "" };
         case SPELL_ATTR14_UNK19: return { "SPELL_ATTR14_UNK19", "Unknown attribute 19@Attr14", "" };
-        case SPELL_ATTR14_UNK20: return { "SPELL_ATTR14_UNK20", "Unknown attribute 20@Attr14", "" };
+        case SPELL_ATTR14_AURA_IS_PRIVATE: return { "SPELL_ATTR14_AURA_IS_PRIVATE", "Aura is private", "Clientside attribue that prevents the aura from being accessed by addons (but is still visible in UI)" };
         case SPELL_ATTR14_UNK21: return { "SPELL_ATTR14_UNK21", "Unknown attribute 21@Attr14", "" };
         case SPELL_ATTR14_UNK22: return { "SPELL_ATTR14_UNK22", "Unknown attribute 22@Attr14", "" };
         case SPELL_ATTR14_UNK23: return { "SPELL_ATTR14_UNK23", "Unknown attribute 23@Attr14", "" };
@@ -2144,7 +2144,7 @@ TC_API_EXPORT SpellAttr14 EnumUtils<SpellAttr14>::FromIndex(size_t index)
         case 17: return SPELL_ATTR14_UNK17;
         case 18: return SPELL_ATTR14_UNK18;
         case 19: return SPELL_ATTR14_UNK19;
-        case 20: return SPELL_ATTR14_UNK20;
+        case 20: return SPELL_ATTR14_AURA_IS_PRIVATE;
         case 21: return SPELL_ATTR14_UNK21;
         case 22: return SPELL_ATTR14_UNK22;
         case 23: return SPELL_ATTR14_UNK23;
@@ -2185,7 +2185,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr14>::ToIndex(SpellAttr14 value)
         case SPELL_ATTR14_UNK17: return 17;
         case SPELL_ATTR14_UNK18: return 18;
         case SPELL_ATTR14_UNK19: return 19;
-        case SPELL_ATTR14_UNK20: return 20;
+        case SPELL_ATTR14_AURA_IS_PRIVATE: return 20;
         case SPELL_ATTR14_UNK21: return 21;
         case SPELL_ATTR14_UNK22: return 22;
         case SPELL_ATTR14_UNK23: return 23;
@@ -3233,12 +3233,13 @@ TC_API_EXPORT EnumText EnumUtils<AuraStateType>::ToString(AuraStateType value)
         case AURA_STATE_RAID_ENCOUNTER: return { "AURA_STATE_RAID_ENCOUNTER", "AURA_STATE_RAID_ENCOUNTER", "CcTt|" };
         case AURA_STATE_HEALTHY_75_PERCENT: return { "AURA_STATE_HEALTHY_75_PERCENT", "AURA_STATE_HEALTHY_75_PERCENT", "C   |" };
         case AURA_STATE_WOUND_HEALTH_35_80: return { "AURA_STATE_WOUND_HEALTH_35_80", "AURA_STATE_WOUND_HEALTH_35_80", "T |" };
+        case AURA_STATE_WOUNDED_50_PERCENT: return { "AURA_STATE_WOUNDED_50_PERCENT", "AURA_STATE_WOUNDED_50_PERCENT", "C T |" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<AuraStateType>::Count() { return 25; }
+TC_API_EXPORT size_t EnumUtils<AuraStateType>::Count() { return 26; }
 
 template <>
 TC_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
@@ -3270,6 +3271,7 @@ TC_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
         case 22: return AURA_STATE_RAID_ENCOUNTER;
         case 23: return AURA_STATE_HEALTHY_75_PERCENT;
         case 24: return AURA_STATE_WOUND_HEALTH_35_80;
+        case 25: return AURA_STATE_WOUNDED_50_PERCENT;
         default: throw std::out_of_range("index");
     }
 }
@@ -3304,6 +3306,7 @@ TC_API_EXPORT size_t EnumUtils<AuraStateType>::ToIndex(AuraStateType value)
         case AURA_STATE_RAID_ENCOUNTER: return 22;
         case AURA_STATE_HEALTHY_75_PERCENT: return 23;
         case AURA_STATE_WOUND_HEALTH_35_80: return 24;
+        case AURA_STATE_WOUNDED_50_PERCENT: return 25;
         default: throw std::out_of_range("value");
     }
 }

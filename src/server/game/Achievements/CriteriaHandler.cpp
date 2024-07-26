@@ -679,6 +679,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::GotHaircut:
             case CriteriaType::EquipItemInSlot:
             case CriteriaType::EquipItem:
+            case CriteriaType::EnterAreaTriggerWithActionSet:
+            case CriteriaType::LeaveAreaTriggerWithActionSet:
             case CriteriaType::LearnedNewPet:
             case CriteriaType::EnterArea:
             case CriteriaType::LeaveArea:
@@ -835,7 +837,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::KickTargetInLFGDungeon:
             case CriteriaType::AbandonedLFGDungeon:
             case CriteriaType::GroupedTankLeftEarlyInLFGDungeon:
-            case CriteriaType::EnterAreaTriggerWithActionSet:
             case CriteriaType::StartGarrisonMission:
             case CriteriaType::QualityUpgradedForGarrisonFollower:
             case CriteriaType::CompleteResearchGarrisonTalent:
@@ -1235,12 +1236,14 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::GotHaircut:
         case CriteriaType::EquipItemInSlot:
         case CriteriaType::EquipItem:
+        case CriteriaType::EnterAreaTriggerWithActionSet:
+        case CriteriaType::LeaveAreaTriggerWithActionSet:
         case CriteriaType::LearnedNewPet:
-        case CriteriaType::HonorLevelIncrease:
-        case CriteriaType::PrestigeLevelIncrease:
         case CriteriaType::EnterArea:
         case CriteriaType::LeaveArea:
         case CriteriaType::RecruitGarrisonFollower:
+        case CriteriaType::HonorLevelIncrease:
+        case CriteriaType::PrestigeLevelIncrease:
         case CriteriaType::ActivelyReachLevel:
         case CriteriaType::CollectTransmogSetFromGroup:
         case CriteriaType::EnterTopLevelArea:
@@ -1665,6 +1668,11 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CriteriaType::CompleteScenario:
             if (miscValue1 != uint32(criteria->Entry->Asset.ScenarioID))
+                return false;
+            break;
+        case CriteriaType::EnterAreaTriggerWithActionSet:
+        case CriteriaType::LeaveAreaTriggerWithActionSet:
+            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.AreaTriggerActionSetID))
                 return false;
             break;
         default:
