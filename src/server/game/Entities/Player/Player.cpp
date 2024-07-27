@@ -28479,7 +28479,7 @@ uint32 Player::GetPrimaryTalentTree() const
 bool Player::LearnTalent(uint32 talentId, uint8 rank)
 {
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-    if (!talentInfo) 
+    if (!talentInfo)
         return false;
 
     // Ensure that the talent belongs to the player's class
