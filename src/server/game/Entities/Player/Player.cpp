@@ -23821,7 +23821,7 @@ void Player::LearnTalentTreePrimarySpells()
 {
     if (std::vector<uint32> const* primaryTalentTreeSpells = sDB2Manager.GetPrimaryTalentTreeSpells(GetPrimaryTalentTree()))
         for (uint32 spellId : *primaryTalentTreeSpells)
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
+            if (sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
                 LearnSpell(spellId, true);
 }
 
@@ -23829,7 +23829,7 @@ void Player::UnlearnTalentTreePrimarySpells()
 {
     if (std::vector<uint32> const* primaryTalentTreeSpells = sDB2Manager.GetPrimaryTalentTreeSpells(GetPrimaryTalentTree()))
         for (uint32 spellId : *primaryTalentTreeSpells)
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
+            if (sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
                 RemoveSpell(spellId, true);
 }
 
