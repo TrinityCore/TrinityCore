@@ -19,38 +19,12 @@
 namespace bgs {
 namespace protocol {
 
-namespace {
-
-const ::google::protobuf::Descriptor* MessageId_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  MessageId_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* TypingIndicator_descriptor_ = NULL;
-
-}  // namespace
-
 void protobuf_AssignDesc_message_5ftypes_2eproto() {
   protobuf_AddDesc_message_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "message_types.proto");
   GOOGLE_CHECK(file != NULL);
-  MessageId_descriptor_ = file->message_type(0);
-  static const int MessageId_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, epoch_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, position_),
-  };
-  MessageId_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      MessageId_descriptor_,
-      MessageId::default_instance_,
-      MessageId_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(MessageId));
-  TypingIndicator_descriptor_ = file->enum_type(0);
 }
 
 namespace {
@@ -63,15 +37,11 @@ inline void protobuf_AssignDescriptorsOnce() {
 
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    MessageId_descriptor_, &MessageId::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_message_5ftypes_2eproto() {
-  delete MessageId::default_instance_;
-  delete MessageId_reflection_;
 }
 
 void protobuf_AddDesc_message_5ftypes_2eproto() {
@@ -80,15 +50,12 @@ void protobuf_AddDesc_message_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::protobuf_AddDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\023message_types.proto\022\014bgs.protocol\",\n\tM"
-    "essageId\022\r\n\005epoch\030\001 \001(\004\022\020\n\010position\030\002 \001("
-    "\004*4\n\017TypingIndicator\022\020\n\014TYPING_START\020\000\022\017"
-    "\n\013TYPING_STOP\020\001B\002H\002", 139);
+    "\n\023message_types.proto\022\014bgs.protocol\032!api"
+    "/common/v1/message_types.protoB\002H\002P\000", 76);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "message_types.proto", &protobuf_RegisterTypes);
-  MessageId::default_instance_ = new MessageId();
-  MessageId::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_message_5ftypes_2eproto);
 }
 
@@ -98,94 +65,6 @@ struct StaticDescriptorInitializer_message_5ftypes_2eproto {
     protobuf_AddDesc_message_5ftypes_2eproto();
   }
 } static_descriptor_initializer_message_5ftypes_2eproto_;
-const ::google::protobuf::EnumDescriptor* TypingIndicator_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return TypingIndicator_descriptor_;
-}
-bool TypingIndicator_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int MessageId::kEpochFieldNumber;
-const int MessageId::kPositionFieldNumber;
-#endif  // !_MSC_VER
-
-MessageId::MessageId()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.MessageId)
-}
-
-void MessageId::InitAsDefaultInstance() {
-}
-
-MessageId::MessageId(const MessageId& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.MessageId)
-}
-
-void MessageId::SharedCtor() {
-  _cached_size_ = 0;
-  epoch_ = GOOGLE_ULONGLONG(0);
-  position_ = GOOGLE_ULONGLONG(0);
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-MessageId::~MessageId() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.MessageId)
-  SharedDtor();
-}
-
-void MessageId::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void MessageId::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* MessageId::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return MessageId_descriptor_;
-}
-
-const MessageId& MessageId::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_message_5ftypes_2eproto();
-  return *default_instance_;
-}
-
-MessageId* MessageId::default_instance_ = NULL;
-
-MessageId* MessageId::New() const {
-  return new MessageId;
-}
-
-void MessageId::Swap(MessageId* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata MessageId::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = MessageId_descriptor_;
-  metadata.reflection = MessageId_reflection_;
-  return metadata;
-}
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
