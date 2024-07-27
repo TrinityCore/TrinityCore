@@ -3305,6 +3305,7 @@ bool Player::ResetTalents(bool noCost)
     }
     */
 
+    UpdateAvailableTalentPoints();
     SendTalentsInfoData();
 
     return true;
@@ -26440,7 +26441,7 @@ void Player::_LoadTalents(PreparedQueryResult talentGroupResult, PreparedQueryRe
             Field* fields = talentResult->Fetch();
 
             uint8 talentGroupId = fields[0].GetUInt8();
-            if (_talentGroups.size() < (talentGroupId + 1))
+            if (_talentGroups.size() < uint8(talentGroupId + 1))
                 continue;
 
             uint32 talentId = fields[1].GetUInt32();
@@ -28348,7 +28349,7 @@ ChrSpecializationEntry const* Player::GetPrimarySpecializationEntry() const
 
 bool Player::HasTalentGroupUnlocked(uint8 group) const
 {
-    return _talentGroups.size() >= (group + 1);
+    return _talentGroups.size() >= uint8(group + 1);
 }
 
 void Player::SetTalentGroupCount(uint8 count)
@@ -28554,9 +28555,13 @@ void Player::UpdateAvailableTalentPoints()
     // If we have spent more points than we should have at this point, reset talents to prevent exploits. This can happen when a player reduces his level or db data got corrupted
     if (points < spentPoints)
     {
-        if (GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
+        if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
+        {
             ResetTalents(true);
-        spentPoints = 0;
+            return;
+        }
+        else
+            spentPoints = points;
     }
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), points - spentPoints);
