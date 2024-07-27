@@ -923,8 +923,9 @@ DROP TABLE IF EXISTS `character_glyphs`;
 CREATE TABLE `character_glyphs` (
   `guid` bigint unsigned NOT NULL,
   `talentGroup` tinyint unsigned NOT NULL DEFAULT '0',
+  `glyphSlot` tinyint unsigned NOT NULL DEFAULT '0',
   `glyphId` smallint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`talentGroup`,`glyphId`)
+  PRIMARY KEY (`guid`,`talentGroup`,`glyphSlot`,`glyphId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3432,7 +3433,8 @@ INSERT INTO `updates` VALUES
 ('2024_06_02_00_characters.sql','18D12ED7A1D30675AAB807BAEB886FCCC76CED21','ARCHIVED','2024-06-02 23:04:45',0),
 ('2024_06_05_00_characters.sql','3BE1839524918827D4C0C8F9FBE9890CDF759FB4','RELEASED','2024-06-05 21:44:36',0),
 ('2024_06_25_00_characters.sql','046AC59E8B828B0C81A1A3C79860E464D96228B8','RELEASED','2024-06-25 17:56:15',0),
-('2024_07_27_00_characters.sql','912ADCAC4948C75386387251D6FAEFB841574606','RELEASED','2024-07-27 01:03:05',0);
+('2024_07_27_00_characters.sql','912ADCAC4948C75386387251D6FAEFB841574606','RELEASED','2024-07-27 01:03:05',0),
+('2024_07_28_00_characters.sql','22C94D231C155686691780B65C12FCC2B4C3A6AA','RELEASED','2024-07-28 00:59:04',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

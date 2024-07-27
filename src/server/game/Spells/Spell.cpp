@@ -6178,8 +6178,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     return SPELL_FAILED_GLYPH_NO_SPEC;
 
                 Player* caster = m_caster->ToPlayer();
-                if (!caster->HasSpell(m_misc.SpellId))
-                    return SPELL_FAILED_NOT_KNOWN;
 
                 if (uint32 glyphId = spellEffectInfo.MiscValue)
                 {
@@ -6187,45 +6185,16 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     if (!glyphProperties)
                         return SPELL_FAILED_INVALID_GLYPH;
 
-                    std::vector<uint32> const* glyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(glyphId);
-                    if (!glyphBindableSpells)
-                        return SPELL_FAILED_INVALID_GLYPH;
-
-                    if (std::find(glyphBindableSpells->begin(), glyphBindableSpells->end(), m_misc.SpellId) == glyphBindableSpells->end())
-                        return SPELL_FAILED_INVALID_GLYPH;
-
-                    if (std::vector<ChrSpecialization> const* glyphRequiredSpecs = sDB2Manager.GetGlyphRequiredSpecs(glyphId))
+                    uint8 glyphSlot = 0;
+                    for (uint32 activeGlyphId : caster->m_activePlayerData->Glyphs)
                     {
-                        if (caster->GetPrimarySpecialization() == ChrSpecialization::None)
-                            return SPELL_FAILED_GLYPH_NO_SPEC;
-
-                        if (std::find(glyphRequiredSpecs->begin(), glyphRequiredSpecs->end(), caster->GetPrimarySpecialization()) == glyphRequiredSpecs->end())
-                            return SPELL_FAILED_GLYPH_INVALID_SPEC;
-                    }
-
-                    uint32 replacedGlyph = 0;
-                    for (uint32 activeGlyphId : caster->GetGlyphs(caster->GetActiveTalentGroup()))
-                    {
-                        if (std::vector<uint32> const* activeGlyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(activeGlyphId))
-                        {
-                            if (std::find(activeGlyphBindableSpells->begin(), activeGlyphBindableSpells->end(), m_misc.SpellId) != activeGlyphBindableSpells->end())
-                            {
-                                replacedGlyph = activeGlyphId;
-                                break;
-                            }
-                        }
-                    }
-
-                    for (uint32 activeGlyphId : caster->GetGlyphs(caster->GetActiveTalentGroup()))
-                    {
-                        if (activeGlyphId == replacedGlyph)
-                            continue;
-
                         if (activeGlyphId == glyphId)
                             return SPELL_FAILED_UNIQUE_GLYPH;
 
-                        if (sGlyphPropertiesStore.AssertEntry(activeGlyphId)->GlyphExclusiveCategoryID == glyphProperties->GlyphExclusiveCategoryID)
-                            return SPELL_FAILED_GLYPH_EXCLUSIVE_CATEGORY;
+                        if (m_misc.GlyphSlot == glyphSlot && activeGlyphId != 0)
+                            return SPELL_FAILED_NO_ACTIVE_GLYPHS;
+
+                        ++glyphSlot;
                     }
                 }
                 break;

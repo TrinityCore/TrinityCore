@@ -3331,41 +3331,15 @@ void Spell::EffectApplyGlyph()
     if (!player)
         return;
 
-    std::vector<uint32>& glyphs = player->GetGlyphs(player->GetActiveTalentGroup());
-    std::size_t replacedGlyph = glyphs.size();
-    for (std::size_t i = 0; i < glyphs.size(); ++i)
-    {
-        if (std::vector<uint32> const* activeGlyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(glyphs[i]))
-        {
-            if (std::find(activeGlyphBindableSpells->begin(), activeGlyphBindableSpells->end(), m_misc.SpellId) != activeGlyphBindableSpells->end())
-            {
-                replacedGlyph = i;
-                player->RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphs[i])->SpellID);
-                break;
-            }
-        }
-    }
+    if (m_misc.GlyphSlot >= player->m_activePlayerData->Glyphs.size())
+        return;
 
     uint32 glyphId = effectInfo->MiscValue;
-    if (replacedGlyph < glyphs.size())
-    {
-        if (glyphId)
-            glyphs[replacedGlyph] = glyphId;
-        else
-            glyphs.erase(glyphs.begin() + replacedGlyph);
-    }
-    else if (glyphId)
-        glyphs.push_back(glyphId);
-
     player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeGlyph);
-
-    if (GlyphPropertiesEntry const* glyphProperties = sGlyphPropertiesStore.LookupEntry(glyphId))
-        player->CastSpell(player, glyphProperties->SpellID, this);
-
-    WorldPackets::Talent::ActiveGlyphs activeGlyphs;
-    activeGlyphs.Glyphs.emplace_back(m_misc.SpellId, uint16(glyphId));
-    activeGlyphs.IsFullUpdate = false;
-    player->SendDirectMessage(activeGlyphs.Write());
+    if (glyphId)
+        player->ApplyGlyph(m_misc.GlyphSlot, glyphId);
+    else
+        player->RemoveGlyph(m_misc.GlyphSlot);
 }
 
 void Spell::EffectEnchantHeldItem()

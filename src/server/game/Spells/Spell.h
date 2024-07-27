@@ -572,7 +572,7 @@ class TC_GAME_API Spell
             uint32 TalentId;
 
             // SPELL_EFFECT_APPLY_GLYPH
-            uint32 SpellId;
+            uint32 GlyphSlot;
 
             // SPELL_EFFECT_TALENT_SPEC_SELECT
             uint32 SpecializationId;

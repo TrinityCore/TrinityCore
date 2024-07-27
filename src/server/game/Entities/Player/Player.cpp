@@ -17365,8 +17365,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     RegisterPowerTypes();
     UpdateDisplayPower();
-
     _LoadTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENT_GROUPS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
+    _LoadGlyphs(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
     SetActiveTalentGroup(HasTalentGroupUnlocked(fields.activeTalentGroup) ? fields.activeTalentGroup : 0, false);
 
     _LoadSpells(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES));
@@ -17376,9 +17376,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     GetSession()->GetCollectionMgr()->LoadItemAppearances();
     GetSession()->GetCollectionMgr()->LoadTransmogIllusions();
 
-    _LoadGlyphs(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
     _LoadAuras(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS), time_diff);
-    _LoadGlyphAuras();
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if (HasPlayerFlag(PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
@@ -17794,12 +17792,6 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
         }
         while (auraResult->NextRow());
     }
-}
-
-void Player::_LoadGlyphAuras()
-{
-    for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
-        CastSpell(this, sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID, true);
 }
 
 void Player::LoadCorpse(PreparedQueryResult result)
@@ -23307,17 +23299,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     GetSpellHistory()->WritePacket(&sendSpellCharges);
     SendDirectMessage(sendSpellCharges.Write());
 
-    WorldPackets::Talent::ActiveGlyphs activeGlyphs;
-    activeGlyphs.Glyphs.reserve(GetGlyphs(GetActiveTalentGroup()).size());
-    for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
-        if (std::vector<uint32> const* bindableSpells = sDB2Manager.GetGlyphBindableSpells(glyphId))
-            for (uint32 bindableSpell : *bindableSpells)
-                if (HasSpell(bindableSpell) && m_overrideSpells.find(bindableSpell) == m_overrideSpells.end())
-                    activeGlyphs.Glyphs.emplace_back(uint32(bindableSpell), uint16(glyphId));
-
-    activeGlyphs.IsFullUpdate = true;
-    SendDirectMessage(activeGlyphs.Write());
-
     /// SMSG_ACTION_BUTTONS
     SendInitialActionButtons();
 
@@ -25944,8 +25925,6 @@ void Player::InitGlyphsForLevel()
             break;
 
         SetGlyphSlot(slotIndex, glyphSlot->ID);
-        SetGlyph(slotIndex, 0);
-
         ++slotIndex;
     }
 
@@ -25960,6 +25939,36 @@ void Player::InitGlyphsForLevel()
         slotMask |= 0x10 | 0x20 | 0x100;
 
     SetGlyphsEnabled(slotMask);
+}
+
+void Player::ApplyGlyph(uint8 index, uint32 glyphRecId)
+{
+    if (index >= m_activePlayerData->Glyphs.size())
+        return;
+
+    GlyphPropertiesEntry const* glyphEntry = sGlyphPropertiesStore.LookupEntry(glyphRecId);
+    if (!glyphEntry)
+        return;
+
+    _talentGroups[_activeTalentGroup].Glyphs[index] = glyphRecId;
+    SetGlyph(index, glyphRecId);
+    CastSpell(this, glyphEntry->SpellID, true);
+
+    SendTalentsInfoData();
+}
+
+void Player::RemoveGlyph(uint8 index)
+{
+    if (index >= m_activePlayerData->Glyphs.size())
+        return;
+
+    if (GlyphPropertiesEntry const* glyphEntry = sGlyphPropertiesStore.LookupEntry(m_activePlayerData->Glyphs[index]))
+        RemoveAurasDueToSpell(glyphEntry->SpellID);
+
+    _talentGroups[_activeTalentGroup].Glyphs[index] = 0;
+    SetGlyph(index, 0);
+
+    SendTalentsInfoData();
 }
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
@@ -26371,7 +26380,7 @@ void Player::SetMap(Map* map)
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
 {
-    // SELECT talentGroup, glyphId from character_glyphs WHERE guid = ?
+    // SELECT talentGroup, glyphSlot, glyphId from character_glyphs WHERE guid = ?
     if (!result)
         return;
 
@@ -26379,16 +26388,21 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
 
-        uint8 spec = fields[0].GetUInt8();
-        if (spec >= MAX_SPECIALIZATIONS || !sDB2Manager.GetChrSpecializationByIndex(GetClass(), spec))
+        uint8 talentGroupIndex = fields[0].GetUInt8();
+        if (_talentGroups.size() < uint8(talentGroupIndex + 1))
             continue;
 
-        uint16 glyphId = fields[1].GetUInt16();
-        if (!sGlyphPropertiesStore.LookupEntry(glyphId))
+        TalentGroupInfo& talentGroup = _talentGroups[talentGroupIndex];
+
+        uint8 glyphSlot = fields[1].GetUInt8();
+        if (glyphSlot >= talentGroup.Glyphs.size())
             continue;
 
-        GetGlyphs(spec).push_back(glyphId);
+        uint16 glyphId = fields[2].GetUInt16();
+        if (!sGlyphPropertiesStore.HasRecord(glyphId))
+            continue;
 
+        talentGroup.Glyphs[glyphSlot] = glyphId;
     } while (result->NextRow());
 }
 
@@ -26398,19 +26412,27 @@ void Player::_SaveGlyphs(CharacterDatabaseTransaction trans) const
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
-    for (uint8 spec = 0; spec < MAX_SPECIALIZATIONS; ++spec)
+    uint8 talentGroupIndex = 0;
+    for (TalentGroupInfo const& talentGroup : _talentGroups)
     {
-        for (uint32 glyphId : GetGlyphs(spec))
+        uint8 glyphSlot = 0;
+        for (uint16 glyphId : talentGroup.Glyphs)
         {
-            uint8 index = 0;
+            if (glyphId)
+            {
+                uint8 index = 0;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
+                stmt->setUInt64(index++, GetGUID().GetCounter());
+                stmt->setUInt8(index++, talentGroupIndex);
+                stmt->setUInt8(index++, glyphSlot);
+                stmt->setUInt16(index++, glyphId);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
-            stmt->setUInt64(index++, GetGUID().GetCounter());
-            stmt->setUInt8(index++, spec);
-            stmt->setUInt16(index++, uint16(glyphId));
-
-            trans->Append(stmt);
+                trans->Append(stmt);
+            }
+            ++glyphSlot;
         }
+
+        ++talentGroupIndex;
     }
 }
 
@@ -28377,6 +28399,10 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
         if (oldTalentTabId != newTalentTabId)
             UnlearnTalentTreePrimarySpells();
 
+        for (uint16 glyphId : _talentGroups[_activeTalentGroup].Glyphs)
+            if (glyphId)
+                RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID);
+
         if (IsNonMeleeSpellCast(false))
             InterruptNonMeleeSpells(false);
 
@@ -28433,17 +28459,24 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
                 RemoveSpell(spellId, false, false);
             }
         }
-
-        for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
-            RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID);
     }
 
     _activeTalentGroup = group;
 
-    SetPrimaryTalentTree(newTalentTabId);
-
     {
         // Perform post switch actions - resetting powers, loading action bars, updating shapeshifting auras
+        SetPrimaryTalentTree(newTalentTabId);
+
+        uint8 glyphSlot = 0;
+        for (uint16 glyphId : _talentGroups[_activeTalentGroup].Glyphs)
+        {
+            if (glyphId)
+                CastSpell(this, sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID, true);
+
+            SetGlyph(glyphSlot, glyphId);
+            ++glyphSlot;
+        }
+
         StartLoadingActionButtons();
 
         UpdateDisplayPower();
@@ -28457,9 +28490,6 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
         for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
             if (Item* equippedItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 SetVisibleItemSlot(i, equippedItem);
-
-        for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
-            CastSpell(this, sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID, true);
 
         Unit::AuraEffectList const& shapeshiftAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
         for (AuraEffect* aurEff : shapeshiftAuras)

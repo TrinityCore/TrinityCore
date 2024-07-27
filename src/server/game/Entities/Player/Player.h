@@ -1869,6 +1869,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendTalentsInfoData();
 
         void InitGlyphsForLevel();
+        void ApplyGlyph(uint8 index, uint32 glyphRecId);
+        void RemoveGlyph(uint8 index);
         void SetGlyph(uint8 index, uint32 glyphRecId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Glyphs, index), glyphRecId); }
         void SetGlyphSlot(uint8 index, uint32 glyphSlotRecId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphSlots, index), glyphSlotRecId); }
         void SetGlyphsEnabled(uint32 slotMask) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), slotMask); }
@@ -2909,7 +2911,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void _LoadActions(PreparedQueryResult result);
         void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
-        void _LoadGlyphAuras();
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult);
