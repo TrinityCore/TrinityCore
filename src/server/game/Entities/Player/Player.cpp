@@ -28369,12 +28369,12 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
     uint32 oldTalentTabId = _talentGroups[_activeTalentGroup].PrimaryTalentTabID;
     uint32 newTalentTabId = _talentGroups[group].PrimaryTalentTabID;
 
-    // Unlearn previously known talent tree related spells if the new talent tab Id is different
-    if (oldTalentTabId != newTalentTabId)
-        UnlearnTalentTreePrimarySpells();
-
     {
         // Perform cleanup actions on switching talent groups
+
+        // Unlearn previously known talent tree related spells if the new talent tab Id is different
+        if (oldTalentTabId != newTalentTabId)
+            UnlearnTalentTreePrimarySpells();
 
         if (IsNonMeleeSpellCast(false))
             InterruptNonMeleeSpells(false);
@@ -28418,6 +28418,21 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
         SendActionButtons(2);
         // m_actionButtons.clear() is called in the next _LoadActionButtons
 
+        for (auto const& talentPair : _talentGroups[_activeTalentGroup].Talents)
+        {
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPair.first);
+            if (!talentInfo)
+                continue;
+
+            for (uint32 spellId : talentInfo->SpellRank)
+            {
+                if (!spellId)
+                    continue;
+
+                RemoveSpell(spellId, false, false);
+            }
+        }
+
         for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
             RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID);
     }
@@ -28451,6 +28466,8 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
             aurEff->HandleShapeshiftBoosts(this, false);
             aurEff->HandleShapeshiftBoosts(this, true);
         }
+
+        UpdateAvailableTalentPoints();
     }
 
     if (withUpdate)
