@@ -488,6 +488,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
     m_Played_time[PLAYED_TIME_LEVEL] = 0;
 
+    // Create the default talent group for all new characters
+    _talentGroups.emplace_back();
+
     // base stats and related field values
     InitStatsForLevel();
     InitTaxiNodesForLevel();
