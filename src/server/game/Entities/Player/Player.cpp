@@ -17367,7 +17367,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     UpdateDisplayPower();
     _LoadTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENT_GROUPS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadGlyphs(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
-    SetActiveTalentGroup(HasTalentGroupUnlocked(fields.activeTalentGroup) ? fields.activeTalentGroup : 0, false);
+    SetActiveTalentGroup(HasTalentGroupUnlocked(fields.activeTalentGroup) ? fields.activeTalentGroup : 0, false, true);
 
     _LoadSpells(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES));
     GetSession()->GetCollectionMgr()->LoadToys();
@@ -26447,7 +26447,9 @@ void Player::_LoadTalents(PreparedQueryResult talentGroupResult, PreparedQueryRe
 
             TalentGroupInfo& talentGroup = _talentGroups.emplace_back();
             uint32 talentTabId = fields[1].GetUInt32();
-            if (sTalentTabStore.HasRecord(talentTabId))
+
+            TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(talentTabId);
+            if (talentTab && (talentTab->RaceMask & GetRaceMask()))
                 talentGroup.PrimaryTalentTabID = talentTabId;
 
         } while (talentGroupResult->NextRow());
@@ -26469,11 +26471,18 @@ void Player::_LoadTalents(PreparedQueryResult talentGroupResult, PreparedQueryRe
             uint32 talentId = fields[1].GetUInt32();
             uint8 talentRank = fields[2].GetUInt8();
             TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-            if (!talentInfo || talentInfo->SpellRank.size() <= talentRank || !sSpellMgr->GetSpellInfo(talentInfo->SpellRank[talentRank], DIFFICULTY_NONE))
+            if (!talentInfo)
+                continue;
+
+            if (talentRank >= talentInfo->SpellRank.size())
+                continue;
+
+            uint32 spellId = talentInfo->SpellRank[talentRank];
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, this, false))
                 continue;
 
             _talentGroups[talentGroupId].Talents.try_emplace(talentId, talentRank);
-            LearnSpell(talentInfo->SpellRank[talentRank], true);
 
         } while (talentResult->NextRow());
     }
@@ -28387,11 +28396,12 @@ void Player::SetTalentGroupCount(uint8 count)
     SendTalentsInfoData();
 }
 
-void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
+void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/, bool loading /*= false*/)
 {
     uint32 oldTalentTabId = _talentGroups[_activeTalentGroup].PrimaryTalentTabID;
     uint32 newTalentTabId = _talentGroups[group].PrimaryTalentTabID;
 
+    if (!loading)
     {
         // Perform cleanup actions on switching talent groups
 
@@ -28466,6 +28476,9 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/)
     {
         // Perform post switch actions - resetting powers, loading action bars, updating shapeshifting auras
         SetPrimaryTalentTree(newTalentTabId);
+
+        for (auto const& talentPair : _talentGroups[_activeTalentGroup].Talents)
+            LearnSpell(sTalentStore.AssertEntry(talentPair.first)->SpellRank[talentPair.second], true);
 
         uint8 glyphSlot = 0;
         for (uint16 glyphId : _talentGroups[_activeTalentGroup].Glyphs)

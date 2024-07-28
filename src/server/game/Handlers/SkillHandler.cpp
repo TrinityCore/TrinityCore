@@ -35,7 +35,7 @@ void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& pa
 void WorldSession::HandleLearnPreviewTalentsOpcode(WorldPackets::Talent::LearnPreviewTalents& packet)
 {
     if (!_player->GetPrimaryTalentTree() && packet.TabIndex >= 0)
-        if (TalentTabEntry const* talentTab = sDB2Manager.GetTalentTabByIndex(_player->GetClassMask(), packet.TabIndex))
+        if (TalentTabEntry const* talentTab = sDB2Manager.GetTalentTabByIndex(_player->GetClass(), packet.TabIndex))
             _player->SetPrimaryTalentTree(talentTab->ID, true);
 
     for (auto const& talentInfo : packet.Talents)
@@ -50,7 +50,7 @@ void WorldSession::HandleSetPrimaryTalentTreeOpcode(WorldPackets::Talent::SetPri
     if (_player->GetPrimaryTalentTree() != 0 || packet.TabIndex < 0)
         return;
 
-    if (TalentTabEntry const* talentTab = sDB2Manager.GetTalentTabByIndex(_player->GetClassMask(), packet.TabIndex))
+    if (TalentTabEntry const* talentTab = sDB2Manager.GetTalentTabByIndex(_player->GetClass(), packet.TabIndex))
         _player->SetPrimaryTalentTree(talentTab->ID, true);
 }
 
