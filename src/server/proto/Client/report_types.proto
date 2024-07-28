@@ -1,0 +1,74 @@
+syntax = "proto2";
+
+import "account_types.proto";
+import "attribute_types.proto";
+import "entity_types.proto";
+import "rpc_types.proto";
+package bgs.protocol.report.v1;
+
+option optimize_for = CODE_SIZE;
+option cc_generic_services = false;
+
+message ReportType {
+  optional string user_description = 1;
+   oneof type {
+    .bgs.protocol.report.v1.CustomReport custom_report = 10;
+    .bgs.protocol.report.v1.SpamReport spam_report = 11;
+    .bgs.protocol.report.v1.HarassmentReport harassment_report = 12;
+    .bgs.protocol.report.v1.RealLifeThreatReport real_life_threat_report = 13;
+    .bgs.protocol.report.v1.InappropriateBattleTagReport inappropriate_battle_tag_report = 14;
+    .bgs.protocol.report.v1.HackingReport hacking_report = 15;
+    .bgs.protocol.report.v1.BottingReport botting_report = 16;
+  }
+}
+
+message CustomReport {
+  optional string type = 1;
+  optional string program_id = 2 [deprecated = true];
+  repeated .bgs.protocol.Attribute attribute = 3;
+}
+
+message SpamReport {
+  enum SpamSource {
+    OTHER = 1;
+    FRIEND_INVITATION = 2;
+    WHISPER = 3;
+    CHAT = 4;
+  }
+  optional .bgs.protocol.account.v1.GameAccountHandle target = 1;
+  optional .bgs.protocol.report.v1.SpamReport.SpamSource source = 2 [default = OTHER];
+}
+
+message HarassmentReport {
+  optional .bgs.protocol.account.v1.GameAccountHandle target = 1;
+  optional string text = 2;
+}
+
+message RealLifeThreatReport {
+  optional .bgs.protocol.account.v1.GameAccountHandle target = 1;
+  optional string text = 2;
+}
+
+message InappropriateBattleTagReport {
+  optional .bgs.protocol.account.v1.GameAccountHandle target = 1;
+  optional string battle_tag = 2;
+}
+
+message HackingReport {
+  optional .bgs.protocol.account.v1.GameAccountHandle target = 1;
+}
+
+message BottingReport {
+  optional .bgs.protocol.account.v1.GameAccountHandle target = 1;
+}
+
+message Report {
+  required string report_type = 1;
+  repeated .bgs.protocol.Attribute attribute = 2;
+  optional int32 report_qos = 3 [default = 0];
+  optional .bgs.protocol.EntityId reporting_account = 4;
+  optional .bgs.protocol.EntityId reporting_game_account = 5;
+  optional fixed64 report_timestamp = 6;
+}
+
+
