@@ -752,7 +752,6 @@ public:
         if (Player* target = player->GetConnectedPlayer())
         {
             target->GiveLevel(static_cast<uint8>(newlevel));
-            target->InitTalentForLevel();
             target->SetXP(0);
 
             if (handler->needReportToTarget(target))
@@ -799,7 +798,6 @@ public:
         if (Player* target = player->GetConnectedPlayer())
         {
             target->GiveLevel(static_cast<uint8>(newlevel));
-            target->InitTalentForLevel();
             target->SetXP(0);
 
             if (handler->needReportToTarget(target))

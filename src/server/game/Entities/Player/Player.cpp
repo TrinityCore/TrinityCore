@@ -490,12 +490,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     // Create the default talent group for all new characters
     _talentGroups.emplace_back();
+    UpdateAvailableTalentPoints();
 
     // base stats and related field values
     InitStatsForLevel();
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
-    InitTalentForLevel();
     InitializeSkillFields();
     InitPrimaryProfessions();                               // to max set before any spell added
 
@@ -2131,7 +2131,8 @@ void Player::GiveLevel(uint8 level)
     SetCreateMana(basemana);
 
     InitGlyphsForLevel();
-    InitTalentForLevel();
+    UpdateAvailableTalentPoints();
+    SendTalentsInfoData();
     InitTaxiNodesForLevel();
 
     UpdateAllStats();
@@ -2170,14 +2171,6 @@ void Player::GiveLevel(uint8 level)
 bool Player::IsMaxLevel() const
 {
     return GetLevel() >= m_activePlayerData->MaxLevel;
-}
-
-void Player::InitTalentForLevel()
-{
-    UpdateAvailableTalentPoints();
-
-    if (!GetSession()->PlayerLoading())
-        SendTalentsInfoData(); // update at client
 }
 
 void Player::InitStatsForLevel(bool reapplyMods)
@@ -17399,7 +17392,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     // after spell and quest load
     InitGlyphsForLevel();
-    InitTalentForLevel();
+    UpdateAvailableTalentPoints();
     LearnDefaultSkills();
     LearnCustomSpells();
 

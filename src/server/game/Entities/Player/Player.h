@@ -1865,7 +1865,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
-        void InitTalentForLevel();
         void SendTalentsInfoData();
 
         void InitGlyphsForLevel();

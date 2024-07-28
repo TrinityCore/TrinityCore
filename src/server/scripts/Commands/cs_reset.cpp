@@ -142,7 +142,8 @@ public:
         target->InitRunes();
         target->InitStatsForLevel(true);
         target->InitTaxiNodesForLevel();
-        target->InitTalentForLevel();
+        target->UpdateAvailableTalentPoints();
+        target->SendTalentsInfoData();
         target->SetXP(0);
 
         target->_ApplyAllLevelScaleItemMods(true);
@@ -197,7 +198,8 @@ public:
         target->InitRunes();
         target->InitStatsForLevel(true);
         target->InitTaxiNodesForLevel();
-        target->InitTalentForLevel();
+        target->UpdateAvailableTalentPoints();
+        target->SendTalentsInfoData();
 
         return true;
     }
