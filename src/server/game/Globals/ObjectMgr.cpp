@@ -5260,18 +5260,13 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->_rewardSkillPoints)
+        if (qinfo->_rewardSkillPoints && qinfo->_rewardSkillId)
         {
             if (qinfo->_rewardSkillPoints > sWorld->GetConfigMaxSkillValue())
             {
                 TC_LOG_ERROR("sql.sql", "Quest {} has `RewardSkillPoints` = {} but max possible skill is {}, quest can't be done.",
                     qinfo->GetQuestId(), qinfo->_rewardSkillPoints, sWorld->GetConfigMaxSkillValue());
                 // no changes, quest can't be done for this requirement
-            }
-            if (!qinfo->_rewardSkillId)
-            {
-                TC_LOG_ERROR("sql.sql", "Quest {} has `RewardSkillPoints` = {} but `RewardSkillId` is 0",
-                    qinfo->GetQuestId(), qinfo->_rewardSkillPoints);
             }
         }
 

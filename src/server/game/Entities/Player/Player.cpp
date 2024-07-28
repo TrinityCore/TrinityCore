@@ -279,6 +279,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_lastPotionId = 0;
 
     _activeTalentGroup = 0;
+    _questRewardedTalentPoints = 0;
 
     m_auraBaseFlatMod.fill(0.0f);
     m_auraBasePctMod.fill(1.0f);
@@ -14397,6 +14398,14 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             SetTitle(titleEntry);
     }
 
+    // Quests which have no skillId set but still reward skill points, are considered talent point rewards
+    if (!quest->GetRewardSkillId() && quest->GetRewardSkillPoints())
+    {
+        _questRewardedTalentPoints += quest->GetRewardSkillPoints();
+        UpdateAvailableTalentPoints();
+        SendTalentsInfoData();
+    }
+
     // Send reward mail
     if (uint32 mail_template_id = quest->GetRewMailTemplateId())
     {
@@ -18428,6 +18437,9 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 if (quest->GetRewTitle())
                     if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetRewTitle()))
                         SetTitle(titleEntry);
+
+                if (quest->GetRewardSkillPoints())
+                    _questRewardedTalentPoints += quest->GetRewardSkillPoints();
 
                 // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
                 // instead add them separately from load daily/weekly/monthly/seasonal
@@ -28586,7 +28598,7 @@ bool Player::LearnTalent(uint32 talentId, uint8 rank)
 
 void Player::UpdateAvailableTalentPoints()
 {
-    uint32 points = sDB2Manager.GetNumTalentsAtLevel(GetLevel(), Classes(GetClass()));
+    uint32 points = sDB2Manager.GetNumTalentsAtLevel(GetLevel(), Classes(GetClass())) + _questRewardedTalentPoints;
     uint32 spentPoints = 0;
     for (auto const& pair : _talentGroups[_activeTalentGroup].Talents)
         spentPoints += pair.second + 1;

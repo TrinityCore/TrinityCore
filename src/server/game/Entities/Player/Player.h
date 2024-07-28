@@ -3029,6 +3029,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         // Talents
         std::vector<TalentGroupInfo> _talentGroups;
         uint8 _activeTalentGroup;
+        uint32 _questRewardedTalentPoints;
 
         std::unordered_map<int32, PlayerSpellState> m_traitConfigStates;
 
