@@ -70,5 +70,3 @@ message Report {
   optional .bgs.protocol.EntityId reporting_game_account = 5;
   optional fixed64 report_timestamp = 6;
 }
-
-
