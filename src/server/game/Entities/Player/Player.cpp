@@ -7529,8 +7529,8 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
     float damage = 0.0f;
     //for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
-        float minDamage = 0.0f; // proto->GetMinDamage(0);
-        float maxDamage = 0.0f; // proto->GetMaxDamage(0);
+        int32 minDamage = proto->GetMinDamage(0);
+        int32 maxDamage = proto->GetMaxDamage(0);
 
         // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
         // if (ssv)

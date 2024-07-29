@@ -862,6 +862,8 @@ struct TC_GAME_API ItemTemplate
     uint8 GetRequiredExpansion() const { return ExtendedData->ExpansionID; }
     uint16 GetRandomSelect() const { return ExtendedData->RandomSelect; }
     uint16 GetItemRandomSuffixGroupID() const { return ExtendedData->ItemRandomSuffixGroupID; }
+    int32 GetMinDamage(uint8 index) const { return BasicData->MinDamage[index]; }
+    int32 GetMaxDamage(uint8 index) const { return BasicData->MaxDamage[index]; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;
