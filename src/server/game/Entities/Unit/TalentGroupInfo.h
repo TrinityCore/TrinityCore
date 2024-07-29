@@ -24,7 +24,7 @@
 
 constexpr uint8 MAX_GLYPHS = 9;
 
-struct TalentGroupInfo
+struct TC_GAME_API TalentGroupInfo
 {
     uint32 PrimaryTalentTabID = 0;
     std::unordered_map<uint32, uint8> Talents;

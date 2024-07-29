@@ -1082,23 +1082,6 @@ struct GroupUpdateCounter
     int32 UpdateSequenceNumber;
 };
 
-struct TC_GAME_API SpecializationInfo
-{
-    SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0)
-    {
-    }
-
-    PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
-    std::vector<uint32> Glyphs[MAX_SPECIALIZATIONS];
-    uint32 ResetTalentsCost;
-    time_t ResetTalentsTime;
-    uint8 ActiveGroup;
-
-private:
-    SpecializationInfo(SpecializationInfo const&) = delete;
-    SpecializationInfo& operator=(SpecializationInfo const&) = delete;
-};
-
 uint32 constexpr PLAYER_MAX_HONOR_LEVEL = 500;
 uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 10;
 float constexpr MAX_AREA_SPIRIT_HEALER_RANGE = 20.0f;
@@ -1845,12 +1828,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetOverrideZonePVPType(ZonePVPTypeOverride type) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OverrideZonePVPType), uint32(type)); }
 
         // Talents
-        uint32 GetTalentResetCost() const { return _specializationInfo.ResetTalentsCost; }
-        void SetTalentResetCost(uint32 cost)  { _specializationInfo.ResetTalentsCost = cost; }
-        time_t GetTalentResetTime() const { return _specializationInfo.ResetTalentsTime; }
-        void SetTalentResetTime(time_t time_)  { _specializationInfo.ResetTalentsTime = time_; }
         ChrSpecialization GetPrimarySpecialization() const { return ChrSpecialization(*m_playerData->CurrentSpecID); }
-        void SetPrimarySpecialization(uint32 spec) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec); }
         uint32 GetDefaultSpecId() const;
         ChrSpecializationEntry const* GetPrimarySpecializationEntry() const;
 
@@ -1865,6 +1843,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
+        uint32 GetTalentResetCost() const { return _resetTalentsCost; }
+        void SetTalentResetCost(uint32 cost) { _resetTalentsCost = cost; }
+        time_t GetTalentResetTime() const { return _resetTalentsTime; }
+        void SetTalentResetTime(time_t time_) { _resetTalentsTime = time_; }
         void SendTalentsInfoData();
 
         void InitGlyphsForLevel();
@@ -1874,10 +1856,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetGlyphSlot(uint8 index, uint32 glyphSlotRecId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphSlots, index), glyphSlotRecId); }
         void SetGlyphsEnabled(uint32 slotMask) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), slotMask); }
 
-        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
-        PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
-        std::vector<uint32> const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
-        std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
         void StartLoadingActionButtons(std::function<void()>&& callback = nullptr);
         void LoadActions(PreparedQueryResult result);
@@ -3024,12 +3002,12 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
         std::unordered_map<uint32, StoredAuraTeleportLocation> m_storedAuraTeleportLocations;
 
-        SpecializationInfo _specializationInfo;
-
         // Talents
         std::vector<TalentGroupInfo> _talentGroups;
         uint8 _activeTalentGroup;
         uint32 _questRewardedTalentPoints;
+        uint32 _resetTalentsCost;
+        time_t _resetTalentsTime;
 
         std::unordered_map<int32, PlayerSpellState> m_traitConfigStates;
 

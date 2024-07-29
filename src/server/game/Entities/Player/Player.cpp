@@ -278,8 +278,11 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_lastPotionId = 0;
 
+    // Talents
     _activeTalentGroup = 0;
     _questRewardedTalentPoints = 0;
+    _resetTalentsCost = 0;
+    _resetTalentsTime = 0;
 
     m_auraBaseFlatMod.fill(0.0f);
     m_auraBasePctMod.fill(1.0f);
@@ -17361,7 +17364,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     UpdateSkillsForLevel(); //update skills after load, to make sure they are correctly update at player load
 
     SetNumRespecs(fields.numRespecs);
-    SetPrimarySpecialization(fields.primarySpecialization);
 
     uint32 lootSpecId = fields.lootSpecId;
     if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(lootSpecId))
