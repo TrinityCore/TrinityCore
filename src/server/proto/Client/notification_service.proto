@@ -62,5 +62,3 @@ service NotificationListener {
     };
   }
 }
-
-
