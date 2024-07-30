@@ -4836,7 +4836,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
         });
     });
-    // END OF SEPULCHER OF THE FIRST ONES
+    // ENDOF SEPULCHER OF THE FIRST ONES
 
     //
     // THE AZURE VAULT SPELLS
@@ -4866,7 +4866,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // END OF THE AZURE VAULT SPELLS
+    // ENDOF THE AZURE VAULT SPELLS
     //
 
     //
@@ -4882,7 +4882,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
     });
 
-    // END OF WAYCREST MANOR SPELLS
+    // ENDOF WAYCREST MANOR SPELLS
     //
 
     //
@@ -4916,7 +4916,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // END OF THE WANDERING ISLE SPELLS
+    // ENDOF THE WANDERING ISLE SPELLS
     //
 
     // Earthquake
