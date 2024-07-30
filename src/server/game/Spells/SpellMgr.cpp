@@ -4836,7 +4836,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
         });
     });
-    // END OF SEPULCHER OF THE FIRST ONES
+    // ENDOF SEPULCHER OF THE FIRST ONES
 
     //
     // THE AZURE VAULT SPELLS
@@ -4870,6 +4870,22 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
 
     //
+    // WAYCREST MANOR SPELLS
+    //
+
+    ApplySpellFix({
+        260566, // Wildfire Missile
+        260570  // Wildfire Missile Impact
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
+    });
+
+    // ENDOF WAYCREST MANOR SPELLS
+    //
+
+    //
     // THE WANDERING ISLE SPELLS
     //
 
@@ -4900,7 +4916,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // END OF THE WANDERING ISLE SPELLS
+    // ENDOF THE WANDERING ISLE SPELLS
     //
 
     // Earthquake
