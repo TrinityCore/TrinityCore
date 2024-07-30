@@ -319,12 +319,11 @@ class spell_soulbound_goliath_burning_brush_aura : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
-        Map* map = target->GetMap();
 
         if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_SOUL_HARVEST_DAMAGE, EFFECT_0))
             aurEff->GetBase()->ModStackAmount(-7);
 
-        if (map->IsHeroicOrHigher())
+        if (target->GetMap()->IsHeroicOrHigher())
             target->CastSpell(target, SPELL_BURNING_SOULS, false);
     }
 

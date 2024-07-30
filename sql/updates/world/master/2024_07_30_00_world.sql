@@ -81,3 +81,5 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (131667, 4, 2, 'Thank... you...', 14, 0, 33, 0, 0, 97532, 145091, 0, 'Soulbound Goliath to Player'),
 (131667, 5, 0, '|TInterface\\Icons\\Ability_Earthen_Pillar.blp:20|t$n is trapped in |cFFF00000|Hspell:260551|h[Soul Thorns]|h|r!', 41, 0, 100, 0, 0, 0, 162151, 0, 'Soulbound Goliath to Player'),
 (131667, 6, 0, '|TInterface\\ICONS\\ABILITY_DEATHKNIGHT_SOULREAPER:20|t Soulbound Goliath\'s damage increases with each stack of |cFFFF0404|Hspell:260512|h[Soul Harvest]|h|r!', 42, 0, 100, 0, 0, 0, 156331, 0, 'Soulbound Goliath to Player');
+
+UPDATE `creature_template` SET `unit_flags`=`unit_flags` & ~0x00000100 WHERE `entry`=136330; -- remove UNIT_FLAG_IMMUNE_TO_PC

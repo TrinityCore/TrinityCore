@@ -37,7 +37,8 @@ enum WaycrestManorSpells
     SPELL_SPLINTER_SPIKE_SELECTOR       = 265759,
     SPELL_THORNED_BARRAGE               = 265760,
     SPELL_WILDFIRE_MISSILE              = 260566,
-    SPELL_WILDFIRE_DAMAGE               = 260569
+    SPELL_WILDFIRE_DAMAGE               = 260569,
+    SPELL_WILDFIRE_DAMAGE_NPC           = 273294
 };
 
 enum WaycrestManorEvents
@@ -143,6 +144,9 @@ class spell_waycrest_manor_drain_goliath_essence : public SpellScript
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DRAIN_GOLIATH_ESSENCE_AREA, true);
+
+        if (Creature* hitCreature = GetHitCreature())
+            hitCreature->DespawnOrUnsummon();
     }
 
     void Register() override
@@ -178,16 +182,34 @@ class spell_waycrest_manor_wildfire : public AuraScript
         return ValidateSpellInfo({ SPELL_WILDFIRE_MISSILE });
     }
 
+    Position GetRandomPositionInCircle()
+    {
+        static constexpr Position CircleCenterPos = { -422.13f, -258.28f, 233.8286f, 0.0f };
+
+        Position randomPos = CircleCenterPos;
+        GetTarget()->MovePosition(randomPos, 30.0f * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI));
+
+        return randomPos;
+    }
+
+    Position GetRandomPositionInRectangle()
+    {
+        static constexpr Position RectTopRight = { -452.514f, -244.098f };
+        static constexpr Position RectBottomLeft = { -529.758f, -277.167f };
+
+        float x = frand(RectBottomLeft.GetPositionX(), RectTopRight.GetPositionX());
+        float y = frand(RectBottomLeft.GetPositionY(), RectTopRight.GetPositionY());
+        float z = GetTarget()->GetPositionZ();
+
+        GetTarget()->UpdateGroundPositionZ(x, y, z);
+
+        return Position(x, y, z);
+    }
+
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        if (aurEff->GetTickNumber() % 6)
-        {
-            // this spell should be casted across the whole garden
-            constexpr Position CenterPos = { -422.13f, -258.28f, 233.8286f, 0.0f };
-            Position randomPos = CenterPos;
-            GetTarget()->MovePosition(randomPos, 30.0f * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI)); // creature could be any creature, like the boss, its used for map checks
-            GetTarget()->CastSpell(randomPos, aurEff->GetSpellEffectInfo().CalcValue(), TRIGGERED_FULL_MASK);
-        }
+        if (aurEff->GetTickNumber() % 6 == 0)
+            GetTarget()->CastSpell(roll_chance_i(50) ? GetRandomPositionInCircle() : GetRandomPositionInRectangle(), SPELL_WILDFIRE_MISSILE, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
@@ -203,28 +225,32 @@ struct at_waycrest_manor_wildfire : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (unit->IsPlayer())
-            unit->CastSpell(unit, SPELL_WILDFIRE_DAMAGE, true);
-        else if (unit->GetEntry() == BOSS_SOULBOUND_GOLIATH)
+        if (Player* player = unit->ToPlayer())
         {
-            // Prevent the random lightning to cast the spell on the boss before combat
-            InstanceScript* instance = unit->GetInstanceScript();
-            if (!instance)
+            if (!player->IsGameMaster())
+                unit->CastSpell(unit, SPELL_WILDFIRE_DAMAGE, true);
+        }
+        else
+        {
+            if (!unit->IsInCombat())
                 return;
 
-            if (instance->GetBossState(DATA_SOULBOUND_GOLIATH) != IN_PROGRESS)
-                return;
+            if (unit->GetEntry() == BOSS_SOULBOUND_GOLIATH)
+            {
+                if (unit->HasAura(SPELL_BURNING_BRUSH))
+                    return;
 
-            if (unit->HasAura(SPELL_BURNING_BRUSH))
-                return;
-
-            unit->CastSpell(unit, SPELL_BURNING_BRUSH, true);
+                unit->CastSpell(unit, SPELL_BURNING_BRUSH, true);
+            }
+            else
+                unit->CastSpell(unit, SPELL_WILDFIRE_DAMAGE_NPC, true);
         }
     }
 
     void OnUnitExit(Unit* unit) override
     {
         unit->RemoveAurasDueToSpell(SPELL_WILDFIRE_DAMAGE);
+        unit->RemoveAurasDueToSpell(SPELL_WILDFIRE_DAMAGE_NPC);
     }
 
     void OnRemove() override
