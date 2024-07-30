@@ -626,13 +626,55 @@ void AreaTrigger::UpdateTargetList()
 
     if (GetTemplate())
     {
-        if (ConditionContainer const* conditions = sConditionMgr->GetConditionsForAreaTrigger(GetTemplate()->Id.Id, GetTemplate()->Id.IsCustom))
+        ConditionContainer const* conditions = sConditionMgr->GetConditionsForAreaTrigger(GetTemplate()->Id.Id, GetTemplate()->Id.IsCustom);
+        Trinity::Containers::EraseIf(targetList, [this, conditions](Unit const* target)
         {
-            Trinity::Containers::EraseIf(targetList, [conditions](Unit const* target)
+            if (GetCasterGuid() == target->GetGUID())
             {
+                if (HasActionSetFlag(AreaTriggerActionSetFlag::NotTriggeredbyCaster))
+                    return true;
+            }
+            else
+            {
+                if (HasActionSetFlag(AreaTriggerActionSetFlag::OnlyTriggeredByCaster))
+                    return true;
+
+                if (HasActionSetFlag(AreaTriggerActionSetFlag::CreatorsPartyOnly))
+                {
+                    Unit* caster = GetCaster();
+                    if (!caster)
+                        return true;
+
+                    if (!caster->IsInRaidWith(target))
+                        return true;
+                }
+            }
+
+            if (Player const* player = target->ToPlayer())
+            {
+                switch (player->getDeathState())
+                {
+                    case DEAD:
+                        if (!HasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileGhost))
+                            return true;
+                        break;
+                    case CORPSE:
+                        if (!HasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileDead))
+                            return true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (!HasActionSetFlag(AreaTriggerActionSetFlag::CanAffectUninteractible) && target->IsUninteractible())
+                return true;
+
+            if (conditions)
                 return !sConditionMgr->IsObjectMeetToConditions(target, *conditions);
-            });
-        }
+
+            return false;
+        });
     }
 
     HandleUnitEnterExit(targetList);
@@ -640,7 +682,7 @@ void AreaTrigger::UpdateTargetList()
 
 void AreaTrigger::SearchUnits(std::vector<Unit*>& targetList, float radius, bool check3D)
 {
-    Trinity::AnyUnitInObjectRangeCheck check(this, radius, check3D);
+    Trinity::AnyUnitInObjectRangeCheck check(this, radius, check3D, false);
     if (IsStaticSpawn())
     {
         Trinity::PlayerListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
@@ -803,6 +845,9 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_ENTERED, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
             player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_ENTER, GetEntry(), 1);
+
+            if (GetTemplate()->ActionSetId)
+                player->UpdateCriteria(CriteriaType::EnterAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
         }
 
         DoActions(unit);
@@ -820,6 +865,9 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
                     ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_LEFT, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
                 player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+
+                if (GetTemplate()->ActionSetId)
+                    player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
             }
 
             UndoActions(leavingUnit);

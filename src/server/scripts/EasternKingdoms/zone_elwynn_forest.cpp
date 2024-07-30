@@ -122,7 +122,7 @@ struct npc_cameron : public ScriptedAI
         for (ObjectGuid guid : _childrenGUIDs)
             if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
                 if (CreatureGroup* creatureGroup = child->GetFormation())
-                    sFormationMgr->RemoveCreatureFromGroup(creatureGroup, child);
+                    FormationMgr::RemoveCreatureFromGroup(creatureGroup, child);
 
         // Move each child to an random position
         for (uint32 i = 0; i < _childrenGUIDs.size(); ++i)

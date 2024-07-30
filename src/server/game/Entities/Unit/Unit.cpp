@@ -476,6 +476,7 @@ void Unit::Update(uint32 p_time)
         ModifyAuraState(AURA_STATE_WOUND_HEALTH_20_80, HealthBelowPct(20) || HealthAbovePct(80));
         ModifyAuraState(AURA_STATE_HEALTHY_75_PERCENT, HealthAbovePct(75));
         ModifyAuraState(AURA_STATE_WOUND_HEALTH_35_80, HealthBelowPct(35) || HealthAbovePct(80));
+        ModifyAuraState(AURA_STATE_WOUNDED_50_PERCENT, HealthBelowPct(50));
     }
 
     UpdateSplineMovement(p_time);
@@ -12295,7 +12296,7 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         {
             // If a player entered a vehicle that is part of a formation, remove it from said formation
             if (CreatureGroup* creatureGroup = vehicleBaseCreature->GetFormation())
-                sFormationMgr->RemoveCreatureFromGroup(creatureGroup, vehicleBaseCreature);
+                FormationMgr::RemoveCreatureFromGroup(creatureGroup, vehicleBaseCreature);
         }
     }
 

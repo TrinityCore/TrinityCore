@@ -964,7 +964,7 @@ enum SpellAttr14 : uint32
     SPELL_ATTR14_UNK17                           = 0x00020000, // TITLE Unknown attribute 17@Attr14
     SPELL_ATTR14_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr14
     SPELL_ATTR14_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr14
-    SPELL_ATTR14_UNK20                           = 0x00100000, // TITLE Unknown attribute 20@Attr14
+    SPELL_ATTR14_AURA_IS_PRIVATE                                        = 0x00100000, // TITLE Aura is private DESCRIPTION Clientside attribue that prevents the aura from being accessed by addons (but is still visible in UI)
     SPELL_ATTR14_UNK21                           = 0x00200000, // TITLE Unknown attribute 21@Attr14
     SPELL_ATTR14_UNK22                           = 0x00400000, // TITLE Unknown attribute 22@Attr14
     SPELL_ATTR14_UNK23                           = 0x00800000, // TITLE Unknown attribute 23@Attr14
@@ -2565,7 +2565,8 @@ enum AuraStateType
     AURA_STATE_WOUND_HEALTH_20_80           = 21,           //   T |
     AURA_STATE_RAID_ENCOUNTER               = 22,           // CcTt|
     AURA_STATE_HEALTHY_75_PERCENT           = 23,           // C   |
-    AURA_STATE_WOUND_HEALTH_35_80           = 24            //   T |
+    AURA_STATE_WOUND_HEALTH_35_80           = 24,           //   T |
+    AURA_STATE_WOUNDED_50_PERCENT           = 25            // C T |
 };
 
 #define PER_CASTER_AURA_STATE_MASK (\

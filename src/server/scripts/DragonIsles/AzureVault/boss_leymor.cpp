@@ -91,15 +91,10 @@ enum LeymorNpcs
     NPC_LEYLINE_SPROUTS                 = 190509
 };
 
-enum LeymorActions
-{
-    ACTION_ARCANE_TENDER_DEATH          = 1
-};
-
 // 186644 - Leymor
 struct boss_leymor : public BossAI
 {
-    boss_leymor(Creature* creature) : BossAI(creature, DATA_LEYMOR), _killedArcaneTender(0) { }
+    boss_leymor(Creature* creature) : BossAI(creature, DATA_LEYMOR) { }
 
     void JustAppeared() override
     {
@@ -112,21 +107,15 @@ struct boss_leymor : public BossAI
 
     void DoAction(int32 action) override
     {
-        if (action == ACTION_ARCANE_TENDER_DEATH)
+        if (action == ACTION_FINISH_LEYMOR_INTRO)
         {
-            _killedArcaneTender++;
-            if (_killedArcaneTender >= 3)
+            scheduler.Schedule(1s, [this](TaskContext /*context*/)
             {
-                instance->SetData(DATA_LEYMOR_INTRO_DONE, 1);
-
-                scheduler.Schedule(1s, [this](TaskContext /*context*/)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_STASIS);
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-                    DoCastSelf(SPELL_ARCANE_ERUPTION);
-                    Talk(SAY_ANNOUNCE_AWAKEN);
-                });
-            }
+                me->RemoveAurasDueToSpell(SPELL_STASIS);
+                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                DoCastSelf(SPELL_ARCANE_ERUPTION);
+                Talk(SAY_ANNOUNCE_AWAKEN);
+            });
         }
     }
 
@@ -149,7 +138,7 @@ struct boss_leymor : public BossAI
     {
         if (spell->Id == SPELL_CONSUMING_STOMP)
             DoCastAOE(SPELL_CONSUMING_STOMP_DAMAGE, true);
-    };
+    }
 
     void JustEngagedWith(Unit* who) override
     {
@@ -206,27 +195,12 @@ struct boss_leymor : public BossAI
                 return;
         }
     }
-
-private:
-    int32 _killedArcaneTender;
 };
 
 // 191164 - Arcane Tender
 struct npc_arcane_tender : public ScriptedAI
 {
     npc_arcane_tender(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        Creature* leymor = me->GetInstanceScript()->GetCreature(DATA_LEYMOR);
-        if (!leymor)
-            return;
-
-        if (!leymor->IsAIEnabled())
-            return;
-
-        leymor->AI()->DoAction(ACTION_ARCANE_TENDER_DEATH);
-    }
 
     void JustAppeared() override
     {
