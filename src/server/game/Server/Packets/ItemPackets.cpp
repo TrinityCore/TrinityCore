@@ -261,11 +261,11 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << int32(BattlePetLevel);
     _worldPacket << ItemGUID;
 
-    _worldPacket.WriteBit(Pushed);
-    _worldPacket.WriteBit(Created);
-    _worldPacket.WriteBits(DisplayText, 3);
-    _worldPacket.WriteBit(IsBonusRoll);
-    _worldPacket.WriteBit(IsEncounterLoot);
+    _worldPacket << Bits<1>(Pushed);
+    _worldPacket << Bits<1>(Created);
+    _worldPacket << Bits<3>(DisplayText);
+    _worldPacket << Bits<1>(IsBonusRoll);
+    _worldPacket << Bits<1>(IsEncounterLoot);
     _worldPacket.FlushBits();
 
     _worldPacket << Item;

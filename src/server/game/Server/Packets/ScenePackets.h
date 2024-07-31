@@ -18,8 +18,9 @@
 #ifndef ScenePackets_h__
 #define ScenePackets_h__
 
+#include "ObjectGuid.h"
 #include "Packet.h"
-#include "Object.h"
+#include "Position.h"
 
 namespace WorldPackets
 {
@@ -37,7 +38,7 @@ namespace WorldPackets
             uint32 SceneInstanceID = 0;
             int32 SceneScriptPackageID = 0;
             ObjectGuid TransportGUID;
-            Position Location;
+            TaggedPosition<Position::XYZO> Location;
             bool Encrypted = false;
         };
 
