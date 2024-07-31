@@ -567,6 +567,7 @@ class TC_GAME_API Spell
         ObjectGuid m_originalCastId;
         bool m_fromClient;
         uint32 m_castFlagsEx;
+        int32 m_spentComboPoints;
         union
         {
             // Alternate names for this value
@@ -708,7 +709,7 @@ class TC_GAME_API Spell
         int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
-        bool m_consumeAllComboPoints;                       // For finishing moves that should consume all combo points after cast
+        bool m_spendComboPoints;                            // For finishing moves that should consume all combo points after cast
         uint8 m_runesState;
 
         uint8 m_delayAtDamageCount;

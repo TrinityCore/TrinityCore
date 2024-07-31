@@ -2428,7 +2428,7 @@ double WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIn
     return value;
 }
 
-int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo) const
+int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo, int32 spentComboPoints /*= 0*/) const
 {
     int32 minduration = spellInfo->GetDuration();
     if (minduration <= 0)
@@ -2442,8 +2442,7 @@ int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo) const
     if (!unit)
         return minduration;
 
-    int32 comboPoints = unit->GetPower(POWER_COMBO_POINTS);
-    if (!comboPoints || !spellInfo->IsFinishingMove())
+    if (!spentComboPoints || !spellInfo->IsFinishingMove())
         return minduration;
 
     // Combo Points increase an aura's duration per consumed point
@@ -2455,7 +2454,7 @@ int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo) const
         return minduration;
 
     float durationPerComboPoint = float(maxduration - minduration) / baseComboCost;
-    return minduration + int32(durationPerComboPoint * comboPoints);
+    return minduration + int32(durationPerComboPoint * spentComboPoints);
 }
 
 int32 WorldObject::ModSpellDuration(SpellInfo const* spellInfo, WorldObject const* target, int32 duration, bool positive, uint32 effectMask) const

@@ -873,7 +873,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     return Aura::CalcMaxDuration(GetSpellInfo(), caster);
 }
 
-/*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject const* caster)
+/*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject const* caster, int32 spentComboPoints /*= 0*/)
 {
     Player* modOwner = nullptr;
     int32 maxDuration;
@@ -881,7 +881,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     if (caster)
     {
         modOwner = caster->GetSpellModOwner();
-        maxDuration = caster->CalcSpellDuration(spellInfo);
+        maxDuration = caster->CalcSpellDuration(spellInfo, spentComboPoints);
     }
     else
         maxDuration = spellInfo->GetDuration();

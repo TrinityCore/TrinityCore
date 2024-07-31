@@ -565,6 +565,8 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     if (IsIgnoringCooldowns())
         m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
 
+    m_spentComboPoints = 0;
+
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
@@ -608,7 +610,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
         && !m_spellInfo->HasAttribute(SPELL_ATTR1_NO_REFLECTION) && !m_spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)
         && !m_spellInfo->IsPassive();
 
-    m_consumeAllComboPoints = m_spellInfo->IsFinishingMove();
+    m_spendComboPoints = m_spellInfo->IsFinishingMove();
 
     CleanupTargetList();
 
@@ -2999,10 +3001,6 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         spell->m_hitMask |= hitMask;
         spell->m_procSpellType |= procSpellType;
 
-        // Don't consume combo points from finishing moves when missing the target and having SPELL_ATTR1_DISCOUNT_POWER_ON_MISS
-        if (spell->m_consumeAllComboPoints && MissCondition != SPELL_MISS_NONE && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_DISCOUNT_POWER_ON_MISS))
-            spell->m_consumeAllComboPoints = false;
-
         // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
         if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
         {
@@ -3220,7 +3218,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
             }
         }
 
-        hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster);
+        hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster, m_spentComboPoints);
 
         // unit is immune to aura if it was diminished to 0 duration
         if (!hitInfo.Positive && !unit->ApplyDiminishingToDuration(m_spellInfo, hitInfo.AuraDuration, origCaster, diminishLevel))
@@ -3497,6 +3495,9 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     // Fill cost data (do not use power for item casts)
     if (!m_CastItem)
         m_powerCost = m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, this);
+
+    if (m_spendComboPoints && m_caster->IsUnit())
+        m_spentComboPoints = m_caster->ToUnit()->GetPower(POWER_COMBO_POINTS);
 
     int32 param1 = 0, param2 = 0;
     SpellCastResult result = CheckCast(true, &param1, &param2);
@@ -4211,16 +4212,9 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
-    Unit* unitCaster = m_caster->ToUnit();
-    if (unitCaster)
-    {
+    if (Unit* unitCaster = m_caster->ToUnit())
         if (m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
             unitCaster->SetLastExtraAttackSpell(m_spellInfo->Id);
-
-        // Finishing moves use up all their combo points after cast and reset their combo target
-        if (m_consumeAllComboPoints)
-            unitCaster->ClearComboTarget();
-    }
 
     // Handle procs on finish
     if (!m_originalCaster)
@@ -5455,6 +5449,9 @@ void Spell::TakePower()
                         //lower spell cost on fail (by talent aura)
                         if (Player* modOwner = unitCaster->GetSpellModOwner())
                             modOwner->ApplySpellMod(m_spellInfo, SpellModOp::PowerCostOnMiss, cost.Amount);
+
+                        if (m_spendComboPoints)
+                            m_spentComboPoints = 0;
                     }
                 }
             }
@@ -5483,6 +5480,13 @@ void Spell::TakePower()
         }
 
         unitCaster->ModifyPower(powerType, -cost.Amount);
+    }
+
+    if (m_spendComboPoints && m_spentComboPoints)
+    {
+        unitCaster->ModifyPower(POWER_COMBO_POINTS, -m_spentComboPoints);
+        if (!unitCaster->GetPower(POWER_COMBO_POINTS))
+            unitCaster->SetComboTarget(ObjectGuid::Empty);
     }
 }
 
@@ -5871,7 +5875,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     return SPELL_FAILED_ONLY_STEALTHED;
             }
 
-            if (m_consumeAllComboPoints && !unitCaster->GetPower(POWER_COMBO_POINTS))
+            if (m_spendComboPoints && !m_spentComboPoints)
                 return SPELL_FAILED_NO_COMBO_POINTS;
         }
 
