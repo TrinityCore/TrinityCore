@@ -22,7 +22,32 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "Unit.h"
+
+// 2098 - Eviscerate
+class spell_rog_eviscerate : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
+    }
+
+    // Damage: effectValue + (basePoints * Combo) + (AP * 0.091 * Combo)
+    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    {
+        int32 combo = GetCaster()->GetPower(POWER_COMBO_POINTS);
+        flatMod += (GetSpellInfo()->GetEffect(EFFECT_0).BasePoints * combo) + (GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f * combo);
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_rog_eviscerate::CalculateDamage);
+    }
+};
 
 void AddSC_rogue_spell_scripts()
 {
+    RegisterSpellScript(spell_rog_eviscerate);
 }
