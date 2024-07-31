@@ -517,7 +517,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
         float delta = fabs(Scaling.Variance * 0.5f);
         double valueVariance = frand(-delta, delta);
         value += double(basePoints) * valueVariance;
-    
+
         if (variance)
             *variance = valueVariance;
     }
