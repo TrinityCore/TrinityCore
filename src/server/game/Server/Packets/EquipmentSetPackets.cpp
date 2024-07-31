@@ -67,7 +67,7 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 
 void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
 {
-    Set.Type = _worldPacket.read<EquipmentSetInfo::EquipmentSetType, int32>();
+    _worldPacket >> As<int32>(Set.Type);
     _worldPacket >> Set.Guid;
     _worldPacket >> Set.SetID;
     _worldPacket >> Set.IgnoreMask;

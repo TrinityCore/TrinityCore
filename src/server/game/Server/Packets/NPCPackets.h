@@ -94,13 +94,13 @@ namespace WorldPackets
 
         struct ClientGossipText
         {
-            int32 QuestID       = 0;
+            int32 QuestID = 0;
             int32 ContentTuningID = 0;
-            int32 QuestType     = 0;
-            bool Repeatable     = false;
-            bool Important      = false;
+            int32 QuestType = 0;
+            bool Repeatable = false;
+            bool Important = false;
             std::string QuestTitle;
-            int32 QuestFlags[2] = { };
+            std::array<int32, 2> QuestFlags = { };
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText);

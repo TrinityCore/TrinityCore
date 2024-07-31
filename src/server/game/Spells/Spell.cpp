@@ -5191,7 +5191,7 @@ SpellLogEffect& Spell::GetExecuteLogEffect(SpellEffectName effect)
     return _executeLogEffects.back();
 }
 
-void Spell::ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit* target, uint32 powerType, uint32 points, float amplitude)
+void Spell::ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit* target, Powers powerType, uint32 points, float amplitude)
 {
     SpellLogEffectPowerDrainParams spellLogEffectPowerDrainParams;
 

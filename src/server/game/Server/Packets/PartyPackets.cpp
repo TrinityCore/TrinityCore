@@ -735,9 +735,9 @@ WorldPacket const* WorldPackets::Party::BroadcastSummonResponse::Write()
 
 void WorldPackets::Party::SetRestrictPingsToAssistants::Read()
 {
-    bool hasPartyIndex = _worldPacket.ReadBit();
-    RestrictPingsToAssistants = _worldPacket.ReadBit();
-    if (hasPartyIndex)
+    _worldPacket >> OptionalInit(PartyIndex);
+    _worldPacket >> Bits<1>(RestrictPingsToAssistants);
+    if (PartyIndex)
         _worldPacket >> PartyIndex.emplace();
 }
 
@@ -764,7 +764,7 @@ void WorldPackets::Party::SendPingWorldPoint::Read()
     _worldPacket >> SenderGUID;
     _worldPacket >> MapID;
     _worldPacket >> Point;
-    Type = _worldPacket.read<PingSubjectType, uint8>();
+    _worldPacket >> As<uint8>(Type);
     _worldPacket >> PinFrameID;
 }
 

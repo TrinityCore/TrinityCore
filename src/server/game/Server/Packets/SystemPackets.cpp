@@ -30,10 +30,10 @@ ByteBuffer& operator<<(ByteBuffer& data, SavedThrottleObjectState const& throttl
 
 ByteBuffer& operator<<(ByteBuffer& data, EuropaTicketConfig const& europaTicketSystemStatus)
 {
-    data.WriteBit(europaTicketSystemStatus.TicketsEnabled);
-    data.WriteBit(europaTicketSystemStatus.BugsEnabled);
-    data.WriteBit(europaTicketSystemStatus.ComplaintsEnabled);
-    data.WriteBit(europaTicketSystemStatus.SuggestionsEnabled);
+    data << Bits<1>(europaTicketSystemStatus.TicketsEnabled);
+    data << Bits<1>(europaTicketSystemStatus.BugsEnabled);
+    data << Bits<1>(europaTicketSystemStatus.ComplaintsEnabled);
+    data << Bits<1>(europaTicketSystemStatus.SuggestionsEnabled);
 
     data << europaTicketSystemStatus.ThrottleState;
 
@@ -50,7 +50,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GameRuleValuePair const& gameRuleValue)
 ByteBuffer& operator<<(ByteBuffer& data, DebugTimeEventInfo const& debugTimeEventInfo)
 {
     data << uint32(debugTimeEventInfo.TimeEvent);
-    data.WriteBits(debugTimeEventInfo.Text.length(), 7);
+    data << BitsSize<7>(debugTimeEventInfo.Text);
     data.FlushBits();
 
     data.WriteString(debugTimeEventInfo.Text);
@@ -94,59 +94,59 @@ WorldPacket const* FeatureSystemStatus::Write()
     for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
         _worldPacket << gameRuleValue;
 
-    _worldPacket.WriteBit(VoiceEnabled);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
-    _worldPacket.WriteBit(BpayStoreEnabled);
-    _worldPacket.WriteBit(BpayStoreAvailable);
-    _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
-    _worldPacket.WriteBit(ItemRestorationButtonEnabled);
-    _worldPacket.WriteBit(BrowserEnabled);
-    _worldPacket.WriteBit(SessionAlert.has_value());
+    _worldPacket << Bits<1>(VoiceEnabled);
+    _worldPacket << OptionalInit(EuropaTicketSystemStatus);
+    _worldPacket << Bits<1>(BpayStoreEnabled);
+    _worldPacket << Bits<1>(BpayStoreAvailable);
+    _worldPacket << Bits<1>(BpayStoreDisabledByParentalControls);
+    _worldPacket << Bits<1>(ItemRestorationButtonEnabled);
+    _worldPacket << Bits<1>(BrowserEnabled);
+    _worldPacket << OptionalInit(SessionAlert);
 
-    _worldPacket.WriteBit(RAFSystem.Enabled);
-    _worldPacket.WriteBit(RAFSystem.RecruitingEnabled);
-    _worldPacket.WriteBit(CharUndeleteEnabled);
-    _worldPacket.WriteBit(RestrictedAccount);
-    _worldPacket.WriteBit(CommerceSystemEnabled);
-    _worldPacket.WriteBit(TutorialsEnabled);
-    _worldPacket.WriteBit(Unk67);
-    _worldPacket.WriteBit(WillKickFromWorld);
+    _worldPacket << Bits<1>(RAFSystem.Enabled);
+    _worldPacket << Bits<1>(RAFSystem.RecruitingEnabled);
+    _worldPacket << Bits<1>(CharUndeleteEnabled);
+    _worldPacket << Bits<1>(RestrictedAccount);
+    _worldPacket << Bits<1>(CommerceSystemEnabled);
+    _worldPacket << Bits<1>(TutorialsEnabled);
+    _worldPacket << Bits<1>(Unk67);
+    _worldPacket << Bits<1>(WillKickFromWorld);
 
-    _worldPacket.WriteBit(KioskModeEnabled);
-    _worldPacket.WriteBit(CompetitiveModeEnabled);
-    _worldPacket.WriteBit(TokenBalanceEnabled);
-    _worldPacket.WriteBit(WarModeFeatureEnabled);
-    _worldPacket.WriteBit(ClubsEnabled);
-    _worldPacket.WriteBit(ClubsBattleNetClubTypeAllowed);
-    _worldPacket.WriteBit(ClubsCharacterClubTypeAllowed);
-    _worldPacket.WriteBit(ClubsPresenceUpdateEnabled);
+    _worldPacket << Bits<1>(KioskModeEnabled);
+    _worldPacket << Bits<1>(CompetitiveModeEnabled);
+    _worldPacket << Bits<1>(TokenBalanceEnabled);
+    _worldPacket << Bits<1>(WarModeFeatureEnabled);
+    _worldPacket << Bits<1>(ClubsEnabled);
+    _worldPacket << Bits<1>(ClubsBattleNetClubTypeAllowed);
+    _worldPacket << Bits<1>(ClubsCharacterClubTypeAllowed);
+    _worldPacket << Bits<1>(ClubsPresenceUpdateEnabled);
 
-    _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
-    _worldPacket.WriteBit(VoiceChatMutedByParentalControl);
-    _worldPacket.WriteBit(QuestSessionEnabled);
-    _worldPacket.WriteBit(IsMuted);
-    _worldPacket.WriteBit(ClubFinderEnabled);
-    _worldPacket.WriteBit(CommunityFinderEnabled);
-    _worldPacket.WriteBit(Unknown901CheckoutRelated);
-    _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
+    _worldPacket << Bits<1>(VoiceChatDisabledByParentalControl);
+    _worldPacket << Bits<1>(VoiceChatMutedByParentalControl);
+    _worldPacket << Bits<1>(QuestSessionEnabled);
+    _worldPacket << Bits<1>(IsMuted);
+    _worldPacket << Bits<1>(ClubFinderEnabled);
+    _worldPacket << Bits<1>(CommunityFinderEnabled);
+    _worldPacket << Bits<1>(Unknown901CheckoutRelated);
+    _worldPacket << Bits<1>(TextToSpeechFeatureEnabled);
 
-    _worldPacket.WriteBit(ChatDisabledByDefault);
-    _worldPacket.WriteBit(ChatDisabledByPlayer);
-    _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
-    _worldPacket.WriteBit(AddonsDisabled);
-    _worldPacket.WriteBit(WarGamesEnabled);
-    _worldPacket.WriteBit(ContentTrackingEnabled);
-    _worldPacket.WriteBit(IsSellAllJunkEnabled);
-    _worldPacket.WriteBit(IsGroupFinderEnabled);
+    _worldPacket << Bits<1>(ChatDisabledByDefault);
+    _worldPacket << Bits<1>(ChatDisabledByPlayer);
+    _worldPacket << Bits<1>(LFGListCustomRequiresAuthenticator);
+    _worldPacket << Bits<1>(AddonsDisabled);
+    _worldPacket << Bits<1>(WarGamesEnabled);
+    _worldPacket << Bits<1>(ContentTrackingEnabled);
+    _worldPacket << Bits<1>(IsSellAllJunkEnabled);
+    _worldPacket << Bits<1>(IsGroupFinderEnabled);
 
-    _worldPacket.WriteBit(IsLFDEnabled);
-    _worldPacket.WriteBit(IsLFREnabled);
-    _worldPacket.WriteBit(IsPremadeGroupEnabled);
-    _worldPacket.WriteBit(CanShowSetRoleButton);
-    _worldPacket.WriteBit(false); // unused 10.2.7
-    _worldPacket.WriteBit(false); // unused 10.2.7
+    _worldPacket << Bits<1>(IsLFDEnabled);
+    _worldPacket << Bits<1>(IsLFREnabled);
+    _worldPacket << Bits<1>(IsPremadeGroupEnabled);
+    _worldPacket << Bits<1>(CanShowSetRoleButton);
+    _worldPacket << Bits<1>(false); // unused 10.2.7
+    _worldPacket << Bits<1>(false); // unused 10.2.7
 
-    _worldPacket.WriteBits(Unknown1027.length(), 7);
+    _worldPacket << BitsSize<7>(Unknown1027);
 
     _worldPacket.FlushBits();
 
@@ -186,7 +186,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteString(Unknown1027);
 
     {
-        _worldPacket.WriteBit(Squelch.IsSquelched);
+        _worldPacket << Bits<1>(Squelch.IsSquelched);
         _worldPacket << Squelch.BnetAccountGuid;
         _worldPacket << Squelch.GuildGuid;
     }
@@ -199,38 +199,38 @@ WorldPacket const* FeatureSystemStatus::Write()
 
 WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 {
-    _worldPacket.WriteBit(BpayStoreEnabled);
-    _worldPacket.WriteBit(BpayStoreAvailable);
-    _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
-    _worldPacket.WriteBit(CharUndeleteEnabled);
-    _worldPacket.WriteBit(CommerceSystemEnabled);
-    _worldPacket.WriteBit(Unk14);
-    _worldPacket.WriteBit(WillKickFromWorld);
-    _worldPacket.WriteBit(IsExpansionPreorderInStore);
+    _worldPacket << Bits<1>(BpayStoreEnabled);
+    _worldPacket << Bits<1>(BpayStoreAvailable);
+    _worldPacket << Bits<1>(BpayStoreDisabledByParentalControls);
+    _worldPacket << Bits<1>(CharUndeleteEnabled);
+    _worldPacket << Bits<1>(CommerceSystemEnabled);
+    _worldPacket << Bits<1>(Unk14);
+    _worldPacket << Bits<1>(WillKickFromWorld);
+    _worldPacket << Bits<1>(IsExpansionPreorderInStore);
 
-    _worldPacket.WriteBit(KioskModeEnabled);
-    _worldPacket.WriteBit(CompetitiveModeEnabled);
-    _worldPacket.WriteBit(IsBoostEnabled);
-    _worldPacket.WriteBit(TrialBoostEnabled);
-    _worldPacket.WriteBit(TokenBalanceEnabled);
-    _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
-    _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
-    _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
+    _worldPacket << Bits<1>(KioskModeEnabled);
+    _worldPacket << Bits<1>(CompetitiveModeEnabled);
+    _worldPacket << Bits<1>(IsBoostEnabled);
+    _worldPacket << Bits<1>(TrialBoostEnabled);
+    _worldPacket << Bits<1>(TokenBalanceEnabled);
+    _worldPacket << Bits<1>(LiveRegionCharacterListEnabled);
+    _worldPacket << Bits<1>(LiveRegionCharacterCopyEnabled);
+    _worldPacket << Bits<1>(LiveRegionAccountCopyEnabled);
 
-    _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
-    _worldPacket.WriteBit(Unknown901CheckoutRelated);
-    _worldPacket.WriteBit(false); // unused, 10.0.2
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
-    _worldPacket.WriteBit(IsNameReservationEnabled);
-    _worldPacket.WriteBit(LaunchETA.has_value());
-    _worldPacket.WriteBit(TimerunningEnabled);
-    _worldPacket.WriteBit(AddonsDisabled);
+    _worldPacket << Bits<1>(LiveRegionKeyBindingsCopyEnabled);
+    _worldPacket << Bits<1>(Unknown901CheckoutRelated);
+    _worldPacket << Bits<1>(false); // unused, 10.0.2
+    _worldPacket << OptionalInit(EuropaTicketSystemStatus);
+    _worldPacket << Bits<1>(IsNameReservationEnabled);
+    _worldPacket << OptionalInit(LaunchETA);
+    _worldPacket << Bits<1>(TimerunningEnabled);
+    _worldPacket << Bits<1>(AddonsDisabled);
 
-    _worldPacket.WriteBit(Unused1000);
-    _worldPacket.WriteBit(AccountSaveDataExportEnabled);
-    _worldPacket.WriteBit(AccountLockedByExport);
+    _worldPacket << Bits<1>(Unused1000);
+    _worldPacket << Bits<1>(AccountSaveDataExportEnabled);
+    _worldPacket << Bits<1>(AccountLockedByExport);
 
-    _worldPacket.WriteBits(RealmHiddenAlert.length() + 1, 11);
+    _worldPacket << Bits<11>(RealmHiddenAlert.length() + 1);
 
     _worldPacket.FlushBits();
 
@@ -278,9 +278,9 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
 WorldPacket const* SetTimeZoneInformation::Write()
 {
-    _worldPacket.WriteBits(ServerTimeTZ.length(), 7);
-    _worldPacket.WriteBits(GameTimeTZ.length(), 7);
-    _worldPacket.WriteBits(ServerRegionalTZ.length(), 7);
+    _worldPacket << BitsSize<7>(ServerTimeTZ);
+    _worldPacket << BitsSize<7>(GameTimeTZ);
+    _worldPacket << BitsSize<7>(ServerRegionalTZ);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(ServerTimeTZ);

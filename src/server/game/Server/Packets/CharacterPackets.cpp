@@ -49,16 +49,7 @@ namespace Character
 {
 void SortCustomizations(Array<ChrCustomizationChoice, 250>& customizations)
 {
-    auto first = customizations.begin();
-    auto last = customizations.end();
-    for (auto itr = first; itr != last; ++itr)
-    {
-        auto insertion = std::upper_bound(first, itr, *itr, [](ChrCustomizationChoice const& left, ChrCustomizationChoice const& right)
-        {
-            return left.ChrCustomizationOptionID < right.ChrCustomizationOptionID;
-        });
-        std::rotate(insertion, itr, std::next(itr));
-    }
+    std::ranges::sort(customizations, std::ranges::less(), &ChrCustomizationChoice::ChrCustomizationOptionID);
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, CustomTabardInfo const& customTabardInfo)
@@ -88,7 +79,7 @@ EnumCharacters::EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(pa
     ASSERT(GetOpcode() == CMSG_ENUM_CHARACTERS || GetOpcode() == CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT);
 }
 
-EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
+EnumCharactersResult::CharacterInfo::CharacterInfo(Field const* fields)
 {
     //         0                1                2                3                 4                  5
     // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.level, "
@@ -248,15 +239,15 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     if (!charInfo.MailSenderTypes.empty())
         data.append(charInfo.MailSenderTypes.data(), charInfo.MailSenderTypes.size());
 
-    data.WriteBits(charInfo.Name.length(), 6);
-    data.WriteBit(charInfo.FirstLogin);
-    data.WriteBit(charInfo.BoostInProgress);
-    data.WriteBits(charInfo.unkWod61x, 5);
-    data.WriteBit(charInfo.RpeResetAvailable);
-    data.WriteBit(charInfo.RpeResetQuestClearAvailable);
+    data << BitsSize<6>(charInfo.Name);
+    data << Bits<1>(charInfo.FirstLogin);
+    data << Bits<1>(charInfo.BoostInProgress);
+    data << Bits<5>(charInfo.unkWod61x);
+    data << Bits<1>(charInfo.RpeResetAvailable);
+    data << Bits<1>(charInfo.RpeResetQuestClearAvailable);
 
     for (std::string const& str : charInfo.MailSenders)
-        data.WriteBits(str.length() + 1, 6);
+        data << Bits<6>(str.length() + 1);
 
     data.FlushBits();
 
@@ -272,11 +263,11 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const& raceUnlock)
 {
     data << int32(raceUnlock.RaceID);
-    data.WriteBit(raceUnlock.HasExpansion);
-    data.WriteBit(raceUnlock.HasAchievement);
-    data.WriteBit(raceUnlock.HasHeritageArmor);
-    data.WriteBit(raceUnlock.IsLocked);
-    data.WriteBit(raceUnlock.Unused1027);
+    data << Bits<1>(raceUnlock.HasExpansion);
+    data << Bits<1>(raceUnlock.HasAchievement);
+    data << Bits<1>(raceUnlock.HasHeritageArmor);
+    data << Bits<1>(raceUnlock.IsLocked);
+    data << Bits<1>(raceUnlock.Unused1027);
     data.FlushBits();
 
     return data;
@@ -302,13 +293,13 @@ WorldPacket const* EnumCharactersResult::Write()
 {
     _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + RaceUnlockData.size() * sizeof(RaceUnlock));
 
-    _worldPacket.WriteBit(Success);
-    _worldPacket.WriteBit(IsDeletedCharacters);
-    _worldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
-    _worldPacket.WriteBit(IsNewPlayerRestricted);
-    _worldPacket.WriteBit(IsNewPlayer);
-    _worldPacket.WriteBit(IsTrialAccountRestricted);
-    _worldPacket.WriteBit(DisabledClassesMask.has_value());
+    _worldPacket << Bits<1>(Success);
+    _worldPacket << Bits<1>(IsDeletedCharacters);
+    _worldPacket << Bits<1>(IsNewPlayerRestrictionSkipped);
+    _worldPacket << Bits<1>(IsNewPlayerRestricted);
+    _worldPacket << Bits<1>(IsNewPlayer);
+    _worldPacket << Bits<1>(IsTrialAccountRestricted);
+    _worldPacket << OptionalInit(DisabledClassesMask);
     _worldPacket << uint32(Characters.size());
     _worldPacket << int32(MaxCharacterLevel);
     _worldPacket << uint32(RaceUnlockData.size());

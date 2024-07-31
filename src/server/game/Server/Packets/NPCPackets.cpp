@@ -16,13 +16,12 @@
  */
 
 #include "NPCPackets.h"
-#include "Util.h"
 
 namespace WorldPackets::NPC
 {
 ByteBuffer& operator<<(ByteBuffer& data, TreasureItem const& treasureItem)
 {
-    data.WriteBits(AsUnderlyingType(treasureItem.Type), 1);
+    data << Bits<1>(treasureItem.Type);
     data << int32(treasureItem.ID);
     data << int32(treasureItem.Quantity);
 
@@ -47,11 +46,11 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     data << uint32(gossipOption.OptionLanguage);
     data << int32(gossipOption.Flags);
     data << int32(gossipOption.OrderIndex);
-    data.WriteBits(gossipOption.Text.size(), 12);
-    data.WriteBits(gossipOption.Confirm.size(), 12);
-    data.WriteBits(AsUnderlyingType(gossipOption.Status), 2);
-    data.WriteBit(gossipOption.SpellID.has_value());
-    data.WriteBit(gossipOption.OverrideIconID.has_value());
+    data << BitsSize<12>(gossipOption.Text);
+    data << BitsSize<12>(gossipOption.Confirm);
+    data << Bits<2>(gossipOption.Status);
+    data << OptionalInit(gossipOption.SpellID);
+    data << OptionalInit(gossipOption.OverrideIconID);
     data.FlushBits();
 
     data << gossipOption.Treasure;
@@ -76,9 +75,9 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.QuestFlags[0]);
     data << int32(gossipText.QuestFlags[1]);
 
-    data.WriteBit(gossipText.Repeatable);
-    data.WriteBit(gossipText.Important);
-    data.WriteBits(gossipText.QuestTitle.size(), 9);
+    data << Bits<1>(gossipText.Repeatable);
+    data << Bits<1>(gossipText.Important);
+    data << BitsSize<9>(gossipText.QuestTitle);
     data.FlushBits();
 
     data.WriteString(gossipText.QuestTitle);
@@ -108,8 +107,8 @@ WorldPacket const* GossipMessage::Write()
     _worldPacket << int32(FriendshipFactionID);
     _worldPacket << uint32(GossipOptions.size());
     _worldPacket << uint32(GossipText.size());
-    _worldPacket.WriteBit(TextID.has_value());
-    _worldPacket.WriteBit(BroadcastTextID.has_value());
+    _worldPacket << OptionalInit(TextID);
+    _worldPacket << OptionalInit(BroadcastTextID);
     _worldPacket.FlushBits();
 
     for (ClientGossipOptions const& options : GossipOptions)

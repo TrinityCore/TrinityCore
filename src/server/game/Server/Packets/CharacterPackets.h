@@ -128,7 +128,7 @@ namespace WorldPackets
                  *
                  * @param   fields         Field set of CharacterDatabaseStatements::CHAR_SEL_ENUM
                  */
-                CharacterInfo(Field* fields);
+                CharacterInfo(Field const* fields);
 
                 ObjectGuid Guid;
                 uint64 GuildClubMemberID = 0; ///< same as bgs.protocol.club.v1.MemberId.unique_id, guessed basing on SMSG_QUERY_PLAYER_NAME_RESPONSE (that one is known)

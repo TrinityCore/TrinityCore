@@ -369,7 +369,7 @@ void QueryCorpseLocationFromClient::Read()
 
 WorldPacket const* CorpseLocation::Write()
 {
-    _worldPacket.WriteBit(Valid);
+    _worldPacket << Bits<1>(Valid);
     _worldPacket.FlushBits();
 
     _worldPacket << Player;

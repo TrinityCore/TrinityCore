@@ -16,6 +16,7 @@
  */
 
 #include "ReputationPackets.h"
+#include "PacketUtilities.h"
 
 WorldPacket const* WorldPackets::Reputation::InitializeFactions::Write()
 {
