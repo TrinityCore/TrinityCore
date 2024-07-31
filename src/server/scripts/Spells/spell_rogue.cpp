@@ -38,7 +38,7 @@ class spell_rog_eviscerate : public SpellScript
     // Damage: effectValue + (basePoints * Combo) + (AP * 0.091 * Combo)
     void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
-        uint32 combo = GetSpell()->m_spentComboPoints;
+        int32 combo = GetSpell()->m_spentComboPoints;
         flatMod += (GetSpellInfo()->GetEffect(EFFECT_0).BasePoints * combo) + (GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f * combo);
     }
 
