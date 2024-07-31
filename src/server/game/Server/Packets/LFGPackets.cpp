@@ -92,61 +92,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& playerQuestRewardItem)
-{
-    data << int32(playerQuestRewardItem.ItemID);
-    data << int32(playerQuestRewardItem.Quantity);
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& playerQuestRewardCurrency)
-{
-    data << int32(playerQuestRewardCurrency.CurrencyID);
-    data << int32(playerQuestRewardCurrency.Quantity);
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestReward)
-{
-    data << uint8(playerQuestReward.Mask);
-    data << int32(playerQuestReward.RewardMoney);
-    data << int32(playerQuestReward.RewardXP);
-    data << uint32(playerQuestReward.Item.size());
-    data << uint32(playerQuestReward.Currency.size());
-    data << uint32(playerQuestReward.BonusCurrency.size());
-
-    for (WorldPackets::LFG::LfgPlayerQuestRewardItem const& item : playerQuestReward.Item)
-        data << item;
-
-    for (WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& currency : playerQuestReward.Currency)
-        data << currency;
-
-    for (WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& bonusCurrency : playerQuestReward.BonusCurrency)
-        data << bonusCurrency;
-
-    data.WriteBit(playerQuestReward.RewardSpellID.has_value());
-    data.WriteBit(playerQuestReward.Unused1.has_value());
-    data.WriteBit(playerQuestReward.Unused2.has_value());
-    data.WriteBit(playerQuestReward.Honor.has_value());
-    data.FlushBits();
-
-    if (playerQuestReward.RewardSpellID)
-        data << int32(*playerQuestReward.RewardSpellID);
-
-    if (playerQuestReward.Unused1)
-        data << int32(*playerQuestReward.Unused1);
-
-    if (playerQuestReward.Unused2)
-        data << uint64(*playerQuestReward.Unused2);
-
-    if (playerQuestReward.Honor)
-        data << int32(*playerQuestReward.Honor);
-
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo)
 {
     data << uint32(playerDungeonInfo.Slot);

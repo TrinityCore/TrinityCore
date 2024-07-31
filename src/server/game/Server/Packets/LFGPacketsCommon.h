@@ -40,10 +40,45 @@ namespace WorldPackets
             Timestamp<> Time;
             bool Unknown925 = false;
         };
+
+        struct LfgPlayerQuestRewardItem
+        {
+            LfgPlayerQuestRewardItem() = default;
+            LfgPlayerQuestRewardItem(int32 itemId, int32 quantity) : ItemID(itemId), Quantity(quantity) { }
+
+            int32 ItemID = 0;
+            int32 Quantity = 0;
+        };
+
+        struct LfgPlayerQuestRewardCurrency
+        {
+            LfgPlayerQuestRewardCurrency() = default;
+            LfgPlayerQuestRewardCurrency(int32 currencyID, int32 quantity) : CurrencyID(currencyID), Quantity(quantity) { }
+
+            int32 CurrencyID = 0;
+            int32 Quantity = 0;
+        };
+
+        struct LfgPlayerQuestReward
+        {
+            uint8 Mask = 0;                                             // Roles required for this reward, only used by ShortageReward in SMSG_LFG_PLAYER_INFO
+            int32 RewardMoney = 0;                                      // Only used by SMSG_LFG_PLAYER_INFO
+            int32 RewardXP = 0;
+            std::vector<LfgPlayerQuestRewardItem> Item;
+            std::vector<LfgPlayerQuestRewardCurrency> Currency;         // Only used by SMSG_LFG_PLAYER_INFO
+            std::vector<LfgPlayerQuestRewardCurrency> BonusCurrency;    // Only used by SMSG_LFG_PLAYER_INFO
+            Optional<int32> RewardSpellID;                              // Only used by SMSG_LFG_PLAYER_INFO
+            Optional<int32> Unused1;
+            Optional<uint64> Unused2;
+            Optional<int32> Honor;                                      // Only used by SMSG_REQUEST_PVP_REWARDS_RESPONSE
+        };
     }
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& playerQuestRewardItem);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& playerQuestRewardCurrency);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestReward);
 
 #endif // LFGPacketsCommon_h__

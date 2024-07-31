@@ -6696,8 +6696,8 @@ void Player::SendCurrencies() const
 
 void Player::SendPvpRewards() const
 {
-    //WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
-    //GetSession()->SendPacket(&packet);
+    WorldPackets::Battleground::RequestPvPRewardsResponse pvpRewardsResponse;
+    SendDirectMessage(pvpRewardsResponse.Write());
 }
 
 void Player::SetCreateCurrency(uint32 id, uint32 amount)

@@ -566,6 +566,23 @@ namespace WorldPackets
 
             ObjectGuid CapturePointGUID;
         };
+
+        class RequestPvPRewardsResponse final : public ServerPacket
+        {
+        public:
+            RequestPvPRewardsResponse() : ServerPacket(SMSG_REQUEST_PVP_REWARDS_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            WorldPackets::LFG::LfgPlayerQuestReward FirstRandomBGWinReward;
+            WorldPackets::LFG::LfgPlayerQuestReward FirstRandomBGLossReward;
+            WorldPackets::LFG::LfgPlayerQuestReward NthRandomBGWinReward;
+            WorldPackets::LFG::LfgPlayerQuestReward NthRandomBGLossReward;
+            WorldPackets::LFG::LfgPlayerQuestReward RatedBGRewards;
+            WorldPackets::LFG::LfgPlayerQuestReward Arena2v2Rewards;
+            WorldPackets::LFG::LfgPlayerQuestReward Arena3v3Rewards;
+            WorldPackets::LFG::LfgPlayerQuestReward Arena5v5Rewards;
+        };
     }
 }
 

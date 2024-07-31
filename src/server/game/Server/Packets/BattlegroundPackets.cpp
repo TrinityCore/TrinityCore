@@ -430,3 +430,17 @@ WorldPacket const* WorldPackets::Battleground::CapturePointRemoved::Write()
     _worldPacket << CapturePointGUID;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battleground::RequestPvPRewardsResponse::Write()
+{
+    _worldPacket << FirstRandomBGWinReward;
+    _worldPacket << FirstRandomBGLossReward;
+    _worldPacket << NthRandomBGWinReward;
+    _worldPacket << NthRandomBGLossReward;
+    _worldPacket << RatedBGRewards;
+    _worldPacket << Arena2v2Rewards;
+    _worldPacket << Arena3v3Rewards;
+    _worldPacket << Arena5v5Rewards;
+
+    return &_worldPacket;
+}
