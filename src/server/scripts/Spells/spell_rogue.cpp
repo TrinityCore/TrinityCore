@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Unit.h"
