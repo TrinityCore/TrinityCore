@@ -1808,6 +1808,11 @@ class TC_GAME_API Unit : public WorldObject
         Vignettes::VignetteData const* GetVignette() const { return m_vignette.get(); }
         void SetVignette(uint32 vignetteId);
 
+        ObjectGuid GetComboTarget() const { return m_unitData->ComboTarget; }
+        void SetComboTarget(ObjectGuid targetGuid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ComboTarget), targetGuid); };
+        void AddComboPoints(ObjectGuid targetGuid, int32 points);
+        void ClearComboTarget();
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;

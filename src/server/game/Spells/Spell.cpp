@@ -608,6 +608,8 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
         && !m_spellInfo->HasAttribute(SPELL_ATTR1_NO_REFLECTION) && !m_spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)
         && !m_spellInfo->IsPassive();
 
+    m_consumeAllComboPoints = m_spellInfo->HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DAMAGE) || m_spellInfo->HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DURATION);
+
     CleanupTargetList();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -2997,6 +2999,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         spell->m_hitMask |= hitMask;
         spell->m_procSpellType |= procSpellType;
 
+        // Don't consume combo points from finishing moves when missing the target and having SPELL_ATTR1_DISCOUNT_POWER_ON_MISS
+        if (spell->m_consumeAllComboPoints && MissCondition != SPELL_MISS_NONE && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_DISCOUNT_POWER_ON_MISS))
+            spell->m_consumeAllComboPoints = false;
+
         // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
         if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
         {
@@ -4205,9 +4211,16 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
-    if (Unit* unitCaster = m_caster->ToUnit())
+    Unit* unitCaster = m_caster->ToUnit();
+    if (unitCaster)
+    {
         if (m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
             unitCaster->SetLastExtraAttackSpell(m_spellInfo->Id);
+
+        // Finishing moves use up all their combo points after cast and reset their combo target
+        if (m_consumeAllComboPoints)
+            unitCaster->ClearComboTarget();
+    }
 
     // Handle procs on finish
     if (!m_originalCaster)
@@ -5857,6 +5870,9 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (m_spellInfo->HasAttribute(SPELL_ATTR0_ONLY_STEALTHED) && !(unitCaster->HasStealthAura()))
                     return SPELL_FAILED_ONLY_STEALTHED;
             }
+
+            if (m_consumeAllComboPoints && !unitCaster->GetPower(POWER_COMBO_POINTS))
+                return SPELL_FAILED_NO_COMBO_POINTS;
         }
 
         // caster state requirements

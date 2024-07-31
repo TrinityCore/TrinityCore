@@ -355,6 +355,7 @@ class TC_GAME_API Spell
         void EffectTaunt();
         void EffectDurabilityDamagePCT();
         void EffectModifyThreatPercent();
+        void EffectAddComboPoints();
         void EffectResurrectNew();
         void EffectAddExtraAttacks();
         void EffectSpiritHeal();
@@ -707,6 +708,7 @@ class TC_GAME_API Spell
         int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
+        bool m_consumeAllComboPoints;                       // For finishing moves that should consume all combo points after cast
         uint8 m_runesState;
 
         uint8 m_delayAtDamageCount;

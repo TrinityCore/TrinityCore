@@ -8790,6 +8790,9 @@ void Unit::setDeathState(DeathState s)
         if (m_vignette && !m_vignette->Data->GetFlags().HasFlag(VignetteFlags::PersistsThroughDeath))
             SetVignette(0);
 
+        if (!GetComboTarget().IsEmpty())
+            ClearComboTarget();
+
         // players in instance don't have ZoneScript, but they have InstanceScript
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
             zoneScript->OnUnitDeath(this);
@@ -11051,6 +11054,10 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             }
         }
     }
+
+    // Combo Points handling - clear target after killing it
+    if (attacker && attacker->GetComboTarget() == victim->GetGUID())
+        attacker->ClearComboTarget();
 
     // achievement stuff
     if (attacker && victim->GetTypeId() == TYPEID_PLAYER)
@@ -14149,6 +14156,22 @@ void Unit::SetVignette(uint32 vignetteId)
 
     if (VignetteEntry const* vignette = sVignetteStore.LookupEntry(vignetteId))
         m_vignette = Vignettes::Create(vignette, this);
+}
+
+void Unit::AddComboPoints(ObjectGuid targetGuid, int32 points)
+{
+    // if we lose our target or our target changes, reset combo points back to zero
+    if (targetGuid.IsEmpty() || targetGuid != m_unitData->ComboTarget)
+        SetPower(POWER_COMBO_POINTS, 0, false);
+
+    SetComboTarget(targetGuid);
+    ModifyPower(POWER_COMBO_POINTS, points);
+}
+
+void Unit::ClearComboTarget()
+{
+    SetComboTarget(ObjectGuid::Empty);
+    ModifyPower(POWER_COMBO_POINTS, 0);
 }
 
 std::string Unit::GetDebugInfo() const

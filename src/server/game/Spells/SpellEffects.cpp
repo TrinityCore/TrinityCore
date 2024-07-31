@@ -413,7 +413,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //325 SPELL_EFFECT_325
     &Spell::EffectNULL,                                     //326 SPELL_EFFECT_326
     &Spell::EffectNULL,                                     //327 SPELL_EFFECT_PULL
-    &Spell::EffectNULL,                                     //328 SPELL_EFFECT_ADD_COMBO_POINTS
+    &Spell::EffectAddComboPoints,                           //328 SPELL_EFFECT_ADD_COMBO_POINTS
     &Spell::EffectResurrectNew,                             //329 SPELL_EFFECT_RESURRECT_NEW
     &Spell::EffectActivateRune,                             //330 SPELL_EFFECT_ACTIVATE_RUNE
 };
@@ -5930,6 +5930,18 @@ void Spell::EffectTeleportGraveyard()
         return;
 
     target->RepopAtGraveyard();
+}
+
+void Spell::EffectAddComboPoints()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Unit* caster = Object::ToUnit(m_caster);
+    if (!caster)
+        return;
+
+    caster->AddComboPoints(unitTarget->GetGUID(), damage);
 }
 
 void Spell::EffectActivateRune()
