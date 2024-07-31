@@ -906,8 +906,7 @@ void WorldPackets::Guild::GuildNewsUpdateSticky::Read()
 {
     _worldPacket >> GuildGUID;
     _worldPacket >> NewsID;
-
-    NewsID = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(Sticky);
 }
 
 void WorldPackets::Guild::GuildSetGuildMaster::Read()

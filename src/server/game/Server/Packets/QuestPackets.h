@@ -280,7 +280,7 @@ namespace WorldPackets
             int32 SkillLineID               = 0;
             int32 NumSkillUps               = 0;
             int32 TreasurePickerID          = 0;
-            std::array<QuestChoiceItem, QUEST_REWARD_CHOICES_COUNT> ChoiceItems;
+            std::array<QuestChoiceItem, QUEST_REWARD_CHOICES_COUNT> ChoiceItems = { };
             std::array<int32, QUEST_REWARD_ITEM_COUNT> ItemID = { };
             std::array<int32, QUEST_REWARD_ITEM_COUNT> ItemQty = { };
             std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> FactionID = { };
@@ -302,13 +302,13 @@ namespace WorldPackets
         struct QuestGiverOfferReward
         {
             ObjectGuid QuestGiverGUID;
-            int32 QuestGiverCreatureID      = 0;
-            int32 QuestID                   = 0;
-            bool AutoLaunched               = false;
-            int32 SuggestedPartyMembers     = 0;
+            int32 QuestGiverCreatureID = 0;
+            int32 QuestID = 0;
+            bool AutoLaunched = false;
+            int32 SuggestedPartyMembers = 0;
             QuestRewards Rewards;
             std::vector<QuestDescEmote> Emotes;
-            int32 QuestFlags[3]             = { }; // Flags and FlagsEx
+            std::array<int32, 3> QuestFlags = { };
         };
 
         class QuestGiverOfferRewardMessage final : public ServerPacket

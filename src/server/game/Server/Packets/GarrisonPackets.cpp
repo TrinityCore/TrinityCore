@@ -253,7 +253,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     data << uint32(garrison.NumMissionsStartedToday);
     data << int32(garrison.MinAutoTroopLevel);
 
-    for (GarrisonPlotInfo* plot : garrison.Plots)
+    for (GarrisonPlotInfo const* plot : garrison.Plots)
         data << *plot;
 
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)

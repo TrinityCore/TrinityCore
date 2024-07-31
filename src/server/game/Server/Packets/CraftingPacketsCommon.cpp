@@ -48,10 +48,10 @@ ByteBuffer& operator<<(ByteBuffer& data, CraftingData const& craftingData)
     for (SpellReducedReagent const& spellReducedReagent : craftingData.ResourcesReturned)
         data << spellReducedReagent;
 
-    data.WriteBit(craftingData.IsCrit);
-    data.WriteBit(craftingData.field_29);
-    data.WriteBit(craftingData.field_2A);
-    data.WriteBit(craftingData.BonusCraft);
+    data << Bits<1>(craftingData.IsCrit);
+    data << Bits<1>(craftingData.field_29);
+    data << Bits<1>(craftingData.field_2A);
+    data << Bits<1>(craftingData.BonusCraft);
     data.FlushBits();
 
     data << craftingData.OldItem;

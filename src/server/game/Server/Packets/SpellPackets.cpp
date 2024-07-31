@@ -94,13 +94,13 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
     data << uint16(auraData.CastLevel);
     data << uint8(auraData.Applications);
     data << int32(auraData.ContentTuningID);
-    data.WriteBit(auraData.CastUnit.has_value());
-    data.WriteBit(auraData.Duration.has_value());
-    data.WriteBit(auraData.Remaining.has_value());
-    data.WriteBit(auraData.TimeMod.has_value());
-    data.WriteBits(auraData.Points.size(), 6);
-    data.WriteBits(auraData.EstimatedPoints.size(), 6);
-    data.WriteBit(auraData.ContentTuning.has_value());
+    data << OptionalInit(auraData.CastUnit);
+    data << OptionalInit(auraData.Duration);
+    data << OptionalInit(auraData.Remaining);
+    data << OptionalInit(auraData.TimeMod);
+    data << BitsSize<6>(auraData.Points);
+    data << BitsSize<6>(auraData.EstimatedPoints);
+    data << OptionalInit(auraData.ContentTuning);
 
     if (auraData.ContentTuning)
         data << *auraData.ContentTuning;
@@ -129,7 +129,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
 ByteBuffer& operator<<(ByteBuffer& data, AuraInfo const& aura)
 {
     data << aura.Slot;
-    data.WriteBit(aura.AuraData.has_value());
+    data << OptionalInit(aura.AuraData);
     data.FlushBits();
 
     if (aura.AuraData)
@@ -141,7 +141,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraInfo const& aura)
 WorldPacket const* AuraUpdate::Write()
 {
     _worldPacket.WriteBit(UpdateAll);
-    _worldPacket.WriteBits(Auras.size(), 9);
+    _worldPacket << BitsSize<9>(Auras);
     for (AuraInfo const& aura : Auras)
         _worldPacket << aura;
 

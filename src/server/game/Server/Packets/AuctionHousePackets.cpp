@@ -99,8 +99,8 @@ ByteBuffer& operator>>(ByteBuffer& data, AuctionListFilterClass& filterClass)
 ByteBuffer& operator>>(ByteBuffer& data, AuctionSortDef& sortDef)
 {
     data.ResetBitPos();
-    sortDef.SortOrder = static_cast<AuctionHouseSortOrder>(data.ReadBits(4));
-    sortDef.ReverseSort = data.ReadBit();
+    data >> Bits<4>(sortDef.SortOrder);
+    data >> Bits<1>(sortDef.ReverseSort);
 
     return data;
 }
