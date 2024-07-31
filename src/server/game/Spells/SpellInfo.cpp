@@ -1740,6 +1740,11 @@ bool SpellInfo::HasHitDelay() const
     return Speed > 0.0f || LaunchDelay > 0.0f;
 }
 
+bool SpellInfo::IsFinishingMove() const
+{
+    return HasAttribute(SpellAttr1(SPELL_ATTR1_FINISHING_MOVE_DAMAGE | SPELL_ATTR1_FINISHING_MOVE_DURATION));
+}
+
 WeaponAttackType SpellInfo::GetAttackType() const
 {
     WeaponAttackType result;

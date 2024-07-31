@@ -608,7 +608,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
         && !m_spellInfo->HasAttribute(SPELL_ATTR1_NO_REFLECTION) && !m_spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)
         && !m_spellInfo->IsPassive();
 
-    m_consumeAllComboPoints = m_spellInfo->HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DAMAGE) || m_spellInfo->HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DURATION);
+    m_consumeAllComboPoints = m_spellInfo->IsFinishingMove();
 
     CleanupTargetList();
 
@@ -3220,7 +3220,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
             }
         }
 
-        hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster, &m_powerCost);
+        hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster);
 
         // unit is immune to aura if it was diminished to 0 duration
         if (!hitInfo.Positive && !unit->ApplyDiminishingToDuration(m_spellInfo, hitInfo.AuraDuration, origCaster, diminishLevel))

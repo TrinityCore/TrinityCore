@@ -870,10 +870,10 @@ void Aura::Update(uint32 diff, Unit* caster)
 
 int32 Aura::CalcMaxDuration(Unit* caster) const
 {
-    return Aura::CalcMaxDuration(GetSpellInfo(), caster, nullptr);
+    return Aura::CalcMaxDuration(GetSpellInfo(), caster);
 }
 
-/*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject const* caster, std::vector<SpellPowerCost> const* powerCosts)
+/*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject const* caster)
 {
     Player* modOwner = nullptr;
     int32 maxDuration;
@@ -881,7 +881,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     if (caster)
     {
         modOwner = caster->GetSpellModOwner();
-        maxDuration = caster->CalcSpellDuration(spellInfo, powerCosts);
+        maxDuration = caster->CalcSpellDuration(spellInfo);
     }
     else
         maxDuration = spellInfo->GetDuration();

@@ -2428,7 +2428,7 @@ double WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIn
     return value;
 }
 
-int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo, std::vector<SpellPowerCost> const* powerCosts) const
+int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo) const
 {
     int32 minduration = spellInfo->GetDuration();
     if (minduration <= 0)
@@ -2442,29 +2442,20 @@ int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo, std::vector<Spe
     if (!unit)
         return minduration;
 
-    if (!powerCosts)
+    int32 comboPoints = unit->GetPower(POWER_COMBO_POINTS);
+    if (!comboPoints || !spellInfo->IsFinishingMove())
         return minduration;
 
-    // we want only baseline cost here
-    auto itr = std::find_if(spellInfo->PowerCosts.begin(), spellInfo->PowerCosts.end(), [=](SpellPowerEntry const* powerEntry)
-    {
-        return powerEntry && powerEntry->PowerType == POWER_COMBO_POINTS && (!powerEntry->RequiredAuraSpellID || unit->HasAura(powerEntry->RequiredAuraSpellID));
-    });
-
-    if (itr == spellInfo->PowerCosts.end())
-        return minduration;
-
-    auto consumedItr = std::find_if(powerCosts->begin(), powerCosts->end(),
-        [](SpellPowerCost const& consumed) { return consumed.Power == POWER_COMBO_POINTS; });
-    if (consumedItr == powerCosts->end())
-        return minduration;
-
-    int32 baseComboCost = (*itr)->ManaCost + (*itr)->OptionalCost;
+    // Combo Points increase an aura's duration per consumed point
+    int32 baseComboCost = 0;
     if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_COMBO_POINTS))
-        baseComboCost += int32(CalculatePct(powerTypeEntry->MaxBasePower, (*itr)->PowerCostPct));
+        baseComboCost += powerTypeEntry->MaxBasePower;
+
+    if (!baseComboCost)
+        return minduration;
 
     float durationPerComboPoint = float(maxduration - minduration) / baseComboCost;
-    return minduration + int32(durationPerComboPoint * consumedItr->Amount);
+    return minduration + int32(durationPerComboPoint * comboPoints);
 }
 
 int32 WorldObject::ModSpellDuration(SpellInfo const* spellInfo, WorldObject const* target, int32 duration, bool positive, uint32 effectMask) const
