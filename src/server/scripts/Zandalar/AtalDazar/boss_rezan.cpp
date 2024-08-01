@@ -290,19 +290,16 @@ struct at_rezan_pile_of_bones_spawn_raptor : AreaTriggerAI
     void OnUnitEnter(Unit* unit)
     {
         Creature* rezan = at->GetInstanceScript()->GetCreature(DATA_REZAN);
-        if (!rezan)
+        if (!rezan || !rezan->IsInCombat())
             return;
 
-        if (rezan->IsInCombat())
-        {
-            if (!unit->IsPlayer() || (unit == rezan && !rezan->GetMap()->IsHeroicOrHigher()))
-                return;
+        if (!unit->IsPlayer() || (unit == rezan && !rezan->GetMap()->IsHeroicOrHigher()))
+            return;
 
-            rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_TRIGGER_SPAWN, true);
-            rezan->AI()->Talk(SAY_REANIMATED_RAPTOR_WARNING);
-            rezan->AI()->Talk(SAY_REANIMATED_RAPTOR_SUMMONER, unit);
-            at->Remove();
-        }
+        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_TRIGGER_SPAWN, true);
+        rezan->AI()->Talk(SAY_REANIMATED_RAPTOR_WARNING);
+        rezan->AI()->Talk(SAY_REANIMATED_RAPTOR_SUMMONER, unit);
+        at->Remove();
     }
 };
 
@@ -314,17 +311,14 @@ struct at_rezan_pile_of_bones_slow : AreaTriggerAI
     void OnUnitEnter(Unit* unit)
     {
         Creature* rezan = at->GetInstanceScript()->GetCreature(DATA_REZAN);
-        if (!rezan)
+        if (!rezan || !rezan->IsInCombat())
             return;
 
-        if (rezan->IsInCombat())
-        {
-            if (!unit->IsPlayer())
-                return;
+        if (!unit->IsPlayer())
+            return;
 
-            unit->CastSpell(unit, SPELL_PILE_OF_BONES_SLOW, true);
-            at->Remove();
-        }
+        unit->CastSpell(unit, SPELL_PILE_OF_BONES_SLOW, true);
+        at->Remove();
     }
 };
 
