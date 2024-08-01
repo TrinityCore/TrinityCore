@@ -4919,6 +4919,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE WANDERING ISLE SPELLS
     //
 
+    //
+    // ATAL DAZAR SPELLS
+    //
+
+    ApplySpellFix({ 258344 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx8 &= ~SPELL_ATTR8_ONLY_TARGET_IF_SAME_CREATOR;
+    });
+
+    // ENDOF ATAL DAZAR SPELLS
+    //
+
     // Earthquake
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
     {
