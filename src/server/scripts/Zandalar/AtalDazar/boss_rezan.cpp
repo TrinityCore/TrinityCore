@@ -129,18 +129,16 @@ struct boss_rezan : public BossAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        instance->SetBossState(DATA_REZAN, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
         summons.DespawnAll();
 
         _EnterEvadeMode();
         _DespawnAtEvade();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        instance->SetBossState(DATA_REZAN, IN_PROGRESS);
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
         events.ScheduleEvent(EVENT_TERRIFYING_VISAGE, 12200ms);
@@ -153,7 +151,6 @@ struct boss_rezan : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        instance->SetBossState(DATA_REZAN, DONE);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -276,12 +273,7 @@ class spell_rezan_boss_emote_at_target : public SpellScript
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Creature* casterCreature = GetCaster()->ToCreature())
-        {
-            if (!casterCreature)
-                return;
-
             casterCreature->AI()->Talk(SAY_PURSUIT, GetHitUnit());
-        }
     }
 
     void Register() override
