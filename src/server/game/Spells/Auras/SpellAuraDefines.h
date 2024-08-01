@@ -714,7 +714,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_BLIND                                    = 619, // NYI
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 620,
     SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE                   = 621, // NYI
-    SPELL_AURA_622                                          = 622,
+    SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 622, // NYI
     SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT           = 623, // NYI
     SPELL_AURA_MOD_DAMAGE_FROM_MANA                         = 624, // NYI
 
