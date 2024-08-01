@@ -20,6 +20,11 @@
 #include "ScriptMgr.h"
 #include "atal_dazar.h"
 
+BossBoundaryData const boundaries =
+{
+    { DATA_REZAN, new ZRangeBoundary(640.30f, 647.65f) },
+};
+
 ObjectData const creatureData[] =
 {
     { BOSS_PRIESTESS_ALUNZA, DATA_PRIESTESS_ALUNZA  },
@@ -49,6 +54,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
+            LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }
     };
