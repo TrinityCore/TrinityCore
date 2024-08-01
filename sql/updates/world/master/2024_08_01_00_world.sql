@@ -47,7 +47,7 @@ UPDATE `creature_template` SET `flags_extra` = 128 WHERE `entry` IN (137606, 152
 
 -- Phase
 DELETE FROM `phase_name` WHERE `ID` = 10277;
-INSERT INTO `world`.`phase_name` (`ID`, `Name`) VALUES
+INSERT INTO `phase_name` (`ID`, `Name`) VALUES
 (10277, 'Cosmetic - See Magnis Encampment');
 
 DELETE FROM `phase_area` WHERE `PhaseId` = 10277; 
