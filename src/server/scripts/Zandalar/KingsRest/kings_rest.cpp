@@ -48,9 +48,6 @@ enum KingsRestData
     // Conversation
     CONV_ZUL_KINGS_REST_INTRO           = 7690,
 
-    // Spawngroups
-    SPAWN_GROUP_PRE_FIRST_BOSS          = 1255,
-
     // Spells
     SPELL_ZUL_SHADOWFORM                = 269058,
     SPELL_ZUL_TRASH_EVENT_STATE         = 269905,

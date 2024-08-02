@@ -25,6 +25,7 @@ void AddSC_boss_cragmaw_the_infested();
 // KingsRest
 void AddSC_instance_kings_rest();
 void AddSC_kings_rest();
+void AddSC_boss_golden_serpent();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -38,4 +39,5 @@ void AddZandalarScripts()
     //KingsRest
     AddSC_instance_kings_rest();
     AddSC_kings_rest();
+    AddSC_boss_golden_serpent();
 }
