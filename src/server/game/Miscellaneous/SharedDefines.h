@@ -1497,6 +1497,24 @@ enum SpellEffectName
     SPELL_EFFECT_CHANGE_ITEM_BONUSES_2              = 313, // MiscValue[0] = ItemBonusTreeID to preserve
     SPELL_EFFECT_ADD_SOCKET_BONUS                   = 314, // MiscValue[0] = required ItemBonusTreeID
     SPELL_EFFECT_LEARN_TRANSMOG_APPEARANCE_FROM_ITEM_MOD_APPEARANCE_GROUP = 315, // MiscValue[0] = ItemModAppearanceGroupID (not in db2)
+    SPELL_EFFECT_KILL_CREDIT_LABEL_1                = 316,
+    SPELL_EFFECT_KILL_CREDIT_LABEL_2                = 317,
+    SPELL_EFFECT_318                                = 318,
+    SPELL_EFFECT_319                                = 319,
+    SPELL_EFFECT_320                                = 320,
+    SPELL_EFFECT_321                                = 321,
+    SPELL_EFFECT_322                                = 322,
+    SPELL_EFFECT_323                                = 323,
+    SPELL_EFFECT_324                                = 324,
+    SPELL_EFFECT_325                                = 325,
+    SPELL_EFFECT_326                                = 326,
+    SPELL_EFFECT_327                                = 327,
+    SPELL_EFFECT_328                                = 328,
+    SPELL_EFFECT_329                                = 329,
+    SPELL_EFFECT_330                                = 330,
+    SPELL_EFFECT_331                                = 331,
+    SPELL_EFFECT_332                                = 332,
+    SPELL_EFFECT_333                                = 333,
     TOTAL_SPELL_EFFECTS
 };
 
