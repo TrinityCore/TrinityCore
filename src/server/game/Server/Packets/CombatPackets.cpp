@@ -107,8 +107,8 @@ WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
     _worldPacket << uint32(Powers.size());
     for (PowerUpdatePower const& power : Powers)
     {
-        _worldPacket << int32(power.Power);
         _worldPacket << uint8(power.PowerType);
+        _worldPacket << int32(power.Power);
     }
 
     return &_worldPacket;
@@ -116,7 +116,7 @@ WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
 
 WorldPacket const* WorldPackets::Combat::InterruptPowerRegen::Write()
 {
-    _worldPacket << int32(PowerType);
+    _worldPacket << int8(PowerType);
 
     return &_worldPacket;
 }

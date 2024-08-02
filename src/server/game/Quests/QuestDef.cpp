@@ -115,7 +115,7 @@ Quest::Quest(Field* questRecord)
     _areaGroupID = questRecord[100].GetUInt32();
     _limitTime = questRecord[101].GetInt64();
     _allowableRaces.RawValue = questRecord[102].GetUInt64();
-    _treasurePickerID = questRecord[103].GetInt32();
+    _resetByScheduler = questRecord[103].GetBool();
     _expansion = questRecord[104].GetInt32();
     _managedWorldStateID = questRecord[105].GetInt32();
     _questSessionBonus = questRecord[106].GetInt32();
@@ -398,6 +398,11 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
     ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, text.Text);
 }
 
+void Quest::LoadTreasurePickers(Field* fields)
+{
+    _treasurePickerID.push_back(fields[1].GetInt32());
+}
+
 uint32 Quest::XPValue(Player const* player) const
 {
     return XPValue(player, GetContentTuningId(), _rewardXPDifficulty, _rewardXPMultiplier, _expansion);
@@ -487,6 +492,14 @@ bool Quest::IsImportant() const
     return false;
 }
 
+bool Quest::IsMeta() const
+{
+    if (QuestInfoEntry const* questInfo = sQuestInfoStore.LookupEntry(GetQuestInfoID()))
+        return (questInfo->Modifiers & 0x800) != 0;
+
+    return false;
+}
+
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
@@ -521,8 +534,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
     for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
     {
-        rewards.ItemID[i] = RewardItemId[i];
-        rewards.ItemQty[i] = RewardItemCount[i];
+        rewards.Items[i].ItemID = RewardItemId[i];
+        rewards.Items[i].ItemQty = RewardItemCount[i];
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
@@ -535,8 +548,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
-        rewards.CurrencyID[i] = RewardCurrencyId[i];
-        rewards.CurrencyQty[i] = RewardCurrencyCount[i];
+        rewards.Currencies[i].CurrencyID = RewardCurrencyId[i];
+        rewards.Currencies[i].CurrencyQty = RewardCurrencyCount[i];
     }
 }
 
@@ -779,6 +792,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.CompleteSoundKitID = GetSoundTurnIn();
     response.Info.AreaGroupID = GetAreaGroupID();
     response.Info.TimeAllowed = GetLimitTime();
+    response.Info.ResetByScheduler = IsResetByScheduler();
 
     response.Write();
     response.ShrinkToFit();

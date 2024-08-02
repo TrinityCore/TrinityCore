@@ -68,7 +68,7 @@ namespace WorldPackets
         {
             uint32 GarrPlotInstanceID = 0;
             TaggedPosition<Position::XYZO> PlotPos;
-            uint32 PlotType = 0;
+            uint8 PlotType = 0;
         };
 
         struct GarrisonBuildingInfo
@@ -197,7 +197,7 @@ namespace WorldPackets
 
         struct GarrisonInfo
         {
-            int32 GarrTypeID = 0;
+            uint8 GarrTypeID = 0;
             uint32 GarrSiteID = 0;
             uint32 GarrSiteLevelID = 0;
             uint32 NumFollowerActivationsRemaining = 0;
@@ -221,7 +221,7 @@ namespace WorldPackets
 
         struct FollowerSoftCapInfo
         {
-            int32 GarrFollowerTypeID;
+            uint8 GarrFollowerTypeID;
             uint32 Count;
         };
 
@@ -281,7 +281,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 GarrTypeID = 0;
+            uint8 GarrTypeID = 0;
             uint32 Result = 0;
             GarrisonBuildingInfo BuildingInfo;
             bool PlayActivationCinematic = false;
@@ -305,7 +305,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 GarrTypeID = 0;
+            uint8 GarrTypeID = 0;
             uint32 Result = 0;
             uint32 GarrPlotInstanceID = 0;
             uint32 GarrBuildingID = 0;
@@ -318,7 +318,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 GarrTypeID = 0;
+            uint8 GarrTypeID = 0;
             uint32 BuildingID = 0;
             uint32 Result = 0;
         };
@@ -330,9 +330,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 GarrTypeID = 0;
-            uint32 BuildingID = 0;
+            uint8 GarrTypeID = 0;
             uint32 Result = 0;
+            uint32 BuildingID = 0;
         };
 
         class GarrisonRequestBlueprintAndSpecializationData final : public ClientPacket
@@ -350,9 +350,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 GarrTypeID = 0;
-            std::unordered_set<uint32> const* SpecializationsKnown = nullptr;
+            uint8 GarrTypeID = 0;
             std::unordered_set<uint32> const* BlueprintsKnown = nullptr;
+            std::unordered_set<uint32> const* SpecializationsKnown = nullptr;
         };
 
         class GarrisonGetMapData final : public ClientPacket
@@ -389,7 +389,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 GarrTypeID = 0;
+            uint8 GarrTypeID = 0;
             GarrisonPlotInfo* PlotInfo = nullptr;
         };
 
@@ -410,7 +410,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 GarrTypeID = 0;
+            uint8 GarrTypeID = 0;
             GarrisonFollower Follower;
             uint32 Result = 0;
         };
@@ -418,13 +418,13 @@ namespace WorldPackets
         class GarrisonRemoveFollowerResult final : public ServerPacket
         {
         public:
-            GarrisonRemoveFollowerResult() : ServerPacket(SMSG_GARRISON_REMOVE_FOLLOWER_RESULT, 8 + 4 + 4 + 4) { }
+            GarrisonRemoveFollowerResult() : ServerPacket(SMSG_GARRISON_REMOVE_FOLLOWER_RESULT, 1 + 4 + 8 + 4) { }
 
             WorldPacket const* Write() override;
 
-            uint64 FollowerDBID = 0;
-            int32 GarrTypeID = 0;
+            uint8 GarrTypeID = 0;
             uint32 Result = 0;
+            uint64 FollowerDBID = 0;
             uint32 Destroyed = 0;
         };
 

@@ -225,7 +225,7 @@ public:
             flag = target->m_unitData->Flags;
 
         if (!npcflag)
-            memcpy(&npcflag.emplace(), target->m_unitData->NpcFlags.begin(), sizeof(uint64));
+            npcflag = (uint64(target->GetNpcFlags2()) << 32) | target->GetNpcFlags();
 
         if (!dyflag)
             dyflag = target->m_objectData->DynamicFlags;

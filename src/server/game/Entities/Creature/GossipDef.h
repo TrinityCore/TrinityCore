@@ -88,6 +88,9 @@ enum class GossipOptionNpc : uint8
     BarbersChoice              = 52,
     MajorFactionRenown         = 53,
     PersonalTabardVendor       = 54,
+    ForgeMaster                = 55,
+    CharacterBanker            = 56,
+    AccountBanker              = 57,
 
     Count
 };
@@ -108,8 +111,9 @@ enum class GossipOptionRewardType : uint8
 
 enum class GossipOptionFlags : int32
 {
-    None                = 0x0,
-    QuestLabelPrepend   = 0x1
+    None                    = 0x0,
+    QuestLabelPrepend       = 0x1,
+    HideOptionIDFromClient  = 0x2
 };
 
 struct GossipMenuItem

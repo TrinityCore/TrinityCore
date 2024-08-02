@@ -41,7 +41,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonPlotInfo const& plotInfo)
 {
     data << uint32(plotInfo.GarrPlotInstanceID);
     data << plotInfo.PlotPos;
-    data << uint32(plotInfo.PlotType);
+    data << uint8(plotInfo.PlotType);
 
     return data;
 }
@@ -232,7 +232,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     ASSERT(garrison.Missions.size() == garrison.MissionOvermaxRewards.size());
     ASSERT(garrison.Missions.size() == garrison.CanStartMission.size());
 
-    data << int32(garrison.GarrTypeID);
+    data << uint8(garrison.GarrTypeID);
     data << int32(garrison.GarrSiteID);
     data << int32(garrison.GarrSiteLevelID);
     data << uint32(garrison.Buildings.size());
@@ -310,7 +310,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
 
 ByteBuffer& operator<<(ByteBuffer& data, FollowerSoftCapInfo const& followerSoftCapInfo)
 {
-    data << int32(followerSoftCapInfo.GarrFollowerTypeID);
+    data << uint8(followerSoftCapInfo.GarrFollowerTypeID);
     data << uint32(followerSoftCapInfo.Count);
     return data;
 }
@@ -365,7 +365,7 @@ void GarrisonPurchaseBuilding::Read()
 
 WorldPacket const* GarrisonPlaceBuildingResult::Write()
 {
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << BuildingInfo;
     _worldPacket.WriteBit(PlayActivationCinematic);
@@ -382,7 +382,7 @@ void GarrisonCancelConstruction::Read()
 
 WorldPacket const* GarrisonBuildingRemoved::Write()
 {
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(GarrPlotInstanceID);
     _worldPacket << uint32(GarrBuildingID);
@@ -392,7 +392,7 @@ WorldPacket const* GarrisonBuildingRemoved::Write()
 
 WorldPacket const* GarrisonLearnBlueprintResult::Write()
 {
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(BuildingID);
 
@@ -401,7 +401,7 @@ WorldPacket const* GarrisonLearnBlueprintResult::Write()
 
 WorldPacket const* GarrisonUnlearnBlueprintResult::Write()
 {
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(BuildingID);
 
@@ -410,7 +410,7 @@ WorldPacket const* GarrisonUnlearnBlueprintResult::Write()
 
 WorldPacket const* GarrisonRequestBlueprintAndSpecializationDataResult::Write()
 {
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(BlueprintsKnown ? BlueprintsKnown->size() : 0);
     _worldPacket << uint32(SpecializationsKnown ? SpecializationsKnown->size() : 0);
     if (BlueprintsKnown)
@@ -443,7 +443,7 @@ WorldPacket const* GarrisonMapDataResponse::Write()
 
 WorldPacket const* GarrisonPlotPlaced::Write()
 {
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << *PlotInfo;
 
     return &_worldPacket;
@@ -458,7 +458,7 @@ WorldPacket const* GarrisonPlotRemoved::Write()
 
 WorldPacket const* GarrisonAddFollowerResult::Write()
 {
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << Follower;
 
@@ -467,9 +467,9 @@ WorldPacket const* GarrisonAddFollowerResult::Write()
 
 WorldPacket const* GarrisonRemoveFollowerResult::Write()
 {
-    _worldPacket << uint64(FollowerDBID);
-    _worldPacket << int32(GarrTypeID);
+    _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(Result);
+    _worldPacket << uint64(FollowerDBID);
     _worldPacket << uint32(Destroyed);
 
     return &_worldPacket;

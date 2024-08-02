@@ -26,6 +26,7 @@ WorldPacket const* WorldPackets::Scenes::PlayScene::Write()
     _worldPacket << int32(SceneScriptPackageID);
     _worldPacket << TransportGUID;
     _worldPacket << Location;
+    _worldPacket << int32(MovieID);
     _worldPacket << Bits<1>(Encrypted);
     _worldPacket.FlushBits();
 

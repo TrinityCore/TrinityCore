@@ -372,9 +372,14 @@ void ReputationMgr::SendInitialReputations()
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
-        initFactions.FactionFlags[itr->first] = itr->second.Flags.AsUnderlyingType();
-        initFactions.FactionStandings[itr->first] = itr->second.Standing;
+        WorldPackets::Reputation::FactionData& factionData = initFactions.Factions.emplace_back();
+        factionData.FactionID = itr->second.ID;
+        factionData.Flags = itr->second.Flags.AsUnderlyingType();
+        factionData.Standing = itr->second.Standing;
         /// @todo faction bonus
+        WorldPackets::Reputation::FactionBonusData& bonus = initFactions.Bonuses.emplace_back();
+        bonus.FactionID = itr->second.ID;
+        bonus.FactionHasBonus = false;
         itr->second.needSend = false;
     }
 
