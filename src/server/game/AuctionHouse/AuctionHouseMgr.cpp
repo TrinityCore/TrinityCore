@@ -1878,12 +1878,6 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
             mail.SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED, 0);
         }
     }
-    else
-    {
-        // owner doesn't exist, delete the item
-        for (Item* item : auction->Items)
-            sAuctionMgr->RemoveAItem(item->GetGUID(), true, &trans);
-    }
 }
 
 void AuctionHouseObject::SendAuctionRemoved(AuctionPosting const* auction, Player* owner, CharacterDatabaseTransaction trans) const
