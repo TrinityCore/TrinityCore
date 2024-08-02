@@ -107,14 +107,11 @@ constexpr Position PilesOfBonesPosition[]
 // 122963 - Rezan
 struct boss_rezan : public BossAI
 {
-    boss_rezan(Creature* creature) : BossAI(creature, DATA_REZAN)
-    {
-        Initialize();
-    }
+    boss_rezan(Creature* creature) : BossAI(creature, DATA_REZAN) { }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        for (Position spawnPoint : PilesOfBonesPosition)
+        for (Position const& spawnPoint : PilesOfBonesPosition)
         {
             me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SPAWN, true);
             me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SLOW, true);
@@ -188,24 +185,6 @@ struct boss_rezan : public BossAI
             }
             default:
                 break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            ExecuteEvent(eventId);
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
 };
@@ -282,6 +261,23 @@ class spell_rezan_boss_emote_at_target : public SpellScript
     }
 };
 
+// 255371 - Terrifying Visage
+class spell_rezan_terrifying_visage : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([this](WorldObject* target) -> bool
+        {
+            return !GetCaster()->IsWithinLOSInMap(target);
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rezan_terrifying_visage::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
 // 256608 - Pile of Bones
 struct at_rezan_pile_of_bones_spawn_raptor : AreaTriggerAI
 {
@@ -330,6 +326,7 @@ void AddSC_boss_rezan()
     RegisterSpellScript(spell_rezan_devour);
     RegisterSpellScript(spell_rezan_pursuit);
     RegisterSpellScript(spell_rezan_boss_emote_at_target);
+    RegisterSpellScript(spell_rezan_terrifying_visage);
 
     RegisterAreaTriggerAI(at_rezan_pile_of_bones_spawn_raptor);
     RegisterAreaTriggerAI(at_rezan_pile_of_bones_slow);

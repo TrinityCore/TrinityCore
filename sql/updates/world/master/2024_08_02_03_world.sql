@@ -12,13 +12,14 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (129517, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- 129517 (Reanimated Raptor)
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (255372, 255421, 257407, 258344, 255600);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (255372, 255421, 257407, 258344, 255600, 255371);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (255372, 'spell_rezan_tail_selector'),
 (255421, 'spell_rezan_devour'),
 (257407, 'spell_rezan_pursuit'),
 (258344, 'spell_gen_reverse_cast_target_to_caster_triggered'),
-(255600, 'spell_rezan_boss_emote_at_target');
+(255600, 'spell_rezan_boss_emote_at_target'),
+(255371, 'spell_rezan_terrifying_visage');
 
 -- Areatriggers
 UPDATE `areatrigger_create_properties` SET `ScriptName`='at_rezan_pile_of_bones_spawn_raptor' WHERE `Id`=11959 AND `IsCustom`=0;
@@ -41,3 +42,5 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (12951700, 9, 1, 0, '', 0, 0, 100, 0, 1000, 1000, 0, 0, 0, '', 28, 256633, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Reanimated Raptor - Action list - Remove aura 256633'),
 (12951700, 9, 2, 0, '', 0, 0, 100, 0, 4000, 4000, 0, 0, 0, '', 144, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Reanimated Raptor - Action list - Remove immune to pc'),
 (12951700, 9, 3, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 145, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Reanimated Raptor - Action list - Remove immune to npc');
+
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=`StaticFlags1`|0x00080000 WHERE `Entry` IN(122963, 129517); -- add amphibious flag to Rezan and Raptors, evades in water otherwise // hack
