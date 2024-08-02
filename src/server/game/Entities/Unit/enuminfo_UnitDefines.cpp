@@ -421,7 +421,7 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
         case UNIT_NPC_FLAG_NONE: return { "UNIT_NPC_FLAG_NONE", "UNIT_NPC_FLAG_NONE", "" };
         case UNIT_NPC_FLAG_GOSSIP: return { "UNIT_NPC_FLAG_GOSSIP", "has gossip menu", "100%" };
         case UNIT_NPC_FLAG_QUESTGIVER: return { "UNIT_NPC_FLAG_QUESTGIVER", "is quest giver", "100%" };
-        case UNIT_NPC_FLAG_UNK1: return { "UNIT_NPC_FLAG_UNK1", "UNIT_NPC_FLAG_UNK1", "" };
+        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return { "UNIT_NPC_FLAG_ACCOUNT_BANKER", "UNIT_NPC_FLAG_ACCOUNT_BANKER", "" };
         case UNIT_NPC_FLAG_UNK2: return { "UNIT_NPC_FLAG_UNK2", "UNIT_NPC_FLAG_UNK2", "" };
         case UNIT_NPC_FLAG_TRAINER: return { "UNIT_NPC_FLAG_TRAINER", "is trainer", "100%" };
         case UNIT_NPC_FLAG_TRAINER_CLASS: return { "UNIT_NPC_FLAG_TRAINER_CLASS", "is class trainer", "100%" };
@@ -466,7 +466,7 @@ TC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
         case 0: return UNIT_NPC_FLAG_NONE;
         case 1: return UNIT_NPC_FLAG_GOSSIP;
         case 2: return UNIT_NPC_FLAG_QUESTGIVER;
-        case 3: return UNIT_NPC_FLAG_UNK1;
+        case 3: return UNIT_NPC_FLAG_ACCOUNT_BANKER;
         case 4: return UNIT_NPC_FLAG_UNK2;
         case 5: return UNIT_NPC_FLAG_TRAINER;
         case 6: return UNIT_NPC_FLAG_TRAINER_CLASS;
@@ -508,7 +508,7 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
         case UNIT_NPC_FLAG_NONE: return 0;
         case UNIT_NPC_FLAG_GOSSIP: return 1;
         case UNIT_NPC_FLAG_QUESTGIVER: return 2;
-        case UNIT_NPC_FLAG_UNK1: return 3;
+        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return 3;
         case UNIT_NPC_FLAG_UNK2: return 4;
         case UNIT_NPC_FLAG_TRAINER: return 5;
         case UNIT_NPC_FLAG_TRAINER_CLASS: return 6;

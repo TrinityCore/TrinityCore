@@ -198,6 +198,7 @@ bool Group::Create(Player* leader)
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
         stmt->setUInt32(index++, uint8(m_legacyRaidDifficulty));
         stmt->setUInt64(index++, m_masterLooterGuid.GetCounter());
+        stmt->setInt8(index++, int8(m_pingRestriction));
 
         CharacterDatabase.Execute(stmt);
 
@@ -242,6 +243,8 @@ void Group::LoadGroupFromDB(Field* fields)
     m_legacyRaidDifficulty = Player::CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[15].GetUInt8()));
 
     m_masterLooterGuid = ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt64());
+
+    m_pingRestriction = RestrictPingsTo(fields[18].GetInt8());
 
     if (m_groupFlags & GROUP_FLAG_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
@@ -866,6 +869,8 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot const* slot) co
     partyUpdate.LeaderFactionGroup = m_leaderFactionGroup;
 
     partyUpdate.SequenceNum = player->NextGroupUpdateSequenceNumber(m_groupCategory);
+
+    partyUpdate.PingRestriction = m_pingRestriction;
 
     partyUpdate.MyIndex = -1;
     uint8 index = 0;
@@ -1899,23 +1904,20 @@ void Group::SetEveryoneIsAssistant(bool apply)
     SendUpdate();
 }
 
-bool Group::IsRestrictPingsToAssistants() const
+RestrictPingsTo Group::GetRestrictPings() const
 {
-    return (m_groupFlags & GROUP_FLAG_RESTRICT_PINGS) != 0;
+    return m_pingRestriction;
 }
 
-void Group::SetRestrictPingsToAssistants(bool restrictPingsToAssistants)
+void Group::SetRestrictPingsTo(RestrictPingsTo restrictTo)
 {
-    if (restrictPingsToAssistants)
-        m_groupFlags = GroupFlags(m_groupFlags | GROUP_FLAG_RESTRICT_PINGS);
-    else
-        m_groupFlags = GroupFlags(m_groupFlags & ~GROUP_FLAG_RESTRICT_PINGS);
+    m_pingRestriction = restrictTo;
 
     if (!isBGGroup() && !isBFGroup())
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_PING_RESTRICTION);
 
-        stmt->setUInt16(0, m_groupFlags);
+        stmt->setInt8(0, int8(m_pingRestriction));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);

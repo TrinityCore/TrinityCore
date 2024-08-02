@@ -110,7 +110,7 @@ WorldPacket const* SpellExecuteLog::Write()
             {
                 *this << powerDrainTarget.Victim;
                 *this << uint32(powerDrainTarget.Points);
-                *this << uint32(powerDrainTarget.PowerType);
+                *this << int8(powerDrainTarget.PowerType);
                 *this << float(powerDrainTarget.Amplitude);
             }
         }

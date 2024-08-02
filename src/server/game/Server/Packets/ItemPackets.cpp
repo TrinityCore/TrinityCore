@@ -254,10 +254,11 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << int32(QuestLogItemID);
     _worldPacket << int32(Quantity);
     _worldPacket << int32(QuantityInInventory);
+    _worldPacket << int32(QuantityInQuestLog);
     _worldPacket << int32(DungeonEncounterID);
     _worldPacket << int32(BattlePetSpeciesID);
     _worldPacket << int32(BattlePetBreedID);
-    _worldPacket << uint32(BattlePetBreedQuality);
+    _worldPacket << uint8(BattlePetBreedQuality);
     _worldPacket << int32(BattlePetLevel);
     _worldPacket << ItemGUID;
     _worldPacket << uint32(Toasts.size());

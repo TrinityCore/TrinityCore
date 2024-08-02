@@ -779,6 +779,7 @@ struct GossipMenus
 struct GossipMenuAddon
 {
     int32 FriendshipFactionID;
+    int32 LfgDungeonsID;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;

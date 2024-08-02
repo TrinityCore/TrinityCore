@@ -2479,7 +2479,6 @@ void Guild::SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool 
     eventPacket.Name = player->GetName();
     eventPacket.VirtualRealmAddress = GetVirtualRealmAddress();
     eventPacket.LoggedOn = loggedOn;
-    eventPacket.Mobile = false;
 
     if (broadcast)
         BroadcastPacket(eventPacket.Write());

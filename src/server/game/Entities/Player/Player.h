@@ -146,7 +146,7 @@ enum PlayerSkillsConstants
 
 enum PlayerDataFlagConstants
 {
-    PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::ActivePlayerData::DataFlags)::value_type>() * 8,
+    PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::BitVectors::Values)::value_type>() * 8,
 
     PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX                   = 1,
     PLAYER_DATA_FLAG_CHARACTER_DATA_INDEX                   = 2,
@@ -638,7 +638,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 227,
+    PLAYER_SLOT_END             = 232,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -761,6 +761,12 @@ enum EquipableSpellSlots
     EQUIPABLE_SPELL_WEAPON_SLOT4    = 226,
 };
 
+enum AccountBankBagSlots
+{
+    ACCOUNT_BANK_SLOT_BAG_START = 227,
+    ACCOUNT_BANK_SLOT_BAG_END   = 232
+};
+
 struct ItemPosCount
 {
     ItemPosCount(uint16 _pos, uint32 _count) : pos(_pos), count(_count) { }
@@ -811,11 +817,10 @@ enum NewWorldReason
 
 enum InstanceResetWarningType
 {
-    RAID_INSTANCE_WARNING_HOURS     = 1,                    // WARNING! %s is scheduled to reset in %d hour(s).
-    RAID_INSTANCE_WARNING_MIN       = 2,                    // WARNING! %s is scheduled to reset in %d minute(s)!
-    RAID_INSTANCE_WARNING_MIN_SOON  = 3,                    // WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
-    RAID_INSTANCE_WELCOME           = 4,                    // Welcome to %s. This raid instance is scheduled to reset in %s.
-    RAID_INSTANCE_EXPIRED           = 5
+    RAID_INSTANCE_WELCOME           = 1,                    // Welcome to %s. Instance locks are scheduled to expire in %s.
+    RAID_INSTANCE_EXPIRED           = 2,                    // Your instance lock for %s has expired.
+    RAID_INSTANCE_WELCOME_DAILY     = 3,                    // Welcome to %s. The daily reset is scheduled to occur in %s and will reset this instance.
+    RAID_INSTANCE_WARNING_TIME      = 4,                    // any GlobalStrings tag that has 1 formattable argument, like DELVES_INSTANCE_RESET_WARNING
 };
 
 // PLAYER_FIELD_ARENA_TEAM_INFO_1_1 offsets
@@ -2294,6 +2299,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         TeleportLocation& GetTeleportDest() { return m_teleport_dest; }
         uint32 GetTeleportOptions() const { return m_teleport_options; }
+        int32 GetNewWorldCounter() const { return m_newWorldCounter; }
         bool IsBeingTeleported() const { return IsBeingTeleportedNear() || IsBeingTeleportedFar(); }
         bool IsBeingTeleportedNear() const { return mSemaphoreTeleport_Near; }
         bool IsBeingTeleportedFar() const { return mSemaphoreTeleport_Far; }
@@ -3251,6 +3257,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         // Current teleport data
         TeleportLocation m_teleport_dest;
         TeleportToOptions m_teleport_options;
+        int32 m_newWorldCounter;
         bool mSemaphoreTeleport_Near;
         bool mSemaphoreTeleport_Far;
 

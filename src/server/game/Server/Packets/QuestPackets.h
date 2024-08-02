@@ -185,7 +185,7 @@ namespace WorldPackets
             int32 CompleteSoundKitID        = 0;
             int32 AreaGroupID               = 0;
             int64 TimeAllowed               = 0;
-            int32 TreasurePickerID          = 0;
+            std::span<int32 const> TreasurePickerID;
             int32 Expansion                 = 0;
             int32 ManagedWorldStateID       = 0;
             int32 QuestSessionBonus         = 0;
@@ -205,6 +205,7 @@ namespace WorldPackets
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = { };
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = { };
             bool ReadyForTranslation        = false;
+            bool ResetByScheduler           = false;
         };
 
         class QueryQuestInfoResponse final : public ServerPacket
@@ -257,11 +258,27 @@ namespace WorldPackets
             uint16 Count = 0;
         };
 
+        struct QuestRewardItem
+        {
+            int32 ItemID = 0;
+            int32 ItemQty = 0;
+            Optional<QuestRewardContextFlags> ContextFlags;
+        };
+
         struct QuestChoiceItem
         {
             ::LootItemType LootItemType = ::LootItemType::Item;
             Item::ItemInstance Item;
             int32 Quantity  = 0;
+            Optional<QuestRewardContextFlags> ContextFlags;
+        };
+
+        struct QuestRewardCurrency
+        {
+            int32 CurrencyID = 0;
+            int32 CurrencyQty = 0;
+            int32 BonusQty = 0;
+            Optional<QuestRewardContextFlags> ContextFlags;
         };
 
         struct QuestRewards
@@ -279,16 +296,14 @@ namespace WorldPackets
             int32 SpellCompletionID         = 0;
             int32 SkillLineID               = 0;
             int32 NumSkillUps               = 0;
-            int32 TreasurePickerID          = 0;
+            std::span<int32 const> TreasurePickerID;
             std::array<QuestChoiceItem, QUEST_REWARD_CHOICES_COUNT> ChoiceItems = { };
-            std::array<int32, QUEST_REWARD_ITEM_COUNT> ItemID = { };
-            std::array<int32, QUEST_REWARD_ITEM_COUNT> ItemQty = { };
+            std::array<QuestRewardItem, QUEST_REWARD_ITEM_COUNT> Items = { };
             std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> FactionID = { };
             std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> FactionValue = { };
             std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> FactionOverride = { };
             std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> FactionCapIn = { };
-            std::array<int32, QUEST_REWARD_CURRENCY_COUNT> CurrencyID = { };
-            std::array<int32, QUEST_REWARD_CURRENCY_COUNT> CurrencyQty = { };
+            std::array<QuestRewardCurrency, QUEST_REWARD_CURRENCY_COUNT> Currencies = { };
             bool IsBoostSpell = false;
         };
 
@@ -309,6 +324,7 @@ namespace WorldPackets
             QuestRewards Rewards;
             std::vector<QuestDescEmote> Emotes;
             std::array<int32, 3> QuestFlags = { };
+            int32 QuestInfoID = 0;
         };
 
         class QuestGiverOfferRewardMessage final : public ServerPacket
@@ -390,9 +406,9 @@ namespace WorldPackets
         struct QuestObjectiveSimple
         {
             int32 ID        = 0;
+            int32 Type      = 0;
             int32 ObjectID  = 0;
             int32 Amount    = 0;
-            uint8 Type      = 0;
         };
 
         class QuestGiverQuestDetails final : public ServerPacket
@@ -417,6 +433,7 @@ namespace WorldPackets
             int32 PortraitGiverMount = 0;
             int32 PortraitGiverModelSceneID = 0;
             int32 QuestStartItemID = 0;
+            int32 QuestInfoID = 0;
             int32 QuestSessionBonus = 0;
             int32 QuestGiverCreatureID = 0;
             std::string PortraitGiverText;
@@ -466,6 +483,7 @@ namespace WorldPackets
             std::vector<QuestObjectiveCollect> Collect;
             std::vector<QuestCurrency> Currency;
             int32 StatusFlags           = 0;
+            int32 QuestInfoID           = 0;
             uint32 QuestFlags[3]        = { };
             std::string QuestTitle;
             std::string CompletionText;

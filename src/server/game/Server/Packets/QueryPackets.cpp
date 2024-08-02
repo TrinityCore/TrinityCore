@@ -374,9 +374,9 @@ WorldPacket const* CorpseLocation::Write()
 
     _worldPacket << Player;
     _worldPacket << ActualMapID;
-    _worldPacket << Position;
     _worldPacket << MapID;
     _worldPacket << Transport;
+    _worldPacket << Position;
 
     return &_worldPacket;
 }

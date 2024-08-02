@@ -34,7 +34,6 @@ namespace WorldPackets
 {
     namespace NPC
     {
-        // CMSG_BANKER_ACTIVATE
         // CMSG_BINDER_ACTIVATE
         // CMSG_BINDER_CONFIRM
         // CMSG_GOSSIP_HELLO
@@ -90,6 +89,7 @@ namespace WorldPackets
             TreasureLootList Treasure;
             Optional<int32> SpellID;
             Optional<int32> OverrideIconID;
+            std::string FailureDescription;
         };
 
         struct ClientGossipText
@@ -98,9 +98,11 @@ namespace WorldPackets
             int32 ContentTuningID = 0;
             int32 QuestType = 0;
             bool Repeatable = false;
+            bool ResetByScheduler = false;
             bool Important = false;
+            bool Meta = false;
             std::string QuestTitle;
-            std::array<int32, 2> QuestFlags = { };
+            std::array<int32, 3> QuestFlags = { };
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText);
@@ -119,6 +121,7 @@ namespace WorldPackets
             Optional<int32> TextID;             // in classic variants this still holds npc_text id
             Optional<int32> BroadcastTextID;
             int32 GossipID = 0;
+            int32 LfgDungeonsID = 0;
         };
 
         class GossipSelectOption final : public ClientPacket

@@ -8885,9 +8885,10 @@ void Unit::SetInteractionAllowedInCombat(bool interactionAllowed)
 
 void Unit::UpdateNearbyPlayersInteractions()
 {
-    for (uint32 i = 0; i < m_unitData->NpcFlags.size(); ++i)
-        if (m_unitData->NpcFlags[i])
-            ForceUpdateFieldChange(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, i));
+    if (m_unitData->NpcFlags)
+        ForceUpdateFieldChange(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags));
+    if (m_unitData->NpcFlags2)
+        ForceUpdateFieldChange(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags2));
 }
 
 //======================================================================
@@ -13171,6 +13172,40 @@ bool Unit::SetCollision(bool disable)
         WorldPackets::Movement::MoveSplineSetFlag packet(collisionOpcodeTable[disable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
+    }
+
+    return true;
+}
+
+bool Unit::SetEnableFullSpeedTurning(bool enable)
+{
+    if (GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+
+    static constexpr OpcodeServer fullSpeedTurningOpcodeTable[2] =
+    {
+        SMSG_MOVE_DISABLE_FULL_SPEED_TURNING,
+        SMSG_MOVE_ENABLE_FULL_SPEED_TURNING
+    };
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::MoveSetFlag packet(fullSpeedTurningOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
     }
 
     return true;

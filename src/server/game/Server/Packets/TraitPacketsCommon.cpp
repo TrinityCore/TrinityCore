@@ -31,6 +31,16 @@ TraitEntry::TraitEntry(UF::TraitEntry const& ufEntry)
     GrantedRanks = ufEntry.GrantedRanks;
 }
 
+TraitSubTreeCache::TraitSubTreeCache() = default;
+
+TraitSubTreeCache::TraitSubTreeCache(UF::TraitSubTreeCache const& ufSubTreeCache)
+{
+    TraitSubTreeID = ufSubTreeCache.TraitSubTreeID;
+    for (UF::TraitEntry const& ufEntry : ufSubTreeCache.Entries)
+        Entries.emplace_back(ufEntry);
+    Active = ufSubTreeCache.Active;
+}
+
 TraitConfig::TraitConfig() = default;
 
 TraitConfig::TraitConfig(UF::TraitConfig const& ufConfig)
@@ -67,6 +77,35 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitEntry const& traitEntry)
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, TraitSubTreeCache& traitSubTreeCache)
+{
+    data >> traitSubTreeCache.TraitSubTreeID;
+    uint32 entriesSize = data.read<uint32>();
+    if (entriesSize > 100)
+        throw PacketArrayMaxCapacityException(entriesSize, 100);
+
+    for (TraitEntry& traitEntry : traitSubTreeCache.Entries)
+        data >> traitEntry;
+
+    data >> Bits<1>(traitSubTreeCache.Active);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, TraitSubTreeCache const& traitSubTreeCache)
+{
+    data << int32(traitSubTreeCache.TraitSubTreeID);
+    data << uint32(traitSubTreeCache.Entries.size());
+
+    for (TraitEntry const& traitEntry : traitSubTreeCache.Entries)
+        data << traitEntry;
+
+    data << Bits<1>(traitSubTreeCache.Active);
+    data.FlushBits();
+
+    return data;
+}
+
 ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
 {
     data >> traitConfig.ID;
@@ -76,6 +115,13 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
         throw PacketArrayMaxCapacityException(entriesSize, 100);
 
     traitConfig.Entries.resize(entriesSize);
+
+    uint32 subtreesSize = data.read<uint32>();
+    if (subtreesSize > 10)
+        throw PacketArrayMaxCapacityException(subtreesSize, 10);
+
+    traitConfig.SubTrees.resize(subtreesSize);
+
     switch (traitConfig.Type)
     {
         case TraitConfigType::Combat:
@@ -97,6 +143,10 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
         data >> traitEntry;
 
     uint32 nameLength = data.ReadBits(9);
+
+    for (TraitSubTreeCache& traitSubTreeCache : traitConfig.SubTrees)
+        data >> traitSubTreeCache;
+
     traitConfig.Name = data.ReadString(nameLength, false);
 
     return data;
@@ -107,6 +157,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitConfig const& traitConfig)
     data << int32(traitConfig.ID);
     data << int32(traitConfig.Type);
     data << uint32(traitConfig.Entries.size());
+    data << uint32(traitConfig.SubTrees.size());
     switch (traitConfig.Type)
     {
         case TraitConfigType::Combat:
@@ -128,6 +179,10 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitConfig const& traitConfig)
         data << traitEntry;
 
     data.WriteBits(traitConfig.Name.length(), 9);
+
+    for (TraitSubTreeCache const& traitSubTreeCache : traitConfig.SubTrees)
+        data << traitSubTreeCache;
+
     data.FlushBits();
 
     data.WriteString(static_cast<std::string const&>(traitConfig.Name));

@@ -51,6 +51,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     data << Bits<2>(gossipOption.Status);
     data << OptionalInit(gossipOption.SpellID);
     data << OptionalInit(gossipOption.OverrideIconID);
+    data << Bits<8>(gossipOption.FailureDescription.length() + 1);
     data.FlushBits();
 
     data << gossipOption.Treasure;
@@ -64,6 +65,9 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     if (gossipOption.OverrideIconID)
         data << int32(*gossipOption.OverrideIconID);
 
+    if (!gossipOption.FailureDescription.empty())
+        data << gossipOption.FailureDescription;
+
     return data;
 }
 
@@ -74,9 +78,12 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.QuestType);
     data << int32(gossipText.QuestFlags[0]);
     data << int32(gossipText.QuestFlags[1]);
+    data << int32(gossipText.QuestFlags[2]);
 
     data << Bits<1>(gossipText.Repeatable);
+    data << Bits<1>(gossipText.ResetByScheduler);
     data << Bits<1>(gossipText.Important);
+    data << Bits<1>(gossipText.Meta);
     data << BitsSize<9>(gossipText.QuestTitle);
     data.FlushBits();
 
@@ -104,6 +111,7 @@ WorldPacket const* GossipMessage::Write()
 {
     _worldPacket << GossipGUID;
     _worldPacket << int32(GossipID);
+    _worldPacket << int32(LfgDungeonsID);
     _worldPacket << int32(FriendshipFactionID);
     _worldPacket << uint32(GossipOptions.size());
     _worldPacket << uint32(GossipText.size());

@@ -163,7 +163,7 @@ namespace WorldPackets
         class InterruptPowerRegen final : public ServerPacket
         {
         public:
-            explicit InterruptPowerRegen(Powers powerType) : ServerPacket(SMSG_INTERRUPT_POWER_REGEN, 4), PowerType(powerType) { }
+            explicit InterruptPowerRegen(Powers powerType) : ServerPacket(SMSG_INTERRUPT_POWER_REGEN, 1), PowerType(powerType) { }
 
             WorldPacket const* Write() override;
 

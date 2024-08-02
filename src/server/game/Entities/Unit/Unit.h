@@ -983,17 +983,17 @@ class TC_GAME_API Unit : public WorldObject
 
         MeleeHitOutcome RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType) const;
 
-        NPCFlags GetNpcFlags() const { return NPCFlags(m_unitData->NpcFlags[0]); }
-        bool HasNpcFlag(NPCFlags flags) const { return (m_unitData->NpcFlags[0] & flags) != 0; }
-        void SetNpcFlag(NPCFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags); }
-        void RemoveNpcFlag(NPCFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags); }
-        void ReplaceAllNpcFlags(NPCFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags); }
+        NPCFlags GetNpcFlags() const { return NPCFlags(*m_unitData->NpcFlags); }
+        bool HasNpcFlag(NPCFlags flags) const { return (m_unitData->NpcFlags & flags) != 0; }
+        void SetNpcFlag(NPCFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags), flags); }
+        void RemoveNpcFlag(NPCFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags), flags); }
+        void ReplaceAllNpcFlags(NPCFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags), flags); }
 
-        NPCFlags2 GetNpcFlags2() const { return NPCFlags2(m_unitData->NpcFlags[1]); }
-        bool HasNpcFlag2(NPCFlags2 flags) const { return (m_unitData->NpcFlags[1] & flags) != 0; }
-        void SetNpcFlag2(NPCFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags); }
-        void RemoveNpcFlag2(NPCFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags); }
-        void ReplaceAllNpcFlags2(NPCFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags); }
+        NPCFlags2 GetNpcFlags2() const { return NPCFlags2(*m_unitData->NpcFlags2); }
+        bool HasNpcFlag2(NPCFlags2 flags) const { return (m_unitData->NpcFlags2 & flags) != 0; }
+        void SetNpcFlag2(NPCFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags2), flags); }
+        void RemoveNpcFlag2(NPCFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags2), flags); }
+        void ReplaceAllNpcFlags2(NPCFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags2), flags); }
 
         bool IsVendor()         const { return HasNpcFlag(UNIT_NPC_FLAG_VENDOR); }
         bool IsTrainer()        const { return HasNpcFlag(UNIT_NPC_FLAG_TRAINER); }
@@ -1149,6 +1149,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetFeatherFall(bool enable);
         bool SetHover(bool enable, bool updateAnimTier = true);
         bool SetCollision(bool disable);
+        bool SetEnableFullSpeedTurning(bool enable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
         bool SetCanDoubleJump(bool enable);
