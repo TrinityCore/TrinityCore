@@ -218,7 +218,8 @@ class spell_rezan_devour : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->RemoveAura(SPELL_RIDE_VEHICLE);
+        if (Unit* caster = GetCaster())
+            caster->RemoveAura(SPELL_RIDE_VEHICLE);
     }
 
     void Register() override
@@ -237,7 +238,8 @@ class spell_rezan_pursuit : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        GetCaster()->CastSpell(GetTarget(), SPELL_REVERSE_CAST_RIDE_VEHICLE, true);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_REVERSE_CAST_RIDE_VEHICLE, true);
     }
 
     void Register() override
