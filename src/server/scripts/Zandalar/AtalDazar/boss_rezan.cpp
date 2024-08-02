@@ -287,7 +287,11 @@ struct at_rezan_pile_of_bones_spawn_raptor : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit)
     {
-        Creature* rezan = at->GetInstanceScript()->GetCreature(DATA_REZAN);
+        InstanceScript* instance = at->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* rezan = instance->GetCreature(DATA_REZAN);
         if (!rezan || !rezan->IsInCombat())
             return;
 
@@ -308,7 +312,11 @@ struct at_rezan_pile_of_bones_slow : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit)
     {
-        Creature* rezan = at->GetInstanceScript()->GetCreature(DATA_REZAN);
+        InstanceScript* instance = at->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* rezan = instance->GetCreature(DATA_REZAN);
         if (!rezan || !rezan->IsInCombat())
             return;
 
