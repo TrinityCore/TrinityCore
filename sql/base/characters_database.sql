@@ -2312,7 +2312,7 @@ CREATE TABLE `groups` (
   `raidDifficulty` tinyint unsigned NOT NULL DEFAULT '14',
   `legacyRaidDifficulty` tinyint unsigned NOT NULL DEFAULT '3',
   `masterLooterGuid` bigint unsigned NOT NULL,
-  `pingRestriction` tinying NOT NULL,
+  `pingRestriction` tinyint NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `leaderGuid` (`leaderGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Groups';
