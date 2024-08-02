@@ -439,7 +439,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
     SPELL_AURA_ENABLE_ALT_POWER                             = 346,
-    SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 347,
+    SPELL_AURA_347                                          = 347,
     SPELL_AURA_MOD_MONEY_GAIN                               = 348,  // Modifies gold gains from source: [Misc = 0, Quests][Misc = 1, Loot]
     SPELL_AURA_MOD_CURRENCY_GAIN                            = 349,
     SPELL_AURA_350                                          = 350,
@@ -714,7 +714,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_BLIND                                    = 619, // NYI
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 620,
     SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE                   = 621, // NYI
-    SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 622, // NYI
+    SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 622,
     SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT           = 623, // NYI
     SPELL_AURA_MOD_DAMAGE_FROM_MANA                         = 624, // NYI
 
