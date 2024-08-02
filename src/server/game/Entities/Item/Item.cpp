@@ -332,7 +332,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             {
                 uint32 maxRank = artifactPower->MaxPurchasableRank;
                 // allow ARTIFACT_POWER_FLAG_FINAL to overflow maxrank here - needs to be handled in Item::CheckArtifactUnlock (will refund artifact power)
-                if (artifactPower->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER && artifactPower->Tier < info.Artifact->ArtifactTierId)
+                if (artifactPower->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER && uint32(artifactPower->Tier) < info.Artifact->ArtifactTierId)
                     maxRank += info.Artifact->ArtifactTierId - artifactPower->Tier;
 
                 if (artifactPowerData.PurchasedRank > maxRank)

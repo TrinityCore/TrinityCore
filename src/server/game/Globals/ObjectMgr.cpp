@@ -4535,7 +4535,7 @@ void ObjectMgr::LoadQuests()
         //90                91                  92                 93                  94                 95                  96                 97
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
         //98                 99                  100          101          102             103               104        105                  106
-        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, TreasurePickerID, Expansion, ManagedWorldStateID, QuestSessionBonus, "
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, ResetByScheduler, Expansion, ManagedWorldStateID, QuestSessionBonus, "
         //107      108             109               110              111                112                113                 114                 115
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog "
         "FROM quest_template");
@@ -4615,7 +4615,10 @@ void ObjectMgr::LoadQuests()
         { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_offer_reward_conditional", "ORDER BY OrderIndex",          "conditional reward",  &Quest::LoadConditionalConditionalOfferRewardText },
 
         // 0        1                  2                     3     4
-        { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_completion_log_conditional", "ORDER BY OrderIndex",        "conditional completion log", &Quest::LoadConditionalConditionalQuestCompletionLog }
+        { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_completion_log_conditional", "ORDER BY OrderIndex",        "conditional completion log", &Quest::LoadConditionalConditionalQuestCompletionLog },
+
+        // 0        1
+        { "QuestID, TreasurePickerID",                                                                                                                                    "quest_treasure_pickers", "ORDER BY OrderIndex",                  "treasure pickers", &Quest::LoadTreasurePickers }
     };
 
     for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
@@ -9769,8 +9772,8 @@ void ObjectMgr::LoadGossipMenuAddon()
 
     _gossipMenuAddonStore.clear();
 
-    //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, FriendshipFactionID FROM gossip_menu_addon");
+    //                                               0       1                    2
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, FriendshipFactionID, LfgDungeonsID FROM gossip_menu_addon");
 
     if (!result)
     {
@@ -9785,20 +9788,30 @@ void ObjectMgr::LoadGossipMenuAddon()
         uint32 menuID = fields[0].GetUInt32();
         GossipMenuAddon& addon = _gossipMenuAddonStore[menuID];
         addon.FriendshipFactionID = fields[1].GetInt32();
+        addon.LfgDungeonsID = fields[2].GetInt32();
 
-        if (FactionEntry const* faction = sFactionStore.LookupEntry(addon.FriendshipFactionID))
+        if (addon.FriendshipFactionID)
         {
-            if (!sFriendshipReputationStore.LookupEntry(faction->FriendshipRepID))
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(addon.FriendshipFactionID))
             {
-                TC_LOG_ERROR("sql.sql", "Table gossip_menu_addon: ID {} is using FriendshipFactionID {} referencing non-existing FriendshipRepID {}",
-                    menuID, addon.FriendshipFactionID, faction->FriendshipRepID);
+                if (!sFriendshipReputationStore.LookupEntry(faction->FriendshipRepID))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table gossip_menu_addon: ID {} is using FriendshipFactionID {} referencing non-existing FriendshipRepID {}",
+                        menuID, addon.FriendshipFactionID, faction->FriendshipRepID);
+                    addon.FriendshipFactionID = 0;
+                }
+            }
+            else
+            {
+                TC_LOG_ERROR("sql.sql", "Table gossip_menu_addon: ID {} is using non-existing FriendshipFactionID {}", menuID, addon.FriendshipFactionID);
                 addon.FriendshipFactionID = 0;
             }
         }
-        else
+
+        if (addon.LfgDungeonsID && sLFGDungeonsStore.LookupEntry(addon.LfgDungeonsID))
         {
-            TC_LOG_ERROR("sql.sql", "Table gossip_menu_addon: ID {} is using non-existing FriendshipFactionID {}", menuID, addon.FriendshipFactionID);
-            addon.FriendshipFactionID = 0;
+            TC_LOG_ERROR("sql.sql", "Table gossip_menu_addon: ID {} is using non-existing LfgDungeonsID {}", menuID, addon.LfgDungeonsID);
+            addon.LfgDungeonsID = 0;
         }
 
     } while (result->NextRow());

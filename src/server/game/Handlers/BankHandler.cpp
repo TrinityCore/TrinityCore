@@ -15,14 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "BankPackets.h"
-#include "Item.h"
+#include "Creature.h"
 #include "DB2Stores.h"
 #include "GossipDef.h"
+#include "Item.h"
 #include "Log.h"
 #include "NPCPackets.h"
 #include "Player.h"
-#include "WorldSession.h"
 
 void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet)
 {
@@ -33,6 +34,9 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& pa
         TC_LOG_ERROR("network", "WORLD: HandleAutoBankItemOpcode - Unit ({}) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString());
         return;
     }
+
+    if (packet.BankType != BankType::Character)
+        return;
 
     Item* item = _player->GetItemByPos(packet.Bag, packet.Slot);
     if (!item)
@@ -57,13 +61,34 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& pa
     _player->BankItem(dest, item, true);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
+void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate const& bankerActivate)
 {
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
+    if (bankerActivate.InteractionType != PlayerInteractionType::Banker)
+        return;
+
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(bankerActivate.Banker, UNIT_NPC_FLAG_ACCOUNT_BANKER | UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
     if (!unit)
     {
-        TC_LOG_ERROR("network", "WORLD: HandleBankerActivateOpcode - {} not found or you can not interact with him.", packet.Unit.ToString());
+        TC_LOG_ERROR("network", "WORLD: HandleBankerActivateOpcode - {} not found or you can not interact with him.", bankerActivate.Banker);
         return;
+    }
+
+    switch (bankerActivate.InteractionType)
+    {
+        case PlayerInteractionType::Banker:
+            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_ACCOUNT_BANKER) || !unit->HasNpcFlag(UNIT_NPC_FLAG_BANKER))
+                return;
+            break;
+        case PlayerInteractionType::CharacterBanker:
+            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_BANKER))
+                return;
+            break;
+        case PlayerInteractionType::AccountBanker:
+            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_ACCOUNT_BANKER))
+                return;
+            break;
+        default:
+            break;
     }
 
     // remove fake death
@@ -72,7 +97,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
 
     // set currentBankerGUID for other bank action
 
-    SendShowBank(packet.Unit);
+    SendShowBank(bankerActivate.Banker, bankerActivate.InteractionType);
 }
 
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet)
@@ -297,13 +322,13 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
     }
 }
 
-void WorldSession::SendShowBank(ObjectGuid guid)
+void WorldSession::SendShowBank(ObjectGuid guid, PlayerInteractionType interactionType)
 {
     _player->PlayerTalkClass->GetInteractionData().Reset();
     _player->PlayerTalkClass->GetInteractionData().SourceGuid = guid;
     WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
     npcInteraction.Npc = guid;
-    npcInteraction.InteractionType = PlayerInteractionType::Banker;
+    npcInteraction.InteractionType = interactionType;
     npcInteraction.Success = true;
     SendPacket(npcInteraction.Write());
 }

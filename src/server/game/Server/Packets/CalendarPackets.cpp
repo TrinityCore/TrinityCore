@@ -22,7 +22,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCal
     data << uint64(eventInfo.EventID);
     data << uint8(eventInfo.EventType);
     data << eventInfo.Date;
-    data << uint32(eventInfo.Flags);
+    data << uint16(eventInfo.Flags);
     data << int32(eventInfo.TextureID);
     data << uint64(eventInfo.EventClubID);
     data << eventInfo.OwnerGuid;
@@ -285,7 +285,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarSendEvent::Write()
     _worldPacket << uint64(EventID);
     _worldPacket << uint8(GetEventType);
     _worldPacket << int32(TextureID);
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << Date;
     _worldPacket << LockDate;
     _worldPacket << uint64(EventClubID);
@@ -307,7 +307,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarInviteAlert::Write()
 {
     _worldPacket << uint64(EventID);
     _worldPacket << Date;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint8(EventType);
     _worldPacket << int32(TextureID);
     _worldPacket << uint64(EventClubID);
@@ -320,6 +320,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarInviteAlert::Write()
     _worldPacket << OwnerGuid;
 
     _worldPacket << BitsSize<8>(EventName);
+    _worldPacket << Bits<1>(Unknown_1100);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(EventName);
 
@@ -383,7 +384,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarEventUpdatedAlert::Write()
     _worldPacket << OriginalDate;
     _worldPacket << Date;
     _worldPacket << LockDate;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint32(TextureID);
     _worldPacket << uint8(EventType);
 

@@ -313,7 +313,7 @@ public:
     static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
     {
         value_type interactSpellId = unitData->InteractSpellID;
-        if (unitData->NpcFlags[0] & UNIT_NPC_FLAG_SPELLCLICK && !interactSpellId)
+        if (unitData->NpcFlags & UNIT_NPC_FLAG_SPELLCLICK && !interactSpellId)
         {
             // this field is not set if there are multiple available spellclick spells
             auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(unit->GetEntry());
@@ -340,9 +340,9 @@ class ViewerDependentValue<UF::UnitData::NpcFlagsTag>
 public:
     using value_type = UF::UnitData::NpcFlagsTag::value_type;
 
-    static value_type GetValue(UF::UnitData const* unitData, uint32 i, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
     {
-        value_type npcFlag = unitData->NpcFlags[i];
+        value_type npcFlag = unitData->NpcFlags;
         if (npcFlag)
         {
             if ((!unit->IsInteractionAllowedInCombat() && unit->IsInCombat())
@@ -350,15 +350,31 @@ public:
                 npcFlag = 0;
             else if (Creature const* creature = unit->ToCreature())
             {
-                if (i == 0)
-                {
-                    if (!receiver->CanSeeGossipOn(creature))
-                        npcFlag &= ~(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                if (!receiver->CanSeeGossipOn(creature))
+                    npcFlag &= ~(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
 
-                    if (!receiver->CanSeeSpellClickOn(creature))
-                        npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
-                }
+                if (!receiver->CanSeeSpellClickOn(creature))
+                    npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
             }
+        }
+        return npcFlag;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::NpcFlags2Tag>
+{
+public:
+    using value_type = UF::UnitData::NpcFlags2Tag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type npcFlag = unitData->NpcFlags2;
+        if (npcFlag)
+        {
+            if ((!unit->IsInteractionAllowedInCombat() && unit->IsInCombat())
+               || (!unit->IsInteractionAllowedWhileHostile() && unit->IsHostileTo(receiver)))
+                npcFlag = 0;
         }
         return npcFlag;
     }

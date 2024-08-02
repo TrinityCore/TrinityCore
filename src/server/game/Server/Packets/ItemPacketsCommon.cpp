@@ -163,16 +163,16 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemBonuses& itemBonusInstanceData)
 
 ByteBuffer& operator<<(ByteBuffer& data, ItemMod const& itemMod)
 {
-    data << int32(itemMod.Value);
     data << uint8(itemMod.Type);
+    data << int32(itemMod.Value);
 
     return data;
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, ItemMod& itemMod)
 {
-    data >> itemMod.Value;
     data >> As<uint8>(itemMod.Type);
+    data >> itemMod.Value;
 
     return data;
 }

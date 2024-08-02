@@ -109,6 +109,9 @@ enum ItemSpelltriggerType
     ITEM_SPELLTRIGGER_ON_PICKUP         = 5,
     ITEM_SPELLTRIGGER_ON_LEARN          = 6,                  // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
     ITEM_SPELLTRIGGER_ON_LOOTED         = 7,
+    ITEM_SPELLTRIGGER_TEACH_MOUNT       = 8,
+    ITEM_SPELLTRIGGER_ON_PICKUP_FORCED  = 9,
+    ITEM_SPELLTRIGGER_ON_LOOTED_FORCED  = 10,
 };
 
 enum ItemBondingType
@@ -118,9 +121,12 @@ enum ItemBondingType
     BIND_ON_EQUIP                               = 2,
     BIND_ON_USE                                 = 3,
     BIND_QUEST                                  = 4,
+    BIND_UNUSED_1                               = 5,
+    BIND_UNUSED_2                               = 6,
+    BIND_WOW_ACCOUNT                            = 7,
+    BIND_BNET_ACCOUNT                           = 8,
+    BIND_BNET_ACCOUNT_UNTIL_EQUIPPED            = 9,
 };
-
-#define MAX_BIND_TYPE                             5
 
 /* /// @todo: Requiring actual cases in which using (an) item isn't allowed while shapeshifted. Else, this flag would need an implementation.
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */

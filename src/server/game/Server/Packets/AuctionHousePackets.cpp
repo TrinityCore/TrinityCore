@@ -99,7 +99,7 @@ ByteBuffer& operator>>(ByteBuffer& data, AuctionListFilterClass& filterClass)
 ByteBuffer& operator>>(ByteBuffer& data, AuctionSortDef& sortDef)
 {
     data.ResetBitPos();
-    data >> Bits<4>(sortDef.SortOrder);
+    data >> As<uint8>(sortDef.SortOrder);
     data >> Bits<1>(sortDef.ReverseSort);
 
     return data;
@@ -302,15 +302,15 @@ void AuctionBrowseQuery::Read()
     ItemClassFilters.resize(_worldPacket.ReadBits(3));
     Sorts.resize(_worldPacket.ReadBits(2));
 
-    for (AuctionSortDef& sortDef : Sorts)
-        _worldPacket >> sortDef;
-
     if (TaintedBy)
         _worldPacket >> *TaintedBy;
 
     Name = _worldPacket.ReadString(nameLength);
     for (AuctionListFilterClass& filterClass : ItemClassFilters)
         _worldPacket >> filterClass;
+
+    for (AuctionSortDef& sortDef : Sorts)
+        _worldPacket >> sortDef;
 }
 
 void AuctionCancelCommoditiesPurchase::Read()
@@ -351,14 +351,14 @@ void AuctionListBiddedItems::Read()
     AuctionIDs.resize(_worldPacket.ReadBits(7));
     Sorts.resize(_worldPacket.ReadBits(2));
 
-    for (AuctionSortDef& sortDef : Sorts)
-        _worldPacket >> sortDef;
-
     if (TaintedBy)
         _worldPacket >> *TaintedBy;
 
     for (uint32& auctionID : AuctionIDs)
         _worldPacket >> auctionID;
+
+    for (AuctionSortDef& sortDef : Sorts)
+        _worldPacket >> sortDef;
 }
 
 void AuctionListBucketsByBucketKeys::Read()
@@ -371,14 +371,14 @@ void AuctionListBucketsByBucketKeys::Read()
     BucketKeys.resize(_worldPacket.ReadBits(7));
     Sorts.resize(_worldPacket.ReadBits(2));
 
-    for (AuctionSortDef& sortDef : Sorts)
-        _worldPacket >> sortDef;
-
     if (TaintedBy)
         _worldPacket >> *TaintedBy;
 
     for (AuctionBucketKey& bucketKey : BucketKeys)
         _worldPacket >> bucketKey;
+
+    for (AuctionSortDef& sortDef : Sorts)
+        _worldPacket >> sortDef;
 }
 
 void AuctionListItemsByBucketKey::Read()
@@ -392,13 +392,13 @@ void AuctionListItemsByBucketKey::Read()
 
     Sorts.resize(_worldPacket.ReadBits(2));
 
-    for (AuctionSortDef& sortDef : Sorts)
-        _worldPacket >> sortDef;
-
     _worldPacket >> BucketKey;
 
     if (TaintedBy)
         _worldPacket >> *TaintedBy;
+
+    for (AuctionSortDef& sortDef : Sorts)
+        _worldPacket >> sortDef;
 }
 
 void AuctionListItemsByItemID::Read()
@@ -413,11 +413,11 @@ void AuctionListItemsByItemID::Read()
 
     Sorts.resize(_worldPacket.ReadBits(2));
 
-    for (AuctionSortDef& sortDef : Sorts)
-        _worldPacket >> sortDef;
-
     if (TaintedBy)
         _worldPacket >> *TaintedBy;
+
+    for (AuctionSortDef& sortDef : Sorts)
+        _worldPacket >> sortDef;
 }
 
 void AuctionListOwnedItems::Read()
@@ -430,11 +430,11 @@ void AuctionListOwnedItems::Read()
 
     Sorts.resize(_worldPacket.ReadBits(2));
 
-    for (AuctionSortDef& sortDef : Sorts)
-        _worldPacket >> sortDef;
-
     if (TaintedBy)
         _worldPacket >> *TaintedBy;
+
+    for (AuctionSortDef& sortDef : Sorts)
+        _worldPacket >> sortDef;
 }
 
 void AuctionPlaceBid::Read()

@@ -82,6 +82,8 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << int32(ActiveSeason);
     _worldPacket << uint32(GameRuleValues.size());
+    _worldPacket << int32(ActiveTimerunningSeasonID);
+    _worldPacket << int32(RemainingTimerunningSeasonSeconds);
 
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
@@ -134,19 +136,25 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(ChatDisabledByPlayer);
     _worldPacket << Bits<1>(LFGListCustomRequiresAuthenticator);
     _worldPacket << Bits<1>(AddonsDisabled);
+    _worldPacket << Bits<1>(TimerunningEnabled);
     _worldPacket << Bits<1>(WarGamesEnabled);
     _worldPacket << Bits<1>(ContentTrackingEnabled);
     _worldPacket << Bits<1>(IsSellAllJunkEnabled);
-    _worldPacket << Bits<1>(IsGroupFinderEnabled);
 
+    _worldPacket << Bits<1>(IsGroupFinderEnabled);
     _worldPacket << Bits<1>(IsLFDEnabled);
     _worldPacket << Bits<1>(IsLFREnabled);
     _worldPacket << Bits<1>(IsPremadeGroupEnabled);
     _worldPacket << Bits<1>(CanShowSetRoleButton);
     _worldPacket << Bits<1>(false); // unused 10.2.7
-    _worldPacket << Bits<1>(false); // unused 10.2.7
+    _worldPacket << Bits<1>(GuildEventsEditsEnabled);
+    _worldPacket << Bits<1>(GuildTradeSkillsEnabled);
 
     _worldPacket << BitsSize<7>(Unknown1027);
+    _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
+
+    _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
+    _worldPacket << Bits<1>(IsAccountCurrencyTransferEnabled);
 
     _worldPacket.FlushBits();
 
@@ -213,10 +221,11 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Bits<1>(IsBoostEnabled);
     _worldPacket << Bits<1>(TrialBoostEnabled);
     _worldPacket << Bits<1>(TokenBalanceEnabled);
+    _worldPacket << Bits<1>(PaidCharacterTransfersBetweenBnetAccountsEnabled);
     _worldPacket << Bits<1>(LiveRegionCharacterListEnabled);
     _worldPacket << Bits<1>(LiveRegionCharacterCopyEnabled);
-    _worldPacket << Bits<1>(LiveRegionAccountCopyEnabled);
 
+    _worldPacket << Bits<1>(LiveRegionAccountCopyEnabled);
     _worldPacket << Bits<1>(LiveRegionKeyBindingsCopyEnabled);
     _worldPacket << Bits<1>(Unknown901CheckoutRelated);
     _worldPacket << Bits<1>(false); // unused, 10.0.2
@@ -224,13 +233,18 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Bits<1>(IsNameReservationEnabled);
     _worldPacket << OptionalInit(LaunchETA);
     _worldPacket << Bits<1>(TimerunningEnabled);
-    _worldPacket << Bits<1>(AddonsDisabled);
 
+    _worldPacket << Bits<1>(AddonsDisabled);
     _worldPacket << Bits<1>(Unused1000);
     _worldPacket << Bits<1>(AccountSaveDataExportEnabled);
     _worldPacket << Bits<1>(AccountLockedByExport);
 
     _worldPacket << Bits<11>(RealmHiddenAlert.length() + 1);
+
+    _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
+
+    _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
+    _worldPacket << Bits<1>(CharacterSelectListModeRealmless);
 
     _worldPacket.FlushBits();
 

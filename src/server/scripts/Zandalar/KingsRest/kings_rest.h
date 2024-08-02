@@ -28,7 +28,7 @@ uint32 const EncounterCount = 4;
 enum KingsRestDataTypes
 {
     // Encounters
-    DATA_GOLDEN_SERPENT        = 0,
+    DATA_GOLDEN_SERPENT         = 0,
     DATA_MCHIMBA_THE_EMBALMER,
     DATA_COUNCIL_OF_TRIBES,
     DATA_KING_DAZAR,
@@ -59,6 +59,12 @@ enum KingsRestGameObjectIds
     GO_KINGS_REST_ENTRYWAY_DOOR          = 282652,
     GO_KINGS_REST_SERPENT_POST_DOOR      = 287392,
     GO_KINGS_REST_LIQUID_GOLD_POOL       = 289347
+};
+
+enum KingsRestSpawnGroups
+{
+    SPAWN_GROUP_PRE_FIRST_BOSS  = 1255,
+    SPAWN_GROUP_SERPENT_BOSS    = 1256
 };
 
 template <class AI, class T>

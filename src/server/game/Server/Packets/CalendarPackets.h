@@ -103,7 +103,7 @@ namespace WorldPackets
             uint8 EventType = 0;
             uint32 TextureID = 0;
             WowTime Time;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
         };
 
         class CalendarUpdateEvent final : public ClientPacket
@@ -185,7 +185,7 @@ namespace WorldPackets
             std::string EventName;
             uint8 EventType = 0;
             WowTime Date;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             int32 TextureID = 0;
             uint64 EventClubID = 0;
             ObjectGuid OwnerGuid;
@@ -228,7 +228,7 @@ namespace WorldPackets
             uint64 EventID = 0;
             WowTime Date;
             WowTime LockDate;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             int32 TextureID = 0;
             uint8 GetEventType = 0;
             uint8 EventType = 0;
@@ -249,13 +249,14 @@ namespace WorldPackets
             ObjectGuid InvitedByGuid;
             uint64 InviteID = 0;
             uint64 EventID = 0;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             WowTime Date;
             int32 TextureID = 0;
             uint8 Status = 0;
             uint8 EventType = 0;
             uint8 ModeratorStatus = 0;
             std::string EventName;
+            bool Unknown_1100 = false;
         };
 
         class CalendarInvite final : public ClientPacket
@@ -358,7 +359,7 @@ namespace WorldPackets
             uint64 EventClubID = 0;
             uint64 EventID = 0;
             WowTime Date;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             WowTime LockDate;
             WowTime OriginalDate;
             int32 TextureID = 0;
