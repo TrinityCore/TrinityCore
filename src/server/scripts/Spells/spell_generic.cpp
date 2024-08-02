@@ -4917,6 +4917,7 @@ class spell_gen_eject_passengers_3_8 : public SpellScript
 };
 
 // 83781 - Reverse Cast Ride Vehicle
+// 258344 - Reverse Cast Ride Vehicle
 class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
 {
     void HandleScript(SpellEffIndex effIndex)
