@@ -4886,6 +4886,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
 
     //
+    // ATAL DAZAR SPELLS
+    //
+
+    // Reverse Cast Ride Vehicle
+    ApplySpellFix({ 258344 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx8 &= ~SPELL_ATTR8_ONLY_TARGET_IF_SAME_CREATOR;
+    });
+
+    // ENDOF ATAL DAZAR SPELLS
+    //
+
+    //
     // THE WANDERING ISLE SPELLS
     //
 
