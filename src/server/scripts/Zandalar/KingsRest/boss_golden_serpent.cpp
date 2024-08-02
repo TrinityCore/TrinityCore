@@ -238,8 +238,8 @@ struct npc_animated_gold : public ScriptedAI
                         return;
 
                     me->GetMotionMaster()->Clear();
-                    me->SetWalk(true); // @ToDo: cause of follow movement the follower always run if the target runs
-                    me->GetMotionMaster()->MoveFollow(goldenSerpent, 2.0f, 0.0f); // @ToDo: calculate shortest angle to boss
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MoveFollow(goldenSerpent, 2.0f, {}, {}, true);
                     _isMoltenGoldCast = false;
                 }
             });
