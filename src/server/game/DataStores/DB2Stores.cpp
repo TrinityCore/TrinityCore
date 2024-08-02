@@ -85,6 +85,7 @@ DB2Storage<BattlePetBreedStateEntry>            sBattlePetBreedStateStore("Battl
 DB2Storage<BattlePetSpeciesEntry>               sBattlePetSpeciesStore("BattlePetSpecies.db2", &BattlePetSpeciesLoadInfo::Instance);
 DB2Storage<BattlePetSpeciesStateEntry>          sBattlePetSpeciesStateStore("BattlePetSpeciesState.db2", &BattlePetSpeciesStateLoadInfo::Instance);
 DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("BattlemasterList.db2", &BattlemasterListLoadInfo::Instance);
+DB2Storage<BattlemasterListXMapEntry>           sBattlemasterListXMapStore("BattlemasterListXMap.db2", &BattlemasterListXMapLoadInfo::Instance);
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", &BroadcastTextLoadInfo::Instance);
 DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("BroadcastTextDuration.db2", &BroadcastTextDurationLoadInfo::Instance);
 DB2Storage<Cfg_CategoriesEntry>                 sCfgCategoriesStore("Cfg_Categories.db2", &CfgCategoriesLoadInfo::Instance);
@@ -695,6 +696,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBattlePetSpeciesStore);
     LOAD_DB2(sBattlePetSpeciesStateStore);
     LOAD_DB2(sBattlemasterListStore);
+    LOAD_DB2(sBattlemasterListXMapStore);
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sBroadcastTextDurationStore);
     LOAD_DB2(sCfgCategoriesStore);
@@ -1926,7 +1928,9 @@ std::vector<DB2Manager::HotfixOptionalData> const* DB2Manager::GetHotfixOptional
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
 {
-    return sAnimationDataStore.GetNumRows();
+    return 1778;
+    // TEMP: well... AnimationData.db2 in 11.0.0 has more rows than max hardcoded anim id in client
+    // return sAnimationDataStore.GetNumRows();
 }
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
