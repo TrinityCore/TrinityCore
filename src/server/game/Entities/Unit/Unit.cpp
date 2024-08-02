@@ -6860,6 +6860,13 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     else if (spellProto->Mechanic)
         AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
+    // Add SPELL_AURA_MOD_DAMAGE_FROM_MANA percent bonus
+    if (HasAuraType(SPELL_AURA_MOD_DAMAGE_FROM_MANA) && GetMaxPower(POWER_MANA))
+    {
+        float damageFromManaBonus = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_FROM_MANA, spellProto->GetSchoolMask());
+        AddPct(DoneTotalMod, ((float)GetPower(POWER_MANA) / GetMaxPower(POWER_MANA)) * damageFromManaBonus);
+    }
+
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
     {

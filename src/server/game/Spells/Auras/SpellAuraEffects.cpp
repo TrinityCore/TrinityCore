@@ -693,7 +693,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //621 SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE
     &AuraEffect::HandleNoImmediateEffect,                         //622 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE implemented in SpellHistory::StartCooldown
     &AuraEffect::HandleNULL,                                      //623 SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT
-    &AuraEffect::HandleNULL,                                      //624 SPELL_AURA_MOD_DAMAGE_FROM_MANA
+    &AuraEffect::HandleNoImmediateEffect,                         //624 SPELL_AURA_MOD_DAMAGE_FROM_MANA implemented in Unit::Unit::SpellDamagePctDone
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
