@@ -76,7 +76,7 @@ ALTER TABLE `garr_follower` MODIFY `Quality` int NOT NULL DEFAULT 0 AFTER `Allia
 
 ALTER TABLE `garr_plot` MODIFY `PlotType` int NOT NULL DEFAULT 0 AFTER `Name`;
 
-ALTER TABLE `glyph_properties` MODIFY `GlyphType` tinyint NOT NULL DEFAULT 0 AFTER `Name`;
+ALTER TABLE `glyph_properties` MODIFY `GlyphType` tinyint NOT NULL DEFAULT 0 AFTER `SpellID`;
 
 ALTER TABLE `gossip_npc_option` MODIFY `GarrFollowerTypeID` tinyint NOT NULL DEFAULT 0 AFTER `TrainerID`;
 
