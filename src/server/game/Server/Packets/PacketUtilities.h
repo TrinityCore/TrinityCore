@@ -31,7 +31,7 @@ namespace WorldPackets
     class InvalidStringValueException : public ByteBufferInvalidValueException
     {
     public:
-        InvalidStringValueException(std::string const& value);
+        InvalidStringValueException(std::string_view value);
 
         std::string const& GetInvalidValue() const { return _value; }
 
@@ -42,29 +42,29 @@ namespace WorldPackets
     class InvalidUtf8ValueException : public InvalidStringValueException
     {
     public:
-        InvalidUtf8ValueException(std::string const& value);
+        InvalidUtf8ValueException(std::string_view value);
     };
 
     class InvalidHyperlinkException : public InvalidStringValueException
     {
     public:
-        InvalidHyperlinkException(std::string const& value);
+        InvalidHyperlinkException(std::string_view value);
     };
 
     class IllegalHyperlinkException : public InvalidStringValueException
     {
     public:
-        IllegalHyperlinkException(std::string const& value);
+        IllegalHyperlinkException(std::string_view value);
     };
 
     namespace Strings
     {
-        struct RawBytes { static bool Validate(std::string const& /*value*/) { return true; } };
+        struct RawBytes { static bool Validate(std::string_view /*value*/) { return true; } };
         template<std::size_t MaxBytesWithoutNullTerminator>
-        struct ByteSize { static bool Validate(std::string const& value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
-        struct Utf8 { static bool Validate(std::string const& value); };
-        struct Hyperlinks { static bool Validate(std::string const& value); };
-        struct NoHyperlinks { static bool Validate(std::string const& value); };
+        struct ByteSize { static bool Validate(std::string_view value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
+        struct Utf8 { static bool Validate(std::string_view value); };
+        struct Hyperlinks { static bool Validate(std::string_view value); };
+        struct NoHyperlinks { static bool Validate(std::string_view value); };
     }
 
     /**
@@ -90,9 +90,7 @@ namespace WorldPackets
 
         friend ByteBuffer& operator>>(ByteBuffer& data, String& value)
         {
-            std::string string = data.ReadCString(false);
-            Validate(string);
-            value._storage = std::move(string);
+            value = data.ReadCString(false);
             return data;
         }
 
@@ -110,14 +108,26 @@ namespace WorldPackets
             return *this;
         }
 
+        String& operator=(std::string_view value)
+        {
+            Validate(value);
+            _storage = std::move(value);
+            return *this;
+        }
+
+        String& operator=(char const* value)
+        {
+            return *this = std::string_view(value);
+        }
+
     private:
-        static bool Validate(std::string const& value)
+        static bool Validate(std::string_view value)
         {
             return ValidateNth(value, std::make_index_sequence<std::tuple_size_v<ValidatorList>>{});
         }
 
         template<std::size_t... indexes>
-        static bool ValidateNth(std::string const& value, std::index_sequence<indexes...>)
+        static bool ValidateNth(std::string_view value, std::index_sequence<indexes...>)
         {
             return (std::tuple_element_t<indexes, ValidatorList>::Validate(value) && ...);
         }
