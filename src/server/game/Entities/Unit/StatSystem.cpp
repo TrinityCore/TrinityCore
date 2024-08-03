@@ -213,6 +213,7 @@ bool Player::UpdateStats(Stats stat)
             UpdateMaxHealth();
             break;
         case STAT_INTELLECT:
+            UpdateMaxPower(POWER_MANA);
             UpdateSpellCritChance();
             break;
         case STAT_SPIRIT:
@@ -371,14 +372,16 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina() const
 {
-    // Taken from PaperDollFrame.lua - 6.0.3.19085
+    // Taken from PaperDollFrame.lua - 4.3.4.15595
     float ratio = 10.0f;
     if (GtOctHpPerStaminaEntry const* hpBase = sOctHpPerStaminaGameTable.GetRow(GetLevel()))
         ratio = hpBase->Scalar;
 
     float stamina = GetStat(STAT_STAMINA);
+    float baseStam = std::min(20.0f, stamina);
+    float moreStam = stamina - baseStam;
 
-    return stamina * ratio;
+    return baseStam + moreStam * ratio;
 }
 
 Stats Player::GetPrimaryStat() const
