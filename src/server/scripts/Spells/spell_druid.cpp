@@ -38,6 +38,8 @@ enum DruidSpells
 {
     SPELL_DRUID_ABUNDANCE                      = 207383,
     SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
+    SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE      = 450599,
+    SPELL_DRUID_ASTRAL_COMMUNION_TALENT        = 450598,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -160,6 +162,31 @@ class spell_dru_abundance : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// Called by 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
+class spell_dru_astral_communion : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_ASTRAL_COMMUNION_TALENT,
+            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE
+        });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT))
+            target->CastSpell(target, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_dru_astral_communion::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2073,6 +2100,7 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_abundance);
+    RegisterSpellScript(spell_dru_astral_communion);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
     RegisterSpellScript(spell_dru_brambles);
