@@ -4395,7 +4395,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
-void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const
+void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana, uint32& baseHp) const
 {
     if (level < 1 || class_ >= MAX_CLASSES)
         return;
@@ -4403,14 +4403,15 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
     if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
-    GtOctBaseMpByClassEntry const* mp = sOctBaseMpByClassGameTable.GetRow(level);
-    if (!mp)
-    {
-        TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data for base hp/mp. Class {} Level {}", class_, level);
-        return;
-    }
+    if (GtOctBaseMpByClassEntry const* mp = sOctBaseMpByClassGameTable.GetRow(level))
+        baseMana = uint32(GetGameTableColumnForClass(mp, class_));
+    else
+        baseMana = 0;
 
-    baseMana = uint32(GetGameTableColumnForClass(mp, class_));
+    if (GtOctBaseHpByClassEntry const* hp = sOctBaseHpByClassGameTable.GetRow(level))
+        baseHp = uint32(GetGameTableColumnForClass(hp, class_));
+    else
+        baseHp = 0;
 }
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const

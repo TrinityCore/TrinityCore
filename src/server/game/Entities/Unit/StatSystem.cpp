@@ -111,10 +111,10 @@ void Unit::UpdatePowerRegen(Powers powerType)
         case POWER_MANA:
         {
             // Get base of Mana Pool in sBaseMPGameTable
-            uint32 basemana = 0;
+            uint32 basemana = 0, basehp = 0;
 
             if (IsPlayer())
-                sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
+                sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana, basehp);
             else
                 basemana = GetCreateMana(); // this should also get replaced by the base mana game table in the future.
 

@@ -2097,12 +2097,12 @@ void Player::GiveLevel(uint8 level)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(GetRace(), GetClass(), level, &info);
 
-    uint32 basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), level, basemana);
+    uint32 basemana = 0, baseHp = 0;
+    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), level, basemana, baseHp);
 
     WorldPackets::Misc::LevelUpInfo packet;
     packet.Level = level;
-    packet.HealthDelta = 0;
+    packet.HealthDelta = int32(baseHp) - int32(GetCreateHealth());
 
     /// @todo find some better solution
     // for (int i = 0; i < MAX_STORED_POWERS; ++i)
@@ -2131,7 +2131,7 @@ void Player::GiveLevel(uint8 level)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         SetCreateStat(Stats(i), info.stats[i]);
 
-    SetCreateHealth(0);
+    SetCreateHealth(baseHp);
     SetCreateMana(basemana);
 
     InitGlyphsForLevel();
@@ -2182,8 +2182,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     if (reapplyMods)                                        //reapply stats values only on .reset stats (level) command
         _RemoveAllStatBonuses();
 
-    uint32 basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
+    uint32 basemana = 0, baseHp = 0;
+    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana, baseHp);
 
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(GetRace(), GetClass(), GetLevel(), &info);
@@ -2221,7 +2221,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         SetStat(Stats(i), info.stats[i]);
 
-    SetCreateHealth(0);
+    SetCreateHealth(baseHp);
 
     //set create powers
     SetCreateMana(basemana);
