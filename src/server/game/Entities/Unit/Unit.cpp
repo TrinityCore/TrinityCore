@@ -5102,60 +5102,72 @@ void Unit::UpdateStatBuffMod(Stats stat)
 {
     float modPos = 0.0f;
     float modNeg = 0.0f;
-    float factor = 0.0f;
+    float currentValue = 0.0f;
+    float previousValue = 0.0f;
 
     UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
     // includes value from items and enchantments
-    float modValue = GetFlatModifierValue(unitMod, BASE_VALUE);
-    if (modValue > 0.f)
-        modPos += modValue;
-    else
-        modNeg += modValue;
-
+    float baseModValue = GetFlatModifierValue(unitMod, BASE_VALUE);
     if (IsGuardian())
-    {
-        modValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
-        if (modValue > 0.f)
-            modPos += modValue;
-        else
-            modNeg += modValue;
-    }
+        baseModValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
+
+    if (baseModValue >= 0.0f)
+        modPos = baseModValue;
+    else
+        modNeg = baseModValue;
+
+    previousValue = baseModValue;
 
     // SPELL_AURA_MOD_STAT_BONUS_PCT only affects BASE_VALUE
-    modPos = CalculatePct(modPos, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
-    modNeg = CalculatePct(modNeg, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+    currentValue = CalculatePct(baseModValue, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+    if (G3D::fuzzyGe(currentValue, previousValue))
+        modPos += currentValue - previousValue;
+    else
+        modNeg -= previousValue - currentValue;
 
-    modPos += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
-        {
-            if ((aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat) && aurEff->GetAmount() > 0)
-                return true;
-            return false;
-        });
-
-    modNeg += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
-        {
-            if ((aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat) && aurEff->GetAmount() < 0)
-                return true;
-            return false;
-        });
-
-    factor = GetTotalAuraMultiplier(SPELL_AURA_MOD_PERCENT_STAT, [stat](AuraEffect const* aurEff) -> bool
+    // SPELL_AURA_MOD_PERCENT_STAT affects the base_value as well as the create stat
+    previousValue += GetCreateStat(stat);
+    float multiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_PERCENT_STAT, [stat](AuraEffect const* aurEff) -> bool
         {
             if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
                 return true;
             return false;
         });
 
-    factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [stat](AuraEffect const* aurEff) -> bool
+    currentValue = previousValue * multiplier;
+    if (G3D::fuzzyGe(currentValue, previousValue))
+        modPos += currentValue - previousValue;
+    else
+        modNeg -= previousValue - currentValue;
+
+    // total_value offsets
+    previousValue += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [&](AuraEffect const* aurEff) -> bool
+        {
+            if (aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat)
+            {
+                if (aurEff->GetAmount() > 0)
+                    modPos += aurEff->GetAmount();
+                else
+                    modNeg += aurEff->GetAmount();
+                return true;
+            }
+            return false;
+        });
+
+    // total_pct multiplier
+    multiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [stat](AuraEffect const* aurEff) -> bool
         {
             if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
                 return true;
             return false;
         });
 
-    modPos *= factor;
-    modNeg *= factor;
+    currentValue = previousValue * multiplier;
+    if (G3D::fuzzyGe(currentValue, previousValue))
+        modPos += currentValue - previousValue;
+    else
+        modNeg -= previousValue - currentValue;
 
     m_floatStatPosBuff[stat] = modPos;
     m_floatStatNegBuff[stat] = modNeg;
