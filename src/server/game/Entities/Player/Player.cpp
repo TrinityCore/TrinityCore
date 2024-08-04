@@ -12719,23 +12719,23 @@ void Player::ApplyItemModModifier(ItemModType modifier, int32 amount, bool apply
             HandleStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(amount), apply);
             break;
         case ITEM_MOD_AGILITY:
-            HandleStatFlatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_AGILITY);
             break;
         case ITEM_MOD_STRENGTH:
-            HandleStatFlatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_STRENGTH);
             break;
         case ITEM_MOD_INTELLECT:
-            HandleStatFlatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_INTELLECT);
             break;
         case ITEM_MOD_SPIRIT:
-            HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_SPIRIT);
             break;
         case ITEM_MOD_STAMINA:
-            HandleStatFlatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_STAMINA);
             break;
         case ITEM_MOD_DEFENSE_SKILL_RATING:
