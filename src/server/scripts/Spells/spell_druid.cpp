@@ -760,6 +760,29 @@ private:
     float _damageMultiplier = 0.0f;
 };
 
+// 197721 - Flourish
+class spell_dru_flourish : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Milliseconds extraDuration = Seconds(GetEffectValue());
+        Unit::AuraMap const& auras = GetHitUnit()->GetOwnedAuras();
+        for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        {
+            if (itr->second->GetCasterGUID() == GetCaster()->GetGUID())
+            {
+                if (itr->second->HasEffectType(SPELL_AURA_PERIODIC_HEAL))
+                    itr->second->SetDuration(itr->second->GetDuration() + extraDuration.count());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_flourish::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 37336 - Druid Forms Trinket
 class spell_dru_forms_trinket : public AuraScript
 {
@@ -2091,6 +2114,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_embrace_of_the_dream_effect);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
+    RegisterSpellScript(spell_dru_flourish);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
     RegisterSpellScript(spell_dru_germination);
