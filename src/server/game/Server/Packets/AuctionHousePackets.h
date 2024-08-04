@@ -422,6 +422,7 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint32 PurchasedItemDeliveryDelay = 0;
             uint32 CancelledItemDeliveryDelay = 0;
+            uint32 DeliveryDelay = 0;
             bool OpenForBusiness = true;
         };
 

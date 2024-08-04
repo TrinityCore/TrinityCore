@@ -590,6 +590,7 @@ WorldPacket const* AuctionHelloResponse::Write()
     _worldPacket << Guid;
     _worldPacket << uint32(PurchasedItemDeliveryDelay);
     _worldPacket << uint32(CancelledItemDeliveryDelay);
+    _worldPacket << uint32(DeliveryDelay);
     _worldPacket.WriteBit(OpenForBusiness);
     _worldPacket.FlushBits();
 
