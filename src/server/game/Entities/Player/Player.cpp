@@ -8085,20 +8085,6 @@ void Player::ApplyItemLootedSpell(Item* item, bool apply)
     }
 }
 
-void Player::ApplyItemLootedSpell(ItemTemplate const* itemTemplate)
-{
-    if (itemTemplate->HasFlag(ITEM_FLAG_LEGACY))
-        return;
-
-    for (ItemEffectEntry const* effect : itemTemplate->Effects)
-    {
-        if (effect->TriggerType != ITEM_SPELLTRIGGER_ON_LOOTED)
-            continue;
-
-        CastSpell(this, effect->SpellID, true);
-    }
-}
-
 void Player::_RemoveAllItemMods()
 {
     TC_LOG_DEBUG("entities.player.items", "_RemoveAllItemMods start.");
@@ -10684,13 +10670,6 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
         count += itr->count;
 
-    // quest objectives must be processed twice - QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM prevents item creation
-    // Classic Only - This feature has been disabled
-    // bool hadBoundItemObjective = false;
-    // ItemAddedQuestCheck(itemId, count, true, &hadBoundItemObjective);
-    // if (hadBoundItemObjective)
-    //     return nullptr;
-
     Item* item = Item::CreateItem(itemId, count, context, this, bonusListIDs == nullptr);
     if (item)
     {
@@ -10705,7 +10684,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
 
         item = StoreItem(pos, item, update);
 
-        ItemAddedQuestCheck(itemId, count, false);
+        ItemAddedQuestCheck(itemId, count);
         UpdateCriteria(CriteriaType::ObtainAnyItem, itemId, count);
         UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
 
@@ -13789,6 +13768,11 @@ bool Player::CanCompleteRepeatableQuest(Quest const* quest)
     if (!CanTakeQuest(quest, false))
         return false;
 
+    if (quest->HasQuestObjectiveType(QUEST_OBJECTIVE_ITEM))
+        for (QuestObjective const& obj : quest->GetObjectives())
+            if (obj.Type == QUEST_OBJECTIVE_ITEM && !HasItemCount(obj.ObjectID, obj.Amount))
+                return false;
+
     if (!CanRewardQuest(quest, false))
         return false;
 
@@ -13822,7 +13806,7 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg) const
     {
         for (QuestObjective const& obj : quest->GetObjectives())
         {
-            if (obj.Type != QUEST_OBJECTIVE_ITEM || obj.Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM)
+            if (obj.Type != QUEST_OBJECTIVE_ITEM)
                 continue;
 
             if (GetItemCount(obj.ObjectID) < uint32(obj.Amount))
@@ -15531,13 +15515,12 @@ void Player::AdjustQuestObjectiveProgress(Quest const* quest)
         switch (obj.Type)
         {
             case QUEST_OBJECTIVE_ITEM:
-                if (!(obj.Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM))
-                {
-                    uint32 reqItemCount = obj.Amount;
-                    uint32 curItemCount = GetItemCount(obj.ObjectID, true);
-                    SetQuestObjectiveData(obj, std::min(curItemCount, reqItemCount));
-                }
+            {
+                uint32 reqItemCount = obj.Amount;
+                uint32 curItemCount = GetItemCount(obj.ObjectID, true);
+                SetQuestObjectiveData(obj, std::min(curItemCount, reqItemCount));
                 break;
+            }
             case QUEST_OBJECTIVE_HAVE_CURRENCY:
             {
                 uint32 reqCurrencyCount = obj.Amount;
@@ -15716,39 +15699,9 @@ void Player::GroupEventHappens(uint32 questId, WorldObject const* pEventObject)
         AreaExploredOrEventHappens(questId);
 }
 
-namespace
+void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 {
-struct
-{
-    std::function<bool(QuestObjective const*)> QuestBoundItem = [](QuestObjective const* objective) { return (objective->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM) != 0; };
-    std::function<bool(QuestObjective const*)> NotQuestBoundItem = [](QuestObjective const* objective) { return (objective->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM) == 0; };
-} const ItemQuestObjectiveFilters;
-}
-
-void Player::ItemAddedQuestCheck(uint32 entry, uint32 count, Optional<bool> boundItemFlagRequirement /*= {}*/, bool* hadBoundItemObjective /*= nullptr*/)
-{
-    std::vector<QuestObjective const*> updatedObjectives;
-    std::function<bool(QuestObjective const*)> const* objectiveFilter = nullptr;
-    if (boundItemFlagRequirement)
-        objectiveFilter = *boundItemFlagRequirement ? &ItemQuestObjectiveFilters.QuestBoundItem : &ItemQuestObjectiveFilters.NotQuestBoundItem;
-
-    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(entry);
-    UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_ITEM, itemTemplate->GetId(), count, ObjectGuid::Empty, &updatedObjectives, objectiveFilter);
-    if (itemTemplate->QuestLogItemId && (updatedObjectives.size() != 1 || !(updatedObjectives[0]->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM)))
-        UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_ITEM, itemTemplate->QuestLogItemId, count, ObjectGuid::Empty, &updatedObjectives, objectiveFilter);
-
-    if (updatedObjectives.size() == 1 && updatedObjectives[0]->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM)
-    {
-        // Quest source items should ignore QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM
-        if (Quest const* quest = sObjectMgr->GetQuestTemplate(updatedObjectives[0]->QuestID))
-            if (quest->GetSrcItemId() == entry)
-                return;
-
-        if (hadBoundItemObjective)
-            *hadBoundItemObjective = updatedObjectives.size() == 1 && updatedObjectives[0]->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM;
-
-        SendQuestUpdateAddItem(itemTemplate, *updatedObjectives[0], count);
-    }
+    UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_ITEM, entry, count);
 }
 
 void Player::ItemRemovedQuestCheck(uint32 entry, uint32 /*count*/)
@@ -15844,8 +15797,7 @@ void Player::CurrencyChanged(uint32 currencyId, int32 change)
     UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_OBTAIN_CURRENCY, currencyId, change);
 }
 
-void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int32 objectId, int64 addCount, ObjectGuid victimGuid /*= ObjectGuid::Empty*/,
-    std::vector<QuestObjective const*>* updatedObjectives /*= nullptr*/, std::function<bool(QuestObjective const*)> const* objectiveFilter /*= nullptr*/)
+void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int32 objectId, int64 addCount, ObjectGuid victimGuid /*= ObjectGuid::Empty*/)
 {
     bool anyObjectiveChangedCompletionState = false;
     bool updatePhaseShift = false;
@@ -15873,9 +15825,6 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
 
         bool objectiveWasComplete = IsQuestObjectiveComplete(logSlot, quest, *objective);
         if (objectiveWasComplete && addCount >= 0)
-            continue;
-
-        if (objectiveFilter && !(*objectiveFilter)(objective))
             continue;
 
         bool objectiveIsNowComplete = false;
@@ -15985,12 +15934,6 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
         }
         else if (!(objective->Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) && objectiveItr.second.QuestStatusItr->second.Status == QUEST_STATUS_COMPLETE)
             IncompleteQuest(questId);
-
-        if (updatedObjectives)
-            updatedObjectives->push_back(objective);
-
-        if (objective->Type == QUEST_OBJECTIVE_ITEM && addCount >= 0 && objective->Flags2 & QUEST_OBJECTIVE_FLAG_2_QUEST_BOUND_ITEM)
-            break;
     }
 
     if (anyObjectiveChangedCompletionState)
@@ -16431,26 +16374,6 @@ void Player::SendQuestUpdateAddCreditSimple(QuestObjective const& obj) const
     packet.ObjectID = obj.ObjectID;
     packet.ObjectiveType = obj.Type;
     SendDirectMessage(packet.Write());
-}
-
-void Player::SendQuestUpdateAddItem(ItemTemplate const* itemTemplate, QuestObjective const& obj, uint16 count) const
-{
-    WorldPackets::Item::ItemPushResult packet;
-
-    packet.PlayerGUID = GetGUID();
-
-    packet.Slot = INVENTORY_SLOT_BAG_0;
-    packet.SlotInBag = 0;
-    packet.Item.ItemID = itemTemplate->GetId();
-    packet.QuestLogItemID = itemTemplate->QuestLogItemId;
-    packet.Quantity = count;
-    packet.QuantityInInventory = GetQuestObjectiveData(obj);
-    packet.DisplayText = static_cast<WorldPackets::Item::ItemPushResult::DisplayType>(3);
-
-    if (GetGroup() && !itemTemplate->HasFlag(ITEM_FLAG3_DONT_REPORT_LOOT_LOG_TO_PARTY))
-        GetGroup()->BroadcastPacket(packet.Write(), true);
-    else
-        SendDirectMessage(packet.Write());
 }
 
 void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const
@@ -25587,12 +25510,13 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
 
         --loot->unlootedCount;
 
-        if (newitem && (newitem->GetQuality() > ITEM_QUALITY_EPIC || (newitem->GetQuality() == ITEM_QUALITY_EPIC && newitem->GetItemLevel(this) >= MinNewsItemLevel)))
-            if (Guild* guild = GetGuild())
-                guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->itemid);
+        if (sObjectMgr->GetItemTemplate(item->itemid))
+            if (newitem->GetQuality() > ITEM_QUALITY_EPIC || (newitem->GetQuality() == ITEM_QUALITY_EPIC && newitem->GetItemLevel(this) >= MinNewsItemLevel))
+                if (Guild* guild = GetGuild())
+                    guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->itemid);
 
         // if aeLooting then we must delay sending out item so that it appears properly stacked in chat
-        if (!aeResult || !newitem)
+        if (!aeResult)
         {
             SendNewItem(newitem, uint32(item->count), false, false, true, loot->GetDungeonEncounterId());
             UpdateCriteria(CriteriaType::LootItem, item->itemid, item->count);
@@ -25606,10 +25530,7 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
         if (loot->loot_type == LOOT_ITEM)
             sLootItemStorage->RemoveStoredLootItemForContainer(lootWorldObjectGuid.GetCounter(), item->itemid, item->count, item->LootListId);
 
-        if (newitem)
-            ApplyItemLootedSpell(newitem, true);
-        else
-            ApplyItemLootedSpell(sObjectMgr->GetItemTemplate(item->itemid));
+        ApplyItemLootedSpell(newitem, true);
     }
     else
         SendEquipError(msg, nullptr, nullptr, item->itemid);

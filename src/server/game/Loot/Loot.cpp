@@ -888,13 +888,9 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
 
         --unlootedCount;
 
-        if (Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs))
-        {
-            player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast, GetDungeonEncounterId());
-            player->ApplyItemLootedSpell(pItem, true);
-        }
-        else
-            player->ApplyItemLootedSpell(sObjectMgr->GetItemTemplate(lootItem->itemid));
+        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs);
+        player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
+        player->ApplyItemLootedSpell(pItem, true);
     }
 
     return allLooted;
