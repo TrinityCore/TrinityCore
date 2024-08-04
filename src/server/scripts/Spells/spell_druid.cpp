@@ -838,6 +838,21 @@ class spell_dru_forms_trinket : public AuraScript
     }
 };
 
+// 274283 - Full Moon
+class spell_dru_full_moon : public SpellScript
+{
+    void OverrideMoon()
+    {
+        Unit* caster = GetCaster();
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dru_full_moon::OverrideMoon);
+    }
+};
+
 // 203964 - Galactic Guardian
 class spell_dru_galactic_guardian : public AuraScript
 {
@@ -959,6 +974,22 @@ class spell_dru_gore : public AuraScript
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_gore::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_gore::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 274282 - Half Moon
+class spell_dru_half_moon : public SpellScript
+{
+    void OverrideMoon()
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DRUID_HALF_MOON_OVERRIDE, TRIGGERED_FULL_MASK);
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dru_half_moon::OverrideMoon);
     }
 };
 
@@ -1226,30 +1257,12 @@ class spell_dru_moonfire : public SpellScript
 };
 
 // 274281 - New Moon
-// 274282 - Half Moon
-// 274283 - Full Moon
 class spell_dru_new_moon : public SpellScript
 {
     void OverrideMoon()
     {
         Unit* caster = GetCaster();
-        switch (GetSpellInfo()->Id)
-        {
-            case SPELL_DRUID_NEW_MOON:
-                caster->CastSpell(caster, SPELL_DRUID_NEW_MOON_OVERRIDE, TRIGGERED_FULL_MASK);
-                break;
-            case SPELL_DRUID_HALF_MOON:
-            {
-                caster->CastSpell(caster, SPELL_DRUID_HALF_MOON_OVERRIDE, TRIGGERED_FULL_MASK);
-                caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
-                break;
-            }
-            case SPELL_DRUID_FULL_MOON:
-                caster->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
-                break;
-            default:
-                break;
-        }
+        caster->CastSpell(caster, SPELL_DRUID_NEW_MOON_OVERRIDE, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
@@ -2130,10 +2143,12 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
+    RegisterSpellScript(spell_dru_full_moon);
     RegisterSpellScript(spell_dru_galactic_guardian);
     RegisterSpellScript(spell_dru_germination);
     RegisterSpellScript(spell_dru_glyph_of_stars);
     RegisterSpellScript(spell_dru_gore);
+    RegisterSpellScript(spell_dru_half_moon);
     RegisterSpellScript(spell_dru_incapacitating_roar);
     RegisterSpellScript(spell_dru_incarnation);
     RegisterSpellScript(spell_dru_incarnation_tree_of_life);
