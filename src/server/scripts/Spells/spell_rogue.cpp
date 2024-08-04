@@ -50,6 +50,7 @@ enum RogueSpells
     SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
+    SPELL_ROGUE_IMPROVED_SHIV                       = 319032,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
@@ -67,6 +68,7 @@ enum RogueSpells
     SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
     SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
     SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
+    SPELL_ROGUE_SHIV_NATURE_DAMAGE                  = 319504,
     SPELL_ROGUE_SLICE_AND_DICE                      = 315496,
     SPELL_ROGUE_SPRINT                              = 2983,
     SPELL_ROGUE_STEALTH                             = 1784,
@@ -745,6 +747,27 @@ private:
     bool _hasPremeditationAura = false;
 };
 
+// 5938 - Shiv
+class spell_rog_shiv : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHIV_NATURE_DAMAGE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_ROGUE_IMPROVED_SHIV))
+            caster->CastSpell(GetHitUnit(), SPELL_ROGUE_SHIV_NATURE_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_shiv::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 193315 - Sinister Strike
 class spell_rog_sinister_strike : public SpellScript
 {
@@ -1056,6 +1079,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_rupture);
     RegisterSpellScript(spell_rog_ruthlessness);
     RegisterSpellScript(spell_rog_shadowstrike);
+    RegisterSpellScript(spell_rog_shiv);
     RegisterSpellScript(spell_rog_sinister_strike);
     RegisterSpellScript(spell_rog_stealth);
     RegisterSpellScript(spell_rog_symbols_of_death);
