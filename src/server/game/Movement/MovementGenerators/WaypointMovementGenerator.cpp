@@ -41,7 +41,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bo
     : PathMovementBase(PathType(std::in_place_type<WaypointPath const*>)), _pathId(pathId), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
-    _moveTimer(0), _nextMoveTime(0), _isReturningToStart(false)
+    _moveTimer(0), _nextMoveTime(0), _isReturningToStart(false), _isInitialMovementStart(true)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -59,7 +59,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath cons
     : PathMovementBase(std::make_unique<WaypointPath>(path)), _pathId(0), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
-    _moveTimer(0), _nextMoveTime(0), _isReturningToStart(false)
+    _moveTimer(0), _nextMoveTime(0), _isReturningToStart(false), _isInitialMovementStart(true)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -567,10 +567,22 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     if (_speed)
         init.SetVelocity(*_speed);
 
-    if (IsExactSplinePath() && points.size() > 2 && owner->CanFly())
-        init.SetSmooth();
+    bool isCyclic = false;
+    if (IsExactSplinePath())
+    {
+        if (points.size() > 2 && owner->CanFly())
+            init.SetSmooth();
 
-    Milliseconds duration(init.Launch());
+        if (_repeating && path->ContinuousSegments.size() == 1)
+        {
+            init.SetCyclic();
+            isCyclic = true;
+        }
+    }
+
+    Milliseconds duration(init.Launch(!_isInitialMovementStart && isCyclic));
+
+    _isInitialMovementStart = false;
 
     if (!IsExactSplinePath()
         && duration > 2 * SEND_NEXT_POINT_EARLY_DELTA
