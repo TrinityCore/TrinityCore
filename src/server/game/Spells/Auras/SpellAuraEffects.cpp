@@ -3693,6 +3693,9 @@ void AuraEffect::HandleModPercentStat(AuraApplication const* aurApp, uint8 mode,
                 target->SetStatPctModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT, amount);
             }
         }
+
+        if (target->GetTypeId() == TYPEID_PLAYER || target->IsPet())
+            target->UpdateStatBuffMod(Stats(i));
     }
 }
 
