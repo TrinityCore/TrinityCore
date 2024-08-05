@@ -6048,6 +6048,9 @@ void Spell::EffectCreateTraitTreeConfig()
     if (!target)
         return;
 
+    if (target->IsLoading() && target->m_activePlayerData->TraitConfigs.empty())
+        return; // traits not loaded yet
+
     WorldPackets::Traits::TraitConfig newConfig;
     newConfig.Type = TraitMgr::GetConfigTypeForTree(effectInfo->MiscValue);
     if (newConfig.Type != TraitConfigType::Generic)
