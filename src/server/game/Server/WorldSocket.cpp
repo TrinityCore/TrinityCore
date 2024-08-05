@@ -151,7 +151,7 @@ void WorldSocket::InitializeHandler(boost::system::error_code const& error, std:
             try
             {
                 ByteBuffer buffer(std::move(_packetBuffer));
-                std::string initializer = buffer.ReadString(ClientConnectionInitialize.length());
+                std::string initializer(buffer.ReadString(ClientConnectionInitialize.length()));
                 if (initializer != ClientConnectionInitialize)
                 {
                     CloseSocket();

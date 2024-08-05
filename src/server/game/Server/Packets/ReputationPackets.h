@@ -25,18 +25,28 @@ namespace WorldPackets
 {
     namespace Reputation
     {
-        static constexpr uint16 FactionCount = 1000;
+        struct FactionData
+        {
+            int32 FactionID = 0;
+            uint16 Flags = 0;
+            int32 Standing = 0;
+        };
+
+        struct FactionBonusData
+        {
+            int32 FactionID = 0;
+            bool FactionHasBonus = false;
+        };
 
         class InitializeFactions final : public ServerPacket
         {
         public:
-            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, FactionCount * (4 + 2) + FactionCount / 8) { }
+            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 0x1000) { }
 
             WorldPacket const* Write() override;
 
-            std::array<int32, FactionCount> FactionStandings = { };
-            std::array<bool, FactionCount> FactionHasBonus = { }; ///< @todo: implement faction bonus
-            std::array<uint16, FactionCount> FactionFlags = { }; ///< @see enum FactionFlags
+            std::vector<FactionData> Factions;
+            std::vector<FactionBonusData> Bonuses;
         };
 
         class RequestForcedReactions final : public ClientPacket

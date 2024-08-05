@@ -21,17 +21,17 @@
 #include "Dynamic/LinkedList.h"
 #include "Dynamic/LinkedReference/Reference.h"
 
-template <class TO, class FROM>
+template <class ReferenceType>
 class RefManager : public LinkedListHead
 {
 public:
-    typedef LinkedListHead::Iterator<Reference<TO, FROM>> iterator;
-    typedef LinkedListHead::Iterator<Reference<TO, FROM> const> const_iterator;
+    typedef LinkedListHead::Iterator<ReferenceType> iterator;
+    typedef LinkedListHead::Iterator<ReferenceType const> const_iterator;
     RefManager() { }
 
-    Reference<TO, FROM>* getFirst() { return static_cast<Reference<TO, FROM>*>(LinkedListHead::getFirst()); }
+    ReferenceType* getFirst() { return static_cast<ReferenceType*>(LinkedListHead::getFirst()); }
 
-    Reference<TO, FROM> const* getFirst() const { return static_cast<Reference<TO, FROM> const*>(LinkedListHead::getFirst()); }
+    ReferenceType const* getFirst() const { return static_cast<ReferenceType const*>(LinkedListHead::getFirst()); }
 
     iterator begin() { return iterator(getFirst()); }
     iterator end() { return iterator(nullptr); }
@@ -46,7 +46,7 @@ public:
 
     void clearReferences()
     {
-        while (Reference<TO, FROM>* ref = getFirst())
+        while (ReferenceType* ref = getFirst())
             ref->invalidate();
     }
 };

@@ -18,8 +18,8 @@
 #ifndef TRINITY_BAG_H
 #define TRINITY_BAG_H
 
-// Maximum 36 Slots ((CONTAINER_END - CONTAINER_FIELD_SLOT_1)/2
-#define MAX_BAG_SIZE 36                                     // 2.0.12
+// Maximum 98 Slots ((CONTAINER_END - CONTAINER_FIELD_SLOT_1)/2
+#define MAX_BAG_SIZE 98                                     // 11.0.0
 
 #include "Item.h"
 

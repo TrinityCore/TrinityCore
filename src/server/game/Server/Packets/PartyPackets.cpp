@@ -508,6 +508,7 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << uint32(SequenceNum);
     _worldPacket << LeaderGUID;
     _worldPacket << uint8(LeaderFactionGroup);
+    _worldPacket << int32(PingRestriction);
     _worldPacket << uint32(PlayerList.size());
     _worldPacket.WriteBit(LfgInfos.has_value());
     _worldPacket.WriteBit(LootSettings.has_value());
@@ -735,9 +736,9 @@ WorldPacket const* WorldPackets::Party::BroadcastSummonResponse::Write()
 
 void WorldPackets::Party::SetRestrictPingsToAssistants::Read()
 {
-    bool hasPartyIndex = _worldPacket.ReadBit();
-    RestrictPingsToAssistants = _worldPacket.ReadBit();
-    if (hasPartyIndex)
+    _worldPacket >> OptionalInit(PartyIndex);
+    _worldPacket >> As<int32>(RestrictTo);
+    if (PartyIndex)
         _worldPacket >> PartyIndex.emplace();
 }
 
@@ -764,8 +765,9 @@ void WorldPackets::Party::SendPingWorldPoint::Read()
     _worldPacket >> SenderGUID;
     _worldPacket >> MapID;
     _worldPacket >> Point;
-    Type = _worldPacket.read<PingSubjectType, uint8>();
+    _worldPacket >> As<int32>(Type);
     _worldPacket >> PinFrameID;
+    _worldPacket >> Transport;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()
@@ -775,6 +777,7 @@ WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()
     _worldPacket << Point;
     _worldPacket << uint8(Type);
     _worldPacket << PinFrameID;
+    _worldPacket << Transport;
 
     return &_worldPacket;
 }

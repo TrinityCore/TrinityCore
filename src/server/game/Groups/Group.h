@@ -103,7 +103,7 @@ enum GroupFlags : uint16
     GROUP_FLAG_EVERYONE_ASSISTANT   = 0x040, // Script_IsEveryoneAssistant()
     GROUP_FLAG_GUILD_GROUP          = 0x100,
     GROUP_FLAG_CROSS_FACTION        = 0x200,
-    GROUP_FLAG_RESTRICT_PINGS       = 0x400, // C_PartyInfo::Script_GetRestrictPings()
+    GROUP_FLAG_RESTRICT_PINGS       = 0x400, // deprecated
 
     GROUP_MASK_BGRAID                = GROUP_FLAG_FAKE_RAID | GROUP_FLAG_RAID,
 };
@@ -191,6 +191,14 @@ enum class PingSubjectType : uint8
     Max
 };
 
+enum class RestrictPingsTo : int32
+{
+    None        = 0,
+    Lead        = 1,
+    Assist      = 2,
+    TankHealer  = 3,
+};
+
 /** request member stats checken **/
 /// @todo uninvite people that not accepted invite
 class TC_GAME_API Group
@@ -260,8 +268,8 @@ class TC_GAME_API Group
         void SetLfgRoles(ObjectGuid guid, uint8 roles);
         uint8 GetLfgRoles(ObjectGuid guid) const;
         void SetEveryoneIsAssistant(bool apply);
-        bool IsRestrictPingsToAssistants() const;
-        void SetRestrictPingsToAssistants(bool restrictPingsToAssistants);
+        RestrictPingsTo GetRestrictPings() const;
+        void SetRestrictPingsTo(RestrictPingsTo restrictTo);
 
         // Update
         void UpdateReadyCheck(uint32 diff);
@@ -450,6 +458,8 @@ class TC_GAME_API Group
         uint32              m_activeMarkers;
 
         std::array<std::unique_ptr<CountdownInfo>, 3> m_countdowns;
+
+        RestrictPingsTo     m_pingRestriction;
 
         struct NoopGroupDeleter { void operator()(Group*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Group> m_scriptRef;

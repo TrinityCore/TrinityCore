@@ -480,8 +480,7 @@ public:
         CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
         uint32 faction = target->GetFaction();
-        uint64 npcflags;
-        memcpy(&npcflags, target->m_unitData->NpcFlags.begin(), sizeof(npcflags));
+        uint64 npcflags = (uint64(target->GetNpcFlags2()) << 32) | target->GetNpcFlags();
         uint64 mechanicImmuneMask = 0;
         if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(cInfo->CreatureImmunitiesId))
             mechanicImmuneMask = immunities->Mechanic.to_ullong();
@@ -550,7 +549,7 @@ public:
             if (cInfo->flags_extra & flag)
                 handler->PSendSysMessage("%s (0x%X)", EnumUtils::ToTitle(flag), flag);
 
-        handler->PSendSysMessage(LANG_NPCINFO_NPC_FLAGS, target->m_unitData->NpcFlags[0]);
+        handler->PSendSysMessage(LANG_NPCINFO_NPC_FLAGS, uint32(target->GetNpcFlags()));
         for (NPCFlags flag : EnumUtils::Iterate<NPCFlags>())
             if (target->HasNpcFlag(flag))
                 handler->PSendSysMessage("* %s (0x%X)", EnumUtils::ToTitle(flag), flag);

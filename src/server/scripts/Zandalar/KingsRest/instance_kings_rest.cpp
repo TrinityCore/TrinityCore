@@ -15,7 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 #include "kings_rest.h"
 
@@ -65,7 +67,36 @@ public:
             LoadObjectData(creatureData, objectData);
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
+
+            _serpentTempleSpawns = 0;
         }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            if (creature->HasStringId("TempleEvent"))
+                _serpentTempleSpawns++;
+        }
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
+            if (creature->HasStringId("TempleEvent"))
+            {
+                _serpentTempleSpawns--;
+                if (_serpentTempleSpawns > 0)
+                    return;
+
+                instance->SpawnGroupSpawn(SPAWN_GROUP_SERPENT_BOSS);
+            }
+        }
+
+    private:
+        uint8 _serpentTempleSpawns;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -22,7 +22,8 @@
 
 static BossBoundaryData const boundaries =
 {
-    { DATA_HEARTSBANE_TRIAD, new BoundaryIntersectionBoundary(new ZRangeBoundary(235.0f, 243.0f), new RectangleBoundary(-618.580f, -524.305f, -188.971f, -137.363f)) },
+    { DATA_HEARTSBANE_TRIAD, new BoundaryIntersectionBoundary(new ZRangeBoundary(235.0f, 243.0f), new RectangleBoundary(-618.580f, -524.305f, -188.971f, -137.363f))  },
+    { DATA_SOULBOUND_GOLIATH, new BoundaryUnionBoundary(new CircleBoundary(Position(-422.13f, -258.28f), 32.0f), new RectangleBoundary(-530.650f, -446.580f, -293.130f, -227.150f)) },
     { DATA_LORD_AND_LADY_WAYCREST, new ZRangeBoundary(182.5f, 192.2f) }
 };
 
@@ -31,6 +32,7 @@ ObjectData const creatureData[] =
     { BOSS_SISTER_BRIAR,  DATA_SISTER_BRIAR  },
     { BOSS_SISTER_MALADY, DATA_SISTER_MALADY },
     { BOSS_SISTER_SOLENA, DATA_SISTER_SOLENA },
+    { BOSS_SOULBOUND_GOLIATH, DATA_SOULBOUND_GOLIATH },
     { BOSS_LADY_WAYCREST, DATA_LADY_WAYCREST },
     { BOSS_LORD_WAYCREST, DATA_LORD_WAYCREST },
     { 0,                  0                  }  // END
@@ -67,7 +69,36 @@ public:
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
+
+            _soulboundGoliathIntroState = NOT_STARTED;
         }
+
+        uint32 GetData(uint32 dataId) const override
+        {
+            switch (dataId)
+            {
+                case DATA_SOULBOUND_GOLIATH_INTRO:
+                    return _soulboundGoliathIntroState;
+                default:
+                    break;
+            }
+            return 0;
+        }
+
+        void SetData(uint32 dataId, uint32 value) override
+        {
+            switch (dataId)
+            {
+                case DATA_SOULBOUND_GOLIATH_INTRO:
+                    _soulboundGoliathIntroState = value;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    private:
+        uint8 _soulboundGoliathIntroState;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

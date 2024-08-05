@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "LFG.h"
 #include "Log.h"
 #include "Loot.h"
 #include "MiscPackets.h"
@@ -664,8 +665,24 @@ bool CanSendPing(Player const& player, PingSubjectType type, Group const*& group
     if (!group)
         return false;
 
-    if (group->IsRestrictPingsToAssistants() && !group->IsLeader(player.GetGUID()) && !group->IsAssistant(player.GetGUID()))
-        return false;
+    if (group->IsLeader(player.GetGUID()))
+        return true;
+
+    switch (group->GetRestrictPings())
+    {
+        case RestrictPingsTo::None:
+            return true;
+        case RestrictPingsTo::Lead:
+            return false;
+        case RestrictPingsTo::Assist:
+            if (!group->IsAssistant(player.GetGUID()))
+                return false;
+            break;
+        case RestrictPingsTo::TankHealer:
+            if (!(group->GetLfgRoles(player.GetGUID()) & (lfg::PLAYER_ROLE_TANK | lfg::PLAYER_ROLE_HEALER)))
+                return false;
+            break;
+    }
 
     return true;
 }
@@ -680,7 +697,7 @@ void WorldSession::HandleSetRestrictPingsToAssistants(WorldPackets::Party::SetRe
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    group->SetRestrictPingsToAssistants(setRestrictPingsToAssistants.RestrictPingsToAssistants);
+    group->SetRestrictPingsTo(setRestrictPingsToAssistants.RestrictTo);
 }
 
 void WorldSession::HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& pingUnit)
@@ -725,6 +742,7 @@ void WorldSession::HandleSendPingWorldPoint(WorldPackets::Party::SendPingWorldPo
     broadcastPingWorldPoint.Point = pingWorldPoint.Point;
     broadcastPingWorldPoint.Type = pingWorldPoint.Type;
     broadcastPingWorldPoint.PinFrameID = pingWorldPoint.PinFrameID;
+    broadcastPingWorldPoint.Transport = pingWorldPoint.Transport;
     broadcastPingWorldPoint.Write();
 
     for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
