@@ -19,6 +19,10 @@
 
 void AddSC_zone_boralus();
 
+// Shrine of the Storm
+void AddSC_boss_aqusirr();
+void AddSC_instance_shrine_of_the_storm();
+
 // Waycrest Manor
 void AddSC_boss_heartsbane_triad();
 void AddSC_boss_soulbound_goliath();
@@ -31,6 +35,10 @@ void AddSC_waycrest_manor();
 void AddKulTirasScripts()
 {
     AddSC_zone_boralus();
+
+    // Shrine of the Storm
+    AddSC_boss_aqusirr();
+    AddSC_instance_shrine_of_the_storm();
 
     // Waycrest Manor
     AddSC_boss_heartsbane_triad();
