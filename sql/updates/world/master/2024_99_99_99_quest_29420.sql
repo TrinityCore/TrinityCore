@@ -27,6 +27,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (59626, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 80, 5962600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Update - Run Script'),
 (5962600, 9, 0, 0, 0, 0, 100, 0, 3000, 5000, 0, 0, 0, 85, 114684, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Cast Flame Spout damage');
 
+-- Phases
+UPDATE `gameobject` SET `PhaseId`=504 WHERE `guid` IN (300154, 300152, 300149); -- Fire Wall
+UPDATE `creature` SET `PhaseId`=504 WHERE `guid` = 450605; -- Master Li Fei
+
 -- Spell
 DELETE FROM `spell_script_names` WHERE `spell_id`=114684;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
