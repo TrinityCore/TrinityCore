@@ -47,9 +47,6 @@ enum AqusirrSpells
     SPELL_ERUPTING_WATERS_SPLIT          = 264903,
     SPELL_ERUPTING_WATERS_DAMAGE         = 264941,
     SPELL_ERUPTING_WATERS_AQUALING       = 265030,
-    SPELL_ERUPTING_WATERS_SUMMON_1       = 264911,
-    SPELL_ERUPTING_WATERS_SUMMON_2       = 264912,
-    SPELL_ERUPTING_WATERS_SUMMON_3       = 264913,
     SPELL_CHOKING_BRINE                  = 264560,
     SPELL_CHOKING_BRINE_MISSILE          = 264714,
     SPELL_CHOKING_BRINE_MISSILE_2        = 264703,
@@ -73,6 +70,12 @@ enum AqusirrEvents
 enum AqusirrActions
 {
     ACTION_START_INTRO = 1
+};
+
+enum AqusirrTexts
+{
+    SAY_AQUSIRR_INTRO_1 = 0,
+    SAY_AQUSIRR_INTRO_2 = 1
 };
 
 enum AqusirrMisc
@@ -158,24 +161,6 @@ struct AqusirrSharedAI : public BossAI
             }
             default:
                 break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            ExecuteEvent(eventId);
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
 };
@@ -297,37 +282,53 @@ struct npc_aqusirr_intro_lord_stormsong : public CreatureAI
         {
             me->RemoveAurasDueToSpell(SPELL_WATER_RITUAL);
 
-            _scheduler.Schedule(1s, [this](TaskContext context)
+            Seconds delay = 1s;
+
+            _scheduler.Schedule(delay, [this](TaskContext)
             {
                 me->SetFacingTo(0.1939797f);
+            });
 
-                context.Schedule(3s, [this](TaskContext context)
-                {
-                    Talk(0);
-                    context.Schedule(6s, [this](TaskContext context)
-                    {
-                        Talk(1);
-                        context.Schedule(6s, [this](TaskContext context)
-                        {
-                            DoCastSelf(SPELL_REQUIEM_OF_THE_ABYSS);
+            delay += 3s;
 
-                            context.Schedule(1s, [this](TaskContext context)
-                            {
-                                DoCastSelf(SPELL_REQUIEM_OF_THE_ABYSS_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            _scheduler.Schedule(delay, [this](TaskContext)
+            {
+                Talk(SAY_AQUSIRR_INTRO_1);
+            });
 
-                                context.Schedule(6s, [this](TaskContext context)
-                                {
-                                    me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_ID_AQUSIRR);
+            delay += 6s;
 
-                                    context.Schedule(3s + 800ms, [this](TaskContext /*context*/)
-                                    {
-                                        DoCastSelf(SPELL_SPLASHING_WATERS);
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
+            _scheduler.Schedule(delay, [this](TaskContext)
+            {
+                Talk(SAY_AQUSIRR_INTRO_2);
+            });
+
+            delay += 6s;
+
+            _scheduler.Schedule(delay, [this](TaskContext)
+            {
+                DoCastSelf(SPELL_REQUIEM_OF_THE_ABYSS);
+            });
+
+            delay += 1s;
+
+            _scheduler.Schedule(1s, [this](TaskContext)
+            {
+                DoCastSelf(SPELL_REQUIEM_OF_THE_ABYSS_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            });
+
+            delay += 6s;
+
+            _scheduler.Schedule(delay, [this](TaskContext)
+            {
+                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_ID_AQUSIRR);
+            });
+
+            delay += 3s;
+
+            _scheduler.Schedule(delay + 800ms, [this](TaskContext)
+            {
+                DoCastSelf(SPELL_SPLASHING_WATERS);
             });
         }
     }
@@ -386,31 +387,44 @@ class spell_aqusirr_requiem_of_the_abyss_periodic : public AuraScript
 };
 
 // 264911 - Erupting Waters
-// 264912 - Erupting Waters
-// 264913 - Erupting Waters
-class spell_aqusirr_erupting_waters_split : public SpellScript
+class spell_aqusirr_erupting_waters_split_1 : public SpellScript
 {
     void SetDest(SpellDestination& dest)
     {
-        switch (GetSpellInfo()->Id)
-        {
-            case SPELL_ERUPTING_WATERS_SUMMON_1:
-                dest.Relocate(EruptingWatersSummonPosition1);
-                break;
-            case SPELL_ERUPTING_WATERS_SUMMON_2:
-                dest.Relocate(EruptingWatersSummonPosition2);
-                break;
-            case SPELL_ERUPTING_WATERS_SUMMON_3:
-                dest.Relocate(EruptingWatersSummonPosition3);
-                break;
-            default:
-                break;
-        }
+        dest.Relocate(EruptingWatersSummonPosition1);
     }
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_aqusirr_erupting_waters_split::SetDest, EFFECT_0, TARGET_DEST_DEST);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_aqusirr_erupting_waters_split_1::SetDest, EFFECT_0, TARGET_DEST_DEST);
+    }
+};
+
+// 264912 - Erupting Waters
+class spell_aqusirr_erupting_waters_split_2 : public SpellScript
+{
+    void SetDest(SpellDestination& dest)
+    {
+        dest.Relocate(EruptingWatersSummonPosition2);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_aqusirr_erupting_waters_split_2::SetDest, EFFECT_0, TARGET_DEST_DEST);
+    }
+};
+
+// 264913 - Erupting Waters
+class spell_aqusirr_erupting_waters_split_3 : public SpellScript
+{
+    void SetDest(SpellDestination& dest)
+    {
+        dest.Relocate(EruptingWatersSummonPosition3);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_aqusirr_erupting_waters_split_3::SetDest, EFFECT_0, TARGET_DEST_DEST);
     }
 };
 
@@ -576,7 +590,11 @@ struct at_aqusirr_surging_rush : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_SURGING_RUSH_DAMAGE, false);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_SURGING_RUSH_DAMAGE, false);
     }
 };
 
@@ -588,7 +606,9 @@ void AddSC_boss_aqusirr()
 
     RegisterSpellScript(spell_aqusirr_requiem_of_the_abyss);
     RegisterSpellScript(spell_aqusirr_requiem_of_the_abyss_periodic);
-    RegisterSpellScript(spell_aqusirr_erupting_waters_split);
+    RegisterSpellScript(spell_aqusirr_erupting_waters_split_1);
+    RegisterSpellScript(spell_aqusirr_erupting_waters_split_2);
+    RegisterSpellScript(spell_aqusirr_erupting_waters_split_3);
     RegisterSpellScript(spell_aqusirr_choking_brine);
     RegisterSpellScript(spell_aqusirr_surging_rush);
     RegisterSpellScript(spell_aqusirr_surging_rush_selector);
