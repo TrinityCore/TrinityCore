@@ -5158,7 +5158,7 @@ void Unit::UpdateStatBuffMod(Stats stat)
     // total_pct multiplier
     multiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [stat](AuraEffect const* aurEff) -> bool
         {
-            if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
+            if (!aurEff->GetMiscValueB() || aurEff->GetMiscValueB() & (1 << stat))
                 return true;
             return false;
         });
