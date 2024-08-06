@@ -126,7 +126,7 @@ void Unit::UpdatePowerRegen(Powers powerType)
             baseRegen += powerRegenMod;
 
             // SpiritRegen = Spirit * GTRegenMpPerSpt * Sqrt(INT) * 5
-            float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass()) * 5.0f;
+            float spiritRegen = GetStat(STAT_SPIRIT) * GetGameTableColumnForClass(sRegenMpPerSptTable.GetRow(GetLevel()), GetClass());
             if (GetStat(STAT_INTELLECT) > 0.0f)
                 spiritRegen *= std::sqrt(GetStat(STAT_INTELLECT));
 
