@@ -7125,7 +7125,8 @@ float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect co
                 if (GetTypeId() == TYPEID_UNIT)
                 {
                     int32 const levelDiff = static_cast<int32>(GetLevelForTarget(caster)) - caster->GetLevel();
-                    crit_chance -= levelDiff * 1.0f;
+                    if (levelDiff > 0)
+                        crit_chance -= levelDiff * 1.0f;
                 }
             }
             break;
