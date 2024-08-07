@@ -472,7 +472,7 @@ enum SMART_ACTION
     SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker, flags(SmartActionSummonCreatureFlags)
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
-    SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
+    SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // UNUSED, DO NOT REUSE
     SMART_ACTION_SET_INGAME_PHASE_GROUP             = 16,     // phaseGroupId, apply
     SMART_ACTION_SET_EMOTE_STATE                    = 17,     // emoteID
     SMART_ACTION_SET_UNIT_FLAG                      = 18,     // UNUSED, DO NOT REUSE
@@ -483,7 +483,7 @@ enum SMART_ACTION
     SMART_ACTION_INC_EVENT_PHASE                    = 23,     // Value (may be negative to decrement phase, should not be 0)
     SMART_ACTION_EVADE                              = 24,     // toRespawnPosition (0 = Move to RespawnPosition, 1 = Move to last stored home position)
     SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // With Emote
-    SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
+    SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // UNUSED, DO NOT REUSE
     SMART_ACTION_COMBAT_STOP                        = 27,     //
     SMART_ACTION_REMOVEAURASFROMSPELL               = 28,     // Spellid (0 removes all auras), charges (0 removes aura)
     SMART_ACTION_FOLLOW                             = 29,     // Distance (0 = default), Angle (0 = default), EndCreatureEntry, credit, creditType (0monsterkill, 1event)
@@ -609,7 +609,8 @@ enum SMART_ACTION
     SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER   = 149,    // summonType 1-8, duration in ms
     SMART_ACTION_TRIGGER_GAME_EVENT                 = 150,    // eventId, useSaiTargetAsGameEventSource
     SMART_ACTION_DO_ACTION                          = 151,    // actionId
-    SMART_ACTION_END                                = 152
+    SMART_ACTION_COMPLETE_QUEST                     = 152,    // QuestId. Regular quests with objectives can't be completed with this action (only quests with QUEST_FLAGS_COMPLETION_EVENT, QUEST_FLAGS_COMPLETION_AREA_TRIGGER or QUEST_FLAGS_TRACKING_EVENT)
+    SMART_ACTION_END                                = 153
 };
 
 enum class SmartActionSummonCreatureFlags
