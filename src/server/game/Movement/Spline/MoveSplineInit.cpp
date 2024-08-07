@@ -54,7 +54,7 @@ namespace Movement
         return MOVE_RUN;
     }
 
-    int32 MoveSplineInit::Launch()
+    int32 MoveSplineInit::Launch(bool dontSend /*= false*/)
     {
         MoveSpline& move_spline = *unit->movespline;
 
@@ -134,17 +134,20 @@ namespace Movement
         unit->m_movementInfo.SetMovementFlags(moveFlags);
         move_spline.Initialize(args);
 
-        WorldPackets::Movement::MonsterMove packet;
-        packet.MoverGUID = unit->GetGUID();
-        packet.Pos = Position(real_position.x, real_position.y, real_position.z, real_position.orientation);
-        packet.InitializeSplineData(move_spline);
-        if (transport)
+        if (!dontSend)
         {
-            packet.SplineData.Move.TransportGUID = unit->GetTransGUID();
-            packet.SplineData.Move.VehicleSeat = unit->GetTransSeat();
-        }
+            WorldPackets::Movement::MonsterMove packet;
+            packet.MoverGUID = unit->GetGUID();
+            packet.Pos = Position(real_position.x, real_position.y, real_position.z, real_position.orientation);
+            packet.InitializeSplineData(move_spline);
+            if (transport)
+            {
+                packet.SplineData.Move.TransportGUID = unit->GetTransGUID();
+                packet.SplineData.Move.VehicleSeat = unit->GetTransSeat();
+            }
 
-        unit->SendMessageToSet(packet.Write(), true);
+            unit->SendMessageToSet(packet.Write(), true);
+        }
 
         return move_spline.Duration();
     }

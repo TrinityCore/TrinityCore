@@ -60,7 +60,7 @@ namespace Movement
 
         /*  Final pass of initialization that launches spline movement.
          */
-        int32 Launch();
+        int32 Launch(bool dontSend = false);
 
         /*  Final pass of initialization that stops movement.
          */
