@@ -57,6 +57,27 @@ enum ItemUpdateState
     ITEM_REMOVED                                 = 3
 };
 
+// Enum used in ItemHandler for the inventory sorting
+enum ItemSortInventory
+{
+    ITEM_SORT_SPECIAL_ITEM                       = 0,
+    ITEM_SORT_CONSUMABLE                         = 1,
+    ITEM_SORT_WEAPON                             = 2,
+    ITEM_SORT_SHIELD                             = 3,
+    ITEM_SORT_HEAD                               = 4,
+    ITEM_SORT_SHOULDERS                          = 5,
+    ITEM_SORT_CHEST                              = 6,
+    ITEM_SORT_WRISTS                             = 7,
+    ITEM_SORT_HANDS                              = 8,
+    ITEM_SORT_WAIST                              = 9,
+    ITEM_SORT_LEGS                               = 10,
+    ITEM_SORT_FEET                               = 11,
+    ITEM_SORT_CLOAK                              = 12,
+    ITEM_SORT_ACCESSORY                          = 13,
+    ITEM_SORT_BODY_TABARD                        = 14,
+    ITEM_SORT_OTHER_ITEMS                        = 15
+};
+
 #define MAX_ITEM_SPELLS 5
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
