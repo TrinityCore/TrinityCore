@@ -1,12 +1,15 @@
 -- Scripts
-UPDATE `creature_template`
-SET `ScriptName` = CASE
-    WHEN `entry` = 16816 THEN 'npc_echo_of_medivh'
-    WHEN `entry` IN (17211, 17469, 21160, 21664, 21682, 21683, 21726, 21747, 21748, 21750) THEN 'npc_chess_piece_generic'
-    WHEN `entry` IN (21684, 21752) THEN 'npc_chess_piece_king'
-    WHEN `entry` IN (17208, 17305, 22519, 22520) THEN 'npc_chess_move_trigger'
-END
-WHERE `entry` IN (16816, 17211, 17469, 21160, 21664, 21682, 21683, 21726, 21747, 21748, 21750, 21684, 21752, 17208, 17305, 22519, 22520);
+
+UPDATE `creature_template` SET `ScriptName` = 'npc_echo_of_medivh' WHERE `entry` = 16816;
+UPDATE `creature_template` SET `ScriptName` = 'npc_chess_piece_generic' WHERE `entry` IN (17211, 17469, 21160, 21664, 21682, 21683, 21726, 21747, 21748, 21750);
+UPDATE `creature_template` SET `ScriptName` = 'npc_chess_piece_king' WHERE `entry` IN (21684, 21752);
+UPDATE `creature_template` SET `ScriptName` = 'npc_chess_move_trigger' WHERE `entry` IN (17208, 17305, 22519, 22520);
+
+-- Extra flags (was originally 66)
+
+UPDATE `creature_template` SET `flags_extra` = 64 WHERE `entry` IN (17211, 17469, 21664, 21682, 21683, 21726, 21747, 21748, 21750, 21684, 21752);
+UPDATE `creature_template` SET `flags_extra` = 0 WHERE `entry` = 21160; -- Initially, two
+UPDATE `creature_template` SET `flags_extra` = 128 WHERE `entry` = 22521; -- For only the GMs to see
 
 -- Chess piece spells
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (37474, 37476, 37406, 37413, 37427, 37428, 37453, 37454, 37459, 37461, 37471, 37472, 37498, 37502, 30284);
@@ -51,21 +54,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (39334, 'spell_heal_of_medivh'),
 (39335, 'spell_heal_of_medivh');
 
--- Extra flags (was originally 66)
-
-UPDATE `creature_template`
-SET `flags_extra` = CASE
-    WHEN `entry` IN (17211, 17469, 21664, 21682, 21683, 21726, 21747, 21748, 21750, 21684, 21752) THEN 64
-    WHEN `entry` = 21160 THEN 0 -- Initially, two
-    WHEN `entry` = 22521 THEN 128 -- For only the GMs to see
-END
-WHERE `entry` IN (17211, 17469, 21160, 21664, 21682, 21683, 21726, 21747, 21748, 21750, 21684, 21752, 22521);
-
 -- Creature spells
 DELETE FROM `creature_template_spell` WHERE `CreatureID` IN (17211, 17469, 21160, 21664, 21682, 21683, 21726, 21747, 21748, 21750, 21684, 21752);
-
--- Creature spells
-
 INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES 
 (17211, 0, 37146, 12340), (17211, 1, 30284, 12340), (17211, 2, 37406, 12340), (17211, 3, 37414, 12340),
 (17469, 0, 37146, 12340), (17469, 1, 30284, 12340), (17469, 2, 37413, 12340), (17469, 3, 37416, 12340),
@@ -79,7 +69,6 @@ INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `Verified
 (21750, 0, 37148, 12340), (21750, 1, 30284, 12340), (21750, 2, 37463, 12340), (21750, 3, 37469, 12340),
 (21684, 0, 37153, 12340), (21684, 1, 30284, 12340), (21684, 2, 37474, 12340), (21684, 3, 37471, 12340),
 (21752, 0, 37153, 12340), (21752, 1, 30284, 12340), (21752, 2, 37476, 12340), (21752, 3, 37472, 12340);
-
 
 -- Chess piece positions (Changed the position to match the position of the chess square)
 

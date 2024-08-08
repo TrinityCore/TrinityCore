@@ -369,17 +369,6 @@ struct npc_chess_piece_generic : public ScriptedAI
 
                     DoCast(square, SPELL_MOVE_MARKER);
                     me->GetMotionMaster()->MovePoint(1, square->GetPosition());
-
-                    /*float angle = me->GetRelativeAngle(square);
-                    float ori = me->GetOrientation();
-                    if (angle <= M_PI)
-                        ori += angle;
-                    else
-                    {
-                        angle = M_PI_M2 - angle;
-                        ori -= angle;
-                    }
-                    me->SetOrientation(ori);*/
                 }
                 break;
             case EVENT_SPELL_COMMAND:
@@ -604,7 +593,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         case SPELL_HEROISM:
         case SPELL_BLOODLUST:
             range = 20.0f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range, arc))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
             {
                 DoCastSelf(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -617,7 +606,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         case SPELL_BITE:
             range = 8.0f;
             arc = 1.6f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range, arc))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
             {
                 DoCastAOE(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -627,7 +616,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         case SPELL_GEYSER:
         case SPELL_HELLFIRE:
             range = 9.0f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range, arc))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
             {
                 DoCastAOE(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -700,7 +689,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         case SPELL_CLEAVE:
         {
             range = 10.0f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range))
             {
                 DoCastAOE(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -712,7 +701,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         case SPELL_FIRE_SHIELD:
         {
             range = 9.0f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range, arc))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
             {
                 DoCastSelf(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -724,7 +713,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         case SPELL_WEAPON_DEFLECTION:
         {
             range = 8.0f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range, arc))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
             {
                 DoCastSelf(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -737,7 +726,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         {
             range = 10.0f;
             arc = 1.6f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range))
             {
                 DoCastAOE(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -750,7 +739,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         {
             range = 18.0f;
             arc = 1.6f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range))
+            if (GetPiece(TARGET_TYPE_HOSTILE, range))
             {
                 DoCastAOE(spellId);
                 const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -802,7 +791,7 @@ struct npc_chess_piece_king : public npc_chess_piece_generic
         Reset();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!damage || !isAttacked || attacker->GetTypeId() != TYPEID_UNIT)
             return;

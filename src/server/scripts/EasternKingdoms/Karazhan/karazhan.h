@@ -42,7 +42,7 @@ enum KZEncounter
     DATA_NIGHTBANE             = 11,
 };
 
-enum NAXData
+enum KZData
 {
     DATA_OPERA_OZ_DEATHCOUNT         = 14,
 
