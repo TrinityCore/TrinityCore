@@ -1241,6 +1241,20 @@ class spell_dru_omen_of_clarity : public AuraScript
     }
 };
 
+// 113043 - Omen of Clarity
+class spell_dru_omen_of_clarity_restoration : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_omen_of_clarity_restoration::CheckProc);
+    }
+};
+
 // 392303 - Power of the Archdruid
 class spell_dru_power_of_the_archdruid : public AuraScript
 {
@@ -2107,6 +2121,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
+    RegisterSpellScript(spell_dru_omen_of_clarity_restoration);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_rip);
