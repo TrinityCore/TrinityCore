@@ -642,11 +642,9 @@ namespace WorldPackets
         class DailyQuestsReset final : public ServerPacket
         {
         public:
-            DailyQuestsReset() : ServerPacket(SMSG_DAILY_QUESTS_RESET, 4) { }
+            DailyQuestsReset() : ServerPacket(SMSG_DAILY_QUESTS_RESET, 0) { }
 
-            WorldPacket const* Write() override;
-
-            int32 Count = 0;
+            WorldPacket const* Write() override { return &_worldPacket; };
         };
 
         class QuestForceRemoved final : public ServerPacket

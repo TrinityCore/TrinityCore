@@ -666,13 +666,6 @@ void PushQuestToParty::Read()
     _worldPacket >> QuestID;
 }
 
-WorldPacket const* DailyQuestsReset::Write()
-{
-    _worldPacket << int32(Count);
-
-    return &_worldPacket;
-}
-
 WorldPacket const* QuestForceRemoved::Write()
 {
     _worldPacket << int32(QuestID);
