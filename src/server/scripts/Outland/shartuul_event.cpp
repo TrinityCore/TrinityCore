@@ -462,7 +462,6 @@ struct npc_overseer_shartuul : public ScriptedAI
             return;
 
         CheckBoundary();
-        CheckEventFail();
 
         if (events.Empty())
             return;
@@ -599,18 +598,6 @@ struct npc_overseer_shartuul : public ScriptedAI
             }
         return nullptr;
     }
-
-    void CheckEventFail()
-    {
-        if (currPossessDemonGUID)
-        {
-            Creature* creature = ObjectAccessor::GetCreature(*me, currPossessDemonGUID);
-
-            // If the creature is not alive, trigger "event" failure
-            if (!creature->IsAlive())
-                DoAction(ACTION_EVENT_DONE_OR_FAIL);
-        }
-    };
 
     void CheckBoundary()
     {
@@ -967,12 +954,24 @@ struct possess_demonAI : public WorldBossAI
 {
     possess_demonAI(Creature* creature) : WorldBossAI(creature)
     {
-        Initialize();
+        if (me->GetEntry() != NPC_FELGUARD_DEGRADER)
+            Initialize();
     }
 
     void Initialize()
     {
         SetActive(false);
+    }
+        
+    void OnCharmed(bool isNew) override
+    {
+        if (!me->IsAlive() && !me->isPossessedByPlayer())
+        {
+            // If the creature is not alive, trigger "event" failure
+            if (TempSummon* tempSummon = me->ToTempSummon())
+                if (Unit* creature = tempSummon->GetSummonerUnit())
+                    creature->GetAI()->DoAction(ACTION_EVENT_DONE_OR_FAIL);
+        }
     }
 
     void DoAction(int32 action) override
@@ -993,7 +992,7 @@ struct possess_demonAI : public WorldBossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (damage >= me->GetHealth())
+        if (damage >= me->GetHealth() && !me->isPossessedByPlayer())
         {
             damage = me->GetHealth() - 1;
             me->CastStop();
@@ -1046,23 +1045,29 @@ struct possess_demonAI : public WorldBossAI
 # npc_felguard_degrader - first possessed demon
 #####*/
 
-struct npc_felguard_degrader : public ScriptedAI
+struct npc_felguard_degrader : public possess_demonAI
 {
-    npc_felguard_degrader(Creature* creature) : ScriptedAI(creature) { }
+    npc_felguard_degrader(Creature* creature) : possess_demonAI(creature) { }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo*/) override {}
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        Player* player = caster->ToPlayer();
-        player->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC); //todo replace
+        if (Player* player = caster->ToPlayer())
+            player->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC); //todo replace
+        
         if (spellInfo->Id == SPELL_POSSESS_DEMON)
         {
-            if (Creature* overseerShartuul = me->FindNearestCreature(NPC_OVERSEER_SHARTUUL, 250.0f))
-            {
-                ENSURE_AI(npc_overseer_shartuul, overseerShartuul->AI())->currPossessDemonGUID = me->GetGUID();
-                overseerShartuul->AI()->DoAction(ACTION_START_DEMON_I_PHASE_I);
-                me->SetFaction(FACTION_ENEMY);
-            }
+            if (TempSummon* tempSummon = me->ToTempSummon())
+                if (Unit* unit = tempSummon->GetSummonerUnit())
+                    if (Creature* overseerShartuul = unit->ToCreature())
+                    {
+                        ENSURE_AI(npc_overseer_shartuul, overseerShartuul->AI())->currPossessDemonGUID = me->GetGUID();
+                        overseerShartuul->AI()->DoAction(ACTION_START_DEMON_I_PHASE_I);
+                        me->SetFaction(FACTION_ENEMY);
+                    }
         }
+
         if (spellInfo->Id == SPELL_DOOMPUNISHER_POSSESSION_TRANSFER)
             me->CastStop();
     }
@@ -1185,7 +1190,6 @@ struct boss_shivan_assassin : public possess_demonAI
 #####*/
 
 enum EyeOfShartuul
-
 {
     SAY_EMOTE                  = 0,
     EVENT_CAST_DARK_GLARE      = 1,
