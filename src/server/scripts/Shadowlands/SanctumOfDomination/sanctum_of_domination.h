@@ -21,11 +21,12 @@
 #include "CreatureAIImpl.h"
 
 #define DataHeader "SanctumOfDomination"
-#define SODScriptName "instance_sanctum_of_domination"
+#define SanctumOfDominationScriptName "instance_sanctum_of_domination"
 
 uint32 const EncounterCount = 10;
 
 Position const SylvanasRespawnPos = { 225.73611f, -844.0746f,  4104.9882f, 1.3613f };
+Position const SylvanasPlatformRevivePos = { 265.834f, -799.287f, 4104.977f, 3.811291f };
 
 enum SanctumOfDominationDataTypes
 {
@@ -45,10 +46,26 @@ enum SanctumOfDominationDataTypes
     /* Sylvanas Windrunner */
     DATA_SYLVANAS_INTRODUCTION,
     DATA_SYLVANAS_SHADOWCOPY_RIDING,
+    DATA_DOMINATION_ARROW,
     DATA_BOLVAR_FORDRAGON_PINNACLE,
     DATA_JAINA_PROUDMOORE_PINNACLE,
     DATA_THRALL_PINNACLE,
-    DATA_THRONE_OF_THE_DAMNED
+    DATA_THRONE_OF_THE_DAMNED,
+
+    DATA_SYLVANAS_SHADOWCOPY_00                = 20,
+    DATA_SYLVANAS_SHADOWCOPY_01,
+    DATA_SYLVANAS_SHADOWCOPY_02,
+    DATA_SYLVANAS_SHADOWCOPY_03,
+    DATA_SYLVANAS_SHADOWCOPY_04,
+    DATA_SYLVANAS_SHADOWCOPY_05,
+    DATA_SYLVANAS_SHADOWCOPY_06,
+    DATA_SYLVANAS_SHADOWCOPY_07,
+    DATA_SYLVANAS_SHADOWCOPY_08,
+    DATA_SYLVANAS_SHADOWCOPY_09,
+    DATA_SYLVANAS_SHADOWCOPY_10,
+    DATA_SYLVANAS_SHADOWCOPY_11,
+
+    DATA_SYLVANAS_INTERMISSION_FINISH          = 32
 };
 
 enum SanctumOfDominationCreatureIds
@@ -60,6 +77,9 @@ enum SanctumOfDominationCreatureIds
 
     /* Sylvanas Windrunner Encounter */
     NPC_SYLVANAS_SHADOWCOPY_RIDING             = 178355,
+    NPC_SYLVANAS_SHADOWCOPY_FIGHTER            = 176369,
+    NPC_DOMINATION_ARROW                       = 176920,
+
     NPC_BOLVAR_FORDRAGON_PINNACLE              = 178081,
     NPC_JAINA_PROUDMOORE_PINNACLE              = 176533,
     NPC_THRALL_PINNACLE                        = 176532,
@@ -83,11 +103,32 @@ enum SanctumOfDominationGameObjectIds
     GAMEOBJECT_TORGHAST_SPIKE_12               = 368754
 };
 
+enum SanctumOfDominationSpellIds
+{
+    SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION    = 355537
+};
+
+enum SanctumOfDominationEvents
+{
+    EVENT_RESET_PLAYERS_ON_SYLVANAS            = 1
+};
+
+enum SanctumOfDominationActions
+{
+    ACTION_START_PHASE_TWO_ON_SYLVANAS         = 20
+};
+
 enum SanctumOfDominationAreas
 {
     AREA_PINNACLE_OF_DOMINANCE                 = 13653,
     AREA_EDGE_OF_THE_ABYSS                     = 13654,
+    AREA_VOID_IN_EDGE_OF_THE_ABYSS             = 13561,
     AREA_THE_CRUCIBLE                          = 13655
+};
+
+enum SactumOfDominationSpellVisuals
+{
+    SPELL_VISUAL_NONE                          = 0
 };
 
 enum SanctumofDominationWorldStates
@@ -109,7 +150,7 @@ enum SanctumofDominationWorldStates
 template <class AI, class T>
 inline AI* GetSanctumOfDominationAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, SODScriptName);
+    return GetInstanceAI<AI>(obj, SanctumOfDominationScriptName);
 }
 
 #define RegisterSanctumOfDominationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSanctumOfDominationAI)
