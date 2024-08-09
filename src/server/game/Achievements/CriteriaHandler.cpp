@@ -1877,7 +1877,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             if (!ref)
                 return false;
-            if (!ref->IsCreature() || ref->ToCreature()->GetCreatureTemplate()->family != CreatureFamily(reqValue))
+            if (!ref->IsCreature() || ref->ToCreature()->GetCreatureTemplate()->CreatureFamilyID != CreatureFamily(reqValue))
                 return false;
             break;
         }
