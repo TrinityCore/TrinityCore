@@ -36,7 +36,9 @@
 
 enum WarlockSpells
 {
+    SPELL_WARLOCK_AGONY                             = 980,
     SPELL_WARLOCK_CREATE_HEALTHSTONE                = 23517,
+    SPELL_WARLOCK_CURSE_OF_EXHAUSTION               = 334275,
     SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -70,7 +72,8 @@ enum WarlockSpells
     SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS          = 366323,
     SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
     SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
-    SPELL_WARLOCK_INCUBUS_PACT                      = 365355
+    SPELL_WARLOCK_INCUBUS_PACT                      = 365355,
+    SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931
 };
 
 enum MiscSpells
@@ -1024,6 +1027,30 @@ class spell_warl_rain_of_fire : public AuraScript
     }
 };
 
+// 278350 - Vile Taint
+class spell_warl_vile_taint : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_AGONY, SPELL_WARLOCK_CURSE_OF_EXHAUSTION, SPELL_WARLOCK_VILE_TAINT_DAMAGE });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(target, SPELL_WARLOCK_AGONY, true);
+        caster->CastSpell(target, SPELL_WARLOCK_CURSE_OF_EXHAUSTION, true);
+        caster->CastSpell(target, SPELL_WARLOCK_VILE_TAINT_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_vile_taint::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_banish);
@@ -1060,4 +1087,5 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_rain_of_fire);
+    RegisterSpellScript(spell_warl_vile_taint);
 }
