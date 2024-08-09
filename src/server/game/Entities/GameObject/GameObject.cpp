@@ -701,38 +701,56 @@ public:
         HandleUnitEnterExit(targetList);
     }
 
-    float CalculatePointsPerSecond(std::vector<Player*> const& targetList)
+    float CalculatePointsPerSecond(std::vector<Player*> const& targetList) const
     {
-        int32 delta = 0;
+        int32 hordePlayers = 0;
+        int32 alliancePlayers = 0;
 
-        for (Player* player : targetList)
+        for (Player const* player : targetList)
         {
             if (!player->IsOutdoorPvPActive())
                 continue;
 
             if (player->GetTeamId() == TEAM_HORDE)
-                delta--;
+                hordePlayers++;
             else
-                delta++;
+                alliancePlayers++;
         }
 
-        uint32 minTime = _owner.GetGOInfo()->controlZone.minTime;
-        uint32 maxTime = _owner.GetGOInfo()->controlZone.maxTime;
-        uint32 minSuperiority = _owner.GetGOInfo()->controlZone.minSuperiority;
-        uint32 maxSuperiority = _owner.GetGOInfo()->controlZone.maxSuperiority;
+        int8 factionCoefficient = 0; // alliance superiority = 1; horde superiority = -1
 
-        if (static_cast<uint32>(std::abs(delta)) < minSuperiority)
-            return 0;
+        if (alliancePlayers > hordePlayers)
+            factionCoefficient = 1;
+        else if (hordePlayers > alliancePlayers)
+            factionCoefficient = -1;
 
-        float slope = (static_cast<float>(minTime) - maxTime) / std::max<uint32>((maxSuperiority - minSuperiority), 1);
-        float intercept = maxTime - slope * minSuperiority;
-        float timeNeeded = slope * std::abs(delta) + intercept;
-        float percentageIncrease = 100.0f / timeNeeded;
+        float const timeNeeded = CalculateTimeNeeded(hordePlayers, alliancePlayers);
+        if (timeNeeded == 0.0f)
+            return 0.0f;
 
-        if (delta < 0)
-            percentageIncrease *= -1;
+        return 100.0f / timeNeeded * static_cast<float>(factionCoefficient);
+    }
 
-        return percentageIncrease;
+    float CalculateTimeNeeded(int32 hordePlayers, int32 alliancePlayers) const
+    {
+        uint32 const uncontestedTime = _owner.GetGOInfo()->controlZone.UncontestedTime;
+        uint32 const delta = std::abs(alliancePlayers - hordePlayers);
+        uint32 const minSuperiority = _owner.GetGOInfo()->controlZone.minSuperiority;
+
+        if (delta < minSuperiority)
+            return 0.0f;
+
+        // return the uncontested time if controlzone is not contested
+        if (uncontestedTime && (hordePlayers == 0 || alliancePlayers == 0))
+            return static_cast<float>(uncontestedTime);
+
+        uint32 const minTime = _owner.GetGOInfo()->controlZone.minTime;
+        uint32 const maxTime = _owner.GetGOInfo()->controlZone.maxTime;
+        uint32 const maxSuperiority = _owner.GetGOInfo()->controlZone.maxSuperiority;
+
+        float const slope = static_cast<float>(minTime - maxTime) / static_cast<float>(std::max<uint32>(maxSuperiority - minSuperiority, 1));
+        float const intercept = static_cast<float>(maxTime) - slope * static_cast<float>(minSuperiority);
+        return slope * static_cast<float>(delta) + intercept;
     }
 
     void HandleUnitEnterExit(std::vector<Player*> const& newTargetList)
