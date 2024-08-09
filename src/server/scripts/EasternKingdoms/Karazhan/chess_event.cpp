@@ -102,7 +102,7 @@ enum SpellsChess
     SPELL_FULL_HEAL_HORDE           = 39334,
     SPELL_FULL_HEAL_ALLIANCE        = 39335,
 
-    // Spells used by the chess NPCs    
+    // Spells used by the chess NPCs
     SPELL_HEROISM                   = 37471,  // Human king
     SPELL_SWEEP                     = 37474,
     SPELL_BLOODLUST                 = 37472,  // Orc king
@@ -272,14 +272,11 @@ enum Events
     EVENT_MOVE_COMMAND = 1,
     EVENT_SPELL_COMMAND,
     EVENT_MOVE,
-};  
+};
 
 struct npc_chess_piece_generic : public ScriptedAI
 {
-    npc_chess_piece_generic(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
-    {
-        Reset();
-    }
+    npc_chess_piece_generic(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
     void Reset() override
     {
@@ -300,7 +297,7 @@ struct npc_chess_piece_generic : public ScriptedAI
         }
     }
 
-    void AttackStart(Unit* /*victim*/) override { }
+    void AttackStart(Unit* /*who*/) override { }
 
     void EnterEvadeMode(EvadeReason /*why*/) override { }
 
@@ -1064,7 +1061,6 @@ class spell_control_piece : public AuraScript
                 target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
                 playerCharmer->SetClientControl(target, false);
                 target->SetFaction(faction);
-               
             }
         }
     }

@@ -23,6 +23,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
@@ -540,7 +541,7 @@ public:
                 // Handle stalker transformation
                 if (Creature* stalker = instance->GetCreature(stalkers[count]))
                 {
-                    stalker->CastSpell(stalker, spellId, true); 
+                    stalker->CastSpell(stalker, spellId, true);
                     ++count;
                 }
 
