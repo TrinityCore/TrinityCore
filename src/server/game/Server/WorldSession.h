@@ -241,6 +241,11 @@ namespace WorldPackets
         class CalendarComplain;
     }
 
+    namespace Challenge
+    {
+        class StartChallengeMode;
+    }
+
     namespace Character
     {
         struct CharacterCreateInfo;
@@ -1845,6 +1850,9 @@ class TC_GAME_API WorldSession
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
 
         void HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName);
+
+        /// Challenge
+        void HandleStartChallengeMode(WorldPackets::Challenge::StartChallengeMode& startChallengeMode);
 
         // Artifact
         void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
