@@ -61,8 +61,8 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_SWAP_OVERRIDE                = 86211,
     SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE        = 196364,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE      = 31117,
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
     SPELL_WARLOCK_SUMMON_SUCCUBUS                   = 712,
@@ -962,38 +962,38 @@ class spell_warl_t4_2p_bonus : public AuraScript
     }
 };
 
-// 30108, 34438, 34439, 35183 - Unstable Affliction
+// 316099 - Unstable Affliction
 class spell_warl_unstable_affliction : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL });
+        return ValidateSpellInfo({ SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE, SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE });
     }
 
     void HandleDispel(DispelInfo* dispelInfo)
     {
         if (Unit* caster = GetCaster())
         {
-            if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-            {
-                if (Unit* target = dispelInfo->GetDispeller()->ToUnit())
-                {
-                    int32 bp = aurEff->GetAmount();
-                    bp = target->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), bp, DOT);
-                    bp *= 9;
-
-                    // backfire damage and silence
-                    CastSpellExtraArgs args(aurEff);
-                    args.AddSpellBP0(bp);
-                    caster->CastSpell(target, SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, args);
-                }
-            }
+            float sp = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 0.30613f;
+            int32 damage = sp * GetEffectInfo(EFFECT_0).CalcValue() / 100;
+            CastSpellExtraArgs args;
+            args.AddSpellBP0(damage);
+            caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE, args);
         }
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+            return;
+
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE, true);
     }
 
     void Register() override
     {
         AfterDispel += AuraDispelFn(spell_warl_unstable_affliction::HandleDispel);
+        OnEffectRemove += AuraEffectRemoveFn(spell_warl_unstable_affliction::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
