@@ -93,11 +93,8 @@ public:
                 case GAMEOBJECT_TYPE_BUTTON:
                 case GAMEOBJECT_TYPE_GOOBER:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
-                    {
-                        dynFlags |= GO_DYNFLAG_LO_HIGHLIGHT;
                         if (gameObject->GetGoStateFor(receiver->GetGUID()) != GO_STATE_ACTIVE)
                             dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
-                    }
                     break;
                 case GAMEOBJECT_TYPE_QUESTGIVER:
                     if (gameObject->CanActivateForPlayer(receiver))
@@ -105,14 +102,14 @@ public:
                     break;
                 case GAMEOBJECT_TYPE_CHEST:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
                     else if (receiver->IsGameMaster())
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
                     break;
                 case GAMEOBJECT_TYPE_GENERIC:
                 case GAMEOBJECT_TYPE_SPELL_FOCUS:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                        dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
@@ -129,7 +126,7 @@ public:
                     break;
                 case GAMEOBJECT_TYPE_GATHERING_NODE:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
                     if (gameObject->GetGoStateFor(receiver->GetGUID()) == GO_STATE_ACTIVE)
                         dynFlags |= GO_DYNFLAG_LO_DEPLETED;
                     break;
@@ -137,8 +134,17 @@ public:
                     break;
             }
 
-            if (!receiver->IsGameMaster() && !gameObject->MeetsInteractCondition(receiver))
-                dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+            if (!receiver->IsGameMaster())
+            {
+                // GO_DYNFLAG_LO_HIGHLIGHT should be applied to GOs with conditional interaction (without GO_FLAG_INTERACT_COND) to disable interaction
+                // (Ignore GAMEOBJECT_TYPE_GATHERING_NODE as some profession-related GOs may include quest loot and can always be interacted with)
+                if (gameObject->GetGoType() != GAMEOBJECT_TYPE_GATHERING_NODE)
+                    if (gameObject->HasConditionalInteraction() && !gameObject->HasFlag(GO_FLAG_INTERACT_COND))
+                        dynFlags |= GO_DYNFLAG_LO_HIGHLIGHT;
+
+                if (!gameObject->MeetsInteractCondition(receiver))
+                    dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+            }
 
             dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
         }
