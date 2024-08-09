@@ -104,7 +104,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
                 WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo& lockoutInfo = packet.RaidLockouts.emplace_back();
                 lockoutInfo.MapID = save->GetMapId();
                 lockoutInfo.DifficultyID = save->GetDifficulty();
-                lockoutInfo.ExpireTime = int32(std::max(save->GetResetTime() - currTime, SI64LIT(0)));
+                lockoutInfo.ExpireTime = int32(std::max(save->GetResetTime() - currTime, time_t(SI64LIT(0))));
                 lockoutInfo.InstanceID = save->GetInstanceId();
             }
         }
@@ -465,7 +465,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarInv
             return;
         }
 
-        GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(Trinity::StringFormat("SELECT 1 FROM character_social WHERE guid = {} AND friend = {} AND (cs.flags & {}) <> 0",
+        GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(Trinity::StringFormat("SELECT 1 FROM character_social WHERE guid = {} AND friend = {} AND (flags & {}) <> 0",
             characterInfo->Guid.GetCounter(), playerGuid.GetCounter(), SOCIAL_FLAG_IGNORED).c_str()))
             .WithCallback([inviteeGuid = characterInfo->Guid, inviteeTeam = Player::TeamForRace(characterInfo->Race), inviteeGuildId = characterInfo->GuildId, continuation = std::move(createInvite)](QueryResult result)
         {
@@ -681,6 +681,6 @@ void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
     calendarRaidLockoutUpdated.MapID = save->GetMapId();
     calendarRaidLockoutUpdated.DifficultyID = save->GetDifficulty();
     calendarRaidLockoutUpdated.OldTimeRemaining = 0;
-    calendarRaidLockoutUpdated.NewTimeRemaining = std::max(save->GetResetTime() - GameTime::GetGameTime(), SI64LIT(0));
+    calendarRaidLockoutUpdated.NewTimeRemaining = std::max(save->GetResetTime() - GameTime::GetGameTime(), time_t(SI64LIT(0)));
     SendPacket(calendarRaidLockoutUpdated.Write());
 }

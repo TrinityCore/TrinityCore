@@ -29,6 +29,7 @@
 #include "MailPackets.h"
 #include "MiscPackets.h"
 #include "NPCPackets.h"
+#include "PartyPackets.h"
 #include "PetPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"

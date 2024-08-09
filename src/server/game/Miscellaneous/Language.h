@@ -449,7 +449,9 @@ enum TrinityStrings
     LANG_COMMAND_LEARN_ALL_PETTALENT_HELP = 394,
     LANG_COMMAND_BG_START_HELP            = 395,
     LANG_COMMAND_BG_STOP_HELP             = 396,
-    // Room for more level 2                397-399 not used
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_10    = 397,
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_60    = 398,
+    // Room for more level 2                399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED                 = 400,
@@ -1151,8 +1153,9 @@ enum TrinityStrings
     LANG_NPCINFO_NPC_FLAGS                = 5086, // master branch ONLY
     LANG_NPCINFO_PHASE_IDS                = 5087, // master branch ONLY
     LANG_SCENARIO                         = 5088, // master branch ONLY
+    LANG_OBJECTINFO_STRINGIDS             = 5089, // master branch ONLY
 
-    // Room for more Trinity strings        5089-6603
+    // Room for more Trinity strings        5090-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                          = 6604,
