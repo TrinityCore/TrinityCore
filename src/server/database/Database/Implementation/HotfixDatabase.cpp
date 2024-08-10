@@ -1852,6 +1852,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_X_TRAIT_NODE_ENTRY, "SELECT MAX(ID) + 1 FROM trait_node_x_trait_node_entry", CONNECTION_SYNCH);
 
+    // TraitSubTree.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_SUB_TREE, "SELECT Name, Description, ID, UiTextureAtlasElementID, TraitTreeID FROM trait_sub_tree"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_SUB_TREE, "SELECT MAX(ID) + 1 FROM trait_sub_tree", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRAIT_SUB_TREE, "SELECT ID, Name_lang, Description_lang FROM trait_sub_tree_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
     // TraitTree.db2
     PrepareStatement(HOTFIX_SEL_TRAIT_TREE, "SELECT ID, TraitSystemID, Unused1000_1, FirstTraitNodeID, PlayerConditionID, Flags, Unused1000_2, "
         "Unused1000_3 FROM trait_tree WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

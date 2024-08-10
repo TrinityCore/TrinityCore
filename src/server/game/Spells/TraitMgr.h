@@ -29,6 +29,7 @@ enum TalentLearnResult : int32;
 
 namespace UF
 {
+struct TraitConfig;
 struct TraitEntry;
 }
 
@@ -80,6 +81,7 @@ void FillSpentCurrenciesMap(WorldPackets::Traits::TraitEntry const& entry, std::
 std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player);
 bool IsValidEntry(WorldPackets::Traits::TraitEntry const& traitEntry);
 LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig& traitConfig, PlayerDataAccessor player, bool requireSpendingAllCurrencies = false, bool removeInvalidEntries = false);
+bool CanApplyTraitNode(UF::TraitConfig const& traitConfig, UF::TraitEntry const& traitEntry);
 std::vector<TraitDefinitionEffectPointsEntry const*> const* GetTraitDefinitionEffectPointModifiers(int32 traitDefinitionId);
 void InitializeStarterBuildTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig, PlayerDataAccessor player);
 }

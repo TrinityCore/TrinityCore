@@ -6089,6 +6089,20 @@ struct TraitNodeXTraitNodeEntryLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &TraitNodeXTraitNodeEntryMeta::Instance, HOTFIX_SEL_TRAIT_NODE_X_TRAIT_NODE_ENTRY };
 };
 
+struct TraitSubTreeLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+    {
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Description" },
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "UiTextureAtlasElementID" },
+        { true, FT_INT, "TraitTreeID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &TraitSubTreeMeta::Instance, HOTFIX_SEL_TRAIT_SUB_TREE };
+};
+
 struct TraitTreeLoadInfo
 {
     static constexpr DB2FieldMeta Fields[8] =

@@ -359,6 +359,7 @@ DB2Storage<TraitNodeGroupXTraitNodeEntry>       sTraitNodeGroupXTraitNodeStore("
 DB2Storage<TraitNodeXTraitCondEntry>            sTraitNodeXTraitCondStore("TraitNodeXTraitCond.db2", &TraitNodeXTraitCondLoadInfo::Instance);
 DB2Storage<TraitNodeXTraitCostEntry>            sTraitNodeXTraitCostStore("TraitNodeXTraitCost.db2", &TraitNodeXTraitCostLoadInfo::Instance);
 DB2Storage<TraitNodeXTraitNodeEntryEntry>       sTraitNodeXTraitNodeEntryStore("TraitNodeXTraitNodeEntry.db2", &TraitNodeXTraitNodeEntryLoadInfo::Instance);
+DB2Storage<TraitSubTreeEntry>                   sTraitSubTreeStore("TraitSubTree.db2", &TraitSubTreeLoadInfo::Instance);
 DB2Storage<TraitTreeEntry>                      sTraitTreeStore("TraitTree.db2", &TraitTreeLoadInfo::Instance);
 DB2Storage<TraitTreeLoadoutEntry>               sTraitTreeLoadoutStore("TraitTreeLoadout.db2", &TraitTreeLoadoutLoadInfo::Instance);
 DB2Storage<TraitTreeLoadoutEntryEntry>          sTraitTreeLoadoutEntryStore("TraitTreeLoadoutEntry.db2", &TraitTreeLoadoutEntryLoadInfo::Instance);
@@ -970,6 +971,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTraitNodeXTraitCondStore);
     LOAD_DB2(sTraitNodeXTraitCostStore);
     LOAD_DB2(sTraitNodeXTraitNodeEntryStore);
+    LOAD_DB2(sTraitSubTreeStore);
     LOAD_DB2(sTraitTreeStore);
     LOAD_DB2(sTraitTreeLoadoutStore);
     LOAD_DB2(sTraitTreeLoadoutEntryStore);

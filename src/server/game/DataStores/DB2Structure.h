@@ -4349,6 +4349,15 @@ struct TraitNodeXTraitNodeEntryEntry
     int32 Index;
 };
 
+struct TraitSubTreeEntry
+{
+    LocalizedString Name;
+    LocalizedString Description;
+    uint32 ID;
+    int32 UiTextureAtlasElementID;
+    int32 TraitTreeID;             // Parent tree
+};
+
 struct TraitTreeEntry
 {
     uint32 ID;
