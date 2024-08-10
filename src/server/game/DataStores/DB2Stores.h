@@ -285,6 +285,7 @@ TC_GAME_API extern DB2Storage<TraitNodeGroupXTraitNodeEntry>        sTraitNodeGr
 TC_GAME_API extern DB2Storage<TraitNodeXTraitCondEntry>             sTraitNodeXTraitCondStore;
 TC_GAME_API extern DB2Storage<TraitNodeXTraitCostEntry>             sTraitNodeXTraitCostStore;
 TC_GAME_API extern DB2Storage<TraitNodeXTraitNodeEntryEntry>        sTraitNodeXTraitNodeEntryStore;
+TC_GAME_API extern DB2Storage<TraitSubTreeEntry>                    sTraitSubTreeStore;
 TC_GAME_API extern DB2Storage<TraitTreeEntry>                       sTraitTreeStore;
 TC_GAME_API extern DB2Storage<TraitTreeLoadoutEntry>                sTraitTreeLoadoutStore;
 TC_GAME_API extern DB2Storage<TraitTreeLoadoutEntryEntry>           sTraitTreeLoadoutEntryStore;

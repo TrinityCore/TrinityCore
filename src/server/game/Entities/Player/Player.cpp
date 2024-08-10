@@ -27854,8 +27854,12 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
             if (TraitMgr::ValidateConfig(traitConfig, this, false, true) != TraitMgr::LearnResult::Ok)
             {
                 traitConfig.Entries.clear();
+                traitConfig.SubTrees.clear();
                 for (UF::TraitEntry const& grantedEntry : TraitMgr::GetGrantedTraitEntriesForConfig(traitConfig, this))
                     traitConfig.Entries.emplace_back(grantedEntry);
+
+                // rebuild subtrees
+                TraitMgr::ValidateConfig(traitConfig, this, false, true);
             }
 
             AddTraitConfig(traitConfig);
@@ -28395,6 +28399,22 @@ void Player::AddTraitConfig(WorldPackets::Traits::TraitConfig const& traitConfig
         newEntry.Rank = traitEntry.Rank;
         newEntry.GrantedRanks = traitEntry.GrantedRanks;
     }
+
+    for (WorldPackets::Traits::TraitSubTreeCache const& traitSubTree : traitConfig.SubTrees)
+    {
+        UF::TraitSubTreeCache& newSubTree = AddDynamicUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::SubTrees));
+        newSubTree.TraitSubTreeID = traitSubTree.TraitSubTreeID;
+        newSubTree.Active = traitSubTree.Active;
+
+        for (WorldPackets::Traits::TraitEntry const& traitEntry : traitSubTree.Entries)
+        {
+            UF::TraitEntry& newEntry = newSubTree.Entries.emplace_back();
+            newEntry.TraitNodeID = traitEntry.TraitNodeID;
+            newEntry.TraitNodeEntryID = traitEntry.TraitNodeEntryID;
+            newEntry.Rank = traitEntry.Rank;
+            newEntry.GrantedRanks = traitEntry.GrantedRanks;
+        }
+    }
 }
 
 UF::TraitConfig const* Player::GetTraitConfig(int32 configId) const
@@ -28478,7 +28498,7 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
     for (int32 i = 0; i < int32(editedConfig.Entries.size()); ++i)
     {
         UF::TraitEntry const& oldEntry = editedConfig.Entries[i];
-        auto entryItr = std::find_if(newConfig.Entries.begin(), newConfig.Entries.end(), makeTraitEntryFinder(oldEntry.TraitNodeID, oldEntry.TraitNodeEntryID));
+        auto entryItr = std::ranges::find_if(newConfig.Entries, makeTraitEntryFinder(oldEntry.TraitNodeID, oldEntry.TraitNodeEntryID));
         if (entryItr != newConfig.Entries.end())
             continue;
 
@@ -28567,6 +28587,49 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
         }
     }
 
+    for (std::size_t i = 0; i < newConfig.SubTrees.size(); ++i)
+    {
+        WorldPackets::Traits::TraitSubTreeCache const& newSubTree = newConfig.SubTrees[i];
+        int32 oldSubTreeIndex = editedConfig.SubTrees.FindIndexIf([&](UF::TraitSubTreeCache const& ufSubTree) { return ufSubTree.TraitSubTreeID == newSubTree.TraitSubTreeID; });
+        std::vector<UF::TraitEntry> subTreeEntries;
+        subTreeEntries.resize(newSubTree.Entries.size());
+        for (std::size_t j = 0; j < newSubTree.Entries.size(); ++j)
+        {
+            UF::TraitEntry& newUfEntry = subTreeEntries[j];
+            newUfEntry.TraitNodeID = newSubTree.Entries[j].TraitNodeID;
+            newUfEntry.TraitNodeEntryID = newSubTree.Entries[j].TraitNodeEntryID;
+            newUfEntry.Rank = newSubTree.Entries[j].Rank;
+            newUfEntry.GrantedRanks = newSubTree.Entries[j].GrantedRanks;
+        }
+        if (oldSubTreeIndex < 0)
+        {
+            UF::TraitSubTreeCache& newUfSubTree = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+                .ModifyValue(&UF::TraitConfig::SubTrees));
+            newUfSubTree.TraitSubTreeID = newSubTree.TraitSubTreeID;
+            newUfSubTree.Active = newSubTree.Active;
+            newUfSubTree.Entries = std::move(subTreeEntries);
+        }
+        else
+        {
+            bool wasActive = m_activePlayerData->TraitConfigs[editedIndex].SubTrees[oldSubTreeIndex].Active != 0;
+
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+                .ModifyValue(&UF::TraitConfig::SubTrees, oldSubTreeIndex)
+                .ModifyValue(&UF::TraitSubTreeCache::Active), newSubTree.Active);
+
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+                .ModifyValue(&UF::TraitConfig::SubTrees, oldSubTreeIndex)
+                .ModifyValue(&UF::TraitSubTreeCache::Entries), std::move(subTreeEntries));
+
+            if (applyTraits && wasActive != newSubTree.Active)
+                for (WorldPackets::Traits::TraitEntry const& subTreeEntry : newSubTree.Entries)
+                    ApplyTraitEntry(subTreeEntry.TraitNodeEntryID, subTreeEntry.Rank, subTreeEntry.GrantedRanks, newSubTree.Active);
+        }
+    }
+
     m_traitConfigStates[editedConfigId] = PLAYERSPELL_CHANGED;
 }
 
@@ -28612,7 +28675,8 @@ void Player::ApplyTraitConfig(int32 configId, bool apply)
         return;
 
     for (UF::TraitEntry const& traitEntry : traitConfig->Entries)
-        ApplyTraitEntry(traitEntry.TraitNodeEntryID, traitEntry.Rank, traitEntry.GrantedRanks, apply);
+        if (!apply || TraitMgr::CanApplyTraitNode(*traitConfig, traitEntry))
+            ApplyTraitEntry(traitEntry.TraitNodeEntryID, traitEntry.Rank, traitEntry.GrantedRanks, apply);
 }
 
 void Player::ApplyTraitEntry(int32 traitNodeEntryId, int32 /*rank*/, int32 /*grantedRanks*/, bool apply)
