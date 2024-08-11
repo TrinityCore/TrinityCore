@@ -3032,7 +3032,8 @@ enum GameObjectDynamicLowFlags : uint16
     GO_DYNFLAG_LO_STOPPED           = 0x0040,               // Transport is stopped
     GO_DYNFLAG_LO_NO_INTERACT       = 0x0080,
     GO_DYNFLAG_LO_INVERTED_MOVEMENT = 0x0100,               // GAMEOBJECT_TYPE_TRANSPORT only
-    GO_DYNFLAG_LO_HIGHLIGHT         = 0x0200,               // Allows object highlight when GO_DYNFLAG_LO_ACTIVATE or GO_DYNFLAG_LO_SPARKLE are set, not only when player is on quest determined by Data fields
+    GO_DYNFLAG_LO_INTERACT_COND     = 0x0200,               // Cannot interact (requires GO_DYNFLAG_LO_ACTIVATE to enable interaction clientside)
+    GO_DYNFLAG_LO_HIGHLIGHT         = 0x4000,               // Allows object highlight when GO_DYNFLAG_LO_ACTIVATE are set, not only when player is on quest determined by Data fields
 };
 
 // client side GO show states
