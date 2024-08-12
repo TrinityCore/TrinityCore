@@ -47,6 +47,7 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
+    SPELL_DK_BONE_SHIELD                        = 195181,
     SPELL_DK_BREATH_OF_SINDRAGOSA               = 152279,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DARK_SIMULACRUM_BUFF               = 77616,
@@ -1011,6 +1012,31 @@ struct at_dk_death_and_decay : AreaTriggerAI
     }
 };
 
+// 195182 - Marrowrend
+class spell_dk_marrowrend : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BONE_SHIELD });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (Aura* aura = caster->GetAura(SPELL_DK_BONE_SHIELD))
+            aura->ModStackAmount(GetEffectValue());
+        else
+            caster->CastSpell(caster, SPELL_DK_BONE_SHIELD, CastSpellExtraArgs()
+                .AddSpellMod(SPELLVALUE_AURA_STACK, GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_marrowrend::HandleHitTarget, EFFECT_2, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_advantage_t10_4p);
@@ -1043,6 +1069,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_rime);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
+    RegisterSpellScript(spell_dk_marrowrend);
 
     RegisterAreaTriggerAI(at_dk_death_and_decay);
 }
