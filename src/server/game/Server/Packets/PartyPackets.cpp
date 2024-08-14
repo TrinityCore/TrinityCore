@@ -746,7 +746,7 @@ void WorldPackets::Party::SendPingUnit::Read()
 {
     _worldPacket >> SenderGUID;
     _worldPacket >> TargetGUID;
-    Type = _worldPacket.read<PingSubjectType, uint8>();
+    _worldPacket >> As<uint8>(Type);
     _worldPacket >> PinFrameID;
 }
 
@@ -776,7 +776,7 @@ WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()
     _worldPacket << MapID;
     _worldPacket << Point;
     _worldPacket << uint8(Type);
-    _worldPacket << PinFrameID;
+    _worldPacket << uint32(PinFrameID);
     _worldPacket << Transport;
 
     return &_worldPacket;
