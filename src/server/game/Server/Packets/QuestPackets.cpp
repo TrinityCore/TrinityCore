@@ -46,22 +46,6 @@ void QuestGiverStatusQuery::Read()
     _worldPacket >> QuestGiverGUID;
 }
 
-void QuestGiverStatusTrackedQuery::Read()
-{
-    uint32 guidCount = 0;
-    _worldPacket >> guidCount;
-    if (guidCount > 1000)
-        throw PacketArrayMaxCapacityException(guidCount, 1000);
-
-    QuestGiverGUIDs.reserve(guidCount);
-    for (uint32 i = 0; i < guidCount; ++i)
-    {
-        ObjectGuid guid;
-        _worldPacket >> guid;
-        QuestGiverGUIDs.insert(guid);
-    }
-}
-
 WorldPacket const* QuestGiverStatus::Write()
 {
     _worldPacket << QuestGiver.Guid;
@@ -183,6 +167,7 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << uint32(Info.Objectives.size());
         _worldPacket << uint64(Info.AllowableRaces.RawValue);
         _worldPacket << uint32(Info.TreasurePickerID.size());
+        _worldPacket << uint32(Info.TreasurePickerID2.size());
         _worldPacket << int32(Info.Expansion);
         _worldPacket << int32(Info.ManagedWorldStateID);
         _worldPacket << int32(Info.QuestSessionBonus);
@@ -196,6 +181,9 @@ WorldPacket const* QueryQuestInfoResponse::Write()
 
         if (!Info.TreasurePickerID.empty())
             _worldPacket.append(Info.TreasurePickerID.data(), Info.TreasurePickerID.size());
+
+        if (!Info.TreasurePickerID2.empty())
+            _worldPacket.append(Info.TreasurePickerID2.data(), Info.TreasurePickerID2.size());
 
         _worldPacket << BitsSize<9>(Info.LogTitle);
         _worldPacket << BitsSize<12>(Info.LogDescription);
@@ -377,6 +365,8 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestRewards const& questRewards)
 
 ByteBuffer& operator<<(ByteBuffer& data, QuestGiverOfferReward const& offer)
 {
+    data << offer.Rewards; // QuestRewards
+    data << int32(offer.Emotes.size());
     data << offer.QuestGiverGUID;
     data << int32(offer.QuestGiverCreatureID);
     data << int32(offer.QuestID);
@@ -385,7 +375,6 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestGiverOfferReward const& offer)
     data << int32(offer.QuestFlags[2]); // FlagsEx2
     data << int32(offer.SuggestedPartyMembers);
     data << int32(offer.QuestInfoID);
-    data << int32(offer.Emotes.size());
     for (QuestDescEmote const& emote : offer.Emotes)
     {
         data << int32(emote.Type);
@@ -394,9 +383,8 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestGiverOfferReward const& offer)
 
     data << Bits<1>(offer.AutoLaunched);
     data << Bits<1>(false); // Unused
+    data << Bits<1>(offer.ResetByScheduler);
     data.FlushBits();
-
-    data << offer.Rewards; // QuestRewards
 
     return data;
 }
@@ -540,6 +528,8 @@ WorldPacket const* QuestGiverQuestDetails::Write()
 
 WorldPacket const* QuestGiverRequestItems::Write()
 {
+    _worldPacket << int32(Collect.size());
+    _worldPacket << int32(Currency.size());
     _worldPacket << QuestGiverGUID;
     _worldPacket << int32(QuestGiverCreatureID);
     _worldPacket << int32(QuestID);
@@ -550,8 +540,6 @@ WorldPacket const* QuestGiverRequestItems::Write()
     _worldPacket << uint32(QuestFlags[2]);
     _worldPacket << int32(SuggestPartyMembers);
     _worldPacket << int32(MoneyToGet);
-    _worldPacket << int32(Collect.size());
-    _worldPacket << int32(Currency.size());
     _worldPacket << int32(StatusFlags);
     _worldPacket << int32(QuestInfoID);
 
@@ -569,6 +557,7 @@ WorldPacket const* QuestGiverRequestItems::Write()
     }
 
     _worldPacket << Bits<1>(AutoLaunched);
+    _worldPacket << Bits<1>(ResetByScheduler);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(QuestGiverCreatureID);

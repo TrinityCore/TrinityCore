@@ -49,16 +49,6 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class QuestGiverStatusTrackedQuery final : public ClientPacket
-        {
-        public:
-            QuestGiverStatusTrackedQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_STATUS_TRACKED_QUERY, std::move(packet)) { }
-
-            void Read() override;
-
-            GuidUnorderedSet QuestGiverGUIDs;
-        };
-
         struct QuestGiverInfo
         {
             QuestGiverInfo() { }
@@ -186,6 +176,7 @@ namespace WorldPackets
             int32 AreaGroupID               = 0;
             int64 TimeAllowed               = 0;
             std::span<int32 const> TreasurePickerID;
+            std::span<int32 const> TreasurePickerID2;   // unknown purpose, used only sometimes and only if TreasurePickerID is empty
             int32 Expansion                 = 0;
             int32 ManagedWorldStateID       = 0;
             int32 QuestSessionBonus         = 0;
@@ -320,6 +311,7 @@ namespace WorldPackets
             int32 QuestGiverCreatureID = 0;
             int32 QuestID = 0;
             bool AutoLaunched = false;
+            bool ResetByScheduler = false;
             int32 SuggestedPartyMembers = 0;
             QuestRewards Rewards;
             std::vector<QuestDescEmote> Emotes;
@@ -478,6 +470,7 @@ namespace WorldPackets
             int32 CompEmoteDelay        = 0;
             int32 CompEmoteType         = 0;
             bool AutoLaunched           = false;
+            bool ResetByScheduler       = false;
             int32 SuggestPartyMembers   = 0;
             int32 MoneyToGet            = 0;
             std::vector<QuestObjectiveCollect> Collect;

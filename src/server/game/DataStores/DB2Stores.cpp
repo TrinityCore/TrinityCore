@@ -1930,9 +1930,7 @@ std::vector<DB2Manager::HotfixOptionalData> const* DB2Manager::GetHotfixOptional
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
 {
-    return 1778;
-    // TEMP: well... AnimationData.db2 in 11.0.0 has more rows than max hardcoded anim id in client
-    // return sAnimationDataStore.GetNumRows();
+    return sAnimationDataStore.GetNumRows();
 }
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)

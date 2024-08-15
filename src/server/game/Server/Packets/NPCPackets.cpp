@@ -24,6 +24,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasureItem const& treasureItem)
     data << Bits<1>(treasureItem.Type);
     data << int32(treasureItem.ID);
     data << int32(treasureItem.Quantity);
+    data << int8(treasureItem.ItemContext);
 
     return data;
 }
@@ -76,6 +77,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.QuestID);
     data << int32(gossipText.ContentTuningID);
     data << int32(gossipText.QuestType);
+    data << int32(gossipText.Unused1102);
     data << int32(gossipText.QuestFlags[0]);
     data << int32(gossipText.QuestFlags[1]);
     data << int32(gossipText.QuestFlags[2]);
