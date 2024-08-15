@@ -355,6 +355,7 @@ namespace WorldPackets
             bool Pushed                     = false;
             DisplayType DisplayText         = DISPLAY_TYPE_HIDDEN;
             bool Created                    = false;
+            bool Unused_1017                = false;
             bool IsBonusRoll                = false;
             bool IsEncounterLoot            = false;
         };

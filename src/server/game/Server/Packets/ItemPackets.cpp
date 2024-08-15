@@ -263,6 +263,7 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
 
     _worldPacket << Bits<1>(Pushed);
     _worldPacket << Bits<1>(Created);
+    _worldPacket << Bits<1>(Unused_1017);
     _worldPacket << Bits<3>(DisplayText);
     _worldPacket << Bits<1>(IsBonusRoll);
     _worldPacket << Bits<1>(IsEncounterLoot);
