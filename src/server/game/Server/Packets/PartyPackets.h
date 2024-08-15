@@ -690,6 +690,7 @@ namespace WorldPackets
             ObjectGuid TargetGUID;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
+            Duration<Milliseconds, int32> PingDuration;
         };
 
         class ReceivePingUnit final : public ServerPacket
@@ -703,6 +704,7 @@ namespace WorldPackets
             ObjectGuid TargetGUID;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
+            Duration<Milliseconds, int32> PingDuration;
         };
 
         class SendPingWorldPoint final : public ClientPacket
@@ -718,6 +720,7 @@ namespace WorldPackets
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
             ObjectGuid Transport;
+            Duration<Milliseconds, int32> PingDuration;
         };
 
         class ReceivePingWorldPoint final : public ServerPacket
@@ -732,6 +735,7 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Point;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
+            Duration<Milliseconds, int32> PingDuration;
             ObjectGuid Transport;
         };
 

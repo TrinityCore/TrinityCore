@@ -540,13 +540,7 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
         if (!cachedCurrencies)
             FillSpentCurrenciesMap(traitConfig, cachedCurrencies.emplace());
 
-        if (condition->TraitNodeGroupID)
-        {
-            auto itr = cachedCurrencies->try_emplace(condition->TraitCurrencyID, 0).first;
-            if (itr->second < condition->SpentAmountRequired)
-                return false;
-        }
-        else if (condition->TraitNodeID)
+        if (condition->TraitNodeGroupID || condition->TraitNodeID || condition->TraitNodeEntryID)
         {
             auto itr = cachedCurrencies->try_emplace(condition->TraitCurrencyID, 0).first;
             if (itr->second < condition->SpentAmountRequired)

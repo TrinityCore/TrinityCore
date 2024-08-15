@@ -6604,6 +6604,35 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
     return CalculatePct(rep, percent);
 }
 
+void Player::SetVisibleForcedReaction(uint32 factionId, ReputationRank rank)
+{
+    auto itr = std::ranges::find(m_playerData->ForcedReactions, int32(factionId), &UF::ZonePlayerForcedReaction::FactionID);
+    if (itr == m_playerData->ForcedReactions.end())
+        itr = std::ranges::find(m_playerData->ForcedReactions, 0, &UF::ZonePlayerForcedReaction::FactionID);
+
+    if (itr == m_playerData->ForcedReactions.end())
+        return; // no more free slots
+
+    auto setter = m_values.ModifyValue(&Player::m_playerData)
+        .ModifyValue(&UF::PlayerData::ForcedReactions, std::ranges::distance(m_playerData->ForcedReactions.begin(), itr));
+
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::FactionID), factionId);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::Reaction), rank);
+}
+
+void Player::RemoveVisibleForcedReaction(uint32 factionId)
+{
+    auto itr = std::ranges::find(m_playerData->ForcedReactions, int32(factionId), &UF::ZonePlayerForcedReaction::FactionID);
+    if (itr == m_playerData->ForcedReactions.end())
+        return;
+
+    auto setter = m_values.ModifyValue(&Player::m_playerData)
+        .ModifyValue(&UF::PlayerData::ForcedReactions, std::ranges::distance(m_playerData->ForcedReactions.begin(), itr));
+
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::FactionID), 0);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::Reaction), 0);
+}
+
 // Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
@@ -17315,14 +17344,9 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const
 
 void Player::SendQuestGiverStatusMultiple()
 {
-    SendQuestGiverStatusMultiple(m_clientGUIDs);
-}
-
-void Player::SendQuestGiverStatusMultiple(GuidUnorderedSet const& guids)
-{
     WorldPackets::Quest::QuestGiverStatusMultiple response;
 
-    for (auto itr = guids.begin(); itr != guids.end(); ++itr)
+    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
         if (itr->IsAnyTypeCreature())
         {
