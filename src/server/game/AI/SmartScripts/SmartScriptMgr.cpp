@@ -340,7 +340,6 @@ void SmartAIMgr::LoadSmartAIFromDB()
             }
             break;
         case SMART_EVENT_VICTIM_CASTING:
-        case SMART_EVENT_IS_BEHIND_TARGET:
             if (temp.event.minMaxRepeat.min == 0 && temp.event.minMaxRepeat.max == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
             {
                 temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
@@ -910,7 +909,6 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SUMMON_CREATURE: return sizeof(SmartAction::summonCreature);
             case SMART_ACTION_THREAT_SINGLE_PCT: return sizeof(SmartAction::threatPCT);
             case SMART_ACTION_THREAT_ALL_PCT: return sizeof(SmartAction::threatPCT);
-            case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: return sizeof(SmartAction::quest);
             case SMART_ACTION_SET_INGAME_PHASE_GROUP: return sizeof(SmartAction::ingamePhaseGroup);
             case SMART_ACTION_SET_EMOTE_STATE: return sizeof(SmartAction::emote);
             case SMART_ACTION_AUTO_ATTACK: return sizeof(SmartAction::autoAttack);
@@ -919,7 +917,6 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_INC_EVENT_PHASE: return sizeof(SmartAction::incEventPhase);
             case SMART_ACTION_EVADE: return sizeof(SmartAction::evade);
             case SMART_ACTION_FLEE_FOR_ASSIST: return sizeof(SmartAction::fleeAssist);
-            case SMART_ACTION_CALL_GROUPEVENTHAPPENS: return sizeof(SmartAction::quest);
             case SMART_ACTION_COMBAT_STOP: return NO_PARAMS;
             case SMART_ACTION_REMOVEAURASFROMSPELL: return sizeof(SmartAction::removeAura);
             case SMART_ACTION_FOLLOW: return sizeof(SmartAction::follow);
@@ -1028,6 +1025,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER: return sizeof(SmartAction::becomePersonalClone);
             case SMART_ACTION_TRIGGER_GAME_EVENT: return sizeof(SmartAction::triggerGameEvent);
             case SMART_ACTION_DO_ACTION: return sizeof(SmartAction::doAction);
+            case SMART_ACTION_COMPLETE_QUEST: return sizeof(SmartAction::quest);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1792,22 +1790,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
             break;
-        case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
-        case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
-            if (Quest const* qid = sObjectMgr->GetQuestTemplate(e.action.quest.quest))
-            {
-                if (!qid->HasFlag(QUEST_FLAGS_COMPLETION_EVENT) && !qid->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER))
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Flags for Quest entry {} does not include QUEST_FLAGS_COMPLETION_EVENT or QUEST_FLAGS_COMPLETION_AREA_TRIGGER, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.quest.quest);
-                    return false;
-                }
-            }
-            else
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Quest entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.quest.quest);
-                return false;
-            }
-            break;
         case SMART_ACTION_SET_EVENT_PHASE:
             if (e.action.setEventPhase.phase >= SMART_EVENT_PHASE_MAX)
             {
@@ -2465,7 +2447,24 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.triggerGameEvent.useSaiTargetAsGameEventSource);
             break;
         }
+        case SMART_ACTION_COMPLETE_QUEST:
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(e.action.quest.quest))
+            {
+                if (!quest->HasFlag(QUEST_FLAGS_COMPLETION_EVENT) && !quest->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER) && !quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Flags for Quest entry {} does not include QUEST_FLAGS_COMPLETION_EVENT or QUEST_FLAGS_COMPLETION_AREA_TRIGGER or QUEST_FLAGS_TRACKING_EVENT, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.quest.quest);
+                    return false;
+                }
+            }
+            else
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Quest entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.quest.quest);
+                return false;
+            }
+            break;
         // Unused
+        case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
+        case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
         case SMART_ACTION_SET_UNIT_FLAG:
         case SMART_ACTION_REMOVE_UNIT_FLAG:
         case SMART_ACTION_INSTALL_AI_TEMPLATE:
