@@ -48,6 +48,7 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     _worldPacket << uint32(Currencies.size());
     _worldPacket.WriteBit(Acquired);
     _worldPacket.WriteBit(AELooting);
+    _worldPacket.WriteBit(Unused_440);
     _worldPacket.FlushBits();
 
     for (LootItemData const& item : Items)

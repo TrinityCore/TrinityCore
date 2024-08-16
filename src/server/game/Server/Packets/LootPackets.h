@@ -75,6 +75,7 @@ namespace WorldPackets
             std::vector<LootCurrency> Currencies;
             bool Acquired        = false;
             bool AELooting       = false;
+            bool Unused_440      = false;
         };
 
         struct LootRequest
