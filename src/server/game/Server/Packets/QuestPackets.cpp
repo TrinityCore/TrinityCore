@@ -368,11 +368,11 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestGiverOfferReward const& offer)
     data << offer.Rewards; // QuestRewards
     data << int32(offer.Emotes.size());
     data << offer.QuestGiverGUID;
-    data << int32(offer.QuestGiverCreatureID);
-    data << int32(offer.QuestID);
     data << int32(offer.QuestFlags[0]); // Flags
     data << int32(offer.QuestFlags[1]); // FlagsEx
     data << int32(offer.QuestFlags[2]); // FlagsEx2
+    data << int32(offer.QuestGiverCreatureID);
+    data << int32(offer.QuestID);
     data << int32(offer.SuggestedPartyMembers);
     data << int32(offer.QuestInfoID);
     for (QuestDescEmote const& emote : offer.Emotes)
