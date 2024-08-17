@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.35, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.35
+-- Server version	8.0.39-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -116,8 +116,8 @@ DROP TABLE IF EXISTS `areatrigger`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger` (
   `SpawnId` bigint unsigned NOT NULL,
-  `AreaTriggerId` int unsigned NOT NULL,
-  `IsServerSide` tinyint unsigned NOT NULL,
+  `AreaTriggerCreatePropertiesId` int unsigned NOT NULL,
+  `IsCustom` tinyint unsigned NOT NULL,
   `MapId` int unsigned NOT NULL,
   `SpawnDifficulties` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
   `PosX` float NOT NULL,
@@ -127,15 +127,6 @@ CREATE TABLE `areatrigger` (
   `PhaseUseFlags` tinyint unsigned DEFAULT '0',
   `PhaseId` int unsigned DEFAULT '0',
   `PhaseGroup` int unsigned DEFAULT '0',
-  `Shape` tinyint unsigned NOT NULL DEFAULT '0',
-  `ShapeData0` float NOT NULL DEFAULT '0',
-  `ShapeData1` float NOT NULL DEFAULT '0',
-  `ShapeData2` float NOT NULL DEFAULT '0',
-  `ShapeData3` float NOT NULL DEFAULT '0',
-  `ShapeData4` float NOT NULL DEFAULT '0',
-  `ShapeData5` float NOT NULL DEFAULT '0',
-  `ShapeData6` float NOT NULL DEFAULT '0',
-  `ShapeData7` float NOT NULL DEFAULT '0',
   `SpellForVisuals` int DEFAULT NULL,
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -153,7 +144,10 @@ DROP TABLE IF EXISTS `areatrigger_create_properties`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_create_properties` (
   `Id` int unsigned NOT NULL,
+  `IsCustom` tinyint unsigned NOT NULL,
   `AreaTriggerId` int unsigned NOT NULL,
+  `IsAreatriggerCustom` tinyint unsigned NOT NULL,
+  `Flags` int unsigned NOT NULL DEFAULT '0',
   `MoveCurveId` int unsigned NOT NULL DEFAULT '0',
   `ScaleCurveId` int unsigned NOT NULL DEFAULT '0',
   `MorphCurveId` int unsigned NOT NULL DEFAULT '0',
@@ -174,7 +168,7 @@ CREATE TABLE `areatrigger_create_properties` (
   `ShapeData7` float NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Id`)
+  PRIMARY KEY (`Id`,`IsCustom`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -187,6 +181,7 @@ DROP TABLE IF EXISTS `areatrigger_create_properties_orbit`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_create_properties_orbit` (
   `AreaTriggerCreatePropertiesId` int unsigned NOT NULL,
+  `IsCustom` tinyint unsigned NOT NULL,
   `StartDelay` int unsigned NOT NULL DEFAULT '0',
   `CircleRadius` float NOT NULL DEFAULT '0',
   `BlendFromRadius` float NOT NULL DEFAULT '0',
@@ -195,7 +190,7 @@ CREATE TABLE `areatrigger_create_properties_orbit` (
   `CounterClockwise` tinyint unsigned NOT NULL DEFAULT '0',
   `CanLoop` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`AreaTriggerCreatePropertiesId`)
+  PRIMARY KEY (`AreaTriggerCreatePropertiesId`,`IsCustom`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -208,13 +203,14 @@ DROP TABLE IF EXISTS `areatrigger_create_properties_polygon_vertex`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_create_properties_polygon_vertex` (
   `AreaTriggerCreatePropertiesId` int unsigned NOT NULL,
+  `IsCustom` tinyint unsigned NOT NULL,
   `Idx` int unsigned NOT NULL,
   `VerticeX` float NOT NULL DEFAULT '0',
   `VerticeY` float NOT NULL DEFAULT '0',
   `VerticeTargetX` float DEFAULT NULL,
   `VerticeTargetY` float DEFAULT NULL,
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`AreaTriggerCreatePropertiesId`,`Idx`)
+  PRIMARY KEY (`AreaTriggerCreatePropertiesId`,`IsCustom`,`Idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -227,12 +223,13 @@ DROP TABLE IF EXISTS `areatrigger_create_properties_spline_point`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_create_properties_spline_point` (
   `AreaTriggerCreatePropertiesId` int unsigned NOT NULL,
+  `IsCustom` tinyint unsigned NOT NULL,
   `Idx` int unsigned NOT NULL,
   `X` float NOT NULL DEFAULT '0',
   `Y` float NOT NULL DEFAULT '0',
   `Z` float NOT NULL DEFAULT '0',
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`AreaTriggerCreatePropertiesId`,`Idx`)
+  PRIMARY KEY (`AreaTriggerCreatePropertiesId`,`IsCustom`,`Idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -303,19 +300,10 @@ DROP TABLE IF EXISTS `areatrigger_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_template` (
   `Id` int unsigned NOT NULL,
-  `IsServerSide` tinyint unsigned NOT NULL,
-  `Type` tinyint unsigned NOT NULL DEFAULT '0',
+  `IsCustom` tinyint unsigned NOT NULL,
   `Flags` int unsigned NOT NULL DEFAULT '0',
-  `Data0` float NOT NULL DEFAULT '0',
-  `Data1` float NOT NULL DEFAULT '0',
-  `Data2` float NOT NULL DEFAULT '0',
-  `Data3` float NOT NULL DEFAULT '0',
-  `Data4` float NOT NULL DEFAULT '0',
-  `Data5` float NOT NULL DEFAULT '0',
-  `Data6` float NOT NULL DEFAULT '0',
-  `Data7` float NOT NULL DEFAULT '0',
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Id`,`IsServerSide`)
+  PRIMARY KEY (`Id`,`IsCustom`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -328,11 +316,11 @@ DROP TABLE IF EXISTS `areatrigger_template_actions`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_template_actions` (
   `AreaTriggerId` int unsigned NOT NULL,
-  `IsServerSide` tinyint unsigned NOT NULL,
+  `IsCustom` tinyint unsigned NOT NULL,
   `ActionType` int unsigned NOT NULL,
   `ActionParam` int unsigned NOT NULL,
   `TargetType` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`AreaTriggerId`,`IsServerSide`)
+  PRIMARY KEY (`AreaTriggerId`,`IsCustom`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -511,12 +499,13 @@ CREATE TABLE `conditions` (
   `ConditionValue1` int unsigned NOT NULL DEFAULT '0',
   `ConditionValue2` int unsigned NOT NULL DEFAULT '0',
   `ConditionValue3` int unsigned NOT NULL DEFAULT '0',
+  `ConditionStringValue1` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `NegativeCondition` tinyint unsigned NOT NULL DEFAULT '0',
   `ErrorType` int unsigned NOT NULL DEFAULT '0',
   `ErrorTextId` int unsigned NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
+  PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ConditionStringValue1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Condition System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -570,6 +559,7 @@ CREATE TABLE `conversation_template` (
   `Id` int unsigned NOT NULL,
   `FirstLineId` int unsigned NOT NULL,
   `TextureKitId` int unsigned NOT NULL DEFAULT '0',
+  `Flags` tinyint NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
@@ -628,7 +618,7 @@ DROP TABLE IF EXISTS `creature_addon`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_addon` (
   `guid` bigint unsigned NOT NULL DEFAULT '0',
-  `path_id` int unsigned NOT NULL DEFAULT '0',
+  `PathId` int unsigned NOT NULL DEFAULT '0',
   `mount` int unsigned NOT NULL DEFAULT '0',
   `MountCreatureID` int unsigned NOT NULL DEFAULT '0',
   `StandState` tinyint unsigned NOT NULL DEFAULT '0',
@@ -891,6 +881,7 @@ CREATE TABLE `creature_summoned_data` (
   `CreatureIDVisibleToSummoner` int DEFAULT NULL,
   `GroundMountDisplayID` int unsigned DEFAULT NULL,
   `FlyingMountDisplayID` int unsigned DEFAULT NULL,
+  `DespawnOnQuestsRemoved` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`CreatureID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -918,7 +909,7 @@ CREATE TABLE `creature_template` (
   `speed_walk` float NOT NULL DEFAULT '1' COMMENT 'Result of 2.5/2.5, most common value',
   `speed_run` float NOT NULL DEFAULT '1.14286' COMMENT 'Result of 8.0/7.0, most common value',
   `scale` float NOT NULL DEFAULT '1',
-  `rank` tinyint unsigned NOT NULL DEFAULT '0',
+  `Classification` tinyint unsigned NOT NULL DEFAULT '0',
   `dmgschool` tinyint NOT NULL DEFAULT '0',
   `BaseAttackTime` int unsigned NOT NULL DEFAULT '0',
   `RangeAttackTime` int unsigned NOT NULL DEFAULT '0',
@@ -961,7 +952,7 @@ DROP TABLE IF EXISTS `creature_template_addon`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_template_addon` (
   `entry` int unsigned NOT NULL DEFAULT '0',
-  `path_id` int unsigned NOT NULL DEFAULT '0',
+  `PathId` int unsigned NOT NULL DEFAULT '0',
   `mount` int unsigned NOT NULL DEFAULT '0',
   `MountCreatureID` int unsigned NOT NULL DEFAULT '0',
   `StandState` tinyint unsigned NOT NULL DEFAULT '0',
@@ -1624,7 +1615,7 @@ CREATE TABLE `gameobject` (
   `animprogress` tinyint unsigned NOT NULL DEFAULT '0',
   `state` tinyint unsigned NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gameobject System';
@@ -1788,7 +1779,7 @@ CREATE TABLE `gameobject_template` (
   `ContentTuningId` int NOT NULL DEFAULT '0',
   `AIName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
@@ -2110,6 +2101,7 @@ CREATE TABLE `item_template_addon` (
   `MinMoneyLoot` int unsigned NOT NULL DEFAULT '0',
   `MaxMoneyLoot` int unsigned NOT NULL DEFAULT '0',
   `SpellPPMChance` float NOT NULL DEFAULT '0',
+  `QuestLogItemId` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3415,7 +3407,7 @@ CREATE TABLE `quest_template` (
   `QuestScalingFactionGroup` int NOT NULL DEFAULT '0',
   `QuestMaxScalingLevel` int NOT NULL DEFAULT '0',
   `QuestPackageID` int unsigned NOT NULL DEFAULT '0',
-  `QuestMinLevel` int unsigned NOT NULL DEFAULT '0',
+  `MinLevel` int NOT NULL DEFAULT '0',
   `QuestSortID` smallint NOT NULL DEFAULT '0',
   `QuestInfoID` smallint unsigned NOT NULL DEFAULT '0',
   `SuggestedGroupNum` tinyint unsigned NOT NULL DEFAULT '0',
@@ -4378,6 +4370,7 @@ CREATE TABLE `spell_target_position` (
   `PositionX` float NOT NULL DEFAULT '0',
   `PositionY` float NOT NULL DEFAULT '0',
   `PositionZ` float NOT NULL DEFAULT '0',
+  `Orientation` float DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`EffectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Spell System';
@@ -4763,23 +4756,37 @@ CREATE TABLE `warden_checks` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `waypoint_data`
+-- Table structure for table `waypoint_path`
 --
 
-DROP TABLE IF EXISTS `waypoint_data`;
+DROP TABLE IF EXISTS `waypoint_path`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `waypoint_data` (
-  `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Creature GUID',
-  `point` int unsigned NOT NULL DEFAULT '0',
-  `position_x` float NOT NULL DEFAULT '0',
-  `position_y` float NOT NULL DEFAULT '0',
-  `position_z` float NOT NULL DEFAULT '0',
-  `orientation` float DEFAULT NULL,
-  `delay` int unsigned NOT NULL DEFAULT '0',
-  `move_type` int NOT NULL DEFAULT '0',
-  `wpguid` bigint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`,`point`)
+CREATE TABLE `waypoint_path` (
+  `PathId` int unsigned NOT NULL,
+  `MoveType` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`PathId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `waypoint_path_node`
+--
+
+DROP TABLE IF EXISTS `waypoint_path_node`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `waypoint_path_node` (
+  `PathId` int unsigned NOT NULL DEFAULT '0',
+  `NodeId` int unsigned NOT NULL DEFAULT '0',
+  `PositionX` float NOT NULL DEFAULT '0',
+  `PositionY` float NOT NULL DEFAULT '0',
+  `PositionZ` float NOT NULL DEFAULT '0',
+  `Orientation` float DEFAULT NULL,
+  `Delay` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`PathId`,`NodeId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4887,4 +4894,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-20 23:18:00
+-- Dump completed on 2024-08-17 22:00:14
