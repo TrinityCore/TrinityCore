@@ -531,16 +531,16 @@ WorldPacket const* QuestGiverRequestItems::Write()
     _worldPacket << int32(Collect.size());
     _worldPacket << int32(Currency.size());
     _worldPacket << QuestGiverGUID;
+    _worldPacket << uint32(QuestFlags[0]);
+    _worldPacket << uint32(QuestFlags[1]);
+    _worldPacket << uint32(QuestFlags[2]);
+    _worldPacket << int32(StatusFlags);
     _worldPacket << int32(QuestGiverCreatureID);
     _worldPacket << int32(QuestID);
     _worldPacket << int32(CompEmoteDelay);
     _worldPacket << int32(CompEmoteType);
-    _worldPacket << uint32(QuestFlags[0]);
-    _worldPacket << uint32(QuestFlags[1]);
-    _worldPacket << uint32(QuestFlags[2]);
     _worldPacket << int32(SuggestPartyMembers);
     _worldPacket << int32(MoneyToGet);
-    _worldPacket << int32(StatusFlags);
     _worldPacket << int32(QuestInfoID);
 
     for (QuestObjectiveCollect const& obj : Collect)
