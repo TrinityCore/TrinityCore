@@ -474,7 +474,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     {
         pet.PacketInfo.OwnerInfo.emplace();
         pet.PacketInfo.OwnerInfo->Guid = player->GetGUID();
-        pet.PacketInfo.OwnerInfo->PlayerVirtualRealm = pet.PacketInfo.OwnerInfo->PlayerNativeRealm = GetVirtualRealmAddress();
+        pet.PacketInfo.OwnerInfo->PlayerVirtualRealm = pet.PacketInfo.OwnerInfo->PlayerNativeRealm = player->m_playerData->VirtualPlayerRealm;
     }
 
     pet.SaveInfo = BATTLE_PET_NEW;

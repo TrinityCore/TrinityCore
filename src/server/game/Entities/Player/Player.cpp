@@ -7808,10 +7808,10 @@ void Player::DuelComplete(DuelCompleteType type)
     if (type != DUEL_INTERRUPTED)
     {
         WorldPackets::Duel::DuelWinner duelWinner;
-        duelWinner.BeatenName = (type == DUEL_WON ? opponent->GetName() : GetName());
-        duelWinner.WinnerName = (type == DUEL_WON ? GetName() : opponent->GetName());
-        duelWinner.BeatenVirtualRealmAddress = GetVirtualRealmAddress();
-        duelWinner.WinnerVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.BeatenName = (type == DUEL_WON ? opponent : this)->GetName();
+        duelWinner.WinnerName = (type == DUEL_WON ? this : opponent)->GetName();
+        duelWinner.BeatenVirtualRealmAddress = (type == DUEL_WON ? opponent : this)->m_playerData->VirtualPlayerRealm;
+        duelWinner.WinnerVirtualRealmAddress = (type == DUEL_WON ? this : opponent)->m_playerData->VirtualPlayerRealm;
         duelWinner.Fled = type != DUEL_WON;
 
         SendMessageToSet(duelWinner.Write(), true);
@@ -25485,7 +25485,11 @@ void Player::SendSummonRequestFrom(Unit* summoner)
 
     WorldPackets::Movement::SummonRequest summonRequest;
     summonRequest.SummonerGUID = summoner->GetGUID();
-    summonRequest.SummonerVirtualRealmAddress = GetVirtualRealmAddress();
+    if (Player const* playerSummoner = summoner->ToPlayer())
+        summonRequest.SummonerVirtualRealmAddress = playerSummoner->m_playerData->VirtualPlayerRealm;
+    else
+        summonRequest.SummonerVirtualRealmAddress = GetVirtualRealmAddress();
+
     summonRequest.AreaID = summoner->GetZoneId();
     SendDirectMessage(summonRequest.Write());
 

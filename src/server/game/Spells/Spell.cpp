@@ -5457,7 +5457,11 @@ void Spell::SendResurrectRequest(Player* target)
 
     WorldPackets::Spells::ResurrectRequest resurrectRequest;
     resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
-    resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
+    if (Player const* playerCaster = m_caster->ToPlayer())
+        resurrectRequest.ResurrectOffererVirtualRealmAddress = playerCaster->m_playerData->VirtualPlayerRealm;
+    else
+        resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
+
     resurrectRequest.Name = sentName;
     resurrectRequest.Sickness = m_caster->IsUnit() && m_caster->ToUnit()->IsSpiritHealer(); // "you'll be afflicted with resurrection sickness"
     resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_NO_RES_TIMER);
