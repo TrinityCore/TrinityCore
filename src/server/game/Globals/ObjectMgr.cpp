@@ -54,7 +54,7 @@
 #include "QueryPackets.h"
 #include "QuestDef.h"
 #include "Random.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
@@ -8731,8 +8731,9 @@ bool ObjectMgr::IsReservedName(std::string_view name) const
 
 static EnumFlag<CfgCategoriesCharsets> GetRealmLanguageType(bool create)
 {
-    if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(realm.Timezone))
-        return create ? category->GetCreateCharsetMask() : category->GetExistingCharsetMask();
+    if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+        if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(currentRealm->Timezone))
+            return create ? category->GetCreateCharsetMask() : category->GetExistingCharsetMask();
 
     return create ? CfgCategoriesCharsets::English : CfgCategoriesCharsets::Any;        // basic-Latin at create, any at login
 }

@@ -55,7 +55,7 @@
 #include "PlayerDump.h"
 #include "QueryHolder.h"
 #include "QueryPackets.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
@@ -967,7 +967,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
             stmt->setUInt32(0, createInfo->CharCount);
             stmt->setUInt32(1, GetAccountId());
-            stmt->setUInt32(2, realm.Id.Realm);
+            stmt->setUInt32(2, sRealmList->GetCurrentRealmId().Realm);
             trans->Append(stmt);
 
             LoginDatabase.CommitTransaction(trans);

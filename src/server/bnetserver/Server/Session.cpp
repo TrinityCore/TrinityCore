@@ -625,7 +625,7 @@ uint32 Battlenet::Session::GetLastCharPlayed(std::unordered_map<std::string, Var
         auto lastPlayerChar = _gameAccountInfo->LastPlayedCharacters.find(subRegion->string_value());
         if (lastPlayerChar != _gameAccountInfo->LastPlayedCharacters.end())
         {
-            std::vector<uint8> compressed = sRealmList->GetRealmEntryJSON(lastPlayerChar->second.RealmId, _build);
+            std::vector<uint8> compressed = sRealmList->GetRealmEntryJSON(lastPlayerChar->second.RealmId, _build, _gameAccountInfo->SecurityLevel);
 
             if (compressed.empty())
                 return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
@@ -662,7 +662,7 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
     if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1"))
         subRegionId = subRegion->string_value();
 
-    std::vector<uint8> compressed = sRealmList->GetRealmList(_build, subRegionId);
+    std::vector<uint8> compressed = sRealmList->GetRealmList(_build, _gameAccountInfo->SecurityLevel, subRegionId);
 
     if (compressed.empty())
         return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
@@ -698,7 +698,7 @@ uint32 Battlenet::Session::JoinRealm(std::unordered_map<std::string, Variant con
 {
     if (Variant const* realmAddress = GetParam(params, "Param_RealmAddress"))
         return sRealmList->JoinRealm(realmAddress->uint_value(), _build, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
-            _os, _timezoneOffset, _gameAccountInfo->Name, response);
+            _os, _timezoneOffset, _gameAccountInfo->Name, _gameAccountInfo->SecurityLevel, response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
 }

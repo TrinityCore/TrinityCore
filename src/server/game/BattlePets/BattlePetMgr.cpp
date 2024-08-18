@@ -27,7 +27,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -290,18 +290,19 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 pet.NameTimestamp = fields[10].GetInt64();
                 pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
 
-                if (!fields[12].IsNull())
+                if (!fields[13].IsNull())
                 {
                     pet.DeclinedName = std::make_unique<DeclinedName>();
                     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                        pet.DeclinedName->name[i] = fields[12 + i].GetString();
+                        pet.DeclinedName->name[i] = fields[13 + i].GetString();
                 }
 
                 if (!ownerGuid.IsEmpty())
                 {
                     pet.PacketInfo.OwnerInfo.emplace();
                     pet.PacketInfo.OwnerInfo->Guid = ownerGuid;
-                    pet.PacketInfo.OwnerInfo->PlayerVirtualRealm = pet.PacketInfo.OwnerInfo->PlayerNativeRealm = GetVirtualRealmAddress();
+                    if (std::shared_ptr<Realm const> ownerRealm = sRealmList->GetRealm(fields[12].GetInt32()))
+                        pet.PacketInfo.OwnerInfo->PlayerVirtualRealm = pet.PacketInfo.OwnerInfo->PlayerNativeRealm = ownerRealm->Id.GetAddress();
                 }
 
                 pet.SaveInfo = BATTLE_PET_UNCHANGED;
@@ -353,7 +354,7 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction trans)
                 if (itr->second.PacketInfo.OwnerInfo)
                 {
                     stmt->setInt64(12, itr->second.PacketInfo.OwnerInfo->Guid.GetCounter());
-                    stmt->setInt32(13, realm.Id.Realm);
+                    stmt->setInt32(13, sRealmList->GetCurrentRealmId().Realm);
                 }
                 else
                 {
