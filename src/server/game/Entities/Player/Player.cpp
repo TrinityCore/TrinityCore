@@ -4874,6 +4874,12 @@ inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, 
             return row->HasteRanged;
         case CR_HASTE_SPELL:
             return row->HasteSpell;
+        case CR_EXPERTISE:
+            return row->Expertise;
+        case CR_MASTERY:
+            return row->Mastery;
+        case CR_ARMOR_PENETRATION:
+            return row->ArmorPenetration;
         default:
             break;
     }
