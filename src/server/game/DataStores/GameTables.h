@@ -115,8 +115,8 @@ struct GtCombatRatingsEntry
     float Unknown2 = 0.0f;
     float Unknown3 = 0.0f;
     float Expertise = 0.0f;
-    float Mastery = 0.0f;
     float ArmorPenetration = 0.0f;
+    float Mastery = 0.0f;
     float Unknown7 = 0.0f;
     float Unknown8 = 0.0f;
     float Unknown9 = 0.0f;
