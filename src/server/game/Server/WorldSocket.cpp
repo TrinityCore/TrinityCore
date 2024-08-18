@@ -616,9 +616,7 @@ struct AccountInfo
         bool IsLockedToIP;
         std::string LastIP;
         std::string LockCountry;
-        LocaleConstant Locale;
         bool IsBanned;
-
     } BattleNet;
 
     struct
@@ -627,6 +625,8 @@ struct AccountInfo
         std::array<uint8, 64> KeyData;
         uint8 Expansion;
         int64 MuteTime;
+        uint32 Build;
+        LocaleConstant Locale;
         uint32 Recruiter;
         std::string OS;
         Minutes TimezoneOffset;
@@ -639,9 +639,9 @@ struct AccountInfo
 
     explicit AccountInfo(Field const* fields)
     {
-        //           0              1           2          3                4            5           6          7            8     9                 10     11                12
-        // SELECT a.id, a.session_key, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, a.timezone_offset, ba.id, aa.SecurityLevel,
-        //                                                              13                                                            14    15
+        //           0              1           2          3                4            5           6               7         8            9    10                 11     12                13
+        // SELECT a.id, a.session_key, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, a.client_build, a.locale, a.recruiter, a.os, a.timezone_offset, ba.id, aa.SecurityLevel,
+        //                                                              14                                                            15    16
         // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
         // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.AccountID AND aa.RealmID IN (-1, ?)
         // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
@@ -653,18 +653,19 @@ struct AccountInfo
         BattleNet.LockCountry = fields[4].GetString();
         Game.Expansion = fields[5].GetUInt8();
         Game.MuteTime = fields[6].GetInt64();
-        BattleNet.Locale = LocaleConstant(fields[7].GetUInt8());
-        Game.Recruiter = fields[8].GetUInt32();
-        Game.OS = fields[9].GetString();
-        Game.TimezoneOffset = Minutes(fields[10].GetInt16());
-        BattleNet.Id = fields[11].GetUInt32();
-        Game.Security = AccountTypes(fields[12].GetUInt8());
-        BattleNet.IsBanned = fields[13].GetUInt32() != 0;
-        Game.IsBanned = fields[14].GetUInt32() != 0;
-        Game.IsRectuiter = fields[15].GetUInt32() != 0;
+        Game.Build = fields[7].GetUInt32();
+        Game.Locale = LocaleConstant(fields[8].GetUInt8());
+        Game.Recruiter = fields[9].GetUInt32();
+        Game.OS = fields[10].GetString();
+        Game.TimezoneOffset = Minutes(fields[11].GetInt16());
+        BattleNet.Id = fields[12].GetUInt32();
+        Game.Security = AccountTypes(fields[13].GetUInt8());
+        BattleNet.IsBanned = fields[14].GetUInt32() != 0;
+        Game.IsBanned = fields[15].GetUInt32() != 0;
+        Game.IsRectuiter = fields[16].GetUInt32() != 0;
 
-        if (BattleNet.Locale >= TOTAL_LOCALES)
-            BattleNet.Locale = LOCALE_enUS;
+        if (Game.Locale >= TOTAL_LOCALES)
+            Game.Locale = LOCALE_enUS;
     }
 };
 
@@ -672,7 +673,7 @@ void WorldSocket::HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSess
 {
     // Get the account information from the auth database
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
-    stmt->setInt32(0, int32(realm.Id.Realm));
+    stmt->setInt32(0, int32(sRealmList->GetCurrentRealmId().Realm));
     stmt->setString(1, authSession->RealmJoinTicket);
 
     _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([this, authSession = std::move(authSession)](PreparedQueryResult result) mutable
@@ -692,16 +693,16 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
         return;
     }
 
-    RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(realm.Build);
+    AccountInfo account(result->Fetch());
+
+    RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(account.Game.Build);
     if (!buildInfo)
     {
         SendAuthResponseError(ERROR_BAD_VERSION);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Missing auth seed for realm build {} ({}).", realm.Build, GetRemoteIpAddress().to_string());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Missing auth seed for realm build {} ({}).", account.Game.Build, GetRemoteIpAddress().to_string());
         DelayedCloseSocket();
         return;
     }
-
-    AccountInfo account(result->Fetch());
 
     // For hook purposes, we get Remoteaddress at this point.
     std::string address = GetRemoteIpAddress().to_string();
@@ -778,11 +779,11 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
         return;
     }
 
-    if (authSession->RealmID != realm.Id.Realm)
+    if (authSession->RealmID != sRealmList->GetCurrentRealmId().Realm)
     {
         SendAuthResponseError(ERROR_DENIED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client {} requested connecting with realm id {} but this realm has id {} set in config.",
-            GetRemoteIpAddress().to_string(), authSession->RealmID, realm.Id.Realm);
+            GetRemoteIpAddress().to_string(), authSession->RealmID, sRealmList->GetCurrentRealmId().Realm);
         DelayedCloseSocket();
         return;
     }
@@ -877,7 +878,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     _authed = true;
     _worldSession = new WorldSession(account.Game.Id, std::move(authSession->RealmJoinTicket), account.BattleNet.Id, shared_from_this(), account.Game.Security,
-        account.Game.Expansion, mutetime, account.Game.OS, account.Game.TimezoneOffset, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
+        account.Game.Expansion, mutetime, account.Game.OS, account.Game.TimezoneOffset, account.Game.Build, account.Game.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
