@@ -657,11 +657,11 @@ void Player::UpdateMastery()
     value += GetRatingBonusValue(CR_MASTERY);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Mastery), value);
 
-    ChrSpecializationEntry const* chrSpec = GetPrimarySpecializationEntry();
-    if (!chrSpec)
+    TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(GetPrimaryTalentTree());
+    if (!talentTab)
         return;
 
-    for (int32 masterySpellId : chrSpec->MasterySpellID)
+    for (int32 masterySpellId : talentTab->MasterySpellID)
     {
         if (Aura* aura = GetAura(masterySpellId))
         {

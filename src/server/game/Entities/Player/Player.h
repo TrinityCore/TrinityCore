@@ -201,6 +201,8 @@ struct PlayerSpell
     Optional<int32> TraitDefinitionId;
 };
 
+extern std::array<uint32, MAX_CLASS_ID + 1> MasterySpells;
+
 struct StoredAuraTeleportLocation
 {
     WorldLocation Loc;

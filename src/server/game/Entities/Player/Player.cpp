@@ -28049,12 +28049,25 @@ Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float 
     return pet;
 }
 
+std::array<uint32, MAX_CLASS_ID + 1> MasterySpells =
+{
+        0,
+    87500,  // Warrior
+    87494,  // Paladin
+    87493,  // Hunter
+    87496,  // Rogue
+    87495,  // Priest
+    87492,  // Death Knight
+    87497,  // Shaman
+    86467,  // Mage
+    87498,  // Warlock
+        0,
+    87491  // Druid
+};
+
 bool Player::CanUseMastery() const
 {
-    if (ChrSpecializationEntry const* chrSpec = GetPrimarySpecializationEntry())
-        return HasSpell(chrSpec->MasterySpellID[0]) || HasSpell(chrSpec->MasterySpellID[1]);
-
-    return false;
+    return HasSpell(MasterySpells[GetClass()]);
 }
 
 void Player::ValidateMovementInfo(MovementInfo* mi)
@@ -28451,12 +28464,26 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/, bool 
 void Player::SetPrimaryTalentTree(uint32 talentTabId, bool withUpdate /*= false*/)
 {
     if (!talentTabId || GetPrimaryTalentTree() != talentTabId)
+    {
         UnlearnTalentTreePrimarySpells();
+
+        if (TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(GetPrimaryTalentTree()))
+            for (uint32 spellId : talentTab->MasterySpellID)
+                RemoveSpell(spellId, true);
+    }
 
     _talentGroups[_activeTalentGroup].PrimaryTalentTabID = talentTabId;
 
     if (talentTabId)
+    {
         LearnTalentTreePrimarySpells();
+
+        if (CanUseMastery())
+            if (TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(GetPrimaryTalentTree()))
+                for (uint32 spellId : talentTab->MasterySpellID)
+                    if (sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
+                        LearnSpell(spellId, true);
+    }
 
     if (withUpdate)
         SendTalentsInfoData();
