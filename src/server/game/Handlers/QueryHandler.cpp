@@ -321,12 +321,13 @@ void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& que
     WorldPackets::Query::RealmQueryResponse realmQueryResponse;
     realmQueryResponse.VirtualRealmAddress = queryRealmName.VirtualRealmAddress;
 
-    Battlenet::RealmHandle realmHandle(queryRealmName.VirtualRealmAddress);
-    if (sRealmList->GetRealmNames(realmHandle, &realmQueryResponse.NameInfo.RealmNameActual, &realmQueryResponse.NameInfo.RealmNameNormalized))
+    if (std::shared_ptr<Realm const> realm = sRealmList->GetRealm(queryRealmName.VirtualRealmAddress))
     {
         realmQueryResponse.LookupState = RESPONSE_SUCCESS;
         realmQueryResponse.NameInfo.IsInternalRealm = false;
         realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == GetVirtualRealmAddress();
+        realmQueryResponse.NameInfo.RealmNameActual = realm->Name;
+        realmQueryResponse.NameInfo.RealmNameNormalized = realm->NormalizedName;
     }
     else
         realmQueryResponse.LookupState = RESPONSE_FAILURE;
