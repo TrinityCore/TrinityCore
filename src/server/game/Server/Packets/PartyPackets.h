@@ -70,6 +70,7 @@ namespace WorldPackets
             bool MustBeBNetFriend = false;
             bool AllowMultipleRoles = false;
             bool QuestSessionActive = false;
+            bool Unused1102 = false;
             uint16 Unk1 = 0;
 
             bool CanAccept = false;
