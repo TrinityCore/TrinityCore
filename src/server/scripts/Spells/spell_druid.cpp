@@ -40,6 +40,7 @@ enum DruidSpells
     SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
     SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE      = 450599,
     SPELL_DRUID_ASTRAL_COMMUNION_TALENT        = 450598,
+    SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE          = 394061,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -64,6 +65,8 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_ECLIPSE_VISUAL_LUNAR           = 93431,
+    SPELL_DRUID_ECLIPSE_VISUAL_SOLAR           = 93430,
     SPELL_DRUID_EFFLORESCENCE_AURA             = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT    = 392146,
@@ -115,6 +118,7 @@ enum DruidSpells
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
     SPELL_DRUID_SPRING_BLOSSOMS                = 207385,
     SPELL_DRUID_SPRING_BLOSSOMS_HEAL           = 207386,
+    SPELL_DRUID_STAR_BURST                     = 356474,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
@@ -187,6 +191,41 @@ class spell_dru_astral_communion : public AuraScript
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_dru_astral_communion::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 394058 - Astral Smolder
+class spell_dru_astral_smolder : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, DIFFICULTY_NONE)->GetMaxTicks();
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    {
+        return eventInfo.GetProcTarget() != nullptr;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        PreventDefaultAction();
+
+        SpellInfo const* astralSmolderDmg = sSpellMgr->AssertSpellInfo(SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, GetCastDifficulty());
+        int32 pct = aurEff->GetAmount();
+
+        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / astralSmolderDmg->GetMaxTicks());
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_astral_smolder::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_astral_smolder::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -336,6 +375,39 @@ class spell_dru_cat_form : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 194223 - Celestial Alignment
+class spell_dru_celestial_alignment : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_ECLIPSE_SOLAR_AURA,
+            SPELL_DRUID_ECLIPSE_LUNAR_AURA,
+            SPELL_DRUID_ECLIPSE_VISUAL_SOLAR,
+            SPELL_DRUID_ECLIPSE_VISUAL_LUNAR
+        });
+    }
+
+    void TriggerEclipses(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        CastSpellExtraArgs args;
+        args.SetTriggeringSpell(GetSpell());
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_SOLAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_LUNAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::TriggerEclipses, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -1505,6 +1577,26 @@ class spell_dru_starfall_dummy : public SpellScript
     }
 };
 
+// 202347 - Stellar Flare
+class spell_dru_stellar_flare : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STAR_BURST });
+    }
+
+    void HandleDispel(DispelInfo* dispelInfo)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(dispelInfo->GetDispeller(), SPELL_DRUID_STAR_BURST, true);
+    }
+
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(spell_dru_stellar_flare::HandleDispel);
+    }
+};
+
 // 340694 - Sudden Ambush
 // 384667 - Sudden Ambush
 class spell_dru_sudden_ambush : public AuraScript
@@ -2101,11 +2193,13 @@ void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_abundance);
     RegisterSpellScript(spell_dru_astral_communion);
+    RegisterSpellScript(spell_dru_astral_smolder);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
     RegisterSpellScript(spell_dru_brambles);
     RegisterSpellScript(spell_dru_bristling_fur);
     RegisterSpellScript(spell_dru_cat_form);
+    RegisterSpellScript(spell_dru_celestial_alignment);
     RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_earthwarden);
@@ -2144,6 +2238,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_spring_blossoms);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
+    RegisterSpellScript(spell_dru_stellar_flare);
     RegisterSpellScript(spell_dru_sudden_ambush);
     RegisterSpellScript(spell_dru_sunfire);
     RegisterSpellScript(spell_dru_survival_instincts);
