@@ -4889,20 +4889,20 @@ inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, 
 
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
-    float combatRatingRatio = GetGameTableColumnForCombatRating(sCombatRatingsGameTable.GetRow(GetLevel()), cr);
-    if (combatRatingRatio == 0.0f)
-        return 1.0f;  // By default use minimum coefficient (not must be called)
+    GtCombatRatingsEntry const* Rating = sCombatRatingsGameTable.GetRow(GetLevel());
+    if (!Rating)
+        return 1.0f;
 
-    float classRatingRatio = GetGameTableColumnForClass(sOctClassCombatRatingScalarGameTable.GetRow(cr), GetClass());
-    if (classRatingRatio == 0.0f)
-        return 1.0f;  // By default use minimum coefficient (not must be called)
+    float value = GetGameTableColumnForCombatRating(Rating, cr);
+    if (!value)
+        return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return classRatingRatio / combatRatingRatio;
+    return 1.0f / value;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
-    float baseResult = float(m_activePlayerData->CombatRatings[cr]) * GetRatingMultiplier(cr);
+    float baseResult = (float)m_activePlayerData->CombatRatings[cr] * GetRatingMultiplier(cr);
     if (cr != CR_RESILIENCE_PLAYER_DAMAGE)
         return baseResult;
     return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
