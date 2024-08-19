@@ -81,12 +81,15 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_MOONKIN          = 37343,
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
+    SPELL_DRUID_FULL_MOON                      = 274283,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
     SPELL_DRUID_GERMINATION                    = 155675,
     SPELL_DRUID_GLYPH_OF_STARS                 = 114301,
     SPELL_DRUID_GLYPH_OF_STARS_VISUAL          = 114302,
     SPELL_DRUID_GORE_PROC                      = 93622,
     SPELL_DRUID_GROWL                          = 6795,
+    SPELL_DRUID_HALF_MOON                      = 274282,
+    SPELL_DRUID_HALF_MOON_OVERRIDE             = 274297,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
     SPELL_DRUID_INCARNATION                    = 117679,
@@ -102,6 +105,8 @@ enum DruidSpells
     SPELL_DRUID_MANGLE                         = 33917,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_NEW_MOON                       = 274281,
+    SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REGROWTH                       = 8936,
@@ -1292,6 +1297,43 @@ class spell_dru_moonfire : public SpellScript
     }
 };
 
+// 274283 - Full Moon
+// 274282 - Half Moon
+// 274281 - New Moon
+class spell_dru_new_moon : public SpellScript
+{
+public:
+    explicit spell_dru_new_moon(Optional<uint32> newOverrideSpell, Optional<uint32> removeOverrideSpell)
+        : _newOverrideSpell(newOverrideSpell), _removeOverrideSpell(removeOverrideSpell) { }
+
+private:
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return (!_newOverrideSpell || ValidateSpellInfo({ *_newOverrideSpell }))
+            && (!_removeOverrideSpell || ValidateSpellInfo({ *_removeOverrideSpell }));
+    }
+
+    void OverrideMoon() const
+    {
+        Unit* caster = GetCaster();
+        if (_newOverrideSpell)
+            caster->CastSpell(caster, *_newOverrideSpell, CastSpellExtraArgs()
+                .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                .SetTriggeringSpell(GetSpell()));
+
+        if (_removeOverrideSpell)
+            caster->RemoveAurasDueToSpell(*_removeOverrideSpell);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dru_new_moon::OverrideMoon);
+    }
+
+    Optional<uint32> _newOverrideSpell;
+    Optional<uint32> _removeOverrideSpell;
+};
+
 // 16864 - Omen of Clarity
 class spell_dru_omen_of_clarity : public AuraScript
 {
@@ -2200,6 +2242,9 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_moonfire);
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_full_moon", Optional<DruidSpells>(), Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_half_moon", Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE), Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_new_moon", Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE), Optional<DruidSpells>());
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
