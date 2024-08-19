@@ -148,13 +148,13 @@ Optional<LootSlotType> LootItem::GetUiTypeForPlayer(Player const* player, Loot c
 
     if (freeforall)
     {
-        if (std::unique_ptr<NotNormalLootItemList> const* ffaItems = Trinity::Containers::MapGetValuePtr(loot.GetPlayerFFAItems(), player->GetGUID()))
+        if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(loot.GetPlayerFFAItems(), player->GetGUID()))
         {
-            auto ffaItemItr = std::find_if(ffaItems->get()->begin(), ffaItems->get()->end(), [&](NotNormalLootItem const& ffaItem)
+            auto ffaItemItr = std::ranges::find_if(*ffaItems, [&](NotNormalLootItem const& ffaItem)
             {
                 return ffaItem.LootListId == LootListId;
             });
-            if (ffaItemItr != ffaItems->get()->end() && !ffaItemItr->is_looted)
+            if (ffaItemItr != ffaItems->end() && !ffaItemItr->is_looted)
                 return loot.GetLootMethod() == FREE_FOR_ALL ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
         }
         return {};
@@ -969,9 +969,9 @@ bool Loot::hasItemFor(Player const* player) const
         if (!lootItem.is_looted && !lootItem.follow_loot_rules && lootItem.GetAllowedLooters().find(player->GetGUID()) != lootItem.GetAllowedLooters().end())
             return true;
 
-    if (std::unique_ptr<NotNormalLootItemList> const* ffaItems = Trinity::Containers::MapGetValuePtr(GetPlayerFFAItems(), player->GetGUID()))
+    if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(GetPlayerFFAItems(), player->GetGUID()))
     {
-        bool hasFfaItem = std::any_of(ffaItems->get()->begin(), ffaItems->get()->end(), [&](NotNormalLootItem const& ffaItem)
+        bool hasFfaItem = std::ranges::any_of(*ffaItems, [&](NotNormalLootItem const& ffaItem)
         {
             return !ffaItem.is_looted;
         });

@@ -185,6 +185,7 @@ namespace WorldPackets
                     uint8 InvType           = 0;
                     uint8 Subclass          = 0;
                     uint32 ItemID           = 0;
+                    uint32 TransmogrifiedItemID = 0;
                 };
 
                 std::array<VisualItemInfo, 19> VisualItems = { };

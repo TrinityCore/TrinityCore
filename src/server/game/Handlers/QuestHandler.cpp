@@ -756,11 +756,6 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
     _player->SendQuestGiverStatusMultiple();
 }
 
-void WorldSession::HandleQuestgiverStatusTrackedQueryOpcode(WorldPackets::Quest::QuestGiverStatusTrackedQuery& questGiverStatusTrackedQuery)
-{
-    _player->SendQuestGiverStatusMultiple(questGiverStatusTrackedQuery.QuestGiverGUIDs);
-}
-
 void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& /*packet*/)
 {
     WorldPackets::Quest::WorldQuestUpdateResponse response;

@@ -39,12 +39,15 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* RealmCharacterCountList_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RealmCharacterCountList_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RealmListRAFInfo_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RealmListRAFInfo_reflection_ = NULL;
 const ::google::protobuf::Descriptor* RealmEntry_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RealmEntry_reflection_ = NULL;
-const ::google::protobuf::Descriptor* RealmState_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* RealmListUpdatePart_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  RealmState_reflection_ = NULL;
+  RealmListUpdatePart_reflection_ = NULL;
 const ::google::protobuf::Descriptor* RealmListUpdates_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RealmListUpdates_reflection_ = NULL;
@@ -174,7 +177,23 @@ void protobuf_AssignDesc_RealmList_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RealmCharacterCountList));
-  RealmEntry_descriptor_ = file->message_type(6);
+  RealmListRAFInfo_descriptor_ = file->message_type(6);
+  static const int RealmListRAFInfo_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListRAFInfo, wowrealmaddress_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListRAFInfo, faction_),
+  };
+  RealmListRAFInfo_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RealmListRAFInfo_descriptor_,
+      RealmListRAFInfo::default_instance_,
+      RealmListRAFInfo_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListRAFInfo, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListRAFInfo, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RealmListRAFInfo));
+  RealmEntry_descriptor_ = file->message_type(7);
   static const int RealmEntry_offsets_[10] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmEntry, wowrealmaddress_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmEntry, cfgtimezonesid_),
@@ -198,23 +217,24 @@ void protobuf_AssignDesc_RealmList_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RealmEntry));
-  RealmState_descriptor_ = file->message_type(7);
-  static const int RealmState_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmState, update_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmState, deleting_),
+  RealmListUpdatePart_descriptor_ = file->message_type(8);
+  static const int RealmListUpdatePart_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListUpdatePart, wowrealmaddress_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListUpdatePart, update_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListUpdatePart, deleting_),
   };
-  RealmState_reflection_ =
+  RealmListUpdatePart_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      RealmState_descriptor_,
-      RealmState::default_instance_,
-      RealmState_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmState, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmState, _unknown_fields_),
+      RealmListUpdatePart_descriptor_,
+      RealmListUpdatePart::default_instance_,
+      RealmListUpdatePart_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListUpdatePart, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListUpdatePart, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(RealmState));
-  RealmListUpdates_descriptor_ = file->message_type(8);
+      sizeof(RealmListUpdatePart));
+  RealmListUpdates_descriptor_ = file->message_type(9);
   static const int RealmListUpdates_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListUpdates, updates_),
   };
@@ -229,7 +249,7 @@ void protobuf_AssignDesc_RealmList_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RealmListUpdates));
-  IPAddress_descriptor_ = file->message_type(9);
+  IPAddress_descriptor_ = file->message_type(10);
   static const int IPAddress_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(IPAddress, ip_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(IPAddress, port_),
@@ -245,7 +265,7 @@ void protobuf_AssignDesc_RealmList_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(IPAddress));
-  RealmIPAddressFamily_descriptor_ = file->message_type(10);
+  RealmIPAddressFamily_descriptor_ = file->message_type(11);
   static const int RealmIPAddressFamily_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmIPAddressFamily, family_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmIPAddressFamily, addresses_),
@@ -261,7 +281,7 @@ void protobuf_AssignDesc_RealmList_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RealmIPAddressFamily));
-  RealmListServerIPAddresses_descriptor_ = file->message_type(11);
+  RealmListServerIPAddresses_descriptor_ = file->message_type(12);
   static const int RealmListServerIPAddresses_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmListServerIPAddresses, families_),
   };
@@ -301,9 +321,11 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RealmCharacterCountList_descriptor_, &RealmCharacterCountList::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RealmListRAFInfo_descriptor_, &RealmListRAFInfo::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RealmEntry_descriptor_, &RealmEntry::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    RealmState_descriptor_, &RealmState::default_instance());
+    RealmListUpdatePart_descriptor_, &RealmListUpdatePart::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RealmListUpdates_descriptor_, &RealmListUpdates::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -329,10 +351,12 @@ void protobuf_ShutdownFile_RealmList_2eproto() {
   delete RealmCharacterCountEntry_reflection_;
   delete RealmCharacterCountList::default_instance_;
   delete RealmCharacterCountList_reflection_;
+  delete RealmListRAFInfo::default_instance_;
+  delete RealmListRAFInfo_reflection_;
   delete RealmEntry::default_instance_;
   delete RealmEntry_reflection_;
-  delete RealmState::default_instance_;
-  delete RealmState_reflection_;
+  delete RealmListUpdatePart::default_instance_;
+  delete RealmListUpdatePart_reflection_;
   delete RealmListUpdates::default_instance_;
   delete RealmListUpdates_reflection_;
   delete IPAddress::default_instance_;
@@ -369,23 +393,25 @@ void protobuf_AddDesc_RealmList_2eproto() {
     "almCharacterCountEntry\022\027\n\017wowRealmAddres"
     "s\030\001 \002(\007\022\r\n\005count\030\002 \002(\r\"S\n\027RealmCharacter"
     "CountList\0228\n\006counts\030\001 \003(\0132(.JSON.RealmLi"
-    "st.RealmCharacterCountEntry\"\377\001\n\nRealmEnt"
-    "ry\022\027\n\017wowRealmAddress\030\001 \002(\007\022\026\n\016cfgTimezo"
-    "nesID\030\002 \002(\r\022\027\n\017populationState\030\003 \002(\r\022\027\n\017"
-    "cfgCategoriesID\030\004 \002(\r\022.\n\007version\030\005 \002(\0132\035"
-    ".JSON.RealmList.ClientVersion\022\023\n\013cfgReal"
-    "msID\030\006 \002(\r\022\r\n\005flags\030\007 \002(\r\022\014\n\004name\030\010 \002(\t\022"
-    "\024\n\014cfgConfigsID\030\t \002(\r\022\026\n\016cfgLanguagesID\030"
-    "\n \002(\r\"J\n\nRealmState\022*\n\006update\030\001 \001(\0132\032.JS"
-    "ON.RealmList.RealmEntry\022\020\n\010deleting\030\002 \002("
-    "\010\"\?\n\020RealmListUpdates\022+\n\007updates\030\001 \003(\0132\032"
-    ".JSON.RealmList.RealmState\"%\n\tIPAddress\022"
-    "\n\n\002ip\030\001 \002(\t\022\014\n\004port\030\002 \002(\r\"T\n\024RealmIPAddr"
-    "essFamily\022\016\n\006family\030\001 \002(\r\022,\n\taddresses\030\002"
-    " \003(\0132\031.JSON.RealmList.IPAddress\"T\n\032Realm"
-    "ListServerIPAddresses\0226\n\010families\030\001 \003(\0132"
-    "$.JSON.RealmList.RealmIPAddressFamilyB\002H"
-    "\002", 1401);
+    "st.RealmCharacterCountEntry\"<\n\020RealmList"
+    "RAFInfo\022\027\n\017wowRealmAddress\030\001 \002(\007\022\017\n\007fact"
+    "ion\030\002 \002(\r\"\377\001\n\nRealmEntry\022\027\n\017wowRealmAddr"
+    "ess\030\001 \002(\007\022\026\n\016cfgTimezonesID\030\002 \002(\r\022\027\n\017pop"
+    "ulationState\030\003 \002(\r\022\027\n\017cfgCategoriesID\030\004 "
+    "\002(\r\022.\n\007version\030\005 \002(\0132\035.JSON.RealmList.Cl"
+    "ientVersion\022\023\n\013cfgRealmsID\030\006 \002(\r\022\r\n\005flag"
+    "s\030\007 \002(\r\022\014\n\004name\030\010 \002(\t\022\024\n\014cfgConfigsID\030\t "
+    "\002(\r\022\026\n\016cfgLanguagesID\030\n \002(\r\"l\n\023RealmList"
+    "UpdatePart\022\027\n\017wowRealmAddress\030\001 \002(\007\022*\n\006u"
+    "pdate\030\002 \001(\0132\032.JSON.RealmList.RealmEntry\022"
+    "\020\n\010deleting\030\003 \002(\010\"H\n\020RealmListUpdates\0224\n"
+    "\007updates\030\001 \003(\0132#.JSON.RealmList.RealmLis"
+    "tUpdatePart\"%\n\tIPAddress\022\n\n\002ip\030\001 \002(\t\022\014\n\004"
+    "port\030\002 \002(\r\"T\n\024RealmIPAddressFamily\022\016\n\006fa"
+    "mily\030\001 \002(\r\022,\n\taddresses\030\002 \003(\0132\031.JSON.Rea"
+    "lmList.IPAddress\"T\n\032RealmListServerIPAdd"
+    "resses\0226\n\010families\030\001 \003(\0132$.JSON.RealmLis"
+    "t.RealmIPAddressFamilyB\002H\002", 1506);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "RealmList.proto", &protobuf_RegisterTypes);
   RealmListTicketIdentity::default_instance_ = new RealmListTicketIdentity();
@@ -394,8 +420,9 @@ void protobuf_AddDesc_RealmList_2eproto() {
   RealmListTicketClientInformation::default_instance_ = new RealmListTicketClientInformation();
   RealmCharacterCountEntry::default_instance_ = new RealmCharacterCountEntry();
   RealmCharacterCountList::default_instance_ = new RealmCharacterCountList();
+  RealmListRAFInfo::default_instance_ = new RealmListRAFInfo();
   RealmEntry::default_instance_ = new RealmEntry();
-  RealmState::default_instance_ = new RealmState();
+  RealmListUpdatePart::default_instance_ = new RealmListUpdatePart();
   RealmListUpdates::default_instance_ = new RealmListUpdates();
   IPAddress::default_instance_ = new IPAddress();
   RealmIPAddressFamily::default_instance_ = new RealmIPAddressFamily();
@@ -406,8 +433,9 @@ void protobuf_AddDesc_RealmList_2eproto() {
   RealmListTicketClientInformation::default_instance_->InitAsDefaultInstance();
   RealmCharacterCountEntry::default_instance_->InitAsDefaultInstance();
   RealmCharacterCountList::default_instance_->InitAsDefaultInstance();
+  RealmListRAFInfo::default_instance_->InitAsDefaultInstance();
   RealmEntry::default_instance_->InitAsDefaultInstance();
-  RealmState::default_instance_->InitAsDefaultInstance();
+  RealmListUpdatePart::default_instance_->InitAsDefaultInstance();
   RealmListUpdates::default_instance_->InitAsDefaultInstance();
   IPAddress::default_instance_->InitAsDefaultInstance();
   RealmIPAddressFamily::default_instance_->InitAsDefaultInstance();
@@ -908,6 +936,80 @@ void RealmCharacterCountList::Swap(RealmCharacterCountList* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int RealmListRAFInfo::kWowRealmAddressFieldNumber;
+const int RealmListRAFInfo::kFactionFieldNumber;
+#endif  // !_MSC_VER
+
+RealmListRAFInfo::RealmListRAFInfo()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:JSON.RealmList.RealmListRAFInfo)
+}
+
+void RealmListRAFInfo::InitAsDefaultInstance() {
+}
+
+RealmListRAFInfo::RealmListRAFInfo(const RealmListRAFInfo& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:JSON.RealmList.RealmListRAFInfo)
+}
+
+void RealmListRAFInfo::SharedCtor() {
+  _cached_size_ = 0;
+  wowrealmaddress_ = 0u;
+  faction_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RealmListRAFInfo::~RealmListRAFInfo() {
+  // @@protoc_insertion_point(destructor:JSON.RealmList.RealmListRAFInfo)
+  SharedDtor();
+}
+
+void RealmListRAFInfo::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void RealmListRAFInfo::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RealmListRAFInfo::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RealmListRAFInfo_descriptor_;
+}
+
+const RealmListRAFInfo& RealmListRAFInfo::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_RealmList_2eproto();
+  return *default_instance_;
+}
+
+RealmListRAFInfo* RealmListRAFInfo::default_instance_ = NULL;
+
+RealmListRAFInfo* RealmListRAFInfo::New() const {
+  return new RealmListRAFInfo;
+}
+
+void RealmListRAFInfo::Swap(RealmListRAFInfo* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata RealmListRAFInfo::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RealmListRAFInfo_descriptor_;
+  metadata.reflection = RealmListRAFInfo_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int RealmEntry::kWowRealmAddressFieldNumber;
 const int RealmEntry::kCfgTimezonesIDFieldNumber;
 const int RealmEntry::kPopulationStateFieldNumber;
@@ -1004,76 +1106,78 @@ void RealmEntry::Swap(RealmEntry* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int RealmState::kUpdateFieldNumber;
-const int RealmState::kDeletingFieldNumber;
+const int RealmListUpdatePart::kWowRealmAddressFieldNumber;
+const int RealmListUpdatePart::kUpdateFieldNumber;
+const int RealmListUpdatePart::kDeletingFieldNumber;
 #endif  // !_MSC_VER
 
-RealmState::RealmState()
+RealmListUpdatePart::RealmListUpdatePart()
   : ::google::protobuf::Message() {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:JSON.RealmList.RealmState)
+  // @@protoc_insertion_point(constructor:JSON.RealmList.RealmListUpdatePart)
 }
 
-void RealmState::InitAsDefaultInstance() {
+void RealmListUpdatePart::InitAsDefaultInstance() {
   update_ = const_cast< ::JSON::RealmList::RealmEntry*>(&::JSON::RealmList::RealmEntry::default_instance());
 }
 
-RealmState::RealmState(const RealmState& from)
+RealmListUpdatePart::RealmListUpdatePart(const RealmListUpdatePart& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:JSON.RealmList.RealmState)
+  // @@protoc_insertion_point(copy_constructor:JSON.RealmList.RealmListUpdatePart)
 }
 
-void RealmState::SharedCtor() {
+void RealmListUpdatePart::SharedCtor() {
   _cached_size_ = 0;
+  wowrealmaddress_ = 0u;
   update_ = NULL;
   deleting_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-RealmState::~RealmState() {
-  // @@protoc_insertion_point(destructor:JSON.RealmList.RealmState)
+RealmListUpdatePart::~RealmListUpdatePart() {
+  // @@protoc_insertion_point(destructor:JSON.RealmList.RealmListUpdatePart)
   SharedDtor();
 }
 
-void RealmState::SharedDtor() {
+void RealmListUpdatePart::SharedDtor() {
   if (this != default_instance_) {
     delete update_;
   }
 }
 
-void RealmState::SetCachedSize(int size) const {
+void RealmListUpdatePart::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* RealmState::descriptor() {
+const ::google::protobuf::Descriptor* RealmListUpdatePart::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return RealmState_descriptor_;
+  return RealmListUpdatePart_descriptor_;
 }
 
-const RealmState& RealmState::default_instance() {
+const RealmListUpdatePart& RealmListUpdatePart::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_RealmList_2eproto();
   return *default_instance_;
 }
 
-RealmState* RealmState::default_instance_ = NULL;
+RealmListUpdatePart* RealmListUpdatePart::default_instance_ = NULL;
 
-RealmState* RealmState::New() const {
-  return new RealmState;
+RealmListUpdatePart* RealmListUpdatePart::New() const {
+  return new RealmListUpdatePart;
 }
 
-void RealmState::Swap(RealmState* other) {
+void RealmListUpdatePart::Swap(RealmListUpdatePart* other) {
   if (other != this) {
     GetReflection()->Swap(this, other);}
 }
 
-::google::protobuf::Metadata RealmState::GetMetadata() const {
+::google::protobuf::Metadata RealmListUpdatePart::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = RealmState_descriptor_;
-  metadata.reflection = RealmState_reflection_;
+  metadata.descriptor = RealmListUpdatePart_descriptor_;
+  metadata.reflection = RealmListUpdatePart_reflection_;
   return metadata;
 }
 

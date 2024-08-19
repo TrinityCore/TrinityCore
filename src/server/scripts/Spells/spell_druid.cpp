@@ -38,6 +38,7 @@ enum DruidSpells
 {
     SPELL_DRUID_ABUNDANCE                      = 207383,
     SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
+    SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE          = 394061,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -115,6 +116,7 @@ enum DruidSpells
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
     SPELL_DRUID_SPRING_BLOSSOMS                = 207385,
     SPELL_DRUID_SPRING_BLOSSOMS_HEAL           = 207386,
+    SPELL_DRUID_STAR_BURST                     = 356474,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
@@ -162,6 +164,41 @@ class spell_dru_abundance : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 394058 - Astral Smolder
+class spell_dru_astral_smolder : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, DIFFICULTY_NONE)->GetMaxTicks();
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    {
+        return eventInfo.GetProcTarget() != nullptr;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        PreventDefaultAction();
+
+        SpellInfo const* astralSmolderDmg = sSpellMgr->AssertSpellInfo(SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, GetCastDifficulty());
+        int32 pct = aurEff->GetAmount();
+
+        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / astralSmolderDmg->GetMaxTicks());
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_astral_smolder::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_astral_smolder::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1509,6 +1546,26 @@ class spell_dru_starfall_dummy : public SpellScript
     }
 };
 
+// 202347 - Stellar Flare
+class spell_dru_stellar_flare : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STAR_BURST });
+    }
+
+    void HandleDispel(DispelInfo* dispelInfo)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(dispelInfo->GetDispeller(), SPELL_DRUID_STAR_BURST, true);
+    }
+
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(spell_dru_stellar_flare::HandleDispel);
+    }
+};
+
 // 340694 - Sudden Ambush
 // 384667 - Sudden Ambush
 class spell_dru_sudden_ambush : public AuraScript
@@ -2104,6 +2161,7 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_abundance);
+    RegisterSpellScript(spell_dru_astral_smolder);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
     RegisterSpellScript(spell_dru_brambles);
@@ -2148,6 +2206,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_spring_blossoms);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
+    RegisterSpellScript(spell_dru_stellar_flare);
     RegisterSpellScript(spell_dru_sudden_ambush);
     RegisterSpellScript(spell_dru_sunfire);
     RegisterSpellScript(spell_dru_survival_instincts);

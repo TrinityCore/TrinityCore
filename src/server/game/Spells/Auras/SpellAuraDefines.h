@@ -492,7 +492,7 @@ enum AuraType : uint32
     SPELL_AURA_BATTLEGROUND_PLAYER_POSITION                 = 398,
     SPELL_AURA_MOD_TIME_RATE                                = 399,
     SPELL_AURA_MOD_SKILL_2                                  = 400,
-    SPELL_AURA_401                                          = 401,
+    SPELL_AURA_ACT_AS_CONTROL_ZONE                          = 401,
     SPELL_AURA_MOD_OVERRIDE_POWER_DISPLAY                   = 402,
     SPELL_AURA_OVERRIDE_SPELL_VISUAL                        = 403,
     SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT              = 404,
