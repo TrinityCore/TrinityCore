@@ -63,6 +63,8 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_ECLIPSE_VISUAL_LUNAR           = 93431,
+    SPELL_DRUID_ECLIPSE_VISUAL_SOLAR           = 93430,
     SPELL_DRUID_EFFLORESCENCE_AURA             = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT    = 392146,
@@ -346,6 +348,39 @@ class spell_dru_cat_form : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 194223 - Celestial Alignment
+class spell_dru_celestial_alignment : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_ECLIPSE_SOLAR_AURA,
+            SPELL_DRUID_ECLIPSE_LUNAR_AURA,
+            SPELL_DRUID_ECLIPSE_VISUAL_SOLAR,
+            SPELL_DRUID_ECLIPSE_VISUAL_LUNAR
+        });
+    }
+
+    void TriggerEclipses(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        CastSpellExtraArgs args;
+        args.SetTriggeringSpell(GetSpell());
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_SOLAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_LUNAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::TriggerEclipses, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -2136,6 +2171,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_brambles);
     RegisterSpellScript(spell_dru_bristling_fur);
     RegisterSpellScript(spell_dru_cat_form);
+    RegisterSpellScript(spell_dru_celestial_alignment);
     RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_earthwarden);
