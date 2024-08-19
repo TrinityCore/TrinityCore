@@ -113,6 +113,7 @@ enum DruidSpells
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
     SPELL_DRUID_SPRING_BLOSSOMS                = 207385,
     SPELL_DRUID_SPRING_BLOSSOMS_HEAL           = 207386,
+    SPELL_DRUID_STAR_BURST                     = 356474,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
@@ -1478,6 +1479,26 @@ class spell_dru_starfall_dummy : public SpellScript
     }
 };
 
+// 202347 - Stellar Flare
+class spell_dru_stellar_flare : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STAR_BURST });
+    }
+
+    void HandleDispel(DispelInfo* dispelInfo)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(dispelInfo->GetDispeller(), SPELL_DRUID_STAR_BURST, true);
+    }
+
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(spell_dru_stellar_flare::HandleDispel);
+    }
+};
+
 // 340694 - Sudden Ambush
 // 384667 - Sudden Ambush
 class spell_dru_sudden_ambush : public AuraScript
@@ -2116,6 +2137,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_spring_blossoms);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
+    RegisterSpellScript(spell_dru_stellar_flare);
     RegisterSpellScript(spell_dru_sudden_ambush);
     RegisterSpellScript(spell_dru_sunfire);
     RegisterSpellScript(spell_dru_survival_instincts);
