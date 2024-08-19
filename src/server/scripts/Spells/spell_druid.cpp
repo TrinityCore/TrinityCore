@@ -2242,9 +2242,9 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_moonfire);
-    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_full_moon", Optional<DruidSpells>(), Optional(SPELL_DRUID_HALF_MOON_OVERRIDE));
-    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_half_moon", Optional(SPELL_DRUID_HALF_MOON_OVERRIDE), Optional(SPELL_DRUID_NEW_MOON_OVERRIDE));
-    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_new_moon", Optional(SPELL_DRUID_NEW_MOON_OVERRIDE), Optional<DruidSpells>());
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_full_moon", Optional<DruidSpells>(), Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_half_moon", Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE), Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_new_moon", Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE), Optional<DruidSpells>());
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
