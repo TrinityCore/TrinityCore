@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Battleground.h"
@@ -595,7 +594,6 @@ struct at_bg_temple_of_kotmogu_small_area : AreaTriggerAI
 private:
     std::unordered_map<ObjectGuid, uint32 /*milliseconds*/> _totalTimeInAreaWithOrb;
 };
-
 
 struct at_bg_temple_of_kotmogu_medium_area : AreaTriggerAI
 {
