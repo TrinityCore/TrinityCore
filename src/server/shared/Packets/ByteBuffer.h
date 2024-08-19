@@ -633,16 +633,13 @@ class TC_SHARED_API ByteBuffer
 /// @todo Make a ByteBuffer.cpp and move all this inlining to it.
 template<> inline std::string ByteBuffer::read<std::string>()
 {
-    std::string tmp;
-    *this >> tmp;
-    return tmp;
+    return std::string(ReadCString());
 }
 
 template<>
 inline void ByteBuffer::read_skip<char*>()
 {
-    std::string temp;
-    *this >> temp;
+    (void)ReadCString();
 }
 
 template<>

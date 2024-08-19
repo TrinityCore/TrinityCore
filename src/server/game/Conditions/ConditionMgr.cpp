@@ -43,7 +43,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RaceMask.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -3396,7 +3396,7 @@ static int32(* const WorldStateExpressionFunctions[WSE_FUNCTION_MAX])(Map const*
     // WSE_FUNCTION_REGION
     [](Map const* /*map*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
     {
-        return realm.Id.Region;
+        return sRealmList->GetCurrentRealmId().Region;
     },
 
     // WSE_FUNCTION_CLOCK_HOUR
@@ -3444,7 +3444,7 @@ static int32(* const WorldStateExpressionFunctions[WSE_FUNCTION_MAX])(Map const*
     {
         time_t now = GameTime::GetGameTime();
         uint32 raidOrigin = 1135695600;
-        if (Cfg_RegionsEntry const* region = sCfgRegionsStore.LookupEntry(realm.Id.Region))
+        if (Cfg_RegionsEntry const* region = sCfgRegionsStore.LookupEntry(sRealmList->GetCurrentRealmId().Region))
             raidOrigin = region->Raidorigin;
 
         return (now - raidOrigin) / WEEK;
