@@ -910,21 +910,6 @@ class spell_dru_forms_trinket : public AuraScript
     }
 };
 
-// 274283 - Full Moon
-class spell_dru_full_moon : public SpellScript
-{
-    void OverrideMoon()
-    {
-        Unit* caster = GetCaster();
-        caster->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
-    }
-
-    void Register() override
-    {
-        AfterCast += SpellCastFn(spell_dru_full_moon::OverrideMoon);
-    }
-};
-
 // 203964 - Galactic Guardian
 class spell_dru_galactic_guardian : public AuraScript
 {
@@ -1046,22 +1031,6 @@ class spell_dru_gore : public AuraScript
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_gore::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_gore::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-// 274282 - Half Moon
-class spell_dru_half_moon : public SpellScript
-{
-    void OverrideMoon()
-    {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_DRUID_HALF_MOON_OVERRIDE, TRIGGERED_FULL_MASK);
-        caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
-    }
-
-    void Register() override
-    {
-        AfterCast += SpellCastFn(spell_dru_half_moon::OverrideMoon);
     }
 };
 
@@ -1328,19 +1297,41 @@ class spell_dru_moonfire : public SpellScript
     }
 };
 
+// 274283 - Full Moon
+// 274282 - Half Moon
 // 274281 - New Moon
 class spell_dru_new_moon : public SpellScript
 {
-    void OverrideMoon()
+public:
+    explicit spell_dru_new_moon(Optional<uint32> newOverrideSpell, Optional<uint32> removeOverrideSpell)
+        : _newOverrideSpell(newOverrideSpell), _removeOverrideSpell(removeOverrideSpell) { }
+
+private:
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return (!_newOverrideSpell || ValidateSpellInfo({ *_newOverrideSpell }))
+            && (!_removeOverrideSpell || ValidateSpellInfo({ *_removeOverrideSpell }));
+    }
+
+    void OverrideMoon() const
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_DRUID_NEW_MOON_OVERRIDE, TRIGGERED_FULL_MASK);
+        if (_newOverrideSpell)
+            caster->CastSpell(caster, *_newOverrideSpell, CastSpellExtraArgs()
+                .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                .SetTriggeringSpell(GetSpell()));
+
+        if (_removeOverrideSpell)
+            caster->RemoveAurasDueToSpell(*_removeOverrideSpell);
     }
 
     void Register() override
     {
         AfterCast += SpellCastFn(spell_dru_new_moon::OverrideMoon);
     }
+
+    Optional<uint32> _newOverrideSpell;
+    Optional<uint32> _removeOverrideSpell;
 };
 
 // 16864 - Omen of Clarity
@@ -2237,12 +2228,10 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
-    RegisterSpellScript(spell_dru_full_moon);
     RegisterSpellScript(spell_dru_galactic_guardian);
     RegisterSpellScript(spell_dru_germination);
     RegisterSpellScript(spell_dru_glyph_of_stars);
     RegisterSpellScript(spell_dru_gore);
-    RegisterSpellScript(spell_dru_half_moon);
     RegisterSpellScript(spell_dru_incapacitating_roar);
     RegisterSpellScript(spell_dru_incarnation);
     RegisterSpellScript(spell_dru_incarnation_tree_of_life);
@@ -2253,7 +2242,9 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_moonfire);
-    RegisterSpellScript(spell_dru_new_moon);
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_full_moon", Optional<DruidSpells>(), Optional(SPELL_DRUID_HALF_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_half_moon", Optional(SPELL_DRUID_HALF_MOON_OVERRIDE), Optional(SPELL_DRUID_NEW_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_new_moon", Optional(SPELL_DRUID_NEW_MOON_OVERRIDE), Optional<DruidSpells>());
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
