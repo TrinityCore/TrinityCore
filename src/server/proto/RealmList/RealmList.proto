@@ -46,6 +46,11 @@ message RealmCharacterCountList {
   repeated RealmCharacterCountEntry counts = 1;
 }
 
+message RealmListRAFInfo {
+  required fixed32 wowRealmAddress = 1;
+  required uint32 faction = 2;
+}
+
 message RealmEntry {
   required fixed32 wowRealmAddress = 1;
   required uint32 cfgTimezonesID = 2;
@@ -59,13 +64,14 @@ message RealmEntry {
   required uint32 cfgLanguagesID = 10;
 }
 
-message RealmState {
-  optional RealmEntry update = 1;
-  required bool deleting = 2;
+message RealmListUpdatePart {
+  required fixed32 wowRealmAddress = 1;
+  optional RealmEntry update = 2;
+  required bool deleting = 3;
 }
 
 message RealmListUpdates {
-  repeated RealmState updates = 1;
+  repeated RealmListUpdatePart updates = 1;
 }
 
 message IPAddress {

@@ -20,10 +20,8 @@
 #include "IpAddress.h"
 #include "Log.h"
 #include "ProtobufJSON.h"
-#include "Realm.h"
 #include "RealmList.h"
 #include "RealmList.pb.h"
-#include "World.h"
 #include <zlib.h>
 
 std::unordered_map<std::string, Battlenet::Services::GameUtilitiesService::ClientRequestHandler> const Battlenet::Services::GameUtilitiesService::ClientRequestHandlers =
@@ -89,7 +87,7 @@ uint32 Battlenet::Services::GameUtilitiesService::HandleRealmListRequest(std::un
     if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1"))
         subRegionId = subRegion->string_value();
 
-    std::vector<uint8> compressed = sRealmList->GetRealmList(realm.Build, subRegionId);
+    std::vector<uint8> compressed = sRealmList->GetRealmList(_session->GetClientBuild(), _session->GetSecurity(), subRegionId);
 
     if (compressed.empty())
         return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
@@ -125,8 +123,8 @@ uint32 Battlenet::Services::GameUtilitiesService::HandleRealmListRequest(std::un
 uint32 Battlenet::Services::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     if (Variant const* realmAddress = GetParam(params, "Param_RealmAddress"))
-        return sRealmList->JoinRealm(uint32(realmAddress->uint_value()), realm.Build, Trinity::Net::make_address(_session->GetRemoteAddress()), _session->GetRealmListSecret(),
-            _session->GetSessionDbcLocale(), _session->GetOS(), _session->GetTimezoneOffset(), _session->GetAccountName(), response);
+        return sRealmList->JoinRealm(uint32(realmAddress->uint_value()), _session->GetClientBuild(), Trinity::Net::make_address(_session->GetRemoteAddress()), _session->GetRealmListSecret(),
+            _session->GetSessionDbcLocale(), _session->GetOS(), _session->GetTimezoneOffset(), _session->GetAccountName(), _session->GetSecurity(), response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
 }
