@@ -365,18 +365,22 @@ class spell_dru_celestial_alignment : public SpellScript
         });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void TriggerEclipses(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_SOLAR_AURA, TRIGGERED_FULL_MASK);
-        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_LUNAR_AURA, TRIGGERED_FULL_MASK);
-        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, TRIGGERED_FULL_MASK);
-        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, TRIGGERED_FULL_MASK);
+        CastSpellExtraArgs args;
+        args.SetTriggeringSpell(GetSpell());
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_SOLAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_LUNAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, args);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::TriggerEclipses, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
