@@ -129,7 +129,7 @@ namespace TempleOfKotmogu
         static constexpr uint32 LargeAura = 112054;
 
         // Achievement Powerball
-        //	Hold an Orb of Power in the center of the Temple of Kotmogu for 90 seconds.
+        // Hold an Orb of Power in the center of the Temple of Kotmogu for 90 seconds.
         static constexpr uint32 PowerballCredit = 128768; // serverside spell
 
         static constexpr uint32 HordeInsigniaVisual = 131528;
