@@ -8,7 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required(VERSION 3.24)
+if(WIN32)
+  cmake_minimum_required(VERSION 3.24) # required for querying windows registry with cmake_host_system_information
+else()
+  cmake_minimum_required(VERSION 3.22)
+endif()
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
