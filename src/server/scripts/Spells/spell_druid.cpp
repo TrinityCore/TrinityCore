@@ -1358,14 +1358,14 @@ class spell_dru_omen_of_clarity : public AuraScript
 // 113043 - Omen of Clarity
 class spell_dru_omen_of_clarity_restoration : public AuraScript
 {
-    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
-        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+        return roll_chance_i(aurEff->GetAmount());
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_dru_omen_of_clarity_restoration::CheckProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_omen_of_clarity_restoration::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
