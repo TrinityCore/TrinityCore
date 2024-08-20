@@ -406,6 +406,32 @@ class spell_rog_honor_among_thieves : public AuraScript
     }
 };
 
+// 5938 - Shiv
+class spell_rog_improved_shiv : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHIV_NATURE_DAMAGE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_IMPROVED_SHIV);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_SHIV_NATURE_DAMAGE, CastSpellExtraArgs()
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+            .SetTriggeringSpell(GetSpell()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_improved_shiv::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 51690 - Killing Spree
 class spell_rog_killing_spree_aura : public AuraScript
 {
@@ -747,27 +773,6 @@ private:
     bool _hasPremeditationAura = false;
 };
 
-// 5938 - Shiv
-class spell_rog_shiv : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ROGUE_SHIV_NATURE_DAMAGE });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (caster->HasAura(SPELL_ROGUE_IMPROVED_SHIV))
-            caster->CastSpell(GetHitUnit(), SPELL_ROGUE_SHIV_NATURE_DAMAGE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_rog_shiv::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 // 193315 - Sinister Strike
 class spell_rog_sinister_strike : public SpellScript
 {
@@ -1069,6 +1074,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_eviscerate);
     RegisterSpellScript(spell_rog_grand_melee);
     RegisterSpellScript(spell_rog_honor_among_thieves);
+    RegisterSpellScript(spell_rog_improved_shiv);
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
     RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
@@ -1079,7 +1085,6 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_rupture);
     RegisterSpellScript(spell_rog_ruthlessness);
     RegisterSpellScript(spell_rog_shadowstrike);
-    RegisterSpellScript(spell_rog_shiv);
     RegisterSpellScript(spell_rog_sinister_strike);
     RegisterSpellScript(spell_rog_stealth);
     RegisterSpellScript(spell_rog_symbols_of_death);
