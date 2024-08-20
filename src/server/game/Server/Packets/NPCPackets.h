@@ -67,6 +67,7 @@ namespace WorldPackets
             GossipOptionRewardType Type = GossipOptionRewardType(0);
             int32 ID = 0;
             int32 Quantity = 0;
+            int8 ItemContext = 0;
         };
 
         struct TreasureLootList
@@ -97,6 +98,7 @@ namespace WorldPackets
             int32 QuestID = 0;
             int32 ContentTuningID = 0;
             int32 QuestType = 0;
+            int32 Unused1102 = 0;
             bool Repeatable = false;
             bool ResetByScheduler = false;
             bool Important = false;

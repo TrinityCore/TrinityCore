@@ -40,7 +40,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
@@ -1781,7 +1781,7 @@ public:
 
         // Query the prepared statement for login data
         LoginDatabasePreparedStatement* stmt2 = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        stmt2->setInt32(0, int32(realm.Id.Realm));
+        stmt2->setInt32(0, int32(sRealmList->GetCurrentRealmId().Realm));
         stmt2->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt2);
 

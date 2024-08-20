@@ -591,6 +591,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 
     offer.QuestID = quest->GetQuestId();
     offer.AutoLaunched = autoLaunched;
+    offer.ResetByScheduler = quest->IsResetByScheduler();
     offer.SuggestedPartyMembers = quest->GetSuggestedPlayers();
     offer.QuestInfoID = quest->GetQuestInfoID();
 
@@ -693,6 +694,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     }
 
     packet.AutoLaunched = autoLaunched;
+    packet.ResetByScheduler = quest->IsResetByScheduler();
 
     _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());

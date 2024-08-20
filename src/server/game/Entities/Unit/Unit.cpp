@@ -12562,6 +12562,11 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
             GetMap()->PlayerRelocation(ToPlayer(), x, y, z, orientation);
         else
             GetMap()->CreatureRelocation(ToCreature(), x, y, z, orientation);
+
+        AuraEffectList& controlZoneAuras = GetAuraEffectsByType(SPELL_AURA_ACT_AS_CONTROL_ZONE);
+        for (AuraEffect const* auraEffect : controlZoneAuras)
+            if (GameObject* controlZone = GetGameObject(auraEffect->GetSpellInfo()->Id))
+                GetMap()->GameObjectRelocation(controlZone, x, y, z, orientation);
     }
     else if (turn)
         UpdateOrientation(orientation);
