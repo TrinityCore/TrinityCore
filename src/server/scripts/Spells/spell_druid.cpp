@@ -55,6 +55,9 @@ enum DruidSpells
     SPELL_DRUID_BRAMBLES_REFLECT               = 203958,
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_CELESTIAL_ALIGNMENT            = 194223,
+    SPELL_DRUID_CELESTIAL_ALIGNMENT_AREA       = 383410,
+    SPELL_DRUID_CELESTIAL_ALIGNMENT_AT         = 390381,
     SPELL_DRUID_CULTIVATION                    = 200390,
     SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
@@ -171,31 +174,6 @@ class spell_dru_abundance : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// Called by 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
-class spell_dru_astral_communion : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_DRUID_ASTRAL_COMMUNION_TALENT,
-            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE
-        });
-    }
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-        if (target->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT))
-            target->CastSpell(target, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, TRIGGERED_FULL_MASK);
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_dru_astral_communion::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -393,8 +371,16 @@ class spell_dru_celestial_alignment : public SpellScript
             SPELL_DRUID_ECLIPSE_SOLAR_AURA,
             SPELL_DRUID_ECLIPSE_LUNAR_AURA,
             SPELL_DRUID_ECLIPSE_VISUAL_SOLAR,
-            SPELL_DRUID_ECLIPSE_VISUAL_LUNAR
+            SPELL_DRUID_ECLIPSE_VISUAL_LUNAR,
+            SPELL_DRUID_ASTRAL_COMMUNION_TALENT,
+            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE
         });
+    }
+
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    {
+        // To-Do: Handle areatrigger stuff
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_DRUID_CELESTIAL_ALIGNMENT_AT, TRIGGERED_FULL_MASK);
     }
 
     void TriggerEclipses(SpellEffIndex /*effIndex*/) const
@@ -408,11 +394,20 @@ class spell_dru_celestial_alignment : public SpellScript
         caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_LUNAR_AURA, args);
         caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, args);
         caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, args);
+
+        if (caster->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT))
+            caster->CastSpell(caster, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, args);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::TriggerEclipses, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        if (m_scriptSpellId == SPELL_DRUID_CELESTIAL_ALIGNMENT)
+            OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::TriggerEclipses, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        else if (m_scriptSpellId == SPELL_DRUID_CELESTIAL_ALIGNMENT_AREA)
+        {
+            OnEffectHit += SpellEffectFn(spell_dru_celestial_alignment::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::TriggerEclipses, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        }
     }
 };
 
@@ -539,8 +534,15 @@ class spell_dru_eclipse_dummy : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT,
-            SPELL_DRUID_ECLIPSE_SOLAR_AURA, SPELL_DRUID_ECLIPSE_LUNAR_AURA });
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT,
+            SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT,
+            SPELL_DRUID_ECLIPSE_SOLAR_AURA,
+            SPELL_DRUID_ECLIPSE_LUNAR_AURA,
+            SPELL_DRUID_ASTRAL_COMMUNION_TALENT,
+            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE
+        });
     }
 
     void HandleProc(ProcEventInfo& eventInfo)
@@ -596,6 +598,9 @@ private:
             {
                 // cast eclipse
                 target->CastSpell(target, eclipseAuraSpellId, TRIGGERED_FULL_MASK);
+
+                if (target->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT))
+                    target->CastSpell(target, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, true);
 
                 // Remove stacks from other one as well
                 // reset remaining power on other spellId
@@ -2234,7 +2239,6 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_abundance);
-    RegisterSpellScript(spell_dru_astral_communion);
     RegisterSpellScript(spell_dru_astral_smolder);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
