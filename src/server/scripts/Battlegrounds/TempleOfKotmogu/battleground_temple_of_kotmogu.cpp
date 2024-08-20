@@ -609,9 +609,6 @@ struct at_bg_temple_of_kotmogu_medium_area : AreaTriggerAI
     {
         unit->RemoveAurasDueToSpell(TempleOfKotmogu::Spells::MediumAura);
     }
-
-private:
-    std::unordered_map<ObjectGuid, uint32 /*milliseconds*/> _totalTimeInAreaWithOrb;
 };
 
 void AddSC_battleground_temple_of_kotmogu()
