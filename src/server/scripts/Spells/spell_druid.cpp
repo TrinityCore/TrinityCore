@@ -362,6 +362,7 @@ class spell_dru_cat_form : public AuraScript
 };
 
 // 194223 - Celestial Alignment
+// 383410 - Celestial Alignment
 class spell_dru_celestial_alignment : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -373,7 +374,8 @@ class spell_dru_celestial_alignment : public SpellScript
             SPELL_DRUID_ECLIPSE_VISUAL_SOLAR,
             SPELL_DRUID_ECLIPSE_VISUAL_LUNAR,
             SPELL_DRUID_ASTRAL_COMMUNION_TALENT,
-            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE
+            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE,
+            SPELL_DRUID_CELESTIAL_ALIGNMENT_AT
         });
     }
 
