@@ -106,10 +106,52 @@ if(UNIX)
   endif(MYSQL_CONFIG)
 endif(UNIX)
 
+set(_MYSQL_ROOT_PATHS)
+
 if(WIN32)
   # read environment variables and change \ to /
   file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" PROGRAM_FILES_32)
   file(TO_CMAKE_PATH "$ENV{ProgramW6432}" PROGRAM_FILES_64)
+
+  set(_MYSQL_ROOT_HINTS
+    ${_MYSQL_ROOT_HINTS}
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.3;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.2;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.1;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.0;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.7;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.3;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.2;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.1;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.0;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.7;Location]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5 (x64);INSTALLDIR]"
+  )
+
+  set(_MYSQL_ROOT_PATHS
+    ${_MYSQL_ROOT_PATHS}
+    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.3"
+    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.2"
+    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.1"
+    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.0"
+    "${PROGRAM_FILES_64}/MySQL/MySQL Server 5.7"
+    "${PROGRAM_FILES_64}/MySQL"
+    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.3"
+    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.2"
+    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.1"
+    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.0"
+    "${PROGRAM_FILES_32}/MySQL/MySQL Server 5.7"
+    "${PROGRAM_FILES_32}/MySQL"
+    "$ENV{SystemDrive}/MySQL/MySQL Server 8.3"
+    "$ENV{SystemDrive}/MySQL/MySQL Server 8.2"
+    "$ENV{SystemDrive}/MySQL/MySQL Server 8.1"
+    "$ENV{SystemDrive}/MySQL/MySQL Server 8.0"
+    "$ENV{SystemDrive}/MySQL/MySQL Server 5.7"
+    "$ENV{SystemDrive}/MySQL"
+  )
 endif(WIN32)
 
 find_path(MYSQL_INCLUDE_DIR
@@ -124,40 +166,7 @@ find_path(MYSQL_INCLUDE_DIR
     /usr/local/include
     /usr/local/include/mysql
     /usr/local/mysql/include
-    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.3"
-    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.2"
-    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.1"
-    "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.0"
-    "${PROGRAM_FILES_64}/MySQL/MySQL Server 5.7"
-    "${PROGRAM_FILES_64}/MySQL"
-    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.3"
-    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.2"
-    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.1"
-    "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.0"
-    "${PROGRAM_FILES_32}/MySQL/MySQL Server 5.7"
-    "${PROGRAM_FILES_32}/MySQL"
-    "C:/MySQL"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.3;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.2;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.1;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.0;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.7;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.3;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.2;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.1;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.0;Location]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.7;Location]"
-    "$ENV{SystemDrive}/MySQL/MySQL Server 8.3"
-    "$ENV{SystemDrive}/MySQL/MySQL Server 8.2"
-    "$ENV{SystemDrive}/MySQL/MySQL Server 8.1"
-    "$ENV{SystemDrive}/MySQL/MySQL Server 8.0"
-    "$ENV{SystemDrive}/MySQL/MySQL Server 5.7"
-    "c:/msys/local/include"
-    "$ENV{MYSQL_ROOT}"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5 (x64);INSTALLDIR]"
+	${_MYSQL_ROOT_PATHS}
   PATH_SUFFIXES
     include
     include/mysql
@@ -190,40 +199,7 @@ if(WIN32)
       ${_MYSQL_ROOT_HINTS}
     PATHS
       ${MYSQL_ADD_LIBRARIES_PATH}
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.3"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.2"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.1"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.0"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 5.7"
-      "${PROGRAM_FILES_64}/MySQL/lib"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.3"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.2"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.1"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.0"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 5.7"
-      "${PROGRAM_FILES_32}/MySQL/lib"
-      "C:/MySQL/lib/debug"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.3;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.2;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.1;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.0;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.7;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.3;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.2;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.1;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.0;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.7;Location]"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.3"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.2"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.1"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.0"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 5.7"
-      "c:/msys/local/lib"
-      "$ENV{MYSQL_ROOT}"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5 (x64);INSTALLDIR]"
+      ${_MYSQL_ROOT_PATHS}
     PATH_SUFFIXES
       lib
       lib/opt
@@ -265,40 +241,7 @@ if(WIN32)
     HINTS
       ${_MYSQL_ROOT_HINTS}
     PATHS
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.3"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.2"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.1"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.0"
-      "${PROGRAM_FILES_64}/MySQL/MySQL Server 5.7"
-      "${PROGRAM_FILES_64}/MySQL"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.3"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.2"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.1"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.0"
-      "${PROGRAM_FILES_32}/MySQL/MySQL Server 5.7"
-      "${PROGRAM_FILES_32}/MySQL"
-      "C:/MySQL/bin/debug"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.3;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.2;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.1;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.0;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.7;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.3;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.2;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.1;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.0;Location]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.7;Location]"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.3"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.2"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.1"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 8.0"
-      "$ENV{SystemDrive}/MySQL/MySQL Server 5.7"
-      "c:/msys/local/bin"
-      "$ENV{MYSQL_ROOT}"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5 (x64);INSTALLDIR]"
+      ${_MYSQL_ROOT_PATHS}
     PATH_SUFFIXES
       bin
       bin/opt
