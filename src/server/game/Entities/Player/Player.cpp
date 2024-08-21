@@ -7471,12 +7471,18 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         ApplyItemModModifier(static_cast<ItemModType>(statType), val, apply);
     }
 
+    for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        if (int16 resistance = proto->GetResistance(SpellSchools(i)))
+            HandleStatFlatModifier(UnitMods(UNIT_MOD_ARMOR + i), BASE_VALUE, float(resistance), apply);
+
+    /*
     if (uint32 armor = proto->GetArmor(itemLevel))
     {
         HandleStatFlatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(armor), apply);
         if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() == ITEM_SUBCLASS_ARMOR_SHIELD)
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), apply ? int32(armor * 2.5f) : 0);
     }
+    */
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
     if (attType != MAX_ATTACK)

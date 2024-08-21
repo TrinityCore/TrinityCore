@@ -864,6 +864,7 @@ struct TC_GAME_API ItemTemplate
     uint16 GetItemRandomSuffixGroupID() const { return ExtendedData->ItemRandomSuffixGroupID; }
     int32 GetMinDamage(uint8 index) const { return BasicData->MinDamage[index]; }
     int32 GetMaxDamage(uint8 index) const { return BasicData->MaxDamage[index]; }
+    int16 GetResistance(SpellSchools school) const { return ExtendedData->Resistances[school]; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;
@@ -916,7 +917,6 @@ struct TC_GAME_API ItemTemplate
     inline bool HasFlag(ItemFlagsCustom customFlag) const { return (FlagsCu & customFlag) != 0; }
 
     char const* GetDefaultLocaleName() const;
-    uint32 GetArmor(uint32 itemLevel) const;
     float GetDPS(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
     bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;
