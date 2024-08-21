@@ -21,7 +21,7 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=1 AND `Id` BETWEEN @ATPROPERTIESID+0 AND @ATPROPERTIESID+2);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `SpellForVisuals`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATPROPERTIESID+0, 1, 20901, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 294534, 'at_bg_temple_of_kotmogu_healing_buff', 56008), -- 294534 (PvP Rune Rejuv Visual) (Area: Temple of Kotmogu - Difficulty: 0)
+(@ATPROPERTIESID+0, 1, 20901, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 294534, 'at_bg_temple_of_kotmogu_healing_buff', 0), -- 294534 (PvP Rune Rejuv Visual) (Area: Temple of Kotmogu - Difficulty: 0)
 (@ATPROPERTIESID+1, 1, @ATID+0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 33, 47, 5, 33, 47, 5, 0, 0, 0, 'at_bg_temple_of_kotmogu_small_area', 0),
 (@ATPROPERTIESID+2, 1, @ATID+1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 50, 50, 0, 0, 0, 0, 0, 0, 0, 'at_bg_temple_of_kotmogu_medium_area', 0);
 
