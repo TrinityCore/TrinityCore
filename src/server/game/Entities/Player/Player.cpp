@@ -4844,6 +4844,21 @@ void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing
     //nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
 }
 
+float Player::GetSpellCritFromIntellect() const
+{
+    float critBase = GetGameTableColumnForClass(sChanceToSpellCritBaseGameTable.GetRow(1), GetClass());
+    float critRatio = [&]()
+    {
+        GtChanceToSpellCritEntry const* critRatio = sChanceToSpellCritGameTable.GetRow(GetLevel());
+        if (!critRatio)
+            return 0.0f;
+
+        return GetGameTableColumnForClass(critRatio, GetClass());
+    }();
+
+    return (critBase + GetStat(STAT_INTELLECT) * critRatio) * 100.0f;
+}
+
 inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, CombatRating combatRating)
 {
     switch (combatRating)
@@ -4994,7 +5009,7 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_CRIT_SPELL:
             if (affectStats)
-                UpdateSpellCritChance();
+                UpdateAllSpellCritChances();
             break;
         case CR_CORRUPTION:
         case CR_CORRUPTION_RESISTANCE:

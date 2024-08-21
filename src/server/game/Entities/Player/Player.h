@@ -2038,6 +2038,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing) const;
+        float GetSpellCritFromIntellect() const;
         float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
 
@@ -2057,7 +2058,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
 
-        void UpdateSpellCritChance();
+        void UpdateAllSpellCritChances();
+        void UpdateSpellCritChance(SpellSchools school);
         void UpdateCorruption();
         void UpdateArmorPenetration(int32 amount);
         void UpdateExpertise(WeaponAttackType attType);

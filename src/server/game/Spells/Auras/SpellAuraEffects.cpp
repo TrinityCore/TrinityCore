@@ -621,7 +621,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //549 formerly SPELL_AURA_46 - Ignore all gear test spells
     &AuraEffect::HandleNULL,                                      //550
     &AuraEffect::HandleNULL,                                      //551
-    &AuraEffect::HandleNULL,                                      //552
+    &AuraEffect::HandleModSpellCritChanceSchool,                  //552 SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
     &AuraEffect::HandleModPowerCost,                              //553 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNULL,                                      //554
     &AuraEffect::HandleNULL,                                      //555
@@ -4299,7 +4299,7 @@ void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 m
     Unit* target = aurApp->GetTarget();
 
     if (target->GetTypeId() == TYPEID_PLAYER)
-        target->ToPlayer()->UpdateSpellCritChance();
+        target->ToPlayer()->UpdateAllCritPercentages();
     else
         target->m_baseSpellCritChance += apply ? GetAmount() : -GetAmount();
 }
@@ -4320,7 +4320,20 @@ void AuraEffect::HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode,
     target->ToPlayer()->UpdateAllWeaponDependentCritAuras();
 
     // included in Player::UpdateSpellCritChance calculation
-    target->ToPlayer()->UpdateSpellCritChance();
+    target->ToPlayer()->UpdateAllCritPercentages();
+}
+
+void AuraEffect::HandleModSpellCritChanceSchool(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+            if (GetMiscValue() & (1 << i))
+                target->ToPlayer()->UpdateSpellCritChance(SpellSchools(i));
 }
 
 /********************************/
