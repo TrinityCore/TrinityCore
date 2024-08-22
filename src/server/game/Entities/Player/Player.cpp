@@ -22577,13 +22577,13 @@ void Player::SendSpellModifiers() const
             case SPELLMOD_PCT:
                 if (!pctModifier || pctModifier->ModIndex != uint8(mod->op))
                 {
-                    pctModifier = &flatMods.Modifiers.emplace_back();
+                    pctModifier = &pctMods.Modifiers.emplace_back();
                     pctModifier->ModIndex = uint8(mod->op);
                 }
                 boost::from_block_range(&static_cast<SpellModifierByClassMask const*>(mod)->mask[0], &static_cast<SpellModifierByClassMask const*>(mod)->mask[0] + 4, mask);
                 for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
-                    float& modifierValue = getOrCreateModifierData(pctModifier->ModifierData, classIndex, 0.0f);
+                    float& modifierValue = getOrCreateModifierData(pctModifier->ModifierData, classIndex, 1.0f);
                     modifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(mod)->value);
                 }
                 break;
