@@ -890,7 +890,6 @@ WorldPacket const* MirrorImageComponentedData::Write()
 {
     _worldPacket << UnitGUID;
     _worldPacket << int32(DisplayID);
-    _worldPacket << int32(SpellVisualKitID);
     _worldPacket << uint8(RaceID);
     _worldPacket << uint8(Gender);
     _worldPacket << uint8(ClassID);

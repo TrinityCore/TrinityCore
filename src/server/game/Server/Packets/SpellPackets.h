@@ -878,7 +878,6 @@ namespace WorldPackets
 
             ObjectGuid UnitGUID;
             int32 DisplayID = 0;
-            int32 SpellVisualKitID = 0;
             uint8 RaceID = 0;
             uint8 Gender = 0;
             uint8 ClassID = 0;

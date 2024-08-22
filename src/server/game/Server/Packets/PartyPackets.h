@@ -70,6 +70,7 @@ namespace WorldPackets
             bool MustBeBNetFriend = false;
             bool AllowMultipleRoles = false;
             bool QuestSessionActive = false;
+            bool Unused440 = false;
             uint16 Unk1 = 0;
 
             bool CanAccept = false;
@@ -212,8 +213,6 @@ namespace WorldPackets
             int8 PartyType[2] = { };
 
             CTROptions ChromieTime;
-
-            MythicPlus::DungeonScoreSummary DungeonScore;
         };
 
         class PartyMemberFullState final : public ServerPacket
