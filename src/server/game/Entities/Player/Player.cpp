@@ -7456,8 +7456,6 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
-    uint32 itemLevel = item->GetItemLevel(this);
-
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
         int32 statType = item->GetItemStatType(i);
