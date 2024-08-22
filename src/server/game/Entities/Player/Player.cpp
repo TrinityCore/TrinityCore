@@ -14104,7 +14104,11 @@ void Player::IncompleteQuest(uint32 quest_id)
 
 uint32 Player::GetQuestMoneyReward(Quest const* quest) const
 {
-    return quest->GetMoneyReward(this) * sWorld->getRate(RATE_MONEY_QUEST);
+    uint32 moneyReward = quest->GetMoneyReward(this) * sWorld->getRate(RATE_MONEY_QUEST);
+    if (IsMaxLevel())
+        moneyReward += quest->GetRewMoneyMaxLevel(this) * sWorld->getRate(RATE_MONEY_MAX_LEVEL_QUEST);
+
+    return moneyReward;
 }
 
 uint32 Player::GetQuestXPReward(Quest const* quest)
@@ -14328,14 +14332,10 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     uint32 XP = GetQuestXPReward(quest);
 
-    int32 moneyRew = 0;
     if (!IsMaxLevel())
         GiveXP(XP, nullptr);
-    else
-        moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
 
-    moneyRew += GetQuestMoneyReward(quest);
-
+    int32 moneyRew = GetQuestMoneyReward(quest);
     if (moneyRew)
     {
         ModifyMoney(moneyRew);
@@ -16216,23 +16216,11 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
     uint32 questId = quest->GetQuestId();
     sGameEventMgr->HandleQuestComplete(questId);
 
-    uint32 moneyReward;
-
-    if (!IsMaxLevel())
-    {
-        moneyReward = GetQuestMoneyReward(quest);
-    }
-    else // At max level, increase gold reward
-    {
-        xp = 0;
-        moneyReward = uint32(GetQuestMoneyReward(quest) + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
-    }
-
     WorldPackets::Quest::QuestGiverQuestComplete packet;
 
     packet.QuestID = questId;
-    packet.MoneyReward = moneyReward;
-    packet.XPReward = xp;
+    packet.MoneyReward = GetQuestMoneyReward(quest);
+    packet.XPReward = IsMaxLevel() ? 0 : xp;
     packet.SkillLineIDReward = quest->GetRewardSkillId();
     packet.NumSkillUpsReward = quest->GetRewardSkillPoints();
 

@@ -532,7 +532,7 @@ class TC_GAME_API Quest
         void LoadConditionalConditionalQuestCompletionLog(Field* fields);
 
         uint32 XPValue(Player const* player) const;
-        static uint32 XPValue(Player const* player, uint32 questLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier = 1.0f);
+        static uint32 XPValue(uint8 playerLevel, uint32 questLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier = 1.0f);
         uint32 GetMoneyReward(Player const* player) const;
         Optional<QuestTagType> GetQuestTag() const;
         bool IsImportant() const;
@@ -610,7 +610,7 @@ class TC_GAME_API Quest
         uint32 GetArtifactXPDifficulty() const { return _rewardArtifactXPDifficulty; }
         float GetArtifactXPMultiplier() const { return _rewardArtifactXPMultiplier; }
         uint32 GetArtifactCategoryId() const { return _rewardArtifactCategoryID; }
-        uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
+        uint32 GetRewMoneyMaxLevel(Player const* player = nullptr) const;
         uint32 GetRewSpell() const { return _rewardSpell; }
         uint32 GetRewMailTemplateId() const { return _rewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return _rewardMailDelay; }

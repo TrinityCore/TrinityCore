@@ -410,16 +410,16 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
 
 uint32 Quest::XPValue(Player const* player) const
 {
-    return XPValue(player, GetQuestLevelForPlayer(player) , _level, _rewardXPDifficulty, _rewardXPMultiplier);
+    return XPValue(player ? player->GetLevel() : 0, GetQuestLevelForPlayer(player), _level, _rewardXPDifficulty, _rewardXPMultiplier);
 }
 
-uint32 Quest::XPValue(Player const* player, uint32 questLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/)
+uint32 Quest::XPValue(uint8 playerLevel, uint32 questLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/)
 {
     QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
     if (!questXp || xpDifficulty >= 10)
         return 0;
 
-    int32 diffFactor = 2 * (questLevel - (unscaledQuestLevel == -1 ? 0 : -5) - (player ? player->GetLevel() : 0)) + 10;
+    int32 diffFactor = 2 * (questLevel - (unscaledQuestLevel == -1 ? 0 : -5) - playerLevel) + 10;
     if (diffFactor < 1)
         diffFactor = 1;
     else if (diffFactor > 10)
@@ -541,14 +541,19 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     }
 }
 
-uint32 Quest::GetRewMoneyMaxLevel() const
+uint32 Quest::GetRewMoneyMaxLevel(Player const* player /*= nullptr*/) const
 {
     // If Quest has flag to not give money on max level, it's 0
     if (HasFlag(QUEST_FLAGS_NO_MONEY_FOR_XP))
         return 0;
 
-    // Else, return the rewarded copper sum modified by the rate
-    return uint32(_rewardBonusMoney * sWorld->getRate(RATE_MONEY_MAX_LEVEL_QUEST));
+    uint32 maxQuestLevel = _level == -1 ? _maxScalingLevel : _level;
+
+    // Query initialization during startup does not provide a valid player so we just go for the expansion's max level
+    uint8 playerLevel = player ? player->GetLevel() : GetMaxLevelForExpansion(CURRENT_EXPANSION);
+
+    // The conversion rate is XP * 6 copper
+    return XPValue(playerLevel, maxQuestLevel, _level, _rewardXPDifficulty, _rewardXPMultiplier) * 6;
 }
 
 bool Quest::IsAutoAccept() const
@@ -677,7 +682,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
 
     response.Info.RewardMoneyDifficulty = GetRewMoneyDifficulty();
     response.Info.RewardMoneyMultiplier = GetMoneyMultiplier();
-    response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
+    response.Info.RewardBonusMoney = GetRewMoneyMaxLevel(player);
 
     for (uint8 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
         response.Info.RewardDisplaySpell[i] = RewardDisplaySpell[i].SpellId;
