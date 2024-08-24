@@ -1,3 +1,3 @@
-DELETE FROM `build_info` WHERE `build` IN (56288);
+DELETE FROM `build_info` WHERE `build` IN (56311);
 INSERT INTO `build_info` (`build`,`majorVersion`,`minorVersion`,`bugfixVersion`,`hotfixVersion`,`winAuthSeed`,`win64AuthSeed`,`mac64AuthSeed`, `macArmAuthSeed`, `winChecksumSeed`,`macChecksumSeed`) VALUES
-    (56288,11,0,2,NULL,NULL,'03544E35D0480938E5C1238B3A26BDDD',NULL,'41710C793EF021721F14B06EC1896D3F', NULL, NULL);
+(56311,11,0,2,NULL,NULL,'AC6415575AEE4D32735FFAD0C57226B2',NULL,'412D3200715AAFDC0522DF031A941F0E',NULL, NULL);
