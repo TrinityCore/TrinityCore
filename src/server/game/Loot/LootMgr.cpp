@@ -109,11 +109,13 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItem const* Roll(uint16 lootMode, Player const* personalLooter = nullptr) const;
 };
 
+LootStore::LootStore(LootStore&&) noexcept = default;
+LootStore& LootStore::operator=(LootStore&&) noexcept = default;
+LootStore::~LootStore() = default;
+
 //Remove all data and free all memory
 void LootStore::Clear()
 {
-    for (LootTemplateMap::const_iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
-        delete itr->second;
     m_LootTemplates.clear();
 }
 
@@ -129,8 +131,6 @@ void LootStore::Verify() const
 // All checks of the loaded template are called from here, no error reports at loot generation required
 uint32 LootStore::LoadLootTable()
 {
-    LootTemplateMap::const_iterator tab;
-
     // Clearing store (for reloading case)
     Clear();
 
@@ -156,12 +156,6 @@ uint32 LootStore::LoadLootTable()
         uint8  mincount            = fields[7].GetUInt8();
         uint8  maxcount            = fields[8].GetUInt8();
 
-        if (groupid >= 1 << 7)                                     // it stored in 7 bit field
-        {
-            TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: GroupId ({}) must be less {} - skipped", GetName(), entry, item, groupid, 1 << 7);
-            return 0;
-        }
-
         LootStoreItem* storeitem = new LootStoreItem(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
 
         if (!storeitem->IsValid(*this, entry))            // Validity checks
@@ -171,19 +165,9 @@ uint32 LootStore::LoadLootTable()
         }
 
         // Looking for the template of the entry
-                                                         // often entries are put together
-        if (m_LootTemplates.empty() || tab->first != entry)
-        {
-            // Searching the template (in case template Id changed)
-            tab = m_LootTemplates.find(entry);
-            if (tab == m_LootTemplates.end())
-            {
-                std::pair< LootTemplateMap::iterator, bool > pr = m_LootTemplates.insert(LootTemplateMap::value_type(entry, new LootTemplate()));
-                tab = pr.first;
-            }
-        }
-        // else is empty - template Id and iter are the same
-        // finally iter refers to already existed or just created <entry, LootTemplate>
+        auto [tab, isNew] = m_LootTemplates.try_emplace(entry);
+        if (isNew)
+            tab->second.reset(new LootTemplate());
 
         // Adds current row to the template
         tab->second->AddEntry(storeitem);
@@ -218,22 +202,12 @@ bool LootStore::HaveQuestLootForPlayer(uint32 loot_id, Player const* player) con
 
 LootTemplate const* LootStore::GetLootFor(uint32 loot_id) const
 {
-    LootTemplateMap::const_iterator tab = m_LootTemplates.find(loot_id);
-
-    if (tab == m_LootTemplates.end())
-        return nullptr;
-
-    return tab->second;
+    return Trinity::Containers::MapGetValuePtr(m_LootTemplates, loot_id);
 }
 
 LootTemplate* LootStore::GetLootForConditionFill(uint32 loot_id)
 {
-    LootTemplateMap::iterator tab = m_LootTemplates.find(loot_id);
-
-    if (tab == m_LootTemplates.end())
-        return nullptr;
-
-    return tab->second;
+    return Trinity::Containers::MapGetValuePtr(m_LootTemplates, loot_id);
 }
 
 uint32 LootStore::LoadAndCollectLootIds(LootIdSet& lootIdSet)
@@ -372,7 +346,7 @@ void LootTemplate::LootGroup::AddEntry(LootStoreItem* item)
 LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode, Player const* personalLooter /*= nullptr*/) const
 {
     LootStoreItemList possibleLoot = ExplicitlyChanced;
-    possibleLoot.remove_if(LootGroupInvalidSelector(lootMode, personalLooter));
+    Trinity::Containers::EraseIf(possibleLoot, LootGroupInvalidSelector(lootMode, personalLooter));
 
     if (!possibleLoot.empty())                             // First explicitly chanced entries are checked
     {
@@ -391,7 +365,7 @@ LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode, Player const
     }
 
     possibleLoot = EqualChanced;
-    possibleLoot.remove_if(LootGroupInvalidSelector(lootMode, personalLooter));
+    Trinity::Containers::EraseIf(possibleLoot, LootGroupInvalidSelector(lootMode, personalLooter));
     if (!possibleLoot.empty())                              // If nothing selected yet - an item is taken from equal-chanced part
         return Trinity::Containers::SelectRandomContainerElement(possibleLoot);
 
