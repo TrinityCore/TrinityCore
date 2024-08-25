@@ -137,7 +137,6 @@ class TC_GAME_API LootTemplate
         void Verify(LootStore const& store, uint32 Id) const;
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
         bool LinkConditions(ConditionId const& id, ConditionsReference reference);
-        bool isReference(uint32 id);
 
     private:
         LootStoreItemList Entries;                          // not grouped only

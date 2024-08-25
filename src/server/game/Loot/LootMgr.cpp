@@ -863,15 +863,6 @@ bool LootTemplate::LinkConditions(ConditionId const& id, ConditionsReference ref
     return false;
 }
 
-bool LootTemplate::isReference(uint32 id)
-{
-    for (LootStoreItemList::const_iterator ieItr = Entries.begin(); ieItr != Entries.end(); ++ieItr)
-        if ((*ieItr)->itemid == id && (*ieItr)->reference > 0)
-            return true;
-
-    return false;//not found or not reference
-}
-
 std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPersonalLoot(uint32 dungeonEncounterId, uint32 lootId, LootStore const& store,
     LootType type, WorldObject const* lootOwner, uint32 minMoney, uint32 maxMoney, uint16 lootMode, MapDifficultyEntry const* mapDifficulty,
     std::vector<Player*> const& tappers)
