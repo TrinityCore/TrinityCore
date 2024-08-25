@@ -58,7 +58,7 @@ struct TC_GAME_API LootStoreItem
     bool IsValid(LootStore const& store, uint32 entry) const; // Checks correctness of values
 };
 
-typedef std::vector<LootStoreItem*> LootStoreItemList;
+typedef std::vector<std::unique_ptr<LootStoreItem>> LootStoreItemList;
 typedef std::unordered_map<uint32, std::unique_ptr<LootTemplate>> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
@@ -107,10 +107,16 @@ class TC_GAME_API LootStore
 class TC_GAME_API LootTemplate
 {
     class LootGroup;                                       // A set of loot definitions for items (refs are not allowed inside)
-    typedef std::vector<LootGroup*> LootGroups;
+    typedef std::vector<std::unique_ptr<LootGroup>> LootGroups;
 
     public:
-        LootTemplate() { }
+        LootTemplate();
+
+        LootTemplate(LootTemplate const&) = delete;
+        LootTemplate(LootTemplate&&) noexcept;
+        LootTemplate& operator=(LootTemplate const&) = delete;
+        LootTemplate& operator=(LootTemplate&&) noexcept;
+
         ~LootTemplate();
 
         // Adds an entry to the group (at loading stage)
@@ -136,10 +142,6 @@ class TC_GAME_API LootTemplate
     private:
         LootStoreItemList Entries;                          // not grouped only
         LootGroups        Groups;                           // groups have own (optimised) processing, grouped entries go there
-
-        // Objects of this class must never be copied, we are storing pointers in container
-        LootTemplate(LootTemplate const&) = delete;
-        LootTemplate& operator=(LootTemplate const&) = delete;
 };
 
 std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPersonalLoot(uint32 dungeonEncounterId,
