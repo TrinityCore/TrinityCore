@@ -296,7 +296,8 @@ struct battleground_silvershard_mines final : BattlegroundScript
             battleground->AddPoint(ALLIANCE, allianceScoreToAdd);
 
             SendTeamScores();
-            context.Repeat();
+            if (!CheckWinner())
+                context.Repeat();
         });
     }
 
@@ -535,25 +536,15 @@ struct battleground_silvershard_mines final : BattlegroundScript
         {
             mineCart->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::CapturedByHorde);
             battleground->AddPoint(HORDE, scoreToAdd);
-            if (battlegroundMap->GetWorldStateValue(SilvershardMines::WorldStates::HordeCapturedMineCart) != 1)
-                UpdateWorldState(SilvershardMines::WorldStates::HordeCapturedMineCart, 1, true);
-            if (battleground->GetTeamScore(TEAM_HORDE) == SilvershardMines::Score::Max)
-            {
-                SendTeamScores();
-                battleground->EndBattleground(HORDE);
-            }
+            UpdateWorldState(SilvershardMines::WorldStates::HordeCapturedMineCart, 1, true);
+            CheckWinner();
         }
         else if (controlZone->GetControllingTeam() == TEAM_ALLIANCE)
         {
             mineCart->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::CapturedByAlliance);
             battleground->AddPoint(ALLIANCE, scoreToAdd);
-            if (battlegroundMap->GetWorldStateValue(SilvershardMines::WorldStates::AllianceCapturedMineCart) != 1)
-                UpdateWorldState(SilvershardMines::WorldStates::AllianceCapturedMineCart, 1, true);
-            if (battleground->GetTeamScore(TEAM_ALLIANCE) == SilvershardMines::Score::Max)
-            {
-                SendTeamScores();
-                battleground->EndBattleground(ALLIANCE);
-            }
+            UpdateWorldState(SilvershardMines::WorldStates::AllianceCapturedMineCart, 1, true);
+            CheckWinner();
         }
     }
 
@@ -614,6 +605,35 @@ struct battleground_silvershard_mines final : BattlegroundScript
             battleground->SendBroadcastText(broadcastTextId, CHAT_MSG_BG_SYSTEM_NEUTRAL, invoker);
     }
 
+    bool CheckWinner() const
+    {
+        uint32 const hordeScore = battleground->GetTeamScore(TEAM_HORDE);
+        uint32 const allianceScore = battleground->GetTeamScore(TEAM_ALLIANCE);
+        if (hordeScore >= SilvershardMines::Score::Max || allianceScore >= SilvershardMines::Score::Max)
+        {
+            SendTeamScores();
+
+            if (hordeScore >= SilvershardMines::Score::Max && allianceScore >= SilvershardMines::Score::Max)
+            {
+                battleground->EndBattleground(TEAM_OTHER);
+                return true;
+            }
+
+            if (hordeScore >= SilvershardMines::Score::Max)
+            {
+                battleground->EndBattleground(HORDE);
+                return true;
+            }
+
+            if (allianceScore >= SilvershardMines::Score::Max)
+            {
+                battleground->EndBattleground(ALLIANCE);
+                return true;
+            }
+        }
+
+        return false;
+    }
 private:
     TaskScheduler _scheduler;
     GuidVector _doors;
