@@ -277,7 +277,8 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 {
     if (mincount == 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: wrong MinCount ({}) - skipped", store.GetName(), entry, itemid, mincount);
+        TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: wrong MinCount ({}) - skipped",
+            store.GetName(), entry, type, itemid, mincount);
         return false;
     }
 
@@ -288,41 +289,47 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
             if (!proto)
             {
-                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: item does not exist - skipped", store.GetName(), entry, itemid);
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: item does not exist - skipped",
+                    store.GetName(), entry, type, itemid);
                 return false;
             }
 
             if (chance == 0 && groupid == 0)                // Zero chance is allowed for grouped entries only
             {
-                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, itemid);
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: equal-chanced grouped entry, but group not defined - skipped",
+                    store.GetName(), entry, type, itemid);
                 return false;
             }
 
-            if (chance != 0 && chance < 0.000001f)          // loot with low chance
+            if (chance != 0 && chance < 0.0001f)            // loot with low chance
             {
-                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: low chance ({}) - skipped",
-                    store.GetName(), entry, itemid, chance);
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: low chance ({}) - skipped",
+                    store.GetName(), entry, type, itemid, chance);
                 return false;
             }
 
             if (maxcount < mincount)                        // wrong max count
             {
-                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: MaxCount ({}) less that MinCount ({}) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincount);
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: MaxCount ({}) less that MinCount ({}) - skipped",
+                    store.GetName(), entry, type, itemid, int32(maxcount), mincount);
                 return false;
             }
             break;
         }
         case Type::Reference:
             if (needs_quest)
-                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: quest required will be ignored", store.GetName(), entry, itemid);
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: quest required will be ignored",
+                    store.GetName(), entry, type, itemid);
             else if (chance == 0)                           // no chance for the reference
             {
-                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: zero chance is specified for a reference, skipped", store.GetName(), entry, itemid);
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: zero chance is specified for a reference, skipped",
+                    store.GetName(), entry, type, itemid);
                 return false;
             }
             break;
         default:
-            TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: invalid ItemType {}, skipped", store.GetName(), entry, itemid, type);
+            TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: invalid ItemType {}, skipped",
+                store.GetName(), entry, itemid, type);
             return false;
     }
     return true;                                            // Referenced template existence is checked at whole store level
@@ -640,19 +647,19 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
                     if (lootersForItem.empty())
                         break;
 
-                    auto newEnd = std::ranges::remove_if(lootersForItem, [&](Player const* looter)
+                    auto newEnd = std::remove_if(lootersForItem.begin(), lootersForItem.end(), [&](Player const* looter)
                     {
                         return std::ranges::find(gotLoot, looter) != gotLoot.end();
                     });
 
-                    if (lootersForItem.begin() == newEnd.begin())
+                    if (lootersForItem.begin() == newEnd)
                     {
                         // if we run out of looters this means that there are more items dropped than players
                         // start a new cycle adding one item to everyone
                         gotLoot.clear();
                     }
                     else
-                        lootersForItem.erase(newEnd.begin(), newEnd.end());
+                        lootersForItem.erase(newEnd, lootersForItem.end());
 
                     Player* chosenLooter = Trinity::Containers::SelectRandomContainerElement(lootersForItem);
                     referenced->Process(*personalLoot[chosenLooter], rate, lootMode, item->groupid, chosenLooter);
