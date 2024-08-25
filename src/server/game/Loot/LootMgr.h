@@ -37,8 +37,14 @@ enum class ItemContext : uint8;
 
 struct TC_GAME_API LootStoreItem
 {
+    enum class Type : int8
+    {
+        Item        = 0,
+        Reference   = 1,
+    };
+
     uint32 itemid;                                         // id of the item
-    uint32 reference;                                      // referenced TemplateleId
+    Type type;
     float chance;                                          // chance to drop for both quest and non-quest items, chance to be used for refs
     uint16 lootmode;
     bool needs_quest;                                      // quest drop (quest is required for item to drop)
@@ -48,9 +54,8 @@ struct TC_GAME_API LootStoreItem
     ConditionsReference conditions;                        // additional loot condition
 
     // Constructor
-    // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, uint32 _reference, float _chance, bool _needs_quest, uint16 _lootmode, uint8 _groupid, uint8 _mincount, uint8 _maxcount)
-        : itemid(_itemid), reference(_reference), chance(_chance), lootmode(_lootmode),
+    LootStoreItem(uint32 _itemid, Type _type, float _chance, bool _needs_quest, uint16 _lootmode, uint8 _groupid, uint8 _mincount, uint8 _maxcount)
+        : itemid(_itemid), type(_type), chance(_chance), lootmode(_lootmode),
         needs_quest(_needs_quest), groupid(_groupid), mincount(_mincount), maxcount(_maxcount)
          { }
 
