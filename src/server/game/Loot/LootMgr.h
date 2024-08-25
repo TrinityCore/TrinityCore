@@ -21,7 +21,6 @@
 #include "Define.h"
 #include "ConditionMgr.h"
 #include "ObjectGuid.h"
-#include <list>
 #include <memory>
 #include <set>
 #include <unordered_map>
@@ -59,8 +58,8 @@ struct TC_GAME_API LootStoreItem
     bool IsValid(LootStore const& store, uint32 entry) const; // Checks correctness of values
 };
 
-typedef std::list<LootStoreItem*> LootStoreItemList;
-typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
+typedef std::vector<LootStoreItem*> LootStoreItemList;
+typedef std::unordered_map<uint32, std::unique_ptr<LootTemplate>> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
 
@@ -70,17 +69,22 @@ class TC_GAME_API LootStore
         explicit LootStore(char const* name, char const* entryName, bool ratesAllowed)
             : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed) { }
 
-        virtual ~LootStore() { Clear(); }
+        LootStore(LootStore const&) = delete;
+        LootStore(LootStore&&) noexcept;
+        LootStore& operator=(LootStore const&) = delete;
+        LootStore& operator=(LootStore&&) noexcept;
+
+        ~LootStore();
 
         void Verify() const;
 
-        uint32 LoadAndCollectLootIds(LootIdSet& ids_set);
+        uint32 LoadAndCollectLootIds(LootIdSet& lootIdSet);
         void CheckLootRefs(LootIdSet* ref_set = nullptr) const; // check existence reference and remove it from ref_set
-        void ReportUnusedIds(LootIdSet const& ids_set) const;
+        void ReportUnusedIds(LootIdSet const& lootIdSet) const;
         void ReportNonExistingId(uint32 lootId) const;
         void ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const;
 
-        bool HaveLootFor(uint32 loot_id) const { return m_LootTemplates.find(loot_id) != m_LootTemplates.end(); }
+        bool HaveLootFor(uint32 loot_id) const { return m_LootTemplates.contains(loot_id); }
         bool HaveQuestLootFor(uint32 loot_id) const;
         bool HaveQuestLootForPlayer(uint32 loot_id, Player const* player) const;
 
