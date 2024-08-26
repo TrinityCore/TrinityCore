@@ -6669,10 +6669,12 @@ void Player::SendPvpRewards() const
     pvpRewardsResponse.FirstRandomBGWinReward.Currency.push_back(WorldPackets::LFG::LfgPlayerQuestRewardCurrency(CLASSIC_CONQUEST_CURRENCY_ID, static_cast<int32>(sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST))));
 
     pvpRewardsResponse.NthRandomBGWinReward.Honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST);
-    pvpRewardsResponse.FirstRandomBGWinReward.Currency.push_back(WorldPackets::LFG::LfgPlayerQuestRewardCurrency(CLASSIC_CONQUEST_CURRENCY_ID, static_cast<int32>(sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST))));
+    pvpRewardsResponse.NthRandomBGWinReward.Currency.push_back(WorldPackets::LFG::LfgPlayerQuestRewardCurrency(CLASSIC_CONQUEST_CURRENCY_ID, static_cast<int32>(sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST))));
 
     pvpRewardsResponse.FirstRandomBGLossReward.Honor = sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
     pvpRewardsResponse.NthRandomBGLossReward.Honor = sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST);
+
+    pvpRewardsResponse.RatedBGRewards.Currency.push_back(WorldPackets::LFG::LfgPlayerQuestRewardCurrency(CLASSIC_CONQUEST_CURRENCY_ID, static_cast<int32>(sWorld->getIntConfig(CONFIG_BG_RATED_REWARD_WINNER_CONQUEST))));
 
     SendDirectMessage(pvpRewardsResponse.Write());
 }

@@ -2891,13 +2891,15 @@ Battleground.Random.ResetHour = 6
 #     Battleground.RewardWinnerConquestLast
 #     Battleground.RewardLoserHonorFirst
 #     Battleground.RewardLoserHonorLast
+#     Battleground.RatedRewardWinnerConquest
 #        Description: Random Battlegrounds / call to the arms rewards.
-#        Default:     30 - Battleground.RewardWinnerHonorFirst
-#                     25 - Battleground.RewardWinnerArenaFirst
-#                     15 - Battleground.RewardWinnerHonorLast
-#                     0  - Battleground.RewardWinnerArenaLast
-#                     5  - Battleground.RewardLoserHonorFirst
-#                     5  - Battleground.RewardLoserHonorLast
+#        Default:     54000 - Battleground.RewardWinnerHonorFirst
+#                     12000 - Battleground.RewardWinnerConquestFirst
+#                     54000 - Battleground.RewardWinnerHonorLast
+#                     10000 - Battleground.RewardWinnerConquestLast
+#                     9000  - Battleground.RewardLoserHonorFirst
+#                     9000  - Battleground.RewardLoserHonorLast
+#                     75000 - Battleground.RatedRewardWinnerConquest
 #
 
 Battleground.RewardWinnerHonorFirst     = 54000
@@ -2906,6 +2908,7 @@ Battleground.RewardWinnerHonorLast      = 54000
 Battleground.RewardWinnerConquestLast   = 10000
 Battleground.RewardLoserHonorFirst      = 9000
 Battleground.RewardLoserHonorLast       = 9000
+Battleground.RatedRewardWinnerConquest  = 75000
 
 #
 #    Battleground.ReportAFK
