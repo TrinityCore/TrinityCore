@@ -3085,9 +3085,9 @@ Arena.QueueAnnouncer.Enable = 0
 #
 #    Arena.ArenaSeason.ID
 #        Description: Current arena season id shown in clients.
-#        Default:     32
+#        Default:     9
 
-Arena.ArenaSeason.ID = 32
+Arena.ArenaSeason.ID = 9
 
 #
 #    Arena.ArenaSeason.InProgress
