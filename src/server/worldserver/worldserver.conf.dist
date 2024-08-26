@@ -2900,12 +2900,12 @@ Battleground.Random.ResetHour = 6
 #                     5  - Battleground.RewardLoserHonorLast
 #
 
-Battleground.RewardWinnerHonorFirst     = 27000
-Battleground.RewardWinnerConquestFirst  = 10000
-Battleground.RewardWinnerHonorLast      = 13500
-Battleground.RewardWinnerConquestLast   = 5000
-Battleground.RewardLoserHonorFirst      = 4500
-Battleground.RewardLoserHonorLast       = 3500
+Battleground.RewardWinnerHonorFirst     = 54000
+Battleground.RewardWinnerConquestFirst  = 12000
+Battleground.RewardWinnerHonorLast      = 54000
+Battleground.RewardWinnerConquestLast   = 10000
+Battleground.RewardLoserHonorFirst      = 9000
+Battleground.RewardLoserHonorLast       = 9000
 
 #
 #    Battleground.ReportAFK

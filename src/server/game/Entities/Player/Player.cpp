@@ -6665,6 +6665,15 @@ void Player::SendCurrencies() const
 void Player::SendPvpRewards() const
 {
     WorldPackets::Battleground::RequestPvPRewardsResponse pvpRewardsResponse;
+    pvpRewardsResponse.FirstRandomBGWinReward.Honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
+    pvpRewardsResponse.FirstRandomBGWinReward.Currency.push_back(WorldPackets::LFG::LfgPlayerQuestRewardCurrency(CLASSIC_CONQUEST_CURRENCY_ID, static_cast<int32>(sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST))));
+
+    pvpRewardsResponse.NthRandomBGWinReward.Honor = sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST);
+    pvpRewardsResponse.FirstRandomBGWinReward.Currency.push_back(WorldPackets::LFG::LfgPlayerQuestRewardCurrency(CLASSIC_CONQUEST_CURRENCY_ID, static_cast<int32>(sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST))));
+
+    pvpRewardsResponse.FirstRandomBGLossReward.Honor = sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
+    pvpRewardsResponse.NthRandomBGLossReward.Honor = sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST);
+
     SendDirectMessage(pvpRewardsResponse.Write());
 }
 
@@ -6836,15 +6845,6 @@ void Player::IncreaseCurrencyCap(uint32 id, uint32 amount)
     // Check dynamic maximum flag
     if (!currency->GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum))
         return;
-
-    // Ancient mana maximum cap
-    if (id == CURRENCY_TYPE_ANCIENT_MANA)
-    {
-        uint32 maxQuantity = GetCurrencyMaxQuantity(currency);
-
-        if ((maxQuantity + amount) > CURRENCY_MAX_CAP_ANCIENT_MANA)
-            amount = CURRENCY_MAX_CAP_ANCIENT_MANA - maxQuantity;
-    }
 
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
