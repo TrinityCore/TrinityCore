@@ -41,6 +41,7 @@ struct TC_GAME_API LootStoreItem
     {
         Item        = 0,
         Reference   = 1,
+        Currency    = 2,
     };
 
     uint32 itemid;                                         // id of the item
