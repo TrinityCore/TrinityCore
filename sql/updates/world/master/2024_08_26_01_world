@@ -1,0 +1,9 @@
+ALTER TABLE `scrapping_loot_template` ADD `ItemType` tinyint NOT NULL DEFAULT 0 AFTER `Entry`;
+
+UPDATE `conditions` c INNER JOIN `scrapping_loot_template` lt ON c.`SourceGroup`=lt.`Entry` AND c.`SourceEntry`=lt.`Item` SET `SourceEntry`=lt.`Reference` WHERE c.`SourceTypeOrReferenceId`=12 AND lt.`Reference`<>0;
+
+ALTER TABLE `scrapping_loot_template` DROP PRIMARY KEY;
+
+UPDATE `scrapping_loot_template` SET `ItemType`=1,`Item`=`Reference` WHERE `Reference`<>0;
+
+ALTER TABLE `scrapping_loot_template` DROP `Reference`, ADD INDEX `idx_primary` (`Entry`,`ItemType`,`Item`);
