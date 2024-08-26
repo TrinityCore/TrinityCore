@@ -39,6 +39,8 @@ EndScriptData */
 #include "Util.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommands;
+
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -923,12 +925,9 @@ public:
         return true;
     }
 
-    static bool HandleModifyCurrencyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyCurrencyCommand(ChatHandler* handler, CurrencyTypesEntry const* currency, int32 amount)
     {
-        if (!*args)
-            return false;
-
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -936,16 +935,7 @@ public:
             return false;
         }
 
-        uint32 currencyId = atoi(strtok((char*)args, " "));
-        const CurrencyTypesEntry* currencyType =  sCurrencyTypesStore.LookupEntry(currencyId);
-        if (!currencyType)
-            return false;
-
-        uint32 amount = atoi(strtok(nullptr, " "));
-        if (!amount)
-            return false;
-
-        target->ModifyCurrency(currencyId, amount, CurrencyGainSource::Cheat, CurrencyDestroyReason::Cheat);
+        target->ModifyCurrency(currency->ID, amount, CurrencyGainSource::Cheat, CurrencyDestroyReason::Cheat);
 
         return true;
     }
