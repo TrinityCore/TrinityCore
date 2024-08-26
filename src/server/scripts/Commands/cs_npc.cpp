@@ -23,12 +23,13 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "ChatCommand.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "FollowMovementGenerator.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -1165,7 +1166,7 @@ public:
         return true;
     }
 
-    static void _ShowLootEntry(ChatHandler* handler, uint32 itemId, uint8 itemCount, bool alternateString = false)
+    static void _ShowLootEntry(ChatHandler* handler, uint32 itemId, uint32 itemCount, bool alternateString = false)
     {
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         char const* name = nullptr;
@@ -1175,6 +1176,18 @@ public:
             name = "Unknown item";
         handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
             itemCount, ItemQualityColors[itemTemplate ? static_cast<ItemQualities>(itemTemplate->GetQuality()) : ITEM_QUALITY_POOR], itemId, name, itemId);
+    }
+
+    static void _ShowLootCurrencyEntry(ChatHandler* handler, uint32 currencyId, uint32 count, bool alternateString = false)
+    {
+        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
+        char const* name = nullptr;
+        if (currency)
+            name = currency->Name[handler->GetSessionDbcLocale()];
+        if (!name)
+            name = "Unknown currency";
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_CURRENCY, alternateString ? 6 : 3 /*number of bytes from following string*/, "\u2500\u2500",
+            count, ItemQualityColors[currency ? static_cast<ItemQualities>(currency->Quality) : ITEM_QUALITY_POOR], currencyId, count, name, currencyId);
     }
 
     static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
@@ -1189,11 +1202,72 @@ public:
             for (auto it = pair.second->cbegin(); it != pair.second->cend(); ++it)
             {
                 LootItem const& item = items[it->LootListId];
-                if (!(it->is_looted) && !item.is_looted)
-                    _ShowLootEntry(handler, item.itemid, item.count, true);
+                if (!it->is_looted && !item.is_looted)
+                {
+                    switch (item.type)
+                    {
+                        case LootItemType::Item:
+                            _ShowLootEntry(handler, item.itemid, item.count, true);
+                            break;
+                        case LootItemType::Currency:
+                            _ShowLootCurrencyEntry(handler, item.itemid, item.count, true);
+                            break;
+                    }
+                }
             }
         }
     }
+
+    static void _ShowLootContents(ChatHandler* handler, bool all, Loot const* loot)
+    {
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_MONEY, loot->gold / GOLD, (loot->gold % GOLD) / SILVER, loot->gold % SILVER);
+
+        if (!all)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
+            for (LootItem const& item : loot->items)
+            {
+                if (!item.is_looted)
+                {
+                    switch (item.type)
+                    {
+                        case LootItemType::Item:
+                            _ShowLootEntry(handler, item.itemid, item.count);
+                            break;
+                        case LootItemType::Currency:
+                            _ShowLootCurrencyEntry(handler, item.itemid, item.count);
+                            break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
+            for (LootItem const& item : loot->items)
+            {
+                if (!item.is_looted && !item.freeforall && item.conditions.IsEmpty())
+                {
+                    switch (item.type)
+                    {
+                        case LootItemType::Item:
+                            _ShowLootEntry(handler, item.itemid, item.count);
+                            break;
+                        case LootItemType::Currency:
+                            _ShowLootCurrencyEntry(handler, item.itemid, item.count);
+                            break;
+                    }
+                }
+            }
+
+            if (!loot->GetPlayerFFAItems().empty())
+            {
+                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "FFA items per allowed player");
+                _IterateNotNormalLootMap(handler, loot->GetPlayerFFAItems(), loot->items);
+            }
+        }
+    }
+
     static bool HandleNpcShowLootCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("all")> all)
     {
         Creature* creatureTarget = handler->getSelectedCreature();
@@ -1204,8 +1278,16 @@ public:
             return false;
         }
 
+        if (!creatureTarget->isDead())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         Loot const* loot = creatureTarget->m_loot.get();
-        if (!creatureTarget->isDead() || !loot || loot->isLooted())
+        if ((!loot || loot->isLooted())
+            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), &std::unordered_map<ObjectGuid, std::unique_ptr<Loot>>::value_type::second))
         {
             handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
             handler->SetSentErrorMessage(true);
@@ -1213,26 +1295,18 @@ public:
         }
 
         handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_HEADER, creatureTarget->GetName().c_str(), creatureTarget->GetEntry());
-        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_MONEY, loot->gold / GOLD, (loot->gold % GOLD) / SILVER, loot->gold % SILVER);
 
-        if (!all)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
-            for (LootItem const& item : loot->items)
-                if (!item.is_looted)
-                    _ShowLootEntry(handler, item.itemid, item.count);
-        }
+        if (loot)
+            _ShowLootContents(handler, all.has_value(), loot);
         else
         {
-            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
-            for (LootItem const& item : loot->items)
-                if (!item.is_looted && !item.freeforall && item.conditions.IsEmpty())
-                    _ShowLootEntry(handler, item.itemid, item.count);
+            using namespace std::string_view_literals;
 
-            if (!loot->GetPlayerFFAItems().empty())
+            for (auto const& [lootOwner, personalLoot] : creatureTarget->m_personalLoot)
             {
-                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "FFA items per allowed player");
-                _IterateNotNormalLootMap(handler, loot->GetPlayerFFAItems(), loot->items);
+                CharacterCacheEntry const* character = sCharacterCache->GetCharacterCacheByGuid(lootOwner);
+                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, Trinity::StringFormat("Personal loot for {}", character ? character->Name : ""sv));
+                _ShowLootContents(handler, all.has_value(), personalLoot.get());
             }
         }
 
