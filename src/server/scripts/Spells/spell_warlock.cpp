@@ -51,6 +51,8 @@ enum WarlockSpells
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
+    SPELL_WARLOCK_PYROGENICS_TALENT                 = 387095,
+    SPELL_WARLOCK_PYROGENICS_DEBUFF                 = 387096,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 5740,
     SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE               = 42223,
     SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE         = 27285,
@@ -1015,7 +1017,12 @@ class spell_warl_rain_of_fire : public AuraScript
         for (ObjectGuid insideTargetGuid : targetsInRainOfFire)
             if (Unit* insideTarget = ObjectAccessor::GetUnit(*GetTarget(), insideTargetGuid))
                 if (!GetTarget()->IsFriendlyTo(insideTarget))
+                {
+                    if (GetTarget()->HasAura(SPELL_WARLOCK_PYROGENICS_TALENT))
+                        GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_PYROGENICS_DEBUFF, true);
+
                     GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE, true);
+                }
     }
 
     void Register() override
