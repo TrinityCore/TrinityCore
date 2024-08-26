@@ -1186,7 +1186,7 @@ public:
             name = currency->Name[handler->GetSessionDbcLocale()];
         if (!name)
             name = "Unknown currency";
-        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_CURRENCY, alternateString ? 6 : 3 /*number of bytes from following string*/, "\u2500\u2500",
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_CURRENCY, alternateString ? 6 : 3 /*number of bytes from following string*/, "\xE2\x94\x80\xE2\x94\x80",
             count, ItemQualityColors[currency ? static_cast<ItemQualities>(currency->Quality) : ITEM_QUALITY_POOR], currencyId, count, name, currencyId);
     }
 
