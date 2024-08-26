@@ -97,6 +97,11 @@ namespace SilvershardMines
 
     }
 
+    namespace Maps
+    {
+        static constexpr uint32 BattlegroundMap = 727;
+    }
+
     namespace PathIds
     {
         static constexpr uint32 South = Creatures::MineCart * 100 + 0;
@@ -931,6 +936,14 @@ class spell_bg_silvershard_mines_capturing_switch_track final : public SpellScri
 // 128648 - Defending Cart Aura
 class spell_bg_silvershard_mines_defending_cart_aura final : public SpellScript
 {
+    bool Load() override
+    {
+        if (Unit const* caster = GetCaster())
+            return caster->GetMapId() == SilvershardMines::Maps::BattlegroundMap;
+
+        return false;
+    }
+
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
         if (targets.empty())
@@ -974,6 +987,14 @@ class spell_bg_silvershard_mines_defending_cart_aura final : public SpellScript
 // 128648 - Defending Cart Aura
 class spell_bg_silvershard_mines_defending_cart_aura_AuraScript final : public AuraScript
 {
+    bool Load() override
+    {
+        if (Unit const* caster = GetCaster())
+            return caster->GetMapId() == SilvershardMines::Maps::BattlegroundMap;
+
+        return false;
+    }
+
     void OnPeriodic(AuraEffect const* /*aurEff*/) const
     {
         Unit const* caster = GetCaster();
@@ -1013,7 +1034,7 @@ public:
 
 void AddSC_battleground_silvershard_mines()
 {
-    RegisterBattlegroundMapScript(battleground_silvershard_mines, 727);
+    RegisterBattlegroundMapScript(battleground_silvershard_mines, SilvershardMines::Maps::BattlegroundMap);
 
     RegisterSpellScript(spell_bg_silvershard_mines_cart_cap);
     RegisterSpellScript(spell_bg_silvershard_mines_capturing);
