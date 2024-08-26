@@ -17,20 +17,6 @@
 
 #include "BattlegroundPackets.h"
 
-WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
-{
-    _worldPacket << int32(MythicPlusDisplaySeasonID);
-    _worldPacket << int32(MythicPlusMilestoneSeasonID);
-    _worldPacket << int32(CurrentArenaSeason);
-    _worldPacket << int32(PreviousArenaSeason);
-    _worldPacket << int32(ConquestWeeklyProgressCurrencyID);
-    _worldPacket << int32(PvpSeasonID);
-    _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
 void WorldPackets::Battleground::AreaSpiritHealerQuery::Read()
 {
     _worldPacket >> HealerGuid;

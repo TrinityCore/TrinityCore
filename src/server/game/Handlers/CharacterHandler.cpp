@@ -17,6 +17,7 @@
 
 #include "WorldSession.h"
 #include "AccountMgr.h"
+#include "ArenaPackets.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHousePackets.h"
@@ -1109,13 +1110,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // Send PVPSeason
     {
-        WorldPackets::Battleground::SeasonInfo seasonInfo;
-        seasonInfo.PreviousArenaSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS);
-
+        WorldPackets::Arena::PvpSeason pvpSeason;
+        pvpSeason.PreviousArenaSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS);
         if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
-            seasonInfo.CurrentArenaSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
+            pvpSeason.CurrentArenaSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
 
-        SendPacket(seasonInfo.Write());
+        SendPacket(pvpSeason.Write());
     }
 
     // send server info

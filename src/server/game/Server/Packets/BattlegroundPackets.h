@@ -30,22 +30,6 @@ namespace WorldPackets
 {
     namespace Battleground
     {
-        class SeasonInfo final : public ServerPacket
-        {
-        public:
-            SeasonInfo() : ServerPacket(SMSG_SEASON_INFO, 4 + 4 + 4 + 4 + 4 + 1) { }
-
-            WorldPacket const* Write() override;
-
-            int32 MythicPlusDisplaySeasonID = 0;
-            int32 MythicPlusMilestoneSeasonID = 0;
-            int32 PreviousArenaSeason = 0;
-            int32 CurrentArenaSeason = 0;
-            int32 PvpSeasonID = 0;
-            int32 ConquestWeeklyProgressCurrencyID = 0;
-            bool WeeklyRewardChestsEnabled = false;
-        };
-
         class AreaSpiritHealerQuery final : public ClientPacket
         {
         public:

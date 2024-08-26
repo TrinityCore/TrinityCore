@@ -22,6 +22,7 @@
 #include "AddonPackets.h"
 #include "AdventureMapPackets.h"
 #include "AreaTriggerPackets.h"
+#include "ArenaPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"
