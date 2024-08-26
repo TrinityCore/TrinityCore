@@ -36,6 +36,8 @@
 
 enum WarlockSpells
 {
+    SPELL_WARLOCK_BACKDRAFT                         = 196406,
+    SPELL_WARLOCK_BACKDRAFT_PROC                    = 117828,
     SPELL_WARLOCK_CREATE_HEALTHSTONE                = 23517,
     SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
@@ -77,6 +79,27 @@ enum MiscSpells
 {
     SPELL_GEN_REPLENISHMENT                         = 57669,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
+};
+
+// Called by 17962 - Conflagrate
+class spell_warl_backdraft : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_WARLOCK_BACKDRAFT, SPELL_WARLOCK_BACKDRAFT_PROC });
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_WARLOCK_BACKDRAFT))
+            caster->CastSpell(caster, SPELL_WARLOCK_BACKDRAFT_PROC, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warl_backdraft::HandleAfterCast);
+    }
 };
 
 // 710 - Banish
@@ -1026,6 +1049,7 @@ class spell_warl_rain_of_fire : public AuraScript
 
 void AddSC_warlock_spell_scripts()
 {
+    RegisterSpellScript(spell_warl_backdraft);
     RegisterSpellScript(spell_warl_banish);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_chaos_bolt);
