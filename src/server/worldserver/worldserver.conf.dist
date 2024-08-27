@@ -938,9 +938,9 @@ StartDemonHunterPlayerLevel = 8
 #    StartEvokerPlayerLevel
 #        Description: Staring level for evokers after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     58
+#        Default:     10
 
-StartEvokerPlayerLevel = 58
+StartEvokerPlayerLevel = 10
 
 #
 #    StartAlliedRacePlayerLevel
