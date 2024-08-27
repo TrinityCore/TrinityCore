@@ -3473,7 +3473,6 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
             continue;
         }
 
-
         _vehicleTemplateAccessoryStore[entry].push_back(VehicleAccessory(accessory, seatId, isMinion, summonType, summonTimer, rideSpellId));
 
         ++count;
