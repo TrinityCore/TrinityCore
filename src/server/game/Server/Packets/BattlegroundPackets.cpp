@@ -228,6 +228,7 @@ void WorldPackets::Battleground::BattlefieldListRequest::Read()
 WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
 {
     _worldPacket << BattlemasterGuid;
+    _worldPacket << int32(CurrentMaxInstanceIndex);
     _worldPacket << int32(BattlemasterListID);
     _worldPacket << uint8(MinLevel);
     _worldPacket << uint8(MaxLevel);

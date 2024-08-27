@@ -487,7 +487,7 @@ bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
 
 bool BattlegroundMgr::IsRandomBattleground(uint32 battlemasterListId)
 {
-    return battlemasterListId == BATTLEGROUND_RB || battlemasterListId == BATTLEGROUND_RANDOM_EPIC;
+    return battlemasterListId == BATTLEGROUND_RB;
 }
 
 BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(uint16 battlemasterListId, BattlegroundQueueIdType type, bool rated, uint8 teamSize)

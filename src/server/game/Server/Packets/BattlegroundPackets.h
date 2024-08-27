@@ -284,6 +284,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid BattlemasterGuid;
+            int32 CurrentMaxInstanceIndex = 0;
             int32 BattlemasterListID = 0;
             uint8 MinLevel = 0;
             uint8 MaxLevel = 0;
@@ -303,7 +304,7 @@ namespace WorldPackets
         class PVPOptionsEnabled final : public ServerPacket
         {
         public:
-            PVPOptionsEnabled() : ServerPacket(SMSG_PVP_OPTIONS_ENABLED, 1) { }
+            PVPOptionsEnabled() : ServerPacket(SMSG_PVP_OPTIONS_ENABLED, 1 + 1) { }
 
             WorldPacket const* Write() override;
 

@@ -1253,8 +1253,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
         if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
         // don't let join if someone from the group is in bg queue random
-        bool isInRandomBgQueue = member->InBattlegroundQueueForBattlegroundQueueType(BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, BattlegroundQueueIdType::Battleground, false, 0))
-            || member->InBattlegroundQueueForBattlegroundQueueType(BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RANDOM_EPIC, BattlegroundQueueIdType::Battleground, false, 0));
+        bool isInRandomBgQueue = member->InBattlegroundQueueForBattlegroundQueueType(BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, BattlegroundQueueIdType::Battleground, false, 0));
         if (bgOrTemplate->Id != BATTLEGROUND_AA && isInRandomBgQueue)
             return ERR_IN_RANDOM_BG;
         // don't let join to bg queue random if someone from the group is already in bg queue
