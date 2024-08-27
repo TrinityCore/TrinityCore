@@ -1,0 +1,5 @@
+ALTER TABLE `build_info` ADD `macArmAuthSeed` varchar(32) NULL AFTER `mac64AuthSeed`;
+
+UPDATE `build_info` SET `macArmAuthSeed` = '778F6A5DF79A4EF1B86F651F3B303CE7' WHERE build = 56196;
+UPDATE `build_info` SET `macArmAuthSeed` = '41710C793EF021721F14B06EC1896D3F' WHERE build = 56288;
+UPDATE `build_info` SET `macArmAuthSeed` = '412D3200715AAFDC0522DF031A941F0E' WHERE build = 56311;
