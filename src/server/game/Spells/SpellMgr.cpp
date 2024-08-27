@@ -342,6 +342,11 @@ bool SpellMgr::IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const
     return false;
 }
 
+Trinity::IteratorPair<SpellLearnedBySpellMap::const_iterator> SpellMgr::GetSpellLearnedBySpellMapBounds(uint32 learnedSpellId) const
+{
+    return Trinity::Containers::MapEqualRange(mSpellLearnedBySpells, learnedSpellId);
+}
+
 SpellTargetPosition const* SpellMgr::GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const
 {
     SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find(std::make_pair(spell_id, effIndex));
@@ -1053,6 +1058,7 @@ void SpellMgr::LoadSpellLearnSpells()
 {
     uint32 oldMSTime = getMSTime();
 
+    mSpellLearnedBySpells.clear();
     mSpellLearnSpells.clear();                              // need for reload case
 
     //                                                  0      1        2
@@ -1071,6 +1077,7 @@ void SpellMgr::LoadSpellLearnSpells()
         uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
+        node.SourceSpell = spell_id;
         node.Spell       = fields[1].GetUInt32();
         node.OverridesSpell = 0;
         node.Active      = fields[2].GetBool();
@@ -1115,6 +1122,7 @@ void SpellMgr::LoadSpellLearnSpells()
             if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
             {
                 SpellLearnSpellNode dbc_node;
+                dbc_node.SourceSpell = entry.Id;
                 dbc_node.Spell = spellEffectInfo.TriggerSpell;
                 dbc_node.Active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
                 dbc_node.OverridesSpell = 0;
@@ -1188,6 +1196,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
 
         SpellLearnSpellNode dbcLearnNode;
+        dbcLearnNode.SourceSpell = spellLearnSpell->SpellID;
         dbcLearnNode.Spell = spellLearnSpell->LearnSpellID;
         dbcLearnNode.OverridesSpell = spellLearnSpell->OverridesSpellID;
         dbcLearnNode.Active = true;
@@ -1253,6 +1262,9 @@ void SpellMgr::LoadSpellLearnSpells()
             }
         }
     }
+
+    for (auto const& [spellId, learnedSpellNode] : mSpellLearnSpells)
+        mSpellLearnedBySpells.emplace(learnedSpellNode.Spell, &learnedSpellNode);
 
     TC_LOG_INFO("server.loading", ">> Loaded {} spell learn spells, {} found in Spell.dbc and {} found in TalentTab.db2 in {} ms", count, dbc_count, mastery_count, GetMSTimeDiffToNow(oldMSTime));
 }
