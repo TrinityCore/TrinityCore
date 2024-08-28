@@ -90,7 +90,6 @@ uint32 Unit::GetCreateVigor() const
 {
     // Must be in "higher to lower" order
     std::vector<uint32> vigorTalentSpellIds = {
-
         377922, // Beyond Infinity - 6
         377921, // Dragonriding Learner - 5
         377920, // Take to the Skies - 4

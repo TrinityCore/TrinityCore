@@ -21,6 +21,7 @@
  */
 
 #include "Containers.h"
+#include "DB2Stores.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -53,7 +54,8 @@ class spell_af_energy : public AuraScript
 
                     int32 newAmount = subAmountAurEff->GetAmount() + baseRegen;
 
-                    if (newAmount >= 100) {
+                    if (newAmount >= 100)
+                    {
                         newAmount -= 100;
 
                         caster->CastSpell(caster, SPELL_DRAGONRIDER_ENERGIZE, TRIGGERED_FULL_MASK);
