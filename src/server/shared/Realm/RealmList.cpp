@@ -82,7 +82,7 @@ void RealmList::Close()
 void RealmList::LoadBuildInfo()
 {
     //                                                              0             1              2              3      4              5              6
-    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed FROM build_info ORDER BY build ASC"))
+    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed, macArmAuthSeed FROM build_info ORDER BY build ASC"))
     {
         do
         {
@@ -110,6 +110,12 @@ void RealmList::LoadBuildInfo()
                 HexStrToByteArray(mac64AuthSeedHexStr, build.Mac64AuthSeed);
             else
                 build.Mac64AuthSeed = { };
+
+            std::string macArmAuthSeedHexStr = fields[7].GetString();
+            if (macArmAuthSeedHexStr.length() == build.MacArmAuthSeed.size() * 2)
+                HexStrToByteArray(macArmAuthSeedHexStr, build.MacArmAuthSeed);
+            else
+                build.MacArmAuthSeed = { };
 
         } while (result->NextRow());
     }

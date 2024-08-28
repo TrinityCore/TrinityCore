@@ -38,6 +38,7 @@ struct RealmBuildInfo
     std::array<char, 4> HotfixVersion;
     std::array<uint8, 16> Win64AuthSeed;
     std::array<uint8, 16> Mac64AuthSeed;
+    std::array<uint8, 16> MacArmAuthSeed;
 };
 
 namespace bgs::protocol::game_utilities::v1
