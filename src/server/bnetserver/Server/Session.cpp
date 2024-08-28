@@ -219,7 +219,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
         return ERROR_BAD_PROGRAM;
     }
 
-    if (logonRequest->platform() != "Win" && logonRequest->platform() != "Wn64" && logonRequest->platform() != "Mc64")
+    if (logonRequest->platform() != "Win" && logonRequest->platform() != "Wn64" && logonRequest->platform() != "Mc64" && logonRequest->platform() != "MacA")
     {
         TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] {} attempted to log in from an unsupported platform (using {})!", GetClientInfo(), logonRequest->platform());
         return ERROR_BAD_PLATFORM;
