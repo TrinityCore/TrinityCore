@@ -30868,7 +30868,8 @@ void Player::InitAdvancedFly()
         { SMSG_MOVE_SET_ADV_FLYING_LAUNCH_SPEED_COEFFICIENT,    flightCapabilityEntry->LaunchSpeedCoefficient,      {}                                                  },
     };
 
-    for (auto const& tuple : advFlyValues) {
+    for (auto const& tuple : advFlyValues)
+    {
         auto advFlyingPacket = WorldPackets::Movement::SetAdvFlyingSpeed(std::get<0>(tuple));
         advFlyingPacket.SequenceIndex = m_movementCounter++;
         advFlyingPacket.speed = std::get<1>(tuple);
