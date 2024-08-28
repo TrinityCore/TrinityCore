@@ -13040,8 +13040,8 @@ bool Unit::SetCanAdvFly(bool enable)
 
     static OpcodeServer const advFlyOpcodeTable[2] =
     {
-        { SMSG_MOVE_UNSET_CAN_ADV_FLY },
-        { SMSG_MOVE_SET_CAN_ADV_FLY   }
+        SMSG_MOVE_UNSET_CAN_ADV_FLY,
+        SMSG_MOVE_SET_CAN_ADV_FLY
     };
 
     if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
