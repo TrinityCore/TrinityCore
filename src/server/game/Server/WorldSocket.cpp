@@ -715,11 +715,6 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
         digestKeyHash.UpdateData(buildInfo->Mac64AuthSeed.data(), buildInfo->Mac64AuthSeed.size());
     else if (account.Game.OS == "MacA")
         digestKeyHash.UpdateData(buildInfo->MacArmAuthSeed.data(), buildInfo->MacArmAuthSeed.size());
-    else {
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: unknown OS ({}), cant perform auth seed lookup.", account.Game.OS);
-        DelayedCloseSocket();
-        return;
-    }
 
     digestKeyHash.Finalize();
 
