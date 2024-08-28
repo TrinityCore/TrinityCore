@@ -372,23 +372,29 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
             *data << float(1.0f);                                       // MovementForcesModMagnitude
         }
 
-        *data << float(2.0f);                                           // advFlyingAirFriction
-        *data << float(65.0f);                                          // advFlyingMaxVel
-        *data << float(1.0f);                                           // advFlyingLiftCoefficient
-        *data << float(3.0f);                                           // advFlyingDoubleJumpVelMod
-        *data << float(10.0f);                                          // advFlyingGlideStartMinHeight
-        *data << float(100.0f);                                         // advFlyingAddImpulseMaxSpeed
-        *data << float(90.0f);                                          // advFlyingMinBankingRate
-        *data << float(140.0f);                                         // advFlyingMaxBankingRate
-        *data << float(180.0f);                                         // advFlyingMinPitchingRateDown
-        *data << float(360.0f);                                         // advFlyingMaxPitchingRateDown
-        *data << float(90.0f);                                          // advFlyingMinPitchingRateUp
-        *data << float(270.0f);                                         // advFlyingMaxPitchingRateUp
-        *data << float(30.0f);                                          // advFlyingMinTurnVelocityThreshold
-        *data << float(80.0f);                                          // advFlyingMaxTurnVelocityThreshold
-        *data << float(2.75f);                                          // advFlyingSurfaceFriction
-        *data << float(7.0f);                                           // advFlyingOverMaxDeceleration
-        *data << float(0.4f);                                           // advFlyingLaunchSpeedCoefficient
+        FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(unit->GetFlightCapabilityID());
+        if (!flightCapabilityEntry)
+            flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(1);
+
+        ASSERT(flightCapabilityEntry, "Wrong default value for flightCapabilityID");
+
+        *data << float(flightCapabilityEntry->AirFriction);
+        *data << float(flightCapabilityEntry->MaxVel);
+        *data << float(flightCapabilityEntry->LiftCoefficient);
+        *data << float(flightCapabilityEntry->DoubleJumpVelMod);
+        *data << float(flightCapabilityEntry->GlideStartMinHeight);
+        *data << float(flightCapabilityEntry->AddImpulseMaxSpeed);
+        *data << float(flightCapabilityEntry->BankingRateMin);
+        *data << float(flightCapabilityEntry->BankingRateMax);
+        *data << float(flightCapabilityEntry->PitchingRateDownMin);
+        *data << float(flightCapabilityEntry->PitchingRateDownMax);
+        *data << float(flightCapabilityEntry->PitchingRateUpMin);
+        *data << float(flightCapabilityEntry->PitchingRateUpMax);
+        *data << float(flightCapabilityEntry->TurnVelocityThresholdMin);
+        *data << float(flightCapabilityEntry->TurnVelocityThresholdMax);
+        *data << float(flightCapabilityEntry->SurfaceFriction);
+        *data << float(flightCapabilityEntry->OverMaxDeceleration);
+        *data << float(flightCapabilityEntry->LaunchSpeedCoefficient);
 
         data->WriteBit(HasSpline);
         data->FlushBits();

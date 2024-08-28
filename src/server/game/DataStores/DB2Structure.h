@@ -1679,6 +1679,36 @@ struct FactionTemplateEntry
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
 };
 
+struct FlightCapabilityEntry
+{
+    uint32 ID;
+    float AirFriction;
+    float MaxVel;
+    float Field_10_0_0_44167_002;
+    float DoubleJumpVelMod;
+    float LiftCoefficient;
+    float GlideStartMinHeight;
+    float AddImpulseMaxSpeed;
+    float BankingRateMin;
+    float BankingRateMax;
+    float PitchingRateDownMin;
+    float PitchingRateDownMax;
+    float PitchingRateUpMin;
+    float PitchingRateUpMax;
+    float TurnVelocityThresholdMin;
+    float TurnVelocityThresholdMax;
+    float SurfaceFriction;
+    float OverMaxDeceleration;
+    float Field_10_0_0_45232_017;
+    float Field_10_0_0_45232_018;
+    float Field_10_0_0_45232_019;
+    float Field_10_0_0_45232_020;
+    float Field_10_0_0_45232_021;
+    float LaunchSpeedCoefficient;
+    float VigorRegenMaxVelCoefficient;
+    int32 SpellID;
+};
+
 struct FriendshipRepReactionEntry
 {
     uint32 ID;

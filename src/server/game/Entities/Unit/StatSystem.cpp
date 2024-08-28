@@ -86,10 +86,31 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
     }
 }
 
+uint32 Unit::GetCreateVigor() const
+{
+    // Must be in "higher to lower" order
+    std::vector<uint32> vigorTalentSpellIds = {
+
+        377922, // Beyond Infinity - 6
+        377921, // Dragonriding Learner - 5
+        377920, // Take to the Skies - 4
+    };
+
+    for (uint32 spellId : vigorTalentSpellIds)
+        if (Aura* talentAura = GetAura(spellId))
+            if (AuraEffect* auraEff = talentAura->GetEffect(EFFECT_1))
+                return auraEff->GetBaseAmount();
+
+    return 3;
+}
+
 int32 Unit::GetCreatePowerValue(Powers power) const
 {
     if (power == POWER_MANA)
         return GetCreateMana();
+
+    if (power == POWER_ALTERNATE_MOUNT)
+        return GetCreateVigor();
 
     if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
         return powerType->MaxBasePower;
