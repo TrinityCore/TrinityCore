@@ -451,7 +451,6 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     }
 
     mover->UpdatePosition(movementInfo.pos);
-    mover->SetPitch(movementInfo.pitch);
 
     WorldPackets::Movement::MoveUpdate moveUpdate;
     moveUpdate.Status = &mover->m_movementInfo;
