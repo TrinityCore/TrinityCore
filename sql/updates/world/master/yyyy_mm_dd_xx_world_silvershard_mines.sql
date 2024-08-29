@@ -41,12 +41,12 @@ INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `DifficultyID`,
 (128706, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 20, 0, 0, 0, 0, 1, 0),
 (128720, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 20, 0, 0, 0, 0, 1, 0);
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_bg_silvershard_mines_cart_cap', 'spell_bg_silvershard_mines_capturing', 'spell_bg_silvershard_mines_capturing_switch_track', 'spell_bg_silvershard_mines_defending_cart_aura');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_bg_silvershard_mines_cart_cap', 'spell_bg_silvershard_mines_capturing', 'spell_bg_silvershard_mines_capturing_switch_track', 'spell_bg_defending_cart_aura');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (115904, 'spell_bg_silvershard_mines_cart_cap'),
 (124491, 'spell_bg_silvershard_mines_capturing'),
 (97372, 'spell_bg_silvershard_mines_capturing_switch_track'),
-(128648, 'spell_bg_silvershard_mines_defending_cart_aura');
+(128648, 'spell_bg_defending_cart_aura');
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (7779, 7780, 7781, 7782);
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES

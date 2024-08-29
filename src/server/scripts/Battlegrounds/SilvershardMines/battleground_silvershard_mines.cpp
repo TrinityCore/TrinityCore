@@ -933,84 +933,6 @@ class spell_bg_silvershard_mines_capturing_switch_track final : public SpellScri
     }
 };
 
-// 128648 - Defending Cart Aura
-class spell_bg_silvershard_mines_defending_cart_aura final : public SpellScript
-{
-    bool Load() override
-    {
-        if (Unit const* caster = GetCaster())
-            return caster->GetMapId() == SilvershardMines::Maps::BattlegroundMap;
-
-        return false;
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets) const
-    {
-        if (targets.empty())
-            return;
-
-        if (GameObject const* controlZone = GetControlZone())
-        {
-            targets.remove_if([&](WorldObject* obj)
-            {
-                if (Player const* player = obj->ToPlayer())
-                    return GetTeamIdForTeam(player->GetBGTeam()) != controlZone->GetControllingTeam();
-
-                return true;
-            });
-        }
-    }
-
-    GameObject* GetControlZone() const
-    {
-        if (Unit const* caster = GetCaster())
-        {
-            if (caster->HasAura(SilvershardMines::Spells::CartControlCapturePointUnitEast))
-                return caster->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitEast);
-
-            if (caster->HasAura(SilvershardMines::Spells::CartControlCapturePointUnitNorth))
-                return caster->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitNorth);
-
-            if (caster->HasAura(SilvershardMines::Spells::CartControlCapturePointUnitSouth))
-                return caster->GetGameObject(SilvershardMines::Spells::CartControlCapturePointUnitSouth);
-        }
-
-        return nullptr;
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bg_silvershard_mines_defending_cart_aura::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-    }
-};
-
-// 128648 - Defending Cart Aura
-class spell_bg_silvershard_mines_defending_cart_aura_AuraScript final : public AuraScript
-{
-    bool Load() override
-    {
-        if (Unit const* caster = GetCaster())
-            return caster->GetMapId() == SilvershardMines::Maps::BattlegroundMap;
-
-        return false;
-    }
-
-    void OnPeriodic(AuraEffect const* /*aurEff*/) const
-    {
-        Unit const* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (GetTarget()->GetDistance(caster) > 25.0f)
-            GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Id, caster->GetGUID());
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bg_silvershard_mines_defending_cart_aura_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 // 60379, 60378, 60380 - Mine Cart
 class npc_bg_silvershard_mines_mine_cart_cosmetic final : public ScriptedAI
 {
@@ -1038,7 +960,6 @@ void AddSC_battleground_silvershard_mines()
 
     RegisterSpellScript(spell_bg_silvershard_mines_cart_cap);
     RegisterSpellScript(spell_bg_silvershard_mines_capturing);
-    RegisterSpellAndAuraScriptPair(spell_bg_silvershard_mines_defending_cart_aura, spell_bg_silvershard_mines_defending_cart_aura_AuraScript);
     RegisterSpellScript(spell_bg_silvershard_mines_capturing_switch_track);
     RegisterCreatureAI(npc_bg_silvershard_mines_mine_cart);
     RegisterCreatureAI(npc_bg_silvershard_mines_mine_cart_cosmetic);
