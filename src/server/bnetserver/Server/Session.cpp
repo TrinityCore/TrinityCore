@@ -557,15 +557,9 @@ uint32 Battlenet::Session::HandleProcessClientRequest(game_utilities::v1::Client
     return (this->*itr->second)(params, response);
 }
 
-static Variant const* GetParam(std::unordered_map<std::string, Variant const*> const& params, char const* paramName)
-{
-    auto itr = params.find(paramName);
-    return itr != params.end() ? itr->second : nullptr;
-}
-
 uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* identity = GetParam(params, "Param_Identity"))
+    if (Variant const* identity = Trinity::Containers::MapGetValuePtr(params, "Param_Identity"))
     {
         ::JSON::RealmList::RealmListTicketIdentity data;
         std::size_t jsonStart = identity->blob_value().find(':');
@@ -586,7 +580,7 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
         return ERROR_GAME_ACCOUNT_SUSPENDED;
 
     bool clientInfoOk = false;
-    if (Variant const* clientInfo = GetParam(params, "Param_ClientInfo"))
+    if (Variant const* clientInfo = Trinity::Containers::MapGetValuePtr(params, "Param_ClientInfo"))
     {
         ::JSON::RealmList::RealmListTicketClientInformation data;
         std::size_t jsonStart = clientInfo->blob_value().find(':');
@@ -620,7 +614,7 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
 
 uint32 Battlenet::Session::GetLastCharPlayed(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* subRegion = GetParam(params, "Command_LastCharPlayedRequest_v1"))
+    if (Variant const* subRegion = Trinity::Containers::MapGetValuePtr(params, "Command_LastCharPlayedRequest_v1"))
     {
         auto lastPlayerChar = _gameAccountInfo->LastPlayedCharacters.find(subRegion->string_value());
         if (lastPlayerChar != _gameAccountInfo->LastPlayedCharacters.end())
@@ -659,7 +653,7 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
         return ERROR_USER_SERVER_BAD_WOW_ACCOUNT;
 
     std::string subRegionId;
-    if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1"))
+    if (Variant const* subRegion = Trinity::Containers::MapGetValuePtr(params, "Command_RealmListRequest_v1"))
         subRegionId = subRegion->string_value();
 
     std::vector<uint8> compressed = sRealmList->GetRealmList(_build, _gameAccountInfo->SecurityLevel, subRegionId);
@@ -696,7 +690,7 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
 
 uint32 Battlenet::Session::JoinRealm(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* realmAddress = GetParam(params, "Param_RealmAddress"))
+    if (Variant const* realmAddress = Trinity::Containers::MapGetValuePtr(params, "Param_RealmAddress"))
         return sRealmList->JoinRealm(realmAddress->uint_value(), _build, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
             _os, _timezoneOffset, _gameAccountInfo->Name, _gameAccountInfo->SecurityLevel, response);
 

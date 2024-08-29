@@ -19,6 +19,7 @@
 #include "BattlenetRpcErrorCodes.h"
 #include "IpAddress.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ProtobufJSON.h"
 #include "RealmList.h"
 #include "RealmList.pb.h"
@@ -75,16 +76,10 @@ uint32 Battlenet::Services::GameUtilitiesService::HandleProcessClientRequest(gam
     return (this->*itr->second)(params, response);
 }
 
-static Variant const* GetParam(std::unordered_map<std::string, Variant const*> const& params, char const* paramName)
-{
-    auto itr = params.find(paramName);
-    return itr != params.end() ? itr->second : nullptr;
-}
-
 uint32 Battlenet::Services::GameUtilitiesService::HandleRealmListRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     std::string subRegionId;
-    if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1"))
+    if (Variant const* subRegion = Trinity::Containers::MapGetValuePtr(params, "Command_RealmListRequest_v1"))
         subRegionId = subRegion->string_value();
 
     std::vector<uint8> compressed = sRealmList->GetRealmList(_session->GetClientBuild(), _session->GetSecurity(), subRegionId);
@@ -122,7 +117,7 @@ uint32 Battlenet::Services::GameUtilitiesService::HandleRealmListRequest(std::un
 
 uint32 Battlenet::Services::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* realmAddress = GetParam(params, "Param_RealmAddress"))
+    if (Variant const* realmAddress = Trinity::Containers::MapGetValuePtr(params, "Param_RealmAddress"))
         return sRealmList->JoinRealm(uint32(realmAddress->uint_value()), _session->GetClientBuild(), Trinity::Net::make_address(_session->GetRemoteAddress()), _session->GetRealmListSecret(),
             _session->GetSessionDbcLocale(), _session->GetOS(), _session->GetTimezoneOffset(), _session->GetAccountName(), _session->GetSecurity(), response);
 
