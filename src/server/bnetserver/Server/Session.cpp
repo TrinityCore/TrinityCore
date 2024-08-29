@@ -219,7 +219,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
         return ERROR_BAD_PROGRAM;
     }
 
-    if (logonRequest->platform() != "Win" && logonRequest->platform() != "Wn64" && logonRequest->platform() != "Mc64" && logonRequest->platform() != "MacA")
+    if (!ClientBuild::Platform::IsValid(logonRequest->platform()))
     {
         TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] {} attempted to log in from an unsupported platform (using {})!", GetClientInfo(), logonRequest->platform());
         return ERROR_BAD_PLATFORM;
@@ -591,6 +591,8 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
                 clientInfoOk = true;
                 memcpy(_clientSecret.data(), data.info().secret().data(), _clientSecret.size());
             }
+
+            _clientInfo = { .Platform = data.info().platformtype(), .Arch = data.info().clientarch(), .Type = data.info().type() };
         }
     }
 
@@ -691,7 +693,7 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
 uint32 Battlenet::Session::JoinRealm(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     if (Variant const* realmAddress = Trinity::Containers::MapGetValuePtr(params, "Param_RealmAddress"))
-        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
+        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, _clientInfo, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
             _os, _timezoneOffset, _gameAccountInfo->Name, _gameAccountInfo->SecurityLevel, response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;

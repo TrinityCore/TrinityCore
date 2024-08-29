@@ -87,3 +87,10 @@ message RealmIPAddressFamily {
 message RealmListServerIPAddresses {
   repeated RealmIPAddressFamily families = 1;
 }
+
+message RealmJoinTicket {
+  required string gameAccount = 1;
+  required fixed32 platform = 2;
+  required fixed32 type = 3;
+  required fixed32 clientArch = 4;
+}

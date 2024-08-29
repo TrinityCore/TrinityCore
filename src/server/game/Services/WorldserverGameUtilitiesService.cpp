@@ -118,8 +118,9 @@ uint32 Battlenet::Services::GameUtilitiesService::HandleRealmListRequest(std::un
 uint32 Battlenet::Services::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     if (Variant const* realmAddress = Trinity::Containers::MapGetValuePtr(params, "Param_RealmAddress"))
-        return sRealmList->JoinRealm(uint32(realmAddress->uint_value()), _session->GetClientBuild(), Trinity::Net::make_address(_session->GetRemoteAddress()), _session->GetRealmListSecret(),
-            _session->GetSessionDbcLocale(), _session->GetOS(), _session->GetTimezoneOffset(), _session->GetAccountName(), _session->GetSecurity(), response);
+        return sRealmList->JoinRealm(uint32(realmAddress->uint_value()), _session->GetClientBuild(), _session->GetClientBuildVariant(),
+            Trinity::Net::make_address(_session->GetRemoteAddress()), _session->GetRealmListSecret(), _session->GetSessionDbcLocale(),
+            _session->GetOS(), _session->GetTimezoneOffset(), _session->GetAccountName(), _session->GetSecurity(), response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
 }
