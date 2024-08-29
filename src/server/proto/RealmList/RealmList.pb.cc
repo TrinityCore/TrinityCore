@@ -60,6 +60,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* RealmListServerIPAddresses_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RealmListServerIPAddresses_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RealmJoinTicket_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RealmJoinTicket_reflection_ = NULL;
 
 }  // namespace
 
@@ -296,6 +299,24 @@ void protobuf_AssignDesc_RealmList_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RealmListServerIPAddresses));
+  RealmJoinTicket_descriptor_ = file->message_type(13);
+  static const int RealmJoinTicket_offsets_[4] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmJoinTicket, gameaccount_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmJoinTicket, platform_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmJoinTicket, type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmJoinTicket, clientarch_),
+  };
+  RealmJoinTicket_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RealmJoinTicket_descriptor_,
+      RealmJoinTicket::default_instance_,
+      RealmJoinTicket_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmJoinTicket, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RealmJoinTicket, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RealmJoinTicket));
 }
 
 namespace {
@@ -334,6 +355,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     RealmIPAddressFamily_descriptor_, &RealmIPAddressFamily::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RealmListServerIPAddresses_descriptor_, &RealmListServerIPAddresses::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RealmJoinTicket_descriptor_, &RealmJoinTicket::default_instance());
 }
 
 }  // namespace
@@ -365,6 +388,8 @@ void protobuf_ShutdownFile_RealmList_2eproto() {
   delete RealmIPAddressFamily_reflection_;
   delete RealmListServerIPAddresses::default_instance_;
   delete RealmListServerIPAddresses_reflection_;
+  delete RealmJoinTicket::default_instance_;
+  delete RealmJoinTicket_reflection_;
 }
 
 void protobuf_AddDesc_RealmList_2eproto() {
@@ -411,7 +436,9 @@ void protobuf_AddDesc_RealmList_2eproto() {
     "mily\030\001 \002(\r\022,\n\taddresses\030\002 \003(\0132\031.JSON.Rea"
     "lmList.IPAddress\"T\n\032RealmListServerIPAdd"
     "resses\0226\n\010families\030\001 \003(\0132$.JSON.RealmLis"
-    "t.RealmIPAddressFamilyB\002H\002", 1506);
+    "t.RealmIPAddressFamily\"Z\n\017RealmJoinTicke"
+    "t\022\023\n\013gameAccount\030\001 \002(\t\022\020\n\010platform\030\002 \002(\007"
+    "\022\014\n\004type\030\003 \002(\007\022\022\n\nclientArch\030\004 \002(\007B\002H\002", 1598);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "RealmList.proto", &protobuf_RegisterTypes);
   RealmListTicketIdentity::default_instance_ = new RealmListTicketIdentity();
@@ -427,6 +454,7 @@ void protobuf_AddDesc_RealmList_2eproto() {
   IPAddress::default_instance_ = new IPAddress();
   RealmIPAddressFamily::default_instance_ = new RealmIPAddressFamily();
   RealmListServerIPAddresses::default_instance_ = new RealmListServerIPAddresses();
+  RealmJoinTicket::default_instance_ = new RealmJoinTicket();
   RealmListTicketIdentity::default_instance_->InitAsDefaultInstance();
   ClientVersion::default_instance_->InitAsDefaultInstance();
   ClientInformation::default_instance_->InitAsDefaultInstance();
@@ -440,6 +468,7 @@ void protobuf_AddDesc_RealmList_2eproto() {
   IPAddress::default_instance_->InitAsDefaultInstance();
   RealmIPAddressFamily::default_instance_->InitAsDefaultInstance();
   RealmListServerIPAddresses::default_instance_->InitAsDefaultInstance();
+  RealmJoinTicket::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_RealmList_2eproto);
 }
 
@@ -1471,6 +1500,88 @@ void RealmListServerIPAddresses::Swap(RealmListServerIPAddresses* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = RealmListServerIPAddresses_descriptor_;
   metadata.reflection = RealmListServerIPAddresses_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RealmJoinTicket::kGameAccountFieldNumber;
+const int RealmJoinTicket::kPlatformFieldNumber;
+const int RealmJoinTicket::kTypeFieldNumber;
+const int RealmJoinTicket::kClientArchFieldNumber;
+#endif  // !_MSC_VER
+
+RealmJoinTicket::RealmJoinTicket()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:JSON.RealmList.RealmJoinTicket)
+}
+
+void RealmJoinTicket::InitAsDefaultInstance() {
+}
+
+RealmJoinTicket::RealmJoinTicket(const RealmJoinTicket& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:JSON.RealmList.RealmJoinTicket)
+}
+
+void RealmJoinTicket::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  gameaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  platform_ = 0u;
+  type_ = 0u;
+  clientarch_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RealmJoinTicket::~RealmJoinTicket() {
+  // @@protoc_insertion_point(destructor:JSON.RealmList.RealmJoinTicket)
+  SharedDtor();
+}
+
+void RealmJoinTicket::SharedDtor() {
+  if (gameaccount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete gameaccount_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void RealmJoinTicket::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RealmJoinTicket::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RealmJoinTicket_descriptor_;
+}
+
+const RealmJoinTicket& RealmJoinTicket::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_RealmList_2eproto();
+  return *default_instance_;
+}
+
+RealmJoinTicket* RealmJoinTicket::default_instance_ = NULL;
+
+RealmJoinTicket* RealmJoinTicket::New() const {
+  return new RealmJoinTicket;
+}
+
+void RealmJoinTicket::Swap(RealmJoinTicket* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata RealmJoinTicket::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RealmJoinTicket_descriptor_;
+  metadata.reflection = RealmJoinTicket_reflection_;
   return metadata;
 }
 

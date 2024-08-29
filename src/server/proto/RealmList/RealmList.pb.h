@@ -48,6 +48,7 @@ class RealmListUpdates;
 class IPAddress;
 class RealmIPAddressFamily;
 class RealmListServerIPAddresses;
+class RealmJoinTicket;
 
 // ===================================================================
 
@@ -1276,6 +1277,107 @@ class TC_PROTO_API RealmListServerIPAddresses : public ::google::protobuf::Messa
 
   void InitAsDefaultInstance();
   static RealmListServerIPAddresses* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API RealmJoinTicket : public ::google::protobuf::Message {
+ public:
+  RealmJoinTicket();
+  virtual ~RealmJoinTicket();
+
+  RealmJoinTicket(const RealmJoinTicket& from);
+
+  inline RealmJoinTicket& operator=(const RealmJoinTicket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RealmJoinTicket& default_instance();
+
+  void Swap(RealmJoinTicket* other);
+
+  // implements Message ----------------------------------------------
+
+  RealmJoinTicket* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string gameAccount = 1;
+  inline bool has_gameaccount() const;
+  inline void clear_gameaccount();
+  static const int kGameAccountFieldNumber = 1;
+  inline const ::std::string& gameaccount() const;
+  inline void set_gameaccount(const ::std::string& value);
+  inline void set_gameaccount(const char* value);
+  inline void set_gameaccount(const char* value, size_t size);
+  inline ::std::string* mutable_gameaccount();
+  inline ::std::string* release_gameaccount();
+  inline void set_allocated_gameaccount(::std::string* gameaccount);
+
+  // required fixed32 platform = 2;
+  inline bool has_platform() const;
+  inline void clear_platform();
+  static const int kPlatformFieldNumber = 2;
+  inline ::google::protobuf::uint32 platform() const;
+  inline void set_platform(::google::protobuf::uint32 value);
+
+  // required fixed32 type = 3;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 3;
+  inline ::google::protobuf::uint32 type() const;
+  inline void set_type(::google::protobuf::uint32 value);
+
+  // required fixed32 clientArch = 4;
+  inline bool has_clientarch() const;
+  inline void clear_clientarch();
+  static const int kClientArchFieldNumber = 4;
+  inline ::google::protobuf::uint32 clientarch() const;
+  inline void set_clientarch(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:JSON.RealmList.RealmJoinTicket)
+ private:
+  inline void set_has_gameaccount();
+  inline void clear_has_gameaccount();
+  inline void set_has_platform();
+  inline void clear_has_platform();
+  inline void set_has_type();
+  inline void clear_has_type();
+  inline void set_has_clientarch();
+  inline void clear_has_clientarch();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* gameaccount_;
+  ::google::protobuf::uint32 platform_;
+  ::google::protobuf::uint32 type_;
+  ::google::protobuf::uint32 clientarch_;
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
+  friend void protobuf_AssignDesc_RealmList_2eproto();
+  friend void protobuf_ShutdownFile_RealmList_2eproto();
+
+  void InitAsDefaultInstance();
+  static RealmJoinTicket* default_instance_;
 };
 // ===================================================================
 
@@ -2815,6 +2917,158 @@ inline ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmIPAddressFa
 RealmListServerIPAddresses::mutable_families() {
   // @@protoc_insertion_point(field_mutable_list:JSON.RealmList.RealmListServerIPAddresses.families)
   return &families_;
+}
+
+// -------------------------------------------------------------------
+
+// RealmJoinTicket
+
+// required string gameAccount = 1;
+inline bool RealmJoinTicket::has_gameaccount() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void RealmJoinTicket::set_has_gameaccount() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void RealmJoinTicket::clear_has_gameaccount() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void RealmJoinTicket::clear_gameaccount() {
+  if (gameaccount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_->clear();
+  }
+  clear_has_gameaccount();
+}
+inline const ::std::string& RealmJoinTicket::gameaccount() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.gameAccount)
+  return *gameaccount_;
+}
+inline void RealmJoinTicket::set_gameaccount(const ::std::string& value) {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  gameaccount_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+inline void RealmJoinTicket::set_gameaccount(const char* value) {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  gameaccount_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+inline void RealmJoinTicket::set_gameaccount(const char* value, size_t size) {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  gameaccount_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+inline ::std::string* RealmJoinTicket::mutable_gameaccount() {
+  set_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    gameaccount_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.RealmJoinTicket.gameAccount)
+  return gameaccount_;
+}
+inline ::std::string* RealmJoinTicket::release_gameaccount() {
+  clear_has_gameaccount();
+  if (gameaccount_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = gameaccount_;
+    gameaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void RealmJoinTicket::set_allocated_gameaccount(::std::string* gameaccount) {
+  if (gameaccount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete gameaccount_;
+  }
+  if (gameaccount) {
+    set_has_gameaccount();
+    gameaccount_ = gameaccount;
+  } else {
+    clear_has_gameaccount();
+    gameaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.RealmJoinTicket.gameAccount)
+}
+
+// required fixed32 platform = 2;
+inline bool RealmJoinTicket::has_platform() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void RealmJoinTicket::set_has_platform() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void RealmJoinTicket::clear_has_platform() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void RealmJoinTicket::clear_platform() {
+  platform_ = 0u;
+  clear_has_platform();
+}
+inline ::google::protobuf::uint32 RealmJoinTicket::platform() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.platform)
+  return platform_;
+}
+inline void RealmJoinTicket::set_platform(::google::protobuf::uint32 value) {
+  set_has_platform();
+  platform_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.platform)
+}
+
+// required fixed32 type = 3;
+inline bool RealmJoinTicket::has_type() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void RealmJoinTicket::set_has_type() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void RealmJoinTicket::clear_has_type() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void RealmJoinTicket::clear_type() {
+  type_ = 0u;
+  clear_has_type();
+}
+inline ::google::protobuf::uint32 RealmJoinTicket::type() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.type)
+  return type_;
+}
+inline void RealmJoinTicket::set_type(::google::protobuf::uint32 value) {
+  set_has_type();
+  type_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.type)
+}
+
+// required fixed32 clientArch = 4;
+inline bool RealmJoinTicket::has_clientarch() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void RealmJoinTicket::set_has_clientarch() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void RealmJoinTicket::clear_has_clientarch() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void RealmJoinTicket::clear_clientarch() {
+  clientarch_ = 0u;
+  clear_has_clientarch();
+}
+inline ::google::protobuf::uint32 RealmJoinTicket::clientarch() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.RealmJoinTicket.clientArch)
+  return clientarch_;
+}
+inline void RealmJoinTicket::set_clientarch(::google::protobuf::uint32 value) {
+  set_has_clientarch();
+  clientarch_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.RealmJoinTicket.clientArch)
 }
 
 // @@protoc_insertion_point(namespace_scope)
