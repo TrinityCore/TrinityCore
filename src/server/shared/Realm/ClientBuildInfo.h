@@ -25,19 +25,23 @@
 
 namespace ClientBuild
 {
+inline constexpr uint32 ToFourCC(std::string_view text)
+{
+    uint32 uintValue = 0;
+    for (uint8 c : text)
+    {
+        uintValue <<= 8;
+        uintValue |= c;
+    }
+    return uintValue;
+}
+
 consteval uint32 operator""_fourcc(char const* chars, std::size_t length)
 {
     if (length > sizeof(uint32))
         throw "Text can only be max 4 characters long";
 
-    uint32 uintValue = 0;
-    for (uint8 c : std::string_view(chars, length))
-    {
-        uintValue <<= 8;
-        uintValue |= c;
-    }
-
-    return uintValue;
+    return ToFourCC({ chars, length });
 }
 
 TC_SHARED_API std::array<char, 5> ToCharArray(uint32 value);
@@ -58,6 +62,8 @@ namespace PlatformType
 {
     inline constexpr uint32 Windows     = "Win"_fourcc;
     inline constexpr uint32 macOS       = "Mac"_fourcc;
+
+    TC_SHARED_API bool IsValid(std::string_view platformType);
 }
 
 namespace Arch
@@ -67,6 +73,8 @@ namespace Arch
     inline constexpr uint32 Arm32       = "A32"_fourcc;
     inline constexpr uint32 Arm64       = "A64"_fourcc;
     inline constexpr uint32 WA32        = "WA32"_fourcc;
+
+    TC_SHARED_API bool IsValid(std::string_view arch);
 }
 
 namespace Type
@@ -77,6 +85,8 @@ namespace Type
     inline constexpr uint32 BetaRelease = "WoWE"_fourcc;
     inline constexpr uint32 Ptr         = "WoWT"_fourcc;
     inline constexpr uint32 PtrRelease  = "WoWR"_fourcc;
+
+    TC_SHARED_API bool IsValid(std::string_view type);
 }
 
 struct VariantId

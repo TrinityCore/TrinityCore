@@ -17,6 +17,7 @@
 
 #include "ClientBuildInfo.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 #include "Util.h"
 #include <algorithm>
 #include <cctype>
@@ -57,14 +58,7 @@ bool Platform::IsValid(std::string_view platform)
     if (platform.length() > sizeof(uint32))
         return false;
 
-    uint32 platformInt = 0;
-    for (uint8 c : platform)
-    {
-        platformInt <<= 8;
-        platformInt |= c;
-    }
-
-    switch (platformInt)
+    switch (ToFourCC(platform))
     {
         case Win_x86:
         case Win_x64:
@@ -80,17 +74,73 @@ bool Platform::IsValid(std::string_view platform)
     return false;
 }
 
+bool PlatformType::IsValid(std::string_view platformType)
+{
+    if (platformType.length() > sizeof(uint32))
+        return false;
+
+    switch (ToFourCC(platformType))
+    {
+        case Windows:
+        case macOS:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool Arch::IsValid(std::string_view arch)
+{
+    if (arch.length() > sizeof(uint32))
+        return false;
+
+    switch (ToFourCC(arch))
+    {
+        case x86:
+        case x64:
+        case Arm32:
+        case Arm64:
+        case WA32:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool Type::IsValid(std::string_view type)
+{
+    if (type.length() > sizeof(uint32))
+        return false;
+
+    switch (ToFourCC(type))
+    {
+        case Retail:
+        case RetailChina:
+        case Beta:
+        case BetaRelease:
+        case Ptr:
+        case PtrRelease:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 void LoadBuildInfo()
 {
     Builds.clear();
 
-    //                                                              0             1              2              3      4              5              6
-    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed, macArmAuthSeed FROM build_info ORDER BY build ASC"))
+    //                                                              0             1              2              3      4
+    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build FROM build_info ORDER BY build ASC"))
     {
         do
         {
-            using namespace ClientBuild;
-
             Field* fields = result->Fetch();
             Info& build = Builds.emplace_back();
             build.MajorVersion = fields[0].GetUInt32();
@@ -103,29 +153,49 @@ void LoadBuildInfo()
                 build.HotfixVersion = { };
 
             build.Build = fields[4].GetUInt32();
-            std::string win64AuthSeedHexStr = fields[5].GetString();
-            if (win64AuthSeedHexStr.length() == AuthKey::Size * 2)
+
+        } while (result->NextRow());
+    }
+
+    //                                                        0           1       2       3      4
+    if (QueryResult result = LoginDatabase.Query("SELECT `build`, `platform`, `arch`, `type`, `key` FROM `build_auth_key`"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 build = fields[0].GetInt32();
+            auto buildInfo = std::ranges::find(Builds, build, &Info::Build);
+            if (buildInfo == Builds.end())
             {
-                AuthKey& buildKey = build.AuthKeys.emplace_back();
-                buildKey.Variant = { .Platform = PlatformType::Windows, .Arch = Arch::x64, .Type = Type::Retail };
-                HexStrToByteArray(win64AuthSeedHexStr, buildKey.Key);
+                TC_LOG_ERROR("sql.sql", "ClientBuild::LoadBuildInfo: Unknown `build` {} in `build_auth_key` - missing from `build_info`, skipped.", build);
+                continue;
             }
 
-            std::string mac64AuthSeedHexStr = fields[6].GetString();
-            if (mac64AuthSeedHexStr.length() == AuthKey::Size * 2)
+            std::string_view platformType = fields[1].GetStringView();
+            if (!PlatformType::IsValid(platformType))
             {
-                AuthKey& buildKey = build.AuthKeys.emplace_back();
-                buildKey.Variant = { .Platform = PlatformType::macOS, .Arch = Arch::x64, .Type = Type::Retail };
-                HexStrToByteArray(mac64AuthSeedHexStr, buildKey.Key);
+                TC_LOG_ERROR("sql.sql", "ClientBuild::LoadBuildInfo: Invalid platform {} for `build` {} in `build_auth_key`, skipped.", platformType, build);
+                continue;
             }
 
-            std::string macArmAuthSeedHexStr = fields[7].GetString();
-            if (macArmAuthSeedHexStr.length() == AuthKey::Size * 2)
+            std::string_view arch = fields[2].GetStringView();
+            if (!Arch::IsValid(arch))
             {
-                AuthKey& buildKey = build.AuthKeys.emplace_back();
-                buildKey.Variant = { .Platform = PlatformType::macOS, .Arch = Arch::Arm64, .Type = Type::Retail };
-                HexStrToByteArray(macArmAuthSeedHexStr, buildKey.Key);
+                TC_LOG_ERROR("sql.sql", "ClientBuild::LoadBuildInfo: Invalid `arch` {} for `build` {} in `build_auth_key`, skipped.", arch, build);
+                continue;
             }
+
+            std::string_view type = fields[3].GetStringView();
+            if (!Type::IsValid(type))
+            {
+                TC_LOG_ERROR("sql.sql", "ClientBuild::LoadBuildInfo: Invalid `type` {} for `build` {} in `build_auth_key`, skipped.", type, build);
+                continue;
+            }
+
+            AuthKey& buildKey = buildInfo->AuthKeys.emplace_back();
+            buildKey.Variant = { .Platform = ToFourCC(platformType), .Arch = ToFourCC(arch), .Type = ToFourCC(type) };
+            buildKey.Key = fields[4].GetBinary<AuthKey::Size>();
 
         } while (result->NextRow());
     }
