@@ -34,7 +34,7 @@ std::array<char, 5> ClientBuild::ToCharArray(uint32 value)
     if (firstNonZero != chars.end())
     {
         // move leading zeros to end
-        std::ranges::rotate(chars, firstNonZero);
+        std::rotate(chars.begin(), firstNonZero, chars.end());
 
         // ensure we only have printable characters remaining
         std::ranges::transform(chars, chars.begin(), normalize);
