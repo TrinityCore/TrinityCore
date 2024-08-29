@@ -57,7 +57,6 @@ public:
     ~RealmList();
 
     void Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval);
-    void LoadBuildInfo();
     void Close();
 
     std::shared_ptr<Realm const> GetRealm(Battlenet::RealmHandle const& id) const;
@@ -65,8 +64,6 @@ public:
     void SetCurrentRealmId(Battlenet::RealmHandle const& id);
     std::shared_ptr<Realm const> GetCurrentRealm() const;
 
-    ClientBuild::Info const* GetBuildInfo(uint32 build) const;
-    uint32 GetMinorMajorBugfixVersionForBuild(uint32 build) const;
     void WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const;
     std::vector<uint8> GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const;
     std::vector<uint8> GetRealmList(uint32 build, AccountTypes accountSecurityLevel, std::string const& subRegion) const;
@@ -83,7 +80,6 @@ private:
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, RealmPopulationState population);
     void FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTypes accountSecurityLevel, JSON::RealmList::RealmEntry* realmEntry) const;
 
-    std::vector<ClientBuild::Info> _builds;
     mutable std::shared_mutex _realmsMutex;
     RealmMap _realms;
     std::map<Battlenet::RealmHandle, std::string> _removedRealms;
