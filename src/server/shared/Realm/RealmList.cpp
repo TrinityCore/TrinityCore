@@ -69,7 +69,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
     _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
 
-    LoadBuildInfo();
+    ClientBuild::LoadBuildInfo();
     // Get the content of the realmlist table in the database
     UpdateRealms();
 }
@@ -77,57 +77,6 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 void RealmList::Close()
 {
     _updateTimer->cancel();
-}
-
-void RealmList::LoadBuildInfo()
-{
-    _builds.clear();
-
-    //                                                              0             1              2              3      4              5              6
-    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed, macArmAuthSeed FROM build_info ORDER BY build ASC"))
-    {
-        do
-        {
-            using namespace ClientBuild;
-
-            Field* fields = result->Fetch();
-            Info& build = _builds.emplace_back();
-            build.MajorVersion = fields[0].GetUInt32();
-            build.MinorVersion = fields[1].GetUInt32();
-            build.BugfixVersion = fields[2].GetUInt32();
-            std::string hotfixVersion = fields[3].GetString();
-            if (hotfixVersion.length() < build.HotfixVersion.size())
-                std::ranges::copy(hotfixVersion, build.HotfixVersion.begin());
-            else
-                build.HotfixVersion = { };
-
-            build.Build = fields[4].GetUInt32();
-            std::string win64AuthSeedHexStr = fields[5].GetString();
-            if (win64AuthSeedHexStr.length() == AuthKey::Size * 2)
-            {
-                AuthKey& buildKey = build.AuthKeys.emplace_back();
-                buildKey.Variant = { .Platform = PlatformType::Windows, .Arch = Arch::x64, .Type = Type::Retail };
-                HexStrToByteArray(win64AuthSeedHexStr, buildKey.Key);
-            }
-
-            std::string mac64AuthSeedHexStr = fields[6].GetString();
-            if (mac64AuthSeedHexStr.length() == AuthKey::Size * 2)
-            {
-                AuthKey& buildKey = build.AuthKeys.emplace_back();
-                buildKey.Variant = { .Platform = PlatformType::macOS, .Arch = Arch::x64, .Type = Type::Retail };
-                HexStrToByteArray(mac64AuthSeedHexStr, buildKey.Key);
-            }
-
-            std::string macArmAuthSeedHexStr = fields[7].GetString();
-            if (macArmAuthSeedHexStr.length() == AuthKey::Size * 2)
-            {
-                AuthKey& buildKey = build.AuthKeys.emplace_back();
-                buildKey.Variant = { .Platform = PlatformType::macOS, .Arch = Arch::Arm64, .Type = Type::Retail };
-                HexStrToByteArray(macArmAuthSeedHexStr, buildKey.Key);
-            }
-
-        } while (result->NextRow());
-    }
 }
 
 void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
@@ -269,18 +218,6 @@ std::shared_ptr<Realm const> RealmList::GetCurrentRealm() const
     return nullptr;
 }
 
-ClientBuild::Info const* RealmList::GetBuildInfo(uint32 build) const
-{
-    auto buildInfo = std::ranges::find(_builds, build, &ClientBuild::Info::Build);
-    return buildInfo != _builds.end() ? &*buildInfo : nullptr;
-}
-
-uint32 RealmList::GetMinorMajorBugfixVersionForBuild(uint32 build) const
-{
-    auto buildInfo = std::ranges::lower_bound(_builds, build, {}, &ClientBuild::Info::Build);
-    return buildInfo != _builds.end() ? (buildInfo->MajorVersion * 10000 + buildInfo->MinorVersion * 100 + buildInfo->BugfixVersion) : 0;
-}
-
 void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const
 {
     std::shared_lock<std::shared_mutex> lock(_realmsMutex);
@@ -300,7 +237,7 @@ void RealmList::FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTy
     realmEntry->set_cfgcategoriesid(realm.Timezone);
 
     JSON::RealmList::ClientVersion* version = realmEntry->mutable_version();
-    if (ClientBuild::Info const* buildInfo = GetBuildInfo(realm.Build))
+    if (ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(realm.Build))
     {
         version->set_versionmajor(buildInfo->MajorVersion);
         version->set_versionminor(buildInfo->MinorVersion);

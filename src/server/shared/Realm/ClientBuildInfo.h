@@ -105,6 +105,10 @@ struct Info
     std::array<char, 4> HotfixVersion;
     std::vector<AuthKey> AuthKeys;
 };
+
+TC_SHARED_API void LoadBuildInfo();
+TC_SHARED_API Info const* GetBuildInfo(uint32 build);
+TC_SHARED_API uint32 GetMinorMajorBugfixVersionForBuild(uint32 build);
 }
 
 #endif // TRINITYCORE_CLIENT_BUILD_INFO_H

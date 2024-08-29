@@ -16,10 +16,19 @@
  */
 
 #include "ClientBuildInfo.h"
+#include "DatabaseEnv.h"
+#include "Util.h"
 #include <algorithm>
 #include <cctype>
 
-std::array<char, 5> ClientBuild::ToCharArray(uint32 value)
+namespace
+{
+std::vector<ClientBuild::Info> Builds;
+}
+
+namespace ClientBuild
+{
+std::array<char, 5> ToCharArray(uint32 value)
 {
     auto normalize = [](uint8 c) -> char
     {
@@ -43,7 +52,7 @@ std::array<char, 5> ClientBuild::ToCharArray(uint32 value)
     return chars;
 }
 
-bool ClientBuild::Platform::IsValid(std::string_view platform)
+bool Platform::IsValid(std::string_view platform)
 {
     if (platform.length() > sizeof(uint32))
         return false;
@@ -69,4 +78,68 @@ bool ClientBuild::Platform::IsValid(std::string_view platform)
     }
 
     return false;
+}
+
+void LoadBuildInfo()
+{
+    Builds.clear();
+
+    //                                                              0             1              2              3      4              5              6
+    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed, macArmAuthSeed FROM build_info ORDER BY build ASC"))
+    {
+        do
+        {
+            using namespace ClientBuild;
+
+            Field* fields = result->Fetch();
+            Info& build = Builds.emplace_back();
+            build.MajorVersion = fields[0].GetUInt32();
+            build.MinorVersion = fields[1].GetUInt32();
+            build.BugfixVersion = fields[2].GetUInt32();
+            std::string hotfixVersion = fields[3].GetString();
+            if (hotfixVersion.length() < build.HotfixVersion.size())
+                std::ranges::copy(hotfixVersion, build.HotfixVersion.begin());
+            else
+                build.HotfixVersion = { };
+
+            build.Build = fields[4].GetUInt32();
+            std::string win64AuthSeedHexStr = fields[5].GetString();
+            if (win64AuthSeedHexStr.length() == AuthKey::Size * 2)
+            {
+                AuthKey& buildKey = build.AuthKeys.emplace_back();
+                buildKey.Variant = { .Platform = PlatformType::Windows, .Arch = Arch::x64, .Type = Type::Retail };
+                HexStrToByteArray(win64AuthSeedHexStr, buildKey.Key);
+            }
+
+            std::string mac64AuthSeedHexStr = fields[6].GetString();
+            if (mac64AuthSeedHexStr.length() == AuthKey::Size * 2)
+            {
+                AuthKey& buildKey = build.AuthKeys.emplace_back();
+                buildKey.Variant = { .Platform = PlatformType::macOS, .Arch = Arch::x64, .Type = Type::Retail };
+                HexStrToByteArray(mac64AuthSeedHexStr, buildKey.Key);
+            }
+
+            std::string macArmAuthSeedHexStr = fields[7].GetString();
+            if (macArmAuthSeedHexStr.length() == AuthKey::Size * 2)
+            {
+                AuthKey& buildKey = build.AuthKeys.emplace_back();
+                buildKey.Variant = { .Platform = PlatformType::macOS, .Arch = Arch::Arm64, .Type = Type::Retail };
+                HexStrToByteArray(macArmAuthSeedHexStr, buildKey.Key);
+            }
+
+        } while (result->NextRow());
+    }
+}
+
+Info const* GetBuildInfo(uint32 build)
+{
+    auto buildInfo = std::ranges::find(Builds, build, &Info::Build);
+    return buildInfo != Builds.end() ? &*buildInfo : nullptr;
+}
+
+uint32 GetMinorMajorBugfixVersionForBuild(uint32 build)
+{
+    auto buildInfo = std::ranges::lower_bound(Builds, build, {}, &Info::Build);
+    return buildInfo != Builds.end() ? (buildInfo->MajorVersion * 10000 + buildInfo->MinorVersion * 100 + buildInfo->BugfixVersion) : 0;
+}
 }

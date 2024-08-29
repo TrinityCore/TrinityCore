@@ -19077,7 +19077,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
 
         stmt->setUInt8(index++, m_activePlayerData->MultiActionBars);
         if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
-            stmt->setUInt32(index++, sRealmList->GetMinorMajorBugfixVersionForBuild(currentRealm->Build));
+            stmt->setUInt32(index++, ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build));
         else
             stmt->setUInt32(index++, 0);
     }
@@ -19223,7 +19223,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt8(index++, m_activePlayerData->RestInfo[REST_TYPE_HONOR].StateID);
         stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_HONOR)));
         if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
-            stmt->setUInt32(index++, sRealmList->GetMinorMajorBugfixVersionForBuild(currentRealm->Build));
+            stmt->setUInt32(index++, ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build));
         else
             stmt->setUInt32(index++, 0);
 

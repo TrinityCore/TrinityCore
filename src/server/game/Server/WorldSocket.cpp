@@ -706,7 +706,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     AccountInfo account(result->Fetch());
 
-    ClientBuild::Info const* buildInfo = sRealmList->GetBuildInfo(account.Game.Build);
+    ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(account.Game.Build);
     if (!buildInfo)
     {
         SendAuthResponseError(ERROR_BAD_VERSION);
