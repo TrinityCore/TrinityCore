@@ -3016,6 +3016,7 @@ DROP TABLE IF EXISTS `item_loot_items`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_loot_items` (
   `container_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
+  `item_type` tinyint NOT NULL DEFAULT '0' COMMENT 'item or currency',
   `item_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'loot item entry (item_instance.itemEntry)',
   `item_count` int NOT NULL DEFAULT '0' COMMENT 'stack size',
   `item_index` int unsigned NOT NULL DEFAULT '0',
@@ -3028,7 +3029,7 @@ CREATE TABLE `item_loot_items` (
   `rnd_bonus` int unsigned NOT NULL DEFAULT '0' COMMENT 'random bonus list added when originally rolled',
   `context` tinyint unsigned NOT NULL DEFAULT '0',
   `bonus_list_ids` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Space separated list of bonus list ids',
-  PRIMARY KEY (`container_id`,`item_id`)
+  PRIMARY KEY (`container_id`,`item_type`,`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3744,7 +3745,8 @@ INSERT INTO `updates` VALUES
 ('2024_05_11_00_characters.sql','A65765D87C1BA181561A6517040DC1A3A8103B71','ARCHIVED','2024-05-11 03:06:52',0),
 ('2024_07_31_00_characters.sql','F7E7AE0B8077CB9A1EA0AE4F49693BB05A742AC3','RELEASED','2024-07-31 16:18:36',0),
 ('2024_08_04_00_characters.sql','7D153C59998416E6EA1455086730A2321AD0F2A8','RELEASED','2024-08-04 17:58:59',0),
-('2024_08_05_00_characters.sql','7E4AE28F9EC370A1B22DBD8DD718EE027A321F33','RELEASED','2024-08-05 11:19:40',0);
+('2024_08_05_00_characters.sql','7E4AE28F9EC370A1B22DBD8DD718EE027A321F33','RELEASED','2024-08-05 11:19:40',0),
+('2024_08_26_00_characters.sql','68EEBE1D639D59B24F5121008C2D103CA67FFC9A','RELEASED','2024-08-26 00:49:08',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

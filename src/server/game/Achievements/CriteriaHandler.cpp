@@ -1890,7 +1890,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm();
             if (!currentRealm)
                 return false;
-            if (reqValue < sRealmList->GetMinorMajorBugfixVersionForBuild(currentRealm->Build))
+            if (reqValue < ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build))
                 return false;
             break;
         }
