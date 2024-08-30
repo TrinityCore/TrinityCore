@@ -11550,11 +11550,11 @@ void ObjectMgr::LoadUiMapQuestLines()
     _uiMapQuestLinesStore.clear();
 
     //                                               0        1
-    QueryResult result = WorldDatabase.Query("SELECT UiMapId, QuestLineId FROM ui_map_quest_lines");
+    QueryResult result = WorldDatabase.Query("SELECT UiMapId, QuestLineId FROM ui_map_quest_line");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 questlines for UIMaps. DB table `ui_map_quest_lines` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 questlines for UIMaps. DB table `ui_map_quest_line` is empty!");
         return;
     }
 
@@ -11569,13 +11569,13 @@ void ObjectMgr::LoadUiMapQuestLines()
 
         if (!sUiMapStore.HasRecord(uiMapId))
         {
-            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest_lines` references non-existing UIMap {}, skipped", uiMapId);
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest_line` references non-existing UIMap {}, skipped", uiMapId);
             continue;
         }
 
         if (!sDB2Manager.GetQuestsForQuestLine(questLineId))
         {
-            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest_lines` references empty or non-existing questline {}, skipped", questLineId);
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest_line` references empty or non-existing questline {}, skipped", questLineId);
             continue;
         }
 
@@ -11600,11 +11600,11 @@ void ObjectMgr::LoadUiMapQuests()
     _uiMapQuestsStore.clear();
 
     //                                               0        1
-    QueryResult result = WorldDatabase.Query("SELECT UiMapId, QuestId FROM ui_map_quests");
+    QueryResult result = WorldDatabase.Query("SELECT UiMapId, QuestId FROM ui_map_quest");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 quests for UIMaps. DB table `ui_map_quests` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 quests for UIMaps. DB table `ui_map_quest` is empty!");
         return;
     }
 
@@ -11619,13 +11619,13 @@ void ObjectMgr::LoadUiMapQuests()
 
         if (!sUiMapStore.HasRecord(uiMapId))
         {
-            TC_LOG_ERROR("sql.sql", "Table `ui_map_quests` references non-existing UIMap {}, skipped", uiMapId);
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest` references non-existing UIMap {}, skipped", uiMapId);
             continue;
         }
 
         if (!GetQuestTemplate(questId))
         {
-            TC_LOG_ERROR("sql.sql", "Table `ui_map_quests` references non-existing quest {}, skipped", questId);
+            TC_LOG_ERROR("sql.sql", "Table `ui_map_quest` references non-existing quest {}, skipped", questId);
             continue;
         }
 
