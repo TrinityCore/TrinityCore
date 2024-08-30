@@ -724,7 +724,7 @@ public:
         if (static_cast<uint32>(std::abs(delta)) < minSuperiority)
             return 0;
 
-        float slope = (static_cast<float>(minTime) - maxTime) / (maxSuperiority - minSuperiority);
+        float slope = (static_cast<float>(minTime) - maxTime) / std::max<uint32>((maxSuperiority - minSuperiority), 1);
         float intercept = maxTime - slope * minSuperiority;
         float timeNeeded = slope * std::abs(delta) + intercept;
         float percentageIncrease = 100.0f / timeNeeded;
@@ -2230,6 +2230,20 @@ void GameObject::Respawn()
     }
 }
 
+bool GameObject::HasConditionalInteraction() const
+{
+    if (GetGOInfo()->GetQuestID())
+        return true;
+
+    if (GetGoType() != GAMEOBJECT_TYPE_AURA_GENERATOR && GetGOInfo()->GetConditionID1())
+        return true;
+
+    if (sObjectMgr->IsGameObjectForQuests(GetEntry()))
+        return true;
+
+    return false;
+}
+
 bool GameObject::CanActivateForPlayer(Player const* target) const
 {
     if (!MeetsInteractCondition(target))
@@ -2290,6 +2304,12 @@ bool GameObject::ActivateToQuest(Player const* target) const
         case GAMEOBJECT_TYPE_GOOBER:
         {
             if (target->GetQuestStatus(GetGOInfo()->goober.questID) == QUEST_STATUS_INCOMPLETE)
+                return true;
+            break;
+        }
+        case GAMEOBJECT_TYPE_GATHERING_NODE:
+        {
+            if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->gatheringNode.chestLoot, target))
                 return true;
             break;
         }
@@ -3915,7 +3935,7 @@ void GameObject::EnableCollision(bool enable)
     /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
         GetMap()->InsertGameObjectModel(*m_model);*/
 
-    m_model->enableCollision(enable);
+    m_model->EnableCollision(enable);
 }
 
 void GameObject::UpdateModel()
@@ -3954,8 +3974,8 @@ Loot* GameObject::GetLootForPlayer(Player const* player) const
     if (m_personalLoot.empty())
         return m_loot.get();
 
-    if (std::unique_ptr<Loot> const* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
-        return loot->get();
+    if (Loot* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
+        return loot;
 
     return nullptr;
 }
@@ -4460,8 +4480,14 @@ void GameObject::HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const
 void GameObject::CreateModel()
 {
     m_model = GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
-    if (m_model && m_model->isMapObject())
-        SetFlag(GO_FLAG_MAP_OBJECT);
+    if (m_model)
+    {
+        if (m_model->IsMapObject())
+            SetFlag(GO_FLAG_MAP_OBJECT);
+
+        if (GetGoType() == GAMEOBJECT_TYPE_DOOR)
+            m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+    }
 }
 
 std::string GameObject::GetDebugInfo() const

@@ -67,7 +67,7 @@ m_readyCheckStarted(false), m_readyCheckTimer(Milliseconds::zero()), m_activeMar
     for (uint8 i = 0; i < RAID_MARKERS_COUNT; ++i)
         m_markers[i] = nullptr;
 
-    _countdowns = { nullptr, nullptr, nullptr };
+    m_countdowns = { nullptr, nullptr, nullptr };
 }
 
 Group::~Group()
@@ -198,6 +198,7 @@ bool Group::Create(Player* leader)
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
         stmt->setUInt32(index++, uint8(m_legacyRaidDifficulty));
         stmt->setUInt64(index++, m_masterLooterGuid.GetCounter());
+        stmt->setInt8(index++, int8(m_pingRestriction));
 
         CharacterDatabase.Execute(stmt);
 
@@ -242,6 +243,8 @@ void Group::LoadGroupFromDB(Field* fields)
     m_legacyRaidDifficulty = Player::CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[15].GetUInt8()));
 
     m_masterLooterGuid = ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt64());
+
+    m_pingRestriction = RestrictPingsTo(fields[18].GetInt8());
 
     if (m_groupFlags & GROUP_FLAG_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
@@ -818,7 +821,7 @@ void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy)
     BroadcastPacket(updateSingle.Write(), true);
 }
 
-void Group::SendTargetIconList(WorldSession* session)
+void Group::SendTargetIconList(WorldSession* session) const
 {
     if (!session)
         return;
@@ -831,13 +834,13 @@ void Group::SendTargetIconList(WorldSession* session)
     session->SendPacket(updateAll.Write());
 }
 
-void Group::SendUpdate()
+void Group::SendUpdate() const
 {
-    for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
-        SendUpdateToPlayer(witr->guid, &(*witr));
+    for (MemberSlot const& memberSlot : m_memberSlots)
+        SendUpdateToPlayer(memberSlot.guid, &memberSlot);
 }
 
-void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
+void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot const* slot) const
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(playerGUID);
 
@@ -847,7 +850,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     // if MemberSlot wasn't provided
     if (!slot)
     {
-        member_witerator witr = _getMemberWSlot(playerGUID);
+        member_citerator witr = _getMemberCSlot(playerGUID);
 
         if (witr == m_memberSlots.end()) // if there is no MemberSlot for such a player
             return;
@@ -867,6 +870,8 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     partyUpdate.SequenceNum = player->NextGroupUpdateSequenceNumber(m_groupCategory);
 
+    partyUpdate.PingRestriction = m_pingRestriction;
+
     partyUpdate.MyIndex = -1;
     uint8 index = 0;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr, ++index)
@@ -876,7 +881,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
         Player* member = ObjectAccessor::FindConnectedPlayer(citr->guid);
 
-        WorldPackets::Party::PartyPlayerInfo playerInfos;
+        WorldPackets::Party::PartyPlayerInfo& playerInfos = partyUpdate.PlayerList.emplace_back();
 
         playerInfos.GUID = citr->guid;
         playerInfos.Name = citr->name;
@@ -889,8 +894,6 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         playerInfos.Subgroup = citr->group;         // groupid
         playerInfos.Flags = citr->flags;            // See enum GroupMemberFlags
         playerInfos.RolesAssigned = citr->roles;    // Lfg Roles
-
-        partyUpdate.PlayerList.push_back(playerInfos);
     }
 
     if (GetMembersCount() > 1)
@@ -946,7 +949,7 @@ void Group::SendUpdateDestroyGroupToPlayer(Player* player) const
     player->SendDirectMessage(partyUpdate.Write());
 }
 
-void Group::UpdatePlayerOutOfRange(Player* player)
+void Group::UpdatePlayerOutOfRange(Player const* player) const
 {
     if (!player || !player->IsInWorld())
         return;
@@ -955,10 +958,9 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     packet.Initialize(player);
     packet.Write();
 
-    Player* member;
-    for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
-        member = itr->GetSource();
+        Player const* member = itr->GetSource();
         if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
             member->SendDirectMessage(packet.GetRawPacket());
     }
@@ -1217,7 +1219,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgOrTemplate->BattlemasterEntry->MapID[0], reference->GetLevel());
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgOrTemplate->MapIDs.front(), reference->GetLevel());
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
@@ -1425,21 +1427,21 @@ void Group::BroadcastGroupUpdate(void)
 
 void Group::StartCountdown(CountdownTimerType timerType, Seconds duration, Optional<time_t> startTime)
 {
-    if (AsUnderlyingType(timerType) < 0 || AsUnderlyingType(timerType) >= std::ssize(_countdowns))
+    if (AsUnderlyingType(timerType) < 0 || AsUnderlyingType(timerType) >= std::ssize(m_countdowns))
         return;
 
-    if (!_countdowns[AsUnderlyingType(timerType)])
-        _countdowns[AsUnderlyingType(timerType)] = std::make_unique<CountdownInfo>();
+    if (!m_countdowns[AsUnderlyingType(timerType)])
+        m_countdowns[AsUnderlyingType(timerType)] = std::make_unique<CountdownInfo>();
 
-    _countdowns[AsUnderlyingType(timerType)]->StartCountdown(duration, startTime);
+    m_countdowns[AsUnderlyingType(timerType)]->StartCountdown(duration, startTime);
 }
 
 Group::CountdownInfo const* Group::GetCountdownInfo(CountdownTimerType timerType) const
 {
-    if (AsUnderlyingType(timerType) < 0 || AsUnderlyingType(timerType) >= std::ssize(_countdowns))
+    if (AsUnderlyingType(timerType) < 0 || AsUnderlyingType(timerType) >= std::ssize(m_countdowns))
         return nullptr;
 
-    return _countdowns[AsUnderlyingType(timerType)].get();
+    return m_countdowns[AsUnderlyingType(timerType)].get();
 }
 
 void Group::SetLootMethod(LootMethod method)
@@ -1472,9 +1474,9 @@ void Group::SetLfgRoles(ObjectGuid guid, uint8 roles)
     SendUpdate();
 }
 
-uint8 Group::GetLfgRoles(ObjectGuid guid)
+uint8 Group::GetLfgRoles(ObjectGuid guid) const
 {
-    member_witerator slot = _getMemberWSlot(guid);
+    member_citerator slot = _getMemberCSlot(guid);
     if (slot == m_memberSlots.end())
         return 0;
 
@@ -1608,7 +1610,7 @@ void Group::DeleteRaidMarker(uint8 markerId)
     SendRaidMarkersChanged();
 }
 
-void Group::SendRaidMarkersChanged(WorldSession* session)
+void Group::SendRaidMarkersChanged(WorldSession* session) const
 {
     WorldPackets::Party::RaidMarkersChanged packet;
 
@@ -1702,11 +1704,12 @@ bool Group::IsLeader(ObjectGuid guid) const
     return (GetLeaderGUID() == guid);
 }
 
-ObjectGuid Group::GetMemberGUID(const std::string& name)
+ObjectGuid Group::GetMemberGUID(std::string const& name) const
 {
-    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-        if (itr->name == name)
-            return itr->guid;
+    auto itr = std::ranges::find(m_memberSlots, name, &MemberSlot::name);
+    if (itr != m_memberSlots.end())
+        return itr->guid;
+
     return ObjectGuid::Empty;
 }
 
@@ -1752,9 +1755,9 @@ void Group::SetBattlegroundGroup(Battleground* bg)
     m_bgGroup = bg;
 }
 
-void Group::SetBattlefieldGroup(Battlefield *bg)
+void Group::SetBattlefieldGroup(Battlefield *bf)
 {
-    m_bfGroup = bg;
+    m_bfGroup = bf;
 }
 
 void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag)
@@ -1832,18 +1835,12 @@ void Group::_initRaidSubGroupsCounter()
 
 Group::member_citerator Group::_getMemberCSlot(ObjectGuid Guid) const
 {
-    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-        if (itr->guid == Guid)
-            return itr;
-    return m_memberSlots.end();
+    return std::ranges::find(m_memberSlots, Guid, &MemberSlot::guid);
 }
 
 Group::member_witerator Group::_getMemberWSlot(ObjectGuid Guid)
 {
-    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-        if (itr->guid == Guid)
-            return itr;
-    return m_memberSlots.end();
+    return std::ranges::find(m_memberSlots, Guid, &MemberSlot::guid);
 }
 
 void Group::SubGroupCounterIncrease(uint8 subgroup)
@@ -1907,23 +1904,20 @@ void Group::SetEveryoneIsAssistant(bool apply)
     SendUpdate();
 }
 
-bool Group::IsRestrictPingsToAssistants() const
+RestrictPingsTo Group::GetRestrictPings() const
 {
-    return (m_groupFlags & GROUP_FLAG_RESTRICT_PINGS) != 0;
+    return m_pingRestriction;
 }
 
-void Group::SetRestrictPingsToAssistants(bool restrictPingsToAssistants)
+void Group::SetRestrictPingsTo(RestrictPingsTo restrictTo)
 {
-    if (restrictPingsToAssistants)
-        m_groupFlags = GroupFlags(m_groupFlags | GROUP_FLAG_RESTRICT_PINGS);
-    else
-        m_groupFlags = GroupFlags(m_groupFlags & ~GROUP_FLAG_RESTRICT_PINGS);
+    m_pingRestriction = restrictTo;
 
     if (!isBGGroup() && !isBFGroup())
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_PING_RESTRICTION);
 
-        stmt->setUInt16(0, m_groupFlags);
+        stmt->setInt8(0, int8(m_pingRestriction));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);

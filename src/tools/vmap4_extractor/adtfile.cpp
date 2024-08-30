@@ -20,6 +20,7 @@
 #include "StringFormat.h"
 #include <cstdio>
 #include "Errors.h"
+#include "Memory.h"
 
 char const* GetPlainName(char const* FileName)
 {
@@ -105,8 +106,8 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
         return false;
 
     uint32 size;
-    std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
-    FILE* dirfile = fopen(dirname.c_str(), "ab");
+    std::string dirname = Trinity::StringFormat("{}/dir_bin/{:04}", szWorkDirWmo, map_num);
+    auto dirfile = Trinity::make_unique_ptr_with_deleter(fopen(dirname.c_str(), "ab"), &::fclose);
     if(!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
@@ -184,13 +185,13 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                     _file.read(&doodadDef, sizeof(ADT::MDDF));
                     if (!(doodadDef.Flags & 0x40))
                     {
-                        Doodad::Extract(doodadDef, ModelInstanceNames[doodadDef.Id].c_str(), map_num, originalMapId, dirfile, dirfileCache);
+                        Doodad::Extract(doodadDef, ModelInstanceNames[doodadDef.Id].c_str(), map_num, originalMapId, dirfile.get(), dirfileCache);
                     }
                     else
                     {
                         std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", doodadDef.Id);
                         ExtractSingleModel(fileName);
-                        Doodad::Extract(doodadDef, fileName.c_str(), map_num, originalMapId, dirfile, dirfileCache);
+                        Doodad::Extract(doodadDef, fileName.c_str(), map_num, originalMapId, dirfile.get(), dirfileCache);
                     }
                 }
 
@@ -208,15 +209,15 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
                     if (!(mapObjDef.Flags & 0x8))
                     {
-                        MapObject::Extract(mapObjDef, WmoInstanceNames[mapObjDef.Id].c_str(), false, map_num, originalMapId, dirfile, dirfileCache);
-                        Doodad::ExtractSet(WmoDoodads[WmoInstanceNames[mapObjDef.Id]], mapObjDef, false, map_num, originalMapId, dirfile, dirfileCache);
+                        MapObject::Extract(mapObjDef, WmoInstanceNames[mapObjDef.Id].c_str(), false, map_num, originalMapId, dirfile.get(), dirfileCache);
+                        Doodad::ExtractSet(WmoDoodads[WmoInstanceNames[mapObjDef.Id]], mapObjDef, false, map_num, originalMapId, dirfile.get(), dirfileCache);
                     }
                     else
                     {
                         std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
                         ExtractSingleWmo(fileName);
-                        MapObject::Extract(mapObjDef, fileName.c_str(), false, map_num, originalMapId, dirfile, dirfileCache);
-                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, false, map_num, originalMapId, dirfile, dirfileCache);
+                        MapObject::Extract(mapObjDef, fileName.c_str(), false, map_num, originalMapId, dirfile.get(), dirfileCache);
+                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, false, map_num, originalMapId, dirfile.get(), dirfileCache);
                     }
                 }
 
@@ -229,7 +230,6 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
     }
 
     _file.close();
-    fclose(dirfile);
     return true;
 }
 
@@ -238,8 +238,8 @@ bool ADTFile::initFromCache(uint32 map_num, uint32 originalMapId)
     if (dirfileCache->empty())
         return true;
 
-    std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
-    FILE* dirfile = fopen(dirname.c_str(), "ab");
+    std::string dirname = Trinity::StringFormat("{}/dir_bin/{:04}", szWorkDirWmo, map_num);
+    auto dirfile = Trinity::make_unique_ptr_with_deleter(fopen(dirname.c_str(), "ab"), &::fclose);
     if (!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
@@ -248,15 +248,13 @@ bool ADTFile::initFromCache(uint32 map_num, uint32 originalMapId)
 
     for (ADTOutputCache const& cached : *dirfileCache)
     {
-        fwrite(&map_num, sizeof(uint32), 1, dirfile);
         uint8 flags = cached.Flags;
         if (map_num != originalMapId)
             flags |= MOD_PARENT_SPAWN;
-        fwrite(&flags, sizeof(uint8), 1, dirfile);
-        fwrite(cached.Data.data(), cached.Data.size(), 1, dirfile);
+        fwrite(&flags, sizeof(uint8), 1, dirfile.get());
+        fwrite(cached.Data.data(), cached.Data.size(), 1, dirfile.get());
     }
 
-    fclose(dirfile);
     return true;
 }
 

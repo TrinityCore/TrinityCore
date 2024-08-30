@@ -82,6 +82,7 @@ namespace WorldPackets
             Optional<AreaTriggerOrbitInfo> AreaTriggerOrbit;
             Optional<AreaTriggerMovementScriptInfo> AreaTriggerMovementScript;
             ObjectGuid TriggerGUID;
+            ObjectGuid Unused_1100;
         };
 
         class AreaTriggerPlaySpellVisual final : public ServerPacket

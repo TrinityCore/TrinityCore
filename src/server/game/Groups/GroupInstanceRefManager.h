@@ -21,23 +21,8 @@
 #include "GroupInstanceReference.h"
 #include "RefManager.h"
 
-class Group;
-class InstanceMap;
-
-class GroupInstanceRefManager : public RefManager<Group, InstanceMap>
+class GroupInstanceRefManager : public RefManager<GroupInstanceReference>
 {
-public:
-    typedef LinkedListHead::Iterator<GroupInstanceReference> iterator;
-    typedef LinkedListHead::Iterator<GroupInstanceReference const> const_iterator;
-
-    GroupInstanceReference* getFirst() { return ((GroupInstanceReference*)RefManager<Group, InstanceMap>::getFirst()); }
-    GroupInstanceReference const* getFirst() const { return ((GroupInstanceReference const*)RefManager<Group, InstanceMap>::getFirst()); }
-
-    iterator begin() { return iterator(getFirst()); }
-    iterator end()   { return iterator(nullptr); }
-
-    const_iterator begin() const { return const_iterator(getFirst()); }
-    const_iterator end() const   { return const_iterator(nullptr); }
 };
 
 #endif // GroupInstanceRefManager_h__

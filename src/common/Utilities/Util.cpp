@@ -826,6 +826,7 @@ bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
 bool WriteWinConsole(std::string_view str, bool error /*= false*/)
 {
     std::wstring wstr;
+    wstr.reserve(str.length());
     if (!Utf8toWStr(str, wstr))
         return false;
 

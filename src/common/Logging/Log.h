@@ -40,12 +40,12 @@ namespace Trinity
 
 #define LOGGER_ROOT "root"
 
-typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs);
+typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs);
 
 template <class AppenderImpl>
-Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs)
+Appender* CreateAppender(uint8 id, std::string name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs)
 {
-    return new AppenderImpl(id, name, level, flags, extraArgs);
+    return new AppenderImpl(id, std::move(name), level, flags, extraArgs);
 }
 
 class TC_COMMON_API Log
@@ -90,7 +90,7 @@ class TC_COMMON_API Log
             this->OutCommandImpl(account, fmt, Trinity::MakeFormatArgs(args...));
         }
 
-        void OutCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
+        void OutCharDump(std::string const& str, uint32 account_id, uint64 guid, std::string const& name) const;
 
         void SetRealmId(uint32 id);
 
@@ -126,7 +126,6 @@ class TC_COMMON_API Log
 
     private:
         static std::string GetTimestampStr();
-        void write(Logger const* logger, std::unique_ptr<LogMessage> msg) const;
 
         Logger const* GetLoggerByType(std::string_view type) const;
         Appender* GetAppenderByName(std::string_view name);

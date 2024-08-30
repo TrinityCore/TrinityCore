@@ -49,7 +49,7 @@ public:
 class TC_SHARED_API ByteBufferInvalidValueException : public ByteBufferException
 {
 public:
-    ByteBufferInvalidValueException(char const* type, char const* value);
+    ByteBufferInvalidValueException(char const* type, std::string_view value);
 };
 
 class TC_SHARED_API ByteBuffer
@@ -509,9 +509,9 @@ class TC_SHARED_API ByteBuffer
                 append(str, len);
         }
 
-        std::string ReadCString(bool requireValidUtf8 = true);
+        std::string_view ReadCString(bool requireValidUtf8 = true);
 
-        std::string ReadString(uint32 length, bool requireValidUtf8 = true);
+        std::string_view ReadString(uint32 length, bool requireValidUtf8 = true);
 
         uint8* contents()
         {
@@ -633,16 +633,13 @@ class TC_SHARED_API ByteBuffer
 /// @todo Make a ByteBuffer.cpp and move all this inlining to it.
 template<> inline std::string ByteBuffer::read<std::string>()
 {
-    std::string tmp;
-    *this >> tmp;
-    return tmp;
+    return std::string(ReadCString());
 }
 
 template<>
 inline void ByteBuffer::read_skip<char*>()
 {
-    std::string temp;
-    *this >> temp;
+    (void)ReadCString();
 }
 
 template<>

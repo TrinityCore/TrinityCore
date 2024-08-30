@@ -20,7 +20,7 @@
 #include "Errors.h"
 #include "Hash.h"
 #include "Log.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "Util.h"
 #include "World.h"
 #include <charconv>
@@ -85,15 +85,18 @@ namespace
             std::array<char, 20> buf;
             auto [end, err] = std::to_chars(buf.data(), buf.data() + buf.size(), component, Base);
 
-            ASSERT_NODEBUGINFO(err == std::errc(), "Failed to convert guid part to string");
+            ASSERT(err == std::errc(), "Failed to convert guid part to string");
 
             if constexpr (Width != 0)
             {
-                if (std::distance(buf.data(), end) < Width)
-                    std::fill_n(ctx.out(), Width - std::distance(buf.data(), end), '0');
+                if (std::ptrdiff_t written =  std::distance(buf.data(), end); written < Width)
+                    std::fill_n(ctx.out(), Width - written, '0');
             }
 
-            return std::transform(buf.data(), end, ctx.out(), charToUpper);
+            if constexpr (Base > 10)
+                return std::transform(buf.data(), end, ctx.out(), charToUpper);
+            else
+                return std::copy(buf.data(), end, ctx.out());
         }
 
         static fmt::appender AppendComponent(fmt::format_context& ctx, std::string_view component)
@@ -812,7 +815,7 @@ static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
     if (realmId)
         return realmId;
 
-    return realm.Id.Realm;
+    return sRealmList->GetCurrentRealmId().Realm;
 }
 
 ObjectGuid ObjectGuidFactory::CreateNull()

@@ -37,6 +37,7 @@
 #include "Trainer.h"
 #include "VehicleDefines.h"
 #include "UniqueTrackablePtr.h"
+#include <atomic>
 #include <iterator>
 #include <map>
 #include <unordered_map>
@@ -780,6 +781,7 @@ struct GossipMenus
 struct GossipMenuAddon
 {
     int32 FriendshipFactionID;
+    int32 LfgDungeonsID;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;

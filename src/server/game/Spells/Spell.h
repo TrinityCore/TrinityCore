@@ -176,7 +176,7 @@ struct SpellLogEffectPowerDrainParams
 {
     ObjectGuid Victim;
     uint32 Points       = 0;
-    uint32 PowerType    = 0;
+    Powers PowerType    = POWER_MANA;
     float Amplitude     = 0;
 };
 
@@ -549,7 +549,7 @@ class TC_GAME_API Spell
 
             return *opt;
         }
-        void ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit* target, uint32 powerType, uint32 points, float amplitude);
+        void ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit* target, Powers powerType, uint32 points, float amplitude);
         void ExecuteLogEffectExtraAttacks(SpellEffectName effect, Unit* victim, uint32 numAttacks);
         void ExecuteLogEffectDurabilityDamage(SpellEffectName effect, Unit* victim, int32 itemId, int32 amount);
         void ExecuteLogEffectOpenLock(SpellEffectName effect, Object* obj);
@@ -693,6 +693,9 @@ class TC_GAME_API Spell
 
         bool IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const;
         bool IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const;
+        void MovePosition(Position& pos, WorldObject const* from, float dist, float angle) const;
+
+        static bool CanIncreaseRangeByMovement(Unit const* unit);
 
     protected:
         bool HasGlobalCooldown() const;

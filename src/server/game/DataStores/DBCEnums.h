@@ -177,6 +177,39 @@ enum class AreaMountFlags : uint8
 
 DEFINE_ENUM_FLAG(AreaMountFlags);
 
+enum class AreaTriggerActionSetFlag : uint32
+{
+    None                            = 0x0000,
+    OnlyTriggeredByCaster           = 0x0001,
+    ResurrectIfConditionFails       = 0x0002, /*NYI*/
+    Obsolete                        = 0x0004,
+    AllowWhileGhost                 = 0x0008,
+    AllowWhileDead                  = 0x0010,
+    UnifyAllInstances               = 0x0020, /*NYI*/
+    SuppressConditionError          = 0x0040, // NYI
+    NotTriggeredbyCaster            = 0x0080,
+    CreatorsPartyOnly               = 0x0100,
+    DontRunOnLeaveWhenExpiring      = 0x0200, /*NYI*/
+    CanAffectUninteractible         = 0x0400,
+    DontDespawnWithCreator          = 0x0800, /*NYI*/
+    CanAffectBeastmaster            = 0x1000, // Can affect GMs
+    RequiresLineOfSight             = 0x2000  /*NYI*/
+};
+
+DEFINE_ENUM_FLAG(AreaTriggerActionSetFlag);
+
+enum class AreaTriggerShapeType : int8
+{
+    Sphere                         = 0,
+    Box                            = 1,
+    Unk                            = 2,
+    Polygon                        = 3,
+    Cylinder                       = 4,
+    Disk                           = 5,
+    BoundedPlane                   = 6,
+    Max
+};
+
 enum ArtifactCategory : uint32
 {
     ARTIFACT_CATEGORY_PRIMARY = 1,
@@ -655,8 +688,8 @@ enum class CriteriaType : int16
     GroupedTankLeftEarlyInLFRDungeon               = 150, /*NYI*/ // Grouped tank left early in an LFR dungeon
     CompleteAnyScenario                            = 151, // Complete a Scenario
     CompleteScenario                               = 152, // Complete scenario "{Scenario}"
-    EnterAreaTriggerWithActionSet                  = 153, /*NYI*/ // Enter area trigger "{AreaTriggerActionSet}"
-    LeaveAreaTriggerWithActionSet                  = 154, /*NYI*/ // Leave area trigger "{AreaTriggerActionSet}"
+    EnterAreaTriggerWithActionSet                  = 153, // Enter area trigger "{AreaTriggerActionSet}"
+    LeaveAreaTriggerWithActionSet                  = 154, // Leave area trigger "{AreaTriggerActionSet}"
     LearnedNewPet                                  = 155, // (Account Only) Learned a new pet
     UniquePetsOwned                                = 156, // (Account Only) Unique pets owned
     AccountObtainPetThroughBattle                  = 157, /*NYI*/ // (Account Only) Obtain a pet through battle
@@ -753,9 +786,10 @@ enum class CriteriaType : int16
     CompleteQuestsCountOnAccount                   = 257, /*NYI*/
 
     WarbandBankTabPurchased                        = 260, /*NYI*/
-
+    ReachRenownLevel                               = 261,
     LearnTaxiNode                                  = 262,
-    Count                                          = 263
+
+    Count                                          = 264
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -854,7 +888,11 @@ enum class CurrencyTypesFlagsB : uint32
     UseTotalEarnedForEarned             = 0x01,
     ShowQuestXPGainInTooltip            = 0x02, // NYI
     NoNotificationMailOnOfflineProgress = 0x04, // NYI
-    BattlenetVirtualCurrency            = 0x08  // NYI
+    BattlenetVirtualCurrency            = 0x08, // NYI
+    FutureCurrencyFlag                  = 0x10, // NYI
+    DontDisplayIfZero                   = 0x20, // NYI
+    ScaleMaxQuantityBySeasonWeeks       = 0x40, // NYI
+    ScaleMaxQuantityByWeeksSinceStart   = 0x80, // NYI
 };
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlagsB);
@@ -991,7 +1029,7 @@ enum class GlobalCurve : int32
     ContentTuningPvpItemLevelDamageScaling = 15,
 };
 
-#define MAX_ITEM_PROTO_FLAGS 4
+#define MAX_ITEM_PROTO_FLAGS 5
 #define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
@@ -1172,8 +1210,11 @@ enum class ItemContext : uint8
     Dungeon_Normal_Jackpot              = 101,
     Dungeon_Heroic_Jackpot              = 102,
     Dungeon_Mythic_Jackpot              = 103,
-    Delves                              = 104,
+    Delves_1                            = 104,
     Timerunning                         = 105,
+    Delves_2                            = 106,
+    Delves_3                            = 107,
+    Delves_Jackpot                      = 108,
 
     Max
 };
@@ -1705,8 +1746,21 @@ enum class ModifierTreeType : int32
     PlayerWeaponHighWatermarkAboveOrEqual                               = 375, /*NYI*/
     PlayerHeadHighWatermarkAboveOrEqual                                 = 376, /*NYI*/
     PlayerHasDisplayedCurrencyLessThan                                  = 377, /*NYI*/ // Player has {CurrencyTypes} less than {#Amount} (value visible in ui is taken into account, not raw value)
-
+    PlayerDataFlagAccountIsSet                                          = 387, /*NYI*/ // Player {PlayerDataFlagAccount} is set
+    PlayerDataFlagCharacterIsSet                                        = 389, /*NYI*/ // Player {PlayerDataFlagCharacter} is set
     PlayerIsOnMapWithExpansion                                          = 380, // Player is on map that has {ExpansionID}
+
+    PlayerHasCompletedQuestOnAccount                                    = 382, /*NYI*/ // Player has previously completed quest "{QuestV2}" on account
+    PlayerHasCompletedQuestlineOnAccount                                = 383, /*NYI*/ // Player has completed questline "{Questline}" on account
+    PlayerHasCompletedQuestlineQuestCountOnAccount                      = 384, /*NYI*/ // Player has completed "{#Quests}" quests in questline "{Questline}" on account
+    PlayerHasActiveTraitSubTree                                         = 385, // Player has active trait config with {TraitSubTree}
+
+    PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
+    PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
+    TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
+    PlayerDataElementCharacterEqual                                     = 390, /*NYI*/ // Player {PlayerDataElementCharacter} is greater than {#Amount}
+    PlayerDataElementAccountEqual                                       = 391, /*NYI*/ // Player {PlayerDataElementAccount} is greater than {#Amount}
+    PlayerHasCompletedQuestOrIsReadyToTurnIn                            = 392, // Player has previously completed quest "{QuestV2}" or is ready to turn it in
 };
 
 enum class ModifierTreeOperator : int8
@@ -1859,7 +1913,10 @@ enum class PlayerInteractionType : int32
     BarbersChoice               = 62,
     JailersTowerBuffs           = 63,
     MajorFactionRenown          = 64,
-    PersonalTabardVendor        = 65
+    PersonalTabardVendor        = 65,
+    ForgeMaster                 = 66,
+    CharacterBanker             = 67,
+    AccountBanker               = 68,
 };
 
 enum class PowerTypeFlags : int16
@@ -2206,10 +2263,11 @@ DEFINE_ENUM_FLAG(TraitCondFlags);
 
 enum class TraitConditionType : int32
 {
-    Available   = 0,
-    Visible     = 1,
-    Granted     = 2,
-    Increased   = 3
+    Available       = 0,
+    Visible         = 1,
+    Granted         = 2,
+    Increased       = 3,
+    DisplayError    = 4
 };
 
 enum class TraitConfigType : int32
@@ -2261,9 +2319,10 @@ DEFINE_ENUM_FLAG(TraitNodeGroupFlag);
 
 enum class TraitNodeType : int32
 {
-    Single      = 0,
-    Tiered      = 1,
-    Selection   = 2
+    Single              = 0,
+    Tiered              = 1,
+    Selection           = 2,
+    SubTreeSelection    = 3
 };
 
 enum class TraitPointsOperationType : int32

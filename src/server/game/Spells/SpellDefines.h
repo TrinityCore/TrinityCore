@@ -143,6 +143,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     ChallengeModeStart                          = 0x00400000, // Implemented in Unit::AtStartOfEncounter
     StartOfEncounter                            = 0x00800000, // Implemented in Unit::AtStartOfEncounter
     EndOfEncounter                              = 0x01000000, // Implemented in Unit::AtEndOfEncounter
+    ReleaseEmpower                              = 0x02000000, // Implemented in Spell::update
 };
 
 DEFINE_ENUM_FLAG(SpellAuraInterruptFlags2);
@@ -252,7 +253,7 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_CAST_ITEM                      = 0x00000008,   //!< Will not take away cast item or update related achievement criteria
     TRIGGERED_IGNORE_AURA_SCALING                   = 0x00000010,   //!< Will ignore aura scaling
     TRIGGERED_IGNORE_CAST_IN_PROGRESS               = 0x00000020,   //!< Will not check if a current cast is in progress
-    // reuse                                        = 0x00000040,
+    TRIGGERED_IGNORE_CAST_TIME                      = 0x00000040,   //!< Will always be instantly cast
     TRIGGERED_CAST_DIRECTLY                         = 0x00000080,   //!< In Spell::prepare, will be cast directly without setting containers for executed spell
     // reuse                                        = 0x00000100,
     TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //!< Will not adjust facing to target (if any)

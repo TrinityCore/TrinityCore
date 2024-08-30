@@ -23,6 +23,7 @@
 
 class AreaTrigger;
 class Creature;
+class CreatureGroup;
 class GameObject;
 class Player;
 class Unit;
@@ -41,8 +42,12 @@ enum class EncounterType : uint8
 class TC_GAME_API ControlZoneHandler
 {
 public:
-    explicit ControlZoneHandler() = default;
-    virtual ~ControlZoneHandler() = default;
+    explicit ControlZoneHandler();
+    ControlZoneHandler(ControlZoneHandler const& right);
+    ControlZoneHandler(ControlZoneHandler&& right) noexcept;
+    ControlZoneHandler& operator=(ControlZoneHandler const& right);
+    ControlZoneHandler& operator=(ControlZoneHandler&& right) noexcept;
+    virtual ~ControlZoneHandler();
 
     virtual void HandleCaptureEventHorde([[maybe_unused]] GameObject* controlZone) { }
     virtual void HandleCaptureEventAlliance([[maybe_unused]] GameObject* controlZone) { }
@@ -78,6 +83,9 @@ class TC_GAME_API ZoneScript
         virtual void OnAreaTriggerRemove([[maybe_unused]] AreaTrigger* areaTrigger) { }
 
         virtual void OnUnitDeath([[maybe_unused]] Unit* unit) { }
+
+        // Triggers when the CreatureGroup no longer has any alive members (either last alive member dies or is removed from the group)
+        virtual void OnCreatureGroupDepleted([[maybe_unused]] CreatureGroup const* creatureGroup) { }
 
         //All-purpose data storage ObjectGuid
         virtual ObjectGuid GetGuidData(uint32 /*DataId*/) const { return ObjectGuid::Empty; }

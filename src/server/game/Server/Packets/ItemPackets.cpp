@@ -254,24 +254,25 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << int32(QuestLogItemID);
     _worldPacket << int32(Quantity);
     _worldPacket << int32(QuantityInInventory);
+    _worldPacket << int32(QuantityInQuestLog);
     _worldPacket << int32(DungeonEncounterID);
     _worldPacket << int32(BattlePetSpeciesID);
     _worldPacket << int32(BattlePetBreedID);
-    _worldPacket << uint32(BattlePetBreedQuality);
+    _worldPacket << uint8(BattlePetBreedQuality);
     _worldPacket << int32(BattlePetLevel);
     _worldPacket << ItemGUID;
     _worldPacket << uint32(Toasts.size());
     for (UiEventToast const& uiEventToast : Toasts)
         _worldPacket << uiEventToast;
 
-    _worldPacket.WriteBit(Pushed);
-    _worldPacket.WriteBit(Created);
-    _worldPacket.WriteBit(Unused_1017);
-    _worldPacket.WriteBits(DisplayText, 3);
-    _worldPacket.WriteBit(IsBonusRoll);
-    _worldPacket.WriteBit(IsEncounterLoot);
-    _worldPacket.WriteBit(CraftingData.has_value());
-    _worldPacket.WriteBit(FirstCraftOperationID.has_value());
+    _worldPacket << Bits<1>(Pushed);
+    _worldPacket << Bits<1>(Created);
+    _worldPacket << Bits<1>(Unused_1017);
+    _worldPacket << Bits<3>(DisplayText);
+    _worldPacket << Bits<1>(IsBonusRoll);
+    _worldPacket << Bits<1>(IsEncounterLoot);
+    _worldPacket << OptionalInit(CraftingData);
+    _worldPacket << OptionalInit(FirstCraftOperationID);
     _worldPacket.FlushBits();
 
     _worldPacket << Item;
@@ -401,4 +402,27 @@ void WorldPackets::Item::SetBackpackSellJunkDisabled::Read()
 void WorldPackets::Item::SetBankAutosortDisabled::Read()
 {
     Disable = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Item::AddItemPassive::Write()
+{
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::RemoveItemPassive::Write()
+{
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::SendItemPassives::Write()
+{
+    _worldPacket << uint32(SpellID.size());
+    if (!SpellID.empty())
+        _worldPacket.append(SpellID.data(), SpellID.size());
+
+    return &_worldPacket;
 }

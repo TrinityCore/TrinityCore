@@ -27,6 +27,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "Transport.h"
+#include <mutex>
 
 template<class T>
 void HashMapHolder<T>::Insert(T* o)

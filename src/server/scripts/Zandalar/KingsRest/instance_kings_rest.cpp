@@ -15,7 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 #include "kings_rest.h"
 
@@ -38,8 +40,9 @@ DoorData const doorData[] =
 
 ObjectData const objectData[] =
 {
-    { GO_KINGS_REST_ENTRYWAY_DOOR, DATA_KINGS_REST_INTRO_DOOR },
-    { 0,                           0                          }  // END
+    { GO_KINGS_REST_ENTRYWAY_DOOR,      DATA_KINGS_REST_INTRO_DOOR  },
+    { GO_KINGS_REST_LIQUID_GOLD_POOL,   DATA_KINGS_REST_LIQUID_POOL },
+    { 0,                                0                           }  // END
 };
 
 DungeonEncounterData const encounters[] =
@@ -64,7 +67,36 @@ public:
             LoadObjectData(creatureData, objectData);
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
+
+            _serpentTempleSpawns = 0;
         }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            if (creature->HasStringId("TempleEvent"))
+                _serpentTempleSpawns++;
+        }
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
+            if (creature->HasStringId("TempleEvent"))
+            {
+                _serpentTempleSpawns--;
+                if (_serpentTempleSpawns > 0)
+                    return;
+
+                instance->SpawnGroupSpawn(SPAWN_GROUP_SERPENT_BOSS);
+            }
+        }
+
+    private:
+        uint8 _serpentTempleSpawns;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

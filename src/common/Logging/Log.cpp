@@ -21,9 +21,9 @@
 #include "Config.h"
 #include "Duration.h"
 #include "Errors.h"
-#include "Logger.h"
 #include "LogMessage.h"
 #include "LogOperation.h"
+#include "Logger.h"
 #include "Strand.h"
 #include "StringConvert.h"
 #include "Util.h"
@@ -83,13 +83,13 @@ void Log::CreateAppenderFromConfigLine(std::string const& appenderName, std::str
     auto factoryFunction = appenderFactory.find(type);
     if (factoryFunction == appenderFactory.end())
     {
-        fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown type '%s' for appender %s\n", std::string(tokens[0]).c_str(), name.c_str());
+        fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown type '" STRING_VIEW_FMT "' for appender %s\n", STRING_VIEW_FMT_ARG(tokens[0]), name.c_str());
         return;
     }
 
     if (level > NUM_ENABLED_LOG_LEVELS)
     {
-        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level '%s' for appender %s\n", std::string(tokens[1]).c_str(), name.c_str());
+        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level '" STRING_VIEW_FMT "' for appender %s\n", STRING_VIEW_FMT_ARG(tokens[1]), name.c_str());
         return;
     }
 
@@ -99,14 +99,14 @@ void Log::CreateAppenderFromConfigLine(std::string const& appenderName, std::str
             flags = AppenderFlags(*flagsVal);
         else
         {
-            fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown flags '%s' for appender %s\n", std::string(tokens[2]).c_str(), name.c_str());
+            fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown flags '" STRING_VIEW_FMT "' for appender %s\n", STRING_VIEW_FMT_ARG(tokens[2]), name.c_str());
             return;
         }
     }
 
     try
     {
-        Appender* appender = factoryFunction->second(NextAppenderId(), name, level, flags, tokens);
+        Appender* appender = factoryFunction->second(NextAppenderId(), std::move(name), level, flags, tokens);
         appenders[appender->getId()].reset(appender);
     }
     catch (InvalidAppenderArgsException const& iaae)
@@ -152,7 +152,7 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
     level = LogLevel(Trinity::StringTo<uint8>(tokens[0]).value_or(LOG_LEVEL_INVALID));
     if (level > NUM_ENABLED_LOG_LEVELS)
     {
-        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong Log Level '%s' for logger %s\n", std::string(tokens[0]).c_str(), name.c_str());
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong Log Level '" STRING_VIEW_FMT "' for logger %s\n", STRING_VIEW_FMT_ARG(tokens[0]), name.c_str());
         return;
     }
 
@@ -167,11 +167,11 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
     {
         if (Appender* appender = GetAppenderByName(appenderName))
         {
-            logger->addAppender(appender->getId(), appender);
+            logger->addAppender(appender);
             //fprintf(stdout, "Log::CreateLoggerFromConfig: Added Appender %s to Logger %s\n", appender->getName().c_str(), name.c_str());
         }
         else
-            fprintf(stderr, "Error while configuring Appender %s in Logger %s. Appender does not exist\n", std::string(appenderName).c_str(), name.c_str());
+            fprintf(stderr, "Error while configuring Appender " STRING_VIEW_FMT " in Logger %s. Appender does not exist\n", STRING_VIEW_FMT_ARG(appenderName), name.c_str());
     }
 }
 
@@ -205,11 +205,11 @@ void Log::ReadLoggersFromConfig()
         appenders[appender->getId()].reset(appender);
 
         Logger* rootLogger = new Logger(LOGGER_ROOT, LOG_LEVEL_ERROR);
-        rootLogger->addAppender(appender->getId(), appender);
+        rootLogger->addAppender(appender);
         loggers[rootLogger->getName()].reset(rootLogger);
 
         Logger* serverLogger = new Logger("server", LOG_LEVEL_INFO);
-        serverLogger->addAppender(appender->getId(), appender);
+        serverLogger->addAppender(appender);
         loggers[serverLogger->getName()].reset(serverLogger);
     }
 }
@@ -223,23 +223,26 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
 
 void Log::OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
 {
-    write(logger, std::make_unique<LogMessage>(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs)));
+    if (_ioContext)
+        Trinity::Asio::post(*_strand, LogOperation(logger, new LogMessage(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs))));
+    else
+    {
+        LogMessage msg(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs));
+        logger->write(&msg);
+    }
 }
 
 void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
 {
-    write(GetLoggerByType("commands.gm"), std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account)));
-}
+    Logger const* logger = GetLoggerByType("commands.gm");
 
-void Log::write(Logger const* logger, std::unique_ptr<LogMessage> msg) const
-{
     if (_ioContext)
-    {
-        std::shared_ptr<LogOperation> logOperation = std::make_shared<LogOperation>(logger, std::move(msg));
-        Trinity::Asio::post(*_strand, [logOperation]() { logOperation->call(); });
-    }
+        Trinity::Asio::post(*_strand, LogOperation(logger, new LogMessage(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account))));
     else
-        logger->write(msg.get());
+    {
+        LogMessage msg(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account));
+        logger->write(&msg);
+    }
 }
 
 Logger const* Log::GetLoggerByType(std::string_view type) const
@@ -318,22 +321,23 @@ bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /*
     return true;
 }
 
-void Log::OutCharDump(char const* str, uint32 accountId, uint64 guid, char const* name)
+void Log::OutCharDump(std::string const& str, uint32 accountId, uint64 guid, std::string const& name) const
 {
-    if (!str || !ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
+    if (!ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
         return;
 
-    std::ostringstream ss;
-    ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
-       << ")\n" << str << "\n== END DUMP ==\n";
+    std::string ss = Trinity::StringFormat("== START DUMP == (account: {} guid: {} name: {})\n{}\n== END DUMP ==\n", accountId, guid, name, str);
+    std::string param = Trinity::StringFormat("{}_{}", guid, name);
 
-    std::unique_ptr<LogMessage> msg(new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", ss.str()));
-    std::ostringstream param;
-    param << guid << '_' << name;
+    Logger const* logger = GetLoggerByType("entities.player.dump");
 
-    msg->param1 = param.str();
-
-    write(GetLoggerByType("entities.player.dump"), std::move(msg));
+    if (_ioContext)
+        Trinity::Asio::post(*_strand, LogOperation(logger, new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", std::move(ss), std::move(param))));
+    else
+    {
+        LogMessage msg(LOG_LEVEL_INFO, "entities.player.dump", std::move(ss), std::move(param));
+        logger->write(&msg);
+    }
 }
 
 void Log::SetRealmId(uint32 id)

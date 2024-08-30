@@ -165,6 +165,7 @@ namespace WorldPackets
             bool ChatDisabledByPlayer                = false;
             bool LFGListCustomRequiresAuthenticator  = false;
             bool AddonsDisabled                      = false;
+            bool TimerunningEnabled                  = false;
             bool WarGamesEnabled                     = false; // classic only
             bool ContentTrackingEnabled              = false;
             bool IsSellAllJunkEnabled                = false;
@@ -173,11 +174,18 @@ namespace WorldPackets
             bool IsLFREnabled                        = true;  // classic only
             bool IsPremadeGroupEnabled               = true;  // classic only
             bool CanShowSetRoleButton                = true;
+            bool GuildEventsEditsEnabled             = true;
+            bool GuildTradeSkillsEnabled             = true;
+            bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
+            bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
+            bool IsAccountCurrencyTransferEnabled    = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
             std::vector<GameRuleValuePair> GameRuleValues;
+            int32 ActiveTimerunningSeasonID          = 0;
+            int32 RemainingTimerunningSeasonSeconds  = 0;
             std::string Unknown1027;                          // related to movement lua functions used by keybinds
             AddonChatThrottleParams AddonChatThrottle;
         };
@@ -208,6 +216,7 @@ namespace WorldPackets
             bool IsBoostEnabled                      = false; // classic only
             bool TrialBoostEnabled                   = false; // NYI
             bool TokenBalanceEnabled                 = false; // NYI
+            bool PaidCharacterTransfersBetweenBnetAccountsEnabled = false;
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
@@ -219,6 +228,9 @@ namespace WorldPackets
             bool Unused1000                          = false;
             bool AccountSaveDataExportEnabled        = false;
             bool AccountLockedByExport               = false;
+            bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
+            bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
+            bool CharacterSelectListModeRealmless    = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
