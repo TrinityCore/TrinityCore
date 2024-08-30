@@ -19,6 +19,7 @@
 #include "AES.h"
 #include "AuthCodes.h"
 #include "ByteBuffer.h"
+#include "ClientBuildInfo.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
 #include "CryptoHash.h"
@@ -756,7 +757,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 
         // No SQL injection. id of realm is controlled by the database.
         uint32 flag = realm.Flags;
-        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(realm.Build);
+        ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(realm.Build);
         if (!okBuild)
         {
             if (!buildInfo)
@@ -841,20 +842,15 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::
     Trinity::Crypto::SHA1::Digest const* versionHash = nullptr;
     if (!isReconnect)
     {
-        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(_build);
+        ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(_build);
         if (!buildInfo)
             return false;
 
-        if (_os == "Win")
-            versionHash = &buildInfo->WindowsHash;
-        else if (_os == "OSX")
-            versionHash = &buildInfo->MacHash;
-
-        if (!versionHash)
-            return false;
-
-        if (zeros == *versionHash)
+        auto platformItr = std::ranges::find(buildInfo->ExecutableHashes, ClientBuild::ToFourCC(_os), &ClientBuild::ExecutableHash::Platform);
+        if (platformItr == buildInfo->ExecutableHashes.end())
             return true;                                                            // not filled serverside
+
+        versionHash = &platformItr->Hash;
     }
     else
         versionHash = &zeros;
