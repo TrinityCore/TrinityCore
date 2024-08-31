@@ -970,19 +970,23 @@ class spell_warl_unstable_affliction : public AuraScript
         return ValidateSpellInfo({ SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE, SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE });
     }
 
-    void HandleDispel(DispelInfo* dispelInfo)
+    void HandleDispel(DispelInfo const* dispelInfo) const
     {
-        if (Unit* caster = GetCaster())
-        {
-            float sp = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 0.30613f;
-            int32 damage = sp * GetEffectInfo(EFFECT_0).CalcValue() / 100;
-            CastSpellExtraArgs args;
-            args.AddSpellBP0(damage);
-            caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE, args);
-        }
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* removedEffect = GetEffect(EFFECT_1);
+        if (!removedEffect)
+            return;
+
+        int32 damage = GetEffectInfo(EFFECT_0).CalcValue(caster, nullptr, GetUnitOwner()) / 100.0f * *removedEffect->CalculateEstimatedAmount(caster, removedEffect->GetAmount());
+        caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE, CastSpellExtraArgs()
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, damage)
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
     }
 
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
             return;
