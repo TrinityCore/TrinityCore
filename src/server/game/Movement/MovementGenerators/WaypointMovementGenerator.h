@@ -102,7 +102,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         TimeTracker _nextMoveTime;
         std::vector<int32> _waypointTransitionSplinePoints;
         bool _isReturningToStart;
-        std::vector<int32> _CycleWaypointTransitionSplinePoints;
+        std::vector<int32> _cycleWaypointTransitionSplinePoints;
         Milliseconds _initialDuration;
 };
 
