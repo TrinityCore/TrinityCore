@@ -1092,9 +1092,9 @@ void WorldPackets::Movement::MoveInitActiveMoverComplete::Read()
 WorldPacket const* WorldPackets::Movement::SetAdvFlyingSpeed::Write()
 {
     _worldPacket << uint32(SequenceIndex);
-    _worldPacket << float(speed);
-    if (maxSpeed)
-        _worldPacket << float(*maxSpeed);
+    _worldPacket << float(Speed);
+    if (MaxSpeed)
+        _worldPacket << float(*MaxSpeed);
 
     return &_worldPacket;
 }

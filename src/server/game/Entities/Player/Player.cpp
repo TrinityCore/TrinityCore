@@ -30837,6 +30837,27 @@ bool Player::CanExecutePendingSpellCastRequest()
     return true;
 }
 
+void Player::InitAdvancedFly()
+{
+    FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(GetFlightCapabilityID());
+    if (!flightCapabilityEntry)
+        return;
+
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_AIR_FRICTION,               flightCapabilityEntry->AirFriction);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_MAX_VEL,                    flightCapabilityEntry->MaxVel);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_LIFT_COEFFICIENT,           flightCapabilityEntry->LiftCoefficient);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_DOUBLE_JUMP_VEL_MOD,        flightCapabilityEntry->DoubleJumpVelMod);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_GLIDE_START_MIN_HEIGHT,     flightCapabilityEntry->GlideStartMinHeight);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_ADD_IMPULSE_MAX_SPEED,      flightCapabilityEntry->AddImpulseMaxSpeed);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_BANKING_RATE,               flightCapabilityEntry->BankingRateMin,              flightCapabilityEntry->BankingRateMax);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_DOWN,         flightCapabilityEntry->PitchingRateDownMin,         flightCapabilityEntry->PitchingRateDownMax);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_UP,           flightCapabilityEntry->PitchingRateUpMin,           flightCapabilityEntry->PitchingRateUpMax);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_TURN_VELOCITY_THRESHOLD,    flightCapabilityEntry->TurnVelocityThresholdMin,    flightCapabilityEntry->TurnVelocityThresholdMax);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_SURFACE_FRICTION,           flightCapabilityEntry->SurfaceFriction);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_OVER_MAX_DECELERATION,      flightCapabilityEntry->OverMaxDeceleration);
+    SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_LAUNCH_SPEED_COEFFICIENT,   flightCapabilityEntry->LaunchSpeedCoefficient);
+}
+
 void Player::AddMoveImpulse(Position direction)
 {
     auto addImpulse = WorldPackets::Movement::MoveAddImpulse();
@@ -30846,34 +30867,7 @@ void Player::AddMoveImpulse(Position direction)
     SendMessageToSet(addImpulse.Write(), true);
 }
 
-void Player::InitAdvancedFly()
+inline void Player::SendAdvFlyingSpeed(OpcodeServer opcode, float speed, Optional<float> maxSpeed /*= {}*/)
 {
-    FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(GetFlightCapabilityID());
-    if (!flightCapabilityEntry)
-        return;
-
-    std::vector<std::tuple<OpcodeServer, float, Optional<float>>> advFlyValues = {
-        { SMSG_MOVE_SET_ADV_FLYING_AIR_FRICTION,                flightCapabilityEntry->AirFriction,                 {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_MAX_VEL,                     flightCapabilityEntry->MaxVel,                      {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_LIFT_COEFFICIENT,            flightCapabilityEntry->LiftCoefficient,             {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_DOUBLE_JUMP_VEL_MOD,         flightCapabilityEntry->DoubleJumpVelMod,            {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_GLIDE_START_MIN_HEIGHT,      flightCapabilityEntry->GlideStartMinHeight,         {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_ADD_IMPULSE_MAX_SPEED,       flightCapabilityEntry->AddImpulseMaxSpeed,          {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_BANKING_RATE,                flightCapabilityEntry->BankingRateMin,              flightCapabilityEntry->BankingRateMax               },
-        { SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_DOWN,          flightCapabilityEntry->PitchingRateDownMin,         flightCapabilityEntry->PitchingRateDownMax          },
-        { SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_UP,            flightCapabilityEntry->PitchingRateUpMin,           flightCapabilityEntry->PitchingRateUpMax            },
-        { SMSG_MOVE_SET_ADV_FLYING_TURN_VELOCITY_THRESHOLD,     flightCapabilityEntry->TurnVelocityThresholdMin,    flightCapabilityEntry->TurnVelocityThresholdMax     },
-        { SMSG_MOVE_SET_ADV_FLYING_SURFACE_FRICTION,            flightCapabilityEntry->SurfaceFriction,             {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_OVER_MAX_DECELERATION,       flightCapabilityEntry->OverMaxDeceleration,         {}                                                  },
-        { SMSG_MOVE_SET_ADV_FLYING_LAUNCH_SPEED_COEFFICIENT,    flightCapabilityEntry->LaunchSpeedCoefficient,      {}                                                  },
-    };
-
-    for (auto const& tuple : advFlyValues)
-    {
-        auto advFlyingPacket = WorldPackets::Movement::SetAdvFlyingSpeed(std::get<0>(tuple));
-        advFlyingPacket.SequenceIndex = m_movementCounter++;
-        advFlyingPacket.speed = std::get<1>(tuple);
-        advFlyingPacket.maxSpeed = std::get<2>(tuple);
-        SendDirectMessage(advFlyingPacket.Write());
-    }
+    SendDirectMessage(WorldPackets::Movement::SetAdvFlyingSpeed(opcode, m_movementCounter++, speed, maxSpeed).Write());
 }
