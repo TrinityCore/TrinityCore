@@ -67,7 +67,13 @@ class spell_af_energy : public AuraScript
 {
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_VIGOR_CACHE, true);
+        Unit* target = GetTarget();
+        if (!target->HasAura(SPELL_VIGOR_CACHE))
+        {
+            CastSpellExtraArgs extraArgs(TRIGGERED_FULL_MASK);
+            extraArgs.AddSpellMod(SPELLVALUE_BASE_POINT0, target->GetPower(POWER_ALTERNATE_MOUNT));
+            target->CastSpell(target, SPELL_VIGOR_CACHE, extraArgs);
+        }
     }
 
     void OnPeriodic(AuraEffect* /*aurEff*/)

@@ -30868,7 +30868,7 @@ inline void Player::SendAdvFlyingSpeed(OpcodeServer opcode, float speed, Optiona
 
 void Player::AddMoveImpulse(Position direction)
 {
-    auto addImpulse = WorldPackets::Movement::MoveAddImpulse();
+    WorldPackets::Movement::MoveAddImpulse addImpulse = WorldPackets::Movement::MoveAddImpulse();
     addImpulse.MoverGUID = GetGUID();
     addImpulse.SequenceIndex = m_movementCounter++;
     addImpulse.Direction = direction;

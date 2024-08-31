@@ -12484,7 +12484,7 @@ bool Unit::CanSwim() const
 
 float Unit::GetAdvFlyingVelocity() const
 {
-    auto advFlying = m_movementInfo.advFlying;
+    Optional<MovementInfo::AdvFlying> const& advFlying = m_movementInfo.advFlying;
     if (!advFlying)
         return .0f;
 
