@@ -28,7 +28,6 @@
 #include "Transport.h"
 #include "WaypointManager.h"
 #include <span>
-#include <sstream>
 
 namespace
 {
@@ -234,12 +233,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
                 _waypointTransitionSplinePoints.erase(_waypointTransitionSplinePoints.begin());
                 if (ComputeNextNode())
                     if (CreatureAI* ai = owner->AI())
-                    {
-                        std::stringstream ss;
-                        ss << "_currentNode = " << _currentNode;
-                        owner->Talk(ss.str(), ChatMsg::CHAT_MSG_MONSTER_SAY, Language::LANG_UNIVERSAL, 100.0f, nullptr);
                         ai->WaypointStarted(path->Nodes[_currentNode].Id, path->Id);
-                    }
             }
         }
 
