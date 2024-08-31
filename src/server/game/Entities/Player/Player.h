@@ -2058,6 +2058,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateMeleeHitChances();
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
+        void UpdateUIHitModifier();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(SpellSchools school);
