@@ -30,6 +30,11 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <mutex>
 
+namespace JSON::RealmList
+{
+class RealmJoinTicket;
+}
+
 typedef struct z_stream_s z_stream;
 class EncryptablePacket;
 class WorldPacket;
@@ -140,7 +145,8 @@ private:
 
     void HandleSendAuthSession();
     void HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession);
-    void HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result);
+    void HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession,
+        std::shared_ptr<JSON::RealmList::RealmJoinTicket> joinTicket, PreparedQueryResult result);
     void HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession);
     void HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result);
     void LoadSessionPermissionsCallback(PreparedQueryResult result);
