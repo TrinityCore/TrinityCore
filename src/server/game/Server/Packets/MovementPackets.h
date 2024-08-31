@@ -714,7 +714,22 @@ namespace WorldPackets
         class SetAdvFlyingSpeed final : public ServerPacket
         {
         public:
-            SetAdvFlyingSpeed(OpcodeServer opcode, uint32 sequenceIndex, float speed, Optional<float> maxSpeed = {}) : ServerPacket(opcode, 4 + 4 + 4)
+            SetAdvFlyingSpeed(OpcodeServer opcode, uint32 sequenceIndex, float speed) : ServerPacket(opcode, 4 + 4)
+            {
+                SequenceIndex = sequenceIndex;
+                Speed = speed;
+            }
+
+            WorldPacket const* Write() override;
+
+            uint32 SequenceIndex;
+            float Speed;
+        };
+
+        class SetAdvFlyingMinMaxSpeeds final : public ServerPacket
+        {
+        public:
+            SetAdvFlyingMinMaxSpeeds(OpcodeServer opcode, uint32 sequenceIndex, float speed, float maxSpeed) : ServerPacket(opcode, 4 + 4 + 4)
             {
                 SequenceIndex = sequenceIndex;
                 Speed = speed;
@@ -723,9 +738,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 SequenceIndex = 1;
-            float Speed = .0f;
-            Optional<float> MaxSpeed;
+            uint32 SequenceIndex;
+            float Speed;
+            float MaxSpeed;
         };
 
         class MoveAddImpulse final : public ServerPacket

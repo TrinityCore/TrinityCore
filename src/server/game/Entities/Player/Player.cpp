@@ -30837,7 +30837,7 @@ bool Player::CanExecutePendingSpellCastRequest()
     return true;
 }
 
-void Player::InitAdvancedFly()
+void Player::InitAdvFlying()
 {
     FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(GetFlightCapabilityID());
     if (!flightCapabilityEntry)
@@ -30858,6 +30858,14 @@ void Player::InitAdvancedFly()
     SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_LAUNCH_SPEED_COEFFICIENT,   flightCapabilityEntry->LaunchSpeedCoefficient);
 }
 
+inline void Player::SendAdvFlyingSpeed(OpcodeServer opcode, float speed, Optional<float> maxSpeed /*= {}*/)
+{
+    if (maxSpeed.has_value())
+        SendDirectMessage(WorldPackets::Movement::SetAdvFlyingMinMaxSpeeds(opcode, m_movementCounter++, speed, *maxSpeed).Write());
+    else
+        SendDirectMessage(WorldPackets::Movement::SetAdvFlyingSpeed(opcode, m_movementCounter++, speed).Write());
+}
+
 void Player::AddMoveImpulse(Position direction)
 {
     auto addImpulse = WorldPackets::Movement::MoveAddImpulse();
@@ -30865,9 +30873,4 @@ void Player::AddMoveImpulse(Position direction)
     addImpulse.SequenceIndex = m_movementCounter++;
     addImpulse.Direction = direction;
     SendMessageToSet(addImpulse.Write(), true);
-}
-
-inline void Player::SendAdvFlyingSpeed(OpcodeServer opcode, float speed, Optional<float> maxSpeed /*= {}*/)
-{
-    SendDirectMessage(WorldPackets::Movement::SetAdvFlyingSpeed(opcode, m_movementCounter++, speed, maxSpeed).Write());
 }

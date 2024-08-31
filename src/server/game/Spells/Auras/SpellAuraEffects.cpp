@@ -6528,7 +6528,7 @@ void AuraEffect::HandleAdvancedFlying(AuraApplication const* aurApp, uint8 mode,
     player->SetCanAdvFly(apply);
 
     if (apply)
-        player->InitAdvancedFly();
+        player->InitAdvFlying();
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
