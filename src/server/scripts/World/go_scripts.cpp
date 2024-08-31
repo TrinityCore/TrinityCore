@@ -345,7 +345,7 @@ public:
     {
         go_tele_to_violet_standAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipHello(Player* player) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             return false;
         }
