@@ -1549,8 +1549,20 @@ struct npc_murloc_spearhunter_watershaper : public ScriptedAI
 
                 for (LootItem const& lootItem : loot->items)
                 {
-                    if (lootItem.itemid == ITEM_STITCHED_CLOTH_SHOES || lootItem.itemid == ITEM_STITCHED_LEATHER_BOOTS || lootItem.itemid == ITEM_LINKED_MAIL_BOOTS || lootItem.itemid == ITEM_DENTED_PLATE_BOOTS)
-                        player->SetRewardedQuest(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED);
+                    if (lootItem.type != LootItemType::Item)
+                        continue;
+
+                    switch (lootItem.itemid)
+                    {
+                        case ITEM_STITCHED_CLOTH_SHOES:
+                        case ITEM_STITCHED_LEATHER_BOOTS:
+                        case ITEM_LINKED_MAIL_BOOTS:
+                        case ITEM_DENTED_PLATE_BOOTS:
+                            player->SetRewardedQuest(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -4559,10 +4571,19 @@ struct npc_quilboar_warrior : public ScriptedAI
 
                 for (LootItem const& lootItem : loot->items)
                 {
-                    if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
+                    if (lootItem.type != LootItemType::Item)
+                        continue;
+
+                    switch (lootItem.itemid)
                     {
-                        player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
-                        break;
+                        case ITEM_STITCHED_CLOTH_TUNIC:
+                        case ITEM_STITCHED_LEATHER_TUNIC:
+                        case ITEM_LINKED_MAIL_HAUBERK:
+                        case ITEM_DENTED_CHESTPLATE:
+                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -4628,10 +4649,19 @@ struct npc_quilboar_geomancer : public ScriptedAI
 
                 for (LootItem const& lootItem : loot->items)
                 {
-                    if (lootItem.itemid == ITEM_STITCHED_CLOTH_TUNIC || lootItem.itemid == ITEM_STITCHED_LEATHER_TUNIC || lootItem.itemid == ITEM_LINKED_MAIL_HAUBERK || lootItem.itemid == ITEM_DENTED_CHESTPLATE)
+                    if (lootItem.type != LootItemType::Item)
+                        continue;
+
+                    switch (lootItem.itemid)
                     {
-                        player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
-                        break;
+                        case ITEM_STITCHED_CLOTH_TUNIC:
+                        case ITEM_STITCHED_LEATHER_TUNIC:
+                        case ITEM_LINKED_MAIL_HAUBERK:
+                        case ITEM_DENTED_CHESTPLATE:
+                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -4707,7 +4737,7 @@ struct npc_ogre_overseer : public ScriptedAI
 
                 for (LootItem const& lootItem : loot->items)
                 {
-                    if (lootItem.itemid == ITEM_BATTERED_CLOAK)
+                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_BATTERED_CLOAK)
                     {
                         player->SetRewardedQuest(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED);
                         break;
@@ -6487,7 +6517,7 @@ struct npc_torgok_q55879 : public ScriptedAI
             {
                 for (LootItem const& lootItem : loot->items)
                 {
-                    if (lootItem.itemid == ITEM_TORGOKS_REAGENT_POUCH)
+                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_TORGOKS_REAGENT_POUCH)
                     {
                         player->SetRewardedQuest(QUEST_TORGOKS_REAGENT_POUCH_DROPPED);
                         break;

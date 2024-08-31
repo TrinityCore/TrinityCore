@@ -458,6 +458,16 @@ struct ArenaCooldown : public IsUpdateFieldStructureTag, public HasChangesMask<8
     void ClearChangesMask();
 };
 
+struct ZonePlayerForcedReaction : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+{
+    UpdateField<int32, 0, 1> FactionID;
+    UpdateField<int32, 0, 2> Reaction;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
 struct PetCreatureName : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
     UpdateField<uint32, 0, 1> CreatureID;
@@ -502,7 +512,7 @@ struct CustomTabardInfo : public IsUpdateFieldStructureTag, public HasChangesMas
     void ClearChangesMask();
 };
 
-struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<289>
+struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<322>
 {
     UpdateField<bool, 0, 1> HasQuestSession;
     UpdateField<bool, 0, 2> HasLevelLink;
@@ -552,8 +562,9 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<289>
     UpdateFieldArray<UF::QuestLog, 175, 49, 50> QuestLog;
     UpdateFieldArray<UF::VisibleItem, 19, 225, 226> VisibleItems;
     UpdateFieldArray<float, 6, 245, 246> AvgItemLevel;
-    UpdateFieldArray<WorldPackets::Item::ItemInstance, 16, 252, 253> VisibleEquipableSpells;
-    UpdateFieldArray<uint32, 19, 269, 270> Field_3120;
+    UpdateFieldArray<UF::ZonePlayerForcedReaction, 32, 252, 253> ForcedReactions;
+    UpdateFieldArray<WorldPackets::Item::ItemInstance, 16, 285, 286> VisibleEquipableSpells;
+    UpdateFieldArray<uint32, 19, 302, 303> Field_3120;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
@@ -887,10 +898,10 @@ struct PersonalCraftingOrderCount : public IsUpdateFieldStructureTag, public Has
 
 struct NPCCraftingOrderInfo : public IsUpdateFieldStructureTag, public HasChangesMask<4>
 {
-    UpdateField<uint64, -1, 0> Field_0;
-    UpdateField<int32, -1, 1> Field_8;
-    UpdateField<int32, -1, 2> Field_C;
-    UpdateField<int32, -1, 3> Field_10;
+    UpdateField<uint64, -1, 0> OrderID;
+    UpdateField<int32, -1, 1> NpcCraftingOrderSetID;
+    UpdateField<int32, -1, 2> NpcTreasureID;
+    UpdateField<int32, -1, 3> NpcCraftingOrderCustomerID;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;

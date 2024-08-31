@@ -88,23 +88,26 @@ void WorldSession::HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitCo
                 return;
             }
 
-            TraitDefinitionEntry const* traitDefinition = sTraitDefinitionStore.LookupEntry(traitNodeEntry->TraitDefinitionID);
-            if (!traitDefinition)
+            if (traitNodeEntry->TraitDefinitionID)
             {
-                SendPacket(WorldPackets::Traits::TraitConfigCommitFailed(configId, 0, TALENT_FAILED_UNKNOWN).Write());
-                return;
-            }
+                TraitDefinitionEntry const* traitDefinition = sTraitDefinitionStore.LookupEntry(traitNodeEntry->TraitDefinitionID);
+                if (!traitDefinition)
+                {
+                    SendPacket(WorldPackets::Traits::TraitConfigCommitFailed(configId, 0, TALENT_FAILED_UNKNOWN).Write());
+                    return;
+                }
 
-            if (traitDefinition->SpellID && _player->GetSpellHistory()->HasCooldown(traitDefinition->SpellID))
-            {
-                SendPacket(WorldPackets::Traits::TraitConfigCommitFailed(configId, traitDefinition->SpellID, TALENT_FAILED_CANT_REMOVE_TALENT).Write());
-                return;
-            }
+                if (traitDefinition->SpellID && _player->GetSpellHistory()->HasCooldown(traitDefinition->SpellID))
+                {
+                    SendPacket(WorldPackets::Traits::TraitConfigCommitFailed(configId, traitDefinition->SpellID, TALENT_FAILED_CANT_REMOVE_TALENT).Write());
+                    return;
+                }
 
-            if (traitDefinition->VisibleSpellID && _player->GetSpellHistory()->HasCooldown(traitDefinition->VisibleSpellID))
-            {
-                SendPacket(WorldPackets::Traits::TraitConfigCommitFailed(configId, traitDefinition->VisibleSpellID, TALENT_FAILED_CANT_REMOVE_TALENT).Write());
-                return;
+                if (traitDefinition->VisibleSpellID && _player->GetSpellHistory()->HasCooldown(traitDefinition->VisibleSpellID))
+                {
+                    SendPacket(WorldPackets::Traits::TraitConfigCommitFailed(configId, traitDefinition->VisibleSpellID, TALENT_FAILED_CANT_REMOVE_TALENT).Write());
+                    return;
+                }
             }
 
             hasRemovedEntries = true;
