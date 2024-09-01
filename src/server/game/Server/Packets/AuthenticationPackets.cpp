@@ -327,8 +327,8 @@ void WorldPackets::Auth::AuthContinuedSession::Read()
 
 void WorldPackets::Auth::ConnectToFailed::Read()
 {
-    Serial = _worldPacket.read<ConnectToSerial>();
     _worldPacket >> Con;
+    _worldPacket >> As<uint32>(Serial);
 }
 
 bool WorldPackets::Auth::EnterEncryptedMode::InitializeEncryption()

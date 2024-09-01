@@ -61,7 +61,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
 void WorldSession::SendAvailableHotfixes()
 {
     WorldPackets::Hotfix::AvailableHotfixes availableHotfixes;
-    availableHotfixes.VirtualRealmAddress = realm.Id.GetAddress();
+    availableHotfixes.VirtualRealmAddress = GetVirtualRealmAddress();
 
     for (auto const& [pushId, push] : sDB2Manager.GetHotfixData())
     {

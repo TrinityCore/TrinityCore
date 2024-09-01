@@ -20,7 +20,7 @@
 #include "Errors.h"
 #include "Hash.h"
 #include "Log.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "Util.h"
 #include "World.h"
 #include <charconv>
@@ -815,7 +815,7 @@ static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
     if (realmId)
         return realmId;
 
-    return realm.Id.Realm;
+    return sRealmList->GetCurrentRealmId().Realm;
 }
 
 ObjectGuid ObjectGuidFactory::CreateNull()

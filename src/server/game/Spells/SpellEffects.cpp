@@ -404,6 +404,24 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
     &Spell::EffectNULL,                                     //314 SPELL_EFFECT_ADD_SOCKET_BONUS
     &Spell::EffectNULL,                                     //315 SPELL_EFFECT_LEARN_TRANSMOG_APPEARANCE_FROM_ITEM_MOD_APPEARANCE_GROUP
+    &Spell::EffectNULL,                                     //316 SPELL_EFFECT_KILL_CREDIT_LABEL_1
+    &Spell::EffectNULL,                                     //317 SPELL_EFFECT_KILL_CREDIT_LABEL_2
+    &Spell::EffectNULL,                                     //318 SPELL_EFFECT_318
+    &Spell::EffectNULL,                                     //319 SPELL_EFFECT_319
+    &Spell::EffectNULL,                                     //320 SPELL_EFFECT_320
+    &Spell::EffectNULL,                                     //321 SPELL_EFFECT_321
+    &Spell::EffectNULL,                                     //322 SPELL_EFFECT_322
+    &Spell::EffectNULL,                                     //323 SPELL_EFFECT_323
+    &Spell::EffectNULL,                                     //324 SPELL_EFFECT_324
+    &Spell::EffectNULL,                                     //325 SPELL_EFFECT_325
+    &Spell::EffectNULL,                                     //326 SPELL_EFFECT_326
+    &Spell::EffectNULL,                                     //327 SPELL_EFFECT_327
+    &Spell::EffectNULL,                                     //328 SPELL_EFFECT_328
+    &Spell::EffectNULL,                                     //329 SPELL_EFFECT_329
+    &Spell::EffectNULL,                                     //330 SPELL_EFFECT_330
+    &Spell::EffectNULL,                                     //331 SPELL_EFFECT_331
+    &Spell::EffectNULL,                                     //332 SPELL_EFFECT_332
+    &Spell::EffectNULL,                                     //333 SPELL_EFFECT_333
 };
 
 void Spell::EffectNULL()
@@ -3672,11 +3690,17 @@ void Spell::EffectQuestComplete()
         if (!quest)
             return;
 
-        uint16 logSlot = player->FindQuestSlot(questId);
-        if (logSlot < MAX_QUEST_LOG_SIZE)
-            player->AreaExploredOrEventHappens(questId);
-        else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))  // Check if the quest is used as a serverside flag.
-            player->SetRewardedQuest(questId);          // If so, set status to rewarded without broadcasting it to client.
+        QuestStatus questStatus = player->GetQuestStatus(questId);
+        if (questStatus == QUEST_STATUS_REWARDED)
+            return;
+
+        if (quest->HasFlag(QUEST_FLAGS_COMPLETION_EVENT) || quest->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER))
+        {
+            if (questStatus == QUEST_STATUS_INCOMPLETE)
+                player->AreaExploredOrEventHappens(questId);
+        }
+        else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT)) // Check if the quest is used as a serverside flag
+            player->CompleteQuest(questId);
     }
 }
 
@@ -6029,6 +6053,9 @@ void Spell::EffectCreateTraitTreeConfig()
     Player* target = Object::ToPlayer(unitTarget);
     if (!target)
         return;
+
+    if (target->IsLoading() && target->m_activePlayerData->TraitConfigs.empty())
+        return; // traits not loaded yet
 
     WorldPackets::Traits::TraitConfig newConfig;
     newConfig.Type = TraitMgr::GetConfigTypeForTree(effectInfo->MiscValue);

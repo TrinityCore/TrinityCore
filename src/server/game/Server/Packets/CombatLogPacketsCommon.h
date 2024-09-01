@@ -30,9 +30,9 @@ namespace WorldPackets
     {
         struct SpellLogPowerData
         {
-            SpellLogPowerData(int32 powerType, int32 amount, int32 cost) : PowerType(powerType), Amount(amount), Cost(cost) { }
+            SpellLogPowerData(int8 powerType, int32 amount, int32 cost) : PowerType(powerType), Amount(amount), Cost(cost) { }
 
-            int32 PowerType = 0;
+            int8 PowerType = 0;
             int32 Amount = 0;
             int32 Cost = 0;
         };

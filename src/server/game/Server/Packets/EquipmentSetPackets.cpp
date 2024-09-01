@@ -19,9 +19,9 @@
 
 WorldPacket const* WorldPackets::EquipmentSet::EquipmentSetID::Write()
 {
-    _worldPacket << uint64(GUID);
     _worldPacket << int32(Type);
     _worldPacket << uint32(SetID);
+    _worldPacket << uint64(GUID);
 
     return &_worldPacket;
 }
@@ -67,7 +67,7 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 
 void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
 {
-    Set.Type = _worldPacket.read<EquipmentSetInfo::EquipmentSetType, int32>();
+    _worldPacket >> As<int32>(Set.Type);
     _worldPacket >> Set.Guid;
     _worldPacket >> Set.SetID;
     _worldPacket >> Set.IgnoreMask;
@@ -119,8 +119,8 @@ void WorldPackets::EquipmentSet::UseEquipmentSet::Read()
 
 WorldPacket const* WorldPackets::EquipmentSet::UseEquipmentSetResult::Write()
 {
+    _worldPacket << int32(Reason);
     _worldPacket << uint64(GUID);
-    _worldPacket << uint8(Reason);
 
     return &_worldPacket;
 }

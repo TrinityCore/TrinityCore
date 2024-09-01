@@ -322,6 +322,8 @@ private:
                 return int64(left->BidAmount) - int64(right->BidAmount);
             case AuctionHouseSortOrder::Buyout:
                 return int64(left->BuyoutOrUnitPrice) - int64(right->BuyoutOrUnitPrice);
+            case AuctionHouseSortOrder::TimeRemaining:
+                return (left->EndTime - right->EndTime).count();
             default:
                 break;
         }

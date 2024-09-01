@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "Util.h"
 #include <utf8.h>
+#include <algorithm>
 #include <sstream>
 #include <cmath>
 
@@ -33,7 +34,7 @@ ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size
 {
 }
 
-ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, std::string_view value)
     : ByteBufferException(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value))
 {
 }
@@ -54,34 +55,39 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
     return *this;
 }
 
-std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
+std::string_view ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
 {
-    std::string value;
-    while (rpos() < size())                         // prevent crash at wrong string format in packet
-    {
-        char c = read<char>();
-        if (c == 0)
-            break;
-        value += c;
-    }
+    if (_rpos >= size())
+        throw ByteBufferPositionException(_rpos, 1, size());
+
+    ResetBitPos();
+
+    char const* begin = reinterpret_cast<char const*>(_storage.data()) + _rpos;
+    char const* end = reinterpret_cast<char const*>(_storage.data()) + size();
+    char const* stringEnd = std::ranges::find(begin, end, '\0');
+    if (stringEnd == end)
+        throw ByteBufferPositionException(size(), 1, size());
+
+    std::string_view value(begin, stringEnd);
+    _rpos += value.length() + 1;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value.c_str());
+        throw ByteBufferInvalidValueException("string", value);
     return value;
 }
 
-std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
+std::string_view ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
 {
     if (_rpos + length > size())
         throw ByteBufferPositionException(_rpos, length, size());
 
     ResetBitPos();
     if (!length)
-        return std::string();
+        return {};
 
-    std::string value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
+    std::string_view value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
     _rpos += length;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value.c_str());
+        throw ByteBufferInvalidValueException("string", value);
     return value;
 }
 

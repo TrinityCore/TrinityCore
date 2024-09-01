@@ -347,10 +347,11 @@ namespace WorldPackets
                                                  // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
+            int32 QuantityInQuestLog        = 0;
             int32 DungeonEncounterID        = 0;
             int32 BattlePetSpeciesID        = 0;
             int32 BattlePetBreedID          = 0;
-            uint32 BattlePetBreedQuality    = 0;
+            uint8 BattlePetBreedQuality     = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             std::vector<UiEventToast> Toasts;
@@ -488,6 +489,14 @@ namespace WorldPackets
             ObjectGuid Item;
         };
 
+        class SortAccountBankBags final : public ClientPacket
+        {
+        public:
+            explicit SortAccountBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_ACCOUNT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class SortBags final : public ClientPacket
         {
         public:
@@ -545,7 +554,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 BagIndex = 0;
+            uint8 BagIndex = 0;
             BagSlotFlags FlagToChange = { };
             bool On = false;
         };
@@ -557,7 +566,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 BagIndex = 0;
+            uint8 BagIndex = 0;
             BagSlotFlags FlagToChange = { };
             bool On = false;
         };
