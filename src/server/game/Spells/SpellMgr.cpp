@@ -4782,6 +4782,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
+    // Waycrest Manor - Waycrests Defeated (Horde)
+    // Waycrest Manor - Waycrests Defeated (Alliance)
+    ApplySpellFix({ 267595, 267597, 267609 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_CREATE_CONVERSATION;
+        });
+    });
+
     // ENDOF WAYCREST MANOR SPELLS
 
     //
