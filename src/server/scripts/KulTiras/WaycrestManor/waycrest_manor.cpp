@@ -43,7 +43,7 @@ enum WaycrestManorSpells
     SPELL_THORNED_BARRAGE               = 265760,
     SPELL_WILDFIRE_MISSILE              = 260566,
     SPELL_WILDFIRE_DAMAGE               = 260569,
-    SPELL_WILDFIRE_DAMAGE_NPC           = 273294
+    SPELL_WILDFIRE_DAMAGE_NPC           = 273294,
 
     // Lord and Lady Waycrest outro
     SPELL_ORGAN_MISSILES              = 267646,
@@ -386,7 +386,7 @@ public:
                 if (!gorakTul)
                     break;
 
-                // To-Do: This is wrong, this path has HasSplineFilter which is NYI
+                // @TODO: SplineFilter nyi
                 /*
                 ServerToClient: SMSG_ON_MONSTER_MOVE (0x2DD4) Length: 191 ConnIdx: 1 Time: 07/19/2024 09:17:19.888 Number: 8254
                 MoverGUID: Full: 0x204128E8C084F840001FF700001A1123 Creature/0 R4170/S8183 Map: 1862 (Waycrest Manor) Entry: 136161 (Gorak Tul) Low: 1708323
@@ -415,6 +415,7 @@ public:
                 (MovementMonsterSpline) (MovementSpline) CalculatedSpeedXY: 46.351273
                 */
 
+                gorakTul->SetFloating(true);
                 gorakTul->GetMotionMaster()->MovePath(PATH_GORAK_TUL, false);
                 break;
             }
