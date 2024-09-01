@@ -26530,7 +26530,7 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
         return index;
     };
 
-    for (uint32 i = 0; i < MAX_SPECIALIZATIONS - 1 /*initial spec doesnt get a config; ++i)
+    for (uint32 i = 0; i < MAX_SPECIALIZATIONS - 1; ++i)
     {
         if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i))
         {
