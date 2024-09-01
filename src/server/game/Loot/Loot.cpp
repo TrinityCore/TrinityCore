@@ -143,9 +143,6 @@ bool LootItem::ItemAllowedForPlayer(Player const* player, Loot const* loot, uint
 
     if (strictUsabilityCheck)
     {
-        if ((pProto->IsWeapon() || pProto->IsArmor()) && !pProto->IsUsableByLootSpecialization(player, true))
-            return false;
-
         if (player->CanRollNeedForItem(pProto, nullptr, false) != EQUIP_ERR_OK)
             return false;
     }

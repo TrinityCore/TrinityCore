@@ -7697,9 +7697,6 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
         if (!spellproto)
             continue;
 
-        if (effectData->ChrSpecializationID && ChrSpecialization(effectData->ChrSpecializationID) != GetPrimarySpecialization())
-            continue;
-
         ApplyEquipSpell(spellproto, item, apply, formChange);
     }
 }
@@ -7789,14 +7786,8 @@ void Player::UpdateItemSetAuras(bool formChange /*= false*/)
         for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
         {
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
-
-            if (itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != GetPrimarySpecialization())
-                ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
-            else
-            {
-                ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
-                ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
-            }
+            ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
+            ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
         }
     }
 }
@@ -14151,8 +14142,8 @@ bool Player::CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackage
 
     switch (questPackageItem->DisplayType)
     {
-        case QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION:
-            return rewardProto->IsUsableByLootSpecialization(this, true);
+        //case QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION:
+        //    return rewardProto->IsUsableByLootSpecialization(this, true);
         case QUEST_PACKAGE_FILTER_CLASS:
             return !rewardProto->ItemSpecClassMask || (rewardProto->ItemSpecClassMask & GetClassMask()) != 0;
         case QUEST_PACKAGE_FILTER_EVERYONE:
@@ -17296,10 +17287,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     SetNumRespecs(fields.numRespecs);
 
-    uint32 lootSpecId = fields.lootSpecId;
-    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(lootSpecId))
-        if (chrSpec->ClassID == GetClass())
-            SetLootSpecId(lootSpecId);
+    //uint32 lootSpecId = fields.lootSpecId;
 
     RegisterPowerTypes();
     UpdateDisplayPower();
@@ -19006,7 +18994,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         //save, but in tavern/city
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setInt64(index++, GetTalentResetTime());
-        stmt->setUInt32(index++, AsUnderlyingType(GetPrimarySpecialization()));
+        stmt->setUInt32(index++, 0); // GetPrimarySpecialization
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt32(index++, 0); // summonedPetNumber
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
@@ -19142,7 +19130,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setInt64(index++, GetTalentResetTime());
         stmt->setUInt8(index++, GetNumRespecs());
-        stmt->setUInt32(index++, AsUnderlyingType(GetPrimarySpecialization()));
+        stmt->setUInt32(index++, 0); // GetPrimarySpecialization
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         if (PetStable const* petStable = GetPetStable())
             stmt->setUInt32(index++, petStable->GetCurrentPet() && petStable->GetCurrentPet()->Health > 0 ? petStable->GetCurrentPet()->PetNumber : 0); // summonedPetNumber
@@ -26451,6 +26439,7 @@ void Player::_LoadTalents(PreparedQueryResult talentGroupResult, PreparedQueryRe
 
 void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult entriesResult)
 {
+    /*
     std::unordered_multimap<int32, WorldPackets::Traits::TraitEntry> traitEntriesByConfig;
     if (entriesResult)
     {
@@ -26541,7 +26530,7 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
         return index;
     };
 
-    for (uint32 i = 0; i < MAX_SPECIALIZATIONS - 1 /*initial spec doesnt get a config*/; ++i)
+    for (uint32 i = 0; i < MAX_SPECIALIZATIONS - 1 /*initial spec doesnt get a config; ++i)
     {
         if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i))
         {
@@ -26587,6 +26576,7 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
 
         ApplyTraitConfig(traitConfig.ID, true);
     }
+    */
 }
 
 void Player::_SaveTalents(CharacterDatabaseTransaction trans)
@@ -28342,16 +28332,6 @@ void Player::RemoveSocial()
     m_social = nullptr;
 }
 
-uint32 Player::GetDefaultSpecId() const
-{
-    return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
-}
-
-ChrSpecializationEntry const* Player::GetPrimarySpecializationEntry() const
-{
-    return sChrSpecializationStore.LookupEntry(AsUnderlyingType(GetPrimarySpecialization()));
-}
-
 bool Player::HasTalentGroupUnlocked(uint8 group) const
 {
     return _talentGroups.size() >= uint8(group + 1);
@@ -28994,7 +28974,7 @@ bool TraitMgr::PlayerDataAccessor::HasAchieved(int32 achievementId) const
 
 uint32 TraitMgr::PlayerDataAccessor::GetPrimarySpecialization() const
 {
-    return AsUnderlyingType(_player->GetPrimarySpecialization());
+    return 0;
 }
 
 void Player::RequestSpellCast(std::unique_ptr<SpellCastRequest> castRequest)

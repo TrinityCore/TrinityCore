@@ -65,7 +65,6 @@ TC_GAME_API extern DB2Storage<ChrClassesEntry>                      sChrClassesS
 TC_GAME_API extern DB2Storage<ChrCustomizationReqEntry>             sChrCustomizationReqStore;
 TC_GAME_API extern DB2Storage<ChrCustomizationOptionEntry>          sChrCustomizationOptionStore;
 TC_GAME_API extern DB2Storage<ChrRacesEntry>                        sChrRacesStore;
-TC_GAME_API extern DB2Storage<ChrSpecializationEntry>               sChrSpecializationStore;
 TC_GAME_API extern DB2Storage<CinematicCameraEntry>                 sCinematicCameraStore;
 TC_GAME_API extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
 TC_GAME_API extern DB2Storage<ConditionalChrModelEntry>             sConditionalChrModelStore;
@@ -138,8 +137,6 @@ TC_GAME_API extern DB2Storage<ItemSearchNameEntry>                  sItemSearchN
 TC_GAME_API extern DB2Storage<ItemSetEntry>                         sItemSetStore;
 TC_GAME_API extern DB2Storage<ItemSetSpellEntry>                    sItemSetSpellStore;
 TC_GAME_API extern DB2Storage<ItemSparseEntry>                      sItemSparseStore;
-TC_GAME_API extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
-TC_GAME_API extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
 TC_GAME_API extern DB2Storage<ItemXBonusTreeEntry>                  sItemXBonusTreeStore;
 TC_GAME_API extern DB2Storage<JournalEncounterEntry>                sJournalEncounterStore;
 TC_GAME_API extern DB2Storage<JournalEncounterSectionEntry>         sJournalEncounterSectionStore;
@@ -408,8 +405,6 @@ public:
     ChrModelEntry const* GetChrModel(uint8 race, uint8 gender) const;
     static ConditionalChrModelEntry const* GetConditionalChrModel(int32 chrModelId);
     static char const* GetChrRaceName(uint8 race, LocaleConstant locale = DEFAULT_LOCALE);
-    ChrSpecializationEntry const* GetChrSpecializationByIndex(uint32 class_, uint32 index) const;
-    ChrSpecializationEntry const* GetDefaultChrSpecializationForClass(uint32 class_) const;
     uint32 GetRedirectedContentTuningId(uint32 contentTuningId, uint32 redirectFlag) const;
     Optional<ContentTuningLevels> GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag, bool forItem = false) const;
     bool HasContentTuningLabel(uint32 contentTuningId, int32 label) const;
@@ -424,7 +419,6 @@ public:
     FriendshipRepReactionSet const* GetFriendshipRepReactions(uint32 friendshipRepID) const;
     uint32 GetGlobalCurveId(GlobalCurve globalCurveType) const;
     std::vector<uint32> const* GetGlyphBindableSpells(uint32 glyphPropertiesId) const;
-    std::vector<ChrSpecialization> const* GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const;
     HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
     ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
@@ -434,7 +428,6 @@ public:
     ItemModifiedAppearanceEntry const* GetItemModifiedAppearance(uint32 itemId, uint32 appearanceModId) const;
     ItemModifiedAppearanceEntry const* GetDefaultItemModifiedAppearance(uint32 itemId) const;
     std::vector<ItemSetSpellEntry const*> const* GetItemSetSpells(uint32 itemSetId) const;
-    std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId) const;
     JournalTierEntry const* GetJournalTier(uint32 index) const;
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
@@ -469,7 +462,6 @@ public:
     std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skillId) const;
     SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_) const;
     std::vector<SkillRaceClassInfoEntry const*> GetSkillRaceClassInfo(uint32 skill) const;
-    bool IsSpecSetMember(int32 specSetId, uint32 specId) const;
     static bool IsValidSpellFamiliyName(SpellFamilyNames family);
     std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const;
     std::vector<SpellVisualMissileEntry const*> const* GetSpellVisualMissiles(int32 spellVisualMissileSetId) const;

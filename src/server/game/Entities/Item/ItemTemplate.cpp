@@ -203,32 +203,3 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
         maxDamage = floor(float(avgDamage * (GetDmgVariance() * 0.5f + 1.0f) + 0.5f));
     }
 }
-
-bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const
-{
-    if (HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT) && alwaysAllowBoundToAccount)
-        return true;
-
-    uint32 spec = player->GetLootSpecId();
-    if (!spec)
-        spec = AsUnderlyingType(player->GetPrimarySpecialization());
-    if (!spec)
-        spec = player->GetDefaultSpecId();
-
-    ChrSpecializationEntry const* chrSpecialization = sChrSpecializationStore.LookupEntry(spec);
-    if (!chrSpecialization)
-        return false;
-
-    std::size_t levelIndex = 0;
-    if (player->GetLevel() >= 110)
-        levelIndex = 2;
-    else if (player->GetLevel() > 40)
-        levelIndex = 1;
-
-    return Specializations[levelIndex].test(CalculateItemSpecBit(chrSpecialization));
-}
-
-std::size_t ItemTemplate::CalculateItemSpecBit(ChrSpecializationEntry const* spec)
-{
-    return (spec->ClassID - 1) * MAX_SPECIALIZATIONS + spec->OrderIndex;
-}

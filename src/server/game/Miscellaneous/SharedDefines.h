@@ -185,6 +185,40 @@ constexpr uint32 MAX_CLASS_ID = CLASS_DRUID;
      (1<<(CLASS_DEMON_HUNTER-1)) | \
      (1<<(CLASS_EVOKER-1)))
 
+enum PlayerSpecializations : uint8
+{
+    SPEC_WARRIOR_ARMS           = 0,
+    SPEC_WARRIOR_FURY           = 1,
+    SPEC_WARRIOR_PROTECTION     = 2,
+    SPEC_PALADIN_HOLY           = 0,
+    SPEC_PALADIN_PROTECTION     = 1,
+    SPEC_PALADIN_RETRIBUTION    = 2,
+    SPEC_HUNTER_BEAST_MASTERY   = 0,
+    SPEC_HUNTER_MARKSMANSHIP    = 1,
+    SPEC_HUNTER_SURVIVAL        = 2,
+    SPEC_ROGUE_ASSASSINATION    = 0,
+    SPEC_ROGUE_COMBAT           = 1,
+    SPEC_ROGUE_SUBLETY          = 2,
+    SPEC_PRIEST_DISCIPLINE      = 0,
+    SPEC_PRIEST_HOLY            = 1,
+    SPEC_PRIEST_SHADOW          = 2,
+    SPEC_DEATH_KNIGHT_BLOOD     = 0,
+    SPEC_DEATH_KNIGHT_FROST     = 1,
+    SPEC_DEATH_KNIGHT_UNHOLY    = 2,
+    SPEC_SHAMAN_ELEMENTAL       = 0,
+    SPEC_SHAMAN_ENHANCEMENT     = 1,
+    SPEC_SHAMAN_RESTORATION     = 2,
+    SPEC_MAGE_ARCANE            = 0,
+    SPEC_MAGE_FIRE              = 1,
+    SPEC_MAGE_FROST             = 2,
+    SPEC_WARLOCK_AFFLICTION     = 0,
+    SPEC_WARLOCK_DEMONOLOGY     = 1,
+    SPEC_WARLOCK_DESTRUCTION    = 2,
+    SPEC_DRUID_BALANCE          = 0,
+    SPEC_DRUID_FERAL            = 1,
+    SPEC_DRUID_RESTORATION      = 2
+};
+
 // valid classes for creature_template.unit_class
 enum UnitClass
 {

@@ -143,8 +143,9 @@ void WorldSession::HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitCo
     */
 }
 
-void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::ClassTalentsRequestNewConfig& classTalentsRequestNewConfig)
+void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::ClassTalentsRequestNewConfig& /*classTalentsRequestNewConfig*/)
 {
+    /*
     if (classTalentsRequestNewConfig.Config.Type != TraitConfigType::Combat)
         return;
 
@@ -196,6 +197,7 @@ void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::Clas
         return;
 
     _player->CreateTraitConfig(classTalentsRequestNewConfig.Config);
+    */
 }
 
 void WorldSession::HandleClassTalentsRenameConfig(WorldPackets::Traits::ClassTalentsRenameConfig& classTalentsRenameConfig)
@@ -208,8 +210,9 @@ void WorldSession::HandleClassTalentsDeleteConfig(WorldPackets::Traits::ClassTal
     _player->DeleteTraitConfig(classTalentsDeleteConfig.ConfigID);
 }
 
-void WorldSession::HandleClassTalentsSetStarterBuildActive(WorldPackets::Traits::ClassTalentsSetStarterBuildActive const& classTalentsSetStarterBuildActive)
+void WorldSession::HandleClassTalentsSetStarterBuildActive(WorldPackets::Traits::ClassTalentsSetStarterBuildActive const& /*classTalentsSetStarterBuildActive*/)
 {
+    /*
     UF::TraitConfig const* traitConfig = _player->GetTraitConfig(classTalentsSetStarterBuildActive.ConfigID);
     if (!traitConfig)
         return;
@@ -246,6 +249,7 @@ void WorldSession::HandleClassTalentsSetStarterBuildActive(WorldPackets::Traits:
     }
     else
         _player->SetTraitConfigUseStarterBuild(classTalentsSetStarterBuildActive.ConfigID, false);
+    */
 }
 
 void WorldSession::HandleClassTalentsSetUsesSharedActionBars(WorldPackets::Traits::ClassTalentsSetUsesSharedActionBars const& classTalentsSetUsesSharedActionBars)

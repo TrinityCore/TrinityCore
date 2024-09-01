@@ -42,7 +42,6 @@ struct BarberShopStyleEntry;
 struct BattlegroundTemplate;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
-struct ChrSpecializationEntry;
 struct CreatureTemplate;
 struct CurrencyTypesEntry;
 struct FactionEntry;
@@ -89,7 +88,6 @@ class RestMgr;
 class SpellCastTargets;
 class TradeData;
 
-enum class ChrSpecialization : uint32;
 enum GroupCategory : uint8;
 enum class InstanceResetMethod : uint8;
 enum class InstanceResetResult : uint8;
@@ -1829,10 +1827,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetOverrideZonePVPType(ZonePVPTypeOverride type) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OverrideZonePVPType), uint32(type)); }
 
         // Talents
-        ChrSpecialization GetPrimarySpecialization() const { return ChrSpecialization(*m_playerData->CurrentSpecID); }
-        uint32 GetDefaultSpecId() const;
-        ChrSpecializationEntry const* GetPrimarySpecializationEntry() const;
-
         uint8 GetActiveTalentGroup() const { return _activeTalentGroup; }
         bool HasTalentGroupUnlocked(uint8 group) const;
         void SetTalentGroupCount(uint8 count);

@@ -571,33 +571,6 @@ struct ChrRacesEntry
     EnumFlag<ChrRacesFlag> GetFlags() const { return static_cast<ChrRacesFlag>(Flags); }
 };
 
-#define MAX_MASTERY_SPELLS 2
-
-struct ChrSpecializationEntry
-{
-    LocalizedString Name;
-    LocalizedString FemaleName;
-    LocalizedString Description;
-    uint32 ID;
-    uint8 ClassID;
-    int8 OrderIndex;
-    int8 PetTalentType;
-    int8 Role;
-    uint32 Flags;
-    int32 SpellIconFileID;
-    int8 PrimaryStatPriority;
-    int32 AnimReplacements;
-    std::array<int32, MAX_MASTERY_SPELLS> MasterySpellID;
-
-    EnumFlag<ChrSpecializationFlag> GetFlags() const { return static_cast<ChrSpecializationFlag>(Flags); }
-    ChrSpecializationRole GetRole() const { return static_cast<ChrSpecializationRole>(Role); }
-
-    bool IsPetSpecialization() const
-    {
-        return ClassID == 0;
-    }
-};
-
 struct CinematicCameraEntry
 {
     uint32 ID;
@@ -1938,24 +1911,6 @@ struct ItemSparseEntry
     int8 RequiredLevel;
 };
 
-struct ItemSpecEntry
-{
-    uint32 ID;
-    uint8 MinLevel;
-    uint8 MaxLevel;
-    uint8 ItemType;
-    uint8 PrimaryStat;
-    uint8 SecondaryStat;
-    uint16 SpecializationID;
-};
-
-struct ItemSpecOverrideEntry
-{
-    uint32 ID;
-    uint16 SpecID;
-    uint32 ItemID;
-};
-
 struct ItemXBonusTreeEntry
 {
     uint32 ID;
@@ -2874,13 +2829,6 @@ struct SoundKitEntry
     uint32 SoundMixGroupID;
 };
 
-struct SpecSetMemberEntry
-{
-    uint32 ID;
-    int32 ChrSpecializationID;
-    uint32 SpecSetID;
-};
-
 struct SpellAuraOptionsEntry
 {
     uint32 ID;
@@ -3419,6 +3367,8 @@ struct TalentEntry
     std::array<int32, 3> PrereqRank;
 };
 
+#define MAX_MASTERY_SPELLS 2
+
 struct TalentTabEntry
 {
     uint32 ID;
@@ -3431,7 +3381,7 @@ struct TalentTabEntry
     int32 CategoryEnumID;
     int32 SpellIconID;
     int32 RoleMask;
-    std::array<int32, 2> MasterySpellID;
+    std::array<int32, MAX_MASTERY_SPELLS> MasterySpellID;
 };
 
 struct TalentTreePrimarySpellsEntry

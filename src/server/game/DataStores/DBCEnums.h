@@ -330,69 +330,6 @@ enum class ChrRacesFlag : int32
 
 DEFINE_ENUM_FLAG(ChrRacesFlag);
 
-enum class ChrSpecializationFlag : uint32
-{
-    Caster              = 0x01,
-    Ranged              = 0x02,
-    Melee               = 0x04,
-    DualWieldTwoHanded  = 0x10,     // used for CUnitDisplay::SetSheatheInvertedForDualWield
-    PetOverrideSpec     = 0x20,
-    Recommended         = 0x40,
-};
-
-DEFINE_ENUM_FLAG(ChrSpecializationFlag);
-
-enum class ChrSpecializationRole : int8
-{
-    Tank    = 0,
-    Healer  = 1,
-    Dps     = 2
-};
-
-enum class ChrSpecialization : uint32
-{
-    None                        = 0,
-    MageArcane                  = 62,
-    MageFire                    = 63,
-    MageFrost                   = 64,
-    PaladinHoly                 = 65,
-    PaladinProtection           = 66,
-    PaladinRetribution          = 70,
-    WarriorArms                 = 71,
-    WarriorFury                 = 72,
-    WarriorProtection           = 73,
-    DruidBalance                = 102,
-    DruidFeral                  = 103,
-    DruidGuardian               = 104,
-    DruidRestoration            = 105,
-    DeathKnightBlood            = 250,
-    DeathKnightFrost            = 251,
-    DeathKnightUnholy           = 252,
-    HunterBeastMastery          = 253,
-    HunterMarksmanship          = 254,
-    HunterSurvival              = 255,
-    PriestDiscipline            = 256,
-    PriestHoly                  = 257,
-    PriestShadow                = 258,
-    RogueAssassination          = 259,
-    RogueOutlaw                 = 260,
-    RogueSubtely                = 261,
-    ShamanElemental             = 262,
-    ShamanEnhancement           = 263,
-    ShamanRestoration           = 264,
-    WarlockAffliction           = 265,
-    WarlockDemonology           = 266,
-    WarlockDestruction          = 267,
-    MonkBrewmaster              = 268,
-    MonkWindwalker              = 269,
-    MonkMistweaver              = 270,
-    DemonHunterHavoc            = 577,
-    DemonHunterVengeance        = 581,
-    EvokerDevastation           = 1467,
-    EvokerPreservation          = 1468,
-    EvokerAugmentation          = 1473
-};
-
 enum class ContentTuningCalcType : int32
 {
     Base                        = 0,
@@ -1184,52 +1121,6 @@ enum ItemLimitCategoryMode
 enum ItemSetFlags
 {
     ITEM_SET_FLAG_LEGACY_INACTIVE = 0x01,
-};
-
-enum ItemSpecStat
-{
-    ITEM_SPEC_STAT_INTELLECT        = 0,
-    ITEM_SPEC_STAT_AGILITY          = 1,
-    ITEM_SPEC_STAT_STRENGTH         = 2,
-    ITEM_SPEC_STAT_SPIRIT           = 3,
-    ITEM_SPEC_STAT_HIT              = 4,
-    ITEM_SPEC_STAT_DODGE            = 5,
-    ITEM_SPEC_STAT_PARRY            = 6,
-    ITEM_SPEC_STAT_ONE_HANDED_AXE   = 7,
-    ITEM_SPEC_STAT_TWO_HANDED_AXE   = 8,
-    ITEM_SPEC_STAT_ONE_HANDED_SWORD = 9,
-    ITEM_SPEC_STAT_TWO_HANDED_SWORD = 10,
-    ITEM_SPEC_STAT_ONE_HANDED_MACE  = 11,
-    ITEM_SPEC_STAT_TWO_HANDED_MACE  = 12,
-    ITEM_SPEC_STAT_DAGGER           = 13,
-    ITEM_SPEC_STAT_FIST_WEAPON      = 14,
-    ITEM_SPEC_STAT_GUN              = 15,
-    ITEM_SPEC_STAT_BOW              = 16,
-    ITEM_SPEC_STAT_CROSSBOW         = 17,
-    ITEM_SPEC_STAT_STAFF            = 18,
-    ITEM_SPEC_STAT_POLEARM          = 19,
-    ITEM_SPEC_STAT_THROWN           = 20,
-    ITEM_SPEC_STAT_WAND             = 21,
-    ITEM_SPEC_STAT_SHIELD           = 22,
-    ITEM_SPEC_STAT_RELIC            = 23,
-    ITEM_SPEC_STAT_CRIT             = 24,
-    ITEM_SPEC_STAT_HASTE            = 25,
-    ITEM_SPEC_STAT_BONUS_ARMOR      = 26,
-    ITEM_SPEC_STAT_CLOAK            = 27,
-    ITEM_SPEC_STAT_WARGLAIVES       = 28,
-    ITEM_SPEC_STAT_RELIC_IRON       = 29,
-    ITEM_SPEC_STAT_RELIC_BLOOD      = 30,
-    ITEM_SPEC_STAT_RELIC_SHADOW     = 31,
-    ITEM_SPEC_STAT_RELIC_FEL        = 32,
-    ITEM_SPEC_STAT_RELIC_ARCANE     = 33,
-    ITEM_SPEC_STAT_RELIC_FROST      = 34,
-    ITEM_SPEC_STAT_RELIC_FIRE       = 35,
-    ITEM_SPEC_STAT_RELIC_WATER      = 36,
-    ITEM_SPEC_STAT_RELIC_LIFE       = 37,
-    ITEM_SPEC_STAT_RELIC_WIND       = 38,
-    ITEM_SPEC_STAT_RELIC_HOLY       = 39,
-
-    ITEM_SPEC_STAT_NONE             = 40
 };
 
 enum MapTypes                                               // Lua_IsInInstance

@@ -368,19 +368,6 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentEntry const*& val, std
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::talentbuild::StoreTo(TalentBuildLinkData& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 chrSpecializationId;
-    if (!t.TryConsumeTo(chrSpecializationId))
-        return false;
-    if (!(val.Spec = sChrSpecializationStore.LookupEntry(chrSpecializationId)))
-        return false;
-    if (!t.TryConsumeTo(val.Level) || !t.TryConsumeTo(val.ImportString))
-        return false;
-    return true;
-}
-
 bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);

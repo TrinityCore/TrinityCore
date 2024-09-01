@@ -158,8 +158,6 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field const* fields)
     std::vector<std::string_view> equipment = Trinity::Tokenize(fields[17].GetStringView(), ' ', false);
     ListPosition = fields[19].GetUInt8();
     LastPlayedTime = fields[20].GetInt64();
-    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[21].GetUInt8()))
-        SpecID = spec->ID;
 
     LastLoginVersion = fields[22].GetUInt32();
 

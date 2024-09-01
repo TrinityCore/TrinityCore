@@ -1263,7 +1263,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
             score.second->BuildPvPLogPlayerDataPacket(playerData);
 
             playerData.IsInWorld = true;
-            playerData.PrimaryTalentTree = AsUnderlyingType(player->GetPrimarySpecialization());
+            playerData.PrimaryTalentTree = player->GetPrimaryTalentTree();
             playerData.Sex = player->GetGender();
             playerData.Race = player->GetRace();
             playerData.Class = player->GetClass();

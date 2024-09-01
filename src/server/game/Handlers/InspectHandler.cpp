@@ -52,10 +52,12 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
         //    if (v.second != PLAYERSPELL_REMOVED)
         //        inspectResult.Talents.push_back(v.first);
 
+        /*
         inspectResult.TalentTraits.Level = player->GetLevel();
         inspectResult.TalentTraits.ChrSpecializationID = AsUnderlyingType(player->GetPrimarySpecialization());
         if (UF::TraitConfig const* traitConfig = player->GetTraitConfig(player->m_activePlayerData->ActiveCombatTraitConfigID))
             inspectResult.TalentTraits.Config = WorldPackets::Traits::TraitConfig(*traitConfig);
+        */
     }
 
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))

@@ -285,8 +285,9 @@ TraitConfigType GetConfigTypeForTree(int32 traitTreeId)
  * @param traitConfig config data
  * @return Trait tree data
 */
-std::vector<Tree const*> const* GetTreesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig)
+std::vector<Tree const*> const* GetTreesForConfig(WorldPackets::Traits::TraitConfig const& /*traitConfig*/)
 {
+    /*
     switch (traitConfig.Type)
     {
         case TraitConfigType::Combat:
@@ -300,6 +301,7 @@ std::vector<Tree const*> const* GetTreesForConfig(WorldPackets::Traits::TraitCon
         default:
             break;
     }
+    */
 
     return nullptr;
 }
@@ -451,6 +453,7 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
     if (condition->AchievementID && !player.HasAchieved(condition->AchievementID))
         return false;
 
+    /*
     if (condition->SpecSetID)
     {
         uint32 chrSpecializationId = player.GetPrimarySpecialization();
@@ -460,6 +463,7 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
         if (!sDB2Manager.IsSpecSetMember(condition->SpecSetID, chrSpecializationId))
             return false;
     }
+    */
 
     if (condition->TraitCurrencyID && condition->SpentAmountRequired)
     {

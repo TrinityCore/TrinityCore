@@ -79,7 +79,6 @@ DB2Storage<ChrCustomizationReqChoiceEntry>      sChrCustomizationReqChoiceStore(
 DB2Storage<ChrModelEntry>                       sChrModelStore("ChrModel.db2", &ChrModelLoadInfo::Instance);
 DB2Storage<ChrRaceXChrModelEntry>               sChrRaceXChrModelStore("ChrRaceXChrModel.db2", &ChrRaceXChrModelLoadInfo::Instance);
 DB2Storage<ChrRacesEntry>                       sChrRacesStore("ChrRaces.db2", &ChrRacesLoadInfo::Instance);
-DB2Storage<ChrSpecializationEntry>              sChrSpecializationStore("ChrSpecialization.db2", &ChrSpecializationLoadInfo::Instance);
 DB2Storage<CinematicCameraEntry>                sCinematicCameraStore("CinematicCamera.db2", &CinematicCameraLoadInfo::Instance);
 DB2Storage<CinematicSequencesEntry>             sCinematicSequencesStore("CinematicSequences.db2", &CinematicSequencesLoadInfo::Instance);
 DB2Storage<ConditionalChrModelEntry>            sConditionalChrModelStore("ConditionalChrModel.db2", &ConditionalChrModelLoadInfo::Instance);
@@ -165,8 +164,6 @@ DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearch
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", &ItemSetLoadInfo::Instance);
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", &ItemSetSpellLoadInfo::Instance);
 DB2Storage<ItemSparseEntry>                     sItemSparseStore("ItemSparse.db2", &ItemSparseLoadInfo::Instance);
-DB2Storage<ItemSpecEntry>                       sItemSpecStore("ItemSpec.db2", &ItemSpecLoadInfo::Instance);
-DB2Storage<ItemSpecOverrideEntry>               sItemSpecOverrideStore("ItemSpecOverride.db2", &ItemSpecOverrideLoadInfo::Instance);
 DB2Storage<ItemXBonusTreeEntry>                 sItemXBonusTreeStore("ItemXBonusTree.db2", &ItemXBonusTreeLoadInfo::Instance);
 DB2Storage<JournalEncounterEntry>               sJournalEncounterStore("JournalEncounter.db2", &JournalEncounterLoadInfo::Instance);
 DB2Storage<JournalEncounterSectionEntry>        sJournalEncounterSectionStore("JournalEncounterSection.db2", &JournalEncounterSectionLoadInfo::Instance);
@@ -237,7 +234,6 @@ DB2Storage<SkillLineAbilityEntry>               sSkillLineAbilityStore("SkillLin
 DB2Storage<SkillLineXTraitTreeEntry>            sSkillLineXTraitTreeStore("SkillLineXTraitTree.db2", &SkillLineXTraitTreeLoadInfo::Instance);
 DB2Storage<SkillRaceClassInfoEntry>             sSkillRaceClassInfoStore("SkillRaceClassInfo.db2", &SkillRaceClassInfoLoadInfo::Instance);
 DB2Storage<SoundKitEntry>                       sSoundKitStore("SoundKit.db2", &SoundKitLoadInfo::Instance);
-DB2Storage<SpecSetMemberEntry>                  sSpecSetMemberStore("SpecSetMember.db2", &SpecSetMemberLoadInfo::Instance);
 DB2Storage<SpellAuraOptionsEntry>               sSpellAuraOptionsStore("SpellAuraOptions.db2", &SpellAuraOptionsLoadInfo::Instance);
 DB2Storage<SpellAuraRestrictionsEntry>          sSpellAuraRestrictionsStore("SpellAuraRestrictions.db2", &SpellAuraRestrictionsLoadInfo::Instance);
 DB2Storage<SpellCastTimesEntry>                 sSpellCastTimesStore("SpellCastTimes.db2", &SpellCastTimesLoadInfo::Instance);
@@ -340,19 +336,16 @@ DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry)
 
 typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
-typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
 typedef std::unordered_map<uint32 /*curveID*/, std::vector<DBCPosition2D>> CurvePointsContainer;
 typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
 typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
 typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphBindableSpellsContainer;
-typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<ChrSpecialization>> GlyphRequiredSpecsContainer;
 typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
 typedef std::array<ItemClassEntry const*, 20> ItemClassByOldEnumContainer;
 typedef std::unordered_map<uint32, std::vector<ItemLimitCategoryConditionEntry const*>> ItemLimitCategoryConditionContainer;
 typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
-typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountXDisplayContainer> MountDisplaysCointainer;
@@ -397,7 +390,6 @@ namespace
     std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
     std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
-    ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
     std::unordered_map<int32, ConditionalChrModelEntry const*> _conditionalChrModelsByChrModelId;
     std::unordered_multimap<uint32, ConditionalContentTuningEntry const*> _conditionalContentTuning;
     std::unordered_multimap<uint32, CurrencyContainerEntry const*> _currencyContainers;
@@ -407,14 +399,12 @@ namespace
     std::unordered_map<uint32, std::set<FriendshipRepReactionEntry const*, DB2Manager::FriendshipRepReactionEntryComparator>> _friendshipRepReactions;
     HeirloomItemsContainer _heirlooms;
     GlyphBindableSpellsContainer _glyphBindableSpells;
-    GlyphRequiredSpecsContainer _glyphRequiredSpecs;
     ItemChildEquipmentContainer _itemChildEquipment;
     ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemLimitCategoryConditionContainer _itemCategoryConditions;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
     ItemSetSpellContainer _itemSetSpells;
-    ItemSpecOverridesContainer _itemSpecOverrides;
     std::unordered_map<uint32 /*itemId*/, std::vector<ItemEffectEntry const*>> _itemEffectsByItemId;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
     MapDifficultyContainer _mapDifficulties;
@@ -436,7 +426,6 @@ namespace
     std::unordered_map<uint32, std::vector<SkillLineEntry const*>> _skillLinesByParentSkillLine;
     std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> _skillLineAbilitiesBySkillupSkill;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
-    std::unordered_set<std::pair<int32, uint32>> _specsBySpecSet;
     std::unordered_set<uint8> _spellFamilyNames;
     SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
     std::unordered_map<int32, std::vector<SpellVisualMissileEntry const*>> _spellVisualMissilesBySet;
@@ -615,7 +604,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sChrModelStore);
     LOAD_DB2(sChrRaceXChrModelStore);
     LOAD_DB2(sChrRacesStore);
-    LOAD_DB2(sChrSpecializationStore);
     LOAD_DB2(sCinematicCameraStore);
     LOAD_DB2(sCinematicSequencesStore);
     LOAD_DB2(sConditionalChrModelStore);
@@ -701,8 +689,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sItemSetStore);
     LOAD_DB2(sItemSetSpellStore);
     LOAD_DB2(sItemSparseStore);
-    LOAD_DB2(sItemSpecStore);
-    LOAD_DB2(sItemSpecOverrideStore);
     LOAD_DB2(sItemXBonusTreeStore);
     LOAD_DB2(sJournalEncounterStore);
     LOAD_DB2(sJournalEncounterSectionStore);
@@ -773,7 +759,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSkillLineXTraitTreeStore);
     LOAD_DB2(sSkillRaceClassInfoStore);
     LOAD_DB2(sSoundKitStore);
-    LOAD_DB2(sSpecSetMemberStore);
     LOAD_DB2(sSpellAuraOptionsStore);
     LOAD_DB2(sSpellAuraRestrictionsStore);
     LOAD_DB2(sSpellCastTimesStore);
@@ -1029,22 +1014,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
-    memset(_chrSpecializationsByIndex, 0, sizeof(_chrSpecializationsByIndex));
-    for (ChrSpecializationEntry const* chrSpec : sChrSpecializationStore)
-    {
-        ASSERT(chrSpec->ClassID < MAX_CLASSES);
-        ASSERT(chrSpec->OrderIndex < MAX_SPECIALIZATIONS);
-
-        uint32 storageIndex = chrSpec->ClassID;
-        if (chrSpec->GetFlags().HasFlag(ChrSpecializationFlag::PetOverrideSpec))
-        {
-            ASSERT(!chrSpec->ClassID);
-            storageIndex = PET_SPEC_OVERRIDE_CLASS_INDEX;
-        }
-
-        _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
-    }
-
     for (ConditionalChrModelEntry const* conditionalChrModel : sConditionalChrModelStore)
         _conditionalChrModelsByChrModelId[conditionalChrModel->ChrModelID] = conditionalChrModel;
 
@@ -1095,9 +1064,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (GlyphBindableSpellEntry const* glyphBindableSpell : sGlyphBindableSpellStore)
         _glyphBindableSpells[glyphBindableSpell->GlyphPropertiesID].push_back(glyphBindableSpell->SpellID);
 
-    for (GlyphRequiredSpecEntry const* glyphRequiredSpec : sGlyphRequiredSpecStore)
-        _glyphRequiredSpecs[glyphRequiredSpec->GlyphPropertiesID].push_back(ChrSpecialization(glyphRequiredSpec->ChrSpecializationID));
-
     for (ItemChildEquipmentEntry const* itemChildEquipment : sItemChildEquipmentStore)
     {
         ASSERT(_itemChildEquipment.find(itemChildEquipment->ParentItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
@@ -1128,9 +1094,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (ItemSetSpellEntry const* itemSetSpell : sItemSetSpellStore)
         _itemSetSpells[itemSetSpell->ItemSetID].push_back(itemSetSpell);
-
-    for (ItemSpecOverrideEntry const* itemSpecOverride : sItemSpecOverrideStore)
-        _itemSpecOverrides[itemSpecOverride->ItemID].push_back(itemSpecOverride);
 
     for (JournalTierEntry const* journalTier : sJournalTierStore)
         _journalTiersByIndex.push_back(journalTier);
@@ -1282,9 +1245,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
         if (sSkillLineStore.LookupEntry(entry->SkillID))
             _skillRaceClassInfoBySkill.insert(SkillRaceClassInfoContainer::value_type(entry->SkillID, entry));
-
-    for (SpecSetMemberEntry const* specSetMember : sSpecSetMemberStore)
-        _specsBySpecSet.insert(std::make_pair(specSetMember->SpecSetID, uint32(specSetMember->ChrSpecializationID)));
 
     for (SpellClassOptionsEntry const* classOption : sSpellClassOptionsStore)
         _spellFamilyNames.insert(classOption->SpellClassSet);
@@ -1844,16 +1804,6 @@ char const* DB2Manager::GetChrRaceName(uint8 race, LocaleConstant locale /*= DEF
     return raceEntry->Name[DEFAULT_LOCALE];
 }
 
-ChrSpecializationEntry const* DB2Manager::GetChrSpecializationByIndex(uint32 class_, uint32 index) const
-{
-    return _chrSpecializationsByIndex[class_][index];
-}
-
-ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(uint32 class_) const
-{
-    return GetChrSpecializationByIndex(class_, INITIAL_SPECIALIZATION_INDEX);
-}
-
 uint32 DB2Manager::GetRedirectedContentTuningId(uint32 contentTuningId, uint32 redirectFlag) const
 {
     for (auto [_, conditionalContentTuning] : Trinity::Containers::MapEqualRange(_conditionalContentTuning, contentTuningId))
@@ -2088,11 +2038,6 @@ std::vector<uint32> const* DB2Manager::GetGlyphBindableSpells(uint32 glyphProper
     return Trinity::Containers::MapGetValuePtr(_glyphBindableSpells, glyphPropertiesId);
 }
 
-std::vector<ChrSpecialization> const* DB2Manager::GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_glyphRequiredSpecs, glyphPropertiesId);
-}
-
 HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
 {
     return Trinity::Containers::MapGetValuePtr(_heirlooms, itemId);
@@ -2152,11 +2097,6 @@ ItemModifiedAppearanceEntry const* DB2Manager::GetDefaultItemModifiedAppearance(
 std::vector<ItemSetSpellEntry const*> const* DB2Manager::GetItemSetSpells(uint32 itemSetId) const
 {
     return Trinity::Containers::MapGetValuePtr(_itemSetSpells, itemSetId);
-}
-
-std::vector<ItemSpecOverrideEntry const*> const* DB2Manager::GetItemSpecOverrides(uint32 itemId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_itemSpecOverrides, itemId);
 }
 
 JournalTierEntry const* DB2Manager::GetJournalTier(uint32 index) const
@@ -2494,11 +2434,6 @@ std::vector<SkillRaceClassInfoEntry const*> DB2Manager::GetSkillRaceClassInfo(ui
         result.push_back(skillRaceClassInfo);
 
     return result;
-}
-
-bool DB2Manager::IsSpecSetMember(int32 specSetId, uint32 specId) const
-{
-    return _specsBySpecSet.count(std::make_pair(specSetId, specId)) > 0;
 }
 
 bool DB2Manager::IsValidSpellFamiliyName(SpellFamilyNames family)

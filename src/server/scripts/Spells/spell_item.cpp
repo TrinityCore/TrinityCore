@@ -4252,119 +4252,6 @@ class spell_item_sephuzs_secret : public AuraScript
     }
 };
 
-enum AmalgamsSeventhSpine
-{
-    SPELL_FRAGILE_ECHOES_MONK               = 225281,
-    SPELL_FRAGILE_ECHOES_SHAMAN             = 225292,
-    SPELL_FRAGILE_ECHOES_PRIEST_DISCIPLINE  = 225294,
-    SPELL_FRAGILE_ECHOES_PALADIN            = 225297,
-    SPELL_FRAGILE_ECHOES_DRUID              = 225298,
-    SPELL_FRAGILE_ECHOES_PRIEST_HOLY        = 225366,
-    SPELL_FRAGILE_ECHOES_EVOKER             = 429020,
-    SPELL_FRAGILE_ECHO_ENERGIZE             = 215270,
-};
-
-// 215266 - Fragile Echoes
-class spell_item_amalgams_seventh_spine : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_FRAGILE_ECHOES_MONK,
-            SPELL_FRAGILE_ECHOES_SHAMAN,
-            SPELL_FRAGILE_ECHOES_PRIEST_DISCIPLINE,
-            SPELL_FRAGILE_ECHOES_PALADIN,
-            SPELL_FRAGILE_ECHOES_DRUID,
-            SPELL_FRAGILE_ECHOES_PRIEST_HOLY,
-            SPELL_FRAGILE_ECHOES_EVOKER
-        });
-    }
-
-    void UpdateSpecAura(bool apply) const
-    {
-        Player* target = GetUnitOwner()->ToPlayer();
-        if (!target)
-            return;
-
-        auto updateAuraIfInCorrectSpec = [&](ChrSpecialization spec, AmalgamsSeventhSpine aura)
-        {
-            if (!apply || target->GetPrimarySpecialization() != spec)
-                target->RemoveAurasDueToSpell(aura);
-            else if (!target->HasAura(aura))
-                target->CastSpell(target, aura, GetEffect(EFFECT_0));
-        };
-
-        switch (target->GetClass())
-        {
-            case CLASS_MONK:
-                updateAuraIfInCorrectSpec(ChrSpecialization::MonkMistweaver, SPELL_FRAGILE_ECHOES_MONK);
-                break;
-            case CLASS_SHAMAN:
-                updateAuraIfInCorrectSpec(ChrSpecialization::ShamanRestoration, SPELL_FRAGILE_ECHOES_SHAMAN);
-                break;
-            case CLASS_PRIEST:
-                updateAuraIfInCorrectSpec(ChrSpecialization::PriestDiscipline, SPELL_FRAGILE_ECHOES_PRIEST_DISCIPLINE);
-                updateAuraIfInCorrectSpec(ChrSpecialization::PriestHoly, SPELL_FRAGILE_ECHOES_PRIEST_HOLY);
-                break;
-            case CLASS_PALADIN:
-                updateAuraIfInCorrectSpec(ChrSpecialization::PaladinHoly, SPELL_FRAGILE_ECHOES_PALADIN);
-                break;
-            case CLASS_DRUID:
-                updateAuraIfInCorrectSpec(ChrSpecialization::DruidRestoration, SPELL_FRAGILE_ECHOES_DRUID);
-                break;
-            case CLASS_EVOKER:
-                updateAuraIfInCorrectSpec(ChrSpecialization::EvokerPreservation, SPELL_FRAGILE_ECHOES_EVOKER);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void HandleHeartbeat() const
-    {
-        UpdateSpecAura(true);
-    }
-
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
-    {
-        UpdateSpecAura(false);
-    }
-
-    void Register() override
-    {
-        OnHeartbeat += AuraHeartbeatFn(spell_item_amalgams_seventh_spine::HandleHeartbeat);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_item_amalgams_seventh_spine::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 215267 - Fragile Echo
-class spell_item_amalgams_seventh_spine_mana_restore : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FRAGILE_ECHO_ENERGIZE });
-    }
-
-    void TriggerManaRestoration(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
-    {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-            return;
-
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (AuraEffect const* trinketEffect = caster->GetAuraEffect(aurEff->GetSpellEffectInfo().TriggerSpell, EFFECT_0))
-            caster->CastSpell(caster, SPELL_FRAGILE_ECHO_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0, trinketEffect->GetAmount()));
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_item_amalgams_seventh_spine_mana_restore::TriggerManaRestoration, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 // 228445 - March of the Legion
 class spell_item_set_march_of_the_legion : public AuraScript
 {
@@ -4787,8 +4674,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_eggnog);
 
     RegisterSpellScript(spell_item_sephuzs_secret);
-    RegisterSpellScript(spell_item_amalgams_seventh_spine);
-    RegisterSpellScript(spell_item_amalgams_seventh_spine_mana_restore);
     RegisterSpellScript(spell_item_set_march_of_the_legion);
     RegisterSpellScript(spell_item_seal_of_darkshire_nobility);
     RegisterSpellScript(spell_item_lightblood_elixir);

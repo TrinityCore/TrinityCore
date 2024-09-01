@@ -2811,18 +2811,6 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             return false;
     }
 
-    if (condition->ChrSpecializationIndex >= 0 || condition->ChrSpecializationRole >= 0)
-    {
-        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(AsUnderlyingType(player->GetPrimarySpecialization())))
-        {
-            if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != condition->ChrSpecializationIndex)
-                return false;
-
-            if (condition->ChrSpecializationRole >= 0 && spec->Role != condition->ChrSpecializationRole)
-                return false;
-        }
-    }
-
     if (condition->SkillID[0] || condition->SkillID[1] || condition->SkillID[2] || condition->SkillID[3])
     {
         std::array<bool, std::tuple_size_v<decltype(condition->SkillID)>> results;
@@ -3789,17 +3777,10 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsEnemy:
             return otherUnit && unit->GetReactionTo(otherUnit) <= REP_HOSTILE;
         case UnitConditionVariable::IsSpecMelee:
-            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecializationEntry()
-                && unit->ToPlayer()->GetPrimarySpecializationEntry()->GetFlags().HasFlag(ChrSpecializationFlag::Melee);
         case UnitConditionVariable::IsSpecTank:
-            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecializationEntry()
-                && unit->ToPlayer()->GetPrimarySpecializationEntry()->GetRole() == ChrSpecializationRole::Tank;
         case UnitConditionVariable::IsSpecRanged:
-            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecializationEntry()
-                && unit->ToPlayer()->GetPrimarySpecializationEntry()->GetFlags().HasFlag(ChrSpecializationFlag::Ranged);
         case UnitConditionVariable::IsSpecHealer:
-            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecializationEntry()
-                && unit->ToPlayer()->GetPrimarySpecializationEntry()->GetRole() == ChrSpecializationRole::Healer;
+            break;
         case UnitConditionVariable::IsPlayerControlledNPC:
             return unit->IsCreature() && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
         case UnitConditionVariable::IsDying:

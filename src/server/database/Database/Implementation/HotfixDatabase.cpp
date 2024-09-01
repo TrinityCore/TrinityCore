@@ -276,14 +276,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "LoreNameFemale_lang, LoreNameLower_lang, LoreNameLowerFemale_lang, LoreDescription_lang, ShortName_lang, ShortNameFemale_lang, "
         "ShortNameLower_lang, ShortNameLowerFemale_lang FROM chr_races_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
-    // ChrSpecialization.db2
-    PrepareStatement(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT Name, FemaleName, Description, ID, ClassID, OrderIndex, PetTalentType, Role, Flags, "
-        "SpellIconFileID, PrimaryStatPriority, AnimReplacements, MasterySpellID1, MasterySpellID2 FROM chr_specialization"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT MAX(ID) + 1 FROM chr_specialization", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT ID, Name_lang, FemaleName_lang, Description_lang FROM chr_specialization_locale"
-        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
-
     // CinematicCamera.db2
     PrepareStatement(HOTFIX_SEL_CINEMATIC_CAMERA, "SELECT ID, OriginX, OriginY, OriginZ, SoundID, OriginFacing, FileDataID FROM cinematic_camera"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -773,15 +765,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Description_lang, Display3_lang, Display2_lang, Display1_lang, Display_lang"
         " FROM item_sparse_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
-    // ItemSpec.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_SPEC, "SELECT ID, MinLevel, MaxLevel, ItemType, PrimaryStat, SecondaryStat, SpecializationID FROM item_spec"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_SPEC, "SELECT MAX(ID) + 1 FROM item_spec", CONNECTION_SYNCH);
-
-    // ItemSpecOverride.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_SPEC_OVERRIDE, "SELECT ID, SpecID, ItemID FROM item_spec_override WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_SPEC_OVERRIDE, "SELECT MAX(ID) + 1 FROM item_spec_override", CONNECTION_SYNCH);
-
     // ItemXBonusTree.db2
     PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemBonusTreeID, ItemID FROM item_x_bonus_tree WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT MAX(ID) + 1 FROM item_x_bonus_tree", CONNECTION_SYNCH);
@@ -1171,10 +1154,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "VolumeVariationPlus, VolumeVariationMinus, PitchVariationPlus, PitchVariationMinus, DialogType, PitchAdjust, BusOverwriteID, MaxInstances, "
         "SoundMixGroupID FROM sound_kit WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SOUND_KIT, "SELECT MAX(ID) + 1 FROM sound_kit", CONNECTION_SYNCH);
-
-    // SpecSetMember.db2
-    PrepareStatement(HOTFIX_SEL_SPEC_SET_MEMBER, "SELECT ID, ChrSpecializationID, SpecSetID FROM spec_set_member WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPEC_SET_MEMBER, "SELECT MAX(ID) + 1 FROM spec_set_member", CONNECTION_SYNCH);
 
     // SpellAuraOptions.db2
     PrepareStatement(HOTFIX_SEL_SPELL_AURA_OPTIONS, "SELECT ID, DifficultyID, CumulativeAura, ProcCategoryRecovery, ProcChance, ProcCharges, "

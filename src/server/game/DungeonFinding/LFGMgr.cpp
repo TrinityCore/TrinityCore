@@ -1941,10 +1941,12 @@ uint8 LFGMgr::GetTeam(ObjectGuid guid)
 
 uint8 LFGMgr::FilterClassRoles(Player* player, uint8 roles)
 {
-    uint8 allowedRoles = PLAYER_ROLE_LEADER;
-    for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
-        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(player->GetClass(), i))
-            allowedRoles |= 1 << (specialization->Role + 1);
+    uint8 allowedRoles = PLAYER_ROLE_LEADER | PLAYER_ROLE_DAMAGE;
+    if (player->GetClass() == CLASS_DEATH_KNIGHT || player->GetClass() == CLASS_DRUID || player->GetClass() == CLASS_PALADIN || player->GetClass() == CLASS_WARRIOR)
+        allowedRoles |= PLAYER_ROLE_TANK;
+
+    if (player->GetClass() == CLASS_PALADIN || player->GetClass() == CLASS_PRIEST || player->GetClass() == CLASS_DRUID || player->GetClass() == CLASS_SHAMAN)
+        allowedRoles |= PLAYER_ROLE_HEALER;
 
     return roles & allowedRoles;
 }

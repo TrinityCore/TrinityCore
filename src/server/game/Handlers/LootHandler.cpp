@@ -499,14 +499,6 @@ void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
     lootRoll->PlayerVote(GetPlayer(), RollVote(packet.RollType));
 }
 
-void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet)
+void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& /*packet*/)
 {
-    if (packet.SpecID)
-    {
-        if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(packet.SpecID))
-            if (chrSpec->ClassID == GetPlayer()->GetClass())
-                GetPlayer()->SetLootSpecId(packet.SpecID);
-    }
-    else
-        GetPlayer()->SetLootSpecId(0);
 }

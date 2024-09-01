@@ -769,29 +769,6 @@ struct ChrRacesLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 68, &ChrRacesMeta::Instance, HOTFIX_SEL_CHR_RACES };
 };
 
-struct ChrSpecializationLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[14] =
-    {
-        { false, FT_STRING, "Name" },
-        { false, FT_STRING, "FemaleName" },
-        { false, FT_STRING, "Description" },
-        { false, FT_INT, "ID" },
-        { false, FT_BYTE, "ClassID" },
-        { true, FT_BYTE, "OrderIndex" },
-        { true, FT_BYTE, "PetTalentType" },
-        { true, FT_BYTE, "Role" },
-        { false, FT_INT, "Flags" },
-        { true, FT_INT, "SpellIconFileID" },
-        { true, FT_BYTE, "PrimaryStatPriority" },
-        { true, FT_INT, "AnimReplacements" },
-        { true, FT_INT, "MasterySpellID1" },
-        { true, FT_INT, "MasterySpellID2" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 14, &ChrSpecializationMeta::Instance, HOTFIX_SEL_CHR_SPECIALIZATION };
-};
-
 struct CinematicCameraLoadInfo
 {
     static constexpr DB2FieldMeta Fields[7] =
@@ -2521,34 +2498,6 @@ struct ItemSparseLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 140, &ItemSparseMeta::Instance, HOTFIX_SEL_ITEM_SPARSE };
 };
 
-struct ItemSpecLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[7] =
-    {
-        { false, FT_INT, "ID" },
-        { false, FT_BYTE, "MinLevel" },
-        { false, FT_BYTE, "MaxLevel" },
-        { false, FT_BYTE, "ItemType" },
-        { false, FT_BYTE, "PrimaryStat" },
-        { false, FT_BYTE, "SecondaryStat" },
-        { false, FT_SHORT, "SpecializationID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 7, &ItemSpecMeta::Instance, HOTFIX_SEL_ITEM_SPEC };
-};
-
-struct ItemSpecOverrideLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[3] =
-    {
-        { false, FT_INT, "ID" },
-        { false, FT_SHORT, "SpecID" },
-        { false, FT_INT, "ItemID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &ItemSpecOverrideMeta::Instance, HOTFIX_SEL_ITEM_SPEC_OVERRIDE };
-};
-
 struct ItemXBonusTreeLoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =
@@ -3933,18 +3882,6 @@ struct SoundKitLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 17, &SoundKitMeta::Instance, HOTFIX_SEL_SOUND_KIT };
-};
-
-struct SpecSetMemberLoadInfo
-{
-    static constexpr DB2FieldMeta Fields[3] =
-    {
-        { false, FT_INT, "ID" },
-        { true, FT_INT, "ChrSpecializationID" },
-        { false, FT_INT, "SpecSetID" },
-    };
-
-    static constexpr DB2LoadInfo Instance{ Fields, 3, &SpecSetMemberMeta::Instance, HOTFIX_SEL_SPEC_SET_MEMBER };
 };
 
 struct SpellAuraOptionsLoadInfo

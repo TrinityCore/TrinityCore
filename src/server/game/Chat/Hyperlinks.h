@@ -27,7 +27,6 @@
 struct AchievementEntry;
 struct BattlePetAbilityEntry;
 struct BattlePetSpeciesEntry;
-struct ChrSpecializationEntry;
 struct CurrencyContainerEntry;
 struct CurrencyTypesEntry;
 struct GlyphPropertiesEntry;
@@ -189,13 +188,6 @@ namespace Trinity::Hyperlinks
     {
         SpellInfo const* Spell = nullptr;
         GlyphPropertiesEntry const* Glyph = nullptr;
-    };
-
-    struct TalentBuildLinkData
-    {
-        ChrSpecializationEntry const* Spec = nullptr;
-        uint32 Level = 0;
-        std::string_view ImportString;
     };
 
     struct TradeskillLinkData
@@ -391,13 +383,6 @@ namespace Trinity::Hyperlinks
             using value_type = TalentEntry const*;
             static constexpr std::string_view tag() { return "talent"; }
             static bool StoreTo(TalentEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API talentbuild
-        {
-            using value_type = TalentBuildLinkData const&;
-            static constexpr std::string_view tag() { return "talentbuild"; }
-            static bool StoreTo(TalentBuildLinkData& val, std::string_view text);
         };
 
         struct TC_GAME_API trade

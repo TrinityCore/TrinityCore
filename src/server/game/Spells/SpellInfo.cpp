@@ -4165,9 +4165,11 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
             }
             case SPELL_PPM_MOD_SPEC:
             {
+                /*
                 if (Player* plrCaster = caster->ToPlayer())
                     if (plrCaster->GetPrimarySpecialization() == ChrSpecialization(mod->Param))
                         ppm *= 1.0f + mod->Coeff;
+                    */
                 break;
             }
             case SPELL_PPM_MOD_RACE:

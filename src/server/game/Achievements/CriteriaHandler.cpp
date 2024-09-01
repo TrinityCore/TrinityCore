@@ -2927,12 +2927,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::PlayerLootSpecializationMatchesRole: // 263
-        {
-            ChrSpecializationEntry const* spec = referencePlayer->GetPrimarySpecializationEntry();
-            if (!spec || spec->Role != int32(reqValue))
-                return false;
-            break;
-        }
+            return false;
         case ModifierTreeType::PlayerIsAtMaxExpansionLevel: // 264
             if (!referencePlayer->IsMaxLevel())
                 return false;
@@ -3023,9 +3018,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         }
         case ModifierTreeType::PlayerSpecialization: // 279
-            if (referencePlayer->GetPrimarySpecialization() != ChrSpecialization(reqValue))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::PlayerMapOrCosmeticChildMap: // 280
         {
             MapEntry const* map = referencePlayer->GetMap()->GetEntry();

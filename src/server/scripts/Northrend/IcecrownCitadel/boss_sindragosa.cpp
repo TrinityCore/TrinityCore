@@ -16,6 +16,7 @@
  */
 
 #include "icecrown_citadel.h"
+#include "CommonHelpers.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "GridNotifiers.h"
@@ -1089,18 +1090,30 @@ class spell_sindragosa_unchained_magic : public SpellScript
             if (!player)
                 continue;
 
-            ChrSpecializationEntry const* specialization = player->GetPrimarySpecializationEntry();
-            if (!specialization)
-                continue;
-
-            if (specialization->GetRole() == ChrSpecializationRole::Healer)
+            if (Trinity::Helpers::Entity::IsPlayerHealer(player))
             {
                 healers.push_back(target);
                 continue;
             }
 
-            if (specialization->GetFlags().HasFlag(ChrSpecializationFlag::Caster))
-                casters.push_back(target);
+            switch (player->GetClass())
+            {
+                case CLASS_PRIEST:
+                case CLASS_MAGE:
+                case CLASS_WARLOCK:
+                    casters.push_back(target);
+                    break;
+                case CLASS_SHAMAN:
+                    if (Trinity::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_SHAMAN_ENHANCEMENT)
+                        casters.push_back(target);
+                    break;
+                case CLASS_DRUID:
+                    if (Trinity::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_DRUID_FERAL)
+                        casters.push_back(target);
+                    break;
+                default:
+                    break;
+            }
         }
 
         targets.clear();

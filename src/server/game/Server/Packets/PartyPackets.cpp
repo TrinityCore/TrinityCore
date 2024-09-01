@@ -627,7 +627,7 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     MemberStats.PositionY = int16(player->GetPositionY());
     MemberStats.PositionZ = int16(player->GetPositionZ());
 
-    MemberStats.SpecID = AsUnderlyingType(player->GetPrimarySpecialization());
+    MemberStats.SpecID = player->GetPrimaryTalentTree();
     MemberStats.PartyType[0] = player->m_playerData->PartyType[0];
     MemberStats.PartyType[1] = player->m_playerData->PartyType[1];
 

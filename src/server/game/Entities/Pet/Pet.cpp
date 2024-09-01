@@ -410,8 +410,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         TC_LOG_DEBUG("entities.pet", "New Pet has {}", GetGUID().ToString());
 
         uint16 specId = specializationId;
-        if (ChrSpecializationEntry const* petSpec = sChrSpecializationStore.LookupEntry(specId))
-            specId = sDB2Manager.GetChrSpecializationByIndex(owner->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0, petSpec->OrderIndex)->ID;
 
         SetSpecialization(specId);
 
@@ -1879,7 +1877,7 @@ void Pet::SetSpecialization(uint16 spec)
     // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells
     // clearActionBars is false because we'll be updating the pet actionbar later so we don't have to do it now
     RemoveSpecializationSpells(false);
-    if (!sChrSpecializationStore.LookupEntry(spec))
+    //if (!sChrSpecializationStore.LookupEntry(spec))
     {
         m_petSpecialization = 0;
         return;

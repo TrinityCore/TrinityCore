@@ -399,9 +399,6 @@ Stats Player::GetPrimaryStat() const
 {
     uint8 primaryStatPriority = [&]() -> uint8
     {
-        if (ChrSpecializationEntry const* specialization = GetPrimarySpecializationEntry())
-            return specialization->PrimaryStatPriority;
-
         return sChrClassesStore.AssertEntry(GetClass())->PrimaryStatPriority;
     }();
 

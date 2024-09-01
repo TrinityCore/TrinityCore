@@ -6164,7 +6164,7 @@ void AuraEffect::HandleShowConfirmationPrompt(AuraApplication const* aurApp, uin
         player->RemoveTemporarySpell(GetSpellEffectInfo().TriggerSpell);
 }
 
-void AuraEffect::HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
@@ -6180,11 +6180,13 @@ void AuraEffect::HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mod
     if (!pet)
         return;
 
+    /*
     ChrSpecializationEntry const* currSpec = sChrSpecializationStore.LookupEntry(pet->GetSpecialization());
     if (!currSpec)
         return;
 
     pet->SetSpecialization(sDB2Manager.GetChrSpecializationByIndex(apply ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0, currSpec->OrderIndex)->ID);
+    */
 }
 
 void AuraEffect::HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const

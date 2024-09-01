@@ -566,7 +566,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(skill);
     TryValidateAs(spell);
     TryValidateAs(talent);
-    TryValidateAs(talentbuild);
     TryValidateAs(taxinode);
     TryValidateAs(tele);
     TryValidateAs(title);
