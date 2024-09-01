@@ -3294,6 +3294,10 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Dumping routines for database 'auth'
+--
+
+--
 -- Final view structure for view `vw_log_history`
 --
 
@@ -3338,4 +3342,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-01  2:13:03
+-- Dump completed on 2024-05-11  3:06:54
