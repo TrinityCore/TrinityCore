@@ -92,7 +92,6 @@
 #include "SupportMgr.h"
 #include "TaxiPathGraph.h"
 #include "TerrainMgr.h"
-#include "TraitMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "UpdateTime.h"
@@ -1891,9 +1890,6 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Spell Totem models...");
     sSpellMgr->LoadSpellTotemModel();
-
-    TC_LOG_INFO("server.loading", "Loading Traits...");
-    TraitMgr::Load();
 
     TC_LOG_INFO("server.loading", "Loading languages...");  // must be after LoadSpellInfoStore and LoadSkillLineAbilityMap
     sLanguageMgr->LoadLanguages();

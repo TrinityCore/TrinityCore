@@ -119,12 +119,6 @@ namespace WorldPackets
     {
         enum class UpdateCollisionHeightReason : uint8;
     }
-
-    namespace Traits
-    {
-        struct TraitConfig;
-        struct TraitEntry;
-    }
 }
 
 TC_GAME_API uint32 GetBagSize(Bag const* bag);
@@ -196,7 +190,6 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
     bool favorite          : 1;
-    Optional<int32> TraitDefinitionId;
 };
 
 extern std::array<uint32, MAX_CLASS_ID + 1> MasterySpells;
@@ -911,8 +904,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
     PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS,
-    PLAYER_LOGIN_QUERY_LOAD_TRAIT_ENTRIES,
-    PLAYER_LOGIN_QUERY_LOAD_TRAIT_CONFIGS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1791,8 +1782,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;
         void SendKnownSpells();
         void SendUnlearnSpells();
-        bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, int32 fromSkill = 0, bool favorite = false, Optional<int32> traitDefinitionId = {});
-        void LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill = 0, bool suppressMessaging = false, Optional<int32> traitDefinitionId = {});
+        bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, int32 fromSkill = 0, bool favorite = false);
+        void LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill = 0, bool suppressMessaging = false);
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true, bool suppressMessaging = false);
         void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
@@ -1854,20 +1845,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
         void StartLoadingActionButtons(std::function<void()>&& callback = nullptr);
         void LoadActions(PreparedQueryResult result);
-
-        // Traits
-        void CreateTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig);
-        void AddTraitConfig(WorldPackets::Traits::TraitConfig const& traitConfig);
-        UF::TraitConfig const* GetTraitConfig(int32 configId) const;
-        void UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, int32 savedConfigId, bool withCastTime);
-        void ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::TraitConfig const& newConfig, bool applyTraits, bool consumeCurrencies);
-        void RenameTraitConfig(int32 editedConfigId, std::string&& newName);
-        void DeleteTraitConfig(int32 deletedConfigId);
-        void ApplyTraitConfig(int32 configId, bool apply);
-        void ApplyTraitEntry(int32 traitNodeEntryId, int32 rank, int32 grantedRanks, bool apply);
-        void SetActiveCombatTraitConfigID(int32 traitConfigId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ActiveCombatTraitConfigID), traitConfigId); }
-        void SetTraitConfigUseStarterBuild(int32 traitConfigId, bool useStarterBuild);
-        void SetTraitConfigUseSharedActionBars(int32 traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig);
 
         uint32 GetFreePrimaryProfessionPoints() const { return m_activePlayerData->CharacterPoints; }
         void SetFreePrimaryProfessions(uint16 profs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), profs); }
@@ -2909,7 +2886,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult talentGroupResult, PreparedQueryResult talentResult);
-        void _LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult entriesResult);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
@@ -2937,7 +2913,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveBGData(CharacterDatabaseTransaction trans);
         void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
         void _SaveTalents(CharacterDatabaseTransaction trans);
-        void _SaveTraits(CharacterDatabaseTransaction trans);
         void _SaveStats(CharacterDatabaseTransaction trans) const;
         void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
         void _SaveCurrency(CharacterDatabaseTransaction trans);
@@ -3005,8 +2980,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 _questRewardedTalentPoints;
         uint32 _resetTalentsCost;
         time_t _resetTalentsTime;
-
-        std::unordered_map<int32, PlayerSpellState> m_traitConfigStates;
 
         ActionButtonList m_actionButtons;
 

@@ -59,7 +59,6 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "TradeData.h"
-#include "TraitPackets.h"
 #include "UniqueTrackablePtr.h"
 #include "Util.h"
 #include "VMapFactory.h"
@@ -4385,14 +4384,7 @@ void Spell::finish(SpellCastResult result)
     Unit::ProcSkillsAndAuras(unitCaster, nullptr, PROC_FLAG_CAST_ENDED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, this, nullptr, nullptr);
 
     if (result != SPELL_CAST_OK)
-    {
-        // on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
-        if (m_caster->IsPlayer() && m_spellInfo->HasEffect(SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG))
-            if (WorldPackets::Traits::TraitConfig const* traitConfig = std::any_cast<WorldPackets::Traits::TraitConfig>(&m_customArg))
-                m_caster->ToPlayer()->SendDirectMessage(WorldPackets::Traits::TraitConfigCommitFailed(traitConfig->ID).Write());
-
         return;
-    }
 
     if (unitCaster->GetTypeId() == TYPEID_UNIT && unitCaster->IsSummon())
     {

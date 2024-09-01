@@ -17,6 +17,7 @@
 
 #include "CommonHelpers.h"
 #include "Common.h"
+#include "DB2Stores.h"
 #include "Item.h"
 #include "ItemTemplate.h"
 #include "Player.h"

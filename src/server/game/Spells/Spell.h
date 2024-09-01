@@ -425,8 +425,6 @@ class TC_GAME_API Spell
         void EffectModifyCooldowns();
         void EffectModifyCooldownsByCategory();
         void EffectModifySpellCharges();
-        void EffectCreateTraitTreeConfig();
-        void EffectChangeActiveCombatTraitConfig();
         void EffectTeleportGraveyard();
         void EffectActivateRune();
 

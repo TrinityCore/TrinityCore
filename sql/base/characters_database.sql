@@ -1600,63 +1600,6 @@ LOCK TABLES `character_talent_group` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `character_trait_config`
---
-
-DROP TABLE IF EXISTS `character_trait_config`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `character_trait_config` (
-  `guid` bigint unsigned NOT NULL,
-  `traitConfigId` int NOT NULL,
-  `type` int NOT NULL,
-  `chrSpecializationId` int DEFAULT NULL,
-  `combatConfigFlags` int DEFAULT NULL,
-  `localIdentifier` int DEFAULT NULL,
-  `skillLineId` int DEFAULT NULL,
-  `traitSystemId` int DEFAULT NULL,
-  `name` varchar(260) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  PRIMARY KEY (`guid`,`traitConfigId`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `character_trait_config`
---
-
-LOCK TABLES `character_trait_config` WRITE;
-/*!40000 ALTER TABLE `character_trait_config` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_trait_config` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `character_trait_entry`
---
-
-DROP TABLE IF EXISTS `character_trait_entry`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `character_trait_entry` (
-  `guid` bigint unsigned NOT NULL,
-  `traitConfigId` int NOT NULL,
-  `traitNodeId` int NOT NULL,
-  `traitNodeEntryId` int NOT NULL,
-  `rank` int NOT NULL DEFAULT '0',
-  `grantedRanks` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`traitConfigId`,`traitNodeId`,`traitNodeEntryId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `character_trait_entry`
---
-
-LOCK TABLES `character_trait_entry` WRITE;
-/*!40000 ALTER TABLE `character_trait_entry` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_trait_entry` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `character_transmog_outfits`
 --
 
@@ -3436,7 +3379,8 @@ INSERT INTO `updates` VALUES
 ('2024_06_25_00_characters.sql','046AC59E8B828B0C81A1A3C79860E464D96228B8','RELEASED','2024-06-25 17:56:15',0),
 ('2024_07_27_00_characters.sql','912ADCAC4948C75386387251D6FAEFB841574606','RELEASED','2024-07-27 01:03:05',0),
 ('2024_07_28_00_characters.sql','22C94D231C155686691780B65C12FCC2B4C3A6AA','RELEASED','2024-07-28 00:59:04',0),
-('2024_08_27_00_characters_2024_08_26_00_characters.sql','68EEBE1D639D59B24F5121008C2D103CA67FFC9A','RELEASED','2024-08-27 17:15:49',0);
+('2024_08_27_00_characters_2024_08_26_00_characters.sql','68EEBE1D639D59B24F5121008C2D103CA67FFC9A','RELEASED','2024-08-27 17:15:49',0),
+('2024_09_01_00_characters.sql','B921A034AFAB2BFFF3EDA6EE9AB3152EFE503734','RELEASED','2024-09-01 20:45:47',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
