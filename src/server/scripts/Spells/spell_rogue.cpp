@@ -50,6 +50,7 @@ enum RogueSpells
     SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
+    SPELL_ROGUE_IMPROVED_SHIV                       = 319032,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
@@ -67,6 +68,7 @@ enum RogueSpells
     SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
     SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
     SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
+    SPELL_ROGUE_SHIV_NATURE_DAMAGE                  = 319504,
     SPELL_ROGUE_SLICE_AND_DICE                      = 315496,
     SPELL_ROGUE_SPRINT                              = 2983,
     SPELL_ROGUE_STEALTH                             = 1784,
@@ -401,6 +403,32 @@ class spell_rog_honor_among_thieves : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 5938 - Shiv
+class spell_rog_improved_shiv : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHIV_NATURE_DAMAGE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_IMPROVED_SHIV);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_SHIV_NATURE_DAMAGE, CastSpellExtraArgs()
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+            .SetTriggeringSpell(GetSpell()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_improved_shiv::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1046,6 +1074,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_eviscerate);
     RegisterSpellScript(spell_rog_grand_melee);
     RegisterSpellScript(spell_rog_honor_among_thieves);
+    RegisterSpellScript(spell_rog_improved_shiv);
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
     RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);

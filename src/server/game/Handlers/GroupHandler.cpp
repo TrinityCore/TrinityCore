@@ -715,6 +715,7 @@ void WorldSession::HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& p
     broadcastPingUnit.TargetGUID = pingUnit.TargetGUID;
     broadcastPingUnit.Type = pingUnit.Type;
     broadcastPingUnit.PinFrameID = pingUnit.PinFrameID;
+    broadcastPingUnit.PingDuration = pingUnit.PingDuration;
     broadcastPingUnit.Write();
 
     for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
@@ -743,6 +744,7 @@ void WorldSession::HandleSendPingWorldPoint(WorldPackets::Party::SendPingWorldPo
     broadcastPingWorldPoint.Type = pingWorldPoint.Type;
     broadcastPingWorldPoint.PinFrameID = pingWorldPoint.PinFrameID;
     broadcastPingWorldPoint.Transport = pingWorldPoint.Transport;
+    broadcastPingWorldPoint.PingDuration = pingWorldPoint.PingDuration;
     broadcastPingWorldPoint.Write();
 
     for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())

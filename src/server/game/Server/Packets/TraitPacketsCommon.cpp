@@ -54,6 +54,8 @@ TraitConfig::TraitConfig(UF::TraitConfig const& ufConfig)
     TraitSystemID = ufConfig.TraitSystemID;
     for (UF::TraitEntry const& ufEntry : ufConfig.Entries)
         Entries.emplace_back(ufEntry);
+    for (UF::TraitSubTreeCache const& ufSubTree : ufConfig.SubTrees)
+        SubTrees.emplace_back(ufSubTree);
     Name = ufConfig.Name;
 }
 

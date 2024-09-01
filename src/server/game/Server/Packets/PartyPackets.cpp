@@ -19,11 +19,10 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
-#include "World.h"
 #include "WorldSession.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
@@ -61,13 +60,14 @@ void WorldPackets::Party::PartyInviteClient::Read()
 
 WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 {
-    _worldPacket.WriteBit(CanAccept);
-    _worldPacket.WriteBit(MightCRZYou);
-    _worldPacket.WriteBit(IsXRealm);
-    _worldPacket.WriteBit(MustBeBNetFriend);
-    _worldPacket.WriteBit(AllowMultipleRoles);
-    _worldPacket.WriteBit(QuestSessionActive);
-    _worldPacket.WriteBits(InviterName.length(), 6);
+    _worldPacket << Bits<1>(CanAccept);
+    _worldPacket << Bits<1>(MightCRZYou);
+    _worldPacket << Bits<1>(IsXRealm);
+    _worldPacket << Bits<1>(MustBeBNetFriend);
+    _worldPacket << Bits<1>(AllowMultipleRoles);
+    _worldPacket << Bits<1>(QuestSessionActive);
+    _worldPacket << BitsSize<6>(InviterName);
+    _worldPacket << Bits<1>(Unused1102);
 
     _worldPacket << InviterRealm;
     _worldPacket << InviterGUID;
@@ -95,7 +95,8 @@ void WorldPackets::Party::PartyInvite::Initialize(Player const* inviter, int32 p
 
     ProposedRoles = proposedRoles;
 
-    InviterRealm = Auth::VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
+    if (std::shared_ptr<Realm const> realm = sRealmList->GetRealm(*inviter->m_playerData->VirtualPlayerRealm))
+        InviterRealm = Auth::VirtualRealmInfo(realm->Id.GetAddress(), true, false, realm->Name, realm->NormalizedName);
 }
 
 void WorldPackets::Party::PartyInviteResponse::Read()
@@ -746,8 +747,9 @@ void WorldPackets::Party::SendPingUnit::Read()
 {
     _worldPacket >> SenderGUID;
     _worldPacket >> TargetGUID;
-    Type = _worldPacket.read<PingSubjectType, uint8>();
+    _worldPacket >> As<uint8>(Type);
     _worldPacket >> PinFrameID;
+    _worldPacket >> PingDuration;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
@@ -756,6 +758,7 @@ WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
     _worldPacket << TargetGUID;
     _worldPacket << uint8(Type);
     _worldPacket << uint32(PinFrameID);
+    _worldPacket << PingDuration;
 
     return &_worldPacket;
 }
@@ -768,6 +771,7 @@ void WorldPackets::Party::SendPingWorldPoint::Read()
     _worldPacket >> As<int32>(Type);
     _worldPacket >> PinFrameID;
     _worldPacket >> Transport;
+    _worldPacket >> PingDuration;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()
@@ -776,8 +780,9 @@ WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()
     _worldPacket << MapID;
     _worldPacket << Point;
     _worldPacket << uint8(Type);
-    _worldPacket << PinFrameID;
+    _worldPacket << uint32(PinFrameID);
     _worldPacket << Transport;
+    _worldPacket << PingDuration;
 
     return &_worldPacket;
 }

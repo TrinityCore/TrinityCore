@@ -189,6 +189,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     data << uint8(visualItem.Subclass);
     data << int32(visualItem.SecondaryItemModifiedAppearanceID);
     data << uint32(visualItem.ItemID);
+    data << uint32(visualItem.TransmogrifiedItemID);
 
     return data;
 }

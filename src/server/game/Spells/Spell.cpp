@@ -4347,7 +4347,7 @@ void Spell::update(uint32 difftime)
 
             if (IsEmpowerSpell())
             {
-                auto getCompletedEmpowerStages = [&]() -> int32
+                int32 completedStages = [&]() -> int32
                 {
                     Milliseconds passed(m_channeledDuration - m_timer);
                     for (std::size_t i = 0; i < m_empower->StageDurations.size(); ++i)
@@ -4358,9 +4358,8 @@ void Spell::update(uint32 difftime)
                     }
 
                     return m_empower->StageDurations.size();
-                };
+                }();
 
-                int32 completedStages = getCompletedEmpowerStages();
                 if (completedStages != m_empower->CompletedStages)
                 {
                     WorldPackets::Spells::SpellEmpowerSetStage empowerSetStage;
@@ -4380,6 +4379,7 @@ void Spell::update(uint32 difftime)
                     m_empower->IsReleased = true;
                     m_timer = 0;
                     CallScriptEmpowerCompletedHandlers(m_empower->CompletedStages);
+                    m_caster->ToUnit()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ReleaseEmpower, m_spellInfo);
                 }
             }
 
@@ -5457,7 +5457,11 @@ void Spell::SendResurrectRequest(Player* target)
 
     WorldPackets::Spells::ResurrectRequest resurrectRequest;
     resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
-    resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
+    if (Player const* playerCaster = m_caster->ToPlayer())
+        resurrectRequest.ResurrectOffererVirtualRealmAddress = playerCaster->m_playerData->VirtualPlayerRealm;
+    else
+        resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
+
     resurrectRequest.Name = sentName;
     resurrectRequest.Sickness = m_caster->IsUnit() && m_caster->ToUnit()->IsSpiritHealer(); // "you'll be afflicted with resurrection sickness"
     resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_NO_RES_TIMER);

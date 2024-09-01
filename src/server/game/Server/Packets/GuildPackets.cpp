@@ -80,16 +80,6 @@ WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Guild::GuildRosterUpdate::Write()
-{
-    _worldPacket << uint32(MemberData.size());
-
-    for (GuildRosterMemberData const& member : MemberData)
-        _worldPacket << member;
-
-    return &_worldPacket;
-}
-
 void WorldPackets::Guild::GuildUpdateMotdText::Read()
 {
     uint32 textLen = _worldPacket.ReadBits(11);
@@ -112,6 +102,12 @@ WorldPacket const* WorldPackets::Guild::GuildCommandResult::Write()
 void WorldPackets::Guild::AcceptGuildInvite::Read()
 {
     _worldPacket >> GuildGuid;
+}
+
+void WorldPackets::Guild::GuildDeclineInvitation::Read()
+{
+    _worldPacket >> GuildGuid;
+    _worldPacket >> Bits<1>(IsAuto);
 }
 
 void WorldPackets::Guild::DeclineGuildInvites::Read()
