@@ -26,6 +26,7 @@
 #include "Containers.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "GridNotifiers.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
