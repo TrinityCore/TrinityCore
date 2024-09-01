@@ -76,6 +76,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         bool IsCustom() const { return _areaTriggerTemplate->Id.IsCustom; }
         bool IsServerSide() const { return _areaTriggerTemplate->Flags.HasFlag(AreaTriggerFlag::IsServerSide); }
         bool IsStaticSpawn() const { return _spawnId != 0; }
+        bool HasActionSetFlag(AreaTriggerActionSetFlag flag) const { return _areaTriggerTemplate->ActionSetFlags.HasFlag(flag); }
 
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 

@@ -49,13 +49,13 @@ void SpellCastLogData::Initialize(Spell const* spell)
         bool primaryPowerAdded = false;
         for (SpellPowerCost const& cost : spell->GetPowerCost())
         {
-            PowerData.emplace_back(int32(cost.Power), unitCaster->GetPower(Powers(cost.Power)), int32(cost.Amount));
+            PowerData.emplace_back(int8(cost.Power), unitCaster->GetPower(Powers(cost.Power)), int32(cost.Amount));
             if (cost.Power == primaryPowerType)
                 primaryPowerAdded = true;
         }
 
         if (!primaryPowerAdded)
-            PowerData.insert(PowerData.begin(), SpellLogPowerData(int32(primaryPowerType), unitCaster->GetPower(primaryPowerType), 0));
+            PowerData.emplace(PowerData.begin(), int8(primaryPowerType), unitCaster->GetPower(primaryPowerType), 0);
     }
 }
 
@@ -160,12 +160,12 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogDat
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
     data << int32(spellCastLogData.Armor);
-    data.WriteBits(spellCastLogData.PowerData.size(), 9);
+    data << BitsSize<9>(spellCastLogData.PowerData);
     data.FlushBits();
 
-    for (WorldPackets::Spells::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
+    for (SpellLogPowerData const& powerData : spellCastLogData.PowerData)
     {
-        data << int32(powerData.PowerType);
+        data << int8(powerData.PowerType);
         data << int32(powerData.Amount);
         data << int32(powerData.Cost);
     }

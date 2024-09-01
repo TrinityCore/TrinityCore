@@ -103,7 +103,7 @@ enum GroupFlags : uint16
     GROUP_FLAG_EVERYONE_ASSISTANT   = 0x040, // Script_IsEveryoneAssistant()
     GROUP_FLAG_GUILD_GROUP          = 0x100,
     GROUP_FLAG_CROSS_FACTION        = 0x200,
-    GROUP_FLAG_RESTRICT_PINGS       = 0x400, // C_PartyInfo::Script_GetRestrictPings()
+    GROUP_FLAG_RESTRICT_PINGS       = 0x400, // deprecated
 
     GROUP_MASK_BGRAID                = GROUP_FLAG_FAKE_RAID | GROUP_FLAG_RAID,
 };
@@ -191,6 +191,14 @@ enum class PingSubjectType : uint8
     Max
 };
 
+enum class RestrictPingsTo : int32
+{
+    None        = 0,
+    Lead        = 1,
+    Assist      = 2,
+    TankHealer  = 3,
+};
+
 /** request member stats checken **/
 /// @todo uninvite people that not accepted invite
 class TC_GAME_API Group
@@ -258,10 +266,10 @@ class TC_GAME_API Group
         void SetLootThreshold(ItemQualities threshold);
         void Disband(bool hideDestroy = false);
         void SetLfgRoles(ObjectGuid guid, uint8 roles);
-        uint8 GetLfgRoles(ObjectGuid guid);
+        uint8 GetLfgRoles(ObjectGuid guid) const;
         void SetEveryoneIsAssistant(bool apply);
-        bool IsRestrictPingsToAssistants() const;
-        void SetRestrictPingsToAssistants(bool restrictPingsToAssistants);
+        RestrictPingsTo GetRestrictPings() const;
+        void SetRestrictPingsTo(RestrictPingsTo restrictTo);
 
         // Update
         void UpdateReadyCheck(uint32 diff);
@@ -283,7 +291,7 @@ class TC_GAME_API Group
         // Raid Markers
         void AddRaidMarker(uint8 markerId, uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty);
         void DeleteRaidMarker(uint8 markerId);
-        void SendRaidMarkersChanged(WorldSession* session = nullptr);
+        void SendRaidMarkersChanged(WorldSession* session = nullptr) const;
 
         // properties accessories
         bool IsFull() const;
@@ -306,7 +314,7 @@ class TC_GAME_API Group
         // member manipulation methods
         bool IsMember(ObjectGuid guid) const;
         bool IsLeader(ObjectGuid guid) const;
-        ObjectGuid GetMemberGUID(const std::string& name);
+        ObjectGuid GetMemberGUID(std::string const& name) const;
         uint8 GetMemberFlags(ObjectGuid guid) const;
         bool IsAssistant(ObjectGuid guid) const
         {
@@ -354,19 +362,11 @@ class TC_GAME_API Group
         void ResetInstances(InstanceResetMethod method, Player* notifyPlayer);
 
         // -no description-
-        //void SendInit(WorldSession* session);
-        void SendTargetIconList(WorldSession* session);
-        void SendUpdate();
-        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = nullptr);
+        void SendTargetIconList(WorldSession* session) const;
+        void SendUpdate() const;
+        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot const* slot = nullptr) const;
         void SendUpdateDestroyGroupToPlayer(Player* player) const;
-        void UpdatePlayerOutOfRange(Player* player);
-
-        template<class Worker>
-        void BroadcastWorker(Worker& worker)
-        {
-            for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
-                worker(itr->GetSource());
-        }
+        void UpdatePlayerOutOfRange(Player const* player) const;
 
         template<class Worker>
         void BroadcastWorker(Worker const& worker) const
@@ -457,7 +457,9 @@ class TC_GAME_API Group
         std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
         uint32              m_activeMarkers;
 
-        std::array<std::unique_ptr<CountdownInfo>, 3> _countdowns;
+        std::array<std::unique_ptr<CountdownInfo>, 3> m_countdowns;
+
+        RestrictPingsTo     m_pingRestriction;
 
         struct NoopGroupDeleter { void operator()(Group*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Group> m_scriptRef;

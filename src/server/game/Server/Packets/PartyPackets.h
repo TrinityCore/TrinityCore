@@ -70,6 +70,7 @@ namespace WorldPackets
             bool MustBeBNetFriend = false;
             bool AllowMultipleRoles = false;
             bool QuestSessionActive = false;
+            bool Unused1102 = false;
             uint16 Unk1 = 0;
 
             bool CanAccept = false;
@@ -561,6 +562,8 @@ namespace WorldPackets
             int32 MyIndex = 0;
             int32 SequenceNum = 0;
 
+            RestrictPingsTo PingRestriction = RestrictPingsTo::None;
+
             std::vector<PartyPlayerInfo> PlayerList;
 
             Optional<PartyLFGInfo> LfgInfos;
@@ -674,7 +677,7 @@ namespace WorldPackets
             void Read() override;
 
             Optional<uint8> PartyIndex;
-            bool RestrictPingsToAssistants = false;
+            RestrictPingsTo RestrictTo = RestrictPingsTo::None;
         };
 
         class SendPingUnit final : public ClientPacket
@@ -688,6 +691,7 @@ namespace WorldPackets
             ObjectGuid TargetGUID;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
+            Duration<Milliseconds, int32> PingDuration;
         };
 
         class ReceivePingUnit final : public ServerPacket
@@ -701,6 +705,7 @@ namespace WorldPackets
             ObjectGuid TargetGUID;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
+            Duration<Milliseconds, int32> PingDuration;
         };
 
         class SendPingWorldPoint final : public ClientPacket
@@ -715,6 +720,8 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Point;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
+            ObjectGuid Transport;
+            Duration<Milliseconds, int32> PingDuration;
         };
 
         class ReceivePingWorldPoint final : public ServerPacket
@@ -729,6 +736,8 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Point;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
+            Duration<Milliseconds, int32> PingDuration;
+            ObjectGuid Transport;
         };
 
         class CancelPingPin final : public ServerPacket

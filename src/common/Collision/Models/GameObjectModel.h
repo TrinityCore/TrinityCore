@@ -18,12 +18,11 @@
 #ifndef _GAMEOBJECT_MODEL_H
 #define _GAMEOBJECT_MODEL_H
 
-#include <G3D/Matrix3.h>
-#include <G3D/Vector3.h>
-#include <G3D/AABox.h>
-#include <G3D/Ray.h>
-
 #include "Define.h"
+#include <G3D/AABox.h>
+#include <G3D/Matrix3.h>
+#include <G3D/Ray.h>
+#include <G3D/Vector3.h>
 #include <memory>
 
 namespace G3D
@@ -60,7 +59,7 @@ public:
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : _collisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr) { }
+    GameObjectModel() : iCollisionEnabled(false), iLosBlockingDisabled(false), iInvScale(0), iScale(0), iModel(nullptr) { }
 public:
     const G3D::AABox& getBounds() const { return iBound; }
 
@@ -69,12 +68,14 @@ public:
     const G3D::Vector3& getPosition() const { return iPos;}
 
     /* Enables/disables collision */
-    void enableCollision(bool enable) { _collisionEnabled = enable; }
-    bool isCollisionEnabled() const { return _collisionEnabled; }
-    bool isMapObject() const;
+    void EnableCollision(bool enable) { iCollisionEnabled = enable; }
+    bool IsCollisionEnabled() const { return iCollisionEnabled; }
+    void DisableLosBlocking(bool enable) { iLosBlockingDisabled = enable; }
+    bool IsLosBlockingDisabled() const { return iLosBlockingDisabled; }
+    bool IsMapObject() const;
     uint8 GetNameSetId() const { return owner->GetNameSetId(); }
 
-    bool intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const;
+    bool IntersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const;
     bool GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const;
     bool GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const;
 
@@ -85,13 +86,14 @@ public:
 private:
     bool initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 
-    bool _collisionEnabled;
+    bool iCollisionEnabled;     ///< Is model ignored in all checks
+    bool iLosBlockingDisabled;  ///< Is model ignored during line of sight checks (but is always included in location/height checks)
     G3D::AABox iBound;
     G3D::Matrix3 iInvRot;
     G3D::Vector3 iPos;
     float iInvScale;
     float iScale;
-    VMAP::WorldModel* iModel;
+    std::shared_ptr<VMAP::WorldModel> iModel;
     std::unique_ptr<GameObjectModelOwnerBase> owner;
 };
 

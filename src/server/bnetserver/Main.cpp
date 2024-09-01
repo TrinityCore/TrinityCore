@@ -66,9 +66,10 @@ namespace fs = boost::filesystem;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
-char serviceName[] = "bnetserver";
-char serviceLongName[] = "TrinityCore bnet service";
-char serviceDescription[] = "TrinityCore Battle.net emulator authentication service";
+#include <tchar.h>
+TCHAR serviceName[] = _T("bnetserver");
+TCHAR serviceLongName[] = _T("TrinityCore bnet service");
+TCHAR serviceDescription[] = _T("TrinityCore Battle.net emulator authentication service");
 /*
 * -1 - not in service mode
 *  0 - stopped

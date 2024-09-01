@@ -152,7 +152,6 @@ namespace WorldPackets
 
         struct UnwrappedTradeItem
         {
-            WorldPackets::Item::ItemInstance Item;
             int32 EnchantID = 0;
             int32 OnUseEnchantmentID = 0;
             ObjectGuid Creator;

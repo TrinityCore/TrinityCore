@@ -44,6 +44,7 @@ TC_GAME_API extern DB2Storage<AnimationDataEntry>                   sAnimationDa
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
 TC_GAME_API extern DB2Storage<AreaTableEntry>                       sAreaTableStore;
 TC_GAME_API extern DB2Storage<AreaTriggerEntry>                     sAreaTriggerStore;
+TC_GAME_API extern DB2Storage<AreaTriggerActionSetEntry>            sAreaTriggerActionSetStore;
 TC_GAME_API extern DB2Storage<ArmorLocationEntry>                   sArmorLocationStore;
 TC_GAME_API extern DB2Storage<ArtifactEntry>                        sArtifactStore;
 TC_GAME_API extern DB2Storage<ArtifactCategoryEntry>                sArtifactCategoryStore;
@@ -69,6 +70,7 @@ TC_GAME_API extern DB2Storage<BattlePetBreedStateEntry>             sBattlePetBr
 TC_GAME_API extern DB2Storage<BattlePetSpeciesEntry>                sBattlePetSpeciesStore;
 TC_GAME_API extern DB2Storage<BattlePetSpeciesStateEntry>           sBattlePetSpeciesStateStore;
 TC_GAME_API extern DB2Storage<BattlemasterListEntry>                sBattlemasterListStore;
+TC_GAME_API extern DB2Storage<BattlemasterListXMapEntry>            sBattlemasterListXMapStore;
 TC_GAME_API extern DB2Storage<BroadcastTextEntry>                   sBroadcastTextStore;
 TC_GAME_API extern DB2Storage<Cfg_CategoriesEntry>                  sCfgCategoriesStore;
 TC_GAME_API extern DB2Storage<Cfg_RegionsEntry>                     sCfgRegionsStore;
@@ -283,6 +285,7 @@ TC_GAME_API extern DB2Storage<TraitNodeGroupXTraitNodeEntry>        sTraitNodeGr
 TC_GAME_API extern DB2Storage<TraitNodeXTraitCondEntry>             sTraitNodeXTraitCondStore;
 TC_GAME_API extern DB2Storage<TraitNodeXTraitCostEntry>             sTraitNodeXTraitCostStore;
 TC_GAME_API extern DB2Storage<TraitNodeXTraitNodeEntryEntry>        sTraitNodeXTraitNodeEntryStore;
+TC_GAME_API extern DB2Storage<TraitSubTreeEntry>                    sTraitSubTreeStore;
 TC_GAME_API extern DB2Storage<TraitTreeEntry>                       sTraitTreeStore;
 TC_GAME_API extern DB2Storage<TraitTreeLoadoutEntry>                sTraitTreeLoadoutStore;
 TC_GAME_API extern DB2Storage<TraitTreeLoadoutEntryEntry>           sTraitTreeLoadoutEntryStore;

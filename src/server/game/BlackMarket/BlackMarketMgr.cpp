@@ -29,7 +29,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -285,7 +285,7 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDataba
         if (!bidderAccId) // Account exists
             return;
 
-        logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, realm.Id.Realm);
+        logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, sRealmList->GetCurrentRealmId().Realm);
 
         if (logGmTrade && !sCharacterCache->GetCharacterNameByGuid(bidderGuid, bidderName))
             bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);

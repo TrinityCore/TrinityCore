@@ -50,6 +50,7 @@ DB2Storage<AnimKitEntry>                        sAnimKitStore("AnimKit.db2", &An
 DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroupMember.db2", &AreaGroupMemberLoadInfo::Instance);
 DB2Storage<AreaTableEntry>                      sAreaTableStore("AreaTable.db2", &AreaTableLoadInfo::Instance);
 DB2Storage<AreaTriggerEntry>                    sAreaTriggerStore("AreaTrigger.db2", &AreaTriggerLoadInfo::Instance);
+DB2Storage<AreaTriggerActionSetEntry>           sAreaTriggerActionSetStore("AreaTriggerActionSet.db2", &AreaTriggerActionSetLoadInfo::Instance);
 DB2Storage<ArmorLocationEntry>                  sArmorLocationStore("ArmorLocation.db2", &ArmorLocationLoadInfo::Instance);
 DB2Storage<ArtifactEntry>                       sArtifactStore("Artifact.db2", &ArtifactLoadInfo::Instance);
 DB2Storage<ArtifactAppearanceEntry>             sArtifactAppearanceStore("ArtifactAppearance.db2", &ArtifactAppearanceLoadInfo::Instance);
@@ -84,6 +85,7 @@ DB2Storage<BattlePetBreedStateEntry>            sBattlePetBreedStateStore("Battl
 DB2Storage<BattlePetSpeciesEntry>               sBattlePetSpeciesStore("BattlePetSpecies.db2", &BattlePetSpeciesLoadInfo::Instance);
 DB2Storage<BattlePetSpeciesStateEntry>          sBattlePetSpeciesStateStore("BattlePetSpeciesState.db2", &BattlePetSpeciesStateLoadInfo::Instance);
 DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("BattlemasterList.db2", &BattlemasterListLoadInfo::Instance);
+DB2Storage<BattlemasterListXMapEntry>           sBattlemasterListXMapStore("BattlemasterListXMap.db2", &BattlemasterListXMapLoadInfo::Instance);
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", &BroadcastTextLoadInfo::Instance);
 DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("BroadcastTextDuration.db2", &BroadcastTextDurationLoadInfo::Instance);
 DB2Storage<Cfg_CategoriesEntry>                 sCfgCategoriesStore("Cfg_Categories.db2", &CfgCategoriesLoadInfo::Instance);
@@ -357,6 +359,7 @@ DB2Storage<TraitNodeGroupXTraitNodeEntry>       sTraitNodeGroupXTraitNodeStore("
 DB2Storage<TraitNodeXTraitCondEntry>            sTraitNodeXTraitCondStore("TraitNodeXTraitCond.db2", &TraitNodeXTraitCondLoadInfo::Instance);
 DB2Storage<TraitNodeXTraitCostEntry>            sTraitNodeXTraitCostStore("TraitNodeXTraitCost.db2", &TraitNodeXTraitCostLoadInfo::Instance);
 DB2Storage<TraitNodeXTraitNodeEntryEntry>       sTraitNodeXTraitNodeEntryStore("TraitNodeXTraitNodeEntry.db2", &TraitNodeXTraitNodeEntryLoadInfo::Instance);
+DB2Storage<TraitSubTreeEntry>                   sTraitSubTreeStore("TraitSubTree.db2", &TraitSubTreeLoadInfo::Instance);
 DB2Storage<TraitTreeEntry>                      sTraitTreeStore("TraitTree.db2", &TraitTreeLoadInfo::Instance);
 DB2Storage<TraitTreeLoadoutEntry>               sTraitTreeLoadoutStore("TraitTreeLoadout.db2", &TraitTreeLoadoutLoadInfo::Instance);
 DB2Storage<TraitTreeLoadoutEntryEntry>          sTraitTreeLoadoutEntryStore("TraitTreeLoadoutEntry.db2", &TraitTreeLoadoutEntryLoadInfo::Instance);
@@ -635,7 +638,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         while (db2PathItr != end)
         {
             LocaleConstant locale = GetLocaleByName(db2PathItr->path().filename().string());
-            if (IsValidLocale(locale))
+            if (IsValidLocale(locale) && (sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) || locale == defaultLocale))
                 foundLocales[locale] = true;
 
             ++db2PathItr;
@@ -660,6 +663,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sAreaGroupMemberStore);
     LOAD_DB2(sAreaTableStore);
     LOAD_DB2(sAreaTriggerStore);
+    LOAD_DB2(sAreaTriggerActionSetStore);
     LOAD_DB2(sArmorLocationStore);
     LOAD_DB2(sArtifactStore);
     LOAD_DB2(sArtifactAppearanceStore);
@@ -693,6 +697,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBattlePetSpeciesStore);
     LOAD_DB2(sBattlePetSpeciesStateStore);
     LOAD_DB2(sBattlemasterListStore);
+    LOAD_DB2(sBattlemasterListXMapStore);
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sBroadcastTextDurationStore);
     LOAD_DB2(sCfgCategoriesStore);
@@ -966,6 +971,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTraitNodeXTraitCondStore);
     LOAD_DB2(sTraitNodeXTraitCostStore);
     LOAD_DB2(sTraitNodeXTraitNodeEntryStore);
+    LOAD_DB2(sTraitSubTreeStore);
     LOAD_DB2(sTraitTreeStore);
     LOAD_DB2(sTraitTreeLoadoutStore);
     LOAD_DB2(sTraitTreeLoadoutEntryStore);
@@ -1461,8 +1467,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
-    for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
-        _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+    {
+        for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
+            _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+
+        for (auto& [questLineId, questLineQuests] : _questsByQuestLine)
+            std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
+    }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
@@ -3451,7 +3462,7 @@ TaxiMask::TaxiMask()
 {
     if (sTaxiNodesStore.GetNumRows())
     {
-        _data.resize(((sTaxiNodesStore.GetNumRows() - 1) / (sizeof(value_type) * 64) + 1) * 8, 0);
+        _data.resize((sTaxiNodesStore.GetNumRows() + (8 * sizeof(uint64) - 1)) / (8 * sizeof(uint64)) * (sizeof(uint64) / sizeof(value_type)), 0);
         ASSERT((_data.size() % 8) == 0, "TaxiMask size must be aligned to a multiple of uint64");
     }
 }

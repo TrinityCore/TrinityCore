@@ -478,7 +478,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
     // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
     if (referencePlayer->IsGameMaster() || referencePlayer->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
     {
-        TC_LOG_DEBUG("criteria", "CriteriaHandler::UpdateCriteria: [Player {} {}] {}, {} ({}), {}, {}, " UI64FMTD,
+        TC_LOG_DEBUG("criteria", "CriteriaHandler::UpdateCriteria: [Player {} {}] {}, {} ({}), {}, {}, {}",
             referencePlayer->GetName(), referencePlayer->IsGameMaster() ? "GM mode on" : "disallowed by RBAC",
             GetOwnerInfo(), CriteriaMgr::GetCriteriaTypeString(type), uint32(type), miscValue1, miscValue2, miscValue3);
         return;
@@ -601,6 +601,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HighestHealReceived:
             case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::AzeriteLevelReached:
+            case CriteriaType::ReachRenownLevel:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;
             case CriteriaType::ReachLevel:
@@ -679,6 +680,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::GotHaircut:
             case CriteriaType::EquipItemInSlot:
             case CriteriaType::EquipItem:
+            case CriteriaType::EnterAreaTriggerWithActionSet:
+            case CriteriaType::LeaveAreaTriggerWithActionSet:
             case CriteriaType::LearnedNewPet:
             case CriteriaType::EnterArea:
             case CriteriaType::LeaveArea:
@@ -835,7 +838,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::KickTargetInLFGDungeon:
             case CriteriaType::AbandonedLFGDungeon:
             case CriteriaType::GroupedTankLeftEarlyInLFGDungeon:
-            case CriteriaType::EnterAreaTriggerWithActionSet:
             case CriteriaType::StartGarrisonMission:
             case CriteriaType::QualityUpgradedForGarrisonFollower:
             case CriteriaType::CompleteResearchGarrisonTalent:
@@ -1235,12 +1237,14 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::GotHaircut:
         case CriteriaType::EquipItemInSlot:
         case CriteriaType::EquipItem:
+        case CriteriaType::EnterAreaTriggerWithActionSet:
+        case CriteriaType::LeaveAreaTriggerWithActionSet:
         case CriteriaType::LearnedNewPet:
-        case CriteriaType::HonorLevelIncrease:
-        case CriteriaType::PrestigeLevelIncrease:
         case CriteriaType::EnterArea:
         case CriteriaType::LeaveArea:
         case CriteriaType::RecruitGarrisonFollower:
+        case CriteriaType::HonorLevelIncrease:
+        case CriteriaType::PrestigeLevelIncrease:
         case CriteriaType::ActivelyReachLevel:
         case CriteriaType::CollectTransmogSetFromGroup:
         case CriteriaType::EnterTopLevelArea:
@@ -1667,6 +1671,11 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (miscValue1 != uint32(criteria->Entry->Asset.ScenarioID))
                 return false;
             break;
+        case CriteriaType::EnterAreaTriggerWithActionSet:
+        case CriteriaType::LeaveAreaTriggerWithActionSet:
+            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.AreaTriggerActionSetID))
+                return false;
+            break;
         default:
             break;
     }
@@ -1877,9 +1886,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::ClientVersionEqualOrLessThan: // 33
-            if (reqValue < sRealmList->GetMinorMajorBugfixVersionForBuild(realm.Build))
+        {
+            std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm();
+            if (!currentRealm)
+                return false;
+            if (reqValue < ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build))
                 return false;
             break;
+        }
         case ModifierTreeType::BattlePetTeamLevel: // 34
             for (WorldPackets::BattlePet::BattlePetSlot const& slot : referencePlayer->GetSession()->GetBattlePetMgr()->GetSlots())
                 if (slot.Pet.Level < reqValue)
@@ -3962,6 +3976,40 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             MapEntry const* mapEntry = referencePlayer->GetMap()->GetEntry();
             if (mapEntry->ExpansionID != reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasActiveTraitSubTree: // 385
+        {
+            int32 traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIndexIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
+            {
+                if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat
+                    && (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
+                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec)))
+                    return false;
+
+                return traitConfig.SubTrees.FindIndexIf([reqValue](UF::TraitSubTreeCache const& traitSubTree)
+                {
+                    return traitSubTree.TraitSubTreeID == int32(reqValue) && traitSubTree.Active;
+                }) >= 0;
+            });
+            if (traitConfigWithSubtree < 0)
+                return false;
+            break;
+        }
+        case ModifierTreeType::TargetCreatureClassificationEqual: // 389
+        {
+            Creature const* targetCreature = Object::ToCreature(ref);
+            if (!targetCreature)
+                return false;
+            if (targetCreature->GetCreatureClassification() != CreatureClassifications(reqValue))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasCompletedQuestOrIsReadyToTurnIn: // 392
+        {
+            QuestStatus status = referencePlayer->GetQuestStatus(reqValue);
+            if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
                 return false;
             break;
         }

@@ -42,7 +42,6 @@ class Player;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
-struct Realm;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -198,6 +197,7 @@ enum WorldBoolConfigs
     CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT,
     CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS,
     CONFIG_ENABLE_AE_LOOT,
+    CONFIG_LOAD_LOCALES,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -923,8 +923,6 @@ class TC_GAME_API World
 
     friend class debug_commandscript;
 };
-
-TC_GAME_API extern Realm realm;
 
 TC_GAME_API uint32 GetVirtualRealmAddress();
 

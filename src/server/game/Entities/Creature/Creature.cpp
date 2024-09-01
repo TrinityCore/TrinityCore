@@ -162,7 +162,12 @@ CreatureModel const* CreatureTemplate::GetFirstVisibleModel() const
 void CreatureTemplate::InitializeQueryData()
 {
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && loc != DEFAULT_LOCALE)
+            continue;
+
         QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc), DIFFICULTY_NONE);
+    }
 }
 
 WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty difficulty) const
@@ -357,7 +362,7 @@ void Creature::RemoveFromWorld()
             GetZoneScript()->OnCreatureRemove(this);
 
         if (m_formation)
-            sFormationMgr->RemoveCreatureFromGroup(m_formation, this);
+            FormationMgr::RemoveCreatureFromGroup(m_formation, this);
 
         Unit::RemoveFromWorld();
 
@@ -385,7 +390,7 @@ void Creature::SearchFormation()
         return;
 
     if (FormationInfo const* formationInfo = sFormationMgr->GetFormationInfo(lowguid))
-        sFormationMgr->AddCreatureToGroup(formationInfo->LeaderSpawnId, this);
+        FormationMgr::AddCreatureToGroup(formationInfo->LeaderSpawnId, this);
 }
 
 bool Creature::IsFormationLeader() const
@@ -517,7 +522,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&model, creatureInfo);
     if (!minfo)                                             // Cancel load if no model defined
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid model {} defined in table `creature_template`, can't load.", entry, model.CreatureDisplayID);
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid model {} defined in table `creature_template_model`, can't load.", entry, model.CreatureDisplayID);
         return false;
     }
 
@@ -1391,8 +1396,8 @@ Loot* Creature::GetLootForPlayer(Player const* player) const
     if (m_personalLoot.empty())
         return m_loot.get();
 
-    if (std::unique_ptr<Loot> const* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
-        return loot->get();
+    if (Loot* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
+        return loot;
 
     return nullptr;
 }
@@ -1445,7 +1450,7 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_spawnId);
 
     uint32 displayId = GetNativeDisplayId();
-    uint64 spawnNpcFlags = (uint64(m_unitData->NpcFlags[1]) << 32) | m_unitData->NpcFlags[0];
+    uint64 spawnNpcFlags = (uint64(GetNpcFlags2()) << 32) | GetNpcFlags();
     Optional<uint64> npcflag;
     Optional<uint32> unitFlags;
     Optional<uint32> unitFlags2;
@@ -2211,8 +2216,15 @@ void Creature::setDeathState(DeathState s)
         SetNoSearchAssistance(false);
 
         //Dismiss group if is leader
-        if (m_formation && m_formation->GetLeader() == this)
-            m_formation->FormationReset(true);
+        if (m_formation)
+        {
+            if (m_formation->GetLeader() == this)
+                m_formation->FormationReset(true);
+
+            if (ZoneScript* script = GetZoneScript())
+                if (!m_formation->HasAliveMembers())
+                    script->OnCreatureGroupDepleted(m_formation);
+        }
 
         bool needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater() && !HasUnitState(UNIT_STATE_ROOT);
         SetHover(false, false);

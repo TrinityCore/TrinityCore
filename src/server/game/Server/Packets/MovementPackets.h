@@ -283,6 +283,7 @@ namespace WorldPackets
             uint32 Reason = 0;
             TeleportLocation Loc;
             TaggedPosition<Position::XYZ> MovementOffset;    // Adjusts all pending movement events by this offset
+            int32 Counter = 0;
         };
 
         class WorldPortResponse final : public ClientPacket

@@ -23,7 +23,10 @@
 #include "GameTime.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PathGenerator.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "World.h"
@@ -459,6 +462,87 @@ struct areatrigger_action_capture_flag : AreaTriggerAI
     }
 };
 
+// 18235 - Void Orb
+struct at_void_orb_harbinger : AreaTriggerAI
+{
+    at_void_orb_harbinger(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    enum Spells
+    {
+        SPELL_VOID_ORB_DAMAGE = 273502,
+    };
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            at->SetOrientation(caster->GetOrientation());
+
+            Position destPos = caster->GetPosition();
+            at->MovePositionToFirstCollision(destPos, 35.0f, 0.0f);
+
+            PathGenerator path(at);
+            path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+
+            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 144.5f;
+            at->InitSplines(path.GetPath(), timeToTarget);
+        }
+    }
+
+    void OnDestinationReached() override
+    {
+        at->Remove();
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->IsFriendlyTo(unit))
+            return;
+
+        caster->CastSpell(unit, SPELL_VOID_ORB_DAMAGE);
+    }
+};
+
+// 18242 - Abyssal Portal
+struct at_abyssal_portal_harbinger : AreaTriggerAI
+{
+    at_abyssal_portal_harbinger(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _remainingSummons(0) { }
+
+    enum Spells
+    {
+        SPELL_ABYSSAL_PORTAL_SUMMON = 273587
+    };
+
+    void OnCreate(Spell const* creatingSpell) override
+    {
+        if (Unit* caster = at->GetCaster())
+            _remainingSummons = creatingSpell->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(caster);
+
+        _scheduler.Schedule(500ms, [this](TaskContext task)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetRandomNearPosition(3.0f), SPELL_ABYSSAL_PORTAL_SUMMON, true);
+
+            _remainingSummons--;
+            if (_remainingSummons > 0)
+                task.Repeat(1s);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    uint8 _remainingSummons;
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -473,4 +557,6 @@ void AddSC_areatrigger_scripts()
     RegisterAreaTriggerAI(areatrigger_battleground_buffs);
     new AreaTrigger_at_battleground_buffs();
     RegisterAreaTriggerAI(areatrigger_action_capture_flag);
+    RegisterAreaTriggerAI(at_void_orb_harbinger);
+    RegisterAreaTriggerAI(at_abyssal_portal_harbinger);
 }

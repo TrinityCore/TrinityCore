@@ -342,6 +342,11 @@ bool SpellMgr::IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const
     return false;
 }
 
+Trinity::IteratorPair<SpellLearnedBySpellMap::const_iterator> SpellMgr::GetSpellLearnedBySpellMapBounds(uint32 learnedSpellId) const
+{
+    return Trinity::Containers::MapEqualRange(mSpellLearnedBySpells, learnedSpellId);
+}
+
 SpellTargetPosition const* SpellMgr::GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const
 {
     SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find(std::make_pair(spell_id, effIndex));
@@ -992,6 +997,7 @@ void SpellMgr::LoadSpellLearnSpells()
 {
     uint32 oldMSTime = getMSTime();
 
+    mSpellLearnedBySpells.clear();
     mSpellLearnSpells.clear();                              // need for reload case
 
     //                                                  0      1        2
@@ -1010,6 +1016,7 @@ void SpellMgr::LoadSpellLearnSpells()
         uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
+        node.SourceSpell = spell_id;
         node.Spell       = fields[1].GetUInt32();
         node.OverridesSpell = 0;
         node.Active      = fields[2].GetBool();
@@ -1054,6 +1061,7 @@ void SpellMgr::LoadSpellLearnSpells()
             if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
             {
                 SpellLearnSpellNode dbc_node;
+                dbc_node.SourceSpell = entry.Id;
                 dbc_node.Spell = spellEffectInfo.TriggerSpell;
                 dbc_node.Active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
                 dbc_node.OverridesSpell = 0;
@@ -1127,6 +1135,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
 
         SpellLearnSpellNode dbcLearnNode;
+        dbcLearnNode.SourceSpell = spellLearnSpell->SpellID;
         dbcLearnNode.Spell = spellLearnSpell->LearnSpellID;
         dbcLearnNode.OverridesSpell = spellLearnSpell->OverridesSpellID;
         dbcLearnNode.Active = true;
@@ -1135,6 +1144,9 @@ void SpellMgr::LoadSpellLearnSpells()
         mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->SpellID, dbcLearnNode));
         ++dbc_count;
     }
+
+    for (auto const& [spellId, learnedSpellNode] : mSpellLearnSpells)
+        mSpellLearnedBySpells.emplace(learnedSpellNode.Spell, &learnedSpellNode);
 
     TC_LOG_INFO("server.loading", ">> Loaded {} spell learn spells, {} found in Spell.dbc in {} ms", count, dbc_count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -2523,7 +2535,11 @@ void SpellMgr::LoadSpellInfoStore()
             case SPELL_AURA_ADD_PCT_MODIFIER:
             case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
             case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
-                ASSERT(effect->EffectMiscValue[0] < MAX_SPELLMOD, "MAX_SPELLMOD must be at least %d", effect->EffectMiscValue[0] + 1);
+                if (effect->EffectMiscValue[0] >= MAX_SPELLMOD)
+                {
+                    TC_LOG_ERROR("server.loading", "Invalid spell modifier type {} found on spell {} effect index {}, consider increasing MAX_SPELLMOD",
+                        effect->EffectMiscValue[0], effect->SpellID, effect->EffectIndex);
+                }
                 break;
             default:
                 break;
@@ -4730,6 +4746,45 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF ANTORUS THE BURNING THRONE SPELLS
 
     //
+    // STORMSONG VALLEY SPELLS
+    //
+
+    // Void Orb
+    ApplySpellFix({ 273467 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_0_5_YARDS);
+        });
+    });
+
+    // ENDOF STORMSONG VALLEY SPELLS
+
+    //
+    // KINGS REST SPELLS
+    //
+
+    // Fixate
+    ApplySpellFix({ 269936 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // ENDOF KINGS REST SPELLS
+
+    //
+    // WAYCREST MANOR SPELLS
+    //
+
+    // Discordant Cadenza
+    ApplySpellFix({ 268308 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
+    // ENDOF WAYCREST MANOR SPELLS
+
+    //
     // SEPULCHER OF THE FIRST ONES
     //
 
@@ -4793,7 +4848,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
         });
     });
-    // END OF SEPULCHER OF THE FIRST ONES
+    // ENDOF SEPULCHER OF THE FIRST ONES
 
     //
     // THE AZURE VAULT SPELLS
@@ -4825,6 +4880,40 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF THE AZURE VAULT SPELLS
     //
+
+    //
+    // WAYCREST MANOR SPELLS
+    //
+
+    ApplySpellFix({
+        260566, // Wildfire Missile
+        260570  // Wildfire Missile Impact
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
+    });
+
+    // ENDOF WAYCREST MANOR SPELLS
+    //
+
+    //
+    // ATAL DAZAR SPELLS
+    //
+
+    // Reverse Cast Ride Vehicle
+    ApplySpellFix({ 258344 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx8 &= ~SPELL_ATTR8_ONLY_TARGET_IF_SAME_CREATOR;
+    });
+
+    // ENDOF ATAL DAZAR SPELLS
+    //
+
+    //
+    // THE WANDERING ISLE SPELLS
+    //
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
@@ -4833,6 +4922,27 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
         });
     });
+
+    // Summon Amberleaf Troublemaker
+    ApplySpellFix({ 114698 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Summon Living Air
+    ApplySpellFix({ 102207 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_TARGET_RANDOM);
+        });
+    });
+
+    // ENDOF THE WANDERING ISLE SPELLS
+    //
 
     // Earthquake
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
@@ -4928,7 +5038,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case SPELL_EFFECT_JUMP:
                 case SPELL_EFFECT_JUMP_DEST:
                 case SPELL_EFFECT_LEAP_BACK:
-                    if (!spellInfo->Speed && !spellInfo->SpellFamilyName && !spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+                    if (!spellInfo->Speed && !spellInfo->SpellFamilyName && !spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
                 default:

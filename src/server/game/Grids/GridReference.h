@@ -24,28 +24,28 @@ template<class OBJECT>
 class GridRefManager;
 
 template<class OBJECT>
-class GridReference : public Reference<GridRefManager<OBJECT>, OBJECT>
+class GridReference : public Reference<GridRefManager<OBJECT>, OBJECT, GridReference<OBJECT>>
 {
     protected:
-        void targetObjectBuildLink() override
+        friend Reference<GridRefManager<OBJECT>, OBJECT, GridReference<OBJECT>>;
+        void targetObjectBuildLink()
         {
             // called from link()
             this->getTarget()->insertFirst(this);
             this->getTarget()->incSize();
         }
-        void targetObjectDestroyLink() override
+        void targetObjectDestroyLink()
         {
             // called from unlink()
             if (this->isValid()) this->getTarget()->decSize();
         }
-        void sourceObjectDestroyLink() override
+        void sourceObjectDestroyLink()
         {
             // called from invalidate()
             this->getTarget()->decSize();
         }
     public:
-        GridReference() : Reference<GridRefManager<OBJECT>, OBJECT>() { }
+        GridReference() = default;
         ~GridReference() { this->unlink(); }
-        GridReference* next() { return (GridReference*)Reference<GridRefManager<OBJECT>, OBJECT>::next(); }
 };
 #endif
