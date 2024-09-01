@@ -26437,7 +26437,7 @@ void Player::_LoadTalents(PreparedQueryResult talentGroupResult, PreparedQueryRe
     }
 }
 
-void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult entriesResult)
+void Player::_LoadTraits(PreparedQueryResult /*configsResult*/, PreparedQueryResult /*entriesResult*/)
 {
     /*
     std::unordered_multimap<int32, WorldPackets::Traits::TraitEntry> traitEntriesByConfig;
