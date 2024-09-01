@@ -98,7 +98,6 @@ class TC_GAME_API Weather
         WeatherData const* m_weatherChances;
 
         // @tswow-begin
-        Map* m_map;
         friend class TSWeather;
         // @tswow-end
 };

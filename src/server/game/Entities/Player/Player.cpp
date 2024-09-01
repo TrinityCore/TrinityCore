@@ -3959,7 +3959,7 @@ bool Player::ResetTalents(bool involuntarily /*= false*/)
     FIRE(
           Player,OnTalentsResetLate
         , TSPlayer(this)
-        , no_cost
+        , involuntarily
     );
     // @tswow-end
 
@@ -5936,7 +5936,7 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
 void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defense)
 {
     int32 plevel = GetLevel();                              // if defense than victim == attacker
-    int32 greylevel = Trinity::XP::GetGrayLevel(plevel);
+    int32 greylevel = Trinity::XP::GetGrayLevel(this, plevel);
     int32 moblevel = victim->GetLevelForTarget(this);
 
     if (moblevel > plevel + 5)
@@ -19886,7 +19886,6 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
     _SaveEquipmentSets(trans);
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
     _SaveGlyphs(trans);
-    _SaveInstanceTimeRestrictions(trans);
     // @tswow-begin TODO: fix transaction
     m_db_json.Save();
     // @tswow-end
