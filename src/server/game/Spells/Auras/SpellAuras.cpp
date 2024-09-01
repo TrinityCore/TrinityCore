@@ -377,10 +377,10 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
         createInfo.CasterGUID = createInfo.Caster->GetGUID();
 
     // check if aura can be owned by owner
-    if (createInfo._owner->isType(TYPEMASK_UNIT))
-        if (!createInfo._owner->IsInWorld() || createInfo._owner->ToUnit()->IsDuringRemoveFromWorld())
+    if (Unit* ownerUnit = createInfo._owner->ToUnit())
+        if (!ownerUnit->IsInWorld() || ownerUnit->IsDuringRemoveFromWorld())
             // owner not in world so don't allow to own not self cast single target auras
-            if (createInfo.CasterGUID != createInfo._owner->GetGUID() && createInfo._spellInfo->IsSingleTarget())
+            if (createInfo.CasterGUID != ownerUnit->GetGUID() && createInfo._spellInfo->IsSingleTarget())
                 return nullptr;
 
     Aura* aura = nullptr;
@@ -431,7 +431,7 @@ m_castItemGuid(createInfo.CastItemGUID), m_applyTime(GameTime::GetGameTime()),
 m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
 _casterInfo(), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
-m_procCooldown(TimePoint::min())
+m_procCooldown(TimePoint::min()), m_scriptRef(this, NoopAuraDeleter())
 {
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
@@ -472,10 +472,6 @@ bool Aura::CanPeriodicTickCrit(Unit const* caster) const
 {
     if (GetSpellInfo()->HasAttribute(SPELL_ATTR2_CANT_CRIT))
         return false;
-
-    // need to check this attribute because it's the triggered spell that'll receive the crit chance
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA))
-        return true;
 
     if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_PERIODIC_CRIT, GetSpellInfo()))
         return true;
@@ -625,6 +621,8 @@ void Aura::_Remove(AuraRemoveMode removeMode)
         m_dropEvent->ScheduleAbort();
         m_dropEvent = nullptr;
     }
+
+    m_scriptRef = nullptr;
 }
 
 void Aura::UpdateTargetMap(Unit* caster, bool apply)

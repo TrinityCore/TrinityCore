@@ -342,10 +342,10 @@ public:
                         if (DarkGlareTickTimer <= diff)
                         {
                             //Set angle and cast
-                            if (ClockWise)
-                                me->SetOrientation(DarkGlareAngle + DarkGlareTick * float(M_PI) / 35);
-                            else
-                                me->SetOrientation(DarkGlareAngle - DarkGlareTick * float(M_PI) / 35);
+                            float angle = ClockWise ? DarkGlareAngle + DarkGlareTick * float(M_PI) / 35 : DarkGlareAngle - DarkGlareTick * float(M_PI) / 35;
+
+                            me->SetOrientation(angle);
+                            me->SetFacingTo(angle);
 
                             me->StopMoving();
 

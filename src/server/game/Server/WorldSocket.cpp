@@ -17,6 +17,7 @@
 
 #include "WorldSocket.h"
 #include "BigNumber.h"
+#include "ClientBuildInfo.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "CryptoHash.h"
@@ -81,40 +82,44 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer(_sendBufferSize);
-    while (_bufferQueue.Dequeue(queued))
+    if (_bufferQueue.Dequeue(queued))
     {
-        ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
-        if (queued->NeedsEncryption())
-            _authCrypt.EncryptSend(header.header, header.getHeaderLength());
-
-        if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
+        // Allocate buffer only when it's needed but not on every Update() call.
+        MessageBuffer buffer(_sendBufferSize);
+        do
         {
+            ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
+            if (queued->NeedsEncryption())
+                _authCrypt.EncryptSend(header.header, header.getHeaderLength());
+
+            if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
+            {
+                QueuePacket(std::move(buffer));
+                buffer.Resize(_sendBufferSize);
+            }
+
+            if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
+            {
+                buffer.Write(header.header, header.getHeaderLength());
+                if (!queued->empty())
+                    buffer.Write(queued->contents(), queued->size());
+            }
+            else    // single packet larger than buffer size
+            {
+                MessageBuffer packetBuffer(queued->size() + header.getHeaderLength());
+                packetBuffer.Write(header.header, header.getHeaderLength());
+                if (!queued->empty())
+                    packetBuffer.Write(queued->contents(), queued->size());
+
+                QueuePacket(std::move(packetBuffer));
+            }
+
+            delete queued;
+        } while (_bufferQueue.Dequeue(queued));
+
+        if (buffer.GetActiveSize() > 0)
             QueuePacket(std::move(buffer));
-            buffer.Resize(_sendBufferSize);
-        }
-
-        if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
-        {
-            buffer.Write(header.header, header.getHeaderLength());
-            if (!queued->empty())
-                buffer.Write(queued->contents(), queued->size());
-        }
-        else    // single packet larger than 4096 bytes
-        {
-            MessageBuffer packetBuffer(queued->size() + header.getHeaderLength());
-            packetBuffer.Write(header.header, header.getHeaderLength());
-            if (!queued->empty())
-                packetBuffer.Write(queued->contents(), queued->size());
-
-            QueuePacket(std::move(packetBuffer));
-        }
-
-        delete queued;
     }
-
-    if (buffer.GetActiveSize() > 0)
-        QueuePacket(std::move(buffer));
 
     if (!BaseSocket::Update())
         return false;
@@ -254,15 +259,16 @@ struct AccountInfo
     LocaleConstant Locale;
     uint32 Recruiter;
     std::string OS;
+    Minutes TimezoneOffset;
     bool IsRectuiter;
     AccountTypes Security;
     bool IsBanned;
 
-    explicit AccountInfo(Field* fields)
+    explicit AccountInfo(Field const* fields)
     {
-        //           0             1          2         3               4            5           6         7            8     9         10
-        // SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, aa.gmLevel,
-        //                                                           11    12
+        //           0             1          2         3               4            5           6         7            8     9                 10                11
+        // SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, a.timezone_offset, aa.SecurityLevel,
+        //                                                           12    13
         // ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
         // FROM account a
         // LEFT JOIN account_access aa ON a.id = aa.AccountID AND aa.RealmID IN (-1, ?)
@@ -279,9 +285,10 @@ struct AccountInfo
         Locale = LocaleConstant(fields[7].GetUInt8());
         Recruiter = fields[8].GetUInt32();
         OS = fields[9].GetString();
-        Security = AccountTypes(fields[10].GetUInt8());
-        IsBanned = fields[11].GetUInt64() != 0;
-        IsRectuiter = fields[12].GetUInt32() != 0;
+        TimezoneOffset = Minutes(fields[10].GetInt16());
+        Security = AccountTypes(fields[11].GetUInt8());
+        IsBanned = fields[12].GetUInt64() != 0;
+        IsRectuiter = fields[13].GetUInt32() != 0;
 
         uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
         if (Expansion > world_expansion)
@@ -442,7 +449,10 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt->setInt32(0, int32(realm.Id.Realm));
     stmt->setString(1, authSession->Account);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([this, authSession = std::move(authSession)](PreparedQueryResult result) mutable
+    {
+        HandleAuthSessionCallback(std::move(authSession), std::move(result));
+    }));
 }
 
 void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result)
@@ -497,7 +507,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     // Must be done before WorldSession is created
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
-    if (wardenActive && account.OS != "Win" && account.OS != "OSX")
+    if (wardenActive && !ClientBuild::Platform::IsValid(account.OS))
     {
         SendAuthResponseError(AUTH_REJECT);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client {} attempted to log in using invalid client OS ({}).", address, account.OS);
@@ -604,7 +614,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     _authed = true;
     _worldSession = new WorldSession(account.Id, std::move(authSession->Account), shared_from_this(), account.Security,
-        account.Expansion, mutetime, account.Locale, account.Recruiter, account.IsRectuiter);
+        account.Expansion, mutetime, account.TimezoneOffset, account.Locale, account.Recruiter, account.IsRectuiter);
     _worldSession->ReadAddonsInfo(authSession->AddonInfo);
 
     // Initialize Warden system only if it is enabled by config

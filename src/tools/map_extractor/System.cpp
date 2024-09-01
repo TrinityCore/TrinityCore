@@ -17,18 +17,21 @@
 
 #include "dbcfile.h"
 #include "Banner.h"
+#include "Locales.h"
 #include "mpq_libmpq04.h"
 #include "StringFormat.h"
+#include "Util.h"
 
 #include "adt.h"
 #include "wdt.h"
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <cstdio>
+#include <boost/filesystem/path.hpp>
 #include <deque>
 #include <fstream>
 #include <set>
 #include <unordered_map>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
@@ -1139,6 +1142,10 @@ inline void CloseMPQFiles()
 
 int main(int argc, char * arg[])
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     HandleArgs(argc, arg);

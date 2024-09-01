@@ -16,13 +16,13 @@
  */
 
 #include "UpdateFetcher.h"
-#include "Common.h"
+#include "CryptoHash.h"
 #include "DBUpdater.h"
 #include "Field.h"
-#include "CryptoHash.h"
 #include "Log.h"
 #include "QueryResult.h"
 #include "Util.h"
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <sstream>

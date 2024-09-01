@@ -19,6 +19,7 @@
 #include "AccountMgr.h"
 #include "Bag.h"
 #include "CalendarMgr.h"
+#include "CalendarPackets.h"
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "Config.h"
@@ -1531,7 +1532,8 @@ void Guild::HandleAcceptMember(WorldSession* session)
 void Guild::HandleLeaveMember(WorldSession* session)
 {
     Player* player = session->GetPlayer();
-    bool disband = false;
+
+    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
 
     // If leader is leaving
     if (_IsLeader(player))
@@ -1543,7 +1545,6 @@ void Guild::HandleLeaveMember(WorldSession* session)
         {
             // Guild is disbanded if leader leaves.
             Disband();
-            disband = true;
         }
     }
     else
@@ -1556,11 +1557,6 @@ void Guild::HandleLeaveMember(WorldSession* session)
 
         SendCommandResult(session, GUILD_COMMAND_QUIT, ERR_GUILD_COMMAND_SUCCESS, m_name);
     }
-
-    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
-
-    if (disband)
-        delete this;
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, std::string_view name)
@@ -1785,7 +1781,6 @@ void Guild::HandleDisband(WorldSession* session)
     {
         Disband();
         TC_LOG_DEBUG("guild", "Guild Successfully Disbanded");
-        delete this;
     }
 }
 
@@ -1794,7 +1789,8 @@ void Guild::SendInfo(WorldSession* session) const
 {
     WorldPackets::Guild::GuildInfoResponse guildInfo;
     guildInfo.GuildName = m_name;
-    guildInfo.CreateDate = m_createdDate;
+    guildInfo.CreateDate.SetUtcTimeFromUnixTime(m_createdDate);
+    guildInfo.CreateDate += session->GetTimezoneOffset();
     guildInfo.NumMembers = int32(m_members.size());
     guildInfo.NumAccounts = m_accountsNumber;
 
@@ -2108,13 +2104,8 @@ bool Guild::Validate()
     if (!pLeader)
     {
         CharacterDatabaseTransaction dummy(nullptr);
-        DeleteMember(dummy, m_leaderGuid);
-        // If no more members left, disband guild
-        if (m_members.empty())
-        {
-            Disband();
+        if (DeleteMember(dummy, m_leaderGuid))
             return false;
-        }
     }
     else if (!pLeader->IsRank(GR_GUILDMASTER))
         _SetLeaderGUID(*pLeader);
@@ -2163,34 +2154,32 @@ void Guild::BroadcastPacket(WorldPacket const* packet) const
 
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
 {
-    uint32 count = 0;
-
-    WorldPacket data(SMSG_CALENDAR_FILTER_GUILD);
-    data << uint32(count); // count placeholder
+    WorldPackets::Calendar::CalendarEventInitialInvites packet(true);
 
     for (auto const& [guid, member] : m_members)
     {
         // not sure if needed, maybe client checks it as well
-        if (count >= CALENDAR_MAX_INVITES)
+        if (packet.Invites.size() >= CALENDAR_MAX_INVITES)
         {
             if (Player* player = session->GetPlayer())
                 sCalendarMgr->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_INVITES_EXCEEDED);
             return;
         }
 
-        uint32 level = sCharacterCache->GetCharacterLevelByGuid(member.GetGUID());
+        if (member.GetGUID() == session->GetPlayer()->GetGUID())
+            continue;
 
-        if (member.GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member.IsRankNotLower(minRank))
-        {
-            data.appendPackGUID(member.GetGUID().GetRawValue());
-            data << uint8(0); // unk
-            ++count;
-        }
+        uint32 level = sCharacterCache->GetCharacterLevelByGuid(member.GetGUID());
+        if (level < minLevel || level > maxLevel)
+            continue;
+
+        if (!member.IsRankNotLower(minRank))
+            continue;
+
+        packet.Invites.emplace_back(member.GetGUID(), level);
     }
 
-    data.put<uint32>(0, count);
-
-    session->SendPacket(&data);
+    session->SendPacket(packet.Write());
 }
 
 // Members handling
@@ -2276,7 +2265,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
     return true;
 }
 
-void Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
+bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding, bool isKicked)
 {
     ObjectGuid::LowType lowguid = guid.GetCounter();
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
@@ -2298,9 +2287,7 @@ void Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
         if (!newLeader)
         {
             Disband();
-            if (canDeleteGuild)
-                delete this;
-            return;
+            return true;
         }
 
         _SetLeaderGUID(*newLeader);
@@ -2333,6 +2320,14 @@ void Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     _DeleteMemberFromDB(trans, lowguid);
     if (!isDisbanding)
         _UpdateAccountsNumber();
+
+    if (m_members.empty())
+    {
+        Disband();
+        return true;
+    }
+
+    return false;
 }
 
 bool Guild::ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 newRank)

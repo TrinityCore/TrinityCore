@@ -3,6 +3,7 @@
 
 #define _NO_CVCONST_H
 
+#include "Optional.h"
 #include <windows.h>
 #include <winnt.h>
 #include <winternl.h>
@@ -56,6 +57,197 @@ enum DataKind                                              // Stolen from CVCONS
     DataIsMember,
     DataIsStaticMember,
     DataIsConstant
+};
+
+enum CpuRegister                                           // Stolen from CVCONST.H in the DIA SDK
+{
+    CV_ALLREG_VFRAME=   30006,
+
+    //
+    //  Register set for the Intel 80x86 and ix86 processor series
+    //
+    CV_REG_NONE     =   0,
+    CV_REG_AL       =   1,
+    CV_REG_CL       =   2,
+    CV_REG_DL       =   3,
+    CV_REG_BL       =   4,
+    CV_REG_AH       =   5,
+    CV_REG_CH       =   6,
+    CV_REG_DH       =   7,
+    CV_REG_BH       =   8,
+    CV_REG_AX       =   9,
+    CV_REG_CX       =  10,
+    CV_REG_DX       =  11,
+    CV_REG_BX       =  12,
+    CV_REG_SP       =  13,
+    CV_REG_BP       =  14,
+    CV_REG_SI       =  15,
+    CV_REG_DI       =  16,
+    CV_REG_EAX      =  17,
+    CV_REG_ECX      =  18,
+    CV_REG_EDX      =  19,
+    CV_REG_EBX      =  20,
+    CV_REG_ESP      =  21,
+    CV_REG_EBP      =  22,
+    CV_REG_ESI      =  23,
+    CV_REG_EDI      =  24,
+    CV_REG_EIP      =  33,
+
+    //
+    // AMD64 registers
+    //
+    CV_AMD64_AL       =   1,
+    CV_AMD64_CL       =   2,
+    CV_AMD64_DL       =   3,
+    CV_AMD64_BL       =   4,
+    CV_AMD64_AH       =   5,
+    CV_AMD64_CH       =   6,
+    CV_AMD64_DH       =   7,
+    CV_AMD64_BH       =   8,
+    CV_AMD64_AX       =   9,
+    CV_AMD64_CX       =  10,
+    CV_AMD64_DX       =  11,
+    CV_AMD64_BX       =  12,
+    CV_AMD64_SP       =  13,
+    CV_AMD64_BP       =  14,
+    CV_AMD64_SI       =  15,
+    CV_AMD64_DI       =  16,
+    CV_AMD64_EAX      =  17,
+    CV_AMD64_ECX      =  18,
+    CV_AMD64_EDX      =  19,
+    CV_AMD64_EBX      =  20,
+    CV_AMD64_ESP      =  21,
+    CV_AMD64_EBP      =  22,
+    CV_AMD64_ESI      =  23,
+    CV_AMD64_EDI      =  24,
+    CV_AMD64_RIP      =  33,
+
+    // Low byte forms of some standard registers
+    CV_AMD64_SIL      =  324,
+    CV_AMD64_DIL      =  325,
+    CV_AMD64_BPL      =  326,
+    CV_AMD64_SPL      =  327,
+
+    // 64-bit regular registers
+    CV_AMD64_RAX      =  328,
+    CV_AMD64_RBX      =  329,
+    CV_AMD64_RCX      =  330,
+    CV_AMD64_RDX      =  331,
+    CV_AMD64_RSI      =  332,
+    CV_AMD64_RDI      =  333,
+    CV_AMD64_RBP      =  334,
+    CV_AMD64_RSP      =  335,
+
+    // 64-bit integer registers with 8-, 16-, and 32-bit forms (B, W, and D)
+    CV_AMD64_R8       =  336,
+    CV_AMD64_R9       =  337,
+    CV_AMD64_R10      =  338,
+    CV_AMD64_R11      =  339,
+    CV_AMD64_R12      =  340,
+    CV_AMD64_R13      =  341,
+    CV_AMD64_R14      =  342,
+    CV_AMD64_R15      =  343,
+
+    CV_AMD64_R8B      =  344,
+    CV_AMD64_R9B      =  345,
+    CV_AMD64_R10B     =  346,
+    CV_AMD64_R11B     =  347,
+    CV_AMD64_R12B     =  348,
+    CV_AMD64_R13B     =  349,
+    CV_AMD64_R14B     =  350,
+    CV_AMD64_R15B     =  351,
+
+    CV_AMD64_R8W      =  352,
+    CV_AMD64_R9W      =  353,
+    CV_AMD64_R10W     =  354,
+    CV_AMD64_R11W     =  355,
+    CV_AMD64_R12W     =  356,
+    CV_AMD64_R13W     =  357,
+    CV_AMD64_R14W     =  358,
+    CV_AMD64_R15W     =  359,
+
+    CV_AMD64_R8D      =  360,
+    CV_AMD64_R9D      =  361,
+    CV_AMD64_R10D     =  362,
+    CV_AMD64_R11D     =  363,
+    CV_AMD64_R12D     =  364,
+    CV_AMD64_R13D     =  365,
+    CV_AMD64_R14D     =  366,
+    CV_AMD64_R15D     =  367,
+
+    //
+    // Register set for ARM64
+    //
+    CV_ARM64_NOREG  =  CV_REG_NONE,
+
+    // General purpose 32-bit integer registers
+    CV_ARM64_W0     =  10,
+    CV_ARM64_W1     =  11,
+    CV_ARM64_W2     =  12,
+    CV_ARM64_W3     =  13,
+    CV_ARM64_W4     =  14,
+    CV_ARM64_W5     =  15,
+    CV_ARM64_W6     =  16,
+    CV_ARM64_W7     =  17,
+    CV_ARM64_W8     =  18,
+    CV_ARM64_W9     =  19,
+    CV_ARM64_W10    =  20,
+    CV_ARM64_W11    =  21,
+    CV_ARM64_W12    =  22,
+    CV_ARM64_W13    =  23,
+    CV_ARM64_W14    =  24,
+    CV_ARM64_W15    =  25,
+    CV_ARM64_W16    =  26,
+    CV_ARM64_W17    =  27,
+    CV_ARM64_W18    =  28,
+    CV_ARM64_W19    =  29,
+    CV_ARM64_W20    =  30,
+    CV_ARM64_W21    =  31,
+    CV_ARM64_W22    =  32,
+    CV_ARM64_W23    =  33,
+    CV_ARM64_W24    =  34,
+    CV_ARM64_W25    =  35,
+    CV_ARM64_W26    =  36,
+    CV_ARM64_W27    =  37,
+    CV_ARM64_W28    =  38,
+    CV_ARM64_W29    =  39,
+    CV_ARM64_W30    =  40,
+    CV_ARM64_WZR    =  41,
+
+    // General purpose 64-bit integer registers
+    CV_ARM64_X0     =  50,
+    CV_ARM64_X1     =  51,
+    CV_ARM64_X2     =  52,
+    CV_ARM64_X3     =  53,
+    CV_ARM64_X4     =  54,
+    CV_ARM64_X5     =  55,
+    CV_ARM64_X6     =  56,
+    CV_ARM64_X7     =  57,
+    CV_ARM64_X8     =  58,
+    CV_ARM64_X9     =  59,
+    CV_ARM64_X10    =  60,
+    CV_ARM64_X11    =  61,
+    CV_ARM64_X12    =  62,
+    CV_ARM64_X13    =  63,
+    CV_ARM64_X14    =  64,
+    CV_ARM64_X15    =  65,
+    CV_ARM64_IP0    =  66,
+    CV_ARM64_IP1    =  67,
+    CV_ARM64_X18    =  68,
+    CV_ARM64_X19    =  69,
+    CV_ARM64_X20    =  70,
+    CV_ARM64_X21    =  71,
+    CV_ARM64_X22    =  72,
+    CV_ARM64_X23    =  73,
+    CV_ARM64_X24    =  74,
+    CV_ARM64_X25    =  75,
+    CV_ARM64_X26    =  76,
+    CV_ARM64_X27    =  77,
+    CV_ARM64_X28    =  78,
+    CV_ARM64_FP     =  79,
+    CV_ARM64_LR     =  80,
+    CV_ARM64_SP     =  81,
+    CV_ARM64_ZR     =  82,
 };
 
 char const* const rgBaseType[] =
@@ -159,9 +351,15 @@ class WheatyExceptionReport
 
         static void WriteStackDetails(PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
 
+        struct EnumerateSymbolsCallbackContext
+        {
+            LPSTACKFRAME64 sf;
+            PCONTEXT context;
+        };
+
         static BOOL CALLBACK EnumerateSymbolsCallback(PSYMBOL_INFO, ULONG, PVOID);
 
-        static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *);
+        static bool FormatSymbolValue(PSYMBOL_INFO, EnumerateSymbolsCallbackContext*);
 
         static void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, char const*, char const*, bool, bool);
 
@@ -174,6 +372,8 @@ class WheatyExceptionReport
 
         static bool StoreSymbol(DWORD type , DWORD_PTR offset);
         static void ClearSymbols();
+
+        static Optional<DWORD_PTR> GetIntegerRegisterValue(PCONTEXT context, ULONG registerId);
 
         // Variables used by the class
         static TCHAR m_szLogFileName[MAX_PATH];

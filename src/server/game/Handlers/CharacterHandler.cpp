@@ -213,10 +213,6 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_REW, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_INSTANCELOCKTIMES);
-    stmt->setUInt32(0, m_accountId);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES, stmt);
-
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_LOCATION);
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
@@ -888,7 +884,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // reset for all pets before pet loading
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        Pet::resetTalentsForAllPetsOf(pCurrChar);
+        Pet::resetTalentsForAllPetsOf(pCurrChar, nullptr, true);
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
@@ -911,7 +907,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     {
         pCurrChar->ResetTalents(true);
         pCurrChar->SendTalentsInfoData(false);              // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
-        SendNotification(LANG_RESET_TALENTS);
     }
 
     bool firstLogin = pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST);
@@ -1311,17 +1306,17 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
 
-    if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != _player->GetRace() || bs_hair->Sex != _player->GetNativeGender())
+    if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != _player->GetRace() || Gender(bs_hair->Sex) != _player->GetNativeGender())
         return;
 
     BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(FacialHair);
 
-    if (!bs_facialHair || bs_facialHair->Type != 2 || bs_facialHair->Race != _player->GetRace() || bs_facialHair->Sex != _player->GetNativeGender())
+    if (!bs_facialHair || bs_facialHair->Type != 2 || bs_facialHair->Race != _player->GetRace() || Gender(bs_facialHair->Sex) != _player->GetNativeGender())
         return;
 
     BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
 
-    if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != _player->GetRace() || bs_skinColor->Sex != _player->GetNativeGender()))
+    if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != _player->GetRace() || Gender(bs_skinColor->Sex) != _player->GetNativeGender()))
         return;
 
     if (!Player::ValidateAppearance(_player->GetRace(), _player->GetClass(), _player->GetNativeGender(),
@@ -1707,11 +1702,24 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     uint32 atLoginFlags        = fields[0].GetUInt16();
     std::string knownTitlesStr = fields[1].GetString();
     uint32 groupId             = !fields[2].IsNull() ? fields[2].GetUInt32() : 0;
+    uint32 mapId               = fields[3].GetUInt16();
 
     uint32 usedLoginFlag = (factionChangeInfo->FactionChange ? AT_LOGIN_CHANGE_FACTION : AT_LOGIN_CHANGE_RACE);
     if (!(atLoginFlags & usedLoginFlag))
     {
         SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
+        return;
+    }
+
+    if (level < 10)
+    {
+        SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
+        return;
+    }
+
+    if (playerClass == CLASS_DEATH_KNIGHT && (level < 60 || mapId == 609))
+    {
+        SendCharFactionChange(CHAR_CREATE_RESTRICTED_RACECLASS, factionChangeInfo.get());
         return;
     }
 
@@ -1910,7 +1918,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
             {
                 // Reset guild
                 if (Guild* guild = sGuildMgr->GetGuildById(characterInfo->GuildId))
-                    guild->DeleteMember(trans, factionChangeInfo->Guid, false, false, true);
+                    guild->DeleteMember(trans, factionChangeInfo->Guid, false, false);
 
                 Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
             }
@@ -2025,14 +2033,14 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
             // Disable all old-faction specific quests
             {
                 ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
-                for (auto const& questTemplatePair : questTemplates)
+                for (auto const& [questId, quest] : questTemplates)
                 {
                     uint32 newRaceMask = (newTeam == ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
-                    if (questTemplatePair.second.GetAllowableRaces() && !(questTemplatePair.second.GetAllowableRaces() & newRaceMask))
+                    if (quest->GetAllowableRaces() && !(quest->GetAllowableRaces() & newRaceMask))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST);
                         stmt->setUInt32(0, lowGuid);
-                        stmt->setUInt32(1, questTemplatePair.first);
+                        stmt->setUInt32(1, questId);
                         trans->Append(stmt);
                     }
                 }

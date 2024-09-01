@@ -374,7 +374,7 @@ Unit::Unit(bool isWorldObject) :
     m_modMeleeHitChance = 0.0f;
     m_modRangedHitChance = 0.0f;
     m_modSpellHitChance = 0.0f;
-    m_baseSpellCritChance = 5;
+    m_baseSpellCritChance = 5.0f;
 
     m_lastManaUse = 0;
 
@@ -3120,7 +3120,7 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
     pSpell->m_selfContainer = &(m_currentSpells[pSpell->GetCurrentContainer()]);
 }
 
-void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool withInstant)
+void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool withInstant, SpellCastResult result, Optional<SpellCastResult> resultOther /*= {}*/)
 {
     //TC_LOG_DEBUG("entities.unit", "Interrupt spell for unit {}.", GetEntry());
     Spell* spell = m_currentSpells[spellType];
@@ -3138,7 +3138,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
                 ToPlayer()->SendAutoRepeatCancel(this);
 
         if (spell->getState() != SPELL_STATE_FINISHED)
-            spell->cancel();
+            spell->cancel(result, resultOther);
         else
         {
             m_currentSpells[spellType] = nullptr;
@@ -3234,6 +3234,11 @@ bool Unit::IsMovementPreventedByCasting() const
     // can always move when not casting
     if (!HasUnitState(UNIT_STATE_CASTING))
         return false;
+
+    if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
+        if (spell->getState() == SPELL_STATE_FINISHED ||
+            !(spell->m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
+            return false;
 
     // channeled spells during channel stage (after the initial cast timer) allow movement with a specific spell attribute
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
@@ -4293,8 +4298,8 @@ void Unit::RemoveAllAuras()
             {
                 sstr << "m_ownedAuras:" << "\n";
 
-                for (std::pair<uint32 const, Aura*>& auraPair : m_ownedAuras)
-                    sstr << auraPair.second->GetDebugInfo() << "\n";
+                for (auto const& [spellId, aura] : m_ownedAuras)
+                    sstr << aura->GetDebugInfo() << "\n";
             }
 
             TC_LOG_ERROR("entities.unit", "{}", sstr.str());
@@ -6470,7 +6475,7 @@ void Unit::AddPlayerToVision(Player* player)
     if (m_sharedVision.empty())
     {
         setActive(true);
-        SetWorldObject(true);
+        SetIsStoredInWorldObjectGridContainer(true);
     }
     m_sharedVision.push_back(player);
 }
@@ -6482,7 +6487,7 @@ void Unit::RemovePlayerFromVision(Player* player)
     if (m_sharedVision.empty())
     {
         setActive(false);
-        SetWorldObject(false);
+        SetIsStoredInWorldObjectGridContainer(false);
     }
 }
 
@@ -6984,6 +6989,10 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
             if (spellProto->SpellFamilyFlags[0] & 0x00004000 && !victim->HealthAbovePct(25))
                 DoneTotalMod *= 4;
+
+            // Don't let Conflagrate double dip from damage done bonuses (from Immolate/Shadowflame and then for itself)
+            if (spellProto->SpellFamilyFlags[1] & 0x800000)
+                DoneTotalMod = 1.0f;
             break;
         case SPELLFAMILY_HUNTER:
             // Steady Shot
@@ -7127,18 +7136,27 @@ float Unit::SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask scho
     float crit_chance = 0.0f;
     switch (spellInfo->DmgClass)
     {
+        case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
-                crit_chance = 0.0f;
-            // For other schools
-            else if (GetTypeId() == TYPEID_PLAYER)
-                crit_chance = GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + AsUnderlyingType(GetFirstSchoolInMask(schoolMask)));
-            else
+            auto getPhysicalCritChance = [&]
             {
-                crit_chance = (float)m_baseSpellCritChance;
-                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
-            }
+                return GetUnitCriticalChanceDone(attackType) + GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+            };
+
+            auto getMagicCritChance = [&]
+            {
+                if (IsPlayer())
+                    return GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + AsUnderlyingType(GetFirstSchoolInMask(schoolMask)));
+
+                return m_baseSpellCritChance + GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+            };
+
+            if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
+                crit_chance = std::max(crit_chance, getPhysicalCritChance());
+
+            if (schoolMask & ~SPELL_SCHOOL_MASK_NORMAL)
+                crit_chance = std::max(crit_chance, getMagicCritChance());
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
@@ -7148,7 +7166,6 @@ float Unit::SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask scho
             crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
             break;
         }
-        case SPELL_DAMAGE_CLASS_NONE:
         default:
             return 0.0f;
     }
@@ -9516,9 +9533,9 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
-void Unit::SetPower(Powers power, uint32 val, bool withPowerUpdate /*= true*/)
+void Unit::SetPower(Powers power, uint32 val, bool withPowerUpdate /*= true*/, bool force /*= false*/)
 {
-    if (GetPower(power) == val)
+    if (!force && GetPower(power) == val)
         return;
 
     uint32 maxPower = GetMaxPower(power);
@@ -9760,6 +9777,12 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     if (IsInWorld())
         RemoveFromWorld();
+    else
+    {
+        // cleanup that must happen even if not in world
+        if (IsVehicle())
+            RemoveVehicleKit();
+    }
 
     ASSERT(GetGUID());
 
@@ -12002,7 +12025,7 @@ bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
     if (!vehInfo)
         return false;
 
-    m_vehicleKit = new Vehicle(this, vehInfo, creatureEntry);
+    m_vehicleKit = Trinity::make_unique_trackable<Vehicle>(this, vehInfo, creatureEntry);
     m_updateFlag |= UPDATEFLAG_VEHICLE;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
     return true;
@@ -12014,8 +12037,6 @@ void Unit::RemoveVehicleKit()
         return;
 
     m_vehicleKit->Uninstall();
-    delete m_vehicleKit;
-
     m_vehicleKit = nullptr;
 
     m_updateFlag &= ~UPDATEFLAG_VEHICLE;
@@ -12844,11 +12865,11 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
             return;
         }
 
-        if (vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
+        if (Creature* vehicleBaseCreature = vehicle->GetBase()->ToCreature())
         {
             // If a player entered a vehicle that is part of a formation, remove it from said formation
-            if (CreatureGroup* creatureGroup = vehicle->GetBase()->ToCreature()->GetFormation())
-                creatureGroup->RemoveMember(vehicle->GetBase()->ToCreature());
+            if (CreatureGroup* creatureGroup = vehicleBaseCreature->GetFormation())
+                sFormationMgr->RemoveCreatureFromGroup(creatureGroup, vehicleBaseCreature);
         }
     }
 

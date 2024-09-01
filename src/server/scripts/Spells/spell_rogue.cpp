@@ -433,6 +433,16 @@ class spell_rog_overkill_mos : public AuraScript
         return ValidateSpellInfo({ RemoveSpellId });
     }
 
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Aura* visualAura = GetTarget()->GetAura(RemoveSpellId))
+        {
+            int32 duration = aurEff->GetBase()->GetDuration();
+            visualAura->SetDuration(duration);
+            visualAura->SetMaxDuration(duration);
+        }
+    }
+
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
         GetTarget()->RemoveAurasDueToSpell(RemoveSpellId);
@@ -440,6 +450,7 @@ class spell_rog_overkill_mos : public AuraScript
 
     void Register() override
     {
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_overkill_mos::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_overkill_mos::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };

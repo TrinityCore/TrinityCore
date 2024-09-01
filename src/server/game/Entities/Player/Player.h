@@ -174,8 +174,6 @@ typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::unordered_set<SpellModifier*> SpellModContainer;
 
-typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
-
 enum ActionButtonUpdateState
 {
     ACTIONBUTTON_UNCHANGED = 0,
@@ -724,41 +722,40 @@ enum PlayedTimeIndex
 // used at player loading query list preparing, and later result selection
 enum PlayerLoginQueryIndex
 {
-    PLAYER_LOGIN_QUERY_LOAD_FROM                    = 0,
-    PLAYER_LOGIN_QUERY_LOAD_GROUP                   = 1,
-    PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES         = 2,
-    PLAYER_LOGIN_QUERY_LOAD_AURAS                   = 3,
-    PLAYER_LOGIN_QUERY_LOAD_SPELLS                  = 4,
-    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS            = 5,
-    PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS      = 6,
-    PLAYER_LOGIN_QUERY_LOAD_REPUTATION              = 7,
-    PLAYER_LOGIN_QUERY_LOAD_INVENTORY               = 8,
-    PLAYER_LOGIN_QUERY_LOAD_ACTIONS                 = 9,
-    PLAYER_LOGIN_QUERY_LOAD_MAILS                   = 10,
-    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS              = 11,
-    PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST             = 12,
-    PLAYER_LOGIN_QUERY_LOAD_HOME_BIND               = 13,
-    PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS         = 14,
-    PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES          = 15,
-    PLAYER_LOGIN_QUERY_LOAD_GUILD                   = 16,
-    PLAYER_LOGIN_QUERY_LOAD_ARENA_INFO              = 17,
-    PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS            = 18,
-    PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS       = 19,
-    PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS          = 20,
-    PLAYER_LOGIN_QUERY_LOAD_BG_DATA                 = 21,
-    PLAYER_LOGIN_QUERY_LOAD_GLYPHS                  = 22,
-    PLAYER_LOGIN_QUERY_LOAD_TALENTS                 = 23,
-    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA            = 24,
-    PLAYER_LOGIN_QUERY_LOAD_SKILLS                  = 25,
-    PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS     = 26,
-    PLAYER_LOGIN_QUERY_LOAD_RANDOM_BG               = 27,
-    PLAYER_LOGIN_QUERY_LOAD_BANNED                  = 28,
-    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_REW        = 29,
-    PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES     = 30,
-    PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS   = 31,
-    PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS    = 32,
-    PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION         = 33,
-    PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS               = 34,
+    PLAYER_LOGIN_QUERY_LOAD_FROM,
+    PLAYER_LOGIN_QUERY_LOAD_GROUP,
+    PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES,
+    PLAYER_LOGIN_QUERY_LOAD_AURAS,
+    PLAYER_LOGIN_QUERY_LOAD_SPELLS,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS,
+    PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS,
+    PLAYER_LOGIN_QUERY_LOAD_REPUTATION,
+    PLAYER_LOGIN_QUERY_LOAD_INVENTORY,
+    PLAYER_LOGIN_QUERY_LOAD_ACTIONS,
+    PLAYER_LOGIN_QUERY_LOAD_MAILS,
+    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS,
+    PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST,
+    PLAYER_LOGIN_QUERY_LOAD_HOME_BIND,
+    PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS,
+    PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES,
+    PLAYER_LOGIN_QUERY_LOAD_GUILD,
+    PLAYER_LOGIN_QUERY_LOAD_ARENA_INFO,
+    PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS,
+    PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS,
+    PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS,
+    PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
+    PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
+    PLAYER_LOGIN_QUERY_LOAD_TALENTS,
+    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
+    PLAYER_LOGIN_QUERY_LOAD_SKILLS,
+    PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS,
+    PLAYER_LOGIN_QUERY_LOAD_RANDOM_BG,
+    PLAYER_LOGIN_QUERY_LOAD_BANNED,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_REW,
+    PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS,
+    PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS,
+    PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
+    PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -769,7 +766,6 @@ enum PlayerDelayedOperations
     DELAYED_SPELL_CAST_DESERTER = 0x04,
     DELAYED_BG_MOUNT_RESTORE    = 0x08,                     ///< Flag to restore mount state after teleport from BG
     DELAYED_BG_TAXI_RESTORE     = 0x10,                     ///< Flag to restore taxi state after teleport from BG
-    DELAYED_BG_GROUP_RESTORE    = 0x20,                     ///< Flag to restore group state after teleport from BG
     DELAYED_END
 };
 
@@ -1198,7 +1194,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         Player* GetTrader() const;
         TradeData* GetTradeData() const { return m_trade; }
-        void TradeCancel(bool sendback);
+        void TradeCancel(bool sendback, TradeStatus status = TRADE_STATUS_TRADE_CANCELED);
 
         CinematicMgr* GetCinematicMgr() const { return _cinematicMgr; }
 
@@ -1390,7 +1386,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_mailsUpdated;
 
         void SetBindPoint(ObjectGuid guid) const;
-        void SendTalentWipeConfirm(ObjectGuid guid) const;
+        void SendTalentWipeConfirm(ObjectGuid trainerGuid) const;
         void ResetPetTalents();
         void RegenerateAll();
         void Regenerate(Powers power);
@@ -1478,8 +1474,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string const& GetGuildName() const;
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points);
-        bool ResetTalents(bool no_cost = false);
+        bool ResetTalents(bool involuntarily = false);
         uint32 ResetTalentsCost() const;
+        void IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost);
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
@@ -1685,8 +1682,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
-        void UpdateManaRegen();
+        void UpdatePowerRegen(Powers power);
         void UpdateRuneRegen(RuneType rune);
+        float GetPowerRegen(Powers power) const;
         uint32 GetRuneTimer(uint8 index) const { return m_runeGraceCooldown[index]; }
         void SetRuneTimer(uint8 index, uint32 timer) { m_runeGraceCooldown[index] = timer; }
         uint32 GetLastRuneGraceTimer(uint8 index) const { return m_lastRuneGraceTimers[index]; }
@@ -1852,6 +1850,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
         uint8 GetDrunkValue() const { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION); }
+        int32 GetFakeDrunkValue() const { return GetInt32Value(PLAYER_FAKE_INEBRIATION); }
+        void UpdateInvisibilityDrunkDetect();
         static DrunkenState GetDrunkenstateByValue(uint8 value);
 
         uint32 GetDeathTimer() const { return m_deathTimer; }
@@ -1974,7 +1974,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetBGTeam(uint32 team);
         uint32 GetBGTeam() const;
 
-        void LeaveBattleground(bool teleportToEntryPoint = true);
+        void LeaveBattleground(bool teleportToEntryPoint = true, bool withoutDeserterDebuff = false);
         bool CanJoinToBattleground(Battleground const* bg) const;
         bool CanReportAfkDueToLimit();
         void ReportedAfkBy(Player* reporter);
@@ -2127,8 +2127,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendSavedInstances();
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceValidity(bool /*isLogin*/);
-        bool CheckInstanceCount(uint32 instanceId) const;
-        void AddInstanceEnterTime(uint32 instanceId, time_t enterTime);
 
         // last used pet number (for BG's)
         uint32 GetLastPetNumber() const { return m_lastpetnumber; }
@@ -2316,7 +2314,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
-        void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadPetStable(uint8 petStableSlots, PreparedQueryResult result);
 
         /*********************************************************/
@@ -2339,7 +2336,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
         void _SaveTalents(CharacterDatabaseTransaction trans);
         void _SaveStats(CharacterDatabaseTransaction trans) const;
-        void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2563,7 +2559,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 m_ChampioningFaction;
 
-        InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
 

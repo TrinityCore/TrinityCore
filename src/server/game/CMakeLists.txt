@@ -112,6 +112,12 @@ target_link_libraries(game
     game-interface
     )
 
+if(TARGET efsw)
+  target_link_libraries(game
+    PRIVATE
+      efsw)
+endif()
+
 set_target_properties(game
     PROPERTIES
       FOLDER

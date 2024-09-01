@@ -1,13 +1,16 @@
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(MSVC_EXPECTED_VERSION 19.30)
-set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17")
+set(MSVC_EXPECTED_VERSION 19.32)
+set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17.2")
 
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
-  message(FATAL_ERROR "MSVC: TrinityCore requires version ${MSVC_EXPECTED_VERSION} (${MSVC_EXPECTED_VERSION_STRING}) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
-else()
-  message(STATUS "MSVC: Minimum version required is ${MSVC_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
+# This file is also used by compilers that pretend to be MSVC but report their own version number - don't version check them
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
+    message(FATAL_ERROR "MSVC: TrinityCore requires version ${MSVC_EXPECTED_VERSION} (${MSVC_EXPECTED_VERSION_STRING}) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+  else()
+    message(STATUS "MSVC: Minimum version required is ${MSVC_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
+  endif()
 endif()
 
 # CMake sets warning flags by default, however we manage it manually
@@ -108,40 +111,50 @@ message(STATUS "MSVC: Disabled NON-SECURE warnings")
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
     -D_CRT_NONSTDC_NO_WARNINGS)
+
+# Force math constants like M_PI to be available
+target_compile_definitions(trinity-compile-option-interface
+  INTERFACE
+    -D_USE_MATH_DEFINES)
+
 message(STATUS "MSVC: Disabled POSIX warnings")
 
 # Ignore specific warnings
-# C4351: new behavior: elements of array 'x' will be default initialized
-# C4091: 'typedef ': ignored on left of '' when no variable is declared
 target_compile_options(trinity-compile-option-interface
   INTERFACE
-    /wd4351
-    /wd4091)
+    /wd4351  # C4351: new behavior: elements of array 'x' will be default initialized
+    /wd4091) # C4091: 'typedef ': ignored on left of '' when no variable is declared
 
 if(NOT WITH_WARNINGS)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      /wd4996
-      /wd4355
-      /wd4244
-      /wd4985
-      /wd4267
-      /wd4619
-      /wd4512)
+      /wd4996  # C4996 deprecation
+      /wd4985  # C4985 'symbol-name': attributes not present on previous declaration.
+      /wd4244  # C4244 'argument' : conversion from 'type1' to 'type2', possible loss of data
+      /wd4267  # C4267 'var' : conversion from 'size_t' to 'type', possible loss of data
+      /wd4619  # C4619 #pragma warning : there is no warning number 'number'
+      /wd4512) # C4512 'class' : assignment operator could not be generated
 
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
 if(BUILD_SHARED_LIBS)
-  # C4251: needs to have dll-interface to be used by clients of class '...'
-  # C4275: non dll-interface class ...' used as base for dll-interface class '...'
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      /wd4251
-      /wd4275)
+      /wd4251  # C4251: needs to have dll-interface to be used by clients of class '...'
+      /wd4275) # C4275: non dll-interface class ...' used as base for dll-interface class '...'
 
   message(STATUS "MSVC: Enabled shared linking")
 endif()
+
+# Move some warnings that are enabled for other compilers from level 4 to level 3
+target_compile_options(trinity-compile-option-interface
+  INTERFACE
+    /w34100  # C4100 'identifier' : unreferenced formal parameter
+    /w34101  # C4101: 'identifier' : unreferenced local variable
+    /w34189  # C4189: 'identifier' : local variable is initialized but not referenced
+    /w34389  # C4389: 'equality-operator' : signed/unsigned mismatch
+	/w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function

@@ -3,7 +3,7 @@ target_compile_definitions(trinity-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="$<CONFIG>")
 
-set(GCC_EXPECTED_VERSION 10.0.0)
+set(GCC_EXPECTED_VERSION 11.1.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
   message(FATAL_ERROR "GCC: TrinityCore requires version ${GCC_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
@@ -18,7 +18,7 @@ if(PLATFORM EQUAL 32)
       -msse2
       -mfpmath=sse)
 endif()
-if(NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+if(TRINITY_SYSTEM_PROCESSOR MATCHES "x86|amd64")
   target_compile_definitions(trinity-compile-option-interface
     INTERFACE
       -DHAVE_SSE2
@@ -35,7 +35,8 @@ if(WITH_WARNINGS)
       -Winit-self
       -Winvalid-pch
       -Wfatal-errors
-      -Woverloaded-virtual)
+      -Woverloaded-virtual
+      -Wno-missing-field-initializers) # this warning is useless when combined with structure members that have default initializers
 
   message(STATUS "GCC: All warnings enabled")
 endif()

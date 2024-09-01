@@ -769,6 +769,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         return;
     }
     // @tswow-end
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED, atEntry->ID, player))
+        return;
+
     if (sScriptMgr->OnAreaTrigger(player, atEntry))
         return;
 

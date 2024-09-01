@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "Duration.h"
 
+class WowTime;
+
 namespace GameTime
 {
     // Server start time
@@ -40,6 +42,10 @@ namespace GameTime
 
     /// Uptime (in secs)
     TC_GAME_API uint32 GetUptime();
+
+    TC_GAME_API WowTime const* GetUtcWowTime();
+
+    TC_GAME_API WowTime const* GetWowTime();
 
     void UpdateGameTimers();
 }

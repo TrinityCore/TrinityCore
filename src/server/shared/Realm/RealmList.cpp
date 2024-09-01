@@ -16,6 +16,7 @@
  */
 
 #include "RealmList.h"
+#include "ClientBuildInfo.h"
 #include "DatabaseEnv.h"
 #include "DeadlineTimer.h"
 #include "IoContext.h"
@@ -43,7 +44,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
     _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
 
-    LoadBuildInfo();
+    ClientBuild::LoadBuildInfo();
     // Get the content of the realmlist table in the database
     UpdateRealms(boost::system::error_code());
 }
@@ -51,37 +52,6 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 void RealmList::Close()
 {
     _updateTimer->cancel();
-}
-
-void RealmList::LoadBuildInfo()
-{
-    //                                                              0             1              2              3      4                5                6
-    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, winChecksumSeed, macChecksumSeed FROM build_info ORDER BY build ASC"))
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            RealmBuildInfo& build = _builds.emplace_back();
-            build.MajorVersion = fields[0].GetUInt32();
-            build.MinorVersion = fields[1].GetUInt32();
-            build.BugfixVersion = fields[2].GetUInt32();
-            std::string hotfixVersion = fields[3].GetString();
-            if (hotfixVersion.length() < build.HotfixVersion.size())
-                std::copy(hotfixVersion.begin(), hotfixVersion.end(), build.HotfixVersion.begin());
-            else
-                std::fill(hotfixVersion.begin(), hotfixVersion.end(), '\0');
-
-            build.Build = fields[4].GetUInt32();
-            std::string windowsHash = fields[5].GetString();
-            if (windowsHash.length() == build.WindowsHash.size() * 2)
-                HexStrToByteArray(windowsHash, build.WindowsHash);
-
-            std::string macHash = fields[6].GetString();
-            if (macHash.length() == build.MacHash.size() * 2)
-                HexStrToByteArray(macHash, build.MacHash);
-
-        } while (result->NextRow());
-    }
 }
 
 void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, std::string const& name,
@@ -207,15 +177,6 @@ Realm const* RealmList::GetRealm(RealmHandle const& id) const
     auto itr = _realms.find(id);
     if (itr != _realms.end())
         return &itr->second;
-
-    return nullptr;
-}
-
-RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const
-{
-    for (RealmBuildInfo const& clientBuild : _builds)
-        if (clientBuild.Build == build)
-            return &clientBuild;
 
     return nullptr;
 }

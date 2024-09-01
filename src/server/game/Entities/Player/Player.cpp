@@ -90,6 +90,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "StringConvert.h"
+#include "TalentPackets.h"
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
@@ -182,7 +183,7 @@ enum CharacterCustomizeFlags
 #define DEATH_EXPIRE_STEP (5*MINUTE)
 #define MAX_DEATH_COUNT 3
 
-static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
+static uint32 corpseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::max());
 
@@ -770,8 +771,9 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     {
         case DAMAGE_LAVA:
         case DAMAGE_SLIME:
+        case DAMAGE_FIRE:
         {
-            DamageInfo dmgInfo(this, this, damage, nullptr, type == DAMAGE_LAVA ? SPELL_SCHOOL_MASK_FIRE : SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, BASE_ATTACK);
+            DamageInfo dmgInfo(this, this, damage, nullptr, type == DAMAGE_SLIME ? SPELL_SCHOOL_MASK_NATURE : SPELL_SCHOOL_MASK_FIRE, DIRECT_DAMAGE, BASE_ATTACK);
             Unit::CalcAbsorbResist(dmgInfo);
             absorb = dmgInfo.GetAbsorb();
             resist = dmgInfo.GetResist();
@@ -984,7 +986,7 @@ void Player::HandleSobering()
     SetDrunkValue(drunk);
 }
 
-DrunkenState Player::GetDrunkenstateByValue(uint8 value)
+/*static*/ DrunkenState Player::GetDrunkenstateByValue(uint8 value)
 {
     if (value >= 90)
         return DRUNKEN_SMASHED;
@@ -997,27 +999,17 @@ DrunkenState Player::GetDrunkenstateByValue(uint8 value)
 
 void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
 {
-    bool isSobering = newDrunkValue < GetDrunkValue();
+    newDrunkValue = std::min<uint8>(newDrunkValue, 100);
+    if (newDrunkValue == GetDrunkValue())
+        return;
+
     uint32 oldDrunkenState = Player::GetDrunkenstateByValue(GetDrunkValue());
-    if (newDrunkValue > 100)
-        newDrunkValue = 100;
-
-    // select drunk percent or total SPELL_AURA_MOD_FAKE_INEBRIATE amount, whichever is higher for visibility updates
-    int32 drunkPercent = std::max<int32>(newDrunkValue, GetTotalAuraModifier(SPELL_AURA_MOD_FAKE_INEBRIATE));
-    if (drunkPercent)
-    {
-        m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
-        m_invisibilityDetect.SetValue(INVISIBILITY_DRUNK, drunkPercent);
-    }
-    else if (!HasAuraType(SPELL_AURA_MOD_FAKE_INEBRIATE) && !newDrunkValue)
-        m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
-
     uint32 newDrunkenState = Player::GetDrunkenstateByValue(newDrunkValue);
-    SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION, newDrunkValue);
-    UpdateObjectVisibility();
 
-    if (!isSobering)
-        m_drunkTimer = 0;   // reset sobering timer
+    SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION, newDrunkValue);
+    UpdateInvisibilityDrunkDetect();
+
+    m_drunkTimer = 0; // reset sobering timer
 
     if (newDrunkenState == oldDrunkenState)
         return;
@@ -1028,6 +1020,25 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     data.ItemID = itemId;
 
     SendMessageToSet(data.Write(), true);
+}
+
+void Player::UpdateInvisibilityDrunkDetect()
+{
+    // select drunk percent or total SPELL_AURA_MOD_FAKE_INEBRIATE amount, whichever is higher for visibility updates
+    uint8 drunkValue        = GetDrunkValue();
+    int32 fakeDrunkValue    = GetFakeDrunkValue();
+    int32 maxDrunkValue     = std::max<int32>(drunkValue, fakeDrunkValue);
+
+    if (maxDrunkValue != 0)
+    {
+        m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
+        m_invisibilityDetect.SetValue(INVISIBILITY_DRUNK, maxDrunkValue);
+    }
+    else
+        m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
+
+    if (IsInWorld())
+        UpdateObjectVisibility();
 }
 
 void Player::Update(uint32 p_time)
@@ -1072,13 +1083,12 @@ void Player::Update(uint32 p_time)
 
     Unit::AIUpdateTick(p_time);
 
-    // Update items that have just a limited lifetime
+    // Once per second, update items that have just a limited lifetime
     if (now > m_Last_tick)
+    {
         UpdateItemDuration(uint32(now - m_Last_tick));
-
-    // check every second
-    if (now > m_Last_tick + 1)
         UpdateSoulboundTradeItems();
+    }
 
     // If mute expired, remove it from the DB
     if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
@@ -1625,7 +1635,7 @@ void Player::ToggleAFK()
     ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK);
 
     // afk player not allowed in battleground
-    if (!IsGameMaster() && isAFK() && InBattleground() && !InArena())
+    if (!GetSession()->HasPermission(rbac::RBAC_PERM_CAN_AFK_ON_BATTLEGROUND) && isAFK() && InBattleground() && !InArena())
         LeaveBattleground();
 }
 
@@ -1896,7 +1906,6 @@ bool Player::TeleportToBGEntryPoint()
 
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
-    ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
     return TeleportTo(m_bgData.joinPos);
 }
 
@@ -1933,12 +1942,6 @@ void Player::ProcessDelayedOperations()
 
             ContinueTaxiFlight();
         }
-    }
-
-    if (m_DelayedOperations & DELAYED_BG_GROUP_RESTORE)
-    {
-        if (Group* g = GetGroup())
-            g->SendUpdateToPlayer(GetGUID());
     }
 
     //we have executed ALL delayed ops, so clear the flag
@@ -2022,15 +2025,13 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo 
 
 void Player::RegenerateAll()
 {
-    //if (m_regenTimer <= 500)
-    //    return;
-
     m_regenTimerCount += m_regenTimer;
     m_foodEmoteTimerCount += m_regenTimer;
 
     Regenerate(POWER_ENERGY);
-
     Regenerate(POWER_MANA);
+    Regenerate(POWER_RAGE);
+    Regenerate(POWER_RUNIC_POWER);
 
     // Runes act as cooldowns, and they don't need to send any data
     //@tswow-begin
@@ -2102,66 +2103,7 @@ void Player::Regenerate(Powers power)
         return;
 
     uint32 curValue = GetPower(power);
-
-    /// @todo possible use of miscvalueb instead of amount
-    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
-        return;
-
-    float addvalue = 0.0f;
-
-    switch (power)
-    {
-        case POWER_MANA:
-        {
-            bool recentCast = IsUnderLastManaUseEffect();
-            float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-
-            if (GetLevel() < 15)
-                ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA) * (2.066f - (GetLevel() * 0.066f));
-
-            if (recentCast) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * 0.001f * m_regenTimer;
-            else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * 0.001f * m_regenTimer;
-        }   break;
-        case POWER_RAGE:                                    // Regenerate rage
-        {
-            if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += -20 * RageDecreaseRate;               // 2 rage by tick (= 2 seconds => 1 rage/sec)
-            }
-        }   break;
-        case POWER_ENERGY:                                  // Regenerate energy (rogue)
-            addvalue += 0.01f * m_regenTimer * sWorld->getRate(RATE_POWER_ENERGY);
-            break;
-        case POWER_RUNIC_POWER:
-        {
-            if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
-            }
-        }   break;
-        case POWER_RUNE:
-        case POWER_FOCUS:
-        case POWER_HAPPINESS:
-            break;
-        case POWER_HEALTH:
-            return;
-        default:
-            break;
-    }
-
-    // Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA)
-    {
-        addvalue *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power);
-
-        // Butchery requires combat for this effect
-        if (power != POWER_RUNIC_POWER || IsInCombat())
-            addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
-    }
+    float addvalue  = GetPowerRegen(power) * 0.001f * m_regenTimer;
 
     if (addvalue < 0.0f)
     {
@@ -2204,8 +2146,8 @@ void Player::Regenerate(Powers power)
         else
             m_powerFraction[power] = addvalue - integerValue;
     }
-    if (m_regenTimerCount >= 2000)
-        SetPower(power, curValue);
+    if (m_regenTimerCount >= 2000 || curValue == maxValue || curValue == 0)
+        SetPower(power, curValue, true, true);
     else
         UpdateUInt32Value(UNIT_FIELD_POWER1 + AsUnderlyingType(power), curValue);
 }
@@ -2720,7 +2662,7 @@ void Player::InitTalentForLevel()
         // Remove all talent points
         if (m_usedTalentCount > 0)                           // Free any used talents
         {
-            ResetTalents(true); /// @todo: Has to (collectively) be renamed to ResetTalents
+            ResetTalents(true);
             SetFreeTalentPoints(0);
         }
     }
@@ -3870,7 +3812,10 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-        return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS;
+        int32 cooldown = -1;
+        int32 categoryCooldown = -1;
+        SpellHistory::GetCooldownDurations(spellInfo, itr->second.ItemId, &cooldown, nullptr, &categoryCooldown);
+        return cooldown < 10 * MINUTE * IN_MILLISECONDS && categoryCooldown < 10 * MINUTE * IN_MILLISECONDS;
     }, true);
 
     // pet cooldowns
@@ -3881,6 +3826,9 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 
 uint32 Player::ResetTalentsCost() const
 {
+    if (sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
+        return 0;
+
     // The first time reset costs 1 gold
     if (m_resetTalentsCost < 1*GOLD)
         return 1*GOLD;
@@ -3912,16 +3860,28 @@ uint32 Player::ResetTalentsCost() const
     }
 }
 
-bool Player::ResetTalents(bool no_cost)
+void Player::IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost)
 {
-    // @tswow-begin
+    
+    if (lastResetTalentsCost > 0) // We don't want to reset the accumulated talent reset cost if we decide to temporarily enable CONFIG_NO_RESET_TALENT_COST
+        m_resetTalentsCost = lastResetTalentsCost;
+
+    m_resetTalentsTime = GameTime::GetGameTime();
+
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, lastResetTalentsCost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
+}
+
+bool Player::ResetTalents(bool involuntarily /*= false*/)
+{
+        // @tswow-begin
     FIRE(
           Player,OnTalentsResetEarly
         , TSPlayer(this)
-        , TSMutable<bool,bool>(&no_cost)
+        , TSMutable<bool,bool>(&involuntarily)
     );
     // @tswow-end
-    sScriptMgr->OnPlayerTalentsReset(this, no_cost);
+    sScriptMgr->OnPlayerTalentsReset(this, involuntarily);
 
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
@@ -3933,19 +3893,6 @@ bool Player::ResetTalents(bool no_cost)
     {
         SetFreeTalentPoints(talentPointsForLevel);
         return false;
-    }
-
-    uint32 cost = 0;
-
-    if (!no_cost && !sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
-    {
-        cost = ResetTalentsCost();
-
-        if (!HasEnoughMoney(cost))
-        {
-            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, nullptr, 0, 0);
-            return false;
-        }
     }
 
     RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
@@ -4005,23 +3952,8 @@ bool Player::ResetTalents(bool no_cost)
 
     SetFreeTalentPoints(talentPointsForLevel);
 
-    if (!no_cost)
-    {
-        ModifyMoney(-(int32)cost);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
-
-        m_resetTalentsCost = cost;
-        m_resetTalentsTime = GameTime::GetGameTime();
-    }
-
-    /* when prev line will dropped use next line
-    if (Pet* pet = GetPet())
-    {
-        if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->IsTameable(CanTameExoticPets()))
-            RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
-    }
-    */
+    if (involuntarily)
+        SendDirectMessage(WorldPackets::Talents::InvoluntarilyReset(false).Write());
 
     // @tswow-begin
     FIRE(
@@ -4173,7 +4105,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (ObjectGuid::LowType guildId = sCharacterCache->GetCharacterGuildIdByGuid(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-            guild->DeleteMember(trans, playerguid, false, false, true);
+            guild->DeleteMember(trans, playerguid, false, false);
 
     // close player ticket if any
     GmTicket* ticket = sTicketMgr->GetTicketByPlayer(playerguid);
@@ -5289,7 +5221,7 @@ void Player::ApplyBaseModPctValue(BaseModGroup modGroup, float pct)
         return;
     }
 
-    AddPct(m_auraBasePctMod[modGroup], pct);
+    m_auraBasePctMod[modGroup] += CalculatePct(1.0f, pct);
     UpdateBaseModGroup(modGroup);
 }
 
@@ -6003,20 +5935,18 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
 
 void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defense)
 {
-    uint8 plevel = GetLevel();                              // if defense than victim == attacker
-    // @tswow-begin
-    uint8 greylevel = Trinity::XP::GetGrayLevel(this,plevel);
-    // @tswow-end
-    uint8 moblevel = victim->GetLevelForTarget(this);
+    int32 plevel = GetLevel();                              // if defense than victim == attacker
+    int32 greylevel = Trinity::XP::GetGrayLevel(plevel);
+    int32 moblevel = victim->GetLevelForTarget(this);
 
     if (moblevel > plevel + 5)
         moblevel = plevel + 5;
 
-    uint8 lvldif = moblevel - greylevel;
+    int32 lvldif = moblevel - greylevel;
     if (lvldif < 3)
         lvldif = 3;
 
-    uint32 skilldif = 5 * plevel - (defense ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType));
+    int32 skilldif = 5 * plevel - int32(defense ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType));
     if (skilldif <= 0)
         return;
 
@@ -6034,8 +5964,6 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool def
         else
             UpdateWeaponSkill(victim, attType);
     }
-    else
-        return;
 }
 
 void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
@@ -9609,13 +9537,9 @@ void Player::SetBindPoint(ObjectGuid guid) const
     SendDirectMessage(packet.Write());
 }
 
-void Player::SendTalentWipeConfirm(ObjectGuid guid) const
+void Player::SendTalentWipeConfirm(ObjectGuid trainerGuid) const
 {
-    WorldPacket data(MSG_TALENT_WIPE_CONFIRM, (8+4));
-    data << uint64(guid);
-    uint32 cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : ResetTalentsCost();
-    data << cost;
-    SendDirectMessage(&data);
+    SendDirectMessage(WorldPackets::Talents::RespecWipeConfirm(trainerGuid, ResetTalentsCost()).Write());
 }
 
 void Player::ResetPetTalents()
@@ -13797,17 +13721,16 @@ bool Player::IsUsingTwoHandedWeaponInOneHand() const
     return true;
 }
 
-void Player::TradeCancel(bool sendback)
+void Player::TradeCancel(bool sendback, TradeStatus status /*= TRADE_STATUS_TRADE_CANCELED*/)
 {
     if (m_trade)
     {
         Player* trader = m_trade->GetTrader();
 
-        // send yellow "Trade canceled" message to both traders
         if (sendback)
-            GetSession()->SendCancelTrade();
+            GetSession()->SendCancelTrade(status);
 
-        trader->GetSession()->SendCancelTrade();
+        trader->GetSession()->SendCancelTrade(status);
 
         // cleanup
         delete m_trade;
@@ -15624,7 +15547,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewSpellCast() > 0)
     {
         SpellInfo const* spellInfo = ASSERT_NOTNULL(sSpellMgr->GetSpellInfo(quest->GetRewSpellCast()));
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
+        if (questGiver->IsUnit() && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpellCast(), true);
@@ -15635,7 +15558,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
+        if (questGiver->IsUnit() && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) && !spellInfo->IsSelfCast())
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpell(), true);
@@ -17727,7 +17650,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetUInt16Value(PLAYER_FIELD_KILLS, 1, fields[50].GetUInt16());
 
     _LoadBoundInstances(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES));
-    _LoadInstanceTimeRestrictions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
+
     _LoadBGData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BG_DATA));
 
     GetSession()->SetPlayer(this);
@@ -19276,7 +19199,7 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
         }
 
         if (itr->second.perm)
-            GetSession()->SendCalendarRaidLockout(itr->second.save, false);
+            GetSession()->SendCalendarRaidLockoutRemoved(itr->second.save);
 
         itr->second.save->RemovePlayer(this);               // save can become invalid
         m_boundInstances[difficulty].erase(itr++);
@@ -19361,7 +19284,7 @@ void Player::BindToInstance()
     if (!IsGameMaster())
     {
         BindToInstance(mapSave, true, EXTEND_STATE_KEEP);
-        GetSession()->SendCalendarRaidLockout(mapSave, true);
+        GetSession()->SendCalendarRaidLockoutAdded(mapSave);
     }
 }
 
@@ -19583,19 +19506,6 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
     }
 
     return true;
-}
-
-bool Player::CheckInstanceCount(uint32 instanceId) const
-{
-    if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
-        return true;
-    return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
-}
-
-void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
-{
-    if (_instanceResetTimes.find(instanceId) == _instanceResetTimes.end())
-        _instanceResetTimes.insert(InstanceTimeMap::value_type(instanceId, enterTime + HOUR));
 }
 
 bool Player::_LoadHomeBind(PreparedQueryResult result)
@@ -19980,6 +19890,7 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
     // @tswow-begin TODO: fix transaction
     m_db_json.Save();
     // @tswow-end
+    GetSession()->SaveInstanceTimeRestrictions(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -21067,20 +20978,6 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     pet->CombatStop();
 
-    if (returnreagent)
-    {
-        switch (pet->GetEntry())
-        {
-            //warlock pets except imp are removed(?) when logging out
-            case 1860:
-            case 1863:
-            case 417:
-            case 17252:
-                mode = PET_SAVE_NOT_IN_SLOT;
-                break;
-        }
-    }
-
     // only if current pet in slot
     pet->SavePetToDB(mode);
 
@@ -22109,8 +22006,9 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     if (count < 1) count = 1;
 
     // cheating attempt
-    if (slot > MAX_BAG_SIZE && slot != NULL_SLOT)
-        return false;
+    if (slot != NULL_SLOT)
+        if ((bag != INVENTORY_SLOT_BAG_0 && slot > MAX_BAG_SIZE) || (bag == INVENTORY_SLOT_BAG_0 && slot >= INVENTORY_SLOT_ITEM_END))
+            return false;
 
     if (!IsAlive())
         return false;
@@ -22680,14 +22578,18 @@ uint32 Player::GetBGTeam() const
     return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam();
 }
 
-void Player::LeaveBattleground(bool teleportToEntryPoint)
+void Player::LeaveBattleground(bool teleportToEntryPoint /*= true*/, bool withoutDeserterDebuff /*= false*/)
 {
-    if (Battleground* bg = GetBattleground())
-    {
-        bg->RemovePlayerAtLeave(GetGUID(), teleportToEntryPoint, true);
+    Battleground* bg = GetBattleground();
+    if (!bg)
+        return;
 
-        // call after remove to be sure that player resurrected for correct cast
-        if (bg->isBattleground() && !IsGameMaster() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))
+    bg->RemovePlayerAtLeave(GetGUID(), teleportToEntryPoint, true);
+
+    // call after remove to be sure that player resurrected for correct cast
+    if (bg->isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))
+    {
+        if (!withoutDeserterDebuff && !GetSession()->HasPermission(rbac::RBAC_PERM_NO_BATTLEGROUND_DESERTER_DEBUFF))
         {
             if (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN)
             {
@@ -22701,16 +22603,16 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                 CastSpell(this, 26013, true);               // Deserter
             }
         }
+    }
 
-        // track if player leaves the BG while inside it
-        if (bg->isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS) &&
-                (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
-        {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
-            stmt->setUInt32(0, GetGUID().GetCounter());
-            stmt->setUInt8(1, BG_DESERTION_TYPE_LEAVE_BG);
-            CharacterDatabase.Execute(stmt);
-        }
+    // track if player leaves the BG while inside it
+    if (bg->isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS) &&
+            (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt8(1, BG_DESERTION_TYPE_LEAVE_BG);
+        CharacterDatabase.Execute(stmt);
     }
 }
 
@@ -22899,7 +22801,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
-            if (target->isType(TYPEMASK_UNIT))
+            if (target->IsUnit())
                 SendInitialVisiblePackets(static_cast<Unit*>(target));
         }
     }
@@ -23151,7 +23053,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     static float const TimeSpeed = 0.01666667f;
     WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
     loginSetTimeSpeed.NewSpeed = TimeSpeed;
-    loginSetTimeSpeed.GameTime = GameTime::GetGameTime();
+    loginSetTimeSpeed.GameTime = *GameTime::GetWowTime();
     loginSetTimeSpeed.GameTimeHolidayOffset = 0; /// @todo
     SendDirectMessage(loginSetTimeSpeed.Write());
 
@@ -24540,7 +24442,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
     if (pvp)
     {
         if (!sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP))
-            return copseReclaimDelay[0];
+            return corpseReclaimDelay[0];
     }
     else if (!sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE))
         return 0;
@@ -24549,7 +24451,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
     // 0..2 full period
     // should be ceil(x)-1 but not floor(x)
     uint64 count = (now < m_deathExpireTime - 1) ? (m_deathExpireTime - 1 - now) / DEATH_EXPIRE_STEP : 0;
-    return copseReclaimDelay[count];
+    return corpseReclaimDelay[count];
 }
 
 void Player::UpdateCorpseReclaimDelay()
@@ -24603,7 +24505,7 @@ int32 Player::CalculateCorpseReclaimDelay(bool load) const
                 count = MAX_DEATH_COUNT - 1;
         }
 
-        time_t expected_time = corpse->GetGhostTime() + copseReclaimDelay[count];
+        time_t expected_time = corpse->GetGhostTime() + corpseReclaimDelay[count];
         time_t now = GameTime::GetGameTime();
 
         if (now >= expected_time)
@@ -24841,14 +24743,11 @@ bool ItemPosCount::isContainedIn(std::vector<ItemPosCount> const& vec) const
 
 void Player::StopCastingBindSight() const
 {
-    if (WorldObject* target = GetViewpoint())
+    if (Unit* target = Object::ToUnit(GetViewpoint()))
     {
-        if (target->isType(TYPEMASK_UNIT))
-        {
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
-        }
+        target->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
+        target->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
+        target->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
     }
 }
 
@@ -24868,8 +24767,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         // farsight dynobj or puppet may be very far away
         UpdateVisibilityOf(target);
 
-        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
-            static_cast<Unit*>(target)->AddPlayerToVision(this);
+        if (Unit* targetUnit = target->ToUnit(); targetUnit && targetUnit != GetVehicleBase())
+            targetUnit->AddPlayerToVision(this);
         SetSeer(target);
     }
     else
@@ -24882,8 +24781,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
-        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
-            static_cast<Unit*>(target)->RemovePlayerFromVision(this);
+        if (Unit* targetUnit = target->ToUnit(); targetUnit && targetUnit != GetVehicleBase())
+            targetUnit->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash
         SetSeer(this);
@@ -26302,14 +26201,14 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& eqSet)
         }
     }
 
-    EquipmentSetInfo& eqSlot = _equipmentSets[eqSet.Guid];
+    uint64 setGuid = (eqSet.Guid != 0) ? eqSet.Guid : sObjectMgr->GenerateEquipmentSetGuid();
 
-    EquipmentSetUpdateState oldState = eqSlot.State;
+    EquipmentSetInfo& eqSlot = _equipmentSets[setGuid];
     eqSlot.Data = eqSet;
 
     if (eqSet.Guid == 0)
     {
-        eqSlot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
+        eqSlot.Data.Guid = setGuid;
 
         WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
         data << uint32(eqSlot.Data.SetID);
@@ -26317,7 +26216,7 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& eqSet)
         SendDirectMessage(&data);
     }
 
-    eqSlot.State = (oldState == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED);
+    eqSlot.State = (eqSlot.State == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED);
 }
 
 void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
@@ -27038,18 +26937,6 @@ float Player::GetAverageItemLevel() const
     return ((float)sum) / count;
 }
 
-void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
-{
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-        _instanceResetTimes.insert(InstanceTimeMap::value_type(fields[0].GetUInt32(), fields[1].GetUInt64()));
-    } while (result->NextRow());
-}
-
 void Player::_LoadPetStable(uint8 petStableSlots, PreparedQueryResult result)
 {
     if (!petStableSlots && !result)
@@ -27096,25 +26983,6 @@ void Player::_LoadPetStable(uint8 petStableSlots, PreparedQueryResult result)
                 m_petStable->UnslottedPets.push_back(std::move(petInfo));
 
         } while (result->NextRow());
-    }
-}
-
-void Player::_SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans)
-{
-    if (_instanceResetTimes.empty())
-        return;
-
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
-    stmt->setUInt32(0, GetSession()->GetAccountId());
-    trans->Append(stmt);
-
-    for (InstanceTimeMap::const_iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end(); ++itr)
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        stmt->setUInt32(1, itr->first);
-        stmt->setUInt64(2, itr->second);
-        trans->Append(stmt);
     }
 }
 

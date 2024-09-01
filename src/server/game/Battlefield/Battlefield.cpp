@@ -265,11 +265,8 @@ void Battlefield::InvitePlayerToWar(Player* player)
     if (player->IsInFlight())
         return;
 
-    if (player->InArena() || player->GetBattleground())
-    {
-        m_PlayersInQueue[player->GetTeamId()].erase(player->GetGUID());
+    if (player->GetBattleground())
         return;
-    }
 
     // If the player does not match minimal level requirements for the battlefield, kick him
     if (player->GetLevel() < m_MinLevel)

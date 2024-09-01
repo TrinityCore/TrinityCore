@@ -940,7 +940,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + int32(power)); }
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
-        void SetPower(Powers power, uint32 val, bool withPowerUpdate = true);
+        void SetPower(Powers power, uint32 val, bool withPowerUpdate = true, bool force = false);
         void SetMaxPower(Powers power, uint32 val);
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
         // returns the change in power
@@ -1466,7 +1466,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetChannelObjectGuid(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, guid); }
 
         void SetCurrentCastSpell(Spell* pSpell);
-        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
+        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
 
         // set withDelayed to true to account delayed spells as cast
@@ -1502,7 +1502,7 @@ class TC_GAME_API Unit : public WorldObject
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
         float m_modSpellHitChance;
-        int32 m_baseSpellCritChance;
+        float m_baseSpellCritChance;
 
         float m_modAttackSpeedPct[MAX_ATTACK];
         uint32 m_attackTimer[MAX_ATTACK];
@@ -1738,7 +1738,8 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid LastCharmerGUID;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry);
         void RemoveVehicleKit();
-        Vehicle* GetVehicleKit() const { return m_vehicleKit; }
+        Vehicle* GetVehicleKit() const { return m_vehicleKit.get(); }
+        Trinity::unique_weak_ptr<Vehicle> GetVehicleKitWeakPtr() const { return m_vehicleKit; }
         Vehicle* GetVehicle() const { return m_vehicle; }
         void SetVehicle(Vehicle* vehicle) { m_vehicle = vehicle; }
         bool IsOnVehicle(Unit const* vehicle) const;
@@ -1900,7 +1901,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_regenTimer;
 
         Vehicle* m_vehicle;
-        Vehicle* m_vehicleKit;
+        Trinity::unique_trackable_ptr<Vehicle> m_vehicleKit;
 
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;

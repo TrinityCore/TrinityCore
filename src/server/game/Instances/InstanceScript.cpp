@@ -471,7 +471,8 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 if (GameObject* door = instance->GetGameObject(*i))
                     UpdateDoorState(door);
 
-        for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+        GuidSet minions = bossInfo->minion; // Copy to prevent iterator invalidation (minion might be unsummoned in UpdateMinionState)
+        for (GuidSet::iterator i = minions.begin(); i != minions.end(); ++i)
             if (Creature* minion = instance->GetCreature(*i))
                 UpdateMinionState(minion, state);
 
@@ -851,7 +852,7 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
+void InstanceScript::SendEncounterUnit(EncounterFrameType type, Unit const* unit /*= nullptr*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
 {
     // size of this packet is at most 15 (usually less)
     WorldPacket data(SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT, 15);
@@ -876,7 +877,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, ui
             data << uint8(param1);
             data << uint8(param2);
             break;
-        case ENCOUNTER_FRAME_UNK7:
+        case ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED:
         default:
             break;
     }

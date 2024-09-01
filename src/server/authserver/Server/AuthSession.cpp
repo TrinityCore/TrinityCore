@@ -18,21 +18,20 @@
 #include "AuthSession.h"
 #include "AES.h"
 #include "AuthCodes.h"
+#include "ByteBuffer.h"
+#include "ClientBuildInfo.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
+#include "CryptoHash.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
-#include "Errors.h"
-#include "CryptoHash.h"
 #include "IPLocation.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
-#include "Timer.h"
 #include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
-#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 
@@ -161,7 +160,7 @@ void AccountInfo::LoadResult(Field* fields)
 }
 
 AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
-_status(STATUS_CHALLENGE), _build(0), _expversion(0) { }
+_status(STATUS_CHALLENGE), _build(0), _timezoneOffset(0min), _expversion(0) { }
 
 void AuthSession::Start()
 {
@@ -300,11 +299,14 @@ bool AuthSession::HandleLogonChallenge()
     for (int i = 0; i < 4; ++i)
         _localizationName[i] = challenge->country[4 - i - 1];
 
+    _timezoneOffset = Minutes(challenge->timezone_bias);
+
     // Get the account details from the account table
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
     stmt->setString(0, login);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::LogonChallengeCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
+        .WithPreparedCallback([this](PreparedQueryResult result) { LogonChallengeCallback(std::move(result)); }));
     return true;
 }
 
@@ -513,7 +515,8 @@ bool AuthSession::HandleLogonProof()
         stmt->setString(1, address);
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
-        stmt->setString(4, _accountInfo.Login);
+        stmt->setInt16(4, _timezoneOffset.count());
+        stmt->setString(5, _accountInfo.Login);
         LoginDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
@@ -636,11 +639,14 @@ bool AuthSession::HandleReconnectChallenge()
     for (int i = 0; i < 4; ++i)
         _localizationName[i] = challenge->country[4 - i - 1];
 
+    _timezoneOffset = Minutes(challenge->timezone_bias);
+
     // Get the account details from the account table
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RECONNECTCHALLENGE);
     stmt->setString(0, login);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::ReconnectChallengeCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
+        .WithPreparedCallback([this](PreparedQueryResult result) { ReconnectChallengeCallback(std::move(result)); }));
     return true;
 }
 
@@ -751,7 +757,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 
         // No SQL injection. id of realm is controlled by the database.
         uint32 flag = realm.Flags;
-        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(realm.Build);
+        ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(realm.Build);
         if (!okBuild)
         {
             if (!buildInfo)
@@ -836,20 +842,15 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::
     Trinity::Crypto::SHA1::Digest const* versionHash = nullptr;
     if (!isReconnect)
     {
-        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(_build);
+        ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(_build);
         if (!buildInfo)
             return false;
 
-        if (_os == "Win")
-            versionHash = &buildInfo->WindowsHash;
-        else if (_os == "OSX")
-            versionHash = &buildInfo->MacHash;
-
-        if (!versionHash)
-            return false;
-
-        if (zeros == *versionHash)
+        auto platformItr = std::ranges::find(buildInfo->ExecutableHashes, ClientBuild::ToFourCC(_os), &ClientBuild::ExecutableHash::Platform);
+        if (platformItr == buildInfo->ExecutableHashes.end())
             return true;                                                            // not filled serverside
+
+        versionHash = &platformItr->Hash;
     }
     else
         versionHash = &zeros;

@@ -17,6 +17,7 @@
 
 #include "Banner.h"
 #include "DBCFileLoader.h"
+#include "Locales.h"
 #include "MapBuilder.h"
 #include "PathCommon.h"
 #include "Timer.h"
@@ -26,6 +27,11 @@
  // @tswow-begin
 #include <cxxopts.h>
 // @tswow-end
+
+constexpr char Readme[] =
+{
+#include "Info/readme.txt"
+};
 
 using namespace MMAP;
 
@@ -166,6 +172,212 @@ int finish(char const* message, int returnValue)
     return returnValue;
 }
 
+bool handleArgsNew(int argc, char** argv,
+               int &mapnum,
+               int &tileX,
+               int &tileY,
+               Optional<float>& maxAngle,
+               Optional<float>& maxAngleNotSteep,
+               bool &skipLiquid,
+               bool &skipContinents,
+               bool &skipJunkMaps,
+               bool &skipBattlegrounds,
+               bool &debugOutput,
+               bool &silent,
+               bool &bigBaseUnit,
+               char* &offMeshInputPath,
+               char* &file,
+               unsigned int& threads)
+{
+    char* param = nullptr;
+    [[maybe_unused]] bool allowDebug = false;
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "--maxAngle") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            float maxangle = atof(param);
+            if (maxangle <= 90.f && maxangle >= 0.f)
+                maxAngle = maxangle;
+            else
+                printf("invalid option for '--maxAngle', using default\n");
+        }
+        else if (strcmp(argv[i], "--maxAngleNotSteep") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            float maxangle = atof(param);
+            if (maxangle <= 90.f && maxangle >= 0.f)
+                maxAngleNotSteep = maxangle;
+            else
+                printf("invalid option for '--maxAngleNotSteep', using default\n");
+        }
+        else if (strcmp(argv[i], "--threads") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+            threads = static_cast<unsigned int>(std::max(0, atoi(param)));
+        }
+        else if (strcmp(argv[i], "--file") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+            file = param;
+        }
+        else if (strcmp(argv[i], "--tile") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            char* stileX = strtok(param, ",");
+            char* stileY = strtok(nullptr, ",");
+            int tilex = atoi(stileX);
+            int tiley = atoi(stileY);
+
+            if ((tilex > 0 && tilex < 64) || (tilex == 0 && strcmp(stileX, "0") == 0))
+                tileX = tilex;
+            if ((tiley > 0 && tiley < 64) || (tiley == 0 && strcmp(stileY, "0") == 0))
+                tileY = tiley;
+
+            if (tileX < 0 || tileY < 0)
+            {
+                printf("invalid tile coords.\n");
+                return false;
+            }
+        }
+        else if (strcmp(argv[i], "--skipLiquid") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            if (strcmp(param, "true") == 0)
+                skipLiquid = true;
+            else if (strcmp(param, "false") == 0)
+                skipLiquid = false;
+            else
+                printf("invalid option for '--skipLiquid', using default\n");
+        }
+        else if (strcmp(argv[i], "--skipContinents") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            if (strcmp(param, "true") == 0)
+                skipContinents = true;
+            else if (strcmp(param, "false") == 0)
+                skipContinents = false;
+            else
+                printf("invalid option for '--skipContinents', using default\n");
+        }
+        else if (strcmp(argv[i], "--skipJunkMaps") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            if (strcmp(param, "true") == 0)
+                skipJunkMaps = true;
+            else if (strcmp(param, "false") == 0)
+                skipJunkMaps = false;
+            else
+                printf("invalid option for '--skipJunkMaps', using default\n");
+        }
+        else if (strcmp(argv[i], "--skipBattlegrounds") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            if (strcmp(param, "true") == 0)
+                skipBattlegrounds = true;
+            else if (strcmp(param, "false") == 0)
+                skipBattlegrounds = false;
+            else
+                printf("invalid option for '--skipBattlegrounds', using default\n");
+        }
+        else if (strcmp(argv[i], "--debugOutput") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            if (strcmp(param, "true") == 0)
+                debugOutput = true;
+            else if (strcmp(param, "false") == 0)
+                debugOutput = false;
+            else
+                printf("invalid option for '--debugOutput', using default true\n");
+        }
+        else if (strcmp(argv[i], "--silent") == 0)
+        {
+            silent = true;
+        }
+        else if (strcmp(argv[i], "--bigBaseUnit") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            if (strcmp(param, "true") == 0)
+                bigBaseUnit = true;
+            else if (strcmp(param, "false") == 0)
+                bigBaseUnit = false;
+            else
+                printf("invalid option for '--bigBaseUnit', using default false\n");
+        }
+        else if (strcmp(argv[i], "--offMeshInput") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            offMeshInputPath = param;
+        }
+        else if (strcmp(argv[i], "--allowDebug") == 0)
+        {
+            allowDebug = true;
+        }
+        else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?"))
+        {
+            printf("%s\n", Readme);
+            silent = true;
+            return false;
+        }
+        else
+        {
+            int map = atoi(argv[i]);
+            if (map > 0 || (map == 0 && (strcmp(argv[i], "0") == 0)))
+                mapnum = map;
+            else
+            {
+                printf("invalid map id\n");
+                return false;
+            }
+        }
+    }
+
+#ifndef NDEBUG
+    if (!allowDebug)
+    {
+        finish("Build mmaps_generator in RelWithDebInfo or Release mode or it will take hours to complete!!!\nUse '--allowDebug' argument if you really want to run this tool in Debug.\n", -2);
+        silent = true;
+        return false;
+    }
+#endif
+
+    return true;
+}
+
 std::unordered_map<uint32, uint8> LoadLiquid()
 {
     DBCFileLoader liquidDbc;
@@ -185,6 +397,10 @@ std::unordered_map<uint32, uint8> LoadLiquid()
 
 int main(int argc, char** argv)
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     unsigned int threads = std::thread::hardware_concurrency();

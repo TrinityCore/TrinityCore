@@ -209,7 +209,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_GENDER:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->GetNativeGender() == ConditionValue1;
+                condMeets = player->GetNativeGender() == Gender(ConditionValue1);
             break;
         }
         case CONDITION_SKILL:
@@ -1832,6 +1832,15 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             if (!itemTemplate)
             {
                 TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString());
+                return false;
+            }
+            break;
+        }
+        case CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED:
+        {
+            if (!sAreaTriggerStore.LookupEntry(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exists in AreaTrigger.dbc, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;

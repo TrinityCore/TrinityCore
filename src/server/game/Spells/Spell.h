@@ -27,6 +27,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
+#include "UniqueTrackablePtr.h"
 #include <memory>
 
 namespace WorldPackets
@@ -303,16 +304,16 @@ class TC_GAME_API Spell
         void SelectExplicitTargets();
 
         void SelectSpellTargets();
-        void SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32& processedEffectMask);
-        void SelectImplicitChannelTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType);
+        void SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effectMask);
+        void SelectImplicitChannelTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitConeTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitAreaTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType);
-        void SelectImplicitCasterObjectTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType);
-        void SelectImplicitTargetObjectTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType);
+        void SelectImplicitCasterObjectTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+        void SelectImplicitTargetObjectTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitChainTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, WorldObject* target, uint32 effMask);
         void SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType);
 
@@ -328,7 +329,7 @@ class TC_GAME_API Spell
         GameObject* SearchSpellFocus();
 
         SpellCastResult prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura = nullptr);
-        void cancel();
+        void cancel(SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
@@ -354,6 +355,7 @@ class TC_GAME_API Spell
         SpellCastResult CheckPower() const;
         SpellCastResult CheckRuneCost(uint32 runeCostID) const;
         SpellCastResult CheckCasterAuras(uint32* param1) const;
+        SpellCastResult CheckMovement() const;
 
         bool CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const;
         bool CheckSpellCancelsCharm(uint32* param1) const;
@@ -398,7 +400,7 @@ class TC_GAME_API Spell
         void ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject* obj);
         void ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject* obj);
         void ExecuteLogEffectResurrect(uint8 effIndex, Unit* target);
-        void SendInterrupted(uint8 result);
+        void SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther = {});
         void SendChannelUpdate(uint32 time);
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
@@ -475,6 +477,9 @@ class TC_GAME_API Spell
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
         std::string GetDebugInfo() const;
+
+        Trinity::unique_weak_ptr<Spell> GetWeakPtr() const;
+
         void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
 
     protected:
@@ -542,6 +547,7 @@ class TC_GAME_API Spell
         DynObjAura* _dynObjAura;
 
         // -------------------------------------------
+        ObjectGuid m_focusObjectGUID;
         GameObject* focusObject;
 
         // Damage and healing in effects need just calculate

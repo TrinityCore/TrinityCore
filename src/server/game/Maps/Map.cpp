@@ -18,6 +18,7 @@
 #include "Map.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
@@ -61,8 +62,6 @@
 #include "TSMainThreadContext.h"
 // @tswow-end
 
-#include "Hacks/boost_1_74_fibonacci_heap.h"
-
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 uint32 MapVersionMagic      = 10;
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
@@ -88,8 +87,6 @@ struct RespawnListContainer : boost::heap::fibonacci_heap<RespawnInfoWithHandle*
 {
 };
 
-BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
-
 struct RespawnInfoWithHandle : RespawnInfo
 {
     explicit RespawnInfoWithHandle(RespawnInfo const& other) : RespawnInfo(other) { }
@@ -99,10 +96,6 @@ struct RespawnInfoWithHandle : RespawnInfo
 
 Map::~Map()
 {
-    // UnloadAll must be called before deleting the map
-
-    sScriptMgr->OnDestroyMap(this);
-
     // Delete all waiting spawns, else there will be a memory leak
     // This doesn't delete from database.
     UnloadAllRespawnInfos();
@@ -110,7 +103,7 @@ Map::~Map()
     while (!i_worldObjects.empty())
     {
         WorldObject* obj = *i_worldObjects.begin();
-        ASSERT(obj->IsWorldObject());
+        ASSERT(obj->IsStoredInWorldObjectGridContainer());
         //ASSERT(obj->GetTypeId() == TYPEID_CORPSE);
         obj->RemoveFromWorld();
         obj->ResetMap();
@@ -183,7 +176,7 @@ void Map::LoadMMap(int gx, int gy)
     if (!DisableMgr::IsPathfindingEnabled(GetId()))
         return;
 
-    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
+    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(sWorld->GetDataPath(), GetId(), gx, gy);
 
     if (mmapLoadResult)
         TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
@@ -317,6 +310,7 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
     FIRE_ID(GetId(),Map,OnCreate,TSMap(this));
     FIRE_ID(GetId(),Map,OnReload,TSMap(this));
     // @tswow-end
+    MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), GetInstanceId());
 }
 
 void Map::InitVisibilityDistance()
@@ -331,7 +325,7 @@ template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
@@ -341,7 +335,7 @@ template<>
 void Map::AddToGrid(Creature* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -362,7 +356,7 @@ template<>
 void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsWorldObject())
+    if (obj->IsStoredInWorldObjectGridContainer())
         grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
         grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -382,7 +376,7 @@ void Map::AddToGrid(Corpse* obj, Cell const& cell)
     // to avoid failing an assertion in GridObject::AddToGrid
     if (grid->isGridObjectDataLoaded())
     {
-        if (obj->IsWorldObject())
+        if (obj->IsStoredInWorldObjectGridContainer())
             grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
         else
             grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -395,7 +389,7 @@ void Map::SwitchGridContainers(T* /*obj*/, bool /*on*/) { }
 template<>
 void Map::SwitchGridContainers(Creature* obj, bool on)
 {
-    ASSERT(!obj->IsPermanentWorldObject());
+    ASSERT(!obj->IsAlwaysStoredInWorldObjectGridContainer());
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
@@ -440,7 +434,7 @@ void Map::SwitchGridContainers(Creature* obj, bool on)
 template<>
 void Map::SwitchGridContainers(GameObject* obj, bool on)
 {
-    ASSERT(!obj->IsPermanentWorldObject());
+    ASSERT(!obj->IsAlwaysStoredInWorldObjectGridContainer());
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
@@ -3715,7 +3709,7 @@ void Map::RemoveAllObjectsInRemoveList()
         bool on = itr->second;
         i_objectsToSwitch.erase(itr);
 
-        if (!obj->IsPermanentWorldObject())
+        if (!obj->IsAlwaysStoredInWorldObjectGridContainer())
         {
             switch (obj->GetTypeId())
             {
@@ -3790,6 +3784,27 @@ void Map::SendToPlayers(WorldPacket const* data) const
 {
     for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         itr->GetSource()->SendDirectMessage(data);
+}
+
+/// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
+bool Map::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession const* self, uint32 team) const
+{
+    bool foundPlayerToSend = false;
+
+    for (MapReference const& ref : GetPlayers())
+    {
+        Player* player = ref.GetSource();
+        if (player->IsInWorld() &&
+            player->GetZoneId() == zone &&
+            player->GetSession() != self &&
+            (team == 0 || player->GetTeam() == team))
+        {
+            player->SendDirectMessage(packet);
+            foundPlayerToSend = true;
+        }
+    }
+
+    return foundPlayerToSend;
 }
 
 bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
@@ -4008,7 +4023,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
 
             // increase current instances (hourly limit)
             if (!group || !group->isLFGGroup())
-                player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
+                player->GetSession()->AddInstanceEnterTime(GetInstanceId(), GameTime::GetSystemTime());
 
             // get or create an instance save for the map
             InstanceSave* mapSave = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
@@ -4268,7 +4283,7 @@ void InstanceMap::PermBindAllPlayers()
             WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
             data << uint32(0);
             player->SendDirectMessage(&data);
-            player->GetSession()->SendCalendarRaidLockout(save, true);
+            player->GetSession()->SendCalendarRaidLockoutAdded(save);
 
             // if group leader is in instance, group also gets bound
             if (Group* group = player->GetGroup())
@@ -4852,21 +4867,20 @@ void Map::SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player
         Weather::SendFineWeatherUpdateToPlayer(player);
 }
 
+/// Send a System Message to all players in the zone (except self if mentioned)
+void Map::SendZoneText(uint32 zoneId, char const* text, WorldSession const* self, uint32 team) const
+{
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
+    SendZoneMessage(zoneId, &data, self, team);
+}
+
 void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
 {
     _zoneDynamicInfo[zoneId].MusicId = musicId;
 
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
-    {
-        WorldPackets::Misc::PlayMusic playMusic(musicId);
-        playMusic.Write();
-
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(playMusic.GetRawPacket());
-    }
+    WorldPackets::Misc::PlayMusic playMusic(musicId);
+    SendZoneMessage(zoneId, WorldPackets::Misc::PlayMusic(musicId).Write());
 }
 
 Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
@@ -4892,17 +4906,7 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity)
     info.WeatherId = weatherId;
     info.Intensity = intensity;
 
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
-    {
-        WorldPackets::Misc::Weather weather(weatherId, intensity);
-        weather.Write();
-
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(weather.GetRawPacket());
-    }
+    SendZoneMessage(zoneId, WorldPackets::Misc::Weather(weatherId, intensity).Write());
 }
 
 void Map::SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, Milliseconds transitionTime)
@@ -4923,20 +4927,11 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrid
         lightOverride.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
     }
 
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
-    {
-        WorldPackets::Misc::OverrideLight overrideLight;
-        overrideLight.AreaLightID = areaLightId;
-        overrideLight.OverrideLightID = overrideLightId;
-        overrideLight.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
-        overrideLight.Write();
-
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(overrideLight.GetRawPacket());
-    }
+    WorldPackets::Misc::OverrideLight overrideLight;
+    overrideLight.AreaLightID = areaLightId;
+    overrideLight.OverrideLightID = overrideLightId;
+    overrideLight.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
+    SendZoneMessage(zoneId, overrideLight.Write());
 }
 
 void Map::UpdateAreaDependentAuras()

@@ -199,22 +199,12 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, std::st
     if (rank < -1 || rank >= MAX_TALENT_RANK)
         return false;
     val.Talent = sTalentStore.LookupEntry(talentId);
-    val.Rank = rank+1;
+    val.Rank = rank + 1;
     if (!val.Talent)
         return false;
-    if (val.Rank > 0)
-    {
-        uint32 const spellId = val.Talent->SpellRank[val.Rank - 1];
-        if (!spellId)
-            return false;
-        val.Spell = sSpellMgr->GetSpellInfo(spellId);
-        if (!val.Spell)
-            return false;
-    }
-    else
-    {
-        val.Spell = nullptr;
-    }
+    val.Spell = sSpellMgr->GetSpellInfo(val.Talent->SpellRank[std::max<int32>(rank, 0)]);
+    if (!val.Spell)
+        return false;
     return true;
 }
 

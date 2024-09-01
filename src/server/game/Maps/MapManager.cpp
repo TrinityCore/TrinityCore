@@ -33,6 +33,8 @@
 #include "Player.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
+#include "ScriptMgr.h"
+#include <numeric>
 
 MapManager::MapManager()
     : _nextInstanceId(0), _scheduledScripts(0)
@@ -85,7 +87,11 @@ Map* MapManager::CreateBaseMap(uint32 id)
             map->LoadCorpseData();
         }
 
-        i_maps[id] = map;
+        Trinity::unique_trackable_ptr<Map>& ptr = i_maps[id];
+        ptr.reset(map);
+        map->SetWeakPtr(ptr);
+
+        sScriptMgr->OnCreateMap(map);
     }
 
     ASSERT(map);
@@ -146,10 +152,6 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     if (player->IsGameMaster())
         return Map::CAN_ENTER;
 
-    //Other requirements
-    if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
-        return Map::CANNOT_ENTER_UNSPECIFIED_REASON;
-
     char const* mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()];
 
     Group* group = player->GetGroup();
@@ -199,9 +201,13 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
             instanceIdToCheck = save->GetInstanceId();
 
         // instanceId can never be 0 - will not be found
-        if (!player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
+        if (!player->GetSession()->UpdateAndCheckInstanceCount(instanceIdToCheck) && !player->isDead())
             return Map::CANNOT_ENTER_TOO_MANY_INSTANCES;
     }
+
+    //Other requirements
+    if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
+        return Map::CANNOT_ENTER_UNSPECIFIED_REASON;
 
     return Map::CAN_ENTER;
 }
@@ -255,12 +261,16 @@ bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
 
 void MapManager::UnloadAll()
 {
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end();)
+    // first unload maps
+    for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
     {
         iter->second->UnloadAll();
-        delete iter->second;
-        i_maps.erase(iter++);
+
+        sScriptMgr->OnDestroyMap(iter->second.get());
     }
+
+    // then delete them
+    i_maps.clear();
 
     if (m_updater.activated())
         m_updater.deactivate();
@@ -273,14 +283,12 @@ uint32 MapManager::GetNumInstances()
     std::lock_guard<std::mutex> lock(_mapsLock);
 
     uint32 ret = 0;
-    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
+    for (auto const& [_, map] : i_maps)
     {
-        Map* map = itr->second;
-        if (!map->Instanceable())
+        MapInstanced* mapInstanced = map->ToMapInstanced();
+        if (!mapInstanced)
             continue;
-        MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
-        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon()) ret++;
+        ret += mapInstanced->GetInstancedMaps().size();
     }
     return ret;
 }
@@ -290,15 +298,13 @@ uint32 MapManager::GetNumPlayersInInstances()
     std::lock_guard<std::mutex> lock(_mapsLock);
 
     uint32 ret = 0;
-    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
+    for (auto& [_, map] : i_maps)
     {
-        Map* map = itr->second;
-        if (!map->Instanceable())
+        MapInstanced* mapInstanced = map->ToMapInstanced();
+        if (!mapInstanced)
             continue;
-        MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
-        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon())
-                ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
+        MapInstanced::InstancedMaps& maps = mapInstanced->GetInstancedMaps();
+        ret += std::accumulate(maps.begin(), maps.end(), 0u, [](uint32 total, MapInstanced::InstancedMaps::value_type const& value) { return total + value.second->GetPlayers().getSize(); });
     }
     return ret;
 }

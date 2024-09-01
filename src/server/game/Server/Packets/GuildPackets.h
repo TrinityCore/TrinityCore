@@ -22,7 +22,7 @@
 #include "Guild.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
-#include <boost/container/static_vector.hpp>
+#include "WowTime.h"
 #include <array>
 
 namespace WorldPackets
@@ -90,7 +90,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::string GuildName;
-            time_t CreateDate = time_t(0);
+            WowTime CreateDate;
             int32 NumMembers = 0;
             int32 NumAccounts = 0;
         };
@@ -208,7 +208,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Type = 0;
-            boost::container::static_vector<std::string_view, 3> Params;
+            Array<std::string_view, 3> Params;
             ObjectGuid Guid;
         };
 

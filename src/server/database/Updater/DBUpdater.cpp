@@ -181,7 +181,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
         return false;
     }
 
-    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->database << "` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci\n\n";
+    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->database << "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci\n\n";
 
     file.close();
 

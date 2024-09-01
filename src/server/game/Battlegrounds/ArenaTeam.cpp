@@ -18,6 +18,7 @@
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
+#include "CalendarPackets.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -27,7 +28,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 
 ArenaTeam::ArenaTeam()
@@ -581,19 +581,13 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 str
 
 void ArenaTeam::MassInviteToEvent(WorldSession* session)
 {
-    WorldPacket data(SMSG_CALENDAR_ARENA_TEAM, (Members.size() - 1) * (4 + 8 + 1));
-    data << uint32(Members.size() - 1);
+    WorldPackets::Calendar::CalendarEventInitialInvites packet(false);
 
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
-        if (itr->Guid != session->GetPlayer()->GetGUID())
-        {
-            data << itr->Guid.WriteAsPacked();
-            data << uint8(0); // unk
-        }
-    }
+    for (ArenaTeamMember const& member : Members)
+        if (member.Guid != session->GetPlayer()->GetGUID())
+            packet.Invites.emplace_back(member.Guid, 0);
 
-    session->SendPacket(&data);
+    session->SendPacket(packet.Write());
 }
 
 uint8 ArenaTeam::GetSlotByType(uint32 type)

@@ -47,6 +47,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WowTime.h"
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -369,7 +370,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             Unit const* unitTarget = target->ToUnit();
             if (!unitTarget)
                 return false;
-            return unitTarget->GetGender() == gender.gender;
+            return unitTarget->GetGender() == Gender(gender.gender);
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
         {
@@ -708,16 +709,30 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
         Cell::VisitWorldObjects(GetPlayer(), _worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
     }
 
-    WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
-    data << GetPlayer()->GetPackGUID();
-    data << uint32(achievement->ID);
-    data.AppendPackedTime(GameTime::GetGameTime());
-    data << uint32(0);
-    GetPlayer()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    auto achievementEarnedBuilder = [&](Player const* receiver)
+    {
+        WowTime now = *GameTime::GetUtcWowTime();
+        now += receiver->GetSession()->GetTimezoneOffset();
+
+        WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8 + 4 + 8);
+        data << GetPlayer()->GetPackGUID();
+        data << uint32(achievement->ID);
+        data << now;
+        data << uint32(0);
+        receiver->SendDirectMessage(&data);
+    };
+
+    float dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
+    Trinity::PlayerDistWorker notifier(GetPlayer(), dist, achievementEarnedBuilder);
+    Cell::VisitWorldObjects(GetPlayer(), notifier, dist);
 }
 
 void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
+    WowTime date;
+    date.SetUtcTimeFromUnixTime(progress->date);
+    date += GetPlayer()->GetSession()->GetTimezoneOffset();
+
     WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 8);
     data << uint32(entry->ID);
 
@@ -729,7 +744,7 @@ void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, C
         data << uint32(0);
     else
         data << uint32(timedCompleted ? 1 : 0); // this are some flags, 1 is for keeping the counter at 0 in client
-    data.AppendPackedTime(progress->date);
+    data << date;
     data << uint32(timeElapsed);    // time elapsed in seconds
     data << uint32(0);              // unk
     GetPlayer()->SendDirectMessage(&data);
@@ -1616,7 +1631,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 void AchievementMgr::SendAllAchievementData() const
 {
     WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, m_completedAchievements.size() * 8 + 4 + m_criteriaProgress.size() * 38 + 4);
-    BuildAllDataPacket(&data);
+    BuildAllDataPacket(GetPlayer(), &data);
     GetPlayer()->SendDirectMessage(&data);
 }
 
@@ -1624,14 +1639,14 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player) const
 {
     WorldPacket data(SMSG_RESPOND_INSPECT_ACHIEVEMENTS, 9 + m_completedAchievements.size() * 8 + 4 + m_criteriaProgress.size() * 38 + 4);
     data << GetPlayer()->GetPackGUID();
-    BuildAllDataPacket(&data);
+    BuildAllDataPacket(player, &data);
     player->SendDirectMessage(&data);
 }
 
 /**
  * used by SMSG_RESPOND_INSPECT_ACHIEVEMENT and SMSG_ALL_ACHIEVEMENT_DATA
  */
-void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
+void AchievementMgr::BuildAllDataPacket(Player const* receiver, WorldPacket* data) const
 {
     for (std::pair<uint32 const, CompletedAchievementData> const& completedAchievement : m_completedAchievements)
     {
@@ -1640,18 +1655,26 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
         if (!achievement || achievement->Flags & ACHIEVEMENT_FLAG_HIDDEN)
             continue;
 
+        WowTime date;
+        date.SetUtcTimeFromUnixTime(completedAchievement.second.date);
+        date += receiver->GetSession()->GetTimezoneOffset();
+
         *data << uint32(completedAchievement.first);
-        data->AppendPackedTime(completedAchievement.second.date);
+        *data << date;
     }
     *data << int32(-1);
 
     for (std::pair<uint32 const, CriteriaProgress> const& criteriaProgress : m_criteriaProgress)
     {
+        WowTime date;
+        date.SetUtcTimeFromUnixTime(criteriaProgress.second.date);
+        date += receiver->GetSession()->GetTimezoneOffset();
+
         *data << uint32(criteriaProgress.first);
         data->appendPackGUID(criteriaProgress.second.counter);
         *data << GetPlayer()->GetPackGUID();
         *data << uint32(0);
-        data->AppendPackedTime(criteriaProgress.second.date);
+        *data << date;
         *data << uint32(0);
         *data << uint32(0);
     }

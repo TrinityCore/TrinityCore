@@ -19,7 +19,7 @@
 #define DBCENUMS_H
 
 #include "Define.h"
-#include <array>
+#include <vector>
 
 #pragma pack(push, 1)
 
@@ -439,6 +439,25 @@ enum SummonPropFlags
 static constexpr size_t TaxiMaskSize = 64;
 // @tswow-end
 typedef std::array<uint32, TaxiMaskSize> TaxiMask;
+class TaxiMask
+{
+public:
+    using value_type = uint32;
+
+    TaxiMask();
+
+    value_type& operator[](size_t i) { return _data[i]; }
+    value_type const& operator[](size_t i) const { return _data[i]; }
+
+    size_t size() const { return _data.size(); }
+    value_type const* data() const { return _data.data(); }
+
+    decltype(auto) begin() { return _data.begin(); }
+    decltype(auto) end() { return _data.end(); }
+
+private:
+    std::vector<value_type> _data;
+};
 
 enum TotemCategoryType
 {
