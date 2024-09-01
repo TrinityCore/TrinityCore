@@ -1,0 +1,120 @@
+on:
+  workflow_dispatch:
+  schedule:
+    # every sunday at midnight UTC
+    - cron: "0 0 * * 0"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate_db_dumps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-11 p7zip-full
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11
+
+      - name: Download Artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: gcc-build.yml
+          workflow_conclusion: success
+          branch: master
+          name: trinitycore.tar.gz
+
+      - name: Extract Artifact
+        run: |
+          mkdir -p ${{ github.workspace }}/check_install
+          cd ${{ github.workspace }}/check_install
+          tar -xvf ${{ github.workspace }}/trinitycore.tar.gz .
+
+      - name: Configure
+        run: |
+          cd ${{ github.workspace }}/check_install
+          sudo systemctl start mysql.service
+          cp etc/worldserver.conf.dist etc/worldserver.conf
+
+          sed -i 's/Updates.EnableDatabases.*/Updates.EnableDatabases = 15/g' etc/worldserver.conf
+          sed -i 's|SourceDirectory.*|SourceDirectory = "${{ github.workspace }}"|g' etc/worldserver.conf
+
+      - name: Create empty databases
+        run: |
+          mysql -uroot -proot < sql/create/create_mysql.sql
+          mysql -uroot -proot world < sql/base/dev/world_database.sql
+          mysql -uroot -proot hotfixes < sql/base/dev/hotfixes_database.sql
+
+          # these files are missing from the dev dumps which prevent us from loading updates
+          mysql -uroot -proot world -e "INSERT INTO updates_include VALUES ('$/sql/updates/world', 'RELEASED');" || echo "already has world updates_include"
+          mysql -uroot -proot hotfixes -e "INSERT INTO updates_include VALUES ('$/sql/updates/hotfixes', 'RELEASED');" || echo "already has hotfixes updates_include"
+
+      - name: Start servers
+        run: |
+          cd ${{ github.workspace }}/check_install/bin/
+          ./worldserver --update-databases-only -c ${{ github.workspace }}/check_install/etc/worldserver.conf
+
+      - name: Sanitize Updates
+        run: |
+          for db in auth characters world hotfixes; do
+            mysql -uroot -proot $db -e "UPDATE updates SET speed = 0;"
+          done
+      - name: Dump Databases
+        run: |
+          cd ${{ github.workspace }}
+          mysqldump -h localhost -u root -proot --hex-blob auth --routines | \
+          sed -e 's$VALUES ($VALUES\n($g' | \
+          sed -e 's$),($),\n($g' | \
+          sed -e 's/DEFINER=[^*]*\*/\*/' | \
+          sed -e 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' \
+          > sql/base/auth_database.sql
+
+          mysqldump -h localhost -u root -proot --hex-blob characters --routines | \
+          sed -e 's$VALUES ($VALUES\n($g' | \
+          sed -e 's$),($),\n($g' | \
+          sed -e 's/DEFINER=[^*]*\*/\*/' | \
+          sed -e 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' \
+          > sql/base/characters_database.sql
+
+          mysqldump -h localhost -u root -proot --hex-blob world --routines | \
+          sed -e 's$VALUES ($VALUES\n($g' | \
+          sed -e 's$),($),\n($g' | \
+          sed -e 's/DEFINER=[^*]*\*/\*/' | \
+          sed -e 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' \
+          > sql/base/dev/world_database.sql
+
+          mysqldump -h localhost -u root -proot --hex-blob hotfixes --routines | \
+          sed -e 's$VALUES ($VALUES\n($g' | \
+          sed -e 's$),($),\n($g' | \
+          sed -e 's/DEFINER=[^*]*\*/\*/' | \
+          sed -e 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' \
+          > sql/base/dev/hotfixes_database.sql
+
+          # set the date to a fixed value, which will help make an empty diff if there are no changes
+          sed -i -e 's/Dump completed on.*/Dump completed on 2024-05-11  3:06:54/g' sql/base/auth_database.sql
+          sed -i -e 's/Dump completed on.*/Dump completed on 2024-05-11  3:06:54/g' sql/base/characters_database.sql
+          sed -i -e 's/Dump completed on.*/Dump completed on 2024-05-11  3:06:54/g' sql/base/dev/world_database.sql
+          sed -i -e 's/Dump completed on.*/Dump completed on 2024-05-11  3:06:54/g' sql/base/dev/hotfixes_database.sql
+
+      - name: Update Gitignore
+        run: |
+          # initial diff includes changes to workflows, this suppresses them for the demo
+          echo '.github' >> ${{ github.workspace }}/.gitignore
+
+          # restore the sql/base/dev folders, we don't presently use world/hotfixes updates to regen dump
+          git checkout -- sql/base/dev/world_database.sql sql/base/dev/hotfixes_database.sql
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "DB: Update base database dumps"
+          title: Update DB dumps
+          body: |
+            Update database dumps with any changes in the last week.
+
+            This PR has been automatically generated.
+          add-paths: "sql/base/*.sql"
+          branch: db-dump-updates
