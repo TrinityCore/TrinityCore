@@ -620,7 +620,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId: 0);
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
@@ -3178,6 +3178,23 @@ void Creature::SetScriptStringId(std::string id)
         m_scriptStringId.reset();
         m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
+}
+
+SpawnTrackingStateData const* Creature::GetSpawnTrackingStateDataForPlayer(Player const* player) const
+{
+    if (!player)
+        return nullptr;
+
+    if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_CREATURE, GetSpawnId()))
+    {
+        if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        {
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId);
+            return &data->spawnTrackingStates[AsUnderlyingType(state)];
+        }
+    }
+
+    return nullptr;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
