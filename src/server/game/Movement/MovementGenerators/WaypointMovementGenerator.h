@@ -84,6 +84,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
 
         bool IsFollowingPathBackwardsFromEndToStart() const;
         bool IsExactSplinePath() const;
+        bool IsCyclic() const;
 
         bool IsLoadedFromDB() const { return std::holds_alternative<WaypointPath const*>(_path); }
 
@@ -101,9 +102,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         TimeTracker _moveTimer;
         TimeTracker _nextMoveTime;
         std::vector<int32> _waypointTransitionSplinePoints;
+        uint32 _waypointTransitionSplinePointsIndex;
         bool _isReturningToStart;
-        std::vector<int32> _cycleWaypointTransitionSplinePoints;
-        Milliseconds _initialDuration;
 };
 
 #endif
