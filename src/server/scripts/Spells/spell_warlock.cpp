@@ -1061,7 +1061,7 @@ class spell_warl_unstable_affliction : public AuraScript
 };
 
 // 5740 - Rain of Fire
-/// Updated 7.1.5
+/// Updated 11.0.2
 class spell_warl_rain_of_fire : public AuraScript
 {
     void HandleDummyTick(AuraEffect const* /*aurEff*/)
@@ -1083,7 +1083,7 @@ class spell_warl_rain_of_fire : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_rain_of_fire::HandleDummyTick, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_rain_of_fire::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
