@@ -1083,8 +1083,6 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     SetGoState(goState);
     SetGoArtKit(artKit);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpawnTrackingStateAnimID), sDB2Manager.GetEmptyAnimStateID());
-
     switch (goInfo->type)
     {
         case GAMEOBJECT_TYPE_FISHINGHOLE:
@@ -1968,6 +1966,8 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
     PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
+
+    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId : 0);
 
     if (data->spawntimesecs >= 0)
     {
@@ -3581,6 +3581,23 @@ void GameObject::SetScriptStringId(std::string id)
         m_scriptStringId.reset();
         m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
+}
+
+SpawnTrackingStateData const* GameObject::GetSpawnTrackingStateDataForPlayer(Player const* player) const
+{
+    if (!player)
+        return nullptr;
+
+    if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, GetSpawnId()))
+    {
+        if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        {
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId);
+            return &data->spawnTrackingStates[AsUnderlyingType(state)];
+        }
+    }
+
+    return nullptr;
 }
 
 // overwrite WorldObject function for proper name localization
