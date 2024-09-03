@@ -1944,7 +1944,6 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
         case SPELL_SPECIFIC_CURSE:
         case SPELL_SPECIFIC_BANE:
         case SPELL_SPECIFIC_ASPECT:
-        case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
             return spellSpec == spellInfo->GetSpellSpecific();
         default:
             return false;
@@ -2726,10 +2725,6 @@ void SpellInfo::_LoadSpellSpecific()
                 // Warlock (Demon Armor | Demon Skin | Fel Armor)
                 if (SpellFamilyFlags[1] & 0x20000020 || SpellFamilyFlags[2] & 0x00000010)
                     return SPELL_SPECIFIC_WARLOCK_ARMOR;
-
-                //seed of corruption and corruption
-                if (SpellFamilyFlags[1] & 0x10 || SpellFamilyFlags[0] & 0x2)
-                    return SPELL_SPECIFIC_WARLOCK_CORRUPTION;
                 break;
             }
             case SPELLFAMILY_PRIEST:

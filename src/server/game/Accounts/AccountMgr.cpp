@@ -22,11 +22,10 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SRP6.h"
 #include "Util.h"
-#include "World.h"
 #include "WorldSession.h"
 
 using AccountSRP6 = Trinity::Crypto::SRP::GruntSRP6;
@@ -503,7 +502,7 @@ void AccountMgr::LoadRBAC()
     while (result->NextRow());
 
     TC_LOG_DEBUG("rbac", "AccountMgr::LoadRBAC: Loading default permissions");
-    result = LoginDatabase.PQuery("SELECT secId, permissionId FROM rbac_default_permissions WHERE (realmId = {} OR realmId = -1) ORDER BY secId ASC", realm.Id.Realm);
+    result = LoginDatabase.PQuery("SELECT secId, permissionId FROM rbac_default_permissions WHERE (realmId = {} OR realmId = -1) ORDER BY secId ASC", sRealmList->GetCurrentRealmId().Realm);
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");
