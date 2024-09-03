@@ -83,6 +83,39 @@ enum MiscSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
 };
 
+// 146739 - Corruption
+// 445474 - Wither
+class spell_warl_absolute_corruption : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARLOCK_ABSOLUTE_CORRUPTION, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARLOCK_ABSOLUTE_CORRUPTION);
+    }
+
+    void HandleApply(SpellEffIndex /*effIndex*/) const
+    {
+        if (Aura const* absoluteCorruption = GetCaster()->GetAura(SPELL_WARLOCK_ABSOLUTE_CORRUPTION))
+        {
+            Milliseconds duration = GetHitUnit()->IsPvP()
+                ? Seconds(absoluteCorruption->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue())
+                : Milliseconds(-1);
+
+            GetHitAura()->SetMaxDuration(duration.count());
+            GetHitAura()->SetDuration(duration.count());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_absolute_corruption::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 // 710 - Banish
 class spell_warl_banish : public SpellScript
 {
@@ -202,33 +235,6 @@ class spell_warl_chaotic_energies : public AuraScript
     void Register() override
     {
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_chaotic_energies::HandleAbsorb, EFFECT_2);
-    }
-};
-
-// Called by 146739 - Corruption
-class spell_warl_absolute_corruption : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARLOCK_ABSOLUTE_CORRUPTION });
-    }
-
-    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetCaster()->HasAura(SPELL_WARLOCK_ABSOLUTE_CORRUPTION))
-        {
-            Milliseconds duration = 0ms;
-            duration = Seconds(sSpellMgr->GetSpellInfo(SPELL_WARLOCK_ABSOLUTE_CORRUPTION, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue());
-
-            Unit* target = GetTarget();
-            GetAura()->SetMaxDuration(target->GetTypeId() == TYPEID_PLAYER ? duration.count() : -1);
-            GetAura()->SetDuration(target->GetTypeId() == TYPEID_PLAYER ? duration.count() : -1);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_warl_absolute_corruption::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
