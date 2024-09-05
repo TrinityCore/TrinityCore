@@ -109,6 +109,8 @@ enum DruidSpells
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_NEW_MOON                       = 274281,
     SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
+    SPELL_DRUID_ORBITAL_STRIKE_TALENT          = 390378,
+    SPELL_DRUID_ORBITAL_STRIKE_DAMAGE          = 361237,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REGROWTH                       = 8936,
@@ -124,6 +126,7 @@ enum DruidSpells
     SPELL_DRUID_SPRING_BLOSSOMS                = 207385,
     SPELL_DRUID_SPRING_BLOSSOMS_HEAL           = 207386,
     SPELL_DRUID_STAR_BURST                     = 356474,
+    SPELL_DRUID_STELLAR_FLARE                  = 202347,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
@@ -1413,6 +1416,32 @@ class spell_dru_omen_of_clarity_restoration : public AuraScript
     }
 };
 
+// 383410 - Celestial Alignment
+// 390414 - Incarnation: Chosen of Elune
+class spell_dru_orbital_strike : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ORBITAL_STRIKE_TALENT, SPELL_DRUID_ORBITAL_STRIKE_DAMAGE, SPELL_DRUID_STELLAR_FLARE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_ORBITAL_STRIKE_TALENT);
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_ORBITAL_STRIKE_DAMAGE, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_STELLAR_FLARE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_orbital_strike::HandleDamage, EFFECT_FIRST_FOUND, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 392303 - Power of the Archdruid
 class spell_dru_power_of_the_archdruid : public AuraScript
 {
@@ -2306,6 +2335,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_new_moon", Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE), Optional<DruidSpells>());
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_omen_of_clarity_restoration);
+    RegisterSpellScript(spell_dru_orbital_strike);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_rip);
