@@ -5811,10 +5811,11 @@ void Spell::EffectJumpCharge()
     }
 
     Optional<JumpArrivalCastArgs> arrivalCast;
-    if (effectInfo->TriggerSpell)
+    if (effectInfo->TriggerSpell || params->TriggerSpellId)
     {
         arrivalCast.emplace();
-        arrivalCast->SpellId = effectInfo->TriggerSpell;
+        arrivalCast->SpellId = params->TriggerSpellId ? *params->TriggerSpellId : effectInfo->TriggerSpell;
+        arrivalCast->Target = unitTarget ? unitTarget->GetGUID() : ObjectGuid::Empty;
     }
 
     Optional<Movement::SpellEffectExtraData> effectExtra;
