@@ -2,13 +2,13 @@ ALTER TABLE `jump_charge_params` ADD COLUMN `triggerSpellId` INT(11) NULL AFTER 
 
 DELETE FROM `jump_charge_params` WHERE `id` IN (529, 530, 531, 592, 574, 566, 661, 557, 707, 658, 719, 660, 700, 693, 649, 720, 648, 647, 709, 702);
 INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`, `triggerSpellId`) VALUES
-(529,   0.501,  1,  47.8086,    NULL,   0,      NULL,   NULL),
-(530,   0.501,  1,  47.8086,    NULL,   0,      NULL,   NULL),
-(531,   0.151,  1,  526.293,    NULL,   0,      NULL,   NULL),
-(592,   0.3,    1,  266.666,    109373, 0,      NULL,   NULL),
-(574,   0.04,   1,  5234.23,    108414, 0,      NULL,   NULL),
-(566,   1.008,  1,  39.3676,    108168, 0,      NULL,   NULL),
-(557,   1.251,  1,  19.2911,    109373, 0,      NULL,   NULL),
+(529,   0.501,  1,  47.8086,    NULL,   NULL,   NULL,   NULL),
+(530,   0.501,  1,  47.8086,    NULL,   NULL,   NULL,   NULL),
+(531,   0.151,  1,  526.293,    NULL,   NULL,   NULL,   NULL),
+(592,   0.3,    1,  266.666,    109373, NULL,   NULL,   NULL),
+(574,   0.04,   1,  5234.23,    108414, NULL,   NULL,   NULL),
+(566,   1.008,  1,  39.3676,    108168, NULL,   NULL,   NULL),
+(557,   1.251,  1,  19.2911,    109373, NULL,   NULL,   NULL),
 (661,   0.751,  1,  70.9219,    NULL,   392,    NULL,   NULL),
 (707,   2,      1,  19.2911,    NULL,   NULL,   NULL,   NULL),
 (658,   2,      1,  19.2911,    116541, NULL,   NULL,   374075),
