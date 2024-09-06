@@ -507,6 +507,7 @@ WorldPacket const* QuestGiverQuestDetails::Write()
     _worldPacket << Bits<1>(AutoLaunched);
     _worldPacket << Bits<1>(FromContentPush);
     _worldPacket << Bits<1>(false);   // unused in client
+    _worldPacket << Bits<1>(ResetByScheduler);
     _worldPacket << Bits<1>(StartCheat);
     _worldPacket << Bits<1>(DisplayPopup);
     _worldPacket.FlushBits();
