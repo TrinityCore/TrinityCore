@@ -126,10 +126,9 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
-void ClearOnlineAccounts();
+void ClearOnlineAccounts(uint32 realmId);
 struct ShutdownTCSoapThread { void operator()(std::thread* thread) const; };
 struct ShutdownCLIThread { void operator()(std::thread* cliThread) const; };
-bool LoadRealmInfo();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
 
 /// Launch the Trinity server
@@ -305,22 +304,41 @@ extern int main(int argc, char** argv)
 
     Trinity::Net::ScanLocalNetworks();
 
-    // Set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     auto sRealmListHandle = Trinity::make_unique_ptr_with_deleter(sRealmList, [](RealmList* realmList) { realmList->Close(); });
 
-    LoadRealmInfo();
+    ///- Get the realm Id from the configuration file
+    uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0);
+    if (!realmId)
+    {
+        TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
+        return 1;
+    }
 
-    sMetric->Initialize(realm.Name, *ioContext, []()
+    sRealmList->SetCurrentRealmId(realmId);
+
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realmId);
+
+    ///- Clean the database before starting
+    ClearOnlineAccounts(realmId);
+
+    std::shared_ptr<Realm const> realm = sRealmList->GetCurrentRealm();
+    if (!realm)
+        return 1;
+
+    // Set server offline (not connectable)
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", Trinity::Legacy::REALM_FLAG_OFFLINE, realmId);
+
+    sMetric->Initialize(realm->Name, *ioContext, []()
     {
         TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
         TC_METRIC_VALUE("db_queue_login", uint64(LoginDatabase.QueueSize()));
         TC_METRIC_VALUE("db_queue_character", uint64(CharacterDatabase.QueueSize()));
         TC_METRIC_VALUE("db_queue_world", uint64(WorldDatabase.QueueSize()));
     });
+
+    realm = nullptr;
 
     TC_METRIC_EVENT("events", "Worldserver started", "");
 
@@ -388,7 +406,7 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    auto sWorldSocketMgrHandle = Trinity::make_unique_ptr_with_deleter(&sWorldSocketMgr, [](WorldSocketMgr* mgr)
+    auto sWorldSocketMgrHandle = Trinity::make_unique_ptr_with_deleter(&sWorldSocketMgr, [realmId](WorldSocketMgr* mgr)
     {
         sWorld->KickAll();                                       // save and kick all players
         sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call
@@ -396,13 +414,11 @@ extern int main(int argc, char** argv)
         mgr->StopNetwork();
 
         ///- Clean database before leaving
-        ClearOnlineAccounts();
+        ClearOnlineAccounts(realmId);
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-    realm.PopulationLevel = 0.0f;
-    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", Trinity::Legacy::REALM_FLAG_OFFLINE, realmId);
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
     std::shared_ptr<FreezeDetector> freezeDetector;
@@ -443,7 +459,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", Trinity::Legacy::REALM_FLAG_OFFLINE, realmId);
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
@@ -633,17 +649,6 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
     return acceptor;
 }
 
-bool LoadRealmInfo()
-{
-    if (Realm const* realmListRealm = sRealmList->GetRealm(realm.Id))
-    {
-        realm = *realmListRealm;
-        return true;
-    }
-
-    return false;
-}
-
 /// Initialize connection to the databases
 bool StartDB()
 {
@@ -659,19 +664,6 @@ bool StartDB()
 
     if (!loader.Load())
         return false;
-
-    ///- Get the realm Id from the configuration file
-    realm.Id.Realm = sConfigMgr->GetIntDefault("RealmID", 0);
-    if (!realm.Id.Realm)
-    {
-        TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
-        return false;
-    }
-
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realm.Id.Realm);
-
-    ///- Clean the database before starting
-    ClearOnlineAccounts();
 
     ///- Insert version info into DB
     WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
@@ -693,10 +685,10 @@ void StopDB()
 }
 
 /// Clear 'online' status for all accounts with characters in this realm
-void ClearOnlineAccounts()
+void ClearOnlineAccounts(uint32 realmId)
 {
     // Reset online status for all accounts with characters on the current realm
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realmId);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");

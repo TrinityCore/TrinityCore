@@ -63,7 +63,7 @@ public:
 
     constexpr bool operator[](uint32 index) const
     {
-        return (_blocks[index / 32] & (1 << (index % 32))) != 0;
+        return (_blocks[UpdateMaskHelpers::GetBlockIndex(index)] & UpdateMaskHelpers::GetBlockFlag(index)) != 0;
     }
 
     constexpr bool IsAnySet() const
