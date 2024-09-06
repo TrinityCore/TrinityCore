@@ -33,6 +33,7 @@
 #include "Random.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
+#include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
@@ -422,18 +423,18 @@ class spell_warl_drain_soul : public AuraScript
 };
 
 // 48181 - Haunt
-class spell_warl_haunt : public SpellScript
+class spell_warl_haunt : public AuraScript
 {
-    void HandleAfterHit()
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Aura* aura = GetHitAura())
-            if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
-                aurEff->SetAmount(CalculatePct(GetHitDamage(), aurEff->GetAmount()));
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            if (Unit* caster = GetCaster())
+                caster->GetSpellHistory()->ResetCooldown(GetId(), true);
     }
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_warl_haunt::HandleAfterHit);
+        OnEffectRemove += AuraEffectApplyFn(spell_warl_haunt::HandleRemove, EFFECT_1, SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
