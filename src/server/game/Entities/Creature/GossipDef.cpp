@@ -490,6 +490,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.QuestInfoID = quest->GetQuestInfoID();
     packet.QuestSessionBonus = 0; //quest->GetQuestSessionBonus(); // this is only sent while quest session is active
     packet.AutoLaunched = autoLaunched;
+    packet.ResetByScheduler = quest->IsResetByScheduler();
     packet.DisplayPopup = displayPopup;
     packet.QuestFlags[0] = quest->GetFlags() & (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? ~QUEST_FLAGS_AUTO_ACCEPT : ~0);
     packet.QuestFlags[1] = quest->GetFlagsEx();
