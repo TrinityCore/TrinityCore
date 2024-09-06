@@ -1422,7 +1422,7 @@ class spell_dru_orbital_strike : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_ORBITAL_STRIKE_TALENT, SPELL_DRUID_ORBITAL_STRIKE_DAMAGE, SPELL_DRUID_STELLAR_FLARE });
+        return ValidateSpellInfo({ SPELL_DRUID_ORBITAL_STRIKE_TALENT, SPELL_DRUID_ORBITAL_STRIKE_DAMAGE });
     }
 
     bool Load() override
@@ -1432,13 +1432,35 @@ class spell_dru_orbital_strike : public SpellScript
 
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_ORBITAL_STRIKE_DAMAGE, true);
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_STELLAR_FLARE, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_ORBITAL_STRIKE_DAMAGE, CastSpellExtraArgs()
+            .SetTriggeringSpell(GetSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD));
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_orbital_strike::HandleDamage, EFFECT_FIRST_FOUND, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 361237 - Orbital Strike
+class spell_dru_orbital_strike_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STELLAR_FLARE });
+    }
+
+    void HandleStellarFlare(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_STELLAR_FLARE, CastSpellExtraArgs()
+            .SetTriggeringSpell(GetSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_IGNORE_GCD));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_orbital_strike_damage::HandleStellarFlare, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -2336,6 +2358,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_omen_of_clarity_restoration);
     RegisterSpellScript(spell_dru_orbital_strike);
+    RegisterSpellScript(spell_dru_orbital_strike_damage);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_rip);
