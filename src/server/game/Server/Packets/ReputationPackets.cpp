@@ -53,22 +53,6 @@ WorldPacket const* WorldPackets::Reputation::InitializeFactions::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::ForcedReaction const& forcedReaction)
-{
-    data << int32(forcedReaction.Faction);
-    data << int32(forcedReaction.Reaction);
-    return data;
-}
-
-WorldPacket const* WorldPackets::Reputation::SetForcedReactions::Write()
-{
-    _worldPacket << uint32(Reactions.size());
-    for (ForcedReaction const& reaction : Reactions)
-        _worldPacket << reaction;
-
-    return &_worldPacket;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::FactionStandingData const& factionStanding)
 {
     data << int32(factionStanding.Index);

@@ -572,6 +572,11 @@ public:
         {
             return _safeWrapper(spellScript, targets, _callImpl);
         }
+
+        bool HasSameTargetFunctionAs(ObjectAreaTargetSelectHandler const& other) const
+        {
+            return _callImpl.Member == other._callImpl.Member || _callImpl.Static == other._callImpl.Static;
+        }
     private:
         SpellObjectAreaTargetSelectFnType _callImpl;
         SafeWrapperType _safeWrapper;
@@ -624,6 +629,11 @@ public:
         void Call(SpellScript* spellScript, WorldObject*& target) const
         {
             return _safeWrapper(spellScript, target, _callImpl);
+        }
+
+        bool HasSameTargetFunctionAs(ObjectTargetSelectHandler const& other) const
+        {
+            return _callImpl.Member == other._callImpl.Member || _callImpl.Static == other._callImpl.Static;
         }
     private:
         SpellObjectTargetSelectFnType _callImpl;

@@ -25,10 +25,9 @@
 #include "Player.h"
 #include "QueryCallback.h"
 #include "RBAC.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "SocialMgr.h"
 #include "SocialPackets.h"
-#include "World.h"
 
 void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList& packet)
 {
@@ -104,7 +103,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet
     }
 
     // When not found, consult database
-    GetQueryProcessor().AddCallback(AccountMgr::GetSecurityAsync(friendCharacterInfo->AccountId, realm.Id.Realm,
+    GetQueryProcessor().AddCallback(AccountMgr::GetSecurityAsync(friendCharacterInfo->AccountId, sRealmList->GetCurrentRealmId().Realm,
         [this, continuation = std::move(processFriendRequest)](uint32 friendSecurity)
     {
         if (!AccountMgr::IsPlayerAccount(friendSecurity))
