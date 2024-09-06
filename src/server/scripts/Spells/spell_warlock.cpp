@@ -40,8 +40,10 @@
 enum WarlockSpells
 {
     SPELL_WARLOCK_ABSOLUTE_CORRUPTION               = 196103,
+    SPELL_WARLOCK_AGONY                             = 980,
     SPELL_WARLOCK_CORRUPTION_DAMAGE                 = 146739,
     SPELL_WARLOCK_CREATE_HEALTHSTONE                = 23517,
+    SPELL_WARLOCK_CURSE_OF_EXHAUSTION               = 334275,
     SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -75,7 +77,8 @@ enum WarlockSpells
     SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS          = 366323,
     SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
     SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
-    SPELL_WARLOCK_INCUBUS_PACT                      = 365355
+    SPELL_WARLOCK_INCUBUS_PACT                      = 365355,
+    SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931
 };
 
 enum MiscSpells
@@ -518,6 +521,33 @@ class spell_warl_immolate : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warl_immolate::HandleOnEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 5740 - Rain of Fire
+/// Updated 11.0.2
+class spell_warl_rain_of_fire : public AuraScript
+{
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        std::vector<AreaTrigger*> rainOfFireAreaTriggers = GetTarget()->GetAreaTriggers(SPELL_WARLOCK_RAIN_OF_FIRE);
+        GuidUnorderedSet targetsInRainOfFire;
+
+        for (AreaTrigger* rainOfFireAreaTrigger : rainOfFireAreaTriggers)
+        {
+            GuidUnorderedSet const& insideTargets = rainOfFireAreaTrigger->GetInsideUnits();
+            targetsInRainOfFire.insert(insideTargets.begin(), insideTargets.end());
+        }
+
+        for (ObjectGuid insideTargetGuid : targetsInRainOfFire)
+            if (Unit* insideTarget = ObjectAccessor::GetUnit(*GetTarget(), insideTargetGuid))
+                if (!GetTarget()->IsFriendlyTo(insideTarget))
+                    GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_rain_of_fire::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1095,30 +1125,32 @@ class spell_warl_unstable_affliction : public AuraScript
     }
 };
 
-// 5740 - Rain of Fire
-/// Updated 11.0.2
-class spell_warl_rain_of_fire : public AuraScript
+// 278350 - Vile Taint
+class spell_warl_vile_taint : public SpellScript
 {
-    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        std::vector<AreaTrigger*> rainOfFireAreaTriggers = GetTarget()->GetAreaTriggers(SPELL_WARLOCK_RAIN_OF_FIRE);
-        GuidUnorderedSet targetsInRainOfFire;
+        return ValidateSpellInfo({ SPELL_WARLOCK_AGONY, SPELL_WARLOCK_CURSE_OF_EXHAUSTION, SPELL_WARLOCK_VILE_TAINT_DAMAGE });
+    }
 
-        for (AreaTrigger* rainOfFireAreaTrigger : rainOfFireAreaTriggers)
-        {
-            GuidUnorderedSet const& insideTargets = rainOfFireAreaTrigger->GetInsideUnits();
-            targetsInRainOfFire.insert(insideTargets.begin(), insideTargets.end());
-        }
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        CastSpellTargetArg target = GetHitUnit();
 
-        for (ObjectGuid insideTargetGuid : targetsInRainOfFire)
-            if (Unit* insideTarget = ObjectAccessor::GetUnit(*GetTarget(), insideTargetGuid))
-                if (!GetTarget()->IsFriendlyTo(insideTarget))
-                    GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE, true);
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST
+            | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
+
+        caster->CastSpell(target, SPELL_WARLOCK_AGONY, args);
+        caster->CastSpell(target, SPELL_WARLOCK_CURSE_OF_EXHAUSTION, args);
+        caster->CastSpell(target, SPELL_WARLOCK_VILE_TAINT_DAMAGE, args);
     }
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_rain_of_fire::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warl_vile_taint::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1140,6 +1172,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_health_funnel);
     RegisterSpellScript(spell_warl_healthstone_heal);
     RegisterSpellScript(spell_warl_immolate);
+    RegisterSpellScript(spell_warl_rain_of_fire);
     RegisterSpellScript(spell_warl_random_sayaad);
     RegisterSpellScript(spell_warl_sayaad_precast_disorientation);
     RegisterSpellScript(spell_warl_seduction);
@@ -1158,5 +1191,5 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>, "spell_warl_t4_2p_bonus_shadow");
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
-    RegisterSpellScript(spell_warl_rain_of_fire);
+    RegisterSpellScript(spell_warl_vile_taint);
 }
