@@ -524,6 +524,33 @@ class spell_warl_immolate : public SpellScript
     }
 };
 
+// 5740 - Rain of Fire
+/// Updated 11.0.2
+class spell_warl_rain_of_fire : public AuraScript
+{
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        std::vector<AreaTrigger*> rainOfFireAreaTriggers = GetTarget()->GetAreaTriggers(SPELL_WARLOCK_RAIN_OF_FIRE);
+        GuidUnorderedSet targetsInRainOfFire;
+
+        for (AreaTrigger* rainOfFireAreaTrigger : rainOfFireAreaTriggers)
+        {
+            GuidUnorderedSet const& insideTargets = rainOfFireAreaTrigger->GetInsideUnits();
+            targetsInRainOfFire.insert(insideTargets.begin(), insideTargets.end());
+        }
+
+        for (ObjectGuid insideTargetGuid : targetsInRainOfFire)
+            if (Unit* insideTarget = ObjectAccessor::GetUnit(*GetTarget(), insideTargetGuid))
+                if (!GetTarget()->IsFriendlyTo(insideTarget))
+                    GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_rain_of_fire::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 366330 - Random Sayaad
 class spell_warl_random_sayaad : public SpellScript
 {
@@ -1098,33 +1125,6 @@ class spell_warl_unstable_affliction : public AuraScript
     }
 };
 
-// 5740 - Rain of Fire
-/// Updated 11.0.2
-class spell_warl_rain_of_fire : public AuraScript
-{
-    void HandleDummyTick(AuraEffect const* /*aurEff*/)
-    {
-        std::vector<AreaTrigger*> rainOfFireAreaTriggers = GetTarget()->GetAreaTriggers(SPELL_WARLOCK_RAIN_OF_FIRE);
-        GuidUnorderedSet targetsInRainOfFire;
-
-        for (AreaTrigger* rainOfFireAreaTrigger : rainOfFireAreaTriggers)
-        {
-            GuidUnorderedSet const& insideTargets = rainOfFireAreaTrigger->GetInsideUnits();
-            targetsInRainOfFire.insert(insideTargets.begin(), insideTargets.end());
-        }
-
-        for (ObjectGuid insideTargetGuid : targetsInRainOfFire)
-            if (Unit* insideTarget = ObjectAccessor::GetUnit(*GetTarget(), insideTargetGuid))
-                if (!GetTarget()->IsFriendlyTo(insideTarget))
-                    GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_rain_of_fire::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 // 278350 - Vile Taint
 class spell_warl_vile_taint : public SpellScript
 {
@@ -1133,14 +1133,19 @@ class spell_warl_vile_taint : public SpellScript
         return ValidateSpellInfo({ SPELL_WARLOCK_AGONY, SPELL_WARLOCK_CURSE_OF_EXHAUSTION, SPELL_WARLOCK_VILE_TAINT_DAMAGE });
     }
 
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
+        CastSpellTargetArg target = GetHitUnit();
 
-        caster->CastSpell(target, SPELL_WARLOCK_AGONY, true);
-        caster->CastSpell(target, SPELL_WARLOCK_CURSE_OF_EXHAUSTION, true);
-        caster->CastSpell(target, SPELL_WARLOCK_VILE_TAINT_DAMAGE, true);
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST
+            | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
+
+        caster->CastSpell(target, SPELL_WARLOCK_AGONY, args);
+        caster->CastSpell(target, SPELL_WARLOCK_CURSE_OF_EXHAUSTION, args);
+        caster->CastSpell(target, SPELL_WARLOCK_VILE_TAINT_DAMAGE, args);
     }
 
     void Register() override
@@ -1167,6 +1172,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_health_funnel);
     RegisterSpellScript(spell_warl_healthstone_heal);
     RegisterSpellScript(spell_warl_immolate);
+    RegisterSpellScript(spell_warl_rain_of_fire);
     RegisterSpellScript(spell_warl_random_sayaad);
     RegisterSpellScript(spell_warl_sayaad_precast_disorientation);
     RegisterSpellScript(spell_warl_seduction);
@@ -1185,6 +1191,5 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>, "spell_warl_t4_2p_bonus_shadow");
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
-    RegisterSpellScript(spell_warl_rain_of_fire);
     RegisterSpellScript(spell_warl_vile_taint);
 }
