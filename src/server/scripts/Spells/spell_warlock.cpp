@@ -833,21 +833,15 @@ class spell_warl_siphon_life : public AuraScript
         return ValidateSpellInfo({ SPELL_WARLOCK_SIPHON_LIFE_HEAL });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        DamageInfo const* damageInfo = eventInfo.GetDamageInfo();
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        int32 amount = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
-
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
-        caster->CastSpell(caster, SPELL_WARLOCK_SIPHON_LIFE_HEAL, args);
+        Unit* caster = GetTarget();
+        caster->CastSpell(caster, SPELL_WARLOCK_SIPHON_LIFE_HEAL, CastSpellExtraArgs(aurEff)
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount())));
     }
 
     void Register() override
