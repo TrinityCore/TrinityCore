@@ -2124,6 +2124,41 @@ void ArenaCooldown::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
+void ZonePlayerForcedReaction::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int32(FactionID);
+    data << int32(Reaction);
+}
+
+void ZonePlayerForcedReaction::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 3);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            data << int32(FactionID);
+        }
+        if (changesMask[2])
+        {
+            data << int32(Reaction);
+        }
+    }
+}
+
+void ZonePlayerForcedReaction::ClearChangesMask()
+{
+    Base::ClearChangesMask(FactionID);
+    Base::ClearChangesMask(Reaction);
+    _changesMask.ResetAll();
+}
+
 void PetCreatureName::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << uint32(CreatureID);
@@ -2341,6 +2376,10 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     data << int32(HonorLevel);
     data << int64(LogoutTime);
     data << uint32(ArenaCooldowns.size());
+    for (uint32 i = 0; i < 32; ++i)
+    {
+        ForcedReactions[i].WriteCreate(data, owner, receiver);
+    }
     data << int32(Field_1AC);
     data << int32(Field_1B0);
     data << int32(CurrentBattlePetSpeciesID);
@@ -2406,7 +2445,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 
 void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFDDu, 0x0001FFFFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFFFEu, 0xFFFFFFFFu, 0x00000001u });
+    Mask allowedMaskForTarget({ 0xFFFFFFDDu, 0x0001FFFFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFFFEu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000003u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
@@ -2414,20 +2453,20 @@ void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
-        allowedMaskForTarget |= std::array<uint32, 10>{ 0x00000022u, 0xFFFE0000u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000001u, 0x00000000u, 0x00000000u };
+        allowedMaskForTarget |= std::array<uint32, 11>{ 0x00000022u, 0xFFFE0000u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000001u, 0x00000000u, 0x00000000u, 0x00000000u };
 }
 
 void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFDDu, 0x0001FFFFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFFFEu, 0xFFFFFFFFu, 0x00000001u });
+    Mask allowedMaskForTarget({ 0xFFFFFFDDu, 0x0001FFFFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFFFEu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000003u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     changesMask &= allowedMaskForTarget;
 }
 
 void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Player const* owner, Player const* receiver) const
 {
-    data.WriteBits(changesMask.GetBlocksMask(0), 10);
-    for (uint32 i = 0; i < 10; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 11);
+    for (uint32 i = 0; i < 11; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -2751,21 +2790,31 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
             }
         }
     }
-    if (changesMask[269])
+    if (changesMask[252])
+    {
+        for (uint32 i = 0; i < 32; ++i)
+        {
+            if (changesMask[253 + i])
+            {
+                ForcedReactions[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            }
+        }
+    }
+    if (changesMask[302])
     {
         for (uint32 i = 0; i < 19; ++i)
         {
-            if (changesMask[270 + i])
+            if (changesMask[303 + i])
             {
                 data << uint32(Field_3120[i]);
             }
         }
     }
-    if (changesMask[252])
+    if (changesMask[285])
     {
         for (uint32 i = 0; i < 16; ++i)
         {
-            if (changesMask[253 + i])
+            if (changesMask[286 + i])
             {
                 data << VisibleEquipableSpells[i];
             }
@@ -2824,6 +2873,7 @@ void PlayerData::ClearChangesMask()
     Base::ClearChangesMask(QuestLog);
     Base::ClearChangesMask(VisibleItems);
     Base::ClearChangesMask(AvgItemLevel);
+    Base::ClearChangesMask(ForcedReactions);
     Base::ClearChangesMask(VisibleEquipableSpells);
     Base::ClearChangesMask(Field_3120);
     _changesMask.ResetAll();
@@ -4204,10 +4254,10 @@ void PersonalCraftingOrderCount::ClearChangesMask()
 
 void NPCCraftingOrderInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << uint64(Field_0);
-    data << int32(Field_8);
-    data << int32(Field_C);
-    data << int32(Field_10);
+    data << uint64(OrderID);
+    data << int32(NpcCraftingOrderSetID);
+    data << int32(NpcTreasureID);
+    data << int32(NpcCraftingOrderCustomerID);
 }
 
 void NPCCraftingOrderInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
@@ -4221,28 +4271,28 @@ void NPCCraftingOrderInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask,
     data.FlushBits();
     if (changesMask[0])
     {
-        data << uint64(Field_0);
+        data << uint64(OrderID);
     }
     if (changesMask[1])
     {
-        data << int32(Field_8);
+        data << int32(NpcCraftingOrderSetID);
     }
     if (changesMask[2])
     {
-        data << int32(Field_C);
+        data << int32(NpcTreasureID);
     }
     if (changesMask[3])
     {
-        data << int32(Field_10);
+        data << int32(NpcCraftingOrderCustomerID);
     }
 }
 
 void NPCCraftingOrderInfo::ClearChangesMask()
 {
-    Base::ClearChangesMask(Field_0);
-    Base::ClearChangesMask(Field_8);
-    Base::ClearChangesMask(Field_C);
-    Base::ClearChangesMask(Field_10);
+    Base::ClearChangesMask(OrderID);
+    Base::ClearChangesMask(NpcCraftingOrderSetID);
+    Base::ClearChangesMask(NpcTreasureID);
+    Base::ClearChangesMask(NpcCraftingOrderCustomerID);
     _changesMask.ResetAll();
 }
 

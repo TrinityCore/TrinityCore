@@ -136,16 +136,6 @@ namespace WorldPackets
             int32 GuildFlags = 0;
         };
 
-        class GuildRosterUpdate final : public ServerPacket
-        {
-        public:
-            GuildRosterUpdate() : ServerPacket(SMSG_GUILD_ROSTER_UPDATE, 4) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<GuildRosterMemberData> MemberData;
-        };
-
         class GuildUpdateMotdText final : public ClientPacket
         {
         public:
@@ -183,7 +173,10 @@ namespace WorldPackets
         public:
             GuildDeclineInvitation(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_DECLINE_INVITATION, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            ObjectGuid GuildGuid;
+            bool IsAuto = false;
         };
 
         class DeclineGuildInvites final : public ClientPacket

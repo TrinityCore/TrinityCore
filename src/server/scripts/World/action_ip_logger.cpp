@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "DatabaseEnv.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -97,7 +97,7 @@ class AccountActionIpLogger : public AccountScript
 
             // We declare all the required variables
             uint32 playerGuid = accountId;
-            uint32 realmId = realm.Id.Realm;
+            uint32 realmId = sRealmList->GetCurrentRealmId().Realm;
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it later.
 
             // With this switch, we change systemNote so that we have a more accurate phrasing of what type it is.
@@ -204,7 +204,7 @@ class CharacterActionIpLogger : public PlayerScript
 
             // We declare all the required variables
             uint32 playerGuid = player->GetSession()->GetAccountId();
-            uint32 realmId = realm.Id.Realm;
+            uint32 realmId = sRealmList->GetCurrentRealmId().Realm;
             const std::string currentIp = player->GetSession()->GetRemoteAddress();
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it...
 
@@ -272,7 +272,7 @@ public:
         // Action IP Logger is only intialized if config is set up
         // Else, this script isn't loaded in the first place: We require no config check.
 
-        uint32 realmId = realm.Id.Realm;
+        uint32 realmId = sRealmList->GetCurrentRealmId().Realm;
         // Query playerGuid/accountId, as we only have characterGuid
         std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it later.
 

@@ -959,6 +959,7 @@ DB2FileInfo const DBFilesClientList[] =
     { 1957219, "UiMapAssignment.db2" },
     { 2006972, "UiMapFogOfWar.db2" },
     { 2006973, "UiMapFogOfWarVisualization.db2" },
+    { 6033745, "UiMapGroup.db2" },
     { 1957204, "UiMapGroupMember.db2" },
     { 2030690, "UiMapLink.db2" },
     { 1957217, "UiMapXMapArt.db2" },
