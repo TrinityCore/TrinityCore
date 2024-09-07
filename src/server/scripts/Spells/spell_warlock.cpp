@@ -1191,32 +1191,35 @@ class spell_warl_vile_taint : public SpellScript
 };
 
 // Called by 980 - Agony
-class spell_warl_volatile_agony : public AuraScript
+// 453034 - Volatile Agony
+class spell_warl_volatile_agony : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARLOCK_VOLATILE_AGONY_TALENT, SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE });
     }
 
-    void HandleAfterEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void TriggerExplosion() const
     {
         Unit* caster = GetCaster();
-        Unit* target = GetTarget();
+        Unit* target = GetHitUnit();
 
         if (AuraEffect const* volatileAgony = caster->GetAuraEffect(SPELL_WARLOCK_VOLATILE_AGONY_TALENT, EFFECT_0))
         {
-            if (Aura* agonyAura = target->GetAura(GetId(), caster->GetGUID()))
+            if (Aura const* agonyAura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
             {
-                Milliseconds duration = Seconds(volatileAgony->GetAmount());
-                if (agonyAura->GetDuration() <= duration.count())
-                    caster->CastSpell(target, SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE, true);
+                Milliseconds maxAgonyDuration = Seconds(volatileAgony->GetAmount());
+                if (Milliseconds(agonyAura->GetDuration()) <= maxAgonyDuration)
+                    caster->CastSpell(target, SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE, CastSpellExtraArgs()
+                        .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                        .SetTriggeringSpell(GetSpell()));
             }
         }
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_warl_volatile_agony::HandleAfterEffectApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAPPLY);
+        OnHit += SpellHitFn(spell_warl_volatile_agony::TriggerExplosion);
     }
 };
 
