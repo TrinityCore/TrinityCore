@@ -41,6 +41,8 @@ enum WarlockSpells
 {
     SPELL_WARLOCK_ABSOLUTE_CORRUPTION               = 196103,
     SPELL_WARLOCK_AGONY                             = 980,
+    SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT           = 193331,
+    SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT          = 193332,
     SPELL_WARLOCK_CORRUPTION_DAMAGE                 = 146739,
     SPELL_WARLOCK_CREATE_HEALTHSTONE                = 23517,
     SPELL_WARLOCK_CURSE_OF_EXHAUSTION               = 334275,
@@ -193,6 +195,34 @@ class spell_warl_burning_rush_aura : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_aura::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+    }
+};
+
+// 104316 - Call Dreadstalkers
+class spell_warl_call_dreadstalkers : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT,
+            SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT,
+        });
+    }
+
+    void HandleAfterCast()
+    {
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT, args);
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT, args);
+    }
+
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warl_call_dreadstalkers::HandleAfterCast);
     }
 };
 
@@ -1262,6 +1292,7 @@ void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_banish);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
+    RegisterSpellScript(spell_warl_call_dreadstalkers);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_chaotic_energies);
     RegisterSpellScript(spell_warl_absolute_corruption);
