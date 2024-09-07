@@ -7659,7 +7659,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                         }
                     }
                 }
-                if (!player->HasItemCount(itemid, itemcount))
+                if (itemcount && !player->HasItemCount(itemid, itemcount))
                 {
                     if (param1)
                         *param1 = itemid;
