@@ -538,32 +538,35 @@ class spell_warl_immolate : public SpellScript
 };
 
 // Called by 316099 - Unstable Affliction
-class spell_warl_perpetual_unstability : public AuraScript
+// 459376 - Perpetual Unstability
+class spell_warl_perpetual_unstability : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARLOCK_PERPETUAL_UNSTABILITY_TALENT, SPELL_WARLOCK_PERPETUAL_UNSTABILITY_DAMAGE });
     }
 
-    void HandleAfterEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void TriggerExplosion() const
     {
         Unit* caster = GetCaster();
-        Unit* target = GetTarget();
+        Unit* target = GetHitUnit();
 
         if (AuraEffect const* perpetualUnstability = caster->GetAuraEffect(SPELL_WARLOCK_PERPETUAL_UNSTABILITY_TALENT, EFFECT_0))
         {
-            if (Aura* unstableAfflictionAura = target->GetAura(GetId(), caster->GetGUID()))
+            if (Aura const* unstableAfflictionAura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
             {
-                Milliseconds duration = Seconds(perpetualUnstability->GetAmount());
-                if (unstableAfflictionAura->GetDuration() <= duration.count())
-                    caster->CastSpell(target, SPELL_WARLOCK_PERPETUAL_UNSTABILITY_DAMAGE, true);
+                Milliseconds maxUnstableAfflictionDuration = Seconds(perpetualUnstability->GetAmount());
+                if (Milliseconds(unstableAfflictionAura->GetDuration()) <= maxUnstableAfflictionDuration)
+                    caster->CastSpell(target, SPELL_WARLOCK_PERPETUAL_UNSTABILITY_DAMAGE, CastSpellExtraArgs()
+                        .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                        .SetTriggeringSpell(GetSpell()));
             }
         }
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_warl_perpetual_unstability::HandleAfterEffectApply, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+        OnHit += SpellHitFn(spell_warl_perpetual_unstability::TriggerExplosion);
     }
 };
 
