@@ -107,7 +107,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_EQUIP_RATING                            = 81, // You don't have the personal, team, or battleground rating required to buy that item
     EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM                 = 82,
     EQUIP_ERR_NOT_SAME_ACCOUNT                             = 83, // Account-bound items can only be given to your own characters.
-    EQUIP_NONE_3                                           = 84,
+    EQUIP_ERR_NONE                                         = 84,
     EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS    = 85, // You can only carry %d %s
     EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS = 86, // You can only equip %d |4item:items in the %s category
     EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED             = 87, // Your level is too high to use that item
@@ -143,6 +143,16 @@ enum InventoryResult : uint8
     EQUIP_ERR_REAGENTBAG_ITEM_TYPE                         = 117,// Only Reagents can be placed in Reagent Bags.
     EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND              = 118,// Items that can be refunded can't be bulk sold.
     EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK            = 119,// Soulbound items cannot be stored in the Warband Bank.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_3                     = 120,// You can't do that right now.
+    EQUIP_ERR_NO_ACCOUNT_INVENTORY_LOCK                    = 121,// Your character cannot complete this action.
+    EQUIP_ERR_TOO_MANY_ACCOUNT_BANK_TABS                   = 122,// You have already purchased the maximum amount of tabs.
+    EQUIP_ERR_NO_ACCOUNT_BANK_HERE                         = 123,// You are too far away from a Warband Bank.
+    EQUIP_ERR_NO_REFUNDABLE_ITEM_IN_ACCOUNT_BANK           = 124,// Refundable items cannot be stored in the Warband Bank.
+    EQUIP_ERR_NO_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK       = 125,// You cannot place that in the Warband Bank.
+    EQUIP_ERR_NO_OPEN_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK  = 126,// You cannot open this while it is in the Warband Bank.
+    EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK                  = 127,// Items must be moved out of the Warband Bank to be deleted.
+    EQUIP_ERR_BANK_NOT_ACCESSIBLE                          = 128,// This character does not have access to this bank.
+    EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM                      = 129,// You can't trade an item from the Warband bank.
 };
 
 // EnumUtils: DESCRIBE THIS
