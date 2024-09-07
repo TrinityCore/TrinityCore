@@ -15498,7 +15498,7 @@ int32 Player::GetQuestSlotObjectiveData(uint16 slot, QuestObjective const& objec
     if (!objective.IsStoringFlag())
         return GetQuestSlotCounter(slot, objective.StorageIndex);
 
-    return uint8((GetQuestSlotState(slot) & objective.StorageIndex) != 0);
+    return int32((GetQuestSlotState(slot) & (256 << objective.StorageIndex)) != 0);
 }
 
 bool Player::HasQuestForCurrency(uint32 currencyId) const
