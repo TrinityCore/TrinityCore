@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.36-0ubuntu0.22.04.1
+-- Server version	8.0.39-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -127,7 +127,6 @@ CREATE TABLE `areatrigger` (
   `PhaseUseFlags` tinyint unsigned DEFAULT '0',
   `PhaseId` int unsigned DEFAULT '0',
   `PhaseGroup` int unsigned DEFAULT '0',
-  `SpellForVisuals` int DEFAULT NULL,
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -155,6 +154,7 @@ CREATE TABLE `areatrigger_create_properties` (
   `AnimId` int NOT NULL DEFAULT '-1',
   `AnimKitId` int NOT NULL DEFAULT '0',
   `DecalPropertiesId` int unsigned NOT NULL DEFAULT '0',
+  `SpellForVisuals` int DEFAULT NULL,
   `TimeToTarget` int unsigned NOT NULL DEFAULT '0',
   `TimeToTargetScale` int unsigned NOT NULL DEFAULT '0',
   `Shape` tinyint unsigned NOT NULL DEFAULT '0',
@@ -302,6 +302,8 @@ CREATE TABLE `areatrigger_template` (
   `Id` int unsigned NOT NULL,
   `IsCustom` tinyint unsigned NOT NULL,
   `Flags` int unsigned NOT NULL DEFAULT '0',
+  `ActionSetId` int unsigned NOT NULL DEFAULT '0',
+  `ActionSetFlags` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`,`IsCustom`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -741,8 +743,8 @@ DROP TABLE IF EXISTS `creature_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -750,7 +752,7 @@ CREATE TABLE `creature_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1196,7 +1198,7 @@ CREATE TABLE `creature_text` (
   `ID` tinyint unsigned NOT NULL DEFAULT '0',
   `Text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
-  `Language` tinyint NOT NULL DEFAULT '0',
+  `Language` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability` float NOT NULL DEFAULT '0',
   `Emote` int unsigned NOT NULL DEFAULT '0',
   `Duration` int unsigned NOT NULL DEFAULT '0',
@@ -1301,8 +1303,8 @@ DROP TABLE IF EXISTS `disenchant_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `disenchant_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -1310,7 +1312,7 @@ CREATE TABLE `disenchant_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1373,8 +1375,8 @@ DROP TABLE IF EXISTS `fishing_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `fishing_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -1382,7 +1384,7 @@ CREATE TABLE `fishing_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1723,8 +1725,8 @@ DROP TABLE IF EXISTS `gameobject_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `gameobject_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -1732,7 +1734,7 @@ CREATE TABLE `gameobject_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1964,6 +1966,7 @@ DROP TABLE IF EXISTS `gossip_menu_addon`;
 CREATE TABLE `gossip_menu_addon` (
   `MenuID` int unsigned NOT NULL DEFAULT '0',
   `FriendshipFactionID` int NOT NULL DEFAULT '0',
+  `LfgDungeonsID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`MenuID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2102,8 +2105,8 @@ DROP TABLE IF EXISTS `item_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2111,7 +2114,7 @@ CREATE TABLE `item_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2259,8 +2262,8 @@ DROP TABLE IF EXISTS `mail_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mail_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2268,7 +2271,7 @@ CREATE TABLE `mail_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2281,8 +2284,8 @@ DROP TABLE IF EXISTS `milling_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `milling_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2290,7 +2293,7 @@ CREATE TABLE `milling_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2503,8 +2506,8 @@ DROP TABLE IF EXISTS `pickpocketing_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pickpocketing_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2512,7 +2515,7 @@ CREATE TABLE `pickpocketing_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3021,8 +3024,8 @@ DROP TABLE IF EXISTS `prospecting_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `prospecting_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -3030,7 +3033,7 @@ CREATE TABLE `prospecting_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3547,7 +3550,6 @@ CREATE TABLE `quest_template` (
   `AreaGroupID` int unsigned NOT NULL DEFAULT '0',
   `TimeAllowed` bigint NOT NULL DEFAULT '0',
   `AllowableRaces` bigint unsigned DEFAULT '0',
-  `TreasurePickerID` int NOT NULL DEFAULT '0',
   `Expansion` int NOT NULL DEFAULT '0',
   `ManagedWorldStateID` int NOT NULL DEFAULT '0',
   `QuestSessionBonus` int NOT NULL DEFAULT '0',
@@ -3560,6 +3562,7 @@ CREATE TABLE `quest_template` (
   `PortraitTurnInText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `PortraitTurnInName` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `QuestCompletionLog` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ResetByScheduler` tinyint NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quest System';
@@ -3621,6 +3624,21 @@ CREATE TABLE `quest_template_locale` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quest_treasure_pickers`
+--
+
+DROP TABLE IF EXISTS `quest_treasure_pickers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `quest_treasure_pickers` (
+  `QuestID` int unsigned NOT NULL,
+  `TreasurePickerID` int NOT NULL,
+  `OrderIndex` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`QuestID`,`TreasurePickerID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `quest_visual_effect`
 --
 
@@ -3660,8 +3678,8 @@ DROP TABLE IF EXISTS `reference_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reference_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -3669,7 +3687,7 @@ CREATE TABLE `reference_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4074,8 +4092,8 @@ DROP TABLE IF EXISTS `skinning_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `skinning_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -4083,7 +4101,7 @@ CREATE TABLE `skinning_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4285,8 +4303,8 @@ DROP TABLE IF EXISTS `spell_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `spell_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -4294,7 +4312,7 @@ CREATE TABLE `spell_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4573,6 +4591,36 @@ CREATE TABLE `trinity_string` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ui_map_quest`
+--
+
+DROP TABLE IF EXISTS `ui_map_quest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ui_map_quest` (
+  `UiMapId` int unsigned NOT NULL,
+  `QuestId` int unsigned NOT NULL,
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`UiMapId`,`QuestId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ui_map_quest_line`
+--
+
+DROP TABLE IF EXISTS `ui_map_quest_line`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ui_map_quest_line` (
+  `UiMapId` int unsigned NOT NULL,
+  `QuestLineId` int unsigned NOT NULL,
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`UiMapId`,`QuestLineId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `updates`
 --
 
@@ -4844,6 +4892,7 @@ CREATE TABLE `world_safe_locs` (
   `LocY` float DEFAULT NULL,
   `LocZ` float DEFAULT NULL,
   `Facing` float DEFAULT NULL,
+  `TransportSpawnId` bigint unsigned DEFAULT NULL,
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -4934,4 +4983,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-11  3:06:56
+-- Dump completed on 2024-09-03  0:47:46

@@ -20,7 +20,7 @@
 #include "IpAddress.h"
 #include "Log.h"
 #include "Memory.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "World.h"
 #include "soapH.h"
 #include "soapStub.h"
@@ -105,7 +105,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         return 401;
     }
 
-    if (AccountMgr::GetSecurity(accountId, realm.Id.Realm) < SEC_ADMINISTRATOR)
+    if (AccountMgr::GetSecurity(accountId, sRealmList->GetCurrentRealmId().Realm) < SEC_ADMINISTRATOR)
     {
         TC_LOG_INFO("network.soap", "{}'s gmlevel is too low", soap->userid);
         return 403;

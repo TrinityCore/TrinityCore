@@ -126,7 +126,6 @@ enum SpellSpecificType
     SPELL_SPECIFIC_MAGE_ARMOR                    = 9,
     SPELL_SPECIFIC_ELEMENTAL_SHIELD              = 10,
     SPELL_SPECIFIC_MAGE_POLYMORPH                = 11,
-    SPELL_SPECIFIC_WARLOCK_CORRUPTION            = 17,
     SPELL_SPECIFIC_FOOD                          = 19,
     SPELL_SPECIFIC_DRINK                         = 20,
     SPELL_SPECIFIC_FOOD_AND_DRINK                = 21,
