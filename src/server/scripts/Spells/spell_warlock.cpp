@@ -79,7 +79,9 @@ enum WarlockSpells
     SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
     SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
     SPELL_WARLOCK_INCUBUS_PACT                      = 365355,
-    SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931
+    SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931,
+    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034,
+    SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE             = 453035
 };
 
 enum MiscSpells
@@ -1188,6 +1190,39 @@ class spell_warl_vile_taint : public SpellScript
     }
 };
 
+// Called by 980 - Agony
+// 453034 - Volatile Agony
+class spell_warl_volatile_agony : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_VOLATILE_AGONY_TALENT, SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE });
+    }
+
+    void TriggerExplosion() const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (AuraEffect const* volatileAgony = caster->GetAuraEffect(SPELL_WARLOCK_VOLATILE_AGONY_TALENT, EFFECT_0))
+        {
+            if (Aura const* agonyAura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
+            {
+                Milliseconds maxAgonyDuration = Seconds(volatileAgony->GetAmount());
+                if (Milliseconds(agonyAura->GetDuration()) <= maxAgonyDuration)
+                    caster->CastSpell(target, SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE, CastSpellExtraArgs()
+                        .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                        .SetTriggeringSpell(GetSpell()));
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_warl_volatile_agony::TriggerExplosion);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_banish);
@@ -1227,4 +1262,5 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_vile_taint);
+    RegisterSpellScript(spell_warl_volatile_agony);
 }
