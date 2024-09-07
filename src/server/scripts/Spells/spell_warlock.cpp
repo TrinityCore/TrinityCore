@@ -203,11 +203,7 @@ class spell_warl_call_dreadstalkers : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT,
-            SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT,
-        });
+        return ValidateSpellInfo({ SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT, SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT });
     }
 
     void HandleAfterCast()
@@ -218,7 +214,6 @@ class spell_warl_call_dreadstalkers : public SpellScript
         GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT, args);
         GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT, args);
     }
-
 
     void Register() override
     {
