@@ -118,6 +118,12 @@ DB2Storage<ContentTuningXExpectedEntry>         sContentTuningXExpectedStore("Co
 DB2Storage<ContentTuningXLabelEntry>            sContentTuningXLabelStore("ContentTuningXLabel.db2", &ContentTuningXLabelLoadInfo::Instance);
 DB2Storage<ConversationLineEntry>               sConversationLineStore("ConversationLine.db2", &ConversationLineLoadInfo::Instance);
 DB2Storage<CorruptionEffectsEntry>              sCorruptionEffectsStore("CorruptionEffects.db2", &CorruptionEffectsLoadInfo::Instance);
+DB2Storage<CraftingDataEntry>                   sCraftingDataStore("CraftingData.db2", &CraftingDataLoadInfo::Instance);
+DB2Storage<CraftingDataItemQualityEntry>        sCraftingDataItemQualityStore("CraftingDataItemQuality.db2", &CraftingDataItemQualityLoadInfo::Instance);
+DB2Storage<CraftingDifficultyEntry>             sCraftingDifficultyStore("CraftingDifficulty.db2", &CraftingDifficultyLoadInfo::Instance);
+DB2Storage<CraftingDifficultyQualityEntry>      sCraftingDifficultyQualityStore("CraftingDifficultyQuality.db2", &CraftingDifficultyQualityLoadInfo::Instance);
+DB2Storage<CraftingQualityEntry>                sCraftingQualityStore("CraftingQuality.db2", &CraftingQualityLoadInfo::Instance);
+DB2Storage<CraftingReagentQualityEntry>         sCraftingReagentQualityStore("CraftingReagentQuality.db2", &CraftingReagentQualityLoadInfo::Instance);
 DB2Storage<CreatureDisplayInfoEntry>            sCreatureDisplayInfoStore("CreatureDisplayInfo.db2", &CreatureDisplayInfoLoadInfo::Instance);
 DB2Storage<CreatureDisplayInfoExtraEntry>       sCreatureDisplayInfoExtraStore("CreatureDisplayInfoExtra.db2", &CreatureDisplayInfoExtraLoadInfo::Instance);
 DB2Storage<CreatureFamilyEntry>                 sCreatureFamilyStore("CreatureFamily.db2", &CreatureFamilyLoadInfo::Instance);
@@ -234,6 +240,11 @@ DB2Storage<MapChallengeModeEntry>               sMapChallengeModeStore("MapChall
 DB2Storage<MapDifficultyEntry>                  sMapDifficultyStore("MapDifficulty.db2", &MapDifficultyLoadInfo::Instance);
 DB2Storage<MapDifficultyXConditionEntry>        sMapDifficultyXConditionStore("MapDifficultyXCondition.db2", &MapDifficultyXConditionLoadInfo::Instance);
 DB2Storage<MawPowerEntry>                       sMawPowerStore("MawPower.db2", &MawPowerLoadInfo::Instance);
+DB2Storage<MCRSlotXMCRCategoryEntry>            sMCRSlotXMCRCategoryStore("MCRSlotXMCRCategory.db2", &MCRSlotXMCRCategoryLoadInfo::Instance);
+DB2Storage<ModifiedCraftingCategoryEntry>       sModifiedCraftingCategoryStore("ModifiedCraftingCategory.db2", &ModifiedCraftingCategoryLoadInfo::Instance);
+DB2Storage<ModifiedCraftingReagentItemEntry>    sModifiedCraftingReagentItemStore("ModifiedCraftingReagentItem.db2", &ModifiedCraftingReagentItemLoadInfo::Instance);
+DB2Storage<ModifiedCraftingReagentSlotEntry>    sModifiedCraftingReagentSlotStore("ModifiedCraftingReagentSlot.db2", &ModifiedCraftingReagentSlotLoadInfo::Instance);
+DB2Storage<ModifiedCraftingSpellSlotEntry>      sModifiedCraftingSpellSlotStore("ModifiedCraftingSpellSlot.db2", &ModifiedCraftingSpellSlotLoadInfo::Instance);
 DB2Storage<ModifierTreeEntry>                   sModifierTreeStore("ModifierTree.db2", &ModifierTreeLoadInfo::Instance);
 DB2Storage<MountCapabilityEntry>                sMountCapabilityStore("MountCapability.db2", &MountCapabilityLoadInfo::Instance);
 DB2Storage<MountEntry>                          sMountStore("Mount.db2", &MountLoadInfo::Instance);
@@ -531,6 +542,14 @@ namespace
     std::unordered_set<int32> _uiMapPhases;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
     std::unordered_map<uint32, std::unordered_set<uint32>> _pvpStatIdsByMap;
+
+    // Crafting
+    std::unordered_map<uint32, std::vector<ModifiedCraftingSpellSlotEntry const*>> _MCRSpellSlotBySpell;
+    std::unordered_map<uint32, std::vector<ModifiedCraftingCategoryEntry const*>> _MCRCategoryByReagentSlot;
+    std::unordered_map<uint32, std::vector<ModifiedCraftingReagentItemEntry const*>> _MCRReagentItemByCategory;
+    std::unordered_map<uint32, std::set<ItemSparseEntry const*>> _ItemSparseByMCRReagentItem;
+    std::unordered_map<uint32, std::vector<uint32>> _CraftingDataItemIDByCraftingData;
+    std::unordered_map<uint32, CraftingReagentQualityEntry const*> _CraftingReagentQualityByItem;
 }
 
 void LoadDB2(std::bitset<TOTAL_LOCALES>& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path,
@@ -730,6 +749,12 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sContentTuningXLabelStore);
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCorruptionEffectsStore);
+    LOAD_DB2(sCraftingDataStore);
+    LOAD_DB2(sCraftingDataItemQualityStore);
+    LOAD_DB2(sCraftingDifficultyStore);
+    LOAD_DB2(sCraftingDifficultyQualityStore);
+    LOAD_DB2(sCraftingQualityStore);
+    LOAD_DB2(sCraftingReagentQualityStore);
     LOAD_DB2(sCreatureDisplayInfoStore);
     LOAD_DB2(sCreatureDisplayInfoExtraStore);
     LOAD_DB2(sCreatureFamilyStore);
@@ -846,6 +871,11 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sMapDifficultyStore);
     LOAD_DB2(sMapDifficultyXConditionStore);
     LOAD_DB2(sMawPowerStore);
+    LOAD_DB2(sMCRSlotXMCRCategoryStore);
+    LOAD_DB2(sModifiedCraftingCategoryStore);
+    LOAD_DB2(sModifiedCraftingReagentSlotStore);
+    LOAD_DB2(sModifiedCraftingReagentItemStore);
+    LOAD_DB2(sModifiedCraftingSpellSlotStore);
     LOAD_DB2(sModifierTreeStore);
     LOAD_DB2(sMountCapabilityStore);
     LOAD_DB2(sMountStore);
@@ -1695,6 +1725,25 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (PVPStatEntry const* pvpStat : sPVPStatStore)
         _pvpStatIdsByMap[pvpStat->MapID].insert(pvpStat->ID);
+
+    for (ModifiedCraftingSpellSlotEntry const* entry : sModifiedCraftingSpellSlotStore)
+        _MCRSpellSlotBySpell[entry->SpellID].push_back(entry);
+
+    for (MCRSlotXMCRCategoryEntry const* entry : sMCRSlotXMCRCategoryStore)
+        if (ModifiedCraftingCategoryEntry const* category = sModifiedCraftingCategoryStore.LookupEntry(entry->ModifiedCraftingCategoryID))
+            _MCRCategoryByReagentSlot[entry->ModifiedCraftingReagentSlotID].push_back(category);
+
+    for (ModifiedCraftingReagentItemEntry const* entry : sModifiedCraftingReagentItemStore)
+        _MCRReagentItemByCategory[entry->ModifiedCraftingCategoryID].push_back(entry);
+
+    for (ItemSparseEntry const* entry : sItemSparseStore)
+        _ItemSparseByMCRReagentItem[entry->ModifiedCraftingReagentItemID].insert(entry);
+
+    for (CraftingDataItemQualityEntry const* entry : sCraftingDataItemQualityStore)
+        _CraftingDataItemIDByCraftingData[entry->CraftingDataID].push_back(entry->ItemID);
+
+    for (CraftingReagentQualityEntry const* entry : sCraftingReagentQualityStore)
+        _CraftingReagentQualityByItem[entry->ItemID] = entry;
 
     TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
 
@@ -3444,6 +3493,52 @@ bool DB2Manager::IsUiMapPhase(uint32 phaseId) const
 WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const
 {
     return Trinity::Containers::MapGetValuePtr(_wmoAreaTableLookup, WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
+}
+
+std::vector<ModifiedCraftingSpellSlotEntry const*> DB2Manager::GetMCRSpellSlotBySpell(uint32 spellId)
+{
+    return _MCRSpellSlotBySpell[spellId];
+}
+
+std::vector<ModifiedCraftingCategoryEntry const*> DB2Manager::GetMCRCategoryByReagentSlot(uint32 reagentSlotID)
+{
+    return _MCRCategoryByReagentSlot[reagentSlotID];
+}
+
+std::vector<ModifiedCraftingReagentItemEntry const*> DB2Manager::GetMCRReagentItemByCategory(uint32 categoryID)
+{
+    return _MCRReagentItemByCategory[categoryID];
+}
+
+std::set<ItemSparseEntry const*> DB2Manager::GetItemSparseByMCRReagentItem(uint32 reagentItemID)
+{
+    return _ItemSparseByMCRReagentItem[reagentItemID];
+}
+
+std::vector<uint32> DB2Manager::GetCraftingDataItemIDByCraftingData(uint32 craftingDataID)
+{
+    return _CraftingDataItemIDByCraftingData[craftingDataID];
+}
+
+CraftingReagentQualityEntry const* DB2Manager::GetCraftingReagentQualityByItem(uint32 itemID)
+{
+    return _CraftingReagentQualityByItem[itemID];
+}
+
+uint32 DB2Manager::GetCraftingQualityTierByDifficultyPercent(int32 craftingDifficultyID, uint32 difficultyPercent)
+{
+    CraftingDifficultyQualityEntry const* matchedDifficultyQuality = nullptr;
+
+    for (CraftingDifficultyQualityEntry const* craftingDifficultyQuality : sCraftingDifficultyQualityStore)
+        if (craftingDifficultyQuality->CraftingDifficultyID == craftingDifficultyID && craftingDifficultyQuality->QualityPercentage <= difficultyPercent)
+            if (!matchedDifficultyQuality || matchedDifficultyQuality->QualityPercentage < craftingDifficultyQuality->QualityPercentage)
+                matchedDifficultyQuality = craftingDifficultyQuality;
+
+    if (matchedDifficultyQuality)
+        if (auto* craftingQualityEntry = sCraftingQualityStore.LookupEntry(matchedDifficultyQuality->CraftingQualityID))
+            return craftingQualityEntry->QualityTier;
+
+    return 0;
 }
 
 std::unordered_set<uint32> const* DB2Manager::GetPVPStatIDsForMap(uint32 mapId) const

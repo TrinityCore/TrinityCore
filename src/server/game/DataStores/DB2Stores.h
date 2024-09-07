@@ -90,6 +90,12 @@ TC_GAME_API extern DB2Storage<ConditionalChrModelEntry>             sConditional
 TC_GAME_API extern DB2Storage<ContentTuningEntry>                   sContentTuningStore;
 TC_GAME_API extern DB2Storage<ConversationLineEntry>                sConversationLineStore;
 TC_GAME_API extern DB2Storage<CorruptionEffectsEntry>               sCorruptionEffectsStore;
+TC_GAME_API extern DB2Storage<CraftingDataEntry>                    sCraftingDataStore;
+TC_GAME_API extern DB2Storage<CraftingDataItemQualityEntry>         sCraftingDataItemQualityStore;
+TC_GAME_API extern DB2Storage<CraftingDifficultyEntry>              sCraftingDifficultyStore;
+TC_GAME_API extern DB2Storage<CraftingDifficultyQualityEntry>       sCraftingDifficultyQualityStore;
+TC_GAME_API extern DB2Storage<CraftingQualityEntry>                 sCraftingQualityStore;
+TC_GAME_API extern DB2Storage<CraftingReagentQualityEntry>          sCraftingReagentQualityStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoExtraEntry>        sCreatureDisplayInfoExtraStore;
 TC_GAME_API extern DB2Storage<CreatureFamilyEntry>                  sCreatureFamilyStore;
@@ -190,6 +196,11 @@ TC_GAME_API extern DB2Storage<MapEntry>                             sMapStore;
 TC_GAME_API extern DB2Storage<MapChallengeModeEntry>                sMapChallengeModeStore;
 TC_GAME_API extern DB2Storage<MapDifficultyEntry>                   sMapDifficultyStore;
 TC_GAME_API extern DB2Storage<MawPowerEntry>                        sMawPowerStore;
+TC_GAME_API extern DB2Storage<MCRSlotXMCRCategoryEntry>             sMCRSlotXMCRCategoryStore;
+TC_GAME_API extern DB2Storage<ModifiedCraftingCategoryEntry>        sModifiedCraftingCategoryStore;
+TC_GAME_API extern DB2Storage<ModifiedCraftingReagentSlotEntry>     sModifiedCraftingReagentSlotStore;
+TC_GAME_API extern DB2Storage<ModifiedCraftingReagentItemEntry>     sModifiedCraftingReagentItemStore;
+TC_GAME_API extern DB2Storage<ModifiedCraftingSpellSlotEntry>       sModifiedCraftingSpellSlotStore;
 TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
 TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
@@ -543,6 +554,15 @@ public:
     bool IsUiMapPhase(uint32 phaseId) const;
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
     std::unordered_set<uint32> const* GetPVPStatIDsForMap(uint32 mapId) const;
+
+    // Crafting
+    std::vector<ModifiedCraftingSpellSlotEntry const*> GetMCRSpellSlotBySpell(uint32 spellId);
+    std::vector<ModifiedCraftingCategoryEntry const*> GetMCRCategoryByReagentSlot(uint32 reagentSlotID);
+    std::vector<ModifiedCraftingReagentItemEntry const*> GetMCRReagentItemByCategory(uint32 categoryID);
+    std::set<ItemSparseEntry const*> GetItemSparseByMCRReagentItem(uint32 reagentItemID);
+    std::vector<uint32> GetCraftingDataItemIDByCraftingData(uint32 craftingDataID);
+    CraftingReagentQualityEntry const* GetCraftingReagentQualityByItem(uint32 itemID);
+    uint32 GetCraftingQualityTierByDifficultyPercent(int32 craftingDifficultyID, uint32 difficultyPercent);
 
 private:
     friend class DB2HotfixGeneratorBase;

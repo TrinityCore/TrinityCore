@@ -275,6 +275,15 @@ void ApplyBonusTreeHelper(ItemTemplate const* itemTemplate, uint32 itemBonusTree
             int32 resolvedSequenceLevel = sequenceLevel;
             switch (originalItemBonusTreeId)
             {
+                case 3493:
+                case 3534:
+                case 3535:
+                case 3728:
+                case 4292:
+                case 4293:
+                case 4294:
+                    resolvedSequenceLevel = params.CraftingQualityLevel ? *params.CraftingQualityLevel : 1;
+                    break;
                 case 4001:
                     resolvedSequenceLevel = 1;
                     break;
@@ -405,6 +414,9 @@ std::vector<int32> GetBonusListsForItem(uint32 itemId, ItemBonusGenerationParams
 
     for (auto [_, itemBonusTreeId] : Trinity::Containers::MapEqualRange(_itemToBonusTree, itemId))
         ApplyBonusTreeHelper(itemTemplate, itemBonusTreeId, params, 0, &itemLevelSelectorId, &bonusListIDs);
+
+    if (params.BonusTreeID)
+        ApplyBonusTreeHelper(itemTemplate, *params.BonusTreeID, params, 0, &itemLevelSelectorId, &bonusListIDs);
 
     if (ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(itemLevelSelectorId))
     {

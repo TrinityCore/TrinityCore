@@ -487,6 +487,35 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CORRUPTION_EFFECTS, "SELECT MAX(ID) + 1 FROM corruption_effects", CONNECTION_SYNCH);
 
+    // CraftingData.db2
+    PrepareStatement(HOTFIX_SEL_CRAFTING_DATA, "SELECT ID, Type, CraftingDifficultyID, CraftedItemID, ItemBonusTreeID, CraftingDifficulty, Field_10_0_0_44649_005, "
+        "CraftSkillBonusPercent, ReCraftSkillBonusPercent, InspirationSkillBonusPercent, Field_10_0_0_44649_009, Field_10_0_0_45141_011, FirstCraftFlagQuestID, FirstCraftTreasureID, "
+        "Field_10_2_5_52432_014, CraftedTreasureID FROM crafting_data WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CRAFTING_DATA, "SELECT MAX(ID) + 1 FROM crafting_data", CONNECTION_SYNCH);
+
+    // CraftingDataItemQuality.db2
+    PrepareStatement(HOTFIX_SEL_CRAFTING_DATA_ITEM_QUALITY, "SELECT ID, ItemID, CraftingDataID FROM crafting_data_item_quality WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CRAFTING_DATA_ITEM_QUALITY, "SELECT MAX(ID) + 1 FROM crafting_data_item_quality", CONNECTION_SYNCH);
+
+    // CraftingDifficulty.db2
+    PrepareStatement(HOTFIX_SEL_CRAFTING_DIFFICULTY, "SELECT ID, MaxRandomSkillBonusPercent, CraftSkillBonusPercent, ReCraftSkillBonusPercent, InspirationSkillBonusPercent, "
+        "Field_10_0_0_44649_004, ConcentrationSkillCurveID, ConcentrationDifficultyCurveID FROM crafting_difficulty WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CRAFTING_DIFFICULTY, "SELECT MAX(ID) + 1 FROM crafting_difficulty", CONNECTION_SYNCH);
+
+    // CraftingDifficultyQuality.db2
+    PrepareStatement(HOTFIX_SEL_CRAFTING_DIFFICULTY_QUALITY, "SELECT ID, `Order`, CraftingQualityID, QualityPercentage, Field_10_0_0_44895_004, CraftingDifficultyID "
+        "FROM crafting_difficulty_quality WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CRAFTING_DIFFICULTY_QUALITY, "SELECT MAX(ID) + 1 FROM crafting_difficulty_quality", CONNECTION_SYNCH);
+
+    // CraftingQuality.db2
+    PrepareStatement(HOTFIX_SEL_CRAFTING_QUALITY, "SELECT ID, QualityTier FROM crafting_quality WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CRAFTING_QUALITY, "SELECT MAX(ID) + 1 FROM crafting_quality", CONNECTION_SYNCH);
+
+    // CraftingReagentQuality.db2
+    PrepareStatement(HOTFIX_SEL_CRAFTING_REAGENT_QUALITY, "SELECT ID, `OrderIndex`, ItemID, MaxDifficultyAdjustment, ReagentEffectPct, ModifiedCraftingCategoryID "
+        "FROM crafting_reagent_quality WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CRAFTING_REAGENT_QUALITY, "SELECT MAX(ID) + 1 FROM crafting_reagent_quality", CONNECTION_SYNCH);
+
     // CreatureDisplayInfo.db2
     PrepareStatement(HOTFIX_SEL_CREATURE_DISPLAY_INFO, "SELECT ID, ModelID, SoundID, SizeClass, CreatureModelScale, CreatureModelAlpha, BloodID, "
         "ExtendedDisplayInfoID, NPCSoundID, ParticleColorID, PortraitCreatureDisplayInfoID, PortraitTextureFileDataID, ObjectEffectPackageID, "
@@ -1167,6 +1196,37 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // MawPower.db2
     PrepareStatement(HOTFIX_SEL_MAW_POWER, "SELECT ID, SpellID, MawPowerRarityID FROM maw_power WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_MAW_POWER, "SELECT MAX(ID) + 1 FROM maw_power", CONNECTION_SYNCH);
+
+    // ModifiedCraftingSpellSlot.db2
+    PrepareStatement(HOTFIX_SEL_MODIFIED_CRAFTING_SPELL_SLOT, "SELECT ID, SpellID, Slot, ModifiedCraftingReagentSlotID, Field_9_0_1_35679_003, ReagentCount, ReagentReCraftCount "
+        "FROM modified_crafting_spell_slot WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_SPELL_SLOT, "SELECT MAX(ID) + 1 FROM modified_crafting_spell_slot", CONNECTION_SYNCH);
+
+    // ModifiedCraftingReagentSlot.db2
+    PrepareStatement(HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_SLOT, "SELECT Name, ID, Field_9_0_1_33978_001, PlayerConditionID, ReagentType, Field_10_0_2_46091_005 "
+        "FROM modified_crafting_reagent_slot WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_SLOT, "SELECT MAX(ID) + 1 FROM modified_crafting_reagent_slot", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_SLOT, "SELECT ID, Name_lang FROM modified_crafting_reagent_slot_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // MCRSlotXMCRCategory.db2
+    PrepareStatement(HOTFIX_SEL_MCR_SLOT_X_MCR_CATEGORY, "SELECT `ID`, `ModifiedCraftingCategoryID`, `Order`, `ModifiedCraftingReagentSlotID` "
+        "FROM `mcr_slot_x_mcr_category` WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_MCR_SLOT_X_MCR_CATEGORY, "SELECT MAX(ID) + 1 FROM mcr_slot_x_mcr_category", CONNECTION_SYNCH);
+
+    // ModifiedCraftingCategory.db2
+    PrepareStatement(HOTFIX_SEL_MODIFIED_CRAFTING_CATEGORY, "SELECT ID, DisplayName, Description, Field_9_0_1_33978_001, MatQualityWeight, Field_10_0_0_44649_004 "
+        "FROM modified_crafting_category WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_CATEGORY, "SELECT MAX(ID) + 1 FROM modified_crafting_category", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_CATEGORY, "SELECT ID, DisplayName_lang, Description_lang FROM modified_crafting_category_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // ModifiedCraftingReagentItem.db2
+    PrepareStatement(HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_ITEM, "SELECT ID, Description, ModifiedCraftingCategoryID, ItemBonusTreeID, Flags, Field_9_1_0_38511_004, ItemContextOffset "
+        "FROM modified_crafting_reagent_item WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_ITEM, "SELECT MAX(ID) + 1 FROM modified_crafting_reagent_item", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_ITEM, "SELECT ID, Description_lang FROM modified_crafting_reagent_item_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
 
     // ModifierTree.db2
     PrepareStatement(HOTFIX_SEL_MODIFIER_TREE, "SELECT ID, Parent, Operator, Amount, Type, Asset, SecondaryAsset, TertiaryAsset FROM modifier_tree"

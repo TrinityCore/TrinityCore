@@ -429,6 +429,7 @@ class TC_GAME_API Spell
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
         void EffectLearnTransmogIllusion();
+        void EffectCraftItem();
         void EffectModifyAuraStacks();
         void EffectModifyCooldown();
         void EffectModifyCooldowns();

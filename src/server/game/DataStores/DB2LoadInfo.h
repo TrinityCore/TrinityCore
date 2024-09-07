@@ -1387,6 +1387,101 @@ struct CorruptionEffectsLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 5, &CorruptionEffectsMeta::Instance, HOTFIX_SEL_CORRUPTION_EFFECTS };
 };
 
+struct CraftingDataLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[16] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Type" },
+        { true, FT_INT, "CraftingDifficultyID" },
+        { true, FT_INT, "CraftedItemID" },
+        { true, FT_INT, "ItemBonusTreeID" },
+        { true, FT_INT, "CraftingDifficulty" },
+        { false, FT_FLOAT, "Field_10_0_0_44649_005" },
+        { false, FT_FLOAT, "CraftSkillBonusPercent" },
+        { false, FT_FLOAT, "ReCraftSkillBonusPercent" },
+        { false, FT_FLOAT, "InspirationSkillBonusPercent" },
+        { false, FT_FLOAT, "Field_10_0_0_44649_009" },
+        { false, FT_FLOAT, "Field_10_0_0_45141_011" },
+        { true, FT_INT, "FirstCraftFlagQuestID" },
+        { true, FT_INT, "FirstCraftTreasureID" },
+        { true, FT_INT, "Field_10_2_5_52432_014" },
+        { true, FT_INT, "CraftedTreasureID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 16, &CraftingDataMeta::Instance, HOTFIX_SEL_CRAFTING_DATA };
+};
+
+struct CraftingDataItemQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "ItemID" },
+        { false, FT_INT, "CraftingDataID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &CraftingDataItemQualityMeta::Instance, HOTFIX_SEL_CRAFTING_DATA_ITEM_QUALITY };
+};
+
+struct CraftingDifficultyLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_FLOAT, "MaxRandomSkillBonusPercent" },
+        { false, FT_FLOAT, "CraftSkillBonusPercent" },
+        { false, FT_FLOAT, "ReCraftSkillBonusPercent" },
+        { false, FT_FLOAT, "InspirationSkillBonusPercent" },
+        { false, FT_FLOAT, "Field_10_0_0_44649_004" },
+        { true, FT_INT, "ConcentrationSkillCurveID" },
+        { true, FT_INT, "ConcentrationDifficultyCurveID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &CraftingDifficultyMeta::Instance, HOTFIX_SEL_CRAFTING_DIFFICULTY };
+};
+
+struct CraftingDifficultyQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Order" },
+        { true, FT_INT, "CraftingQualityID" },
+        { false, FT_FLOAT, "QualityPercentage" },
+        { false, FT_FLOAT, "Field_10_0_0_44895_004" },
+        { false, FT_INT, "CraftingDifficultyID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &CraftingDifficultyQualityMeta::Instance, HOTFIX_SEL_CRAFTING_DIFFICULTY_QUALITY };
+};
+
+struct CraftingQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[2] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "QualityTier" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 2, &CraftingQualityMeta::Instance, HOTFIX_SEL_CRAFTING_QUALITY };
+};
+
+struct CraftingReagentQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "OrderIndex" },
+        { true, FT_INT, "ItemID" },
+        { false, FT_FLOAT, "MaxDifficultyAdjustment" },
+        { false, FT_FLOAT, "ReagentEffectPct" },
+        { false, FT_INT, "ModifiedCraftingCategoryID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &CraftingReagentQualityMeta::Instance, HOTFIX_SEL_CRAFTING_REAGENT_QUALITY };
+};
+
 struct CreatureDisplayInfoLoadInfo
 {
     static constexpr DB2FieldMeta Fields[31] =
@@ -3789,6 +3884,81 @@ struct MawPowerLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 3, &MawPowerMeta::Instance, HOTFIX_SEL_MAW_POWER };
+};
+
+struct MCRSlotXMCRCategoryLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "ModifiedCraftingCategoryID" },
+        { true, FT_INT, "Order" },
+        { false, FT_INT, "ModifiedCraftingReagentSlotID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &MCRSlotXMCRCategoryMeta::Instance, HOTFIX_SEL_MCR_SLOT_X_MCR_CATEGORY };
+};
+
+struct ModifiedCraftingCategoryLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "DisplayName" },
+        { false, FT_STRING, "Description" },
+        { true, FT_INT, "Field_9_0_1_33978_001" },
+        { false, FT_FLOAT, "MatQualityWeight" },
+        { true, FT_INT, "Field_10_0_0_44649_004" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ModifiedCraftingCategoryMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_CATEGORY };
+};
+
+struct ModifiedCraftingReagentItemLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Description" },
+        { true, FT_INT, "ModifiedCraftingCategoryID" },
+        { true, FT_INT, "ItemBonusTreeID" },
+        { true, FT_INT, "Flags" },
+        { true, FT_INT, "Field_9_1_0_38511_004" },
+        { true, FT_INT, "ItemContextOffset" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ModifiedCraftingReagentItemMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_ITEM };
+};
+
+struct ModifiedCraftingReagentSlotLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { false, FT_STRING, "Name" },
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Field_9_0_1_33978_001" },
+        { true, FT_INT, "PlayerConditionID" },
+        { true, FT_INT, "ReagentType" },
+        { true, FT_BYTE, "Field_10_0_2_46091_005" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ModifiedCraftingReagentSlotMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_SLOT };
+};
+
+struct ModifiedCraftingSpellSlotLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "SpellID" },
+        { true, FT_INT, "Slot" },
+        { true, FT_INT, "ModifiedCraftingReagentSlotID" },
+        { true, FT_INT, "Field_9_0_1_35679_003" },
+        { true, FT_INT, "ReagentCount" },
+        { true, FT_INT, "ReagentReCraftCount" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ModifiedCraftingSpellSlotMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_SPELL_SLOT };
 };
 
 struct ModifierTreeLoadInfo

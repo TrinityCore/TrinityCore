@@ -2660,4 +2660,12 @@ enum WorldStateExpressionFunctions
     WSE_FUNCTION_MAX,
 };
 
+enum ModifiedCraftingReagentType : uint32
+{
+    MCR_REAGENT_TYPE_OPTIONAL   = 0,
+    MCR_REAGENT_TYPE_REQUIRED   = 1,
+    MCR_REAGENT_TYPE_FINISHING  = 2,
+    MCR_REAGENT_TYPE_SOCKET     = 3,
+};
+
 #endif

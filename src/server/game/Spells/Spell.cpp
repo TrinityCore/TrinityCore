@@ -166,6 +166,9 @@ SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCast
             pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
+    for (WorldPackets::Spells::SpellCraftingReagent const& reagent : spellCastRequest.OptionalReagents)
+        ModifiedCraftingReagents[reagent.DataSlotIndex].push_back(reagent);
+
     SetPitch(spellCastRequest.MissileTrajectory.Pitch);
     SetSpeed(spellCastRequest.MissileTrajectory.Speed);
 
