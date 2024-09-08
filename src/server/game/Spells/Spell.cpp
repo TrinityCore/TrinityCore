@@ -9389,15 +9389,6 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeri
     return *this;
 }
 
-CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* triggeringAura)
-{
-    TriggeringAura = triggeringAura;
-    if (triggeringAura)
-        OriginalCastId = triggeringAura->GetBase()->GetCastId();
-
-    return *this;
-}
-
 SpellCastVisual::operator WorldPackets::Spells::SpellCastVisual() const
 {
     return { int32(SpellXSpellVisualID) };
