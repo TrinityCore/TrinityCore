@@ -852,7 +852,7 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
                     if (_player->CanTakeQuest(quest, false))
                         response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
 
-                    if (!_player->GetQuestRewardStatus(questLineQuest->QuestID))
+                    if (isQuestLineCompleted && !_player->GetQuestRewardStatus(questLineQuest->QuestID))
                         isQuestLineCompleted = false;
                 }
             }
