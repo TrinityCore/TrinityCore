@@ -116,21 +116,14 @@ constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
         case EXPANSION_WRATH_OF_THE_LICH_KING:
             return 80;
         case EXPANSION_CATACLYSM:
-            return 85;
-        case EXPANSION_MISTS_OF_PANDARIA:
-            return 90;
+        case EXPANSION_MISTS_OF_PANDARIA: // unsupported expansions will return the same max level as the support one to correctly function (see Player::InitStatsForLevel)
         case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 100;
         case EXPANSION_LEGION:
-            return 110;
         case EXPANSION_BATTLE_FOR_AZEROTH:
-            return 120;
         case EXPANSION_SHADOWLANDS:
-            return 60;
         case EXPANSION_DRAGONFLIGHT:
-            return 70;
         case EXPANSION_THE_WAR_WITHIN:
-            return 80;
+            return 85;
         default:
             break;
     }
