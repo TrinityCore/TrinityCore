@@ -42,7 +42,6 @@ class Player;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
-struct Realm;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -924,8 +923,6 @@ class TC_GAME_API World
 
     friend class debug_commandscript;
 };
-
-TC_GAME_API extern Realm realm;
 
 TC_GAME_API uint32 GetVirtualRealmAddress();
 

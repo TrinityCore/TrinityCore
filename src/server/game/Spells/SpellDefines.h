@@ -143,6 +143,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     ChallengeModeStart                          = 0x00400000, // Implemented in Unit::AtStartOfEncounter
     StartOfEncounter                            = 0x00800000, // Implemented in Unit::AtStartOfEncounter
     EndOfEncounter                              = 0x01000000, // Implemented in Unit::AtEndOfEncounter
+    ReleaseEmpower                              = 0x02000000, // Implemented in Spell::update
 };
 
 DEFINE_ENUM_FLAG(SpellAuraInterruptFlags2);
