@@ -136,6 +136,13 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
     {
+        // Quests with QUEST_FLAGS_AUTO_ACCEPT still send this opcode despite being added already. No need to further check anything and just skip further code execution
+        if (quest->IsAutoAccept() && _player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_NONE)
+        {
+            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
+            return;
+        }
+
         // prevent cheating
         if (!GetPlayer()->CanTakeQuest(quest, true))
         {
