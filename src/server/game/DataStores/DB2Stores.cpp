@@ -1467,8 +1467,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
-    for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
-        _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+    {
+        for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
+            _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+
+        for (auto& [questLineId, questLineQuests] : _questsByQuestLine)
+            std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
+    }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
@@ -1930,9 +1935,7 @@ std::vector<DB2Manager::HotfixOptionalData> const* DB2Manager::GetHotfixOptional
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
 {
-    return 1778;
-    // TEMP: well... AnimationData.db2 in 11.0.0 has more rows than max hardcoded anim id in client
-    // return sAnimationDataStore.GetNumRows();
+    return sAnimationDataStore.GetNumRows();
 }
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
