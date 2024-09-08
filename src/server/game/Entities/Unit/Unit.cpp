@@ -6745,7 +6745,7 @@ int32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, int3
     DoneTotalMod = SpellDamagePctDone(victim, spellProto, damagetype, spellEffectInfo);
 
     // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
+    int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask(), true);
     // modify spell power by victim's SPELL_AURA_MOD_DAMAGE_TAKEN auras (eg Amplify/Dampen Magic)
     DoneAdvertisedBenefit += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, spellProto->GetSchoolMask());
 
@@ -6989,7 +6989,7 @@ int32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, int
     return int32(std::max(tmpDamage, 0.0f));
 }
 
-int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
+int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask, bool withModSpellPowerPct /*= false*/) const
 {
     if (Player const* thisPlayer = ToPlayer())
     {
@@ -7021,6 +7021,9 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             }
         }
 
+        // We are going to include SPELL_AURA_MOD_SPELL_POWER_PCT in here because it's only suposed to affect spell power, no other source of damage buffs
+        if (withModSpellPowerPct)
+            DoneAdvertisedBenefit *= ToPlayer()->m_activePlayerData->ModSpellPowerPercent;
     }
 
     return DoneAdvertisedBenefit;
@@ -7268,7 +7271,7 @@ int32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, int
     }
 
     // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
+    int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask(), true);
     // modify spell power by victim's SPELL_AURA_MOD_HEALING auras (eg Amplify/Dampen Magic)
     DoneAdvertisedBenefit += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_HEALING, spellProto->GetSchoolMask());
 
@@ -7467,7 +7470,7 @@ int32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, in
     return int32(std::max(heal, 0.0f));
 }
 
-int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
+int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask, bool withModSpellPowerPct /*= false*/) const
 {
     if (Player const* thisPlayer = ToPlayer())
     {
@@ -7501,6 +7504,10 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
             Stats usedStat = Stats((*i)->GetSpellEffectInfo().MiscValue);
             advertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
         }
+
+        // We are going to include SPELL_AURA_MOD_SPELL_POWER_PCT in here because it's only suposed to affect spell power, no other source of healing buffs
+        if (withModSpellPowerPct)
+            advertisedBenefit *= ToPlayer()->m_activePlayerData->ModSpellPowerPercent;
     }
     return advertisedBenefit;
 }

@@ -655,6 +655,12 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(RANGED_ATTACK);
 }
 
+void Player::UpdateModSpellPowerPct()
+{
+    // Calculations done in Unit::SpellBaseHealingBonusDone and Unit::SpellBaseDamageBonusDone
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModSpellPowerPercent), GetTotalAuraMultiplier(SPELL_AURA_MOD_SPELL_POWER_PCT));
+}
+
 void Player::UpdateMastery()
 {
     if (!CanUseMastery())
