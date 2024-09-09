@@ -21,6 +21,7 @@
 #include "ItemBonusMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "Player.h"
 
