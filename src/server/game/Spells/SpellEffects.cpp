@@ -1402,30 +1402,29 @@ Item* Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NO
         }
     }
 
-    Item* item = nullptr;
+    if (!num_to_add)
+        return nullptr;
 
-    if (num_to_add)
+    // create the new item and store it
+    Item* item = player->StoreNewItem(dest, newitemid, update, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs);
+    if (item)
     {
-        // create the new item and store it
-        if (item = player->StoreNewItem(dest, newitemid, update, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs))
-        {
-            // set the "Crafted by ..." property of the item
-            if (item->GetTemplate()->HasSignature())
-                item->SetCreator(player->GetGUID());
+        // set the "Crafted by ..." property of the item
+        if (item->GetTemplate()->HasSignature())
+            item->SetCreator(player->GetGUID());
 
-            // send info to the client
-            if (update)
-                player->SendNewItem(item, num_to_add, true, true);
+        // send info to the client
+        if (update)
+            player->SendNewItem(item, num_to_add, true, true);
 
-            if (item->GetQuality() > ITEM_QUALITY_EPIC || (item->GetQuality() == ITEM_QUALITY_EPIC && item->GetItemLevel(player) >= MinNewsItemLevel))
-                if (Guild* guild = player->GetGuild())
-                    guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
-        }
-
-        // we succeeded in creating at least one item, so a levelup is possible
-        if (!m_CastItem)
-            player->UpdateCraftSkill(m_spellInfo);
+        if (item->GetQuality() > ITEM_QUALITY_EPIC || (item->GetQuality() == ITEM_QUALITY_EPIC && item->GetItemLevel(player) >= MinNewsItemLevel))
+            if (Guild* guild = player->GetGuild())
+                guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
     }
+
+    // we succeeded in creating at least one item, so a levelup is possible
+    if (!m_CastItem)
+        player->UpdateCraftSkill(m_spellInfo);
 
     return item;
 }
