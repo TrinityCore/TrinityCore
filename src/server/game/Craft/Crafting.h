@@ -20,6 +20,7 @@
 #ifndef CRAFTING_H
 #define CRAFTING_H
 
+class Item;
 class Player;
 class Spell;
 struct CraftingDataEntry;
