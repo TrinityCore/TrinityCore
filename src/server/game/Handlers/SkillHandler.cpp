@@ -27,10 +27,10 @@
 
 void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
-    uint32 talent_id, requested_rank;
-    recvData >> talent_id >> requested_rank;
+    uint32 talentId, requestedRank;
+    recvData >> talentId >> requestedRank;
 
-    _player->LearnTalent(talent_id, requested_rank);
+    _player->LearnTalent(talentId, requestedRank);
     _player->SendTalentsInfoData(false);
 }
 

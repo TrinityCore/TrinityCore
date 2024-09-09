@@ -836,15 +836,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
-
     stmt->setUInt32(0, pCurrChar->GetGUID().GetCounter());
-
     CharacterDatabase.Execute(stmt);
 
     LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_ONLINE);
-
     loginStmt->setUInt32(0, GetAccountId());
-
     LoginDatabase.Execute(loginStmt);
 
     pCurrChar->SetInGameTime(GameTime::GetGameTimeMS());

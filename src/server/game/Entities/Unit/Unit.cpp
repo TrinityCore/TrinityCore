@@ -10827,7 +10827,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
         case ITEM_SUBCLASS_WEAPON_SWORD:
         case ITEM_SUBCLASS_WEAPON_EXOTIC:
         case ITEM_SUBCLASS_WEAPON_EXOTIC2:
-        case ITEM_SUBCLASS_WEAPON_FIST:
+        case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
             return 2.4f;
         case ITEM_SUBCLASS_WEAPON_DAGGER:
             return 1.7f;

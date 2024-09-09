@@ -610,7 +610,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
             uint32 count = iProto->BuyCount;
 
             // special amount for food/drink
-            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD)
+            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
             {
                 switch (iProto->Spells[0].SpellCategory)
                 {
@@ -2829,7 +2829,7 @@ void Player::SendInitialSpells()
         data << uint32(itr->first);
         data << uint16(0);                                  // it's not slot id
 
-        spellCount +=1;
+        ++spellCount;
     }
 
     data.put<uint16>(countPos, spellCount);                  // write real count value
@@ -5766,7 +5766,7 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
         {
             case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
                 break;
-            case ITEM_SUBCLASS_WEAPON_FIST:
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
                 UpdateSkill(SKILL_UNARMED, weapon_skill_gain);
                 [[fallthrough]];
             default:
@@ -9569,7 +9569,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     if (playerClass == CLASS_SHAMAN)
                         slots[0] = EQUIPMENT_SLOT_RANGED;
                     break;
-                case ITEM_SUBCLASS_ARMOR_MISC:
+                case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
                     if (playerClass == CLASS_WARLOCK)
                         slots[0] = EQUIPMENT_SLOT_RANGED;
                     break;
@@ -11751,7 +11751,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     if (proto->Class == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->SubClass]) == 0)
         return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
 
-    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISC && proto->SubClass < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->InventoryType != INVTYPE_CLOAK)
+    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->InventoryType != INVTYPE_CLOAK)
     {
         if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
         {
@@ -16707,10 +16707,10 @@ void Player::SendQuestComplete(uint32 quest_id) const
 
 void Player::SendQuestReward(Quest const* quest, uint32 XP) const
 {
-    uint32 questid = quest->GetQuestId();
-    sGameEventMgr->HandleQuestComplete(questid);
+    uint32 questId = quest->GetQuestId();
+    sGameEventMgr->HandleQuestComplete(questId);
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
-    data << uint32(questid);
+    data << uint32(questId);
 
     if (!IsMaxLevel())
         data << uint32(XP);
@@ -21076,7 +21076,7 @@ template TC_GAME_API void Player::ApplySpellMod(uint32 spellId, SpellModOp op, f
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     TC_LOG_DEBUG("spells", "Player::AddSpellMod: Player '{}' ({}), SpellID: {}", GetName(), GetGUID().ToString(), mod->spellId);
-    uint16 Opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
+    uint16 opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
     flag96 modMask;
     for (uint8 i = 0; i < 3; ++i)
@@ -21093,7 +21093,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                         val += spellMod->value;
                 }
                 val += apply ? mod->value : -(mod->value);
-                WorldPacket data(Opcode, (1 + 1 + 4));
+                WorldPacket data(opcode, (1 + 1 + 4));
                 data << uint8(eff + 32 * i);
                 data << uint8(mod->op);
                 data << int32(val);
