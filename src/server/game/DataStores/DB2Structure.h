@@ -1012,7 +1012,7 @@ struct CorruptionEffectsEntry
 
 struct CraftingDataEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 Type;
     int32 CraftingDifficultyID;
     int32 CraftedItemID;
@@ -1032,14 +1032,14 @@ struct CraftingDataEntry
 
 struct CraftingDataItemQualityEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 ItemID;
     int32 CraftingDataID;
 };
 
 struct CraftingDifficultyEntry
 {
-    int32 ID;
+    uint32 ID;
     float MaxRandomSkillBonusPercent;
     float CraftSkillBonusPercent;
     float ReCraftSkillBonusPercent;
@@ -1051,7 +1051,7 @@ struct CraftingDifficultyEntry
 
 struct CraftingDifficultyQualityEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 Order;
     int32 CraftingQualityID;
     float QualityPercentage;
@@ -1061,13 +1061,13 @@ struct CraftingDifficultyQualityEntry
 
 struct CraftingQualityEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 QualityTier;
 };
 
 struct CraftingReagentQualityEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 OrderIndex;
     int32 ItemID;
     float MaxDifficultyAdjustment;
@@ -2944,7 +2944,7 @@ struct MawPowerEntry
 
 struct MCRSlotXMCRCategoryEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 ModifiedCraftingCategoryID;
     int32 Order;
     int32 ModifiedCraftingReagentSlotID;
@@ -2952,7 +2952,7 @@ struct MCRSlotXMCRCategoryEntry
 
 struct ModifiedCraftingCategoryEntry
 {
-    int32 ID;
+    uint32 ID;
     LocalizedString DisplayName;
     LocalizedString Description;
     int32 Field_9_0_1_33978_001;
@@ -2962,7 +2962,7 @@ struct ModifiedCraftingCategoryEntry
 
 struct ModifiedCraftingReagentItemEntry
 {
-    int32 ID;
+    uint32 ID;
     LocalizedString Description;
     int32 ModifiedCraftingCategoryID;
     int32 ItemBonusTreeID;
@@ -2974,7 +2974,7 @@ struct ModifiedCraftingReagentItemEntry
 struct ModifiedCraftingReagentSlotEntry
 {
     LocalizedString Name;
-    int32 ID;
+    uint32 ID;
     int32 Field_9_0_1_33978_001;
     int32 PlayerConditionID;
     int32 ReagentType;
@@ -2983,7 +2983,7 @@ struct ModifiedCraftingReagentSlotEntry
 
 struct ModifiedCraftingSpellSlotEntry
 {
-    int32 ID;
+    uint32 ID;
     int32 SpellID;
     int32 Slot;
     int32 ModifiedCraftingReagentSlotID;

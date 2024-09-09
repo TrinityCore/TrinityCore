@@ -16,6 +16,7 @@
  */
 
 #include "Crafting.h"
+#include "DB2Stores.h"
 #include "ItemBonusMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"

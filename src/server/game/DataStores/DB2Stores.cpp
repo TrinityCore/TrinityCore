@@ -3535,7 +3535,7 @@ uint32 DB2Manager::GetCraftingQualityTierByDifficultyPercent(int32 craftingDiffi
                 matchedDifficultyQuality = craftingDifficultyQuality;
 
     if (matchedDifficultyQuality)
-        if (auto* craftingQualityEntry = sCraftingQualityStore.LookupEntry(matchedDifficultyQuality->CraftingQualityID))
+        if (CraftingQualityEntry const* craftingQualityEntry = sCraftingQualityStore.LookupEntry(matchedDifficultyQuality->CraftingQualityID))
             return craftingQualityEntry->QualityTier;
 
     return 0;
