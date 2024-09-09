@@ -17,10 +17,12 @@
 
 #include "Crafting.h"
 #include "DB2Stores.h"
+#include "DB2Structure.h"
 #include "ItemBonusMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellPackets.h"
+#include "Player.h"
 
 void Crafting::DoCraft(uint32 craftingDataId)
 {
