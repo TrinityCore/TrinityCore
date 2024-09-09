@@ -1330,10 +1330,10 @@ void Spell::EffectHealthLeech()
     }
 }
 
-void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const* bonusListIDs /*= nullptr*/)
+Item* Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const* bonusListIDs /*= nullptr*/, bool update /*= true*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
+        return nullptr;
 
     Player* player = unitTarget->ToPlayer();
 
@@ -1342,7 +1342,7 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     if (!pProto)
     {
         player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-        return;
+        return nullptr;
     }
 
     uint32 num_to_add = damage;
@@ -1398,23 +1398,26 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
         {
             // if not created by another reason from full inventory or unique items amount limitation
             player->SendEquipError(msg, nullptr, nullptr, newitemid);
-            return;
+            return nullptr;
         }
     }
+
+    Item* item = nullptr;
 
     if (num_to_add)
     {
         // create the new item and store it
-        if (Item* pItem = player->StoreNewItem(dest, newitemid, true, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs))
+        if (item = player->StoreNewItem(dest, newitemid, update, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs))
         {
             // set the "Crafted by ..." property of the item
-            if (pItem->GetTemplate()->HasSignature())
-                pItem->SetCreator(player->GetGUID());
+            if (item->GetTemplate()->HasSignature())
+                item->SetCreator(player->GetGUID());
 
             // send info to the client
-            player->SendNewItem(pItem, num_to_add, true, true);
+            if (update)
+                player->SendNewItem(item, num_to_add, true, true);
 
-            if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
+            if (item->GetQuality() > ITEM_QUALITY_EPIC || (item->GetQuality() == ITEM_QUALITY_EPIC && item->GetItemLevel(player) >= MinNewsItemLevel))
                 if (Guild* guild = player->GetGuild())
                     guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
         }
@@ -1423,6 +1426,8 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
         if (!m_CastItem)
             player->UpdateCraftSkill(m_spellInfo);
     }
+
+    return item;
 }
 
 void Spell::EffectCreateItem()

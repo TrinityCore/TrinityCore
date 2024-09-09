@@ -3952,7 +3952,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     do
                     {
                         Field* fields = resultItems->Fetch();
-                        uint64 mailId = fields[53].GetUInt64();
+                        uint64 mailId = fields[54].GetUInt64();
                         if (Item* mailItem = _LoadMailedItem(playerguid, nullptr, mailId, nullptr, fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64())))
                             itemsByMail[mailId].push_back(mailItem);
 
@@ -18844,9 +18844,9 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //        secondaryItemModifiedAppearanceSpec3, secondaryItemModifiedAppearanceSpec4, secondaryItemModifiedAppearanceSpec5,
     //                38           39           40                41          42           43           44                45          46           47           48                49
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       50                      51
-    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
-    //         52    53
+    //                       50                      51                     52                     53
+    //        fixedScalingLevel, artifactKnowledgeLevel, craftingModifiedStat1, craftingModifiedStat2 FROM item_instance
+    //         54    55
     //        bag, slot
     // FROM character_inventory ci
     // JOIN item_instance ii ON ci.item = ii.guid
@@ -18897,8 +18897,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                             azeriteEmpoweredItem->LoadAzeriteEmpoweredItemData(this, *addionalDataPtr->AzeriteEmpoweredItem);
                 }
 
-                ObjectGuid bagGuid = fields[52].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[52].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[53].GetUInt8();
+                ObjectGuid bagGuid = fields[54].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[54].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[55].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -19238,7 +19238,7 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
 
     Item* item = NewItemOrBag(proto);
 
-    ObjectGuid ownerGuid = fields[52].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[52].GetUInt64()) : ObjectGuid::Empty;
+    ObjectGuid ownerGuid = fields[54].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[54].GetUInt64()) : ObjectGuid::Empty;
     if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
     {
         TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: {}) in mail ({}) doesn't exist, deleted from mail.", itemGuid, mailId);

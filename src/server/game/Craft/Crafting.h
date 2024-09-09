@@ -36,6 +36,7 @@ private:
     uint32 GetSkillLevelForCraft();
     uint32 GetSkillIdForSpell(uint32 spellId);
     uint32 CalculateTotalReagentWeights();
+    void InitCraftingStatModifier(Item* item);
 
     Player* _player;
     Spell* _spell;

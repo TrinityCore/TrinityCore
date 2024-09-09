@@ -754,7 +754,9 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
             static ItemModifier const modifiersTable[] =
             {
                 ITEM_MODIFIER_TIMEWALKER_LEVEL,
-                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL
+                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL,
+                ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_1,
+                ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_2,
             };
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_MODIFIERS);
@@ -767,6 +769,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt32(1, GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL));
                 stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL));
+                stmt->setUInt32(3, GetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_1));
+                stmt->setUInt32(4, GetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_2));
                 trans->Append(stmt);
             }
 
@@ -841,8 +845,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     //        secondaryItemModifiedAppearanceSpec3, secondaryItemModifiedAppearanceSpec4, secondaryItemModifiedAppearanceSpec5,
     //                38           39           40                41          42           43           44                45          46           47           48                49
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       50                      51
-    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
+    //                       50                      51                     52                     53
+    //        fixedScalingLevel, artifactKnowledgeLevel, craftingModifiedStat1, craftingModifiedStat2 FROM item_instance
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -965,6 +969,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, fields[50].GetUInt32());
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[51].GetUInt32());
+
+    SetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_1, fields[52].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_2, fields[53].GetUInt32());
 
     // Enchants must be loaded after all other bonus/scaling data
     std::vector<std::string_view> enchantmentTokens = Trinity::Tokenize(fields[8].GetStringView(), ' ', false);
@@ -2299,6 +2306,29 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     }
 
     return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
+}
+
+int32 Item::GetItemStatType(uint32 index) const
+{
+    ASSERT(index < MAX_ITEM_PROTO_STATS);
+
+    uint32 itemStatType = _bonusData.ItemStatType[index];
+
+    switch (itemStatType)
+    {
+        case ITEM_MOD_MODIFIED_CRAFTING_STAT_1:
+            if (uint32 modifiedStatType = GetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_1))
+                return modifiedStatType;
+            break;
+        case ITEM_MOD_MODIFIED_CRAFTING_STAT_2:
+            if (uint32 modifiedStatType = GetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_2))
+                return modifiedStatType;
+            break;
+        default:
+            break;
+    }
+
+    return itemStatType;
 }
 
 float Item::GetItemStatValue(uint32 index, Player const* owner) const

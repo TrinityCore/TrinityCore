@@ -16,8 +16,10 @@
  */
 
 #include "Crafting.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "DB2Structure.h"
+#include "Item.h"
 #include "ItemBonusMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
@@ -148,7 +150,13 @@ void Crafting::DoCraft(uint32 craftingDataId)
         bonusLists.insert(std::end(bonusLists), std::begin(treeBonusList), std::end(treeBonusList));
     }
 
-    _spell->DoCreateItem(newItemId, context, &bonusLists);
+    if (Item* createdItem = _spell->DoCreateItem(newItemId, context, &bonusLists, false))
+    {
+        InitCraftingStatModifier(createdItem);
+
+        createdItem->AddToWorld();
+        createdItem->SendUpdateToPlayer(createdItem->GetOwner());
+    }
 
     // Item has been crafted, remove reagent from player
     for (auto const& [itemId, itemCount] : usedReagentsToDestroy)
@@ -180,7 +188,7 @@ uint32 Crafting::GetSkillLevelForCraft()
                     if (CraftingReagentQualityEntry const* reagentQuality = sDB2Manager.GetCraftingReagentQualityByItem(providedReagentForSlot.ItemID))
                     {
                         float reagentWeight = float(category->MatQualityWeight) * float(providedReagentForSlot.Quantity) / 2.0f * float(reagentQuality->OrderIndex);
-                        uint32 addedSkillByReagent = round(maximumReagentBonus * reagentWeight / totalReagentWeigth);
+                        uint32 addedSkillByReagent = round(maximumReagentBonus * reagentWeight / float(totalReagentWeigth));
                         skillValue += addedSkillByReagent;
                     }
                 }
@@ -210,4 +218,26 @@ uint32 Crafting::CalculateTotalReagentWeights()
             totalWeight += category->MatQualityWeight * spellSlot->ReagentCount;
 
     return totalWeight;
+}
+
+// Todo : We currently only set random stats, but crafter
+// can define stats using a "Missive" item
+void Crafting::InitCraftingStatModifier(Item* item)
+{
+    std::vector<uint32> allowedStats = {
+        ITEM_MOD_MASTERY_RATING,
+        ITEM_MOD_HASTE_RATING,
+        ITEM_MOD_VERSATILITY,
+        ITEM_MOD_CRIT_RATING,
+    };
+
+    Trinity::Containers::RandomShuffle(allowedStats);
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+    {
+        if (item->GetItemStatType(i) == ITEM_MOD_MODIFIED_CRAFTING_STAT_1)
+            item->SetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_1, allowedStats[0]);
+        else if (item->GetItemStatType(i) == ITEM_MOD_MODIFIED_CRAFTING_STAT_2)
+            item->SetModifier(ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_2, allowedStats[1]);
+    }
 }
