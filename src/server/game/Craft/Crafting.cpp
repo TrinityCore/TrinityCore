@@ -21,6 +21,7 @@
 #include "DB2Structure.h"
 #include "Item.h"
 #include "ItemBonusMgr.h"
+#include "SharedDefines.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"

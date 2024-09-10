@@ -23,7 +23,10 @@
 class Item;
 class Player;
 class Spell;
+
 struct CraftingDataEntry;
+
+enum SpellCastResult : int32;
 
 class TC_GAME_API Crafting
 {
