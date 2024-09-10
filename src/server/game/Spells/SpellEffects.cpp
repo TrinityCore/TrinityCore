@@ -5995,7 +5995,10 @@ void Spell::EffectCraftItem()
     }
 
     Crafting craftingInstance = Crafting(playerCaster, this);
-    craftingInstance.DoCraft(effectInfo->MiscValue);
+    SpellCastResult result = craftingInstance.DoCraft(effectInfo->MiscValue);
+
+    if (result != SpellCastResult::SPELL_CAST_OK)
+        SendCastResult(result);
 }
 
 void Spell::EffectModifyAuraStacks()

@@ -31,13 +31,14 @@ public:
     Crafting(Player* player, Spell* spell) :
         _player(player), _spell(spell), _craftingData(nullptr) { }
 
-    void DoCraft(uint32 craftingDataId);
+    SpellCastResult DoCraft(uint32 craftingDataId);
 
 private:
     uint32 GetSkillLevelForCraft();
     uint32 GetSkillIdForSpell(uint32 spellId);
     uint32 CalculateTotalReagentWeights();
     void InitCraftingStatModifier(Item* item);
+    uint32 GetItemIdForQuality(uint32 qualityTier);
 
     Player* _player;
     Spell* _spell;
