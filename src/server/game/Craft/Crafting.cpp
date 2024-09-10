@@ -114,18 +114,22 @@ SpellCastResult Crafting::DoCraft(uint32 craftingDataId)
 
     uint32 qualityTier = sDB2Manager.GetCraftingQualityTierByDifficultyPercent(_craftingData->CraftingDifficultyID, difficultyPercentMatched);
 
-    uint32 newItemId = GetItemIdForQuality(qualityTier);
+    uint32 craftedItemId = GetCraftedItemIdForQuality(qualityTier);
+
+    // If we didn't found anything, we have a problem. Return and don't take reagent from player.
+    if (!craftedItemId)
+        return SpellCastResult::SPELL_FAILED_ERROR;
 
     ItemContext context = _spell->GetSpellInfo()->HasAttribute(SPELL_ATTR0_IS_TRADESKILL) ? ItemContext::Trade_Skill : ItemContext::NONE;
 
     std::vector<int32> bonusLists;
     for (int32 bonusTreeID : bonusTreeIds)
     {
-        std::vector<int32> treeBonusList = ItemBonusMgr::GetBonusListsForItem(newItemId, { context, {}, {}, bonusTreeID, qualityTier });
+        std::vector<int32> treeBonusList = ItemBonusMgr::GetBonusListsForItem(craftedItemId, { context, {}, {}, bonusTreeID, qualityTier });
         bonusLists.insert(std::end(bonusLists), std::begin(treeBonusList), std::end(treeBonusList));
     }
 
-    if (Item* createdItem = _spell->DoCreateItem(newItemId, context, &bonusLists, false))
+    if (Item* createdItem = _spell->DoCreateItem(craftedItemId, context, &bonusLists, false))
     {
         InitCraftingStatModifier(createdItem);
 
@@ -219,19 +223,17 @@ void Crafting::InitCraftingStatModifier(Item* item)
     }
 }
 
-uint32 Crafting::GetItemIdForQuality(uint32 qualityTier)
+uint32 Crafting::GetCraftedItemIdForQuality(uint32 qualityTier)
 {
     // If this is a simple item (no quality), we have the id
     uint32 newItemId = _craftingData->CraftedItemID;
 
-    // If it's a reagent, get id from CraftingDataItem
+    // If it's a reagent with quality, get id from CraftingDataItem
     if (!newItemId)
     {
         std::vector<uint32> craftedItemList = sDB2Manager.GetCraftingDataItemIDByCraftingData(_craftingData->ID);
-
-        // If we didn't found anything, we have a problem. Return and don't take reagent from player.
         if (craftedItemList.size() < qualityTier)
-            return SpellCastResult::SPELL_FAILED_ERROR;
+            return 0;
 
         newItemId = craftedItemList[qualityTier - 1];
     }
