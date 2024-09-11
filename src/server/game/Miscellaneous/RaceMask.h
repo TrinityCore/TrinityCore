@@ -74,8 +74,8 @@ enum Races
     //RACE_COMPANION_NETHERWING_DRAKE = 80,
     //RACE_ROSTRUM_STORM_GRYPHON      = 82,
     //RACE_ROSTRUM_FAERIE_DRAGON      = 83,
-    RACE_EARTHEN_DWARF_HORDE          = 84,
-    RACE_EARTHEN_DWARF_ALLIANCE       = 85,
+    RACE_EARTHEN_DWARF_HORDE          = 84, // TITLE Earthen DESCRIPTION Earthen (Horde) (RaceMask bit 17)
+    RACE_EARTHEN_DWARF_ALLIANCE       = 85, // TITLE Earthen DESCRIPTION Earthen (Alliance) (RaceMask bit 18)
     //RACE_HARRONIR                   = 86,
     //RACE_ROSTRUM_AIRSHIP            = 87,
 };
