@@ -1888,6 +1888,30 @@ class spell_sha_windspeakers_lava_resurgence : public SpellScript
     }
 };
 
+// 462767 - Arctic Snowstorm
+// 36797 - AreatriggerId
+struct areatrigger_sha_arctic_snowstorm : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (unit->GetAura(SPELL_SHAMAN_FROST_SHOCK, caster->GetGUID()))
+                return;
+
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_SHAMAN_ARCTIC_SNOWSTORM_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_SHAMAN_ARCTIC_SNOWSTORM_SLOW, at->GetCasterGuid());
+    }
+};
+
 // 192078 - Wind Rush Totem (Spell)
 // 12676 - AreaTriggerId
 struct areatrigger_sha_wind_rush_totem : AreaTriggerAI
@@ -1930,30 +1954,6 @@ struct areatrigger_sha_wind_rush_totem : AreaTriggerAI
     }
 private:
     int32 _refreshTimer;
-};
-
-// 462767 - Arctic Snowstorm
-// 10000 - AreatriggerId (TO-DO: change when merge)
-struct areatrigger_sha_arctic_snowstorm : AreaTriggerAI
-{
-    areatrigger_sha_arctic_snowstorm(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        if (Unit* caster = at->GetCaster())
-        {
-            if (unit->GetAura(SPELL_SHAMAN_FROST_SHOCK, caster->GetGUID()))
-                return;
-
-            if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_SHAMAN_ARCTIC_SNOWSTORM_SLOW, false);
-        }
-    }
-
-    void OnUnitExit(Unit* unit) override
-    {
-        unit->RemoveAurasDueToSpell(SPELL_SHAMAN_ARCTIC_SNOWSTORM_SLOW, at->GetCasterGuid());
-    }
 };
 
 void AddSC_shaman_spell_scripts()

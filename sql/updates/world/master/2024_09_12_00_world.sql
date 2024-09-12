@@ -1,4 +1,4 @@
-SET @ATID := 100000;
+SET @ATID := 36797;
 
 -- Serverside Areatrigger
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=34472 AND `IsCustom`=0;
@@ -12,7 +12,7 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `A
 -- Proc
 DELETE FROM `spell_proc` WHERE `SpellId` IN (462764);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
-(462764,0x10,11,0x80000000,0x00000000,0x00000000,0x00000000,0x0,0x0,0x1,0x2,0x0,0x0,0x0,0,0,0,0); -- Arctic Snowstorm
+(462764,0x0,11,0x80000000,0x00000000,0x00000000,0x00000000,0x0,0x0,0x1,0x2,0x0,0x0,0x0,0,0,0,0); -- Arctic Snowstorm
 
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_sha_arctic_snowstorm';
