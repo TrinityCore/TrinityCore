@@ -747,11 +747,17 @@ class spell_warl_roaring_blaze : public SpellScript
         return ValidateSpellInfo ({ SPELL_WARLOCK_ROARING_BLAZE, SPELL_WARLOCK_CONFLAGRATE_DEBUFF });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    bool Load() override
     {
-        Unit* caster = GetCaster();
-        if (caster->HasAura(SPELL_WARLOCK_ROARING_BLAZE))
-            caster->CastSpell(GetHitUnit(), SPELL_WARLOCK_CONFLAGRATE_DEBUFF, true);
+        return GetCaster()->HasAura(SPELL_WARLOCK_ROARING_BLAZE);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARLOCK_CONFLAGRATE_DEBUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
