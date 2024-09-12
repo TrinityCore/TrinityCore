@@ -234,9 +234,10 @@ class spell_sha_arctic_snowstorm : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_ARCTIC_SNOWSTORM_AREATRIGGER });
     }
 
-    void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
     {
-        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_ARCTIC_SNOWSTORM_AREATRIGGER, false);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_ARCTIC_SNOWSTORM_AREATRIGGER,
+            TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
