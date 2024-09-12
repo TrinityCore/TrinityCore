@@ -2014,6 +2014,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_windfury_weapon_proc);
     RegisterSpellScript(spell_sha_windspeakers_lava_resurgence);
-    RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
     RegisterAreaTriggerAI(areatrigger_sha_arctic_snowstorm);
+    RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
 }
