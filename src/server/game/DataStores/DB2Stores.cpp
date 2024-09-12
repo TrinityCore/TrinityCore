@@ -1467,8 +1467,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
-    for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
-        _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+    {
+        for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
+            _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+
+        for (auto& [questLineId, questLineQuests] : _questsByQuestLine)
+            std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
+    }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {

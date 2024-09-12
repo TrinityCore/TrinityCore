@@ -1506,7 +1506,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
                     return;
 
                 uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-                int32 radius = caster->GetObjectScale() * M_PI * 10000 / 3;
+                float radius = caster->GetObjectScale() * M_PI / 3;
 
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
