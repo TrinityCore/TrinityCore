@@ -325,7 +325,7 @@ void MapManager::Update(uint32 diff)
     MapMapType::iterator iter = i_maps.begin();
     while (iter != i_maps.end())
     {
-        if (iter->second->CanUnload(diff))
+        if (iter->second->CanUnload(uint32(i_timer.GetCurrent())))
         {
             if (DestroyMap(iter->second.get()))
                 iter = i_maps.erase(iter);

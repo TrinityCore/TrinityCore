@@ -440,6 +440,7 @@ namespace WorldPackets
             bool StartCheat = false;
             bool AutoLaunched = false;
             bool FromContentPush = false;
+            bool ResetByScheduler = false;
         };
 
         struct QuestObjectiveCollect
@@ -787,6 +788,28 @@ namespace WorldPackets
             int32 ChoiceID = 0;
             int32 ResponseIdentifier = 0;
             bool IsReroll = false;
+        };
+
+        class UiMapQuestLinesResponse final : public ServerPacket
+        {
+        public:
+            UiMapQuestLinesResponse() : ServerPacket(SMSG_UI_MAP_QUEST_LINES_RESPONSE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 UiMapID = 0;
+            std::vector<uint32> QuestLineXQuestIDs;
+            std::vector<uint32> QuestIDs;
+        };
+
+        class UiMapQuestLinesRequest final : public ClientPacket
+        {
+        public:
+            UiMapQuestLinesRequest(WorldPacket&& packet) : ClientPacket(CMSG_UI_MAP_QUEST_LINES_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 UiMapID = 0;
         };
     }
 }

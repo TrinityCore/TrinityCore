@@ -9124,21 +9124,37 @@ void Spell::CallScriptEmpowerCompletedHandlers(int32 completedStagesCount)
 
 bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck)
 {
-    // Skip if there are not any script
-    if (m_loadedScripts.empty())
+    auto allEffectTargetScriptsAreShared = []<typename HookType>(HookList<HookType> const& hooks, SpellInfo const* spellInfo, uint32 effIndex, uint32 effIndexToCheck)
+    {
+        for (HookType const& hook : hooks)
+        {
+            if (!hook.IsEffectAffected(spellInfo, effIndex))
+                continue;
+
+            bool otherEffectHasSameTargetFunction = std::ranges::any_of(hooks, [&](HookType const& other)
+            {
+                return other.IsEffectAffected(spellInfo, effIndexToCheck) && hook.HasSameTargetFunctionAs(other);
+            });
+            if (!otherEffectHasSameTargetFunction)
+                return false;
+        }
+
         return true;
+    };
 
     for (SpellScript* script : m_loadedScripts)
     {
-        for (SpellScript::ObjectTargetSelectHandler const& objectTargetSelect : script->OnObjectTargetSelect)
-            if ((objectTargetSelect.IsEffectAffected(m_spellInfo, effIndex) && !objectTargetSelect.IsEffectAffected(m_spellInfo, effIndexToCheck)) ||
-                (!objectTargetSelect.IsEffectAffected(m_spellInfo, effIndex) && objectTargetSelect.IsEffectAffected(m_spellInfo, effIndexToCheck)))
-                return false;
+        if (!allEffectTargetScriptsAreShared(script->OnObjectTargetSelect, m_spellInfo, effIndex, effIndexToCheck))
+            return false;
 
-        for (SpellScript::ObjectAreaTargetSelectHandler const& objectAreaTargetSelect : script->OnObjectAreaTargetSelect)
-            if ((objectAreaTargetSelect.IsEffectAffected(m_spellInfo, effIndex) && !objectAreaTargetSelect.IsEffectAffected(m_spellInfo, effIndexToCheck)) ||
-                (!objectAreaTargetSelect.IsEffectAffected(m_spellInfo, effIndex) && objectAreaTargetSelect.IsEffectAffected(m_spellInfo, effIndexToCheck)))
-                return false;
+        if (!allEffectTargetScriptsAreShared(script->OnObjectTargetSelect, m_spellInfo, effIndexToCheck, effIndex))
+            return false;
+
+        if (!allEffectTargetScriptsAreShared(script->OnObjectAreaTargetSelect, m_spellInfo, effIndex, effIndexToCheck))
+            return false;
+
+        if (!allEffectTargetScriptsAreShared(script->OnObjectAreaTargetSelect, m_spellInfo, effIndexToCheck, effIndex))
+            return false;
     }
     return true;
 }
@@ -9649,15 +9665,6 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeri
         OriginalCastItemLevel = triggeringSpell->m_castItemLevel;
         OriginalCastId = triggeringSpell->m_castId;
     }
-    return *this;
-}
-
-CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* triggeringAura)
-{
-    TriggeringAura = triggeringAura;
-    if (triggeringAura)
-        OriginalCastId = triggeringAura->GetBase()->GetCastId();
-
     return *this;
 }
 
