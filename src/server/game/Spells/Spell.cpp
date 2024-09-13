@@ -9673,7 +9673,7 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeri
     {
         if (!OriginalCastItemLevel)
             OriginalCastItemLevel = triggeringSpell->m_castItemLevel;
-        if (!OriginalCastItemLevel)
+        if (!OriginalCastId)
             OriginalCastId = triggeringSpell->m_castId;
     }
     return *this;
