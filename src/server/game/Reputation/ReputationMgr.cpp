@@ -402,6 +402,9 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (new_rank <= REP_HOSTILE)
             SetAtWar(&itr->second, true);
 
+        if (itr->second.Flags & FACTION_FLAG_RIVAL && (old_rank <= REP_HOSTILE && new_rank > REP_HOSTILE))
+            SetAtWar(&itr->second, false);
+
         if (new_rank > old_rank)
             _sendFactionIncreased = true;
 
@@ -477,8 +480,9 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
 
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
+    FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction->ID);
     // Do not allow to declare war to our own faction. But allow for rival factions (eg Aldor vs Scryer).
-    if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED) && !(faction->Flags & FACTION_FLAG_RIVAL) && ReputationToRank(faction->Standing) > REP_HATED)
+    if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED) && !(faction->Flags & FACTION_FLAG_RIVAL) && ReputationToRank(faction->Standing + GetBaseReputation(factionEntry)) > REP_HATED)
         return;
 
     // already set
