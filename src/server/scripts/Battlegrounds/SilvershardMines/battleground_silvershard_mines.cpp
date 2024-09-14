@@ -323,6 +323,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
             case SilvershardMines::Events::ProgressEventHordeNorth:
                 HandleProgressEvent(WorldObject::ToGameObject(invoker), HORDE, CHAT_MSG_BG_SYSTEM_HORDE, SilvershardMines::BroadcastTexts::HordeControlsMineCart, SilvershardMines::Spells::ControlVisualHorde);
                 break;
+            case SilvershardMines::Events::ProgressEventAllianceSouth:
             case SilvershardMines::Events::ProgressEventAllianceEast:
             case SilvershardMines::Events::ProgressEventAllianceNorth:
                 HandleProgressEvent(WorldObject::ToGameObject(invoker), ALLIANCE, CHAT_MSG_BG_SYSTEM_ALLIANCE, SilvershardMines::BroadcastTexts::AllianceControlsMineCart, SilvershardMines::Spells::ControlVisualAlliance);
