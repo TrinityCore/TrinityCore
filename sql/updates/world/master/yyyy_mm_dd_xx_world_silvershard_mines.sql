@@ -1,5 +1,5 @@
-SET @CGUID := 10000000;
-SET @OGUID := 10000000;
+SET @CGUID := 4000138;
+SET @OGUID := 4000060;
 
 DELETE FROM `battleground_template` WHERE `ID`=708;
 INSERT INTO `battleground_template` (`ID`, `AllianceStartLoc`, `HordeStartLoc`, `Weight`, `Comment`) VALUES
