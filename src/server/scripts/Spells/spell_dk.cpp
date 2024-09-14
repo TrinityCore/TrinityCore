@@ -80,14 +80,14 @@ enum DeathKnightSpells
     //SPELL_DK_SLUDGE_BELCHER                     = 207313, // dropped in BfA
     //SPELL_DK_SLUDGE_BELCHER_SUMMON              = 212027, // dropped in BfA
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832, // Server Side
-    SPELL_DK_TIGHTENING_GRASP                   = 206970,
+    //SPELL_DK_TIGHTENING_GRASP                   = 206970, // dropped in BfA
     //SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375, // dropped in BfA
     SPELL_DK_UNHOLY                             = 137007,
     SPELL_DK_UNHOLY_GROUND_HASTE                = 374271,
     SPELL_DK_UNHOLY_GROUND_TALENT               = 374265,
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
     //SPELL_DK_VOLATILE_SHIELDING                 = 207188, // dropped in BfA
-    //SPELL_DK_VOLATILE_SHIELDING_DAMAGE          = 207194 // dropped in BfA
+    //SPELL_DK_VOLATILE_SHIELDING_DAMAGE          = 207194  // dropped in BfA
 };
 
 enum Misc
