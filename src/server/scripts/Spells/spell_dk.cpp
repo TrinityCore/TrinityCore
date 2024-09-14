@@ -746,6 +746,24 @@ class spell_dk_howling_blast : public SpellScript
     }
 };
 
+// 194878 - Icy Talons
+class spell_dk_icy_talons : public AuraScript
+{
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        if (Spell const* procSpell = eventInfo.GetProcSpell())
+            if (Optional<int32> cost = procSpell->GetPowerTypeCostAmount(POWER_RUNIC_POWER))
+                return cost > 0;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_icy_talons::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
+    }
+};
+
 // 206940 - Mark of Blood
 class spell_dk_mark_of_blood : public AuraScript
 {
@@ -1067,6 +1085,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterSpellScript(spell_dk_howling_blast);
+    RegisterSpellScript(spell_dk_icy_talons);
     RegisterSpellScript(spell_dk_mark_of_blood);
     RegisterSpellScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_obliteration);
