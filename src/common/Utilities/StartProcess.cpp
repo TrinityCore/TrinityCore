@@ -18,10 +18,8 @@
 #include "StartProcess.h"
 #include "Errors.h"
 #include "Log.h"
+#include "Memory.h"
 #include "Optional.h"
-
-#include <boost/algorithm/string/join.hpp>
-#include <boost/iostreams/copy.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/child.hpp>
 #include <boost/process/env.hpp>
@@ -29,51 +27,12 @@
 #include <boost/process/io.hpp>
 #include <boost/process/pipe.hpp>
 #include <boost/process/search_path.hpp>
+#include <fmt/ranges.h>
 
 using namespace boost::process;
-using namespace boost::iostreams;
 
 namespace Trinity
 {
-
-template<typename T>
-class TCLogSink
-{
-    T callback_;
-
-public:
-    typedef char      char_type;
-    typedef sink_tag  category;
-
-    // Requires a callback type which has a void(std::string) signature
-    TCLogSink(T callback)
-        : callback_(std::move(callback)) { }
-
-    std::streamsize write(char const* str, std::streamsize size)
-    {
-        std::string_view consoleStr(str, size);
-        size_t lineEnd = consoleStr.find_first_of("\r\n");
-        std::streamsize processedCharacters = size;
-        if (lineEnd != std::string_view::npos)
-        {
-            consoleStr = consoleStr.substr(0, lineEnd);
-            processedCharacters = lineEnd + 1;
-        }
-
-        if (!consoleStr.empty())
-            callback_(consoleStr);
-
-        return processedCharacters;
-    }
-};
-
-template<typename T>
-auto MakeTCLogSink(T&& callback)
-    -> TCLogSink<typename std::decay<T>::type>
-{
-    return { std::forward<T>(callback) };
-}
-
 template<typename T>
 static int CreateChildProcess(T waiter, std::string const& executable,
                               std::vector<std::string> const& argsVector,
@@ -101,15 +60,11 @@ static int CreateChildProcess(T waiter, std::string const& executable,
     if (!secure)
     {
         TC_LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
-                executable, boost::algorithm::join(argsVector, " "));
+                executable, fmt::join(argsVector, " "));
     }
 
     // prepare file with only read permission (boost process opens with read_write)
-    std::shared_ptr<FILE> inputFile(!input.empty() ? fopen(input.c_str(), "rb") : nullptr, [](FILE* ptr)
-    {
-        if (ptr != nullptr)
-            fclose(ptr);
-    });
+    auto inputFile = Trinity::make_unique_ptr_with_deleter(!input.empty() ? fopen(input.c_str(), "rb") : nullptr, &::fclose);
 
     // Start the child process
     child c = [&]()
@@ -140,18 +95,20 @@ static int CreateChildProcess(T waiter, std::string const& executable,
         }
     }();
 
-    auto outInfo = MakeTCLogSink([&](std::string_view msg)
+    std::string line;
+    while (std::getline(outStream, line, '\n'))
     {
-        TC_LOG_INFO(logger, "{}", msg);
-    });
+        std::erase(line, '\r');
+        if (!line.empty())
+            TC_LOG_INFO(logger, "{}", line);
+    }
 
-    auto outError = MakeTCLogSink([&](std::string_view msg)
+    while (std::getline(errStream, line, '\n'))
     {
-        TC_LOG_ERROR(logger, "{}", msg);
-    });
-
-    copy(outStream, outInfo);
-    copy(errStream, outError);
+        std::erase(line, '\r');
+        if (!line.empty())
+            TC_LOG_ERROR(logger, "{}", line);
+    }
 
     // Call the waiter in the current scope to prevent
     // the streams from closing too early on leaving the scope.

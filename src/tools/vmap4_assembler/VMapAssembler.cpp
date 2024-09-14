@@ -97,13 +97,13 @@ Optional<int> HandleArgs(int argc, char* argv[], std::string* src, std::string* 
         return 1;
     }
 
-    if (variablesMap.contains("help"))
+    if (variablesMap.find("help") != variablesMap.end())
     {
         std::cout << visible << '\n';
         return 0;
     }
 
-    if (variablesMap.contains("version"))
+    if (variablesMap.find("version") != variablesMap.end())
     {
         std::cout << GitRevision::GetFullVersion() << '\n';
         return 0;
