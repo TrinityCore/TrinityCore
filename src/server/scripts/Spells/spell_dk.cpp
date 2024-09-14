@@ -67,6 +67,8 @@ enum DeathKnightSpells
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
+    SPELL_DK_ICE_PRISON_TALENT                  = 454786,
+    SPELL_DK_ICE_PRISON_ROOT                    = 454787,
     SPELL_DK_KILLING_MACHINE_PROC               = 51124,
     SPELL_DK_MARK_OF_BLOOD_HEAL                 = 206945,
     SPELL_DK_NECROSIS_EFFECT                    = 216974,
@@ -746,6 +748,35 @@ class spell_dk_howling_blast : public SpellScript
     }
 };
 
+// Called by 45524 - Chains of Ice
+// 454786 - Ice Prison
+class spell_dk_ice_prison : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_ICE_PRISON_TALENT, SPELL_DK_ICE_PRISON_ROOT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DK_ICE_PRISON_TALENT);
+    }
+
+    void HandleOnHit()
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_ICE_PRISON_ROOT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_dk_ice_prison::HandleOnHit);
+    }
+};
+
 // 206940 - Mark of Blood
 class spell_dk_mark_of_blood : public AuraScript
 {
@@ -1067,6 +1098,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterSpellScript(spell_dk_howling_blast);
+    RegisterSpellScript(spell_dk_ice_prison);
     RegisterSpellScript(spell_dk_mark_of_blood);
     RegisterSpellScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_obliteration);
