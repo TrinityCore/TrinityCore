@@ -230,6 +230,12 @@ namespace SilvershardMines
         static constexpr int32 AllianceCapturedMineCart = 6954;
         static constexpr int32 HordeCapturedMineCart = 6955;
     }
+
+    enum class TrackSwitchState
+    {
+        Closed = 1,
+        Open
+    };
 }
 
 struct battleground_silvershard_mines final : BattlegroundScript
@@ -315,16 +321,15 @@ struct battleground_silvershard_mines final : BattlegroundScript
             case SilvershardMines::Events::ProgressEventHordeSouth:
             case SilvershardMines::Events::ProgressEventHordeEast:
             case SilvershardMines::Events::ProgressEventHordeNorth:
-                HandleHordeProgressEvent(WorldObject::ToGameObject(invoker));
+                HandleProgressEvent(WorldObject::ToGameObject(invoker), HORDE, CHAT_MSG_BG_SYSTEM_HORDE, SilvershardMines::BroadcastTexts::HordeControlsMineCart, SilvershardMines::Spells::ControlVisualHorde);
                 break;
             case SilvershardMines::Events::ProgressEventAllianceEast:
             case SilvershardMines::Events::ProgressEventAllianceNorth:
-            case SilvershardMines::Events::ProgressEventAllianceSouth:
-                HandleAllianceProgressEvent(WorldObject::ToGameObject(invoker));
+                HandleProgressEvent(WorldObject::ToGameObject(invoker), ALLIANCE, CHAT_MSG_BG_SYSTEM_ALLIANCE, SilvershardMines::BroadcastTexts::AllianceControlsMineCart, SilvershardMines::Spells::ControlVisualAlliance);
                 break;
             case SilvershardMines::Events::ProgressEventNeutralEast:
             case SilvershardMines::Events::ProgressEventNeutralSouth:
-                HandleNeutralEvent(WorldObject::ToGameObject(invoker));
+                HandleProgressEvent(WorldObject::ToGameObject(invoker), TEAM_OTHER);
                 break;
             default:
                 break;
@@ -376,22 +381,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
             creature->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::Spawned);
     }
 
-    void HandleNeutralEvent(GameObject const* controlZone) const
-    {
-        if (!controlZone)
-            return;
-
-        Unit* mineCart = controlZone->GetOwner();
-        if (!mineCart)
-            return;
-
-        mineCart->RemoveAurasDueToSpell(SilvershardMines::Spells::ControlVisualAlliance);
-        mineCart->RemoveAurasDueToSpell(SilvershardMines::Spells::ControlVisualHorde);
-        mineCart->CastSpell(mineCart, SilvershardMines::Spells::ControlVisualNeutral, true);
-        UpdateCartWorldStates(controlZone);
-    }
-
-    void HandleAllianceProgressEvent(GameObject const* controlZone) const
+    void HandleProgressEvent(GameObject const* controlZone, Team team, ChatMsg msgType = CHAT_MSG_ADDON, uint32 broadcastTextId = 0, uint32 visualSpellId = 0) const
     {
         if (!controlZone)
             return;
@@ -400,38 +390,21 @@ struct battleground_silvershard_mines final : BattlegroundScript
         if (!mineCart)
             return;
 
-        battleground->SendBroadcastText(SilvershardMines::BroadcastTexts::AllianceControlsMineCart, CHAT_MSG_BG_SYSTEM_ALLIANCE, controlZone);
         mineCart->RemoveAurasDueToSpell(SilvershardMines::Spells::ControlVisualNeutral);
         mineCart->RemoveAurasDueToSpell(SilvershardMines::Spells::ControlVisualHorde);
-        mineCart->CastSpell(mineCart, SilvershardMines::Spells::ControlVisualAlliance, true);
-        UpdateCartWorldStates(controlZone);
-        mineCart->AI()->DoAction(SilvershardMines::Actions::MineCartControlChanged);
-
-        for (ObjectGuid const& guid : *controlZone->GetInsidePlayers())
-            if (Player* player = ObjectAccessor::FindPlayer(guid))
-                if (player->GetBGTeam() == ALLIANCE)
-                    battleground->UpdatePvpStat(player, SilvershardMines::PvpStats::CartsCaptured, 1);
-    }
-
-    void HandleHordeProgressEvent(GameObject const* controlZone) const
-    {
-        if (!controlZone)
-            return;
-
-        Creature* mineCart = Object::ToCreature(controlZone->GetOwner());
-        if (!mineCart)
-            return;
-
-        battleground->SendBroadcastText(SilvershardMines::BroadcastTexts::HordeControlsMineCart, CHAT_MSG_BG_SYSTEM_HORDE, controlZone);
-        mineCart->RemoveAurasDueToSpell(SilvershardMines::Spells::ControlVisualNeutral);
         mineCart->RemoveAurasDueToSpell(SilvershardMines::Spells::ControlVisualAlliance);
-        mineCart->CastSpell(mineCart, SilvershardMines::Spells::ControlVisualHorde, true);
+        mineCart->CastSpell(mineCart, visualSpellId, true);
         UpdateCartWorldStates(controlZone);
+
+        if (team == TEAM_OTHER)
+            return;
+
+        battleground->SendBroadcastText(broadcastTextId, msgType, controlZone);
         mineCart->AI()->DoAction(SilvershardMines::Actions::MineCartControlChanged);
 
         for (ObjectGuid const& guid : *controlZone->GetInsidePlayers())
             if (Player* player = ObjectAccessor::FindPlayer(guid))
-                if (player->GetBGTeam() == HORDE)
+                if (player->GetBGTeam() == team)
                     battleground->UpdatePvpStat(player, SilvershardMines::PvpStats::CartsCaptured, 1);
     }
 
@@ -540,16 +513,22 @@ struct battleground_silvershard_mines final : BattlegroundScript
         if (controlZone->GetControllingTeam() == TEAM_HORDE)
         {
             mineCart->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::CapturedByHorde);
-            battleground->AddPoint(HORDE, scoreToAdd);
-            UpdateWorldState(SilvershardMines::WorldStates::HordeCapturedMineCart, 1, true);
-            CheckWinner();
+            if (battleground->GetStatus() != STATUS_WAIT_LEAVE)
+            {
+                battleground->AddPoint(HORDE, scoreToAdd);
+                UpdateWorldState(SilvershardMines::WorldStates::HordeCapturedMineCart, 1, true);
+                CheckWinner();
+            }
         }
         else if (controlZone->GetControllingTeam() == TEAM_ALLIANCE)
         {
             mineCart->AI()->Talk(SilvershardMines::CreatureTexts::MineCart::CapturedByAlliance);
-            battleground->AddPoint(ALLIANCE, scoreToAdd);
-            UpdateWorldState(SilvershardMines::WorldStates::AllianceCapturedMineCart, 1, true);
-            CheckWinner();
+            if (battleground->GetStatus() != STATUS_WAIT_LEAVE)
+            {
+                battleground->AddPoint(ALLIANCE, scoreToAdd);
+                UpdateWorldState(SilvershardMines::WorldStates::AllianceCapturedMineCart, 1, true);
+                CheckWinner();
+            }
         }
     }
 
@@ -593,15 +572,15 @@ struct battleground_silvershard_mines final : BattlegroundScript
             return;
 
         uint32 const currentState = trackSwitch->GetMap()->GetWorldStateValue(worldStateId);
-        if (currentState == 1)
+        if (currentState == AsUnderlyingType(SilvershardMines::TrackSwitchState::Closed))
         {
-            trackSwitch->GetMap()->SetWorldStateValue(worldStateId, 2, false);
+            trackSwitch->GetMap()->SetWorldStateValue(worldStateId, AsUnderlyingType(SilvershardMines::TrackSwitchState::Open), false);
             trackSwitch->RemoveAurasDueToSpell(SilvershardMines::Spells::TrackSwitchVisualClosed);
             trackSwitch->CastSpell(trackSwitch, SilvershardMines::Spells::TrackSwitchVisualOpened, true);
         }
-        else if (currentState == 2)
+        else if (currentState == AsUnderlyingType(SilvershardMines::TrackSwitchState::Open))
         {
-            trackSwitch->GetMap()->SetWorldStateValue(worldStateId, 1, false);
+            trackSwitch->GetMap()->SetWorldStateValue(worldStateId, AsUnderlyingType(SilvershardMines::TrackSwitchState::Closed), false);
             trackSwitch->RemoveAurasDueToSpell(SilvershardMines::Spells::TrackSwitchVisualOpened);
             trackSwitch->CastSpell(trackSwitch, SilvershardMines::Spells::TrackSwitchVisualClosed, true);
         }
@@ -612,6 +591,9 @@ struct battleground_silvershard_mines final : BattlegroundScript
 
     bool CheckWinner() const
     {
+        if (battleground->GetStatus() != STATUS_IN_PROGRESS)
+            return true;
+
         uint32 const hordeScore = battleground->GetTeamScore(TEAM_HORDE);
         uint32 const allianceScore = battleground->GetTeamScore(TEAM_ALLIANCE);
         if (hordeScore >= SilvershardMines::Score::Max || allianceScore >= SilvershardMines::Score::Max)
@@ -770,7 +752,7 @@ public:
 
             if (Aura const* aura = me->GetAura(SilvershardMines::Spells::ControlVisualHorde))
                 controlAuraApplyTime = aura->GetApplyTime();
-            if (Aura const* aura = me->GetAura(SilvershardMines::Spells::ControlVisualAlliance))
+            else if (Aura const* aura = me->GetAura(SilvershardMines::Spells::ControlVisualAlliance))
                 controlAuraApplyTime = aura->GetApplyTime();
 
             if (controlAuraApplyTime <= _theLongRidersSpawnTime)
