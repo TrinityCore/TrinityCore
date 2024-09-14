@@ -74,6 +74,7 @@ enum DeathKnightSpells
     SPELL_DK_OBLITERATION_RUNE_ENERGIZE         = 281327,
     SPELL_DK_PILLAR_OF_FROST                    = 51271,
     SPELL_DK_RAISE_DEAD_SUMMON                  = 52150,
+    SPELL_DK_RUNIC_CORRUPTION                   = 51460,
     SPELL_DK_RECENTLY_USED_DEATH_STRIKE         = 180612,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_RUNIC_RETURN                       = 61258,
@@ -970,7 +971,7 @@ class spell_dk_soul_reaper : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_SOUL_REAPER, SPELL_DK_SOUL_REAPER_DAMAGE });
+        return ValidateSpellInfo({ SPELL_DK_SOUL_REAPER, SPELL_DK_SOUL_REAPER_DAMAGE, SPELL_DK_RUNIC_CORRUPTION });
     }
 
     void HandleOnTick(AuraEffect const* aurEff) const
@@ -987,9 +988,23 @@ class spell_dk_soul_reaper : public AuraScript
             });
     }
 
+    void RemoveEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+            return;
+
+        Unit* caster = GetCaster();
+        if (caster->ToPlayer()->isHonorOrXPTarget(GetTarget()))
+            caster->CastSpell(caster, SPELL_DK_RUNIC_CORRUPTION, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+    }
+
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_soul_reaper::HandleOnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_soul_reaper::RemoveEffect, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
