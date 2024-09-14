@@ -231,7 +231,7 @@ namespace SilvershardMines
         static constexpr int32 HordeCapturedMineCart = 6955;
     }
 
-    enum class TrackSwitchState
+    enum class TrackSwitchState : uint32
     {
         Closed = 1,
         Open
