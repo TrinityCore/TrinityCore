@@ -69,7 +69,7 @@ enum DeathKnightSpells
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
     SPELL_DK_KILLING_MACHINE_PROC               = 51124,
     SPELL_DK_MARK_OF_BLOOD_HEAL                 = 206945,
-    SPELL_DK_NECROSIS_EFFECT                    = 216974,
+    //SPELL_DK_NECROSIS_EFFECT                    = 216974, // dropped in BfA
     SPELL_DK_OBLITERATION                       = 281238,
     SPELL_DK_OBLITERATION_RUNE_ENERGIZE         = 281327,
     SPELL_DK_PILLAR_OF_FROST                    = 51271,
@@ -77,8 +77,8 @@ enum DeathKnightSpells
     SPELL_DK_RECENTLY_USED_DEATH_STRIKE         = 180612,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_RUNIC_RETURN                       = 61258,
-    SPELL_DK_SLUDGE_BELCHER                     = 207313,
-    SPELL_DK_SLUDGE_BELCHER_SUMMON              = 212027,
+    //SPELL_DK_SLUDGE_BELCHER                     = 207313, // dropped in BfA
+    //SPELL_DK_SLUDGE_BELCHER_SUMMON              = 212027, // dropped in BfA
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832, // Server Side
     SPELL_DK_TIGHTENING_GRASP                   = 206970,
     //SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375, // dropped in BfA
@@ -86,8 +86,8 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_GROUND_HASTE                = 374271,
     SPELL_DK_UNHOLY_GROUND_TALENT               = 374265,
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
-    SPELL_DK_VOLATILE_SHIELDING                 = 207188,
-    SPELL_DK_VOLATILE_SHIELDING_DAMAGE          = 207194
+    //SPELL_DK_VOLATILE_SHIELDING                 = 207188, // dropped in BfA
+    //SPELL_DK_VOLATILE_SHIELDING_DAMAGE          = 207194 // dropped in BfA
 };
 
 enum Misc
@@ -135,7 +135,7 @@ public:
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE, SPELL_DK_VOLATILE_SHIELDING })
+        return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
@@ -159,29 +159,15 @@ public:
     {
         absorbedAmount += absorbAmount;
 
-        if (!GetTarget()->HasAura(SPELL_DK_VOLATILE_SHIELDING))
-        {
-            CastSpellExtraArgs args(aurEff);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
-            GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
-        }
-    }
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (AuraEffect const* volatileShielding = GetTarget()->GetAuraEffect(SPELL_DK_VOLATILE_SHIELDING, EFFECT_1))
-        {
-            CastSpellExtraArgs args(volatileShielding);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbedAmount, volatileShielding->GetAmount()));
-            GetTarget()->CastSpell(nullptr, SPELL_DK_VOLATILE_SHIELDING_DAMAGE, args);
-        }
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
+        GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
     }
 
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell::Trigger, EFFECT_0);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_anti_magic_shell::HandleEffectRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 
 private:
@@ -767,26 +753,6 @@ class spell_dk_mark_of_blood : public AuraScript
     }
 };
 
-// 207346 - Necrosis
-class spell_dk_necrosis : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DK_NECROSIS_EFFECT });
-    }
-
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_NECROSIS_EFFECT, true);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dk_necrosis::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
 // 207256 - Obliteration
 class spell_dk_obliteration : public AuraScript
 {
@@ -922,15 +888,12 @@ class spell_dk_raise_dead : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_RAISE_DEAD_SUMMON, SPELL_DK_SLUDGE_BELCHER, SPELL_DK_SLUDGE_BELCHER_SUMMON });
+        return ValidateSpellInfo({ SPELL_DK_RAISE_DEAD_SUMMON });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         uint32 spellId = SPELL_DK_RAISE_DEAD_SUMMON;
-        if (GetCaster()->HasAura(SPELL_DK_SLUDGE_BELCHER))
-            spellId = SPELL_DK_SLUDGE_BELCHER_SUMMON;
-
         GetCaster()->CastSpell(nullptr, spellId, true);
     }
 
@@ -1068,7 +1031,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_mark_of_blood);
-    RegisterSpellScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_obliteration);
     RegisterSpellScript(spell_dk_permafrost);
     RegisterSpellScript(spell_dk_pet_geist_transform);
