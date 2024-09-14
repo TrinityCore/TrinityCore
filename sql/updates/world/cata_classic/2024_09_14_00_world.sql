@@ -1,0 +1,9 @@
+ALTER TABLE `creature_classlevelstats`   
+	DROP COLUMN `basehp0`, 
+	DROP COLUMN `basehp1`, 
+	DROP COLUMN `basehp2`, 
+	DROP COLUMN `basehp3`, 
+	DROP COLUMN `damage_base`, 
+	DROP COLUMN `damage_exp1`, 
+	DROP COLUMN `damage_exp2`, 
+	DROP COLUMN `damage_exp3`;

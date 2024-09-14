@@ -130,6 +130,36 @@ struct GtNpcManaCostScalerEntry
     float Scaler = 0.0f;
 };
 
+struct GtNpcTotalHpEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
+struct GtNpcDamageByClassEntry
+{
+    float Warrior = 0.0f;
+    float Paladin = 0.0f;
+    float Hunter = 0.0f;
+    float Rogue = 0.0f;
+    float Priest = 0.0f;
+    float DeathKnight = 0.0f;
+    float Shaman = 0.0f;
+    float Mage = 0.0f;
+    float Warlock = 0.0f;
+    float Monk = 0.0f;
+    float Druid = 0.0f;
+};
+
 struct GtOctBaseHpByClassEntry
 {
     float Warrior = 0.0f;
@@ -301,6 +331,8 @@ TC_GAME_API extern GameTable<GtChanceToSpellCritEntry>              sChanceToSpe
 TC_GAME_API extern GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
+TC_GAME_API extern GameTable<GtNpcDamageByClassEntry>               sNpcDamageByClassGameTable[MAX_CLASSIC_EXPANSIONS];
+TC_GAME_API extern GameTable<GtNpcTotalHpEntry>                     sNpcTotalHpGameTable[MAX_CLASSIC_EXPANSIONS];
 TC_GAME_API extern GameTable<GtOctBaseHpByClassEntry>               sOctBaseHpByClassGameTable;
 TC_GAME_API extern GameTable<GtOctBaseMpByClassEntry>               sOctBaseMpByClassGameTable;
 TC_GAME_API extern GameTable<GtOctClassCombatRatingScalarEntry>     sOctClassCombatRatingScalarGameTable;
