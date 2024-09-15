@@ -38,6 +38,8 @@ enum DruidSpells
 {
     SPELL_DRUID_ABUNDANCE                      = 207383,
     SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
+    SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE      = 450599,
+    SPELL_DRUID_ASTRAL_COMMUNION_TALENT        = 450598,
     SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE          = 394061,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
@@ -169,6 +171,35 @@ class spell_dru_abundance : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 102560 - Incarnation: Chosen of Elune
+// 194223 - Celestial Alignment
+// 383410 - Celestial Alignment
+// 390414 - Incarnation: Chosen of Elune
+class spell_dru_astral_communion_celestial_alignment : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ASTRAL_COMMUNION_TALENT, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT);
+    }
+
+    void Energize() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, CastSpellExtraArgs()
+            .SetTriggeringSpell(GetSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dru_astral_communion_celestial_alignment::Energize);
     }
 };
 
@@ -356,7 +387,10 @@ class spell_dru_cat_form : public AuraScript
     }
 };
 
+// 102560 - Incarnation: Chosen of Elune
 // 194223 - Celestial Alignment
+// 383410 - Celestial Alignment
+// 390414 - Incarnation: Chosen of Elune
 class spell_dru_celestial_alignment : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -366,11 +400,11 @@ class spell_dru_celestial_alignment : public SpellScript
             SPELL_DRUID_ECLIPSE_SOLAR_AURA,
             SPELL_DRUID_ECLIPSE_LUNAR_AURA,
             SPELL_DRUID_ECLIPSE_VISUAL_SOLAR,
-            SPELL_DRUID_ECLIPSE_VISUAL_LUNAR
+            SPELL_DRUID_ECLIPSE_VISUAL_LUNAR,
         });
     }
 
-    void TriggerEclipses(SpellEffIndex /*effIndex*/) const
+    void TriggerEclipses() const
     {
         Unit* caster = GetCaster();
         CastSpellExtraArgs args;
@@ -385,7 +419,7 @@ class spell_dru_celestial_alignment : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignment::TriggerEclipses, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        AfterCast += SpellCastFn(spell_dru_celestial_alignment::TriggerEclipses);
     }
 };
 
@@ -512,8 +546,15 @@ class spell_dru_eclipse_dummy : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT,
-            SPELL_DRUID_ECLIPSE_SOLAR_AURA, SPELL_DRUID_ECLIPSE_LUNAR_AURA });
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT,
+            SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT,
+            SPELL_DRUID_ECLIPSE_SOLAR_AURA,
+            SPELL_DRUID_ECLIPSE_LUNAR_AURA,
+            SPELL_DRUID_ASTRAL_COMMUNION_TALENT,
+            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE
+        });
     }
 
     void HandleProc(ProcEventInfo& eventInfo)
@@ -569,6 +610,9 @@ private:
             {
                 // cast eclipse
                 target->CastSpell(target, eclipseAuraSpellId, TRIGGERED_FULL_MASK);
+
+                if (target->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT))
+                    target->CastSpell(target, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, true);
 
                 // Remove stacks from other one as well
                 // reset remaining power on other spellId
@@ -2221,6 +2265,7 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_abundance);
+    RegisterSpellScript(spell_dru_astral_communion_celestial_alignment);
     RegisterSpellScript(spell_dru_astral_smolder);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);

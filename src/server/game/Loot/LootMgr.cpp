@@ -66,9 +66,7 @@ struct LootGroupInvalidSelector
         if (!(item->lootmode & _lootMode))
             return true;
 
-        if (_personalLooter && !LootItem::AllowedForPlayer(_personalLooter, nullptr, item->itemid, item->needs_quest,
-            !item->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(item->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
-            true, item->conditions))
+        if (_personalLooter && !LootItem::AllowedForPlayer(_personalLooter, *item, true))
             return true;
 
         return false;
@@ -265,6 +263,14 @@ bool LootStoreItem::Roll(bool rate) const
         }
         case Type::Reference:
             return roll_chance_f(chance * (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
+        case Type::Currency:
+        {
+            CurrencyTypesEntry const* currency = sCurrencyTypesStore.AssertEntry(itemid);
+
+            float qualityModifier = currency && rate && QualityToRate[currency->Quality] != MAX_RATES ? sWorld->getRate(QualityToRate[currency->Quality]) : 1.0f;
+
+            return roll_chance_f(chance * qualityModifier);
+        }
         default:
             break;
     }
@@ -327,6 +333,38 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
                 return false;
             }
             break;
+        case Type::Currency:
+        {
+            if (!sCurrencyTypesStore.HasRecord(itemid))
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: currency does not exist - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (chance == 0 && groupid == 0)                // Zero chance is allowed for grouped entries only
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: equal-chanced grouped entry, but group not defined - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (chance != 0 && chance < 0.0001f)            // loot with low chance
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: low chance ({}) - skipped",
+                    store.GetName(), entry, type, itemid, chance);
+                return false;
+            }
+
+            if (maxcount < mincount)                        // wrong max count
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: MaxCount ({}) less that MinCount ({}) - skipped",
+                    store.GetName(), entry, type, itemid, int32(maxcount), mincount);
+                return false;
+            }
+            break;
+        }
+
         default:
             TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: invalid ItemType {}, skipped",
                 store.GetName(), entry, itemid, type);
@@ -387,15 +425,11 @@ LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode, Player const
 bool LootTemplate::LootGroup::HasDropForPlayer(Player const* player, bool strictUsabilityCheck) const
 {
     for (std::unique_ptr<LootStoreItem> const& lootStoreItem : ExplicitlyChanced)
-        if (LootItem::AllowedForPlayer(player, nullptr, lootStoreItem->itemid, lootStoreItem->needs_quest,
-            !lootStoreItem->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(lootStoreItem->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
-            strictUsabilityCheck, lootStoreItem->conditions))
+        if (LootItem::AllowedForPlayer(player, *lootStoreItem, strictUsabilityCheck))
             return true;
 
     for (std::unique_ptr<LootStoreItem> const& lootStoreItem : EqualChanced)
-        if (LootItem::AllowedForPlayer(player, nullptr, lootStoreItem->itemid, lootStoreItem->needs_quest,
-            !lootStoreItem->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(lootStoreItem->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
-            strictUsabilityCheck, lootStoreItem->conditions))
+        if (LootItem::AllowedForPlayer(player, *lootStoreItem, strictUsabilityCheck))
             return true;
 
     return false;
@@ -416,10 +450,24 @@ bool LootTemplate::LootGroup::HasQuestDrop() const
 // True if group includes at least 1 quest drop entry for active quests of the player
 bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const* player) const
 {
-    if (std::ranges::any_of(ExplicitlyChanced, [player](uint32 itemId) { return player->HasQuestForItem(itemId); }, &LootStoreItem::itemid))
+    auto hasQuestForLootItem = [player](std::unique_ptr<LootStoreItem> const& item)
+    {
+        switch (item->type)
+        {
+            case LootStoreItem::Type::Item:
+                return player->HasQuestForItem(item->itemid);
+            case LootStoreItem::Type::Currency:
+                return player->HasQuestForCurrency(item->itemid);
+            default:
+                break;
+        }
+        return false;
+    };
+
+    if (std::ranges::any_of(ExplicitlyChanced, hasQuestForLootItem))
         return true;
 
-    if (std::ranges::any_of(EqualChanced, [player](uint32 itemId) { return player->HasQuestForItem(itemId); }, &LootStoreItem::itemid))
+    if (std::ranges::any_of(EqualChanced, hasQuestForLootItem))
         return true;
 
     return false;
@@ -519,6 +567,22 @@ void LootTemplate::CopyConditions(LootItem* li) const
     // Copies the conditions list from a template item to a LootItemData
     for (std::unique_ptr<LootStoreItem> const& item : Entries)
     {
+        switch (item->type)
+        {
+            case LootStoreItem::Type::Item:
+                if (li->type != LootItemType::Item)
+                    continue;
+                break;
+            case LootStoreItem::Type::Reference:
+                continue;
+            case LootStoreItem::Type::Currency:
+                if (li->type != LootItemType::Currency)
+                    continue;
+                break;
+            default:
+                break;
+        }
+
         if (item->itemid != li->itemid)
             continue;
 
@@ -554,12 +618,10 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         switch (item->type)
         {
             case LootStoreItem::Type::Item:
+            case LootStoreItem::Type::Currency:
                 // Plain entries (not a reference, not grouped)
                 // Chance is already checked, just add
-                if (!personalLooter
-                    || LootItem::AllowedForPlayer(personalLooter, nullptr, item->itemid, item->needs_quest,
-                        !item->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(item->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
-                        true, item->conditions))
+                if (!personalLooter || LootItem::AllowedForPlayer(personalLooter, *item, true))
                     loot.AddItem(*item);
 
                 break;
@@ -616,9 +678,7 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
                 // Chance is already checked, just add
                 std::vector<Player*> lootersForItem = getLootersForItem([&](Player const* looter)
                 {
-                    return LootItem::AllowedForPlayer(looter, nullptr, item->itemid, item->needs_quest,
-                        !item->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(item->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
-                        true, item->conditions);
+                    return LootItem::AllowedForPlayer(looter, *item, true);
                 });
 
                 if (!lootersForItem.empty())
@@ -668,6 +728,19 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
 
                 break;
             }
+            case LootStoreItem::Type::Currency:
+            {
+                // Plain entries (not a reference, not grouped)
+                // Chance is already checked, just add
+                std::vector<Player*> lootersForItem = getLootersForItem([&](Player const* looter)
+                {
+                    return LootItem::AllowedForPlayer(looter, *item, true);
+                });
+
+                for (Player* looter : lootersForItem)
+                    personalLoot[looter]->AddItem(*item);
+                break;
+            }
             default:
                 break;
         }
@@ -712,9 +785,8 @@ bool LootTemplate::HasDropForPlayer(Player const* player, uint8 groupId, bool st
         switch (lootStoreItem->type)
         {
             case LootStoreItem::Type::Item:
-                if (LootItem::AllowedForPlayer(player, nullptr, lootStoreItem->itemid, lootStoreItem->needs_quest,
-                    !lootStoreItem->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(lootStoreItem->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
-                    strictUsabilityCheck, lootStoreItem->conditions))
+            case LootStoreItem::Type::Currency:
+                if (LootItem::AllowedForPlayer(player, *lootStoreItem, strictUsabilityCheck))
                     return true;                                    // active quest drop found
                 break;
             case LootStoreItem::Type::Reference:
@@ -758,6 +830,7 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
         switch (item->type)
         {
             case LootStoreItem::Type::Item:
+            case LootStoreItem::Type::Currency:
                 if (item->needs_quest)
                     return true;                            // quest drop found
                 break;
@@ -815,6 +888,10 @@ bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player co
                     return true;
                 break;
             }
+            case LootStoreItem::Type::Currency:
+                if (player->HasQuestForCurrency(item->itemid))
+                    return true;                            // active quest drop found
+                break;
             default:
                 break;
         }
