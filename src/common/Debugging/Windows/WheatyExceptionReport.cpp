@@ -66,9 +66,6 @@ bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
 WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
 
-// Declare global instance of class
-WheatyExceptionReport g_WheatyExceptionReport;
-
 //============================== Class Methods =============================
 
 WheatyExceptionReport::WheatyExceptionReport()             // Constructor
