@@ -15,13 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef _WIN32
-#ifndef _WIN32_SERVICE_
-#define _WIN32_SERVICE_
+#ifndef TRINITYCORE_WIN32_SERVICE
+#define TRINITYCORE_WIN32_SERVICE
 
-bool WinServiceInstall();
-bool WinServiceUninstall();
-bool WinServiceRun();
+#include "Define.h"
+#include <tchar.h>
 
-#endif                                                      // _WIN32_SERVICE_
-#endif                                                      // _WIN32
+namespace Trinity::Service
+{
+    TC_COMMON_API void Init(_TCHAR* serviceLongName, _TCHAR* serviceName, _TCHAR* serviceDescription,
+        int(*entryPoint)(int argc, char** argv), int* status);
+    TC_COMMON_API int32 Install();
+    TC_COMMON_API int32 Uninstall();
+    TC_COMMON_API int32 Run();
+}
+
+#endif                                                      // TRINITYCORE_WIN32_SERVICE

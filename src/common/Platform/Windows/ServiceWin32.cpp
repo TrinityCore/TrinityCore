@@ -15,49 +15,50 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef _WIN32
-
-#include "Log.h"
+#include "ServiceWin32.h"
+#include <array> // for std::size
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <tchar.h>
 #include <windows.h>
 #include <winsvc.h>
 
-#if !defined(WINADVAPI)
-#if !defined(_ADVAPI32_)
-#define WINADVAPI DECLSPEC_IMPORT
-#else
-#define WINADVAPI
-#endif
-#endif
+namespace
+{
+_TCHAR* ServiceLongName;
+_TCHAR* ServiceName;
+_TCHAR* ServiceDescription;
+int(*ServiceEntryPoint)(int argc, char** argv);
+int* ServiceStatusPtr;
 
-extern int main(int argc, char ** argv);
-extern TCHAR serviceLongName[];
-extern TCHAR serviceName[];
-extern TCHAR serviceDescription[];
+SERVICE_STATUS ServiceStatus;
+SERVICE_STATUS_HANDLE ServiceStatusHandle = nullptr;
+}
 
-extern int m_ServiceStatus;
+typedef BOOL (WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
 
-SERVICE_STATUS serviceStatus;
+void Trinity::Service::Init(_TCHAR* serviceLongName, _TCHAR* serviceName, _TCHAR* serviceDescription, int(* entryPoint)(int argc, char** argv), int* status)
+{
+    ServiceLongName = serviceLongName;
+    ServiceName = serviceName;
+    ServiceDescription = serviceDescription;
+    ServiceEntryPoint = entryPoint;
+    ServiceStatusPtr = status;
+}
 
-SERVICE_STATUS_HANDLE serviceStatusHandle = nullptr;
-
-typedef WINADVAPI BOOL (WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
-
-bool WinServiceInstall()
+int32 Trinity::Service::Install()
 {
     SC_HANDLE serviceControlManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_CREATE_SERVICE);
 
     if (serviceControlManager)
     {
         TCHAR path[_MAX_PATH + 10];
-        if (GetModuleFileName( nullptr, path, sizeof(path)/sizeof(path[0]) ) > 0)
+        if (GetModuleFileName(nullptr, path, std::size(path)) > 0)
         {
-            SC_HANDLE service;
             _tcscat(path, _T(" --service run"));
-            service = CreateService(serviceControlManager,
-                serviceName,                                // name of service
-                serviceLongName,                            // service name to display
+            SC_HANDLE service = CreateService(serviceControlManager,
+                ServiceName,                                // name of service
+                ServiceLongName,                            // service name to display
                 SERVICE_ALL_ACCESS,                         // desired access
                                                             // service type
                 SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS,
@@ -71,25 +72,9 @@ bool WinServiceInstall()
                 nullptr);                                   // no password
             if (service)
             {
-                HMODULE advapi32 = GetModuleHandle(_T("ADVAPI32.DLL"));
-                if (!advapi32)
-                {
-                    CloseServiceHandle(service);
-                    CloseServiceHandle(serviceControlManager);
-                    return false;
-                }
-
-                CSD_T ChangeService_Config2 = (CSD_T) GetProcAddress(advapi32, "ChangeServiceConfig2A");
-                if (!ChangeService_Config2)
-                {
-                    CloseServiceHandle(service);
-                    CloseServiceHandle(serviceControlManager);
-                    return false;
-                }
-
                 SERVICE_DESCRIPTION sdBuf;
-                sdBuf.lpDescription = serviceDescription;
-                ChangeService_Config2(
+                sdBuf.lpDescription = ServiceDescription;
+                ChangeServiceConfig2(
                     service,                                // handle to service
                     SERVICE_CONFIG_DESCRIPTION,             // change: description
                     &sdBuf);                                // new data
@@ -101,8 +86,8 @@ bool WinServiceInstall()
                 ZeroMemory(&sfa, sizeof(SERVICE_FAILURE_ACTIONS));
                 sfa.lpsaActions = _action;
                 sfa.cActions = 1;
-                sfa.dwResetPeriod =INFINITE;
-                ChangeService_Config2(
+                sfa.dwResetPeriod = INFINITE;
+                ChangeServiceConfig2(
                     service,                                // handle to service
                     SERVICE_CONFIG_FAILURE_ACTIONS,         // information level
                     &sfa);                                  // new data
@@ -115,17 +100,17 @@ bool WinServiceInstall()
     }
 
     printf("Service installed\n");
-    return true;
+    return 0;
 }
 
-bool WinServiceUninstall()
+int32 Trinity::Service::Uninstall()
 {
     SC_HANDLE serviceControlManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_CONNECT);
 
     if (serviceControlManager)
     {
         SC_HANDLE service = OpenService(serviceControlManager,
-            serviceName, SERVICE_QUERY_STATUS | DELETE);
+            ServiceName, SERVICE_QUERY_STATUS | DELETE);
         if (service)
         {
             SERVICE_STATUS serviceStatus2;
@@ -141,7 +126,7 @@ bool WinServiceUninstall()
     }
 
     printf("Service uninstalled\n");
-    return true;
+    return 0;
 }
 
 void WINAPI ServiceControlHandler(DWORD controlCode)
@@ -153,26 +138,26 @@ void WINAPI ServiceControlHandler(DWORD controlCode)
 
         case SERVICE_CONTROL_SHUTDOWN:
         case SERVICE_CONTROL_STOP:
-            serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
+            ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+            SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
 
-            m_ServiceStatus = 0;
+            *ServiceStatusPtr = 0;
             return;
 
         case SERVICE_CONTROL_PAUSE:
-            m_ServiceStatus = 2;
-            serviceStatus.dwCurrentState = SERVICE_PAUSED;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
+            *ServiceStatusPtr = 2;
+            ServiceStatus.dwCurrentState = SERVICE_PAUSED;
+            SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
             break;
 
         case SERVICE_CONTROL_CONTINUE:
-            serviceStatus.dwCurrentState = SERVICE_RUNNING;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
-            m_ServiceStatus = 1;
+            ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+            SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
+            *ServiceStatusPtr = 1;
             break;
 
         default:
-            if ( controlCode >= 128 && controlCode <= 255 )
+            if (controlCode >= 128 && controlCode <= 255)
                 // user defined control code
                 break;
             else
@@ -180,7 +165,7 @@ void WINAPI ServiceControlHandler(DWORD controlCode)
                 break;
     }
 
-    SetServiceStatus(serviceStatusHandle, &serviceStatus);
+    SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
 }
 
 template<size_t size>
@@ -195,81 +180,77 @@ void TCharToChar(TCHAR const* src, char(&dst)[size])
 void WINAPI ServiceMain(DWORD /*argc*/, TCHAR *argv[])
 {
     // initialise service status
-    serviceStatus.dwServiceType = SERVICE_WIN32;
-    serviceStatus.dwCurrentState = SERVICE_START_PENDING;
-    serviceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_PAUSE_CONTINUE;
-    serviceStatus.dwWin32ExitCode = NO_ERROR;
-    serviceStatus.dwServiceSpecificExitCode = NO_ERROR;
-    serviceStatus.dwCheckPoint = 0;
-    serviceStatus.dwWaitHint = 0;
+    ServiceStatus.dwServiceType = SERVICE_WIN32;
+    ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+    ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_PAUSE_CONTINUE;
+    ServiceStatus.dwWin32ExitCode = NO_ERROR;
+    ServiceStatus.dwServiceSpecificExitCode = NO_ERROR;
+    ServiceStatus.dwCheckPoint = 0;
+    ServiceStatus.dwWaitHint = 0;
 
-    serviceStatusHandle = RegisterServiceCtrlHandler(serviceName, ServiceControlHandler);
+    ServiceStatusHandle = RegisterServiceCtrlHandler(ServiceName, ServiceControlHandler);
 
-    if ( serviceStatusHandle )
+    if (ServiceStatusHandle)
     {
         TCHAR path[_MAX_PATH + 1];
-        unsigned int i, last_slash = 0;
+        size_t last_slash = 0;
 
-        GetModuleFileName(nullptr, path, sizeof(path)/sizeof(path[0]));
-
-        size_t pathLen = _tcslen(path);
-        for (i = 0; i < pathLen; i++)
-        {
-            if (path[i] == '\\') last_slash = i;
-        }
+        size_t pathLen = GetModuleFileName(nullptr, path, std::size(path));
+        for (size_t i = 0; i < pathLen; i++)
+            if (path[i] == '\\')
+                last_slash = i;
 
         path[last_slash] = 0;
 
         // service is starting
-        serviceStatus.dwCurrentState = SERVICE_START_PENDING;
-        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+        SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
 
         // do initialisation here
         SetCurrentDirectory(path);
 
         // running
-        serviceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
-        serviceStatus.dwCurrentState = SERVICE_RUNNING;
-        SetServiceStatus( serviceStatusHandle, &serviceStatus );
+        ServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
+        ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+        SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
 
         ////////////////////////
         // service main cycle //
         ////////////////////////
 
-        m_ServiceStatus = 1;
+        *ServiceStatusPtr = 1;
 
         char cArg[_MAX_PATH + 1];
         TCharToChar(argv[0], cArg);
         char* cArgv[] = { cArg };
 
-        main(1, cArgv);
+        ServiceEntryPoint(1, cArgv);
 
         // service was stopped
-        serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
 
         // do cleanup here
 
         // service is now stopped
-        serviceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
-        serviceStatus.dwCurrentState = SERVICE_STOPPED;
-        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        ServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
+        ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+        SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
     }
 }
 
-bool WinServiceRun()
+int32 Trinity::Service::Run()
 {
     SERVICE_TABLE_ENTRY serviceTable[] =
     {
-        { serviceName, ServiceMain },
+        { ServiceName, ServiceMain },
         { nullptr, nullptr }
     };
 
     if (!StartServiceCtrlDispatcher(serviceTable))
     {
-        TC_LOG_ERROR("server.worldserver", "StartService Failed. Error [{}]", uint32(::GetLastError()));
-        return false;
+        printf("StartService Failed. Error [%u]", uint32(::GetLastError()));
+        return 1;
     }
-    return true;
+    return 0;
 }
-#endif
