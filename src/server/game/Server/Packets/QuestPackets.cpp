@@ -507,6 +507,7 @@ WorldPacket const* QuestGiverQuestDetails::Write()
     _worldPacket << Bits<1>(AutoLaunched);
     _worldPacket << Bits<1>(FromContentPush);
     _worldPacket << Bits<1>(false);   // unused in client
+    _worldPacket << Bits<1>(ResetByScheduler);
     _worldPacket << Bits<1>(StartCheat);
     _worldPacket << Bits<1>(DisplayPopup);
     _worldPacket.FlushBits();
@@ -857,5 +858,29 @@ void ChoiceResponse::Read()
     _worldPacket >> ChoiceID;
     _worldPacket >> ResponseIdentifier;
     IsReroll = _worldPacket.ReadBit();
+}
+
+WorldPacket const* UiMapQuestLinesResponse::Write()
+{
+    _worldPacket << int32(UiMapID);
+    _worldPacket << uint32(QuestLineXQuestIDs.size());
+    _worldPacket << uint32(QuestIDs.size());
+    _worldPacket << uint32(QuestLineIDs.size());
+
+    for (uint32 const& questLineQuestID : QuestLineXQuestIDs)
+        _worldPacket << uint32(questLineQuestID);
+
+    for (uint32 const& questID : QuestIDs)
+        _worldPacket << uint32(questID);
+
+    for (uint32 const& questLineID : QuestLineIDs)
+        _worldPacket << uint32(questLineID);
+
+    return &_worldPacket;
+}
+
+void UiMapQuestLinesRequest::Read()
+{
+    _worldPacket >> UiMapID;
 }
 }
