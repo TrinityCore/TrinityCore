@@ -139,11 +139,18 @@ class spell_warl_backdraft : public SpellScript
         return ValidateSpellInfo ({ SPELL_WARLOCK_BACKDRAFT, SPELL_WARLOCK_BACKDRAFT_PROC });
     }
 
-    void HandleAfterCast()
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARLOCK_BACKDRAFT);
+    }
+
+    void HandleAfterCast() const
     {
         Unit* caster = GetCaster();
-        if (caster->HasAura(SPELL_WARLOCK_BACKDRAFT))
-            caster->CastSpell(caster, SPELL_WARLOCK_BACKDRAFT_PROC, true);
+        caster->CastSpell(caster, SPELL_WARLOCK_BACKDRAFT_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
