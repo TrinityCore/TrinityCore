@@ -41,6 +41,8 @@ enum WarlockSpells
 {
     SPELL_WARLOCK_ABSOLUTE_CORRUPTION               = 196103,
     SPELL_WARLOCK_AGONY                             = 980,
+    SPELL_WARLOCK_BACKDRAFT                         = 196406,
+    SPELL_WARLOCK_BACKDRAFT_PROC                    = 117828,
     SPELL_WARLOCK_CONFLAGRATE_DEBUFF                = 265931,
     SPELL_WARLOCK_CONFLAGRATE_ENERGIZE              = 245330,
     SPELL_WARLOCK_CORRUPTION_DAMAGE                 = 146739,
@@ -53,6 +55,7 @@ enum WarlockSpells
     SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
     SPELL_WARLOCK_DOOM_ENERGIZE                     = 193318,
     SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE               = 205292,
+    SPELL_WARLOCK_FLAMESHADOW                       = 37379,
     SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
@@ -61,33 +64,32 @@ enum WarlockSpells
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
-    SPELL_WARLOCK_PERPETUAL_UNSTABILITY_TALENT      = 459376,
+    SPELL_WARLOCK_INCUBUS_PACT                      = 365355,
     SPELL_WARLOCK_PERPETUAL_UNSTABILITY_DAMAGE      = 459461,
+    SPELL_WARLOCK_PERPETUAL_UNSTABILITY_TALENT      = 459376,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 5740,
     SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE               = 42223,
     SPELL_WARLOCK_ROARING_BLAZE                     = 205184,
     SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE         = 27285,
     SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC        = 32865,
     SPELL_WARLOCK_SHADOW_BOLT_ENERGIZE              = 194192,
+    SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 453000,
-    SPELL_WARLOCK_SOULSHATTER_EFFECT                = 32835,
     SPELL_WARLOCK_SOUL_SWAP_CD_MARKER               = 94229,
-    SPELL_WARLOCK_SOUL_SWAP_OVERRIDE                = 86211,
-    SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
+    SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
+    SPELL_WARLOCK_SOUL_SWAP_OVERRIDE                = 86211,
+    SPELL_WARLOCK_SOULSHATTER_EFFECT                = 32835,
+    SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
+    SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS          = 366323,
+    SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
+    SPELL_WARLOCK_SUMMON_INCUBUS                    = 365349,
+    SPELL_WARLOCK_SUMMON_SUCCUBUS                   = 712,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE        = 196364,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE      = 31117,
-    SPELL_WARLOCK_SHADOWFLAME                       = 37378,
-    SPELL_WARLOCK_FLAMESHADOW                       = 37379,
-    SPELL_WARLOCK_SUMMON_SUCCUBUS                   = 712,
-    SPELL_WARLOCK_SUMMON_INCUBUS                    = 365349,
-    SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS          = 366323,
-    SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
-    SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
-    SPELL_WARLOCK_INCUBUS_PACT                      = 365355,
     SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931,
-    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034,
-    SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE             = 453035
+    SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE             = 453035,
+    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034
 };
 
 enum MiscSpells
@@ -126,6 +128,34 @@ class spell_warl_absolute_corruption : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warl_absolute_corruption::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// Called by 17962 - Conflagrate
+class spell_warl_backdraft : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_WARLOCK_BACKDRAFT, SPELL_WARLOCK_BACKDRAFT_PROC });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARLOCK_BACKDRAFT);
+    }
+
+    void HandleAfterCast() const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_WARLOCK_BACKDRAFT_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warl_backdraft::HandleAfterCast);
     }
 };
 
@@ -1415,12 +1445,13 @@ class spell_warl_volatile_agony : public SpellScript
 
 void AddSC_warlock_spell_scripts()
 {
+    RegisterSpellScript(spell_warl_absolute_corruption);
+    RegisterSpellScript(spell_warl_backdraft);
     RegisterSpellScript(spell_warl_banish);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_cataclysm);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_chaotic_energies);
-    RegisterSpellScript(spell_warl_absolute_corruption);
     RegisterSpellScript(spell_warl_conflagrate);
     RegisterSpellScript(spell_warl_create_healthstone);
     RegisterSpellScript(spell_warl_dark_pact);
@@ -1452,8 +1483,8 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_soul_swap_exhale);
     RegisterSpellScript(spell_warl_soul_swap_override);
     RegisterSpellScript(spell_warl_soulshatter);
-    RegisterSpellScript(spell_warl_strengthen_pact_succubus);
     RegisterSpellScript(spell_warl_strengthen_pact_incubus);
+    RegisterSpellScript(spell_warl_strengthen_pact_succubus);
     RegisterSpellScript(spell_warl_summon_sayaad);
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>, "spell_warl_t4_2p_bonus_shadow");
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
