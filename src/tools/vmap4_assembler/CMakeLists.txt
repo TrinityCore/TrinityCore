@@ -10,8 +10,6 @@
 
 set(PRIVATE_SOURCES VMapAssembler.cpp)
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
-
 add_executable(vmap4assembler ${PRIVATE_SOURCES})
 
 target_link_libraries(vmap4assembler
