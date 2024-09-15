@@ -440,6 +440,7 @@ namespace WorldPackets
             bool StartCheat = false;
             bool AutoLaunched = false;
             bool FromContentPush = false;
+            bool ResetByScheduler = false;
         };
 
         struct QuestObjectiveCollect
@@ -799,6 +800,7 @@ namespace WorldPackets
             int32 UiMapID = 0;
             std::vector<uint32> QuestLineXQuestIDs;
             std::vector<uint32> QuestIDs;
+            std::vector<uint32> QuestLineIDs;
         };
 
         class UiMapQuestLinesRequest final : public ClientPacket

@@ -13387,13 +13387,44 @@ bool Unit::SetDisableInertia(bool disable)
 
     static OpcodeServer const disableInertiaOpcodeTable[2] =
     {
-        SMSG_MOVE_DISABLE_INERTIA,
-        SMSG_MOVE_ENABLE_INERTIA
+        SMSG_MOVE_ENABLE_INERTIA,
+        SMSG_MOVE_DISABLE_INERTIA
     };
 
     if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
     {
         WorldPackets::Movement::MoveSetFlag packet(disableInertiaOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetMoveCantSwim(bool cantSwim)
+{
+    if (cantSwim == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CANT_SWIM))
+        return false;
+
+    if (cantSwim)
+        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CANT_SWIM);
+    else
+        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CANT_SWIM);
+
+    static OpcodeServer const cantSwimOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_CANT_SWIM,
+        SMSG_MOVE_SET_CANT_SWIM,
+    };
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::MoveSetFlag packet(cantSwimOpcodeTable[cantSwim]);
         packet.MoverGUID = GetGUID();
         packet.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(packet.Write());
@@ -13921,9 +13952,13 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastF
                 {
                     if (auraEffect->GetSpellInfo()->HasAttribute(SPELL_ATTR8_IGNORE_SPELLCAST_OVERRIDE_COST))
                         triggerFlag |= TRIGGERED_IGNORE_POWER_AND_REAGENT_COST;
+                    else
+                        triggerFlag &= ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST;
 
                     if (auraEffect->GetSpellInfo()->HasAttribute(SPELL_ATTR11_IGNORE_SPELLCAST_OVERRIDE_SHAPESHIFT_REQUIREMENTS))
                         triggerFlag |= TRIGGERED_IGNORE_SHAPESHIFT;
+                    else
+                        triggerFlag &= ~TRIGGERED_IGNORE_SHAPESHIFT;
 
                     return newInfo;
                 }
@@ -13934,12 +13969,15 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastF
     };
 
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
-        return newInfo;
+    {
+        triggerFlag &= ~TRIGGERED_IGNORE_CAST_TIME;
+        return GetCastSpellInfo(newInfo, triggerFlag);
+    }
 
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED))
     {
         triggerFlag |= TRIGGERED_IGNORE_CAST_TIME;
-        return newInfo;
+        return GetCastSpellInfo(newInfo, triggerFlag);
     }
 
     return spellInfo;

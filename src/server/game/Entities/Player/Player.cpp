@@ -30041,7 +30041,7 @@ SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCas
     if (overrides != m_overrideSpells.end())
         for (uint32 spellId : overrides->second)
             if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
-                return Unit::GetCastSpellInfo(newInfo, triggerFlag);
+                return GetCastSpellInfo(newInfo, triggerFlag);
 
     return Unit::GetCastSpellInfo(spellInfo, triggerFlag);
 }

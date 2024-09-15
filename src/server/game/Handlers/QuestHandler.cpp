@@ -844,10 +844,21 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
             if (!questLineQuests)
                 continue;
 
+            bool isQuestLineCompleted = true;
             for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
+            {
                 if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
+                {
                     if (_player->CanTakeQuest(quest, false))
                         response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
+
+                    if (isQuestLineCompleted && !_player->GetQuestRewardStatus(questLineQuest->QuestID))
+                        isQuestLineCompleted = false;
+                }
+            }
+
+            if (!isQuestLineCompleted)
+                response.QuestLineIDs.push_back(questLineId);
         }
     }
 

@@ -188,6 +188,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleIgnoreMovementForces(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleDisableInertia(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleSetCantSwim(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  threat
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;

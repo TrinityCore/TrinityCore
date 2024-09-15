@@ -899,9 +899,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     70
+#        Default:     80
 
-MaxPlayerLevel = 70
+MaxPlayerLevel = 80
 
 #
 #    MinDualSpecLevel

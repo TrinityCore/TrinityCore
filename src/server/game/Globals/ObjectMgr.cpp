@@ -2354,6 +2354,15 @@ void ObjectMgr::LoadCreatures()
                 TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with disallowed `unit_flags2` {}, removing incorrect flag.", guid, data.id, disallowedUnitFlags2);
                 *data.unit_flags2 &= UNIT_FLAG2_ALLOWED;
             }
+
+            if (data.unit_flags.has_value())
+            {
+                if (*data.unit_flags2 & UNIT_FLAG2_FEIGN_DEATH && !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG2_FEIGN_DEATH set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
+                    *data.unit_flags2 &= ~UNIT_FLAG2_FEIGN_DEATH;
+                }
+            }
         }
 
         if (data.unit_flags3.has_value())
@@ -2362,6 +2371,15 @@ void ObjectMgr::LoadCreatures()
             {
                 TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with disallowed `unit_flags3` {}, removing incorrect flag.", guid, data.id, disallowedUnitFlags3);
                 *data.unit_flags3 &= UNIT_FLAG3_ALLOWED;
+            }
+
+            if (data.unit_flags.has_value())
+            {
+                if (*data.unit_flags3 & UNIT_FLAG3_FAKE_DEAD && !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG3_FAKE_DEAD set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
+                    *data.unit_flags3 &= ~UNIT_FLAG3_FAKE_DEAD;
+                }
             }
         }
 
