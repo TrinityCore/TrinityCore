@@ -730,6 +730,28 @@ class spell_warl_perpetual_unstability : public SpellScript
     }
 };
 
+// 387095 - Pyrogenics
+class spell_warl_pyrogenics : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_PYROGENICS_DEBUFF });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& procInfo) const
+    {
+        GetTarget()->CastSpell(procInfo.GetActionTarget(), SPELL_WARLOCK_PYROGENICS_DEBUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_pyrogenics::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL);
+    }
+};
+
 // 5740 - Rain of Fire
 /// Updated 11.0.2
 class spell_warl_rain_of_fire : public AuraScript
@@ -748,12 +770,7 @@ class spell_warl_rain_of_fire : public AuraScript
         for (ObjectGuid insideTargetGuid : targetsInRainOfFire)
             if (Unit* insideTarget = ObjectAccessor::GetUnit(*GetTarget(), insideTargetGuid))
                 if (!GetTarget()->IsFriendlyTo(insideTarget))
-                {
-                    if (GetTarget()->HasAura(SPELL_WARLOCK_PYROGENICS_TALENT))
-                        GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_PYROGENICS_DEBUFF, true);
-
                     GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE, true);
-                }
     }
 
     void Register() override
@@ -1475,6 +1492,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_healthstone_heal);
     RegisterSpellScript(spell_warl_immolate);
     RegisterSpellScript(spell_warl_perpetual_unstability);
+    RegisterSpellScript(spell_warl_pyrogenics);
     RegisterSpellScript(spell_warl_rain_of_fire);
     RegisterSpellScript(spell_warl_random_sayaad);
     RegisterSpellScript(spell_warl_roaring_blaze);
