@@ -111,3 +111,9 @@ Optional<int> HandleArgs(int argc, char* argv[], std::string* src, std::string* 
 
     return {};
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif
