@@ -46,7 +46,6 @@ find_package(Boost ${BOOST_REQUIRED_VERSION}
     system
     filesystem
     program_options
-    iostreams
     regex
     locale
   CONFIG

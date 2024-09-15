@@ -555,7 +555,7 @@ public:
     {
         void SetRadiusMod()
         {
-            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, int32(GetCaster()->GetObjectScale() * 10000 * 2 / 3));
+            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, GetCaster()->GetObjectScale() * 2 / 3);
         }
 
         void FilterTargets(std::list<WorldObject*>& unitList)
@@ -626,7 +626,7 @@ public:
     {
         void SetRadiusMod()
         {
-            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, int32(GetCaster()->GetObjectScale() * 10000 * 2 / 3));
+            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, GetCaster()->GetObjectScale() * 2 / 3);
         }
 
         void Register() override

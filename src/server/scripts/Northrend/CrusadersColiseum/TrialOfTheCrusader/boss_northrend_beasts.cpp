@@ -1208,7 +1208,7 @@ class spell_jormungars_slime_pool : public AuraScript
     {
         PreventDefaultAction();
 
-        int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
+        float const radius = ((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 2.f / 3.f;
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_RADIUS_MOD, radius);
         GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, args);

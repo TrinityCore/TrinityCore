@@ -636,7 +636,7 @@ enum AuraType : uint32
     SPELL_AURA_TRIGGER_SPELL_ON_STACK_AMOUNT                = 542, // NYI
     SPELL_AURA_543                                          = 543,
     SPELL_AURA_544                                          = 544,
-    SPELL_AURA_545                                          = 545, // prevent swim
+    SPELL_AURA_MOVE_SET_CANT_SWIM                           = 545,
     SPELL_AURA_546                                          = 546,
     SPELL_AURA_547                                          = 547,
     SPELL_AURA_548                                          = 548,

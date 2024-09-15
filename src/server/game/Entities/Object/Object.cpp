@@ -2949,8 +2949,13 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     }
 
     Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId);
-    for (auto const& pair : args.SpellValueOverrides)
-        spell->SetSpellValue(pair.first, pair.second);
+    for (auto const& [Type, Value] : args.SpellValueOverrides)
+    {
+        if (Type < SPELLVALUE_INT_END)
+            spell->SetSpellValue(SpellValueMod(Type), Value.I);
+        else
+            spell->SetSpellValue(SpellValueModFloat(Type), Value.F);
+    }
 
     spell->m_CastItem = args.CastItem;
     if (args.OriginalCastItemLevel)

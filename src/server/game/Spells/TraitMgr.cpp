@@ -466,30 +466,30 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
     }
 }
 
-void FillSpentCurrenciesMap(WorldPackets::Traits::TraitEntry const& entry, std::map<int32, int32>& cachedCurrencies)
+void AddSpentCurrenciesForEntry(WorldPackets::Traits::TraitEntry const& entry, std::map<int32, int32>& cachedCurrencies, int32 multiplier)
 {
     Node const* node = Trinity::Containers::MapGetValuePtr(_traitNodes, entry.TraitNodeID);
     for (NodeGroup const* group : node->Groups)
         for (TraitCostEntry const* cost : group->Costs)
-            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 
     auto nodeEntryItr = std::ranges::find_if(node->Entries, [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
     if (nodeEntryItr != node->Entries.end())
         for (TraitCostEntry const* cost : nodeEntryItr->Costs)
-            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 
     for (TraitCostEntry const* cost : node->Costs)
-        cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+        cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 
     if (Tree const* tree = Trinity::Containers::MapGetValuePtr(_traitTrees, node->Data->TraitTreeID))
         for (TraitCostEntry const* cost : tree->Costs)
-            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 }
 
-void FillSpentCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig, std::map<int32, int32>& cachedCurrencies)
+void FillSpentCurrenciesMap(std::vector<WorldPackets::Traits::TraitEntry> const& traitEntries, std::map<int32, int32>& cachedCurrencies)
 {
-    for (WorldPackets::Traits::TraitEntry const& entry : traitConfig.Entries)
-        FillSpentCurrenciesMap(entry, cachedCurrencies);
+    for (WorldPackets::Traits::TraitEntry const& entry : traitEntries)
+        AddSpentCurrenciesForEntry(entry, cachedCurrencies, 1);
 }
 
 std::array<int32, 2> GetClassAndSpecTreeCurrencies(WorldPackets::Traits::TraitConfig const& traitConfig)
@@ -538,7 +538,7 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
     if (condition->TraitCurrencyID && condition->SpentAmountRequired)
     {
         if (!cachedCurrencies)
-            FillSpentCurrenciesMap(traitConfig, cachedCurrencies.emplace());
+            FillSpentCurrenciesMap(traitConfig.Entries, cachedCurrencies.emplace());
 
         if (condition->TraitNodeGroupID || condition->TraitNodeID || condition->TraitNodeEntryID)
         {
@@ -553,6 +553,67 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
 
     return true;
 }
+
+bool NodeMeetsTraitConditions(WorldPackets::Traits::TraitConfig const& traitConfig, Node const* node, uint32 traitNodeEntryId, PlayerDataAccessor player, Optional<std::map<int32, int32>>& spentCurrencies)
+{
+    auto meetsConditions = [&](std::vector<TraitCondEntry const*> const& conditions)
+    {
+        struct
+        {
+            bool IsSufficient = false;
+            bool HasFailedConditions = false;
+        } result;
+
+        for (TraitCondEntry const* condition : conditions)
+        {
+            if (condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
+            {
+                if (MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
+                {
+                    if (condition->GetFlags().HasFlag(TraitCondFlags::IsSufficient))
+                    {
+                        result.IsSufficient = true;
+                        break;
+                    }
+                    continue;
+                }
+
+                result.HasFailedConditions = true;
+            }
+        }
+
+        return result;
+    };
+
+    bool hasFailedConditions = false;
+    for (NodeEntry const& entry : node->Entries)
+    {
+        if (entry.Data->ID == traitNodeEntryId)
+        {
+            auto [IsSufficient, HasFailedConditions] = meetsConditions(entry.Conditions);
+            if (IsSufficient)
+                return true;
+            if (HasFailedConditions)
+                hasFailedConditions = true;
+        }
+    }
+
+    if (auto [IsSufficient, HasFailedConditions] = meetsConditions(node->Conditions); IsSufficient)
+        return true;
+    else if (HasFailedConditions)
+        hasFailedConditions = true;
+
+    for (NodeGroup const* group : node->Groups)
+    {
+        auto [IsSufficient, HasFailedConditions] = meetsConditions(group->Conditions);
+        if (IsSufficient)
+            return true;
+        if (HasFailedConditions)
+            hasFailedConditions = true;
+    }
+
+    return !hasFailedConditions;
+};
 
 std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player)
 {
@@ -654,24 +715,7 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig& traitConfig, Playe
     };
 
     Optional<std::map<int32, int32>> spentCurrencies;
-    FillSpentCurrenciesMap(traitConfig, spentCurrencies.emplace());
-
-    auto meetsConditions = [&](std::vector<TraitCondEntry const*> const& conditions)
-    {
-        bool hasConditions = false;
-        for (TraitCondEntry const* condition : conditions)
-        {
-            if (condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
-            {
-                if (MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
-                   return true;
-
-                hasConditions = true;
-            }
-        }
-
-        return !hasConditions;
-    };
+    FillSpentCurrenciesMap(traitConfig.Entries, spentCurrencies.emplace());
 
     auto isValidTraitEntry = [&](WorldPackets::Traits::TraitEntry const& traitEntry)
     {
@@ -683,16 +727,8 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig& traitConfig, Playe
             if (getNodeEntryCount(traitEntry.TraitNodeID) != 1)
                 return LearnResult::Unknown;
 
-        for (NodeEntry const& entry : node->Entries)
-            if (int32(entry.Data->ID) == traitEntry.TraitNodeEntryID && !meetsConditions(entry.Conditions))
-                return LearnResult::Unknown;
-
-        if (!meetsConditions(node->Conditions))
+        if (!NodeMeetsTraitConditions(traitConfig, node, traitEntry.TraitNodeEntryID, player, spentCurrencies))
             return LearnResult::Unknown;
-
-        for (NodeGroup const* group : node->Groups)
-            if (!meetsConditions(group->Conditions))
-                return LearnResult::Unknown;
 
         if (!node->ParentNodes.empty())
         {
@@ -724,6 +760,8 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig& traitConfig, Playe
         {
             if (!removeInvalidEntries)
                 return result;
+
+            AddSpentCurrenciesForEntry(*itr, *spentCurrencies, -1);
 
             if (!itr->GrantedRanks  // fully remove entries that don't have granted ranks
                 || !itr->Rank)      // ... or entries that do have them and don't have any additional spent ranks (can happen if the same entry is revalidated after first removing all spent ranks)

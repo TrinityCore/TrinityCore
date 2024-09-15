@@ -23,6 +23,7 @@
 #include "Define.h"
 #include "Duration.h"
 #include "ItemEnchantmentMgr.h"
+#include "LootItemType.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "SharedDefines.h"
@@ -174,30 +175,30 @@ enum class LootRollIneligibilityReason : uint32
 
 struct TC_GAME_API LootItem
 {
-    uint32  itemid;
-    uint32  LootListId;
-    ItemRandomBonusListId randomBonusListId;
+    uint32  itemid = 0;
+    uint32  LootListId = 0;
+    ItemRandomBonusListId randomBonusListId = 0;
     std::vector<int32> BonusListIDs;
-    ItemContext context;
+    ItemContext context = ItemContext::NONE;
     ConditionsReference conditions;                         // additional loot condition
     GuidSet allowedGUIDs;
     ObjectGuid rollWinnerGUID;                              // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
-    uint8   count             : 8;
-    bool    is_looted         : 1;
-    bool    is_blocked        : 1;
-    bool    freeforall        : 1;                          // free for all
-    bool    is_underthreshold : 1;
-    bool    is_counted        : 1;
-    bool    needs_quest       : 1;                          // quest drop
-    bool    follow_loot_rules : 1;
+    uint32  count = 0;
+    LootItemType type = LootItemType::Item;
+    bool    is_looted         : 1 = false;
+    bool    is_blocked        : 1 = false;
+    bool    freeforall        : 1 = false;                  // free for all
+    bool    is_underthreshold : 1 = false;
+    bool    is_counted        : 1 = false;
+    bool    needs_quest       : 1 = false;                  // quest drop
+    bool    follow_loot_rules : 1 = false;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
-    // Should be called for non-reference LootStoreItem entries only (reference = 0)
+    // Should be called for non-reference LootStoreItem entries only
     explicit LootItem(LootStoreItem const& li);
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
-    LootItem() : itemid(0), LootListId(0), randomBonusListId(0), context(ItemContext::NONE), count(0), is_looted(false), is_blocked(false),
-                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false) { }
+    LootItem() = default;
 
     LootItem(LootItem const&);
     LootItem(LootItem&&) noexcept;
@@ -207,8 +208,10 @@ struct TC_GAME_API LootItem
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
     bool AllowedForPlayer(Player const* player, Loot const* loot) const;
-    static bool AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
+    static bool AllowedForPlayer(Player const* player, LootStoreItem const& lootStoreItem, bool strictUsabilityCheck);
+    static bool ItemAllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
         ConditionsReference const& conditions);
+    static bool CurrencyAllowedForPlayer(Player const* player, uint32 currencyId, bool needs_quest, ConditionsReference const& conditions);
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
     bool HasAllowedLooter(ObjectGuid const& looter) const;

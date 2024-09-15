@@ -28,17 +28,7 @@ target_compile_options(trinity-compile-option-interface
   INTERFACE
     /permissive-)
 
-if(PLATFORM EQUAL 64)
-  # This definition is necessary to work around a bug with Intellisense described
-  # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
-  # debugger functionality.
-  target_compile_definitions(trinity-compile-option-interface
-    INTERFACE
-      _WIN64)
-
-  message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
-
-else()
+if(PLATFORM EQUAL 32)
   # mark 32 bit executables large address aware so they can use > 2GB address space
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   message(STATUS "MSVC: Enabled large address awareness")
