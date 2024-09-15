@@ -3,6 +3,7 @@
 
 #define _NO_CVCONST_H
 
+#include "Define.h"
 #include "Optional.h"
 #include <windows.h>
 #include <winnt.h>
@@ -322,7 +323,7 @@ struct SymbolDetail
     bool HasChildren;
 };
 
-class WheatyExceptionReport
+class TC_COMMON_API WheatyExceptionReport
 {
     public:
 
@@ -396,5 +397,11 @@ class WheatyExceptionReport
 
 };
 
-extern WheatyExceptionReport g_WheatyExceptionReport;       //  global instance of class
+#define INIT_CRASH_HANDLER() \
+    __pragma(warning(push)) \
+    __pragma(warning(disable:4073))  /* C4073: initializers put in library initialization area */ \
+    __pragma(init_seg(lib)) \
+    WheatyExceptionReport g_WheatyExceptionReport; \
+    __pragma(warning(pop))
+
 #endif                                                      // _WHEATYEXCEPTIONREPORT_
