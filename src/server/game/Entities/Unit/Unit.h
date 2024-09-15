@@ -71,6 +71,7 @@ struct LiquidTypeEntry;
 struct MountCapabilityEntry;
 struct SpellValue;
 struct TeleportLocation;
+struct FlightCapabilityEntry;
 
 class Aura;
 class AuraApplication;
@@ -1755,6 +1756,10 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanSwim() const;
 
         float GetAdvFlyingVelocity() const;
+        float GetAdvFlyingAirFriction(FlightCapabilityEntry const* flightCapabilityEntry) const;
+        float GetAdvFlyingMaxVel(FlightCapabilityEntry const* flightCapabilityEntry) const;
+        float GetAdvFlyingLiftCoef(FlightCapabilityEntry const* flightCapabilityEntry) const;
+        float GetAdvFlyingAddImpulseMaxSpeed(FlightCapabilityEntry const* flightCapabilityEntry) const;
 
         float GetHoverOffset() const { return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? *m_unitData->HoverHeight : 0.0f; }
 

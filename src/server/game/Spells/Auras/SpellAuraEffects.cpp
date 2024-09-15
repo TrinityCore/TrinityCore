@@ -582,12 +582,12 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //510 SPELL_AURA_MODIFIED_RAID_INSTANCE
     &AuraEffect::HandleNULL,                                      //511 SPELL_AURA_APPLY_PROFESSION_EFFECT
     &AuraEffect::HandleNULL,                                      //512
-    &AuraEffect::HandleNULL,                                      //513
-    &AuraEffect::HandleNULL,                                      //514
-    &AuraEffect::HandleNULL,                                      //515
+    &AuraEffect::HandleAdvFlyModAirFriction,                      //513 SPELL_AURA_ADV_FLY_MOD_AIR_FRICTION
+    &AuraEffect::HandleAdvFlyModMaxVel,                           //514 SPELL_AURA_ADV_FLY_MOD_MAX_VEL
+    &AuraEffect::HandleAdvFlyModLiftCoef,                         //515 SPELL_AURA_ADV_FLY_MOD_LIFT_COEF
     &AuraEffect::HandleNULL,                                      //516
     &AuraEffect::HandleNULL,                                      //517
-    &AuraEffect::HandleNULL,                                      //518
+    &AuraEffect::HandleAdvFlyModAddImpulseMaxSpeed,               //518 SPELL_AURA_ADV_FLY_MOD_ADD_IMPULSE_MAX_SPEED
     &AuraEffect::HandleNULL,                                      //519 SPELL_AURA_MOD_COOLDOWN_RECOVERY_RATE_ALL
     &AuraEffect::HandleNULL,                                      //520
     &AuraEffect::HandleNULL,                                      //521
@@ -6546,6 +6546,38 @@ void AuraEffect::HandleAdvancedFlying(AuraApplication const* aurApp, uint8 mode,
 
     if (apply)
         player->InitAdvFlying();
+}
+
+void AuraEffect::HandleAdvFlyModAirFriction(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (mode & AURA_EFFECT_HANDLE_REAL)
+        if (Player* player = aurApp->GetTarget()->ToPlayer())
+            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
+                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_AIR_FRICTION, player->GetAdvFlyingAirFriction(flightCapabilityEntry));
+}
+
+void AuraEffect::HandleAdvFlyModMaxVel(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (mode & AURA_EFFECT_HANDLE_REAL)
+        if (Player* player = aurApp->GetTarget()->ToPlayer())
+            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
+                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_MAX_VEL, player->GetAdvFlyingMaxVel(flightCapabilityEntry));
+}
+
+void AuraEffect::HandleAdvFlyModLiftCoef(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (mode & AURA_EFFECT_HANDLE_REAL)
+        if (Player* player = aurApp->GetTarget()->ToPlayer())
+            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
+                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_LIFT_COEFFICIENT, player->GetAdvFlyingLiftCoef(flightCapabilityEntry));
+}
+
+void AuraEffect::HandleAdvFlyModAddImpulseMaxSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (mode & AURA_EFFECT_HANDLE_REAL)
+        if (Player* player = aurApp->GetTarget()->ToPlayer())
+            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
+                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_ADD_IMPULSE_MAX_SPEED, player->GetAdvFlyingAddImpulseMaxSpeed(flightCapabilityEntry));
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;

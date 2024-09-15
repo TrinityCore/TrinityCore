@@ -12491,6 +12491,26 @@ float Unit::GetAdvFlyingVelocity() const
     return std::sqrt(advFlying->forwardVelocity * advFlying->forwardVelocity + advFlying->upVelocity * advFlying->upVelocity);
 }
 
+float Unit::GetAdvFlyingAirFriction(FlightCapabilityEntry const* flightCapabilityEntry) const
+{
+    return flightCapabilityEntry->AirFriction * (1.f - GetTotalAuraMultiplier(SPELL_AURA_ADV_FLY_MOD_AIR_FRICTION));
+}
+
+float Unit::GetAdvFlyingMaxVel(FlightCapabilityEntry const* flightCapabilityEntry) const
+{
+    return flightCapabilityEntry->MaxVel * (1.f - GetTotalAuraMultiplier(SPELL_AURA_ADV_FLY_MOD_MAX_VEL));
+}
+
+float Unit::GetAdvFlyingLiftCoef(FlightCapabilityEntry const* flightCapabilityEntry) const
+{
+    return flightCapabilityEntry->LiftCoefficient * (1.f - GetTotalAuraMultiplier(SPELL_AURA_ADV_FLY_MOD_LIFT_COEF));
+}
+
+float Unit::GetAdvFlyingAddImpulseMaxSpeed(FlightCapabilityEntry const* flightCapabilityEntry) const
+{
+    return flightCapabilityEntry->AddImpulseMaxSpeed * (1.f - GetTotalAuraMultiplier(SPELL_AURA_ADV_FLY_MOD_ADD_IMPULSE_MAX_SPEED));
+}
+
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
 {
     DisableSpline();

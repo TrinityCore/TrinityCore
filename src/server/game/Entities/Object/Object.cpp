@@ -378,12 +378,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
         ASSERT(flightCapabilityEntry, "Wrong default value for flightCapabilityID");
 
-        *data << float(flightCapabilityEntry->AirFriction);
-        *data << float(flightCapabilityEntry->MaxVel);
-        *data << float(flightCapabilityEntry->LiftCoefficient);
+        *data << float(unit->GetAdvFlyingAirFriction(flightCapabilityEntry));
+        *data << float(unit->GetAdvFlyingMaxVel(flightCapabilityEntry));
+        *data << float(unit->GetAdvFlyingLiftCoef(flightCapabilityEntry));
         *data << float(flightCapabilityEntry->DoubleJumpVelMod);
         *data << float(flightCapabilityEntry->GlideStartMinHeight);
-        *data << float(flightCapabilityEntry->AddImpulseMaxSpeed);
+        *data << float(unit->GetAdvFlyingAddImpulseMaxSpeed(flightCapabilityEntry));
         *data << float(flightCapabilityEntry->BankingRateMin);
         *data << float(flightCapabilityEntry->BankingRateMax);
         *data << float(flightCapabilityEntry->PitchingRateDownMin);
