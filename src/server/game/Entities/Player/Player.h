@@ -2184,7 +2184,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void RemovedInsignia(Player* looterPlr);
 
         void InitAdvFlying();
-        void SendAdvFlyingSpeed(OpcodeServer opcode, float speed, Optional<float> maxSpeed = {});
+        void SendAdvFlyingSpeed(OpcodeServer opcode, AdvFlyingRateType speedType, Optional<AdvFlyingRateType> maxSpeedType = {});
         void AddMoveImpulse(Position direction);
 
         WorldSession* GetSession() const { return m_session; }

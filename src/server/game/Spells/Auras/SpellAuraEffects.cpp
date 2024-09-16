@@ -582,18 +582,18 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //510 SPELL_AURA_MODIFIED_RAID_INSTANCE
     &AuraEffect::HandleNULL,                                      //511 SPELL_AURA_APPLY_PROFESSION_EFFECT
     &AuraEffect::HandleNULL,                                      //512
-    &AuraEffect::HandleAdvFlyModAirFriction,                      //513 SPELL_AURA_ADV_FLY_MOD_AIR_FRICTION
-    &AuraEffect::HandleAdvFlyModMaxVel,                           //514 SPELL_AURA_ADV_FLY_MOD_MAX_VEL
-    &AuraEffect::HandleAdvFlyModLiftCoef,                         //515 SPELL_AURA_ADV_FLY_MOD_LIFT_COEF
+    &AuraEffect::HandleAdvFlyModSpeed,                            //513 SPELL_AURA_ADV_FLY_MOD_LIFT_COEF
+    &AuraEffect::HandleAdvFlyModSpeed,                            //514 SPELL_AURA_ADV_FLY_MOD_MAX_VEL
+    &AuraEffect::HandleAdvFlyModSpeed,                            //515 SPELL_AURA_ADV_FLY_MOD_AIR_FRICTION
     &AuraEffect::HandleNULL,                                      //516
     &AuraEffect::HandleNULL,                                      //517
-    &AuraEffect::HandleAdvFlyModAddImpulseMaxSpeed,               //518 SPELL_AURA_ADV_FLY_MOD_ADD_IMPULSE_MAX_SPEED
+    &AuraEffect::HandleAdvFlyModSpeed,                            //518 SPELL_AURA_ADV_FLY_MOD_ADD_IMPULSE_MAX_SPEED
     &AuraEffect::HandleNULL,                                      //519 SPELL_AURA_MOD_COOLDOWN_RECOVERY_RATE_ALL
-    &AuraEffect::HandleNULL,                                      //520
-    &AuraEffect::HandleNULL,                                      //521
-    &AuraEffect::HandleNULL,                                      //522
+    &AuraEffect::HandleAdvFlyModSpeed,                            //520 SPELL_AURA_ADV_FLY_MOD_PITCHING_RATE_DOWN
+    &AuraEffect::HandleAdvFlyModSpeed,                            //521 SPELL_AURA_ADV_FLY_MOD_PITCHING_RATE_UP
+    &AuraEffect::HandleAdvFlyModSpeed,                            //522 SPELL_AURA_ADV_FLY_MOD_OVER_MAX_DECELERATION
     &AuraEffect::HandleNULL,                                      //523
-    &AuraEffect::HandleNULL,                                      //524
+    &AuraEffect::HandleAdvFlyModSpeed,                            //524 SPELL_AURA_ADV_FLY_MOD_BANKING_RATE
     &AuraEffect::HandleNULL,                                      //525 SPELL_AURA_DISPLAY_PROFESSION_EQUIPMENT
     &AuraEffect::HandleNULL,                                      //526
     &AuraEffect::HandleNULL,                                      //527
@@ -6548,36 +6548,32 @@ void AuraEffect::HandleAdvancedFlying(AuraApplication const* aurApp, uint8 mode,
         player->InitAdvFlying();
 }
 
-void AuraEffect::HandleAdvFlyModAirFriction(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleAdvFlyModSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
-    if (mode & AURA_EFFECT_HANDLE_REAL)
-        if (Player* player = aurApp->GetTarget()->ToPlayer())
-            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
-                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_AIR_FRICTION, player->GetAdvFlyingAirFriction(flightCapabilityEntry));
-}
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
 
-void AuraEffect::HandleAdvFlyModMaxVel(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
-{
-    if (mode & AURA_EFFECT_HANDLE_REAL)
-        if (Player* player = aurApp->GetTarget()->ToPlayer())
-            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
-                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_MAX_VEL, player->GetAdvFlyingMaxVel(flightCapabilityEntry));
-}
+    Player* player = aurApp->GetTarget()->ToPlayer();
+    if (!player)
+        return;
 
-void AuraEffect::HandleAdvFlyModLiftCoef(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
-{
-    if (mode & AURA_EFFECT_HANDLE_REAL)
-        if (Player* player = aurApp->GetTarget()->ToPlayer())
-            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
-                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_LIFT_COEFFICIENT, player->GetAdvFlyingLiftCoef(flightCapabilityEntry));
-}
+    player->CalculateAdvFlyingSpeeds();
 
-void AuraEffect::HandleAdvFlyModAddImpulseMaxSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
-{
-    if (mode & AURA_EFFECT_HANDLE_REAL)
-        if (Player* player = aurApp->GetTarget()->ToPlayer())
-            if (FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(player->GetFlightCapabilityID()))
-                player->SendAdvFlyingSpeed(SMSG_MOVE_SET_ADV_FLYING_ADD_IMPULSE_MAX_SPEED, player->GetAdvFlyingAddImpulseMaxSpeed(flightCapabilityEntry));
+    static std::unordered_map<AuraType, std::tuple<OpcodeServer, AdvFlyingRateType, Optional<AdvFlyingRateType>>> advFlyMap =
+    {
+        { SPELL_AURA_ADV_FLY_MOD_LIFT_COEF,             { SMSG_MOVE_SET_ADV_FLYING_LIFT_COEFFICIENT,        ADV_FLYING_LIFT_COEFFICIENT,        {} } },
+        { SPELL_AURA_ADV_FLY_MOD_MAX_VEL,               { SMSG_MOVE_SET_ADV_FLYING_MAX_VEL,                 ADV_FLYING_MAX_VEL,                 {} } },
+        { SPELL_AURA_ADV_FLY_MOD_AIR_FRICTION,          { SMSG_MOVE_SET_ADV_FLYING_AIR_FRICTION,            ADV_FLYING_AIR_FRICTION,            {} } },
+        { SPELL_AURA_ADV_FLY_MOD_ADD_IMPULSE_MAX_SPEED, { SMSG_MOVE_SET_ADV_FLYING_ADD_IMPULSE_MAX_SPEED,   ADV_FLYING_ADD_IMPULSE_MAX_SPEED,   {} } },
+        { SPELL_AURA_ADV_FLY_MOD_PITCHING_RATE_DOWN,    { SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_DOWN,      ADV_FLYING_PITCHING_RATE_DOWN_MIN,  ADV_FLYING_PITCHING_RATE_DOWN_MAX   } },
+        { SPELL_AURA_ADV_FLY_MOD_PITCHING_RATE_UP,      { SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_UP,        ADV_FLYING_PITCHING_RATE_UP_MIN,    ADV_FLYING_PITCHING_RATE_UP_MAX     } },
+        { SPELL_AURA_ADV_FLY_MOD_OVER_MAX_DECELERATION, { SMSG_MOVE_SET_ADV_FLYING_OVER_MAX_DECELERATION,   ADV_FLYING_OVER_MAX_DECELERATION,   {} } },
+        { SPELL_AURA_ADV_FLY_MOD_BANKING_RATE,          { SMSG_MOVE_SET_ADV_FLYING_BANKING_RATE,            ADV_FLYING_BANKING_RATE_MIN,        ADV_FLYING_BANKING_RATE_MAX         } }
+    };
+
+    auto [opcode, speedType, speedTypeMax] = advFlyMap[GetSpellEffectInfo().ApplyAuraName];
+
+    player->SendAdvFlyingSpeed(opcode, speedType, speedTypeMax);
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;

@@ -604,18 +604,18 @@ enum AuraType : uint32
     SPELL_AURA_MODIFIED_RAID_INSTANCE                       = 510, // NYI; Related to "Fated" raid affixes
     SPELL_AURA_APPLY_PROFESSION_EFFECT                      = 511, // NYI; MiscValue[0] = ProfessionEffectID
     SPELL_AURA_512                                          = 512,
-    SPELL_AURA_ADV_FLY_MOD_AIR_FRICTION                     = 513,
+    SPELL_AURA_ADV_FLY_MOD_LIFT_COEF                        = 513,
     SPELL_AURA_ADV_FLY_MOD_MAX_VEL                          = 514,
-    SPELL_AURA_ADV_FLY_MOD_LIFT_COEF                        = 515,
+    SPELL_AURA_ADV_FLY_MOD_AIR_FRICTION                     = 515,
     SPELL_AURA_516                                          = 516,
     SPELL_AURA_517                                          = 517,
     SPELL_AURA_ADV_FLY_MOD_ADD_IMPULSE_MAX_SPEED            = 518,
     SPELL_AURA_MOD_COOLDOWN_RECOVERY_RATE_ALL               = 519, // NYI; applies to all spells, not filtered by familyflags or label
-    SPELL_AURA_520                                          = 520,
-    SPELL_AURA_521                                          = 521,
-    SPELL_AURA_522                                          = 522,
+    SPELL_AURA_ADV_FLY_MOD_PITCHING_RATE_DOWN               = 520,
+    SPELL_AURA_ADV_FLY_MOD_PITCHING_RATE_UP                 = 521,
+    SPELL_AURA_ADV_FLY_MOD_OVER_MAX_DECELERATION            = 522,
     SPELL_AURA_523                                          = 523,
-    SPELL_AURA_524                                          = 524,
+    SPELL_AURA_ADV_FLY_MOD_BANKING_RATE                     = 524,
     SPELL_AURA_DISPLAY_PROFESSION_EQUIPMENT                 = 525, // NYI; MiscValue[0] = Profession (enum, not id)
     SPELL_AURA_526                                          = 526,
     SPELL_AURA_527                                          = 527,

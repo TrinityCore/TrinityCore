@@ -609,6 +609,29 @@ enum ReactiveType
     MAX_REACTIVE
 };
 
+enum AdvFlyingRateType : uint8
+{
+    ADV_FLYING_AIR_FRICTION = 0,
+    ADV_FLYING_MAX_VEL,
+    ADV_FLYING_LIFT_COEFFICIENT,
+    ADV_FLYING_DOUBLE_JUMP_VEL_MOD,
+    ADV_FLYING_GLIDE_START_MIN_HEIGHT,
+    ADV_FLYING_ADD_IMPULSE_MAX_SPEED,
+    ADV_FLYING_BANKING_RATE_MIN,
+    ADV_FLYING_BANKING_RATE_MAX,
+    ADV_FLYING_PITCHING_RATE_DOWN_MIN,
+    ADV_FLYING_PITCHING_RATE_DOWN_MAX,
+    ADV_FLYING_PITCHING_RATE_UP_MIN,
+    ADV_FLYING_PITCHING_RATE_UP_MAX,
+    ADV_FLYING_TURN_VELOCITY_THRESHOLD_MIN,
+    ADV_FLYING_TURN_VELOCITY_THRESHOLD_MAX,
+    ADV_FLYING_SURFACE_FRICTION,
+    ADV_FLYING_OVER_MAX_DECELERATION,
+    ADV_FLYING_LAUNCH_SPEED_COEFFICIENT,
+
+    ADV_FLYING_MAX_SPEED_TYPE
+};
+
 struct PositionUpdateInfo
 {
     void Reset()
@@ -854,9 +877,6 @@ class TC_GAME_API Unit : public WorldObject
         void SetCreatedBySpell(int32 spellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CreatedBySpell), spellId); }
 
         void SetNameplateAttachToGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NameplateAttachToGUID), guid); }
-
-        uint32 GetFlightCapabilityID() const { return m_unitData->FlightCapabilityID; }
-        void SetFlightCapabilityID(uint32 flightCapabilityID) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FlightCapabilityID), flightCapabilityID); }
 
         Emote GetEmoteState() const { return Emote(*m_unitData->EmoteState); }
         void SetEmoteState(Emote emote) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::EmoteState), emote); }
@@ -1376,11 +1396,13 @@ class TC_GAME_API Unit : public WorldObject
 
         int32 GetTotalAuraModifier(AuraType auraType) const;
         float GetTotalAuraMultiplier(AuraType auraType) const;
+        float GetTotalAuraPercent(AuraType auraType) const;
         int32 GetMaxPositiveAuraModifier(AuraType auraType) const;
         int32 GetMaxNegativeAuraModifier(AuraType auraType) const;
 
         int32 GetTotalAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
         float GetTotalAuraMultiplier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
+        float GetTotalAuraPercent(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
         int32 GetMaxPositiveAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
         int32 GetMaxNegativeAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
 
@@ -1755,11 +1777,11 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanEnterWater() const = 0;
         virtual bool CanSwim() const;
 
+        uint32 GetFlightCapabilityID() const { return m_unitData->FlightCapabilityID; }
+        void SetFlightCapabilityID(uint32 flightCapabilityID);
+        float GetAdvFlyingSpeed(AdvFlyingRateType speedType) const { return _advFlyingSpeeds[speedType]; }
+        void CalculateAdvFlyingSpeeds();
         float GetAdvFlyingVelocity() const;
-        float GetAdvFlyingAirFriction(FlightCapabilityEntry const* flightCapabilityEntry) const;
-        float GetAdvFlyingMaxVel(FlightCapabilityEntry const* flightCapabilityEntry) const;
-        float GetAdvFlyingLiftCoef(FlightCapabilityEntry const* flightCapabilityEntry) const;
-        float GetAdvFlyingAddImpulseMaxSpeed(FlightCapabilityEntry const* flightCapabilityEntry) const;
 
         float GetHoverOffset() const { return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? *m_unitData->HoverHeight : 0.0f; }
 
@@ -2023,6 +2045,8 @@ class TC_GAME_API Unit : public WorldObject
         PositionUpdateInfo _positionUpdateInfo;
 
         bool _isCombatDisallowed;
+
+        std::array<float, ADV_FLYING_MAX_SPEED_TYPE> _advFlyingSpeeds;
 };
 
 #endif
