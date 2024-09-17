@@ -1159,6 +1159,8 @@ public:
             return false;
 
         uint32 itemId = 0;
+        std::vector<int32> bonusListIDs;
+        ItemContext itemContext = ItemContext::NONE;
 
         if (args[0] == '[')                                        // [name] manual form
         {
@@ -1189,11 +1191,25 @@ public:
         }
         else                                                    // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
         {
+            Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseSingleHyperlink(args);
+            if (!info)
+                return false;
+
+            if (info.tag != Trinity::Hyperlinks::LinkTags::item::tag())
+                return false;
+
+            Trinity::Hyperlinks::ItemLinkData itemLinkData;
+            if (!Trinity::Hyperlinks::LinkTags::item::StoreTo(itemLinkData, info.data))
+                return false;
+
+            // Keep this line in order to remove HItem link from args for lower "strtok"
             char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
             if (!id)
                 return false;
 
-            itemId = Trinity::StringTo<uint32>(id).value_or(0);
+            itemId = itemLinkData.Item->GetId();
+            bonusListIDs = itemLinkData.ItemBonusListIDs;
+            itemContext = ItemContext(itemLinkData.Context);
         }
 
         char const* ccount = strtok(nullptr, " ");
@@ -1206,7 +1222,6 @@ public:
         if (count == 0)
             count = 1;
 
-        std::vector<int32> bonusListIDs;
         char const* bonuses = strtok(nullptr, " ");
 
         char const* context = strtok(nullptr, " ");
@@ -1217,7 +1232,6 @@ public:
                 if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
                     bonusListIDs.push_back(*bonusListId);
 
-        ItemContext itemContext = ItemContext::NONE;
         if (context)
         {
             itemContext = ItemContext(Trinity::StringTo<uint8>(context).value_or(0));
@@ -1325,6 +1339,8 @@ public:
             return false;
 
         uint32 itemId = 0;
+        std::vector<int32> bonusListIDs;
+        ItemContext itemContext = ItemContext::NONE;
 
         if (tailArgs[0] == '[')                                        // [name] manual form
         {
@@ -1355,11 +1371,25 @@ public:
         }
         else                                                    // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
         {
+            Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseSingleHyperlink(tailArgs);
+            if (!info)
+                return false;
+
+            if (info.tag != Trinity::Hyperlinks::LinkTags::item::tag())
+                return false;
+
+            Trinity::Hyperlinks::ItemLinkData itemLinkData;
+            if (!Trinity::Hyperlinks::LinkTags::item::StoreTo(itemLinkData, info.data))
+                return false;
+
+            // Keep this line in order to remove HItem link from args for lower "strtok"
             char const* id = handler->extractKeyFromLink(tailArgs, "Hitem");
             if (!id)
                 return false;
 
-            itemId = Trinity::StringTo<uint32>(id).value_or(0);
+            itemId = itemLinkData.Item->GetId();
+            bonusListIDs = itemLinkData.ItemBonusListIDs;
+            itemContext = ItemContext(itemLinkData.Context);
         }
 
         char const* ccount = strtok(nullptr, " ");
@@ -1372,7 +1402,6 @@ public:
         if (count == 0)
             count = 1;
 
-        std::vector<int32> bonusListIDs;
         char const* bonuses = strtok(nullptr, " ");
 
         char const* context = strtok(nullptr, " ");
@@ -1383,7 +1412,6 @@ public:
                 if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
                     bonusListIDs.push_back(*bonusListId);
 
-        ItemContext itemContext = ItemContext::NONE;
         if (context)
         {
             itemContext = ItemContext(Trinity::StringTo<uint8>(context).value_or(0));
