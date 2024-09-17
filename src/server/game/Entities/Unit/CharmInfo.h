@@ -30,13 +30,13 @@ constexpr uint8 MAX_SPELL_VEHICLE       = 6;
 constexpr uint8 MAX_SPELL_POSSESS       = 8;
 constexpr uint8 MAX_SPELL_CONTROL_BAR   = 10;
 
-#define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
-#define UNIT_ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
-#define MAKE_UNIT_ACTION_BUTTON(A, T) (uint32(A) | (uint32(T) << 24))
+#define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x007FFFFF)
+#define UNIT_ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF800000) >> 23)
+#define MAKE_UNIT_ACTION_BUTTON(A, T) (uint32(A) | (uint32(T) << 23))
 
 struct UnitActionBarEntry
 {
-    UnitActionBarEntry() : packedData(uint32(ACT_DISABLED) << 24) { }
+    UnitActionBarEntry() : packedData(uint32(ACT_DISABLED) << 23) { }
 
     uint32 packedData;
 
@@ -61,7 +61,7 @@ struct UnitActionBarEntry
 
     void SetAction(uint32 action)
     {
-        packedData = (packedData & 0xFF000000) | UNIT_ACTION_BUTTON_ACTION(action);
+        packedData = (packedData & 0xFF800000) | UNIT_ACTION_BUTTON_ACTION(action);
     }
 };
 

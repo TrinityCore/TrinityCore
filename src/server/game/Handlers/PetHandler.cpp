@@ -70,7 +70,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
     ObjectGuid guid2 = packet.TargetGUID; //tag guid
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(packet.Action);
-    uint8 flag = UNIT_ACTION_BUTTON_TYPE(packet.Action); //delete = 0x07 CastSpell = C1
+    uint16 flag = UNIT_ACTION_BUTTON_TYPE(packet.Action); //delete = 0x07 CastSpell = C1
 
     // used also for charmed creature
     Unit* pet = ObjectAccessor::GetUnit(*_player, guid1);
@@ -289,9 +289,9 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     break;
             }
             break;
-        case ACT_DISABLED: // 0x81 spell (disabled), ignore
+        case ACT_DISABLED: // 0x101 spell (disabled), ignore
         case ACT_PASSIVE: // 0x01
-        case ACT_ENABLED: // 0xC1 spell
+        case ACT_ENABLED: // 0x181 spell
         {
             Unit* unit_target = nullptr;
 
@@ -489,7 +489,7 @@ void WorldSession::HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet)
     uint32 actionData = packet.Action;
 
     uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(actionData);
-    uint8 act_state = UNIT_ACTION_BUTTON_TYPE(actionData);
+    uint16 act_state = UNIT_ACTION_BUTTON_TYPE(actionData);
 
     TC_LOG_DEBUG("entities.pet", "Player {} has changed pet spell action. Position: {}, Spell: {}, State: 0x{:X}",
         _player->GetName(), position, spell_id, uint32(act_state));
