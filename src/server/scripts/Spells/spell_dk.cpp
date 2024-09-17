@@ -1007,6 +1007,24 @@ class spell_dk_t20_2p_rune_empowered : public AuraScript
     int32 _runicPowerSpent = 0;
 };
 
+// 376905 - Unleashed Frenzy
+class spell_dk_unleashed_frenzy : public AuraScript
+{
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        if (Spell const* procSpell = eventInfo.GetProcSpell())
+            if (Optional<int32> cost = procSpell->GetPowerTypeCostAmount(POWER_RUNIC_POWER))
+                return cost > 0;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_unleashed_frenzy::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
+    }
+};
+
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public AuraScript
 {
@@ -1077,6 +1095,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_raise_dead);
     RegisterSpellScript(spell_dk_rime);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
+    RegisterSpellScript(spell_dk_unleashed_frenzy);
     RegisterSpellScript(spell_dk_vampiric_blood);
 
     RegisterAreaTriggerAI(at_dk_death_and_decay);
