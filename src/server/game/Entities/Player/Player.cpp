@@ -475,7 +475,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetInventorySlotCount(INVENTORY_DEFAULT_SIZE);
 
     // set starting level
-    SetLevel(GetStartLevel(createInfo->Race, createInfo->Class, createInfo->TemplateSet));
+    SetLevel(GetStartLevel(createInfo->Class, createInfo->TemplateSet));
 
     InitRunes();
 
@@ -3500,8 +3500,6 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
         if (characterInfo->Class == CLASS_DEATH_KNIGHT)
             charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL);
-        else if (characterInfo->Class == CLASS_DEMON_HUNTER)
-            charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_DEMON_HUNTER_MIN_LEVEL);
         else
             charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
 
@@ -22595,23 +22593,12 @@ void Player::ReportedAfkBy(Player* reporter)
     reporter->SendDirectMessage(reportAfkResult.Write());
 }
 
-uint8 Player::GetStartLevel(uint8 race, uint8 playerClass, Optional<int32> characterTemplateId) const
+uint8 Player::GetStartLevel(uint8 playerClass, Optional<int32> characterTemplateId) const
 {
     uint8 startLevel = sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL);
-    if (sChrRacesStore.AssertEntry(race)->GetFlags().HasFlag(ChrRacesFlag::IsAlliedRace))
-        startLevel = sWorld->getIntConfig(CONFIG_START_ALLIED_RACE_LEVEL);
 
     if (playerClass == CLASS_DEATH_KNIGHT)
-    {
-        if (race == RACE_PANDAREN_ALLIANCE || race == RACE_PANDAREN_HORDE)
-            startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_ALLIED_RACE_LEVEL), startLevel);
-        else
-            startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL), startLevel);
-    }
-    else if (playerClass == CLASS_DEMON_HUNTER)
-        startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL), startLevel);
-    else if (playerClass == CLASS_EVOKER)
-        startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_EVOKER_PLAYER_LEVEL), startLevel);
+        startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL), startLevel);
 
     if (characterTemplateId)
     {

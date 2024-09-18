@@ -751,16 +751,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
         {
             bool haveSameRace = false;
-            uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
-            bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
-            uint32 evokerReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_EVOKER);
-            bool hasEvokerReqLevel = (evokerReqLevel == 0);
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            bool checkClassLevelReqs = (createInfo->Class == CLASS_DEMON_HUNTER || createInfo->Class == CLASS_EVOKER)
-                                        && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
-            int32 evokerLimit = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_EVOKERS_PER_REALM);
-            bool hasEvokerLimit = evokerLimit != 0;
 
             if (result)
             {
@@ -769,25 +761,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 Field* field = result->Fetch();
                 uint8 accRace = field[1].GetUInt8();
                 uint8 accClass = field[2].GetUInt8();
-
-                if (checkClassLevelReqs)
-                {
-                    if (!hasDemonHunterReqLevel)
-                    {
-                        uint8 accLevel = field[0].GetUInt8();
-                        if (accLevel >= demonHunterReqLevel)
-                            hasDemonHunterReqLevel = true;
-                    }
-                    if (!hasEvokerReqLevel)
-                    {
-                        uint8 accLevel = field[0].GetUInt8();
-                        if (accLevel >= evokerReqLevel)
-                            hasEvokerReqLevel = true;
-                    }
-                }
-
-                if (accClass == CLASS_EVOKER)
-                    --evokerLimit;
 
                 // need to check team only for first character
                 /// @todo what to if account already has characters of both races?
@@ -806,7 +779,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                 // search same race for cinematic or same class if need
                 /// @todo check if cinematic already shown? (already logged in?; cinematic field)
-                while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEMON_HUNTER || createInfo->Class == CLASS_EVOKER)
+                while (skipCinematics == 1 && !haveSameRace)
                 {
                     if (!result->NextRow())
                         break;
@@ -817,46 +790,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
-
-                    if (checkClassLevelReqs)
-                    {
-                        if (!hasDemonHunterReqLevel)
-                        {
-                            uint8 accLevel = field[0].GetUInt8();
-                            if (accLevel >= demonHunterReqLevel)
-                                hasDemonHunterReqLevel = true;
-                        }
-                        if (!hasEvokerReqLevel)
-                        {
-                            uint8 accLevel = field[0].GetUInt8();
-                            if (accLevel >= evokerReqLevel)
-                                hasEvokerReqLevel = true;
-                        }
-                    }
-
-                    if (accClass == CLASS_EVOKER)
-                        --evokerLimit;
                 }
-            }
-
-            if (checkClassLevelReqs)
-            {
-                if (!hasDemonHunterReqLevel)
-                {
-                    SendCharCreate(CHAR_CREATE_NEW_PLAYER);
-                    return;
-                }
-                if (!hasEvokerReqLevel)
-                {
-                    SendCharCreate(CHAR_CREATE_DRACTHYR_LEVEL_REQUIREMENT);
-                    return;
-                }
-            }
-
-            if (createInfo->Class == CLASS_EVOKER && hasEvokerLimit && evokerLimit < 1)
-            {
-                SendCharCreate(CHAR_CREATE_DRACTHYR_DUPLICATE);
-                return;
             }
 
             // Check name uniqueness in the same step as saving to database

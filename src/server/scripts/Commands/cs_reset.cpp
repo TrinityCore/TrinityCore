@@ -135,7 +135,7 @@ public:
         uint8 oldLevel = target->GetLevel();
 
         // set starting level
-        uint8 startLevel = target->GetStartLevel(target->GetRace(), target->GetClass(), {});
+        uint8 startLevel = target->GetStartLevel(target->GetClass(), {});
 
         target->_ApplyAllLevelScaleItemMods(false);
         target->SetLevel(startLevel);

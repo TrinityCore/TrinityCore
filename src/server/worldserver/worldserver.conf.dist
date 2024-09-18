@@ -851,32 +851,6 @@ CharactersPerAccount = 60
 CharactersPerRealm = 60
 
 #
-#    CharacterCreating.EvokersPerRealm
-#        Description: Limit number of evokers per account on this realm.
-#        Range:       1-60
-#        Default:     1
-
-CharacterCreating.EvokersPerRealm = 1
-
-#
-#    CharacterCreating.MinLevelForDemonHunter
-#        Description: Limit creating demon hunters only for account with another
-#                     character of specific level.
-#        Default:     0  - (Disabled, No requirement)
-#                     1  - (Enabled, Requires at least another level 1 character)
-
-CharacterCreating.MinLevelForDemonHunter = 0
-
-#
-#    CharacterCreating.MinLevelForEvoker
-#        Description: Limit creating evokers only for account with another
-#                     character of specific level.
-#        Default:     50  - (Enabled, Requires at least another level 50 character)
-#                     0  - (Disabled, No requirement)
-
-CharacterCreating.MinLevelForEvoker = 0
-
-#
 #    CharacterCreating.DisableAlliedRaceAchievementRequirement
 #        Description: Disable achievement requirements for allied race character creation
 #        Default:     0 (Keep requirements active)
@@ -925,30 +899,6 @@ StartPlayerLevel = 1
 #        Default:     55
 
 StartDeathKnightPlayerLevel = 55
-
-#
-#    StartDemonHunterPlayerLevel
-#        Description: Staring level for demon hunters after creation.
-#        Range:       1-MaxPlayerLevel
-#        Default:     8
-
-StartDemonHunterPlayerLevel = 8
-
-#
-#    StartEvokerPlayerLevel
-#        Description: Staring level for evokers after creation.
-#        Range:       1-MaxPlayerLevel
-#        Default:     58
-
-StartEvokerPlayerLevel = 58
-
-#
-#    StartAlliedRacePlayerLevel
-#        Description: Staring level for allied races after creation.
-#        Range:       1-MaxPlayerLevel
-#        Default:     10
-
-StartAlliedRacePlayerLevel = 10
 
 #
 #    StartPlayerMoney
@@ -3291,14 +3241,6 @@ CharDelete.MinLevel = 0
 #                     1+ - (Only characters with the specified level will use the unlinking method)
 
 CharDelete.DeathKnight.MinLevel = 0
-
-#
-#    CharDelete.DemonHunter.MinLevel
-#        Description: Required level to use the unlinking method if enabled for demon hunters.
-#        Default:     0  - (Same method for every level)
-#                     1+ - (Only characters with the specified level will use the unlinking method)
-
-CharDelete.DemonHunter.MinLevel = 0
 
 #
 #    CharDelete.KeepDays

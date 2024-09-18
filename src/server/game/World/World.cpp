@@ -964,15 +964,7 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] = m_int_configs[CONFIG_CHARACTERS_PER_REALM];
     }
 
-    m_int_configs[CONFIG_CHARACTER_CREATING_EVOKERS_PER_REALM] = sConfigMgr->GetIntDefault("CharacterCreating.EvokersPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_CHARACTER_CREATING_EVOKERS_PER_REALM]) < 0 || m_int_configs[CONFIG_CHARACTER_CREATING_EVOKERS_PER_REALM] > 10)
-    {
-        TC_LOG_ERROR("server.loading", "CharacterCreating.EvokersPerRealm ({}) must be in range 0..10. Set to 1.", m_int_configs[CONFIG_CHARACTER_CREATING_EVOKERS_PER_REALM]);
-        m_int_configs[CONFIG_CHARACTER_CREATING_EVOKERS_PER_REALM] = 1;
-    }
 
-    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForDemonHunter", 0);
-    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_EVOKER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForEvoker", 50);
     m_bool_configs[CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT] = sConfigMgr->GetBoolDefault("CharacterCreating.DisableAlliedRaceAchievementRequirement", false);
 
     m_int_configs[CONFIG_SKIP_CINEMATICS] = sConfigMgr->GetIntDefault("SkipCinematics", 0);
@@ -1023,48 +1015,6 @@ void World::LoadConfigSettings(bool reload)
         TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to {}.",
             m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
-    }
-
-    m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartDemonHunterPlayerLevel", 8);
-    if (m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] < 1)
-    {
-        TC_LOG_ERROR("server.loading", "StartDemonHunterPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to 1.",
-            m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = 1;
-    }
-    else if (m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
-    {
-        TC_LOG_ERROR("server.loading", "StartDemonHunterPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to {}.",
-            m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
-    }
-
-    m_int_configs[CONFIG_START_EVOKER_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartEvokerPlayerLevel", 58);
-    if (m_int_configs[CONFIG_START_EVOKER_PLAYER_LEVEL] < 1)
-    {
-        TC_LOG_ERROR("server.loading", "StartEvokerPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to 1.",
-            m_int_configs[CONFIG_START_EVOKER_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_EVOKER_PLAYER_LEVEL] = 1;
-    }
-    else if (m_int_configs[CONFIG_START_EVOKER_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
-    {
-        TC_LOG_ERROR("server.loading", "StartEvokerPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to {}.",
-            m_int_configs[CONFIG_START_EVOKER_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_EVOKER_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
-    }
-
-    m_int_configs[CONFIG_START_ALLIED_RACE_LEVEL] = sConfigMgr->GetIntDefault("StartAlliedRacePlayerLevel", 10);
-    if (m_int_configs[CONFIG_START_ALLIED_RACE_LEVEL] < 1)
-    {
-        TC_LOG_ERROR("server.loading", "StartDemonHunterPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to 1.",
-            m_int_configs[CONFIG_START_ALLIED_RACE_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_ALLIED_RACE_LEVEL] = 1;
-    }
-    else if (m_int_configs[CONFIG_START_ALLIED_RACE_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
-    {
-        TC_LOG_ERROR("server.loading", "StartDemonHunterPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to {}.",
-            m_int_configs[CONFIG_START_ALLIED_RACE_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_ALLIED_RACE_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
     m_int_configs[CONFIG_START_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartPlayerMoney", 0);
@@ -1451,7 +1401,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHARDELETE_METHOD] = sConfigMgr->GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DeathKnight.MinLevel", 0);
-    m_int_configs[CONFIG_CHARDELETE_DEMON_HUNTER_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DemonHunter.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = sConfigMgr->GetIntDefault("CharDelete.KeepDays", 30);
 
     // No aggro from gray mobs
