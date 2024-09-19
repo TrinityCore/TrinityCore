@@ -668,9 +668,9 @@ class spell_dk_frost_fever_proc : public AuraScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
     }
 
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
-        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+        return roll_chance_i(aurEff->GetAmount());
     }
 
     void Register() override
