@@ -47,6 +47,12 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
         ssl.assign(tokens[5]);
 }
 
+struct MySQLConnection::WorkerThread
+{
+    std::thread ThreadHandle;
+    boost::asio::executor_work_guard<Trinity::Asio::IoContext::Executor> WorkGuard;
+};
+
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) :
 m_reconnecting(false),
 m_prepareError(false),
@@ -66,7 +72,8 @@ void MySQLConnection::Close()
     // Stop the worker thread before the statements are cleared
     if (m_workerThread)
     {
-        m_workerThread->join();
+        m_workerThread->WorkGuard.reset();
+        m_workerThread->ThreadHandle.join();
         m_workerThread.reset();
     }
 
@@ -444,18 +451,18 @@ uint32 MySQLConnection::GetLastError()
 
 void MySQLConnection::StartWorkerThread(Trinity::Asio::IoContext* context)
 {
-    m_workerThread = std::make_unique<std::thread>([context]
-    {
-        boost::asio::executor_work_guard executorWorkGuard = boost::asio::make_work_guard(context->get_executor());
+    boost::asio::executor_work_guard executorWorkGuard = boost::asio::make_work_guard(context->get_executor()); // construct guard before thread starts running
 
-        context->run();
+    m_workerThread = std::make_unique<WorkerThread>(WorkerThread{
+        .ThreadHandle = std::thread([context] { context->run(); }),
+        .WorkGuard = std::move(executorWorkGuard)
     });
 }
 
 std::thread::id MySQLConnection::GetWorkerThreadId() const
 {
     if (m_workerThread)
-        return m_workerThread->get_id();
+        return m_workerThread->ThreadHandle.get_id();
 
     return {};
 }
