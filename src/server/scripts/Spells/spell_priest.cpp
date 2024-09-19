@@ -3088,13 +3088,16 @@ class spell_pri_shadow_word_death : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_4 } });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } })
+            && spellInfo->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_DUMMY)
+            && spellInfo->GetEffect(EFFECT_3).IsEffect(SPELL_EFFECT_SCRIPT_EFFECT)
+            && spellInfo->GetEffect(EFFECT_5).IsEffect(SPELL_EFFECT_DUMMY);
     }
 
     void HandleDamageCalculation(Unit const* victim, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
     {
-        if (victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())))
-            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+        if (victim->HealthBelowPct(GetEffectInfo(EFFECT_2).CalcValue(GetCaster())))
+            AddPct(pctMod, GetEffectInfo(EFFECT_3).CalcValue(GetCaster()));
     }
 
     void DetermineKillStatus(DamageInfo const& damageInfo, uint32& /*resistAmount*/, int32& /*absorbAmount*/) const
@@ -3103,7 +3106,7 @@ class spell_pri_shadow_word_death : public SpellScript
         if (!killed)
         {
             Unit* caster = GetCaster();
-            int32 backlashDamage = caster->CountPctFromMaxHealth(GetEffectInfo(EFFECT_4).CalcValue(caster));
+            int32 backlashDamage = caster->CountPctFromMaxHealth(GetEffectInfo(EFFECT_5).CalcValue(caster));
             caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_castId, backlashDamage]
             {
                 caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, CastSpellExtraArgs()

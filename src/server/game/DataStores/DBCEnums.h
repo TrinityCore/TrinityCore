@@ -2012,28 +2012,29 @@ enum SpellCategoryFlags
 enum class SpellEffectAttributes
 {
     None                                    = 0,
-    NoImmunity                              = 0x000001, // not cancelled by immunities
-    PositionIsFacingRelative                = 0x000002, /*NYI*/
-    JumpChargeUnitMeleeRange                = 0x000004, /*NYI*/
-    JumpChargeUnitStrictPathCheck           = 0x000008, /*NYI*/
-    ExcludeOwnParty                         = 0x000010, /*NYI*/
-    AlwaysAoeLineOfSight                    = 0x000020,
-    SuppressPointsStacking                  = 0x000040,
-    ChainFromInitialTarget                  = 0x000080,
-    UncontrolledNoBackwards                 = 0x000100, /*NYI*/
-    AuraPointsStack                         = 0x000200, // refreshing auras with this attribute will add remaining amount to new aura
-    NoCopyDamageInterruptsOrProcs           = 0x000400, /*NYI*/
-    AddTargetCombatReachToAOE               = 0x000800, /*NYI*/
-    IsHarmful                               = 0x001000,
-    ForceScaleToOverrideCameraMinHeight     = 0x002000, /*NYI*/
-    PlayersOnly                             = 0x004000,
-    ComputePointsOnlyAtCastTime             = 0x008000, /*NYI*/
-    EnforceLineOfSightToChainTargets        = 0x010000,
-    AreaEffectsUseTargetRadius              = 0x020000, /*NYI*/
-    TeleportWithVehicle                     = 0x040000, /*NYI*/
-    ScalePointsByChallengeModeDamageScaler  = 0x080000, /*NYI*/
-    DontFailSpellOnTargetingFailure         = 0x100000, /*NYI*/
-    IgnoreDuringCooldownTimeRateCalculation = 0x800000, /*NYI*/
+    NoImmunity                              = 0x00000001, // not cancelled by immunities
+    PositionIsFacingRelative                = 0x00000002, /*NYI*/
+    JumpChargeUnitMeleeRange                = 0x00000004, /*NYI*/
+    JumpChargeUnitStrictPathCheck           = 0x00000008, /*NYI*/
+    ExcludeOwnParty                         = 0x00000010, /*NYI*/
+    AlwaysAoeLineOfSight                    = 0x00000020,
+    SuppressPointsStacking                  = 0x00000040,
+    ChainFromInitialTarget                  = 0x00000080,
+    UncontrolledNoBackwards                 = 0x00000100, /*NYI*/
+    AuraPointsStack                         = 0x00000200, // refreshing auras with this attribute will add remaining amount to new aura
+    NoCopyDamageInterruptsOrProcs           = 0x00000400, /*NYI*/
+    AddTargetCombatReachToAOE               = 0x00000800, /*NYI*/
+    IsHarmful                               = 0x00001000,
+    ForceScaleToOverrideCameraMinHeight     = 0x00002000, /*NYI*/
+    PlayersOnly                             = 0x00004000,
+    ComputePointsOnlyAtCastTime             = 0x00008000, /*NYI*/
+    EnforceLineOfSightToChainTargets        = 0x00010000,
+    AreaEffectsUseTargetRadius              = 0x00020000, /*NYI*/
+    TeleportWithVehicle                     = 0x00040000, /*NYI*/
+    ScalePointsByChallengeModeDamageScaler  = 0x00080000, /*NYI*/
+    DontFailSpellOnTargetingFailure         = 0x00100000, /*NYI*/
+    IgnoreDuringCooldownTimeRateCalculation = 0x00800000, /*NYI*/
+    DamageOnlyAbsorbShields                 = 0x04000000, /*NYI*/ // Effects with this attribute only reduce absorbs on targets hit without actually dealing damage
 };
 
 DEFINE_ENUM_FLAG(SpellEffectAttributes);
