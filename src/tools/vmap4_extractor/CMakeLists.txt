@@ -12,8 +12,6 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
-
 add_executable(vmap4extractor ${PRIVATE_SOURCES})
 
 target_link_libraries(vmap4extractor

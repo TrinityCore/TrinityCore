@@ -248,7 +248,7 @@ WorldPacket const* SpellEnergizeLog::Write()
     *this << CasterGUID;
 
     *this << int32(SpellID);
-    *this << int32(Type);
+    *this << int8(Type);
     *this << int32(Amount);
     *this << int32(OverEnergize);
 

@@ -397,7 +397,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 #endif
 
     // Set the default charset to utf8
-    args.emplace_back("--default-character-set=utf8");
+    args.emplace_back("--default-character-set=utf8mb4");
 
     // Set max allowed packet to 1 GB
     args.emplace_back("--max-allowed-packet=1GB");
@@ -423,7 +423,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
-    int const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
+    int const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), std::move(args),
                                  "sql.updates", "", true);
 
     if (ret != EXIT_SUCCESS)

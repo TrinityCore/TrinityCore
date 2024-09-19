@@ -629,7 +629,7 @@ void Channel::List(Player const* player)
              member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
             member->IsVisibleGloballyFor(player))
         {
-            list._Members.emplace_back(i.first, GetVirtualRealmAddress(), i.second.GetFlags());
+            list._Members.emplace_back(i.first, *member->m_playerData->VirtualPlayerRealm, i.second.GetFlags());
         }
     }
 

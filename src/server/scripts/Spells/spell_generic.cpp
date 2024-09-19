@@ -5379,6 +5379,78 @@ private:
     uint64 _health;
 };
 
+// 128648 - Defending Cart Aura
+class spell_bg_defending_cart_aura final : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        if (targets.empty())
+            return;
+
+        if (GameObject const* controlZone = GetControlZone())
+        {
+            targets.remove_if([&](WorldObject* obj)
+            {
+                if (Player const* player = obj->ToPlayer())
+                    return GetTeamIdForTeam(player->GetBGTeam()) != controlZone->GetControllingTeam();
+
+                return true;
+            });
+        }
+    }
+
+    GameObject const* GetControlZone() const
+    {
+        if (Unit const* caster = GetCaster())
+        {
+            Unit::AuraEffectList const& auraEffects = caster->GetAuraEffectsByType(SPELL_AURA_ACT_AS_CONTROL_ZONE);
+            for (AuraEffect const* auraEffect : auraEffects)
+                if (GameObject const* gameobject = caster->GetGameObject(auraEffect->GetSpellInfo()->Id))
+                    return gameobject;
+        }
+
+        return nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bg_defending_cart_aura::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+    }
+};
+
+// 128648 - Defending Cart Aura
+class spell_bg_defending_cart_aura_AuraScript final : public AuraScript
+{
+    void OnPeriodic(AuraEffect const* /*aurEff*/) const
+    {
+        Unit const* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (GameObject const* controlZone = GetControlZone())
+            if (!controlZone->GetInsidePlayers()->contains(GetTarget()->GetGUID()))
+                GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Id, caster->GetGUID());
+    }
+
+    GameObject const* GetControlZone() const
+    {
+        if (Unit const* caster = GetCaster())
+        {
+            Unit::AuraEffectList const& auraEffects = caster->GetAuraEffectsByType(SPELL_AURA_ACT_AS_CONTROL_ZONE);
+            for (AuraEffect const* auraEffect : auraEffects)
+                if (GameObject const* gameobject = caster->GetGameObject(auraEffect->GetSpellInfo()->Id))
+                    return gameobject;
+        }
+
+        return nullptr;
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bg_defending_cart_aura_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5559,4 +5631,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_1", 1);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
+    RegisterSpellAndAuraScriptPair(spell_bg_defending_cart_aura, spell_bg_defending_cart_aura_AuraScript);
 }
