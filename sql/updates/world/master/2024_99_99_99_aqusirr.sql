@@ -1,8 +1,8 @@
-SET @ATID := 10000;
-SEt @ATCP := 10000;
-SET @ATIDSPAWN := 10000;
-SET @CGUID := 100000000;
-SET @SPAWNGROUP := 9999;
+SET @ATID := 95;
+SEt @ATCP := 83;
+SET @ATIDSPAWN := 97;
+SET @CGUID := 7001525;
+SET @SPAWNGROUP := 1258;
 
 -- Instance
 DELETE FROM `instance_template` WHERE `map`=1864;
@@ -68,7 +68,7 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id`= @ATCP+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATCP+0, 1, @ATID+0, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 15, 30, 5, 15, 30, 5, 0, 0, '', 0);
+(@ATCP+0, 1, @ATID+0, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 18, 30, 5, 18, 30, 5, 0, 0, '', 0);
 
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (17428, 17427));
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
@@ -81,7 +81,7 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 (12775, 0, 17428, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 4000, 0, 6, 6, 0, 0, 0, 0, 0, 0, 'at_aqusirr_surging_rush', 55664); -- Spell: 264101 (Surging Rush)
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (274365, 274367, 274364, 264911, 264912, 264913, 274260, 264102, 264560, 264941, 264477);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (274365, 274367, 274364, 264911, 264912, 264913, 274260, 264102, 264560, 264941, 264477, 264526);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (274365, 'spell_aqusirr_requiem_of_the_abyss'),
 (274367, 'spell_aqusirr_requiem_of_the_abyss'),
@@ -93,7 +93,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (274260, 'spell_aqusirr_surging_rush'),
 (264102, 'spell_aqusirr_surging_rush_selector'),
 (264941, 'spell_aqusirr_erupting_waters'),
-(264477, 'spell_aqusirr_grasp_from_the_depths_selector');
+(264477, 'spell_aqusirr_grasp_from_the_depths_selector'),
+(264526, 'spell_aqusirr_grasp_from_the_depths_damage');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=265030;
@@ -111,3 +112,5 @@ UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`
 DELETE FROM `smart_scripts` WHERE `entryorguid`=134612 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (134612, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 264526, 2, 128, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Grasping Tentacles - On Just Created - Self: Cast Spell 264526');
+
+-- @TODO: sniff 134828 in all difficulties

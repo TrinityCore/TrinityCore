@@ -80,7 +80,7 @@ enum AqusirrTexts
 
 enum AqusirrMisc
 {
-    SPAWN_GROUP_ID_AQUSIRR = 9999, // TODO: change when merge
+    SPAWN_GROUP_ID_AQUSIRR = 1258,
     ANIM_KIT_SURGING_RUSH  = 11428
 };
 
@@ -168,7 +168,7 @@ struct AqusirrSharedAI : public BossAI
 // 134056 - Aqu'sirr
 struct boss_aqusirr : public AqusirrSharedAI
 {
-    boss_aqusirr(Creature* creature) : AqusirrSharedAI(creature, DATA_AQUSIRR), _triggered(false), _aqualingDefeatedCount(0) { }
+    boss_aqusirr(Creature* creature) : AqusirrSharedAI(creature, DATA_AQUSIRR), _triggeredSplit(false), _aqualingDefeatedCount(0) { }
 
     void JustAppeared() override
     {
@@ -178,13 +178,13 @@ struct boss_aqusirr : public AqusirrSharedAI
     void JustEngagedWith(Unit* who) override
     {
         AqusirrSharedAI::JustEngagedWith(who);
-        instance->SetBossState(DATA_AQUSIRR, IN_PROGRESS);
+        BossAI::JustEngagedWith(who);
     }
 
     void Reset() override
     {
         events.Reset();
-        _triggered = false;
+        _triggeredSplit = false;
         _aqualingDefeatedCount = 0;
     }
 
@@ -204,6 +204,7 @@ struct boss_aqusirr : public AqusirrSharedAI
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_AQUSIRR, DONE);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GRASP_FROM_THE_DEPTHS_DAMAGE);
 
         Creature* shrineDummy = GetClosestCreatureWithOptions(me, 50.0f, { .CreatureId = NPC_SHRINE_OF_THE_STORM_DUMMY, .IgnorePhases = true });
         if (!shrineDummy)
@@ -215,10 +216,12 @@ struct boss_aqusirr : public AqusirrSharedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(50, damage) && !_triggered)
+        if (me->HealthBelowPctDamaged(50, damage) && !_triggeredSplit)
         {
-            _triggered = true;
+            _triggeredSplit = true;
             me->SetUnkillable(true);
+            me->SetImmuneToPC(true);
+            me->SetUninteractible(true);
             DoCastSelf(SPELL_ERUPTING_WATERS_SPLIT);
         }
     }
@@ -227,22 +230,23 @@ struct boss_aqusirr : public AqusirrSharedAI
     {
         if (spellInfo->Id == SPELL_ERUPTING_WATERS_AQUALING)
         {
-            if (_aqualingDefeatedCount <= 1)
-            {
-                DoCastSelf(SPELL_ERUPTING_WATERS_DAMAGE);
-                _aqualingDefeatedCount++;
-            }
-            else if (_aqualingDefeatedCount == 2)
+            DoCastSelf(SPELL_ERUPTING_WATERS_DAMAGE);
+
+            _aqualingDefeatedCount++;
+
+            if (_aqualingDefeatedCount == 3)
             {
                 DoCastSelf(SPELL_ERUPTING_WATERS_DAMAGE);
                 me->RemoveAurasDueToSpell(SPELL_ERUPTING_WATERS_SPLIT);
                 me->SetUnkillable(false);
+                me->SetImmuneToPC(false);
+                me->SetUninteractible(false);
             }
         }
     }
 
 private:
-    bool _triggered;
+    bool _triggeredSplit;
     uint8 _aqualingDefeatedCount;
 };
 
@@ -282,7 +286,7 @@ struct npc_aqusirr_intro_lord_stormsong : public CreatureAI
         {
             me->RemoveAurasDueToSpell(SPELL_WATER_RITUAL);
 
-            Seconds delay = 1s;
+            Milliseconds delay = 1s;
 
             _scheduler.Schedule(delay, [this](TaskContext)
             {
@@ -312,7 +316,7 @@ struct npc_aqusirr_intro_lord_stormsong : public CreatureAI
 
             delay += 1s;
 
-            _scheduler.Schedule(1s, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext)
             {
                 DoCastSelf(SPELL_REQUIEM_OF_THE_ABYSS_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             });
@@ -324,9 +328,9 @@ struct npc_aqusirr_intro_lord_stormsong : public CreatureAI
                 me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_ID_AQUSIRR);
             });
 
-            delay += 3s;
+            delay += 3800ms;
 
-            _scheduler.Schedule(delay + 800ms, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext)
             {
                 DoCastSelf(SPELL_SPLASHING_WATERS);
             });
@@ -538,6 +542,24 @@ class spell_aqusirr_grasp_from_the_depths_selector : public SpellScript
     }
 };
 
+// 264526 - Grasp from the Depths
+class spell_aqusirr_grasp_from_the_depths_damage : public AuraScript
+{
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Creature* caster = Object::ToCreature(GetCaster());
+        if (!caster)
+            return;
+
+        caster->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_aqusirr_grasp_from_the_depths_damage::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // XXXX - Areatrigger (TODO: Set on merge)
 struct at_aqusirr_intro : AreaTriggerAI
 {
@@ -547,6 +569,9 @@ struct at_aqusirr_intro : AreaTriggerAI
     {
         Player* player = unit->ToPlayer();
         if (!player)
+            return;
+
+        if (player->IsGameMaster())
             return;
 
         Creature* lordSongstorm = unit->FindNearestCreature(NPC_LORD_SONGSTORM_AQUSIRR, 50.0f);

@@ -22,7 +22,7 @@
 
 static BossBoundaryData const boundaries =
 {
-    { DATA_AQUSIRR, new ZRangeBoundary(128.15f, 119.89f) }
+    { DATA_AQUSIRR, new ZRangeBoundary(119.89f, 132.9f) }
 };
 
 ObjectData const creatureData[] =
