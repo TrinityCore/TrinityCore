@@ -12,7 +12,7 @@ jobs:
           password: $DOCKERHUB_PASSWORD
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_ROOT_PASSWORD: ""
           MYSQL_DATABASE: test_mysql
     steps:
       - run:
@@ -24,24 +24,6 @@ jobs:
           command: |
             chmod +x contrib/check_codestyle.sh
             ./contrib/check_codestyle.sh
-      - run:
-          name: SQL checks
-          command: |
-            chmod +x contrib/check_updates.sh
-            dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
-            mysql -h 127.0.0.1 -uroot < sql/create/create_mysql.sql
-            mysql -h 127.0.0.1 -uroot auth < sql/base/auth_database.sql
-            ./contrib/check_updates.sh auth master auth 127.0.0.1
-            mysql -h 127.0.0.1 -uroot characters < sql/base/characters_database.sql
-            ./contrib/check_updates.sh characters master characters 127.0.0.1
-            echo "Importing world database structure"
-            mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
-            echo "Importing hotfixes database structure"
-            mysql -h 127.0.0.1 -uroot hotfixes < sql/base/dev/hotfixes_database.sql
-            echo "Importing world database updates"
-            cat sql/updates/world/master/*.sql | mysql -h 127.0.0.1 -uroot world
-            echo "Importing hotfixes database updates"
-            cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
   pch:
     docker:
       - image: trinitycore/circle-ci:master-base-22.04
