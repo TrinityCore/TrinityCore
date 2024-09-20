@@ -141,6 +141,12 @@ void WorldPackets::Pet::PetSetAction::Read()
 
     _worldPacket >> Index;
     _worldPacket >> Action;
+
+    if (_worldPacket.ReadBit())
+    {
+        _worldPacket >> Unk440_1;
+        _worldPacket >> Unk440_2;
+    }
 }
 
 void WorldPackets::Pet::PetAbandon::Read()

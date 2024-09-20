@@ -203,6 +203,8 @@ namespace WorldPackets
 
             uint32 Index = 0;
             uint32 Action = 0;
+            uint32 Unk440_1 = 0;
+            uint32 Unk440_2 = 0;
         };
 
         class PetCancelAura final : public ClientPacket
