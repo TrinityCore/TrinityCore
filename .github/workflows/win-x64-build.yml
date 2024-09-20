@@ -71,12 +71,10 @@ jobs:
 
     - name: Configure CMake
       env:
-        CFLAGS: /WX
-        CXXFLAGS: /WX
         BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: >
         cmake -GNinja -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
-        -DTOOLS=ON
+        -DWITH_WARNINGS_AS_ERRORS=ON -DTOOLS=ON
 
     - name: Build
       run: |

@@ -56,14 +56,12 @@ jobs:
       - run:
           name: Setup
           command: |
-            export CFLAGS="-Werror"
-            export CXXFLAGS="-Werror"
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
               export CMAKE_BUILD_TYPE=Release
             else
               export CMAKE_BUILD_TYPE=Debug
             fi
-            cmake -S . -B ./bin -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=bin/check_install -DCMAKE_INSTALL_RPATH=\$ORIGIN/../lib -DBUILD_TESTING=1
+            cmake -S . -B ./bin -DWITH_WARNINGS=1 -DWITH_WARNINGS_AS_ERRORS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=bin/check_install -DCMAKE_INSTALL_RPATH=\$ORIGIN/../lib -DBUILD_TESTING=1
       - run:
           name: Build
           command: |
@@ -128,8 +126,6 @@ jobs:
             export CCACHE_MAXSIZE="1G"
             export CC="ccache clang"
             export CXX="ccache clang++"
-            export CFLAGS="-Werror"
-            export CXXFLAGS="-Werror"
             export CMAKE_BUILD_TYPE=Debug
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
@@ -139,7 +135,7 @@ jobs:
             ccache -s
             git config user.email "circleci@build.bot" && git config user.name "Circle CI"
             $CXX --version
-            cmake -S . -B ./bin -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=bin/check_install
+            cmake -S . -B ./bin -DWITH_WARNINGS=1 -DWITH_WARNINGS_AS_ERRORS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=bin/check_install
       - run:
           name: Build
           command: |
