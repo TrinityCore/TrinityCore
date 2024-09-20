@@ -38,9 +38,9 @@ target_include_directories(mapextractor
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(mapextractor
-    PROPERTIES
-      FOLDER
-        "tools")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "tools")
 
 if(UNIX)
   install(TARGETS mapextractor DESTINATION bin)

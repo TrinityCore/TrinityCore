@@ -59,9 +59,9 @@ target_include_directories(worldserver
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(worldserver
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "server")
 
 # Add all dynamic projects as dependency to the worldserver
 if(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)

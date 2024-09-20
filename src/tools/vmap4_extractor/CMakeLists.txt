@@ -21,9 +21,9 @@ target_link_libraries(vmap4extractor
     extractor_common)
 
 set_target_properties(vmap4extractor
-    PROPERTIES
-      FOLDER
-        "tools")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "tools")
 
 if(UNIX)
   install(TARGETS vmap4extractor DESTINATION bin)
