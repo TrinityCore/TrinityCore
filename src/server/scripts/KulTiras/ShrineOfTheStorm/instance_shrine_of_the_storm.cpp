@@ -28,7 +28,6 @@ static BossBoundaryData const boundaries =
 ObjectData const creatureData[] =
 {
     { BOSS_AQUSIRR,               DATA_AQUSIRR               },
-    { BOSS_AQUALING,              DATA_AQUALING              },
     { BOSS_BROTHER_IRONHULL,      DATA_BROTHER_IRONHULL      },
     { BOSS_GALECALLER_FAYE,       DATA_GALECALLER_FAYE       },
     { BOSS_LORD_STORMSONG,        DATA_LORD_STORMSONG        },

@@ -81,11 +81,12 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 (12775, 0, 17428, 0, 4, 0, 0, 0, 0, -1, 0, 0, 0, 4000, 0, 6, 6, 0, 0, 0, 0, 0, 0, 'at_aqusirr_surging_rush', 55664); -- Spell: 264101 (Surging Rush)
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (274365, 274367, 274364, 264911, 264912, 264913, 274260, 264102, 264560, 264941, 264477, 264526);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (274365, 274367, 274364, 264903, 264911, 264912, 264913, 274260, 264102, 264560, 264941, 264477, 264526);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (274365, 'spell_aqusirr_requiem_of_the_abyss'),
 (274367, 'spell_aqusirr_requiem_of_the_abyss'),
 (274364, 'spell_aqusirr_requiem_of_the_abyss_periodic'),
+(264903, 'spell_aqusirr_erupting_waters_aura'),
 (264911, 'spell_aqusirr_erupting_waters_split_1'),
 (264912, 'spell_aqusirr_erupting_waters_split_2'),
 (264913, 'spell_aqusirr_erupting_waters_split_3'),
@@ -113,4 +114,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=134612 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (134612, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 264526, 2, 128, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Grasping Tentacles - On Just Created - Self: Cast Spell 264526');
 
--- @TODO: sniff 134828 in all difficulties
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=501, `StaticFlags1`=805306624, `VerifiedBuild`=56647 WHERE (`Entry`=134828 AND `DifficultyID`=2); -- 134828 (Aqualing) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=501, `StaticFlags1`=805306624, `VerifiedBuild`=56647 WHERE (`Entry`=134612 AND `DifficultyID`=2); -- 134612 (Grasping Tentacles) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=502, `StaticFlags1`=805306624, `VerifiedBuild`=56647 WHERE (`Entry`=134828 AND `DifficultyID`=23); -- 134828 (Aqualing) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=502, `StaticFlags1`=805306624, `VerifiedBuild`=56647 WHERE (`Entry`=134612 AND `DifficultyID`=23); -- 134612 (Grasping Tentacles) - Sessile, CanSwim, Floating

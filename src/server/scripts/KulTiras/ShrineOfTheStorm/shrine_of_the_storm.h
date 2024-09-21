@@ -33,7 +33,6 @@ enum ShrineOfTheStormDataTypes
     DATA_LORD_STORMSONG         = 2,
     DATA_VOLZITH_THE_WHISPERER  = 3,
 
-    DATA_AQUALING,
     DATA_BROTHER_IRONHULL,
     DATA_GALECALLER_FAYE
 };
@@ -42,7 +41,6 @@ enum ShrineOfTheStormCreatureIds
 {
     // Bosses
     BOSS_AQUSIRR                    = 134056,
-    BOSS_AQUALING                   = 134828,
     BOSS_BROTHER_IRONHULL           = 134063,
     BOSS_GALECALLER_FAYE            = 134058,
     BOSS_LORD_STORMSONG             = 134060,
@@ -50,7 +48,8 @@ enum ShrineOfTheStormCreatureIds
 
     NPC_LORD_SONGSTORM_AQUSIRR      = 139737,
     NPC_SHRINE_OF_THE_STORM_DUMMY   = 139986,
-    NPC_GRASPING_TENTACLE           = 134612
+    NPC_GRASPING_TENTACLE           = 134612,
+    NPC_AQUALING                    = 134828,
 };
 
 template <class AI, class T>

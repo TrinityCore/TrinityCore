@@ -32,30 +32,31 @@
 enum AqusirrSpells
 {
     // Lord Stormsong
-    SPELL_WATER_RITUAL                   = 274341,
-    SPELL_REQUIEM_OF_THE_ABYSS_PERIODIC  = 274364,
-    SPELL_REQUIEM_OF_THE_ABYSS           = 274359,
-    SPELL_REQUIEM_OF_THE_ABYSS_KNOCKBACK = 274367,
-    SPELL_SPLASHING_WATERS               = 241680,
+    SPELL_WATER_RITUAL                      = 274341,
+    SPELL_REQUIEM_OF_THE_ABYSS_PERIODIC     = 274364,
+    SPELL_REQUIEM_OF_THE_ABYSS              = 274359,
+    SPELL_REQUIEM_OF_THE_ABYSS_KNOCKBACK    = 274367,
+    SPELL_SPLASHING_WATERS                  = 241680,
 
     // Aqu'sirr
-    SPELL_EMERGE_VISUAL                  = 274948,
-    SPELL_UNDERTOW                       = 264144,
-    SPELL_SEA_BLAST                      = 265001,
-    SPELL_SURGING_RUSH_DAMAGE            = 264155,
-    SPELL_SURGING_RUSH                   = 264101,
-    SPELL_ERUPTING_WATERS_SPLIT          = 264903,
-    SPELL_ERUPTING_WATERS_DAMAGE         = 264941,
-    SPELL_ERUPTING_WATERS_AQUALING       = 265030,
-    SPELL_CHOKING_BRINE                  = 264560,
-    SPELL_CHOKING_BRINE_MISSILE          = 264714,
-    SPELL_CHOKING_BRINE_MISSILE_2        = 264703,
-    SPELL_GRASP_FROM_THE_DEPTHS_SELECTOR = 264477,
-    SPELL_GRASP_FROM_THE_DEPTHS_SUMMON   = 264522,
-    SPELL_GRASP_FROM_THE_DEPTHS_DAMAGE   = 264526,
+    SPELL_EMERGE_VISUAL                     = 274948,
+    SPELL_UNDERTOW                          = 264144,
+    SPELL_SEA_BLAST                         = 265001,
+    SPELL_SURGING_RUSH_SELECTOR             = 264102,
+    SPELL_SURGING_RUSH_DAMAGE               = 264155,
+    SPELL_SURGING_RUSH                      = 264101,
+    SPELL_ERUPTING_WATERS_SPLIT             = 264903,
+    SPELL_ERUPTING_WATERS_DAMAGE            = 264941,
+    SPELL_ERUPTING_WATERS_AQUALING          = 265030,
+    SPELL_CHOKING_BRINE                     = 264560,
+    SPELL_CHOKING_BRINE_MISSILE             = 264714,
+    SPELL_CHOKING_BRINE_MISSILE_2           = 264703,
+    SPELL_GRASP_FROM_THE_DEPTHS_SELECTOR    = 264477,
+    SPELL_GRASP_FROM_THE_DEPTHS_SUMMON      = 264522,
+    SPELL_GRASP_FROM_THE_DEPTHS_DAMAGE      = 264526,
 
-    SPELL_CONVERSATION_HORDE             = 274669,
-    SPELL_CONVERSATION_ALLIANCE          = 274668
+    SPELL_CONVERSATION_HORDE                = 274669,
+    SPELL_CONVERSATION_ALLIANCE             = 274668
 };
 
 enum AqusirrEvents
@@ -89,31 +90,20 @@ constexpr Position EruptingWatersSummonPosition1 = { 3917.31f, -1234.08f, 128.13
 constexpr Position EruptingWatersSummonPosition2 = { 3924.02f, -1259.52f, 128.141f };
 constexpr Position EruptingWatersSummonPosition3 = { 3950.80f, -1238.47f, 127.831f };
 
-struct AqusirrSharedAI : public BossAI
+namespace AqusirrEventHandler
 {
-    AqusirrSharedAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId)
-    {
-        SetBoundary(instance->GetBossBoundary(DATA_AQUSIRR));
-    }
-
-    virtual void ScheduleEvents()
+    void Schedule(Creature* me, EventMap& events)
     {
         events.ScheduleEvent(EVENT_SURGING_RUSH, 17s);
         events.ScheduleEvent(EVENT_CHOKING_BRINE, 8900ms);
         events.ScheduleEvent(EVENT_UNDERTOW, 36800ms);
         events.ScheduleEvent(EVENT_SEA_BLAST, 1s);
 
-        if (IsHeroicOrHigher())
+        if (me->GetMap()->IsHeroicOrHigher())
             events.ScheduleEvent(EVENT_GRASP_FROM_THE_DEPTHS, 14300ms);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        ScheduleEvents();
-    }
-
-    void ExecuteEvent(uint32 eventId) override
+    void Execute(Creature* me, EventMap& events, uint32 eventId)
     {
         switch (eventId)
         {
@@ -121,8 +111,8 @@ struct AqusirrSharedAI : public BossAI
             {
                 if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && !me->IsWithinMeleeRange(me->GetVictim()))
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                        DoCast(target, SPELL_SEA_BLAST);
+                    if (Unit* target = me->GetAI()->SelectTarget(SelectTargetMethod::Random))
+                        me->CastSpell(target, SPELL_SEA_BLAST);
                     events.Repeat(2400ms);
                 }
                 events.Repeat(1s);
@@ -132,30 +122,29 @@ struct AqusirrSharedAI : public BossAI
             {
                 if (me->GetMap()->GetPlayersCountExceptGMs() > 1) // This event doesn't happen if you go alone
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                        DoCast(target, SPELL_CHOKING_BRINE);
+                    if (Unit* target = me->GetAI()->SelectTarget(SelectTargetMethod::Random))
+                        me->CastSpell(target, SPELL_CHOKING_BRINE);
                 }
                 events.Repeat(34s, 39s);
                 break;
             }
             case EVENT_SURGING_RUSH:
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                    DoCast(target, SPELL_SURGING_RUSH);
+                me->CastSpell(nullptr, SPELL_SURGING_RUSH_SELECTOR);
                 events.RescheduleEvent(EVENT_SEA_BLAST, 10s);
                 events.Repeat(31500ms, 39300ms);
                 break;
             }
             case EVENT_UNDERTOW:
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                    DoCast(target, SPELL_UNDERTOW);
+                if (Unit* target = me->GetAI()->SelectTarget(SelectTargetMethod::Random))
+                    me->CastSpell(target, SPELL_UNDERTOW);
                 events.Repeat(32400ms, 34s);
                 break;
             }
             case EVENT_GRASP_FROM_THE_DEPTHS:
             {
-                DoCast(SPELL_GRASP_FROM_THE_DEPTHS_SELECTOR);
+                me->CastSpell(nullptr, SPELL_GRASP_FROM_THE_DEPTHS_SELECTOR);
                 events.Repeat(38s);
                 break;
             }
@@ -163,12 +152,12 @@ struct AqusirrSharedAI : public BossAI
                 break;
         }
     }
-};
+}
 
 // 134056 - Aqu'sirr
-struct boss_aqusirr : public AqusirrSharedAI
+struct boss_aqusirr : public BossAI
 {
-    boss_aqusirr(Creature* creature) : AqusirrSharedAI(creature, DATA_AQUSIRR), _triggeredSplit(false), _aqualingDefeatedCount(0) { }
+    boss_aqusirr(Creature* creature) : BossAI(creature, DATA_AQUSIRR), _triggeredSplit(false), _aqualingDefeatedCount(0) { }
 
     void JustAppeared() override
     {
@@ -177,8 +166,10 @@ struct boss_aqusirr : public AqusirrSharedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        AqusirrSharedAI::JustEngagedWith(who);
         BossAI::JustEngagedWith(who);
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        AqusirrEventHandler::Schedule(me, events);
     }
 
     void Reset() override
@@ -190,6 +181,9 @@ struct boss_aqusirr : public AqusirrSharedAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
+        if (me->IsInEvadeMode())
+            return;
+
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_AQUSIRR, FAIL);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GRASP_FROM_THE_DEPTHS_DAMAGE);
@@ -206,12 +200,26 @@ struct boss_aqusirr : public AqusirrSharedAI
         instance->SetBossState(DATA_AQUSIRR, DONE);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GRASP_FROM_THE_DEPTHS_DAMAGE);
 
-        Creature* shrineDummy = GetClosestCreatureWithOptions(me, 50.0f, { .CreatureId = NPC_SHRINE_OF_THE_STORM_DUMMY, .IgnorePhases = true });
-        if (!shrineDummy)
-            return;
+        if (Creature* shrineDummy = GetClosestCreatureWithOptions(me, 50.0f, { .CreatureId = NPC_SHRINE_OF_THE_STORM_DUMMY, .IgnorePhases = true }))
+            shrineDummy->CastSpell(shrineDummy, instance->instance->GetTeamInInstance() == HORDE ? SPELL_CONVERSATION_HORDE : SPELL_CONVERSATION_ALLIANCE, true);
+    }
 
-        shrineDummy->CastSpell(shrineDummy, instance->instance->GetTeamInInstance() == HORDE ? SPELL_CONVERSATION_HORDE : SPELL_CONVERSATION_ALLIANCE, true);
-
+    void ToggleSplit(bool toggle)
+    {
+        if (toggle)
+        {
+            me->InterruptNonMeleeSpells(true);
+            DoCastSelf(SPELL_ERUPTING_WATERS_SPLIT);
+            events.Reset();
+            me->SetReactState(REACT_PASSIVE);
+        }
+        else
+        {
+            DoCastSelf(SPELL_ERUPTING_WATERS_DAMAGE);
+            me->RemoveAurasDueToSpell(SPELL_ERUPTING_WATERS_SPLIT);
+            AqusirrEventHandler::Schedule(me, events);
+            me->SetReactState(REACT_AGGRESSIVE);
+        }
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -219,10 +227,7 @@ struct boss_aqusirr : public AqusirrSharedAI
         if (me->HealthBelowPctDamaged(50, damage) && !_triggeredSplit)
         {
             _triggeredSplit = true;
-            me->SetUnkillable(true);
-            me->SetImmuneToPC(true);
-            me->SetUninteractible(true);
-            DoCastSelf(SPELL_ERUPTING_WATERS_SPLIT);
+            ToggleSplit(true);
         }
     }
 
@@ -235,13 +240,25 @@ struct boss_aqusirr : public AqusirrSharedAI
             _aqualingDefeatedCount++;
 
             if (_aqualingDefeatedCount == 3)
-            {
-                DoCastSelf(SPELL_ERUPTING_WATERS_DAMAGE);
-                me->RemoveAurasDueToSpell(SPELL_ERUPTING_WATERS_SPLIT);
-                me->SetUnkillable(false);
-                me->SetImmuneToPC(false);
-                me->SetUninteractible(false);
-            }
+                ToggleSplit(false);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            AqusirrEventHandler::Execute(me, events, eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
     }
 
@@ -251,28 +268,58 @@ private:
 };
 
 // 134828 - Aqualing
-struct boss_aqusirr_aqualing : public AqusirrSharedAI
+struct boss_aqusirr_aqualing : public ScriptedAI
 {
-    boss_aqusirr_aqualing(Creature* creature) : AqusirrSharedAI(creature, DATA_AQUALING) { }
-
-    void JustSummoned(Creature* summon) override
+    boss_aqusirr_aqualing(Creature* creature) : ScriptedAI(creature)
     {
-        summons.Summon(summon);
+        SetBoundary(me->GetInstanceScript()->GetBossBoundary(DATA_AQUSIRR));
+    }
+
+    void JustAppeared() override
+    {
         DoZoneInCombat();
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoCast(SPELL_ERUPTING_WATERS_AQUALING);
+
+        me->DespawnOrUnsummon(3s);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterEvadeMode(EvadeReason why) override
     {
-        AqusirrSharedAI::JustEngagedWith(who);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
-        ScheduleEvents();
+        if (Creature* aqusirr = me->GetInstanceScript()->GetCreature(DATA_AQUSIRR))
+            aqusirr->AI()->EnterEvadeMode(why);
     }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        me->GetInstanceScript()->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+        AqusirrEventHandler::Schedule(me, events);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            AqusirrEventHandler::Execute(me, events, eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+    }
+
+private:
+    EventMap events;
 };
 
 // 139737 - Lord Stormsong
@@ -390,6 +437,38 @@ class spell_aqusirr_requiem_of_the_abyss_periodic : public AuraScript
     }
 };
 
+// 264903 - Erupting Waters
+class spell_aqusirr_erupting_waters_aura : public AuraScript
+{
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Creature* target = GetTarget()->ToCreature();
+        if (!target)
+            return;
+
+        target->SetUnkillable(true);
+        target->SetImmuneToPC(true);
+        target->SetUninteractible(true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Creature* target = GetTarget()->ToCreature();
+        if (!target)
+            return;
+
+        target->SetUnkillable(false);
+        target->SetImmuneToPC(false);
+        target->SetUninteractible(false);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_aqusirr_erupting_waters_aura::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_aqusirr_erupting_waters_aura::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 264911 - Erupting Waters
 class spell_aqusirr_erupting_waters_split_1 : public SpellScript
 {
@@ -432,6 +511,21 @@ class spell_aqusirr_erupting_waters_split_3 : public SpellScript
     }
 };
 
+// 264941 - Erupting Waters
+class spell_aqusirr_erupting_waters : public SpellScript
+{
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->SetHealth(caster->GetHealth() - caster->CountPctFromMaxHealth(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_aqusirr_erupting_waters::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 264560 - Choking Brine
 class spell_aqusirr_choking_brine : public AuraScript
 {
@@ -467,6 +561,7 @@ class spell_aqusirr_surging_rush : public SpellScript
         if (!creatureTarget)
             return;
 
+        creatureTarget->RemoveAurasDueToSpell(SPELL_SURGING_RUSH);
         creatureTarget->SetDisableGravity(true);
         creatureTarget->AddUnitState(UNIT_STATE_ROOT);
         creatureTarget->PlayOneShotAnimKitId(ANIM_KIT_SURGING_RUSH);
@@ -488,7 +583,15 @@ class spell_aqusirr_surging_rush_selector : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_SURGING_RUSH, true);
+        static constexpr float MAX_DISTANCE = 40.0f;
+        constexpr Position CenterPosition = { 3935.63f, -1243.41f, 128.40f };
+
+        float angle = GetCaster()->GetEntry() == NPC_AQUALING ? GetCaster()->GetAbsoluteAngle(CenterPosition) + frand(-float(M_PI) / 3, float(M_PI) / 3) : GetCaster()->GetAbsoluteAngle(GetHitUnit());
+        Position dest = GetCaster()->GetPosition();
+
+        GetCaster()->MovePosition(dest, MAX_DISTANCE, angle - GetCaster()->GetOrientation(), 2.5f);
+
+        GetCaster()->CastSpell(dest, SPELL_SURGING_RUSH, false);
     }
 
     void HandleActionSet(SpellEffIndex /*effIndex*/)
@@ -505,21 +608,6 @@ class spell_aqusirr_surging_rush_selector : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_aqusirr_surging_rush_selector::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
         OnEffectHitTarget += SpellEffectFn(spell_aqusirr_surging_rush_selector::HandleActionSet, EFFECT_2, SPELL_EFFECT_TRIGGER_ACTION_SET);
-    }
-};
-
-// 264941 - Erupting Waters
-class spell_aqusirr_erupting_waters : public SpellScript
-{
-    void HandleDamage(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        caster->SetHealth(caster->GetHealth() - caster->CountPctFromMaxHealth(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_aqusirr_erupting_waters::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -560,7 +648,7 @@ class spell_aqusirr_grasp_from_the_depths_damage : public AuraScript
     }
 };
 
-// XXXX - Areatrigger (TODO: Set on merge)
+// 95 - Areatrigger
 struct at_aqusirr_intro : AreaTriggerAI
 {
     at_aqusirr_intro(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
@@ -631,13 +719,14 @@ void AddSC_boss_aqusirr()
 
     RegisterSpellScript(spell_aqusirr_requiem_of_the_abyss);
     RegisterSpellScript(spell_aqusirr_requiem_of_the_abyss_periodic);
+    RegisterSpellScript(spell_aqusirr_erupting_waters_aura);
     RegisterSpellScript(spell_aqusirr_erupting_waters_split_1);
     RegisterSpellScript(spell_aqusirr_erupting_waters_split_2);
     RegisterSpellScript(spell_aqusirr_erupting_waters_split_3);
+    RegisterSpellScript(spell_aqusirr_erupting_waters);
     RegisterSpellScript(spell_aqusirr_choking_brine);
     RegisterSpellScript(spell_aqusirr_surging_rush);
     RegisterSpellScript(spell_aqusirr_surging_rush_selector);
-    RegisterSpellScript(spell_aqusirr_erupting_waters);
     RegisterSpellScript(spell_aqusirr_grasp_from_the_depths_selector);
 
     RegisterAreaTriggerAI(at_aqusirr_intro);
