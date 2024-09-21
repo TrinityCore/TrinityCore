@@ -22,7 +22,43 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "Unit.h"
+
+namespace Scripts::Spells::Mage
+{
+    // 71761 - Deep Freeze Immunity State
+    class spell_mage_deep_freeze_immunity_state : public AuraScript
+    {
+        bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            // Though the tooltip states that any target that is permanently stun immune can take damage, only creatures can actually achieve such a state
+            // So we save ourselves some checks by filtering for creatures first
+            if (!eventInfo.GetProcTarget() || !eventInfo.GetProcTarget()->IsCreature())
+                return false;
+
+            // We check for permanent immunities first by checking for a DB set immunities value.
+            // If that check passes, we will check for the creature's current stun immunity to determine if we may proc or not.
+            if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(eventInfo.GetProcTarget()->ToCreature()->GetCreatureTemplate()->CreatureImmunitiesId))
+                if ((immunities->Mechanic.to_ulong() & (1 << MECHANIC_STUN)) != 0)
+                    if ((eventInfo.GetProcTarget()->GetMechanicImmunityMask() & (1 << MECHANIC_STUN)) != 0)
+                        return true;
+
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_deep_freeze_immunity_state::CheckEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+}
 
 void AddSC_mage_spell_scripts()
 {
+    using namespace Scripts::Spells::Mage;
+    RegisterSpellScript(spell_mage_deep_freeze_immunity_state);
 }
