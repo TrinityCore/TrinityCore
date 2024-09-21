@@ -41,9 +41,9 @@
 #include <boost/stacktrace.hpp>
 #endif
 
-constexpr uint64 MIN_MYSQL_SERVER_VERSION = 80034;
+constexpr uint32 MIN_MYSQL_SERVER_VERSION = 80034u;
 #define MIN_MYSQL_SERVER_VERSION_STRING "8.0.34"
-constexpr uint64 MIN_MYSQL_CLIENT_VERSION = 80034;
+constexpr uint32 MIN_MYSQL_CLIENT_VERSION = 80034u;
 #define MIN_MYSQL_CLIENT_VERSION_STRING "8.0.34"
 
 static_assert(MIN_MYSQL_SERVER_VERSION <= MYSQL_VERSION_ID, "The MySQL version used to compile the solution is too low. Please make sure that you are using the minimum required version as defined in MIN_MYSQL_SERVER_VERSION.");
