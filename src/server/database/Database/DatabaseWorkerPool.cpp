@@ -451,7 +451,7 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
         }
         else if (connection->GetServerVersion() < MIN_MYSQL_SERVER_VERSION)
         {
-            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below {} (found id {}, need id >= {}), please update your MySQL server", MIN_MYSQL_SERVER_VERSION, connection->GetServerVersion(), MIN_MYSQL_SERVER_VERSION);
+            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below " MIN_MYSQL_SERVER_VERSION_STRING " (found id {}, need id >= {}), please update your MySQL server", connection->GetServerVersion(), MIN_MYSQL_SERVER_VERSION);
             return 1;
         }
         else
