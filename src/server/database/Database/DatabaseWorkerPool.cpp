@@ -42,9 +42,9 @@
 #endif
 
 constexpr uint64 MIN_MYSQL_SERVER_VERSION = 80834;
-constexpr std::string MIN_MYSQL_SERVER_VERSION_STRING = "8.0.34";
+constexpr std::string_view MIN_MYSQL_SERVER_VERSION_STRING = "8.0.34";
 constexpr uint64 MIN_MYSQL_CLIENT_VERSION = 80834;
-constexpr std::string MIN_MYSQL_CLIENT_VERSION_STRING = "8.0.34";
+constexpr std::string_view MIN_MYSQL_CLIENT_VERSION_STRING = "8.0.34";
 
 static_assert(MIN_MYSQL_SERVER_VERSION >= MYSQL_VERSION_ID, "The MySQL version used to compile the solution is too low. Please make sure that you meet the minimum required version as defined in MIN_MYSQL_SERVER_VERSION");
 
