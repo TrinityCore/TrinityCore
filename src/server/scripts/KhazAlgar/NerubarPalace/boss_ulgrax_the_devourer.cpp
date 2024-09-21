@@ -96,6 +96,9 @@ struct boss_ulgrax_the_devourer : public BossAI
     void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
     }
 };
 
