@@ -30,6 +30,12 @@
 
 namespace Scripts::Spells::Mage
 {
+    enum MageSpells
+    {
+        SPELL_MAGE_ARCANE_MISSILES              = 5143,
+        SPELL_MAGE_ARCANE_MISSILES_AURASTATE    = 79808
+    };
+
     // 71761 - Deep Freeze Immunity State
     class spell_mage_deep_freeze_immunity_state : public AuraScript
     {
@@ -55,10 +61,64 @@ namespace Scripts::Spells::Mage
             DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_deep_freeze_immunity_state::CheckEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };
+
+    // 79684 - Offensive State (DND)
+    class spell_mage_offensive_state_dnd : public AuraScript
+    {
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_MAGE_ARCANE_MISSILES });
+        }
+
+        bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            // Only allow Arcane Missiles! to proc when the player has learned the according spell
+            if (!GetTarget()->HasSpell(SPELL_MAGE_ARCANE_MISSILES))
+                return false;
+
+            // Arcane Missiles cannot trigger itself
+            if ((eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & (0x800 | 0x200000)) != 0)
+                return false;
+
+            return roll_chance_i(aurEff->GetAmount());
+        }
+
+        void Register() override
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_offensive_state_dnd::CheckEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    // 79683 - Arcane Missiles!
+    class spell_mage_arcane_missiles : public AuraScript
+    {
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_MAGE_ARCANE_MISSILES_AURASTATE });
+        }
+
+        void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->CastSpell(nullptr, SPELL_MAGE_ARCANE_MISSILES_AURASTATE, aurEff);
+        }
+
+        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_ARCANE_MISSILES_AURASTATE, GetCasterGUID());
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_missiles::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_mage_arcane_missiles::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
 }
 
 void AddSC_mage_spell_scripts()
 {
     using namespace Scripts::Spells::Mage;
     RegisterSpellScript(spell_mage_deep_freeze_immunity_state);
+    RegisterSpellScript(spell_mage_offensive_state_dnd);
+    RegisterSpellScript(spell_mage_arcane_missiles);
 }
