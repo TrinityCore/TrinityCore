@@ -49,7 +49,7 @@ namespace Scripts::Spells::Mage
             // We check for permanent immunities first by checking for a DB set immunities value.
             // If that check passes, we will check for the creature's current stun immunity to determine if we may proc or not.
             if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(eventInfo.GetProcTarget()->ToCreature()->GetCreatureTemplate()->CreatureImmunitiesId))
-                if ((immunities->Mechanic.to_ulong() & (1 << MECHANIC_STUN)) != 0)
+                if (immunities->Mechanic[MECHANIC_STUN])
                     if ((eventInfo.GetProcTarget()->GetMechanicImmunityMask() & (1 << MECHANIC_STUN)) != 0)
                         return true;
 
