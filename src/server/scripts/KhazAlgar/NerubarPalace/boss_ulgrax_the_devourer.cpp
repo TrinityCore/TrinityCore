@@ -28,7 +28,7 @@ enum UlgraxTheDevourerSpells
     // Intro
     SPELL_SWALLOWING_DARKNESS          = 451409,
     SPELL_SWALLOWING_DARKNESS_TELEPORT = 451411,
-    SPELL_SWALLOWING_DARKNESS_DAMAGE   = 451412 
+    SPELL_SWALLOWING_DARKNESS_DAMAGE   = 451412
 };
 
 enum UlgraxTheDevourerConversations
