@@ -95,7 +95,8 @@ namespace AqusirrEventHandler
     void Schedule(Creature* me, EventMap& events)
     {
         events.ScheduleEvent(EVENT_SURGING_RUSH, 17s);
-        events.ScheduleEvent(EVENT_CHOKING_BRINE, 8900ms);
+        if (me->GetMap()->GetPlayersCountExceptGMs() > 1)
+            events.ScheduleEvent(EVENT_CHOKING_BRINE, 8900ms);
         events.ScheduleEvent(EVENT_UNDERTOW, 36800ms);
         events.ScheduleEvent(EVENT_SEA_BLAST, 1s);
 
@@ -120,11 +121,8 @@ namespace AqusirrEventHandler
             }
             case EVENT_CHOKING_BRINE:
             {
-                if (me->GetMap()->GetPlayersCountExceptGMs() > 1) // This event doesn't happen if you go alone
-                {
-                    if (Unit* target = me->GetAI()->SelectTarget(SelectTargetMethod::Random))
-                        me->CastSpell(target, SPELL_CHOKING_BRINE);
-                }
+                if (Unit* target = me->GetAI()->SelectTarget(SelectTargetMethod::Random))
+                    me->CastSpell(target, SPELL_CHOKING_BRINE);
                 events.Repeat(34s, 39s);
                 break;
             }

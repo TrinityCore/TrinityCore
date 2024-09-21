@@ -109,7 +109,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (139737, 1, 0, 'I call upon the surging waters! Arise, and wipe out these intruders!', 14, 0, 100, 5, 0, 108220, 150521, 0, 'Lord Stormsong to Player');
 
 -- SAI
-UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=32800, `unit_flags3`=524288, `AIName`='SmartAI' WHERE `entry`=134612; -- Grasping Tentacles
+UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`=0, `unit_flags2`=32800, `unit_flags3`=524288, `AIName`='SmartAI' WHERE `entry`=134612; -- Grasping Tentacles
 DELETE FROM `smart_scripts` WHERE `entryorguid`=134612 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (134612, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 264526, 2, 128, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Grasping Tentacles - On Just Created - Self: Cast Spell 264526');
