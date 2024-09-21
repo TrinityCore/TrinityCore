@@ -9642,7 +9642,7 @@ void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
         {
             if (effect->GetMiscValue() == power)
             {
-                uint32 effectAmount = effect->GetAmount();
+                int32 effectAmount = effect->GetAmount();
                 uint32 triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
 
                 float oldValueCheck = oldVal;
