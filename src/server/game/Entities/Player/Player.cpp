@@ -30035,15 +30035,16 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
     return difficulty;
 }
 
-SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag) const
+SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag, GetCastSpellInfoContext* context) const
 {
     auto overrides = m_overrideSpells.find(spellInfo->Id);
     if (overrides != m_overrideSpells.end())
         for (uint32 spellId : overrides->second)
-            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
-                return GetCastSpellInfo(newInfo, triggerFlag);
+            if (context->AddSpell(spellId))
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
+                    return GetCastSpellInfo(newInfo, triggerFlag, context);
 
-    return Unit::GetCastSpellInfo(spellInfo, triggerFlag);
+    return Unit::GetCastSpellInfo(spellInfo, triggerFlag, context);
 }
 
 void Player::AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
@@ -30671,7 +30672,8 @@ void Player::ExecutePendingSpellCastRequest()
     }
 
     // Check possible spell cast overrides
-    spellInfo = castingUnit->GetCastSpellInfo(spellInfo, triggerFlag);
+    GetCastSpellInfoContext overrideContext;
+    spellInfo = castingUnit->GetCastSpellInfo(spellInfo, triggerFlag, &overrideContext);
     if (spellInfo->IsPassive())
     {
         CancelPendingCastRequest();
