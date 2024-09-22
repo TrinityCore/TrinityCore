@@ -968,6 +968,22 @@ struct CSymbolInfoPackage : public SYMBOL_INFO_PACKAGE
     }
 };
 
+BOOL WheatyExceptionReport::GetSymbolFromAddress(HANDLE hProcess, DWORD64 Address, ULONG InlineContext, PDWORD64 Displacement, PSYMBOL_INFO Symbol)
+{
+    if (InlineContext != INLINE_FRAME_CONTEXT_IGNORE)
+        return SymFromInlineContext(hProcess, Address, InlineContext, Displacement, Symbol);
+    else
+        return SymFromAddr(hProcess, Address, Displacement, Symbol);
+}
+
+BOOL WheatyExceptionReport::GetSymbolLineFromAddress(HANDLE hProcess, DWORD64 qwAddr, ULONG InlineContext, PDWORD pdwDisplacement, PIMAGEHLP_LINE64 Line64)
+{
+    if (InlineContext != INLINE_FRAME_CONTEXT_IGNORE)
+        return SymGetLineFromInlineContext(hProcess, qwAddr, InlineContext, 0, pdwDisplacement, Line64);
+    else
+        return SymGetLineFromAddr64(hProcess, qwAddr, pdwDisplacement, Line64);
+}
+
 //============================================================
 // Walks the stack, and writes the results to the report file
 //============================================================
@@ -982,8 +998,8 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
     DWORD dwMachineType = 0;
     // Could use SymSetOptions here to add the SYMOPT_DEFERRED_LOADS flag
 
-    STACKFRAME64 sf;
-    memset(&sf, 0, sizeof(sf));
+    STACKFRAME_EX sf = {};
+    sf.StackFrameSize = sizeof(sf);
 
     // Initialize the STACKFRAME structure for the first call.
     sf.AddrPC.Mode         = AddrModeFlat;
@@ -1010,7 +1026,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
     for (;;)
     {
         // Get the next stack frame
-        if (! StackWalk64(dwMachineType,
+        if (!StackWalkEx(dwMachineType,
             m_process,
             pThreadHandle != nullptr ? pThreadHandle : GetCurrentThread(),
             &sf,
@@ -1018,7 +1034,8 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
             nullptr,
             SymFunctionTableAccess64,
             SymGetModuleBase64,
-            nullptr))
+            nullptr,
+            SYM_STKWALK_DEFAULT))
             break;
         if (0 == sf.AddrFrame.Offset)                     // Basic sanity check to make sure
             break;                                          // the frame is OK.  Bail if not.
@@ -1031,16 +1048,20 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         DWORD64 symDisplacement = 0;                        // Displacement of the input address,
         // relative to the start of the symbol
 
+        bool isInline = sf.InlineFrameContext != INLINE_FRAME_CONTEXT_IGNORE && sf.InlineFrameContext & 0x200;
+        if (isInline)
+            Log(_T("[inline] "));
+
         // Get the name of the function for this stack frame entry
         CSymbolInfoPackage sip;
-        if (SymFromAddr(
+        if (GetSymbolFromAddress(
             m_process,                                      // Process handle of the current process
             sf.AddrPC.Offset,                               // Symbol address
+            sf.InlineFrameContext,                          // Inline frame context identifier
             &symDisplacement,                               // Address of the variable that will receive the displacement
             &sip.si))                                       // Address of the SYMBOL_INFO structure (inside "sip" object)
         {
             Log(_T("%h" PRSTRc "+%I64X"), sip.si.Name, symDisplacement);
-
         }
         else                                                // No symbol found.  Print out the logical address instead.
         {
@@ -1060,7 +1081,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         // Get the source line for this stack frame entry
         IMAGEHLP_LINE64 lineInfo = { sizeof(IMAGEHLP_LINE64) };
         DWORD dwLineDisplacement;
-        if (SymGetLineFromAddr64(m_process, sf.AddrPC.Offset,
+        if (GetSymbolLineFromAddress(m_process, sf.AddrPC.Offset, sf.InlineFrameContext,
             &dwLineDisplacement, &lineInfo))
         {
             Log(_T("  %" PRSTRc " line %u"), lineInfo.FileName, lineInfo.LineNumber);
@@ -1069,7 +1090,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         Log(_T("\r\n"));
 
         // Write out the variables, if desired
-        if (bWriteVariables)
+        if (bWriteVariables && !isInline)
         {
             // Use SymSetContext to get just the locals/params for this frame
             IMAGEHLP_STACK_FRAME imagehlpStackFrame;
