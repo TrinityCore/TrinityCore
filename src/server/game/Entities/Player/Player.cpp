@@ -27355,7 +27355,7 @@ Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float 
     return pet;
 }
 
-std::array<uint32, MAX_CLASS_ID + 1> MasterySpells =
+std::array<uint32, MAX_CLASSES> MasterySpells =
 {
         0,
     87500,  // Warrior
@@ -27368,7 +27368,10 @@ std::array<uint32, MAX_CLASS_ID + 1> MasterySpells =
     86467,  // Mage
     87498,  // Warlock
         0,
-    87491  // Druid
+    87491,  // Druid
+        0,
+        0,
+        0
 };
 
 bool Player::CanUseMastery() const

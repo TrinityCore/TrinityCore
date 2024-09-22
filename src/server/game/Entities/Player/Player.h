@@ -192,7 +192,7 @@ struct PlayerSpell
     bool favorite          : 1;
 };
 
-extern std::array<uint32, MAX_CLASS_ID + 1> MasterySpells;
+extern std::array<uint32, MAX_CLASSES> MasterySpells;
 
 struct StoredAuraTeleportLocation
 {
