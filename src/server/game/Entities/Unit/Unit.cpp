@@ -13889,14 +13889,28 @@ void Unit::ClearBossEmotes(Optional<uint32> zoneId, Player const* target) const
             ref.GetSource()->SendDirectMessage(clearBossEmotes.GetRawPacket());
 }
 
-SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag) const
+bool Unit::GetCastSpellInfoContext::AddSpell(uint32 spellId)
 {
-    auto findMatchingAuraEffectIn = [this, spellInfo, &triggerFlag](AuraType type) -> SpellInfo const*
+    auto itr = std::ranges::find(VisitedSpells, spellId);
+    if (itr != VisitedSpells.end())
+        return false; // already exists
+
+    itr = std::ranges::find(VisitedSpells, 0u);
+    if (itr == VisitedSpells.end())
+        return false; // no free slots left
+
+    *itr = spellId;
+    return true;
+}
+
+SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag, GetCastSpellInfoContext* context) const
+{
+    auto findMatchingAuraEffectIn = [this, spellInfo, &triggerFlag, context](AuraType type) -> SpellInfo const*
     {
         for (AuraEffect const* auraEffect : GetAuraEffectsByType(type))
         {
             bool matches = auraEffect->GetMiscValue() ? uint32(auraEffect->GetMiscValue()) == spellInfo->Id : auraEffect->IsAffectingSpell(spellInfo);
-            if (matches)
+            if (matches && context->AddSpell(auraEffect->GetAmount()))
             {
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount(), GetMap()->GetDifficultyID()))
                 {
@@ -13921,13 +13935,13 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastF
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
     {
         triggerFlag &= ~TRIGGERED_IGNORE_CAST_TIME;
-        return GetCastSpellInfo(newInfo, triggerFlag);
+        return GetCastSpellInfo(newInfo, triggerFlag, context);
     }
 
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED))
     {
         triggerFlag |= TRIGGERED_IGNORE_CAST_TIME;
-        return GetCastSpellInfo(newInfo, triggerFlag);
+        return GetCastSpellInfo(newInfo, triggerFlag, context);
     }
 
     return spellInfo;
