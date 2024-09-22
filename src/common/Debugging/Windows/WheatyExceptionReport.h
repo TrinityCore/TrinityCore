@@ -358,9 +358,12 @@ class TC_COMMON_API WheatyExceptionReport
 
         void WriteStackDetails(PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
 
+        static BOOL GetSymbolFromAddress(HANDLE hProcess, DWORD64 Address, ULONG InlineContext, PDWORD64 Displacement, PSYMBOL_INFO Symbol);
+        static BOOL GetSymbolLineFromAddress(HANDLE hProcess, DWORD64 qwAddr, ULONG InlineContext, PDWORD pdwDisplacement, PIMAGEHLP_LINE64 Line64);
+
         struct EnumerateSymbolsCallbackContext
         {
-            LPSTACKFRAME64 sf;
+            LPSTACKFRAME_EX sf;
             PCONTEXT context;
             WheatyExceptionReport* report;
         };
