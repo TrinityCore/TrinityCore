@@ -21189,7 +21189,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                     WorldPackets::Spells::SpellModifierData& modData = spellModifier.ModifierData.emplace_back();
                     if (mod->type == SPELLMOD_FLAT)
                     {
-                        modData.ModifierValue = 0.0f;
+                        modData.ModifierValue = 0;
                         auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_FLAT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
                         while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_FLAT)
                         {
@@ -21200,13 +21200,13 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                     }
                     else
                     {
-                        modData.ModifierValue = 1.0f;
+                        modData.ModifierValue = 0;
                         auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_PCT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
                         while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_PCT)
                         {
                             SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
                             if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
-                                modData.ModifierValue *= 1.0f + CalculatePct(1.0f, spellMod->value);
+                                modData.ModifierValue += spellMod->value;
                         }
                     }
 
@@ -21275,7 +21275,7 @@ void Player::SetSpellModTakingSpell(Spell* spell, bool apply)
 
 void Player::SendSpellModifiers() const
 {
-    auto getOrCreateModifierData = [](std::vector<WorldPackets::Spells::SpellModifierData>& datas, uint8 classIndex, float defaultValue) -> float&
+    auto getOrCreateModifierData = [](std::vector<WorldPackets::Spells::SpellModifierData>& datas, uint8 classIndex, int32 defaultValue) -> int32&
     {
         auto itr = std::ranges::find(datas, classIndex, &WorldPackets::Spells::SpellModifierData::ClassIndex);
         if (itr != datas.end())
@@ -21312,7 +21312,7 @@ void Player::SendSpellModifiers() const
                 boost::from_block_range(&static_cast<SpellModifierByClassMask const*>(mod)->mask[0], &static_cast<SpellModifierByClassMask const*>(mod)->mask[0] + 4, mask);
                 for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
-                    float& modifierValue = getOrCreateModifierData(flatModifier->ModifierData, classIndex, 0.0f);
+                    int32& modifierValue = getOrCreateModifierData(flatModifier->ModifierData, classIndex, 0);
                     modifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
                 }
                 break;
@@ -21325,8 +21325,8 @@ void Player::SendSpellModifiers() const
                 boost::from_block_range(&static_cast<SpellModifierByClassMask const*>(mod)->mask[0], &static_cast<SpellModifierByClassMask const*>(mod)->mask[0] + 4, mask);
                 for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
-                    float& modifierValue = getOrCreateModifierData(pctModifier->ModifierData, classIndex, 1.0f);
-                    modifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(mod)->value);
+                    int32& modifierValue = getOrCreateModifierData(pctModifier->ModifierData, classIndex, 0);
+                    modifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
                 }
                 break;
             default:

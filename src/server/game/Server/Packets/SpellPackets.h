@@ -477,7 +477,7 @@ namespace WorldPackets
 
         struct SpellModifierData
         {
-            float ModifierValue = 0.0f;
+            int32 ModifierValue = 0;
             uint8 ClassIndex = 0;
         };
 
