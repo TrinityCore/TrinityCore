@@ -85,24 +85,13 @@ public:
             _ulgraxIntroTrashNPCs = 0;
         }
 
-        void OnGameObjectCreate(GameObject* go) override
-        {
-            switch (go->GetEntry())
-            {
-                case GO_WEB_BRIDGE_ULGRAX_INTRO:
-                    WebBridgeGUID = go->GetGUID();
-                    break;
-            }
-        }
-
         void OnCreatureCreate(Creature* creature) override
         {
             InstanceScript::OnCreatureCreate(creature);
 
             if (creature->HasStringId("nerubar_palace_intro_trash"))
                 _nerubarPalaceIntroTrashNPCs++;
-
-            if (creature->HasStringId("ulgrax_intro_trash"))
+            else if (creature->HasStringId("ulgrax_intro_trash"))
                 _ulgraxIntroTrashNPCs++;
         }
 
@@ -118,7 +107,8 @@ public:
                 if (_nerubarPalaceIntroTrashNPCs > 0)
                     return;
 
-                DoUseDoorOrButton(GetGuidData(DATA_NERUBAR_PALACE_DOOR_INTRO));
+                if (GameObject* door = GetGameObject(DATA_NERUBAR_PALACE_DOOR_INTRO))
+                    door->UseDoorOrButton();
             }
 
             if (creature->HasStringId("ulgrax_intro_trash"))
@@ -127,7 +117,7 @@ public:
                 if (_ulgraxIntroTrashNPCs > 0)
                     return;
 
-                if (GameObject* webBridge = instance->GetGameObject(WebBridgeGUID))
+                if (GameObject* webBridge = GetGameObject(DATA_WEB_BRIDGE_ULGRAX_INTRO))
                     webBridge->UseDoorOrButton();
             }
         }
@@ -135,7 +125,6 @@ public:
     protected:
         uint8 _nerubarPalaceIntroTrashNPCs;
         uint8 _ulgraxIntroTrashNPCs;
-        ObjectGuid WebBridgeGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
