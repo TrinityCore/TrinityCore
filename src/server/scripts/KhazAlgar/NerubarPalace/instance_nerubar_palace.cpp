@@ -17,6 +17,7 @@
 
 #include "AreaBoundary.h"
 #include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "nerubar_palace.h"
