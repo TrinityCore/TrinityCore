@@ -2200,7 +2200,7 @@ struct ItemBonusTreeEntry
 struct ItemBonusTreeNodeEntry
 {
     uint32 ID;
-    uint8 ItemContext;
+    int8 ItemContext;
     uint16 ChildItemBonusTreeID;
     uint16 ChildItemBonusListID;
     uint16 ChildItemLevelSelectorID;
