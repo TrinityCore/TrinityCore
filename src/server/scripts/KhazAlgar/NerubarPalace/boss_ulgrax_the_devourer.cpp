@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
 #include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "nerubar_palace.h"
