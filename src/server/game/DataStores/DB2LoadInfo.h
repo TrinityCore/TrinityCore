@@ -2746,7 +2746,7 @@ struct ItemBonusTreeNodeLoadInfo
     static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_INT, "ID" },
-        { false, FT_BYTE, "ItemContext" },
+        { true, FT_BYTE, "ItemContext" },
         { false, FT_SHORT, "ChildItemBonusTreeID" },
         { false, FT_SHORT, "ChildItemBonusListID" },
         { false, FT_SHORT, "ChildItemLevelSelectorID" },
