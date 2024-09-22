@@ -328,20 +328,26 @@ class TC_COMMON_API WheatyExceptionReport
     public:
 
         WheatyExceptionReport();
+        WheatyExceptionReport(WheatyExceptionReport const&) = delete;
+        WheatyExceptionReport(WheatyExceptionReport&&) = delete;
+        WheatyExceptionReport& operator=(WheatyExceptionReport const&) = delete;
+        WheatyExceptionReport& operator=(WheatyExceptionReport&&) = delete;
         ~WheatyExceptionReport();
 
         // entry point where control comes on an unhandled exception
         static LONG WINAPI WheatyUnhandledExceptionFilter(
             PEXCEPTION_POINTERS pExceptionInfo);
 
+        LONG UnhandledExceptionFilterImpl(PEXCEPTION_POINTERS pExceptionInfo);
+
         static void __cdecl WheatyCrtHandler(wchar_t const* expression, wchar_t const* function, wchar_t const* file, unsigned int line, uintptr_t pReserved);
 
-        static void printTracesForAllThreads(bool);
+        void printTracesForAllThreads(bool bWriteVariables);
     private:
         // where report info is extracted and generated
-        static void GenerateExceptionReport(PEXCEPTION_POINTERS pExceptionInfo);
-        static void PrintSystemInfo();
-        static BOOL _GetWindowsVersion(TCHAR* szVersion, DWORD cntMax);
+        void GenerateExceptionReport(PEXCEPTION_POINTERS pExceptionInfo);
+        void PrintSystemInfo();
+        BOOL _GetWindowsVersion(TCHAR* szVersion, DWORD cntMax);
         static BOOL _GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cntMax);
         static BOOL _GetProcessorName(TCHAR* sProcessorName, DWORD maxcount);
 
@@ -350,51 +356,51 @@ class TC_COMMON_API WheatyExceptionReport
         static BOOL GetLogicalAddress(PVOID addr, PTSTR szModule, DWORD len,
             DWORD& section, DWORD_PTR& offset);
 
-        static void WriteStackDetails(PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
+        void WriteStackDetails(PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
 
         struct EnumerateSymbolsCallbackContext
         {
             LPSTACKFRAME64 sf;
             PCONTEXT context;
+            WheatyExceptionReport* report;
         };
 
         static BOOL CALLBACK EnumerateSymbolsCallback(PSYMBOL_INFO, ULONG, PVOID);
 
-        static bool FormatSymbolValue(PSYMBOL_INFO, EnumerateSymbolsCallbackContext*);
+        bool FormatSymbolValue(PSYMBOL_INFO, EnumerateSymbolsCallbackContext*);
 
-        static void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, char const*, char const*, bool, bool);
+        void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, char const*, char const*, bool, bool);
 
         static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
 
-        static BasicType GetBasicType(DWORD typeIndex, DWORD64 modBase);
+        BasicType GetBasicType(DWORD typeIndex, DWORD64 modBase) const;
         static DWORD_PTR DereferenceUnsafePointer(DWORD_PTR address);
 
-        static int __cdecl Log(const TCHAR * format, ...);
+        int Log(const TCHAR * format, ...);
 
-        static bool StoreSymbol(DWORD type , DWORD_PTR offset);
-        static void ClearSymbols();
+        bool StoreSymbol(DWORD type , DWORD_PTR offset);
+        void ClearSymbols();
 
         static Optional<DWORD_PTR> GetIntegerRegisterValue(PCONTEXT context, ULONG registerId);
 
         // Variables used by the class
-        static TCHAR m_szLogFileName[MAX_PATH];
-        static TCHAR m_szDumpFileName[MAX_PATH];
-        static LPTOP_LEVEL_EXCEPTION_FILTER m_previousFilter;
-        static _invalid_parameter_handler m_previousCrtHandler;
-        static FILE* m_hReportFile;
-        static HANDLE m_hDumpFile;
-        static HANDLE m_hProcess;
-        static SymbolPairs symbols;
-        static std::stack<SymbolDetail> symbolDetails;
-        static bool alreadyCrashed;
-        static std::mutex alreadyCrashedLock;
+        TCHAR m_logFileName[MAX_PATH];
+        TCHAR m_dumpFileName[MAX_PATH];
+        LPTOP_LEVEL_EXCEPTION_FILTER m_previousFilter;
+        _invalid_parameter_handler m_previousCrtHandler;
+        FILE* m_reportFile;
+        HANDLE m_dumpFile;
+        HANDLE m_process;
+        SymbolPairs m_symbols;
+        std::stack<SymbolDetail> m_symbolDetails;
+        bool m_alreadyCrashed;
+        std::mutex m_alreadyCrashedLock;
         typedef NTSTATUS(NTAPI* pRtlGetVersion)(PRTL_OSVERSIONINFOW lpVersionInformation);
-        static pRtlGetVersion RtlGetVersion;
+        pRtlGetVersion RtlGetVersion;
 
-        static void PushSymbolDetail();
-        static void PopSymbolDetail();
-        static void PrintSymbolDetail();
-
+        void PushSymbolDetail();
+        void PopSymbolDetail();
+        void PrintSymbolDetail();
 };
 
 #define INIT_CRASH_HANDLER() \
