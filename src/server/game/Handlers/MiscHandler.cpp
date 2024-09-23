@@ -625,7 +625,11 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                 TC_LOG_DEBUG("maps", "MAP: Player '{}' has corpse in instance {} and can enter.", player->GetName(), at->Loc.GetMapId());
             }
             else
+            {
                 TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '{}' is dead but does not have a corpse!", player->GetName());
+                SendPacket(WorldPackets::AreaTrigger::AreaTriggerNoCorpse().Write());
+                return;
+            }
         }
 
         if (TransferAbortParams denyReason = Map::PlayerCannotEnter(at->Loc.GetMapId(), player))
