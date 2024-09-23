@@ -20,13 +20,18 @@
 #include "Log.h"
 #include "Memory.h"
 #include "Optional.h"
+#ifndef BOOST_ALLOW_DEPRECATED_HEADERS
+#define BOOST_ALLOW_DEPRECATED_HEADERS
 #include <boost/process/args.hpp>
 #include <boost/process/child.hpp>
 #include <boost/process/env.hpp>
+#include <boost/process/error.hpp>
 #include <boost/process/exe.hpp>
 #include <boost/process/io.hpp>
 #include <boost/process/pipe.hpp>
 #include <boost/process/search_path.hpp>
+#undef BOOST_ALLOW_DEPRECATED_HEADERS
+#endif
 #include <fmt/ranges.h>
 
 namespace bp = boost::process;
@@ -62,7 +67,7 @@ public:
 
     ~AsyncProcessResultImplementation() = default;
 
-    int StartProcess()
+    int32 StartProcess()
     {
         ASSERT(!my_child, "Process started already!");
 
@@ -84,14 +89,21 @@ public:
 #pragma warning(pop)
 #endif
 
-        if (!is_secure)
+        if (is_secure)
         {
-            TC_LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
+            TC_LOG_TRACE(logger, R"(Starting process "{}".)",
+                executable);
+        }
+        else
+        {
+            TC_LOG_TRACE(logger, R"(Starting process "{}" with arguments: "{}".)",
                 executable, fmt::join(args, " "));
         }
 
         // prepare file with only read permission (boost process opens with read_write)
         auto inputFile = Trinity::make_unique_ptr_with_deleter(!input_file.empty() ? fopen(input_file.c_str(), "rb") : nullptr, &::fclose);
+
+        std::error_code ec;
 
         // Start the child process
         if (inputFile)
@@ -102,7 +114,8 @@ public:
                 bp::env = bp::environment(boost::this_process::environment()),
                 bp::std_in = inputFile.get(),
                 bp::std_out = outStream,
-                bp::std_err = errStream
+                bp::std_err = errStream,
+                bp::error = ec
             );
         }
         else
@@ -111,10 +124,17 @@ public:
                 bp::exe = boost::filesystem::absolute(executable).string(),
                 bp::args = args,
                 bp::env = bp::environment(boost::this_process::environment()),
-                bp::std_in = boost::process::close,
+                bp::std_in = bp::close,
                 bp::std_out = outStream,
-                bp::std_err = errStream
+                bp::std_err = errStream,
+                bp::error = ec
             );
+        }
+
+        if (ec)
+        {
+            TC_LOG_ERROR(logger, R"(>> Failed to start process "{}": {})", executable, ec.message());
+            return EXIT_FAILURE;
         }
 
         std::future<void> stdOutReader = std::async(std::launch::async, [&]
@@ -139,7 +159,6 @@ public:
             }
         });
 
-        std::error_code ec;
         my_child->wait(ec);
         int32 const result = !ec && !was_terminated ? my_child->exit_code() : EXIT_FAILURE;
         my_child.reset();
@@ -147,11 +166,8 @@ public:
         stdOutReader.wait();
         stdErrReader.wait();
 
-        if (!is_secure)
-        {
-            TC_LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
-                executable, result);
-        }
+        TC_LOG_TRACE(logger, R"(>> Process "{}" finished with return value {}.)",
+            executable, result);
 
         return result;
     }
@@ -181,7 +197,7 @@ public:
     }
 };
 
-int StartProcess(std::string executable, std::vector<std::string> args,
+int32 StartProcess(std::string executable, std::vector<std::string> args,
     std::string logger, std::string input_file, bool secure)
 {
     AsyncProcessResultImplementation handle(
