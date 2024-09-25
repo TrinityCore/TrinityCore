@@ -203,9 +203,9 @@ void ConversationDataStore::LoadConversationTemplates()
     {
         if (conversationLine && conversationLine->NextConversationLineID)
         {
-            uint32 const firstLineId = 60000; // Arbitrary id to cover the affected rows
+            static constexpr uint32 FirstLineId = 60000; // Arbitrary id to cover the affected rows
 
-            if (conversationLine->ID > firstLineId && conversationLine->NextConversationLineID < (sConversationLineStore.GetNumRows() - USHRT_MAX - 1))
+            if (conversationLine->ID > FirstLineId && conversationLine->NextConversationLineID < (sConversationLineStore.GetNumRows() - USHRT_MAX - 1))
                 return (uint32)(USHRT_MAX + conversationLine->NextConversationLineID + 1);
 
             return (uint32)conversationLine->NextConversationLineID;
