@@ -23,6 +23,7 @@
 #include "MySQLPreparedStatement.h"
 #include "PreparedStatement.h"
 #include "QueryResult.h"
+#include "StringConvert.h"
 #include "Timer.h"
 #include "Transaction.h"
 #include "Util.h"
@@ -96,42 +97,40 @@ uint32 MySQLConnection::Open()
         return CR_UNKNOWN_ERROR;
     }
 
-    int port;
-    char const* unix_socket;
+    int port = 0;
+    char const* unix_socket = nullptr;
     //unsigned int timeout = 10;
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8mb4");
     //mysql_options(mysqlInit, MYSQL_OPT_READ_TIMEOUT, (char const*)&timeout);
-    #ifdef _WIN32
-    if (m_connectionInfo.host == ".")                                           // named pipe use option (Windows)
+    if (m_connectionInfo.host != ".")
     {
+        port = Trinity::StringTo<int32>(m_connectionInfo.port_or_socket).value_or(0);
+    }
+    else                                                                        // named pipe/unix socket option
+    {
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
-        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
-        port = 0;
-        unix_socket = nullptr;
-    }
-    else                                                    // generic case
-    {
-        port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = nullptr;
-    }
-    #else
-    if (m_connectionInfo.host == ".")                                           // socket use option (Unix/Linux)
-    {
-        unsigned int opt = MYSQL_PROTOCOL_SOCKET;
-        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
+#else
         m_connectionInfo.host = "localhost";
-        port = 0;
         unix_socket = m_connectionInfo.port_or_socket.c_str();
-    }
-    else                                                    // generic case
-    {
-        port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = nullptr;
-    }
-    #endif
+        unsigned int opt = MYSQL_PROTOCOL_SOCKET;
+#endif
+        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
 
-    if (m_connectionInfo.ssl != "")
+#if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
+        /*
+          ensure connections over named pipes work for users authenticating with caching_sha2_password
+
+          If the mysql server is restarted, and you connect it using named pipe, the connection will fail and it will continue to fail until you connect it using tcp.
+          Source: https://bugs.mysql.com/bug.php?id=106852
+        */
+        MySQLBool geterverPublicKey = MySQLBool(1);
+        mysql_options(mysqlInit, MYSQL_OPT_GET_SERVER_PUBLIC_KEY, (char const*)&geterverPublicKey);
+#endif
+    }
+
+    if (!m_connectionInfo.ssl.empty())
     {
 #if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
         mysql_ssl_mode opt_use_ssl = SSL_MODE_DISABLED;
