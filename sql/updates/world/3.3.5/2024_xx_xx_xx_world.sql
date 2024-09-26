@@ -5,7 +5,7 @@ UPDATE `creature` SET `MovementType`=0 WHERE `guid` IN (81249,81250,81252,81348,
 DELETE FROM `waypoint_scripts` WHERE `id` IN (1132800,1132801,1132802);
 
 -- Add scriptnames
-UPDATE `creature_template` SET `ScriptName` = "npc_eastvale_peasent" WHERE `entry` IN (11328);
+UPDATE `creature_template` SET `ScriptName` = "npc_eastvale_peasant" WHERE `entry` IN (11328);
 UPDATE `creature_template` SET `ScriptName` = "npc_supervisor_raelen" WHERE `entry` IN (10616);
 
 -- Update Eastvale Peasants

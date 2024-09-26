@@ -281,9 +281,9 @@ private:
 
 enum SupervisorRaelen
 {
-    EVENT_FIND_PEASENTS  = 1,
-    EVENT_NEXT_PEASENT   = 2,
-    NPC_EASTVALE_PEASENT = 11328
+    EVENT_FIND_PEASANTS  = 1,
+    EVENT_NEXT_PEASANT   = 2,
+    NPC_EASTVALE_PEASANT = 11328
 };
 
 struct npc_supervisor_raelen : public ScriptedAI
@@ -292,25 +292,25 @@ struct npc_supervisor_raelen : public ScriptedAI
 
     void Reset() override
     {
-        _PeasentId = 0;
-        peasentGUIDs.clear();
-        _events.ScheduleEvent(EVENT_FIND_PEASENTS, 4s);
+        _PeasantId = 0;
+        peasantGUIDs.clear();
+        _events.ScheduleEvent(EVENT_FIND_PEASANTS, 4s);
     }
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
         if (data == 1)
         {
-            ++_PeasentId;
-            if (_PeasentId == 5) _PeasentId = 0;
-            _events.ScheduleEvent(EVENT_NEXT_PEASENT, 2s, 6s);
+            ++_PeasantId;
+            if (_PeasantId == 5) _PeasantId = 0;
+            _events.ScheduleEvent(EVENT_NEXT_PEASANT, 2s, 6s);
         }
     }
 
     void CallPeasent()
     {
-        if (Creature* peasent = ObjectAccessor::GetCreature(*me, peasentGUIDs[_PeasentId]))
-            peasent->AI()->SetData(1, 1);
+        if (Creature* peasant = ObjectAccessor::GetCreature(*me, peasantGUIDs[_PeasantId]))
+            peasant->AI()->SetData(1, 1);
     }
 
     void UpdateAI(uint32 diff) override
@@ -321,24 +321,24 @@ struct npc_supervisor_raelen : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_FIND_PEASENTS:
+                case EVENT_FIND_PEASANTS:
                 {
                     GuidVector tempGUIDs;
-                    std::list<Creature*> peasents;
-                    GetCreatureListWithEntryInGrid(peasents, me, NPC_EASTVALE_PEASENT, 100.f);
-                    for (Creature* peasent : peasents)
+                    std::list<Creature*> peasants;
+                    GetCreatureListWithEntryInGrid(peasants, me, NPC_EASTVALE_PEASANT, 100.f);
+                    for (Creature* peasant : peasants)
                     {
-                        tempGUIDs.push_back(peasent->GetGUID());
+                        tempGUIDs.push_back(peasant->GetGUID());
                     }
-                    peasentGUIDs.push_back(tempGUIDs[2]);
-                    peasentGUIDs.push_back(tempGUIDs[3]);
-                    peasentGUIDs.push_back(tempGUIDs[0]);
-                    peasentGUIDs.push_back(tempGUIDs[1]);
-                    peasentGUIDs.push_back(tempGUIDs[4]);
-                    _events.ScheduleEvent(EVENT_NEXT_PEASENT, 1s);
+                    peasantGUIDs.push_back(tempGUIDs[2]);
+                    peasantGUIDs.push_back(tempGUIDs[3]);
+                    peasantGUIDs.push_back(tempGUIDs[0]);
+                    peasantGUIDs.push_back(tempGUIDs[1]);
+                    peasantGUIDs.push_back(tempGUIDs[4]);
+                    _events.ScheduleEvent(EVENT_NEXT_PEASANT, 1s);
                     break;
                 }
-                case EVENT_NEXT_PEASENT:
+                case EVENT_NEXT_PEASANT:
                     CallPeasent();
                     break;
             }
@@ -351,15 +351,15 @@ struct npc_supervisor_raelen : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint8 _PeasentId;
-    GuidVector peasentGUIDs;
+    uint8 _PeasantId;
+    GuidVector peasantGUIDs;
 };
 
 /*######
-## npc_eastvale_peasent
+## npc_eastvale_peasant
 ######*/
 
-enum EastvalePeasent
+enum EastvalePeasant
 {
     EVENT_MOVETORAELEN                = 1,
     EVENT_TALKTORAELEN1               = 2,
@@ -369,26 +369,26 @@ enum EastvalePeasent
     EVENT_TALKTORAELEN4               = 6,
     EVENT_PATHBACK                    = 7,
     NPC_SUPERVISOR_RAELEN             = 10616,
-    PATH_PEASENT_0                    = 813490,
-    PATH_PEASENT_1                    = 813480,
-    PATH_PEASENT_2                    = 812520,
-    PATH_PEASENT_3                    = 812490,
-    PATH_PEASENT_4                    = 812500,
+    PATH_PEASANT_0                    = 813490,
+    PATH_PEASANT_1                    = 813480,
+    PATH_PEASANT_2                    = 812520,
+    PATH_PEASANT_3                    = 812490,
+    PATH_PEASANT_4                    = 812500,
     SAY_RAELEN                        = 0,
-    SOUND_PEASENT_GREETING_1          = 6289,
-    SOUND_PEASENT_GREETING_2          = 6288,
-    SOUND_PEASENT_GREETING_3          = 6290,
-    SOUND_PEASENT_LEAVING_1           = 6242,
-    SOUND_PEASENT_LEAVING_2           = 6282,
-    SOUND_PEASENT_LEAVING_3           = 6284,
-    SOUND_PEASENT_LEAVING_4           = 6285,
-    SOUND_PEASENT_LEAVING_5           = 6286,
-    SPELL_TRANSFORM_PEASENT_WITH_WOOD = 9127
+    SOUND_PEASANT_GREETING_1          = 6289,
+    SOUND_PEASANT_GREETING_2          = 6288,
+    SOUND_PEASANT_GREETING_3          = 6290,
+    SOUND_PEASANT_LEAVING_1           = 6242,
+    SOUND_PEASANT_LEAVING_2           = 6282,
+    SOUND_PEASANT_LEAVING_3           = 6284,
+    SOUND_PEASANT_LEAVING_4           = 6285,
+    SOUND_PEASANT_LEAVING_5           = 6286,
+    SPELL_TRANSFORM_PEASANT_WITH_WOOD = 9127
 };
 
-struct npc_eastvale_peasent : public ScriptedAI
+struct npc_eastvale_peasant : public ScriptedAI
 {
-    npc_eastvale_peasent(Creature* creature) : ScriptedAI(creature)
+    npc_eastvale_peasant(Creature* creature) : ScriptedAI(creature)
     {
         Initialize();
     }
@@ -405,7 +405,7 @@ struct npc_eastvale_peasent : public ScriptedAI
         if (data == 1)
         {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-            me->CastSpell(me, SPELL_TRANSFORM_PEASENT_WITH_WOOD);
+            me->CastSpell(me, SPELL_TRANSFORM_PEASANT_WITH_WOOD);
             me->GetMotionMaster()->MovePath(_path, false);
         }
     }
@@ -414,7 +414,7 @@ struct npc_eastvale_peasent : public ScriptedAI
     {
         if (pathId == _path)
         {
-            me->RemoveAura(SPELL_TRANSFORM_PEASENT_WITH_WOOD);
+            me->RemoveAura(SPELL_TRANSFORM_PEASANT_WITH_WOOD);
             _events.ScheduleEvent(EVENT_MOVETORAELEN, 3s);
         }
         else if (pathId == _path + 1)
@@ -446,18 +446,18 @@ struct npc_eastvale_peasent : public ScriptedAI
 
                         switch (_path)
                         {
-                        case PATH_PEASENT_0:
-                            me->PlayDirectSound(SOUND_PEASENT_GREETING_1);
+                        case PATH_PEASANT_0:
+                            me->PlayDirectSound(SOUND_PEASANT_GREETING_1);
                             _events.ScheduleEvent(EVENT_TALKTORAELEN2, 2s);
                             break;
-                        case PATH_PEASENT_1:
-                        case PATH_PEASENT_3:
-                            me->PlayDirectSound(SOUND_PEASENT_GREETING_3);
+                        case PATH_PEASANT_1:
+                        case PATH_PEASANT_3:
+                            me->PlayDirectSound(SOUND_PEASANT_GREETING_3);
                             _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
                             break;
-                        case PATH_PEASENT_2:
-                        case PATH_PEASENT_4:
-                            me->PlayDirectSound(SOUND_PEASENT_GREETING_2);
+                        case PATH_PEASANT_2:
+                        case PATH_PEASANT_4:
+                            me->PlayDirectSound(SOUND_PEASANT_GREETING_2);
                             _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
                             break;
                         }
@@ -469,7 +469,7 @@ struct npc_eastvale_peasent : public ScriptedAI
                     }
                     break;
                 case EVENT_TALKTORAELEN2:
-                    me->PlayDirectSound(SOUND_PEASENT_GREETING_2);
+                    me->PlayDirectSound(SOUND_PEASANT_GREETING_2);
                     _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
                     break;
                 case EVENT_RAELENTALK:
@@ -483,28 +483,28 @@ struct npc_eastvale_peasent : public ScriptedAI
                 {
                     switch (_path)
                     {
-                    case PATH_PEASENT_0:
-                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_1);
+                    case PATH_PEASANT_0:
+                        me->PlayDirectSound(SOUND_PEASANT_LEAVING_1);
                         _events.ScheduleEvent(EVENT_PATHBACK, 2s);
                         break;
-                    case PATH_PEASENT_1:
-                    case PATH_PEASENT_3:
-                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_4);
+                    case PATH_PEASANT_1:
+                    case PATH_PEASANT_3:
+                        me->PlayDirectSound(SOUND_PEASANT_LEAVING_4);
                         _events.ScheduleEvent(EVENT_TALKTORAELEN4, 2s);
                         break;
-                    case PATH_PEASENT_2:
-                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_3);
+                    case PATH_PEASANT_2:
+                        me->PlayDirectSound(SOUND_PEASANT_LEAVING_3);
                         _events.ScheduleEvent(EVENT_PATHBACK, 2s);
                         break;
-                    case PATH_PEASENT_4:
-                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_2);
+                    case PATH_PEASANT_4:
+                        me->PlayDirectSound(SOUND_PEASANT_LEAVING_2);
                         _events.ScheduleEvent(EVENT_PATHBACK, 2s);
                         break;
                     }
                 }
                 break;
                 case EVENT_TALKTORAELEN4:
-                    me->PlayDirectSound(SOUND_PEASENT_LEAVING_5);
+                    me->PlayDirectSound(SOUND_PEASANT_LEAVING_5);
                     _events.ScheduleEvent(EVENT_PATHBACK, 2s);
                     break;
                 case EVENT_PATHBACK:
@@ -530,5 +530,5 @@ void AddSC_elwynn_forest()
 {
     RegisterCreatureAI(npc_cameron);
     RegisterCreatureAI(npc_supervisor_raelen);
-    RegisterCreatureAI(npc_eastvale_peasent);
+    RegisterCreatureAI(npc_eastvale_peasant);
 }
