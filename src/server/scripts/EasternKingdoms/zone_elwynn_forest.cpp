@@ -24,6 +24,7 @@
 #include "CreatureGroups.h"
 #include "ScriptedCreature.h"
 #include "CreatureAIImpl.h"
+#include "ObjectMgr.h"
 
 enum COG_Paths
 {
@@ -275,7 +276,261 @@ private:
     GuidVector _childrenGUIDs;
 };
 
+/*######
+## npc_supervisor_raelen
+######*/
+
+enum SupervisorRaelen
+{
+    EVENT_FIND_PEASENTS  = 1,
+    EVENT_NEXT_PEASENT   = 2,
+    NPC_EASTVALE_PEASENT = 11328
+};
+
+struct npc_supervisor_raelen : public ScriptedAI
+{
+    npc_supervisor_raelen(Creature* creature) : ScriptedAI(creature) {}
+
+    void Reset() override
+    {
+        _PeasentId = 0;
+        peasentGUIDs.clear();
+        _events.ScheduleEvent(EVENT_FIND_PEASENTS, 4s);
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == 1)
+        {
+            ++_PeasentId;
+            if (_PeasentId == 5) _PeasentId = 0;
+            _events.ScheduleEvent(EVENT_NEXT_PEASENT, 2s, 6s);
+        }
+    }
+
+    void CallPeasent()
+    {
+        if (Creature* peasent = ObjectAccessor::GetCreature(*me, peasentGUIDs[_PeasentId]))
+            peasent->AI()->SetData(1, 1);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FIND_PEASENTS:
+                {
+                    GuidVector tempGUIDs;
+                    std::list<Creature*> peasents;
+                    GetCreatureListWithEntryInGrid(peasents, me, NPC_EASTVALE_PEASENT, 100.f);
+                    for (Creature* peasent : peasents)
+                    {
+                        tempGUIDs.push_back(peasent->GetGUID());
+                    }
+                    peasentGUIDs.push_back(tempGUIDs[2]);
+                    peasentGUIDs.push_back(tempGUIDs[3]);
+                    peasentGUIDs.push_back(tempGUIDs[0]);
+                    peasentGUIDs.push_back(tempGUIDs[1]);
+                    peasentGUIDs.push_back(tempGUIDs[4]);
+                    _events.ScheduleEvent(EVENT_NEXT_PEASENT, 1s);
+                    break;
+                }
+                case EVENT_NEXT_PEASENT:
+                    CallPeasent();
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    uint8 _PeasentId;
+    GuidVector peasentGUIDs;
+};
+
+/*######
+## npc_eastvale_peasent
+######*/
+
+enum EastvalePeasent
+{
+    EVENT_MOVETORAELEN                = 1,
+    EVENT_TALKTORAELEN1               = 2,
+    EVENT_TALKTORAELEN2               = 3,
+    EVENT_RAELENTALK                  = 4,
+    EVENT_TALKTORAELEN3               = 5,
+    EVENT_TALKTORAELEN4               = 6,
+    EVENT_PATHBACK                    = 7,
+    NPC_SUPERVISOR_RAELEN             = 10616,
+    PATH_PEASENT_0                    = 813490,
+    PATH_PEASENT_1                    = 813480,
+    PATH_PEASENT_2                    = 812520,
+    PATH_PEASENT_3                    = 812490,
+    PATH_PEASENT_4                    = 812500,
+    SAY_RAELEN                        = 0,
+    SOUND_PEASENT_GREETING_1          = 6289,
+    SOUND_PEASENT_GREETING_2          = 6288,
+    SOUND_PEASENT_GREETING_3          = 6290,
+    SOUND_PEASENT_LEAVING_1           = 6242,
+    SOUND_PEASENT_LEAVING_2           = 6282,
+    SOUND_PEASENT_LEAVING_3           = 6284,
+    SOUND_PEASENT_LEAVING_4           = 6285,
+    SOUND_PEASENT_LEAVING_5           = 6286,
+    SPELL_TRANSFORM_PEASENT_WITH_WOOD = 9127
+};
+
+struct npc_eastvale_peasent : public ScriptedAI
+{
+    npc_eastvale_peasent(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _path = me->GetSpawnId() * 10;
+    }
+
+    void Reset() override {}
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == 1)
+        {
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+            me->CastSpell(me, SPELL_TRANSFORM_PEASENT_WITH_WOOD);
+            me->GetMotionMaster()->MovePath(_path, false);
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeid*/, uint32 pathId) override
+    {
+        if (pathId == _path)
+        {
+            CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(me->GetEntry());
+            me->RemoveAura(SPELL_TRANSFORM_PEASENT_WITH_WOOD);
+            _events.ScheduleEvent(EVENT_MOVETORAELEN, 3s);
+        }
+        else if (pathId == _path + 1)
+        {
+            _events.ScheduleEvent(EVENT_TALKTORAELEN1, 1s);
+        }
+        else if (pathId == _path + 2)
+        {
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_CHOPWOOD);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MOVETORAELEN:
+                    me->GetMotionMaster()->MovePath(_path + 1, false);
+                    break;
+                case EVENT_TALKTORAELEN1:
+                    if (Creature* realen = me->FindNearestCreature(NPC_SUPERVISOR_RAELEN, 2.0f, true))
+                    {
+                        _realenGUID = realen->GetGUID();
+                        me->SetFacingToObject(realen);
+
+                        switch (_path)
+                        {
+                        case PATH_PEASENT_0:
+                            me->PlayDirectSound(SOUND_PEASENT_GREETING_1);
+                            _events.ScheduleEvent(EVENT_TALKTORAELEN2, 2s);
+                            break;
+                        case PATH_PEASENT_1:
+                        case PATH_PEASENT_3:
+                            me->PlayDirectSound(SOUND_PEASENT_GREETING_3);
+                            _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
+                            break;
+                        case PATH_PEASENT_2:
+                        case PATH_PEASENT_4:
+                            me->PlayDirectSound(SOUND_PEASENT_GREETING_2);
+                            _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Path back if realen cannot be found alive
+                        _events.ScheduleEvent(EVENT_PATHBACK, 2s);
+                    }
+                    break;
+                case EVENT_TALKTORAELEN2:
+                    me->PlayDirectSound(SOUND_PEASENT_GREETING_2);
+                    _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
+                    break;
+                case EVENT_RAELENTALK:
+                    if (Creature* realen = ObjectAccessor::GetCreature(*me, _realenGUID))
+                    {
+                        realen->AI()->Talk(SAY_RAELEN);
+                        _events.ScheduleEvent(EVENT_TALKTORAELEN3, 5s);
+                    }
+                    break;
+                case EVENT_TALKTORAELEN3:
+                {
+                    switch (_path)
+                    {
+                    case PATH_PEASENT_0:
+                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_1);
+                        _events.ScheduleEvent(EVENT_PATHBACK, 2s);
+                        break;
+                    case PATH_PEASENT_1:
+                    case PATH_PEASENT_3:
+                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_4);
+                        _events.ScheduleEvent(EVENT_TALKTORAELEN4, 2s);
+                        break;
+                    case PATH_PEASENT_2:
+                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_3);
+                        _events.ScheduleEvent(EVENT_PATHBACK, 2s);
+                        break;
+                    case PATH_PEASENT_4:
+                        me->PlayDirectSound(SOUND_PEASENT_LEAVING_2);
+                        _events.ScheduleEvent(EVENT_PATHBACK, 2s);
+                        break;
+                    }
+                }
+                break;
+                case EVENT_TALKTORAELEN4:
+                    me->PlayDirectSound(SOUND_PEASENT_LEAVING_5);
+                    _events.ScheduleEvent(EVENT_PATHBACK, 2s);
+                    break;
+                case EVENT_PATHBACK:
+                    if (Creature* realen = ObjectAccessor::GetCreature(*me, _realenGUID))
+                        realen->AI()->SetData(1, 1);
+                    me->GetMotionMaster()->MovePath(_path + 2, false);
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    ObjectGuid _realenGUID;
+    uint32 _path;
+};
+
 void AddSC_elwynn_forest()
 {
     RegisterCreatureAI(npc_cameron);
+    RegisterCreatureAI(npc_supervisor_raelen);
+    RegisterCreatureAI(npc_eastvale_peasent);
 }
