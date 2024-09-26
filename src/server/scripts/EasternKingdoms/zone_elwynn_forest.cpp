@@ -288,7 +288,10 @@ enum SupervisorRaelen
 
 struct npc_supervisor_raelen : public ScriptedAI
 {
-    npc_supervisor_raelen(Creature* creature) : ScriptedAI(creature) {}
+    npc_supervisor_raelen(Creature* creature) : ScriptedAI(creature)
+    {
+        _PeasantId = 0;
+    }
 
     void Reset() override
     {
