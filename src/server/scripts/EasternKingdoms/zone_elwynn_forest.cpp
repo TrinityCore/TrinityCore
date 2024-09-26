@@ -24,7 +24,6 @@
 #include "CreatureGroups.h"
 #include "ScriptedCreature.h"
 #include "CreatureAIImpl.h"
-#include "ObjectMgr.h"
 
 enum COG_Paths
 {
