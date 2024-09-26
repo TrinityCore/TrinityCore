@@ -415,7 +415,6 @@ struct npc_eastvale_peasent : public ScriptedAI
     {
         if (pathId == _path)
         {
-            CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(me->GetEntry());
             me->RemoveAura(SPELL_TRANSFORM_PEASENT_WITH_WOOD);
             _events.ScheduleEvent(EVENT_MOVETORAELEN, 3s);
         }
