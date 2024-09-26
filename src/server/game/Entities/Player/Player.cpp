@@ -21099,7 +21099,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 continue;
         }
 
-        *pct *= 1.0f + CalculatePct(1.0f, value);
+        *pct += CalculatePct(1.0f, value);
         Player::ApplyModToSpell(mod, spell);
     }
 
