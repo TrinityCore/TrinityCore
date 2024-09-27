@@ -41,7 +41,7 @@
 #include <boost/accumulators/statistics.hpp>
 #include <boost/circular_buffer.hpp>
 
-void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvPacket*/)
 {
     TC_LOG_DEBUG("network", "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAck();
@@ -210,21 +210,21 @@ void WorldSession::HandleMoveWorldportAck()
     player->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
+void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("network", "MSG_MOVE_TELEPORT_ACK");
     ObjectGuid guid;
 
-    recvData >> guid.ReadAsPacked();
+    recvPacket >> guid.ReadAsPacked();
 
     if (!IsRightUnitBeingMoved(guid))
     {
-        recvData.rfinish();                     // prevent warnings spam
+        recvPacket.rfinish();                     // prevent warnings spam
         return;
     }
 
     uint32 sequenceIndex, time;
-    recvData >> sequenceIndex >> time;
+    recvPacket >> sequenceIndex >> time;
 
     GameClient* client = GetGameClient();
     Unit* mover = client->GetActivelyMovedUnit();
@@ -265,16 +265,16 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
+void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 {
-    uint16 opcode = recvData.GetOpcode();
+    uint16 opcode = recvPacket.GetOpcode();
 
     ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
+    recvPacket >> guid.ReadAsPacked();
 
     if (!IsRightUnitBeingMoved(guid))
     {
-        recvData.rfinish();                     // prevent warnings spam
+        recvPacket.rfinish();                     // prevent warnings spam
         return;
     }
 
@@ -285,7 +285,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
     {
-        recvData.rfinish();                     // prevent warnings spam
+        recvPacket.rfinish();                     // prevent warnings spam
         return;
     }
 
@@ -293,9 +293,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
+    ReadMovementInfo(recvPacket, &movementInfo);
 
-    recvData.rfinish();                         // prevent warnings spam
+    recvPacket.rfinish();                         // prevent warnings spam
 
     if (!movementInfo.pos.IsPositionValid())
         return;
@@ -359,7 +359,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
 
     /* process position-change */
-    WorldPacket data(opcode, recvData.size());
+    WorldPacket data(opcode, recvPacket.size());
     int64 movementTime = (int64) movementInfo.time + _timeSyncClockDelta;
     if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
     {
@@ -891,9 +891,9 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     if (!_player->IsAlive() || _player->IsInCombat())
         return;
 
-    ObjectGuid summoner_guid;
+    ObjectGuid summonerGuid;
     bool agree;
-    recvData >> summoner_guid;
+    recvData >> summonerGuid;
     recvData >> agree;
 
     _player->SummonIfPossible(agree);
