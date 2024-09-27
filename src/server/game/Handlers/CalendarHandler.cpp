@@ -465,7 +465,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarInv
             return;
         }
 
-        GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(Trinity::StringFormat("SELECT 1 FROM character_social WHERE guid = {} AND friend = {} AND (cs.flags & {}) <> 0",
+        GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(Trinity::StringFormat("SELECT 1 FROM character_social WHERE guid = {} AND friend = {} AND (flags & {}) <> 0",
             characterInfo->Guid.GetCounter(), playerGuid.GetCounter(), SOCIAL_FLAG_IGNORED).c_str()))
             .WithCallback([inviteeGuid = characterInfo->Guid, inviteeTeam = Player::TeamForRace(characterInfo->Race), inviteeGuildId = characterInfo->GuildId, continuation = std::move(createInvite)](QueryResult result)
         {

@@ -2198,7 +2198,8 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         Unit* unitCaster = ASSERT_NOTNULL(m_caster->ToUnit());
 
         // Calculate reflected spell result on caster
-        if (m_spellInfo->CheckTarget(target, unitCaster, implicit) == SPELL_CAST_OK)
+        SpellCastResult castResult = m_spellInfo->CheckTarget(target, unitCaster, implicit);
+        if (castResult == SPELL_CAST_OK || castResult == SPELL_FAILED_TARGET_AURASTATE)
             targetInfo.ReflectResult = unitCaster->SpellHitResult(unitCaster, m_spellInfo, false); // can't reflect twice
         else
             targetInfo.ReflectResult = SPELL_MISS_IMMUNE;
@@ -3234,7 +3235,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     return SPELL_CAST_OK;
 }
 
-void Spell::cancel()
+void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Optional<SpellCastResult> resultOther /*= {}*/)
 {
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
@@ -3247,11 +3248,12 @@ void Spell::cancel()
     {
         case SPELL_STATE_PREPARING:
             CancelGlobalCooldown();
-            [[fallthrough]];
-        case SPELL_STATE_DELAYED:
-            SendInterrupted(SPELL_FAILED_INTERRUPTED);
+            SendCastResult(result);
+            SendInterrupted(result, resultOther);
             break;
-
+        case SPELL_STATE_DELAYED:
+            SendInterrupted(result, resultOther);
+            break;
         case SPELL_STATE_CASTING:
             for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
                 if (targetInfo.MissCondition == SPELL_MISS_NONE)
@@ -3259,11 +3261,10 @@ void Spell::cancel()
                         unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 
             SendChannelUpdate(0);
-            SendInterrupted(SPELL_FAILED_INTERRUPTED);
+            SendInterrupted(result, resultOther);
 
             m_appliedMods.clear();
             break;
-
         default:
             break;
     }
@@ -3356,7 +3357,7 @@ void Spell::_cast(bool skipCheck)
         auto cleanupSpell = [this, modOwner](SpellCastResult res, uint32* p1 = nullptr, uint32* p2 = nullptr)
         {
             SendCastResult(res, p1, p2);
-            SendInterrupted(0);
+            SendInterrupted(res);
 
             if (modOwner)
                 modOwner->SetSpellModTakingSpell(this, false);
@@ -3432,7 +3433,7 @@ void Spell::_cast(bool skipCheck)
     // Spell may be finished after target map check
     if (m_spellState == SPELL_STATE_FINISHED)
     {
-        SendInterrupted(0);
+        SendInterrupted(SPELL_FAILED_DONT_REPORT);
 
         if (modOwner)
             modOwner->SetSpellModTakingSpell(this, false);
@@ -3932,7 +3933,7 @@ void Spell::finish(bool ok)
         Unit::AuraEffectList const& vIgnoreReset = unitCaster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
         for (Unit::AuraEffectList::const_iterator i = vIgnoreReset.begin(); i != vIgnoreReset.end(); ++i)
         {
-            if ((*i)->IsAffectedOnSpell(m_spellInfo))
+            if ((*i)->IsAffectingSpell(m_spellInfo))
             {
                 found = true;
                 break;
@@ -4619,20 +4620,20 @@ void Spell::ExecuteLogEffectResurrect(uint8 effIndex, Unit* target)
     *m_effectExecuteData[effIndex] << target->GetPackGUID();
 }
 
-void Spell::SendInterrupted(uint8 result)
+void Spell::SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther /*= {}*/)
 {
-    WorldPacket data(SMSG_SPELL_FAILURE, (8+4+1));
+    WorldPacket data(SMSG_SPELL_FAILURE, 8 + 1 + 4 + 1);
     data << m_caster->GetPackGUID();
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
     data << uint8(result);
     m_caster->SendMessageToSet(&data, true);
 
-    data.Initialize(SMSG_SPELL_FAILED_OTHER, (8+4));
+    data.Initialize(SMSG_SPELL_FAILED_OTHER, 8 + 1 + 4 + 1);
     data << m_caster->GetPackGUID();
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint8(result);
+    data << uint8(resultOther.value_or(result));
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -5210,7 +5211,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             Unit::AuraEffectList const& ignore = unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT);
             for (AuraEffect const* aurEff : ignore)
             {
-                if (!aurEff->IsAffectedOnSpell(m_spellInfo))
+                if (!aurEff->IsAffectingSpell(m_spellInfo))
                     continue;
 
                 checkForm = false;
@@ -5236,7 +5237,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         Unit::AuraEffectList const& stateAuras = unitCaster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
         for (Unit::AuraEffectList::const_iterator j = stateAuras.begin(); j != stateAuras.end(); ++j)
         {
-            if ((*j)->IsAffectedOnSpell(m_spellInfo))
+            if ((*j)->IsAffectingSpell(m_spellInfo))
             {
                 m_needComboPoints = false;
                 if ((*j)->GetMiscValue() == 1)
@@ -5425,7 +5426,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     if (m_spellInfo->RequiresSpellFocus)
     {
         focusObject = SearchSpellFocus();
-        if (!focusObject)
+        if (focusObject)
+            m_focusObjectGUID = focusObject->GetGUID();
+        else
             return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
     }
 
@@ -6282,7 +6285,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
         }
         else if (!CheckSpellCancelsStun(param1))
             result = SPELL_FAILED_STUNNED;
-        else if ((m_spellInfo->Mechanic & MECHANIC_IMMUNE_SHIELD) && m_caster->ToUnit() && m_caster->ToUnit()->HasAuraWithMechanic(1 << MECHANIC_BANISH))
+        else if (m_spellInfo->Mechanic == MECHANIC_IMMUNE_SHIELD && m_caster->ToUnit() && m_caster->ToUnit()->HasAuraWithMechanic(1 << MECHANIC_BANISH))
             result = SPELL_FAILED_STUNNED;
     }
     else if (unitflag & UNIT_FLAG_SILENCED && m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && !CheckSpellCancelsSilence(param1))
@@ -7283,6 +7286,9 @@ bool Spell::UpdatePointers()
             m_originalCaster = nullptr;
     }
 
+    if (m_focusObjectGUID)
+        focusObject = ObjectAccessor::GetGameObject(*m_caster, m_focusObjectGUID);
+
     if (m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         m_CastItem = m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID);
@@ -8093,23 +8099,37 @@ void Spell::CallScriptDestinationTargetSelectHandlers(SpellDestination& target, 
 
 bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck)
 {
-    // Skip if there are not any script
-    if (m_loadedScripts.empty())
-        return true;
-
-    for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
+    auto allEffectTargetScriptsAreShared = []<typename HookType>(HookList<HookType>& hooks, SpellInfo const* spellInfo, uint32 effIndex, uint32 effIndexToCheck)
     {
-        auto targetSelectHookEnd = (*itr)->OnObjectTargetSelect.end(), targetSelectHookItr = (*itr)->OnObjectTargetSelect.begin();
-        for (; targetSelectHookItr != targetSelectHookEnd; ++targetSelectHookItr)
-            if (((*targetSelectHookItr).IsEffectAffected(m_spellInfo, effIndex) && !(*targetSelectHookItr).IsEffectAffected(m_spellInfo, effIndexToCheck)) ||
-                (!(*targetSelectHookItr).IsEffectAffected(m_spellInfo, effIndex) && (*targetSelectHookItr).IsEffectAffected(m_spellInfo, effIndexToCheck)))
-                return false;
+        for (HookType& hook : hooks)
+        {
+            if (!hook.IsEffectAffected(spellInfo, effIndex))
+                continue;
 
-        auto areaTargetSelectHookEnd = (*itr)->OnObjectAreaTargetSelect.end(), areaTargetSelectHookItr = (*itr)->OnObjectAreaTargetSelect.begin();
-        for (; areaTargetSelectHookItr != areaTargetSelectHookEnd; ++areaTargetSelectHookItr)
-            if (((*areaTargetSelectHookItr).IsEffectAffected(m_spellInfo, effIndex) && !(*areaTargetSelectHookItr).IsEffectAffected(m_spellInfo, effIndexToCheck)) ||
-                (!(*areaTargetSelectHookItr).IsEffectAffected(m_spellInfo, effIndex) && (*areaTargetSelectHookItr).IsEffectAffected(m_spellInfo, effIndexToCheck)))
+            bool otherEffectHasSameTargetFunction = std::ranges::any_of(hooks, [&](HookType& other)
+            {
+                return other.IsEffectAffected(spellInfo, effIndexToCheck) && hook.HasSameTargetFunctionAs(other);
+            });
+            if (!otherEffectHasSameTargetFunction)
                 return false;
+        }
+
+        return true;
+    };
+
+    for (SpellScript* script : m_loadedScripts)
+    {
+        if (!allEffectTargetScriptsAreShared(script->OnObjectTargetSelect, m_spellInfo, effIndex, effIndexToCheck))
+            return false;
+
+        if (!allEffectTargetScriptsAreShared(script->OnObjectTargetSelect, m_spellInfo, effIndexToCheck, effIndex))
+            return false;
+
+        if (!allEffectTargetScriptsAreShared(script->OnObjectAreaTargetSelect, m_spellInfo, effIndex, effIndexToCheck))
+            return false;
+
+        if (!allEffectTargetScriptsAreShared(script->OnObjectAreaTargetSelect, m_spellInfo, effIndexToCheck, effIndex))
+            return false;
     }
     return true;
 }
@@ -8138,7 +8158,7 @@ void Spell::PrepareTriggersExecutedOnHit()
     Unit::AuraEffectList const& targetTriggers = unitCaster->GetAuraEffectsByType(SPELL_AURA_ADD_TARGET_TRIGGER);
     for (AuraEffect const* aurEff : targetTriggers)
     {
-        if (!aurEff->IsAffectedOnSpell(m_spellInfo))
+        if (!aurEff->IsAffectingSpell(m_spellInfo))
             continue;
 
         SpellInfo const* auraSpellInfo = aurEff->GetSpellInfo();

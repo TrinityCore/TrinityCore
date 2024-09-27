@@ -302,7 +302,11 @@ public:
 
         if (show == "add")
         {
-            if (Optional<uint32> id = Trinity::StringTo<uint32>(arg_id))
+            Optional<uint32> id;
+            if (arg_id)
+                id = Trinity::StringTo<uint32>(arg_id);
+
+            if (id)
             {
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
                 stmt->setUInt32(0, *id);
@@ -344,9 +348,8 @@ public:
 
             uint32 id = Trinity::StringTo<uint32>(arg_id).value_or(0);
 
-            uint32 a2, a3, a4, a5, a6;
+            uint32 a2, a3, a4, a5, a6, a7;
             float a8, a9, a10, a11;
-            char const* a7;
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_BY_ID);
             stmt->setUInt32(0, id);
@@ -368,13 +371,13 @@ public:
                 a4 = fields[2].GetUInt32();
                 a5 = fields[3].GetUInt32();
                 a6 = fields[4].GetUInt32();
-                a7 = fields[5].GetCString();
+                a7 = fields[5].GetUInt32();
                 a8 = fields[6].GetFloat();
                 a9 = fields[7].GetFloat();
                 a10 = fields[8].GetFloat();
                 a11 = fields[9].GetFloat();
 
-                handler->PSendSysMessage("|cffff33ffid:|r|cff00ffff %u|r|cff00ff00, guid: |r|cff00ffff%u|r|cff00ff00, delay: |r|cff00ffff%u|r|cff00ff00, command: |r|cff00ffff%u|r|cff00ff00, datalong: |r|cff00ffff%u|r|cff00ff00, datalong2: |r|cff00ffff%u|r|cff00ff00, datatext: |r|cff00ffff%s|r|cff00ff00, posx: |r|cff00ffff%f|r|cff00ff00, posy: |r|cff00ffff%f|r|cff00ff00, posz: |r|cff00ffff%f|r|cff00ff00, orientation: |r|cff00ffff%f|r", id, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+                handler->PSendSysMessage("|cffff33ffid:|r|cff00ffff %u|r|cff00ff00, guid: |r|cff00ffff%u|r|cff00ff00, delay: |r|cff00ffff%u|r|cff00ff00, command: |r|cff00ffff%u|r|cff00ff00, datalong: |r|cff00ffff%u|r|cff00ff00, datalong2: |r|cff00ffff%u|r|cff00ff00, dataint: |r|cff00ffff%u|r|cff00ff00, posx: |r|cff00ffff%f|r|cff00ff00, posy: |r|cff00ffff%f|r|cff00ff00, posz: |r|cff00ffff%f|r|cff00ff00, orientation: |r|cff00ffff%f|r", id, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
             }
             while (result->NextRow());
         }
