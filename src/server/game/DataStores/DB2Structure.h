@@ -38,7 +38,7 @@ struct AchievementEntry
     int8 MinimumCriteria;                                           // need this count of completed criterias (own or referenced achievement criterias)
     int8 Points;
     int32 Flags;
-    int16 UiOrder;
+    uint16 UiOrder;
     int32 IconFileID;
     uint32 CriteriaTree;
     int16 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
@@ -49,7 +49,7 @@ struct Achievement_CategoryEntry
     LocalizedString Name;
     uint32 ID;
     int16 Parent;
-    int8 UiOrder;
+    uint8 UiOrder;
 };
 
 struct AnimationDataEntry
@@ -119,7 +119,7 @@ struct AreaTriggerEntry
     LocalizedString Message;
     DBCPosition3D Pos;
     uint32 ID;
-    int16 ContinentID;
+    uint16 ContinentID;
     int32 PhaseUseFlags;
     int16 PhaseID;
     int16 PhaseGroupID;
@@ -398,7 +398,7 @@ struct ChrCustomizationChoiceEntry
 {
     LocalizedString Name;
     uint32 ID;
-    int32 ChrCustomizationOptionID;
+    uint32 ChrCustomizationOptionID;
     int32 ChrCustomizationReqID;
     int32 ChrCustomizationVisReqID;
     uint16 SortOrder;
@@ -483,7 +483,7 @@ struct ChrModelEntry
     std::array<float, 3> CustomizeOffset;
     uint32 ID;
     int8 Sex;
-    int32 DisplayID;
+    uint32 DisplayID;
     int32 CharComponentTextureLayoutID;
     int32 Flags;
     int32 SkeletonFileDataID;
@@ -501,7 +501,7 @@ struct ChrModelEntry
 struct ChrRaceXChrModelEntry
 {
     uint32 ID;
-    int32 ChrRacesID;
+    uint32 ChrRacesID;
     int32 ChrModelID;
     int32 Sex;
     int32 AllowedTransmogSlots;
@@ -1137,7 +1137,7 @@ struct DungeonEncounterEntry
 {
     LocalizedString Name;
     uint32 ID;
-    int16 MapID;
+    uint16 MapID;
     int32 DifficultyID;
     int32 OrderIndex;
     int32 CompleteWorldStateID;
@@ -1628,7 +1628,7 @@ struct ItemContextPickerEntryEntry
 struct ItemCurrencyCostEntry
 {
     uint32 ID;
-    int32 ItemID;
+    uint32 ItemID;
 };
 
 struct ItemDamageAmmoEntry
@@ -1751,7 +1751,7 @@ struct ItemLimitCategoryConditionEntry
 struct ItemModifiedAppearanceEntry
 {
     uint32 ID;
-    int32 ItemID;
+    uint32 ItemID;
     int32 ItemAppearanceModifierID;
     int32 ItemAppearanceID;
     int32 OrderIndex;
@@ -1944,7 +1944,7 @@ struct JournalEncounterSectionEntry
     uint16 ParentSectionID;
     uint16 FirstChildSectionID;
     uint16 NextSiblingSectionID;
-    int8 Type;
+    uint8 Type;
     uint32 IconCreatureDisplayInfoID;
     int32 UiModelSceneID;
     int32 SpellID;
@@ -2769,7 +2769,7 @@ struct SkillLineAbilityEntry
 {
     Trinity::RaceMask<int64> RaceMask;
     uint32 ID;
-    int16 SkillLine;
+    uint16 SkillLine;
     int32 Spell;
     int16 MinSkillLineRank;
     int32 ClassMask;
@@ -2791,7 +2791,7 @@ struct SkillRaceClassInfoEntry
 {
     uint32 ID;
     Trinity::RaceMask<int64> RaceMask;
-    int16 SkillID;
+    uint16 SkillID;
     int32 ClassMask;
     uint16 Flags;
     int8 Availability;
@@ -3512,9 +3512,9 @@ struct UiMapEntry
 {
     LocalizedString Name;
     uint32 ID;
-    int32 ParentUiMapID;
+    uint32 ParentUiMapID;
     int32 Flags;
-    int8 System;
+    uint8 System;
     uint8 Type;
     int32 BountySetID;
     uint32 BountyDisplayLocation;
@@ -3534,7 +3534,7 @@ struct UiMapAssignmentEntry
     DBCPosition2D UiMax;
     std::array<DBCPosition3D, 2> Region;
     uint32 ID;
-    int32 UiMapID;
+    uint32 UiMapID;
     int32 OrderIndex;
     int32 MapID;
     int32 AreaID;
@@ -3547,7 +3547,7 @@ struct UiMapLinkEntry
     DBCPosition2D UiMin;
     DBCPosition2D UiMax;
     uint32 ID;
-    int32 ParentUiMapID;
+    uint32 ParentUiMapID;
     int32 OrderIndex;
     int32 ChildUiMapID;
     int32 OverrideHighlightFileDataID;

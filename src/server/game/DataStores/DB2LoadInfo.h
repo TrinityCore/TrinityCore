@@ -39,7 +39,7 @@ struct AchievementLoadInfo
         { true, FT_BYTE, "MinimumCriteria" },
         { true, FT_BYTE, "Points" },
         { true, FT_INT, "Flags" },
-        { true, FT_SHORT, "UiOrder" },
+        { false, FT_SHORT, "UiOrder" },
         { true, FT_INT, "IconFileID" },
         { false, FT_INT, "CriteriaTree" },
         { true, FT_SHORT, "SharesCriteria" },
@@ -55,7 +55,7 @@ struct AchievementCategoryLoadInfo
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
         { true, FT_SHORT, "Parent" },
-        { true, FT_BYTE, "UiOrder" },
+        { false, FT_BYTE, "UiOrder" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &Achievement_CategoryMeta::Instance, HOTFIX_SEL_ACHIEVEMENT_CATEGORY };
@@ -147,7 +147,7 @@ struct AreaTriggerLoadInfo
         { false, FT_FLOAT, "PosY" },
         { false, FT_FLOAT, "PosZ" },
         { false, FT_INT, "ID" },
-        { true, FT_SHORT, "ContinentID" },
+        { false, FT_SHORT, "ContinentID" },
         { true, FT_INT, "PhaseUseFlags" },
         { true, FT_SHORT, "PhaseID" },
         { true, FT_SHORT, "PhaseGroupID" },
@@ -542,7 +542,7 @@ struct ChrCustomizationChoiceLoadInfo
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
-        { true, FT_INT, "ChrCustomizationOptionID" },
+        { false, FT_INT, "ChrCustomizationOptionID" },
         { true, FT_INT, "ChrCustomizationReqID" },
         { true, FT_INT, "ChrCustomizationVisReqID" },
         { false, FT_SHORT, "SortOrder" },
@@ -660,7 +660,7 @@ struct ChrModelLoadInfo
         { false, FT_FLOAT, "CustomizeOffset3" },
         { false, FT_INT, "ID" },
         { true, FT_BYTE, "Sex" },
-        { true, FT_INT, "DisplayID" },
+        { false, FT_INT, "DisplayID" },
         { true, FT_INT, "CharComponentTextureLayoutID" },
         { true, FT_INT, "Flags" },
         { true, FT_INT, "SkeletonFileDataID" },
@@ -683,7 +683,7 @@ struct ChrRaceXChrModelLoadInfo
     static constexpr DB2FieldMeta Fields[5] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "ChrRacesID" },
+        { false, FT_INT, "ChrRacesID" },
         { true, FT_INT, "ChrModelID" },
         { true, FT_INT, "Sex" },
         { true, FT_INT, "AllowedTransmogSlots" },
@@ -1172,7 +1172,7 @@ struct DungeonEncounterLoadInfo
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
-        { true, FT_SHORT, "MapID" },
+        { false, FT_SHORT, "MapID" },
         { true, FT_INT, "DifficultyID" },
         { true, FT_INT, "OrderIndex" },
         { true, FT_INT, "CompleteWorldStateID" },
@@ -1977,7 +1977,7 @@ struct ItemCurrencyCostLoadInfo
     static constexpr DB2FieldMeta Fields[2] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "ItemID" },
+        { false, FT_INT, "ItemID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 2, &ItemCurrencyCostMeta::Instance, HOTFIX_SEL_ITEM_CURRENCY_COST };
@@ -2213,7 +2213,7 @@ struct ItemModifiedAppearanceLoadInfo
     static constexpr DB2FieldMeta Fields[6] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_INT, "ItemID" },
+        { false, FT_INT, "ItemID" },
         { true, FT_INT, "ItemAppearanceModifierID" },
         { true, FT_INT, "ItemAppearanceID" },
         { true, FT_INT, "OrderIndex" },
@@ -2544,7 +2544,7 @@ struct JournalEncounterSectionLoadInfo
         { false, FT_SHORT, "ParentSectionID" },
         { false, FT_SHORT, "FirstChildSectionID" },
         { false, FT_SHORT, "NextSiblingSectionID" },
-        { true, FT_BYTE, "Type" },
+        { false, FT_BYTE, "Type" },
         { false, FT_INT, "IconCreatureDisplayInfoID" },
         { true, FT_INT, "UiModelSceneID" },
         { true, FT_INT, "SpellID" },
@@ -3807,7 +3807,7 @@ struct SkillLineAbilityLoadInfo
     {
         { true, FT_LONG, "RaceMask" },
         { false, FT_INT, "ID" },
-        { true, FT_SHORT, "SkillLine" },
+        { false, FT_SHORT, "SkillLine" },
         { true, FT_INT, "Spell" },
         { true, FT_SHORT, "MinSkillLineRank" },
         { true, FT_INT, "ClassMask" },
@@ -3833,7 +3833,7 @@ struct SkillRaceClassInfoLoadInfo
     {
         { false, FT_INT, "ID" },
         { true, FT_LONG, "RaceMask" },
-        { true, FT_SHORT, "SkillID" },
+        { false, FT_SHORT, "SkillID" },
         { true, FT_INT, "ClassMask" },
         { false, FT_SHORT, "Flags" },
         { true, FT_BYTE, "Availability" },
@@ -4942,9 +4942,9 @@ struct UiMapLoadInfo
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
-        { true, FT_INT, "ParentUiMapID" },
+        { false, FT_INT, "ParentUiMapID" },
         { true, FT_INT, "Flags" },
-        { true, FT_BYTE, "System" },
+        { false, FT_BYTE, "System" },
         { false, FT_BYTE, "Type" },
         { true, FT_INT, "BountySetID" },
         { false, FT_INT, "BountyDisplayLocation" },
@@ -4974,7 +4974,7 @@ struct UiMapAssignmentLoadInfo
         { false, FT_FLOAT, "Region2Y" },
         { false, FT_FLOAT, "Region2Z" },
         { false, FT_INT, "ID" },
-        { true, FT_INT, "UiMapID" },
+        { false, FT_INT, "UiMapID" },
         { true, FT_INT, "OrderIndex" },
         { true, FT_INT, "MapID" },
         { true, FT_INT, "AreaID" },
@@ -4994,7 +4994,7 @@ struct UiMapLinkLoadInfo
         { false, FT_FLOAT, "UiMaxX" },
         { false, FT_FLOAT, "UiMaxY" },
         { false, FT_INT, "ID" },
-        { true, FT_INT, "ParentUiMapID" },
+        { false, FT_INT, "ParentUiMapID" },
         { true, FT_INT, "OrderIndex" },
         { true, FT_INT, "ChildUiMapID" },
         { true, FT_INT, "OverrideHighlightFileDataID" },
