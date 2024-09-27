@@ -241,10 +241,5 @@ void AzeriteEmpoweredItem::InitAzeritePowerData()
 {
     m_azeritePowers = sDB2Manager.GetAzeritePowers(GetEntry());
     if (m_azeritePowers)
-    {
-        m_maxTier = (*std::max_element(m_azeritePowers->begin(), m_azeritePowers->end(), [](AzeritePowerSetMemberEntry const* a1, AzeritePowerSetMemberEntry const* a2)
-        {
-            return a1->Tier < a2->Tier;
-        }))->Tier;
-    }
+        m_maxTier = (*std::ranges::max_element(*m_azeritePowers, {}, &AzeritePowerSetMemberEntry::Tier))->Tier;
 }
