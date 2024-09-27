@@ -2490,8 +2490,15 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     AI()->OnLootStateChanged(state, unit);
 
     // Start restock timer if the chest is partially looted or not looted at all
-    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED && GetGOInfo()->chest.chestRestockTime > 0 && m_restockTime == 0)
-        m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
+    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED)
+    {
+        GameObjectTemplate const* goInfo = GetGOInfo();
+        if (goInfo->chest.chestRestockTime > 0 && m_restockTime == 0)
+            m_restockTime = GameTime::GetGameTime() + goInfo->chest.chestRestockTime;
+
+        if (goInfo->chest.chestRestockTime == 0 && m_restockTime == 0 && GetMap())
+            DespawnOrUnsummon(300s);
+    }
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
         return;
