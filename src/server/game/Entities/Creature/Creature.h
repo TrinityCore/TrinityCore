@@ -93,6 +93,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
                 m_ignoreCorpseDecayRatio = true;
         }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
+        uint32 GetRespawnAggroDelay() const { return m_respawnAggroDelay; }
+        void SetRespawnAggroDelay(uint32 delay) { m_respawnAggroDelay = delay; }
         bool IsRacialLeader() const { return GetCreatureTemplate()->RacialLeader; }
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
@@ -392,6 +394,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t m_respawnTime;                               // (secs) time of next respawn
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
+        uint32 m_respawnAggroDelay;                         // (msecs)delay between respawn and aggro due to movement
         bool m_ignoreCorpseDecayRatio;
         float m_wanderDistance;
         uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
