@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "Duration.h"
+
 #include "EventProcessor.h"
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
@@ -62,7 +63,6 @@ struct QuaternionData;
 enum ZLiquidStatus : uint32;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
-
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
 
 class TC_GAME_API Object
@@ -296,6 +296,21 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+struct FindCreatureOptions
+{
+    Optional<uint32> CreatureId;
+    Optional<std::string_view> StringId;
+
+    Optional<bool> IsAlive;
+    Optional<bool> IsInCombat;
+    Optional<bool> IsSummon;
+
+    Optional<uint32> AuraSpellId;
+    //Optional<ObjectGuid> OwnerGuid;
+    //Optional<ObjectGuid> CharmerGuid;
+    //Optional<ObjectGuid> CreatorGuid;
+};
+
 class TC_GAME_API WorldObject : public Object, public WorldLocation
 {
     protected:
@@ -426,6 +441,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+        Creature*   FindNearestCreatureWithOptions(float range, FindCreatureOptions const& options) const;
         GameObject* FindNearestGameObject(uint32 entry, float range, bool spawnedOnly = true) const;
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
@@ -485,6 +501,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         template <typename Container>
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListWithOptionsInGrid(Container& creatureContainer, float maxSearchRange, FindCreatureOptions const& options) const;
 
         template <typename Container>
         void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive = true) const;
