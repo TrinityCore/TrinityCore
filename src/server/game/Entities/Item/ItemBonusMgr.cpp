@@ -35,7 +35,7 @@ using ItemLevelSelectorQualities = std::set<ItemLevelSelectorQualityEntry const*
 std::unordered_multimap<int32 /*azeriteUnlockMappingSetId*/, AzeriteUnlockMappingEntry const*> _azeriteUnlockMappings;
 std::unordered_multimap<uint32 /*itemBonusTreeId*/, ChallengeModeItemBonusOverrideEntry const*> _challengeModeItemBonusOverrides;
 std::unordered_map<uint32 /*itemBonusListId*/, std::vector<ItemBonusEntry const*>> _itemBonusLists;
-std::unordered_multimap<int32, ItemBonusListGroupEntryEntry const*> _itemBonusListGroupEntries;
+std::unordered_multimap<uint32, ItemBonusListGroupEntryEntry const*> _itemBonusListGroupEntries;
 std::unordered_map<int16 /*itemLevelDelta*/, uint32 /*itemBonusListId*/> _itemLevelDeltaToBonusListContainer;
 std::unordered_map<uint32 /*itemLevelSelectorQualitySetId*/, ItemLevelSelectorQualities> _itemLevelQualitySelectorQualities;
 std::unordered_map<uint32 /*itemBonusTreeId*/, std::set<ItemBonusTreeNodeEntry const*>> _itemBonusTrees;

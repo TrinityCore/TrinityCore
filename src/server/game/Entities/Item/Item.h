@@ -104,6 +104,7 @@ private:
     {
         int32 SuffixPriority;
         int32 AppearanceModPriority;
+        int32 DisenchantLootPriority;
         int32 ScalingStatDistributionPriority;
         int32 AzeriteTierUnlockSetPriority;
         int32 RequiredLevelCurvePriority;
@@ -349,10 +350,11 @@ class TC_GAME_API Item : public Object
         ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }
         uint32 GetScalingContentTuningId() const { return _bonusData.ContentTuningId; }
-        ItemDisenchantLootEntry const* GetDisenchantLoot(Player const* owner) const;
-        static ItemDisenchantLootEntry const* GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
+        Optional<uint32> GetDisenchantLootId() const;
+        Optional<uint16> GetDisenchantSkillRequired() const;
+        static ItemDisenchantLootEntry const* GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);
-        Trinity::IteratorPair<ItemEffectEntry const* const*> GetEffects() const { return { std::make_pair(&_bonusData.Effects[0], &_bonusData.Effects[0] + _bonusData.EffectCount) }; }
+        Trinity::IteratorPair<ItemEffectEntry const* const*> GetEffects() const { return { std::make_pair(_bonusData.Effects.data(), _bonusData.Effects.data() + _bonusData.EffectCount) }; }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);
