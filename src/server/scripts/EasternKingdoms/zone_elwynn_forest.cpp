@@ -297,18 +297,12 @@ struct npc_tharynn_bouden : public ScriptedAI
             {
                 case 1:
                 {
-                    Creature* remy = me->FindNearestCreatureWithOptions(10.0f, { .CreatureId = 241 });
+                    Creature* remy = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "testing" });
+                    //Creature* remy = me->FindNearestCreatureWithOptions(10.0f, { .CreatureId = 241 });
                     if (remy)
                         remy->Say("Hello! My name is Remy!", LANG_UNIVERSAL);
                     _events.ScheduleEvent(1, 10s);
                     break;
-                /*
-                    Creature* remy = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "testing" });
-                    if (remy)
-                        remy->Say("Hello! My name is Remy!", LANG_UNIVERSAL);
-                    //_events.ScheduleEvent(1, 10s);
-                    break;
-                */
                 }
                 default:
                     break;
