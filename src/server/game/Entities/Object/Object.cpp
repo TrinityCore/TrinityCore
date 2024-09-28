@@ -2005,6 +2005,8 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
         if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime.count(), this, spellId, 0, visibleBySummonerOnly))
         {
             summon->SetTempSummonType(despawnType);
+            if (Creature* thisCreature = ToCreature())
+                summon->InheritStringIds(thisCreature);
             return summon;
         }
     }
