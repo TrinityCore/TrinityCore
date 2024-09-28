@@ -2497,7 +2497,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
             m_restockTime = GameTime::GetGameTime() + goInfo->chest.chestRestockTime;
 
         // If world chests were opened, despawn them after 5 minutes
-        if (goInfo->chest.chestRestockTime == 0 && m_restockTime == 0 && GetMap())
+        if (goInfo->chest.chestRestockTime == 0 && m_restockTime == 0 && GetMap()->IsWorldMap())
             DespawnOrUnsummon(std::chrono::seconds(300));
     }
 
