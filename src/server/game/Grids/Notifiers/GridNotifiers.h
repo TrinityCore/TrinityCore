@@ -1452,7 +1452,7 @@ namespace Trinity
             if (i_args.CreatureId && u->GetEntry() != i_args.CreatureId)
                 return false;
 
-            if (i_args.StringId && u->HasStringId(*i_args.StringId))
+            if (i_args.StringId && !u->HasStringId(*i_args.StringId))
                 return false;
 
             if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)
@@ -1464,10 +1464,10 @@ namespace Trinity
             if (i_args.IsInCombat.has_value() && u->IsInCombat() != i_args.IsInCombat)
                 return false;
 
-            //if ((i_args.OwnerGuid && u->GetOwnerGUID() != i_args.OwnerGuid)
-            //    || (i_args.CharmerGuid && u->GetCharmerGUID() != i_args.CharmerGuid)
-            //    || (i_args.CreatorGuid && u->GetCreatorGUID() != i_args.CreatorGuid)
-            //    return false;
+            if ((i_args.OwnerGuid && u->GetOwnerGUID() != i_args.OwnerGuid)
+                || (i_args.CharmerGuid && u->GetCharmerGUID() != i_args.CharmerGuid)
+                || (i_args.CreatorGuid && u->GetCreatorGUID() != i_args.CreatorGuid))
+                return false;
 
             if (i_args.AuraSpellId && !u->HasAura(*i_args.AuraSpellId))
                 return false;

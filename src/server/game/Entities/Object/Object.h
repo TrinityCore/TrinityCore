@@ -306,9 +306,9 @@ struct FindCreatureOptions
     Optional<bool> IsSummon;
 
     Optional<uint32> AuraSpellId;
-    //Optional<ObjectGuid> OwnerGuid;
-    //Optional<ObjectGuid> CharmerGuid;
-    //Optional<ObjectGuid> CreatorGuid;
+    Optional<ObjectGuid> OwnerGuid;
+    Optional<ObjectGuid> CharmerGuid;
+    Optional<ObjectGuid> CreatorGuid;
 };
 
 class TC_GAME_API WorldObject : public Object, public WorldLocation

@@ -275,47 +275,7 @@ private:
     GuidVector _childrenGUIDs;
 };
 
-struct npc_tharynn_bouden : public ScriptedAI
-{
-    npc_tharynn_bouden(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _events.ScheduleEvent(1, 6s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case 1:
-                {
-                    Creature* remy = me->FindNearestCreatureWithOptions(30.0f, { .StringId = "testing" });
-                    //Creature* remy = me->FindNearestCreatureWithOptions(10.0f, { .CreatureId = 241 });
-                    if (remy)
-                        remy->Say("Hello! My name is Remy!", LANG_UNIVERSAL);
-                    _events.ScheduleEvent(1, 10s);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-    }
-
-private:
-    EventMap _events;
-};
-
 void AddSC_elwynn_forest()
 {
     RegisterCreatureAI(npc_cameron);
-    RegisterCreatureAI(npc_tharynn_bouden);
 }
