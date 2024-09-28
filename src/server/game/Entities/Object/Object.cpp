@@ -3133,7 +3133,7 @@ void WorldObject::GetGameObjectListWithEntryInGrid(Container& gameObjectContaine
 template <typename Container>
 void WorldObject::GetCreatureListWithOptionsInGrid(Container& creatureContainer, float maxSearchRange, FindCreatureOptions const& options) const
 {
-    Trinity::NoopCheckCustomizer checkCustomizer;
+    Trinity::InRangeCheckCustomizer checkCustomizer(*this, maxSearchRange);
     Trinity::CreatureWithOptionsInObjectRangeCheck check(*this, checkCustomizer, options);
     Trinity::CreatureListSearcher searcher(this, creatureContainer, check);
 

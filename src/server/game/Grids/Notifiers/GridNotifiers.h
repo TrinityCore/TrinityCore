@@ -622,13 +622,22 @@ namespace Trinity
 
     // CHECKS && DO classes
 
-        // CHECK modifiers
-    class NoopCheckCustomizer
+    // CHECK modifiers
+    class InRangeCheckCustomizer
     {
     public:
-        bool Test(WorldObject const* /*o*/) const { return true; }
+        explicit InRangeCheckCustomizer(WorldObject const& obj, float range) : i_obj(obj), i_range(range) { }
+
+        bool Test(WorldObject const* o) const
+        {
+            return i_obj.IsWithinDist(o, i_range);
+        }
 
         void Update(WorldObject const* /*o*/) { }
+
+    private:
+        WorldObject const& i_obj;
+        float i_range;
     };
 
     class NearestCheckCustomizer
@@ -1422,7 +1431,7 @@ namespace Trinity
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&) = delete;
     };
 
-    template <typename Customizer = NoopCheckCustomizer>
+    template <typename Customizer = InRangeCheckCustomizer>
     class CreatureWithOptionsInObjectRangeCheck
     {
     public:
