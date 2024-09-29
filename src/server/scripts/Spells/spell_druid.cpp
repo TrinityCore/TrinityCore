@@ -1346,20 +1346,25 @@ class spell_dru_moonfire : public SpellScript
 // 450347 - Nature's Grace
 class spell_dru_natures_grace : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+public:
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_NATURES_GRACE_TALENT, SPELL_DRUID_DREAMSTATE });
+        return ValidateSpellInfo({ SPELL_DRUID_NATURES_GRACE_TALENT, SPELL_DRUID_DREAMSTATE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
-    void OnOwnerInCombat(bool isNowInCombat)
+    static void Trigger(Unit* caster, AuraEffect const* naturesGraceEffect)
+    {
+        caster->CastSpell(caster, SPELL_DRUID_DREAMSTATE, CastSpellExtraArgsInit{
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, naturesGraceEffect->GetAmount() } }
+        });
+
+    }
+
+    void OnOwnerInCombat(bool isNowInCombat) const
     {
         if (isNowInCombat)
-        {
-            Unit* caster = GetCaster();
-            AuraEffect const* stackAmount = GetCaster()->GetAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2);
-            caster->CastSpell(caster, SPELL_DRUID_DREAMSTATE, CastSpellExtraArgs()
-                .AddSpellMod(SPELLVALUE_AURA_STACK, stackAmount->GetAmount()));
-        }
+            Trigger(GetTarget(), GetEffect(EFFECT_2));
     }
 
     void Register() override
@@ -1373,20 +1378,18 @@ class spell_dru_natures_grace_eclipse : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_NATURES_GRACE_TALENT, SPELL_DRUID_DREAMSTATE });
+        return ValidateSpellInfo({ SPELL_DRUID_DREAMSTATE })
+            && ValidateSpellEffect({ { SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2 } });
     }
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_DRUID_NATURES_GRACE_TALENT);
+        return GetCaster()->HasAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2);
     }
 
-    void HandleRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Unit* caster = GetCaster();
-        AuraEffect const* stackAmount = GetCaster()->GetAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2);
-        caster->CastSpell(caster, SPELL_DRUID_DREAMSTATE, CastSpellExtraArgs()
-            .AddSpellMod(SPELLVALUE_AURA_STACK, stackAmount->GetAmount()));
+        spell_dru_natures_grace::Trigger(GetTarget(), GetTarget()->GetAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2));
     }
 
     void Register() override
