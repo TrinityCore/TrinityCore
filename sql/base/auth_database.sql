@@ -794,7 +794,20 @@ INSERT INTO `build_auth_key` VALUES
 (56513,'Mac','x64','WoWC',0xEAD9A0B761C4C9C812FAD54CE0D96B46),
 (56513,'Win','A64','WoW',0x753468F753E8D3841B5D6B061E300501),
 (56513,'Win','x64','WoW',0x9BD8D105049CC6459FE32EC7099AB60E),
-(56513,'Win','x64','WoWC',0xBB5A35C2EB6E2026FFE01202FDEBD6E9);
+(56513,'Win','x64','WoWC',0xBB5A35C2EB6E2026FFE01202FDEBD6E9),
+(56625,'Mac','A64','WoW',0xC7AD97B9970260D0BDE7AA03EEF87E2D),
+(56625,'Mac','A64','WoWC',0xDEBDB4589756730F5EF60B337226E515),
+(56625,'Mac','x64','WoW',0xEB5665FDC81E3538944BA82E435A53E6),
+(56625,'Mac','x64','WoWC',0xAA5B3910A3D13C89F3D9467058080836),
+(56625,'Win','A64','WoW',0x684153873E5023671685B270DA879668),
+(56625,'Win','x64','WoW',0x80859C23C3E7F827829D47A08A1B8C92),
+(56625,'Win','x64','WoWC',0x606914ED212277FDDBBAE49BE6E8CCAF),
+(56647,'Mac','A64','WoW',0x1911B50FA20E5DEF8C1E5D3C7479E4E2),
+(56647,'Mac','A64','WoWC',0xF0F2BEC3DE590AE7A59CCFDB42201D5F),
+(56647,'Mac','x64','WoW',0x022A06825C7CF55528A5ED03E87D6AE4),
+(56647,'Win','A64','WoW',0x0F36C48D68E358598318F0B30FDFCB61),
+(56647,'Win','x64','WoW',0x2E9C456B66C0D5CAD601E8FD7A2FEA7A),
+(56647,'Win','x64','WoWC',0x543A69AB802D0873D84AB08DEC4D8CAC);
 /*!40000 ALTER TABLE `build_auth_key` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1141,7 +1154,9 @@ INSERT INTO `build_info` VALUES
 (56382,11,0,2,NULL),
 (56421,11,0,2,NULL),
 (56461,11,0,2,NULL),
-(56513,11,0,2,NULL);
+(56513,11,0,2,NULL),
+(56625,11,0,2,NULL),
+(56647,11,0,2,NULL);
 /*!40000 ALTER TABLE `build_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2750,8 +2765,8 @@ CREATE TABLE `realmlist` (
   `flag` tinyint unsigned NOT NULL DEFAULT '2',
   `timezone` tinyint unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
-  `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int unsigned NOT NULL DEFAULT '56513',
+  `population` float NOT NULL DEFAULT '0',
+  `gamebuild` int unsigned NOT NULL DEFAULT '56647',
   `Region` tinyint unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2766,7 +2781,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,56513,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,56647,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3221,9 +3236,13 @@ INSERT INTO `updates` VALUES
 ('2024_08_31_00_auth.sql','D10F12D25D526A2C5E12FCEA2DEB55C342879F06','ARCHIVED','2024-08-31 10:32:16',0),
 ('2024_08_31_01_auth.sql','3ADC34DAE405697983EDDD32D0F3FC6F122CA819','ARCHIVED','2024-09-01 15:48:43',0),
 ('2024_09_03_00_auth.sql','BF65B550256CA64F0936D98A619E8A2A7E7A9B59','ARCHIVED','2024-09-03 00:47:42',0),
-('2024_09_05_00_auth.sql','9CD84EB94AE50F14A392C216E7CA7BA33E92376E','RELEASED','2024-09-05 13:38:34',0),
-('2024_09_05_01_auth.sql','42D5E703382C57C4ADD862CF215F1166625100E5','RELEASED','2024-09-05 23:42:10',0),
-('2024_09_11_00_auth.sql','8B810B5EB20D769A50A2D01411BBD065732E4EE6','RELEASED','2024-09-11 12:23:18',0);
+('2024_09_05_00_auth.sql','9CD84EB94AE50F14A392C216E7CA7BA33E92376E','ARCHIVED','2024-09-05 13:38:34',0),
+('2024_09_05_01_auth.sql','42D5E703382C57C4ADD862CF215F1166625100E5','ARCHIVED','2024-09-05 23:42:10',0),
+('2024_09_11_00_auth.sql','8B810B5EB20D769A50A2D01411BBD065732E4EE6','ARCHIVED','2024-09-11 12:23:18',0),
+('2024_09_18_00_auth.sql','073B6E954B585CD81BFADD58CDAD166E85D2653A','ARCHIVED','2024-09-18 10:26:42',0),
+('2024_09_18_01_auth.sql','6AE1437E24D4837EB2347ADAA80A4093CA9F6D67','ARCHIVED','2024-09-18 21:30:31',0),
+('2024_09_23_00_auth.sql','CBAB00B40360D8942AD1E4EDBE0F0097F3F6FC9B','ARCHIVED','2024-09-23 22:48:10',0),
+('2024_09_26_00_auth.sql','E37C3997FD7851EA360774AC568912846C448272','RELEASED','2024-09-26 18:27:26',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3334,7 +3353,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY INVOKER */
 /*!50001 VIEW `vw_log_history` AS select from_unixtime(min(`logs`.`time`)) AS `First Logged`,from_unixtime(max(`logs`.`time`)) AS `Last Logged`,count(0) AS `Occurrences`,`realmlist`.`name` AS `Realm`,`logs`.`type` AS `type`,`logs`.`level` AS `level`,`logs`.`string` AS `string` from (`logs` left join `realmlist` on((`logs`.`realm` = `realmlist`.`id`))) group by `logs`.`string`,`logs`.`type`,`logs`.`realm` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -3348,11 +3367,11 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb3 */;
-/*!50001 SET character_set_results     = utf8mb3 */;
-/*!50001 SET collation_connection      = utf8mb3_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY INVOKER */
 /*!50001 VIEW `vw_rbac` AS select `t1`.`linkedId` AS `Permission ID`,`t1`.`id` AS `Permission Group`,ifnull(`t2`.`secId`,'linked') AS `Security Level`,`t3`.`name` AS `Permission` from ((`rbac_linked_permissions` `t1` left join `rbac_default_permissions` `t2` on((`t1`.`id` = `t2`.`permissionId`))) left join `rbac_permissions` `t3` on((`t1`.`linkedId` = `t3`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -3367,4 +3386,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-03  0:47:44
+-- Dump completed on 2024-09-23 22:48:12

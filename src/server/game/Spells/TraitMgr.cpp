@@ -75,7 +75,7 @@ struct Tree
     TraitConfigType ConfigType = TraitConfigType::Invalid;
 };
 
-std::unordered_map<int32, NodeGroup> _traitGroups;
+std::unordered_map<uint32, NodeGroup> _traitGroups;
 std::unordered_map<int32, Node> _traitNodes;
 std::unordered_map<int32, SubTree> _traitSubTrees;
 std::unordered_map<int32, Tree> _traitTrees;
@@ -92,41 +92,41 @@ void Load()
 {
     _configIdGenerator = time(nullptr);
 
-    std::unordered_map<int32, std::vector<TraitCondEntry const*>> nodeEntryConditions;
+    std::unordered_map<uint32, std::vector<TraitCondEntry const*>> nodeEntryConditions;
     for (TraitNodeEntryXTraitCondEntry const* traitNodeEntryXTraitCondEntry : sTraitNodeEntryXTraitCondStore)
         if (TraitCondEntry const* traitCondEntry = sTraitCondStore.LookupEntry(traitNodeEntryXTraitCondEntry->TraitCondID))
             nodeEntryConditions[traitNodeEntryXTraitCondEntry->TraitNodeEntryID].push_back(traitCondEntry);
 
-    std::unordered_map<int32, std::vector<TraitCostEntry const*>> nodeEntryCosts;
+    std::unordered_map<uint32, std::vector<TraitCostEntry const*>> nodeEntryCosts;
     for (TraitNodeEntryXTraitCostEntry const* traitNodeEntryXTraitCostEntry : sTraitNodeEntryXTraitCostStore)
         if (TraitCostEntry const* traitCostEntry = sTraitCostStore.LookupEntry(traitNodeEntryXTraitCostEntry->TraitCostID))
             nodeEntryCosts[traitNodeEntryXTraitCostEntry->TraitNodeEntryID].push_back(traitCostEntry);
 
-    std::unordered_map<int32, std::vector<TraitCondEntry const*>> nodeGroupConditions;
+    std::unordered_map<uint32, std::vector<TraitCondEntry const*>> nodeGroupConditions;
     for (TraitNodeGroupXTraitCondEntry const* traitNodeGroupXTraitCondEntry : sTraitNodeGroupXTraitCondStore)
         if (TraitCondEntry const* traitCondEntry = sTraitCondStore.LookupEntry(traitNodeGroupXTraitCondEntry->TraitCondID))
             nodeGroupConditions[traitNodeGroupXTraitCondEntry->TraitNodeGroupID].push_back(traitCondEntry);
 
-    std::unordered_map<int32, std::vector<TraitCostEntry const*>> nodeGroupCosts;
+    std::unordered_map<uint32, std::vector<TraitCostEntry const*>> nodeGroupCosts;
     for (TraitNodeGroupXTraitCostEntry const* traitNodeGroupXTraitCostEntry : sTraitNodeGroupXTraitCostStore)
         if (TraitCostEntry const* traitCondEntry = sTraitCostStore.LookupEntry(traitNodeGroupXTraitCostEntry->TraitCostID))
             nodeGroupCosts[traitNodeGroupXTraitCostEntry->TraitNodeGroupID].push_back(traitCondEntry);
 
-    std::unordered_multimap<int32, int32> nodeGroups;
+    std::unordered_multimap<int32, uint32> nodeGroups;
     for (TraitNodeGroupXTraitNodeEntry const* traitNodeGroupXTraitNodeEntry : sTraitNodeGroupXTraitNodeStore)
             nodeGroups.emplace(traitNodeGroupXTraitNodeEntry->TraitNodeID, traitNodeGroupXTraitNodeEntry->TraitNodeGroupID);
 
-    std::unordered_map<int32, std::vector<TraitCondEntry const*>> nodeConditions;
+    std::unordered_map<uint32, std::vector<TraitCondEntry const*>> nodeConditions;
     for (TraitNodeXTraitCondEntry const* traitNodeXTraitCondEntry : sTraitNodeXTraitCondStore)
         if (TraitCondEntry const* traitCondEntry = sTraitCondStore.LookupEntry(traitNodeXTraitCondEntry->TraitCondID))
             nodeConditions[traitNodeXTraitCondEntry->TraitNodeID].push_back(traitCondEntry);
 
-    std::unordered_map<int32, std::vector<TraitCostEntry const*>> nodeCosts;
+    std::unordered_map<uint32, std::vector<TraitCostEntry const*>> nodeCosts;
     for (TraitNodeXTraitCostEntry const* traitNodeXTraitCostEntry : sTraitNodeXTraitCostStore)
         if (TraitCostEntry const* traitCostEntry = sTraitCostStore.LookupEntry(traitNodeXTraitCostEntry->TraitCostID))
             nodeCosts[traitNodeXTraitCostEntry->TraitNodeID].push_back(traitCostEntry);
 
-    std::unordered_multimap<int32, TraitNodeEntryEntry const*> nodeEntries;
+    std::unordered_multimap<uint32, TraitNodeEntryEntry const*> nodeEntries;
     for (TraitNodeXTraitNodeEntryEntry const* traitNodeXTraitNodeEntryEntry : sTraitNodeXTraitNodeEntryStore)
         if (TraitNodeEntryEntry const* traitNodeEntryEntry = sTraitNodeEntryStore.LookupEntry(traitNodeXTraitNodeEntryEntry->TraitNodeEntryID))
             nodeEntries.emplace(traitNodeXTraitNodeEntryEntry->TraitNodeID, traitNodeEntryEntry);
@@ -136,7 +136,7 @@ void Load()
         if (TraitCostEntry const* traitCostEntry = sTraitCostStore.LookupEntry(traitTreeXTraitCostEntry->TraitCostID))
             treeCosts[traitTreeXTraitCostEntry->TraitTreeID].push_back(traitCostEntry);
 
-    std::unordered_map<int32, std::vector<TraitTreeXTraitCurrencyEntry const*>> treeCurrencies;
+    std::unordered_map<uint32, std::vector<TraitTreeXTraitCurrencyEntry const*>> treeCurrencies;
     for (TraitTreeXTraitCurrencyEntry const* traitTreeXTraitCurrencyEntry : sTraitTreeXTraitCurrencyStore)
         if (sTraitCurrencyStore.HasRecord(traitTreeXTraitCurrencyEntry->TraitCurrencyID))
             treeCurrencies[traitTreeXTraitCurrencyEntry->TraitTreeID].push_back(traitTreeXTraitCurrencyEntry);
@@ -294,7 +294,7 @@ void Load()
     for (TraitDefinitionEffectPointsEntry const* traitDefinitionEffectPoints : sTraitDefinitionEffectPointsStore)
         _traitDefinitionEffectPointModifiers[traitDefinitionEffectPoints->TraitDefinitionID].push_back(traitDefinitionEffectPoints);
 
-    std::unordered_map<int32, std::vector<TraitTreeLoadoutEntryEntry const*>> traitTreeLoadoutEntries;
+    std::unordered_map<uint32, std::vector<TraitTreeLoadoutEntryEntry const*>> traitTreeLoadoutEntries;
     for (TraitTreeLoadoutEntryEntry const* traitTreeLoadoutEntry : sTraitTreeLoadoutEntryStore)
         traitTreeLoadoutEntries[traitTreeLoadoutEntry->TraitTreeLoadoutID].push_back(traitTreeLoadoutEntry);
 
@@ -302,7 +302,7 @@ void Load()
     {
         if (std::vector<TraitTreeLoadoutEntryEntry const*>* entries = Trinity::Containers::MapGetValuePtr(traitTreeLoadoutEntries, traitTreeLoadout->ID))
         {
-            std::ranges::sort(*entries, std::ranges::less(), &TraitTreeLoadoutEntryEntry::OrderIndex);
+            std::ranges::sort(*entries, {}, & TraitTreeLoadoutEntryEntry::OrderIndex);
             // there should be only one loadout per spec, we take last one encountered
             _traitTreeLoadoutsByChrSpecialization[traitTreeLoadout->ChrSpecializationID] = std::move(*entries);
         }

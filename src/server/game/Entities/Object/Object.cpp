@@ -3490,7 +3490,7 @@ void WorldObject::GetContactPoint(WorldObject const* obj, float& x, float& y, fl
     GetNearPoint(obj, x, y, z, distance2d, GetAbsoluteAngle(obj));
 }
 
-void WorldObject::MovePosition(Position &pos, float dist, float angle) const
+void WorldObject::MovePosition(Position &pos, float dist, float angle, float maxHeightChange /*= 6.0f*/) const
 {
     angle += GetOrientation();
     float destx, desty, destz, ground, floor;
@@ -3514,7 +3514,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle) const
     for (uint8 j = 0; j < 10; ++j)
     {
         // do not allow too big z changes
-        if (std::fabs(pos.m_positionZ - destz) > 6)
+        if (std::fabs(pos.m_positionZ - destz) > maxHeightChange)
         {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);

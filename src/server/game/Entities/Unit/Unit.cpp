@@ -9685,7 +9685,7 @@ void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
         {
             if (effect->GetMiscValue() == power)
             {
-                uint32 effectAmount = effect->GetAmount();
+                int32 effectAmount = effect->GetAmount();
                 uint32 triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
 
                 float oldValueCheck = oldVal;
@@ -13097,37 +13097,6 @@ bool Unit::SetCanFly(bool enable)
     return true;
 }
 
-bool Unit::SetCanAdvFly(bool enable)
-{
-    if (enable == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY))
-        return false;
-
-    if (enable)
-        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY);
-    else
-        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY);
-
-    static OpcodeServer const advFlyOpcodeTable[2] =
-    {
-        SMSG_MOVE_UNSET_CAN_ADV_FLY,
-        SMSG_MOVE_SET_CAN_ADV_FLY
-    };
-
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
-    {
-        WorldPackets::Movement::MoveSetFlag packet(advFlyOpcodeTable[enable]);
-        packet.MoverGUID = GetGUID();
-        packet.SequenceIndex = m_movementCounter++;
-        playerMover->SendDirectMessage(packet.Write());
-
-        WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.Status = &m_movementInfo;
-        SendMessageToSet(moveUpdate.Write(), playerMover);
-    }
-
-    return true;
-}
-
 bool Unit::SetWaterWalking(bool enable)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
@@ -13463,6 +13432,37 @@ bool Unit::SetDisableInertia(bool disable)
     if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
     {
         WorldPackets::Movement::MoveSetFlag packet(disableInertiaOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetCanAdvFly(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY);
+    else
+        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY | MOVEMENTFLAG3_ADV_FLYING);
+
+    static OpcodeServer const advFlyOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_CAN_ADV_FLY,
+        SMSG_MOVE_SET_CAN_ADV_FLY
+    };
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::MoveSetFlag packet(advFlyOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
         packet.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(packet.Write());
@@ -14008,14 +14008,28 @@ void Unit::ClearBossEmotes(Optional<uint32> zoneId, Player const* target) const
             ref.GetSource()->SendDirectMessage(clearBossEmotes.GetRawPacket());
 }
 
-SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag) const
+bool Unit::GetCastSpellInfoContext::AddSpell(uint32 spellId)
 {
-    auto findMatchingAuraEffectIn = [this, spellInfo, &triggerFlag](AuraType type) -> SpellInfo const*
+    auto itr = std::ranges::find(VisitedSpells, spellId);
+    if (itr != VisitedSpells.end())
+        return false; // already exists
+
+    itr = std::ranges::find(VisitedSpells, 0u);
+    if (itr == VisitedSpells.end())
+        return false; // no free slots left
+
+    *itr = spellId;
+    return true;
+}
+
+SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag, GetCastSpellInfoContext* context) const
+{
+    auto findMatchingAuraEffectIn = [this, spellInfo, &triggerFlag, context](AuraType type) -> SpellInfo const*
     {
         for (AuraEffect const* auraEffect : GetAuraEffectsByType(type))
         {
             bool matches = auraEffect->GetMiscValue() ? uint32(auraEffect->GetMiscValue()) == spellInfo->Id : auraEffect->IsAffectingSpell(spellInfo);
-            if (matches)
+            if (matches && context->AddSpell(auraEffect->GetAmount()))
             {
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount(), GetMap()->GetDifficultyID()))
                 {
@@ -14040,13 +14054,13 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastF
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
     {
         triggerFlag &= ~TRIGGERED_IGNORE_CAST_TIME;
-        return GetCastSpellInfo(newInfo, triggerFlag);
+        return GetCastSpellInfo(newInfo, triggerFlag, context);
     }
 
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED))
     {
         triggerFlag |= TRIGGERED_IGNORE_CAST_TIME;
-        return GetCastSpellInfo(newInfo, triggerFlag);
+        return GetCastSpellInfo(newInfo, triggerFlag, context);
     }
 
     return spellInfo;
