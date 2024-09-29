@@ -38,10 +38,6 @@ target_include_directories(proto
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-set_target_properties(proto
-  PROPERTIES
-    DEFINE_SYMBOL TRINITY_API_EXPORT_PROTO)
-
 target_link_libraries(proto
   PRIVATE
     trinity-default-interface
@@ -52,8 +48,9 @@ target_link_libraries(proto
 
 set_target_properties(proto
   PROPERTIES
-    FOLDER
-      "server")
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_PROTO
+    FOLDER "server")
 
 if( BUILD_SHARED_LIBS )
   if( UNIX )

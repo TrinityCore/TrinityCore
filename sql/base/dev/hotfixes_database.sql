@@ -4672,7 +4672,7 @@ DROP TABLE IF EXISTS `item_bonus_tree_node`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_bonus_tree_node` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ItemContext` tinyint unsigned NOT NULL DEFAULT '0',
+  `ItemContext` tinyint NOT NULL DEFAULT '0',
   `ChildItemBonusTreeID` smallint unsigned NOT NULL DEFAULT '0',
   `ChildItemBonusListID` smallint unsigned NOT NULL DEFAULT '0',
   `ChildItemLevelSelectorID` smallint unsigned NOT NULL DEFAULT '0',
@@ -9919,8 +9919,8 @@ DROP TABLE IF EXISTS `trait_sub_tree`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_sub_tree` (
-  `Name` text COLLATE utf8mb4_unicode_ci,
-  `Description` text COLLATE utf8mb4_unicode_ci,
+  `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
   `UiTextureAtlasElementID` int NOT NULL DEFAULT '0',
   `TraitTreeID` int NOT NULL DEFAULT '0',
@@ -9938,9 +9938,9 @@ DROP TABLE IF EXISTS `trait_sub_tree_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_sub_tree_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Name_lang` text COLLATE utf8mb4_unicode_ci,
-  `Description_lang` text COLLATE utf8mb4_unicode_ci,
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Description_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`locale`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -10864,4 +10864,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-03  0:47:48
+-- Dump completed on 2024-09-23 22:48:16
