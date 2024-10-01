@@ -101,7 +101,7 @@ public:
         }
 
         // prepare file with only read permission (boost process opens with read_write)
-        auto inputFile = Trinity::make_unique_ptr_with_deleter(!input_file.empty() ? fopen(input_file.c_str(), "rb") : nullptr, &::fclose);
+        auto inputFile = Trinity::make_unique_ptr_with_deleter<&::fclose>(!input_file.empty() ? fopen(input_file.c_str(), "rb") : nullptr);
 
         std::error_code ec;
 
