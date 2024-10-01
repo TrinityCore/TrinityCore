@@ -4356,13 +4356,15 @@ class spell_item_antivenom : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             // Remove poison effects from the target up to X level
-            if (GetSpellInfo()->MaxLevel >= target->GetLevel())
+            uint32 maxLevel = GetSpellInfo()->MaxLevel;
+
+            target->RemoveAppliedAuras([&maxLevel](AuraApplication const* aurApp) -> bool
             {
-                target->RemoveAppliedAuras([](AuraApplication const* aurApp) -> bool
-                {
-                    return aurApp->GetBase()->GetSpellInfo()->Dispel == DISPEL_POISON;
-                });
-            }
+                Aura const* aura = aurApp->GetBase();
+                bool isPoison = aura->GetSpellInfo()->Dispel == DISPEL_POISON;
+                bool passesLevelCheck = aura->GetCasterLevel() <= maxLevel;
+                return isPoison && passesLevelCheck;
+            });
         }
     }
 
