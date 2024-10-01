@@ -1532,17 +1532,12 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
         return false;
     }
 
-    auto quote = _commodityQuotes.find(player->GetGUID());
-    if (quote == _commodityQuotes.end())
+    auto quote = _commodityQuotes.extract(player->GetGUID());
+    if (!quote)
     {
         player->GetSession()->SendAuctionCommandResult(0, AuctionCommand::PlaceBid, AuctionResult::CommodityPurchaseFailed, delayForNextAction);
         return false;
     }
-
-    std::shared_ptr<std::nullptr_t> removeQuote(nullptr, [this, quote](std::nullptr_t)
-    {
-        _commodityQuotes.erase(quote);
-    });
 
     uint64 totalPrice = 0;
     uint32 remainingQuantity = quantity;
@@ -1575,7 +1570,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
 
     // something was bought between creating quote and finalizing transaction
     // but we allow lower price if new items were posted at lower price
-    if (totalPrice > quote->second.TotalPrice)
+    if (totalPrice > quote.mapped().TotalPrice)
     {
         player->GetSession()->SendAuctionCommandResult(0, AuctionCommand::PlaceBid, AuctionResult::CommodityPurchaseFailed, delayForNextAction);
         return false;
