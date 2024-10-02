@@ -130,6 +130,27 @@ inline bool isBasicLatinCharacter(wchar_t wchar)
     return false;
 }
 
+inline bool isExtendedLatinCharacter(wchar_t wchar)
+{
+    if (isBasicLatinCharacter(wchar))
+        return true;
+    if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+        return true;
+    if (wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
+        return true;
+    if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
+        return true;
+    if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+        return true;
+    if (wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
+        return true;
+    if (wchar >= 0x0100 && wchar <= 0x012F)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK
+        return true;
+    if (wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
+        return true;
+    return false;
+}
+
 inline bool isLatin1Character(wchar_t wchar)
 {
     if (isBasicLatinCharacter(wchar))
@@ -218,10 +239,10 @@ inline bool isBasicLatinString(std::wstring_view wstr, bool numericOrSpace)
     return true;
 }
 
-inline bool isLatin1String(std::wstring_view wstr, bool numericOrSpace)
+inline bool isExtendedLatinString(std::wstring_view wstr, bool numericOrSpace)
 {
     for (wchar_t c : wstr)
-        if (!isLatin1Character(c) && (!numericOrSpace || !isNumericOrSpace(c)))
+        if (!isExtendedLatinCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
