@@ -197,8 +197,8 @@ namespace
             if (caseInsensitive)
                 c = upper_backslash(c);
 
-            seed = (shift + seed) ^ (sstr_hashtable[c >> 4] - sstr_hashtable[c & 0xF]);
-            shift = c + 33 * shift + seed + 3;
+            seed = (sstr_hashtable[c >> 4] - sstr_hashtable[c & 0xF]) ^ (shift + seed);
+            shift = c + seed + 33 * shift + 3;
         }
 
         return seed ? seed : 1;
