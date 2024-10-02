@@ -8760,7 +8760,7 @@ bool isValidString(const std::wstring& wstr, uint32 strictMask, bool numericOrSp
 {
     if (strictMask == 0)                                       // any language, ignore realm
     {
-        if (isExtendedLatinString(wstr, numericOrSpace))
+        if (isLatin1String(wstr, numericOrSpace))
             return true;
         if (isCyrillicString(wstr, numericOrSpace))
             return true;
@@ -8776,7 +8776,7 @@ bool isValidString(const std::wstring& wstr, uint32 strictMask, bool numericOrSp
         EnumFlag<CfgCategoriesCharsets> lt = GetRealmLanguageType(create);
         if (lt == CfgCategoriesCharsets::Any)
             return true;
-        if (lt.HasFlag(CfgCategoriesCharsets::Latin1) && isExtendedLatinString(wstr, numericOrSpace))
+        if (lt.HasFlag(CfgCategoriesCharsets::Latin1) && isLatin1String(wstr, numericOrSpace))
             return true;
         if (lt.HasFlag(CfgCategoriesCharsets::English) && isBasicLatinString(wstr, numericOrSpace))
             return true;
