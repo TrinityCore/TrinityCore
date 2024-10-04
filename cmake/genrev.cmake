@@ -134,6 +134,20 @@ if(WIN32)
   )
   string(STRIP ${TRINITY_BUILD_HOST_SYSTEM_RELEASE} TRINITY_BUILD_HOST_SYSTEM_RELEASE)
   string(REGEX MATCH "[0-9]+[.][0-9]+[.][0-9]+" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
+
+  # Use systeminfo to detect the OS version
+  execute_process(
+    COMMAND systeminfo
+    OUTPUT_VARIABLE SYSTEMINFO_OUTPUT
+  )
+
+  # Extract only the Windows version (e.g., "Windows 10 Enterprise", "Windows 11 Enterprise") from the output
+  string(REGEX MATCH "Windows [0-9\\.]+[ ]*[A-Za-z]*" TRINITY_BUILD_HOST_SYSTEM ${SYSTEMINFO_OUTPUT})
+
+  # If no match was found, set a default value
+  if(NOT TRINITY_BUILD_HOST_SYSTEM)
+    set(TRINITY_BUILD_HOST_SYSTEM "Windows")
+  endif()
 endif()
 
 if(CMAKE_SCRIPT_MODE_FILE)
