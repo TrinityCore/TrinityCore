@@ -135,14 +135,15 @@ if(WIN32)
   string(STRIP ${TRINITY_BUILD_HOST_SYSTEM_RELEASE} TRINITY_BUILD_HOST_SYSTEM_RELEASE)
   string(REGEX MATCH "[0-9]+[.][0-9]+[.][0-9]+" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
 
-  # Use systeminfo to detect the OS version
+  # Use PowerShell to detect the Windows version
   execute_process(
-    COMMAND systeminfo
-    OUTPUT_VARIABLE SYSTEMINFO_OUTPUT
+    COMMAND powershell -NoProfile -Command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"
+    OUTPUT_VARIABLE RAW_WINDOWS_NAME
+    OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
   # Extract only the Windows version (e.g., "Windows 10 Enterprise", "Windows 11 Enterprise") from the output
-  string(REGEX MATCH "Windows [0-9\\.]+[ ]*[A-Za-z]*" TRINITY_BUILD_HOST_SYSTEM ${SYSTEMINFO_OUTPUT})
+  string(REGEX REPLACE "Microsoft " "" SKYFIRE_BUILD_HOST_SYSTEM ${RAW_WINDOWS_NAME})
 
   # If no match was found, set a default value
   if(NOT TRINITY_BUILD_HOST_SYSTEM)
