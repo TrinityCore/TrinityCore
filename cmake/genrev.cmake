@@ -138,17 +138,15 @@ if(WIN32)
   # Use PowerShell to detect the Windows version
   execute_process(
     COMMAND powershell -NoProfile -Command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"
-    OUTPUT_VARIABLE RAW_WINDOWS_NAME
+    OUTPUT_VARIABLE TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
-  # Extract only the Windows version (e.g., "Windows 10 Enterprise", "Windows 11 Enterprise") from the output
-  string(REGEX REPLACE "Microsoft " "" TRINITY_BUILD_HOST_SYSTEM ${RAW_WINDOWS_NAME})
+  # Remove "Microsoft Windows" from the result
+  string(REPLACE "Microsoft Windows " "" TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME ${TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME})
 
-  # If no match was found, set a default value
-  if(NOT TRINITY_BUILD_HOST_SYSTEM)
-    set(TRINITY_BUILD_HOST_SYSTEM "Windows")
-  endif()
+  # Combine both version name and version number
+  set(TRINITY_BUILD_HOST_SYSTEM_RELEASE "${TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME} (${TRINITY_BUILD_HOST_SYSTEM_RELEASE})")
 endif()
 
 if(CMAKE_SCRIPT_MODE_FILE)
