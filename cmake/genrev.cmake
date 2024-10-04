@@ -143,7 +143,7 @@ if(WIN32)
   )
 
   # Extract only the Windows version (e.g., "Windows 10 Enterprise", "Windows 11 Enterprise") from the output
-  string(REGEX REPLACE "Microsoft " "" SKYFIRE_BUILD_HOST_SYSTEM ${RAW_WINDOWS_NAME})
+  string(REGEX REPLACE "Microsoft " "" TRINITY_BUILD_HOST_SYSTEM ${RAW_WINDOWS_NAME})
 
   # If no match was found, set a default value
   if(NOT TRINITY_BUILD_HOST_SYSTEM)
