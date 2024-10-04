@@ -126,14 +126,15 @@ cmake_host_system_information(RESULT TRINITY_BUILD_HOST_SYSTEM QUERY OS_NAME)
 cmake_host_system_information(RESULT TRINITY_BUILD_HOST_DISTRO QUERY DISTRIB_INFO)
 cmake_host_system_information(RESULT TRINITY_BUILD_HOST_SYSTEM_RELEASE QUERY OS_RELEASE)
 # on windows OS_RELEASE contains sub-type string tag like "Professional" instead of a version number and OS_VERSION has only build number
-# so we grab that from cmd "ver" command
+# so we grab that with Get-CimInstance powershell cmdlet
 if(WIN32)
   execute_process(
-    COMMAND cmd /c ver
+    COMMAND powershell -NoProfile -Command "$v=(Get-CimInstance -ClassName Win32_OperatingSystem); '{0} ({1})' -f $v.Caption, $v.Version"
     OUTPUT_VARIABLE TRINITY_BUILD_HOST_SYSTEM_RELEASE
+	OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  string(STRIP ${TRINITY_BUILD_HOST_SYSTEM_RELEASE} TRINITY_BUILD_HOST_SYSTEM_RELEASE)
-  string(REGEX MATCH "[0-9]+[.][0-9]+[.][0-9]+" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
+  # Remove "Microsoft Windows" from the result
+  string(REPLACE "Microsoft Windows " "" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
 endif()
 
 if(CMAKE_SCRIPT_MODE_FILE)
