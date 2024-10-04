@@ -129,24 +129,12 @@ cmake_host_system_information(RESULT TRINITY_BUILD_HOST_SYSTEM_RELEASE QUERY OS_
 # so we grab that from cmd "ver" command
 if(WIN32)
   execute_process(
-    COMMAND cmd /c ver
+    COMMAND powershell -NoProfile -Command "$v=(Get-CimInstance -ClassName Win32_OperatingSystem); '{0} ({1})' -f $v.Caption, $v.Version"
     OUTPUT_VARIABLE TRINITY_BUILD_HOST_SYSTEM_RELEASE
   )
   string(STRIP ${TRINITY_BUILD_HOST_SYSTEM_RELEASE} TRINITY_BUILD_HOST_SYSTEM_RELEASE)
-  string(REGEX MATCH "[0-9]+[.][0-9]+[.][0-9]+" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
-
-  # Use PowerShell to detect the Windows version
-  execute_process(
-    COMMAND powershell -NoProfile -Command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"
-    OUTPUT_VARIABLE TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
   # Remove "Microsoft Windows" from the result
-  string(REPLACE "Microsoft Windows " "" TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME ${TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME})
-
-  # Combine both version name and version number
-  set(TRINITY_BUILD_HOST_SYSTEM_RELEASE "${TRINITY_BUILD_HOST_SYSTEM_VERSION_NAME} (${TRINITY_BUILD_HOST_SYSTEM_RELEASE})")
+  string(REPLACE "Microsoft Windows " "" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
 endif()
 
 if(CMAKE_SCRIPT_MODE_FILE)
