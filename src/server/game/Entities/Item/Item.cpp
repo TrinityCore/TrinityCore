@@ -2326,15 +2326,40 @@ float Item::GetItemStatValue(uint32 index, Player const* owner) const
     return 0.0f;
 }
 
-ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
+Optional<uint32> Item::GetDisenchantLootId() const
 {
     if (!_bonusData.CanDisenchant)
-        return nullptr;
+        return {};
 
-    return Item::GetDisenchantLoot(GetTemplate(), GetQuality(), GetItemLevel(owner));
+    if (_bonusData.DisenchantLootId)
+        return _bonusData.DisenchantLootId;
+
+    // ignore temporary item level scaling (pvp or timewalking)
+    uint32 itemLevel = GetItemLevel(GetTemplate(), _bonusData, _bonusData.RequiredLevel, GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL), 0, 0, 0, false, 0);
+
+    ItemDisenchantLootEntry const* disenchantLoot = GetBaseDisenchantLoot(GetTemplate(), GetQuality(), itemLevel);
+    if (!disenchantLoot)
+        return {};
+
+    return disenchantLoot->ID;
 }
 
-ItemDisenchantLootEntry const* Item::GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel)
+Optional<uint16> Item::GetDisenchantSkillRequired() const
+{
+    if (!_bonusData.CanDisenchant)
+        return {};
+
+    // ignore temporary item level scaling (pvp or timewalking)
+    uint32 itemLevel = GetItemLevel(GetTemplate(), _bonusData, _bonusData.RequiredLevel, GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL), 0, 0, 0, false, 0);
+
+    ItemDisenchantLootEntry const* disenchantLoot = GetBaseDisenchantLoot(GetTemplate(), GetQuality(), itemLevel);
+    if (!disenchantLoot)
+        return {};
+
+    return disenchantLoot->SkillRequired;
+}
+
+ItemDisenchantLootEntry const* Item::GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel)
 {
     if (itemTemplate->HasFlag(ITEM_FLAG_CONJURED) || itemTemplate->HasFlag(ITEM_FLAG_NO_DISENCHANT) || itemTemplate->GetBonding() == BIND_QUEST)
         return nullptr;
@@ -2802,13 +2827,11 @@ void BonusData::Initialize(ItemTemplate const* proto)
     ItemLevelBonus = 0;
     RequiredLevel = proto->GetBaseRequiredLevel();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+    {
         ItemStatType[i] = proto->GetStatModifierBonusStat(i);
-
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         StatPercentEditor[i] = proto->GetStatPercentEditor(i);
-
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatSocketCostMultiplier[i] = proto->GetStatPercentageOfSocket(i);
+    }
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
     {
@@ -2824,6 +2847,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
     RepairCostMultiplier = 1.0f;
     ContentTuningId = proto->GetScalingStatContentTuning();
     PlayerLevelToItemLevelCurveId = proto->GetPlayerLevelToItemLevelCurveId();
+    DisenchantLootId = 0;
     RelicType = -1;
     HasFixedLevel = false;
     RequiredLevelOverride = 0;
@@ -2846,6 +2870,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
 
     _state.SuffixPriority = std::numeric_limits<int32>::max();
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
+    _state.DisenchantLootPriority = std::numeric_limits<int32>::max();
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
     _state.AzeriteTierUnlockSetPriority = std::numeric_limits<int32>::max();
     _state.RequiredLevelCurvePriority = std::numeric_limits<int32>::max();
@@ -2942,6 +2967,13 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
                 PlayerLevelToItemLevelCurveId = static_cast<uint32>(values[3]);
                 _state.ScalingStatDistributionPriority = values[1];
                 HasFixedLevel = type == ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED;
+            }
+            break;
+        case ITEM_BONUS_DISENCHANT_LOOT_ID:
+            if (values[1] < _state.DisenchantLootPriority)
+            {
+                DisenchantLootId = values[0];
+                _state.DisenchantLootPriority = values[1];
             }
             break;
         case ITEM_BONUS_BONDING:
