@@ -1158,8 +1158,9 @@ enum class ZonePVPTypeOverride : uint32
 struct TeleportLocation
 {
     WorldLocation Location;
-    Optional<uint32> InstanceId;
     Optional<ObjectGuid> TransportGuid;
+    Optional<uint32> InstanceId;
+    Optional<uint32> LfgDungeonsId;
 };
 
 class TC_GAME_API Player final : public Unit, public GridObject<Player>
