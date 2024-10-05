@@ -1427,7 +1427,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
 
         player->FinishTaxiFlight();
 
-        if (!player->TeleportTo(mapid, x, y, z, orientation))
+        if (!player->TeleportTo({ .Location = WorldLocation(mapid, x, y, z, orientation), .LfgDungeonsId = dungeon->id }))
             error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;
     }
     else
