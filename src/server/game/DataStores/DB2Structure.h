@@ -1684,7 +1684,7 @@ struct FlightCapabilityEntry
     uint32 ID;
     float AirFriction;
     float MaxVel;
-    float Field_10_0_0_44167_002;
+    float Unknown1000_2;
     float DoubleJumpVelMod;
     float LiftCoefficient;
     float GlideStartMinHeight;
@@ -1699,11 +1699,11 @@ struct FlightCapabilityEntry
     float TurnVelocityThresholdMax;
     float SurfaceFriction;
     float OverMaxDeceleration;
-    float Field_10_0_0_45232_017;
-    float Field_10_0_0_45232_018;
-    float Field_10_0_0_45232_019;
-    float Field_10_0_0_45232_020;
-    float Field_10_0_0_45232_021;
+    float Unknown1000_17;
+    float Unknown1000_18;
+    float Unknown1000_19;
+    float Unknown1000_20;
+    float Unknown1000_21;
     float LaunchSpeedCoefficient;
     float VigorRegenMaxVelCoefficient;
     int32 SpellID;

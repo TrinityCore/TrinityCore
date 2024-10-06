@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    auto protobufHandle = Trinity::make_unique_ptr_with_deleter(&dummy, [](void*) { google::protobuf::ShutdownProtobufLibrary(); });
+    auto protobufHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { google::protobuf::ShutdownProtobufLibrary(); }>(&dummy);
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     Trinity::Service::Init(serviceLongName, serviceName, serviceDescription, &main, &m_ServiceStatus);
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
 
     OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
 
-    auto opensslHandle = Trinity::make_unique_ptr_with_deleter(&dummy, [](void*) { OpenSSLCrypto::threadsCleanup(); });
+    auto opensslHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { OpenSSLCrypto::threadsCleanup(); }>(&dummy);
 
     // bnetserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
-    auto dbHandle = Trinity::make_unique_ptr_with_deleter(&dummy, [](void*) { StopDB(); });
+    auto dbHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { StopDB(); }>(&dummy);
 
     if (vm.count("update-databases-only"))
         return 0;
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    auto sLoginServiceHandle = Trinity::make_unique_ptr_with_deleter(&sLoginService, [](Battlenet::LoginRESTService* service) { service->StopNetwork(); });
+    auto sLoginServiceHandle = Trinity::make_unique_ptr_with_deleter<&Battlenet::LoginRESTService::StopNetwork>(&sLoginService);
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
@@ -232,7 +232,7 @@ int main(int argc, char** argv)
     // Get the list of realms for the server
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
-    auto sRealmListHandle = Trinity::make_unique_ptr_with_deleter(sRealmList, [](RealmList* realmList) { realmList->Close(); });
+    auto sRealmListHandle = Trinity::make_unique_ptr_with_deleter<&RealmList::Close>(sRealmList);
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
@@ -242,7 +242,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    auto sSessionMgrHandle = Trinity::make_unique_ptr_with_deleter(&sSessionMgr, [](Battlenet::SessionManager* sessMgr) { sessMgr->StopNetwork(); });
+    auto sSessionMgrHandle = Trinity::make_unique_ptr_with_deleter<&Battlenet::SessionManager::StopNetwork>(&sSessionMgr);
 
     // Set signal handlers
     boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);

@@ -1881,7 +1881,7 @@ DROP TABLE IF EXISTS `characters`;
 CREATE TABLE `characters` (
   `guid` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `account` int unsigned NOT NULL DEFAULT '0' COMMENT 'Account Identifier',
-  `name` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `name` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `slot` tinyint unsigned NOT NULL DEFAULT '0',
   `race` tinyint unsigned NOT NULL DEFAULT '0',
   `class` tinyint unsigned NOT NULL DEFAULT '0',
@@ -1980,9 +1980,9 @@ CREATE TABLE `characters` (
   `personalTabardBorderColor` int NOT NULL DEFAULT '-1',
   `personalTabardBackgroundColor` int NOT NULL DEFAULT '-1',
   PRIMARY KEY (`guid`),
+  UNIQUE KEY `idx_name` (`name`),
   KEY `idx_account` (`account`),
-  KEY `idx_online` (`online`),
-  KEY `idx_name` (`name`)
+  KEY `idx_online` (`online`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3748,7 +3748,8 @@ INSERT INTO `updates` VALUES
 ('2024_08_05_00_characters.sql','7E4AE28F9EC370A1B22DBD8DD718EE027A321F33','ARCHIVED','2024-08-05 11:19:40',0),
 ('2024_08_26_00_characters.sql','68EEBE1D639D59B24F5121008C2D103CA67FFC9A','ARCHIVED','2024-08-26 00:49:08',0),
 ('2024_09_03_00_characters.sql','71ECC73A3F324EB64DA19B0CC4DF72A85E022BDC','ARCHIVED','2024-09-03 00:47:42',0),
-('2024_09_23_00_characters.sql','D8491BCEE728F40D55D47E3A4BC5A5F083EBD02E','ARCHIVED','2024-09-23 22:48:10',0);
+('2024_09_23_00_characters.sql','D8491BCEE728F40D55D47E3A4BC5A5F083EBD02E','ARCHIVED','2024-09-23 22:48:10',0),
+('2024_10_03_00_characters.sql','408249A6992999A36EB94089D184972E8E0767A3','RELEASED','2024-10-03 11:10:18',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

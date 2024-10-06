@@ -6,6 +6,7 @@
 #include "WheatyExceptionReport.h"
 #include "Errors.h"
 #include "GitRevision.h"
+#include "Memory.h"
 #include <stdexcept>
 #include <algorithm>
 #include <utility>
@@ -411,6 +412,12 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
     return TRUE;
 }
 
+template <std::derived_from<IUnknown> T>
+using com_unique_ptr_deleter = decltype(Trinity::unique_ptr_deleter<T*, [](T* ptr) { ptr->Release(); }>());
+
+template <std::derived_from<IUnknown> T>
+using com_unique_ptr = std::unique_ptr<T, com_unique_ptr_deleter<T>>;
+
 BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cntMax)
 {
     // Step 1: --------------------------------------------------
@@ -419,10 +426,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     if (FAILED(hres))
         return FALSE;
 
-    std::shared_ptr<void> com(nullptr, [](void*)
-    {
-        CoUninitialize();
-    });
+    auto com = Trinity::make_unique_ptr_with_deleter<[](void*) { CoUninitialize(); }>(&hres);
 
     // Step 2: --------------------------------------------------
     // Set general COM security levels --------------------------
@@ -443,7 +447,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
 
     // Step 3: ---------------------------------------------------
     // Obtain the initial locator to WMI -------------------------
-    std::shared_ptr<IWbemLocator> loc = []() -> std::shared_ptr<IWbemLocator>
+    com_unique_ptr<IWbemLocator> loc([]
     {
         IWbemLocator* tmp = nullptr;
         HRESULT hres = CoCreateInstance(
@@ -453,11 +457,8 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
             IID_IWbemLocator,
             reinterpret_cast<LPVOID*>(&tmp));
 
-        if (FAILED(hres))
-            return nullptr;
-
-        return { tmp, [](IWbemLocator* ptr) { if (ptr) ptr->Release(); } };
-    }();
+        return SUCCEEDED(hres) ? tmp : nullptr;
+    }());
 
     if (!loc)
         return FALSE;
@@ -466,7 +467,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     // Connect to the root\cimv2 namespace with
     // the current user and obtain pointer pSvc
     // to make IWbemServices calls.
-    std::shared_ptr<IWbemServices> svc = [loc]() ->std::shared_ptr<IWbemServices>
+    com_unique_ptr<IWbemServices> svc([&]
     {
         IWbemServices* tmp = nullptr;
         HRESULT hres = loc->ConnectServer(
@@ -480,11 +481,8 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
             &tmp                            // pointer to IWbemServices proxy
         );
 
-        if (FAILED(hres))
-            return nullptr;
-
-        return { tmp, [](IWbemServices* ptr) { if (ptr) ptr->Release(); } };
-    }();
+        return SUCCEEDED(hres) ? tmp : nullptr;
+    }());
 
     if (!svc)
         return FALSE;
@@ -509,7 +507,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     // Use the IWbemServices pointer to make requests of WMI ----
 
     // For example, get the name of the operating system
-    std::shared_ptr<IEnumWbemClassObject> queryResult = [svc]() -> std::shared_ptr<IEnumWbemClassObject>
+    com_unique_ptr<IEnumWbemClassObject> queryResult([&]
     {
         IEnumWbemClassObject* tmp = nullptr;
         HRESULT hres = svc->ExecQuery(
@@ -519,11 +517,8 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
             nullptr,
             &tmp);
 
-        if (FAILED(hres))
-            return nullptr;
-
-        return { tmp, [](IEnumWbemClassObject* ptr) { if (ptr) ptr->Release(); } };
-    }();
+        return SUCCEEDED(hres) ? tmp : nullptr;
+    }());
 
     BOOL result = FALSE;
     // Step 7: -------------------------------------------------
@@ -532,11 +527,17 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     {
         do
         {
-            IWbemClassObject* fields = nullptr;
+            auto [fields, rows] = [&]
+            {
+                IWbemClassObject* fields = nullptr;
+                ULONG rows = 0;
+                HRESULT hres = queryResult->Next(WBEM_INFINITE, 1, &fields, &rows);
+                return SUCCEEDED(hres) && rows
+                    ? std::pair(com_unique_ptr<IWbemClassObject>(fields), rows)
+                    : std::pair(com_unique_ptr<IWbemClassObject>(), ULONG(0));
+            }();
 
-            ULONG rows = 0;
-            queryResult->Next(WBEM_INFINITE, 1, &fields, &rows);
-            if (!rows)
+            if (!fields || !rows)
                 break;
 
             VARIANT field;
@@ -557,8 +558,6 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
                     _tcsncat(szVersion, buf, cntMax);
             }
             VariantClear(&field);
-
-            fields->Release();
 
             result = TRUE;
         } while (true);

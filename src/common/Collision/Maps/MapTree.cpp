@@ -196,11 +196,11 @@ namespace VMAP
 
     struct TileFileOpenResult
     {
-        using FileHandle = decltype(Trinity::make_unique_ptr_with_deleter<FILE>(nullptr, &::fclose));
+        using FileDeleter = decltype(Trinity::unique_ptr_deleter<FILE*, &::fclose>());
 
         std::string Name;
-        FileHandle TileFile = { nullptr, &::fclose };
-        FileHandle SpawnIndicesFile = { nullptr, &::fclose };
+        std::unique_ptr<FILE, FileDeleter> TileFile;
+        std::unique_ptr<FILE, FileDeleter> SpawnIndicesFile;
         int32 UsedMapId;
 
         explicit operator bool() const { return TileFile && SpawnIndicesFile; }
@@ -239,7 +239,7 @@ namespace VMAP
             basePath.push_back('/');
         std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
 
-        auto rf = Trinity::make_unique_ptr_with_deleter(fopen(fullname.c_str(), "rb"), &::fclose);
+        auto rf = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fullname.c_str(), "rb"));
         if (!rf)
             return LoadResult::FileNotFound;
 
@@ -263,7 +263,7 @@ namespace VMAP
     {
         TC_LOG_DEBUG("maps", "StaticMapTree::InitMap() : initializing StaticMapTree '{}'", fname);
         std::string fullname = iBasePath + fname;
-        auto rf = Trinity::make_unique_ptr_with_deleter(fopen(fullname.c_str(), "rb"), &::fclose);
+        auto rf = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fullname.c_str(), "rb"));
         if (!rf)
             return LoadResult::FileNotFound;
 
