@@ -1376,6 +1376,54 @@ bool AreaTrigger::IsNeverVisibleFor(WorldObject const* seer, bool allowServersid
     return false;
 }
 
+void AreaTrigger::DoAction(AreaTriggerActions action, Unit* /*triggeringUnit*/, AreaTriggerActionParam const& /*param*/)
+{
+    switch (action)
+    {
+        case AreaTriggerActions::CastSpell:
+        case AreaTriggerActions::CastSpellOnAreaTriggerCreator:
+        case AreaTriggerActions::AreaTriggerCreatorCastSpell:
+        case AreaTriggerActions::CancelAura:
+        case AreaTriggerActions::SendGameEvent:
+        case AreaTriggerActions::StartQuest:
+        case AreaTriggerActions::RunRandomActionSet:
+        case AreaTriggerActions::Teleport:
+        case AreaTriggerActions::Deprecated:
+        case AreaTriggerActions::ActivateGameObject:
+        case AreaTriggerActions::StartResting:
+        case AreaTriggerActions::StopResting:
+        case AreaTriggerActions::DiscoverArea:
+        case AreaTriggerActions::DeathRegion:
+        case AreaTriggerActions::DespawnAreaTrigger:
+        case AreaTriggerActions::AddMovementForce:
+        case AreaTriggerActions::RemoveMovementForce:
+        case AreaTriggerActions::AreaTriggerCreatorCancelsAuraOnTriggeringUnit:
+        case AreaTriggerActions::RunScript:
+        case AreaTriggerActions::CaptureFlag:
+        case AreaTriggerActions::SetScale:
+        case AreaTriggerActions::IncrementScale:
+        case AreaTriggerActions::DecrementScale:
+        case AreaTriggerActions::SeamlessWarmup:
+        case AreaTriggerActions::SeamlessTransfer:
+        case AreaTriggerActions::KillCredit:
+        case AreaTriggerActions::KillCreditToPlayerOnly:
+        case AreaTriggerActions::CancelAuraOneApplication:
+        case AreaTriggerActions::AreaTriggerCreatorCancelsAuraOnTriggeringUnitOneApplication:
+        case AreaTriggerActions::ApplyAuraAndKeepRetrying:
+        case AreaTriggerActions::CreatorApplyAuraAndKeepRetrying:
+        case AreaTriggerActions::ConversationBegin:
+        case AreaTriggerActions::AnimationSetForSpellVisual:
+        case AreaTriggerActions::AnimationSetForSpellVisualAllowDecay:
+        case AreaTriggerActions::AnimationClearForSpellVisual:
+        case AreaTriggerActions::AllowGhostInInstance:
+        case AreaTriggerActions::DissalowGhostInInstance:
+        case AreaTriggerActions::SendGeneralTrigger:
+        default:
+            TC_LOG_WARN("entities.areatrigger", "AreaTrigger {} tried to execute unsupported action {}", GetEntry(), AsUnderlyingType(action));
+            break;
+    }
+}
+
 void AreaTrigger::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
