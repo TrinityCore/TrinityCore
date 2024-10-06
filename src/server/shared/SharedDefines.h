@@ -2766,6 +2766,13 @@ enum CreatureEliteType
     CREATURE_ELITE_TRIVIAL         = 5                      // found in 2.2.3 for 2 mobs
 };
 
+enum class StringIdType : int32
+{
+    Template    = 0,
+    Spawn       = 1,
+    Script      = 2
+};
+
 // values based at Holidays.dbc
 enum HolidayIds
 {

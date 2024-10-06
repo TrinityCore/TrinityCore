@@ -374,21 +374,14 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             return;
         amount = 0.0f;
     }
-    else if (TempSummon* tempSummonVictim = target->ToTempSummon())
+
+    // If victim is personal spawn, redirect all aggro to summoner
+    if (target->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(target)))
     {
-        if (tempSummonVictim->IsVisibleBySummonerOnly())
+        if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
         {
-            if (Unit* tempSummonSummoner = tempSummonVictim->GetSummonerUnit())
-            {
-                // Personnal Spawns from same summoner can aggro each other
-                if (!_owner->ToTempSummon() ||
-                    !_owner->ToTempSummon()->IsVisibleBySummonerOnly() ||
-                    tempSummonVictim->GetSummonerGUID() != GetOwner()->ToTempSummon()->GetSummonerGUID())
-                {
-                    AddThreat(tempSummonSummoner, amount, spell, ignoreModifiers, ignoreRedirects);
-                    amount = 0.0f;
-                }
-            }
+            AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
+            amount = 0.0f;
         }
     }
 
