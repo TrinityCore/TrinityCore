@@ -4286,49 +4286,64 @@ class spell_item_eggnog : public SpellScript
     }
 };
 
-// 60476 - Toss Your Luck!
-enum TossYourLuckBroadcastTexts
+// Titanium Seal of Dalaran
+enum TossYourLuckData
 {
     TEXT_COIN_TOSS = 32638,
     TEXT_FLIPPED_HEADS = 32663,
-    TEXT_FLIPPED_TAILS = 32664
+    TEXT_FLIPPED_TAILS = 32664,
+    SPELL_TOSS_YOUR_LUCK_CATCH = 60476
 };
 
-class CoinTossEvent : public BasicEvent
+// 60458 - Toss Your Luck!
+class spell_item_titanium_seal_of_dalaran_toss : public SpellScript
 {
-public:
-    CoinTossEvent(Unit* caster) : _caster(caster) { }
-
-    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
-    {
-        if (_caster->IsAlive())
-            _caster->TextEmote(RAND(TEXT_FLIPPED_HEADS, TEXT_FLIPPED_TAILS), _caster);
-        return true;
-    }
-
-private:
-    Unit* _caster;
-};
-
-class spell_item_titanium_seal_of_dalaran : public SpellScript
-{
-    PrepareSpellScript(spell_item_titanium_seal_of_dalaran);
+    PrepareSpellScript(spell_item_titanium_seal_of_dalaran_toss);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return sObjectMgr->GetBroadcastText(TEXT_COIN_TOSS) && sObjectMgr->GetBroadcastText(TEXT_FLIPPED_HEADS) && sObjectMgr->GetBroadcastText(TEXT_FLIPPED_TAILS);
+        return ValidateSpellInfo({ SPELL_TOSS_YOUR_LUCK_CATCH }) && sObjectMgr->GetBroadcastText(TEXT_COIN_TOSS);
     }
 
-    void HandleScript(SpellEffIndex /*effIndex*/)
+    void RelocateHeight(SpellDestination& dest)
+    {
+        Position coinDest = GetCaster()->GetPosition();
+        coinDest.m_positionZ += 20.0f;
+        dest.Relocate(coinDest);
+    }
+
+    void TriggerEmote(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         caster->TextEmote(TEXT_COIN_TOSS, caster);
-        caster->m_Events.AddEventAtOffset(new CoinTossEvent(caster), 2s);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_item_titanium_seal_of_dalaran::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_item_titanium_seal_of_dalaran_toss::RelocateHeight, EFFECT_0, TARGET_DEST_CASTER);
+        OnEffectLaunch += SpellEffectFn(spell_item_titanium_seal_of_dalaran_toss::TriggerEmote, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
+};
+
+// 60476 - Toss Your Luck!
+class spell_item_titanium_seal_of_dalaran_catch : public SpellScript
+{
+    PrepareSpellScript(spell_item_titanium_seal_of_dalaran_catch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_FLIPPED_HEADS) && sObjectMgr->GetBroadcastText(TEXT_FLIPPED_TAILS);
+    }
+
+    void TriggerEmote(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->TextEmote(RAND(TEXT_FLIPPED_HEADS, TEXT_FLIPPED_TAILS), caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_titanium_seal_of_dalaran_catch::TriggerEmote, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -4467,5 +4482,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_mad_alchemists_potion);
     RegisterSpellScript(spell_item_crazy_alchemists_potion);
     RegisterSpellScript(spell_item_eggnog);
-    RegisterSpellScript(spell_item_titanium_seal_of_dalaran);
+    RegisterSpellScript(spell_item_titanium_seal_of_dalaran_toss);
+    RegisterSpellScript(spell_item_titanium_seal_of_dalaran_catch);
 }
