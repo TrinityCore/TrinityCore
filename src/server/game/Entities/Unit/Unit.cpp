@@ -12221,18 +12221,28 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
     SpellInfo const* spellEntry = sSpellMgr->AssertSpellInfo(spellId, caster->GetMap()->GetDifficultyID());
 
     uint8 effectIndex = 0;
+    bool hasControlVehicleAura = false;
     for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())
     {
-        if (spellEffectInfo.ApplyAuraName != SPELL_AURA_CONTROL_VEHICLE)
+        if (spellEffectInfo.ApplyAuraName == SPELL_AURA_CONTROL_VEHICLE)
         {
-            TC_LOG_ERROR("sql.sql", "Spell {} specified in npc_spellclick_spells is not a valid vehicle enter aura!", spellId);
-            return;
+            hasControlVehicleAura = true;
+            break;
         }
         ++effectIndex;
     }
 
     if (seatId > -1)
     {
+        if (!hasControlVehicleAura)
+        {
+            if (!spellClickInfo)
+                TC_LOG_ERROR("sql.sql", "RideSpell {} specified in vehicle_accessory or vehicle_template_accessory is not a valid vehicle enter aura!", spellId);
+            else
+                TC_LOG_ERROR("sql.sql", "Spell {} specified in npc_spellclick_spells is not a valid vehicle enter aura!", spellId);
+            return;
+        }
+
         if (IsInMap(caster))
         {
             CastSpellExtraArgs args(flags);
