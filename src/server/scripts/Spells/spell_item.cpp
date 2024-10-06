@@ -4287,12 +4287,11 @@ class spell_item_eggnog : public SpellScript
 };
 
 // Titanium Seal of Dalaran
-enum TossYourLuckData
+enum TitaniumSealOfDalaranTexts
 {
-    TEXT_COIN_TOSS = 32638,
-    TEXT_FLIPPED_HEADS = 32663,
-    TEXT_FLIPPED_TAILS = 32664,
-    SPELL_TOSS_YOUR_LUCK_CATCH = 60476
+    TEXT_TSOD_COIN_TOSS     = 32638,
+    TEXT_TSOD_FLIPPED_HEADS = 32663,
+    TEXT_TSOD_FLIPPED_TAILS = 32664
 };
 
 // 60458 - Toss Your Luck!
@@ -4302,20 +4301,18 @@ class spell_item_titanium_seal_of_dalaran_toss : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_TOSS_YOUR_LUCK_CATCH }) && sObjectMgr->GetBroadcastText(TEXT_COIN_TOSS);
+        return sObjectMgr->GetBroadcastText(TEXT_TSOD_COIN_TOSS);
     }
 
     void RelocateHeight(SpellDestination& dest)
     {
-        Position coinDest = GetCaster()->GetPosition();
-        coinDest.m_positionZ += 20.0f;
-        dest.Relocate(coinDest);
+        dest.RelocateOffset({ 0.0f, 0.0f, 20.0f });
     }
 
     void TriggerEmote(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->TextEmote(TEXT_COIN_TOSS, caster);
+        caster->TextEmote(TEXT_TSOD_COIN_TOSS, caster);
     }
 
     void Register() override
@@ -4332,13 +4329,13 @@ class spell_item_titanium_seal_of_dalaran_catch : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return sObjectMgr->GetBroadcastText(TEXT_FLIPPED_HEADS) && sObjectMgr->GetBroadcastText(TEXT_FLIPPED_TAILS);
+        return sObjectMgr->GetBroadcastText(TEXT_TSOD_FLIPPED_HEADS) && sObjectMgr->GetBroadcastText(TEXT_TSOD_FLIPPED_TAILS);
     }
 
     void TriggerEmote(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->TextEmote(RAND(TEXT_FLIPPED_HEADS, TEXT_FLIPPED_TAILS), caster);
+        caster->TextEmote(RAND(TEXT_TSOD_FLIPPED_HEADS, TEXT_TSOD_FLIPPED_TAILS), caster);
     }
 
     void Register() override
