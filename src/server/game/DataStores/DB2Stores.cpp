@@ -141,6 +141,7 @@ DB2Storage<ExpectedStatEntry>                   sExpectedStatStore("ExpectedStat
 DB2Storage<ExpectedStatModEntry>                sExpectedStatModStore("ExpectedStatMod.db2", &ExpectedStatModLoadInfo::Instance);
 DB2Storage<FactionEntry>                        sFactionStore("Faction.db2", &FactionLoadInfo::Instance);
 DB2Storage<FactionTemplateEntry>                sFactionTemplateStore("FactionTemplate.db2", &FactionTemplateLoadInfo::Instance);
+DB2Storage<FlightCapabilityEntry>               sFlightCapabilityStore("FlightCapability.db2", &FlightCapabilityLoadInfo::Instance);
 DB2Storage<FriendshipRepReactionEntry>          sFriendshipRepReactionStore("FriendshipRepReaction.db2", &FriendshipRepReactionLoadInfo::Instance);
 DB2Storage<FriendshipReputationEntry>           sFriendshipReputationStore("FriendshipReputation.db2", &FriendshipReputationLoadInfo::Instance);
 DB2Storage<GameObjectArtKitEntry>               sGameObjectArtKitStore("GameObjectArtKit.db2", &GameobjectArtKitLoadInfo::Instance);
@@ -460,7 +461,7 @@ namespace
     std::array<AzeriteItemMilestonePowerEntry const*, MAX_AZERITE_ESSENCE_SLOT> _azeriteItemMilestonePowerByEssenceSlot;
     std::unordered_map<uint32 /*azeritePowerSetId*/, std::vector<AzeritePowerSetMemberEntry const*>> _azeritePowers;
     std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
-    std::unordered_map<std::pair<int32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
+    std::unordered_map<std::pair<uint32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
     std::unordered_map<std::pair<uint8, uint8>, CharBaseInfoEntry const*> _charBaseInfoByRaceAndClass;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
@@ -753,6 +754,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sExpectedStatModStore);
     LOAD_DB2(sFactionStore);
     LOAD_DB2(sFactionTemplateStore);
+    LOAD_DB2(sFlightCapabilityStore);
     LOAD_DB2(sFriendshipRepReactionStore);
     LOAD_DB2(sFriendshipReputationStore);
     LOAD_DB2(sGameObjectsStore);
@@ -1011,13 +1013,14 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(15151) ||               // last area added in 10.2.5 (53007)
-        !sCharTitlesStore.LookupEntry(805) ||                // last char title added in 10.2.5 (53007)
-        !sGemPropertiesStore.LookupEntry(4081) ||            // last gem property added in 10.2.5 (53007)
-        !sItemStore.LookupEntry(215160) ||                   // last item added in 10.2.5 (53007)
-        !sItemExtendedCostStore.LookupEntry(8510) ||         // last item extended cost added in 10.2.5 (53007)
-        !sMapStore.LookupEntry(2708) ||                      // last map added in 10.2.5 (53007)
-        !sSpellNameStore.LookupEntry(438878))                // last spell added in 10.2.5 (53007)
+    if (!sAreaTableStore.LookupEntry(15786) ||               // last area added in 11.0.2 (56647)
+        !sCharTitlesStore.LookupEntry(854) ||                // last char title added in 11.0.2 (56647)
+        !sFlightCapabilityStore.LookupEntry(1) ||            // default flight capability (required)
+        !sGemPropertiesStore.LookupEntry(4251) ||            // last gem property added in 11.0.2 (56647)
+        !sItemStore.LookupEntry(232498) ||                   // last item added in 11.0.2 (56647)
+        !sItemExtendedCostStore.LookupEntry(9369) ||         // last item extended cost added in 11.0.2 (56647)
+        !sMapStore.LookupEntry(2786) ||                      // last map added in 11.0.2 (56647)
+        !sSpellNameStore.LookupEntry(471174))                // last spell added in 11.0.2 (56647)
     {
         TC_LOG_FATAL("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         return 0;
@@ -1161,7 +1164,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             std::vector<uint32>* choices = nullptr;
             for (std::pair<uint32, std::vector<uint32>>& choicesForOption : requiredChoicesForReq)
             {
-                if (int32(choicesForOption.first) == customizationChoice->ChrCustomizationOptionID)
+                if (choicesForOption.first == customizationChoice->ChrCustomizationOptionID)
                 {
                     choices = &choicesForOption.second;
                     break;
@@ -1582,7 +1585,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
-    std::unordered_map<std::pair<int32, uint32>, UiMapLinkEntry const*> uiMapLinks;
+    std::unordered_map<std::pair<uint32, uint32>, UiMapLinkEntry const*> uiMapLinks;
     for (UiMapLinkEntry const* uiMapLink : sUiMapLinkStore)
         uiMapLinks[std::make_pair(uiMapLink->ParentUiMapID, uint32(uiMapLink->ChildUiMapID))] = uiMapLink;
 
@@ -1685,7 +1688,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         if (node->GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap))
             sAllianceTaxiNodesMask[field] |= submask;
 
-        int32 uiMapId = -1;
+        uint32 uiMapId = uint32(-1);
         if (!GetUiMapPosition(node->Pos.X, node->Pos.Y, node->Pos.Z, node->ContinentID, 0, 0, 0, UI_MAP_SYSTEM_ADVENTURE, false, &uiMapId))
             GetUiMapPosition(node->Pos.X, node->Pos.Y, node->Pos.Z, node->ContinentID, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, &uiMapId);
 
@@ -2078,7 +2081,7 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
     return broadcastText->Text[DEFAULT_LOCALE];
 }
 
-int32 const* DB2Manager::GetBroadcastTextDuration(int32 broadcastTextId, LocaleConstant locale /*= DEFAULT_LOCALE*/) const
+int32 const* DB2Manager::GetBroadcastTextDuration(uint32 broadcastTextId, LocaleConstant locale /*= DEFAULT_LOCALE*/) const
 {
     return Trinity::Containers::MapGetValuePtr(_broadcastTextDurations, { broadcastTextId, WowLocaleToCascLocaleBit[locale] });
 }
@@ -3341,7 +3344,7 @@ static UiMapAssignmentEntry const* FindNearestMapAssignment(float x, float y, fl
     return nearestMapAssignment.UiMapAssignment;
 }
 
-static DBCPosition2D CalculateGlobalUiMapPosition(int32 uiMapID, DBCPosition2D uiPosition)
+static DBCPosition2D CalculateGlobalUiMapPosition(uint32 uiMapID, DBCPosition2D uiPosition)
 {
     UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapID);
     while (uiMap)
@@ -3363,7 +3366,7 @@ static DBCPosition2D CalculateGlobalUiMapPosition(int32 uiMapID, DBCPosition2D u
 }
 
 bool DB2Manager::GetUiMapPosition(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system, bool local,
-    int32* uiMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
+    uint32* uiMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
 {
     if (uiMapId)
         *uiMapId = -1;

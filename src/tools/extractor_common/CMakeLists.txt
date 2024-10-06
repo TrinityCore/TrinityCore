@@ -26,6 +26,6 @@ target_include_directories(extractor_common
     ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(extractor_common
-    PROPERTIES
-      FOLDER
-        "tools")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "tools")

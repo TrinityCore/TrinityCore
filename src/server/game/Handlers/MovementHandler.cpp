@@ -77,7 +77,7 @@ void WorldSession::HandleMoveWorldportAck()
     Map* oldMap = player->GetMap();
     Map* newMap = loc.InstanceId ?
         sMapMgr->FindMap(loc.Location.GetMapId(), *loc.InstanceId) :
-        sMapMgr->CreateMap(loc.Location.GetMapId(), GetPlayer());
+        sMapMgr->CreateMap(loc.Location.GetMapId(), GetPlayer(), loc.LfgDungeonsId);
 
     if (TransportBase* transport = player->GetTransport())
         transport->RemovePassenger(player);

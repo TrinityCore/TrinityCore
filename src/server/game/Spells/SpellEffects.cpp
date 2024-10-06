@@ -3433,7 +3433,7 @@ void Spell::EffectDisEnchant()
             caster->UpdateCraftSkill(m_spellInfo);
 
         itemTarget->m_loot.reset(new Loot(caster->GetMap(), itemTarget->GetGUID(), LOOT_DISENCHANTING, nullptr));
-        itemTarget->m_loot->FillLoot(ASSERT_NOTNULL(itemTarget->GetDisenchantLoot(caster))->ID, LootTemplates_Disenchant, caster, true);
+        itemTarget->m_loot->FillLoot(*itemTarget->GetDisenchantLootId(), LootTemplates_Disenchant, caster, true);
         caster->SendLoot(*itemTarget->m_loot);
     }
 
