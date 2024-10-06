@@ -1923,6 +1923,41 @@ struct FactionTemplateLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 22, &FactionTemplateMeta::Instance, HOTFIX_SEL_FACTION_TEMPLATE };
 };
 
+struct FlightCapabilityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[26] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_FLOAT, "AirFriction" },
+        { false, FT_FLOAT, "MaxVel" },
+        { false, FT_FLOAT, "Unknown1000_2" },
+        { false, FT_FLOAT, "DoubleJumpVelMod" },
+        { false, FT_FLOAT, "LiftCoefficient" },
+        { false, FT_FLOAT, "GlideStartMinHeight" },
+        { false, FT_FLOAT, "AddImpulseMaxSpeed" },
+        { false, FT_FLOAT, "BankingRateMin" },
+        { false, FT_FLOAT, "BankingRateMax" },
+        { false, FT_FLOAT, "PitchingRateDownMin" },
+        { false, FT_FLOAT, "PitchingRateDownMax" },
+        { false, FT_FLOAT, "PitchingRateUpMin" },
+        { false, FT_FLOAT, "PitchingRateUpMax" },
+        { false, FT_FLOAT, "TurnVelocityThresholdMin" },
+        { false, FT_FLOAT, "TurnVelocityThresholdMax" },
+        { false, FT_FLOAT, "SurfaceFriction" },
+        { false, FT_FLOAT, "OverMaxDeceleration" },
+        { false, FT_FLOAT, "Unknown1000_17" },
+        { false, FT_FLOAT, "Unknown1000_18" },
+        { false, FT_FLOAT, "Unknown1000_19" },
+        { false, FT_FLOAT, "Unknown1000_20" },
+        { false, FT_FLOAT, "Unknown1000_21" },
+        { false, FT_FLOAT, "LaunchSpeedCoefficient" },
+        { false, FT_FLOAT, "VigorRegenMaxVelCoefficient" },
+        { true, FT_INT, "SpellID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 26, &FlightCapabilityMeta::Instance, HOTFIX_SEL_FLIGHT_CAPABILITY };
+};
+
 struct FriendshipRepReactionLoadInfo
 {
     static constexpr DB2FieldMeta Fields[5] =
