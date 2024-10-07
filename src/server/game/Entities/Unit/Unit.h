@@ -71,7 +71,6 @@ struct LiquidTypeEntry;
 struct MountCapabilityEntry;
 struct SpellValue;
 struct TeleportLocation;
-struct FlightCapabilityEntry;
 
 class Aura;
 class AuraApplication;
@@ -607,29 +606,6 @@ enum ReactiveType
     REACTIVE_DEFENSE      = 0,
     REACTIVE_DEFENSE_2    = 1,
     MAX_REACTIVE
-};
-
-enum AdvFlyingRateType : uint8
-{
-    ADV_FLYING_AIR_FRICTION = 0,
-    ADV_FLYING_MAX_VEL,
-    ADV_FLYING_LIFT_COEFFICIENT,
-    ADV_FLYING_DOUBLE_JUMP_VEL_MOD,
-    ADV_FLYING_GLIDE_START_MIN_HEIGHT,
-    ADV_FLYING_ADD_IMPULSE_MAX_SPEED,
-    ADV_FLYING_BANKING_RATE_MIN,
-    ADV_FLYING_BANKING_RATE_MAX,
-    ADV_FLYING_PITCHING_RATE_DOWN_MIN,
-    ADV_FLYING_PITCHING_RATE_DOWN_MAX,
-    ADV_FLYING_PITCHING_RATE_UP_MIN,
-    ADV_FLYING_PITCHING_RATE_UP_MAX,
-    ADV_FLYING_TURN_VELOCITY_THRESHOLD_MIN,
-    ADV_FLYING_TURN_VELOCITY_THRESHOLD_MAX,
-    ADV_FLYING_SURFACE_FRICTION,
-    ADV_FLYING_OVER_MAX_DECELERATION,
-    ADV_FLYING_LAUNCH_SPEED_COEFFICIENT,
-
-    ADV_FLYING_MAX_SPEED_TYPE
 };
 
 struct PositionUpdateInfo
@@ -1690,6 +1666,14 @@ class TC_GAME_API Unit : public WorldObject
         void SetSpeed(UnitMoveType mtype, float newValue);
         void SetSpeedRate(UnitMoveType mtype, float rate);
 
+        int32 GetFlightCapabilityID() const { return m_unitData->FlightCapabilityID; }
+        void SetFlightCapabilityID(int32 flightCapabilityId, bool clientUpdate);
+        float GetAdvFlyingSpeed(AdvFlyingRateTypeSingle speedType) const { return m_advFlyingSpeed[speedType]; }
+        float GetAdvFlyingSpeedMin(AdvFlyingRateTypeRange speedType) const { return m_advFlyingSpeed[speedType]; }
+        float GetAdvFlyingSpeedMax(AdvFlyingRateTypeRange speedType) const { return m_advFlyingSpeed[speedType + 1]; }
+        void UpdateAdvFlyingSpeed(AdvFlyingRateTypeSingle speedType, bool clientUpdate);
+        void UpdateAdvFlyingSpeed(AdvFlyingRateTypeRange speedType, bool clientUpdate);
+
         void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
         void FollowerRemoved(AbstractFollower* f) { m_followingMe.erase(f); }
         void RemoveAllFollowers();
@@ -1782,10 +1766,6 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanEnterWater() const = 0;
         virtual bool CanSwim() const;
 
-        uint32 GetFlightCapabilityID() const { return m_unitData->FlightCapabilityID; }
-        void SetFlightCapabilityID(uint32 flightCapabilityID);
-        float GetAdvFlyingSpeed(AdvFlyingRateType speedType) const { return _advFlyingSpeeds[speedType]; }
-        void CalculateAdvFlyingSpeeds();
         float GetAdvFlyingVelocity() const;
 
         float GetHoverOffset() const { return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? *m_unitData->HoverHeight : 0.0f; }
@@ -1945,6 +1925,7 @@ class TC_GAME_API Unit : public WorldObject
         Trinity::Containers::FlatSet<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
 
         std::array<float, MAX_MOVE_TYPE> m_speed_rate;
+        std::array<float, ADV_FLYING_MAX_SPEED_TYPE> m_advFlyingSpeed;
 
         Unit* m_unitMovedByMe;    // only ever set for players, and only for direct client control
         Player* m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)
@@ -2050,8 +2031,6 @@ class TC_GAME_API Unit : public WorldObject
         PositionUpdateInfo _positionUpdateInfo;
 
         bool _isCombatDisallowed;
-
-        std::array<float, ADV_FLYING_MAX_SPEED_TYPE> _advFlyingSpeeds;
 };
 
 #endif

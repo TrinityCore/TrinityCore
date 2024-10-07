@@ -212,6 +212,31 @@ namespace WorldPackets
             float Speed = 1.0f;
         };
 
+        class SetAdvFlyingSpeed final : public ServerPacket
+        {
+        public:
+            explicit SetAdvFlyingSpeed(OpcodeServer opcode) : ServerPacket(opcode, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            float Speed = 1.0f;
+        };
+
+        class SetAdvFlyingSpeedRange final : public ServerPacket
+        {
+        public:
+            explicit SetAdvFlyingSpeedRange(OpcodeServer opcode) : ServerPacket(opcode, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            float SpeedMin = 1.0f;
+            float SpeedMax = 1.0f;
+        };
+
         class MoveSplineSetFlag final : public ServerPacket
         {
         public:
@@ -436,6 +461,18 @@ namespace WorldPackets
 
             MovementAck Ack;
             float Speed = 0.0f;
+        };
+
+        class MovementSpeedRangeAck final : public ClientPacket
+        {
+        public:
+            MovementSpeedRangeAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            float SpeedMin = 1.0f;
+            float SpeedMax = 1.0f;
         };
 
         class SetActiveMover final : public ClientPacket
@@ -709,38 +746,6 @@ namespace WorldPackets
             void Read() override;
 
             uint32 Ticks = 0;
-        };
-
-        class SetAdvFlyingSpeed final : public ServerPacket
-        {
-        public:
-            SetAdvFlyingSpeed(OpcodeServer opcode, uint32 sequenceIndex, float speed) : ServerPacket(opcode, 4 + 4)
-            {
-                SequenceIndex = sequenceIndex;
-                Speed = speed;
-            }
-
-            WorldPacket const* Write() override;
-
-            uint32 SequenceIndex;
-            float Speed;
-        };
-
-        class SetAdvFlyingMinMaxSpeeds final : public ServerPacket
-        {
-        public:
-            SetAdvFlyingMinMaxSpeeds(OpcodeServer opcode, uint32 sequenceIndex, float speed, float maxSpeed) : ServerPacket(opcode, 4 + 4 + 4)
-            {
-                SequenceIndex = sequenceIndex;
-                Speed = speed;
-                MaxSpeed = maxSpeed;
-            }
-
-            WorldPacket const* Write() override;
-
-            uint32 SequenceIndex;
-            float Speed;
-            float MaxSpeed;
         };
 
         class MoveAddImpulse final : public ServerPacket
