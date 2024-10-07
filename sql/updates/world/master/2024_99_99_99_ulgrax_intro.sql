@@ -1,6 +1,6 @@
-SET @ATID := 1000000;
-SET @ATCP := 1000000;
-SET @ATSPAWNID := 1000000;
+SET @ATID := 96;
+SET @ATCP := 85;
+SET @ATSPAWNID := 99;
 
 -- Creature
 UPDATE `creature_template` SET `flags_extra`=536870912, `ScriptName`='boss_ulgrax_the_devourer' WHERE `entry`=215657; -- CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING must be added since the combat is on a gameobject
