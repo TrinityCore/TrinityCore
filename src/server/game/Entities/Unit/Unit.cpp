@@ -365,6 +365,7 @@ Unit::Unit(bool isWorldObject) :
     m_baseSpellCritChance = 5.0f;
 
     m_speed_rate.fill(1.0f);
+    SetFlightCapabilityID(0, false);
 
     // remove aurastates allowing special moves
     m_reactiveTimer = { };
@@ -8735,6 +8736,122 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
         packet.MoverGUID = GetGUID();
         packet.Speed = GetSpeed(mtype);
         SendMessageToSet(packet.Write(), true);
+    }
+}
+
+void Unit::SetFlightCapabilityID(int32 flightCapabilityId, bool clientUpdate)
+{
+    if (flightCapabilityId && !sFlightCapabilityStore.HasRecord(flightCapabilityId))
+        return;
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FlightCapabilityID), flightCapabilityId);
+
+    UpdateAdvFlyingSpeed(ADV_FLYING_AIR_FRICTION, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_MAX_VEL, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_LIFT_COEFFICIENT, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_DOUBLE_JUMP_VEL_MOD, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_GLIDE_START_MIN_HEIGHT, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_ADD_IMPULSE_MAX_SPEED, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_BANKING_RATE, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_DOWN, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_UP, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_TURN_VELOCITY_THRESHOLD, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_SURFACE_FRICTION, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_OVER_MAX_DECELERATION, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_LAUNCH_SPEED_COEFFICIENT, clientUpdate);
+}
+
+void Unit::UpdateAdvFlyingSpeed(AdvFlyingRateTypeSingle speedType, bool clientUpdate)
+{
+    FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(GetFlightCapabilityID());
+    if (!flightCapabilityEntry)
+        flightCapabilityEntry = sFlightCapabilityStore.AssertEntry(1);
+
+    auto [opcode, newValue] = [&]
+    {
+        switch (speedType)
+        {
+            case ADV_FLYING_AIR_FRICTION:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_AIR_FRICTION, flightCapabilityEntry->AirFriction);
+            case ADV_FLYING_MAX_VEL:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_MAX_VEL, flightCapabilityEntry->MaxVel);
+            case ADV_FLYING_LIFT_COEFFICIENT:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_LIFT_COEFFICIENT, flightCapabilityEntry->LiftCoefficient);
+            case ADV_FLYING_DOUBLE_JUMP_VEL_MOD:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_DOUBLE_JUMP_VEL_MOD, flightCapabilityEntry->DoubleJumpVelMod);
+            case ADV_FLYING_GLIDE_START_MIN_HEIGHT:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_GLIDE_START_MIN_HEIGHT, flightCapabilityEntry->GlideStartMinHeight);
+            case ADV_FLYING_ADD_IMPULSE_MAX_SPEED:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_ADD_IMPULSE_MAX_SPEED, flightCapabilityEntry->AddImpulseMaxSpeed);
+            case ADV_FLYING_SURFACE_FRICTION:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_SURFACE_FRICTION, flightCapabilityEntry->SurfaceFriction);
+            case ADV_FLYING_OVER_MAX_DECELERATION:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_OVER_MAX_DECELERATION, flightCapabilityEntry->OverMaxDeceleration);
+            case ADV_FLYING_LAUNCH_SPEED_COEFFICIENT:
+                return std::pair(SMSG_MOVE_SET_ADV_FLYING_LAUNCH_SPEED_COEFFICIENT, flightCapabilityEntry->LaunchSpeedCoefficient);
+            default:
+                return std::pair<OpcodeServer, float>();
+        }
+    }();
+
+    if (m_advFlyingSpeed[speedType] == newValue)
+        return;
+
+    m_advFlyingSpeed[speedType] = newValue;
+
+    if (!clientUpdate)
+        return;
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::SetAdvFlyingSpeed selfpacket(opcode);
+        selfpacket.MoverGUID = GetGUID();
+        selfpacket.SequenceIndex = m_movementCounter++;
+        selfpacket.Speed = newValue;
+        playerMover->GetSession()->SendPacket(selfpacket.Write());
+    }
+}
+
+void Unit::UpdateAdvFlyingSpeed(AdvFlyingRateTypeRange speedType, bool clientUpdate)
+{
+    FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(GetFlightCapabilityID());
+    if (!flightCapabilityEntry)
+        flightCapabilityEntry = sFlightCapabilityStore.AssertEntry(1);
+
+    auto [opcode, min, max] = [&]
+    {
+        switch (speedType)
+        {
+            case ADV_FLYING_BANKING_RATE:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_BANKING_RATE, flightCapabilityEntry->BankingRateMin, flightCapabilityEntry->BankingRateMax);
+            case ADV_FLYING_PITCHING_RATE_DOWN:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_DOWN, flightCapabilityEntry->PitchingRateDownMin, flightCapabilityEntry->PitchingRateDownMax);
+            case ADV_FLYING_PITCHING_RATE_UP:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_UP, flightCapabilityEntry->PitchingRateUpMin, flightCapabilityEntry->PitchingRateUpMax);
+            case ADV_FLYING_TURN_VELOCITY_THRESHOLD:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_TURN_VELOCITY_THRESHOLD, flightCapabilityEntry->TurnVelocityThresholdMin, flightCapabilityEntry->TurnVelocityThresholdMax);
+            default:
+                return std::tuple<OpcodeServer, float, float>();
+        }
+    }();
+
+    if (m_advFlyingSpeed[speedType] == min && m_advFlyingSpeed[speedType + 1] == max)
+        return;
+
+    m_advFlyingSpeed[speedType] = min;
+    m_advFlyingSpeed[speedType + 1] = max;
+
+    if (!clientUpdate)
+        return;
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::SetAdvFlyingSpeedRange selfpacket(opcode);
+        selfpacket.MoverGUID = GetGUID();
+        selfpacket.SequenceIndex = m_movementCounter++;
+        selfpacket.SpeedMin = min;
+        selfpacket.SpeedMax = max;
+        playerMover->GetSession()->SendPacket(selfpacket.Write());
     }
 }
 
