@@ -30,15 +30,15 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (2657, 0, 'instance_nerubar_palace');
 
 -- Areatrigger
-DELETE FROM `areatrigger_template` WHERE `Id` = @ATID+0;
+DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES
 (@ATID+0, 1, 1, 0, 0, 0);
 
-DELETE FROM `areatrigger_create_properties` WHERE `Id` = @ATID+0;
+DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATCP+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
 (@ATCP+0, 1, @ATID+0, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 30, 60, 2, 30, 60, 2, 0, 0, 'at_ulgrax_intro', 0);
 
-DELETE FROM `areatrigger` WHERE `SpawnId` = @ATID+0;
+DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID+0 AND `IsCustom`=1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
 (@ATSPAWNID+0, @ATCP+0, 1, 2657, '14,15,16,17', -2841.09, -273.894, -1189.997, 5.509477, 0, 0, 0, '', 'Nerub\'ar Palace - Ulgrax the Devourer intro', 0);
 
