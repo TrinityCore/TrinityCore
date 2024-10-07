@@ -17,12 +17,13 @@
 
 #include "AreaBoundary.h"
 #include "Creature.h"
+#include "CreatureGroups.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "nerubar_palace.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_ULGRAX_THE_DEVOURER,   DATA_ULGRAX_THE_DEVOURER   },
     { BOSS_THE_BLOODBOUND_HORROR, DATA_THE_BLOODBOUND_HORROR },
@@ -35,25 +36,25 @@ ObjectData const creatureData[] =
     { 0,                          0                          }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_WEB_BRIDGE_ULGRAX_INTRO, DATA_WEB_BRIDGE_ULGRAX_INTRO, EncounterDoorBehavior::OpenWhenNotInProgress },
     { 0,                          0,                            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-ObjectData const objectData[] =
+static constexpr ObjectData objectData[] =
 {
     { GO_NERUBAR_PALACE_DOOR_INTRO, DATA_NERUBAR_PALACE_DOOR_INTRO },
     { GO_WEB_BRIDGE_ULGRAX_INTRO,   DATA_WEB_BRIDGE_ULGRAX_INTRO   },
     { 0,                            0                              }  // END
 };
 
-BossBoundaryData const boundaries =
+static BossBoundaryData const boundaries =
 {
     { DATA_ULGRAX_THE_DEVOURER, new CircleBoundary(Position(-2862.7395f, -251.90973f), 150.0f) }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData const encounters[] =
 {
     { DATA_ULGRAX_THE_DEVOURER,   {{ 2902 }} },
     { DATA_THE_BLOODBOUND_HORROR, {{ 2917 }} },
@@ -81,41 +82,22 @@ public:
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
 
-            _nerubarPalaceIntroTrashNPCs = 0;
-            _ulgraxIntroTrashNPCs = 0;
+            _entranceRoomCleared = false;
+            _ulgraxIntroDone = false;
         }
 
-        void OnCreatureCreate(Creature* creature) override
+        void OnCreatureGroupDepleted(CreatureGroup const* creatureGroup) override
         {
-            InstanceScript::OnCreatureCreate(creature);
-
-            if (creature->HasStringId("nerubar_palace_intro_trash"))
-                _nerubarPalaceIntroTrashNPCs++;
-            else if (creature->HasStringId("ulgrax_intro_trash"))
-                _ulgraxIntroTrashNPCs++;
-        }
-
-        void OnUnitDeath(Unit* unit) override
-        {
-            Creature* creature = unit->ToCreature();
-            if (!creature)
-                return;
-
-            if (creature->HasStringId("nerubar_palace_intro_trash"))
+            if (!_entranceRoomCleared && creatureGroup->LeaderHasStringId("nerubar_palace_intro_trash"))
             {
-                _nerubarPalaceIntroTrashNPCs--;
-                if (_nerubarPalaceIntroTrashNPCs > 0)
-                    return;
+                _entranceRoomCleared = true;
 
                 if (GameObject* door = GetGameObject(DATA_NERUBAR_PALACE_DOOR_INTRO))
                     door->UseDoorOrButton();
             }
-
-            if (creature->HasStringId("ulgrax_intro_trash"))
+            else if (!_ulgraxIntroDone && creatureGroup->LeaderHasStringId("ulgrax_intro_trash"))
             {
-                _ulgraxIntroTrashNPCs--;
-                if (_ulgraxIntroTrashNPCs > 0)
-                    return;
+                _ulgraxIntroDone = true;
 
                 if (GameObject* webBridge = GetGameObject(DATA_WEB_BRIDGE_ULGRAX_INTRO))
                     webBridge->UseDoorOrButton();
@@ -123,8 +105,8 @@ public:
         }
 
     protected:
-        uint8 _nerubarPalaceIntroTrashNPCs;
-        uint8 _ulgraxIntroTrashNPCs;
+        bool _entranceRoomCleared;
+        bool _ulgraxIntroDone;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

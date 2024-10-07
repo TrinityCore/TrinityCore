@@ -5,7 +5,23 @@ SET @ATSPAWNID := 1000000;
 -- Creature
 UPDATE `creature_template` SET `flags_extra`=536870912, `ScriptName`='boss_ulgrax_the_devourer' WHERE `entry`=215657; -- CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING must be added since the combat is on a gameobject
 
+DELETE FROM `creature_formations` WHERE `leaderGUID`=10001982;
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(10001982,10001982,0,0,0,0,0),
+(10001982,10002001,0,0,0,0,0),
+(10001982,10001998,0,0,0,0,0),
+(10001982,10001995,0,0,0,0,0),
+(10001982,10001989,0,0,0,0,0);
 UPDATE `creature` SET `StringId`='nerubar_palace_intro_trash' WHERE `guid` IN (10001982, 10002001, 10001998, 10001995, 10001989);
+
+DELETE FROM `creature_formations` WHERE `leaderGUID`=10001991;
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(10001991,10001991,0,0,0,0,0),
+(10001991,10002009,0,0,0,0,0),
+(10001991,10002016,0,0,0,0,0),
+(10001991,10002018,0,0,0,0,0),
+(10001991,10002006,0,0,0,0,0),
+(10001991,10002010,0,0,0,0,0);
 UPDATE `creature` SET `StringId`='ulgrax_intro_trash' WHERE `guid` IN (10001991, 10002009, 10002016, 10002018, 10002006, 10002010);
 
 -- Instance
