@@ -807,7 +807,14 @@ INSERT INTO `build_auth_key` VALUES
 (56647,'Mac','x64','WoW',0x022A06825C7CF55528A5ED03E87D6AE4),
 (56647,'Win','A64','WoW',0x0F36C48D68E358598318F0B30FDFCB61),
 (56647,'Win','x64','WoW',0x2E9C456B66C0D5CAD601E8FD7A2FEA7A),
-(56647,'Win','x64','WoWC',0x543A69AB802D0873D84AB08DEC4D8CAC);
+(56647,'Win','x64','WoWC',0x543A69AB802D0873D84AB08DEC4D8CAC),
+(56819,'Mac','A64','WoW',0x1553CD215A62E2DC92CD61C4FB5DF9C3),
+(56819,'Mac','A64','WoWC',0x1B7EF05D342064F931E53264031E3497),
+(56819,'Mac','x64','WoW',0x9D5B7E1B5E59E54A3B96E5CCBA6EF465),
+(56819,'Mac','x64','WoWC',0x2BDCD952BAA47E6CBD71C780BC8CCD47),
+(56819,'Win','A64','WoW',0x7DC752479B560884B8289BC5B5C85F3F),
+(56819,'Win','x64','WoW',0x4373F45E9D617636332569671ED5D5E9),
+(56819,'Win','x64','WoWC',0xB9E422DF76DA635E193B75BD54ADD8DE);
 /*!40000 ALTER TABLE `build_auth_key` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1156,7 +1163,8 @@ INSERT INTO `build_info` VALUES
 (56461,11,0,2,NULL),
 (56513,11,0,2,NULL),
 (56625,11,0,2,NULL),
-(56647,11,0,2,NULL);
+(56647,11,0,2,NULL),
+(56819,11,0,2,NULL);
 /*!40000 ALTER TABLE `build_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2765,8 +2773,8 @@ CREATE TABLE `realmlist` (
   `flag` tinyint unsigned NOT NULL DEFAULT '2',
   `timezone` tinyint unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
-  `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int unsigned NOT NULL DEFAULT '56647',
+  `population` float NOT NULL DEFAULT '0',
+  `gamebuild` int unsigned NOT NULL DEFAULT '56819',
   `Region` tinyint unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2781,7 +2789,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,56647,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,56819,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3236,11 +3244,14 @@ INSERT INTO `updates` VALUES
 ('2024_08_31_00_auth.sql','D10F12D25D526A2C5E12FCEA2DEB55C342879F06','ARCHIVED','2024-08-31 10:32:16',0),
 ('2024_08_31_01_auth.sql','3ADC34DAE405697983EDDD32D0F3FC6F122CA819','ARCHIVED','2024-09-01 15:48:43',0),
 ('2024_09_03_00_auth.sql','BF65B550256CA64F0936D98A619E8A2A7E7A9B59','ARCHIVED','2024-09-03 00:47:42',0),
-('2024_09_05_00_auth.sql','9CD84EB94AE50F14A392C216E7CA7BA33E92376E','RELEASED','2024-09-05 13:38:34',0),
-('2024_09_05_01_auth.sql','42D5E703382C57C4ADD862CF215F1166625100E5','RELEASED','2024-09-05 23:42:10',0),
-('2024_09_11_00_auth.sql','8B810B5EB20D769A50A2D01411BBD065732E4EE6','RELEASED','2024-09-11 12:23:18',0),
-('2024_09_18_00_auth.sql','073B6E954B585CD81BFADD58CDAD166E85D2653A','RELEASED','2024-09-18 10:26:42',0),
-('2024_09_18_01_auth.sql','6AE1437E24D4837EB2347ADAA80A4093CA9F6D67','RELEASED','2024-09-18 21:30:31',0);
+('2024_09_05_00_auth.sql','9CD84EB94AE50F14A392C216E7CA7BA33E92376E','ARCHIVED','2024-09-05 13:38:34',0),
+('2024_09_05_01_auth.sql','42D5E703382C57C4ADD862CF215F1166625100E5','ARCHIVED','2024-09-05 23:42:10',0),
+('2024_09_11_00_auth.sql','8B810B5EB20D769A50A2D01411BBD065732E4EE6','ARCHIVED','2024-09-11 12:23:18',0),
+('2024_09_18_00_auth.sql','073B6E954B585CD81BFADD58CDAD166E85D2653A','ARCHIVED','2024-09-18 10:26:42',0),
+('2024_09_18_01_auth.sql','6AE1437E24D4837EB2347ADAA80A4093CA9F6D67','ARCHIVED','2024-09-18 21:30:31',0),
+('2024_09_23_00_auth.sql','CBAB00B40360D8942AD1E4EDBE0F0097F3F6FC9B','ARCHIVED','2024-09-23 22:48:10',0),
+('2024_09_26_00_auth.sql','E37C3997FD7851EA360774AC568912846C448272','RELEASED','2024-09-26 18:27:26',0),
+('2024_10_01_00_auth.sql','665EC51B03F52C373F713D96A1426054D7DF98C8','RELEASED','2024-10-01 23:39:44',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3351,7 +3362,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY INVOKER */
 /*!50001 VIEW `vw_log_history` AS select from_unixtime(min(`logs`.`time`)) AS `First Logged`,from_unixtime(max(`logs`.`time`)) AS `Last Logged`,count(0) AS `Occurrences`,`realmlist`.`name` AS `Realm`,`logs`.`type` AS `type`,`logs`.`level` AS `level`,`logs`.`string` AS `string` from (`logs` left join `realmlist` on((`logs`.`realm` = `realmlist`.`id`))) group by `logs`.`string`,`logs`.`type`,`logs`.`realm` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -3365,11 +3376,11 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb3 */;
-/*!50001 SET character_set_results     = utf8mb3 */;
-/*!50001 SET collation_connection      = utf8mb3_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY INVOKER */
 /*!50001 VIEW `vw_rbac` AS select `t1`.`linkedId` AS `Permission ID`,`t1`.`id` AS `Permission Group`,ifnull(`t2`.`secId`,'linked') AS `Security Level`,`t3`.`name` AS `Permission` from ((`rbac_linked_permissions` `t1` left join `rbac_default_permissions` `t2` on((`t1`.`id` = `t2`.`permissionId`))) left join `rbac_permissions` `t3` on((`t1`.`linkedId` = `t3`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -3384,4 +3395,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-03  0:47:44
+-- Dump completed on 2024-09-23 22:48:12

@@ -6,7 +6,10 @@
 #include "WheatyExceptionReport.h"
 #include "Errors.h"
 #include "GitRevision.h"
+#include "Memory.h"
+#include <stdexcept>
 #include <algorithm>
+#include <utility>
 
 #ifdef __clang__
 // clang-cl doesn't have these hardcoded types available, correct ehdata_forceinclude.h that relies on it
@@ -24,6 +27,12 @@
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
 #pragma comment(linker, "/DEFAULTLIB:wbemuuid.lib")
+
+#ifdef _UNICODE
+#define PRSTRc "S"  // format specifier for char* strings
+#else
+#define PRSTRc "s"  // format specifier for char* strings
+#endif
 
 inline LPTSTR ErrorMessage(DWORD dw)
 {
@@ -48,37 +57,24 @@ inline LPTSTR ErrorMessage(DWORD dw)
 }
 
 //============================== Global Variables =============================
-
-//
-// Declare the static variables of the WheatyExceptionReport class and force their initialization before any other static in the program
-//
-#pragma warning(push)
-#pragma warning(disable: 4073) // C4073: initializers put in library initialization area
-#pragma init_seg(lib)
-TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
-TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
-LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
-_invalid_parameter_handler WheatyExceptionReport::m_previousCrtHandler;
-FILE* WheatyExceptionReport::m_hReportFile;
-HANDLE WheatyExceptionReport::m_hDumpFile;
-HANDLE WheatyExceptionReport::m_hProcess;
-SymbolPairs WheatyExceptionReport::symbols;
-std::stack<SymbolDetail> WheatyExceptionReport::symbolDetails;
-bool WheatyExceptionReport::alreadyCrashed;
-std::mutex WheatyExceptionReport::alreadyCrashedLock;
-WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
-#pragma warning(pop)
+namespace
+{
+WheatyExceptionReport* g_WheatyExceptionReport;
+}
 
 //============================== Class Methods =============================
 
-WheatyExceptionReport::WheatyExceptionReport()             // Constructor
+WheatyExceptionReport::WheatyExceptionReport() :           // Constructor
+    m_logFileName(),
+    m_dumpFileName(),
+    m_previousFilter(SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter)),
+    m_previousCrtHandler(_set_invalid_parameter_handler(WheatyCrtHandler)),
+    m_reportFile(nullptr),
+    m_dumpFile(),
+    m_process(GetCurrentProcess()),
+    m_alreadyCrashed(false),
+    RtlGetVersion((pRtlGetVersion)GetProcAddress(GetModuleHandle(_T("ntdll.dll")), "RtlGetVersion"))
 {
-    // Install the unhandled exception filter function
-    m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
-    m_previousCrtHandler = _set_invalid_parameter_handler(WheatyCrtHandler);
-    m_hProcess = GetCurrentProcess();
-    alreadyCrashed = false;
-    RtlGetVersion = (pRtlGetVersion)GetProcAddress(GetModuleHandle(_T("ntdll.dll")), "RtlGetVersion");
     if (!IsDebuggerPresent())
     {
         _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
@@ -86,6 +82,9 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
         _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
         _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
     }
+
+    if (std::exchange(g_WheatyExceptionReport, this) != nullptr)
+        throw std::logic_error("Only one instance of WheatyExceptionReport can exist");
 }
 
 //============
@@ -98,6 +97,8 @@ WheatyExceptionReport::~WheatyExceptionReport()
     if (m_previousCrtHandler)
         _set_invalid_parameter_handler(m_previousCrtHandler);
     ClearSymbols();
+
+    g_WheatyExceptionReport = nullptr;
 }
 
 //===========================================================
@@ -106,12 +107,17 @@ WheatyExceptionReport::~WheatyExceptionReport()
 LONG WINAPI WheatyExceptionReport::WheatyUnhandledExceptionFilter(
 PEXCEPTION_POINTERS pExceptionInfo)
 {
-    std::unique_lock<std::mutex> guard(alreadyCrashedLock);
+    return g_WheatyExceptionReport->UnhandledExceptionFilterImpl(pExceptionInfo);
+}
+
+LONG WheatyExceptionReport::UnhandledExceptionFilterImpl(PEXCEPTION_POINTERS pExceptionInfo)
+{
+    std::unique_lock<std::mutex> guard(m_alreadyCrashedLock);
     // Handle only 1 exception in the whole process lifetime
-    if (alreadyCrashed)
+    if (m_alreadyCrashed)
         return EXCEPTION_EXECUTE_HANDLER;
 
-    alreadyCrashed = true;
+    m_alreadyCrashed = true;
 
     TCHAR module_folder_name[MAX_PATH];
     GetModuleFileName(nullptr, module_folder_name, MAX_PATH);
@@ -129,21 +135,15 @@ PEXCEPTION_POINTERS pExceptionInfo)
             return 0;
     }
 
-#ifdef _UNICODE
-#define PRSTRc "S"
-#else
-#define PRSTRc "s"
-#endif
-
     SYSTEMTIME systime;
     GetLocalTime(&systime);
-    _stprintf_s(m_szDumpFileName, _T("%s\\%" PRSTRc "_%s_[%u-%u_%u-%u-%u].dmp"),
+    _stprintf_s(m_dumpFileName, _T("%s\\%" PRSTRc "_%s_[%u-%u_%u-%u-%u].dmp"),
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
-    _stprintf_s(m_szLogFileName, _T("%s\\%" PRSTRc "_%s_[%u-%u_%u-%u-%u].txt"),
+    _stprintf_s(m_logFileName, _T("%s\\%" PRSTRc "_%s_[%u-%u_%u-%u-%u].txt"),
         crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
-    m_hDumpFile = CreateFile(m_szDumpFileName,
+    m_dumpFile = CreateFile(m_dumpFileName,
         GENERIC_WRITE,
         0,
         nullptr,
@@ -151,7 +151,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         FILE_FLAG_WRITE_THROUGH,
         nullptr);
 
-    if (m_hDumpFile)
+    if (m_dumpFile)
     {
         MINIDUMP_EXCEPTION_INFORMATION info;
         info.ClientPointers = FALSE;
@@ -171,20 +171,20 @@ PEXCEPTION_POINTERS pExceptionInfo)
             additionalStreamInfo.UserStreamCount = 1;
         }
 
-        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
-            m_hDumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, &additionalStreamInfo, nullptr);
+        MiniDumpWriteDump(m_process, GetCurrentProcessId(),
+            m_dumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, &additionalStreamInfo, nullptr);
 
-        CloseHandle(m_hDumpFile);
+        CloseHandle(m_dumpFile);
     }
 
-    m_hReportFile = _tfopen(m_szLogFileName, _T("wb"));
+    m_reportFile = _tfopen(m_logFileName, _T("wb"));
 
-    if (m_hReportFile)
+    if (m_reportFile)
     {
         GenerateExceptionReport(pExceptionInfo);
 
-        fclose(m_hReportFile);
-        m_hReportFile = nullptr;
+        fclose(m_reportFile);
+        m_reportFile = nullptr;
     }
 
     if (m_previousFilter)
@@ -412,6 +412,12 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
     return TRUE;
 }
 
+template <std::derived_from<IUnknown> T>
+using com_unique_ptr_deleter = decltype(Trinity::unique_ptr_deleter<T*, [](T* ptr) { ptr->Release(); }>());
+
+template <std::derived_from<IUnknown> T>
+using com_unique_ptr = std::unique_ptr<T, com_unique_ptr_deleter<T>>;
+
 BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cntMax)
 {
     // Step 1: --------------------------------------------------
@@ -420,10 +426,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     if (FAILED(hres))
         return FALSE;
 
-    std::shared_ptr<void> com(nullptr, [](void*)
-    {
-        CoUninitialize();
-    });
+    auto com = Trinity::make_unique_ptr_with_deleter<[](void*) { CoUninitialize(); }>(&hres);
 
     // Step 2: --------------------------------------------------
     // Set general COM security levels --------------------------
@@ -444,7 +447,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
 
     // Step 3: ---------------------------------------------------
     // Obtain the initial locator to WMI -------------------------
-    std::shared_ptr<IWbemLocator> loc = []() -> std::shared_ptr<IWbemLocator>
+    com_unique_ptr<IWbemLocator> loc([]
     {
         IWbemLocator* tmp = nullptr;
         HRESULT hres = CoCreateInstance(
@@ -454,11 +457,8 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
             IID_IWbemLocator,
             reinterpret_cast<LPVOID*>(&tmp));
 
-        if (FAILED(hres))
-            return nullptr;
-
-        return { tmp, [](IWbemLocator* ptr) { if (ptr) ptr->Release(); } };
-    }();
+        return SUCCEEDED(hres) ? tmp : nullptr;
+    }());
 
     if (!loc)
         return FALSE;
@@ -467,7 +467,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     // Connect to the root\cimv2 namespace with
     // the current user and obtain pointer pSvc
     // to make IWbemServices calls.
-    std::shared_ptr<IWbemServices> svc = [loc]() ->std::shared_ptr<IWbemServices>
+    com_unique_ptr<IWbemServices> svc([&]
     {
         IWbemServices* tmp = nullptr;
         HRESULT hres = loc->ConnectServer(
@@ -481,11 +481,8 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
             &tmp                            // pointer to IWbemServices proxy
         );
 
-        if (FAILED(hres))
-            return nullptr;
-
-        return { tmp, [](IWbemServices* ptr) { if (ptr) ptr->Release(); } };
-    }();
+        return SUCCEEDED(hres) ? tmp : nullptr;
+    }());
 
     if (!svc)
         return FALSE;
@@ -510,7 +507,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     // Use the IWbemServices pointer to make requests of WMI ----
 
     // For example, get the name of the operating system
-    std::shared_ptr<IEnumWbemClassObject> queryResult = [svc]() -> std::shared_ptr<IEnumWbemClassObject>
+    com_unique_ptr<IEnumWbemClassObject> queryResult([&]
     {
         IEnumWbemClassObject* tmp = nullptr;
         HRESULT hres = svc->ExecQuery(
@@ -520,11 +517,8 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
             nullptr,
             &tmp);
 
-        if (FAILED(hres))
-            return nullptr;
-
-        return { tmp, [](IEnumWbemClassObject* ptr) { if (ptr) ptr->Release(); } };
-    }();
+        return SUCCEEDED(hres) ? tmp : nullptr;
+    }());
 
     BOOL result = FALSE;
     // Step 7: -------------------------------------------------
@@ -533,11 +527,17 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
     {
         do
         {
-            IWbemClassObject* fields = nullptr;
+            auto [fields, rows] = [&]
+            {
+                IWbemClassObject* fields = nullptr;
+                ULONG rows = 0;
+                HRESULT hres = queryResult->Next(WBEM_INFINITE, 1, &fields, &rows);
+                return SUCCEEDED(hres) && rows
+                    ? std::pair(com_unique_ptr<IWbemClassObject>(fields), rows)
+                    : std::pair(com_unique_ptr<IWbemClassObject>(), ULONG(0));
+            }();
 
-            ULONG rows = 0;
-            queryResult->Next(WBEM_INFINITE, 1, &fields, &rows);
-            if (!rows)
+            if (!fields || !rows)
                 break;
 
             VARIANT field;
@@ -558,8 +558,6 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
                     _tcsncat(szVersion, buf, cntMax);
             }
             VariantClear(&field);
-
-            fields->Release();
 
             result = TRUE;
         } while (true);
@@ -598,7 +596,6 @@ void WheatyExceptionReport::printTracesForAllThreads(bool bWriteVariables)
 
   DWORD dwOwnerPID = GetCurrentProcessId();
   DWORD dwCurrentTID = GetCurrentThreadId();
-  m_hProcess = GetCurrentProcess();
   // Take a snapshot of all running threads
   HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
   if (hThreadSnap == INVALID_HANDLE_VALUE)
@@ -652,7 +649,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         GetLocalTime(&systime);
 
         // Start out with a banner
-        Log(_T("Revision: %s\r\n"), GitRevision::GetFullVersion());
+        Log(_T("Revision: %" PRSTRc "\r\n"), GitRevision::GetFullVersion());
         Log(_T("Date %u:%u:%u. Time %u:%u \r\n"), systime.wDay, systime.wMonth, systime.wYear, systime.wHour, systime.wMinute);
         PEXCEPTION_RECORD pExceptionRecord = pExceptionInfo->ExceptionRecord;
 
@@ -665,7 +662,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         if (pExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionRecord->NumberParameters >= 2)
         {
             pExceptionRecord->ExceptionAddress = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
-            Log(_T("Assertion message: %s\r\n"), pExceptionRecord->ExceptionInformation[0]);
+            Log(_T("Assertion message: %" PRSTRc "\r\n"), pExceptionRecord->ExceptionInformation[0]);
         }
 
         // Now print information about where the fault occured
@@ -739,7 +736,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         SymSetOptions(SYMOPT_DEFERRED_LOADS);
 
         // Initialize DbgHelp
-        if (!SymInitialize(GetCurrentProcess(), nullptr, TRUE))
+        if (!SymInitialize(m_process, nullptr, TRUE))
         {
             Log(_T("\r\n"));
             Log(_T("----\r\n"));
@@ -817,7 +814,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
                     PSYMBOL_INFO sym = (PSYMBOL_INFO)&buf[0];
                     sym->SizeOfStruct = sizeof(SYMBOL_INFO);
                     sym->MaxNameLen = MAX_SYM_NAME;
-                    if (SymGetTypeFromName(m_hProcess, (ULONG64)GetModuleHandle(nullptr), undName, sym))
+                    if (SymGetTypeFromName(m_process, (ULONG64)GetModuleHandle(nullptr), undName, sym))
                     {
                         sym->Address = pExceptionRecord->ExceptionInformation[1];
                         sym->Flags = 0;
@@ -844,7 +841,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
         WriteStackDetails(&trashableContext, true, nullptr);
         printTracesForAllThreads(true);
 
-        SymCleanup(GetCurrentProcess());
+        SymCleanup(m_process);
 
         Log(_T("\r\n"));
     }
@@ -970,6 +967,22 @@ struct CSymbolInfoPackage : public SYMBOL_INFO_PACKAGE
     }
 };
 
+BOOL WheatyExceptionReport::GetSymbolFromAddress(HANDLE hProcess, DWORD64 Address, ULONG InlineContext, PDWORD64 Displacement, PSYMBOL_INFO Symbol)
+{
+    if (InlineContext != INLINE_FRAME_CONTEXT_IGNORE)
+        return SymFromInlineContext(hProcess, Address, InlineContext, Displacement, Symbol);
+    else
+        return SymFromAddr(hProcess, Address, Displacement, Symbol);
+}
+
+BOOL WheatyExceptionReport::GetSymbolLineFromAddress(HANDLE hProcess, DWORD64 qwAddr, ULONG InlineContext, PDWORD pdwDisplacement, PIMAGEHLP_LINE64 Line64)
+{
+    if (InlineContext != INLINE_FRAME_CONTEXT_IGNORE)
+        return SymGetLineFromInlineContext(hProcess, qwAddr, InlineContext, 0, pdwDisplacement, Line64);
+    else
+        return SymGetLineFromAddr64(hProcess, qwAddr, pdwDisplacement, Line64);
+}
+
 //============================================================
 // Walks the stack, and writes the results to the report file
 //============================================================
@@ -984,8 +997,8 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
     DWORD dwMachineType = 0;
     // Could use SymSetOptions here to add the SYMOPT_DEFERRED_LOADS flag
 
-    STACKFRAME64 sf;
-    memset(&sf, 0, sizeof(sf));
+    STACKFRAME_EX sf = {};
+    sf.StackFrameSize = sizeof(sf);
 
     // Initialize the STACKFRAME structure for the first call.
     sf.AddrPC.Mode         = AddrModeFlat;
@@ -1012,15 +1025,16 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
     for (;;)
     {
         // Get the next stack frame
-        if (! StackWalk64(dwMachineType,
-            m_hProcess,
+        if (!StackWalkEx(dwMachineType,
+            m_process,
             pThreadHandle != nullptr ? pThreadHandle : GetCurrentThread(),
             &sf,
             pContext,
             nullptr,
             SymFunctionTableAccess64,
             SymGetModuleBase64,
-            nullptr))
+            nullptr,
+            SYM_STKWALK_DEFAULT))
             break;
         if (0 == sf.AddrFrame.Offset)                     // Basic sanity check to make sure
             break;                                          // the frame is OK.  Bail if not.
@@ -1033,16 +1047,20 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         DWORD64 symDisplacement = 0;                        // Displacement of the input address,
         // relative to the start of the symbol
 
+        bool isInline = sf.InlineFrameContext != INLINE_FRAME_CONTEXT_IGNORE && sf.InlineFrameContext & 0x200;
+        if (isInline)
+            Log(_T("[inline] "));
+
         // Get the name of the function for this stack frame entry
         CSymbolInfoPackage sip;
-        if (SymFromAddr(
-            m_hProcess,                                     // Process handle of the current process
+        if (GetSymbolFromAddress(
+            m_process,                                      // Process handle of the current process
             sf.AddrPC.Offset,                               // Symbol address
+            sf.InlineFrameContext,                          // Inline frame context identifier
             &symDisplacement,                               // Address of the variable that will receive the displacement
             &sip.si))                                       // Address of the SYMBOL_INFO structure (inside "sip" object)
         {
-            Log(_T("%hs+%I64X"), sip.si.Name, symDisplacement);
-
+            Log(_T("%h" PRSTRc "+%I64X"), sip.si.Name, symDisplacement);
         }
         else                                                // No symbol found.  Print out the logical address instead.
         {
@@ -1062,27 +1080,28 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         // Get the source line for this stack frame entry
         IMAGEHLP_LINE64 lineInfo = { sizeof(IMAGEHLP_LINE64) };
         DWORD dwLineDisplacement;
-        if (SymGetLineFromAddr64(m_hProcess, sf.AddrPC.Offset,
+        if (GetSymbolLineFromAddress(m_process, sf.AddrPC.Offset, sf.InlineFrameContext,
             &dwLineDisplacement, &lineInfo))
         {
-            Log(_T("  %s line %u"), lineInfo.FileName, lineInfo.LineNumber);
+            Log(_T("  %" PRSTRc " line %u"), lineInfo.FileName, lineInfo.LineNumber);
         }
 
         Log(_T("\r\n"));
 
         // Write out the variables, if desired
-        if (bWriteVariables)
+        if (bWriteVariables && !isInline)
         {
             // Use SymSetContext to get just the locals/params for this frame
             IMAGEHLP_STACK_FRAME imagehlpStackFrame;
             imagehlpStackFrame.InstructionOffset = sf.AddrPC.Offset;
-            SymSetContext(m_hProcess, &imagehlpStackFrame, nullptr);
+            SymSetContext(m_process, &imagehlpStackFrame, nullptr);
 
             // Enumerate the locals/parameters
             EnumerateSymbolsCallbackContext ctx;
             ctx.sf = &sf;
             ctx.context = pContext;
-            SymEnumSymbols(m_hProcess, 0, nullptr, EnumerateSymbolsCallback, &ctx);
+            ctx.report = this;
+            SymEnumSymbols(m_process, 0, nullptr, EnumerateSymbolsCallback, &ctx);
 
             Log(_T("\r\n"));
         }
@@ -1100,15 +1119,16 @@ PSYMBOL_INFO  pSymInfo,
 ULONG         /*SymbolSize*/,
 PVOID         UserContext)
 {
+    EnumerateSymbolsCallbackContext* context = static_cast<EnumerateSymbolsCallbackContext*>(UserContext);
     __try
     {
-        ClearSymbols();
-        FormatSymbolValue(pSymInfo, (EnumerateSymbolsCallbackContext*)UserContext);
+        context->report->ClearSymbols();
+        context->report->FormatSymbolValue(pSymInfo, context);
 
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
-        Log(_T("punting on symbol %s, partial output:\r\n"), pSymInfo->Name);
+        context->report->Log(_T("punting on symbol %" PRSTRc ", partial output:\r\n"), pSymInfo->Name);
     }
 
     return TRUE;
@@ -1121,7 +1141,7 @@ Optional<DWORD_PTR> WheatyExceptionReport::GetIntegerRegisterValue(PCONTEXT cont
 #define REG_X(x) ((WORD)(((DWORD_PTR)(x)) & 0xffff))
 #define REG_E(x) ((DWORD)(((DWORD_PTR)(x)) & 0xffffffff))
 #define REG_R(x) ((DWORD64)(((DWORD_PTR)(x)) & 0xffffffffffffffff))
-#define CPU_REG(reg, field, part) case reg: return part(context->field);
+#define CPU_REG(reg, field, part) case reg: return part(context->field)
     switch (registerId)
     {
 #ifdef _M_IX86
@@ -1345,9 +1365,9 @@ EnumerateSymbolsCallbackContext* pCtx)
 
     // Indicate if the variable is a local or parameter
     if (pSym->Flags & IMAGEHLP_SYMBOL_INFO_PARAMETER)
-        symbolDetails.top().Prefix = "Parameter ";
+        m_symbolDetails.top().Prefix = "Parameter ";
     else if (pSym->Flags & IMAGEHLP_SYMBOL_INFO_LOCAL)
-        symbolDetails.top().Prefix = "Local ";
+        m_symbolDetails.top().Prefix = "Local ";
 
     // Determine if the variable is a user defined type (UDT).  IF so, bHandled
     // will return true.
@@ -1360,16 +1380,16 @@ EnumerateSymbolsCallbackContext* pCtx)
         // variable.  Based on the size, we're assuming it's a char, WORD, or
         // DWORD.
         BasicType basicType = GetBasicType(pSym->TypeIndex, pSym->ModBase);
-        if (symbolDetails.top().Type.empty())
-            symbolDetails.top().Type = rgBaseType[basicType];
+        if (m_symbolDetails.top().Type.empty())
+            m_symbolDetails.top().Type = rgBaseType[basicType];
 
         // Emit the variable name
         if (pSym->Name[0] != '\0')
-            symbolDetails.top().Name = pSym->Name;
+            m_symbolDetails.top().Name = pSym->Name;
 
         char buffer[50];
         FormatOutputValue(buffer, basicType, pSym->Size, (PVOID)pVariable, sizeof(buffer));
-        symbolDetails.top().Value = buffer;
+        m_symbolDetails.top().Value = buffer;
     }
 
     PopSymbolDetail();
@@ -1397,25 +1417,25 @@ bool logChildren)
         PushSymbolDetail();
 
     DWORD typeTag;
-    if (!SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_SYMTAG, &typeTag))
+    if (!SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_SYMTAG, &typeTag))
         return;
 
     // Get the name of the symbol.  This will either be a Type name (if a UDT),
     // or the structure member name.
     WCHAR * pwszTypeName;
-    if (SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_SYMNAME,
+    if (SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_SYMNAME,
         &pwszTypeName))
     {
         // handle special cases
         if (wcscmp(pwszTypeName, L"std::basic_string<char,std::char_traits<char>,std::allocator<char> >") == 0)
         {
             LocalFree(pwszTypeName);
-            symbolDetails.top().Type = "std::string";
+            m_symbolDetails.top().Type = "std::string";
             char buffer[50];
             FormatOutputValue(buffer, btStdString, 0, (PVOID)offset, sizeof(buffer));
-            symbolDetails.top().Value = buffer;
+            m_symbolDetails.top().Value = buffer;
             if (Name != nullptr && Name[0] != '\0')
-                symbolDetails.top().Name = Name;
+                m_symbolDetails.top().Name = Name;
             bHandled = true;
             return;
         }
@@ -1425,16 +1445,16 @@ bool logChildren)
         buffer[WER_SMALL_BUFFER_SIZE - 1] = '\0';
         if (Name != nullptr && Name[0] != '\0')
         {
-            symbolDetails.top().Type = buffer;
-            symbolDetails.top().Name = Name;
+            m_symbolDetails.top().Type = buffer;
+            m_symbolDetails.top().Name = Name;
         }
         else if (buffer[0] != '\0')
-            symbolDetails.top().Name = buffer;
+            m_symbolDetails.top().Name = buffer;
 
         LocalFree(pwszTypeName);
     }
     else if (Name != nullptr && Name[0] != '\0')
-        symbolDetails.top().Name = Name;
+        m_symbolDetails.top().Name = Name;
 
     if (!StoreSymbol(dwTypeIndex, offset))
     {
@@ -1448,30 +1468,30 @@ bool logChildren)
     switch (typeTag)
     {
         case SymTagPointerType:
-            if (SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_TYPEID, &innerTypeID))
+            if (SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_TYPEID, &innerTypeID))
             {
                 if (Name != nullptr && Name[0] != '\0')
-                    symbolDetails.top().Name = Name;
+                    m_symbolDetails.top().Name = Name;
 
                 BOOL isReference;
-                SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_IS_REFERENCE, &isReference);
+                SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_IS_REFERENCE, &isReference);
 
                 char addressStr[40];
                 memset(addressStr, 0, sizeof(addressStr));
 
                 if (isReference)
-                    symbolDetails.top().Suffix += "&";
+                    m_symbolDetails.top().Suffix += "&";
                 else
-                    symbolDetails.top().Suffix += "*";
+                    m_symbolDetails.top().Suffix += "*";
 
                 // Try to dereference the pointer in a try/except block since it might be invalid
                 DWORD_PTR address = DereferenceUnsafePointer(offset);
 
                 char buffer[WER_SMALL_BUFFER_SIZE];
                 FormatOutputValue(buffer, btVoid, sizeof(PVOID), (PVOID)offset, sizeof(buffer));
-                symbolDetails.top().Value = buffer;
+                m_symbolDetails.top().Value = buffer;
 
-                if (symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
+                if (m_symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
                     logChildren = false;
 
                 // no need to log any children since the address is invalid anyway
@@ -1483,59 +1503,59 @@ bool logChildren)
                 if (!bHandled)
                 {
                     BasicType basicType = GetBasicType(dwTypeIndex, modBase);
-                    if (symbolDetails.top().Type.empty())
-                        symbolDetails.top().Type = rgBaseType[basicType];
+                    if (m_symbolDetails.top().Type.empty())
+                        m_symbolDetails.top().Type = rgBaseType[basicType];
 
                     if (address == 0)
-                        symbolDetails.top().Value = "NULL";
+                        m_symbolDetails.top().Value = "NULL";
                     else if (address == DWORD_PTR(-1))
-                        symbolDetails.top().Value = "<Unable to read memory>";
+                        m_symbolDetails.top().Value = "<Unable to read memory>";
                     else
                     {
                         // Get the size of the child member
                         ULONG64 length;
-                        SymGetTypeInfo(m_hProcess, modBase, innerTypeID, TI_GET_LENGTH, &length);
+                        SymGetTypeInfo(m_process, modBase, innerTypeID, TI_GET_LENGTH, &length);
                         char buffer2[50];
                         FormatOutputValue(buffer2, basicType, length, (PVOID)address, sizeof(buffer2));
-                        symbolDetails.top().Value = buffer2;
+                        m_symbolDetails.top().Value = buffer2;
                     }
                     bHandled = true;
                     return;
                 }
                 else if (address == 0)
-                    symbolDetails.top().Value = "NULL";
+                    m_symbolDetails.top().Value = "NULL";
                 else if (address == DWORD_PTR(-1))
                 {
-                    symbolDetails.top().Value = "<Unable to read memory>";
+                    m_symbolDetails.top().Value = "<Unable to read memory>";
                     bHandled = true;
                     return;
                 }
             }
             break;
         case SymTagData:
-            if (SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_TYPEID, &innerTypeID))
+            if (SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_TYPEID, &innerTypeID))
             {
                 DWORD innerTypeTag;
-                if (!SymGetTypeInfo(m_hProcess, modBase, innerTypeID, TI_GET_SYMTAG, &innerTypeTag))
+                if (!SymGetTypeInfo(m_process, modBase, innerTypeID, TI_GET_SYMTAG, &innerTypeTag))
                     break;
 
                 switch (innerTypeTag)
                 {
                     case SymTagUDT:
-                        if (symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
+                        if (m_symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
                             logChildren = false;
                         DumpTypeIndex(modBase, innerTypeID,
-                            offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
+                            offset, bHandled, m_symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     case SymTagPointerType:
                         if (Name != nullptr && Name[0] != '\0')
-                            symbolDetails.top().Name = Name;
+                            m_symbolDetails.top().Name = Name;
                         DumpTypeIndex(modBase, innerTypeID,
-                            offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
+                            offset, bHandled, m_symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     case SymTagArrayType:
                         DumpTypeIndex(modBase, innerTypeID,
-                            offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
+                            offset, bHandled, m_symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     default:
                         break;
@@ -1543,35 +1563,35 @@ bool logChildren)
             }
             break;
         case SymTagArrayType:
-            if (SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_TYPEID, &innerTypeID))
+            if (SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_TYPEID, &innerTypeID))
             {
-                symbolDetails.top().HasChildren = true;
+                m_symbolDetails.top().HasChildren = true;
 
                 BasicType basicType = btNoType;
                 DumpTypeIndex(modBase, innerTypeID,
                     offset, bHandled, Name, "", false, false);
 
                 // Set Value back to an empty string since the Array object itself has no value, only its elements have
-                std::string firstElementValue = symbolDetails.top().Value;
-                symbolDetails.top().Value.clear();
+                std::string firstElementValue = m_symbolDetails.top().Value;
+                m_symbolDetails.top().Value.clear();
 
                 DWORD elementsCount;
-                if (SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_COUNT, &elementsCount))
-                    symbolDetails.top().Suffix += "[" + std::to_string(elementsCount) + "]";
+                if (SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_COUNT, &elementsCount))
+                    m_symbolDetails.top().Suffix += "[" + std::to_string(elementsCount) + "]";
                 else
-                    symbolDetails.top().Suffix += "[<unknown count>]";
+                    m_symbolDetails.top().Suffix += "[<unknown count>]";
 
                 if (!bHandled)
                 {
                     basicType = GetBasicType(dwTypeIndex, modBase);
-                    if (symbolDetails.top().Type.empty())
-                        symbolDetails.top().Type = rgBaseType[basicType];
+                    if (m_symbolDetails.top().Type.empty())
+                        m_symbolDetails.top().Type = rgBaseType[basicType];
                     bHandled = true;
                 }
 
                 // Get the size of the child member
                 ULONG64 length;
-                SymGetTypeInfo(m_hProcess, modBase, innerTypeID, TI_GET_LENGTH, &length);
+                SymGetTypeInfo(m_process, modBase, innerTypeID, TI_GET_LENGTH, &length);
 
                 char buffer[50];
                 switch (basicType)
@@ -1579,7 +1599,7 @@ bool logChildren)
                     case btChar:
                     case btStdString:
                         FormatOutputValue(buffer, basicType, length, (PVOID)offset, sizeof(buffer), elementsCount);
-                        symbolDetails.top().Value = buffer;
+                        m_symbolDetails.top().Value = buffer;
                         break;
                     default:
                         for (DWORD index = 0; index < elementsCount && index < WER_MAX_ARRAY_ELEMENTS_COUNT; index++)
@@ -1593,7 +1613,7 @@ bool logChildren)
                                     FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
                                     firstElementValue = buffer;
                                 }
-                                symbolDetails.top().Value = firstElementValue;
+                                m_symbolDetails.top().Value = firstElementValue;
                             }
                             else
                             {
@@ -1601,13 +1621,13 @@ bool logChildren)
                                 if (!elementHandled)
                                 {
                                     FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
-                                    symbolDetails.top().Value = buffer;
+                                    m_symbolDetails.top().Value = buffer;
                                 }
                             }
-                            symbolDetails.top().Prefix.clear();
-                            symbolDetails.top().Type.clear();
-                            symbolDetails.top().Suffix = "[" + std::to_string(index) + "]";
-                            symbolDetails.top().Name.clear();
+                            m_symbolDetails.top().Prefix.clear();
+                            m_symbolDetails.top().Type.clear();
+                            m_symbolDetails.top().Suffix = "[" + std::to_string(index) + "]";
+                            m_symbolDetails.top().Name.clear();
                             PopSymbolDetail();
                         }
                         break;
@@ -1626,7 +1646,7 @@ bool logChildren)
 
     // Determine how many children this type has.
     DWORD dwChildrenCount = 0;
-    SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_CHILDRENCOUNT, &dwChildrenCount);
+    SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_GET_CHILDRENCOUNT, &dwChildrenCount);
 
     if (!dwChildrenCount)                                 // If no children, we're done
         return;
@@ -1644,7 +1664,7 @@ bool logChildren)
     children.Start= 0;
 
     // Get the array of TypeIds, one for each child type
-    if (!SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_FINDCHILDREN,
+    if (!SymGetTypeInfo(m_process, modBase, dwTypeIndex, TI_FINDCHILDREN,
         &children))
     {
         return;
@@ -1654,7 +1674,7 @@ bool logChildren)
     for (unsigned i = 0; i < dwChildrenCount; i++)
     {
         DWORD symTag;
-        SymGetTypeInfo(m_hProcess, modBase, children.ChildId[i], TI_GET_SYMTAG, &symTag);
+        SymGetTypeInfo(m_process, modBase, children.ChildId[i], TI_GET_SYMTAG, &symTag);
 
         if (symTag == SymTagFunction ||
             symTag == SymTagEnum ||
@@ -1664,13 +1684,13 @@ bool logChildren)
 
         // Ignore static fields
         DWORD dataKind;
-        SymGetTypeInfo(m_hProcess, modBase, children.ChildId[i], TI_GET_DATAKIND, &dataKind);
+        SymGetTypeInfo(m_process, modBase, children.ChildId[i], TI_GET_DATAKIND, &dataKind);
         if (dataKind == DataIsStaticLocal ||
             dataKind == DataIsGlobal ||
             dataKind == DataIsStaticMember)
             continue;
 
-        symbolDetails.top().HasChildren = true;
+        m_symbolDetails.top().HasChildren = true;
         if (!logChildren)
         {
             bHandled = false;
@@ -1683,7 +1703,7 @@ bool logChildren)
 
         // Get the offset of the child member, relative to its parent
         DWORD dwMemberOffset;
-        SymGetTypeInfo(m_hProcess, modBase, children.ChildId[i],
+        SymGetTypeInfo(m_process, modBase, children.ChildId[i],
             TI_GET_OFFSET, &dwMemberOffset);
 
         // Calculate the address of the member
@@ -1696,22 +1716,22 @@ bool logChildren)
         // If the child wasn't a UDT, format it appropriately
         if (!bHandled2)
         {
-            if (symbolDetails.top().Type.empty())
-                symbolDetails.top().Type = rgBaseType[basicType];
+            if (m_symbolDetails.top().Type.empty())
+                m_symbolDetails.top().Type = rgBaseType[basicType];
 
             // Get the real "TypeId" of the child.  We need this for the
             // SymGetTypeInfo(TI_GET_TYPEID) call below.
             DWORD typeId;
-            SymGetTypeInfo(m_hProcess, modBase, children.ChildId[i],
+            SymGetTypeInfo(m_process, modBase, children.ChildId[i],
                 TI_GET_TYPEID, &typeId);
 
             // Get the size of the child member
             ULONG64 length;
-            SymGetTypeInfo(m_hProcess, modBase, typeId, TI_GET_LENGTH, &length);
+            SymGetTypeInfo(m_process, modBase, typeId, TI_GET_LENGTH, &length);
 
             char buffer[50];
             FormatOutputValue(buffer, basicType, length, (PVOID)dwFinalOffset, sizeof(buffer));
-            symbolDetails.top().Value = buffer;
+            m_symbolDetails.top().Value = buffer;
         }
 
         PopSymbolDetail();
@@ -1799,10 +1819,10 @@ size_t countOverride)
 }
 
 BasicType
-WheatyExceptionReport::GetBasicType(DWORD typeIndex, DWORD64 modBase)
+WheatyExceptionReport::GetBasicType(DWORD typeIndex, DWORD64 modBase) const
 {
     BasicType basicType;
-    if (SymGetTypeInfo(m_hProcess, modBase, typeIndex,
+    if (SymGetTypeInfo(m_process, modBase, typeIndex,
         TI_GET_BASETYPE, &basicType))
     {
         return basicType;
@@ -1811,9 +1831,9 @@ WheatyExceptionReport::GetBasicType(DWORD typeIndex, DWORD64 modBase)
     // Get the real "TypeId" of the child.  We need this for the
     // SymGetTypeInfo(TI_GET_TYPEID) call below.
     DWORD typeId;
-    if (SymGetTypeInfo(m_hProcess, modBase, typeIndex, TI_GET_TYPEID, &typeId))
+    if (SymGetTypeInfo(m_process, modBase, typeIndex, TI_GET_TYPEID, &typeId))
     {
-        if (SymGetTypeInfo(m_hProcess, modBase, typeId, TI_GET_BASETYPE,
+        if (SymGetTypeInfo(m_process, modBase, typeId, TI_GET_BASETYPE,
             &basicType))
         {
             return basicType;
@@ -1839,54 +1859,54 @@ DWORD_PTR WheatyExceptionReport::DereferenceUnsafePointer(DWORD_PTR address)
 // Helper function that writes to the report file, and allows the user to use
 // printf style formating
 //============================================================================
-int __cdecl WheatyExceptionReport::Log(const TCHAR * format, ...)
+int WheatyExceptionReport::Log(const TCHAR * format, ...)
 {
     va_list argptr;
     va_start(argptr, format);
-    int retValue = _vftprintf(m_hReportFile, format, argptr);
+    int retValue = _vftprintf(m_reportFile, format, argptr);
     va_end(argptr);
     return retValue;
 }
 
 bool WheatyExceptionReport::StoreSymbol(DWORD type, DWORD_PTR offset)
 {
-    return symbols.insert(SymbolPair(type, offset)).second;
+    return m_symbols.insert(SymbolPair(type, offset)).second;
 }
 
 void WheatyExceptionReport::ClearSymbols()
 {
-    symbols.clear();
-    while (!symbolDetails.empty())
-        symbolDetails.pop();
+    m_symbols.clear();
+    while (!m_symbolDetails.empty())
+        m_symbolDetails.pop();
 }
 
 void WheatyExceptionReport::PushSymbolDetail()
 {
     // Log current symbol and then add another to the stack to keep the hierarchy format
     PrintSymbolDetail();
-    symbolDetails.emplace();
+    m_symbolDetails.emplace();
 }
 
 void WheatyExceptionReport::PopSymbolDetail()
 {
     PrintSymbolDetail();
-    symbolDetails.pop();
+    m_symbolDetails.pop();
 }
 
 void WheatyExceptionReport::PrintSymbolDetail()
 {
-    if (symbolDetails.empty())
+    if (m_symbolDetails.empty())
         return;
 
     // Don't log anything if has been logged already or if it's empty
-    if (symbolDetails.top().Logged || symbolDetails.top().empty())
+    if (m_symbolDetails.top().Logged || m_symbolDetails.top().empty())
         return;
 
     // Add appropriate indentation level (since this routine is recursive)
-    for (size_t i = 0; i < symbolDetails.size(); i++)
+    for (size_t i = 0; i < m_symbolDetails.size(); i++)
         Log(_T("\t"));
 
-    Log(_T("%s\r\n"), symbolDetails.top().ToString().c_str());
+    Log(_T("%" PRSTRc "\r\n"), m_symbolDetails.top().ToString().c_str());
 }
 
 std::string SymbolDetail::ToString()

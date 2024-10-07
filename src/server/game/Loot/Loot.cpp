@@ -482,7 +482,7 @@ bool LootRoll::TryToStart(Map* map, Loot& loot, uint32 lootListId, uint16 enchan
         m_voteMask = ROLL_ALL_TYPE_MASK;
         if (itemTemplate->HasFlag(ITEM_FLAG2_CAN_ONLY_ROLL_GREED))
             m_voteMask = RollMask(m_voteMask & ~ROLL_FLAG_TYPE_NEED);
-        if (ItemDisenchantLootEntry const* disenchant = GetItemDisenchantLoot(); !disenchant || disenchant->SkillRequired > enchantingSkill)
+        if (Optional<uint16> disenchantSkillRequired = GetItemDisenchantSkillRequired(); !disenchantSkillRequired || disenchantSkillRequired > enchantingSkill)
             m_voteMask = RollMask(m_voteMask & ~ROLL_FLAG_TYPE_DISENCHANT);
 
         if (playerCount > 1)                                    // check if more than one player can loot this item
@@ -606,7 +606,7 @@ bool LootRoll::AllPlayerVoted(RollVoteMap::const_iterator& winnerItr)
     return notVoted == 0;
 }
 
-ItemDisenchantLootEntry const* LootRoll::GetItemDisenchantLoot() const
+Optional<uint32> LootRoll::GetItemDisenchantLootId() const
 {
     WorldPackets::Item::ItemInstance itemInstance;
     itemInstance.Initialize(*m_lootItem);
@@ -614,11 +614,43 @@ ItemDisenchantLootEntry const* LootRoll::GetItemDisenchantLoot() const
     BonusData bonusData;
     bonusData.Initialize(itemInstance);
     if (!bonusData.CanDisenchant)
-        return nullptr;
+        return {};
+
+    if (bonusData.DisenchantLootId)
+        return bonusData.DisenchantLootId;
 
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_lootItem->itemid);
-    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, 1, 0, 0, 0, 0, false, 0);
-    return Item::GetDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
+
+    // ignore temporary item level scaling (pvp or timewalking)
+    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, bonusData.RequiredLevel, 0, 0, 0, 0, false, 0);
+
+    ItemDisenchantLootEntry const* disenchantLoot = Item::GetBaseDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
+    if (!disenchantLoot)
+        return {};
+
+    return disenchantLoot->ID;
+}
+
+Optional<uint16> LootRoll::GetItemDisenchantSkillRequired() const
+{
+    WorldPackets::Item::ItemInstance itemInstance;
+    itemInstance.Initialize(*m_lootItem);
+
+    BonusData bonusData;
+    bonusData.Initialize(itemInstance);
+    if (!bonusData.CanDisenchant)
+        return {};
+
+    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(m_lootItem->itemid);
+
+    // ignore temporary item level scaling (pvp or timewalking)
+    uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, bonusData.RequiredLevel, 0, 0, 0, 0, false, 0);
+
+    ItemDisenchantLootEntry const* disenchantLoot = Item::GetBaseDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
+    if (!disenchantLoot)
+        return {};
+
+    return disenchantLoot->SkillRequired;
 }
 
 // terminate the roll
@@ -646,9 +678,8 @@ void LootRoll::Finish(RollVoteMap::const_iterator winnerItr)
 
             if (winnerItr->second.Vote == RollVote::Disenchant)
             {
-                ItemDisenchantLootEntry const* disenchant = ASSERT_NOTNULL(GetItemDisenchantLoot());
                 Loot loot(m_map, m_loot->GetOwnerGUID(), LOOT_DISENCHANTING, nullptr);
-                loot.FillLoot(disenchant->ID, LootTemplates_Disenchant, player, true, false, LOOT_MODE_DEFAULT, ItemContext::NONE);
+                loot.FillLoot(*GetItemDisenchantLootId(), LootTemplates_Disenchant, player, true, false, LOOT_MODE_DEFAULT, ItemContext::NONE);
                 if (!loot.AutoStore(player, NULL_BAG, NULL_SLOT, true))
                 {
                     for (uint32 i = 0; i < loot.items.size(); ++i)

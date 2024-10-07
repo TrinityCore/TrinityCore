@@ -270,7 +270,8 @@ private:
     void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
     void Finish(RollVoteMap::const_iterator winnerItr);
     bool AllPlayerVoted(RollVoteMap::const_iterator& winnerItr);
-    ItemDisenchantLootEntry const* GetItemDisenchantLoot() const;
+    Optional<uint32> GetItemDisenchantLootId() const;
+    Optional<uint16> GetItemDisenchantSkillRequired() const;
     Map*        m_map;
     RollVoteMap m_rollVoteMap;
     bool        m_isStarted;
