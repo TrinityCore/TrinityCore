@@ -717,6 +717,7 @@ class TC_GAME_API Guild
         bool AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
         bool DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false);
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 newRank);
+        bool IsMember(ObjectGuid guid) const;
         uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
 
         // Bank
