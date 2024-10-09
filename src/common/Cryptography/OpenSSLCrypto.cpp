@@ -18,6 +18,7 @@
 #include "OpenSSLCrypto.h"
 #include <openssl/crypto.h>
 #include <openssl/provider.h>
+#include <cstdlib>
 
 OSSL_PROVIDER* LegacyProvider;
 
@@ -28,7 +29,8 @@ void OpenSSLCrypto::threadsSetup([[maybe_unused]] boost::filesystem::path const&
 #endif
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
+    if (!std::getenv("OPENSSL_MODULES"))
+        OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
 #endif
     LegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
 }
