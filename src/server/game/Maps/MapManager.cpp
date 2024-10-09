@@ -180,7 +180,10 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
             TC_LOG_DEBUG("maps", "MAP: Player '{}' has corpse in instance '{}' and can enter.", player->GetName(), mapName);
         }
         else
+        {
             TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '{}' is dead but does not have a corpse!", player->GetName());
+            return Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE;
+        }
     }
 
     //Get instance where player's group is bound & its map
