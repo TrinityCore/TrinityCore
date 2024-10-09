@@ -2347,7 +2347,7 @@ CREATE TABLE `realmlist` (
   `flag` tinyint unsigned NOT NULL DEFAULT '2',
   `timezone` tinyint unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
-  `population` float unsigned NOT NULL DEFAULT '0',
+  `population` float NOT NULL DEFAULT '0',
   `gamebuild` int unsigned NOT NULL DEFAULT '12340',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_name` (`name`)
@@ -2529,7 +2529,8 @@ INSERT INTO `updates` VALUES
 ('2024_04_10_00_auth.sql','CE8BD4D6DF6DE85DBF892507B1B18B746FE4A71D','ARCHIVED','2024-04-10 16:07:02',0),
 ('2024_08_17_00_auth.sql','B6D7D00D5573958EE84321B029D869C52793F924','ARCHIVED','2024-08-17 22:26:12',0),
 ('2024_08_28_01_auth.sql','BC5D74553AF2D92606F55C1C462D2700FE73BD34','RELEASED','2024-08-28 14:55:05',0),
-('2024_08_30_00_auth.sql','BD76942F1C29AAA2450E051E7CA552672B5E331B','RELEASED','2024-08-30 19:24:30',0);
+('2024_08_30_00_auth.sql','BD76942F1C29AAA2450E051E7CA552672B5E331B','RELEASED','2024-08-30 19:24:30',0),
+('2024_09_26_00_auth.sql','E37C3997FD7851EA360774AC568912846C448272','RELEASED','2024-09-26 18:27:26',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2631,11 +2632,11 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb3 */;
-/*!50001 SET character_set_results     = utf8mb3 */;
-/*!50001 SET collation_connection      = utf8mb3_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY INVOKER */
 /*!50001 VIEW `vw_log_history` AS select from_unixtime(min(`logs`.`time`)) AS `First Logged`,from_unixtime(max(`logs`.`time`)) AS `Last Logged`,count(0) AS `Occurrences`,`realmlist`.`name` AS `Realm`,`logs`.`type` AS `type`,`logs`.`level` AS `level`,`logs`.`string` AS `string` from (`logs` left join `realmlist` on((`logs`.`realm` = `realmlist`.`id`))) group by `logs`.`string`,`logs`.`type`,`logs`.`realm` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -2649,11 +2650,11 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb3 */;
-/*!50001 SET character_set_results     = utf8mb3 */;
-/*!50001 SET collation_connection      = utf8mb3_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY INVOKER */
 /*!50001 VIEW `vw_rbac` AS select `t1`.`linkedId` AS `Permission ID`,`t1`.`id` AS `Permission Group`,ifnull(`t2`.`secId`,'linked') AS `Security Level`,`t3`.`name` AS `Permission` from ((`rbac_linked_permissions` `t1` left join `rbac_default_permissions` `t2` on((`t1`.`id` = `t2`.`permissionId`))) left join `rbac_permissions` `t3` on((`t1`.`linkedId` = `t3`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;

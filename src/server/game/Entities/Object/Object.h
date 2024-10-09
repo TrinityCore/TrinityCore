@@ -296,6 +296,68 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+struct FindCreatureOptions
+{
+    FindCreatureOptions() = default;
+
+    FindCreatureOptions& SetCreatureId(uint32 creatureId) { CreatureId = creatureId; return *this; }
+    FindCreatureOptions& SetStringId(std::string_view stringId) { StringId = stringId; return *this; }
+
+    FindCreatureOptions& SetIsAlive(bool isAlive) { IsAlive = isAlive; return *this; }
+    FindCreatureOptions& SetIsInCombat(bool isInCombat) { IsInCombat = isInCombat; return *this; }
+    FindCreatureOptions& SetIsSummon(bool isSummon) { IsSummon = isSummon; return *this; }
+
+    FindCreatureOptions& SetIgnorePhases(bool ignorePhases) { IgnorePhases = ignorePhases; return *this; }
+    FindCreatureOptions& SetIgnoreNotOwnedPrivateObjects(bool ignoreNotOwnedPrivateObjects) { IgnoreNotOwnedPrivateObjects = ignoreNotOwnedPrivateObjects; return *this; }
+    FindCreatureOptions& SetIgnorePrivateObjects(bool ignorePrivateObjects) { IgnorePrivateObjects = ignorePrivateObjects; return *this; }
+
+    FindCreatureOptions& SetHasAura(uint32 spellId) { AuraSpellId = spellId; return *this; }
+    FindCreatureOptions& SetOwner(ObjectGuid ownerGuid) { OwnerGuid = ownerGuid; return *this; }
+    FindCreatureOptions& SetCharmer(ObjectGuid charmerGuid) { CharmerGuid = charmerGuid; return *this; }
+    FindCreatureOptions& SetCreator(ObjectGuid creatorGuid) { CreatorGuid = creatorGuid; return *this; }
+    FindCreatureOptions& SetPrivateObjectOwner(ObjectGuid privateObjectOwnerGuid) { PrivateObjectOwnerGuid = privateObjectOwnerGuid; return *this; }
+
+    Optional<uint32> CreatureId;
+    Optional<std::string_view> StringId;
+
+    Optional<bool> IsAlive;
+    Optional<bool> IsInCombat;
+    Optional<bool> IsSummon;
+
+    bool IgnorePhases;
+    bool IgnoreNotOwnedPrivateObjects;
+    bool IgnorePrivateObjects;
+
+    Optional<uint32> AuraSpellId;
+    Optional<ObjectGuid> OwnerGuid;
+    Optional<ObjectGuid> CharmerGuid;
+    Optional<ObjectGuid> CreatorGuid;
+    Optional<ObjectGuid> PrivateObjectOwnerGuid;
+
+    FindCreatureOptions(FindCreatureOptions const&) = delete;
+    FindCreatureOptions(FindCreatureOptions&&) = delete;
+
+    FindCreatureOptions& operator=(FindCreatureOptions const&) = delete;
+    FindCreatureOptions& operator=(FindCreatureOptions&&) = delete;
+};
+
+struct FindGameObjectOptions
+{
+    Optional<uint32> GameObjectId;
+    Optional<std::string_view> StringId;
+
+    Optional<bool> IsSummon;
+    Optional<bool> IsSpawned;
+
+    bool IgnorePhases = false;
+    bool IgnoreNotOwnedPrivateObjects = true;
+    bool IgnorePrivateObjects = false;
+
+    Optional<ObjectGuid> OwnerGuid;
+    Optional<ObjectGuid> PrivateObjectOwnerGuid;
+    Optional<GameobjectTypes> GameObjectType;
+};
+
 class TC_GAME_API WorldObject : public Object, public WorldLocation
 {
     protected:
@@ -418,15 +480,17 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void ClearZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, bool visibleBySummonerOnly = false);
-        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, bool visibleBySummonerOnly = false);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         Creature*   SummonTrigger(float x, float y, float z, float ang, Milliseconds despawnTime, CreatureAI* (*GetAI)(Creature*) = nullptr);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+        Creature*   FindNearestCreatureWithOptions(float range, FindCreatureOptions const& options) const;
         GameObject* FindNearestGameObject(uint32 entry, float range, bool spawnedOnly = true) const;
+        GameObject* FindNearestGameObjectWithOptions(float range, FindGameObjectOptions const& options) const;
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
@@ -484,7 +548,13 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;
 
         template <typename Container>
+        void GetGameObjectListWithOptionsInGrid(Container& gameObjectContainer, float maxSearchRange, FindGameObjectOptions const& options) const;
+
+        template <typename Container>
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListWithOptionsInGrid(Container& creatureContainer, float maxSearchRange, FindCreatureOptions const& options) const;
 
         template <typename Container>
         void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive = true) const;
@@ -546,6 +616,12 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // Event handler
         EventProcessor m_Events;
 
+        // Watcher
+        bool IsPrivateObject() const { return !_privateObjectOwner.IsEmpty(); }
+        ObjectGuid GetPrivateObjectOwner() const { return _privateObjectOwner; }
+        void SetPrivateObjectOwner(ObjectGuid const& owner) { _privateObjectOwner = owner; }
+        bool CheckPrivateObjectOwnerVisibility(WorldObject const* seer) const;
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -582,6 +658,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 m_phaseMask;                               // in area phase state
 
         uint16 m_notifyflags;
+
+        ObjectGuid _privateObjectOwner;
+
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 
         bool CanNeverSee(WorldObject const* obj) const;

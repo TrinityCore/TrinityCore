@@ -410,10 +410,10 @@ Unit::~Unit()
 
     _DeleteRemovedAuras();
 
-    delete i_motionMaster;
-    delete m_charmInfo;
-    delete movespline;
-    delete _spellHistory;
+    delete std::exchange(i_motionMaster, nullptr);
+    delete std::exchange(m_charmInfo, nullptr);
+    delete std::exchange(movespline, nullptr);
+    delete std::exchange(_spellHistory, nullptr);
 
     ASSERT(!m_duringRemoveFromWorld);
     ASSERT(!m_attacking);

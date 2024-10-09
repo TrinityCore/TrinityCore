@@ -303,6 +303,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     if (!mover->movespline->Finalized())
         return;
 
+    // stop some emotes at player move
+    if (plrMover && (plrMover->GetEmoteState() != 0))
+        plrMover->SetEmoteState(EMOTE_ONESHOT_NONE);
+
     /* handle special cases */
     if (movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
