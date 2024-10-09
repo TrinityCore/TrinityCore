@@ -374,10 +374,10 @@ enum EastvalePeasant
     EVENT_PATHBACK                    = 7,
     NPC_SUPERVISOR_RAELEN             = 10616,
     PATH_PEASANT_0                    = 813490,
-    PATH_PEASANT_1                    = 813480,
-    PATH_PEASANT_2                    = 812520,
-    PATH_PEASANT_3                    = 812490,
-    PATH_PEASANT_4                    = 812500,
+    PATH_PEASANT_1                    = 812500,
+    PATH_PEASANT_2                    = 813480,
+    PATH_PEASANT_3                    = 812520,
+    PATH_PEASANT_4                    = 812490,
     SAY_RAELEN                        = 0,
     SOUND_PEASANT_GREETING_1          = 6289,
     SOUND_PEASANT_GREETING_2          = 6288,
@@ -390,7 +390,7 @@ enum EastvalePeasant
     SPELL_TRANSFORM_PEASANT_WITH_WOOD = 9127
 };
 
-int32 peasentPaths[5] = { 813490, 812500, 813480, 812520, 812490 };
+int32 peasentPaths[5] = { PATH_PEASANT_0, PATH_PEASANT_1, PATH_PEASANT_2, PATH_PEASANT_3, PATH_PEASANT_4 };
 
 struct npc_eastvale_peasant : public ScriptedAI
 {
@@ -406,14 +406,6 @@ struct npc_eastvale_peasant : public ScriptedAI
             if (me->HasStringId(peasantStrings[i]))
                 _path = peasentPaths[i];
         }
-    }
-
-    void Reset() override {}
-
-    void SetRaelenData()
-    {
-        if (Creature* realen = ObjectAccessor::GetCreature(*me, _realenGUID))
-            realen->AI()->SetData(DATA_PEASANT_SCRIPTING, DATA_PEASANT_SCRIPTING);
     }
 
     void SetData(uint32 /*type*/, uint32 data) override
@@ -471,13 +463,13 @@ struct npc_eastvale_peasant : public ScriptedAI
                                 me->PlayDirectSound(SOUND_PEASANT_GREETING_1);
                                 _events.ScheduleEvent(EVENT_TALKTORAELEN2, 2s);
                                 break;
-                            case PATH_PEASANT_1:
-                            case PATH_PEASANT_3:
+                            case PATH_PEASANT_2:
+                            case PATH_PEASANT_4:
                                 me->PlayDirectSound(SOUND_PEASANT_GREETING_3);
                                 _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
                                 break;
-                            case PATH_PEASANT_2:
-                            case PATH_PEASANT_4:
+                            case PATH_PEASANT_1:
+                            case PATH_PEASANT_3:
                                 me->PlayDirectSound(SOUND_PEASANT_GREETING_2);
                                 _events.ScheduleEvent(EVENT_RAELENTALK, 2s);
                                 break;
