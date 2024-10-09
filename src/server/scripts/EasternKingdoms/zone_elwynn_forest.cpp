@@ -336,7 +336,7 @@ struct npc_supervisor_raelen : public ScriptedAI
                         }
                         else
                         {
-                            _events.ScheduleEvent(EVENT_NEXT_PEASANT, 2s, 6s);        
+                            _events.ScheduleEvent(EVENT_NEXT_PEASANT, 2s, 6s);
                         }
                     }
                     break;
