@@ -301,7 +301,7 @@ struct npc_supervisor_raelen : public ScriptedAI
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
-        if (data == 1) 
+        if (data == 1)
             _events.ScheduleEvent(EVENT_NEXT_PEASANT, 2s, 6s);
     }
 
