@@ -8,6 +8,12 @@ DELETE FROM `waypoint_scripts` WHERE `id` IN (1132800,1132801,1132802);
 UPDATE `creature_template` SET `ScriptName` = "npc_eastvale_peasant" WHERE `entry` IN (11328);
 UPDATE `creature_template` SET `ScriptName` = "npc_supervisor_raelen" WHERE `entry` IN (10616);
 
+UPDATE `creature` SET `StringId` = "Eastvale Peasant 1" WHERE `guid`=81349;
+UPDATE `creature` SET `StringId` = "Eastvale Peasant 2" WHERE `guid`=81250;
+UPDATE `creature` SET `StringId` = "Eastvale Peasant 3" WHERE `guid`=81348;
+UPDATE `creature` SET `StringId` = "Eastvale Peasant 4" WHERE `guid`=81252;
+UPDATE `creature` SET `StringId` = "Eastvale Peasant 5" WHERE `guid`=81249;
+
 -- Update Eastvale Peasants
 UPDATE `creature` SET `wander_distance`=0,`MovementType`=0 WHERE `id`=11328;
 UPDATE `creature` SET `position_x`=-9523.21,`position_y`=-1290.2489,`position_z`=44.11742, `orientation`=5.238773 WHERE `guid`=81249;
