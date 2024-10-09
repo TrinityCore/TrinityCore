@@ -2250,7 +2250,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         int32 CalculateCorpseReclaimDelay(bool load = false) const;
         void SendCorpseReclaimDelay(uint32 delay) const;
 
-        float GetBlockPercent(uint8 attackerLevel) const override;
+        float GetBlockPercent() const override { return m_activePlayerData->ShieldBlock; };
         bool CanParry() const { return m_canParry; }
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
