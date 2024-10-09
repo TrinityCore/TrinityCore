@@ -285,13 +285,19 @@ enum SupervisorRaelen
     NPC_EASTVALE_PEASANT = 11328
 };
 
-std::string peasantStrings[5] = { "Eastvale Peasant 1",  "Eastvale Peasant 2",  "Eastvale Peasant 3",  "Eastvale Peasant 4",  "Eastvale Peasant 5", };
+std::string peasantStrings[5] = { "Eastvale Peasant 1",  "Eastvale Peasant 2",  "Eastvale Peasant 3",  "Eastvale Peasant 4",  "Eastvale Peasant 5" };
 
 struct npc_supervisor_raelen : public ScriptedAI
 {
     npc_supervisor_raelen(Creature* creature) : ScriptedAI(creature)
     {
-        _PeasantId = 0;
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _peasantId = 0;
+        _peasantScriptData = 1;
     }
 
     void Reset() override
@@ -301,7 +307,7 @@ struct npc_supervisor_raelen : public ScriptedAI
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
-        if (data == 1)
+        if (data == _peasantScriptData)
             _events.ScheduleEvent(EVENT_NEXT_PEASANT, 2s, 6s);
     }
 
@@ -316,10 +322,10 @@ struct npc_supervisor_raelen : public ScriptedAI
                 case EVENT_NEXT_PEASANT:
                 {
                     // Find peasant
-                    Creature* peasant = me->FindNearestCreatureWithOptions(100.0f, { .StringId = peasantStrings[_PeasantId] });
+                    Creature* peasant = me->FindNearestCreatureWithOptions(100.0f, { .StringId = peasantStrings[_peasantId] });
                     // Increment peasant counter
-                    ++_PeasantId;
-                    if (_PeasantId == 5) _PeasantId = 0;
+                    ++_peasantId;
+                    if (_peasantId == 5) _peasantId = 0;
                     // If peasant found SetData if not ScheduleEvent
                     if (peasant)
                         peasant->AI()->SetData(1, 1);
@@ -339,7 +345,8 @@ struct npc_supervisor_raelen : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint8 _PeasantId;
+    uint8 _peasantId;
+    uint8 _peasantScriptData;
 };
 
 /*######
@@ -373,6 +380,8 @@ enum EastvalePeasant
     SPELL_TRANSFORM_PEASANT_WITH_WOOD = 9127
 };
 
+int32 peasentPaths[5] = { 813490, 812500, 813480, 812520, 812490 };
+
 struct npc_eastvale_peasant : public ScriptedAI
 {
     npc_eastvale_peasant(Creature* creature) : ScriptedAI(creature)
@@ -382,7 +391,13 @@ struct npc_eastvale_peasant : public ScriptedAI
 
     void Initialize()
     {
-        _path = me->GetSpawnId() * 10;
+        _peasantScriptData = 1;
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (me->HasStringId(peasantStrings[i]))
+                _path = peasentPaths[i];
+        }
     }
 
     void Reset() override {}
@@ -501,7 +516,7 @@ struct npc_eastvale_peasant : public ScriptedAI
                     break;
                 case EVENT_PATHBACK:
                     if (Creature* realen = ObjectAccessor::GetCreature(*me, _realenGUID))
-                        realen->AI()->SetData(1, 1);
+                        realen->AI()->SetData(_peasantScriptData, _peasantScriptData);
                     me->GetMotionMaster()->MovePath(_path + 2, false);
                     break;
             }
@@ -517,6 +532,7 @@ private:
     ObjectGuid _realenGUID;
     uint32 _path;
     float _walkSpeed;
+    uint8 _peasantScriptData;
 };
 
 void AddSC_elwynn_forest()
