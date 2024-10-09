@@ -281,6 +281,10 @@ class TC_GAME_API SpellScript : public _SpellScript
             public:
                 ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
                 void Call(SpellScript* spellScript, std::list<WorldObject*>& targets);
+                bool HasSameTargetFunctionAs(ObjectAreaTargetSelectHandler const& other) const
+                {
+                    return pObjectAreaTargetSelectHandlerScript == other.pObjectAreaTargetSelectHandlerScript;
+                }
             private:
                 SpellObjectAreaTargetSelectFnType pObjectAreaTargetSelectHandlerScript;
         };
@@ -290,6 +294,10 @@ class TC_GAME_API SpellScript : public _SpellScript
             public:
                 ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
                 void Call(SpellScript* spellScript, WorldObject*& target);
+                bool HasSameTargetFunctionAs(ObjectTargetSelectHandler const& other) const
+                {
+                    return pObjectTargetSelectHandlerScript == other.pObjectTargetSelectHandlerScript;
+                }
             private:
                 SpellObjectTargetSelectFnType pObjectTargetSelectHandlerScript;
         };

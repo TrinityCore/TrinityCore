@@ -108,7 +108,7 @@ QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_AI(nullptr), m_respawnCompatibilityMode(false)
+    m_model(nullptr), m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -417,6 +417,9 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
+
+    m_stringIds[AsUnderlyingType(StringIdType::Template)] = &goinfo->StringId;
+
     AIM_Initialize();
 
     // Initialize loot duplicate count depending on raid difficulty
@@ -1141,6 +1144,8 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     }
 
     m_goData = data;
+
+    m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = &data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -2268,6 +2273,34 @@ uint32 GameObject::GetScriptId() const
             return scriptId;
 
     return GetGOInfo()->ScriptId;
+}
+
+void GameObject::InheritStringIds(GameObject const* parent)
+{
+    // copy references to stringIds from template and spawn
+    m_stringIds = parent->m_stringIds;
+
+    // then copy script stringId, not just its reference
+    SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
+}
+
+bool GameObject::HasStringId(std::string_view id) const
+{
+    return std::ranges::any_of(m_stringIds, [id](std::string const* stringId) { return stringId && *stringId == id; });
+}
+
+void GameObject::SetScriptStringId(std::string id)
+{
+    if (!id.empty())
+    {
+        m_scriptStringId.emplace(std::move(id));
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = &*m_scriptStringId;
+    }
+    else
+    {
+        m_scriptStringId.reset();
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
+    }
 }
 
 // overwrite WorldObject function for proper name localization

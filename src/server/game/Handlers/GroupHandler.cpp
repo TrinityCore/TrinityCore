@@ -567,10 +567,9 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket & /*recvData*/)
     if (_player->InBattleground())
         return;
 
-    /** error handling **/
+    // error handling
     if (!group->IsLeader(GetPlayer()->GetGUID()) || group->GetMembersCount() < 2)
         return;
-    /********************/
 
     // everything's fine, do it (is it 0 (PARTY_OP_INVITE) correct code)
     SendPartyResult(PARTY_OP_INVITE, "", ERR_PARTY_RESULT_OK);
