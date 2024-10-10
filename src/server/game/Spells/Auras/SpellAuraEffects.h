@@ -341,6 +341,9 @@ class TC_GAME_API AuraEffect
         void HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
+        // Advanced Flying
+        void HandleAdvancedFlying(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         // aura effect periodic tick handlers
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
