@@ -812,6 +812,53 @@ namespace WorldPackets
 
             int32 UiMapID = 0;
         };
+
+        struct SpawnTrackingRequestInfo
+        {
+            int32 ObjectTypeMask = 0;
+            int32 ObjectID = 0;
+            uint32 SpawnTrackingID = 0;
+        };
+
+        class SpawnTrackingUpdate final : public ClientPacket
+        {
+        public:
+            SpawnTrackingUpdate(WorldPacket&& packet) : ClientPacket(CMSG_SPAWN_TRACKING_UPDATE, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<SpawnTrackingRequestInfo> SpawnTrackingRequests;
+        };
+
+        struct SpawnTrackingResponseInfo
+        {
+            uint32 SpawnTrackingID = 0;
+            int32 ObjectID = 0;
+            int32 PhaseID = 0;
+            int32 PhaseGroupID = 0;
+            int32 PhaseUseFlags = 0;
+            bool Visible = true;
+        };
+
+        class QuestPOIUpdateResponse final : public ServerPacket
+        {
+        public:
+            QuestPOIUpdateResponse() : ServerPacket(SMSG_QUEST_POI_UPDATE_RESPONSE, 21) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<SpawnTrackingResponseInfo> SpawnTrackingResponses;
+        };
+
+        class ForceSpawnTrackingUpdate final : public ServerPacket
+        {
+        public:
+            ForceSpawnTrackingUpdate() : ServerPacket(SMSG_FORCE_SPAWN_TRACKING_UPDATE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+        };
     }
 }
 
