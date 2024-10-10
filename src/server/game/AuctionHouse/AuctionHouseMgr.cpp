@@ -531,12 +531,12 @@ void AuctionHouseMgr::LoadAuctions()
             }
 
             Item* item = NewItemOrBag(proto);
-            if (!item->LoadFromDB(itemGuid, ObjectGuid::Create<HighGuid::Player>(fields[52].GetUInt64()), fields, itemEntry))
+            if (!item->LoadFromDB(itemGuid, ObjectGuid::Create<HighGuid::Player>(fields[54].GetUInt64()), fields, itemEntry))
             {
                 delete item;
                 continue;
             }
-            uint32 auctionId = fields[53].GetUInt32();
+            uint32 auctionId = fields[55].GetUInt32();
             itemsByAuction[auctionId].push_back(item);
 
             ++count;
