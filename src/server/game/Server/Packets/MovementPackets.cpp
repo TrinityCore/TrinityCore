@@ -372,7 +372,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
     if (!moveSpline.isCyclic())                                                 // Destination
         dest = moveSpline.FinalDestination();
     else
-        dest = G3D::Vector3::zero();
+    {
+        ::Movement::MoveSpline::MySpline const& spline = moveSpline._Spline();
+        if (spline.getPointCount() <= 1)
+            dest = G3D::Vector3::zero();
+        else
+            dest = spline.getPoint(spline.last() - 1);
+    }
 
     data << dest.x << dest.y << dest.z;
 

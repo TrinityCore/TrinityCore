@@ -1372,13 +1372,11 @@ class TC_GAME_API Unit : public WorldObject
 
         int32 GetTotalAuraModifier(AuraType auraType) const;
         float GetTotalAuraMultiplier(AuraType auraType) const;
-        float GetTotalAuraPercent(AuraType auraType) const;
         int32 GetMaxPositiveAuraModifier(AuraType auraType) const;
         int32 GetMaxNegativeAuraModifier(AuraType auraType) const;
 
         int32 GetTotalAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
         float GetTotalAuraMultiplier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
-        float GetTotalAuraPercent(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
         int32 GetMaxPositiveAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
         int32 GetMaxNegativeAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
 
