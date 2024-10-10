@@ -582,18 +582,18 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //510 SPELL_AURA_MODIFIED_RAID_INSTANCE
     &AuraEffect::HandleNULL,                                      //511 SPELL_AURA_APPLY_PROFESSION_EFFECT
     &AuraEffect::HandleNULL,                                      //512
-    &AuraEffect::HandleNULL,                                      //513
-    &AuraEffect::HandleNULL,                                      //514
-    &AuraEffect::HandleNULL,                                      //515
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //513 SPELL_AURA_MOD_ADV_FLYING_AIR_FRICTION
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //514 SPELL_AURA_MOD_ADV_FLYING_MAX_VEL
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //515 SPELL_AURA_MOD_ADV_FLYING_LIFT_COEF
     &AuraEffect::HandleNULL,                                      //516
     &AuraEffect::HandleNULL,                                      //517
-    &AuraEffect::HandleNULL,                                      //518
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //518 SPELL_AURA_MOD_ADV_FLYING_ADD_IMPULSE_MAX_SPEED
     &AuraEffect::HandleNULL,                                      //519 SPELL_AURA_MOD_COOLDOWN_RECOVERY_RATE_ALL
-    &AuraEffect::HandleNULL,                                      //520
-    &AuraEffect::HandleNULL,                                      //521
-    &AuraEffect::HandleNULL,                                      //522
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //520 SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //521 SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //522 SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP
     &AuraEffect::HandleNULL,                                      //523
-    &AuraEffect::HandleNULL,                                      //524
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //524 SPELL_AURA_MOD_ADV_FLYING_OVER_MAX_DECELERATION
     &AuraEffect::HandleNULL,                                      //525 SPELL_AURA_DISPLAY_PROFESSION_EQUIPMENT
     &AuraEffect::HandleNULL,                                      //526
     &AuraEffect::HandleNULL,                                      //527
@@ -3422,6 +3422,43 @@ void AuraEffect::HandleModMovementForceMagnitude(AuraApplication const* aurApp, 
         return;
 
     aurApp->GetTarget()->UpdateMovementForcesModMagnitude();
+}
+
+void AuraEffect::HandleAuraModAdvFlyingSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_ADV_FLYING_AIR_FRICTION:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_AIR_FRICTION, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_MAX_VEL:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_MAX_VEL, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_LIFT_COEF:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_LIFT_COEFFICIENT, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_ADD_IMPULSE_MAX_SPEED:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_ADD_IMPULSE_MAX_SPEED, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_BANKING_RATE, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_DOWN, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_UP, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_OVER_MAX_DECELERATION:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_OVER_MAX_DECELERATION, true);
+            break;
+        default:
+            break;
+    }
 }
 
 /*********************************************************/
