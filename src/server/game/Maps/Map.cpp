@@ -4268,6 +4268,11 @@ bool Map::IsBattleground() const
     return i_mapEntry && i_mapEntry->IsBattleground();
 }
 
+bool Map::IsWorldMap() const
+{
+    return i_mapEntry && i_mapEntry->IsWorldMap();
+}
+
 bool Map::IsBattleArena() const
 {
     return i_mapEntry && i_mapEntry->IsBattleArena();
