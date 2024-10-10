@@ -33,6 +33,7 @@ EndScriptData */
 #include "ChatCommand.h"
 #include "ChatPackets.h"
 #include "Conversation.h"
+#include "Containers.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
@@ -130,7 +131,8 @@ public:
             { "objectcount",        HandleDebugObjectCountCommand,         rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
             { "questreset",         HandleDebugQuestResetCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
             { "warden force",       HandleDebugWardenForce,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
-            { "personalclone",      HandleDebugBecomePersonalClone,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No }
+            { "personalclone",      HandleDebugBecomePersonalClone,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "keystone",           HandleDebugRandomKeystone,             rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No }
         };
         static ChatCommandTable commandTable =
         {
@@ -138,6 +140,44 @@ public:
             { "wpgps",              HandleWPGPSCommand,                    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
         };
         return commandTable;
+    }
+
+    static bool HandleDebugRandomKeystone(ChatHandler* handler, uint32 challengeLevel)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return false;
+
+        Item* l_Item = player->GetItemByEntry(180653);
+        if (!l_Item && player->AddItem(180653, 1))
+            l_Item = player->GetItemByEntry(180653);
+
+        std::array<uint32, 5> l_AffixOne = { 5,6,7,8, 11 };
+        std::array<uint32, 7> l_AffixTwo = { 1,2,3,4,12,13,14 };
+        std::array<uint32, 13> l_ChallengeMaps = { 197,198,199,200,206,207,208,209,210,227,233,234,239 };
+
+        l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL, challengeLevel);
+        l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID, 399);
+
+        if (challengeLevel > 3)
+            l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, Trinity::Containers::SelectRandomContainerElement(l_AffixOne));
+        else
+            l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1, 0);
+
+        if (challengeLevel > 6)
+            l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, Trinity::Containers::SelectRandomContainerElement(l_AffixTwo));
+
+        else
+            l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2, 0);
+
+        if (challengeLevel > 9)
+            l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, urand(9, 10));
+        else
+            l_Item->SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3, 0);
+
+        l_Item->SetState(ITEM_CHANGED, player);
+
+        return true;
     }
 
     static bool TryExtractTeamId(std::string const &args, TeamId &outFaction)
