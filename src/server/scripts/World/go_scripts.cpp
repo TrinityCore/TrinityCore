@@ -302,7 +302,6 @@ public:
 
 enum DalaranCrystal
 {
-    QUEST_LEARN_LEAVE_RETURN    = 12790,
     QUEST_TELE_CRYSTAL_FLAG     = 12845
 };
 
@@ -346,12 +345,9 @@ public:
     {
         go_tele_to_violet_standAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipHello(Player* player) override
+        bool OnGossipHello(Player* /*player*/) override
         {
-            if (player->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || player->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            return true;
+            return false;
         }
     };
 
