@@ -1233,6 +1233,30 @@ class spell_summon_amberleaf_troublemaker : public SpellScript
     }
 };
 
+enum FlameSpoutSpell
+{
+    SPELL_FLAME_SPOUT_VISUAL = 114686
+};
+
+// 114684 - Flame Spout
+class spell_flame_spout : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLAME_SPOUT_VISUAL });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_FLAME_SPOUT_VISUAL);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_flame_spout::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -1252,6 +1276,7 @@ void AddSC_zone_the_wandering_isle()
     RegisterSpellScript(spell_ride_drake);
     RegisterSpellScript(spell_meditation_timer_bar);
     RegisterSpellScript(spell_summon_amberleaf_troublemaker);
+    RegisterSpellScript(spell_flame_spout);
 
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
