@@ -40,13 +40,6 @@ enum CreatureTextRange
     TEXT_RANGE_PERSONAL = 5
 };
 
-enum class SoundKitPlayType : uint8
-{
-    Normal      = 0,
-    ObjectSound = 1,
-    Max         = 2,
-};
-
 struct CreatureTextEntry
 {
     uint32 creatureId;

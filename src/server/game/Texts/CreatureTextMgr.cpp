@@ -213,36 +213,31 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     Language finalLang = (language == LANG_ADDON) ? iter->lang : language;
     uint32 finalSound = iter->sound;
     SoundKitPlayType finalPlayType = iter->SoundPlayType;
+    BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(iter->BroadcastTextId);
     if (sound)
     {
         finalSound = sound;
         finalPlayType = playType;
     }
-    else if (BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(iter->BroadcastTextId))
+    else if (bct)
         if (uint32 broadcastTextSoundId = bct->SoundKitID[source->GetGender() == GENDER_FEMALE ? 1 : 0])
             finalSound = broadcastTextSoundId;
 
     if (range == TEXT_RANGE_NORMAL)
         range = iter->TextRange;
 
-    if (finalSound)
-        SendSound(source, finalSound, finalType, whisperTarget, range, team, gmOnly, iter->BroadcastTextId, finalPlayType);
-
     Unit* finalSource = source;
     if (srcPlr)
         finalSource = srcPlr;
 
-    if (iter->emote)
-        SendEmote(finalSource, iter->emote);
-
     if (srcPlr)
     {
-        Trinity::CreatureTextTextBuilder builder(source, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(source, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget, iter->BroadcastTextId, iter->emote, finalSound, finalPlayType, bct->ConditionID);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
     else
     {
-        Trinity::CreatureTextTextBuilder builder(finalSource, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(finalSource, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget, iter->BroadcastTextId, iter->emote, finalSound, finalPlayType, bct->ConditionID);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
 
