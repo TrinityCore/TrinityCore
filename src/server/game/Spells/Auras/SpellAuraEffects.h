@@ -186,6 +186,7 @@ class TC_GAME_API AuraEffect
         void HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceMoveForward(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModAdvFlying(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleIgnoreMovementForces(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleDisableInertia(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSetCantSwim(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -340,9 +341,6 @@ class TC_GAME_API AuraEffect
         void HandleModRequiredMountCapabilityFlags(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-
-        // Advanced Flying
-        void HandleAdvancedFlying(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
