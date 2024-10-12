@@ -802,23 +802,26 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     if (_owner->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    if (speedXY < 0.01f)
+    bool hasHorizontalVelocity = std::abs(speedXY) >= 0.01f;
+    if (!hasHorizontalVelocity /* && std::abs(speedZ) < 0.01f */)
         return;
 
     Position dest = _owner->GetPosition();
-    float moveTimeHalf = speedZ / Movement::gravity;
+    float moveTimeHalf = std::abs(speedZ) / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
     // Use a mmap raycast to get a valid destination.
-    _owner->MovePositionToFirstCollision(dest, dist, _owner->GetRelativeAngle(origin) + float(M_PI));
+    float o = dest == origin ? 0.0f : _owner->GetRelativeAngle(origin);
+    _owner->MovePositionToFirstCollision(dest, dist, o + float(M_PI));
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
     {
         init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
         init.SetParabolic(max_height, 0);
         init.SetOrientationFixed(true);
-        init.SetVelocity(speedXY);
+        if (hasHorizontalVelocity)
+            init.SetVelocity(speedXY);
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };
