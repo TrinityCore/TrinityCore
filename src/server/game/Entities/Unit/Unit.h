@@ -1154,6 +1154,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetCanTurnWhileFalling(bool enable);
         bool SetCanDoubleJump(bool enable);
         bool SetDisableInertia(bool disable);
+        bool SetCanAdvFly(bool enable);
         bool SetMoveCantSwim(bool cantSwim);
         void SendSetVehicleRecId(uint32 vehicleId);
 
@@ -1452,7 +1453,12 @@ class TC_GAME_API Unit : public WorldObject
         Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
-        virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag) const;
+        struct GetCastSpellInfoContext
+        {
+            std::array<uint32, 5> VisitedSpells = { };
+            bool AddSpell(uint32 spellId);
+        };
+        virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag, GetCastSpellInfoContext* context) const;
         uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const override;
 
         virtual bool HasSpellFocus(Spell const* /*focusSpell*/ = nullptr) const { return false; }
@@ -1655,6 +1661,14 @@ class TC_GAME_API Unit : public WorldObject
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float newValue);
         void SetSpeedRate(UnitMoveType mtype, float rate);
+
+        int32 GetFlightCapabilityID() const { return m_unitData->FlightCapabilityID; }
+        void SetFlightCapabilityID(int32 flightCapabilityId, bool clientUpdate);
+        float GetAdvFlyingSpeed(AdvFlyingRateTypeSingle speedType) const { return m_advFlyingSpeed[speedType]; }
+        float GetAdvFlyingSpeedMin(AdvFlyingRateTypeRange speedType) const { return m_advFlyingSpeed[speedType]; }
+        float GetAdvFlyingSpeedMax(AdvFlyingRateTypeRange speedType) const { return m_advFlyingSpeed[speedType + 1]; }
+        void UpdateAdvFlyingSpeed(AdvFlyingRateTypeSingle speedType, bool clientUpdate);
+        void UpdateAdvFlyingSpeed(AdvFlyingRateTypeRange speedType, bool clientUpdate);
 
         void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
         void FollowerRemoved(AbstractFollower* f) { m_followingMe.erase(f); }
@@ -1905,6 +1919,7 @@ class TC_GAME_API Unit : public WorldObject
         Trinity::Containers::FlatSet<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
 
         std::array<float, MAX_MOVE_TYPE> m_speed_rate;
+        std::array<float, ADV_FLYING_MAX_SPEED_TYPE> m_advFlyingSpeed;
 
         Unit* m_unitMovedByMe;    // only ever set for players, and only for direct client control
         Player* m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)

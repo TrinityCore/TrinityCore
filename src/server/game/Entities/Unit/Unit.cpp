@@ -365,6 +365,7 @@ Unit::Unit(bool isWorldObject) :
     m_baseSpellCritChance = 5.0f;
 
     m_speed_rate.fill(1.0f);
+    SetFlightCapabilityID(0, false);
 
     // remove aurastates allowing special moves
     m_reactiveTimer = { };
@@ -2337,7 +2338,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     int32    roll = urand(0, 9999);
 
     int32 attackerLevel = GetLevelForTarget(victim);
-    int32 victimLevel = GetLevelForTarget(this);
+    int32 victimLevel = victim->GetLevelForTarget(this);
 
     // check if attack comes from behind, nobody can parry or block if attacker is behind
     bool canParryOrBlock = victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION);
@@ -8215,8 +8216,12 @@ void Unit::UpdateMountCapability()
         if (!aurEff->GetAmount())
             aurEff->GetBase()->Remove();
         else if (MountCapabilityEntry const* capability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount())) // aura may get removed by interrupt flag, reapply
+        {
+            SetFlightCapabilityID(capability->FlightCapabilityID, true);
+
             if (!HasAura(capability->ModSpellAuraID))
                 CastSpell(this, capability->ModSpellAuraID, aurEff);
+        }
     }
 }
 
@@ -8735,6 +8740,148 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
         packet.MoverGUID = GetGUID();
         packet.Speed = GetSpeed(mtype);
         SendMessageToSet(packet.Write(), true);
+    }
+}
+
+void Unit::SetFlightCapabilityID(int32 flightCapabilityId, bool clientUpdate)
+{
+    if (flightCapabilityId && !sFlightCapabilityStore.HasRecord(flightCapabilityId))
+        return;
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FlightCapabilityID), flightCapabilityId);
+
+    UpdateAdvFlyingSpeed(ADV_FLYING_AIR_FRICTION, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_MAX_VEL, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_LIFT_COEFFICIENT, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_DOUBLE_JUMP_VEL_MOD, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_GLIDE_START_MIN_HEIGHT, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_ADD_IMPULSE_MAX_SPEED, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_BANKING_RATE, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_DOWN, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_UP, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_TURN_VELOCITY_THRESHOLD, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_SURFACE_FRICTION, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_OVER_MAX_DECELERATION, clientUpdate);
+    UpdateAdvFlyingSpeed(ADV_FLYING_LAUNCH_SPEED_COEFFICIENT, clientUpdate);
+}
+
+void Unit::UpdateAdvFlyingSpeed(AdvFlyingRateTypeSingle speedType, bool clientUpdate)
+{
+    FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(GetFlightCapabilityID());
+    if (!flightCapabilityEntry)
+        flightCapabilityEntry = sFlightCapabilityStore.AssertEntry(1);
+
+    auto [opcode, newValue, rateAura] = [&]
+    {
+        switch (speedType)
+        {
+            case ADV_FLYING_AIR_FRICTION:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_AIR_FRICTION, flightCapabilityEntry->AirFriction, SPELL_AURA_MOD_ADV_FLYING_AIR_FRICTION);
+            case ADV_FLYING_MAX_VEL:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_MAX_VEL, flightCapabilityEntry->MaxVel, SPELL_AURA_MOD_ADV_FLYING_MAX_VEL);
+            case ADV_FLYING_LIFT_COEFFICIENT:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_LIFT_COEFFICIENT, flightCapabilityEntry->LiftCoefficient, SPELL_AURA_MOD_ADV_FLYING_LIFT_COEF);
+            case ADV_FLYING_DOUBLE_JUMP_VEL_MOD:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_DOUBLE_JUMP_VEL_MOD, flightCapabilityEntry->DoubleJumpVelMod, SPELL_AURA_NONE);
+            case ADV_FLYING_GLIDE_START_MIN_HEIGHT:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_GLIDE_START_MIN_HEIGHT, flightCapabilityEntry->GlideStartMinHeight, SPELL_AURA_NONE);
+            case ADV_FLYING_ADD_IMPULSE_MAX_SPEED:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_ADD_IMPULSE_MAX_SPEED, flightCapabilityEntry->AddImpulseMaxSpeed, SPELL_AURA_MOD_ADV_FLYING_ADD_IMPULSE_MAX_SPEED);
+            case ADV_FLYING_SURFACE_FRICTION:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_SURFACE_FRICTION, flightCapabilityEntry->SurfaceFriction, SPELL_AURA_NONE);
+            case ADV_FLYING_OVER_MAX_DECELERATION:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_OVER_MAX_DECELERATION, flightCapabilityEntry->OverMaxDeceleration, SPELL_AURA_MOD_ADV_FLYING_OVER_MAX_DECELERATION);
+            case ADV_FLYING_LAUNCH_SPEED_COEFFICIENT:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_LAUNCH_SPEED_COEFFICIENT, flightCapabilityEntry->LaunchSpeedCoefficient, SPELL_AURA_NONE);
+            default:
+                return std::tuple<OpcodeServer, float, AuraType>();
+        }
+    }();
+
+    if (rateAura != SPELL_AURA_NONE)
+    {
+        // take only lowest negative and highest positive auras - these effects do not stack
+        if (int32 neg = GetMaxNegativeAuraModifier(rateAura, [](AuraEffect const* mod) { return mod->GetAmount() > 0 && mod->GetAmount() < 100; }))
+            ApplyPct(newValue, neg);
+
+        if (int32 pos = GetMaxPositiveAuraModifier(rateAura, [](AuraEffect const* mod) { return mod->GetAmount() > 100; }))
+            ApplyPct(newValue, pos);
+    }
+
+    if (m_advFlyingSpeed[speedType] == newValue)
+        return;
+
+    m_advFlyingSpeed[speedType] = newValue;
+
+    if (!clientUpdate)
+        return;
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::SetAdvFlyingSpeed selfpacket(opcode);
+        selfpacket.MoverGUID = GetGUID();
+        selfpacket.SequenceIndex = m_movementCounter++;
+        selfpacket.Speed = newValue;
+        playerMover->GetSession()->SendPacket(selfpacket.Write());
+    }
+}
+
+void Unit::UpdateAdvFlyingSpeed(AdvFlyingRateTypeRange speedType, bool clientUpdate)
+{
+    FlightCapabilityEntry const* flightCapabilityEntry = sFlightCapabilityStore.LookupEntry(GetFlightCapabilityID());
+    if (!flightCapabilityEntry)
+        flightCapabilityEntry = sFlightCapabilityStore.AssertEntry(1);
+
+    auto [opcode, min, max, rateAura] = [&]
+    {
+        switch (speedType)
+        {
+            case ADV_FLYING_BANKING_RATE:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_BANKING_RATE, flightCapabilityEntry->BankingRateMin, flightCapabilityEntry->BankingRateMax, SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE);
+            case ADV_FLYING_PITCHING_RATE_DOWN:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_DOWN, flightCapabilityEntry->PitchingRateDownMin, flightCapabilityEntry->PitchingRateDownMax, SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN);
+            case ADV_FLYING_PITCHING_RATE_UP:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_UP, flightCapabilityEntry->PitchingRateUpMin, flightCapabilityEntry->PitchingRateUpMax, SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP);
+            case ADV_FLYING_TURN_VELOCITY_THRESHOLD:
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_TURN_VELOCITY_THRESHOLD, flightCapabilityEntry->TurnVelocityThresholdMin, flightCapabilityEntry->TurnVelocityThresholdMax, SPELL_AURA_NONE);
+            default:
+                return std::tuple<OpcodeServer, float, float, AuraType>();
+        }
+    }();
+
+    if (rateAura != SPELL_AURA_NONE)
+    {
+        // take only lowest negative and highest positive auras - these effects do not stack
+        if (int32 neg = GetMaxNegativeAuraModifier(rateAura, [](AuraEffect const* mod) { return mod->GetAmount() > 0 && mod->GetAmount() < 100; }))
+        {
+            ApplyPct(min, neg);
+            ApplyPct(max, neg);
+        }
+
+        if (int32 pos = GetMaxPositiveAuraModifier(rateAura, [](AuraEffect const* mod) { return mod->GetAmount() > 100; }))
+        {
+            ApplyPct(min, pos);
+            ApplyPct(max, pos);
+        }
+    }
+
+    if (m_advFlyingSpeed[speedType] == min && m_advFlyingSpeed[speedType + 1] == max)
+        return;
+
+    m_advFlyingSpeed[speedType] = min;
+    m_advFlyingSpeed[speedType + 1] = max;
+
+    if (!clientUpdate)
+        return;
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::SetAdvFlyingSpeedRange selfpacket(opcode);
+        selfpacket.MoverGUID = GetGUID();
+        selfpacket.SequenceIndex = m_movementCounter++;
+        selfpacket.SpeedMin = min;
+        selfpacket.SpeedMax = max;
+        playerMover->GetSession()->SendPacket(selfpacket.Write());
     }
 }
 
@@ -9642,7 +9789,7 @@ void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
         {
             if (effect->GetMiscValue() == power)
             {
-                uint32 effectAmount = effect->GetAmount();
+                int32 effectAmount = effect->GetAmount();
                 uint32 triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
 
                 float oldValueCheck = oldVal;
@@ -13356,6 +13503,37 @@ bool Unit::SetDisableInertia(bool disable)
     return true;
 }
 
+bool Unit::SetCanAdvFly(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY);
+    else
+        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY | MOVEMENTFLAG3_ADV_FLYING);
+
+    static OpcodeServer const advFlyOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_CAN_ADV_FLY,
+        SMSG_MOVE_SET_CAN_ADV_FLY
+    };
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::MoveSetFlag packet(advFlyOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
 bool Unit::SetMoveCantSwim(bool cantSwim)
 {
     if (cantSwim == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CANT_SWIM))
@@ -13889,14 +14067,28 @@ void Unit::ClearBossEmotes(Optional<uint32> zoneId, Player const* target) const
             ref.GetSource()->SendDirectMessage(clearBossEmotes.GetRawPacket());
 }
 
-SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag) const
+bool Unit::GetCastSpellInfoContext::AddSpell(uint32 spellId)
 {
-    auto findMatchingAuraEffectIn = [this, spellInfo, &triggerFlag](AuraType type) -> SpellInfo const*
+    auto itr = std::ranges::find(VisitedSpells, spellId);
+    if (itr != VisitedSpells.end())
+        return false; // already exists
+
+    itr = std::ranges::find(VisitedSpells, 0u);
+    if (itr == VisitedSpells.end())
+        return false; // no free slots left
+
+    *itr = spellId;
+    return true;
+}
+
+SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag, GetCastSpellInfoContext* context) const
+{
+    auto findMatchingAuraEffectIn = [this, spellInfo, &triggerFlag, context](AuraType type) -> SpellInfo const*
     {
         for (AuraEffect const* auraEffect : GetAuraEffectsByType(type))
         {
             bool matches = auraEffect->GetMiscValue() ? uint32(auraEffect->GetMiscValue()) == spellInfo->Id : auraEffect->IsAffectingSpell(spellInfo);
-            if (matches)
+            if (matches && context->AddSpell(auraEffect->GetAmount()))
             {
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount(), GetMap()->GetDifficultyID()))
                 {
@@ -13921,13 +14113,13 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastF
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
     {
         triggerFlag &= ~TRIGGERED_IGNORE_CAST_TIME;
-        return GetCastSpellInfo(newInfo, triggerFlag);
+        return GetCastSpellInfo(newInfo, triggerFlag, context);
     }
 
     if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED))
     {
         triggerFlag |= TRIGGERED_IGNORE_CAST_TIME;
-        return GetCastSpellInfo(newInfo, triggerFlag);
+        return GetCastSpellInfo(newInfo, triggerFlag, context);
     }
 
     return spellInfo;

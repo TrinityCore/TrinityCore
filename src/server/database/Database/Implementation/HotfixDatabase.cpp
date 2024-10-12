@@ -635,6 +635,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM faction_template WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_FACTION_TEMPLATE, "SELECT MAX(ID) + 1 FROM faction_template", CONNECTION_SYNCH);
 
+    // FlightCapability.db2
+    PrepareStatement(HOTFIX_SEL_FLIGHT_CAPABILITY, "SELECT ID, AirFriction, MaxVel, Unknown1000_2, DoubleJumpVelMod, LiftCoefficient, "
+        "GlideStartMinHeight, AddImpulseMaxSpeed, BankingRateMin, BankingRateMax, PitchingRateDownMin, PitchingRateDownMax, PitchingRateUpMin, "
+        "PitchingRateUpMax, TurnVelocityThresholdMin, TurnVelocityThresholdMax, SurfaceFriction, OverMaxDeceleration, Unknown1000_17, Unknown1000_18, "
+        "Unknown1000_19, Unknown1000_20, Unknown1000_21, LaunchSpeedCoefficient, VigorRegenMaxVelCoefficient, SpellID FROM flight_capability"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_FLIGHT_CAPABILITY, "SELECT MAX(ID) + 1 FROM flight_capability", CONNECTION_SYNCH);
+
     // FriendshipRepReaction.db2
     PrepareStatement(HOTFIX_SEL_FRIENDSHIP_REP_REACTION, "SELECT ID, Reaction, FriendshipRepID, ReactionThreshold, OverrideColor"
         " FROM friendship_rep_reaction WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

@@ -36,6 +36,7 @@
 
 enum DeathKnightSpells
 {
+    SPELL_DK_ANTI_MAGIC_BARRIER                 = 205727,
     SPELL_DK_ARMY_FLESH_BEAST_TRANSFORM         = 127533,
     SPELL_DK_ARMY_GEIST_TRANSFORM               = 127534,
     SPELL_DK_ARMY_NORTHREND_SKELETON_TRANSFORM  = 127528,
@@ -136,7 +137,7 @@ public:
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE, SPELL_DK_VOLATILE_SHIELDING })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_DK_ANTI_MAGIC_BARRIER, EFFECT_2 } });
     }
 
     bool Load() override
@@ -150,6 +151,9 @@ public:
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = CalculatePct(maxHealth, absorbPct);
+
+        if (AuraEffect* const antiMagicBarrier = GetCaster()->GetAuraEffect(SPELL_DK_ANTI_MAGIC_BARRIER, EFFECT_2))
+            AddPct(amount, antiMagicBarrier->GetAmount());
 
         if (Player const* player = GetUnitOwner()->ToPlayer())
             AddPct(amount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
