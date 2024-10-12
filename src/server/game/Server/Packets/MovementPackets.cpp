@@ -616,23 +616,6 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateSpeed::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Movement::SetAdvFlyingSpeed::Write()
-{
-    _worldPacket << MoverGUID;
-    _worldPacket << uint32(SequenceIndex);
-    _worldPacket << float(Speed);
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Movement::SetAdvFlyingSpeedRange::Write()
-{
-    _worldPacket << MoverGUID;
-    _worldPacket << uint32(SequenceIndex);
-    _worldPacket << float(SpeedMin);
-    _worldPacket << float(SpeedMax);
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Movement::MoveSplineSetFlag::Write()
 {
     _worldPacket << MoverGUID;
@@ -819,13 +802,6 @@ void WorldPackets::Movement::MovementSpeedAck::Read()
 {
     _worldPacket >> Ack;
     _worldPacket >> Speed;
-}
-
-void WorldPackets::Movement::MovementSpeedRangeAck::Read()
-{
-    _worldPacket >> Ack;
-    _worldPacket >> SpeedMin;
-    _worldPacket >> SpeedMax;
 }
 
 void WorldPackets::Movement::SetActiveMover::Read()

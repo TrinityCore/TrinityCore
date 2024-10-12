@@ -578,16 +578,6 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
     }
 }
 
-void WorldSession::HandleSetAdvFlyingSpeedAck(WorldPackets::Movement::MovementSpeedAck& speedAck)
-{
-    GetPlayer()->ValidateMovementInfo(&speedAck.Ack.Status);
-}
-
-void WorldSession::HandleSetAdvFlyingSpeedRangeAck(WorldPackets::Movement::MovementSpeedRangeAck& speedRangeAck)
-{
-    GetPlayer()->ValidateMovementInfo(&speedRangeAck.Ack.Status);
-}
-
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
     if (GetPlayer()->IsInWorld())
