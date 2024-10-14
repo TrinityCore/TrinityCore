@@ -168,7 +168,8 @@ enum DemonHunterSpells
     SPELL_DH_SPIRIT_BOMB_VISUAL                    = 218678,
     SPELL_DH_THROW_GLAIVE                          = 185123,
     SPELL_DH_UNCONTAINED_FEL                       = 209261,
-    SPELL_DH_VENGEFUL_RETREAT                      = 198813,
+    SPELL_DH_VENGEFUL_BONDS                        = 320635,
+    SPELL_DH_VENGEFUL_RETREAT_SNARE                = 198813,
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
 };
 
@@ -476,6 +477,32 @@ class spell_dh_soul_furnace_conduit : public AuraScript
     }
 };
 
+// 320635 - Vengeful Bonds called by 198793 - Vengeful Retreat
+class spell_dh_vengeful_bonds : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_VENGEFUL_BONDS, SPELL_DH_VENGEFUL_RETREAT_SNARE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_VENGEFUL_BONDS);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_VENGEFUL_RETREAT_SNARE, CastSpellExtraArgs()
+            .SetTriggeringSpell(GetSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_vengeful_bonds::HandleScript, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_chaos_strike);
@@ -511,4 +538,6 @@ void AddSC_demon_hunter_spell_scripts()
 
     // Soulbind conduits
     RegisterSpellScript(spell_dh_soul_furnace_conduit);
+
+    RegisterSpellScript(spell_dh_vengeful_bonds);
 }
