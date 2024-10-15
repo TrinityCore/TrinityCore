@@ -884,7 +884,6 @@ void UiMapQuestLinesRequest::Read()
     _worldPacket >> UiMapID;
 }
 
-
 void QueryTreasurePicker::Read()
 {
     _worldPacket >> QuestID;
