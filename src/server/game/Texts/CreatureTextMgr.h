@@ -109,8 +109,6 @@ class TC_GAME_API CreatureTextMgr
         static float GetRangeForChatType(ChatMsg msgType);
 
     private:
-        static void SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
-
         CreatureTextMap mTextMap;
         LocaleCreatureTextMap mLocaleTextMap;
 };
