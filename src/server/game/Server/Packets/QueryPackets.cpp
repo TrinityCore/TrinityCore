@@ -369,14 +369,14 @@ void QueryCorpseLocationFromClient::Read()
 
 WorldPacket const* CorpseLocation::Write()
 {
-    _worldPacket.WriteBit(Valid);
+    _worldPacket << Bits<1>(Valid);
     _worldPacket.FlushBits();
 
     _worldPacket << Player;
     _worldPacket << ActualMapID;
-    _worldPacket << Position;
     _worldPacket << MapID;
     _worldPacket << Transport;
+    _worldPacket << Position;
 
     return &_worldPacket;
 }

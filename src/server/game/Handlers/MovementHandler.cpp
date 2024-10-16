@@ -77,7 +77,7 @@ void WorldSession::HandleMoveWorldportAck()
     Map* oldMap = player->GetMap();
     Map* newMap = loc.InstanceId ?
         sMapMgr->FindMap(loc.Location.GetMapId(), *loc.InstanceId) :
-        sMapMgr->CreateMap(loc.Location.GetMapId(), GetPlayer());
+        sMapMgr->CreateMap(loc.Location.GetMapId(), GetPlayer(), loc.LfgDungeonsId);
 
     if (TransportBase* transport = player->GetTransport())
         transport->RemovePassenger(player);
@@ -265,6 +265,7 @@ void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTok
     packet.MapID = loc.Location.GetMapId();
     packet.Loc.Pos = loc.Location;
     packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
+    packet.Counter = _player->GetNewWorldCounter();
     SendPacket(packet.Write());
 
     if (_player->IsBeingTeleportedSeamlessly())
@@ -581,6 +582,16 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
             _player->GetSession()->KickPlayer("WorldSession::HandleForceSpeedChangeAck Incorrect speed");
         }
     }
+}
+
+void WorldSession::HandleSetAdvFlyingSpeedAck(WorldPackets::Movement::MovementSpeedAck& speedAck)
+{
+    GetPlayer()->ValidateMovementInfo(&speedAck.Ack.Status);
+}
+
+void WorldSession::HandleSetAdvFlyingSpeedRangeAck(WorldPackets::Movement::MovementSpeedRangeAck& speedRangeAck)
+{
+    GetPlayer()->ValidateMovementInfo(&speedRangeAck.Ack.Status);
 }
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)

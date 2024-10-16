@@ -27,8 +27,10 @@ Battlenet::ServiceDispatcher::ServiceDispatcher()
     AddService<Services::Connection>();
     AddService<Service<friends::v1::FriendsService>>();
     AddService<Services::GameUtilities>();
+    AddService<Service<notification::v1::NotificationService>>();
     AddService<Service<notification::v2::client::NotificationService>>();
     AddService<Service<presence::v1::PresenceService>>();
+    AddService<Service<report::v1::ReportService>>();
     AddService<Service<report::v2::ReportService>>();
     AddService<Service<resources::v1::ResourcesService>>();
     AddService<Service<whisper::v2::client::WhisperService>>();

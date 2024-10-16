@@ -16,6 +16,7 @@
  */
 
 #include "InstancePackets.h"
+#include "PacketUtilities.h"
 
 WorldPacket const* WorldPackets::Instance::UpdateLastInstance::Write()
 {
@@ -107,11 +108,13 @@ WorldPacket const* WorldPackets::Instance::PendingRaidLock::Write()
 
 WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
 {
-    _worldPacket << uint8(Type);
+    _worldPacket << int32(Type);
     _worldPacket << uint32(MapID);
     _worldPacket << uint32(DifficultyID);
-    _worldPacket.WriteBit(Locked);
-    _worldPacket.WriteBit(Extended);
+    _worldPacket << int32(TimeLeft);
+    _worldPacket << BitsSize<8>(WarningMessage);
+    _worldPacket << Bits<1>(Locked);
+    _worldPacket << Bits<1>(Extended);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

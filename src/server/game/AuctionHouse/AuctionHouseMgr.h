@@ -116,11 +116,12 @@ DEFINE_ENUM_FLAG(AuctionHouseFilterMask);
 
 enum class AuctionHouseSortOrder : uint8
 {
-    Price   = 0,
-    Name    = 1,
-    Level   = 2,
-    Bid     = 3,
-    Buyout  = 4
+    Price           = 0,
+    Name            = 1,
+    Level           = 2,
+    Bid             = 3,
+    Buyout          = 4,
+    TimeRemaining   = 5
 };
 
 enum class AuctionHouseBrowseMode : uint8

@@ -470,7 +470,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleBattlegroundPlayerPosition,                //398 SPELL_AURA_BATTLEGROUND_PLAYER_POSITION
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_MOD_TIME_RATE
     &AuraEffect::HandleAuraModSkill,                              //400 SPELL_AURA_MOD_SKILL_2
-    &AuraEffect::HandleNULL,                                      //401
+    &AuraEffect::HandleAuraActAsControlZone,                      //401 SPELL_AURA_ACT_AS_CONTROL_ZONE
     &AuraEffect::HandleAuraModOverridePowerDisplay,               //402 SPELL_AURA_MOD_OVERRIDE_POWER_DISPLAY
     &AuraEffect::HandleNoImmediateEffect,                         //403 SPELL_AURA_OVERRIDE_SPELL_VISUAL implemented in Unit::GetCastSpellXSpellVisualId
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT
@@ -515,7 +515,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //443 SPELL_AURA_MOD_LEECH
     &AuraEffect::HandleNULL,                                      //444
     &AuraEffect::HandleNULL,                                      //445
-    &AuraEffect::HandleNULL,                                      //446
+    &AuraEffect::HandleModAdvFlying,                              //446 SPELL_AURA_ADV_FLYING
     &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE implemented in KillRewarder::_RewardXP
     &AuraEffect::HandleNULL,                                      //448
     &AuraEffect::HandleNULL,                                      //449
@@ -576,24 +576,24 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //504 SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER implemented in Unit::SpellHealingBonusTaken
     &AuraEffect::HandleNULL,                                      //505 SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS
     &AuraEffect::HandleDisableInertia,                            //506 SPELL_AURA_DISABLE_INERTIA
-    &AuraEffect::HandleNoImmediateEffect,                         //507 SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_BY_LABEL implemented in Unit::SpellDamageBonusTaken
+    &AuraEffect::HandleNoImmediateEffect,                         //507 SPELL_AURA_MOD_DAMAGE_TAKEN_BY_LABEL implemented in Unit::SpellDamageBonusTaken
     &AuraEffect::HandleNULL,                                      //508
     &AuraEffect::HandleNULL,                                      //509
     &AuraEffect::HandleNULL,                                      //510 SPELL_AURA_MODIFIED_RAID_INSTANCE
     &AuraEffect::HandleNULL,                                      //511 SPELL_AURA_APPLY_PROFESSION_EFFECT
     &AuraEffect::HandleNULL,                                      //512
-    &AuraEffect::HandleNULL,                                      //513
-    &AuraEffect::HandleNULL,                                      //514
-    &AuraEffect::HandleNULL,                                      //515
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //513 SPELL_AURA_MOD_ADV_FLYING_AIR_FRICTION
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //514 SPELL_AURA_MOD_ADV_FLYING_MAX_VEL
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //515 SPELL_AURA_MOD_ADV_FLYING_LIFT_COEF
     &AuraEffect::HandleNULL,                                      //516
     &AuraEffect::HandleNULL,                                      //517
-    &AuraEffect::HandleNULL,                                      //518
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //518 SPELL_AURA_MOD_ADV_FLYING_ADD_IMPULSE_MAX_SPEED
     &AuraEffect::HandleNULL,                                      //519 SPELL_AURA_MOD_COOLDOWN_RECOVERY_RATE_ALL
-    &AuraEffect::HandleNULL,                                      //520
-    &AuraEffect::HandleNULL,                                      //521
-    &AuraEffect::HandleNULL,                                      //522
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //520 SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //521 SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //522 SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP
     &AuraEffect::HandleNULL,                                      //523
-    &AuraEffect::HandleNULL,                                      //524
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //524 SPELL_AURA_MOD_ADV_FLYING_OVER_MAX_DECELERATION
     &AuraEffect::HandleNULL,                                      //525 SPELL_AURA_DISPLAY_PROFESSION_EQUIPMENT
     &AuraEffect::HandleNULL,                                      //526
     &AuraEffect::HandleNULL,                                      //527
@@ -606,14 +606,109 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //534
     &AuraEffect::HandleNULL,                                      //535
     &AuraEffect::HandleNoImmediateEffect,                         //536 SPELL_AURA_IGNORE_SPELL_CREATURE_TYPE_REQUIREMENTS implemented in SpellInfo::CheckTargetCreatureType
-    &AuraEffect::HandleNULL,                                      //537
+    &AuraEffect::HandleNoImmediateEffect,                         //537 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER_BY_LABEL implemented in Unit::SpellDamageBonusTaken
     &AuraEffect::HandleUnused,                                    //538 SPELL_AURA_MOD_FAKE_INEBRIATION_MOVEMENT_ONLY handled clientside
     &AuraEffect::HandleNoImmediateEffect,                         //539 SPELL_AURA_ALLOW_MOUNT_IN_COMBAT implemented in SpellInfo::CanBeUsedInCombat
     &AuraEffect::HandleNULL,                                      //540 SPELL_AURA_MOD_SUPPORT_STAT
     &AuraEffect::HandleModRequiredMountCapabilityFlags,           //541 SPELL_AURA_MOD_REQUIRED_MOUNT_CAPABILITY_FLAGS
-    &AuraEffect::HandleNULL,                                      //542
+    &AuraEffect::HandleNULL,                                      //542 SPELL_AURA_TRIGGER_SPELL_ON_STACK_AMOUNT
     &AuraEffect::HandleNULL,                                      //543
     &AuraEffect::HandleNULL,                                      //544
+    &AuraEffect::HandleSetCantSwim,                               //545 SPELL_AURA_MOVE_SET_CANT_SWIM
+    &AuraEffect::HandleNULL,                                      //546
+    &AuraEffect::HandleNULL,                                      //547
+    &AuraEffect::HandleNULL,                                      //548
+    &AuraEffect::HandleNULL,                                      //549
+    &AuraEffect::HandleNULL,                                      //550
+    &AuraEffect::HandleNULL,                                      //551
+    &AuraEffect::HandleNULL,                                      //552
+    &AuraEffect::HandleNULL,                                      //553
+    &AuraEffect::HandleNULL,                                      //554
+    &AuraEffect::HandleNULL,                                      //555
+    &AuraEffect::HandleNULL,                                      //556
+    &AuraEffect::HandleNULL,                                      //557
+    &AuraEffect::HandleNULL,                                      //558
+    &AuraEffect::HandleNULL,                                      //559
+    &AuraEffect::HandleNULL,                                      //560
+    &AuraEffect::HandleNULL,                                      //561
+    &AuraEffect::HandleNULL,                                      //562
+    &AuraEffect::HandleNULL,                                      //563
+    &AuraEffect::HandleNULL,                                      //564
+    &AuraEffect::HandleNULL,                                      //565
+    &AuraEffect::HandleNULL,                                      //566
+    &AuraEffect::HandleNULL,                                      //567
+    &AuraEffect::HandleNULL,                                      //568
+    &AuraEffect::HandleNULL,                                      //569
+    &AuraEffect::HandleNULL,                                      //570
+    &AuraEffect::HandleNULL,                                      //571
+    &AuraEffect::HandleNULL,                                      //572
+    &AuraEffect::HandleNULL,                                      //573
+    &AuraEffect::HandleNULL,                                      //574
+    &AuraEffect::HandleNULL,                                      //575
+    &AuraEffect::HandleNULL,                                      //576
+    &AuraEffect::HandleNULL,                                      //577
+    &AuraEffect::HandleNULL,                                      //578
+    &AuraEffect::HandleNULL,                                      //579
+    &AuraEffect::HandleNULL,                                      //580
+    &AuraEffect::HandleNULL,                                      //581
+    &AuraEffect::HandleNULL,                                      //582
+    &AuraEffect::HandleNULL,                                      //583
+    &AuraEffect::HandleNULL,                                      //584
+    &AuraEffect::HandleNULL,                                      //585
+    &AuraEffect::HandleNULL,                                      //586
+    &AuraEffect::HandleNULL,                                      //587
+    &AuraEffect::HandleNULL,                                      //588
+    &AuraEffect::HandleNULL,                                      //589
+    &AuraEffect::HandleNULL,                                      //590
+    &AuraEffect::HandleNULL,                                      //591
+    &AuraEffect::HandleNULL,                                      //592
+    &AuraEffect::HandleNULL,                                      //593
+    &AuraEffect::HandleNULL,                                      //594
+    &AuraEffect::HandleNULL,                                      //595
+    &AuraEffect::HandleNULL,                                      //596
+    &AuraEffect::HandleNULL,                                      //597
+    &AuraEffect::HandleNULL,                                      //598
+    &AuraEffect::HandleNULL,                                      //599
+    &AuraEffect::HandleNULL,                                      //600
+    &AuraEffect::HandleNULL,                                      //601
+    &AuraEffect::HandleNULL,                                      //602
+    &AuraEffect::HandleNULL,                                      //603
+    &AuraEffect::HandleNULL,                                      //604
+    &AuraEffect::HandleNULL,                                      //605
+    &AuraEffect::HandleNULL,                                      //606
+    &AuraEffect::HandleNULL,                                      //607
+    &AuraEffect::HandleNULL,                                      //608
+    &AuraEffect::HandleNULL,                                      //609
+    &AuraEffect::HandleNULL,                                      //610
+    &AuraEffect::HandleNULL,                                      //611
+    &AuraEffect::HandleNULL,                                      //612
+    &AuraEffect::HandleNULL,                                      //613
+    &AuraEffect::HandleNULL,                                      //614
+    &AuraEffect::HandleNULL,                                      //615
+    &AuraEffect::HandleNULL,                                      //616
+    &AuraEffect::HandleNULL,                                      //617
+    &AuraEffect::HandleNULL,                                      //618
+    &AuraEffect::HandleNULL,                                      //619
+    &AuraEffect::HandleNULL,                                      //620
+    &AuraEffect::HandleNULL,                                      //621
+    &AuraEffect::HandleNULL,                                      //622
+    &AuraEffect::HandleNULL,                                      //623
+    &AuraEffect::HandleNULL,                                      //624
+    &AuraEffect::HandleNULL,                                      //625
+    &AuraEffect::HandleNULL,                                      //626
+    &AuraEffect::HandleNULL,                                      //627
+    &AuraEffect::HandleNULL,                                      //628
+    &AuraEffect::HandleNULL,                                      //629
+    &AuraEffect::HandleNULL,                                      //630
+    &AuraEffect::HandleNULL,                                      //631
+    &AuraEffect::HandleNULL,                                      //632
+    &AuraEffect::HandleNULL,                                      //633
+    &AuraEffect::HandleNULL,                                      //634
+    &AuraEffect::HandleNULL,                                      //635
+    &AuraEffect::HandleNULL,                                      //636
+    &AuraEffect::HandleNoImmediateEffect,                         //637 SPELL_AURA_MOD_EXPLORATION_EXPERIENCE implemented in Player::CheckAreaExplore
+    &AuraEffect::HandleNoImmediateEffect,                         //638 SPELL_AURA_MOD_CRITICAL_BLOCK_AMOUNT implemented in Unit::CalculateMeleeDamage andUnit::CalculateSpellDamageTaken
+    &AuraEffect::HandleNULL,                                      //639
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
@@ -2700,8 +2795,13 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
 
         // cast speed aura
         if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
+        {
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
+            {
+                target->SetFlightCapabilityID(mountCapability->FlightCapabilityID, true);
                 target->CastSpell(target, mountCapability->ModSpellAuraID, this);
+            }
+        }
     }
     else
     {
@@ -2718,6 +2818,8 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
             // remove speed aura
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
                 target->RemoveAurasDueToSpell(mountCapability->ModSpellAuraID, target->GetGUID());
+
+        target->SetFlightCapabilityID(0, true);
     }
 }
 
@@ -2846,6 +2948,17 @@ void AuraEffect::HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, ui
     target->SetCanTurnWhileFalling(apply);
 }
 
+void AuraEffect::HandleModAdvFlying(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    target->SetCanDoubleJump(apply || target->HasAura(SPELL_DH_DOUBLE_JUMP));
+    target->SetCanFly(apply);
+    target->SetCanAdvFly(apply);
+}
+
 void AuraEffect::HandleIgnoreMovementForces(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
@@ -2878,6 +2991,23 @@ void AuraEffect::HandleDisableInertia(AuraApplication const* aurApp, uint8 mode,
     }
 
     target->SetDisableInertia(apply);
+}
+
+void AuraEffect::HandleSetCantSwim(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (!apply)
+    {
+        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+        if (target->HasAuraType(GetAuraType()))
+            return;
+    }
+
+    target->SetMoveCantSwim(apply);
 }
 
 /****************************/
@@ -3310,6 +3440,43 @@ void AuraEffect::HandleModMovementForceMagnitude(AuraApplication const* aurApp, 
         return;
 
     aurApp->GetTarget()->UpdateMovementForcesModMagnitude();
+}
+
+void AuraEffect::HandleAuraModAdvFlyingSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_ADV_FLYING_AIR_FRICTION:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_AIR_FRICTION, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_MAX_VEL:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_MAX_VEL, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_LIFT_COEF:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_LIFT_COEFFICIENT, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_ADD_IMPULSE_MAX_SPEED:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_ADD_IMPULSE_MAX_SPEED, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_BANKING_RATE, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_DOWN, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_UP, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_OVER_MAX_DECELERATION:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_OVER_MAX_DECELERATION, true);
+            break;
+        default:
+            break;
+    }
 }
 
 /*********************************************************/
@@ -4999,7 +5166,6 @@ void AuraEffect::HandleForceReaction(AuraApplication const* aurApp, uint8 mode, 
     ReputationRank factionRank = ReputationRank(GetAmount());
 
     player->GetReputationMgr().ApplyForceReaction(factionId, factionRank, apply);
-    player->GetReputationMgr().SendForceReactions();
 
     // stop fighting at apply (if forced rank friendly) or at remove (if real rank friendly)
     if ((apply && factionRank >= REP_FRIENDLY) || (!apply && player->GetReputationRank(factionId) >= REP_FRIENDLY))
@@ -6376,6 +6542,41 @@ void AuraEffect::HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode,
         return;
 
     playerTarget->UpdatePositionData();
+}
+
+void AuraEffect::HandleAuraActAsControlZone(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* auraOwner = aurApp->GetTarget();
+    if (!apply)
+    {
+        auraOwner->RemoveGameObject(GetSpellInfo()->Id, true);
+        return;
+    }
+
+    GameObjectTemplate const* gameobjectTemplate = sObjectMgr->GetGameObjectTemplate(GetMiscValue());
+    if (!gameobjectTemplate)
+    {
+        TC_LOG_WARN("spells.aura.effect", "AuraEffect::HanldeAuraActAsControlZone: Spell {} [EffectIndex: {}] does not have an existing gameobject template.", GetId(), GetEffIndex());
+        return;
+    }
+
+    if (gameobjectTemplate->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
+    {
+        TC_LOG_WARN("spells.aura.effect", "AuraEffect::HanldeAuraActAsControlZone: Spell {} [EffectIndex: {}] has a gameobject template ({}) that is not a control zone.", GetId(), GetEffIndex(), gameobjectTemplate->entry);
+        return;
+    }
+
+    if (gameobjectTemplate->displayId)
+    {
+        TC_LOG_WARN("spell.aura.effect", "AuraEffect::HanldeAuraActAsControlZone: Spell {} [EffectIndex: {}] has a gameobject template ({}) that has a display id. Only invisible gameobjects are supported.", GetId(), GetEffIndex(), gameobjectTemplate->entry);
+        return;
+    }
+
+    if (GameObject* controlZone = auraOwner->SummonGameObject(gameobjectTemplate->entry, auraOwner->GetPosition(), QuaternionData::fromEulerAnglesZYX(aurApp->GetTarget()->GetOrientation(), 0.f, 0.f), 24h, GO_SUMMON_TIMED_OR_CORPSE_DESPAWN))
+        controlZone->SetSpellId(GetSpellInfo()->Id);
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;

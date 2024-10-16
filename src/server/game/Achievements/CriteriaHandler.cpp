@@ -601,6 +601,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HighestHealReceived:
             case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::AzeriteLevelReached:
+            case CriteriaType::ReachRenownLevel:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;
             case CriteriaType::ReachLevel:
@@ -714,7 +715,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
-                        if (skillIter->second->SkillLine == int32(criteria->Entry->Asset.SkillID))
+                        if (skillIter->second->SkillLine == uint32(criteria->Entry->Asset.SkillID))
                         {
                             // do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
                             ++spellCount;
@@ -1885,9 +1886,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::ClientVersionEqualOrLessThan: // 33
-            if (reqValue < sRealmList->GetMinorMajorBugfixVersionForBuild(realm.Build))
+        {
+            std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm();
+            if (!currentRealm)
+                return false;
+            if (reqValue < ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build))
                 return false;
             break;
+        }
         case ModifierTreeType::BattlePetTeamLevel: // 34
             for (WorldPackets::BattlePet::BattlePetSlot const& slot : referencePlayer->GetSession()->GetBattlePetMgr()->GetSlots())
                 if (slot.Pet.Level < reqValue)
@@ -2440,7 +2446,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == int32(secondaryAsset) && follower.HasAbility(reqValue);;
+                return followerBuilding->BuildingType == secondaryAsset && follower.HasAbility(reqValue);;
             });
             if (followerCount < 1)
                 return false;
@@ -2459,7 +2465,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == int32(secondaryAsset) && follower.HasAbility(reqValue);;
+                return followerBuilding->BuildingType == secondaryAsset && follower.HasAbility(reqValue);;
             });
             if (followerCount < 1)
                 return false;
@@ -2477,7 +2483,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == int32(secondaryAsset);
+                return followerBuilding->BuildingType == secondaryAsset;
             });
             if (followerCount < 1)
                 return false;
@@ -2494,7 +2500,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                     continue;
 
                 GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
-                if (!building || building->UpgradeLevel < reqValue || building->BuildingType != int32(secondaryAsset))
+                if (!building || building->UpgradeLevel < reqValue || building->BuildingType != secondaryAsset)
                     continue;
 
                 return true;
@@ -2558,7 +2564,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                     continue;
 
                 GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
-                if (!building || building->UpgradeLevel != secondaryAsset || building->BuildingType != int32(reqValue))
+                if (!building || building->UpgradeLevel != secondaryAsset || building->BuildingType != reqValue)
                     continue;
 
                 return true;
@@ -3931,7 +3937,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 if (item->GetVisibleAppearanceModId(referencePlayer) == itemModifiedAppearance->ID)
                     return ItemSearchCallbackResult::Stop;
 
-                if (int32(item->GetEntry()) == itemModifiedAppearance->ItemID)
+                if (item->GetEntry() == itemModifiedAppearance->ItemID)
                     return ItemSearchCallbackResult::Stop;
 
                 return ItemSearchCallbackResult::Continue;
@@ -3970,6 +3976,40 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             MapEntry const* mapEntry = referencePlayer->GetMap()->GetEntry();
             if (mapEntry->ExpansionID != reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasActiveTraitSubTree: // 385
+        {
+            int32 traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIndexIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
+            {
+                if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat
+                    && (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
+                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec)))
+                    return false;
+
+                return traitConfig.SubTrees.FindIndexIf([reqValue](UF::TraitSubTreeCache const& traitSubTree)
+                {
+                    return traitSubTree.TraitSubTreeID == int32(reqValue) && traitSubTree.Active;
+                }) >= 0;
+            });
+            if (traitConfigWithSubtree < 0)
+                return false;
+            break;
+        }
+        case ModifierTreeType::TargetCreatureClassificationEqual: // 389
+        {
+            Creature const* targetCreature = Object::ToCreature(ref);
+            if (!targetCreature)
+                return false;
+            if (targetCreature->GetCreatureClassification() != CreatureClassifications(reqValue))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasCompletedQuestOrIsReadyToTurnIn: // 392
+        {
+            QuestStatus status = referencePlayer->GetQuestStatus(reqValue);
+            if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
                 return false;
             break;
         }

@@ -1,1 +1,0 @@
-DELETE FROM `spawn_group` WHERE `spawnId` IN(650564, 650567, 650566, 650570);

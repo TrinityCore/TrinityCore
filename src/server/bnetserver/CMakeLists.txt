@@ -16,8 +16,6 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
-
 if (WIN32)
   if (MSVC)
     list(APPEND PRIVATE_SOURCES bnetserver.rc)
@@ -60,9 +58,9 @@ target_include_directories(bnetserver
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(bnetserver
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "server")
 
 add_custom_command(TARGET bnetserver
   POST_BUILD
