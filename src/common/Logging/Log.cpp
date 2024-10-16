@@ -27,7 +27,6 @@
 #include "Strand.h"
 #include "StringConvert.h"
 #include "Util.h"
-#include <sstream>
 
 Log::Log() : AppenderId(0), lowestLogLevel(LOG_LEVEL_FATAL), _ioContext(nullptr), _strand(nullptr)
 {
@@ -265,27 +264,7 @@ Logger const* Log::GetLoggerByType(std::string_view type) const
 std::string Log::GetTimestampStr()
 {
     time_t tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-    std::tm aTm;
-    localtime_r(&tt, &aTm);
-
-    //       YYYY   year
-    //       MM     month (2 digits 01-12)
-    //       DD     day (2 digits 01-31)
-    //       HH     hour (2 digits 00-23)
-    //       MM     minutes (2 digits 00-59)
-    //       SS     seconds (2 digits 00-59)
-    try
-    {
-        return Trinity::StringFormat("{:04}-{:02}-{:02}_{:02}-{:02}-{:02}",
-            aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
-    }
-    catch (std::exception const& ex)
-    {
-        fprintf(stderr, "Failed to initialize timestamp part of log filename! %s", ex.what());
-        fflush(stderr);
-        ABORT();
-    }
+    return TimeToTimestampStr(tt);
 }
 
 bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /* = true */)
