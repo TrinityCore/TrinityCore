@@ -30839,3 +30839,12 @@ bool Player::CanExecutePendingSpellCastRequest()
 
     return true;
 }
+
+void Player::AddMoveImpulse(Position direction)
+{
+    WorldPackets::Movement::MoveAddImpulse addImpulse = WorldPackets::Movement::MoveAddImpulse();
+    addImpulse.MoverGUID = GetGUID();
+    addImpulse.SequenceIndex = m_movementCounter++;
+    addImpulse.Direction = direction;
+    SendMessageToSet(addImpulse.Write(), true);
+}

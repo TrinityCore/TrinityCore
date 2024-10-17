@@ -3225,6 +3225,12 @@ bool Unit::isInAccessiblePlaceFor(Creature const* c) const
     return true;
 }
 
+bool Unit::IsInAir() const
+{
+    float ground = GetFloorZ();
+    return (G3D::fuzzyGt(GetPositionZ(), ground + GetHoverOffset() + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
+}
+
 bool Unit::IsInWater() const
 {
     return GetLiquidStatus() & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER);
@@ -12617,6 +12623,15 @@ bool Unit::CanSwim() const
     if (HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT))
         return true;
     return HasUnitFlag(UNIT_FLAG_RENAME | UNIT_FLAG_CAN_SWIM);
+}
+
+float Unit::GetAdvFlyingVelocity() const
+{
+    Optional<MovementInfo::AdvFlying> const& advFlying = m_movementInfo.advFlying;
+    if (!advFlying)
+        return .0f;
+
+    return std::sqrt(advFlying->forwardVelocity * advFlying->forwardVelocity + advFlying->upVelocity * advFlying->upVelocity);
 }
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
