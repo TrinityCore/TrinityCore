@@ -25,6 +25,7 @@
 #include "Optional.h"
 #include "Position.h"
 #include "ScriptActionResult.h"
+#include "SpellPackets.h"
 #include <any>
 #include <vector>
 
@@ -44,16 +45,6 @@ enum SpellCastResult : int32;
 namespace UF
 {
     struct SpellCastVisual;
-}
-
-namespace WorldPackets
-{
-    namespace Spells
-    {
-        struct SpellCastRequest;
-        struct SpellCastVisual;
-        struct SpellTargetData;
-    }
 }
 
 enum class SpellInterruptFlags : uint32
@@ -408,6 +399,8 @@ public:
 
     void Update(WorldObject* caster);
     std::string GetTargetString() const { return m_strTarget; }
+
+    std::unordered_map<uint32 /*SpellSlot*/, std::vector<WorldPackets::Spells::SpellCraftingReagent>> ModifiedCraftingReagents;
 
 private:
     uint32 m_targetMask;
