@@ -213,36 +213,31 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     Language finalLang = (language == LANG_ADDON) ? iter->lang : language;
     uint32 finalSound = iter->sound;
     SoundKitPlayType finalPlayType = iter->SoundPlayType;
+    BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(iter->BroadcastTextId);
     if (sound)
     {
         finalSound = sound;
         finalPlayType = playType;
     }
-    else if (BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(iter->BroadcastTextId))
+    else if (bct)
         if (uint32 broadcastTextSoundId = bct->SoundKitID[source->GetGender() == GENDER_FEMALE ? 1 : 0])
             finalSound = broadcastTextSoundId;
 
     if (range == TEXT_RANGE_NORMAL)
         range = iter->TextRange;
 
-    if (finalSound)
-        SendSound(source, finalSound, finalType, whisperTarget, range, team, gmOnly, iter->BroadcastTextId, finalPlayType);
-
     Unit* finalSource = source;
     if (srcPlr)
         finalSource = srcPlr;
 
-    if (iter->emote)
-        SendEmote(finalSource, iter->emote);
-
     if (srcPlr)
     {
-        Trinity::CreatureTextTextBuilder builder(source, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(source, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget, iter->BroadcastTextId, iter->emote, finalSound, finalPlayType, bct->ConditionID);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
     else
     {
-        Trinity::CreatureTextTextBuilder builder(finalSource, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(finalSource, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget, iter->BroadcastTextId, iter->emote, finalSound, finalPlayType, bct->ConditionID);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
 
@@ -267,119 +262,6 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType)
     }
 
     return dist;
-}
-
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget /*= nullptr*/, CreatureTextRange range /*= TEXT_RANGE_NORMAL*/,
-    Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, uint32 keyBroadcastTextId /*= 0*/, SoundKitPlayType playType /*= SoundKitPlayType::Normal*/)
-{
-    if (!sound || !source)
-        return;
-
-    if (playType == SoundKitPlayType::ObjectSound)
-    {
-        WorldPackets::Misc::PlayObjectSound pkt;
-        pkt.TargetObjectGUID = whisperTarget->GetGUID();
-        pkt.SourceObjectGUID = source->GetGUID();
-        pkt.SoundKitID = sound;
-        pkt.Position = whisperTarget->GetWorldLocation();
-        pkt.BroadcastTextID = keyBroadcastTextId;
-        SendNonChatPacket(source, pkt.Write(), msgType, whisperTarget, range, team, gmOnly);
-    }
-    else if (playType == SoundKitPlayType::Normal)
-        SendNonChatPacket(source, WorldPackets::Misc::PlaySound(source->GetGUID(), sound, keyBroadcastTextId).Write(), msgType, whisperTarget, range, team, gmOnly);
-}
-
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
-{
-    switch (msgType)
-    {
-        case CHAT_MSG_MONSTER_PARTY:
-        {
-            if (!whisperTarget)
-                return;
-
-            if (Player const* whisperPlayer = whisperTarget->ToPlayer())
-            {
-                if (Group const* group = whisperPlayer->GetGroup())
-                    group->BroadcastWorker([data](Player* player) { player->SendDirectMessage(data); });
-            }
-            return;
-        }
-        case CHAT_MSG_MONSTER_WHISPER:
-        case CHAT_MSG_RAID_BOSS_WHISPER:
-        {
-            if (range == TEXT_RANGE_NORMAL) // ignores team and gmOnly
-            {
-                if (!whisperTarget || whisperTarget->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                whisperTarget->ToPlayer()->SendDirectMessage(data);
-                return;
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-    switch (range)
-    {
-        case TEXT_RANGE_AREA:
-        {
-            uint32 areaId = source->GetAreaId();
-            Map::PlayerList const& players = source->GetMap()->GetPlayers();
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if (itr->GetSource()->GetAreaId() == areaId && (!team || Team(itr->GetSource()->GetEffectiveTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
-                    itr->GetSource()->SendDirectMessage(data);
-            return;
-        }
-        case TEXT_RANGE_ZONE:
-        {
-            uint32 zoneId = source->GetZoneId();
-            Map::PlayerList const& players = source->GetMap()->GetPlayers();
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if (itr->GetSource()->GetZoneId() == zoneId && (!team || Team(itr->GetSource()->GetEffectiveTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
-                    itr->GetSource()->SendDirectMessage(data);
-            return;
-        }
-        case TEXT_RANGE_MAP:
-        {
-            Map::PlayerList const& players = source->GetMap()->GetPlayers();
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if ((!team || Team(itr->GetSource()->GetEffectiveTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
-                    itr->GetSource()->SendDirectMessage(data);
-            return;
-        }
-        case TEXT_RANGE_WORLD:
-        {
-            SessionMap const& smap = sWorld->GetAllSessions();
-            for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
-                if (Player* player = iter->second->GetPlayer())
-                    if ((!team || Team(player->GetTeam()) == team) && (!gmOnly || player->IsGameMaster()))
-                        player->SendDirectMessage(data);
-            return;
-        }
-        case TEXT_RANGE_PERSONAL:
-            if (!whisperTarget || !whisperTarget->IsPlayer())
-                return;
-
-            whisperTarget->ToPlayer()->SendDirectMessage(data);
-            return;
-        case TEXT_RANGE_NORMAL:
-        default:
-            break;
-    }
-
-    float dist = GetRangeForChatType(msgType);
-    source->SendMessageToSetInRange(data, dist, true);
-}
-
-void CreatureTextMgr::SendEmote(Unit* source, Emote emote)
-{
-    if (!source)
-        return;
-
-    source->HandleEmoteCommand(emote);
 }
 
 bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup) const
