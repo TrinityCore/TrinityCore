@@ -147,7 +147,7 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
         {
             PetCreatureDisplayID = fields[15].GetUInt32();
             PetExperienceLevel = fields[16].GetUInt16();
-            PetCreatureFamilyID = creatureInfo->family;
+            PetCreatureFamilyID = creatureInfo->CreatureFamilyID;
         }
     }
 

@@ -2218,7 +2218,7 @@ bool LoadPetDefaultSpells_helper(CreatureTemplate const* cInfo, PetDefaultSpells
         return false;
 
     // remove duplicates with levelupSpells if any
-    if (PetLevelupSpellSet const* levelupSpells = cInfo->family ? sSpellMgr->GetPetLevelupSpellList(cInfo->family) : nullptr)
+    if (PetLevelupSpellSet const* levelupSpells = cInfo->CreatureFamilyID ? sSpellMgr->GetPetLevelupSpellList(cInfo->CreatureFamilyID) : nullptr)
     {
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
         {
@@ -2277,13 +2277,13 @@ void SpellMgr::LoadPetDefaultSpells()
                     continue;
 
                 // get default pet spells from creature_template
-                int32 petSpellsId = cInfo->Entry;
-                if (mPetDefaultSpellsMap.find(cInfo->Entry) != mPetDefaultSpellsMap.end())
+                int32 petSpellsId = cInfo->CreatureID;
+                if (mPetDefaultSpellsMap.find(cInfo->CreatureID) != mPetDefaultSpellsMap.end())
                     continue;
 
                 PetDefaultSpellsEntry petDefSpells;
                 for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
-                    petDefSpells.spellid[j] = cInfo->spells[j];
+                    petDefSpells.spellid[j] = cInfo->Spells[j];
 
                 if (LoadPetDefaultSpells_helper(cInfo, petDefSpells))
                 {

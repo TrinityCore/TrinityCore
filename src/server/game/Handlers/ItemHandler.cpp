@@ -397,7 +397,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         return;
     }
 
-    if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
+    if ((creature->GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
     {
         _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, packet.ItemGUID);
         return;
