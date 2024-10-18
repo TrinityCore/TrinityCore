@@ -19,12 +19,13 @@
 #include "ByteConverter.h"
 #include "DB2Meta.h"
 #include "Errors.h"
-#include "Log.h"
+#include "StringFormat.h"
 #include <fmt/ranges.h>
 #include <limits>
-#include <sstream>
 #include <system_error>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 #include <cstring>
 
 enum class DB2ColumnCompression : uint32
@@ -514,19 +515,14 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
 {
     if (!(_header->Locale & (1 << locale)))
     {
-        char const* sep = "";
-        std::ostringstream str;
+        std::array<char const*, TOTAL_LOCALES> detectedLocales;
+        auto itr = detectedLocales.begin();
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-        {
             if (_header->Locale & (1 << i))
-            {
-                str << sep << localeNames[i];
-                sep = ", ";
-            }
-        }
+                *itr++ = localeNames[i];
 
-        TC_LOG_ERROR("", "Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.", _fileName, str.str(), localeNames[locale]);
-        return nullptr;
+        throw DB2FileLoadException(Trinity::StringFormat("Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.",
+            _fileName, fmt::join(detectedLocales.begin(), itr, ", "), localeNames[locale]));
     }
 
     if (!_loadInfo->GetStringFieldCount(false))
@@ -1172,19 +1168,14 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
 
     if (!(_header->Locale & (1 << locale)))
     {
-        char const* sep = "";
-        std::ostringstream str;
+        std::array<char const*, TOTAL_LOCALES> detectedLocales;
+        auto itr = detectedLocales.begin();
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-        {
             if (_header->Locale & (1 << i))
-            {
-                str << sep << localeNames[i];
-                sep = ", ";
-            }
-        }
+                *itr++ = localeNames[i];
 
-        TC_LOG_ERROR("", "Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.", _fileName, str.str(), localeNames[locale]);
-        return nullptr;
+        throw DB2FileLoadException(Trinity::StringFormat("Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.",
+            _fileName, fmt::join(detectedLocales.begin(), itr, ", "), localeNames[locale]));
     }
 
     uint32 records = _catalog.size();
