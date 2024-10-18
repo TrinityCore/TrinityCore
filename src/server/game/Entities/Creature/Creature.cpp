@@ -3619,6 +3619,8 @@ void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
 
+    _aggroGracePeriodPassed = true;
+
     GetThreatManager().ResetUpdateTimer();
 
     if (!HasFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT))
