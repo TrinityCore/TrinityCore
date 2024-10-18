@@ -5,6 +5,8 @@ UPDATE `creature` SET `StringId`='npc_auchenai_defender_intro' WHERE `guid`= 500
 UPDATE `creature_template` SET `ScriptName` = 'npc_auchindoun_soulbinder_tuulani' WHERE `entry`=79248; -- Soulbinder Tuulani
 UPDATE `creature_template` SET `ScriptName` = 'npc_auchindoun_auchenai_defender' WHERE `entry`=77693; -- Auchenai Defender
 
+UPDATE `instance_template` SET `ScriptName` = 'instance_auchindoun' WHERE `map`=1182;
+
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID` IN (77693, 79248);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
