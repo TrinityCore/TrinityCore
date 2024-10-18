@@ -20,10 +20,12 @@
 
 #include "Packet.h"
 #include "AuthenticationPackets.h"
+#include "ItemPacketsCommon.h"
 #include "NPCHandler.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 #include "Position.h"
+#include "QuestDef.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
