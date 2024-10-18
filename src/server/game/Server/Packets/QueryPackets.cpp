@@ -579,11 +579,11 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerPick const& treasurePicke
     data << Bits<1>(treasurePickerPick.IsChoice);
     data.FlushBits();
 
-    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerPick.Currencies)
-        data << treasurePickCurrency;
-
     for (TreasurePickItem const& treasurePickItem : treasurePickerPick.Items)
         data << treasurePickItem;
+
+    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerPick.Currencies)
+        data << treasurePickCurrency;
 
     for (TreasurePickerBonus const& treasurePickerBonus : treasurePickerPick.Bonuses)
         data << treasurePickerBonus;
