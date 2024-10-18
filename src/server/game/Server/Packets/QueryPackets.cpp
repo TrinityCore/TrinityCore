@@ -557,7 +557,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerBonus const& treasurePick
     data << uint32(treasurePickerBonus.Items.size());
     data << uint32(treasurePickerBonus.Currencies.size());
     data << uint64(treasurePickerBonus.Money);
-    data << Bits<1>(treasurePickerBonus.UnkBit);
+    data << Bits<1>(treasurePickerBonus.Unknown);
     data.FlushBits();
 
     for (TreasurePickItem const& treasurePickerItem : treasurePickerBonus.Items)
@@ -569,26 +569,33 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerBonus const& treasurePick
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerPick const& treasurePickerPick)
+{
+    data << uint32(treasurePickerPick.Items.size());
+    data << uint32(treasurePickerPick.Currencies.size());
+    data << uint64(treasurePickerPick.Money);
+    data << uint32(treasurePickerPick.Bonuses.size());
+    data << int32(treasurePickerPick.Flags);
+    data << Bits<1>(treasurePickerPick.IsChoice);
+    data.FlushBits();
+
+    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerPick.Currencies)
+        data << treasurePickCurrency;
+
+    for (TreasurePickItem const& treasurePickItem : treasurePickerPick.Items)
+        data << treasurePickItem;
+
+    for (TreasurePickerBonus const& treasurePickerBonus : treasurePickerPick.Bonuses)
+        data << treasurePickerBonus;
+
+    return data;
+}
+
 WorldPacket const* TreasurePickerResponse::Write()
 {
     _worldPacket << uint32(QuestID);
     _worldPacket << uint32(TreasurePickerID);
-    _worldPacket << uint32(Items.size());
-    _worldPacket << uint32(Currencies.size());
-    _worldPacket << uint64(Money);
-    _worldPacket << uint32(Bonuses.size());
-    _worldPacket << uint32(Flags);
-    _worldPacket << Bits<1>(UnkBit);
-    _worldPacket.FlushBits();
-
-    for (TreasurePickItem const& treasurePickerItem : Items)
-        _worldPacket << treasurePickerItem;
-
-    for (TreasurePickCurrency const& treasurePickCurrency : Currencies)
-        _worldPacket << treasurePickCurrency;
-
-    for (TreasurePickerBonus const& treasurePickBonus : Bonuses)
-        _worldPacket << treasurePickBonus;
+    _worldPacket << Pick;
 
     return &_worldPacket;
 }

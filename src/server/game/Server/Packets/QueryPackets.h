@@ -466,7 +466,17 @@ namespace WorldPackets
             std::vector<TreasurePickItem> Items;
             std::vector<TreasurePickCurrency> Currencies;
             uint64 Money = 0;
-            bool UnkBit = false;
+            bool Unknown = false;
+        };
+
+        struct TreasurePickerPick
+        {
+            std::vector<TreasurePickItem> Items;
+            std::vector<TreasurePickCurrency> Currencies;
+            std::vector<TreasurePickerBonus> Bonuses;
+            uint64 Money = 0;
+            int32 Flags = 0;
+            bool IsChoice = false;
         };
 
         class TreasurePickerResponse final : public ServerPacket
@@ -478,12 +488,7 @@ namespace WorldPackets
 
             uint32 QuestID = 0;
             uint32 TreasurePickerID = 0;
-            std::vector<TreasurePickItem> Items;
-            std::vector<TreasurePickCurrency> Currencies;
-            uint64 Money = 0;
-            uint32 Flags = 0;
-            bool UnkBit = false;
-            std::vector<TreasurePickerBonus> Bonuses;
+            TreasurePickerPick Pick;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupData const& lookupData);
