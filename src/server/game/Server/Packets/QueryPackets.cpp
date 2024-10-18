@@ -519,4 +519,77 @@ WorldPacket const* RealmQueryResponse::Write()
 
     return &_worldPacket;
 }
+
+void QueryTreasurePicker::Read()
+{
+    _worldPacket >> QuestID;
+    _worldPacket >> TreasurePickerID;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, TreasurePickItem const& treasurePickItem)
+{
+    data << treasurePickItem.Item;
+    data << uint32(treasurePickItem.Quantity);
+    data << OptionalInit(treasurePickItem.ContextFlags);
+    data.FlushBits();
+
+    if (treasurePickItem.ContextFlags)
+        data << As<int32>(*treasurePickItem.ContextFlags);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, TreasurePickCurrency const& treasurePickCurrency)
+{
+    data << uint32(treasurePickCurrency.CurrencyID);
+    data << uint32(treasurePickCurrency.Quantity);
+    data << OptionalInit(treasurePickCurrency.ContextFlags);
+    data.FlushBits();
+
+    if (treasurePickCurrency.ContextFlags)
+        data << As<int32>(*treasurePickCurrency.ContextFlags);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerBonus const& treasurePickerBonus)
+{
+    data << uint32(treasurePickerBonus.Items.size());
+    data << uint32(treasurePickerBonus.Currencies.size());
+    data << uint64(treasurePickerBonus.Money);
+    data << Bits<1>(treasurePickerBonus.UnkBit);
+    data.FlushBits();
+
+    for (TreasurePickItem const& treasurePickerItem : treasurePickerBonus.Items)
+        data << treasurePickerItem;
+
+    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerBonus.Currencies)
+        data << treasurePickCurrency;
+
+    return data;
+}
+
+WorldPacket const* TreasurePickerResponse::Write()
+{
+    _worldPacket << uint32(QuestID);
+    _worldPacket << uint32(TreasurePickerID);
+    _worldPacket << uint32(Items.size());
+    _worldPacket << uint32(Currencies.size());
+    _worldPacket << uint64(Money);
+    _worldPacket << uint32(Bonuses.size());
+    _worldPacket << uint32(Flags);
+    _worldPacket << Bits<1>(UnkBit);
+    _worldPacket.FlushBits();
+
+    for (TreasurePickItem const& treasurePickerItem : Items)
+        _worldPacket << treasurePickerItem;
+
+    for (TreasurePickCurrency const& treasurePickCurrency : Currencies)
+        _worldPacket << treasurePickCurrency;
+
+    for (TreasurePickerBonus const& treasurePickBonus : Bonuses)
+        _worldPacket << treasurePickBonus;
+
+    return &_worldPacket;
+}
 }
