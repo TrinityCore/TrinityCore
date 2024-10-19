@@ -45,22 +45,22 @@ ChatPacketSender::ChatPacketSender(ChatMsg chatType, ::Language language, WorldO
     {
         if (soundKitPlayType == SoundKitPlayType::Normal)
         {
-            SoundPacket.emplace();
-            SoundPacket->SoundKitID = soundKitId;
-            SoundPacket->BroadcastTextID = broadcastTextId;
-            SoundPacket->SourceObjectGuid = sender ? sender->GetGUID() : ObjectGuid::Empty;
-            SoundPacket->Write();
+            SoundPacket.emplace(std::make_unique<WorldPackets::Misc::PlaySound>(sender ? sender->GetGUID() : ObjectGuid::Empty, soundKitId, broadcastTextId));
+            (*SoundPacket)->Write();
         }
         else if (soundKitPlayType == SoundKitPlayType::ObjectSound)
         {
-            ObjectSoundPacket.emplace();
-            ObjectSoundPacket->TargetObjectGUID = receiver ? receiver->GetGUID() : ObjectGuid::Empty;
-            ObjectSoundPacket->SourceObjectGUID = sender ? sender->GetGUID() : ObjectGuid::Empty;
-            ObjectSoundPacket->SoundKitID = soundKitId;
+            std::unique_ptr<WorldPackets::Misc::PlayObjectSound> packet = std::make_unique<WorldPackets::Misc::PlayObjectSound>();
+            packet->TargetObjectGUID = receiver ? receiver->GetGUID() : ObjectGuid::Empty;
+            packet->SourceObjectGUID = sender ? sender->GetGUID() : ObjectGuid::Empty;
+            packet->SoundKitID = soundKitId;
+
             if (receiver)
-                ObjectSoundPacket->Position = receiver->GetWorldLocation();
-            ObjectSoundPacket->BroadcastTextID = broadcastTextId;
-            ObjectSoundPacket->Write();
+                packet->Position = receiver->GetWorldLocation();
+            packet->BroadcastTextID = broadcastTextId;
+
+            SoundPacket.emplace(std::move(packet));
+            (*SoundPacket)->Write();
         }
     }
 }
@@ -71,9 +71,7 @@ void ChatPacketSender::operator()(Player const* player) const
         return;
 
     if (SoundPacket)
-        player->SendDirectMessage(SoundPacket->GetRawPacket());
-    else if (ObjectSoundPacket)
-        player->SendDirectMessage(ObjectSoundPacket->GetRawPacket());
+        player->SendDirectMessage((*SoundPacket)->GetRawPacket());
 
     if (EmotePacket)
         player->SendDirectMessage(EmotePacket->GetRawPacket());
