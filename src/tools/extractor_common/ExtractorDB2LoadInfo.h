@@ -31,7 +31,7 @@ struct CinematicCameraLoadInfo
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1294214, -1, 4, 4, 0x744B99BC, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1294214, -1, 4, 4, 0xF96842A0, MetaFields, -1 };
 
     static constexpr DB2FieldMeta Fields[7] =
     {
@@ -44,12 +44,12 @@ struct CinematicCameraLoadInfo
         { false, FT_INT, "FileDataID" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 7, & MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 7, &MetaInstance };
 };
 
 struct GameobjectDisplayInfoLoadInfo
 {
-    static constexpr DB2MetaField MetaFields[6] =
+    static constexpr DB2MetaField MetaFields[7] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },
         { FT_FLOAT, 6, true },
@@ -57,11 +57,12 @@ struct GameobjectDisplayInfoLoadInfo
         { FT_SHORT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1266277, -1, 6, 6, 0xB59CF0B2, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1266277, -1, 7, 7, 0x7C5F0B90, MetaFields, -1 };
 
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "ModelName" },
@@ -75,9 +76,10 @@ struct GameobjectDisplayInfoLoadInfo
         { true, FT_SHORT, "ObjectEffectPackageID" },
         { false, FT_FLOAT, "OverrideLootEffectScale" },
         { false, FT_FLOAT, "OverrideNameScale" },
+        { false, FT_SHORT, "Unknown1154" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 12, &MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 13, &MetaInstance };
 };
 
 struct LiquidMaterialLoadInfo
@@ -88,7 +90,7 @@ struct LiquidMaterialLoadInfo
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1132538, -1, 2, 2, 0x2CFFEA40, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1132538, -1, 2, 2, 0x01033D2A, MetaFields, -1 };
 
     static constexpr DB2FieldMeta Fields[3] =
     {
@@ -111,7 +113,7 @@ struct LiquidObjectLoadInfo
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1308058, -1, 5, 5, 0x6CAEB8A1, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1308058, -1, 5, 5, 0xCB0D39E8, MetaFields, -1 };
 
     static constexpr DB2FieldMeta Fields[6] =
     {
@@ -153,7 +155,7 @@ struct LiquidTypeLoadInfo
         { FT_FLOAT, 4, true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1371380, -1, 21, 21, 0xAFFFC9E0, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1371380, -1, 21, 21, 0x95DB15B6, MetaFields, -1 };
 
     static constexpr DB2FieldMeta Fields[56] =
     {
@@ -220,7 +222,7 @@ struct LiquidTypeLoadInfo
 
 struct MapLoadInfo
 {
-    static constexpr DB2MetaField MetaFields[22] =
+    static constexpr DB2MetaField MetaFields[23] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },
         { FT_STRING, 1, true },
@@ -243,12 +245,13 @@ struct MapLoadInfo
         { FT_BYTE, 1, false },
         { FT_SHORT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1349477, -1, 22, 22, 0xEE526FA5, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance{ 1349477, -1, 23, 23, 0x32401DC5, MetaFields, -1 };
 
-    static constexpr DB2FieldMeta Fields[25] =
+    static constexpr DB2FieldMeta Fields[26] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING_NOT_LOCALIZED, "Directory" },
@@ -272,12 +275,13 @@ struct MapLoadInfo
         { false, FT_BYTE, "MaxPlayers" },
         { true, FT_SHORT, "WindSettingsID" },
         { true, FT_INT, "ZmpFileDataID" },
+        { true, FT_INT, "Unknown1154" },
         { true, FT_INT, "Flags1" },
         { true, FT_INT, "Flags2" },
         { true, FT_INT, "Flags3" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 25, &MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 26, &MetaInstance };
 };
 
 #endif // ExtractorDB2LoadInfo_h__

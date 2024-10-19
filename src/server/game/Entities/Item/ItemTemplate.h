@@ -109,6 +109,9 @@ enum ItemSpelltriggerType
     ITEM_SPELLTRIGGER_ON_PICKUP         = 5,
     ITEM_SPELLTRIGGER_ON_LEARN          = 6,                  // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
     ITEM_SPELLTRIGGER_ON_LOOTED         = 7,
+    ITEM_SPELLTRIGGER_TEACH_MOUNT       = 8,
+    ITEM_SPELLTRIGGER_ON_PICKUP_FORCED  = 9,
+    ITEM_SPELLTRIGGER_ON_LOOTED_FORCED  = 10,
 };
 
 enum ItemBondingType
@@ -118,9 +121,12 @@ enum ItemBondingType
     BIND_ON_EQUIP                               = 2,
     BIND_ON_USE                                 = 3,
     BIND_QUEST                                  = 4,
+    BIND_UNUSED_1                               = 5,
+    BIND_UNUSED_2                               = 6,
+    BIND_WOW_ACCOUNT                            = 7,
+    BIND_BNET_ACCOUNT                           = 8,
+    BIND_BNET_ACCOUNT_UNTIL_EQUIPPED            = 9,
 };
-
-#define MAX_BIND_TYPE                             5
 
 /* /// @todo: Requiring actual cases in which using (an) item isn't allowed while shapeshifted. Else, this flag would need an implementation.
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */
@@ -812,7 +818,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetClass() const { return BasicData->ClassID; }
     uint32 GetSubClass() const { return BasicData->SubclassID; }
     uint32 GetQuality() const { return ExtendedData->OverallQualityID; }
-    uint32 GetOtherFactionItemId() const { return ExtendedData->FactionRelated; }
+    uint32 GetOtherFactionItemId() const { return ExtendedData->OppositeFactionItemID; }
     float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }
     float GetPriceVariance() const { return ExtendedData->PriceVariance; }
     uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->VendorStackCount, 1u); }
@@ -851,7 +857,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetBagFamily() const { return ExtendedData->BagFamily; }
     uint32 GetTotemCategory() const { return ExtendedData->TotemCategoryID; }
     SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->SocketType[index]); }
-    uint32 GetSocketBonus() const { return ExtendedData->SocketMatchEnchantmentId; }
+    uint32 GetSocketBonus() const { return ExtendedData->SocketMatchEnchantmentID; }
     uint32 GetGemProperties() const { return ExtendedData->GemProperties; }
     float GetQualityModifier() const { return ExtendedData->QualityModifier; }
     uint32 GetDuration() const { return ExtendedData->DurationInInventory; }

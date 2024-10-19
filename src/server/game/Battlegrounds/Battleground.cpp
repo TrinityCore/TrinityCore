@@ -1304,7 +1304,7 @@ void Battleground::UpdatePvpStat(Player* player, uint32 pvpStatId, uint32 value)
 
 uint32 Battleground::GetMapId() const
 {
-    return _battlegroundTemplate->BattlemasterEntry->MapID[0];
+    return _battlegroundTemplate->MapIDs.front();
 }
 
 void Battleground::SetBgMap(BattlegroundMap* map)

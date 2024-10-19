@@ -227,7 +227,7 @@ void Scenario::CompletedCriteriaTree(CriteriaTree const* tree, Player* /*referen
 
 bool Scenario::IsCompletedStep(ScenarioStepEntry const* step)
 {
-    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(step->Criteriatreeid);
+    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(step->CriteriatreeID);
     if (!tree)
         return false;
 
@@ -325,7 +325,7 @@ std::vector<WorldPackets::Scenario::BonusObjectiveData> Scenario::GetBonusObject
         if (!scenarioStep.second->IsBonusObjective())
             continue;
 
-        if (sCriteriaMgr->GetCriteriaTree(scenarioStep.second->Criteriatreeid))
+        if (sCriteriaMgr->GetCriteriaTree(scenarioStep.second->CriteriatreeID))
         {
             WorldPackets::Scenario::BonusObjectiveData bonusObjectiveData;
             bonusObjectiveData.BonusObjectiveID = scenarioStep.second->ID;

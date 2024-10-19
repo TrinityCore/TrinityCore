@@ -119,7 +119,7 @@ void ScenarioMgr::LoadDB2Data()
     for (ScenarioStepEntry const* step : sScenarioStepStore)
     {
         scenarioSteps[step->ScenarioID][step->OrderIndex] = step;
-        if (CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(step->Criteriatreeid))
+        if (CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(step->CriteriatreeID))
         {
             uint32 criteriaTreeSize = 0;
             CriteriaMgr::WalkCriteriaTree(tree, [&criteriaTreeSize](CriteriaTree const* /*tree*/)

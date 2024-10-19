@@ -597,6 +597,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::HighestHealCast:
             case CriteriaType::HighestHealReceived:
             case CriteriaType::AzeriteLevelReached:
+            case CriteriaType::ReachRenownLevel:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;
             case CriteriaType::ReachLevel:
@@ -3138,7 +3139,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             });
             if (choiceItr == formModelData->Choices->end())
                 return false;
-            if (int32(reqValue) != formModelData->Displays[std::distance(formModelData->Choices->begin(), choiceItr)]->DisplayID)
+            if (int32(reqValue) != formModelData->Displays[std::distance(formModelData->Choices->begin(), choiceItr)]->CreatureDisplayInfoID)
                 return false;
             break;
         }
@@ -3270,51 +3271,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerHasTraitNodeEntryInActiveConfig: // 340
-        {
-            auto hasTraitNodeEntry = [referencePlayer, reqValue]()
-            {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
-                        if (traitEntry.TraitNodeEntryID == int32(reqValue))
-                            return true;
-                }
-                return false;
-            }();
-            if (!hasTraitNodeEntry)
-                return false;
-            break;
-        }
         case ModifierTreeType::PlayerHasTraitNodeEntryInActiveConfigRankGreaterOrEqualThan: // 341
-        {
-            auto traitNodeEntryRank = [referencePlayer, secondaryAsset]() -> Optional<uint16>
-            {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
-                        if (traitEntry.TraitNodeEntryID == int32(secondaryAsset))
-                            return traitEntry.Rank;
-                }
-                return {};
-            }();
-            if (!traitNodeEntryRank || traitNodeEntryRank < int32(reqValue))
-                return false;
-            break;
-        }
+            return false;
         case ModifierTreeType::PlayerDaysSinceLogout: // 344
             if (GameTime::GetGameTime() - referencePlayer->m_playerData->LogoutTime < int64(reqValue) * DAY)
                 return false;
@@ -3386,6 +3344,24 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             MapEntry const* mapEntry = referencePlayer->GetMap()->GetEntry();
             if (mapEntry->ExpansionID != reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasActiveTraitSubTree: // 385
+            return false;
+        case ModifierTreeType::TargetCreatureClassificationEqual: // 389
+        {
+            Creature const* targetCreature = Object::ToCreature(ref);
+            if (!targetCreature)
+                return false;
+            if (targetCreature->GetCreatureClassification() != CreatureClassifications(reqValue))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasCompletedQuestOrIsReadyToTurnIn: // 392
+        {
+            QuestStatus status = referencePlayer->GetQuestStatus(reqValue);
+            if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
                 return false;
             break;
         }
@@ -4059,8 +4035,8 @@ void CriteriaMgr::LoadCriteriaList()
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
     for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-        if (scenarioStep->Criteriatreeid)
-            scenarioCriteriaTreeIds[scenarioStep->Criteriatreeid] = scenarioStep;
+        if (scenarioStep->CriteriatreeID)
+            scenarioCriteriaTreeIds[scenarioStep->CriteriatreeID] = scenarioStep;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, QuestObjective const*> questObjectiveCriteriaTreeIds;
     for (auto const& [questId, quest] : sObjectMgr->GetQuestTemplates())

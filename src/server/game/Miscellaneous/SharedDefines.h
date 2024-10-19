@@ -321,7 +321,7 @@ enum Powers : int8
     POWER_RAGE                          = 1,  // TITLE Rage
     POWER_FOCUS                         = 2,  // TITLE Focus
     POWER_ENERGY                        = 3,  // TITLE Energy
-    POWER_HAPPINESS                     = 4,  // TITLE Happiness
+    POWER_COMBO_POINTS                  = 4,  // TITLE Combo Points
     POWER_RUNES                         = 5,  // TITLE Runes
     POWER_RUNIC_POWER                   = 6,  // TITLE Runic Power
     POWER_SOUL_SHARDS                   = 7,  // TITLE Soul Shards
@@ -331,7 +331,7 @@ enum Powers : int8
     POWER_MAELSTROM                     = 11, // TITLE Maelstrom
     POWER_CHI                           = 12, // TITLE Chi
     POWER_INSANITY                      = 13, // TITLE Insanity
-    POWER_COMBO_POINTS                  = 14, // TITLE Combo Points
+    POWER_BURNING_EMBERS                = 14, // TITLE Burning Embers
     POWER_DEMONIC_FURY                  = 15, // TITLE Demonic Fury (Obsolete)
     POWER_ARCANE_CHARGES                = 16, // TITLE Arcane Charges
     POWER_FURY                          = 17, // TITLE Fury
@@ -344,7 +344,8 @@ enum Powers : int8
     POWER_ALTERNATE_ENCOUNTER           = 24, // TITLE Alternate (Encounter)
     POWER_ALTERNATE_MOUNT               = 25, // TITLE Alternate (Mount)
     POWER_BALANCE                       = 26, // TITLE Balance
-    MAX_POWERS                          = 27, // SKIP
+    POWER_HAPPINESS                     = 27, // TITLE Happiness
+    MAX_POWERS                          = 28, // SKIP
     POWER_ALL                           = 127 // SKIP
 };
 
@@ -1531,8 +1532,8 @@ enum SpellEffectName
     SPELL_EFFECT_CHANGE_ITEM_BONUSES_2              = 313, // MiscValue[0] = ItemBonusTreeID to preserve
     SPELL_EFFECT_ADD_SOCKET_BONUS                   = 314, // MiscValue[0] = required ItemBonusTreeID
     SPELL_EFFECT_LEARN_TRANSMOG_APPEARANCE_FROM_ITEM_MOD_APPEARANCE_GROUP = 315, // MiscValue[0] = ItemModAppearanceGroupID (not in db2)
-    SPELL_EFFECT_316                                = 316,
-    SPELL_EFFECT_317                                = 317,
+    SPELL_EFFECT_KILL_CREDIT_LABEL_1                = 316,
+    SPELL_EFFECT_KILL_CREDIT_LABEL_2                = 317,
     SPELL_EFFECT_318                                = 318,
     SPELL_EFFECT_319                                = 319,
     SPELL_EFFECT_320                                = 320,
@@ -1542,7 +1543,7 @@ enum SpellEffectName
     SPELL_EFFECT_324                                = 324,
     SPELL_EFFECT_325                                = 325,
     SPELL_EFFECT_326                                = 326,
-    SPELL_EFFECT_PULL                                = 327,
+    SPELL_EFFECT_PULL                               = 327,
     SPELL_EFFECT_ADD_COMBO_POINTS                   = 328,
     SPELL_EFFECT_RESURRECT_NEW                      = 329,
     SPELL_EFFECT_ACTIVATE_RUNE                      = 330,
