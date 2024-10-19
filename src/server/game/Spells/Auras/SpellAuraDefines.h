@@ -599,7 +599,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER                = 504,
     SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS                    = 505, // NYI
     SPELL_AURA_DISABLE_INERTIA                              = 506,
-    SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_BY_LABEL        = 507,
+    SPELL_AURA_MOD_DAMAGE_TAKEN_BY_LABEL                    = 507,
     SPELL_AURA_508                                          = 508,
     SPELL_AURA_509                                          = 509,
     SPELL_AURA_MODIFIED_RAID_INSTANCE                       = 510, // NYI; Related to "Fated" raid affixes
@@ -629,15 +629,15 @@ enum AuraType : uint32
     SPELL_AURA_534                                          = 534,
     SPELL_AURA_535                                          = 535, // related to profession equipment; NYI; MiscValue[0] = Profession (enum, not id)
     SPELL_AURA_IGNORE_SPELL_CREATURE_TYPE_REQUIREMENTS      = 536,
-    SPELL_AURA_537                                          = 537,
+    SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER_BY_LABEL        = 537,
     SPELL_AURA_MOD_FAKE_INEBRIATION_MOVEMENT_ONLY           = 538,
     SPELL_AURA_ALLOW_MOUNT_IN_COMBAT                        = 539,
     SPELL_AURA_MOD_SUPPORT_STAT                             = 540, // NYI
     SPELL_AURA_MOD_REQUIRED_MOUNT_CAPABILITY_FLAGS          = 541,
-    SPELL_AURA_542                                          = 542,
+    SPELL_AURA_TRIGGER_SPELL_ON_STACK_AMOUNT                = 542,
     SPELL_AURA_543                                          = 543,
     SPELL_AURA_544                                          = 544,
-    SPELL_AURA_545                                          = 545,
+    SPELL_AURA_545                                          = 545, // prevent swim
     SPELL_AURA_546                                          = 546,
     SPELL_AURA_547                                          = 547,
     SPELL_AURA_MOD_RUNE_REGEN_SPEED                         = 548,

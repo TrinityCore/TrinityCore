@@ -1098,8 +1098,8 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
             itemTarget->SetGem(i, &gemData[i], gemScalingLevel);
 
-            if (gemProperties[i] && gemProperties[i]->EnchantId)
-                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantId, 0, 0, _player->GetGUID());
+            if (gemProperties[i] && gemProperties[i]->EnchantID)
+                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantID, 0, 0, _player->GetGUID());
 
             uint32 gemCount = 1;
             _player->DestroyItemCount(gems[i], gemCount, true);

@@ -681,7 +681,14 @@ enum class CriteriaType : int16
     CompleteTrackingQuest                          = 250, /*NYI*/
 
     GainLevels                                     = 253, // Gain levels
-    Count                                          = 257
+
+    CompleteQuestsCountOnAccount                   = 257, /*NYI*/
+
+    WarbandBankTabPurchased                        = 260, /*NYI*/
+    ReachRenownLevel                               = 261,
+    LearnTaxiNode                                  = 262,
+
+    Count                                          = 264
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -910,7 +917,7 @@ enum class GlobalCurve : int32
     ContentTuningPvpItemLevelDamageScaling = 15,
 };
 
-#define MAX_ITEM_PROTO_FLAGS 4
+#define MAX_ITEM_PROTO_FLAGS 5
 #define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
@@ -1088,6 +1095,14 @@ enum class ItemContext : uint8
     Template_Character_2                = 98,
     Template_Character_3                = 99,
     Template_Character_4                = 100,
+    Dungeon_Normal_Jackpot              = 101,
+    Dungeon_Heroic_Jackpot              = 102,
+    Dungeon_Mythic_Jackpot              = 103,
+    Delves_1                            = 104,
+    Timerunning                         = 105,
+    Delves_2                            = 106,
+    Delves_3                            = 107,
+    Delves_Jackpot                      = 108,
 
     Max
 };
@@ -1577,6 +1592,17 @@ enum class ModifierTreeType : int32
     PlayerDataFlagCharacterIsSet                                        = 379, /*NYI*/ // Player {PlayerDataFlagCharacter} is set
     PlayerIsOnMapWithExpansion                                          = 380, // Player is on map that has {ExpansionID}
 
+    PlayerHasCompletedQuestOnAccount                                    = 382, /*NYI*/ // Player has previously completed quest "{QuestV2}" on account
+    PlayerHasCompletedQuestlineOnAccount                                = 383, /*NYI*/ // Player has completed questline "{Questline}" on account
+    PlayerHasCompletedQuestlineQuestCountOnAccount                      = 384, /*NYI*/ // Player has completed "{#Quests}" quests in questline "{Questline}" on account
+    PlayerHasActiveTraitSubTree                                         = 385, // Player has active trait config with {TraitSubTree}
+
+    PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
+    PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
+    TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
+    PlayerDataElementCharacterEqual                                     = 390, /*NYI*/ // Player {PlayerDataElementCharacter} is greater than {#Amount}
+    PlayerDataElementAccountEqual                                       = 391, /*NYI*/ // Player {PlayerDataElementAccount} is greater than {#Amount}
+    PlayerHasCompletedQuestOrIsReadyToTurnIn                            = 392, // Player has previously completed quest "{QuestV2}" or is ready to turn it in
 };
 
 enum class ModifierTreeOperator : int8

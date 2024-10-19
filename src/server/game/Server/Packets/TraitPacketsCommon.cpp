@@ -107,6 +107,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitConfig const& traitConfig)
     data << int32(traitConfig.ID);
     data << int32(traitConfig.Type);
     data << uint32(traitConfig.Entries.size());
+
     switch (traitConfig.Type)
     {
         case TraitConfigType::Combat:
