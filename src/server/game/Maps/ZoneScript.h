@@ -107,6 +107,11 @@ class TC_GAME_API ZoneScript
 
         virtual bool CanCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) { return false; }
         virtual void OnCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) { }
+
+        // This hook is used with GAMEOBJECT_TYPE_FLAGSTAND. Newer gameobjects use GAMEOBJECT_TYPE_NEW_FLAG and should use `OnFlagStateChange`
+        virtual void OnFlagTaken([[maybe_unused]] GameObject* flag, [[maybe_unused]] Player* player) { }
+        // This hook is used with GAMEOBJECT_TYPE_FLAGSTAND. Newer gameobjects use GAMEOBJECT_TYPE_NEW_FLAG and should use `OnFlagStateChange`. The GameObject doesn't exist anymore, but the ObjectGuid does
+        virtual void OnFlagDropped([[maybe_unused]] ObjectGuid const& flagGuid, [[maybe_unused]] Player* player) { }
 };
 
 #endif
