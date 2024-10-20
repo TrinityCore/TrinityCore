@@ -48,7 +48,7 @@ namespace TempleOfKotmogu
 
     namespace AreaTriggerCreateProperties
     {
-        static constexpr uint32 PvpRuneRejuv = 200000000;
+        static constexpr uint32 PvpRuneRejuv = 86;
     }
 
     namespace BroadcastTexts
@@ -85,18 +85,13 @@ namespace TempleOfKotmogu
 
     namespace Positions
     {
-        static constexpr Position HealingBuff1 = { 1868.2396f, 1391.1198f, 11.52903f, 6.2601f };
-        static constexpr Position HealingBuff2 = { 1697.9149f, 1275.7673f, 12.16028f, 3.1154f };
-        static constexpr Position HealingBuff3 = { 1698.4271f, 1391.7951f, 11.75756f, 3.1675f };
-        static constexpr Position HealingBuff4 = { 1867.8836f, 1274.8872f, 11.85079f, 0.0331f };
-
         static constexpr std::array<Position, 4> HealingBuffs
-        {
-            HealingBuff1,
-            HealingBuff2,
-            HealingBuff3,
-            HealingBuff4
-        };
+        {{
+            { 1868.2396f, 1391.1198f, 11.52903f, 6.2601f },
+            { 1697.9149f, 1275.7673f, 12.16028f, 3.1154f },
+            { 1698.4271f, 1391.7951f, 11.75756f, 3.1675f },
+            { 1867.8836f, 1274.8872f, 11.85079f, 0.0331f }
+        }};
 
         static constexpr Position PurpleOrb = { 1850.2170f, 1416.8229f, 13.3382f };
         static constexpr Position GreenOrb = { 1716.8923f, 1416.6180f, 13.2056f};
@@ -177,10 +172,42 @@ namespace TempleOfKotmogu
 
     namespace StaticOrbDataValue
     {
-        static constexpr StaticOrbData OrangeOrb = { Positions::OrangeOrb, GameObjects::OrbOfPowerOrange, BroadcastTexts::OrangeOrbTaken, CreatureTexts::Trigger::OrangeOrbReturned, WorldStates::OrangeOrbInBase, WorldStates::OrangeOrbHorde, WorldStates::OrangeOrbAlliance };
-        static constexpr StaticOrbData BlueOrb = { Positions::BlueOrb, GameObjects::OrbOfPowerBlue, BroadcastTexts::BlueOrbTaken, CreatureTexts::Trigger::BlueOrbReturned, WorldStates::BlueOrbInBase, WorldStates::BlueOrbHorde, WorldStates::BlueOrbAlliance };
-        static constexpr StaticOrbData GreenOrb = { Positions::GreenOrb, GameObjects::OrbOfPowerGreen, BroadcastTexts::GreenOrbTaken, CreatureTexts::Trigger::GreenOrbReturned, WorldStates::GreenOrbInBase, WorldStates::GreenOrbHorde, WorldStates::GreenOrbAlliance };
-        static constexpr StaticOrbData PurpleOrb = { Positions::PurpleOrb, GameObjects::OrbOfPowerPurple, BroadcastTexts::PurpleOrbTaken, CreatureTexts::Trigger::PurpleOrbReturned, WorldStates::PurpleOrbInBase, WorldStates::PurpleOrbHorde, WorldStates::PurpleOrbAlliance };
+        static constexpr StaticOrbData OrangeOrb = {
+            Positions::OrangeOrb,
+            GameObjects::OrbOfPowerOrange,
+            BroadcastTexts::OrangeOrbTaken,
+            CreatureTexts::Trigger::OrangeOrbReturned,
+            WorldStates::OrangeOrbInBase,
+            WorldStates::OrangeOrbHorde,
+            WorldStates::OrangeOrbAlliance
+        };
+        static constexpr StaticOrbData BlueOrb = {
+            Positions::BlueOrb,
+            GameObjects::OrbOfPowerBlue,
+            BroadcastTexts::BlueOrbTaken,
+            CreatureTexts::Trigger::BlueOrbReturned,
+            WorldStates::BlueOrbInBase,
+            WorldStates::BlueOrbHorde,
+            WorldStates::BlueOrbAlliance
+        };
+        static constexpr StaticOrbData GreenOrb = {
+            Positions::GreenOrb,
+            GameObjects::OrbOfPowerGreen,
+            BroadcastTexts::GreenOrbTaken,
+            CreatureTexts::Trigger::GreenOrbReturned,
+            WorldStates::GreenOrbInBase,
+            WorldStates::GreenOrbHorde,
+            WorldStates::GreenOrbAlliance
+        };
+        static constexpr StaticOrbData PurpleOrb = {
+            Positions::PurpleOrb,
+            GameObjects::OrbOfPowerPurple,
+            BroadcastTexts::PurpleOrbTaken,
+            CreatureTexts::Trigger::PurpleOrbReturned,
+            WorldStates::PurpleOrbInBase,
+            WorldStates::PurpleOrbHorde,
+            WorldStates::PurpleOrbAlliance
+        };
 
         static constexpr std::array<StaticOrbData, 4> Orbs =
         {
@@ -576,16 +603,13 @@ struct at_bg_temple_of_kotmogu_small_area : AreaTriggerAI
     {
         for (ObjectGuid const& guid : at->GetInsideUnits())
         {
-            if (guid.IsPlayer())
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
             {
-                if (Player* player = ObjectAccessor::FindPlayer(guid))
+                if (player->HasAura(TempleOfKotmogu::Spells::PowerOrbImmunityPeriodic))
                 {
-                    if (player->HasAura(TempleOfKotmogu::Spells::PowerOrbImmunityPeriodic))
-                    {
-                        _totalTimeInAreaWithOrb[player->GetGUID()] += diff;
-                        if (_totalTimeInAreaWithOrb[player->GetGUID()] >= 90000 && !player->HasAchieved(TempleOfKotmogu::Achievements::Powerball))
-                            player->CastSpell(player, TempleOfKotmogu::Spells::PowerballCredit, true);
-                    }
+                    _totalTimeInAreaWithOrb[player->GetGUID()] += diff;
+                    if (_totalTimeInAreaWithOrb[player->GetGUID()] >= 90000 && !player->HasAchieved(TempleOfKotmogu::Achievements::Powerball))
+                        player->CastSpell(player, TempleOfKotmogu::Spells::PowerballCredit, true);
                 }
             }
         }
