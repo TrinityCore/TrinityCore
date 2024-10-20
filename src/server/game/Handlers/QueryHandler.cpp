@@ -334,3 +334,18 @@ void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& que
 
     SendPacket(realmQueryResponse.Write());
 }
+
+void WorldSession::HandleQueryTreasurePicker(WorldPackets::Query::QueryTreasurePicker const& queryTreasurePicker)
+{
+    Quest const* questInfo = sObjectMgr->GetQuestTemplate(queryTreasurePicker.QuestID);
+    if (!questInfo)
+        return;
+
+    WorldPackets::Query::TreasurePickerResponse treasurePickerResponse;
+    treasurePickerResponse.QuestID = queryTreasurePicker.QuestID;
+    treasurePickerResponse.TreasurePickerID = queryTreasurePicker.TreasurePickerID;
+
+    // TODO: Missing treasure picker implementation
+
+    _player->SendDirectMessage(treasurePickerResponse.Write());
+}

@@ -20,10 +20,12 @@
 
 #include "Packet.h"
 #include "AuthenticationPackets.h"
+#include "ItemPacketsCommon.h"
 #include "NPCHandler.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 #include "Position.h"
+#include "QuestDef.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
@@ -434,6 +436,61 @@ namespace WorldPackets
             uint32 VirtualRealmAddress = 0;
             uint8 LookupState = 0;
             WorldPackets::Auth::VirtualRealmNameInfo NameInfo;
+        };
+
+        class QueryTreasurePicker final : public ClientPacket
+        {
+        public:
+            QueryTreasurePicker(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_TREASURE_PICKER, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID = 0;
+            uint32 TreasurePickerID = 0;
+        };
+
+        struct TreasurePickItem
+        {
+            Item::ItemInstance Item;
+            uint32 Quantity = 0;
+            Optional<QuestRewardContextFlags> ContextFlags;
+        };
+
+        struct TreasurePickCurrency
+        {
+            uint32 CurrencyID = 0;
+            uint32 Quantity = 0;
+            Optional<QuestRewardContextFlags> ContextFlags;
+        };
+
+        struct TreasurePickerBonus
+        {
+            std::vector<TreasurePickItem> Items;
+            std::vector<TreasurePickCurrency> Currencies;
+            uint64 Money = 0;
+            bool Unknown = false;
+        };
+
+        struct TreasurePickerPick
+        {
+            std::vector<TreasurePickItem> Items;
+            std::vector<TreasurePickCurrency> Currencies;
+            std::vector<TreasurePickerBonus> Bonuses;
+            uint64 Money = 0;
+            int32 Flags = 0;
+            bool IsChoice = false;
+        };
+
+        class TreasurePickerResponse final : public ServerPacket
+        {
+        public:
+            TreasurePickerResponse() : ServerPacket(SMSG_TREASURE_PICKER_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            uint32 TreasurePickerID = 0;
+            TreasurePickerPick Pick;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupData const& lookupData);

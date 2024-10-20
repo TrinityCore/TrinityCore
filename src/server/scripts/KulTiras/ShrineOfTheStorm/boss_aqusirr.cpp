@@ -726,6 +726,7 @@ void AddSC_boss_aqusirr()
     RegisterSpellScript(spell_aqusirr_surging_rush);
     RegisterSpellScript(spell_aqusirr_surging_rush_selector);
     RegisterSpellScript(spell_aqusirr_grasp_from_the_depths_selector);
+    RegisterSpellScript(spell_aqusirr_grasp_from_the_depths_damage);
 
     RegisterAreaTriggerAI(at_aqusirr_intro);
     RegisterAreaTriggerAI(at_aqusirr_undertow);
