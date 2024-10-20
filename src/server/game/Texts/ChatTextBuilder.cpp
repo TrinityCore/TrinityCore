@@ -41,27 +41,28 @@ ChatPacketSender::ChatPacketSender(ChatMsg chatType, ::Language language, WorldO
         EmotePacket->Write();
     }
 
+    SoundPacket = nullptr;
     if (soundKitId)
     {
         if (soundKitPlayType == SoundKitPlayType::Normal)
         {
-            SoundPacket.emplace(std::make_unique<WorldPackets::Misc::PlaySound>(sender ? sender->GetGUID() : ObjectGuid::Empty, soundKitId, broadcastTextId));
-            (*SoundPacket)->Write();
+            SoundPacket = std::make_unique<WorldPackets::Misc::PlaySound>(
+                sender ? sender->GetGUID() : ObjectGuid::Empty,
+                soundKitId,
+                broadcastTextId
+            );
         }
         else if (soundKitPlayType == SoundKitPlayType::ObjectSound)
         {
-            std::unique_ptr<WorldPackets::Misc::PlayObjectSound> packet = std::make_unique<WorldPackets::Misc::PlayObjectSound>();
-            packet->TargetObjectGUID = receiver ? receiver->GetGUID() : ObjectGuid::Empty;
-            packet->SourceObjectGUID = sender ? sender->GetGUID() : ObjectGuid::Empty;
-            packet->SoundKitID = soundKitId;
-
-            if (receiver)
-                packet->Position = receiver->GetWorldLocation();
-            packet->BroadcastTextID = broadcastTextId;
-
-            SoundPacket.emplace(std::move(packet));
-            (*SoundPacket)->Write();
+            SoundPacket = std::make_unique<WorldPackets::Misc::PlayObjectSound>(
+                receiver ? receiver->GetGUID() : ObjectGuid::Empty,
+                sender ? sender->GetGUID() : ObjectGuid::Empty,
+                soundKitId,
+                broadcastTextId,
+                receiver ? receiver->GetWorldLocation() : Position(0, 0, 0)
+            );
         }
+        SoundPacket->Write();
     }
 }
 
@@ -71,7 +72,7 @@ void ChatPacketSender::operator()(Player const* player) const
         return;
 
     if (SoundPacket)
-        player->SendDirectMessage((*SoundPacket)->GetRawPacket());
+        player->SendDirectMessage(SoundPacket->GetRawPacket());
 
     if (EmotePacket)
         player->SendDirectMessage(EmotePacket->GetRawPacket());
@@ -100,8 +101,19 @@ ChatPacketSender* BroadcastTextBuilder::operator()(LocaleConstant locale) const
     uint8 const gender = unitSender ? unitSender->GetGender() : GENDER_UNKNOWN;
     uint32 soundKitId = bct ? bct->SoundKitID[gender == GENDER_FEMALE ? 1 : 0] : 0;
 
-    return new ChatPacketSender(_msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, locale,
-        bct ? bct->ID : 0, bct ? bct->EmotesID : 0, soundKitId, SoundKitPlayType::Normal, bct ? bct->ConditionID : 0);
+    return new ChatPacketSender(_msgType,
+        bct ? Language(bct->LanguageID) : LANG_UNIVERSAL,
+        _source,
+        _target,
+        bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _gender) : "",
+        _achievementId,
+        locale,
+        bct ? bct->ID : 0,
+        bct ? bct->EmotesID : 0,
+        soundKitId,
+        SoundKitPlayType::Normal,
+        bct ? bct->ConditionID : 0
+    );
 }
 
 ChatPacketSender* CustomChatTextBuilder::operator()(LocaleConstant locale) const

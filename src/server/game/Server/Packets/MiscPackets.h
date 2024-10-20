@@ -630,6 +630,8 @@ namespace WorldPackets
         {
         public:
             PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 3) { }
+            PlayObjectSound(ObjectGuid targetObjectGUID, ObjectGuid sourceObjectGUID, int32 soundKitID, int32 broadcastTextID, TaggedPosition<::Position::XYZ> position) : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 3),
+                TargetObjectGUID(targetObjectGUID), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID), BroadcastTextID(broadcastTextID), Position(position){ }
 
             WorldPacket const* Write() override;
 
