@@ -71,6 +71,7 @@ void AddSC_boss_terestian_illhoof();
 void AddSC_boss_moroes();
 void AddSC_bosses_opera();
 void AddSC_boss_netherspite();
+void AddSC_chess_event();
 void AddSC_instance_karazhan();
 void AddSC_karazhan();
 void AddSC_boss_nightbane();
@@ -251,6 +252,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_moroes();
     AddSC_bosses_opera();
     AddSC_boss_netherspite();
+    AddSC_chess_event();
     AddSC_instance_karazhan();
     AddSC_karazhan();
     AddSC_boss_nightbane();
