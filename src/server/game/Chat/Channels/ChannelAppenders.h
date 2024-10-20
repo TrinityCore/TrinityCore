@@ -445,14 +445,15 @@ struct NotInLFGAppend
 
 struct VoiceOnAppend
 {
-    explicit VoiceOnAppend(ObjectGuid const& guid) : _guid(guid) { }
-
-    static uint8 const NotificationType = CHAT_VOICE_ON_NOTICE;
+    explicit VoiceOnAppend(ObjectGuid const& guid, bool announce = true)
+        : NotificationType(announce ? CHAT_VOICE_ON_NOTICE : CHAT_VOICE_ON_NO_ANNOUNCE_NOTICE), _guid(guid) { }
 
     void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
         data.SenderGuid = _guid;
     }
+
+    uint8 const NotificationType;
 
 private:
     ObjectGuid _guid;
