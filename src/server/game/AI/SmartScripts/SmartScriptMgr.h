@@ -146,7 +146,7 @@ enum SMART_EVENT
     SMART_EVENT_TRANSPORT_REMOVE_PLAYER  = 43,      // NONE
     SMART_EVENT_TRANSPORT_RELOCATE       = 44,      // PointId
     SMART_EVENT_INSTANCE_PLAYER_ENTER    = 45,      // Team (0 any), CooldownMin, CooldownMax
-    SMART_EVENT_AREATRIGGER_ONTRIGGER    = 46,      // TriggerId(0 any)
+    SMART_EVENT_AREATRIGGER_ENTER        = 46,      // NONE
     SMART_EVENT_QUEST_ACCEPTED           = 47,      // none
     SMART_EVENT_QUEST_OBJ_COMPLETION     = 48,      // none
     SMART_EVENT_QUEST_COMPLETION         = 49,      // none
@@ -188,8 +188,9 @@ enum SMART_EVENT
     SMART_EVENT_ON_SPELL_START           = 85,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_DESPAWN               = 86,      // NONE
     SMART_EVENT_SEND_EVENT_TRIGGER       = 87,      // NONE
+    SMART_EVENT_AREATRIGGER_EXIT         = 88,      // NONE
 
-    SMART_EVENT_END                      = 88
+    SMART_EVENT_END                      = 89
 };
 
 struct SmartEvent
@@ -346,11 +347,6 @@ struct SmartEvent
             uint32 cooldownMin;
             uint32 cooldownMax;
         } instancePlayerEnter;
-
-        struct
-        {
-            uint32 id;
-        } areatrigger;
 
         struct
         {
@@ -1549,7 +1545,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_TRANSPORT_REMOVE_PLAYER,   SMART_SCRIPT_TYPE_MASK_TRANSPORT },
     {SMART_EVENT_TRANSPORT_RELOCATE,        SMART_SCRIPT_TYPE_MASK_TRANSPORT },
     {SMART_EVENT_INSTANCE_PLAYER_ENTER,     SMART_SCRIPT_TYPE_MASK_INSTANCE },
-    {SMART_EVENT_AREATRIGGER_ONTRIGGER,     SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
+    {SMART_EVENT_AREATRIGGER_ENTER,         SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
     {SMART_EVENT_QUEST_ACCEPTED,            SMART_SCRIPT_TYPE_MASK_QUEST },
     {SMART_EVENT_QUEST_OBJ_COMPLETION,      SMART_SCRIPT_TYPE_MASK_QUEST },
     {SMART_EVENT_QUEST_REWARDED,            SMART_SCRIPT_TYPE_MASK_QUEST },
@@ -1590,7 +1586,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ON_SPELL_FAILED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_DESPAWN,                SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT }
+    {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT },
+    {SMART_EVENT_AREATRIGGER_EXIT,          SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY }
 };
 
 enum SmartEventFlags
@@ -1746,7 +1743,6 @@ class TC_GAME_API SmartAIMgr
         static bool IsItemValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsEmoteValid(SmartScriptHolder const& e, uint32 entry);
-        static bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsSoundValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsSpellVisualKitValid(SmartScriptHolder const& e, uint32 entry);
