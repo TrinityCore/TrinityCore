@@ -76,6 +76,7 @@ TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSection
 TC_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
 
 TC_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
+TC_GAME_API LFGDungeonEntry const* GetLFGZoneEntry(std::string const& zoneName, LocaleConstant locale);
 
 TC_GAME_API uint32 GetDefaultMapLight(uint32 mapId);
 
