@@ -2140,7 +2140,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         trans->Append(stmt);
 
         // Race specific languages
-        std::array<uint8, 4> const racesWithoutSpecificLanguages = { RACE_ORC, RACE_HUMAN, RACE_MAGHAR_ORC, RACE_KUL_TIRAN };
+        std::array<uint8, 4> const racesWithoutSpecificLanguages = { RACE_ORC, RACE_HUMAN };
         if (std::find(racesWithoutSpecificLanguages.begin(), racesWithoutSpecificLanguages.end(), factionChangeInfo->RaceID) == racesWithoutSpecificLanguages.end())
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
@@ -2149,15 +2149,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             switch (factionChangeInfo->RaceID)
             {
                 case RACE_DWARF:
-                case RACE_DARK_IRON_DWARF:
                     stmt->setUInt16(1, 111);
                     break;
                 case RACE_DRAENEI:
-                case RACE_LIGHTFORGED_DRAENEI:
                     stmt->setUInt16(1, 759);
                     break;
                 case RACE_GNOME:
-                case RACE_MECHAGNOME:
                     stmt->setUInt16(1, 313);
                     break;
                 case RACE_NIGHTELF:
@@ -2170,33 +2167,16 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     stmt->setUInt16(1, 673);
                     break;
                 case RACE_TAUREN:
-                case RACE_HIGHMOUNTAIN_TAUREN:
                     stmt->setUInt16(1, 115);
                     break;
                 case RACE_TROLL:
-                case RACE_ZANDALARI_TROLL:
                     stmt->setUInt16(1, 315);
                     break;
                 case RACE_BLOODELF:
-                case RACE_VOID_ELF:
                     stmt->setUInt16(1, 137);
                     break;
                 case RACE_GOBLIN:
                     stmt->setUInt16(1, 792);
-                    break;
-                case RACE_NIGHTBORNE:
-                    stmt->setUInt16(1, 2464);
-                    break;
-                case RACE_VULPERA:
-                    stmt->setUInt16(1, 2776);
-                    break;
-                case LANG_PANDAREN_ALLIANCE:
-                case LANG_PANDAREN_HORDE:
-                    stmt->setUInt16(1, 905);
-                    break;
-                case RACE_DRACTHYR_ALLIANCE:
-                case RACE_DRACTHYR_HORDE:
-                    stmt->setUInt16(1, 138);
                     break;
                 default:
                     TC_LOG_ERROR("entities.player", "Could not find language data for race ({}).", factionChangeInfo->RaceID);

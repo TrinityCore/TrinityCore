@@ -43,23 +43,6 @@ TC_API_EXPORT EnumText EnumUtils<Races>::ToString(Races value)
         case RACE_BLOODELF: return { "RACE_BLOODELF", "Blood Elf", "" };
         case RACE_DRAENEI: return { "RACE_DRAENEI", "Draenei", "" };
         case RACE_WORGEN: return { "RACE_WORGEN", "Worgen", "" };
-        case RACE_PANDAREN_NEUTRAL: return { "RACE_PANDAREN_NEUTRAL", "Pandaren", "Pandaren (Neutral)" };
-        case RACE_PANDAREN_ALLIANCE: return { "RACE_PANDAREN_ALLIANCE", "Pandaren", "Pandaren (Alliance)" };
-        case RACE_PANDAREN_HORDE: return { "RACE_PANDAREN_HORDE", "Pandaren", "Pandaren (Horde)" };
-        case RACE_NIGHTBORNE: return { "RACE_NIGHTBORNE", "Nightborne", "" };
-        case RACE_HIGHMOUNTAIN_TAUREN: return { "RACE_HIGHMOUNTAIN_TAUREN", "Highmountain Tauren", "" };
-        case RACE_VOID_ELF: return { "RACE_VOID_ELF", "Void Elf", "" };
-        case RACE_LIGHTFORGED_DRAENEI: return { "RACE_LIGHTFORGED_DRAENEI", "Lightforged Draenei", "" };
-        case RACE_ZANDALARI_TROLL: return { "RACE_ZANDALARI_TROLL", "Zandalari Troll", "" };
-        case RACE_KUL_TIRAN: return { "RACE_KUL_TIRAN", "Kul Tiran", "" };
-        case RACE_DARK_IRON_DWARF: return { "RACE_DARK_IRON_DWARF", "Dark Iron Dwarf", "Dark Iron Dwarf (RaceMask bit 11)" };
-        case RACE_VULPERA: return { "RACE_VULPERA", "Vulpera", "Vulpera (RaceMask bit 12)" };
-        case RACE_MAGHAR_ORC: return { "RACE_MAGHAR_ORC", "Mag'har Orc", "Mag'har Orc (RaceMask bit 13)" };
-        case RACE_MECHAGNOME: return { "RACE_MECHAGNOME", "Mechagnome", "Mechagnome (RaceMask bit 14)" };
-        case RACE_DRACTHYR_ALLIANCE: return { "RACE_DRACTHYR_ALLIANCE", "Dracthyr", "Dracthyr (Alliance) (RaceMask bit 16)" };
-        case RACE_DRACTHYR_HORDE: return { "RACE_DRACTHYR_HORDE", "Dracthyr", "Dracthyr (Horde) (RaceMask bit 15)" };
-        case RACE_EARTHEN_DWARF_HORDE: return { "RACE_EARTHEN_DWARF_HORDE", "Earthen", "Earthen (Horde) (RaceMask bit 17)" };
-        case RACE_EARTHEN_DWARF_ALLIANCE: return { "RACE_EARTHEN_DWARF_ALLIANCE", "Earthen", "Earthen (Alliance) (RaceMask bit 18)" };
         default: throw std::out_of_range("value");
     }
 }
@@ -84,23 +67,6 @@ TC_API_EXPORT Races EnumUtils<Races>::FromIndex(size_t index)
         case 9: return RACE_BLOODELF;
         case 10: return RACE_DRAENEI;
         case 11: return RACE_WORGEN;
-        case 12: return RACE_PANDAREN_NEUTRAL;
-        case 13: return RACE_PANDAREN_ALLIANCE;
-        case 14: return RACE_PANDAREN_HORDE;
-        case 15: return RACE_NIGHTBORNE;
-        case 16: return RACE_HIGHMOUNTAIN_TAUREN;
-        case 17: return RACE_VOID_ELF;
-        case 18: return RACE_LIGHTFORGED_DRAENEI;
-        case 19: return RACE_ZANDALARI_TROLL;
-        case 20: return RACE_KUL_TIRAN;
-        case 21: return RACE_DARK_IRON_DWARF;
-        case 22: return RACE_VULPERA;
-        case 23: return RACE_MAGHAR_ORC;
-        case 24: return RACE_MECHAGNOME;
-        case 25: return RACE_DRACTHYR_ALLIANCE;
-        case 26: return RACE_DRACTHYR_HORDE;
-        case 27: return RACE_EARTHEN_DWARF_HORDE;
-        case 28: return RACE_EARTHEN_DWARF_ALLIANCE;
         default: throw std::out_of_range("index");
     }
 }
@@ -122,23 +88,6 @@ TC_API_EXPORT size_t EnumUtils<Races>::ToIndex(Races value)
         case RACE_BLOODELF: return 9;
         case RACE_DRAENEI: return 10;
         case RACE_WORGEN: return 11;
-        case RACE_PANDAREN_NEUTRAL: return 12;
-        case RACE_PANDAREN_ALLIANCE: return 13;
-        case RACE_PANDAREN_HORDE: return 14;
-        case RACE_NIGHTBORNE: return 15;
-        case RACE_HIGHMOUNTAIN_TAUREN: return 16;
-        case RACE_VOID_ELF: return 17;
-        case RACE_LIGHTFORGED_DRAENEI: return 18;
-        case RACE_ZANDALARI_TROLL: return 19;
-        case RACE_KUL_TIRAN: return 20;
-        case RACE_DARK_IRON_DWARF: return 21;
-        case RACE_VULPERA: return 22;
-        case RACE_MAGHAR_ORC: return 23;
-        case RACE_MECHAGNOME: return 24;
-        case RACE_DRACTHYR_ALLIANCE: return 25;
-        case RACE_DRACTHYR_HORDE: return 26;
-        case RACE_EARTHEN_DWARF_HORDE: return 27;
-        case RACE_EARTHEN_DWARF_ALLIANCE: return 28;
         default: throw std::out_of_range("value");
     }
 }
