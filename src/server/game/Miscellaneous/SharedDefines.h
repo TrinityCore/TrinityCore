@@ -8198,4 +8198,11 @@ enum WorldState : uint32
     WS_WAR_MODE_ALLIANCE_BUFF_VALUE = 17043,
 };
 
+enum class SoundKitPlayType : uint8
+{
+    Normal      = 0,
+    ObjectSound = 1,
+    Max         = 2
+};
+
 #endif
