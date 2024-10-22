@@ -136,8 +136,17 @@ public:
                     break;
             }
 
-            if (!receiver->IsGameMaster() && !gameObject->MeetsInteractCondition(receiver))
-                dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+            if (!receiver->IsGameMaster())
+            {
+                // GO_DYNFLAG_LO_INTERACT_COND should be applied to GOs with conditional interaction (without GO_FLAG_INTERACT_COND) to disable interaction
+                // (Ignore GAMEOBJECT_TYPE_GATHERING_NODE as some profession-related GOs may include quest loot and can always be interacted with)
+                if (gameObject->GetGoType() != GAMEOBJECT_TYPE_GATHERING_NODE)
+                    if (gameObject->HasConditionalInteraction() && !gameObject->HasFlag(GO_FLAG_INTERACT_COND))
+                        dynFlags |= GO_DYNFLAG_LO_INTERACT_COND;
+
+                if (!gameObject->MeetsInteractCondition(receiver))
+                    dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+            }
 
             dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
         }
