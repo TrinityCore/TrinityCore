@@ -15,6 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Define.h"
+#include "ScriptMgr.h"
+#include "SpellAuraDefines.h"
+#include "SpellAuraEffects.h"
+#include "SpellDefines.h"
+#include "SpellScript.h"
+#include "Unit.h"
+
 namespace Orgrimmar
 {
     namespace Spells
