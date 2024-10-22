@@ -1,7 +1,7 @@
 SET @CONDREFID := 40001;
-SET @ATID := 97;
-SET @ATPROPERTIESID := 86;
-SET @ATSPAWNID := 100;
+SET @ATID := 99;
+SET @ATPROPERTIESID := 89;
+SET @ATSPAWNID := 102;
 
 -- Areatrigger templates
 DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+0 AND `IsCustom`=1;
