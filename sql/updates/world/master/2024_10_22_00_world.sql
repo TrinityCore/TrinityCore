@@ -1,7 +1,7 @@
 SET @CGUID := 4000158;
 SET @OGUID := 4000090;
 SET @SPAWNGROUP := 1259;
-SET @ATPROPERTIESID := 86; -- CHANGE ME IN SCRIPT
+SET @ATPROPERTIESID := 86;
 SET @ATID := 97;
 SET @ATSPAWNID := 100;
 
@@ -122,10 +122,10 @@ INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 
 DELETE FROM `spawn_group` WHERE `groupId` BETWEEN @SPAWNGROUP+0 AND @SPAWNGROUP+3;
 INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
-(@SPAWNGROUP+0, 0, @CGUID+53),
-(@SPAWNGROUP+1, 0, @CGUID+54),
-(@SPAWNGROUP+2, 0, @CGUID+51),
-(@SPAWNGROUP+3, 0, @CGUID+52);
+(@SPAWNGROUP+0, 0, @CGUID+48),
+(@SPAWNGROUP+1, 0, @CGUID+49),
+(@SPAWNGROUP+2, 0, @CGUID+46),
+(@SPAWNGROUP+3, 0, @CGUID+47);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=33 AND `SourceEntry` BETWEEN @SPAWNGROUP+0 AND @SPAWNGROUP+3;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -159,7 +159,7 @@ INSERT INTO `serverside_spell` (`Id`, `DifficultyID`, `CategoryId`, `Dispel`, `M
 INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `DifficultyID`, `Effect`, `EffectAura`, `EffectAmplitude`, `EffectAttributes`, `EffectAuraPeriod`, `EffectBonusCoefficient`, `EffectChainAmplitude`, `EffectChainTargets`, `EffectItemType`, `EffectMechanic`, `EffectPointsPerResource`, `EffectPosFacing`, `EffectRealPointsPerLevel`, `EffectTriggerSpell`, `BonusCoefficientFromAP`, `PvpMultiplier`, `Coefficient`, `Variance`, `ResourceCoefficient`, `GroupSizeBasePointsCoefficient`, `EffectBasePoints`, `EffectMiscValue1`, `EffectMiscValue2`, `EffectRadiusIndex1`, `EffectRadiusIndex2`, `EffectSpellClassMask1`, `EffectSpellClassMask2`, `EffectSpellClassMask3`, `EffectSpellClassMask4`, `ImplicitTarget1`, `ImplicitTarget2`) VALUES
 (128768, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 20, 0, 0, 0, 0, 1, 0);
 
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+455;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+53;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 65205, 998, 6051, 6136, '0', '0', 0, 0, 0, 1789.7452392578125, 1326.7279052734375, 23.32601547241210937, 3.65703439712524414, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 56008), -- Gilded Moth (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+1, 65205, 998, 6051, 6136, '0', '0', 0, 0, 0, 1763.518310546875, 1323.9095458984375, 18.56777191162109375, 3.577862501144409179, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 56008), -- Gilded Moth (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
@@ -207,14 +207,14 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+43, 65209, 998, 6051, 6136, '0', '0', 0, 0, 0, 1660.6875, 1336.4583740234375, 11.32715511322021484, 1.695375800132751464, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 56008), -- Dancing Water Skimmer (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 113160 - Water Walking) (possible waypoints or random movement)
 (@CGUID+44, 65207, 998, 6051, 6136, '0', '0', 0, 0, 0, 1931.438232421875, 1129.7901611328125, 28.80927658081054687, 2.830842971801757812, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 56008), -- Golden Civet Kitten (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
 (@CGUID+45, 65209, 998, 6051, 6136, '0', '0', 0, 0, 0, 1622.8958740234375, 1317.854736328125, 10.44999980926513671, 6.107137680053710937, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 56008), -- Dancing Water Skimmer (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 113160 - Water Walking) (possible waypoints or random movement)
-(@CGUID+51, 62240, 998, 6051, 6136, '0', '0', 0, 0, 0, 1850.3055419921875, 1249.9930419921875, 13.49555587768554687, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Red Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121221 - Orange Ball Aura)
-(@CGUID+52, 62237, 998, 6051, 6136, '0', '0', 0, 0, 0, 1716.8211669921875, 1249.6788330078125, 13.36339282989501953, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Yellow Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121217 - Yellow Ball Aura)
-(@CGUID+53, 62239, 998, 6051, 6136, '0', '0', 0, 0, 0, 1716.8853759765625, 1416.7899169921875, 13.28889942169189453, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Green Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121220 - Green Ball Aura)
-(@CGUID+54, 62238, 998, 6051, 6136, '0', '0', 0, 0, 0, 1850.0208740234375, 1416.689208984375, 13.39783096313476562, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Blue Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121219 - Purple Ball Aura)
-(@CGUID+126, 13117, 998, 6051, 6136, '0', '0', 0, 0, 1, 1675.2899169921875, 1523.85595703125, 16.86186981201171875, 5.576955795288085937, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Horde Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
-(@CGUID+127, 13116, 998, 6051, 6136, '0', '0', 0, 0, 1, 1895.3350830078125, 1522.0972900390625, 16.29700660705566406, 3.56899261474609375, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Alliance Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
-(@CGUID+128, 13117, 998, 6051, 6136, '0', '0', 0, 0, 1, 1678.185791015625, 1146.751708984375, 17.45750236511230468, 0.850761175155639648, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Horde Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
-(@CGUID+129, 13116, 998, 6051, 6136, '0', '0', 0, 0, 1, 1892.0867919921875, 1153.8941650390625, 15.00300025939941406, 2.315886497497558593, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008); -- Alliance Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
+(@CGUID+46, 62240, 998, 6051, 6136, '0', '0', 0, 0, 0, 1850.3055419921875, 1249.9930419921875, 13.49555587768554687, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Red Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121221 - Orange Ball Aura)
+(@CGUID+47, 62237, 998, 6051, 6136, '0', '0', 0, 0, 0, 1716.8211669921875, 1249.6788330078125, 13.36339282989501953, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Yellow Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121217 - Yellow Ball Aura)
+(@CGUID+48, 62239, 998, 6051, 6136, '0', '0', 0, 0, 0, 1716.8853759765625, 1416.7899169921875, 13.28889942169189453, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Green Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121220 - Green Ball Aura)
+(@CGUID+49, 62238, 998, 6051, 6136, '0', '0', 0, 0, 0, 1850.0208740234375, 1416.689208984375, 13.39783096313476562, 1.588249564170837402, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Blue Beam (Area: Temple of Kotmogu - Difficulty: 0) CreateObject2 (Auras: 121219 - Purple Ball Aura)
+(@CGUID+50, 13117, 998, 6051, 6136, '0', '0', 0, 0, 1, 1675.2899169921875, 1523.85595703125, 16.86186981201171875, 5.576955795288085937, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Horde Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
+(@CGUID+51, 13116, 998, 6051, 6136, '0', '0', 0, 0, 1, 1895.3350830078125, 1522.0972900390625, 16.29700660705566406, 3.56899261474609375, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Alliance Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
+(@CGUID+52, 13117, 998, 6051, 6136, '0', '0', 0, 0, 1, 1678.185791015625, 1146.751708984375, 17.45750236511230468, 0.850761175155639648, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008), -- Horde Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
+(@CGUID+53, 13116, 998, 6051, 6136, '0', '0', 0, 0, 1, 1892.0867919921875, 1153.8941650390625, 15.00300025939941406, 2.315886497497558593, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 56008); -- Alliance Spirit Guide (Area: Temple of Kotmogu - Difficulty: 0) CreateObject1 (Auras: 9036 - Ghost, 9617 - Ghost Visual)
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (62238, 62239, 62237, 62240, 58951, 65205, 65209);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
