@@ -40,13 +40,6 @@ enum CreatureTextRange
     TEXT_RANGE_PERSONAL = 5
 };
 
-enum class SoundKitPlayType : uint8
-{
-    Normal      = 0,
-    ObjectSound = 1,
-    Max         = 2,
-};
-
 struct CreatureTextEntry
 {
     uint32 creatureId;
@@ -105,9 +98,6 @@ class TC_GAME_API CreatureTextMgr
         void LoadCreatureTextLocales();
         CreatureTextMap const& GetTextMap() const { return mTextMap; }
 
-        static void SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget = nullptr, CreatureTextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false, uint32 keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType::Normal);
-        static void SendEmote(Unit* source, Emote emote);
-
         //if sent, returns the 'duration' of the text else 0 if error
         uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = nullptr, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, SoundKitPlayType playType = SoundKitPlayType::Normal, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = nullptr);
         bool TextExist(uint32 sourceEntry, uint8 textGroup) const;
@@ -119,8 +109,6 @@ class TC_GAME_API CreatureTextMgr
         static float GetRangeForChatType(ChatMsg msgType);
 
     private:
-        static void SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
-
         CreatureTextMap mTextMap;
         LocaleCreatureTextMap mLocaleTextMap;
 };

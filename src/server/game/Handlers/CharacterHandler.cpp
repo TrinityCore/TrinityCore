@@ -2323,13 +2323,18 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 case RACE_VULPERA:
                     stmt->setUInt16(1, 2776);
                     break;
-                case LANG_PANDAREN_ALLIANCE:
-                case LANG_PANDAREN_HORDE:
+                case RACE_PANDAREN_NEUTRAL:
+                case RACE_PANDAREN_ALLIANCE:
+                case RACE_PANDAREN_HORDE:
                     stmt->setUInt16(1, 905);
                     break;
                 case RACE_DRACTHYR_ALLIANCE:
                 case RACE_DRACTHYR_HORDE:
                     stmt->setUInt16(1, 138);
+                    break;
+                case RACE_EARTHEN_DWARF_HORDE:
+                case RACE_EARTHEN_DWARF_ALLIANCE:
+                    stmt->setUInt16(1, 140);
                     break;
                 default:
                     TC_LOG_ERROR("entities.player", "Could not find language data for race ({}).", factionChangeInfo->RaceID);
