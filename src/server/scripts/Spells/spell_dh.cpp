@@ -196,7 +196,7 @@ class spell_dh_chaos_strike : public AuraScript
     }
 };
 
-// 213010 Charred Warblades
+// 213010 - Charred Warblades
 class spell_dh_charred_warblades : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -209,20 +209,33 @@ class spell_dh_charred_warblades : public AuraScript
         return eventInfo.GetDamageInfo() && eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FIRE;
     }
 
+    void HandleAfterProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        _healAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        uint32 heal = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+        if (_healAmount == 0)
+            return;
+
         GetTarget()->CastSpell(GetTarget(), SPELL_DH_CHARRED_WARBLADES_HEAL,
             CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
             .SetTriggeringAura(aurEff)
-            .AddSpellBP0(heal));
+            .AddSpellBP0(_healAmount));
+
+        _healAmount = 0;
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_dh_charred_warblades::CheckProc);
+        AfterEffectProc += AuraEffectProcFn(spell_dh_charred_warblades::HandleAfterProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dh_charred_warblades::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
+
+private:
+    uint32 _healAmount = 0;
 };
 
 // 206416 - First Blood
