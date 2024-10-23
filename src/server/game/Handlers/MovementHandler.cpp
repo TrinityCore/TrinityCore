@@ -492,7 +492,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
             Unit::ProcSkillsAndAuras(plrMover, nullptr, PROC_FLAG_JUMP, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
         }
 
-        // Whenever a player stops a movement action, an indoor/outdoor check is being performed
+        // Whenever a player stops a movement action, several position based checks and updates are being performed
         switch (opcode)
         {
             case CMSG_MOVE_SET_FLY:
@@ -503,7 +503,9 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
             case CMSG_MOVE_STOP_SWIM:
             case CMSG_MOVE_STOP_PITCH:
             case CMSG_MOVE_STOP_ASCEND:
-                plrMover->CheckOutdoorsAuraRequirements();
+                plrMover->UpdateZoneAndAreaId();
+                plrMover->UpdateIndoorsOutdoorsAuras();
+                plrMover->UpdateTavernRestingState();
                 break;
             default:
                 break;
