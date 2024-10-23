@@ -566,7 +566,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     {
         // set resting flag we are in the inn
         if (packet.Entered)
-            player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+            player->GetRestMgr().SetInnTriggerID(atEntry->ID);
         else
             player->GetRestMgr().RemoveRestFlag(REST_FLAG_IN_TAVERN);
 
