@@ -546,7 +546,7 @@ class spell_monk_tigers_lust : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_monk_tigers_lust::HandleRemoveImpairingAuras, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_monk_tigers_lust::HandleRemoveImpairingAuras, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
