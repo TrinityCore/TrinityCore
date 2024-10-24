@@ -536,6 +536,20 @@ private:
     }
 };
 
+// 116841 - Tiger's Lust
+class spell_monk_tigers_lust : public SpellScript
+{
+    void HandleRemoveImpairingAuras(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveMovementImpairingAuras(true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_monk_tigers_lust::HandleRemoveImpairingAuras, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     RegisterSpellScript(spell_monk_crackling_jade_lightning);
@@ -550,4 +564,5 @@ void AddSC_monk_spell_scripts()
     RegisterSpellScript(spell_monk_stagger);
     RegisterSpellScript(spell_monk_stagger_damage_aura);
     RegisterSpellScript(spell_monk_stagger_debuff_aura);
+    RegisterSpellScript(spell_monk_tigers_lust);
 }
