@@ -116,6 +116,41 @@ void Map::LoadAllCells()
             LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
 }
 
+void Map::RespawnAllObjects()
+{
+    DeleteRespawnTimes();
+
+    for (WorldObject* obj : GetWorldObjects())
+    {
+        if (obj->IsPlayer())
+            continue;
+
+        if (obj->IsCreature() || obj->IsGameObject() || obj->IsAreaTrigger())
+        {
+            ASSERT(obj->IsStoredInWorldObjectGridContainer());
+            AddObjectToRemoveList(obj);
+            obj->RemoveFromWorld();
+            obj->ResetMap();
+        }
+    }
+
+    for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
+    {
+        for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
+        {
+            float x = (cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+            float y = (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+
+            Cell cell{ x,y };
+
+            NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
+
+            if (grid)
+                LoadGridObjects(grid, cell);
+        }
+    }
+}
+
 void Map::InitStateMachine()
 {
     si_GridStates[GRID_STATE_INVALID] = new InvalidState();
