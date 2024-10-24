@@ -756,7 +756,7 @@ class spell_dk_heartbreaker : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dk_heartbreaker::HandleEnergize, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_dk_heartbreaker::HandleEnergize, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
