@@ -1643,6 +1643,21 @@ class BattlegroundAV : public Battleground
 
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
+        //npcbot
+        WorldSafeLocsEntry const* GetClosestGraveyardForBot(WorldLocation const& curPos, uint32 team) const override;
+        void AddBot(Creature* bot) override;
+        void RemoveBot(ObjectGuid guid) override;
+        void HandleBotKillPlayer(Creature* killer, Player* victim) override;
+        void HandleBotKillBot(Creature* killer, Creature* victim) override;
+        void HandlePlayerKillBot(Creature* victim, Player* killer) override;
+        void HandleBotKillUnit(Creature* killer, Creature* victim) override;
+        void EventBotClickedOnFlag(Creature* bot, GameObject* target_obj) override;
+        void EventBotAssaultsPoint(Creature* bot, uint32 object);
+        void EventBotDefendsPoint(Creature* bot, uint32 object);
+        BG_AV_NodeInfo const (&GetNodes() const)[BG_AV_NODES_MAX] { return m_Nodes; }
+        uint32 GetObjectThroughNodeForBot(BG_AV_Nodes node, bool log = false) { return GetObjectThroughNode(node, log); }
+        //end npcbot
+
         // Achievement: Av perfection and Everything counts
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
 
@@ -1673,7 +1688,14 @@ class BattlegroundAV : public Battleground
         }
 
         BG_AV_Nodes GetNodeThroughObject(uint32 object);
+        //npcbot
+        /*
+        //end npcbot
         uint32 GetObjectThroughNode(BG_AV_Nodes node);
+        //npcbot
+        */
+        uint32 GetObjectThroughNode(BG_AV_Nodes node, bool log = true) const;
+        //end npcbot
         bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
         /*mine*/

@@ -819,6 +819,26 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     if (speedXY < 0.01f)
         return;
 
+    //npcbot: blademaser only (disabled)
+    /*
+    if (_owner->GetTypeId() == TYPEID_UNIT && _owner->ToCreature()->IsNPCBot())
+    {
+        Movement::MoveSplineInit init(_owner);
+        init.MoveTo(x, y, z, false);
+        init.SetParabolic(speedZ, 0);
+        init.SetFacing(o);
+        init.SetOrientationFixed(true);
+        init.SetVelocity(speedXY);
+
+        GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, EVENT_JUMP);
+        movement->Priority = MOTION_PRIORITY_HIGHEST;
+        movement->BaseUnitState = UNIT_STATE_JUMPING;
+        Add(movement);
+        return;
+    }
+    */
+    //end npcbot
+
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 

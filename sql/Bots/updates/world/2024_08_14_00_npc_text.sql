@@ -1,0 +1,7 @@
+--
+SET @LOCALIZED_STRINGS_START = 70685;
+SET @LOCALIZED_STRINGS_END   = 70685;
+
+DELETE FROM `npc_text` WHERE ID BETWEEN @LOCALIZED_STRINGS_START and @LOCALIZED_STRINGS_END;
+INSERT INTO `npc_text` (`ID`,`text0_0`,`VerifiedBuild`) VALUES
+(@LOCALIZED_STRINGS_START,'You exceed max npcbots for your account (%u >= %u)','-1');

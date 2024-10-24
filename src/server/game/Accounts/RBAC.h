@@ -752,6 +752,45 @@ enum RBACPermissions
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //
     // custom permissions 1000+
+    //NPCBot
+    RBAC_PERM_COMMAND_NPCBOT                                 = 70001,
+    RBAC_PERM_COMMAND_NPCBOT_ADD                             = 70002,
+    RBAC_PERM_COMMAND_NPCBOT_REMOVE                          = 70003,
+    RBAC_PERM_COMMAND_NPCBOT_SPAWN                           = 70004,
+    RBAC_PERM_COMMAND_NPCBOT_MOVE                            = 70005,
+    RBAC_PERM_COMMAND_NPCBOT_DELETE                          = 70006,
+    RBAC_PERM_COMMAND_NPCBOT_LOOKUP                          = 70007,
+    RBAC_PERM_COMMAND_NPCBOT_REVIVE                          = 70008,
+    RBAC_PERM_COMMAND_NPCBOT_RELOADCONFIG                    = 70009,
+    RBAC_PERM_COMMAND_NPCBOT_INFO                            = 70010,
+    RBAC_PERM_COMMAND_NPCBOT_HIDE                            = 70011,
+    RBAC_PERM_COMMAND_NPCBOT_UNHIDE                          = 70012,
+    RBAC_PERM_COMMAND_NPCBOT_RECALL                          = 70013,
+    RBAC_PERM_COMMAND_NPCBOT_KILL                            = 70014,
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_RAID                      = 70015,
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_MOUNT                     = 70016,
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_VISUAL                    = 70017,
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_STATES                    = 70018,
+    RBAC_PERM_COMMAND_NPCBOT_TOGGLE_FLAGS                    = 70019,
+    RBAC_PERM_COMMAND_NPCBOT_SET_FACTION                     = 70020,
+    RBAC_PERM_COMMAND_NPCBOT_SET_OWNER                       = 70021,
+    RBAC_PERM_COMMAND_NPCBOT_SET_SPEC                        = 70022,
+    RBAC_PERM_COMMAND_NPCBOT_COMMAND_STANDSTILL              = 70023,
+    RBAC_PERM_COMMAND_NPCBOT_COMMAND_STOPFULLY               = 70024,
+    RBAC_PERM_COMMAND_NPCBOT_COMMAND_FOLLOW                  = 70025,
+    RBAC_PERM_COMMAND_NPCBOT_ATTDISTANCE_SHORT               = 70026,
+    RBAC_PERM_COMMAND_NPCBOT_ATTDISTANCE_LONG                = 70027,
+    RBAC_PERM_COMMAND_NPCBOT_ATTDISTANCE_EXACT               = 70028,
+    RBAC_PERM_COMMAND_NPCBOT_FOLDISTANCE_EXACT               = 70029,
+    RBAC_PERM_COMMAND_NPCBOT_ORDER_CAST                      = 70030,
+    RBAC_PERM_COMMAND_NPCBOT_VEHICLE_EJECT                   = 70031,
+    RBAC_PERM_COMMAND_NPCBOT_DUMP_LOAD                       = 70032,
+    RBAC_PERM_COMMAND_NPCBOT_DUMP_WRITE                      = 70033,
+    RBAC_PERM_COMMAND_NPCBOT_SPAWNED                         = 70034,
+    RBAC_PERM_COMMAND_NPCBOT_COMMAND_MISC                    = 70035,
+    RBAC_PERM_COMMAND_NPCBOT_CREATENEW                       = 70036,
+    RBAC_PERM_COMMAND_NPCBOT_SEND                            = 70037,
+    //End NPCBot
     RBAC_PERM_MAX
 };
 

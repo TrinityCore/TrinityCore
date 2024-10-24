@@ -200,6 +200,14 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
 
 void hyjal_trashAI::DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
+    //npcbot:
+    if (done_by && done_by->GetTypeId() == TYPEID_UNIT && done_by->ToCreature()->IsNPCBotOrPet())
+    {
+        damageTaken += damage;
+        instance->SetData(DATA_RAIDDAMAGE, damage);
+    }
+    else
+    //end npcbot
     if (!done_by || done_by->GetTypeId() == TYPEID_PLAYER || done_by->IsPet())
     {
         damageTaken += damage;

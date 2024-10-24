@@ -352,6 +352,9 @@ bool DefaultTargetSelector::operator()(Unit const* target) const
         return false;
 
     if (_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+        //npcbot: allow to target bots
+        //if (!(target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsNPCBot()))
+        //end npcbot
         return false;
 
     if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))

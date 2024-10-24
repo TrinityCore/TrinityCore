@@ -29,6 +29,11 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
+//npcbot
+#include "botdatamgr.h"
+#include "botmgr.h"
+//end npcbot
+
 void BattlegroundABScore::BuildObjectivesBlock(WorldPacket& data)
 {
     data << uint32(2);
@@ -235,6 +240,16 @@ void BattlegroundAB::AddPlayer(Player* player)
     if (!isInBattleground)
         PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundABScore(player->GetGUID());
 }
+
+//npcbot
+void BattlegroundAB::AddBot(Creature* bot)
+{
+    bool const isInBattleground = IsPlayerInBattleground(bot->GetGUID());
+    Battleground::AddBot(bot);
+    if (!isInBattleground)
+        BotScores[bot->GetEntry()] = new BattlegroundABScore(bot->GetGUID());
+}
+//end npcbot
 
 void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
@@ -539,6 +554,165 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
     PlaySoundToAll(sound);
 }
 
+//npcbot
+void BattlegroundAB::EventBotClickedOnFlag(Creature* bot, GameObject* /*target_obj*/)
+{
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    uint8 node = BG_AB_NODE_STABLES;
+    GameObject* obj = GetBgMap()->GetGameObject(BgObjects[node*8+7]);
+    while ((node < BG_AB_DYNAMIC_NODES_COUNT) && ((!obj) || (!bot->IsWithinDistInMap(obj, 10))))
+    {
+        ++node;
+        obj = GetBgMap()->GetGameObject(BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
+    }
+
+    if (node == BG_AB_DYNAMIC_NODES_COUNT)
+    {
+        // this means our player isn't close to any of banners - maybe cheater ??
+        return;
+    }
+
+    TeamId teamIndex = GetBotTeamId(bot->GetGUID());
+
+    // Check if player really could use this banner, not cheated
+    if (!(m_Nodes[node] == 0 || teamIndex == m_Nodes[node]%2))
+        return;
+
+    bot->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    uint32 sound = 0;
+    // If node is neutral, change to contested
+    if (m_Nodes[node] == BG_AB_NODE_TYPE_NEUTRAL)
+    {
+        UpdateBotScore(bot, SCORE_BASES_ASSAULTED, 1);
+        m_prevNodes[node] = m_Nodes[node];
+        m_Nodes[node] = teamIndex + 1;
+        // burn current neutral banner
+        _DelBanner(node, BG_AB_NODE_TYPE_NEUTRAL, 0);
+        // create new contested banner
+        _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
+        _SendNodeUpdate(node);
+        m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
+
+        if (teamIndex == TEAM_ALLIANCE)
+            SendBroadcastText(ABNodes[node].TextAllianceClaims, CHAT_MSG_BG_SYSTEM_ALLIANCE, bot);
+        else
+            SendBroadcastText(ABNodes[node].TextHordeClaims, CHAT_MSG_BG_SYSTEM_HORDE, bot);
+
+        sound = BG_AB_SOUND_NODE_CLAIMED;
+    }
+    // If node is contested
+    else if ((m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED) || (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED))
+    {
+        // If last state is NOT occupied, change node to enemy-contested
+        if (m_prevNodes[node] < BG_AB_NODE_TYPE_OCCUPIED)
+        {
+            UpdateBotScore(bot, SCORE_BASES_ASSAULTED, 1);
+            m_prevNodes[node] = m_Nodes[node];
+            m_Nodes[node] = uint8(teamIndex) + BG_AB_NODE_TYPE_CONTESTED;
+            // burn current contested banner
+            _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, !teamIndex);
+            // create new contested banner
+            _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
+            _SendNodeUpdate(node);
+            m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
+
+            if (teamIndex == TEAM_ALLIANCE)
+                SendBroadcastText(ABNodes[node].TextAllianceAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, bot);
+            else
+                SendBroadcastText(ABNodes[node].TextHordeAssaulted, CHAT_MSG_BG_SYSTEM_HORDE, bot);
+        }
+        // If contested, change back to occupied
+        else
+        {
+            UpdateBotScore(bot, SCORE_BASES_DEFENDED, 1);
+            m_prevNodes[node] = m_Nodes[node];
+            m_Nodes[node] = uint8(teamIndex) + BG_AB_NODE_TYPE_OCCUPIED;
+            // burn current contested banner
+            _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, !teamIndex);
+            // create new occupied banner
+            _CreateBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
+            _SendNodeUpdate(node);
+            m_NodeTimers[node] = 0;
+            _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+
+            if (teamIndex == TEAM_ALLIANCE)
+                SendBroadcastText(ABNodes[node].TextAllianceDefended, CHAT_MSG_BG_SYSTEM_ALLIANCE, bot);
+            else
+                SendBroadcastText(ABNodes[node].TextHordeDefended, CHAT_MSG_BG_SYSTEM_HORDE, bot);
+        }
+        sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
+    }
+    // If node is occupied, change to enemy-contested
+    else
+    {
+        UpdateBotScore(bot, SCORE_BASES_ASSAULTED, 1);
+        m_prevNodes[node] = m_Nodes[node];
+        m_Nodes[node] = uint8(teamIndex) + BG_AB_NODE_TYPE_CONTESTED;
+        // burn current occupied banner
+        _DelBanner(node, BG_AB_NODE_TYPE_OCCUPIED, !teamIndex);
+        // create new contested banner
+        _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
+        _SendNodeUpdate(node);
+        _NodeDeOccupied(node);
+        m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
+
+        if (teamIndex == TEAM_ALLIANCE)
+            SendBroadcastText(ABNodes[node].TextAllianceAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, bot);
+        else
+            SendBroadcastText(ABNodes[node].TextHordeAssaulted, CHAT_MSG_BG_SYSTEM_HORDE, bot);
+
+        sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
+    }
+
+    // If node is occupied again, send "X has taken the Y" msg.
+    if (m_Nodes[node] >= BG_AB_NODE_TYPE_OCCUPIED)
+    {
+        if (teamIndex == TEAM_ALLIANCE)
+            SendBroadcastText(ABNodes[node].TextAllianceTaken, CHAT_MSG_BG_SYSTEM_ALLIANCE);
+        else
+            SendBroadcastText(ABNodes[node].TextHordeTaken, CHAT_MSG_BG_SYSTEM_HORDE);
+    }
+    PlaySoundToAll(sound);
+}
+
+bool BattlegroundAB::IsNodeOccupied(uint8 node, TeamId teamId) const
+{
+    if (node < BG_AB_DYNAMIC_NODES_COUNT)
+    {
+        switch (teamId)
+        {
+            case TEAM_ALLIANCE:
+                return m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_OCCUPIED;
+            case TEAM_HORDE:
+                return m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED;
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+bool BattlegroundAB::IsNodeContested(uint8 node, TeamId teamId) const
+{
+    if (node < BG_AB_DYNAMIC_NODES_COUNT)
+    {
+        switch (teamId)
+        {
+            case TEAM_ALLIANCE:
+                return m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED;
+            case TEAM_HORDE:
+                return m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED;
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+//end npcbot
+
 uint32 BattlegroundAB::GetPrematureWinner()
 {
     // How many bases each team owns
@@ -680,6 +854,83 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveyard(Player* player)
 
     return good_entry;
 }
+
+//npcbot
+WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveyardForBot(WorldLocation const& curPos, uint32 team) const
+{
+    TeamId teamIndex = GetTeamIndexByTeamId(team);
+
+    // Is there any occupied node for this team?
+    std::vector<uint8> nodes;
+    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
+        if (m_Nodes[i] == teamIndex + 3)
+            nodes.push_back(i);
+
+    WorldSafeLocsEntry const* good_entry = nullptr;
+    // If so, select the closest node to place ghost on
+    if (!nodes.empty())
+    {
+        float plr_x = curPos.GetPositionX();
+        float plr_y = curPos.GetPositionY();
+
+        float mindist = 999999.0f;
+        for (uint8 i = 0; i < nodes.size(); ++i)
+        {
+            WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[nodes[i]]);
+            if (!entry)
+                continue;
+            float dist = (entry->Loc.X - plr_x)*(entry->Loc.X - plr_x)+(entry->Loc.Y - plr_y)*(entry->Loc.Y - plr_y);
+            if (mindist > dist)
+            {
+                mindist = dist;
+                good_entry = entry;
+            }
+        }
+        nodes.clear();
+    }
+    // If not, place ghost on starting location
+    if (!good_entry)
+        good_entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[teamIndex+5]);
+
+    return good_entry;
+}
+
+void BattlegroundAB::RewardKillScore(TeamId teamId, uint32 amount)
+{
+    // Score feature
+    m_TeamScores[teamId] += amount;
+    if (m_TeamScores[teamId] > BG_AB_MAX_TEAM_SCORE)
+        m_TeamScores[teamId] = BG_AB_MAX_TEAM_SCORE;
+    UpdateWorldState(teamId == TEAM_ALLIANCE ? BG_AB_OP_RESOURCES_ALLY : BG_AB_OP_RESOURCES_HORDE, m_TeamScores[teamId]);
+    if (m_TeamScores[teamId] >= BG_AB_MAX_TEAM_SCORE)
+        EndBattleground(teamId);
+}
+
+void BattlegroundAB::HandleBotKillPlayer(Creature* killer, Player* victim)
+{
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    Battleground::HandleBotKillPlayer(killer, victim);
+    //RewardKillScore(GetBotTeamId(killer->GetGUID()), BG_AB_TickPoints[1]);
+}
+void BattlegroundAB::HandleBotKillBot(Creature* killer, Creature* victim)
+{
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    Battleground::HandleBotKillBot(killer, victim);
+    //RewardKillScore(GetBotTeamId(killer->GetGUID()), BG_AB_TickPoints[1]);
+}
+void BattlegroundAB::HandlePlayerKillBot(Creature* victim, Player* killer)
+{
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    Battleground::HandlePlayerKillBot(victim, killer);
+    //RewardKillScore(GetBotTeamId(killer->GetGUID()), BG_AB_TickPoints[1]);
+}
+//end npcbot
 
 bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {

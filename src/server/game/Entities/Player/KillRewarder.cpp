@@ -26,6 +26,10 @@
 #include "Pet.h"
 #include "Player.h"
 
+//npcbot
+#include "botmgr.h"
+//end npcbot
+
  // == KillRewarder ====================================================
  // KillRewarder encapsulates logic of rewarding player upon kill with:
  // * XP;
@@ -76,6 +80,10 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
     // mark the credit as pvp if victim is player
     if (victim->GetTypeId() == TYPEID_PLAYER)
         _isPvP = true;
+    //npcbot
+    else if (victim->IsNPCBotOrPet())
+        _isPvP = true;
+    //end npcbot
     // or if its owned by player and its not a vehicle
     else if (victim->GetCharmerOrOwnerGUID().IsPlayer())
         _isPvP = !victim->IsVehicle();
@@ -152,6 +160,27 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
         xp *= player->GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_PCT);
+
+        //npcbot 4.2.2.1. Apply NpcBot XP reduction
+        uint8 bots_count = 0;
+        if (_group)
+        {
+            for (GroupReference const* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            {
+                if (Player const* gPlayer = itr->GetSource())
+                    bots_count = std::max<uint8>(bots_count, gPlayer->GetNpcBotsCount());
+            }
+        }
+        else
+            bots_count = player->GetNpcBotsCount();
+        uint8 xp_reduction = BotMgr::GetNpcBotXpReduction();
+        uint8 xp_reduction_start = BotMgr::GetNpcBotXpReductionStartingNumber();
+        if (xp_reduction_start > 0 && xp_reduction > 0 && bots_count >= xp_reduction_start)
+        {
+            uint32 ratePct = std::max<int32>(100 - ((bots_count - (xp_reduction_start - 1)) * xp_reduction), 10);
+            xp = xp * ratePct / 100;
+        }
+        //end npcbot
 
         // 4.2.3. Give XP to player.
         player->GiveXP(xp, _victim, _groupRate);

@@ -890,6 +890,10 @@ namespace Trinity
                     player = u->ToPlayer();
                 else if (u->IsPet() && u->GetOwner())
                     player = u->GetOwner()->ToPlayer();
+                //npcbot: find bot owner
+                else if (u->GetTypeId() == TYPEID_UNIT && u->ToCreature()->IsNPCBotOrPet() && !u->ToCreature()->IsFreeBot())
+                    player = u->ToCreature()->GetBotOwner();
+                //end npcbot
 
                 if (!player)
                     return false;

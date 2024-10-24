@@ -81,6 +81,10 @@ enum ItemClass : uint8;
 enum LootError : uint8;
 enum LootType : uint8;
 
+// NpcBot mod
+class BotMgr;
+// end NpcBot mod
+
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
@@ -2238,6 +2242,18 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::string GetDebugInfo() const override;
 
+        /*****************************************************************/
+        /***                        NPCBOT SYSTEM                      ***/
+        /*****************************************************************/
+        BotMgr* GetBotMgr() const { return _botMgr; }
+        bool HaveBot() const;
+        uint8 GetNpcBotsCount() const;
+        void RemoveAllBots(uint8 removetype = 0);
+        void UpdatePhaseForBots();
+        /*****************************************************************/
+        /***                      END NPCBOT SYSTEM                    ***/
+        /*****************************************************************/
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2483,6 +2499,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         TimeTracker m_groupUpdateTimer;
 
     private:
+        /*****************************************************************/
+        /***                        NPCBOT SYSTEM                      ***/
+        /*****************************************************************/
+        BotMgr* _botMgr;
+        /*****************************************************************/
+        /***                      END NPCBOT SYSTEM                    ***/
+        /*****************************************************************/
+
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
         InventoryResult CanStoreItem_InBag(uint8 bag, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, bool non_specialized, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;

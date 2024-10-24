@@ -1122,6 +1122,22 @@ class spell_hun_sniper_training : public AuraScript
 
     void HandleUpdatePeriodic(AuraEffect* aurEff)
     {
+        //npcbot: handle creatures, remove dead trigger
+        if (!GetUnitOwner()->IsAlive())
+            return;
+        if (Creature const* bot = GetUnitOwner()->ToCreature())
+        {
+            if (!bot->IsNPCBot())
+                return;
+
+            int32 baseAmount = aurEff->GetBaseAmount();
+            int32 amount = bot->isMoving() ?
+                bot->CalculateSpellDamage(aurEff->GetSpellEffectInfo(), &baseAmount) :
+                aurEff->GetAmount() - 1;
+            aurEff->SetAmount(amount);
+            return;
+        }
+        //end npcbot
         if (Player* playerTarget = GetUnitOwner()->ToPlayer())
         {
             int32 baseAmount = aurEff->GetBaseAmount();

@@ -133,7 +133,14 @@ void GroupMgr::LoadGroups()
         // Delete all groups whose leader does not exist
         CharacterDatabase.DirectExecute("DELETE FROM `groups` WHERE leaderGuid NOT IN (SELECT guid FROM characters)");
         // Delete all groups with less than 2 members
+        //npcbot: adjust this
+        /*
+        //end npcbot
         CharacterDatabase.DirectExecute("DELETE FROM `groups` WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
+        //npcbot
+        */
+        CharacterDatabase.DirectExecute("DELETE FROM `groups` WHERE guid NOT IN (SELECT guid from group_member GROUP BY guid HAVING (SELECT (SELECT COUNT(guid) FROM group_member) + (SELECT COUNT(guid) FROM characters_npcbot_group_member)) > 1)");
+        //end npcbot
 
         //                                                        0              1           2             3                 4      5          6      7         8       9
         QueryResult result = CharacterDatabase.Query("SELECT g.leaderGuid, g.lootMethod, g.looterGuid, g.lootThreshold, g.icon1, g.icon2, g.icon3, g.icon4, g.icon5, g.icon6"

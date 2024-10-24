@@ -38,6 +38,10 @@
 #include "Vehicle.h"
 #include <G3D/Vector3.h>
 
+//npcbot
+#include "botmgr.h"
+//end npcbot
+
 enum Texts
 {
     // High Overlord Saurfang
@@ -614,6 +618,10 @@ struct gunship_npc_AI : public ScriptedAI
     {
         if (Instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
             return false;
+        //npcbot: allow to attack bots whereever they are
+        if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsNPCBotOrPet())
+            return true;
+        //end npcbot
         return target->HasAura(Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
     }
 
@@ -743,6 +751,15 @@ class npc_gunship : public CreatureScript
 
                     hull->CastSpell(hull, explosionSpell, TRIGGERED_FULL_MASK);
                 }
+
+                //npcbot: kill bots
+                Transport::PassengerSet const& allpassengers = me->GetTransport()->GetPassengers();
+                for (Transport::PassengerSet::const_iterator citr = allpassengers.begin(); citr != allpassengers.end(); ++citr)
+                {
+                    if ((*citr)->GetTypeId() == TYPEID_PLAYER && (*citr)->ToPlayer()->HaveBot())
+                        (*citr)->ToPlayer()->GetBotMgr()->KillAllBots();
+                }
+                //end npcbot
 
                 creatures.clear();
                 GetCreatureListWithEntryInGrid(creatures, me, _teamInInstance == HORDE ? NPC_HORDE_GUNSHIP_CANNON : NPC_ALLIANCE_GUNSHIP_CANNON, 200.0f);
@@ -1510,6 +1527,17 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         {
             return !me->_IsTargetAcceptable(player) || !me->CanStartAttack(player, true);
         });
+
+        //npcbot: allow bots as targets
+        auto npcbot_check = [this](Creature const* creature) {
+            return creature->IsNPCBotOrPet() && me->_IsTargetAcceptable(creature) && me->CanStartAttack(creature, true);
+        };
+        Creature* anybot = nullptr;
+        Trinity::CreatureSearcher botsearcher(me, anybot, npcbot_check);
+        Cell::VisitWorldObjects(me, botsearcher, 70.0f);
+        if (anybot)
+            return true;
+        //end npcbot
 
         return !players.empty();
     }

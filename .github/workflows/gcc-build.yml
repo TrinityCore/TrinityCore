@@ -2,7 +2,14 @@ name: GCC
 
 on:
   push:
+    branches:
+      - 'npcbots_3.3.5'
+      - 'CI'
   pull_request:
+
+concurrency:
+  group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
+  cancel-in-progress: true
 
 jobs:
   build:

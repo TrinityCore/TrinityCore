@@ -30,4 +30,15 @@ class GroupRefManager : public RefManager<Group, Player>
         GroupReference* getFirst() { return ((GroupReference*)RefManager<Group, Player>::getFirst()); }
         GroupReference const* getFirst() const { return ((GroupReference const*)RefManager<Group, Player>::getFirst()); }
 };
+
+//npcbot
+class Creature;
+
+class GroupBotRefManager : public RefManager<Group, Creature>
+{
+    public:
+        GroupBotReference* getFirst() { return ((GroupBotReference*)RefManager<Group, Creature>::getFirst()); }
+        GroupBotReference const* getFirst() const { return ((GroupBotReference const*)RefManager<Group, Creature>::getFirst()); }
+};
+//end npcbot
 #endif

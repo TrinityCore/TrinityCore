@@ -190,6 +190,13 @@ struct BattlegroundPlayer
     uint32 Team;                                           // Player's team
 };
 
+//npcbot
+struct BattlegroundBot
+{
+    uint32 Team;                                            // bot's team
+};
+//end npcbot
+
 struct BattlegroundObjectInfo
 {
     BattlegroundObjectInfo() : object(nullptr), timer(0), spellid(0) { }
@@ -335,6 +342,10 @@ class TC_GAME_API Battleground
         bool isRated() const        { return m_IsRated; }
 
         typedef std::map<ObjectGuid, BattlegroundPlayer> BattlegroundPlayerMap;
+        //npcbot
+        typedef std::map<ObjectGuid, BattlegroundBot> BattlegroundBotMap;
+        [[nodiscard]] BattlegroundBotMap const& GetBots() const { return m_Bots; }
+        //end npcbot
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }
 
@@ -429,6 +440,30 @@ class TC_GAME_API Battleground
         virtual void HandleKillPlayer(Player* player, Player* killer);
         virtual void HandleKillUnit(Creature* /*creature*/, Player* /*killer*/) { }
 
+        //npcbot
+        uint32 GetBotScoresSize() const { return BotScores.size(); }
+        void RemoveBotFromResurrectQueue(ObjectGuid guid);
+        uint32 GetBotTeam(ObjectGuid guid) const;
+        TeamId GetBotTeamId(ObjectGuid guid) const;
+        TeamId GetOtherTeamId(TeamId teamId) const;
+        void AddOrSetBotToCorrectBgGroup(Creature* bot, uint32 team);
+        void RewardXPAtKill(Player* killer, Creature* victim);
+        void RewardXPAtKill(Creature* killer, Player* victim);
+        void RewardXPAtKill(Creature* killer, Creature* victim);
+        virtual void AddBot(Creature* bot);
+        virtual void RemoveBotAtLeave(ObjectGuid guid);
+        virtual WorldSafeLocsEntry const* GetClosestGraveyardForBot(WorldLocation const& curPos, uint32 team) const;
+        virtual bool UpdateBotScore(Creature const* bot, uint32 type, uint32 value, bool doAddHonor = true);
+        virtual void RemoveBot(ObjectGuid /*guid*/) {}
+        virtual void HandleBotKillPlayer(Creature* killer, Player* victim);
+        virtual void HandleBotKillBot(Creature* killer, Creature* victim);
+        virtual void HandlePlayerKillBot(Creature* victim, Player* killer);
+        virtual void HandleBotKillUnit(Creature* /*killer*/, Creature* /*victim*/) { }
+        virtual void EventBotDroppedFlag(Creature* /*bot*/) { }
+        virtual void EventBotClickedOnFlag(Creature* /*bot*/, GameObject* /*target_obj*/) { }
+        virtual void HandleBotAreaTrigger(Creature* /*bot*/, uint32 /*trigger*/) { }
+        //end npcbot
+
         // Battleground events
         virtual void EventPlayerDroppedFlag(Player* /*player*/) { }
         virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/) { }
@@ -519,6 +554,10 @@ class TC_GAME_API Battleground
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
+        //npcbot
+        BattlegroundScoreMap BotScores;
+        BattlegroundBotMap m_Bots;
+        //end npcbot
         // must be implemented in BG subclass
         virtual void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) { }
 

@@ -407,6 +407,16 @@ class spell_sha_earthbind_totem : public AuraScript
     {
         if (!GetCaster())
             return;
+
+        //npcbot: workaround for bots
+        if (ObjectGuid creatorGuid = GetCaster()->GetCreatorGUID())
+            if (!creatorGuid.IsPlayer())
+                if (Creature const* bot = ObjectAccessor::GetCreature(*GetCaster(), creatorGuid))
+                    if (AuraEffect const* aur = bot->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
+                        if (roll_chance_i(aur->GetBaseAmount()))
+                            GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_TOTEM_EARTHEN_POWER, true);
+        //end npcbot
+
         if (Player* owner = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
             if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
                 if (roll_chance_i(aur->GetBaseAmount()))
@@ -590,6 +600,23 @@ class spell_sha_flametongue_weapon : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
+        //npcbot: handle bot enchant check
+        Creature* bot = eventInfo.GetActor()->ToCreature();
+        if (bot && bot->IsNPCBot())
+        {
+            Item* item = bot->GetBotEquipsByGuid(GetAura()->GetCastItemGUID());
+            if (!item)
+                return false;
+
+            WeaponAttackType attType = bot->GetBotEquips(0/*BOT_SLOT_MAINHAND*/) == item ? BASE_ATTACK : OFF_ATTACK;
+            if ((attType == BASE_ATTACK && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)) ||
+                (attType == OFF_ATTACK && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)))
+                return false;
+
+            return true;
+        }
+        //end npcbot
+
         Player* player = eventInfo.GetActor()->ToPlayer();
         if (!player)
             return false;
@@ -612,6 +639,42 @@ class spell_sha_flametongue_weapon : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
+
+        //npcbot: handle bot enchant proc
+        Creature* bot = eventInfo.GetActor()->ToCreature();
+        if (bot && bot->IsNPCBot())
+        {
+            Unit* target = eventInfo.GetProcTarget();
+            WeaponAttackType attType;
+            if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)
+                attType = BASE_ATTACK;
+            else
+                attType = OFF_ATTACK;
+
+            Item* item = ASSERT_NOTNULL(bot->GetBotEquipsByGuid(GetAura()->GetCastItemGUID()));
+
+            float basePoints = aurEff->GetSpellEffectInfo().CalcValue();
+
+            float attackSpeed = bot->GetAttackTime(attType) / 1000.f;
+            float fireDamage = basePoints / 100.0f;
+            fireDamage *= attackSpeed;
+
+            RoundToInterval(fireDamage, basePoints / 77.0f, basePoints / 25.0f);
+            float spellPowerBonus = bot->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE);
+            spellPowerBonus += target->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, SPELL_SCHOOL_MASK_FIRE);
+
+            float const factorMod = bot->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+            float const spCoeff = 0.03811f;
+            spellPowerBonus *= spCoeff * attackSpeed * factorMod;
+
+            CastSpellExtraArgs args(aurEff);
+            args
+                .SetCastItem(item)
+                .AddSpellBP0(fireDamage + spellPowerBonus);
+            bot->CastSpell(target, SPELL_SHAMAN_FLAMETONGUE_ATTACK, args);
+            return;
+        }
+        //end npcbot
 
         Player* player = eventInfo.GetActor()->ToPlayer();
         Unit* target = eventInfo.GetProcTarget();
@@ -1834,6 +1897,23 @@ class spell_sha_windfury_weapon : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
+        //npcbot: handle bot enchant check
+        Creature* bot = eventInfo.GetActor()->ToCreature();
+        if (bot && bot->IsNPCBot())
+        {
+            Item* item = bot->GetBotEquipsByGuid(GetAura()->GetCastItemGUID());
+            if (!item)
+                return false;
+
+            WeaponAttackType attType = bot->GetBotEquips(0/*BOT_SLOT_MAINHAND*/) == item ? BASE_ATTACK : OFF_ATTACK;
+            if ((attType == BASE_ATTACK && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)) ||
+                (attType == OFF_ATTACK && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)))
+                return false;
+
+            return true;
+        }
+        //end npcbot
+
         Player* player = eventInfo.GetActor()->ToPlayer();
         if (!player)
             return false;
@@ -1856,6 +1936,53 @@ class spell_sha_windfury_weapon : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
+
+        //npcbot: handle bot enchant proc
+        Creature* bot = eventInfo.GetActor()->ToCreature();
+        if (bot && bot->IsNPCBot())
+        {
+            uint32 spellId = 0;
+            WeaponAttackType attType;
+            if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)
+            {
+                spellId = SPELL_SHAMAN_WINDFURY_ATTACK_MH;
+                attType = BASE_ATTACK;
+            }
+            else
+            {
+                spellId = SPELL_SHAMAN_WINDFURY_ATTACK_OH;
+                attType = OFF_ATTACK;
+            }
+
+            Item* item = ASSERT_NOTNULL(bot->GetBotEquipsByGuid(GetAura()->GetCastItemGUID()));
+
+            int32 enchantId = static_cast<int32>(item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
+            int32 extraAttackPower = 0;
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_WINDFURY_WEAPON_R1);
+            while (spellInfo)
+            {
+                if (spellInfo->GetEffect(EFFECT_0).MiscValue == enchantId)
+                {
+                    extraAttackPower = spellInfo->GetEffect(EFFECT_1).CalcValue(bot);
+                    break;
+                }
+                spellInfo = spellInfo->GetNextRankSpell();
+            }
+
+            if (!extraAttackPower)
+                return;
+
+            int32 amount = static_cast<int32>(extraAttackPower / 14.f * bot->GetAttackTime(attType) / 1000.f);
+
+            CastSpellExtraArgs args(aurEff);
+            args.AddSpellBP0(amount);
+            // Attack twice
+            for (uint8 i = 0; i < 2; ++i)
+                bot->CastSpell(eventInfo.GetProcTarget(), spellId, args);
+
+            return;
+        }
+        //end npcbot
 
         Player* player = eventInfo.GetActor()->ToPlayer();
 

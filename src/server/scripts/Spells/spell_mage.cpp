@@ -1161,6 +1161,12 @@ class spell_mage_summon_water_elemental : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
+
+        //npcbot: prevent default handler for bots
+        if (caster->IsNPCBot())
+            return;
+        //end npcbot
+
         // Glyph of Eternal Water
         if (caster->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
             caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);

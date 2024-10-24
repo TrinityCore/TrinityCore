@@ -203,6 +203,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                 DoRemoveAurasDueToSpellOnPlayer(player, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true, true);
             }
 
+            //npcbot: handle bot map transfer
+            void OnNPCBotEnter(Creature* bot) override
+            {
+                if (IsFactionBuffActive)
+                    DoCastSpellOnNPCBot(bot, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG);
+            }
+
+            void OnNPCBotLeave(Creature* bot) override
+            {
+                DoRemoveAurasDueToSpellOnNPCBot(bot, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG);
+            }
+            //end npcbot
+
             void OnCreatureCreate(Creature* creature) override
             {
                 if (creature->IsGuardian() && creature->GetOwnerGUID().IsPlayer())
@@ -210,6 +223,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                     if (IsFactionBuffActive)
                         creature->CastSpell(creature, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true);
                 }
+
+                //npcbot: handle bot pets
+                if (creature->IsNPCBotPet())
+                {
+                    if (IsFactionBuffActive)
+                        creature->CastSpell(creature, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true);
+                }
+                //end npcbot
 
                 switch (creature->GetEntry())
                 {

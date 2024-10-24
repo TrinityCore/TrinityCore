@@ -1,0 +1,8 @@
+--
+SET @LOCALIZED_STRINGS_START = 70656;
+SET @LOCALIZED_STRINGS_END   = 70657;
+
+DELETE FROM `npc_text` WHERE ID BETWEEN @LOCALIZED_STRINGS_START and @LOCALIZED_STRINGS_END;
+INSERT INTO `npc_text` (`ID`,`text0_0`,`VerifiedBuild`) VALUES
+('70656','Mana per damage','-1'),
+('70657','Damage per mana','-1');

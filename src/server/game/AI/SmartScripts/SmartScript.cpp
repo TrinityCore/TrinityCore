@@ -293,6 +293,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         talkTarget = target->ToCreature();
                     }
                     else
+                    //npcbot: prevent using bots as talkers
+                    if (!target->ToCreature()->IsNPCBotOrPet())
+                    //end npcbot
                         talker = target->ToCreature();
                     break;
                 }

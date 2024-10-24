@@ -565,7 +565,7 @@ struct boss_four_horsemen_lady : public boss_four_horsemen_baseAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
+        if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f))
             DoCast(target, SPELL_SHADOW_BOLT);
         else
         {
@@ -624,7 +624,7 @@ struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
+        if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f))
             DoCast(target, SPELL_HOLY_BOLT);
         else
         {

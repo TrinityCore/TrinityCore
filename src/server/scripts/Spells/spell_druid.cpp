@@ -31,6 +31,11 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
+//npcbot
+#include "Creature.h"
+#include "Group.h"
+//end npcbot
+
 enum DruidSpells
 {
     SPELL_DRUID_BEAR_FORM_PASSIVE           = 1178,
@@ -1195,6 +1200,10 @@ class spell_dru_rip : public AuraScript
     bool Load() override
     {
         Unit* caster = GetCaster();
+        //npcbot
+        if (caster && caster->IsNPCBot())
+            return true;
+        //end npcbot
         return caster && GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
@@ -1204,6 +1213,22 @@ class spell_dru_rip : public AuraScript
 
         if (Unit* caster = GetCaster())
         {
+            //npcbot
+            if (caster && caster->IsNPCBot())
+            {
+                uint8 botcp = caster->ToCreature()->GetCreatureComboPoints();
+                // Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
+                if (AuraEffect const* auraEffIdolOfFeralShadows = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_FERAL_SHADOWS, EFFECT_0))
+                    amount += botcp * auraEffIdolOfFeralShadows->GetAmount();
+                // Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
+                else if (AuraEffect const* auraEffIdolOfWorship = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_WORSHIP, EFFECT_0))
+                    amount += botcp * auraEffIdolOfWorship->GetAmount();
+
+                amount += int32(CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), botcp));
+                return;
+            }
+            //end npcbot
+
             // 0.01 * $AP * cp
             uint8 cp = caster->ToPlayer()->GetComboPoints();
 
@@ -1752,6 +1777,41 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        //npcbot
+        if (Creature* bot = GetCaster()->ToCreature())
+        {
+            if (bot->IsFreeBot())
+            {
+                targets.clear();
+                targets.push_back(bot);
+                return;
+            }
+
+            targets.remove(GetExplTargetUnit());
+            std::list<Unit*> tempTargets;
+            Group const* gr = bot->GetBotOwner()->GetGroup();
+            if (gr && !gr->IsMember(bot->GetGUID()))
+                gr = nullptr;
+
+            if (gr)
+                for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if (gr->IsMember((*itr)->GetGUID()))
+                        tempTargets.push_back((*itr)->ToUnit());
+
+            if (tempTargets.empty())
+            {
+                targets.clear();
+                FinishCast(SPELL_FAILED_DONT_REPORT);
+                return;
+            }
+
+            Unit* target = Trinity::Containers::SelectRandomContainerElement(tempTargets);
+            targets.clear();
+            targets.push_back(target);
+            return;
+        }
+        //end npcbot
+
         if (!GetCaster()->ToPlayer()->GetGroup())
         {
             targets.clear();
@@ -1802,6 +1862,11 @@ class spell_dru_t10_restoration_4p_bonus_dummy : public AuraScript
         HealInfo* healInfo = eventInfo.GetHealInfo();
         if (!healInfo || !healInfo->GetHeal())
             return false;
+
+        //npcbot: support for Item - Druid T10 Restoration 4P Bonus (Rejuvenation)
+        if (eventInfo.GetActor()->IsNPCBot())
+            return true;
+        //end npcbot
 
         Player* caster = eventInfo.GetActor()->ToPlayer();
         if (!caster)

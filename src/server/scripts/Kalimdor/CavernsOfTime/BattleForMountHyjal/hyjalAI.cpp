@@ -994,6 +994,11 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
             {
                 for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
                 {
+                    //npcbot: prevent bots from getting UNIT_FLAG_NON_ATTACKABLE
+                    if ((*itr)->IsNPCBotOrPet())
+                        continue;
+                    //end npcbot
+
                     if ((*itr) && (*itr)->IsAlive())
                     {
                         (*itr)->CastSpell(*itr, SPELL_TELEPORT_VISUAL, true);

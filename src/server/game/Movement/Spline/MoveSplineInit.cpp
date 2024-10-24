@@ -117,6 +117,11 @@ namespace Movement
             if (Creature* creature = unit->ToCreature())
                 if (creature->HasSearchedAssistance())
                     args.velocity *= 0.66f;
+
+            //npcbot: do not emit an error if unit cannot move at all
+            if ((unit->IsNPCBotOrPet() || !unit->CanFreeMove()) && !(args.velocity > 0.01f))
+                return 0;
+            //end npcbot
         }
 
         // limit the speed in the same way the client does

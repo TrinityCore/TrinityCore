@@ -212,9 +212,12 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_UNUSED_31            = 0x80000000,
 
     // Masks
-    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_22 |
-                                                CREATURE_FLAG_EXTRA_UNUSED_23 | CREATURE_FLAG_EXTRA_UNUSED_24 | CREATURE_FLAG_EXTRA_UNUSED_25 |
-                                                CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31), // SKIP
+    //npcbot
+    CREATURE_FLAG_EXTRA_NPCBOT               = (CREATURE_FLAG_EXTRA_UNUSED_31 | CREATURE_FLAG_EXTRA_UNUSED_25 | CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27),
+    CREATURE_FLAG_EXTRA_NPCBOT_PET           = (CREATURE_FLAG_EXTRA_UNUSED_31 | CREATURE_FLAG_EXTRA_UNUSED_25 | CREATURE_FLAG_EXTRA_UNUSED_27),
+    //end npcbot
+
+    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_22 | CREATURE_FLAG_EXTRA_UNUSED_23 | CREATURE_FLAG_EXTRA_UNUSED_24), // SKIP
 
     CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS)) // SKIP
 };
@@ -357,6 +360,21 @@ struct TC_GAME_API CreatureTemplate
     uint32  GetFirstVisibleModel() const;
 
     // helpers
+    //npcbot
+    inline bool IsNPCBot() const
+    {
+        return (flags_extra & CREATURE_FLAG_EXTRA_NPCBOT) == CREATURE_FLAG_EXTRA_NPCBOT;
+    }
+    inline bool IsNPCBotPet() const
+    {
+        return (flags_extra & CREATURE_FLAG_EXTRA_NPCBOT) == CREATURE_FLAG_EXTRA_NPCBOT_PET;
+    }
+    inline bool IsNPCBotOrPet() const
+    {
+        return IsNPCBot() || IsNPCBotPet();
+    }
+    //end npcbot
+
     SkillType GetRequiredLootSkill() const
     {
         if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM)
