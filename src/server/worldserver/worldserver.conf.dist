@@ -38,6 +38,10 @@
 #    PACKET SPOOF PROTECTION SETTINGS
 #    MISC ANTI-CHEAT SETTINGS
 #    METRIC SETTINGS
+#    SOLO LFG
+#    AUTOBALANCE
+#    Skip Death Knight Starting Area
+#    Paymaster
 #
 ###################################################################################################
 
@@ -4144,6 +4148,317 @@ Metric.OverallStatusInterval = 1
 
 #Metric.Threshold.world_update_sessions_time = 100
 #Metric.Threshold.worldsession_update_opcode_time = 50
+
+#
+###################################################################################################
+
+###################################################################################################
+# SOLO LFG
+#
+#    SoloLFG.Enable
+#        Description: Enable the module.
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
+
+SoloLFG.Enable = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+# AUTOBALANCE ANNOUNCE
+#
+#     AutoBalanceAnnounce.enable
+#        Announce the module on login
+#        Default:     1 (1 = ON, 0 = OFF)
+
+AutoBalanceAnnounce.enable = 1
+
+#
+# AUTOBALANCE OPTIONS
+#
+#     AutoBalance.enable
+#        Enable/Disable the autobalance system
+#        Default:     1 (1 = ON, 0 = OFF)
+
+AutoBalance.enable = 1
+
+#     AutoBalance.InflectionPoint series
+#        Adjust value of Hyperbolic Tangent function where
+#        the curve of scaling must change. A lower value means higher difficulty.
+#        InflectionPoint & InflectionPointHeroic are the fallback values for 5-man dungeons
+#        InflectionPointRaid10M & InflectionPointRaid10MHeroic are the fallback values for 10 man raids
+#        InflectionPointRaid25M & InflectionPointRaid25MHeroic are the fallback values for 25 man raids
+#        InflectionPointRaid30M & InflectionPointRaid30MHeroic are the fallback values for 30 man raids
+#        InflectionPointRaid & InflectionPointRaidHeroic are the fallback values for other raids (40-man, 20-man, 15-man, or custom size)
+#        The inflection points fallback to the most specific number
+#
+#        Example: with 0.5 in InflectionPointRaid, a creature of raid (40) will have half of its life with 20 players in
+#                 with 0.8, the same creature will have half of its life with 12 players in
+#
+#        Default:     0.5
+
+AutoBalance.InflectionPoint = 0.5
+AutoBalance.InflectionPointHeroic = 0.5
+
+AutoBalance.InflectionPointRaid10M = 0.5
+AutoBalance.InflectionPointRaid10MHeroic = 0.5
+
+AutoBalance.InflectionPointRaid25M = 0.5
+AutoBalance.InflectionPointRaid25MHeroic = 0.5
+
+AutoBalance.InflectionPointRaid30M = 0.5
+AutoBalance.InflectionPointRaid30MHeroic = 0.5
+
+AutoBalance.InflectionPointRaid = 0.5
+AutoBalance.InflectionPointRaidHeroic = 0.5
+
+#
+#     AutoBalance.BossInflectionMult
+#        Multiplies the inflection point of bosses, only applies to creatures considered dungeon bosses (from dungeons or raids).
+#        Example: If AutoBalance.BossInflectionMult = 0.4 and AutoBalance.InflectionPoint=0.5, the bosses inflection point will be 0.4*0.9 = 0.36 in a normal dungeon.
+#        Default:     1.0
+
+AutoBalance.BossInflectionMult = 1.0
+
+#
+#     AutoBalance.levelScaling
+#        Check the max level of players in map and scale creature based on it.
+#        This triggers depending on the two options below AutoBalance.levelHigherOffset and AutoBalance.levelLowerOffset
+#        0 = Disabled
+#        1 = Enabled (only in dungeons/raids)
+#        Default:     1
+
+AutoBalance.levelScaling = 0
+
+#
+#     AutoBalance.levelHigherOffset
+#     AutoBalance.levelLowerOffset
+#        Level Offsets between creatures will not be scaled by level.
+#        You can even use it to disable scaling from lower to higher levelScaling
+#        setting levelLowerOffset to 80 (max wotlk level) for example.
+#        default: 3 (higher), 0 (lower)
+
+AutoBalance.levelHigherOffset = 3
+AutoBalance.levelLowerOffset  = 0
+
+#
+#     AutoBalance.levelUseDbValuesWhenExists
+#        When enabled with levelScaling, the creature will use its default database values
+#        instead of level scaling formula when player/party level has correspondance with
+#        creature_template minlevel/maxlevel.
+#
+#        Default:     0 (1 = ON, 0 = OFF)
+
+AutoBalance.levelUseDbValuesWhenExists = 0
+
+#
+#     AutoBalance.LevelEndGameBoost
+#        End game creatures have an exponential (not linear) regression
+#        that is not correctly handled by db values. Keep this enabled
+#        to have stats as near possible to the official ones.
+#
+#        Default:     1 (1 = ON, 0 = OFF)
+
+AutoBalance.LevelEndGameBoost = 1
+
+#
+#     AutoBalance.DungeonScaleDownXP
+#        Decrease individual player's amount of XP gained during a dungeon to match the
+#        amount of XP gained during a full group run. Example: In a 5-man group, you
+#        earn 1/5 of the total XP per kill, but if you solo the dungeon with
+#        AutoBalance.DungeonScaleDownXP = 0, you will earn 5/5 of the total XP.
+#        With the option enabled, you will earn 1/5.
+#        Default:     0 (1 = ON, 0 = OFF)
+
+AutoBalance.DungeonScaleDownXP = 0
+
+#
+#     AutoBalance.DungeonsOnly
+#        Only apply scaling changes to dungeons and raids
+#        Default:     1 (1 = ON, 0 = OFF)
+
+AutoBalance.DungeonsOnly = 1
+
+#
+#     AutoBalance.DebugLevel
+#        0 = None
+#        1 = Errors Only
+#        2 = Errors and Basic Information
+#        3 = All  Info
+#        Default:     2
+
+AutoBalance.DebugLevel = 2
+
+#
+#     AutoBalance.PlayerChangeNotify
+#        Set Auto Notifications to all players in Instance that player count has changed.
+#        Default:     1 (1 = ON, 0 = OFF)
+
+AutoBalance.PlayerChangeNotify = 1
+
+#
+#     AutoBalance.MinHPModifier
+#        Minimum Modifier setting for Health Modification
+#        Default:     0.01
+
+AutoBalance.MinHPModifier = 0.01
+
+#
+#     AutoBalance.MinManaModifier
+#        Minimum Modifier setting for Mana Modification
+#        Default:     0.01
+
+AutoBalance.MinManaModifier = 0.01
+
+#
+#     AutoBalance.MinDamageModifier
+#        Minimum Modifier setting for Damage Modification
+#        Default:     0.01
+
+AutoBalance.MinDamageModifier = 0.01
+
+#
+#     AutoBalance.rate.*
+#        You can tune all rates increasing/decreasing difficulty in a linear way
+#        Note that global rate will increase all other rates. For example:
+#        global = 2.0 , damage = 1.5  -> it means that damage will be 3.0
+#        Default:     1.0
+
+AutoBalance.rate.global = 1.0
+AutoBalance.rate.health = 1.0
+AutoBalance.rate.mana   = 1.0
+AutoBalance.rate.armor  = 1.0
+AutoBalance.rate.damage = 1.0
+
+#
+#     AutoBalance.playerCountDifficultyOffset
+#        Offset of players inside an instance
+#        Default:     0
+
+AutoBalance.playerCountDifficultyOffset = 0
+
+#
+#     AutoBalance.ForcedIDXX
+#        Sets MobIDs for the group they belong to.
+#        All 5 Man Mobs should go in .AutoBalance.5.Name
+#        All 10 Man Mobs should go in .AutoBalance.10.Name etc.
+
+AutoBalance.ForcedID40 = "11583,16441,30057,13020,15589,14435,18192,14889,14888,14887,14890,15302,15818,15742,15741,15740,18338"
+AutoBalance.ForcedID25 = "22997,21966,21965,21964,21806,21215,21845,19728,12397,17711,18256,18192,"
+AutoBalance.ForcedID20 = ""
+AutoBalance.ForcedID10 = "15689,15550,16152,17521,17225,16028,29324,31099"
+AutoBalance.ForcedID5  = "8317,15203,15204,15205,15305,6109,26801,30508,26799,30495,26803,30497,27859,27249"
+AutoBalance.ForcedID2  = ""
+
+#
+#     AutoBalance.DisabledID
+#        Disable scaling on specific creatures
+#
+
+AutoBalance.DisabledID = ""
+###################################################################################################
+
+###################################################################################################
+#Skip Death Knight Starting Area#
+#################################
+#
+#    Skip Death Knight Starting Area
+#        Enable this if you want to skip the Deathknight starting area
+#        Start with level 58 DK with Runeforging.
+#
+#    Skip.Deathknight.Starter.Announce.enable
+#         Description: Announces Module when player logs in.
+#         Default:    0 - (Disabled)
+#                     1 - (Enabled)
+
+Skip.Deathknight.Starter.Announce.enable = 1
+
+#    Skip.DeathKnight.Starter.Enable
+#         Active Module for all new accounts regardless of account level. Instant Skip on DK Creation.
+#         Default:    0 - (Disabled)
+#                     1 - (Enabled)
+
+Skip.Deathknight.Starter.Enable = 0
+
+#    GM.Skip.Deathknight.Starter.Enable
+#         Active Module for all new accounts of a GM account level ONLY. Instant Skip on DK Creation.
+#         Ensure you have Skip.Deathknight.Starter.Enable set to 0 if using this conf.
+#         Default:    0 - (Disabled)
+#                     1 - (Enabled)
+
+GM.Skip.Deathknight.Starter.Enable = 0
+
+#    Skip.Deathknight.Start.Level
+#         Adjusted Death Knight Start Level if module is used.
+#         Default:    58 - (Default)
+#
+
+Skip.Deathknight.Start.Level = 58
+
+#    Skip.Deathknight.Optional.Enable
+#    Enables optional to skip when talking to lich king on first creation of dk.
+#    Default: 1 - (Active)
+
+Skip.Deathknight.Optional.Enable = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#Paymaster#
+#################################
+#
+#    Paymaster
+#        Enable this for a PTR style Paymaster implementation
+#
+#    Paymaster.Announce.Enable
+#         Description: Announces Module when player logs in.
+#         Default:    0 - (Disabled)
+#                     1 - (Enabled)
+
+Paymaster.Announce.Enable = 1
+
+#    Paymaster.AddGold
+#         Configurable gold added amount from Paymaster
+#         Default:    5000
+
+Paymaster.AddGold = 5000
+
+#
+###################################################################################################
+###################################################################################################
+#  1v1
+#        Arena.1v1.Enable
+#        Description: Defines is the world chat enabled or disabled, default : Enabled
+#        Usage: 0 = Disabled, 1 = Enabled
+
+Arena.1v1.Enable = 1
+
+#
+#
+#  1v1
+#        Arena.1v1.Enable
+#        Description: Gives value cost; 400000 is 40g
+#        Usage: 0-400000 // 400k is 40g
+
+Arena.1v1.Costs = 400000
+
+#
+#  1v1
+#        Arena.1v1.MinLevel
+#        Description: Change player level requirement to join 1v1 arena
+#        Usage: 1-255
+
+Arena.1v1.MinLevel = 80
+
+#
+#        Arena.1v1.BlockForbiddenTalents
+#        Description: Blocks Forbidden Talents enabled or disabled, default : Enabled
+#        Usage: 0 = Disabled, 1 = Enabled
+
+Arena.1v1.BlockForbiddenTalents = 1
 
 #
 ###################################################################################################

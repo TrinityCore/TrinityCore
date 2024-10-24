@@ -19,6 +19,19 @@
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
+
+void AddSC_AutoBalance();
+void AddSC_npc_1v1arena();
+void AddSC_skip_StarterArea();
+void Add_paymaster_npc();
+void AddSC_npc_teleport();
+
 void AddCustomScripts()
 {
+    // VAS AutoBalance
+    AddSC_AutoBalance();
+	AddSC_npc_1v1arena();
+	AddSC_skip_StarterArea();
+	Add_paymaster_npc();
+	AddSC_npc_teleport();
 }
