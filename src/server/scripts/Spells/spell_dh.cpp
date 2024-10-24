@@ -209,12 +209,12 @@ class spell_dh_charred_warblades : public AuraScript
         return eventInfo.GetDamageInfo() && eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FIRE;
     }
 
-    void HandleAfterProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleAfterProc(ProcEventInfo& eventInfo)
     {
-        _healAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+        _healAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffect(EFFECT_0)->GetAmount());
     }
 
-    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    void HandleDummyTick(AuraEffect const* aurEff)
     {
         if (_healAmount == 0)
             return;
@@ -230,7 +230,7 @@ class spell_dh_charred_warblades : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_dh_charred_warblades::CheckProc);
-        AfterEffectProc += AuraEffectProcFn(spell_dh_charred_warblades::HandleAfterProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        AfterProc += AuraProcFn(spell_dh_charred_warblades::HandleAfterProc);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_charred_warblades::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
