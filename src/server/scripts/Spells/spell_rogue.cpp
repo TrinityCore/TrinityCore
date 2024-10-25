@@ -36,6 +36,7 @@
 
 enum RogueSpells
 {
+    SPELL_ROGUE_ACROBATIC_STRIKES_PROC              = 455144,
     SPELL_ROGUE_ADRENALINE_RUSH                     = 13750,
     SPELL_ROGUE_BETWEEN_THE_EYES                    = 199804,
     SPELL_ROGUE_BLACKJACK_TALENT                    = 379005,
@@ -103,6 +104,28 @@ bool IsFinishingMove(Spell const* spell)
 {
     return GetFinishingMoveCPCost(spell).has_value();
 }
+
+// 455143 - Acrobatic Strikes
+class spell_rog_acrobatic_strikes : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_ACROBATIC_STRIKES_PROC });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_ACROBATIC_STRIKES_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_rog_acrobatic_strikes::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
 
 // 53 - Backstab
 class spell_rog_backstab : public SpellScript
@@ -1065,6 +1088,7 @@ class spell_rog_venomous_wounds : public AuraScript
 
 void AddSC_rogue_spell_scripts()
 {
+    RegisterSpellScript(spell_rog_acrobatic_strikes);
     RegisterSpellScript(spell_rog_backstab);
     RegisterSpellScript(spell_rog_blackjack);
     RegisterSpellScript(spell_rog_blade_flurry);
