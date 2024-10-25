@@ -177,7 +177,12 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(objectType);
 
     BuildMovementUpdate(&buf, flags, target);
+
+    std::size_t sizePos = buf.wpos();
+    buf << uint32(0);
     BuildValuesCreate(&buf, target);
+    buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
+
     data->AddUpdateBlock();
 }
 
@@ -199,7 +204,10 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* tar
 {
     ByteBuffer& buf = PrepareValuesUpdateBuffer(data);
 
+    std::size_t sizePos = buf.wpos();
+    buf << uint32(0);
     BuildValuesUpdate(&buf, target);
+    buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
 }
@@ -208,7 +216,10 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 {
     ByteBuffer& buf = PrepareValuesUpdateBuffer(data);
 
+    std::size_t sizePos = buf.wpos();
+    buf << uint32(0);
     BuildValuesUpdateWithFlag(&buf, flags, target);
+    buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
 }
