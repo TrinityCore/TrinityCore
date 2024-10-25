@@ -255,19 +255,14 @@ SpellInfo const* DynamicObject::GetSpellInfo() const
 void DynamicObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_dynamicObjectData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -275,8 +270,6 @@ void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) co
 
     if (m_values.HasChanged(TYPEID_DYNAMICOBJECT))
         m_dynamicObjectData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
