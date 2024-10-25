@@ -323,7 +323,7 @@ class TC_GAME_API Item : public Object
         void BuildUpdate(UpdateDataMapType&) override;
 
     protected:
-        UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
+        UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const final;
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
