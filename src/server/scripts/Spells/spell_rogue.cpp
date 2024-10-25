@@ -37,11 +37,13 @@
 enum RogueSpells
 {
     SPELL_ROGUE_ADRENALINE_RUSH                     = 13750,
+    SPELL_ROGUE_AIRBORNE_IRRITANT                   = 200733,
     SPELL_ROGUE_BETWEEN_THE_EYES                    = 199804,
     SPELL_ROGUE_BLACKJACK_TALENT                    = 379005,
     SPELL_ROGUE_BLACKJACK                           = 394119,
     SPELL_ROGUE_BLADE_FLURRY                        = 13877,
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
+    SPELL_ROGUE_BLIND_AREA                          = 427773,
     SPELL_ROGUE_BROADSIDE                           = 193356,
     SPELL_ROGUE_BURIED_TREASURE                     = 199600,
     SPELL_ROGUE_CHEAT_DEATH_DUMMY                   = 31231,
@@ -103,6 +105,38 @@ bool IsFinishingMove(Spell const* spell)
 {
     return GetFinishingMoveCPCost(spell).has_value();
 }
+
+// Called by 2094 - Blind
+class spell_rog_airborne_irritant : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_AIRBORNE_IRRITANT, SPELL_ROGUE_BLIND_AREA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_AIRBORNE_IRRITANT);
+    }
+
+    void HandleBlind(WorldObject*& target) const
+    {
+        target = nullptr;
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_BLIND_AREA, CastSpellExtraArgs()
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+            .SetTriggeringSpell(GetSpell()));
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_rog_airborne_irritant::HandleBlind, EFFECT_ALL, TARGET_UNIT_TARGET_ENEMY);
+        OnEffectHit += SpellEffectFn(spell_rog_airborne_irritant::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
 
 // 53 - Backstab
 class spell_rog_backstab : public SpellScript
@@ -1065,6 +1099,7 @@ class spell_rog_venomous_wounds : public AuraScript
 
 void AddSC_rogue_spell_scripts()
 {
+    RegisterSpellScript(spell_rog_airborne_irritant);
     RegisterSpellScript(spell_rog_backstab);
     RegisterSpellScript(spell_rog_blackjack);
     RegisterSpellScript(spell_rog_blade_flurry);
