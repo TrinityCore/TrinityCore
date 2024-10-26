@@ -47,7 +47,7 @@ enum RogueSpells
     SPELL_ROGUE_CHEAT_DEATH_DUMMY                   = 31231,
     SPELL_ROGUE_CHEATED_DEATH                       = 45181,
     SPELL_ROGUE_CHEATING_DEATH                      = 45182,
-    SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
+    //SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150, // dropped in BfA
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
     SPELL_ROGUE_IMPROVED_SHIV                       = 319032,
@@ -56,8 +56,8 @@ enum RogueSpells
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
     SPELL_ROGUE_MARKED_FOR_DEATH                    = 137619,
-    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
-    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
+    //SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665, // dropped in BfA
+    //SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223, // dropped in BfA
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
     SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
     SPELL_ROGUE_PREMEDITATION_AURA                  = 343173,
@@ -592,7 +592,7 @@ class spell_rog_prey_on_the_weak : public AuraScript
 class spell_rog_restless_blades : public AuraScript
 {
     static uint32 constexpr Spells[] = { SPELL_ROGUE_ADRENALINE_RUSH, SPELL_ROGUE_BETWEEN_THE_EYES, SPELL_ROGUE_SPRINT,
-        SPELL_ROGUE_GRAPPLING_HOOK, SPELL_ROGUE_VANISH, SPELL_ROGUE_KILLING_SPREE, SPELL_ROGUE_MARKED_FOR_DEATH, SPELL_ROGUE_DEATH_FROM_ABOVE };
+        SPELL_ROGUE_GRAPPLING_HOOK, SPELL_ROGUE_VANISH, SPELL_ROGUE_KILLING_SPREE, SPELL_ROGUE_MARKED_FOR_DEATH };
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -809,53 +809,33 @@ class spell_rog_stealth : public AuraScript
     {
         return ValidateSpellInfo(
         {
-            SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
-            SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
             SPELL_ROGUE_SANCTUARY,
-            SPELL_ROGUE_SHADOW_FOCUS,
-            SPELL_ROGUE_SHADOW_FOCUS_EFFECT,
             SPELL_ROGUE_STEALTH_STEALTH_AURA,
             SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
         });
     }
 
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
-        // Master of Subtlety
-        if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
-            target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, TRIGGERED_FULL_MASK);
-
-        // Shadow Focus
-        if (target->HasAura(SPELL_ROGUE_SHADOW_FOCUS))
-            target->CastSpell(target, SPELL_ROGUE_SHADOW_FOCUS_EFFECT, TRIGGERED_FULL_MASK);
-
-        // Premeditation
-        if (target->HasAura(SPELL_ROGUE_PREMEDITATION_PASSIVE))
-            target->CastSpell(target, SPELL_ROGUE_PREMEDITATION_AURA, true);
-
-        target->CastSpell(target, SPELL_ROGUE_SANCTUARY, TRIGGERED_FULL_MASK);
-        target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, TRIGGERED_FULL_MASK);
-        target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
+        target->CastSpell(target, SPELL_ROGUE_SANCTUARY, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+        target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+        target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-
-        // Master of Subtlety
-        if (AuraEffect* masterOfSubtletyPassive = GetTarget()->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
-        {
-            if (Aura* masterOfSubtletyAura = GetTarget()->GetAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT))
-            {
-                masterOfSubtletyAura->SetMaxDuration(masterOfSubtletyPassive->GetAmount());
-                masterOfSubtletyAura->RefreshDuration();
-            }
-        }
-
-        // Premeditation
-        target->RemoveAura(SPELL_ROGUE_PREMEDITATION_AURA);
 
         target->RemoveAurasDueToSpell(SPELL_ROGUE_SHADOW_FOCUS_EFFECT);
         target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
@@ -864,8 +844,8 @@ class spell_rog_stealth : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth::HandleEffectApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1048,7 +1028,7 @@ class spell_rog_vanish_aura : public AuraScript
     }
 };
 
-// 79134 - Venomous Wounds - SPELL_ROGUE_VENOMOUS_WOUNDS
+// 79134 - Venomous Wounds
 class spell_rog_venomous_wounds : public AuraScript
 {
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
