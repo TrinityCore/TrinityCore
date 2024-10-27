@@ -22,6 +22,7 @@
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "SharedDefines.h"
 #include "SpawnData.h"
 #include <variant>
 #include <vector>
@@ -43,6 +44,73 @@ enum AreaTriggerActionTypes
     AREATRIGGER_ACTION_ADDAURA     = 1,
     AREATRIGGER_ACTION_TELEPORT    = 2,
     AREATRIGGER_ACTION_MAX         = 3
+};
+
+enum class AreaTriggerActions : uint8
+{
+    CastSpell,
+    CastSpellOnAreaTriggerCreator,
+    AreaTriggerCreatorCastSpell,
+    CancelAura,
+    SendGameEvent,
+    StartQuest, // player only
+    RunRandomActionSet,
+    Teleport,
+    Deprecated,
+    ActivateGameObject,
+    StartResting,
+    StopResting,
+    DiscoverArea,
+    DeathRegion, // player only
+    DespawnAreaTrigger,
+    AddMovementForce,
+    RemoveMovementForce,
+    AreaTriggerCreatorCancelsAuraOnTriggeringUnit,
+    RunScript,
+    CaptureFlag,
+    SetScale,
+    IncrementScale,
+    DecrementScale,
+    SeamlessWarmup,
+    SeamlessTransfer,
+    KillCredit,
+    KillCreditToPlayerOnly,
+    CancelAuraOneApplication,
+    AreaTriggerCreatorCancelsAuraOnTriggeringUnitOneApplication,
+    ApplyAuraAndKeepRetrying,
+    CreatorApplyAuraAndKeepRetrying,
+    ConversationBegin,
+    AnimationSetForSpellVisual,
+    AnimationSetForSpellVisualAllowDecay,
+    AnimationClearForSpellVisual,
+    AllowGhostInInstance,
+    DissalowGhostInInstance,
+    SendGeneralTrigger
+};
+
+struct AreaTriggerActionParam
+{
+    // CastSpell
+    // CastSpellOnAreaTriggerCreator
+    // AreaTriggerCreatorCastSpell
+    // CancelAura
+    // AreaTriggerCreatorCancelsAuraOnTriggeringUnit
+    // CancelAuraOneApplication
+    // AreaTriggerCreatorCancelsAuraOnTriggeringUnitOneApplication
+    // ApplyAuraAndKeepRetrying
+    Optional<uint32> SpellID;
+
+    // SetScale
+    // IncrementScale
+    // DecrementScale
+    Optional<float> Scale;
+
+    // ActivateGameObject
+    Optional<ObjectGuid> Guid;
+    Optional<std::string_view> StringId;
+
+    // CaptureFlag
+    Optional<::TeamId> TeamId;
 };
 
 enum AreaTriggerActionUserTypes
