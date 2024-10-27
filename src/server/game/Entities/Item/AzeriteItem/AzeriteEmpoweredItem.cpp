@@ -154,18 +154,15 @@ int64 AzeriteEmpoweredItem::GetRespecCost() const
     return MAX_MONEY_AMOUNT + 1;
 }
 
-void AzeriteEmpoweredItem::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void AzeriteEmpoweredItem::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
     m_azeriteEmpoweredItemData->WriteCreate(*data, flags, this, target);
 }
 
-void AzeriteEmpoweredItem::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void AzeriteEmpoweredItem::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
