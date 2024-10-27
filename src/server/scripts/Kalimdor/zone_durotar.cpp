@@ -27,6 +27,14 @@
 #include "PassiveAI.h"
 #include "ObjectAccessor.h"
 
+namespace Durotar
+{
+    namespace Spells
+    {
+        static constexpr uint32 PhasePlayer = 130750;
+    }
+}
+
 /*######
 ## Quest 37446: Lazy Peons
 ## npc_lazy_peon
@@ -1211,6 +1219,27 @@ private:
     ObjectGuid _brazierGUID;
 };
 
+// 8595 - Hellscream's Fist Gunship
+class at_hellscreams_fist_gunship : public AreaTriggerScript
+{
+public:
+    at_hellscreams_fist_gunship() : AreaTriggerScript("at_hellscreams_fist_gunship") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->CastSpell(player, Durotar::Spells::PhasePlayer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+        });
+        return true;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->RemoveAurasDueToSpell(Durotar::Spells::PhasePlayer);
+        return true;
+    }
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
@@ -1251,4 +1280,7 @@ void AddSC_durotar()
     new quest_proving_pit<NPC_TRAINER_ZABRAX>("quest_proving_pit_monk");
     RegisterCreatureAI(npc_voljin_garrosh_vision);
     RegisterCreatureAI(npc_voljin_thrall_vision);
+
+    // Hellscream's Fist
+    new at_hellscreams_fist_gunship();
 }
