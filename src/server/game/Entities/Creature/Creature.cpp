@@ -3784,17 +3784,14 @@ UF::UpdateFieldFlag Creature::GetUpdateFieldFlagsFor(Player const* target) const
     return flags;
 }
 
-void Creature::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_unitData->WriteCreate(*data, flags, this, target);
 }
 
-void Creature::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))

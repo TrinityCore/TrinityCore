@@ -1704,17 +1704,14 @@ UF::UpdateFieldFlag Item::GetUpdateFieldFlagsFor(Player const* target) const
     return UF::UpdateFieldFlag::None;
 }
 
-void Item::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void Item::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
 }
 
-void Item::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void Item::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
