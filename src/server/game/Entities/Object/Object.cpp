@@ -821,15 +821,7 @@ void Object::ClearUpdateMask(bool remove)
 
 void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) const
 {
-    UpdateDataMapType::iterator iter = data_map.find(player);
-
-    if (iter == data_map.end())
-    {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.emplace(player, UpdateData(player->GetMapId()));
-        ASSERT(p.second);
-        iter = p.first;
-    }
-
+    UpdateDataMapType::iterator iter = data_map.try_emplace(player, player->GetMapId()).first;
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
