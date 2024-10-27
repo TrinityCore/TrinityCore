@@ -390,10 +390,10 @@ class TC_GAME_API Object
             }
         }
 
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
+        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;

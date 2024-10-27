@@ -178,9 +178,11 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     BuildMovementUpdate(&buf, flags, target);
 
+    UF::UpdateFieldFlag fieldFlags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = buf.wpos();
     buf << uint32(0);
-    BuildValuesCreate(&buf, target);
+    buf << uint8(fieldFlags);
+    BuildValuesCreate(&buf, fieldFlags, target);
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
@@ -204,9 +206,10 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* tar
 {
     ByteBuffer& buf = PrepareValuesUpdateBuffer(data);
 
+    EnumFlag<UF::UpdateFieldFlag> fieldFlags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = buf.wpos();
     buf << uint32(0);
-    BuildValuesUpdate(&buf, target);
+    BuildValuesUpdate(&buf, fieldFlags, target);
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
@@ -264,7 +267,7 @@ void Object::SendOutOfRangeForPlayer(Player* target) const
     target->SendDirectMessage(&packet);
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const
+void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const
 {
     std::vector<uint32> const* PauseTimes = nullptr;
     if (GameObject const* go = ToGameObject())

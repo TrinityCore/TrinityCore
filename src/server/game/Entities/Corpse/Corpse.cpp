@@ -238,17 +238,14 @@ bool Corpse::IsExpired(time_t t) const
         return m_time < t - 3 * DAY;
 }
 
-void Corpse::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void Corpse::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_corpseData->WriteCreate(*data, flags, this, target);
 }
 
-void Corpse::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void Corpse::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
