@@ -364,24 +364,28 @@ class spell_rog_garrote : public AuraScript
         return GetCaster()->HasAura(SPELL_ROGUE_IMPROVED_GARROTE_TALENT);
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& /*amount*/, bool& canBeRecalculated)
+    void CalculateDamage(AuraEffect const* /*aurEff*/, Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod)
     {
-        canBeRecalculated = false;
-    }
+        if (!_snapshottedPctMod.has_value())
+        {
+            if (AuraEffect const* improvedGarroteStealth = GetCaster()->GetAuraEffect(SPELL_ROGUE_IMPROVED_GARROTE_AFTER_STEALTH, EFFECT_1))
+                AddPct(pctMod, improvedGarroteStealth->GetAmount());
+            else if (AuraEffect const* improvedGarroteAfterStealth = GetCaster()->GetAuraEffect(SPELL_ROGUE_IMPROVED_GARROTE_STEALTH, EFFECT_1))
+                AddPct(pctMod, improvedGarroteAfterStealth->GetAmount());
 
-    void CalculateDamage(AuraEffect const* /*aurEff*/, Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
-    {
-        if (AuraEffect const* improvedGarroteStealth = GetCaster()->GetAuraEffect(SPELL_ROGUE_IMPROVED_GARROTE_AFTER_STEALTH, EFFECT_1))
-            AddPct(pctMod, improvedGarroteStealth->GetAmount());
-        else if (AuraEffect const* improvedGarroteAfterStealth = GetCaster()->GetAuraEffect(SPELL_ROGUE_IMPROVED_GARROTE_STEALTH, EFFECT_1))
-            AddPct(pctMod, improvedGarroteAfterStealth->GetAmount());
+            _snapshottedPctMod.emplace(pctMod);
+        }
+        else
+            pctMod = *_snapshottedPctMod;
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_garrote::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
         DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_rog_garrote::CalculateDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
+
+private:
+    Optional<float> _snapshottedPctMod;
 };
 
 // 193358 - Grand Melee
