@@ -1219,27 +1219,6 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
-void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
-{
-    // TODO: Implement sorting
-    // Placeholder to prevent completely locking out bags clientside
-    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
-}
-
-void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
-{
-    // TODO: Implement sorting
-    // Placeholder to prevent completely locking out bags clientside
-    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
-}
-
-void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& /*sortReagentBankBags*/)
-{
-    // TODO: Implement sorting
-    // Placeholder to prevent completely locking out bags clientside
-    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
-}
-
 void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem)
 {
     Item* item = _player->GetItemByGuid(removeNewItem.ItemGuid);

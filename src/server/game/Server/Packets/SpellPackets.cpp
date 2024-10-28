@@ -33,11 +33,6 @@ void CancelChannelling::Read()
     _worldPacket >> Reason;
 }
 
-void CancelModSpeedNoControlAuras::Read()
-{
-    _worldPacket >> TargetGUID;
-}
-
 void PetCancelAura::Read()
 {
     _worldPacket >> PetGUID;
@@ -1022,12 +1017,6 @@ WorldPacket const* MissileCancel::Write()
     _worldPacket.FlushBits();
 
     return &_worldPacket;
-}
-
-void TradeSkillSetFavorite::Read()
-{
-    _worldPacket >> RecipeID;
-    IsFavorite = _worldPacket.ReadBit();
 }
 
 void KeyboundOverride::Read()

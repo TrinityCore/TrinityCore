@@ -94,13 +94,6 @@ WorldPacket const* ScenarioVacate::Write()
     return &_worldPacket;
 }
 
-void QueryScenarioPOI::Read()
-{
-    MissingScenarioPOIs.resize(_worldPacket.read<uint32>());
-    for (int32& scenarioPOI : MissingScenarioPOIs)
-        _worldPacket >> scenarioPOI;
-}
-
 WorldPacket const* ScenarioPOIs::Write()
 {
     _worldPacket << uint32(ScenarioPOIDataStats.size());

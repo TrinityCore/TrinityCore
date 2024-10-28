@@ -812,11 +812,4 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket.WriteString(PendingChoiceText);
     return &_worldPacket;
 }
-
-void ChoiceResponse::Read()
-{
-    _worldPacket >> ChoiceID;
-    _worldPacket >> ResponseIdentifier;
-    IsReroll = _worldPacket.ReadBit();
-}
 }

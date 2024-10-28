@@ -813,16 +813,6 @@ namespace WorldPackets
             bool EnablePVP = false;
         };
 
-        class SetWarMode final : public ClientPacket
-        {
-        public:
-            SetWarMode(WorldPacket&& packet) : ClientPacket(CMSG_SET_WAR_MODE, std::move(packet)) { }
-
-            void Read() override;
-
-            bool Enable = false;
-        };
-
         class AccountHeirloomUpdate final : public ServerPacket
         {
         public:
@@ -969,14 +959,6 @@ namespace WorldPackets
 
             ObjectGuid ConversationGUID;
             uint32 LineID = 0;
-        };
-
-        class RequestLatestSplashScreen final : public ClientPacket
-        {
-        public:
-            RequestLatestSplashScreen(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_LATEST_SPLASH_SCREEN, std::move(packet)) { }
-
-            void Read() override { }
         };
 
         class SplashScreenShowLatest final : public ServerPacket

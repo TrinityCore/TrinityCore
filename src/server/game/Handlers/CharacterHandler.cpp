@@ -1426,45 +1426,6 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFa
     _player->GetReputationMgr().SetInactive(packet.Index, packet.State);
 }
 
-void WorldSession::HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& /*requestForcedReactions*/)
-{
-    _player->GetReputationMgr().SendForceReactions();
-}
-
-void WorldSession::HandleCheckCharacterNameAvailability(WorldPackets::Character::CheckCharacterNameAvailability& checkCharacterNameAvailability)
-{
-    // prevent character rename to invalid name
-    if (!normalizePlayerName(checkCharacterNameAvailability.Name))
-    {
-        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, CHAR_NAME_NO_NAME).Write());
-        return;
-    }
-
-    ResponseCodes res = ObjectMgr::CheckPlayerName(checkCharacterNameAvailability.Name, GetSessionDbcLocale(), true);
-    if (res != CHAR_NAME_SUCCESS)
-    {
-        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, res).Write());
-        return;
-    }
-
-    // check name limitations
-    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(checkCharacterNameAvailability.Name))
-    {
-        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, CHAR_NAME_RESERVED).Write());
-        return;
-    }
-
-    // Ensure that there is no character with the desired new name
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
-    stmt->setString(0, checkCharacterNameAvailability.Name);
-
-    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
-        .WithPreparedCallback([this, sequenceIndex = checkCharacterNameAvailability.SequenceIndex](PreparedQueryResult result)
-    {
-        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(sequenceIndex, result ? CHAR_CREATE_NAME_IN_USE : RESPONSE_SUCCESS).Write());
-    }));
-}
-
 void WorldSession::HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request)
 {
     if (!IsLegitCharacterForAccount(request.RenameInfo->Guid))
@@ -2670,29 +2631,6 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
 
         SendUndeleteCharacterResponse(CHARACTER_UNDELETE_RESULT_OK, undeleteInfo.get());
     }));
-}
-
-void WorldSession::HandleSavePersonalEmblem(WorldPackets::Character::SavePersonalEmblem const& savePersonalEmblem)
-{
-    if (!_player->GetNPCIfCanInteractWith(savePersonalEmblem.Vendor, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER))
-    {
-        SendPacket(WorldPackets::Character::PlayerSavePersonalEmblem(ERR_GUILDEMBLEM_INVALIDVENDOR).Write());
-        return;
-    }
-
-    if (!EmblemInfo::ValidateEmblemColors(savePersonalEmblem.PersonalTabard.EmblemStyle, savePersonalEmblem.PersonalTabard.EmblemColor,
-        savePersonalEmblem.PersonalTabard.BorderStyle, savePersonalEmblem.PersonalTabard.BorderColor,
-        savePersonalEmblem.PersonalTabard.BackgroundColor))
-    {
-        SendPacket(WorldPackets::Character::PlayerSavePersonalEmblem(ERR_GUILDEMBLEM_INVALID_TABARD_COLORS).Write());
-        return;
-    }
-
-    _player->SetPersonalTabard(savePersonalEmblem.PersonalTabard.EmblemStyle, savePersonalEmblem.PersonalTabard.EmblemColor,
-        savePersonalEmblem.PersonalTabard.BorderStyle, savePersonalEmblem.PersonalTabard.BorderColor,
-        savePersonalEmblem.PersonalTabard.BackgroundColor);
-
-    SendPacket(WorldPackets::Character::PlayerSavePersonalEmblem(ERR_GUILDEMBLEM_SUCCESS).Write());
 }
 
 void WorldSession::SendCharCreate(ResponseCodes result, ObjectGuid const& guid /*= ObjectGuid::Empty*/)

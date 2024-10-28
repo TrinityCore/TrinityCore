@@ -321,22 +321,6 @@ ReputationFlags ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionE
     return flags;
 }
 
-void ReputationMgr::SendForceReactions()
-{
-    WorldPackets::Reputation::SetForcedReactions setForcedReactions;
-    setForcedReactions.Reactions.resize(_forcedReactions.size());
-
-    std::size_t i = 0;
-    for (ForcedReactions::const_iterator itr = _forcedReactions.begin(); itr != _forcedReactions.end(); ++itr)
-    {
-        WorldPackets::Reputation::ForcedReaction& forcedReaction = setForcedReactions.Reactions[i++];
-        forcedReaction.Faction = int32(itr->first);
-        forcedReaction.Reaction = int32(itr->second);
-    }
-
-    _player->SendDirectMessage(setForcedReactions.Write());
-}
-
 void ReputationMgr::SendState(FactionState const* faction)
 {
     WorldPackets::Reputation::SetFactionStanding setFactionStanding;

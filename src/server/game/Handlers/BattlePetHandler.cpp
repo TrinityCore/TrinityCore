@@ -42,11 +42,6 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattleP
             slot->Pet = pet->PacketInfo;
 }
 
-void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName)
-{
-    GetBattlePetMgr()->ModifyName(battlePetModifyName.PetGuid, battlePetModifyName.Name, std::move(battlePetModifyName.DeclinedNames));
-}
-
 void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattlePetName& queryBattlePetName)
 {
     WorldPackets::BattlePet::QueryBattlePetNameResponse response;
@@ -88,11 +83,6 @@ void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattle
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDeletePet& battlePetDeletePet)
-{
-    GetBattlePetMgr()->RemovePet(battlePetDeletePet.PetGuid);
-}
-
 void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags)
 {
     if (!GetBattlePetMgr()->HasJournalLock())
@@ -113,11 +103,6 @@ void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSet
 void WorldSession::HandleBattlePetClearFanfare(WorldPackets::BattlePet::BattlePetClearFanfare& battlePetClearFanfare)
 {
     GetBattlePetMgr()->ClearFanfare(battlePetClearFanfare.PetGuid);
-}
-
-void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet)
-{
-    GetBattlePetMgr()->CageBattlePet(cageBattlePet.PetGuid);
 }
 
 void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon)

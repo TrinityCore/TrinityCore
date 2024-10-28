@@ -438,18 +438,6 @@ namespace WorldPackets
             uint8 Status = 0;
         };
 
-        class SetSavedInstanceExtend final : public ClientPacket
-        {
-        public:
-            SetSavedInstanceExtend(WorldPacket&& packet) : ClientPacket(CMSG_SET_SAVED_INSTANCE_EXTEND, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 MapID = 0;
-            bool Extend = false;
-            uint32 DifficultyID = 0;
-        };
-
         class CalendarModeratorStatusQuery final : public ClientPacket
         {
         public:

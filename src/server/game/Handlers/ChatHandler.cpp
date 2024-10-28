@@ -797,28 +797,6 @@ void WorldSession::SendChatRestricted(ChatRestrictionType restriction)
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleChatCanLocalWhisperTargetRequest(WorldPackets::Chat::CanLocalWhisperTargetRequest const& canLocalWhisperTargetRequest)
-{
-    ChatWhisperTargetStatus status = [&]
-    {
-        Player* sender = GetPlayer();
-        Player* receiver = ObjectAccessor::FindConnectedPlayer(canLocalWhisperTargetRequest.WhisperTarget);
-        if (!receiver || (!receiver->isAcceptWhispers() && receiver->GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS) && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
-            return ChatWhisperTargetStatus::Offline;
-
-        if (!receiver->IsInWhisperWhiteList(sender->GetGUID()) && !receiver->IsGameMasterAcceptingWhispers())
-            if (GetPlayer()->GetEffectiveTeam() != receiver->GetEffectiveTeam() && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
-                return ChatWhisperTargetStatus::WrongFaction;
-
-        return ChatWhisperTargetStatus::CanWhisper;
-    }();
-
-    WorldPackets::Chat::CanLocalWhisperTargetResponse canLocalWhisperTargetResponse;
-    canLocalWhisperTargetResponse.WhisperTarget = canLocalWhisperTargetRequest.WhisperTarget;
-    canLocalWhisperTargetResponse.Status = status;
-    SendPacket(canLocalWhisperTargetResponse.Write());
-}
-
 void WorldSession::HandleChatUpdateAADCStatus(WorldPackets::Chat::UpdateAADCStatus const& /*updateAADCStatus*/)
 {
     // disabling chat not supported

@@ -118,23 +118,11 @@ namespace WorldPackets
 
     namespace AuctionHouse
     {
-        class AuctionBrowseQuery;
-        class AuctionCancelCommoditiesPurchase;
-        class AuctionConfirmCommoditiesPurchase;
-        class AuctionGetCommodityQuote;
         class AuctionHelloRequest;
-        class AuctionListBiddedItems;
-        class AuctionListBucketsByBucketKeys;
-        class AuctionListItemsByBucketKey;
-        class AuctionListItemsByItemID;
-        class AuctionListOwnedItems;
         class AuctionPlaceBid;
         class AuctionRemoveItem;
         class AuctionReplicateItems;
-        class AuctionRequestFavoriteList;
-        class AuctionSellCommodity;
         class AuctionSellItem;
-        class AuctionSetFavoriteItem;
     }
 
     namespace Auth
@@ -147,9 +135,6 @@ namespace WorldPackets
         class AutoBankItem;
         class AutoStoreBankItem;
         class BuyBankSlot;
-        class AutoBankReagent;
-        class AutoStoreBankReagent;
-        class ReagentBank;
     }
 
     namespace Battleground
@@ -183,18 +168,15 @@ namespace WorldPackets
         class BattlePetSetBattleSlot;
         class BattlePetModifyName;
         class QueryBattlePetName;
-        class BattlePetDeletePet;
         class BattlePetSetFlags;
         class BattlePetClearFanfare;
         class BattlePetSummon;
         class BattlePetUpdateNotify;
-        class CageBattlePet;
     }
 
     namespace BlackMarket
     {
         class BlackMarketOpen;
-        class BlackMarketRequestItems;
         class BlackMarketBidOnItem;
         class BlackMarketOutbid;
     }
@@ -215,7 +197,6 @@ namespace WorldPackets
         class CalendarRemoveEvent;
         class CalendarRemoveInvite;
         class CalendarUpdateEvent;
-        class SetSavedInstanceExtend;
         class CalendarComplain;
     }
 
@@ -234,7 +215,6 @@ namespace WorldPackets
         class CharacterRenameRequest;
         class CharCustomize;
         class CharRaceOrFactionChange;
-        class CheckCharacterNameAvailability;
         class GenerateRandomCharacterName;
         class GetUndeleteCharacterCooldownStatus;
         class ReorderCharacters;
@@ -251,7 +231,6 @@ namespace WorldPackets
         class SetFactionInactive;
         class SetWatchedFaction;
         class SetPlayerDeclinedNames;
-        class SavePersonalEmblem;
 
         enum class LoginFailureReason : uint8;
     }
@@ -287,7 +266,6 @@ namespace WorldPackets
         class ChatRegisterAddonPrefixes;
         class ChatUnregisterAllAddonPrefixes;
         class ChatReportIgnored;
-        class CanLocalWhisperTargetRequest;
         class UpdateAADCStatus;
     }
 
@@ -418,9 +396,6 @@ namespace WorldPackets
         class CancelTempEnchantment;
         class UseCritterItem;
         class SocketGems;
-        class SortBags;
-        class SortBankBags;
-        class SortReagentBankBags;
         struct ItemInstance;
         class ReforgeItem;
         class RemoveNewItem;
@@ -448,7 +423,6 @@ namespace WorldPackets
         class LootRelease;
         class LootMoney;
         class LootRoll;
-        class SetLootSpecialization;
     }
 
     namespace Mail
@@ -491,13 +465,11 @@ namespace WorldPackets
         class OpeningCinematic;
         class TogglePvP;
         class SetPvP;
-        class SetWarMode;
         class MountSpecial;
         class SetTaxiBenchmarkMode;
         class MountSetFavorite;
         class CloseInteraction;
         class ConversationLineStarted;
-        class RequestLatestSplashScreen;
         class QueryCountdownTimer;
     }
 
@@ -571,9 +543,6 @@ namespace WorldPackets
         class SwapSubGroups;
         class RaidMarkersChanged;
         class ClearRaidMarker;
-        class SetRestrictPingsToAssistants;
-        class SendPingUnit;
-        class SendPingWorldPoint;
     }
 
     namespace Pet
@@ -638,7 +607,6 @@ namespace WorldPackets
         class QuestPushResult;
         class PushQuestToParty;
         class RequestWorldQuestUpdate;
-        class ChoiceResponse;
     }
 
     namespace RaF
@@ -647,22 +615,12 @@ namespace WorldPackets
         class GrantLevel;
     }
 
-    namespace Reputation
-    {
-        class RequestForcedReactions;
-    }
-
     namespace Toy
     {
         class AccountToyUpdate;
         class AddToy;
         class UseToy;
         class ToyClearFanfare;
-    }
-
-    namespace Scenario
-    {
-        class QueryScenarioPOI;
     }
 
     namespace Scenes
@@ -690,7 +648,6 @@ namespace WorldPackets
         class CancelChannelling;
         class CancelGrowthAura;
         class CancelMountAura;
-        class CancelModSpeedNoControlAuras;
         class CancelQueuedSpell;
         class PetCancelAura;
         class CancelCast;
@@ -705,7 +662,6 @@ namespace WorldPackets
         class SpellClick;
         class MissileTrajectoryCollision;
         class UpdateMissileTrajectory;
-        class TradeSkillSetFavorite;
         class KeyboundOverride;
     }
 
@@ -757,7 +713,6 @@ namespace WorldPackets
         class ClearTradeItem;
         class IgnoreTrade;
         class InitiateTrade;
-        class SetTradeCurrency;
         class SetTradeGold;
         class SetTradeItem;
         class UnacceptTrade;
@@ -1163,7 +1118,6 @@ class TC_GAME_API WorldSession
         void AbortLogin(WorldPackets::Character::LoginFailureReason reason);
         void HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& loadingScreenNotify);
         void HandlePlayerLogin(LoginQueryHolder const& holder);
-        void HandleCheckCharacterNameAvailability(WorldPackets::Character::CheckCharacterNameAvailability& checkCharacterNameAvailability);
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
         void HandleCharRenameCallBack(std::shared_ptr<WorldPackets::Character::CharacterRenameInfo> renameInfo, PreparedQueryResult result);
         void HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlayerDeclinedNames& packet);
@@ -1178,7 +1132,6 @@ class TC_GAME_API WorldSession
         void HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*getCooldown*/);
         void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
         void HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCharacter& undeleteInfo);
-        void HandleSavePersonalEmblem(WorldPackets::Character::SavePersonalEmblem const& savePersonalEmblem);
         bool MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Races race, Classes playerClass,
             bool checkRequiredDependentChoices, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> selectedChoices) const;
         bool ValidateAppearance(Races race, Classes playerClass, Gender gender,
@@ -1227,7 +1180,6 @@ class TC_GAME_API WorldSession
         void HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         void HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
         void HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem& masterLootItem);
-        void HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet);
 
         void HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest);
         void HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& logoutRequest);
@@ -1243,7 +1195,6 @@ class TC_GAME_API WorldSession
 
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& packet);
         void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
-        void HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet);
 
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
@@ -1263,7 +1214,6 @@ class TC_GAME_API WorldSession
         void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
         void HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet);
         void HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet);
-        void HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& requestForcedReactions);
 
         void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
@@ -1325,9 +1275,6 @@ class TC_GAME_API WorldSession
         void HandleInitiateRolePoll(WorldPackets::Party::InitiateRolePoll& packet);
         void HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet);
         void HandleClearRaidMarker(WorldPackets::Party::ClearRaidMarker& packet);
-        void HandleSetRestrictPingsToAssistants(WorldPackets::Party::SetRestrictPingsToAssistants const& setRestrictPingsToAssistants);
-        void HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& pingUnit);
-        void HandleSendPingWorldPoint(WorldPackets::Party::SendPingWorldPoint const& pingWorldPoint);
 
         void HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet);
         void HandlePetitionShowSignatures(WorldPackets::Petition::PetitionShowSignatures& packet);
@@ -1404,42 +1351,23 @@ class TC_GAME_API WorldSession
         void HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeItem& clearTradeItem);
         void HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& ignoreTrade);
         void HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade& initiateTrade);
-        void HandleSetTradeCurrencyOpcode(WorldPackets::Trade::SetTradeCurrency& setTradeCurrency);
         void HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold& setTradeGold);
         void HandleSetTradeItemOpcode(WorldPackets::Trade::SetTradeItem& setTradeItem);
         void HandleUnacceptTradeOpcode(WorldPackets::Trade::UnacceptTrade& unacceptTrade);
 
-        void HandleAuctionBrowseQuery(WorldPackets::AuctionHouse::AuctionBrowseQuery& browseQuery);
-        void HandleAuctionCancelCommoditiesPurchase(WorldPackets::AuctionHouse::AuctionCancelCommoditiesPurchase& cancelCommoditiesPurchase);
-        void HandleAuctionConfirmCommoditiesPurchase(WorldPackets::AuctionHouse::AuctionConfirmCommoditiesPurchase& confirmCommoditiesPurchase);
-        void HandleAuctionGetCommodityQuote(WorldPackets::AuctionHouse::AuctionGetCommodityQuote& startCommoditiesPurchase);
         void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& hello);
-        void HandleAuctionListBiddedItems(WorldPackets::AuctionHouse::AuctionListBiddedItems& listBiddedItems);
-        void HandleAuctionListBucketsByBucketKeys(WorldPackets::AuctionHouse::AuctionListBucketsByBucketKeys& listBucketsByBucketKeys);
-        void HandleAuctionListItemsByBucketKey(WorldPackets::AuctionHouse::AuctionListItemsByBucketKey& listItemsByBucketKey);
-        void HandleAuctionListItemsByItemID(WorldPackets::AuctionHouse::AuctionListItemsByItemID& listItemsByItemID);
-        void HandleAuctionListOwnedItems(WorldPackets::AuctionHouse::AuctionListOwnedItems& listOwnedItems);
         void HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlaceBid& placeBid);
         void HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRemoveItem& removeItem);
         void HandleAuctionReplicateItems(WorldPackets::AuctionHouse::AuctionReplicateItems& replicateItems);
-        void HandleAuctionRequestFavoriteList(WorldPackets::AuctionHouse::AuctionRequestFavoriteList& requestFavoriteList);
-        void HandleAuctionSellCommodity(WorldPackets::AuctionHouse::AuctionSellCommodity& sellCommodity);
         void HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& sellItem);
-        void HandleAuctionSetFavoriteItem(WorldPackets::AuctionHouse::AuctionSetFavoriteItem& setFavoriteItem);
 
         // Bank
         void HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet);
         void HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet);
         void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet);
-        void HandleBuyReagentBankOpcode(WorldPackets::Bank::ReagentBank& reagentBank);
-        void HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReagent& autoBankRegent);
-        void HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStoreBankReagent& autoStoreBankReagent);
-        void HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBank& reagentBank);
 
         // Black Market
         void HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& blackMarketOpen);
-        void HandleBlackMarketRequestItems(WorldPackets::BlackMarket::BlackMarketRequestItems& blackMarketRequestItems);
-        void HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMarketBidOnItem& blackMarketBidOnItem);
 
         void HandleGetMailList(WorldPackets::Mail::MailGetList& getList);
         void HandleSendMail(WorldPackets::Mail::SendMail& sendMail);
@@ -1480,7 +1408,6 @@ class TC_GAME_API WorldSession
         void HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& cancelAura);
         void HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura& cancelGrowthAura);
         void HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& cancelMountAura);
-        void HandleCancelModSpeedNoControlAuras(WorldPackets::Spells::CancelModSpeedNoControlAuras& cancelModSpeedNoControlAuras);
         void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
         void HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& cancelQueuedSpell);
         void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
@@ -1491,7 +1418,6 @@ class TC_GAME_API WorldSession
         void HandleSetPrimaryTalentTreeOpcode(WorldPackets::Talent::SetPrimaryTalentTree& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
-        void HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
         void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
@@ -1509,7 +1435,6 @@ class TC_GAME_API WorldSession
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
-        void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
@@ -1526,7 +1451,6 @@ class TC_GAME_API WorldSession
         void SendChatRestricted(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored);
-        void HandleChatCanLocalWhisperTargetRequest(WorldPackets::Chat::CanLocalWhisperTargetRequest const& canLocalWhisperTargetRequest);
         void HandleChatUpdateAADCStatus(WorldPackets::Chat::UpdateAADCStatus const& updateAADCStatus);
 
         void HandleUnregisterAllAddonPrefixesOpcode(WorldPackets::Chat::ChatUnregisterAllAddonPrefixes& packet);
@@ -1628,9 +1552,6 @@ class TC_GAME_API WorldSession
 
         // Socket gem
         void HandleSocketGems(WorldPackets::Item::SocketGems& socketGems);
-        void HandleSortBags(WorldPackets::Item::SortBags& sortBags);
-        void HandleSortBankBags(WorldPackets::Item::SortBankBags& sortBankBags);
-        void HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& sortReagentBankBags);
         void HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem);
         void HandleReforgeItem(WorldPackets::Item::ReforgeItem& reforgeItem);
 
@@ -1686,7 +1607,6 @@ class TC_GAME_API WorldSession
 
         void SendCalendarRaidLockoutAdded(InstanceLock const* lock);
         void SendCalendarRaidLockoutRemoved(InstanceLock const* lock);
-        void HandleSetSavedInstanceExtend(WorldPackets::Calendar::SetSavedInstanceExtend& setSavedInstanceExtend);
 
         // Void Storage
         void HandleVoidStorageUnlock(WorldPackets::VoidStorage::UnlockVoidStorage& unlockVoidStorage);
@@ -1747,14 +1667,11 @@ class TC_GAME_API WorldSession
         void HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& battlePetRequestJournal);
         void HandleBattlePetRequestJournalLock(WorldPackets::BattlePet::BattlePetRequestJournalLock& battlePetRequestJournalLock);
         void HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot);
-        void HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName);
         void HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattlePetName& queryBattlePetName);
-        void HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDeletePet& battlePetDeletePet);
         void HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags);
         void HandleBattlePetClearFanfare(WorldPackets::BattlePet::BattlePetClearFanfare& battlePetClearFanfare);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify);
-        void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
 
         // Warden
         void HandleWardenData(WorldPackets::Warden::WardenData& packet);
@@ -1774,11 +1691,6 @@ class TC_GAME_API WorldSession
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
 
         void HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName);
-
-        // Scenario
-        void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
-
-        void HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& requestLatestSplashScreen);
 
         void HandleSocialContractRequest(WorldPackets::Social::SocialContractRequest& socialContractRequest);
 
