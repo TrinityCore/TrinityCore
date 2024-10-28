@@ -70,7 +70,7 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
     MAX_VISIBILITY_DISTANCE
 };
 
-Object::Object() : m_values(this), m_scriptRef(this, NoopObjectDeleter())
+Object::Object() : m_scriptRef(this, NoopObjectDeleter())
 {
     m_objectTypeId      = TYPEID_OBJECT;
     m_objectType        = TYPEMASK_OBJECT;
