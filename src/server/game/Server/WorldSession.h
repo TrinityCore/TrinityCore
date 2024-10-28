@@ -647,11 +647,6 @@ namespace WorldPackets
         class GrantLevel;
     }
 
-    namespace Reputation
-    {
-        class RequestForcedReactions;
-    }
-
     namespace Toy
     {
         class AccountToyUpdate;
@@ -1263,7 +1258,6 @@ class TC_GAME_API WorldSession
         void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
         void HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet);
         void HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet);
-        void HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& requestForcedReactions);
 
         void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
