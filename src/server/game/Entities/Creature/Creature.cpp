@@ -3771,19 +3771,6 @@ void Creature::InitializeInteractSpellId()
         SetInteractSpellId(0);
 }
 
-UF::UpdateFieldFlag Creature::GetUpdateFieldFlagsFor(Player const* target) const
-{
-    UF::UpdateFieldFlag flags = UF::UpdateFieldFlag::None;
-    if (GetOwnerGUID() == target->GetGUID())
-        flags |= UF::UpdateFieldFlag::Owner;
-
-    if (HasDynamicFlag(UNIT_DYNFLAG_SPECIALINFO))
-        if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
-            flags |= UF::UpdateFieldFlag::Empath;
-
-    return flags;
-}
-
 void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
     m_objectData->WriteCreate(*data, flags, this, target);

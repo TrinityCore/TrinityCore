@@ -13749,6 +13749,19 @@ bool Unit::IsSplineEnabled() const
     return movespline->Initialized() && !movespline->Finalized();
 }
 
+UF::UpdateFieldFlag Unit::GetUpdateFieldFlagsFor(Player const* target) const
+{
+    UF::UpdateFieldFlag flags = UF::UpdateFieldFlag::None;
+    if (target == this || GetOwnerGUID() == target->GetGUID())
+        flags |= UF::UpdateFieldFlag::Owner;
+
+    if (HasDynamicFlag(UNIT_DYNFLAG_SPECIALINFO))
+        if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+            flags |= UF::UpdateFieldFlag::Empath;
+
+    return flags;
+}
+
 void Unit::DestroyForPlayer(Player* target) const
 {
     if (Battleground* bg = target->GetBattleground())
