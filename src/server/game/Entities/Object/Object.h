@@ -107,6 +107,30 @@ struct CreateObjectBits
 
 namespace UF
 {
+    class UpdateFieldHolder
+    {
+    public:
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        uint32 GetChangedObjectTypeMask() const { return _changesMask; }
+
+        bool HasChanged(uint32 index) const { return (_changesMask & UpdateMaskHelpers::GetBlockFlag(index)) != 0; }
+
+        inline Object* GetOwner();
+
+    private:
+        friend Object;
+
+        // This class is tightly tied to Object::m_values member, do not construct elsewhere
+        UpdateFieldHolder() : _changesMask(0) { }
+
+        uint32 _changesMask;
+    };
+
     template<typename T>
     inline bool SetUpdateFieldValue(UpdateFieldSetter<T>& setter, typename UpdateFieldSetter<T>::value_type&& value)
     {
@@ -264,6 +288,7 @@ class TC_GAME_API Object
         Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
         Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
 
+        friend UF::UpdateFieldHolder;
         UF::UpdateFieldHolder m_values;
         UF::UpdateField<UF::ObjectData, 0, TYPEID_OBJECT> m_objectData;
 
@@ -424,6 +449,36 @@ class TC_GAME_API Object
         Object& operator=(Object const& right) = delete;
         Object& operator=(Object&& right) = delete;
 };
+
+inline Object* UF::UpdateFieldHolder::GetOwner()
+{
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#endif
+
+    return reinterpret_cast<Object*>(reinterpret_cast<std::byte*>(this) - offsetof(Object, m_values));
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic pop
+#endif
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+    return { (static_cast<Derived*>(owner)->*field)._value };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+    (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
+}
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
