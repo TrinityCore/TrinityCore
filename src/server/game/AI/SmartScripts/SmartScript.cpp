@@ -2623,7 +2623,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
-        case SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALKTO:
+        case SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO:
         {
             if (!me)
                 break;
