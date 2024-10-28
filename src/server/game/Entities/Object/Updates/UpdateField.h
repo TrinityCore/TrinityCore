@@ -681,42 +681,6 @@ namespace UF
         Mask _changesMask;
     };
 
-    class UpdateFieldHolder
-    {
-    public:
-        explicit UpdateFieldHolder(Object* owner) : _owner(owner)
-        {
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            _changesMask.Set(Bit);
-            return { (static_cast<Derived*>(_owner)->*field)._value };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            _changesMask.Reset(Bit);
-            (static_cast<Derived*>(_owner)->*field)._value.ClearChangesMask();
-        }
-
-        uint32 GetChangedObjectTypeMask() const
-        {
-            return _changesMask.GetBlock(0);
-        }
-
-        bool HasChanged(uint32 index) const
-        {
-            return _changesMask[index];
-        }
-
-    private:
-        UpdateMask<NUM_CLIENT_OBJECT_TYPES> _changesMask;
-        Object* _owner;
-    };
-
     template<typename T>
     class UpdateFieldBase : public IsUpdateFieldHolderTag
     {
@@ -887,7 +851,7 @@ namespace UF
 
         bool HasChanged(uint32 index) const
         {
-            return (_updateMask[index / 32] & (1 << (index % 32))) != 0;
+            return (_updateMask[UpdateMaskHelpers::GetBlockIndex(index)] & UpdateMaskHelpers::GetBlockFlag(index)) != 0;
         }
 
         void WriteUpdateMask(ByteBuffer& data, int32 bitsForSize = 32) const
@@ -958,9 +922,9 @@ namespace UF
             return !!_value;
         }
 
-        operator T const& () const
+        operator bool const() const
         {
-            return *_value;
+            return has_value();
         }
         T const* operator->() const
         {
