@@ -606,7 +606,8 @@ enum SMART_ACTION
     SMART_ACTION_TRIGGER_GAME_EVENT                 = 150,    // eventId, useSaiTargetAsGameEventSource
     SMART_ACTION_DO_ACTION                          = 151,    // actionId
     SMART_ACTION_COMPLETE_QUEST                     = 152,    // QuestId. Regular quests with objectives can't be completed with this action (only quests with QUEST_FLAGS_COMPLETION_EVENT, QUEST_FLAGS_COMPLETION_AREA_TRIGGER or QUEST_FLAGS_TRACKING_EVENT)
-    SMART_ACTION_END                                = 153
+    SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO     = 153,
+    SMART_ACTION_END                                = 154
 };
 
 enum class SmartActionSummonCreatureFlags
