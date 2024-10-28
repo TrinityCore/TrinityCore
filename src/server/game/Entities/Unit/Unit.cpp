@@ -2271,6 +2271,8 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
 
             DealMeleeDamage(&damageInfo, true);
 
+            LeechLife(damageInfo.Damage);
+
             DamageInfo dmgInfo(damageInfo);
             Unit::ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
 
@@ -14092,6 +14094,28 @@ void Unit::SetVignette(uint32 vignetteId)
 
     if (VignetteEntry const* vignette = sVignetteStore.LookupEntry(vignetteId))
         m_vignette = Vignettes::Create(vignette, this);
+}
+
+int32 Unit::LeechLife(uint32 amount)
+{
+    SpellInfo const* leechSpell = sSpellMgr->AssertSpellInfo(SPELL_LEECH, DIFFICULTY_NONE);
+    if (!IsAlive())
+        return 0;
+
+    float tmpMod = 0.0f;
+
+    if (Player* player = ToPlayer())
+        tmpMod += player->m_unitData->Lifesteal;
+    else
+        tmpMod += GetTotalAuraModifier(SPELL_AURA_MOD_LEECH);
+
+    ApplyPct(amount, tmpMod);
+
+    HealInfo healInfo(this, this, amount, leechSpell, leechSpell->GetSchoolMask());
+    if (healInfo.GetHeal() > 0)
+        return HealBySpell(healInfo, false);
+
+    return 0;
 }
 
 std::string Unit::GetDebugInfo() const

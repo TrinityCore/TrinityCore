@@ -2171,6 +2171,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateManaRegen();
         void UpdateAllRunesRegen();
 
+        void UpdateLeech();
+
         void SetPetSpellPower(uint32 spellPower) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::PetSpellPower), spellPower); }
 
         ObjectGuid const& GetLootGUID() const { return m_playerData->LootTargetGUID; }

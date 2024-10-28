@@ -5416,7 +5416,9 @@ void Player::UpdateRating(CombatRating cr)
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE:
         case CR_RESILIENCE_CRIT_TAKEN:
+            break;
         case CR_LIFESTEAL:
+            UpdateLeech();
             break;
         case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:

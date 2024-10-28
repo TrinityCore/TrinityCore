@@ -2906,6 +2906,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
             healInfo = std::make_unique<HealInfo>(caster, spell->unitTarget, addhealth, spell->m_spellInfo, spell->m_spellInfo->GetSchoolMask());
             caster->HealBySpell(*healInfo, IsCrit);
+            caster->LeechLife(healInfo->GetHeal());
             spell->unitTarget->GetThreatManager().ForwardThreatForAssistingMe(caster, float(healInfo->GetEffectiveHeal()) * 0.5f, spell->m_spellInfo);
             spell->m_healing = healInfo->GetEffectiveHeal();
 
@@ -2947,6 +2948,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                 spell->m_damage = damageInfo.damage;
 
                 caster->DealSpellDamage(&damageInfo, true);
+                caster->LeechLife(damageInfo.damage);
 
                 // Send log damage message to client
                 caster->SendSpellNonMeleeDamageLog(&damageInfo);
