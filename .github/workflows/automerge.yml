@@ -1,4 +1,4 @@
-name: Automerge 3.3.5
+name: Automerge
 
 on:
   workflow_dispatch:
