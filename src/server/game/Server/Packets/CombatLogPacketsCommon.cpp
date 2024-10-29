@@ -74,7 +74,7 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = target->GetAverageItemLevel();
     TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
+    ScalingHealthItemLevelCurveID = 0; // target->m_unitData->ScalingHealthItemLevelCurveID;
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
@@ -91,7 +91,7 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = attacker->GetAverageItemLevel();
     TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
+    ScalingHealthItemLevelCurveID = 0; // target->m_unitData->ScalingHealthItemLevelCurveID;
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
