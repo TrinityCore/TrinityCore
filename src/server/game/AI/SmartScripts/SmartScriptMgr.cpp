@@ -1018,6 +1018,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_TRIGGER_GAME_EVENT: return sizeof(SmartAction::triggerGameEvent);
             case SMART_ACTION_DO_ACTION: return sizeof(SmartAction::doAction);
             case SMART_ACTION_COMPLETE_QUEST: return sizeof(SmartAction::quest);
+            case SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -2431,6 +2432,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         }
         case SMART_ACTION_COMPLETE_QUEST:
+        {
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(e.action.quest.quest))
             {
                 if (!quest->HasFlag(QUEST_FLAGS_COMPLETION_EVENT) && !quest->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER) && !quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
@@ -2445,6 +2447,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
             break;
+        }
+        case SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO:
+        {
+            if (e.GetScriptType() != SMART_SCRIPT_TYPE_CREATURE)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-valid SourceType (only valid for SourceType {}), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), SMART_SCRIPT_TYPE_CREATURE);
+                return false;
+            }
+            break;
+        }
         // Unused
         case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:

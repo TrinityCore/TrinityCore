@@ -1843,6 +1843,8 @@ class TC_GAME_API Unit : public WorldObject
     protected:
         explicit Unit (bool isWorldObject);
 
+        UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
+
         void DestroyForPlayer(Player* target) const override;
         void ClearUpdateMask(bool remove) override;
 
