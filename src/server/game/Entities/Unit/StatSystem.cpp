@@ -775,7 +775,7 @@ void Player::UpdateLeech()
 {
     float leechValue = GetRatingBonusValue(CR_LIFESTEAL);
     leechValue += GetTotalAuraModifier(SPELL_AURA_MOD_LEECH);
-    SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_unitData).ModifyValue(&UF::UnitData::Lifesteal), leechValue);
+    SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Lifesteal), leechValue);
 }
 
 void Player::UpdateExpertise(WeaponAttackType attack)
