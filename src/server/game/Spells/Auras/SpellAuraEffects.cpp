@@ -4310,7 +4310,7 @@ void AuraEffect::HandleTriggerSpellOnHealthPercent(AuraApplication const* aurApp
 
 void AuraEffect::HandleAuraModLeech(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)))
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
     Player* player = aurApp->GetTarget()->ToPlayer();
