@@ -25872,7 +25872,7 @@ void Player::RemoveGlyph(uint8 index)
     SendTalentsInfoData();
 }
 
-void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
+void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint32 opcode)
 {
     if (m_lastFallTime >= minfo.jump.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == CMSG_MOVE_FALL_LAND)
         SetFallInformation(minfo.jump.fallTime, minfo.pos.GetPositionZ());

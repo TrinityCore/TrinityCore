@@ -36,17 +36,9 @@ enum ConnectionType : int8
     CONNECTION_TYPE_DEFAULT     = -1
 };
 
-constexpr std::size_t MIN_CMSG_OPCODE_NUMBER = 0x3126;
-constexpr std::size_t MAX_CMSG_OPCODE_NUMBER = 0x5034;
-constexpr std::size_t NUM_CMSG_OPCODES = MAX_CMSG_OPCODE_NUMBER - MIN_CMSG_OPCODE_NUMBER + 1;
-
-constexpr std::size_t MIN_SMSG_OPCODE_NUMBER = 0x256C;
-constexpr std::size_t MAX_SMSG_OPCODE_NUMBER = 0x3052;
-constexpr std::size_t NUM_SMSG_OPCODES = MAX_SMSG_OPCODE_NUMBER - MIN_SMSG_OPCODE_NUMBER + 1;
-
 constexpr uint16 UNKNOWN_OPCODE = 0xBADD;   // special marker value for uninitialized WorldPackets
 
-enum OpcodeClient : uint16
+enum OpcodeClient : uint32
 {
     CMSG_ACCEPT_GUILD_INVITE                          = 0x35FD,
     CMSG_ACCEPT_SOCIAL_CONTRACT                       = 0x374B,
@@ -734,6 +726,27 @@ enum OpcodeClient : uint16
     CMSG_WORLD_PORT_RESPONSE                          = 0x35F9,
     CMSG_WRAP_ITEM                                    = 0x3994,
 };
+
+inline constexpr std::size_t NUM_CMSG_OPCODES = 1699;
+
+inline constexpr std::ptrdiff_t GetOpcodeArrayIndex(OpcodeClient opcode)
+{
+    uint32 idInGroup = opcode & 0xFFFF;
+    switch (opcode >> 16)
+    {
+        case 0x2A: return idInGroup < 26 ? idInGroup + 0 : -1;
+        case 0x2C: return idInGroup < 47 ? idInGroup + 26 : -1;
+        case 0x2D: return idInGroup < 3 ? idInGroup + 73 : -1;
+        case 0x2E: return idInGroup < 33 ? idInGroup + 76 : -1;
+        case 0x30: return idInGroup < 739 ? idInGroup + 109 : -1;
+        case 0x31: return idInGroup < 298 ? idInGroup + 848 : -1;
+        case 0x32: return idInGroup < 12 ? idInGroup + 1146 : -1;
+        case 0x33: return idInGroup < 130 ? idInGroup + 1158 : -1;
+        case 0x35: return idInGroup < 396 ? idInGroup + 1288 : -1;
+        case 0x36: return idInGroup < 15 ? idInGroup + 1684 : -1;
+        default: return -1;
+    }
+}
 
 enum OpcodeServer : uint16
 {
@@ -1884,6 +1897,34 @@ enum OpcodeServer : uint16
     SMSG_XP_AWARDED_FROM_CURRENCY                      = UNKNOWN_OPCODE,
 };
 
+inline constexpr std::size_t NUM_SMSG_OPCODES = 1445;
+
+inline constexpr std::ptrdiff_t GetOpcodeArrayIndex(OpcodeServer opcode)
+{
+    uint32 idInGroup = opcode & 0xFFFF;
+    switch (opcode >> 16)
+    {
+        case 0x37: return idInGroup < 831 ? idInGroup + 0 : -1;
+        case 0x38: return idInGroup < 10 ? idInGroup + 831 : -1;
+        case 0x3B: return idInGroup < 18 ? idInGroup + 841 : -1;
+        case 0x3C: return idInGroup < 33 ? idInGroup + 859 : -1;
+        case 0x3D: return idInGroup < 49 ? idInGroup + 892 : -1;
+        case 0x3E: return idInGroup < 11 ? idInGroup + 941 : -1;
+        case 0x3F: return idInGroup < 12 ? idInGroup + 952 : -1;
+        case 0x41: return idInGroup < 82 ? idInGroup + 964 : -1;
+        case 0x43: return idInGroup < 67 ? idInGroup + 1046 : -1;
+        case 0x45: return idInGroup < 32 ? idInGroup + 1113 : -1;
+        case 0x47: return idInGroup < 1 ? idInGroup + 1145 : -1;
+        case 0x48: return idInGroup < 118 ? idInGroup + 1146 : -1;
+        case 0x4A: return idInGroup < 46 ? idInGroup + 1264 : -1;
+        case 0x4B: return idInGroup < 41 ? idInGroup + 1310 : -1;
+        case 0x4D: return idInGroup < 85 ? idInGroup + 1351 : -1;
+        case 0x4E: return idInGroup < 8 ? idInGroup + 1436 : -1;
+        case 0x50: return idInGroup < 1 ? idInGroup + 1444 : -1;
+        default: return -1;
+    }
+}
+
 constexpr bool IsInstanceOnlyOpcode(uint32 opcode)
 {
     switch (opcode)
@@ -1942,6 +1983,10 @@ struct ServerOpcodeHandler final
     ConnectionType ConnectionIndex;
 };
 
+/// Lookup opcode name for human understandable logging
+std::string GetOpcodeNameForLogging(OpcodeClient opcode);
+std::string GetOpcodeNameForLogging(OpcodeServer opcode);
+
 class OpcodeTable
 {
 public:
@@ -1950,14 +1995,26 @@ public:
 
     void Initialize();
 
+    bool IsValid(OpcodeClient index) const
+    {
+        std::ptrdiff_t opcodeArrayIndex = GetOpcodeArrayIndex(index);
+        return opcodeArrayIndex >= 0 && opcodeArrayIndex < std::ssize(_internalTableClient);
+    }
+
+    bool IsValid(OpcodeServer index) const
+    {
+        std::ptrdiff_t opcodeArrayIndex = GetOpcodeArrayIndex(index);
+        return opcodeArrayIndex >= 0 && opcodeArrayIndex < std::ssize(_internalTableServer);
+    }
+
     ClientOpcodeHandler const* operator[](OpcodeClient index) const
     {
-        return _internalTableClient[index - MIN_CMSG_OPCODE_NUMBER].get();
+        return _internalTableClient[GetOpcodeArrayIndex(index)].get();
     }
 
     ServerOpcodeHandler const* operator[](OpcodeServer index) const
     {
-        return _internalTableServer[index - MIN_SMSG_OPCODE_NUMBER].get();
+        return _internalTableServer[GetOpcodeArrayIndex(index)].get();
     }
 
 private:
@@ -1972,13 +2029,12 @@ private:
 
     std::array<std::unique_ptr<ClientOpcodeHandler>, NUM_CMSG_OPCODES> _internalTableClient;
     std::array<std::unique_ptr<ServerOpcodeHandler>, NUM_SMSG_OPCODES> _internalTableServer;
+
+    friend std::string GetOpcodeNameForLogging(OpcodeClient opcode);
+    friend std::string GetOpcodeNameForLogging(OpcodeServer opcode);
 };
 
 extern OpcodeTable opcodeTable;
-
-/// Lookup opcode name for human understandable logging
-std::string GetOpcodeNameForLogging(OpcodeClient opcode);
-std::string GetOpcodeNameForLogging(OpcodeServer opcode);
 
 #endif
 /// @}
