@@ -1058,6 +1058,15 @@ struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMas
     void ClearChangesMask();
 };
 
+struct VendorData : public IsUpdateFieldStructureTag, public HasChangesMask<2>
+{
+    UpdateField<int32, 0, 1> Flags;
+
+    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Creature const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
 }
 
 #endif // UpdateFields_h__

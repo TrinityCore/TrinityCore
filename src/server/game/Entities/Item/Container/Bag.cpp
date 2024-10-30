@@ -30,6 +30,8 @@ Bag::Bag(): Item()
     m_objectType |= TYPEMASK_CONTAINER;
     m_objectTypeId = TYPEID_CONTAINER;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Container, false);
+
     memset(m_bagslot, 0, sizeof(Item*) * MAX_BAG_SIZE);
 }
 
@@ -222,6 +224,7 @@ void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::M
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

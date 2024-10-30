@@ -5659,6 +5659,36 @@ void ConversationData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
+void VendorData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const
+{
+    data << int32(Flags);
+}
+
+void VendorData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const
+{
+    WriteUpdate(data, _changesMask, false, owner, receiver);
+}
+
+void VendorData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Creature const* owner, Player const* receiver) const
+{
+    data.WriteBits(changesMask.GetBlock(0), 2);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            data << int32(Flags);
+        }
+    }
+}
+
+void VendorData::ClearChangesMask()
+{
+    Base::ClearChangesMask(Flags);
+    _changesMask.ResetAll();
+}
+
 }
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
