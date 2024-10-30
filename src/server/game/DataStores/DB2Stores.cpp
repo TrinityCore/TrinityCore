@@ -1013,14 +1013,14 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(15786) ||               // last area added in 11.0.2 (56647)
-        !sCharTitlesStore.LookupEntry(854) ||                // last char title added in 11.0.2 (56647)
+    if (!sAreaTableStore.LookupEntry(15913) ||               // last area added in 11.0.5 (57171)
+        !sCharTitlesStore.LookupEntry(871) ||                // last char title added in 11.0.5 (57171)
         !sFlightCapabilityStore.LookupEntry(1) ||            // default flight capability (required)
-        !sGemPropertiesStore.LookupEntry(4251) ||            // last gem property added in 11.0.2 (56647)
-        !sItemStore.LookupEntry(232498) ||                   // last item added in 11.0.2 (56647)
-        !sItemExtendedCostStore.LookupEntry(9369) ||         // last item extended cost added in 11.0.2 (56647)
-        !sMapStore.LookupEntry(2786) ||                      // last map added in 11.0.2 (56647)
-        !sSpellNameStore.LookupEntry(471174))                // last spell added in 11.0.2 (56647)
+        !sGemPropertiesStore.LookupEntry(4251) ||            // last gem property added in 11.0.5 (57171)
+        !sItemStore.LookupEntry(233014) ||                   // last item added in 11.0.5 (57171)
+        !sItemExtendedCostStore.LookupEntry(9647) ||         // last item extended cost added in 11.0.5 (57171)
+        !sMapStore.LookupEntry(2792) ||                      // last map added in 11.0.5 (57171)
+        !sSpellNameStore.LookupEntry(474722))                // last spell added in 11.0.5 (57171)
     {
         TC_LOG_FATAL("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         return 0;
