@@ -1206,6 +1206,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         pCurrChar->SetGuildLevel(0);
     }
 
+    SendAuctionFavoriteList();
+
     pCurrChar->GetSession()->GetBattlePetMgr()->SendJournalLockStatus();
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();

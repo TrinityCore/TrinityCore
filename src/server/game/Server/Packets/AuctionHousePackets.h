@@ -309,14 +309,6 @@ namespace WorldPackets
             Optional<Addon::AddOnInfo> TaintedBy;
         };
 
-        class AuctionRequestFavoriteList final : public ClientPacket
-        {
-        public:
-            AuctionRequestFavoriteList(WorldPacket&& packet) : ClientPacket(CMSG_AUCTION_REQUEST_FAVORITE_LIST, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
         class AuctionSellCommodity final : public ClientPacket
         {
         public:
