@@ -30,7 +30,7 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update)
         auto where = std::ranges::lower_bound(arr.begin(), arr.begin() + count, f);
         if (*where == f)
             return std::pair(where, false);
-        std::ranges::rotate(where, arr.begin() + count, arr.begin() + count + 1);
+        std::rotate(where, arr.begin() + count, arr.begin() + count + 1);
         ++count;
         *where = f;
         return std::pair(where, true);
@@ -68,7 +68,7 @@ void EntityFragmentsHolder::Remove(EntityFragment fragment)
         if (where != arr.end())
         {
             *where = EntityFragment::End;
-            std::ranges::rotate(where, where + 1, arr.begin() + count);
+            std::rotate(where, where + 1, arr.begin() + count);
             --count;
             return std::pair(where, true);
         }
