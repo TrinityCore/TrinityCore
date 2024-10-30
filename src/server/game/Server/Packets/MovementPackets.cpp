@@ -1050,7 +1050,7 @@ WorldPacket const* WorldPackets::Movement::ResumeToken::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompoundState::MoveStateChange const& stateChange)
 {
-    data << uint16(stateChange.MessageID);
+    data << uint32(stateChange.MessageID);
     data << uint32(stateChange.SequenceIndex);
     data.WriteBit(stateChange.Speed.has_value());
     data.WriteBit(stateChange.SpeedRange.has_value());
