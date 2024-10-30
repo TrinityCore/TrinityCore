@@ -224,17 +224,6 @@ namespace WorldPackets
             std::vector<RaceLimitDisableInfo> RaceLimitDisables;
         };
 
-        class CheckCharacterNameAvailability final : public ClientPacket
-        {
-        public:
-            CheckCharacterNameAvailability(WorldPacket&& packet) : ClientPacket(CMSG_CHECK_CHARACTER_NAME_AVAILABILITY, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 SequenceIndex = 0;
-            std::string Name;
-        };
-
         class CheckCharacterNameAvailabilityResult final : public ServerPacket
         {
         public:
@@ -791,17 +780,6 @@ namespace WorldPackets
 
             ObjectGuid Player;
             int32 ResultCode = 0;
-        };
-
-        class SavePersonalEmblem final : public ClientPacket
-        {
-        public:
-            SavePersonalEmblem(WorldPacket&& packet) : ClientPacket(CMSG_SAVE_PERSONAL_EMBLEM, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Vendor;
-            CustomTabardInfo PersonalTabard;
         };
 
         class PlayerSavePersonalEmblem final : public ServerPacket

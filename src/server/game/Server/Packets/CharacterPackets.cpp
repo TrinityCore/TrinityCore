@@ -321,12 +321,6 @@ WorldPacket const* EnumCharactersResult::Write()
     return &_worldPacket;
 }
 
-void CheckCharacterNameAvailability::Read()
-{
-    _worldPacket >> SequenceIndex;
-    Name = _worldPacket.ReadString(_worldPacket.ReadBits(6));
-}
-
 WorldPacket const* CheckCharacterNameAvailabilityResult::Write()
 {
     _worldPacket << uint32(SequenceIndex);
@@ -692,12 +686,6 @@ WorldPacket const * SetPlayerDeclinedNamesResult::Write()
     _worldPacket << Player;
 
     return &_worldPacket;
-}
-
-void SavePersonalEmblem::Read()
-{
-    _worldPacket >> Vendor;
-    _worldPacket >> PersonalTabard;
 }
 
 WorldPacket const* PlayerSavePersonalEmblem::Write()

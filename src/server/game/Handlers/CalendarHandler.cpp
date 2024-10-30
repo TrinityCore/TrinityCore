@@ -529,29 +529,6 @@ void WorldSession::HandleCalendarGetNumPending(WorldPackets::Calendar::CalendarG
     SendPacket(WorldPackets::Calendar::CalendarSendNumPending(pending).Write());
 }
 
-void WorldSession::HandleSetSavedInstanceExtend(WorldPackets::Calendar::SetSavedInstanceExtend& setSavedInstanceExtend)
-{
-    TC_LOG_DEBUG("network", "CMSG_SET_SAVED_INSTANCE_EXTEND - MapId: {}, Difficulty: {}, ToggleExtend: {}", setSavedInstanceExtend.MapID, setSavedInstanceExtend.DifficultyID, setSavedInstanceExtend.Extend ? "On" : "Off");
-
-    // cannot modify locks currently in use
-    if (_player->GetMapId() == uint32(setSavedInstanceExtend.MapID))
-        return;
-
-    std::pair<InstanceResetTimePoint, InstanceResetTimePoint> expiryTimes = sInstanceLockMgr.UpdateInstanceLockExtensionForPlayer(_player->GetGUID(),
-        { uint32(setSavedInstanceExtend.MapID), Difficulty(setSavedInstanceExtend.DifficultyID) }, setSavedInstanceExtend.Extend);
-
-    if (expiryTimes.first == InstanceResetTimePoint::min())
-        return;
-
-    WorldPackets::Calendar::CalendarRaidLockoutUpdated calendarRaidLockoutUpdated;
-    calendarRaidLockoutUpdated.ServerTime = *GameTime::GetWowTime();
-    calendarRaidLockoutUpdated.MapID = setSavedInstanceExtend.MapID;
-    calendarRaidLockoutUpdated.DifficultyID = setSavedInstanceExtend.DifficultyID;
-    calendarRaidLockoutUpdated.OldTimeRemaining = std::max(std::chrono::duration_cast<Seconds>(expiryTimes.first - GameTime::GetSystemTime()).count(), SI64LIT(0));
-    calendarRaidLockoutUpdated.NewTimeRemaining = std::max(std::chrono::duration_cast<Seconds>(expiryTimes.second - GameTime::GetSystemTime()).count(), SI64LIT(0));
-    SendPacket(calendarRaidLockoutUpdated.Write());
-}
-
 // ----------------------------------- SEND ------------------------------------
 
 void WorldSession::SendCalendarRaidLockoutAdded(InstanceLock const* lock)

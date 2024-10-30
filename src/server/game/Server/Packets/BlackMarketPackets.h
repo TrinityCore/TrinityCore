@@ -50,17 +50,6 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
-        class BlackMarketRequestItems final : public ClientPacket
-        {
-        public:
-            BlackMarketRequestItems(WorldPacket&& packet) : ClientPacket(CMSG_BLACK_MARKET_REQUEST_ITEMS, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Guid;
-            Timestamp<> LastUpdateID;
-        };
-
         class BlackMarketRequestItemsResult final : public ServerPacket
         {
         public:
@@ -70,19 +59,6 @@ namespace WorldPackets
 
             Timestamp<> LastUpdateID;
             std::vector<BlackMarketItem> Items;
-        };
-
-        class BlackMarketBidOnItem final : public ClientPacket
-        {
-        public:
-            BlackMarketBidOnItem(WorldPacket&& packet) : ClientPacket(CMSG_BLACK_MARKET_BID_ON_ITEM, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Guid;
-            int32 MarketID = 0;
-            Item::ItemInstance Item;
-            uint64 BidAmount = 0;
         };
 
         class BlackMarketBidOnItemResult final : public ServerPacket

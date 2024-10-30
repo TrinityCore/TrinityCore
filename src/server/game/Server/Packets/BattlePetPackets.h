@@ -142,18 +142,6 @@ namespace WorldPackets
             uint8 Slot = 0;
         };
 
-        class BattlePetModifyName final : public ClientPacket
-        {
-        public:
-            BattlePetModifyName(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_MODIFY_NAME, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid PetGuid;
-            std::string Name;
-            std::unique_ptr<DeclinedName> DeclinedNames;
-        };
-
         class QueryBattlePetName final : public ClientPacket
         {
         public:
@@ -182,16 +170,6 @@ namespace WorldPackets
             std::string Name;
         };
 
-        class BattlePetDeletePet final : public ClientPacket
-        {
-        public:
-            BattlePetDeletePet(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_DELETE_PET, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid PetGuid;
-        };
-
         class BattlePetSetFlags final : public ClientPacket
         {
         public:
@@ -208,16 +186,6 @@ namespace WorldPackets
         {
         public:
             BattlePetClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_CLEAR_FANFARE, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid PetGuid;
-        };
-
-        class CageBattlePet final : public ClientPacket
-        {
-        public:
-            CageBattlePet(WorldPacket&& packet) : ClientPacket(CMSG_CAGE_BATTLE_PET, std::move(packet)) { }
 
             void Read() override;
 

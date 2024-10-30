@@ -165,11 +165,6 @@ WorldPacket const* WorldPackets::Loot::LootList::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Loot::SetLootSpecialization::Read()
-{
-    _worldPacket >> SpecID;
-}
-
 WorldPacket const* WorldPackets::Loot::StartLootRoll::Write()
 {
     _worldPacket << LootObj;

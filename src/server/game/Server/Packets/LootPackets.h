@@ -205,16 +205,6 @@ namespace WorldPackets
             Optional<ObjectGuid> RoundRobinWinner;
         };
 
-        class SetLootSpecialization final : public ClientPacket
-        {
-        public:
-            SetLootSpecialization(WorldPacket&& packet) : ClientPacket(CMSG_SET_LOOT_SPECIALIZATION, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 SpecID = 0;
-        };
-
         class StartLootRoll final : public ServerPacket
         {
         public:

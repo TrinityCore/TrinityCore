@@ -732,22 +732,6 @@ WorldPacket const* WorldPackets::Party::BroadcastSummonResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Party::SetRestrictPingsToAssistants::Read()
-{
-    _worldPacket >> OptionalInit(PartyIndex);
-    _worldPacket >> Bits<1>(RestrictPingsToAssistants);
-    if (PartyIndex)
-        _worldPacket >> PartyIndex.emplace();
-}
-
-void WorldPackets::Party::SendPingUnit::Read()
-{
-    _worldPacket >> SenderGUID;
-    _worldPacket >> TargetGUID;
-    Type = _worldPacket.read<PingSubjectType, uint8>();
-    _worldPacket >> PinFrameID;
-}
-
 WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
 {
     _worldPacket << SenderGUID;
@@ -756,15 +740,6 @@ WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
     _worldPacket << uint32(PinFrameID);
 
     return &_worldPacket;
-}
-
-void WorldPackets::Party::SendPingWorldPoint::Read()
-{
-    _worldPacket >> SenderGUID;
-    _worldPacket >> MapID;
-    _worldPacket >> Point;
-    _worldPacket >> As<uint8>(Type);
-    _worldPacket >> PinFrameID;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()

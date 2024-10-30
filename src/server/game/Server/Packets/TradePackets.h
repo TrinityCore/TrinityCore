@@ -89,17 +89,6 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
-        class SetTradeCurrency final : public ClientPacket
-        {
-        public:
-            SetTradeCurrency(WorldPacket&& packet) : ClientPacket(CMSG_SET_TRADE_CURRENCY, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 Type = 0;
-            uint32 Quantity = 0;
-        };
-
         class SetTradeGold final : public ClientPacket
         {
         public:

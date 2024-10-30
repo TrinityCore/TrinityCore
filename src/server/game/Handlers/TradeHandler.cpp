@@ -775,7 +775,3 @@ void WorldSession::HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeIte
 
     my_trade->SetItem(TradeSlots(clearTradeItem.TradeSlot), nullptr);
 }
-
-void WorldSession::HandleSetTradeCurrencyOpcode(WorldPackets::Trade::SetTradeCurrency& /*setTradeCurrency*/)
-{
-}

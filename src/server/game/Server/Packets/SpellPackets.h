@@ -82,16 +82,6 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class CancelModSpeedNoControlAuras final : public ClientPacket
-        {
-        public:
-            CancelModSpeedNoControlAuras(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOD_SPEED_NO_CONTROL_AURAS, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid TargetGUID;
-        };
-
         class PetCancelAura final : public ClientPacket
         {
         public:
@@ -1041,17 +1031,6 @@ namespace WorldPackets
             ObjectGuid OwnerGUID;
             bool Reverse = false;
             int32 SpellID = 0;
-        };
-
-        class TradeSkillSetFavorite final : public ClientPacket
-        {
-        public:
-            TradeSkillSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_TRADE_SKILL_SET_FAVORITE, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 RecipeID = 0;
-            bool IsFavorite = false;
         };
 
         class KeyboundOverride final : public ClientPacket

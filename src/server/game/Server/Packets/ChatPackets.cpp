@@ -341,11 +341,6 @@ WorldPacket const* WorldPackets::Chat::ChatRestricted::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Chat::CanLocalWhisperTargetRequest::Read()
-{
-    _worldPacket >> WhisperTarget;
-}
-
 WorldPacket const* WorldPackets::Chat::CanLocalWhisperTargetResponse::Write()
 {
     _worldPacket << WhisperTarget;

@@ -149,22 +149,6 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& pack
     _player->UpdateCriteria(CriteriaType::BankSlotsPurchased);
 }
 
-void WorldSession::HandleBuyReagentBankOpcode(WorldPackets::Bank::ReagentBank& /*reagentBank*/)
-{
-}
-
-void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBank& /*reagentBank*/)
-{
-}
-
-void WorldSession::HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReagent& /*autoBankReagent*/)
-{
-}
-
-void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStoreBankReagent& /*autoStoreBankReagent*/)
-{
-}
-
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
     _player->PlayerTalkClass->GetInteractionData().Reset();

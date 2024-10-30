@@ -763,18 +763,6 @@ namespace WorldPackets
             bool HideWarboardHeader = false;
             bool KeepOpenAfterChoice = false;
         };
-
-        class ChoiceResponse final : public ClientPacket
-        {
-        public:
-            ChoiceResponse(WorldPacket&& packet) : ClientPacket(CMSG_CHOICE_RESPONSE, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 ChoiceID = 0;
-            int32 ResponseIdentifier = 0;
-            bool IsReroll = false;
-        };
     }
 }
 

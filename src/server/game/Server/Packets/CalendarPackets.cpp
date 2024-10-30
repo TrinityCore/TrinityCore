@@ -227,13 +227,6 @@ void WorldPackets::Calendar::CalendarStatus::Read()
     _worldPacket >> Status;
 }
 
-void WorldPackets::Calendar::SetSavedInstanceExtend::Read()
-{
-    _worldPacket >> MapID;
-    _worldPacket >> DifficultyID;
-    Extend = _worldPacket.ReadBit();
-}
-
 void WorldPackets::Calendar::CalendarModeratorStatusQuery::Read()
 {
     _worldPacket >> Guid;

@@ -346,11 +346,6 @@ void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
     }
 }
 
-void WorldSession::HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet)
-{
-    _player->SetWarModeDesired(packet.Enable);
-}
-
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
 {
     if (GetPlayer()->IsAlive() || !GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_GHOST))
@@ -1166,13 +1161,6 @@ void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::Conversatio
 {
     if (Conversation* convo = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
         sScriptMgr->OnConversationLineStarted(convo, conversationLineStarted.LineID, _player);
-}
-
-void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& /*requestLatestSplashScreen*/)
-{
-    WorldPackets::Misc::SplashScreenShowLatest splashScreenShowLatest;
-    splashScreenShowLatest.UISplashScreenID = 0;
-    SendPacket(splashScreenShowLatest.Write());
 }
 
 void WorldSession::HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& queryCountdownTimer)

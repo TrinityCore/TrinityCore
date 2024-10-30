@@ -95,16 +95,6 @@ public:
     uint8 Unk2 = 0;
 };
 
-class QueryScenarioPOI final : public ClientPacket
-{
-public:
-    QueryScenarioPOI(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_SCENARIO_POI, std::move(packet)) { }
-
-    void Read() override;
-
-    Array<int32, MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE> MissingScenarioPOIs;
-};
-
 struct ScenarioPOIData
 {
     int32 CriteriaTreeID = 0;

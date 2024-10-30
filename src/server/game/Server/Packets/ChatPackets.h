@@ -339,16 +339,6 @@ namespace WorldPackets
             int32 Reason = 0;
         };
 
-        class CanLocalWhisperTargetRequest final : public ClientPacket
-        {
-        public:
-            CanLocalWhisperTargetRequest(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CAN_LOCAL_WHISPER_TARGET_REQUEST, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid WhisperTarget;
-        };
-
         class CanLocalWhisperTargetResponse final : public ServerPacket
         {
         public:

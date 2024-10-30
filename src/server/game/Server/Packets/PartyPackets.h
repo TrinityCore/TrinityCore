@@ -665,30 +665,6 @@ namespace WorldPackets
             bool Accepted = false;
         };
 
-        class SetRestrictPingsToAssistants final : public ClientPacket
-        {
-        public:
-            explicit SetRestrictPingsToAssistants(WorldPacket&& packet) : ClientPacket(CMSG_SET_RESTRICT_PINGS_TO_ASSISTANTS, std::move(packet)) { }
-
-            void Read() override;
-
-            Optional<uint8> PartyIndex;
-            bool RestrictPingsToAssistants = false;
-        };
-
-        class SendPingUnit final : public ClientPacket
-        {
-        public:
-            explicit SendPingUnit(WorldPacket&& packet) : ClientPacket(CMSG_SEND_PING_UNIT, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid SenderGUID;
-            ObjectGuid TargetGUID;
-            PingSubjectType Type = PingSubjectType::Max;
-            uint32 PinFrameID = 0;
-        };
-
         class ReceivePingUnit final : public ServerPacket
         {
         public:
@@ -698,20 +674,6 @@ namespace WorldPackets
 
             ObjectGuid SenderGUID;
             ObjectGuid TargetGUID;
-            PingSubjectType Type = PingSubjectType::Max;
-            uint32 PinFrameID = 0;
-        };
-
-        class SendPingWorldPoint final : public ClientPacket
-        {
-        public:
-            explicit SendPingWorldPoint(WorldPacket&& packet) : ClientPacket(CMSG_SEND_PING_WORLD_POINT, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid SenderGUID;
-            uint32 MapID = 0;
-            TaggedPosition<Position::XYZ> Point;
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
         };
