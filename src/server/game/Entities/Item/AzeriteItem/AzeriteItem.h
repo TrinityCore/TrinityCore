@@ -95,7 +95,7 @@ public:
         void operator()(Player const* player) const;
     };
 
-    UF::UpdateField<UF::AzeriteItemData, 0, TYPEID_AZERITE_ITEM> m_azeriteItemData;
+    UF::UpdateField<UF::AzeriteItemData, int32(WowCS::EntityFragment::CGObject), TYPEID_AZERITE_ITEM> m_azeriteItemData;
 
 private:
     void UnlockDefaultMilestones();

@@ -83,7 +83,7 @@ class TC_GAME_API DynamicObject final : public WorldObject, public GridObject<Dy
         ObjectGuid GetOwnerGUID() const override { return GetCasterGUID(); }
         float GetRadius() const { return m_dynamicObjectData->Radius; }
 
-        UF::UpdateField<UF::DynamicObjectData, 0, TYPEID_DYNAMICOBJECT> m_dynamicObjectData;
+        UF::UpdateField<UF::DynamicObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_DYNAMICOBJECT> m_dynamicObjectData;
 
     protected:
         Aura* _aura;

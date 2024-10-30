@@ -320,6 +320,8 @@ Unit::Unit(bool isWorldObject) :
 
     m_updateFlag.MovementUpdate = true;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Unit, false);
+
     m_baseAttackSpeed = { };
     m_attackTimer = { };
     m_modAttackSpeedPct.fill(1.0f);

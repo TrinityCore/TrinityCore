@@ -162,6 +162,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Player, false);
+
     m_session = session;
 
     m_modMeleeHitChance = 7.5f;
@@ -3712,6 +3714,7 @@ void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
@@ -6343,8 +6346,8 @@ void Player::CheckAreaExplore()
     uint32 offset = areaEntry->AreaBit / PLAYER_EXPLORED_ZONES_BITS;
     uint64 val = UI64LIT(1) << (areaEntry->AreaBit % PLAYER_EXPLORED_ZONES_BITS);
 
-    if (offset >= m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].size()
-        || !(m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX][offset] & val))
+    if (offset >= m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values.size()
+        || !(m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values[offset] & val))
     {
         AddExploredZones(offset, val);
 
@@ -6400,7 +6403,7 @@ void Player::AddExploredZones(uint32 pos, uint64 mask)
         .ModifyValue(&Player::m_activePlayerData)
         .ModifyValue(&UF::ActivePlayerData::BitVectors)
         .ModifyValue(&UF::BitVectors::Values, PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX)
-        .ModifyValue(pos), mask);
+        .ModifyValue(&UF::BitVector::Values, pos), mask);
 }
 
 void Player::RemoveExploredZones(uint32 pos, uint64 mask)
@@ -6409,7 +6412,7 @@ void Player::RemoveExploredZones(uint32 pos, uint64 mask)
         .ModifyValue(&Player::m_activePlayerData)
         .ModifyValue(&UF::ActivePlayerData::BitVectors)
         .ModifyValue(&UF::BitVectors::Values, PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX)
-        .ModifyValue(pos), mask);
+        .ModifyValue(&UF::BitVector::Values, pos), mask);
 }
 
 bool Player::HasExploredZone(uint32 areaId) const
@@ -6422,11 +6425,11 @@ bool Player::HasExploredZone(uint32 areaId) const
         return false;
 
     size_t playerIndexOffset = size_t(area->AreaBit) / PLAYER_EXPLORED_ZONES_BITS;
-    if (playerIndexOffset >= m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].size())
+    if (playerIndexOffset >= m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values.size())
         return false;
 
     uint64 mask = uint64(1) << (area->AreaBit % PLAYER_EXPLORED_ZONES_BITS);
-    return (m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX][playerIndexOffset] & mask) != 0;
+    return (m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values[playerIndexOffset] & mask) != 0;
 }
 
 void Player::UpdateZoneAndAreaId()
@@ -20157,10 +20160,10 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetLootSpecId());
 
         ss.str("");
-        for (size_t i = 0; i < m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].size(); ++i)
+        for (size_t i = 0; i < m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values.size(); ++i)
         {
-            ss << uint32(m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX][i] & 0xFFFFFFFF) << ' ';
-            ss << uint32((m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX][i] >> 32) & 0xFFFFFFFF) << ' ';
+            ss << uint32(m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values[i] & 0xFFFFFFFF) << ' ';
+            ss << uint32((m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values[i] >> 32) & 0xFFFFFFFF) << ' ';
         }
         stmt->setString(index++, ss.str());
 
@@ -20317,10 +20320,10 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetLootSpecId());
 
         ss.str("");
-        for (size_t i = 0; i < m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].size(); ++i)
+        for (size_t i = 0; i < m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values.size(); ++i)
         {
-            ss << uint32(m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX][i] & 0xFFFFFFFF) << ' ';
-            ss << uint32((m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX][i] >> 32) & 0xFFFFFFFF) << ' ';
+            ss << uint32(m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values[i] & 0xFFFFFFFF) << ' ';
+            ss << uint32((m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX].Values[i] >> 32) & 0xFFFFFFFF) << ' ';
         }
         stmt->setString(index++, ss.str());
 

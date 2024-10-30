@@ -448,7 +448,7 @@ class TC_GAME_API Item : public Object
 
         std::string GetDebugInfo() const override;
 
-        UF::UpdateField<UF::ItemData, 0, TYPEID_ITEM> m_itemData;
+        UF::UpdateField<UF::ItemData, uint32(WowCS::EntityFragment::CGObject), TYPEID_ITEM> m_itemData;
 
     protected:
         BonusData _bonusData;

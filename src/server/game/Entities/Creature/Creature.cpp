@@ -606,8 +606,16 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
         npcFlags |= sGameEventMgr->GetNPCFlag(this);
 
+    if (IsVendor() && !(npcFlags & UNIT_NPC_FLAG_VENDOR_MASK))
+        SetVendor(UNIT_NPC_FLAG_VENDOR_MASK, false);
+
     ReplaceAllNpcFlags(NPCFlags(npcFlags & 0xFFFFFFFF));
     ReplaceAllNpcFlags2(NPCFlags2(npcFlags >> 32));
+
+    if (npcFlags & UNIT_NPC_FLAG_VENDOR_MASK)
+        SetVendor(NPCFlags(npcFlags & UNIT_NPC_FLAG_VENDOR_MASK), true);
+
+    SetPetitioner((npcFlags & UNIT_NPC_FLAG_PETITIONER) != 0);
 
     // if unit is in combat, keep this flag
     unitFlags &= ~UNIT_FLAG_IN_COMBAT;
@@ -3255,6 +3263,52 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
     return vCount->count;
 }
 
+void Creature::SetVendor(NPCFlags flags, bool apply)
+{
+    flags &= UNIT_NPC_FLAG_VENDOR_MASK;
+    VendorDataTypeFlags vendorFlags = static_cast<VendorDataTypeFlags>(AsUnderlyingType(flags) >> 7);
+    if (apply)
+    {
+        if (!m_vendorData)
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+
+        SetNpcFlag(flags);
+        SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
+    }
+    else if (m_vendorData)
+    {
+        RemoveNpcFlag(flags);
+        RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
+        if (!m_vendorData->Flags)
+        {
+            RemoveOptionalUpdateFieldValue(m_values.ModifyValue(&Creature::m_vendorData));
+            m_entityFragments.Remove(WowCS::EntityFragment::FVendor_C);
+        }
+    }
+}
+
+void Creature::SetPetitioner(bool apply)
+{
+    if (apply)
+    {
+        if (!m_vendorData)
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+
+        SetNpcFlag(UNIT_NPC_FLAG_PETITIONER);
+        SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
+    }
+    else if (m_vendorData)
+    {
+        RemoveNpcFlag(UNIT_NPC_FLAG_PETITIONER);
+        RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
+        if (!m_vendorData->Flags)
+        {
+            RemoveOptionalUpdateFieldValue(m_values.ModifyValue(&Creature::m_vendorData));
+            m_entityFragments.Remove(WowCS::EntityFragment::FVendor_C);
+        }
+    }
+}
+
 // overwrite WorldObject function for proper name localization
 std::string Creature::GetNameForLocaleIdx(LocaleConstant locale) const
 {
@@ -3775,17 +3829,26 @@ void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Pl
 {
     m_objectData->WriteCreate(*data, flags, this, target);
     m_unitData->WriteCreate(*data, flags, this, target);
+
+    if (m_vendorData)
+        m_vendorData->WriteCreate(*data, flags, this, target);
 }
 
 void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    if (m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::CGObject))
+    {
+        *data << uint32(m_values.GetChangedObjectTypeMask());
 
-    if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        if (m_values.HasChanged(TYPEID_OBJECT))
+            m_objectData->WriteUpdate(*data, flags, this, target);
 
-    if (m_values.HasChanged(TYPEID_UNIT))
-        m_unitData->WriteUpdate(*data, flags, this, target);
+        if (m_values.HasChanged(TYPEID_UNIT))
+            m_unitData->WriteUpdate(*data, flags, this, target);
+    }
+
+    if (m_vendorData && m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::FVendor_C))
+        m_vendorData->WriteUpdate(*data, flags, this, target);
 }
 
 void Creature::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
@@ -3816,6 +3879,7 @@ void Creature::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectDa
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
@@ -3838,4 +3902,12 @@ void Creature::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* pla
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
+}
+
+void Creature::ClearUpdateMask(bool remove)
+{
+    if (m_vendorData)
+        m_values.ClearChangesMask(&Creature::m_vendorData);
+
+    Unit::ClearUpdateMask(remove);
 }

@@ -289,6 +289,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
         std::vector<uint32> const* GetPauseTimes() const;
+        Optional<float> GetPathProgressForClient() const { return m_transportPathProgress; }
         void SetPathProgressForClient(float progress);
 
         void EnableCollision(bool enable);
@@ -451,7 +452,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const;
 
-        UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
+        UF::UpdateField<UF::GameObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_GAMEOBJECT> m_gameObjectData;
 
         TeamId GetControllingTeam() const;
 
@@ -514,6 +515,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool m_respawnCompatibilityMode;
         uint16 _animKitId;
         uint32 _worldEffectID;
+        Optional<float> m_transportPathProgress;
 
         std::unique_ptr<Vignettes::VignetteData> m_vignette;
 

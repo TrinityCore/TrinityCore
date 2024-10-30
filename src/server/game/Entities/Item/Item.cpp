@@ -446,6 +446,8 @@ Item::Item()
     m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Item, false);
+
     m_slot = 0;
     uState = ITEM_NEW;
     uQueuePos = -1;
@@ -1749,6 +1751,7 @@ void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

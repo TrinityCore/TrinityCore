@@ -1836,7 +1836,7 @@ class TC_GAME_API Unit : public WorldObject
 
         std::string GetDebugInfo() const override;
 
-        UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;
+        UF::UpdateField<UF::UnitData, int32(WowCS::EntityFragment::CGObject), TYPEID_UNIT> m_unitData;
 
     protected:
         explicit Unit (bool isWorldObject);
