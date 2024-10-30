@@ -146,7 +146,7 @@ enum PlayerSkillsConstants
 
 enum PlayerDataFlagConstants
 {
-    PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::BitVectors::Values)::value_type>() * 8,
+    PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::BitVector::Values)>() * 8,
 
     PLAYER_DATA_FLAG_EXPLORED_ZONES_INDEX                   = 1,
     PLAYER_DATA_FLAG_CHARACTER_DATA_INDEX                   = 2,
@@ -2952,8 +2952,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         std::string GetDebugInfo() const override;
 
-        UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
-        UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
+        UF::UpdateField<UF::PlayerData, int32(WowCS::EntityFragment::CGObject), TYPEID_PLAYER> m_playerData;
+        UF::UpdateField<UF::ActivePlayerData, int32(WowCS::EntityFragment::CGObject), TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 
         void SetAreaSpiritHealer(Creature* creature);
         ObjectGuid const& GetSpiritHealerGUID() const { return _areaSpiritHealerGUID; }

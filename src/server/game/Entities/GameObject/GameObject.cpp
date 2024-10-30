@@ -844,6 +844,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_updateFlag.Stationary = true;
     m_updateFlag.Rotation = true;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_GameObject, false);
+
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;
@@ -1102,6 +1104,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
         case GAMEOBJECT_TYPE_TRANSPORT:
         {
+            m_updateFlag.GameObject = true;
             m_goTypeImpl = std::make_unique<GameObjectType::Transport>(*this);
             if (goInfo->transport.startOpen)
                 SetGoState(GO_STATE_TRANSPORT_STOPPED);
@@ -4043,6 +4046,7 @@ void GameObject::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, 
 void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const
 {
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -4053,6 +4057,7 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
@@ -4093,20 +4098,7 @@ std::vector<uint32> const* GameObject::GetPauseTimes() const
 
 void GameObject::SetPathProgressForClient(float progress)
 {
-    DoWithSuppressingObjectUpdates([&]()
-    {
-        UF::ObjectData::Base dynflagMask;
-        dynflagMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-        bool marked = (m_objectData->GetChangesMask() & dynflagMask.GetChangesMask()).IsAnySet();
-
-        uint32 dynamicFlags = GetDynamicFlags();
-        dynamicFlags &= 0xFFFF; // remove high bits
-        dynamicFlags |= uint32(progress * 65535.0f) << 16;
-        ReplaceAllDynamicFlags(dynamicFlags);
-
-        if (!marked)
-            const_cast<UF::ObjectData&>(*m_objectData).ClearChanged(&UF::ObjectData::DynamicFlags);
-    });
+    m_transportPathProgress = progress;
 }
 
 void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = nullptr*/) const

@@ -166,7 +166,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
         void UpdateShape();
 
-        UF::UpdateField<UF::AreaTriggerData, 0, TYPEID_AREATRIGGER> m_areaTriggerData;
+        UF::UpdateField<UF::AreaTriggerData, int32(WowCS::EntityFragment::CGObject), TYPEID_AREATRIGGER> m_areaTriggerData;
 
     protected:
         void _UpdateDuration(int32 newDuration);

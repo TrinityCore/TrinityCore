@@ -59,6 +59,18 @@ enum class VendorInventoryReason : uint8
     Empty   = 1
 };
 
+enum class VendorDataTypeFlags : int32
+{
+    Generic     = 0x01,
+    Ammo        = 0x02,
+    Food        = 0x04,
+    Poison      = 0x08,
+    Reagent     = 0x10,
+    Petition    = 0x20,
+};
+
+DEFINE_ENUM_FLAG(VendorDataTypeFlags);
+
 static constexpr uint8 WILD_BATTLE_PET_DEFAULT_LEVEL = 1;
 static constexpr size_t CREATURE_TAPPERS_SOFT_CAP = 5;
 
@@ -248,6 +260,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         VendorItemData const* GetVendorItems() const;
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
         uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
+        void SetVendor(NPCFlags flags, bool apply);
+        void SetPetitioner(bool apply);
 
         CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
@@ -468,6 +482,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void InitializeInteractSpellId();
         void SetInteractSpellId(int32 interactSpellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::InteractSpellID), interactSpellId); }
 
+        UF::OptionalUpdateField<UF::VendorData, int32(WowCS::EntityFragment::FVendor_C), 0> m_vendorData;
+
     protected:
         void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
@@ -489,6 +505,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         };
 
     protected:
+        void ClearUpdateMask(bool remove) override;
+
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
 
