@@ -114,7 +114,7 @@ WorldPacket const* WorldPackets::Channel::UserlistUpdate::Write()
     _worldPacket << UpdatedUserGUID;
     _worldPacket << uint8(UserFlags);
     _worldPacket << uint32(_ChannelFlags);
-    _worldPacket << uint32(ChannelID);
+    _worldPacket << int32(ChannelID);
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(ChannelName);
