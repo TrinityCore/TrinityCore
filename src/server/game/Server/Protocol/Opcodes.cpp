@@ -57,15 +57,16 @@ bool OpcodeTable::ValidateClientOpcode(OpcodeClient opcode, char const* name) co
         return false;
     }
 
-    if (opcode < MIN_CMSG_OPCODE_NUMBER || opcode > MAX_CMSG_OPCODE_NUMBER)
+    std::ptrdiff_t index = GetOpcodeArrayIndex(opcode);
+    if (index < 0 || index >= std::ptrdiff_t(NUM_CMSG_OPCODES))
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
     }
 
-    if ((*this)[opcode] != nullptr)
+    if (_internalTableClient[index] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override client handler of {} with {} (opcode {})", (*this)[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override client handler of {} with {} (opcode {})", _internalTableClient[index]->Name, name, opcode);
         return false;
     }
 
@@ -77,7 +78,7 @@ void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* na
     if (!ValidateClientOpcode(opcode, name))
         return;
 
-    _internalTableClient[opcode - MIN_CMSG_OPCODE_NUMBER].reset(new ClientOpcodeHandler{
+    _internalTableClient[GetOpcodeArrayIndex(opcode)].reset(new ClientOpcodeHandler{
         .Name = name,
         .Status = status,
         .Call = call,
@@ -93,7 +94,8 @@ bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, char const* name, Co
         return false;
     }
 
-    if (opcode < MIN_SMSG_OPCODE_NUMBER || opcode > MAX_SMSG_OPCODE_NUMBER)
+    std::ptrdiff_t index = GetOpcodeArrayIndex(opcode);
+    if (index < 0 || index >= std::ptrdiff_t(NUM_SMSG_OPCODES))
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
@@ -111,9 +113,9 @@ bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, char const* name, Co
         return false;
     }
 
-    if ((*this)[opcode] != nullptr)
+    if (_internalTableServer[index] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override server handler of {} with {} (opcode {})", (*this)[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override server handler of {} with {} (opcode {})", _internalTableServer[index]->Name, name, opcode);
         return false;
     }
 
@@ -125,7 +127,7 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
     if (!ValidateServerOpcode(opcode, name, conIdx))
         return;
 
-    _internalTableServer[opcode - MIN_SMSG_OPCODE_NUMBER].reset(new ServerOpcodeHandler{ .Name = name, .Status = status, .ConnectionIndex = conIdx });
+    _internalTableServer[GetOpcodeArrayIndex(opcode)].reset(new ServerOpcodeHandler{ .Name = name, .Status = status, .ConnectionIndex = conIdx });
 }
 
 /// Correspondence between opcodes and their names
@@ -184,7 +186,6 @@ void OpcodeTable::InitializeClientOpcodes()
     DEFINE_HANDLER(CMSG_AUCTION_PLACE_BID,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionPlaceBid);
     DEFINE_HANDLER(CMSG_AUCTION_REMOVE_ITEM,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionRemoveItem);
     DEFINE_HANDLER(CMSG_AUCTION_REPLICATE_ITEMS,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionReplicateItems);
-    DEFINE_HANDLER(CMSG_AUCTION_REQUEST_FAVORITE_LIST,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionRequestFavoriteList);
     DEFINE_HANDLER(CMSG_AUCTION_SELL_COMMODITY,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionSellCommodity);
     DEFINE_HANDLER(CMSG_AUCTION_SELL_ITEM,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionSellItem);
     DEFINE_HANDLER(CMSG_AUCTION_SET_FAVORITE_ITEM,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionSetFavoriteItem);
@@ -1980,7 +1981,6 @@ void OpcodeTable::InitializeServerOpcodes()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RECRAFT_ITEM_RESULT,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RECRUIT_A_FRIEND_FAILURE,                STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFRESH_COMPONENT,                       STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFRESH_SPELL_HISTORY,                   STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REGIONWIDE_CHARACTER_MAIL_DATA,          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REGIONWIDE_CHARACTER_RESTRICTIONS_DATA,  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REMOVE_ITEM_PASSIVE,                     STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
@@ -2240,15 +2240,16 @@ void OpcodeTable::InitializeServerOpcodes()
 #undef DEFINE_SERVER_OPCODE_HANDLER
 }
 
-template<std::size_t MIN_OPCODE, std::size_t MAX_OPCODE, typename T>
-inline std::string GetOpcodeNameForLoggingImpl(T id)
+template<typename OpcodeDefinition, std::size_t N, typename T>
+inline std::string GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinition, N> const& definitions, T id)
 {
     uint32 opcode = uint32(id);
     char const* name = nullptr;
 
-    if (opcode >= MIN_OPCODE && opcode <= MAX_OPCODE)
+    std::ptrdiff_t index = GetOpcodeArrayIndex(id);
+    if (index >= 0 && index < std::ssize(definitions))
     {
-        if (auto const* handler = opcodeTable[id])
+        if (auto const* handler = definitions[index].get())
             name = handler->Name;
         else
             name = "UNKNOWN OPCODE";
@@ -2256,15 +2257,15 @@ inline std::string GetOpcodeNameForLoggingImpl(T id)
     else
         name = "INVALID OPCODE";
 
-    return Trinity::StringFormat("[{0} 0x{1:04X} ({1})]", name, opcode);
+    return Trinity::StringFormat("[{0} 0x{1:06X} ({1})]", name, opcode);
 }
 
 std::string GetOpcodeNameForLogging(OpcodeClient opcode)
 {
-    return GetOpcodeNameForLoggingImpl<MIN_CMSG_OPCODE_NUMBER, MAX_CMSG_OPCODE_NUMBER>(opcode);
+    return GetOpcodeNameForLoggingImpl(opcodeTable._internalTableClient, opcode);
 }
 
 std::string GetOpcodeNameForLogging(OpcodeServer opcode)
 {
-    return GetOpcodeNameForLoggingImpl<MIN_SMSG_OPCODE_NUMBER, MAX_SMSG_OPCODE_NUMBER>(opcode);
+    return GetOpcodeNameForLoggingImpl(opcodeTable._internalTableServer, opcode);
 }
