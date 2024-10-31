@@ -1146,7 +1146,7 @@ struct CurveEntry
 struct CurvePointEntry
 {
     DBCPosition2D Pos;
-    DBCPosition2D PosPreSquish;
+    DBCPosition2D PreSLSquishPos;
     uint32 ID;
     uint32 CurveID;
     uint8 OrderIndex;
@@ -2032,7 +2032,7 @@ struct ItemSparseEntry
     uint8 PageMaterialID;
     uint8 LanguageID;
     uint8 Bonding;
-    uint8 DamageType;
+    uint8 DamageDamageType;
     uint8 ContainerSlots;
     uint8 RequiredPVPMedal;
     uint8 RequiredPVPRank;
@@ -2278,7 +2278,7 @@ struct MapEntry
     uint8 MaxPlayers;
     int16 WindSettingsID;
     int32 ZmpFileDataID;
-    int32 Unknown1154;
+    int32 PreloadFileDataID;
     std::array<int32, 3> Flags;
 
     uint8 Expansion() const { return ExpansionID; }
@@ -2438,8 +2438,8 @@ struct MountCapabilityEntry
     int32 ReqSpellKnownID;
     int32 ModSpellAuraID;
     int16 ReqMapID;
-    int32 Unknown1154_0;
-    int32 Unknown1154_1;
+    int32 PlayerConditionID;
+    int32 FlightCapabilityID;
 };
 
 // structure for MountTypeXCapability.db2
