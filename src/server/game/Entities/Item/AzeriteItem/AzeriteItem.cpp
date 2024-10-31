@@ -32,6 +32,8 @@ AzeriteItem::AzeriteItem() : Item()
     m_objectType |= TYPEMASK_AZERITE_ITEM;
     m_objectTypeId = TYPEID_AZERITE_ITEM;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_AzeriteItem, false);
+
     SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::DEBUGknowledgeWeek), -1);
 }
 
@@ -448,6 +450,7 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

@@ -63,7 +63,7 @@ public:
         void operator()(Player const* player) const;
     };
 
-    UF::UpdateField<UF::AzeriteEmpoweredItemData, 0, TYPEID_AZERITE_EMPOWERED_ITEM> m_azeriteEmpoweredItemData;
+    UF::UpdateField<UF::AzeriteEmpoweredItemData, int32(WowCS::EntityFragment::CGObject), TYPEID_AZERITE_EMPOWERED_ITEM> m_azeriteEmpoweredItemData;
 
 private:
     void InitAzeritePowerData();

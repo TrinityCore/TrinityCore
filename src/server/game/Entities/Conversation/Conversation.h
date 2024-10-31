@@ -87,7 +87,7 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
 
         uint32 GetScriptId() const;
 
-        UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
+        UF::UpdateField<UF::ConversationData, int32(WowCS::EntityFragment::CGObject), TYPEID_CONVERSATION> m_conversationData;
 
     private:
         Position _stationaryPosition;

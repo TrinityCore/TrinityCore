@@ -26,6 +26,8 @@ AzeriteEmpoweredItem::AzeriteEmpoweredItem()
     m_objectType |= TYPEMASK_AZERITE_EMPOWERED_ITEM;
     m_objectTypeId = TYPEID_AZERITE_EMPOWERED_ITEM;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_AzeriteEmpoweredItem, false);
+
     m_azeritePowers = nullptr;
     m_maxTier = 0;
 }
@@ -194,6 +196,7 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

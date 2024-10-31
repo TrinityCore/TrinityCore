@@ -38,6 +38,8 @@ DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
     m_updateFlag.Stationary = true;
+
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_DynamicObject, false);
 }
 
 DynamicObject::~DynamicObject()
@@ -272,6 +274,7 @@ void DynamicObject::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flag
 void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target) const
 {
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -282,6 +285,7 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

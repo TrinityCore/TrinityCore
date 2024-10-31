@@ -77,7 +77,7 @@ public:
 
     void SetCreatedBySpellCast(ObjectGuid castId) { _createdBySpellCast = castId; }
 
-    UF::UpdateField<UF::SceneObjectData, 0, TYPEID_SCENEOBJECT> m_sceneObjectData;
+    UF::UpdateField<UF::SceneObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_SCENEOBJECT> m_sceneObjectData;
 
 private:
     bool ShouldBeRemoved() const;

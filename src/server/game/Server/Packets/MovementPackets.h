@@ -717,7 +717,7 @@ namespace WorldPackets
             {
                 MoveStateChange(OpcodeServer messageId, uint32 sequenceIndex) : MessageID(messageId), SequenceIndex(sequenceIndex) { }
 
-                uint16 MessageID = 0;
+                uint32 MessageID = 0;
                 uint32 SequenceIndex = 0;
                 Optional<float> Speed;
                 Optional<MoveSetCompoundState::SpeedRange> SpeedRange;

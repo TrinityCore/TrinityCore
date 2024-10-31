@@ -353,6 +353,9 @@ enum NPCFlags : uint32
 
 DEFINE_ENUM_FLAG(NPCFlags);
 
+inline constexpr NPCFlags UNIT_NPC_FLAG_VENDOR_MASK = UNIT_NPC_FLAG_VENDOR | UNIT_NPC_FLAG_VENDOR_AMMO | UNIT_NPC_FLAG_VENDOR_FOOD
+                                                    | UNIT_NPC_FLAG_VENDOR_POISON | UNIT_NPC_FLAG_VENDOR_REAGENT;
+
 // EnumUtils: DESCRIBE THIS
 enum NPCFlags2 : uint32
 {
