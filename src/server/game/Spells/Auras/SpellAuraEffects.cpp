@@ -5717,7 +5717,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     target->SendPeriodicAuraLog(&pInfo);
 
-    caster->LeechLife(damage);
+    caster->LeechLife(damage, GetSpellInfo());
 }
 
 bool AuraEffect::IsAreaAuraEffect() const
@@ -5817,13 +5817,13 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     HealInfo healInfo(caster, caster, heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
     caster->HealBySpell(healInfo);
-    caster->LeechLife(healInfo.GetHeal());
+    caster->LeechLife(healInfo.GetHeal(), GetSpellInfo());
 
     caster->GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal() * 0.5f, GetSpellInfo());
     Unit::ProcSkillsAndAuras(caster, caster, PROC_FLAG_DEAL_HELPFUL_PERIODIC, PROC_FLAG_TAKE_HELPFUL_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
 
     caster->SendSpellNonMeleeDamageLog(&log);
-    caster->LeechLife(damage);
+    caster->LeechLife(damage, GetSpellInfo());
 }
 
 void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const
@@ -5853,7 +5853,7 @@ void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) 
 
     HealInfo healInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
     caster->HealBySpell(healInfo);
-    caster->LeechLife(healInfo.GetHeal());
+    caster->LeechLife(healInfo.GetHeal(), GetSpellInfo());
     Unit::ProcSkillsAndAuras(caster, target, PROC_FLAG_DEAL_HARMFUL_PERIODIC, PROC_FLAG_TAKE_HARMFUL_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, PROC_HIT_NORMAL, nullptr, nullptr, &healInfo);
 }
 
@@ -5899,7 +5899,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     SpellPeriodicAuraLogInfo pInfo(this, heal, damage, heal - healInfo.GetEffectiveHeal(), healInfo.GetAbsorb(), 0, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
-    caster->LeechLife(heal);
+    caster->LeechLife(heal, GetSpellInfo());
 
     if (caster)
         target->GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal() * 0.5f, GetSpellInfo());
@@ -6088,7 +6088,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
 
     caster->SendSpellNonMeleeDamageLog(&damageInfo);
 
-    caster->LeechLife(damageInfo.damage);
+    caster->LeechLife(damageInfo.damage, spellProto);
 }
 
 bool AuraEffect::CanPeriodicTickCrit() const

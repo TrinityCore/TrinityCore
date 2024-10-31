@@ -1959,7 +1959,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr13>::ToString(SpellAttr13 value)
         case SPELL_ATTR13_UNK5: return { "SPELL_ATTR13_UNK5", "Unknown attribute 5@Attr13", "" };
         case SPELL_ATTR13_UNK6: return { "SPELL_ATTR13_UNK6", "Unknown attribute 6@Attr13", "" };
         case SPELL_ATTR13_UNK7: return { "SPELL_ATTR13_UNK7", "Unknown attribute 7@Attr13", "" };
-        case SPELL_ATTR13_UNK8: return { "SPELL_ATTR13_UNK8", "Unknown attribute 8@Attr13", "" };
+        case SPELL_ATTR13_CANNOT_LIFESTEAL_LEECH: return { "SPELL_ATTR13_CANNOT_LIFESTEAL_LEECH", "Cannot Lifesteal/Leech", "" };
         case SPELL_ATTR13_UNK9: return { "SPELL_ATTR13_UNK9", "Unknown attribute 9@Attr13", "" };
         case SPELL_ATTR13_UNK10: return { "SPELL_ATTR13_UNK10", "Unknown attribute 10@Attr13", "" };
         case SPELL_ATTR13_UNK11: return { "SPELL_ATTR13_UNK11", "Unknown attribute 11@Attr13", "" };
@@ -2003,7 +2003,7 @@ TC_API_EXPORT SpellAttr13 EnumUtils<SpellAttr13>::FromIndex(size_t index)
         case 5: return SPELL_ATTR13_UNK5;
         case 6: return SPELL_ATTR13_UNK6;
         case 7: return SPELL_ATTR13_UNK7;
-        case 8: return SPELL_ATTR13_UNK8;
+        case 8: return SPELL_ATTR13_CANNOT_LIFESTEAL_LEECH;
         case 9: return SPELL_ATTR13_UNK9;
         case 10: return SPELL_ATTR13_UNK10;
         case 11: return SPELL_ATTR13_UNK11;
@@ -2044,7 +2044,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr13>::ToIndex(SpellAttr13 value)
         case SPELL_ATTR13_UNK5: return 5;
         case SPELL_ATTR13_UNK6: return 6;
         case SPELL_ATTR13_UNK7: return 7;
-        case SPELL_ATTR13_UNK8: return 8;
+        case SPELL_ATTR13_CANNOT_LIFESTEAL_LEECH: return 8;
         case SPELL_ATTR13_UNK9: return 9;
         case SPELL_ATTR13_UNK10: return 10;
         case SPELL_ATTR13_UNK11: return 11;
