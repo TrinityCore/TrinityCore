@@ -14115,7 +14115,7 @@ void Unit::SetVignette(uint32 vignetteId)
 int32 Unit::LeechLife(uint32 amount, SpellInfo const* spellInfo)
 {
     if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR13_CANNOT_LIFESTEAL_LEECH))
-        return false;
+        return 0;
 
     SpellInfo const* leechSpell = sSpellMgr->AssertSpellInfo(SPELL_LEECH, DIFFICULTY_NONE);
     if (!IsAlive())
