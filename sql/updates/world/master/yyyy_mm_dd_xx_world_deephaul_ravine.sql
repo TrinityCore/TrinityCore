@@ -45,8 +45,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (424166, 'spell_bg_deephaul_ravine_earthen_mine_cart_ride'),
 (424383, 'spell_bg_deephaul_ravine_earthen_mine_cart_ride');
 
-DELETE FROM `world_state` WHERE `ID` IN (7852, 25412, 24959, 24958, 24960, 25415, 25414, 25421, 25420);
+DELETE FROM `world_state` WHERE `ID` IN (6954, 6955, 7852, 25412, 24959, 24958, 24960, 25415, 25414, 25421, 25420);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `Comment`) VALUES
+(6954, 0, '2373,2656', 'Deephaul Ravine - Alliance Capture Cart'),
+(6955, 0, '2373,2656', 'Deephaul Ravine - Horde Capture Cart'),
 (7852, 0, '2656', 'Deephaul Ravine - Battleground Started'),
 (25412, 0, '2656', 'Deephaul Ravine - Flag Enabled (0 or 3)'),
 (24959, 0, '2656', 'Deephaul Ravine - Horde Team Score'),

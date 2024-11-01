@@ -96,6 +96,8 @@ namespace DeephaulRavine
         static constexpr uint32 ProgressEventAllianceWest = 88515;
         static constexpr uint32 ProgressEventHordeEast = 88510;
         static constexpr uint32 ProgressEventAllianceEast = 88511;
+
+        static constexpr uint32 BattlegroundStarted = 35912;
     }
 
     namespace GameObjects
@@ -150,7 +152,11 @@ namespace DeephaulRavine
             { 3965.46875f, -3084.96533203125f, 240.85400390625f, 4.068012237548828125f },
             { 3953.146728515625f, -3101.30029296875f, 240.928680419921875f, 4.05515289306640625f },
         }};
+    }
 
+    namespace PvpStats
+    {
+        static constexpr int32 FlagCaptures = 1020;
     }
 
     namespace Sounds
@@ -213,6 +219,12 @@ namespace DeephaulRavine
          * 2; when taken
          */
         static constexpr int32 AllianceFlagState = 1545;
+
+        // WSE: 12385, "(WorldState(6954) + WorldState(6955)) == 1")
+        // values might be swapped, they are not send to client
+        // See SilvershardMines
+        static constexpr int32 AllianceCapturedCart = 6954;
+        static constexpr int32 HordeCapturedCart = 6955;
     }
 }
 
@@ -267,7 +279,6 @@ struct battleground_deephaul_ravine : BattlegroundScript
                 context.Repeat();
         });
 
-        // todo check timing
         _scheduler.Schedule(5s, [&](TaskContext context)
         {
             RespawnEarthenMineCarts();
@@ -282,6 +293,8 @@ struct battleground_deephaul_ravine : BattlegroundScript
                 gameobject->DespawnOrUnsummon(3s);
             }
         }
+
+        TriggerGameEvent(DeephaulRavine::Events::BattlegroundStarted);
     }
 
     void OnPrepareStage3() override
@@ -348,6 +361,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
             gameObject->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Respawning, player));
 
         player->RemoveAurasDueToSpell(DeephaulRavine::Spells::DeephaulCrystal);
+        battleground->UpdatePvpStat(player, DeephaulRavine::PvpStats::FlagCaptures, 1);
 
         battleground->AddPoint(player->GetBGTeam(), 100);
         if (player->GetBGTeam() == ALLIANCE)
@@ -581,12 +595,18 @@ struct battleground_deephaul_ravine : BattlegroundScript
                     uint32 const scoreToAdd = std::min<uint32>(1500 - battleground->GetTeamScore(controlZone->GetControllingTeam()), 100);
                     if (controlZone->GetControllingTeam() == TEAM_HORDE)
                     {
+                        if (battlegroundMap->GetWorldStateValue(DeephaulRavine::WorldStates::HordeCapturedCart) != 1)
+                            UpdateWorldState(DeephaulRavine::WorldStates::HordeCapturedCart, 1, true);
+
                         battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::HordeCaptureMineCart, CHAT_MSG_BG_SYSTEM_HORDE, creature);
                         if (battleground->GetStatus() != STATUS_WAIT_LEAVE)
                             battleground->AddPoint(HORDE, scoreToAdd);
                     }
                     else if (controlZone->GetControllingTeam() == TEAM_ALLIANCE)
                     {
+                        if (battlegroundMap->GetWorldStateValue(DeephaulRavine::WorldStates::AllianceCapturedCart) != 1)
+                            UpdateWorldState(DeephaulRavine::WorldStates::AllianceCapturedCart, 1, true);
+
                         battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::AllianceCaptureMineCart, CHAT_MSG_BG_SYSTEM_ALLIANCE, creature);
                         if (battleground->GetStatus() != STATUS_WAIT_LEAVE)
                             battleground->AddPoint(ALLIANCE, scoreToAdd);
