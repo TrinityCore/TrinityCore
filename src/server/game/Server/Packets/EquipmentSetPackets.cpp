@@ -19,9 +19,9 @@
 
 WorldPacket const* WorldPackets::EquipmentSet::EquipmentSetID::Write()
 {
-    _worldPacket << uint64(GUID);
     _worldPacket << int32(Type);
     _worldPacket << uint32(SetID);
+    _worldPacket << uint64(GUID);
 
     return &_worldPacket;
 }
@@ -119,8 +119,8 @@ void WorldPackets::EquipmentSet::UseEquipmentSet::Read()
 
 WorldPacket const* WorldPackets::EquipmentSet::UseEquipmentSetResult::Write()
 {
+    _worldPacket << int32(Reason);
     _worldPacket << uint64(GUID);
-    _worldPacket << uint8(Reason);
 
     return &_worldPacket;
 }

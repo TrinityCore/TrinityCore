@@ -157,9 +157,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Type = 0;
+            int32 Type = 0;
             uint32 MapID = 0;
             uint32 DifficultyID = 0;
+            int32 TimeLeft = 0;
+            std::string_view WarningMessage;    // GlobalStrings tag
             bool Locked = false;
             bool Extended = false;
         };

@@ -66,6 +66,7 @@ struct Petition;
 struct Position;
 enum class AuctionCommand : int8;
 enum class AuctionResult : int8;
+enum class PlayerInteractionType : int32;
 enum InventoryResult : uint8;
 enum class StableResult : uint8;
 enum class TabardVendorType : int32;
@@ -134,6 +135,7 @@ namespace WorldPackets
     {
         class AutoBankItem;
         class AutoStoreBankItem;
+        class BankerActivate;
         class BuyBankSlot;
     }
 
@@ -786,13 +788,15 @@ enum AccountDataType
     PER_CHARACTER_CLICK_BINDINGS_CACHE  = 12,
     GLOBAL_EDIT_MODE_CACHE              = 13,
     PER_CHARACTER_EDIT_MODE_CACHE       = 14,
+    GLOBAL_FRONTEND_CHAT_SETTINGS       = 15,
+    GLOBAL_CHARACTER_LIST_ORDER         = 16
 };
 
-#define NUM_ACCOUNT_DATA_TYPES        15
+#define NUM_ACCOUNT_DATA_TYPES        17
 
-#define ALL_ACCOUNT_DATA_CACHE_MASK 0x7FFF
-#define GLOBAL_CACHE_MASK           0x2515
-#define PER_CHARACTER_CACHE_MASK    0x5AEA
+#define ALL_ACCOUNT_DATA_CACHE_MASK 0x0001FFFFu
+#define GLOBAL_CACHE_MASK           0x0001A515u
+#define PER_CHARACTER_CACHE_MASK    0x00005AEAu
 
 struct AccountData
 {
@@ -983,7 +987,7 @@ class TC_GAME_API WorldSession
 
         void SendTrainerList(Creature* npc, uint32 trainerId);
         void SendListInventory(ObjectGuid guid);
-        void SendShowBank(ObjectGuid guid);
+        void SendShowBank(ObjectGuid guid, PlayerInteractionType interactionType);
         bool CanOpenMailBox(ObjectGuid guid);
         void SendShowMailBox(ObjectGuid guid);
         void SendTabardVendorActivate(ObjectGuid guid, TabardVendorType type);
@@ -1327,7 +1331,7 @@ class TC_GAME_API WorldSession
         void HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& taxiRequestEarlyLanding);
 
         void HandleTabardVendorActivateOpcode(WorldPackets::NPC::TabardVendorActivate const& tabardVendorActivate);
-        void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
+        void HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate const& bankerActivate);
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowList(WorldPackets::Petition::PetitionShowList& packet);

@@ -82,6 +82,7 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerDenied::Write()
 WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
 {
     _worldPacket << TriggerGUID;
+    _worldPacket << Unused_1100;
 
     _worldPacket.WriteBit(AreaTriggerSpline.has_value());
     _worldPacket.WriteBit(AreaTriggerOrbit.has_value());

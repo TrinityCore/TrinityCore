@@ -99,6 +99,17 @@ WorldPacket const* WorldPackets::Guild::GuildCommandResult::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Guild::AcceptGuildInvite::Read()
+{
+    _worldPacket >> GuildGuid;
+}
+
+void WorldPackets::Guild::GuildDeclineInvitation::Read()
+{
+    _worldPacket >> GuildGuid;
+    _worldPacket >> Bits<1>(IsAuto);
+}
+
 void WorldPackets::Guild::DeclineGuildInvites::Read()
 {
     Allow = _worldPacket.ReadBit();
@@ -204,7 +215,6 @@ WorldPacket const* WorldPackets::Guild::GuildEventPresenceChange::Write()
 
     _worldPacket.WriteBits(Name.length(), 6);
     _worldPacket.WriteBit(LoggedOn);
-    _worldPacket.WriteBit(Mobile);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(Name);

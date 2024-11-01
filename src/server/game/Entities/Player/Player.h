@@ -2221,6 +2221,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         int32 CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus = false);
 
+        void SetVisibleForcedReaction(uint32 factionId, ReputationRank rank);
+        void RemoveVisibleForcedReaction(uint32 factionId);
+
         void UpdateSkillsForLevel();
         void ModifySkillBonus(uint32 skillid, int32 val, bool talent);
 

@@ -220,6 +220,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
     request.OptionalCurrencies.resize(buffer.read<uint32>());
     request.OptionalReagents.resize(buffer.read<uint32>());
     request.RemovedModifications.resize(buffer.read<uint32>());
+    buffer >> request.CraftingFlags;
 
     for (SpellExtraCurrencyCost& optionalCurrency : request.OptionalCurrencies)
         buffer >> optionalCurrency;
@@ -328,8 +329,8 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellMissStatus const& spellMissStatus)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellPowerData const& spellPowerData)
 {
-    data << int32(spellPowerData.Cost);
     data << int8(spellPowerData.Type);
+    data << int32(spellPowerData.Cost);
     return data;
 }
 
@@ -742,6 +743,7 @@ WorldPacket const* PlayOrphanSpellVisual::Write()
     _worldPacket << SourceRotation;
     _worldPacket << TargetLocation;
     _worldPacket << Target;
+    _worldPacket << TargetTransport;
     _worldPacket << int32(SpellVisualID);
     _worldPacket << float(TravelSpeed);
     _worldPacket << float(LaunchDelay);

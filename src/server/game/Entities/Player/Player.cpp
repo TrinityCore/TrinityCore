@@ -6100,6 +6100,35 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
     return CalculatePct(rep, percent);
 }
 
+void Player::SetVisibleForcedReaction(uint32 factionId, ReputationRank rank)
+{
+    auto itr = std::ranges::find(m_playerData->ForcedReactions, int32(factionId), &UF::ZonePlayerForcedReaction::FactionID);
+    if (itr == m_playerData->ForcedReactions.end())
+        itr = std::ranges::find(m_playerData->ForcedReactions, 0, &UF::ZonePlayerForcedReaction::FactionID);
+
+    if (itr == m_playerData->ForcedReactions.end())
+        return; // no more free slots
+
+    auto setter = m_values.ModifyValue(&Player::m_playerData)
+        .ModifyValue(&UF::PlayerData::ForcedReactions, std::ranges::distance(m_playerData->ForcedReactions.begin(), itr));
+
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::FactionID), factionId);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::Reaction), rank);
+}
+
+void Player::RemoveVisibleForcedReaction(uint32 factionId)
+{
+    auto itr = std::ranges::find(m_playerData->ForcedReactions, int32(factionId), &UF::ZonePlayerForcedReaction::FactionID);
+    if (itr == m_playerData->ForcedReactions.end())
+        return;
+
+    auto setter = m_values.ModifyValue(&Player::m_playerData)
+        .ModifyValue(&UF::PlayerData::ForcedReactions, std::ranges::distance(m_playerData->ForcedReactions.begin(), itr));
+
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::FactionID), 0);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::ZonePlayerForcedReaction::Reaction), 0);
+}
+
 // Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
@@ -12983,6 +13012,7 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     packet.QuestLogItemID = item->GetTemplate()->QuestLogItemId;
     packet.Quantity = quantity;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
+
     packet.BattlePetSpeciesID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
     packet.BattlePetBreedID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) & 0xFFFFFF;
     packet.BattlePetBreedQuality = (item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) >> 24) & 0xFF;
@@ -15243,20 +15273,28 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
             case QUEST_STATUS_COMPLETE:
                 if (quest->IsImportant())
                     result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::ImportantQuestRewardCompleteNoPOI : QuestGiverStatus::ImportantQuestRewardCompletePOI;
+                else if (quest->IsMeta())
+                    result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::MetaQuestRewardCompleteNoPOI : QuestGiverStatus::MetaQuestRewardCompletePOI;
                 else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
                     result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::CovenantCallingRewardCompleteNoPOI : QuestGiverStatus::CovenantCallingRewardCompletePOI;
                 else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                     result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::LegendaryRewardCompleteNoPOI : QuestGiverStatus::LegendaryRewardCompletePOI;
+                else if (quest->IsDailyOrWeekly())
+                    result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::RepeatableRewardCompleteNoPOI : QuestGiverStatus::RepeatableRewardCompletePOI;
                 else
                     result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::RewardCompleteNoPOI : QuestGiverStatus::RewardCompletePOI;
                 break;
             case QUEST_STATUS_INCOMPLETE:
                 if (quest->IsImportant())
                     result |= QuestGiverStatus::ImportantReward;
+                else if (quest->IsMeta())
+                    result |= QuestGiverStatus::MetaReward;
                 else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
                     result |= QuestGiverStatus::CovenantCallingReward;
                 else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                     result |= QuestGiverStatus::LegendaryReward;
+                else if (quest->IsDailyOrWeekly())
+                    result |= QuestGiverStatus::RepeatableReward;
                 else
                     result |= QuestGiverStatus::Reward;
                 break;
@@ -15264,12 +15302,17 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                 break;
         }
 
-        if (quest->IsTurnIn() && CanTakeQuest(quest, false) && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
+        if (quest->IsTurnIn() && CanTakeQuest(quest, false))
         {
-            if (GetLevel() > (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
-                result |= QuestGiverStatus::RepeatableTurnin;
+            if (quest->IsRepeatable())
+            {
+                if (GetLevel() > (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
+                    result |= QuestGiverStatus::RepeatableTurnin;
+                else
+                    result |= QuestGiverStatus::TrivialRepeatableTurnin;
+            }
             else
-                result |= QuestGiverStatus::TrivialRepeatableTurnin;
+                result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::RewardCompleteNoPOI : QuestGiverStatus::RewardCompletePOI;
         }
     }
 
@@ -15291,12 +15334,14 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     bool isTrivial = GetLevel() > (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
                     if (quest->IsImportant())
                         result |= isTrivial ? QuestGiverStatus::TrivialImportantQuest : QuestGiverStatus::ImportantQuest;
+                    else if (quest->IsMeta())
+                        result |= isTrivial ? QuestGiverStatus::TrivialMetaQuest : QuestGiverStatus::MetaQuest;
                     else if (quest->GetQuestTag() == QuestTagType::CovenantCalling)
                         result |= QuestGiverStatus::CovenantCallingQuest;
                     else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                         result |= isTrivial ? QuestGiverStatus::TrivialLegendaryQuest : QuestGiverStatus::LegendaryQuest;
-                    else if (quest->IsDaily())
-                        result |= isTrivial ? QuestGiverStatus::TrivialDailyQuest : QuestGiverStatus::DailyQuest;
+                    else if (quest->IsDailyOrWeekly())
+                        result |= isTrivial ? QuestGiverStatus::TrivialRepeatableQuest : QuestGiverStatus::RepeatableQuest;
                     else
                         result |= isTrivial ? QuestGiverStatus::Trivial : QuestGiverStatus::Quest;
                 }

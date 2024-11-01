@@ -681,6 +681,7 @@ WorldPacket const* WorldPackets::Movement::NewWorld::Write()
     _worldPacket << Loc;
     _worldPacket << uint32(Reason);
     _worldPacket << MovementOffset;
+    _worldPacket << int32(Counter);
     return &_worldPacket;
 }
 

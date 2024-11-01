@@ -47,7 +47,7 @@ void WorldPackets::Chat::ChatMessageWhisper::Read()
     _worldPacket >> TargetGUID;
     _worldPacket >> TargetVirtualRealmAddress;
 
-    uint32 targetLen = _worldPacket.ReadBits(6);
+    uint32 targetLen = _worldPacket.ReadBits(7);
     uint32 textLen = _worldPacket.ReadBits(11);
 
     if (targetLen > 1)
@@ -100,8 +100,8 @@ void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
     _worldPacket >> PlayerGUID;
     _worldPacket >> PlayerVirtualRealmAddress;
 
-    uint32 playerNameLength = _worldPacket.ReadBits(6);
-    uint32 channelNameLength = _worldPacket.ReadBits(6);
+    uint32 playerNameLength = _worldPacket.ReadBits(7);
+    uint32 channelNameLength = _worldPacket.ReadBits(7);
 
     if (playerNameLength > 1)
     {
@@ -208,6 +208,7 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket << uint32(TargetVirtualAddress);
     _worldPacket << uint32(SenderVirtualAddress);
     _worldPacket << int32(AchievementID);
+    _worldPacket << uint16(_ChatFlags);
     _worldPacket << float(DisplayTime);
     _worldPacket << int32(SpellID);
     _worldPacket.WriteBits(SenderName.length(), 11);
@@ -215,7 +216,6 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(Prefix.length(), 5);
     _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(ChatText.length(), 12);
-    _worldPacket.WriteBits(_ChatFlags, 15);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
     _worldPacket.WriteBit(Unused_801.has_value());

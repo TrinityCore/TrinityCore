@@ -327,7 +327,7 @@ void AuctionSellItem::Read()
     if (_worldPacket.ReadBit())
         TaintedBy.emplace();
 
-    Items.resize(_worldPacket.ReadBits(6));
+    Items.resize(_worldPacket.ReadBits(5));
 
     if (TaintedBy)
         _worldPacket >> *TaintedBy;

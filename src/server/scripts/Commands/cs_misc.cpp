@@ -1388,7 +1388,7 @@ public:
 
     static bool HandleBankCommand(ChatHandler* handler)
     {
-        handler->GetSession()->SendShowBank(handler->GetSession()->GetPlayer()->GetGUID());
+        handler->GetSession()->SendShowBank(handler->GetSession()->GetPlayer()->GetGUID(), PlayerInteractionType::Banker);
         return true;
     }
 

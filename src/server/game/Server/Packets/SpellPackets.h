@@ -241,6 +241,7 @@ namespace WorldPackets
             Array<SpellCraftingReagent, 6> RemovedModifications;
             Array<SpellExtraCurrencyCost, 5 /*MAX_ITEM_EXT_COST_CURRENCIES*/> OptionalCurrencies;
             Optional<uint64> CraftingOrderID;
+            uint8 CraftingFlags = 0; // 1 = ApplyConcentration
             ObjectGuid CraftingNPC;
             int32 Misc[2] = { };
         };
@@ -695,6 +696,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Target; // Exclusive with TargetLocation
+            ObjectGuid TargetTransport;
             TaggedPosition<Position::XYZ> SourceLocation;
             int32 SpellVisualID = 0;
             bool SpeedAsTime = false;

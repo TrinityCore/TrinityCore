@@ -37,6 +37,7 @@ namespace WorldPackets
             uint32 PlaybackFlags = 0;
             uint32 SceneInstanceID = 0;
             int32 SceneScriptPackageID = 0;
+            int32 MovieID = 0;
             ObjectGuid TransportGUID;
             TaggedPosition<Position::XYZO> Location;
             bool Encrypted = false;

@@ -118,20 +118,19 @@ Quest::Quest(Field* questRecord)
     _areaGroupID = questRecord[103].GetUInt32();
     _limitTime = questRecord[104].GetInt64();
     _allowableRaces.RawValue = questRecord[105].GetUInt64();
-    _treasurePickerID = questRecord[106].GetInt32();
-    _expansion = questRecord[107].GetInt32();
-    _managedWorldStateID = questRecord[108].GetInt32();
-    _questSessionBonus = questRecord[109].GetInt32();
+    _expansion = questRecord[106].GetInt32();
+    _managedWorldStateID = questRecord[107].GetInt32();
+    _questSessionBonus = questRecord[108].GetInt32();
 
-    _logTitle = questRecord[110].GetString();
-    _logDescription = questRecord[111].GetString();
-    _questDescription = questRecord[112].GetString();
-    _areaDescription = questRecord[113].GetString();
-    _portraitGiverText = questRecord[114].GetString();
-    _portraitGiverName = questRecord[115].GetString();
-    _portraitTurnInText = questRecord[116].GetString();
-    _portraitTurnInName = questRecord[117].GetString();
-    _questCompletionLog = questRecord[118].GetString();
+    _logTitle = questRecord[109].GetString();
+    _logDescription = questRecord[110].GetString();
+    _questDescription = questRecord[111].GetString();
+    _areaDescription = questRecord[112].GetString();
+    _portraitGiverText = questRecord[113].GetString();
+    _portraitGiverName = questRecord[114].GetString();
+    _portraitTurnInText = questRecord[115].GetString();
+    _portraitTurnInName = questRecord[116].GetString();
+    _questCompletionLog = questRecord[117].GetString();
 }
 
 Quest::~Quest()
@@ -408,6 +407,11 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
     ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, text.Text);
 }
 
+void Quest::LoadTreasurePickers(Field* fields)
+{
+    _treasurePickerID.push_back(fields[1].GetInt32());
+}
+
 uint32 Quest::XPValue(Player const* player) const
 {
     return XPValue(player ? player->GetLevel() : 0, GetQuestLevelForPlayer(player), _level, _rewardXPDifficulty, _rewardXPMultiplier);
@@ -468,6 +472,14 @@ bool Quest::IsImportant() const
     return false;
 }
 
+bool Quest::IsMeta() const
+{
+    if (QuestInfoEntry const* questInfo = sQuestInfoStore.LookupEntry(GetQuestInfoID()))
+        return (questInfo->Modifiers & 0x800) != 0;
+
+    return false;
+}
+
 uint32 Quest::GetQuestLevelForPlayer(Player const* player) const
 {
     if (_level != -1)
@@ -511,7 +523,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     rewards.SpellCompletionID       = GetRewSpell();
     rewards.SkillLineID             = GetRewardSkillId();
     rewards.NumSkillUps             = GetRewardSkillPoints();
-    rewards.TreasurePickerID        = GetTreasurePickerId();
+    //rewards.TreasurePickerID        = GetTreasurePickerId();
 
     for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
@@ -522,8 +534,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
     for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
     {
-        rewards.ItemID[i] = RewardItemId[i];
-        rewards.ItemQty[i] = RewardItemCount[i];
+        rewards.Items[i].ItemID = RewardItemId[i];
+        rewards.Items[i].ItemQty = RewardItemCount[i];
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
@@ -536,8 +548,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
-        rewards.CurrencyID[i] = RewardCurrencyId[i];
-        rewards.CurrencyQty[i] = RewardCurrencyCount[i];
+        rewards.Currencies[i].CurrencyID = RewardCurrencyId[i];
+        rewards.Currencies[i].CurrencyQty = RewardCurrencyCount[i];
     }
 }
 

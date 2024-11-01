@@ -421,7 +421,7 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
         case UNIT_NPC_FLAG_NONE: return { "UNIT_NPC_FLAG_NONE", "UNIT_NPC_FLAG_NONE", "" };
         case UNIT_NPC_FLAG_GOSSIP: return { "UNIT_NPC_FLAG_GOSSIP", "has gossip menu", "100%" };
         case UNIT_NPC_FLAG_QUESTGIVER: return { "UNIT_NPC_FLAG_QUESTGIVER", "is quest giver", "100%" };
-        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return { "UNIT_NPC_FLAG_ACCOUNT_BANKER", "UNIT_NPC_FLAG_ACCOUNT_BANKER", "" };
+        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return { "UNIT_NPC_FLAG_ACCOUNT_BANKER", "is account banker", "" };
         case UNIT_NPC_FLAG_UNK2: return { "UNIT_NPC_FLAG_UNK2", "UNIT_NPC_FLAG_UNK2", "" };
         case UNIT_NPC_FLAG_TRAINER: return { "UNIT_NPC_FLAG_TRAINER", "is trainer", "100%" };
         case UNIT_NPC_FLAG_TRAINER_CLASS: return { "UNIT_NPC_FLAG_TRAINER_CLASS", "is class trainer", "100%" };

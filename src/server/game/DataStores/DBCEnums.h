@@ -1758,7 +1758,7 @@ enum class PlayerInteractionType : int32
     PersonalTabardVendor        = 65,
     ForgeMaster                 = 66,
     CharacterBanker             = 67,
-    AccountBanker               = 68
+    AccountBanker               = 68,
 };
 
 enum class PowerTypeFlags : int16
