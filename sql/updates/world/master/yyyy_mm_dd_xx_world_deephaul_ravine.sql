@@ -6,6 +6,8 @@ SET @WORLD_SAFE_LOC := 1000000;
 SET @TRIGGER_ID_ALLIANCE := 30; -- Trigger ID for capture flag area trigger alliance
 SET @TRIGGER_ID_HORDE := 31; -- Trigger ID for capture flag area trigger horde
 
+SET @SPAWNGROUP := 1000000;
+
 DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WORLD_SAFE_LOC+0 AND @WORLD_SAFE_LOC+5;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
 (@WORLD_SAFE_LOC+0, 2656, 4162.46, -2536.93, 277.266, 4.712389 / (2 * PI() / 360), 'Deephaul Ravine - Horde Start Location'),
@@ -60,6 +62,18 @@ INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `Comment`) VALUES
 (25420, 0, '2656', 'Deephaul Ravine - Horde Control State West Cart');
 
 UPDATE `world_state` SET `MapIDs` = '489,726,2106,2656' WHERE `ID` IN (1545, 1546);
+
+DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWNGROUP+0 AND @SPAWNGROUP+0;
+INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
+(@SPAWNGROUP+0, 'Deephaul Ravine - Crystal', 0x20);
+
+DELETE FROM `spawn_group` WHERE `groupId` BETWEEN @SPAWNGROUP+0 AND @SPAWNGROUP+0;
+INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
+(@SPAWNGROUP+0, 1, @OGUID+20);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=33 AND `SourceEntry` BETWEEN @SPAWNGROUP+0 AND @SPAWNGROUP+0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(33, 0, @SPAWNGROUP+0, 0, 0, 11, 0, 25412, 3, 0, 0, 0, 0, '', 'Deephaul Ravine - Crystal - Only spawn when worldstate 25412 is 3');
 
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (21076, 21077, 33926));
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
