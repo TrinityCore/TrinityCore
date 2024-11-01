@@ -15,9 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Battleground.h"
 #include "BattlegroundScript.h"
+#include "GameObject.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
