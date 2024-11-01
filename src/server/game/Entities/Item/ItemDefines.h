@@ -142,6 +142,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_SLOT_ONLY_REAGENTBAG                         = 116,// Only Reagent Bags can be placed in the reagent bag slot.
     EQUIP_ERR_REAGENTBAG_ITEM_TYPE                         = 117,// Only Reagents can be placed in Reagent Bags.
     EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND              = 118,// Items that can be refunded can't be bulk sold.
+    EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK            = 119,// Soulbound items cannot be stored in the Warband Bank.
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -285,6 +286,13 @@ enum class AzeriteEssenceActivateResult : uint32
     NotAtForge          = 10,
     HeartLevelTooLow    = 11,   // Arg: RequiredLevel
     NotEquipped         = 12
+};
+
+enum class BankType : int8
+{
+    Character   = 0,
+    Guild       = 1,
+    Account     = 2
 };
 
 #endif // ItemDefines_h__

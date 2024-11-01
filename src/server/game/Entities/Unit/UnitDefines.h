@@ -296,7 +296,7 @@ enum NPCFlags : uint32
     UNIT_NPC_FLAG_NONE                  = 0x00000000,
     UNIT_NPC_FLAG_GOSSIP                = 0x00000001,     // TITLE has gossip menu DESCRIPTION 100%
     UNIT_NPC_FLAG_QUESTGIVER            = 0x00000002,     // TITLE is quest giver DESCRIPTION 100%
-    UNIT_NPC_FLAG_UNK1                  = 0x00000004,
+    UNIT_NPC_FLAG_ACCOUNT_BANKER        = 0x00000004,     // TITLE is account banker
     UNIT_NPC_FLAG_UNK2                  = 0x00000008,
     UNIT_NPC_FLAG_TRAINER               = 0x00000010,     // TITLE is trainer DESCRIPTION 100%
     UNIT_NPC_FLAG_TRAINER_CLASS         = 0x00000020,     // TITLE is class trainer DESCRIPTION 100%
