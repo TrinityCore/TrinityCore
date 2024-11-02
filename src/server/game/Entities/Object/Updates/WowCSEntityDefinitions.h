@@ -83,7 +83,7 @@ struct EntityFragmentsHolder
     std::array<EntityFragment, 2> UpdateableIds = { EntityFragment::End, EntityFragment::End };
     std::array<uint8, 2> UpdateableMasks = { };
     uint8 UpdateableCount = 0;
-    uint8 ContentsChangedMask = CGObjectActiveMask;
+    uint8 ContentsChangedMask = 0;
 
     void Add(EntityFragment fragment, bool update);
     void Remove(EntityFragment fragment);

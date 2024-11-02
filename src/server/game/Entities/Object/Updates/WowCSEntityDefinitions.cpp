@@ -52,7 +52,10 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update)
         {
             UpdateableMasks[i] = 1 << maskIndex++;
             if (IsIndirectFragment(UpdateableIds[i]))
+            {
+                ContentsChangedMask |= UpdateableMasks[i]; // set the first bit to true to activate fragment
                 UpdateableMasks[i] |= 1 << maskIndex++;
+            }
         }
     }
 
