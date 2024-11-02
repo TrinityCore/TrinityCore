@@ -265,7 +265,6 @@ namespace WorldPackets
             int32 ItemQty = 0;
         };
 
-
         struct QuestChoiceItem
         {
             ::LootItemType LootItemType = ::LootItemType::Item;

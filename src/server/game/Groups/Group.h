@@ -191,7 +191,6 @@ enum class PingSubjectType : uint8
     Max
 };
 
-
 enum class RestrictPingsTo : int32
 {
     None        = 0,
