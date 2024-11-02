@@ -136,25 +136,27 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(ChatDisabledByPlayer);
     _worldPacket << Bits<1>(LFGListCustomRequiresAuthenticator);
     _worldPacket << Bits<1>(AddonsDisabled);
-    _worldPacket << Bits<1>(TimerunningEnabled);
     _worldPacket << Bits<1>(WarGamesEnabled);
-    _worldPacket << Bits<1>(ContentTrackingEnabled);
-    _worldPacket << Bits<1>(IsSellAllJunkEnabled);
+    _worldPacket << OptionalInit(RaceClassExpansionLevels);
+    _worldPacket << Bits<1>(Unknown_441_0);
+    _worldPacket << Bits<1>(Unknown_441_1);
 
+    _worldPacket << Bits<1>(Unknown_441_2);
+    _worldPacket << Bits<1>(Unknown_441_3);
     _worldPacket << Bits<1>(IsGroupFinderEnabled);
     _worldPacket << Bits<1>(IsLFDEnabled);
     _worldPacket << Bits<1>(IsLFREnabled);
     _worldPacket << Bits<1>(IsPremadeGroupEnabled);
     _worldPacket << Bits<1>(CanShowSetRoleButton);
-    _worldPacket << Bits<1>(false); // unused 10.2.7
+    _worldPacket << Bits<1>(PetHappinessEnabled);
+
     _worldPacket << Bits<1>(GuildEventsEditsEnabled);
     _worldPacket << Bits<1>(GuildTradeSkillsEnabled);
-
     _worldPacket << BitsSize<7>(Unknown1027);
     _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
-
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
-    _worldPacket << Bits<1>(IsAccountCurrencyTransferEnabled);
+    _worldPacket << Bits<1>(Unknown_441_4);
+    _worldPacket << Bits<1>(Unknown_441_5);
 
     _worldPacket.FlushBits();
 
@@ -189,6 +191,13 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->Delay);
         _worldPacket << int32(SessionAlert->Period);
         _worldPacket << int32(SessionAlert->DisplayTime);
+    }
+
+    if (RaceClassExpansionLevels)
+    {
+        _worldPacket << uint32(RaceClassExpansionLevels->size());
+        if (!RaceClassExpansionLevels->empty())
+            _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
     }
 
     _worldPacket.WriteString(Unknown1027);

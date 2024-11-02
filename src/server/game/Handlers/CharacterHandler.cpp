@@ -1345,8 +1345,15 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
     features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
+
     features.TutorialsEnabled = true;
-    features.NPETutorialsEnabled = true;
+    features.WarModeFeatureEnabled = true;
+    features.QuestSessionEnabled = true;
+    features.WarGamesEnabled = true;
+    features.CanShowSetRoleButton = true;
+
+    features.GuildEventsEditsEnabled = true;
+    features.GuildTradeSkillsEnabled = false; // currently disabled on 4.4.1
 
     features.AddonChatThrottle.MaxTries = 10;
     features.AddonChatThrottle.TriesRestoredPerSecond = 1;
@@ -1364,8 +1371,6 @@ void WorldSession::SendFeatureSystemStatus()
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
     features.IsMuted = !CanSpeak();
-
-    features.TextToSpeechFeatureEnabled = false;
 
     features.IsLFDEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER);
     features.IsLFREnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_RAID_FINDER);

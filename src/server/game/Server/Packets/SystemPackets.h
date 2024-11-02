@@ -144,11 +144,10 @@ namespace WorldPackets
             bool WillKickFromWorld                   = false;
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
-            bool NPETutorialsEnabled                 = false;
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
             bool TokenBalanceEnabled                 = false;
-            bool WarModeFeatureEnabled               = true;
+            bool WarModeFeatureEnabled               = false;
             bool ClubsEnabled                        = false;
             bool ClubsBattleNetClubTypeAllowed       = false;
             bool ClubsCharacterClubTypeAllowed       = false;
@@ -165,21 +164,25 @@ namespace WorldPackets
             bool ChatDisabledByPlayer                = false;
             bool LFGListCustomRequiresAuthenticator  = false;
             bool AddonsDisabled                      = false;
-            bool TimerunningEnabled                  = false;
-            bool WarGamesEnabled                     = false; // classic only
-            bool ContentTrackingEnabled              = false;
-            bool IsSellAllJunkEnabled                = false;
-            bool IsGroupFinderEnabled                = true;  // classic only
-            bool IsLFDEnabled                        = true;  // classic only
-            bool IsLFREnabled                        = true;  // classic only
-            bool IsPremadeGroupEnabled               = true;  // classic only
-            bool CanShowSetRoleButton                = true;
-            bool GuildEventsEditsEnabled             = true;
-            bool GuildTradeSkillsEnabled             = true;
+            bool WarGamesEnabled                     = false;
+            bool Unknown_441_0                       = false;
+            bool Unknown_441_1                       = false;
+            bool Unknown_441_2                       = false;
+            bool Unknown_441_3                       = false;
+            bool IsGroupFinderEnabled                = false;
+            bool IsLFDEnabled                        = false;
+            bool IsLFREnabled                        = false;
+            bool IsPremadeGroupEnabled               = false;
+            bool CanShowSetRoleButton                = false;
+            bool PetHappinessEnabled                 = false;
+            bool GuildEventsEditsEnabled             = false;
+            bool GuildTradeSkillsEnabled             = false;
             bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
             bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
-            bool IsAccountCurrencyTransferEnabled    = false;
+            bool Unknown_441_4                       = false;
+            bool Unknown_441_5                       = false;
 
+            Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
