@@ -412,11 +412,13 @@ void CreateCharacter::Read()
     bool const hasTemplateSet = _worldPacket.ReadBit();
     CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
     CreateInfo->UseNPE = _worldPacket.ReadBit();
+    CreateInfo->HardcoreSelfFound = _worldPacket.ReadBit();
 
     _worldPacket >> CreateInfo->Race;
     _worldPacket >> CreateInfo->Class;
     _worldPacket >> CreateInfo->Sex;
     CreateInfo->Customizations.resize(_worldPacket.read<uint32>());
+    _worldPacket >> CreateInfo->TimerunningSeasonID;
     CreateInfo->Name = _worldPacket.ReadString(nameLength);
     if (hasTemplateSet)
         CreateInfo->TemplateSet = _worldPacket.read<int32>();

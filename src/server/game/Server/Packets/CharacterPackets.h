@@ -62,8 +62,10 @@ namespace WorldPackets
             uint8 Sex             = GENDER_NONE;
             Array<ChrCustomizationChoice, 250> Customizations;
             Optional<int32> TemplateSet;
+            int32 TimerunningSeasonID = 0;
             bool IsTrialBoost     = false;
             bool UseNPE           = false;
+            bool HardcoreSelfFound = false;
             std::string Name;
 
             /// Server side data
