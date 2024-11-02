@@ -25,7 +25,6 @@
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "city_of_threads.h"
 
