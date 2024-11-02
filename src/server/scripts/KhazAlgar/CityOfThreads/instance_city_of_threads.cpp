@@ -15,11 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaBoundary.h"
-#include "Creature.h"
-#include "CreatureGroups.h"
-#include "GameObject.h"
-#include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "city_of_threads.h"
