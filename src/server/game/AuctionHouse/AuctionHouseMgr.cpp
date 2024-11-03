@@ -627,8 +627,7 @@ void AuctionHouseMgr::LoadAuctions()
 void AuctionHouseMgr::AddAItem(Item* item)
 {
     ASSERT(item);
-    ASSERT(_itemsByGuid.count(item->GetGUID()) == 0);
-    _itemsByGuid[item->GetGUID()] = item;
+    ASSERT_WITH_SIDE_EFFECTS(_itemsByGuid.emplace(item->GetGUID(), item).second);
 }
 
 bool AuctionHouseMgr::RemoveAItem(ObjectGuid itemGuid, bool deleteItem /*= false*/, CharacterDatabaseTransaction* trans /*= nullptr*/)
@@ -928,12 +927,10 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
 
     if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = auction.Items[0]->GetItemModifiedAppearance())
     {
-        auto itr = std::find_if(bucket->ItemModifiedAppearanceId.begin(), bucket->ItemModifiedAppearanceId.end(),
-            [itemModifiedAppearance](std::pair<uint32, uint32> const& appearance) { return appearance.first == itemModifiedAppearance->ID; });
+        auto itr = std::ranges::find(bucket->ItemModifiedAppearanceId, itemModifiedAppearance->ID, &std::pair<uint32, uint32>::first);
 
         if (itr == bucket->ItemModifiedAppearanceId.end())
-            itr = std::find_if(bucket->ItemModifiedAppearanceId.begin(), bucket->ItemModifiedAppearanceId.end(),
-                [](std::pair<uint32, uint32> const& appearance) { return appearance.first == 0; });
+            itr = std::ranges::find(bucket->ItemModifiedAppearanceId, 0u, &std::pair<uint32, uint32>::first);
 
         if (itr != bucket->ItemModifiedAppearanceId.end())
         {
@@ -1004,7 +1001,7 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
 
     WorldPackets::AuctionHouse::AuctionSortDef priceSort{ AuctionHouseSortOrder::Price, false };
     AuctionPosting::Sorter insertSorter(LOCALE_enUS, std::span(&priceSort, 1));
-    bucket->Auctions.insert(std::lower_bound(bucket->Auctions.begin(), bucket->Auctions.end(), addedAuction, std::cref(insertSorter)), addedAuction);
+    bucket->Auctions.insert(std::ranges::lower_bound(bucket->Auctions, addedAuction, std::cref(insertSorter)), addedAuction);
 
     sScriptMgr->OnAuctionAdd(this, addedAuction);
 }
@@ -1014,7 +1011,7 @@ std::map<uint32, AuctionPosting>::node_type AuctionHouseObject::RemoveAuction(Ch
 {
     AuctionsBucketData* bucket = auction->Bucket;
 
-    bucket->Auctions.erase(std::remove(bucket->Auctions.begin(), bucket->Auctions.end(), auction), bucket->Auctions.end());
+    std::erase(bucket->Auctions, auction);
     if (!bucket->Auctions.empty())
     {
         // update cache fields
@@ -1312,7 +1309,7 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
     }
 
     AuctionsBucketData::Sorter sorter(player->GetSession()->GetSessionDbcLocale(), sorts);
-    std::sort(buckets.begin(), buckets.end(), std::cref(sorter));
+    std::ranges::sort(buckets, std::cref(sorter));
 
     for (AuctionsBucketData const* resultBucket : buckets)
     {
@@ -1334,7 +1331,7 @@ void AuctionHouseObject::BuildListBiddedItems(WorldPackets::AuctionHouse::Auctio
             auctions.push_back(auction);
 
     AuctionPosting::Sorter sorter(player->GetSession()->GetSessionDbcLocale(), sorts);
-    std::sort(auctions.begin(), auctions.end(), std::cref(sorter));
+    std::ranges::sort(auctions, std::cref(sorter));
 
     for (AuctionPosting const* resultAuction : auctions)
     {
@@ -1413,7 +1410,7 @@ void AuctionHouseObject::BuildListOwnedItems(WorldPackets::AuctionHouse::Auction
             auctions.push_back(auction);
 
     AuctionPosting::Sorter sorter(player->GetSession()->GetSessionDbcLocale(), sorts);
-    std::sort(auctions.begin(), auctions.end(), std::cref(sorter));
+    std::ranges::sort(auctions, std::cref(sorter));
 
     for (AuctionPosting const* resultAuction : auctions)
     {
