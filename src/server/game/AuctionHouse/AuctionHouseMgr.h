@@ -291,7 +291,8 @@ public:
 
     void AddAuction(CharacterDatabaseTransaction trans, AuctionPosting auction);
 
-    void RemoveAuction(CharacterDatabaseTransaction trans, AuctionPosting* auction, std::map<uint32, AuctionPosting>::iterator* auctionItr = nullptr);
+    std::map<uint32, AuctionPosting>::node_type RemoveAuction(CharacterDatabaseTransaction trans, AuctionPosting* auction,
+        std::map<uint32, AuctionPosting>::iterator* auctionItr = nullptr);
 
     void Update();
 
