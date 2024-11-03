@@ -406,9 +406,7 @@ struct at_orator_krix_vizk_chains_of_oppression : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_CHAINS_OF_OPPRESSION_PERIODIC, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_FULL_MASK | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
+        at->GetCaster()->CastSpell(unit, SPELL_CHAINS_OF_OPPRESSION_PERIODIC, TRIGGERED_FULL_MASK);
     }
 
     void OnUnitExit(Unit* unit) override
@@ -431,9 +429,7 @@ struct at_orator_krix_vizk_lingering_influence : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_LINGERING_INFLUENCE_DAMAGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_FULL_MASK | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
+        at->GetCaster()->CastSpell(unit, SPELL_LINGERING_INFLUENCE_DAMAGE, TRIGGERED_FULL_MASK);
     }
 
     void OnUnitExit(Unit* unit) override
