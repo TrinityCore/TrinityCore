@@ -1009,7 +1009,8 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
     sScriptMgr->OnAuctionAdd(this, addedAuction);
 }
 
-void AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, AuctionPosting* auction, std::map<uint32, AuctionPosting>::iterator* auctionItr /*= nullptr*/)
+std::map<uint32, AuctionPosting>::node_type AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, AuctionPosting* auction,
+    std::map<uint32, AuctionPosting>::iterator* auctionItr /*= nullptr*/)
 {
     AuctionsBucketData* bucket = auction->Bucket;
 
@@ -1068,7 +1069,10 @@ void AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, Aucti
             bucket->QualityMask &= static_cast<AuctionHouseFilterMask>(~(1 << (quality + 4)));
     }
     else
+    {
+        auction->Bucket = nullptr;
         _buckets.erase(bucket->Key);
+    }
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
     stmt->setUInt32(0, auction->Id);
@@ -1084,9 +1088,9 @@ void AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, Aucti
         Trinity::Containers::MultimapErasePair(_playerBidderAuctions, bidder, auction->Id);
 
     if (auctionItr)
-        *auctionItr = _itemsByAuctionId.erase(*auctionItr);
+        return _itemsByAuctionId.extract((*auctionItr)++);
     else
-        _itemsByAuctionId.erase(auction->Id);
+        return _itemsByAuctionId.extract(auction->Id);
 }
 
 void AuctionHouseObject::Update()
@@ -1127,29 +1131,24 @@ void AuctionHouseObject::Update()
             continue;
         }
 
+        std::map<uint32, AuctionPosting>::node_type removedAuctionNode = RemoveAuction(trans, auction, &it);
+        auction = &removedAuctionNode.mapped();
+
         ///- Either cancel the auction if there was no bidder
         if (auction->Bidder.IsEmpty())
         {
-            SendAuctionExpired(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);
-
-            RemoveAuction(trans, auction, &it);
+            SendAuctionExpired(auction, trans);
         }
         ///- Or perform the transaction
         else
         {
-            // Copy data before freeing AuctionPosting in auctionHouse->RemoveAuction
-            // Because auctionHouse->SendAuctionWon can unload items if bidder is offline
-            // we need to RemoveAuction before sending mails
-            AuctionPosting copy = *auction;
-            RemoveAuction(trans, auction, &it);
-
+            sScriptMgr->OnAuctionSuccessful(this, auction);
             //we should send an "item sold" message if the seller is online
             //we send the item to the winner
             //we send the money to the seller
-            SendAuctionSold(&copy, nullptr, trans);
-            SendAuctionWon(&copy, nullptr, trans);
-            sScriptMgr->OnAuctionSuccessful(this, auction);
+            SendAuctionSold(auction, nullptr, trans);
+            SendAuctionWon(auction, nullptr, trans);
         }
     }
 
@@ -1823,7 +1822,10 @@ void AuctionHouseObject::SendAuctionWon(AuctionPosting const* auction, Player* b
     {
         // bidder doesn't exist, delete the item
         for (Item* item : auction->Items)
-            sAuctionMgr->RemoveAItem(item->GetGUID(), true, &trans);
+        {
+            item->FSetState(ITEM_REMOVED);
+            item->SaveToDB(trans);
+        }
     }
 }
 
@@ -1879,7 +1881,10 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
     {
         // owner doesn't exist, delete the item
         for (Item* item : auction->Items)
-            sAuctionMgr->RemoveAItem(item->GetGUID(), true, &trans);
+        {
+            item->FSetState(ITEM_REMOVED);
+            item->SaveToDB(trans);
+        }
     }
 }
 
