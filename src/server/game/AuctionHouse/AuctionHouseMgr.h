@@ -97,19 +97,20 @@ constexpr std::size_t MAX_FAVORITE_AUCTIONS = 100;
 
 enum class AuctionHouseFilterMask : uint32
 {
-    None                        = 0x0,
-    UncollectedOnly             = 0x1,
-    UsableOnly                  = 0x2,
-    UpgradesOnly                = 0x4,
-    ExactMatch                  = 0x8,
-    PoorQuality                 = 0x10,
-    CommonQuality               = 0x20,
-    UncommonQuality             = 0x40,
-    RareQuality                 = 0x80,
-    EpicQuality                 = 0x100,
-    LegendaryQuality            = 0x200,
-    ArtifactQuality             = 0x400,
-    LegendaryCraftedItemOnly    = 0x800,
+    None                        = 0x0000,
+    UncollectedOnly             = 0x0002,
+    UsableOnly                  = 0x0004,
+    CurrentExpansionOnly        = 0x0008,
+    UpgradesOnly                = 0x0010,
+    ExactMatch                  = 0x0020,
+    PoorQuality                 = 0x0040,
+    CommonQuality               = 0x0080,
+    UncommonQuality             = 0x0100,
+    RareQuality                 = 0x0200,
+    EpicQuality                 = 0x0400,
+    LegendaryQuality            = 0x0800,
+    ArtifactQuality             = 0x1000,
+    LegendaryCraftedItemOnly    = 0x2000,
 };
 
 DEFINE_ENUM_FLAG(AuctionHouseFilterMask);
