@@ -1482,6 +1482,9 @@ CommodityQuote const* AuctionHouseObject::CreateCommodityQuote(Player const* pla
     uint32 remainingQuantity = quantity;
     for (AuctionPosting const* auction : bucketItr->second.Auctions)
     {
+        if (auction->Owner == player->GetGUID() || auction->OwnerAccount == player->GetSession()->GetAccountGUID())
+            continue;
+
         for (Item* auctionItem : auction->Items)
         {
             if (auctionItem->GetCount() >= remainingQuantity)
@@ -1541,6 +1544,9 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     for (auto auctionItr = bucketItr->second.Auctions.begin(); auctionItr != bucketItr->second.Auctions.end();)
     {
         AuctionPosting* auction = *auctionItr++;
+        if (auction->Owner == player->GetGUID() || auction->OwnerAccount == player->GetSession()->GetAccountGUID())
+            continue;
+
         auctions.push_back(auction);
         for (Item* auctionItem : auction->Items)
         {
@@ -1607,6 +1613,9 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     for (auto auctionItr = bucketItr->second.Auctions.begin(); auctionItr != bucketItr->second.Auctions.end();)
     {
         AuctionPosting* auction = *auctionItr++;
+        if (auction->Owner == player->GetGUID() || auction->OwnerAccount == player->GetSession()->GetAccountGUID())
+            continue;
+
         if (!uniqueSeller)
             uniqueSeller = auction->Owner;
         else if (*uniqueSeller != auction->Owner)
