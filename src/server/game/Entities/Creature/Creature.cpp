@@ -1251,6 +1251,11 @@ bool Creature::CanResetTalents(Player* player) const
         && player->GetClass() == GetCreatureTemplate()->trainer_class;
 }
 
+bool Creature::IsClassTrainerFor(Player const* player) const
+{
+    return GetCreatureTemplate()->trainer_class == player->GetClass();
+}
+
 uint32 Creature::GetLootId() const
 {
     if (m_lootId)
