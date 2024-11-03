@@ -1804,8 +1804,26 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
             return 0;
         }();
 
+        LfgSoftLock softLock = [lockStatus]()
+        {
+            switch (lockStatus)
+            {
+                // Dungeons which are out of our level range, active season or expansion are hidden from the list
+                case LFG_LOCKSTATUS_TOO_LOW_LEVEL:
+                case LFG_LOCKSTATUS_TOO_HIGH_LEVEL:
+                case LFG_LOCKSTATUS_NOT_IN_SEASON:
+                case LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION:
+                    return LfgSoftLock::Unk2; // only value seen in sniffs
+                default:
+                    return LfgSoftLock::None;
+
+            }
+
+            return LfgSoftLock::None;
+        }();
+
         if (lockStatus)
-            lock[dungeon->Entry()] = LfgLockInfoData(lockStatus, dungeon->requiredItemLevel, player->GetAverageItemLevel());
+            lock[dungeon->Entry()] = LfgLockInfoData(lockStatus, dungeon->requiredItemLevel, player->GetAverageItemLevel(), softLock);
     }
 
     return lock;
