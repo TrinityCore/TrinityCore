@@ -438,10 +438,10 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     if (canBuyout && placeBid.BidAmount == auction->BuyoutOrUnitPrice)
     {
         // buyout
-        auctionHouse->SendAuctionSold(auction, nullptr, trans);
-        auctionHouse->SendAuctionWon(auction, player, trans);
+        std::map<uint32, AuctionPosting>::node_type removedAuctionNode = auctionHouse->RemoveAuction(trans, auction);
 
-        auctionHouse->RemoveAuction(trans, auction);
+        auctionHouse->SendAuctionSold(&removedAuctionNode.mapped(), nullptr, trans);
+        auctionHouse->SendAuctionWon(&removedAuctionNode.mapped(), player, trans);
     }
     else
     {
