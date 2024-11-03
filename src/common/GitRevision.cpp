@@ -45,9 +45,13 @@ char const* GitRevision::GetCMakeVersion()
 
 char const* GitRevision::GetHostOSVersion()
 {
-    return
+    return ""
 #ifdef TRINITY_BUILD_HOST_DISTRO_NAME
-        TRINITY_BUILD_HOST_DISTRO_NAME " " TRINITY_BUILD_HOST_DISTRO_VERSION_ID "; "
+        TRINITY_BUILD_HOST_DISTRO_NAME
+#ifdef TRINITY_BUILD_HOST_DISTRO_VERSION_ID
+        " " TRINITY_BUILD_HOST_DISTRO_VERSION_ID
+#endif
+        "; "
 #endif
         TRINITY_BUILD_HOST_SYSTEM " " TRINITY_BUILD_HOST_SYSTEM_VERSION
     ;

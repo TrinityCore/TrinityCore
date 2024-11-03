@@ -56,8 +56,8 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
         ~Corpse();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -135,7 +135,7 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
 
         bool IsExpired(time_t t) const;
 
-        UF::UpdateField<UF::CorpseData, 0, TYPEID_CORPSE> m_corpseData;
+        UF::UpdateField<UF::CorpseData, int32(WowCS::EntityFragment::CGObject), TYPEID_CORPSE> m_corpseData;
 
     private:
         CorpseType m_type;

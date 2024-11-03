@@ -34,6 +34,7 @@
 #include "SpellDefines.h"
 #include "UniqueTrackablePtr.h"
 #include "UpdateFields.h"
+#include "WowCSEntityDefinitions.h"
 #include <list>
 #include <unordered_map>
 
@@ -107,6 +108,39 @@ struct CreateObjectBits
 
 namespace UF
 {
+    class UpdateFieldHolder
+    {
+    public:
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline OptionalUpdateFieldSetter<T> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 /*dummy*/);
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        uint32 GetChangedObjectTypeMask() const { return _changesMask; }
+
+        bool HasChanged(uint32 index) const { return (_changesMask & UpdateMaskHelpers::GetBlockFlag(index)) != 0; }
+
+        inline Object* GetOwner();
+
+    private:
+        friend Object;
+
+        // This class is tightly tied to Object::m_values member, do not construct elsewhere
+        UpdateFieldHolder() : _changesMask(0) { }
+
+        uint32 _changesMask;
+    };
+
     template<typename T>
     inline bool SetUpdateFieldValue(UpdateFieldSetter<T>& setter, typename UpdateFieldSetter<T>::value_type&& value)
     {
@@ -264,8 +298,9 @@ class TC_GAME_API Object
         Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
         Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
 
+        friend UF::UpdateFieldHolder;
         UF::UpdateFieldHolder m_values;
-        UF::UpdateField<UF::ObjectData, 0, TYPEID_OBJECT> m_objectData;
+        UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_OBJECT> m_objectData;
 
         template<typename T>
         void ForceUpdateFieldChange(UF::UpdateFieldSetter<T> const& /*setter*/)
@@ -390,10 +425,12 @@ class TC_GAME_API Object
             }
         }
 
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
+        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
+        static void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags);
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
@@ -403,6 +440,7 @@ class TC_GAME_API Object
 
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
+        WowCS::EntityFragmentsHolder m_entityFragments;
 
         virtual bool AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;
@@ -424,6 +462,79 @@ class TC_GAME_API Object
         Object& operator=(Object const& right) = delete;
         Object& operator=(Object&& right) = delete;
 };
+
+inline Object* UF::UpdateFieldHolder::GetOwner()
+{
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#endif
+
+    return reinterpret_cast<Object*>(reinterpret_cast<std::byte*>(this) - offsetof(Object, m_values));
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic pop
+#endif
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    return { (static_cast<Derived*>(owner)->*field)._value };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::OptionalUpdateFieldSetter<T> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    return { static_cast<Derived*>(owner)->*field };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field, uint32 /*dummy*/)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    auto& uf = (static_cast<Derived*>(owner)->*field);
+    if (!uf.has_value())
+        uf.ConstructValue();
+
+    return { *uf._value };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    (static_cast<Derived*>(owner)->*field)._value->ClearChangesMask();
+}
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
@@ -505,7 +616,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetNearPoint2D(WorldObject const* searcher, float& x, float& y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const;
         void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0) const;
-        void MovePosition(Position &pos, float dist, float angle) const;
+        void MovePosition(Position &pos, float dist, float angle, float maxHeightChange = 6.0f) const;
         Position GetNearPosition(float dist, float angle);
         void MovePositionToFirstCollision(Position &pos, float dist, float angle) const;
         Position GetFirstCollisionPosition(float dist, float angle);
