@@ -421,12 +421,12 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
             case SUMMON_CATEGORY_PUPPET:
                 mask = UNIT_MASK_PUPPET;
                 break;
+            case SUMMON_CATEGORY_POSSESSED_VEHICLE:
             case SUMMON_CATEGORY_VEHICLE:
                 mask = UNIT_MASK_MINION;
                 break;
             case SUMMON_CATEGORY_WILD:
             case SUMMON_CATEGORY_ALLY:
-            case SUMMON_CATEGORY_UNK:
             {
                 switch (SummonTitle(properties->Title))
                 {
