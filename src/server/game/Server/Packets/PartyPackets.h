@@ -692,6 +692,8 @@ namespace WorldPackets
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
             Duration<Milliseconds, int32> PingDuration;
+            Optional<uint32> CreatureID;
+            Optional<uint32> SpellOverrideNameID;
         };
 
         class ReceivePingUnit final : public ServerPacket
@@ -706,6 +708,8 @@ namespace WorldPackets
             PingSubjectType Type = PingSubjectType::Max;
             uint32 PinFrameID = 0;
             Duration<Milliseconds, int32> PingDuration;
+            Optional<uint32> CreatureID;
+            Optional<uint32> SpellOverrideNameID;
         };
 
         class SendPingWorldPoint final : public ClientPacket

@@ -320,6 +320,8 @@ Unit::Unit(bool isWorldObject) :
 
     m_updateFlag.MovementUpdate = true;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Unit, false);
+
     m_baseAttackSpeed = { };
     m_attackTimer = { };
     m_modAttackSpeedPct.fill(1.0f);
@@ -12343,6 +12345,7 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
         SpellInfo const* spellEntry = sSpellMgr->AssertSpellInfo(clickPair.second.spellId, caster->GetMap()->GetDifficultyID());
         // if (!spellEntry) should be checked at npc_spellclick load
 
+        SpellCastResult castResult = SPELL_FAILED_SUCCESS;
         if (seatId > -1)
         {
             uint8 i = 0;
@@ -12368,7 +12371,7 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
                 CastSpellExtraArgs args(flags);
                 args.OriginalCaster = origCasterGUID;
                 args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), seatId + 1);
-                caster->CastSpell(target, clickPair.second.spellId, args);
+                castResult = caster->CastSpell(target, clickPair.second.spellId, args);
             }
             else    // This can happen during Player::_LoadAuras
             {
@@ -12390,7 +12393,7 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
         else
         {
             if (IsInMap(caster))
-                caster->CastSpell(target, spellEntry->Id, CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
+                castResult = caster->CastSpell(target, spellEntry->Id, CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
             else
             {
                 AuraCreateInfo createInfo(ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), spellEntry, GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, this);
@@ -12402,7 +12405,7 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
             }
         }
 
-        spellClickHandled = true;
+        spellClickHandled = castResult == SPELL_FAILED_SUCCESS;
     }
 
     Creature* creature = ToCreature();
@@ -13747,6 +13750,19 @@ void Unit::CalculateHoverHeight()
 bool Unit::IsSplineEnabled() const
 {
     return movespline->Initialized() && !movespline->Finalized();
+}
+
+UF::UpdateFieldFlag Unit::GetUpdateFieldFlagsFor(Player const* target) const
+{
+    UF::UpdateFieldFlag flags = UF::UpdateFieldFlag::None;
+    if (target == this || GetOwnerGUID() == target->GetGUID())
+        flags |= UF::UpdateFieldFlag::Owner;
+
+    if (HasDynamicFlag(UNIT_DYNFLAG_SPECIALINFO))
+        if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+            flags |= UF::UpdateFieldFlag::Empath;
+
+    return flags;
 }
 
 void Unit::DestroyForPlayer(Player* target) const

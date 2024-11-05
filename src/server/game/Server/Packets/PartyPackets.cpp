@@ -750,6 +750,13 @@ void WorldPackets::Party::SendPingUnit::Read()
     _worldPacket >> As<uint8>(Type);
     _worldPacket >> PinFrameID;
     _worldPacket >> PingDuration;
+    _worldPacket >> OptionalInit(CreatureID);
+    _worldPacket >> OptionalInit(SpellOverrideNameID);
+    if (CreatureID)
+        _worldPacket >> *CreatureID;
+
+    if (SpellOverrideNameID)
+        _worldPacket >> *SpellOverrideNameID;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
@@ -759,6 +766,15 @@ WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
     _worldPacket << uint8(Type);
     _worldPacket << uint32(PinFrameID);
     _worldPacket << PingDuration;
+    _worldPacket << OptionalInit(CreatureID);
+    _worldPacket << OptionalInit(SpellOverrideNameID);
+    _worldPacket.FlushBits();
+
+    if (CreatureID)
+        _worldPacket << uint32(*CreatureID);
+
+    if (SpellOverrideNameID)
+        _worldPacket << uint32(*SpellOverrideNameID);
 
     return &_worldPacket;
 }

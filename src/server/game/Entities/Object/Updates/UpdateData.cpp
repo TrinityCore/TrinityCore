@@ -42,8 +42,9 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
     ASSERT(packet->empty());                                // shouldn't happen
     packet->Initialize(SMSG_UPDATE_OBJECT, 4 + 2 + 1 + (2 + 4 + 17 * (m_destroyGUIDs.size() + m_outOfRangeGUIDs.size())) + m_data.wpos());
 
-    *packet << uint32(m_blockCount);
     *packet << uint16(m_map);
+    *packet << uint32(m_blockCount);
+    packet->WriteBit(true); // unk
 
     if (packet->WriteBit(!m_outOfRangeGUIDs.empty() || !m_destroyGUIDs.empty()))
     {

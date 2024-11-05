@@ -331,7 +331,7 @@ bool WorldSocket::ReadHeaderHandler()
     ASSERT(_headerBuffer.GetActiveSize() == sizeof(IncomingPacketHeader), "Header size " SZFMTD " different than expected " SZFMTD, _headerBuffer.GetActiveSize(), sizeof(IncomingPacketHeader));
 
     IncomingPacketHeader* header = reinterpret_cast<IncomingPacketHeader*>(_headerBuffer.GetReadPointer());
-    uint16 encryptedOpcode = header->EncryptedOpcode;
+    uint32 encryptedOpcode = header->EncryptedOpcode;
 
     if (!header->IsValidSize())
     {
@@ -364,7 +364,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
 
     WorldPacket packet(std::move(_packetBuffer), GetConnectionType());
     OpcodeClient opcode = packet.read<OpcodeClient>();
-    if (opcode < MIN_CMSG_OPCODE_NUMBER || opcode > MAX_CMSG_OPCODE_NUMBER)
+    if (!opcodeTable.IsValid(opcode))
     {
         TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent wrong opcode (opcode: {})",
             GetRemoteIpAddress().to_string(), uint32(opcode));
@@ -538,7 +538,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
 
 void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBuffer& buffer)
 {
-    uint16 opcode = packet.GetOpcode();
+    uint32 opcode = packet.GetOpcode();
     uint32 packetSize = packet.size();
 
     // Reserve space for buffer
@@ -550,8 +550,8 @@ void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBu
     if (packetSize > MinSizeForCompression && packet.NeedsEncryption())
     {
         CompressedWorldPacket cmp;
-        cmp.UncompressedSize = packetSize + 2;
-        cmp.UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&opcode, 2), packet.contents(), packetSize);
+        cmp.UncompressedSize = packetSize + sizeof(opcode);
+        cmp.UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&opcode, sizeof(opcode)), packet.contents(), packetSize);
 
         // Reserve space for compression info - uncompressed size and checksums
         uint8* compressionInfo = buffer.GetWritePointer();
@@ -571,7 +571,7 @@ void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBu
         buffer.Write(packet.contents(), packet.size());
 
     memcpy(dataPos, &opcode, sizeof(opcode));
-    packetSize += 2 /*opcode*/;
+    packetSize += sizeof(opcode);
 
     PacketHeader header;
     header.Size = packetSize;
@@ -583,12 +583,12 @@ void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBu
 uint32 WorldSocket::CompressPacket(uint8* buffer, WorldPacket const& packet)
 {
     uint32 opcode = packet.GetOpcode();
-    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(uint16));
+    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(opcode));
 
     _compressionStream->next_out = buffer;
     _compressionStream->avail_out = bufferSize;
     _compressionStream->next_in = (Bytef*)&opcode;
-    _compressionStream->avail_in = sizeof(uint16);
+    _compressionStream->avail_in = sizeof(opcode);
 
     int32 z_res = deflate(_compressionStream, Z_NO_FLUSH);
     if (z_res != Z_OK)

@@ -86,8 +86,7 @@ public:
         }
         else if (GameObject const* gameObject = object->ToGameObject())
         {
-            uint16 dynFlags = 0;
-            uint16 pathProgress = 0xFFFF;
+            uint32 dynFlags = 0;
             switch (gameObject->GetGoType())
             {
                 case GAMEOBJECT_TYPE_BUTTON:
@@ -111,13 +110,6 @@ public:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                     break;
-                case GAMEOBJECT_TYPE_TRANSPORT:
-                case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
-                {
-                    dynFlags = dynamicFlags & 0xFFFF;
-                    pathProgress = dynamicFlags >> 16;
-                    break;
-                }
                 case GAMEOBJECT_TYPE_CAPTURE_POINT:
                     if (!gameObject->CanInteractWithCapturePoint(receiver))
                         dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
@@ -147,7 +139,7 @@ public:
                     dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
             }
 
-            dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
+            dynamicFlags = dynFlags;
         }
 
         return dynamicFlags;

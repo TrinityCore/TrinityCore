@@ -40,7 +40,7 @@ class EncryptablePacket;
 class WorldPacket;
 class WorldSession;
 enum ConnectionType : int8;
-enum OpcodeClient : uint16;
+enum OpcodeClient : uint32;
 
 class EncryptablePacket : public WorldPacket
 {
@@ -82,7 +82,7 @@ struct PacketHeader
 
 struct IncomingPacketHeader : PacketHeader
 {
-    uint16 EncryptedOpcode;
+    uint32 EncryptedOpcode;
 };
 
 #pragma pack(pop)

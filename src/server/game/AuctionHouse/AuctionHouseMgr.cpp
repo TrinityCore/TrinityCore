@@ -627,8 +627,7 @@ void AuctionHouseMgr::LoadAuctions()
 void AuctionHouseMgr::AddAItem(Item* item)
 {
     ASSERT(item);
-    ASSERT(_itemsByGuid.count(item->GetGUID()) == 0);
-    _itemsByGuid[item->GetGUID()] = item;
+    ASSERT_WITH_SIDE_EFFECTS(_itemsByGuid.emplace(item->GetGUID(), item).second);
 }
 
 bool AuctionHouseMgr::RemoveAItem(ObjectGuid itemGuid, bool deleteItem /*= false*/, CharacterDatabaseTransaction* trans /*= nullptr*/)
@@ -928,12 +927,10 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
 
     if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = auction.Items[0]->GetItemModifiedAppearance())
     {
-        auto itr = std::find_if(bucket->ItemModifiedAppearanceId.begin(), bucket->ItemModifiedAppearanceId.end(),
-            [itemModifiedAppearance](std::pair<uint32, uint32> const& appearance) { return appearance.first == itemModifiedAppearance->ID; });
+        auto itr = std::ranges::find(bucket->ItemModifiedAppearanceId, itemModifiedAppearance->ID, &std::pair<uint32, uint32>::first);
 
         if (itr == bucket->ItemModifiedAppearanceId.end())
-            itr = std::find_if(bucket->ItemModifiedAppearanceId.begin(), bucket->ItemModifiedAppearanceId.end(),
-                [](std::pair<uint32, uint32> const& appearance) { return appearance.first == 0; });
+            itr = std::ranges::find(bucket->ItemModifiedAppearanceId, 0u, &std::pair<uint32, uint32>::first);
 
         if (itr != bucket->ItemModifiedAppearanceId.end())
         {
@@ -964,7 +961,7 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
         }
     }
 
-    bucket->QualityMask |= static_cast<AuctionHouseFilterMask>(1 << (quality + 4));
+    bucket->QualityMask |= static_cast<AuctionHouseFilterMask>(AsUnderlyingType(AuctionHouseFilterMask::PoorQuality) << quality);
     ++bucket->QualityCounts[quality];
 
     if (trans)
@@ -1004,16 +1001,17 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
 
     WorldPackets::AuctionHouse::AuctionSortDef priceSort{ AuctionHouseSortOrder::Price, false };
     AuctionPosting::Sorter insertSorter(LOCALE_enUS, std::span(&priceSort, 1));
-    bucket->Auctions.insert(std::lower_bound(bucket->Auctions.begin(), bucket->Auctions.end(), addedAuction, std::cref(insertSorter)), addedAuction);
+    bucket->Auctions.insert(std::ranges::lower_bound(bucket->Auctions, addedAuction, std::cref(insertSorter)), addedAuction);
 
     sScriptMgr->OnAuctionAdd(this, addedAuction);
 }
 
-void AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, AuctionPosting* auction, std::map<uint32, AuctionPosting>::iterator* auctionItr /*= nullptr*/)
+std::map<uint32, AuctionPosting>::node_type AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, AuctionPosting* auction,
+    std::map<uint32, AuctionPosting>::iterator* auctionItr /*= nullptr*/)
 {
     AuctionsBucketData* bucket = auction->Bucket;
 
-    bucket->Auctions.erase(std::remove(bucket->Auctions.begin(), bucket->Auctions.end(), auction), bucket->Auctions.end());
+    std::erase(bucket->Auctions, auction);
     if (!bucket->Auctions.empty())
     {
         // update cache fields
@@ -1065,10 +1063,13 @@ void AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, Aucti
         }
 
         if (!--bucket->QualityCounts[quality])
-            bucket->QualityMask &= static_cast<AuctionHouseFilterMask>(~(1 << (quality + 4)));
+            bucket->QualityMask &= static_cast<AuctionHouseFilterMask>(AsUnderlyingType(AuctionHouseFilterMask::PoorQuality) << quality);
     }
     else
+    {
+        auction->Bucket = nullptr;
         _buckets.erase(bucket->Key);
+    }
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
     stmt->setUInt32(0, auction->Id);
@@ -1084,9 +1085,9 @@ void AuctionHouseObject::RemoveAuction(CharacterDatabaseTransaction trans, Aucti
         Trinity::Containers::MultimapErasePair(_playerBidderAuctions, bidder, auction->Id);
 
     if (auctionItr)
-        *auctionItr = _itemsByAuctionId.erase(*auctionItr);
+        return _itemsByAuctionId.extract((*auctionItr)++);
     else
-        _itemsByAuctionId.erase(auction->Id);
+        return _itemsByAuctionId.extract(auction->Id);
 }
 
 void AuctionHouseObject::Update()
@@ -1127,29 +1128,24 @@ void AuctionHouseObject::Update()
             continue;
         }
 
+        std::map<uint32, AuctionPosting>::node_type removedAuctionNode = RemoveAuction(trans, auction, &it);
+        auction = &removedAuctionNode.mapped();
+
         ///- Either cancel the auction if there was no bidder
         if (auction->Bidder.IsEmpty())
         {
-            SendAuctionExpired(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);
-
-            RemoveAuction(trans, auction, &it);
+            SendAuctionExpired(auction, trans);
         }
         ///- Or perform the transaction
         else
         {
-            // Copy data before freeing AuctionPosting in auctionHouse->RemoveAuction
-            // Because auctionHouse->SendAuctionWon can unload items if bidder is offline
-            // we need to RemoveAuction before sending mails
-            AuctionPosting copy = *auction;
-            RemoveAuction(trans, auction, &it);
-
+            sScriptMgr->OnAuctionSuccessful(this, auction);
             //we should send an "item sold" message if the seller is online
             //we send the item to the winner
             //we send the money to the seller
-            SendAuctionSold(&copy, nullptr, trans);
-            SendAuctionWon(&copy, nullptr, trans);
-            sScriptMgr->OnAuctionSuccessful(this, auction);
+            SendAuctionSold(auction, nullptr, trans);
+            SendAuctionWon(auction, nullptr, trans);
         }
     }
 
@@ -1227,7 +1223,7 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
                 {
                     if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(bucketAppearance.first))
                     {
-                        if (knownAppearanceIds.find(itemModifiedAppearance->ItemAppearanceID) == knownAppearanceIds.end())
+                        if (!knownAppearanceIds.contains(itemModifiedAppearance->ItemAppearanceID))
                         {
                             hasAll = false;
                             break;
@@ -1281,6 +1277,13 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
                 continue;
         }
 
+        if (filters.HasFlag(AuctionHouseFilterMask::CurrentExpansionOnly))
+        {
+            ItemTemplate const* itemTemplate = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(bucket.first.ItemId));
+            if (itemTemplate->GetRequiredExpansion() != sWorld->getIntConfig(CONFIG_EXPANSION))
+                continue;
+        }
+
         // TODO: this one needs to access loot history to know highest item level for every inventory type
         //if (filters.HasFlag(AuctionHouseFilterMask::UpgradesOnly))
         //{
@@ -1313,7 +1316,7 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
     }
 
     AuctionsBucketData::Sorter sorter(player->GetSession()->GetSessionDbcLocale(), sorts);
-    std::sort(buckets.begin(), buckets.end(), std::cref(sorter));
+    std::ranges::sort(buckets, std::cref(sorter));
 
     for (AuctionsBucketData const* resultBucket : buckets)
     {
@@ -1335,7 +1338,7 @@ void AuctionHouseObject::BuildListBiddedItems(WorldPackets::AuctionHouse::Auctio
             auctions.push_back(auction);
 
     AuctionPosting::Sorter sorter(player->GetSession()->GetSessionDbcLocale(), sorts);
-    std::sort(auctions.begin(), auctions.end(), std::cref(sorter));
+    std::ranges::sort(auctions, std::cref(sorter));
 
     for (AuctionPosting const* resultAuction : auctions)
     {
@@ -1414,7 +1417,7 @@ void AuctionHouseObject::BuildListOwnedItems(WorldPackets::AuctionHouse::Auction
             auctions.push_back(auction);
 
     AuctionPosting::Sorter sorter(player->GetSession()->GetSessionDbcLocale(), sorts);
-    std::sort(auctions.begin(), auctions.end(), std::cref(sorter));
+    std::ranges::sort(auctions, std::cref(sorter));
 
     for (AuctionPosting const* resultAuction : auctions)
     {
@@ -1486,6 +1489,9 @@ CommodityQuote const* AuctionHouseObject::CreateCommodityQuote(Player const* pla
     uint32 remainingQuantity = quantity;
     for (AuctionPosting const* auction : bucketItr->second.Auctions)
     {
+        if (auction->Owner == player->GetGUID() || auction->OwnerAccount == player->GetSession()->GetAccountGUID())
+            continue;
+
         for (Item* auctionItem : auction->Items)
         {
             if (auctionItem->GetCount() >= remainingQuantity)
@@ -1545,6 +1551,9 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     for (auto auctionItr = bucketItr->second.Auctions.begin(); auctionItr != bucketItr->second.Auctions.end();)
     {
         AuctionPosting* auction = *auctionItr++;
+        if (auction->Owner == player->GetGUID() || auction->OwnerAccount == player->GetSession()->GetAccountGUID())
+            continue;
+
         auctions.push_back(auction);
         for (Item* auctionItem : auction->Items)
         {
@@ -1611,6 +1620,9 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     for (auto auctionItr = bucketItr->second.Auctions.begin(); auctionItr != bucketItr->second.Auctions.end();)
     {
         AuctionPosting* auction = *auctionItr++;
+        if (auction->Owner == player->GetGUID() || auction->OwnerAccount == player->GetSession()->GetAccountGUID())
+            continue;
+
         if (!uniqueSeller)
             uniqueSeller = auction->Owner;
         else if (*uniqueSeller != auction->Owner)
@@ -1823,7 +1835,10 @@ void AuctionHouseObject::SendAuctionWon(AuctionPosting const* auction, Player* b
     {
         // bidder doesn't exist, delete the item
         for (Item* item : auction->Items)
-            sAuctionMgr->RemoveAItem(item->GetGUID(), true, &trans);
+        {
+            item->FSetState(ITEM_REMOVED);
+            item->SaveToDB(trans);
+        }
     }
 }
 
@@ -1879,7 +1894,10 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
     {
         // owner doesn't exist, delete the item
         for (Item* item : auction->Items)
-            sAuctionMgr->RemoveAItem(item->GetGUID(), true, &trans);
+        {
+            item->FSetState(ITEM_REMOVED);
+            item->SaveToDB(trans);
+        }
     }
 }
 
