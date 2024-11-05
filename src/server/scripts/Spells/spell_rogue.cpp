@@ -101,8 +101,8 @@ enum RogueSpells
     SPELL_ROGUE_WOUND_POISON_DEBUFF                 = 8680,
 };
 
-static std::unordered_map<uint32 /*poisonAura*/, uint32 /*triggeredPoisonSpell*/> const poisonAuras =
-{
+static constexpr std::array<std::pair<uint32 /*poisonAura*/, uint32 /*triggeredPoisonSpell*/>, 7> PoisonAuraToDebuff
+{{
     { SPELL_ROGUE_WOUND_POISON,      SPELL_ROGUE_WOUND_POISON_DEBUFF      },
     { SPELL_ROGUE_DEADLY_POISON,     SPELL_ROGUE_DEADLY_POISON_DEBUFF     },
     { SPELL_ROGUE_AMPLIFYING_POISON, SPELL_ROGUE_AMPLIFYING_POISON_DEBUFF },
@@ -110,7 +110,7 @@ static std::unordered_map<uint32 /*poisonAura*/, uint32 /*triggeredPoisonSpell*/
     { SPELL_ROGUE_NUMBING_POISON,    SPELL_ROGUE_NUMBING_POISON_DEBUFF    },
     { SPELL_ROGUE_INSTANT_POISON,    SPELL_ROGUE_INSTANT_POISON_DAMAGE    },
     { SPELL_ROGUE_ATROPHIC_POISON,   SPELL_ROGUE_ATROPHIC_POISON_DEBUFF   }
-};
+}};
 
 /* Returns true if the spell is a finishing move.
  * A finishing move is a spell that cost combo points */
@@ -615,19 +615,15 @@ class spell_rog_poisoned_knife : public SpellScript
         });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/) const
     {
-        if (Unit* caster = GetCaster())
-        {
-            for (std::pair<uint32, uint32> poisonSpellEntry : poisonAuras)
-            {
-                if (caster->HasAura(poisonSpellEntry.first))
-                    caster->CastSpell(GetHitUnit(), poisonSpellEntry.second, CastSpellExtraArgsInit{
-                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                        .TriggeringSpell = GetSpell()
-                    });
-            }
-        }
+        Unit* caster = GetCaster();
+        for (auto const& [poisonAura, debuffSpellId] : PoisonAuraToDebuff)
+            if (caster->HasAura(poisonAura))
+                caster->CastSpell(GetHitUnit(), debuffSpellId, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .TriggeringSpell = GetSpell()
+                });
     }
 
     void Register() override

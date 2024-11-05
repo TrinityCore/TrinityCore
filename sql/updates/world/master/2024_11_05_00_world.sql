@@ -1,8 +1,8 @@
 SET @SPELL_GROUP := 1500;
 
-DELETE FROM `spell_script_names` WHERE `spell_id`=185565 AND `ScriptName`='spell_rog_poisoned_knife';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_poisoned_knife';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(185565 , 'spell_rog_poisoned_knife');
+(185565, 'spell_rog_poisoned_knife');
 
 -- Non-lethal poisons
 DELETE FROM `spell_group` WHERE `id`= @SPELL_GROUP;
