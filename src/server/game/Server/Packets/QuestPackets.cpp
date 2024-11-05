@@ -188,9 +188,10 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << uint32(Info.TreasurePickerID.size());
         _worldPacket << uint32(Info.TreasurePickerID2.size());
         _worldPacket << int32(Info.Expansion);
-        _worldPacket << int32(Info.ManagedWorldStateID);
-        _worldPacket << int32(Info.QuestSessionBonus);
         _worldPacket << int32(Info.QuestGiverCreatureID);
+
+        _worldPacket << uint32(Info.ConditionalQuestDescription.size());
+        _worldPacket << uint32(Info.ConditionalQuestCompletionLog.size());
 
         if (!Info.TreasurePickerID.empty())
             _worldPacket.append(Info.TreasurePickerID.data(), Info.TreasurePickerID.size());
@@ -240,6 +241,12 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket.WriteString(Info.PortraitTurnInText);
         _worldPacket.WriteString(Info.PortraitTurnInName);
         _worldPacket.WriteString(Info.QuestCompletionLog);
+
+        for (ConditionalQuestText const& conditionalQuestText : Info.ConditionalQuestDescription)
+            _worldPacket << conditionalQuestText;
+
+        for (ConditionalQuestText const& conditionalQuestText : Info.ConditionalQuestCompletionLog)
+            _worldPacket << conditionalQuestText;
     }
 
     return &_worldPacket;

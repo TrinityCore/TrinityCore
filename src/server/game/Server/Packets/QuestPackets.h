@@ -191,10 +191,10 @@ namespace WorldPackets
             std::span<int32 const> TreasurePickerID;
             std::span<int32 const> TreasurePickerID2;   // unknown purpose, used only sometimes and only if TreasurePickerID is empty
             int32 Expansion                 = 0;
-            int32 ManagedWorldStateID       = 0;
-            int32 QuestSessionBonus         = 0;
             int32 QuestGiverCreatureID      = 0; // used to select ConditionalQuestText
             std::vector<QuestObjective> Objectives;
+            std::vector<ConditionalQuestText> ConditionalQuestDescription;
+            std::vector<ConditionalQuestText> ConditionalQuestCompletionLog;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
             int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };

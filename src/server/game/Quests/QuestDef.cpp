@@ -119,18 +119,16 @@ Quest::Quest(Field* questRecord)
     _limitTime = questRecord[104].GetInt64();
     _allowableRaces.RawValue = questRecord[105].GetUInt64();
     _expansion = questRecord[106].GetInt32();
-    _managedWorldStateID = questRecord[107].GetInt32();
-    _questSessionBonus = questRecord[108].GetInt32();
 
-    _logTitle = questRecord[109].GetString();
-    _logDescription = questRecord[110].GetString();
-    _questDescription = questRecord[111].GetString();
-    _areaDescription = questRecord[112].GetString();
-    _portraitGiverText = questRecord[113].GetString();
-    _portraitGiverName = questRecord[114].GetString();
-    _portraitTurnInText = questRecord[115].GetString();
-    _portraitTurnInName = questRecord[116].GetString();
-    _questCompletionLog = questRecord[117].GetString();
+    _logTitle = questRecord[107].GetString();
+    _logDescription = questRecord[108].GetString();
+    _questDescription = questRecord[109].GetString();
+    _areaDescription = questRecord[110].GetString();
+    _portraitGiverText = questRecord[111].GetString();
+    _portraitGiverName = questRecord[112].GetString();
+    _portraitTurnInText = questRecord[113].GetString();
+    _portraitTurnInName = questRecord[114].GetString();
+    _questCompletionLog = questRecord[115].GetString();
 }
 
 Quest::~Quest()
@@ -658,6 +656,19 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.PortraitGiverName = GetPortraitGiverName();
     response.Info.PortraitTurnInText = GetPortraitTurnInText();
     response.Info.PortraitTurnInName = GetPortraitTurnInName();
+    std::transform(GetConditionalQuestDescription().begin(), GetConditionalQuestDescription().end(), std::back_inserter(response.Info.ConditionalQuestDescription), [loc](QuestConditionalText const& text)
+    {
+        std::string_view content = text.Text[LOCALE_enUS];
+        ObjectMgr::GetLocaleString(text.Text, loc, content);
+        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
+    });
+
+    std::transform(GetConditionalQuestCompletionLog().begin(), GetConditionalQuestCompletionLog().end(), std::back_inserter(response.Info.ConditionalQuestCompletionLog), [loc](QuestConditionalText const& text)
+    {
+        std::string_view content = text.Text[LOCALE_enUS];
+        ObjectMgr::GetLocaleString(text.Text, loc, content);
+        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
+    });
 
     if (loc != LOCALE_enUS)
     {
@@ -758,8 +769,6 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.AllowableRaces = GetAllowableRaces();
     response.Info.TreasurePickerID = GetTreasurePickerId();
     response.Info.Expansion = GetExpansion();
-    response.Info.ManagedWorldStateID = GetManagedWorldStateId();
-    response.Info.QuestSessionBonus = 0; //GetQuestSessionBonus(); // this is only sent while quest session is active
     response.Info.QuestGiverCreatureID = 0; // only sent during npc interaction
 
     for (QuestObjective const& questObjective : GetObjectives())

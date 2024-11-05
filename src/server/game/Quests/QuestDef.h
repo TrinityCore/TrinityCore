@@ -665,8 +665,6 @@ class TC_GAME_API Quest
         uint32 GetRewardReputationMask() const { return _rewardReputationMask; }
         std::vector<int32> const& GetTreasurePickerId() const { return _treasurePickerID; }
         int32 GetExpansion() const { return _expansion; }
-        int32 GetManagedWorldStateId() const { return _managedWorldStateID; }
-        int32 GetQuestSessionBonus() const { return _questSessionBonus; }
         uint32 GetQuestGiverPortrait() const { return _questGiverPortrait; }
         int32 GetQuestGiverPortraitMount() const { return _questGiverPortraitMount; }
         int32 GetQuestGiverPortraitModelSceneId() const { return _questGiverPortraitModelSceneId; }
@@ -779,8 +777,6 @@ class TC_GAME_API Quest
         Trinity::RaceMask<uint64> _allowableRaces;
         std::vector<int32> _treasurePickerID;
         int32 _expansion = 0;
-        int32 _managedWorldStateID = 0;
-        int32 _questSessionBonus = 0;
         std::string _logTitle;
         std::string _logDescription;
         std::string _questDescription;
