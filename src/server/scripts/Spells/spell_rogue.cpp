@@ -37,6 +37,10 @@
 enum RogueSpells
 {
     SPELL_ROGUE_ADRENALINE_RUSH                     = 13750,
+    SPELL_ROGUE_AMPLIFYING_POISON                   = 381664,
+    SPELL_ROGUE_AMPLIFYING_POISON_DEBUFF            = 383414,
+    SPELL_ROGUE_ATROPHIC_POISON                     = 381637,
+    SPELL_ROGUE_ATROPHIC_POISON_DEBUFF              = 392388,
     SPELL_ROGUE_BETWEEN_THE_EYES                    = 199804,
     SPELL_ROGUE_BLACKJACK_TALENT                    = 379005,
     SPELL_ROGUE_BLACKJACK                           = 394119,
@@ -47,10 +51,16 @@ enum RogueSpells
     SPELL_ROGUE_CHEAT_DEATH_DUMMY                   = 31231,
     SPELL_ROGUE_CHEATED_DEATH                       = 45181,
     SPELL_ROGUE_CHEATING_DEATH                      = 45182,
+    SPELL_ROGUE_CRIPPLING_POISON                    = 3408,
+    SPELL_ROGUE_CRIPPLING_POISON_DEBUFF             = 3409,
+    SPELL_ROGUE_DEADLY_POISON                       = 2823,
+    SPELL_ROGUE_DEADLY_POISON_DEBUFF                = 2818,
     SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150,
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
     SPELL_ROGUE_IMPROVED_SHIV                       = 319032,
+    SPELL_ROGUE_INSTANT_POISON                      = 315584,
+    SPELL_ROGUE_INSTANT_POISON_DAMAGE               = 315585,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
@@ -59,6 +69,8 @@ enum RogueSpells
     SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
+    SPELL_ROGUE_NUMBING_POISON                      = 5761,
+    SPELL_ROGUE_NUMBING_POISON_DEBUFF               = 5760,
     SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
     SPELL_ROGUE_PREMEDITATION_AURA                  = 343173,
     SPELL_ROGUE_PREY_ON_THE_WEAK_TALENT             = 131511,
@@ -85,7 +97,20 @@ enum RogueSpells
     SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE        = 51699,
     SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169,
     SPELL_ROGUE_VENOMOUS_WOUNDS                     = 79134,
+    SPELL_ROGUE_WOUND_POISON                        = 8679,
+    SPELL_ROGUE_WOUND_POISON_DEBUFF                 = 8680,
 };
+
+static constexpr std::array<std::pair<uint32 /*poisonAura*/, uint32 /*triggeredPoisonSpell*/>, 7> PoisonAuraToDebuff
+{{
+    { SPELL_ROGUE_WOUND_POISON,      SPELL_ROGUE_WOUND_POISON_DEBUFF      },
+    { SPELL_ROGUE_DEADLY_POISON,     SPELL_ROGUE_DEADLY_POISON_DEBUFF     },
+    { SPELL_ROGUE_AMPLIFYING_POISON, SPELL_ROGUE_AMPLIFYING_POISON_DEBUFF },
+    { SPELL_ROGUE_CRIPPLING_POISON,  SPELL_ROGUE_CRIPPLING_POISON_DEBUFF  },
+    { SPELL_ROGUE_NUMBING_POISON,    SPELL_ROGUE_NUMBING_POISON_DEBUFF    },
+    { SPELL_ROGUE_INSTANT_POISON,    SPELL_ROGUE_INSTANT_POISON_DAMAGE    },
+    { SPELL_ROGUE_ATROPHIC_POISON,   SPELL_ROGUE_ATROPHIC_POISON_DEBUFF   }
+}};
 
 /* Returns true if the spell is a finishing move.
  * A finishing move is a spell that cost combo points */
@@ -563,6 +588,47 @@ class spell_rog_pickpocket : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_rog_pickpocket::CheckCast);
+    }
+};
+
+// 185565 - Poisoned Knife
+class spell_rog_poisoned_knife : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_ROGUE_WOUND_POISON,
+            SPELL_ROGUE_WOUND_POISON_DEBUFF,
+            SPELL_ROGUE_DEADLY_POISON,
+            SPELL_ROGUE_DEADLY_POISON_DEBUFF,
+            SPELL_ROGUE_AMPLIFYING_POISON,
+            SPELL_ROGUE_AMPLIFYING_POISON_DEBUFF,
+            SPELL_ROGUE_CRIPPLING_POISON,
+            SPELL_ROGUE_CRIPPLING_POISON_DEBUFF,
+            SPELL_ROGUE_NUMBING_POISON,
+            SPELL_ROGUE_NUMBING_POISON_DEBUFF,
+            SPELL_ROGUE_INSTANT_POISON,
+            SPELL_ROGUE_INSTANT_POISON_DAMAGE,
+            SPELL_ROGUE_ATROPHIC_POISON,
+            SPELL_ROGUE_ATROPHIC_POISON_DEBUFF
+        });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        for (auto const& [poisonAura, debuffSpellId] : PoisonAuraToDebuff)
+            if (caster->HasAura(poisonAura))
+                caster->CastSpell(GetHitUnit(), debuffSpellId, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .TriggeringSpell = GetSpell()
+                });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_poisoned_knife::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1079,6 +1145,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
     RegisterSpellScript(spell_rog_pickpocket);
+    RegisterSpellScript(spell_rog_poisoned_knife);
     RegisterSpellScript(spell_rog_prey_on_the_weak);
     RegisterSpellScript(spell_rog_restless_blades);
     RegisterSpellScript(spell_rog_roll_the_bones);
