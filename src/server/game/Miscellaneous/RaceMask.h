@@ -81,7 +81,7 @@ enum Races
 };
 
 // max+1 for player race
-#define MAX_RACES                       22
+#define MAX_RACES                       23
 
 namespace Trinity
 {
