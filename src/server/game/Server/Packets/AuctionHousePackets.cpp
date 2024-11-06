@@ -34,7 +34,7 @@ AuctionBucketKey& AuctionBucketKey::operator=(AuctionsBucketKey const& key)
         BattlePetSpeciesID = key.BattlePetSpeciesId;
 
     if (key.SuffixItemNameDescriptionId)
-        SuffixItemNameDescriptionID = key.SuffixItemNameDescriptionId;
+        ItemSuffix = key.SuffixItemNameDescriptionId;
 
     return *this;
 }
@@ -50,13 +50,13 @@ ByteBuffer& operator>>(ByteBuffer& data, AuctionBucketKey& itemKey)
     itemKey.ItemLevel = data.ReadBits(11);
 
     if (data.ReadBit())
-        itemKey.SuffixItemNameDescriptionID.emplace();
+        itemKey.ItemSuffix.emplace();
 
     if (itemKey.BattlePetSpeciesID)
         data >> *itemKey.BattlePetSpeciesID;
 
-    if (itemKey.SuffixItemNameDescriptionID)
-        data >> *itemKey.SuffixItemNameDescriptionID;
+    if (itemKey.ItemSuffix)
+        data >> *itemKey.ItemSuffix;
 
     return data;
 }
@@ -66,14 +66,14 @@ ByteBuffer& operator<<(ByteBuffer& data, AuctionBucketKey const& itemKey)
     data.WriteBits(itemKey.ItemID, 20);
     data.WriteBit(itemKey.BattlePetSpeciesID.has_value());
     data.WriteBits(itemKey.ItemLevel, 11);
-    data.WriteBit(itemKey.SuffixItemNameDescriptionID.has_value());
+    data.WriteBit(itemKey.ItemSuffix.has_value());
     data.FlushBits();
 
     if (itemKey.BattlePetSpeciesID)
         data << uint16(*itemKey.BattlePetSpeciesID);
 
-    if (itemKey.SuffixItemNameDescriptionID)
-        data << uint16(*itemKey.SuffixItemNameDescriptionID);
+    if (itemKey.ItemSuffix)
+        data << uint16(*itemKey.ItemSuffix);
 
     return data;
 }
@@ -164,7 +164,7 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
     data.WriteBit(bucketInfo.MaxBattlePetQuality.has_value());
     data.WriteBit(bucketInfo.MaxBattlePetLevel.has_value());
     data.WriteBit(bucketInfo.BattlePetBreedID.has_value());
-    data.WriteBit(bucketInfo.Unk901_1.has_value());
+    data.WriteBit(bucketInfo.BattlePetLevelMask.has_value());
     data.WriteBit(bucketInfo.ContainsOwnerItem);
     data.WriteBit(bucketInfo.ContainsOnlyCollectedAppearances);
     data.FlushBits();
@@ -178,8 +178,8 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
     if (bucketInfo.BattlePetBreedID)
         data << uint8(*bucketInfo.BattlePetBreedID);
 
-    if (bucketInfo.Unk901_1)
-        data << uint32(*bucketInfo.Unk901_1);
+    if (bucketInfo.BattlePetLevelMask)
+        data << uint32(*bucketInfo.BattlePetLevelMask);
 
     return data;
 }
