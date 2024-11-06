@@ -45,7 +45,7 @@ namespace WorldPackets
             uint32 ItemID = 0;
             uint16 ItemLevel = 0;
             Optional<uint16> BattlePetSpeciesID;
-            Optional<uint16> SuffixItemNameDescriptionID;
+            Optional<uint16> ItemSuffix;
         };
 
         struct AuctionListFilterSubClass
@@ -100,7 +100,7 @@ namespace WorldPackets
             Optional<uint8> MaxBattlePetQuality;
             Optional<uint8> MaxBattlePetLevel;
             Optional<uint8> BattlePetBreedID;
-            Optional<uint32> Unk901_1;
+            Optional<uint32> BattlePetLevelMask;
             bool ContainsOwnerItem = false;
             bool ContainsOnlyCollectedAppearances = false;
         };

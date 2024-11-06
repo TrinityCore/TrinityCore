@@ -124,7 +124,7 @@ ByteBuffer& operator<<(ByteBuffer& data, InspectGuildData const& guildData)
 ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
 {
     data << uint8(bracket.Bracket);
-    data << int32(bracket.Unused3);
+    data << int32(bracket.RatingID);
     data << int32(bracket.Rating);
     data << int32(bracket.Rank);
     data << int32(bracket.WeeklyPlayed);
@@ -132,11 +132,11 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
     data << int32(bracket.SeasonPlayed);
     data << int32(bracket.SeasonWon);
     data << int32(bracket.WeeklyBestRating);
+    data << int32(bracket.LastWeeksBestRating);
+    data << int32(bracket.Tier);
+    data << int32(bracket.WeeklyBestTier);
     data << int32(bracket.SeasonBestRating);
-    data << int32(bracket.PvpTierID);
-    data << int32(bracket.WeeklyBestWinPvpTierID);
-    data << int32(bracket.Unused1);
-    data << int32(bracket.Unused2);
+    data << int32(bracket.SeasonBestTierEnum);
     data << int32(bracket.RoundsSeasonPlayed);
     data << int32(bracket.RoundsSeasonWon);
     data << int32(bracket.RoundsWeeklyPlayed);

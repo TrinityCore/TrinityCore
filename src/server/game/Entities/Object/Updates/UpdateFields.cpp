@@ -2200,23 +2200,23 @@ void PetCreatureName::ClearChangesMask()
 
 void CTROptions::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << int32(ContentTuningConditionMask);
-    data << uint32(Field_4);
-    data << uint32(ExpansionLevelMask);
+    data << int32(ConditionalFlags);
+    data << uint32(FactionGroup);
+    data << uint32(ChromieTimeExpansionMask);
 }
 
 void CTROptions::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
 {
-    data << int32(ContentTuningConditionMask);
-    data << uint32(Field_4);
-    data << uint32(ExpansionLevelMask);
+    data << int32(ConditionalFlags);
+    data << uint32(FactionGroup);
+    data << uint32(ChromieTimeExpansionMask);
 }
 
 bool CTROptions::operator==(CTROptions const& right) const
 {
-    return ContentTuningConditionMask == right.ContentTuningConditionMask
-        && Field_4 == right.Field_4
-        && ExpansionLevelMask == right.ExpansionLevelMask;
+    return ConditionalFlags == right.ConditionalFlags
+        && FactionGroup == right.FactionGroup
+        && ChromieTimeExpansionMask == right.ChromieTimeExpansionMask;
 }
 
 void DeclinedNames::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
@@ -6929,7 +6929,7 @@ void VisualAnim::WriteCreate(ByteBuffer& data, AreaTrigger const* owner, Player 
     data << uint32(AnimationDataID);
     data << uint32(AnimKitID);
     data << uint32(AnimProgress);
-    data.WriteBit(Field_C);
+    data.WriteBit(IsDecay);
     data.FlushBits();
 }
 
@@ -6945,7 +6945,7 @@ void VisualAnim::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, AreaTrigg
     {
         if (changesMask[1])
         {
-            data.WriteBit(Field_C);
+            data.WriteBit(IsDecay);
         }
     }
     data.FlushBits();
@@ -6969,7 +6969,7 @@ void VisualAnim::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, AreaTrigg
 
 void VisualAnim::ClearChangesMask()
 {
-    Base::ClearChangesMask(Field_C);
+    Base::ClearChangesMask(IsDecay);
     Base::ClearChangesMask(AnimationDataID);
     Base::ClearChangesMask(AnimKitID);
     Base::ClearChangesMask(AnimProgress);
