@@ -93,10 +93,10 @@ namespace WorldPackets
 
         struct SpellSupportInfo
         {
-            ObjectGuid CasterGUID;
-            int32 SpellID = 0;
-            int32 Amount = 0;
-            float Percentage = 0.0f;
+            ObjectGuid Supporter;
+            int32 SupportSpellID = 0;
+            int32 AmountRaw = 0;
+            float AmountPortion = 0.0f;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogData);

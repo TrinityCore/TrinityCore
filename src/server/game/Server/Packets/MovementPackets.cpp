@@ -306,7 +306,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBits(movementSpline.Points.size(), 16);
     data.WriteBit(movementSpline.VehicleExitVoluntary);
-    data.WriteBit(movementSpline.Interpolate);
+    data.WriteBit(movementSpline.TaxiSmoothing);
     data.WriteBits(movementSpline.PackedDeltas.size(), 16);
     data.WriteBit(movementSpline.SplineFilter.has_value());
     data.WriteBit(movementSpline.SpellEffectExtraData.has_value());
@@ -357,7 +357,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonster
 {
     data << movementMonsterSpline.ID;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
-    data.WriteBits(movementMonsterSpline.StopDistanceTolerance, 3);
+    data.WriteBits(movementMonsterSpline.StopSplineStyle, 3);
 
     data << movementMonsterSpline.Move;
 
@@ -517,7 +517,7 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
 
     data << uint32(movementForce.TransportID);
     data << float(movementForce.Magnitude);
-    data << int32(movementForce.Unused910);
+    data << int32(movementForce.MovementForceID);
     data.WriteBits(AsUnderlyingType(movementForce.Type), 2);
     data.FlushBits();
 }
@@ -757,7 +757,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
     data >> movementForce.Direction;
     data >> movementForce.TransportID;
     data >> movementForce.Magnitude;
-    data >> movementForce.Unused910;
+    data >> movementForce.MovementForceID;
     movementForce.Type = MovementForceType(data.ReadBits(2));
 
     return data;

@@ -89,7 +89,7 @@ void AddItemsSetItem(Player* player, Item const* item)
         {
             uint32 maxLevel = sDB2Manager.GetCurveXAxisRange(item->GetBonus()->PlayerLevelToItemLevelCurveId).second;
 
-            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask, true))
+            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags, true))
                 maxLevel = std::min<uint32>(maxLevel, contentTuning->MaxLevel);
 
             if (player->GetLevel() > maxLevel)

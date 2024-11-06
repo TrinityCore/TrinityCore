@@ -392,7 +392,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = static_cast<EnumCharactersQueryHolder const&>(holder).IsDeletedCharacters();
-    charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
+    charEnum.ClassDisableMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     if (!charEnum.IsDeletedCharacters)
         _legitCharacters.clear();
@@ -458,8 +458,8 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
     {
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
-        raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
-        raceUnlock.HasAchievement = requirement.second.AchievementId != 0
+        raceUnlock.HasUnlockedLicense = GetAccountExpansion() >= requirement.second.Expansion;
+        raceUnlock.HasUnlockedAchievement = requirement.second.AchievementId != 0
             && (sWorld->getBoolConfig(CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT)
                 /* || HasAccountAchievement(requirement.second.AchievementId)*/);
         charEnum.RaceUnlockData.push_back(raceUnlock);
@@ -1473,25 +1473,25 @@ void WorldSession::SendFeatureSystemStatus()
     features.ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
     features.CfgRealmID = 2;
     features.CfgRealmRecID = 0;
-    features.TokenPollTimeSeconds = 300;
+    features.CommercePricePollTimeSeconds = 300;
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
     // Enable guilds only.
     // This is required to restore old guild channel behavior for GMs.
     // The new club streams do not support sending messages through the guild channel when you are not in a guild.
-    features.ClubsEnabled = true;
-    features.ClubsBattleNetClubTypeAllowed = false;
-    features.ClubsCharacterClubTypeAllowed = false;
-    features.ClubsPresenceUpdateEnabled = true;
-    features.HiddenUIClubsPresenceUpdateTimer = 60000;
+    features.CommunitiesEnabled = true;
+    features.BnetGroupsEnabled = false;
+    features.CharacterCommunitiesEnabled = false;
+    features.ClubPresenceAllowSubscribeAll = true;
+    features.ClubPresenceUnsubscribeDelay = 60000;
 
     features.EuropaTicketSystemStatus.emplace();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
     features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
     features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
-    features.TutorialsEnabled = true;
+    features.TutorialEnabled = true;
     features.NPETutorialsEnabled = true;
     /// END OF DUMMY VALUES
 
@@ -1502,9 +1502,9 @@ void WorldSession::SendFeatureSystemStatus()
 
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
-    features.IsMuted = !CanSpeak();
+    features.IsChatMuted = !CanSpeak();
 
-    features.TextToSpeechFeatureEnabled = false;
+    features.SpeakForMeAllowed = false;
 
     SendPacket(features.Write());
 }

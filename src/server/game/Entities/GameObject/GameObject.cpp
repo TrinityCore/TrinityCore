@@ -2215,7 +2215,7 @@ uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
     if (GetGoType() == GAMEOBJECT_TYPE_TRAP)
     {
         if (Player const* player = target->ToPlayer())
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
                 return uint8(std::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
 
         if (Unit const* targetUnit = target->ToUnit())
@@ -3136,11 +3136,11 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
                 if (player->GetLevel() < userLevels->MaxLevel)
                     return;
 
-            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ConditionalFlags))
                 if (targetPlayer->GetLevel() < targetLevels->MaxLevel)
                     return;
 

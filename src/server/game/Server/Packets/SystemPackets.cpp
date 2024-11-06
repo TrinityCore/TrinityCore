@@ -69,31 +69,31 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << uint32(RAFSystem.MaxRecruitMonths);
     _worldPacket << uint32(RAFSystem.MaxRecruitmentUses);
     _worldPacket << uint32(RAFSystem.DaysInCycle);
-    _worldPacket << uint32(RAFSystem.Unknown1007);
+    _worldPacket << uint32(RAFSystem.RewardsVersion);
 
-    _worldPacket << uint32(TokenPollTimeSeconds);
-    _worldPacket << uint32(KioskSessionMinutes);
-    _worldPacket << int64(TokenBalanceAmount);
+    _worldPacket << uint32(CommercePricePollTimeSeconds);
+    _worldPacket << uint32(KioskSessionDurationMinutes);
+    _worldPacket << int64(RedeemForBalanceAmount);
 
-    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
+    _worldPacket << uint32(BpayStorePurchaseTimeout);
 
-    _worldPacket << uint32(ClubsPresenceUpdateTimer);
-    _worldPacket << uint32(HiddenUIClubsPresenceUpdateTimer);
+    _worldPacket << uint32(ClubsPresenceDelay);
+    _worldPacket << uint32(ClubPresenceUnsubscribeDelay);
 
-    _worldPacket << int32(ActiveSeason);
-    _worldPacket << uint32(GameRuleValues.size());
+    _worldPacket << int32(ContentSetID);
+    _worldPacket << uint32(GameRules.size());
     _worldPacket << int32(ActiveTimerunningSeasonID);
     _worldPacket << int32(RemainingTimerunningSeasonSeconds);
 
-    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
-    _worldPacket << int16(PlayerNameQueryTelemetryInterval);
-    _worldPacket << PlayerNameQueryInterval;
+    _worldPacket << int16(MaxPlayerGuidLookupsPerRequest);
+    _worldPacket << int16(NameLookupTelemetryInterval);
+    _worldPacket << NotFoundCacheTimeSeconds;
 
     _worldPacket << int32(AddonChatThrottle.MaxTries);
     _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
     _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
 
-    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
+    for (GameRuleValuePair const& gameRuleValue : GameRules)
         _worldPacket << gameRuleValue;
 
     _worldPacket << Bits<1>(VoiceEnabled);
@@ -109,43 +109,43 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(RAFSystem.RecruitingEnabled);
     _worldPacket << Bits<1>(CharUndeleteEnabled);
     _worldPacket << Bits<1>(RestrictedAccount);
-    _worldPacket << Bits<1>(CommerceSystemEnabled);
-    _worldPacket << Bits<1>(TutorialsEnabled);
-    _worldPacket << Bits<1>(Unk67);
-    _worldPacket << Bits<1>(WillKickFromWorld);
+    _worldPacket << Bits<1>(CommerceServerEnabled);
+    _worldPacket << Bits<1>(TutorialEnabled);
+    _worldPacket << Bits<1>(VeteranTokenRedeemWillKick);
+    _worldPacket << Bits<1>(WorldTokenRedeemWillKick);
 
     _worldPacket << Bits<1>(KioskModeEnabled);
     _worldPacket << Bits<1>(CompetitiveModeEnabled);
-    _worldPacket << Bits<1>(TokenBalanceEnabled);
-    _worldPacket << Bits<1>(WarModeFeatureEnabled);
-    _worldPacket << Bits<1>(ClubsEnabled);
-    _worldPacket << Bits<1>(ClubsBattleNetClubTypeAllowed);
-    _worldPacket << Bits<1>(ClubsCharacterClubTypeAllowed);
-    _worldPacket << Bits<1>(ClubsPresenceUpdateEnabled);
+    _worldPacket << Bits<1>(RedeemForBalanceAvailable);
+    _worldPacket << Bits<1>(WarModeEnabled);
+    _worldPacket << Bits<1>(CommunitiesEnabled);
+    _worldPacket << Bits<1>(BnetGroupsEnabled);
+    _worldPacket << Bits<1>(CharacterCommunitiesEnabled);
+    _worldPacket << Bits<1>(ClubPresenceAllowSubscribeAll);
 
-    _worldPacket << Bits<1>(VoiceChatDisabledByParentalControl);
-    _worldPacket << Bits<1>(VoiceChatMutedByParentalControl);
+    _worldPacket << Bits<1>(VoiceChatParentalDisabled);
+    _worldPacket << Bits<1>(VoiceChatParentalMuted);
     _worldPacket << Bits<1>(QuestSessionEnabled);
-    _worldPacket << Bits<1>(IsMuted);
+    _worldPacket << Bits<1>(IsChatMuted);
     _worldPacket << Bits<1>(ClubFinderEnabled);
     _worldPacket << Bits<1>(CommunityFinderEnabled);
-    _worldPacket << Bits<1>(Unknown901CheckoutRelated);
-    _worldPacket << Bits<1>(TextToSpeechFeatureEnabled);
+    _worldPacket << Bits<1>(BrowserCrashReporterEnabled);
+    _worldPacket << Bits<1>(SpeakForMeAllowed);
 
-    _worldPacket << Bits<1>(ChatDisabledByDefault);
-    _worldPacket << Bits<1>(ChatDisabledByPlayer);
-    _worldPacket << Bits<1>(LFGListCustomRequiresAuthenticator);
-    _worldPacket << Bits<1>(AddonsDisabled);
+    _worldPacket << Bits<1>(DoesAccountNeedAADCPrompt);
+    _worldPacket << Bits<1>(IsAccountOptedInToAADC);
+    _worldPacket << Bits<1>(LfgRequireAuthenticatorEnabled);
+    _worldPacket << Bits<1>(ScriptsDisallowedForBeta);
     _worldPacket << Bits<1>(TimerunningEnabled);
     _worldPacket << Bits<1>(WarGamesEnabled);
-    _worldPacket << Bits<1>(ContentTrackingEnabled);
-    _worldPacket << Bits<1>(IsSellAllJunkEnabled);
+    _worldPacket << Bits<1>(IsPlayerContentTrackingEnabled);
+    _worldPacket << Bits<1>(SellAllJunkEnabled);
 
-    _worldPacket << Bits<1>(IsGroupFinderEnabled);
-    _worldPacket << Bits<1>(IsLFDEnabled);
-    _worldPacket << Bits<1>(IsLFREnabled);
+    _worldPacket << Bits<1>(GroupFinderEnabled);
+    _worldPacket << Bits<1>(LfdEnabled);
+    _worldPacket << Bits<1>(LfrEnabled);
     _worldPacket << Bits<1>(IsPremadeGroupEnabled);
-    _worldPacket << Bits<1>(CanShowSetRoleButton);
+    _worldPacket << Bits<1>(PremadeGroupsEnabled);
     _worldPacket << Bits<1>(false); // unused 10.2.7
     _worldPacket << Bits<1>(GuildEventsEditsEnabled);
     _worldPacket << Bits<1>(GuildTradeSkillsEnabled);
@@ -211,33 +211,33 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Bits<1>(BpayStoreAvailable);
     _worldPacket << Bits<1>(BpayStoreDisabledByParentalControls);
     _worldPacket << Bits<1>(CharUndeleteEnabled);
-    _worldPacket << Bits<1>(CommerceSystemEnabled);
-    _worldPacket << Bits<1>(Unk14);
-    _worldPacket << Bits<1>(WillKickFromWorld);
-    _worldPacket << Bits<1>(IsExpansionPreorderInStore);
+    _worldPacket << Bits<1>(CommerceServerEnabled);
+    _worldPacket << Bits<1>(VeteranTokenRedeemWillKick);
+    _worldPacket << Bits<1>(WorldTokenRedeemWillKick);
+    _worldPacket << Bits<1>(ExpansionPreorderInStore);
 
     _worldPacket << Bits<1>(KioskModeEnabled);
     _worldPacket << Bits<1>(CompetitiveModeEnabled);
-    _worldPacket << Bits<1>(IsBoostEnabled);
+    _worldPacket << Bits<1>(BoostEnabled);
     _worldPacket << Bits<1>(TrialBoostEnabled);
-    _worldPacket << Bits<1>(TokenBalanceEnabled);
+    _worldPacket << Bits<1>(RedeemForBalanceAvailable);
     _worldPacket << Bits<1>(PaidCharacterTransfersBetweenBnetAccountsEnabled);
     _worldPacket << Bits<1>(LiveRegionCharacterListEnabled);
     _worldPacket << Bits<1>(LiveRegionCharacterCopyEnabled);
 
     _worldPacket << Bits<1>(LiveRegionAccountCopyEnabled);
     _worldPacket << Bits<1>(LiveRegionKeyBindingsCopyEnabled);
-    _worldPacket << Bits<1>(Unknown901CheckoutRelated);
-    _worldPacket << Bits<1>(false); // unused, 10.0.2
+    _worldPacket << Bits<1>(BrowserCrashReporterEnabled);
+    _worldPacket << Bits<1>(IisEmployeeAccount);
     _worldPacket << OptionalInit(EuropaTicketSystemStatus);
-    _worldPacket << Bits<1>(IsNameReservationEnabled);
-    _worldPacket << OptionalInit(LaunchETA);
+    _worldPacket << Bits<1>(NameReservationOnly);
+    _worldPacket << OptionalInit(LaunchDurationETA);
     _worldPacket << Bits<1>(TimerunningEnabled);
 
-    _worldPacket << Bits<1>(AddonsDisabled);
-    _worldPacket << Bits<1>(Unused1000);
-    _worldPacket << Bits<1>(AccountSaveDataExportEnabled);
-    _worldPacket << Bits<1>(AccountLockedByExport);
+    _worldPacket << Bits<1>(ScriptsDisallowedForBeta);
+    _worldPacket << Bits<1>(PlayerIdentityOptionsEnabled);
+    _worldPacket << Bits<1>(AccountExportEnabled);
+    _worldPacket << Bits<1>(AccountLockedPostExport);
 
     _worldPacket << Bits<11>(RealmHiddenAlert.length() + 1);
 
@@ -251,29 +251,29 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     if (EuropaTicketSystemStatus)
         _worldPacket << *EuropaTicketSystemStatus;
 
-    _worldPacket << uint32(TokenPollTimeSeconds);
-    _worldPacket << uint32(KioskSessionMinutes);
-    _worldPacket << int64(TokenBalanceAmount);
-    _worldPacket << int32(MaxCharactersPerRealm);
+    _worldPacket << uint32(CommercePricePollTimeSeconds);
+    _worldPacket << uint32(KioskSessionDurationMinutes);
+    _worldPacket << int64(RedeemForBalanceAmount);
+    _worldPacket << int32(MaxCharactersOnThisRealm);
     _worldPacket << uint32(LiveRegionCharacterCopySourceRegions.size());
-    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
-    _worldPacket << int32(ActiveCharacterUpgradeBoostType);
-    _worldPacket << int32(ActiveClassTrialBoostType);
+    _worldPacket << uint32(BpayStorePurchaseTimeout);
+    _worldPacket << int32(ActiveBoostType);
+    _worldPacket << int32(TrialBoostType);
     _worldPacket << int32(MinimumExpansionLevel);
     _worldPacket << int32(MaximumExpansionLevel);
-    _worldPacket << int32(ActiveSeason);
-    _worldPacket << uint32(GameRuleValues.size());
+    _worldPacket << int32(ContentSetID);
+    _worldPacket << uint32(GameRules.size());
     _worldPacket << int32(ActiveTimerunningSeasonID);
     _worldPacket << int32(RemainingTimerunningSeasonSeconds);
-    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
-    _worldPacket << int16(PlayerNameQueryTelemetryInterval);
-    _worldPacket << PlayerNameQueryInterval;
+    _worldPacket << int16(MaxPlayerGuidLookupsPerRequest);
+    _worldPacket << int16(NameLookupTelemetryInterval);
+    _worldPacket << NotFoundCacheTimeSeconds;
     _worldPacket << uint32(DebugTimeEvents.size());
-    _worldPacket << int32(Unused1007);
+    _worldPacket << int32(MostRecentTimeEventID);
     _worldPacket << uint32(EventRealmQueues);
 
-    if (LaunchETA)
-        _worldPacket << int32(*LaunchETA);
+    if (LaunchDurationETA)
+        _worldPacket << int32(*LaunchDurationETA);
 
     if (!RealmHiddenAlert.empty())
         _worldPacket << RealmHiddenAlert;
@@ -281,7 +281,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
 
-    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
+    for (GameRuleValuePair const& gameRuleValue : GameRules)
         _worldPacket << gameRuleValue;
 
     for (DebugTimeEventInfo const& debugTimeEventInfo : DebugTimeEvents)
@@ -294,12 +294,12 @@ WorldPacket const* SetTimeZoneInformation::Write()
 {
     _worldPacket << BitsSize<7>(ServerTimeTZ);
     _worldPacket << BitsSize<7>(GameTimeTZ);
-    _worldPacket << BitsSize<7>(ServerRegionalTZ);
+    _worldPacket << BitsSize<7>(ServerRegionalTimeTZ);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(ServerTimeTZ);
     _worldPacket.WriteString(GameTimeTZ);
-    _worldPacket.WriteString(ServerRegionalTZ);
+    _worldPacket.WriteString(ServerRegionalTimeTZ);
 
     return &_worldPacket;
 }

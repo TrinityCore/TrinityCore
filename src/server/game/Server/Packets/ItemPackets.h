@@ -343,12 +343,12 @@ namespace WorldPackets
             uint8 Slot                      = 0;
             int32 SlotInBag                 = 0;
             ItemInstance Item;
-            int32 QuestLogItemID            = 0; // Item ID used for updating quest progress
+            int32 ProxyItemID               = 0; // Item ID used for updating quest progress
                                                  // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
             int32 QuantityInQuestLog        = 0;
-            int32 DungeonEncounterID        = 0;
+            int32 EncounterID               = 0;
             int32 BattlePetSpeciesID        = 0;
             int32 BattlePetBreedID          = 0;
             uint8 BattlePetBreedQuality     = 0;
@@ -358,11 +358,11 @@ namespace WorldPackets
             Optional<Crafting::CraftingData> CraftingData;
             Optional<uint32> FirstCraftOperationID;
             bool Pushed                     = false;
-            DisplayType DisplayText         = DISPLAY_TYPE_HIDDEN;
+            DisplayType ChatNotifyType      = DISPLAY_TYPE_HIDDEN;
             bool Created                    = false;
-            bool Unused_1017                = false;
+            bool FakeQuestItem              = false;
             bool IsBonusRoll                = false;
-            bool IsEncounterLoot            = false;
+            bool IsPersonalLoot             = false;
         };
 
         class ReadItem final : public ClientPacket

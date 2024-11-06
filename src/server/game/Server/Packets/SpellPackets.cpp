@@ -201,7 +201,7 @@ ByteBuffer& operator>>(ByteBuffer& data, SpellCraftingReagent& optionalReagent)
     data >> optionalReagent.DataSlotIndex;
     data >> optionalReagent.Quantity;
     if (data.ReadBit())
-        optionalReagent.Unknown_1000 = data.read<uint8>();
+        optionalReagent.Source = data.read<uint8>();
 
     return data;
 }

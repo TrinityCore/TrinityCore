@@ -103,7 +103,7 @@ namespace WorldPackets
                 uint32 MaxRecruitMonths = 0;
                 uint32 MaxRecruitmentUses = 0;
                 uint32 DaysInCycle = 0;
-                uint32 Unknown1007 = 0;
+                uint32 RewardsVersion = 0;
             };
 
             struct AddonChatThrottleParams
@@ -126,54 +126,54 @@ namespace WorldPackets
             uint32 CfgRealmID                            = 0;
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
-            uint32 TokenPollTimeSeconds                  = 0;
-            int64 TokenBalanceAmount                     = 0;
-            uint32 BpayStoreProductDeliveryDelay         = 0;
-            uint32 ClubsPresenceUpdateTimer              = 0;
-            uint32 HiddenUIClubsPresenceUpdateTimer      = 0; ///< Timer for updating club presence when communities ui frame is hidden
-            uint32 KioskSessionMinutes                   = 0;
-            int32 ActiveSeason                           = 0; ///< Currently active Classic season
-            int16 MaxPlayerNameQueriesPerPacket          = 50;
-            int16 PlayerNameQueryTelemetryInterval       = 600;
-            Duration<Seconds, uint32> PlayerNameQueryInterval = 10s;
+            uint32 CommercePricePollTimeSeconds          = 0;
+            int64 RedeemForBalanceAmount                 = 0;
+            uint32 BpayStorePurchaseTimeout              = 0;
+            uint32 ClubsPresenceDelay                    = 0;
+            uint32 ClubPresenceUnsubscribeDelay          = 0; ///< Timer for updating club presence when communities ui frame is hidden
+            uint32 KioskSessionDurationMinutes           = 0;
+            int32 ContentSetID                           = 0; ///< Currently active Classic season
+            int16 MaxPlayerGuidLookupsPerRequest         = 50;
+            int16 NameLookupTelemetryInterval            = 600;
+            Duration<Seconds, uint32> NotFoundCacheTimeSeconds = 10s;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
-            bool CommerceSystemEnabled               = false;
-            bool Unk67                               = false;
-            bool WillKickFromWorld                   = false;
+            bool CommerceServerEnabled               = false;
+            bool VeteranTokenRedeemWillKick          = false;
+            bool WorldTokenRedeemWillKick            = false;
             bool RestrictedAccount                   = false;
-            bool TutorialsEnabled                    = false;
+            bool TutorialEnabled                     = false;
             bool NPETutorialsEnabled                 = false;
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
-            bool TokenBalanceEnabled                 = false;
-            bool WarModeFeatureEnabled               = true;
-            bool ClubsEnabled                        = false;
-            bool ClubsBattleNetClubTypeAllowed       = false;
-            bool ClubsCharacterClubTypeAllowed       = false;
-            bool ClubsPresenceUpdateEnabled          = false;
-            bool VoiceChatDisabledByParentalControl  = false;
-            bool VoiceChatMutedByParentalControl     = false;
+            bool RedeemForBalanceAvailable           = false;
+            bool WarModeEnabled                      = true;
+            bool CommunitiesEnabled                  = false;
+            bool BnetGroupsEnabled                   = false;
+            bool CharacterCommunitiesEnabled         = false;
+            bool ClubPresenceAllowSubscribeAll       = false;
+            bool VoiceChatParentalDisabled           = false;
+            bool VoiceChatParentalMuted              = false;
             bool QuestSessionEnabled                 = false;
-            bool IsMuted                             = false;
+            bool IsChatMuted                         = false;
             bool ClubFinderEnabled                   = false;
             bool CommunityFinderEnabled              = false;
-            bool Unknown901CheckoutRelated           = false;
-            bool TextToSpeechFeatureEnabled          = false;
-            bool ChatDisabledByDefault               = false;
-            bool ChatDisabledByPlayer                = false;
-            bool LFGListCustomRequiresAuthenticator  = false;
-            bool AddonsDisabled                      = false;
+            bool BrowserCrashReporterEnabled         = false;
+            bool SpeakForMeAllowed                   = false;
+            bool DoesAccountNeedAADCPrompt           = false;
+            bool IsAccountOptedInToAADC              = false;
+            bool LfgRequireAuthenticatorEnabled      = false;
+            bool ScriptsDisallowedForBeta            = false;
             bool TimerunningEnabled                  = false;
             bool WarGamesEnabled                     = false; // classic only
-            bool ContentTrackingEnabled              = false;
-            bool IsSellAllJunkEnabled                = false;
-            bool IsGroupFinderEnabled                = true;  // classic only
-            bool IsLFDEnabled                        = true;  // classic only
-            bool IsLFREnabled                        = true;  // classic only
+            bool IsPlayerContentTrackingEnabled      = false;
+            bool SellAllJunkEnabled                  = false;
+            bool GroupFinderEnabled                  = true;  // classic only
+            bool LfdEnabled                          = true;  // classic only
+            bool LfrEnabled                          = true;  // classic only
             bool IsPremadeGroupEnabled               = true;  // classic only
-            bool CanShowSetRoleButton                = true;
+            bool PremadeGroupsEnabled                = true;
             bool GuildEventsEditsEnabled             = true;
             bool GuildTradeSkillsEnabled             = true;
             bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
@@ -183,7 +183,7 @@ namespace WorldPackets
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
-            std::vector<GameRuleValuePair> GameRuleValues;
+            std::vector<GameRuleValuePair> GameRules;
             int32 ActiveTimerunningSeasonID          = 0;
             int32 RemainingTimerunningSeasonSeconds  = 0;
             std::string Unknown1027;                          // related to movement lua functions used by keybinds
@@ -207,51 +207,52 @@ namespace WorldPackets
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
             bool BpayStoreEnabled                    = false; // NYI
-            bool CommerceSystemEnabled               = false; // NYI
-            bool Unk14                               = false; // NYI
-            bool WillKickFromWorld                   = false; // NYI
-            bool IsExpansionPreorderInStore          = false; // NYI
+            bool CommerceServerEnabled               = false; // NYI
+            bool VeteranTokenRedeemWillKick          = false; // NYI
+            bool WorldTokenRedeemWillKick            = false; // NYI
+            bool ExpansionPreorderInStore            = false; // NYI
             bool KioskModeEnabled                    = false; // NYI
             bool CompetitiveModeEnabled              = false; // NYI
-            bool IsBoostEnabled                      = false; // classic only
+            bool BoostEnabled                        = false; // classic only
             bool TrialBoostEnabled                   = false; // NYI
-            bool TokenBalanceEnabled                 = false; // NYI
+            bool RedeemForBalanceAvailable           = false; // NYI
             bool PaidCharacterTransfersBetweenBnetAccountsEnabled = false;
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
             bool LiveRegionKeyBindingsCopyEnabled    = false;
-            bool Unknown901CheckoutRelated           = false; // NYI
-            bool IsNameReservationEnabled            = false; // classic only
+            bool BrowserCrashReporterEnabled         = false; // NYI
+            bool IisEmployeeAccount                  = false; // NYI
+            bool NameReservationOnly                 = false; // classic only
             bool TimerunningEnabled                  = false; // NYI
-            bool AddonsDisabled                      = false;
-            bool Unused1000                          = false;
-            bool AccountSaveDataExportEnabled        = false;
-            bool AccountLockedByExport               = false;
+            bool ScriptsDisallowedForBeta            = false;
+            bool PlayerIdentityOptionsEnabled        = false;
+            bool AccountExportEnabled                = false;
+            bool AccountLockedPostExport             = false;
             bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
             bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool CharacterSelectListModeRealmless    = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
-            uint32 TokenPollTimeSeconds              = 0;     // NYI
-            int64 TokenBalanceAmount                 = 0;     // NYI
-            int32 MaxCharactersPerRealm              = 0;
-            uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
-            int32 ActiveCharacterUpgradeBoostType    = 0;     // NYI
-            int32 ActiveClassTrialBoostType          = 0;     // NYI
+            uint32 CommercePricePollTimeSeconds      = 0;     // NYI
+            int64 RedeemForBalanceAmount             = 0;     // NYI
+            int32 MaxCharactersOnThisRealm           = 0;
+            uint32 BpayStorePurchaseTimeout          = 0;     // NYI
+            int32 ActiveBoostType                    = 0;     // NYI
+            int32 TrialBoostType                     = 0;     // NYI
             int32 MinimumExpansionLevel              = 0;
             int32 MaximumExpansionLevel              = 0;
-            uint32 KioskSessionMinutes               = 0;
-            int32 ActiveSeason                       = 0;     // Currently active Classic season
-            std::vector<GameRuleValuePair> GameRuleValues;
+            uint32 KioskSessionDurationMinutes       = 0;
+            int32 ContentSetID                       = 0;     // Currently active Classic season
+            std::vector<GameRuleValuePair> GameRules;
             int32 ActiveTimerunningSeasonID          = 0;
             int32 RemainingTimerunningSeasonSeconds  = 0;
-            int16 MaxPlayerNameQueriesPerPacket      = 50;
-            int16 PlayerNameQueryTelemetryInterval   = 600;
-            Duration<Seconds, uint32> PlayerNameQueryInterval = 10s;
-            Optional<int32> LaunchETA;
+            int16 MaxPlayerGuidLookupsPerRequest     = 50;
+            int16 NameLookupTelemetryInterval        = 600;
+            Duration<Seconds, uint32> NotFoundCacheTimeSeconds = 10s;
+            Optional<int32> LaunchDurationETA;
             std::vector<DebugTimeEventInfo> DebugTimeEvents;
-            int32 Unused1007                         = 0;
+            int32 MostRecentTimeEventID              = 0;
             uint32 EventRealmQueues                  = 0;
             std::string RealmHiddenAlert;
         };
@@ -265,7 +266,7 @@ namespace WorldPackets
 
             std::string_view ServerTimeTZ;
             std::string_view GameTimeTZ;
-            std::string_view ServerRegionalTZ;
+            std::string_view ServerRegionalTimeTZ;
         };
     }
 }

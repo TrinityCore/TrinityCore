@@ -61,18 +61,18 @@ void WorldPackets::Party::PartyInviteClient::Read()
 WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 {
     _worldPacket << Bits<1>(CanAccept);
-    _worldPacket << Bits<1>(MightCRZYou);
     _worldPacket << Bits<1>(IsXRealm);
-    _worldPacket << Bits<1>(MustBeBNetFriend);
+    _worldPacket << Bits<1>(IsXNativeRealm);
+    _worldPacket << Bits<1>(ShouldSquelch);
     _worldPacket << Bits<1>(AllowMultipleRoles);
     _worldPacket << Bits<1>(QuestSessionActive);
     _worldPacket << BitsSize<6>(InviterName);
-    _worldPacket << Bits<1>(Unused1102);
+    _worldPacket << Bits<1>(IsCrossFaction);
 
     _worldPacket << InviterRealm;
     _worldPacket << InviterGUID;
     _worldPacket << InviterBNetAccountId;
-    _worldPacket << uint16(Unk1);
+    _worldPacket << uint16(InviterCfgRealmID);
     _worldPacket << uint8(ProposedRoles);
     _worldPacket << uint32(LfgSlots.size());
     _worldPacket << uint32(LfgCompletedMask);
@@ -175,9 +175,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberAuraSta
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::CTROptions const& ctrOptions)
 {
-    data << uint32(ctrOptions.ContentTuningConditionMask);
-    data << int32(ctrOptions.Unused901);
-    data << uint32(ctrOptions.ExpansionLevelMask);
+    data << uint32(ctrOptions.ConditionalFlags);
+    data << int32(ctrOptions.FactionGroup);
+    data << uint32(ctrOptions.ChromieTimeExpansionMask);
 
     return data;
 }
@@ -709,6 +709,10 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
             MemberStats.PetStats->Auras.push_back(aura);
         }
     }
+
+    MemberStats.ChromieTime.ConditionalFlags = player->m_playerData->CtrOptions->ConditionalFlags;
+    MemberStats.ChromieTime.FactionGroup = player->m_playerData->CtrOptions->FactionGroup;
+    MemberStats.ChromieTime.ChromieTimeExpansionMask = player->m_playerData->CtrOptions->ChromieTimeExpansionMask;
 }
 
 WorldPacket const* WorldPackets::Party::PartyKillLog::Write()

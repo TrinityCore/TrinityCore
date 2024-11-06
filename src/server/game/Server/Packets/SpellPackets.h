@@ -228,7 +228,7 @@ namespace WorldPackets
             int32 ItemID = 0;
             int32 DataSlotIndex = 0;
             int32 Quantity = 0;
-            Optional<uint8> Unknown_1000;
+            Optional<uint8> Source;
         };
 
         struct SpellExtraCurrencyCost
