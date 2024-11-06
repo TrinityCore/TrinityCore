@@ -222,7 +222,7 @@ namespace WorldPackets
             bool LiveRegionAccountCopyEnabled        = false; // NYI
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool BrowserCrashReporterEnabled         = false; // NYI
-            bool IisEmployeeAccount                  = false; // NYI
+            bool IsEmployeeAccount                   = false; // NYI
             bool NameReservationOnly                 = false; // classic only
             bool TimerunningEnabled                  = false; // NYI
             bool ScriptsDisallowedForBeta            = false;
