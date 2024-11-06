@@ -228,7 +228,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Bits<1>(LiveRegionAccountCopyEnabled);
     _worldPacket << Bits<1>(LiveRegionKeyBindingsCopyEnabled);
     _worldPacket << Bits<1>(BrowserCrashReporterEnabled);
-    _worldPacket << Bits<1>(IisEmployeeAccount);
+    _worldPacket << Bits<1>(IsEmployeeAccount);
     _worldPacket << OptionalInit(EuropaTicketSystemStatus);
     _worldPacket << Bits<1>(NameReservationOnly);
     _worldPacket << OptionalInit(LaunchDurationETA);
