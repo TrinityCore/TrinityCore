@@ -160,6 +160,8 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogDat
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
     data << int32(spellCastLogData.Armor);
+    data << int32(spellCastLogData.Unknown_1105_1);
+    data << int32(spellCastLogData.Unknown_1105_2);
     data << BitsSize<9>(spellCastLogData.PowerData);
     data.FlushBits();
 
@@ -209,10 +211,10 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellSupportInfo const& supportInfo)
 {
-    data << supportInfo.CasterGUID;
-    data << int32(supportInfo.SpellID);
-    data << int32(supportInfo.Amount);
-    data << float(supportInfo.Percentage);
+    data << supportInfo.Supporter;
+    data << int32(supportInfo.SupportSpellID);
+    data << int32(supportInfo.AmountRaw);
+    data << float(supportInfo.AmountPortion);
 
     return data;
 }
