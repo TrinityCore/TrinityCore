@@ -1695,6 +1695,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
         if (attacker->GetTypeId() == TYPEID_PLAYER)
         {
             float arpPct = attacker->ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION);
+            arpPct += attacker->ToPlayer()->GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
 
             // no more than 100%
             RoundToInterval(arpPct, 0.f, 100.f);
