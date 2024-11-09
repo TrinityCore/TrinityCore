@@ -32,10 +32,12 @@
 enum MonkSpells
 {
     SPELL_MONK_CALMING_COALESCENCE                      = 388220,
+    SPELL_MONK_COMBAT_CONDITIONING                      = 128595,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL         = 117952,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
+    SPELL_MONK_MORTAL_WOUNDS                            = 115804,
     SPELL_MONK_POWER_STRIKE_PROC                        = 129914,
     SPELL_MONK_POWER_STRIKE_ENERGIZE                    = 121283,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
@@ -249,6 +251,33 @@ class spell_monk_provoke : public SpellScript
     {
         OnCheckCast += SpellCheckCastFn(spell_monk_provoke::CheckExplicitTarget);
         OnEffectHitTarget += SpellEffectFn(spell_monk_provoke::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 107428 - Rising Sun Kick
+class spell_monk_rising_sun_kick : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_COMBAT_CONDITIONING, SPELL_MONK_MORTAL_WOUNDS });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MONK_COMBAT_CONDITIONING);
+    }
+
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_MORTAL_WOUNDS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_monk_rising_sun_kick::HandleOnHit, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
     }
 };
 
@@ -559,6 +588,7 @@ void AddSC_monk_spell_scripts()
     RegisterSpellScript(spell_monk_power_strike_periodic);
     RegisterSpellScript(spell_monk_power_strike_proc);
     RegisterSpellScript(spell_monk_provoke);
+    RegisterSpellScript(spell_monk_rising_sun_kick);
     RegisterSpellScript(spell_monk_roll);
     RegisterSpellScript(spell_monk_roll_aura);
     RegisterSpellScript(spell_monk_stagger);
