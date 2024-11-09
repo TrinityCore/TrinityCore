@@ -149,22 +149,31 @@ class spell_rog_airborne_irritant : public SpellScript
         return GetCaster()->HasAura(SPELL_ROGUE_AIRBORNE_IRRITANT);
     }
 
-    void HandleBlind(WorldObject*& target) const
-    {
-        target = nullptr;
-    }
-
     void HandleHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_BLIND_AREA, CastSpellExtraArgs()
-            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
-            .SetTriggeringSpell(GetSpell()));
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_BLIND_AREA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_rog_airborne_irritant::HandleBlind, EFFECT_ALL, TARGET_UNIT_TARGET_ENEMY);
         OnEffectHit += SpellEffectFn(spell_rog_airborne_irritant::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 427773 - Blind
+class spell_rog_airborne_irritant_target_selection : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        targets.remove(GetExplTargetWorldObject());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_airborne_irritant_target_selection::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
     }
 };
 
@@ -1285,6 +1294,7 @@ class spell_rog_venomous_wounds : public AuraScript
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_airborne_irritant);
+    RegisterSpellScript(spell_rog_airborne_irritant_target_selection);
     RegisterSpellScript(spell_rog_backstab);
     RegisterSpellScript(spell_rog_blackjack);
     RegisterSpellScript(spell_rog_blade_flurry);
