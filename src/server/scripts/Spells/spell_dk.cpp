@@ -68,6 +68,8 @@ enum DeathKnightSpells
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
+    SPELL_DK_HEARTBREAKER_TALENT                = 221536,
+    SPELL_DK_HEARTBREAKER_ENERGIZE              = 210738,
     SPELL_DK_KILLING_MACHINE_PROC               = 51124,
     SPELL_DK_MARK_OF_BLOOD_HEAL                 = 206945,
     SPELL_DK_NECROSIS_EFFECT                    = 216974,
@@ -732,6 +734,32 @@ class spell_dk_glyph_of_scourge_strike_script : public SpellScript
     }
 };
 
+// Called by 206930 - Heart Strike
+class spell_dk_heartbreaker : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_HEARTBREAKER_TALENT, SPELL_DK_HEARTBREAKER_ENERGIZE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DK_HEARTBREAKER_TALENT);
+    }
+
+    void HandleEnergize(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DK_HEARTBREAKER_ENERGIZE, CastSpellExtraArgs()
+            .SetTriggeringSpell(GetSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_heartbreaker::HandleEnergize, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 49184 - Howling Blast
 class spell_dk_howling_blast : public SpellScript
 {
@@ -1108,6 +1136,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_festering_strike);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
+    RegisterSpellScript(spell_dk_heartbreaker);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_icy_talons);
     RegisterSpellScript(spell_dk_icy_talons_buff);
