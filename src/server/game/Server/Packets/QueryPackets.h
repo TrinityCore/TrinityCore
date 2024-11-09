@@ -126,16 +126,16 @@ namespace WorldPackets
             uint8 Sex = GENDER_NONE;
             uint8 ClassID = CLASS_NONE;
             uint8 Level = 0;
-            uint8 Unused915 = 0;
+            uint8 PvpFaction = 0;
             int32 TimerunningSeasonID = 0;
             DeclinedName DeclinedNames;
         };
 
-        struct NameCacheUnused920
+        struct GuildGuidLookupData
         {
-            uint32 Unused1 = 0;
-            ObjectGuid Unused2;
-            std::string_view Unused3;
+            uint32 VirtualRealmAddress = 0;
+            ObjectGuid Guid;
+            std::string_view Name;
         };
 
         struct NameCacheLookupResult
@@ -143,7 +143,7 @@ namespace WorldPackets
             ObjectGuid Player;
             uint8 Result = 0; // 0 - full packet, != 0 - only guid
             Optional<PlayerGuidLookupData> Data;
-            Optional<NameCacheUnused920> Unused920;
+            Optional<GuildGuidLookupData> GuildData;
         };
 
         class QueryPlayerNamesResponse final : public ServerPacket
@@ -468,7 +468,7 @@ namespace WorldPackets
             std::vector<TreasurePickItem> Items;
             std::vector<TreasurePickCurrency> Currencies;
             uint64 Money = 0;
-            bool Unknown = false;
+            uint8 Context = 0;
         };
 
         struct TreasurePickerPick

@@ -119,12 +119,12 @@ void WorldPackets::Guild::GuildInviteByName::Read()
 {
     uint32 nameLen = _worldPacket.ReadBits(9);
     if (_worldPacket.ReadBit())
-        Unused910.emplace();
+        ArenaTeam.emplace();
 
     Name = _worldPacket.ReadString(nameLen);
 
-    if (Unused910)
-        _worldPacket >> *Unused910;
+    if (ArenaTeam)
+        _worldPacket >> *ArenaTeam;
 }
 
 WorldPacket const* WorldPackets::Guild::GuildInvite::Write()
@@ -528,7 +528,7 @@ WorldPacket const* WorldPackets::Guild::GuildPartyState::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem const& rewardItem)
 {
     data << uint32(rewardItem.ItemID);
-    data << uint32(rewardItem.Unk4);
+    data << uint32(rewardItem.AchievementLogic);
     data << uint32(rewardItem.AchievementsRequired.size());
     data << uint64(rewardItem.RaceMask.RawValue);
     data << int32(rewardItem.MinGuildLevel);

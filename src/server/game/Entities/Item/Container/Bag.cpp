@@ -30,6 +30,8 @@ Bag::Bag(): Item()
     m_objectType |= TYPEMASK_CONTAINER;
     m_objectTypeId = TYPEID_CONTAINER;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Container, false);
+
     memset(m_bagslot, 0, sizeof(Item*) * MAX_BAG_SIZE);
 }
 
@@ -182,18 +184,15 @@ void Bag::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) cons
             m_bagslot[i]->BuildCreateUpdateBlockForPlayer(data, target);
 }
 
-void Bag::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void Bag::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
     m_containerData->WriteCreate(*data, flags, this, target);
 }
 
-void Bag::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void Bag::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -225,6 +224,7 @@ void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::M
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
