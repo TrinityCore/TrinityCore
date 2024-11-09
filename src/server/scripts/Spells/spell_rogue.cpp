@@ -145,7 +145,7 @@ class spell_rog_acrobatic_strikes : public AuraScript
         return ValidateSpellInfo({ SPELL_ROGUE_ACROBATIC_STRIKES_PROC });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_ACROBATIC_STRIKES_PROC, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
