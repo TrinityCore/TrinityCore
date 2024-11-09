@@ -262,19 +262,22 @@ class spell_monk_rising_sun_kick : public SpellScript
         return ValidateSpellInfo({ SPELL_MONK_COMBAT_CONDITIONING, SPELL_MONK_MORTAL_WOUNDS });
     }
 
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    bool Load() override
     {
-        Unit* caster = GetCaster();
+        return GetCaster()->HasAura(SPELL_MONK_COMBAT_CONDITIONING);
+    }
 
-        if (caster->HasAura(SPELL_MONK_COMBAT_CONDITIONING))
-            caster->CastSpell(GetHitUnit(), SPELL_MONK_MORTAL_WOUNDS, CastSpellExtraArgs()
-                .SetTriggeringSpell(GetSpell())
-                .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_MORTAL_WOUNDS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick::HandleOnHit, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_monk_rising_sun_kick::HandleOnHit, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
     }
 };
 
