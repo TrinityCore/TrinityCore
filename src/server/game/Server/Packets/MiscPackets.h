@@ -833,7 +833,7 @@ namespace WorldPackets
 
             bool IsFullUpdate = false;
             std::map<uint32, HeirloomData> const* Heirlooms = nullptr;
-            int32 Unk = 0;
+            int32 ItemCollectionType = 0;
         };
 
         class MountSpecial final : public ClientPacket

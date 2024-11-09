@@ -156,7 +156,7 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
 
     std::vector<std::string_view> equipment = Trinity::Tokenize(fields[17].GetStringView(), ' ', false);
     ListPosition = fields[19].GetUInt8();
-    LastPlayedTime = fields[20].GetInt64();
+    LastActiveTime = fields[20].GetInt64();
     if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[21].GetUInt8()))
         SpecID = spec->ID;
 
@@ -213,7 +213,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     data << uint32(charInfo.Flags);
     data << uint32(charInfo.Flags2);
     data << uint32(charInfo.Flags3);
-    data << uint8(charInfo.unkWod61x);
+    data << uint8(charInfo.CantLoginReason);
 
     data << uint32(charInfo.PetCreatureDisplayID);
     data << uint32(charInfo.PetExperienceLevel);
@@ -222,8 +222,8 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     for (EnumCharactersResult::CharacterInfoBasic::VisualItemInfo const& visualItem : charInfo.VisualItems)
         data << visualItem;
 
-    data << int32(charInfo.Unknown703);
-    data << charInfo.LastPlayedTime;
+    data << int32(charInfo.SaveVersion);
+    data << charInfo.LastActiveTime;
     data << int32(charInfo.LastLoginVersion);
     data << charInfo.PersonalTabard;
 
@@ -255,7 +255,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterRestrict
     data << Bits<1>(restrictionsAndMails.RpeResetQuestClearAvailable);
     data.FlushBits();
 
-    data << uint32(restrictionsAndMails.Flags4);
+    data << uint32(restrictionsAndMails.RestrictionFlags);
     data << uint32(restrictionsAndMails.MailSenders.size());
     data << uint32(restrictionsAndMails.MailSenderTypes.size());
 
@@ -297,10 +297,10 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RegionwideCharact
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const& raceUnlock)
 {
     data << int32(raceUnlock.RaceID);
-    data << Bits<1>(raceUnlock.HasExpansion);
-    data << Bits<1>(raceUnlock.HasAchievement);
-    data << Bits<1>(raceUnlock.HasHeritageArmor);
-    data << Bits<1>(raceUnlock.IsLocked);
+    data << Bits<1>(raceUnlock.HasUnlockedLicense);
+    data << Bits<1>(raceUnlock.HasUnlockedAchievement);
+    data << Bits<1>(raceUnlock.HasHeritageArmorUnlockAchievement);
+    data << Bits<1>(raceUnlock.HideRaceOnClient);
     data << Bits<1>(raceUnlock.Unused1027);
     data.FlushBits();
 
@@ -310,7 +310,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const&
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedConditionalAppearance const& unlockedConditionalAppearance)
 {
     data << int32(unlockedConditionalAppearance.AchievementID);
-    data << int32(unlockedConditionalAppearance.Unused);
+    data << int32(unlockedConditionalAppearance.ConditionalType);
 
     return data;
 }
@@ -318,7 +318,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedCondition
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableInfo const& raceLimitDisableInfo)
 {
     data << int32(raceLimitDisableInfo.RaceID);
-    data << int32(raceLimitDisableInfo.BlockReason);
+    data << int32(raceLimitDisableInfo.Reason);
 
     return data;
 }
@@ -361,11 +361,11 @@ WorldPacket const* EnumCharactersResult::Write()
     _worldPacket << Bits<1>(Success);
     _worldPacket << Bits<1>(Realmless);
     _worldPacket << Bits<1>(IsDeletedCharacters);
-    _worldPacket << Bits<1>(IsNewPlayerRestrictionSkipped);
-    _worldPacket << Bits<1>(IsNewPlayerRestricted);
-    _worldPacket << Bits<1>(IsNewPlayer);
-    _worldPacket << Bits<1>(IsTrialAccountRestricted);
-    _worldPacket << OptionalInit(DisabledClassesMask);
+    _worldPacket << Bits<1>(IgnoreNewPlayerRestrictions);
+    _worldPacket << Bits<1>(IsRestrictedNewPlayer);
+    _worldPacket << Bits<1>(IsNewcomerChatCompleted);
+    _worldPacket << Bits<1>(IsRestrictedTrial);
+    _worldPacket << OptionalInit(ClassDisableMask);
     _worldPacket << Bits<1>(DontCreateCharacterDisplays);
     _worldPacket << uint32(Characters.size());
     _worldPacket << uint32(RegionwideCharacters.size());
@@ -375,8 +375,8 @@ WorldPacket const* EnumCharactersResult::Write()
     _worldPacket << uint32(RaceLimitDisables.size());
     _worldPacket << uint32(WarbandGroups.size());
 
-    if (DisabledClassesMask)
-        _worldPacket << uint32(*DisabledClassesMask);
+    if (ClassDisableMask)
+        _worldPacket << uint32(*ClassDisableMask);
 
     for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
         _worldPacket << unlockedConditionalAppearance;
