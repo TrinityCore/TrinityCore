@@ -88,7 +88,7 @@ void WorldPackets::Petition::PetitionBuy::Read()
     uint32 titleLen = _worldPacket.ReadBits(7);
 
     _worldPacket >> Unit;
-    _worldPacket >> Unused910;
+    _worldPacket >> Muid;
     Title = _worldPacket.ReadString(titleLen);
 }
 

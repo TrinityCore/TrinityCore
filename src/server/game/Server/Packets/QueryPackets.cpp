@@ -166,6 +166,7 @@ bool PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* play
         Sex           = player->GetNativeGender();
         ClassID       = player->GetClass();
         Level         = player->GetLevel();
+        PvpFaction    = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 0;
         TimerunningSeasonID = player->m_activePlayerData->TimerunningSeasonID;
 
         if (UF::DeclinedNames const* names = player->GetDeclinedNames())
@@ -183,6 +184,7 @@ bool PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* play
         Sex           = characterInfo->Sex;
         ClassID       = characterInfo->Class;
         Level         = characterInfo->Level;
+        PvpFaction    = Player::TeamIdForRace(characterInfo->Race) == TEAM_ALLIANCE ? 1 : 0;
     }
 
     IsDeleted = characterInfo->IsDeleted;
@@ -213,21 +215,21 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupData const& lookupData)
     data << uint8(lookupData.Sex);
     data << uint8(lookupData.ClassID);
     data << uint8(lookupData.Level);
-    data << uint8(lookupData.Unused915);
+    data << uint8(lookupData.PvpFaction);
     data << int32(lookupData.TimerunningSeasonID);
     data.WriteString(lookupData.Name);
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, NameCacheUnused920 const& thing)
+ByteBuffer& operator<<(ByteBuffer& data, GuildGuidLookupData const& lookupData)
 {
-    data << uint32(thing.Unused1);
-    data << thing.Unused2;
-    data.WriteBits(thing.Unused3.length(), 7);
+    data << uint32(lookupData.VirtualRealmAddress);
+    data << lookupData.Guid;
+    data.WriteBits(lookupData.Name.length(), 7);
     data.FlushBits();
 
-    data.WriteString(thing.Unused3);
+    data.WriteString(lookupData.Name);
 
     return data;
 }
@@ -237,14 +239,14 @@ ByteBuffer& operator<<(ByteBuffer& data, NameCacheLookupResult const& result)
     data << uint8(result.Result);
     data << result.Player;
     data.WriteBit(result.Data.has_value());
-    data.WriteBit(result.Unused920.has_value());
+    data.WriteBit(result.GuildData.has_value());
     data.FlushBits();
 
     if (result.Data)
         data << *result.Data;
 
-    if (result.Unused920)
-        data << *result.Unused920;
+    if (result.GuildData)
+        data << *result.GuildData;
 
     return data;
 }
@@ -557,7 +559,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerBonus const& treasurePick
     data << uint32(treasurePickerBonus.Items.size());
     data << uint32(treasurePickerBonus.Currencies.size());
     data << uint64(treasurePickerBonus.Money);
-    data << Bits<1>(treasurePickerBonus.Unknown);
+    data << Bits<1>(treasurePickerBonus.Context);
     data.FlushBits();
 
     for (TreasurePickItem const& treasurePickerItem : treasurePickerBonus.Items)

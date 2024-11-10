@@ -347,5 +347,5 @@ void WorldSession::HandleQueryTreasurePicker(WorldPackets::Query::QueryTreasureP
 
     // TODO: Missing treasure picker implementation
 
-    _player->SendDirectMessage(treasurePickerResponse.Write());
+    SendPacket(treasurePickerResponse.Write());
 }

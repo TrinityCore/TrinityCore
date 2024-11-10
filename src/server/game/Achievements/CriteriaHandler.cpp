@@ -3664,7 +3664,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return referencePlayer->m_activePlayerData->RuneforgePowers[block] & (1 << bit);
         }
         case ModifierTreeType::PlayerInChromieTimeForScaling: // 304
-            if (!(referencePlayer->m_playerData->CtrOptions->ContentTuningConditionMask & 1))
+            if (!(referencePlayer->m_playerData->CtrOptions->ConditionalFlags & 1))
                 return false;
             break;
         case ModifierTreeType::IsRaFRecruit: // 305
