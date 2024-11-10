@@ -710,7 +710,7 @@ struct BankTabSettings : public IsUpdateFieldStructureTag, public HasChangesMask
     void ClearChangesMask();
 };
 
-struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1403>
+struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1443>
 {
     UpdateField<bool, 0, 1> SortBagsRightToLeft;
     UpdateField<bool, 0, 2> InsertItemsLeftToRight;
@@ -853,10 +853,10 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateFieldArray<int32, 2, 393, 394> ProfessionSkillLine;
     UpdateFieldArray<uint32, 4, 396, 397> BagSlotFlags;
     UpdateFieldArray<uint32, 7, 401, 402> BankBagSlotFlags;
-    UpdateFieldArray<uint64, 960, 409, 410> QuestCompleted;
-    UpdateFieldArray<uint32, 9, 1370, 1371> GlyphSlots;
-    UpdateFieldArray<uint32, 9, 1370, 1380> Glyphs;
-    UpdateFieldArray<uint64, 13, 1389, 1390> Field_4348;
+    UpdateFieldArray<uint64, 1000, 409, 410> QuestCompleted;
+    UpdateFieldArray<uint32, 9, 1410, 1411> GlyphSlots;
+    UpdateFieldArray<uint32, 9, 1410, 1420> Glyphs;
+    UpdateFieldArray<uint64, 13, 1429, 1430> Field_4348;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;

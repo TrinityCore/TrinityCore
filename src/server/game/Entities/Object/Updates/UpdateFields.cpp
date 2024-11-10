@@ -3427,7 +3427,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     {
         data << uint32(BankBagSlotFlags[i]);
     }
-    for (uint32 i = 0; i < 960; ++i)
+    for (uint32 i = 0; i < 1000; ++i)
     {
         data << uint64(QuestCompleted[i]);
     }
@@ -3595,8 +3595,8 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
 {
     for (uint32 i = 0; i < 1; ++i)
         data << uint32(changesMask.GetBlocksMask(i));
-    data.WriteBits(changesMask.GetBlocksMask(1), 12);
-    for (uint32 i = 0; i < 44; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(1), 14);
+    for (uint32 i = 0; i < 46; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -4588,7 +4588,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
     }
     if (changesMask[409])
     {
-        for (uint32 i = 0; i < 960; ++i)
+        for (uint32 i = 0; i < 1000; ++i)
         {
             if (changesMask[410 + i])
             {
@@ -4596,25 +4596,25 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
             }
         }
     }
-    if (changesMask[1370])
+    if (changesMask[1410])
     {
         for (uint32 i = 0; i < 9; ++i)
         {
-            if (changesMask[1371 + i])
+            if (changesMask[1411 + i])
             {
                 data << uint32(GlyphSlots[i]);
             }
-            if (changesMask[1380 + i])
+            if (changesMask[1420 + i])
             {
                 data << uint32(Glyphs[i]);
             }
         }
     }
-    if (changesMask[1389])
+    if (changesMask[1429])
     {
         for (uint32 i = 0; i < 13; ++i)
         {
-            if (changesMask[1390 + i])
+            if (changesMask[1430 + i])
             {
                 data << uint64(Field_4348[i]);
             }
