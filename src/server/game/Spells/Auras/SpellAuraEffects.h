@@ -204,6 +204,7 @@ class TC_GAME_API AuraEffect
         void HandlePreventFleeing(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRootAndDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModStunAndDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  charm
         void HandleModPossess(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, bool apply) const;
