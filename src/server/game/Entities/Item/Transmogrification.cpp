@@ -421,7 +421,7 @@ bool Transmogrification::IsMeleeWeapon(ItemTemplate const* itemTemplate)
         SubClass == ITEM_SUBCLASS_WEAPON_SWORD ||
         SubClass == ITEM_SUBCLASS_WEAPON_SWORD2 ||
         SubClass == ITEM_SUBCLASS_WEAPON_STAFF ||
-        SubClass == ITEM_SUBCLASS_WEAPON_FIST ||
+        SubClass == ITEM_SUBCLASS_WEAPON_FIST_WEAPON ||
         SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
         SubClass == ITEM_SUBCLASS_WEAPON_SPEAR);
 }
