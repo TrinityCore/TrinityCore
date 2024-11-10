@@ -423,7 +423,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     }
 }
 
-//this function is called when client bids or buys out auction
+// this function is called when client bids or buys out auction
 void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_AUCTION_PLACE_BID");
@@ -435,7 +435,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     recvData >> auctionId >> price;
 
     if (!auctionId || !price)
-        return;                                             //check for cheaters
+        return;                                             // check for cheaters
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -580,7 +580,6 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     uint32 auctionId;
     recvData >> auctioneer;
     recvData >> auctionId;
-    //TC_LOG_DEBUG("Cancel AUCTION AuctionID: {}", auctionId);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -621,7 +620,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
         }
         else
         {
-            TC_LOG_ERROR("network", "Auction id: {} has non-existed item (item guid : {})!!!", auction->Id, auction->itemGUIDLow);
+            TC_LOG_ERROR("network", "Auction id: {} got non existing item (item guid : {})!!!", auction->Id, auction->itemGUIDLow);
             SendAuctionCommandResult(0, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
             return;
         }
@@ -630,7 +629,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     {
         SendAuctionCommandResult(0, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        TC_LOG_ERROR("entities.player.cheat", "CHEATER : {} tried to cancel auction (id: {}) of another player, or auction is NULL", player->GetGUID().ToString(), auctionId);
+        TC_LOG_ERROR("entities.player.cheat", "CHEATER : {} tried to cancel auction (id: {}) of another player or auction is NULL", player->GetGUID().ToString(), auctionId);
         return;
     }
 
@@ -681,7 +680,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
 
     WorldPacket data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
     Player* player = GetPlayer();
-    data << (uint32) 0;                                     //add 0 as count
+    data << uint32(0);                                     //add 0 as count
     uint32 count = 0;
     uint32 totalcount = 0;
     while (outbiddedCount > 0)                             //add all data, which client requires
@@ -700,7 +699,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
     auctionHouse->BuildListBidderItems(data, player, count, totalcount);
     data.put<uint32>(0, count);                           // add count to placeholder
     data << totalcount;
-    data << (uint32)sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
+    data << uint32(sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY));
     SendPacket(&data);
 }
 
@@ -729,15 +728,15 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
 
     WorldPacket data(SMSG_AUCTION_OWNER_LIST_RESULT, (4+4+4));
-    data << (uint32) 0;                                     // amount place holder
+    data << uint32(0);                                     // amount place holder
 
     uint32 count = 0;
     uint32 totalcount = 0;
 
     auctionHouse->BuildListOwnerItems(data, _player, count, totalcount);
     data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
+    data << uint32(totalcount);
+    data << uint32(sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY));
     SendPacket(&data);
 }
 
@@ -804,8 +803,8 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
         count, totalcount, (getAll != 0 && sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY) != 0));
 
     data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
+    data << uint32(totalcount);
+    data << uint32(sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY));
     SendPacket(&data);
 }
 
