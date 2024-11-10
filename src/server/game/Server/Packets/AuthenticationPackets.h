@@ -136,10 +136,12 @@ namespace WorldPackets
             {
                 struct GameTime
                 {
-                    uint32 BillingPlan = 0;
-                    uint32 TimeRemain = 0;
-                    uint32 Unknown735 = 0;
-                    bool InGameRoom = false;
+                    uint32 BillingType = 0;
+                    uint32 MinutesRemaining = 0;
+                    uint32 RealBillingType = 0;
+                    bool IsInIGR = false;
+                    bool IsPaidForByIGR = false;
+                    bool IsCAISEnabled = false;
                 };
 
                 struct NewBuild

@@ -41,7 +41,7 @@ namespace WorldPackets
             void Read() override;
 
             bool QueueAsGroup = false;
-            bool Unknown = false;       // Always false in 7.2.5
+            bool Mercenary = false;
             Optional<uint8> PartyIndex;
             uint8 Roles = 0;
             Array<uint32, 50> Slots;
@@ -166,8 +166,8 @@ namespace WorldPackets
             std::vector<LfgPlayerQuestRewardCurrency> Currency;         // Only used by SMSG_LFG_PLAYER_INFO
             std::vector<LfgPlayerQuestRewardCurrency> BonusCurrency;    // Only used by SMSG_LFG_PLAYER_INFO
             Optional<int32> RewardSpellID;                              // Only used by SMSG_LFG_PLAYER_INFO
-            Optional<int32> Unused1;
-            Optional<uint64> Unused2;
+            Optional<int32> ArtifactXPCategory;
+            Optional<uint64> ArtifactXP;
             Optional<int32> Honor;                                      // Only used by SMSG_REQUEST_PVP_REWARDS_RESPONSE
         };
 
@@ -234,7 +234,7 @@ namespace WorldPackets
             bool Joined = false;
             bool LfgJoined = false;
             bool Queued = false;
-            bool Unused = false;
+            bool Brawl = false;
         };
 
         class RoleChosen final : public ServerPacket
@@ -393,10 +393,10 @@ namespace WorldPackets
             int8 State = 0;
             uint32 CompletedMask = 0;
             uint32 EncounterMask = 0;
-            uint8 Unused = 0;
+            uint8 PromisedShortageRolePriority = 0;
             bool ValidCompletedMask = false;
             bool ProposalSilent = false;
-            bool IsRequeue = false;
+            bool FailedByMyParty = false;
             std::vector<LFGProposalUpdatePlayer> Players;
         };
 
