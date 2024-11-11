@@ -710,7 +710,8 @@ DeclinedNames = 0
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
 #        Default:     3 - (Expansion 3)
-#        Default:     9 - (Expansion 9)
+#                     10 - (Expansion 10)
+#                     9 - (Expansion 9)
 #                     8 - (Expansion 8)
 #                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
