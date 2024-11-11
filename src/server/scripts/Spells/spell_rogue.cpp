@@ -838,7 +838,7 @@ class spell_rog_premeditation_proc : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_rog_premeditation_proc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
-}
+};
 
 // 131511 - Prey on the Weak
 // Called by Cheap Shot - 1833 and Kidney Shot - 408
