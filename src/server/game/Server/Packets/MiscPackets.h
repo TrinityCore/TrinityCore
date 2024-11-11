@@ -260,8 +260,6 @@ namespace WorldPackets
             uint32 DifficultyID     = 0;
             bool IsTournamentRealm  = false;
             bool XRealmPvpAlert     = false;
-            bool BlockExitingLoadingScreen = false;     // when set to true, sending SMSG_UPDATE_OBJECT with CreateObject Self bit = true will not hide loading screen
-                                                        // instead it will be done after this packet is sent again with false in this bit and SMSG_UPDATE_OBJECT Values for player
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint64> RestrictedAccountMaxMoney;
             Optional<uint32> InstanceGroupSize;
