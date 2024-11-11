@@ -243,6 +243,10 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << OptionalInit(LaunchETA);
     _worldPacket << Bits<1>(TimerunningEnabled);
 
+    _worldPacket << Bits<1>(Unk441_0);
+    _worldPacket << Bits<1>(Unk441_1);
+    _worldPacket << Bits<1>(SoMNotificationEnabled);
+    _worldPacket << Bits<1>(Unk441_2);
     _worldPacket << Bits<1>(AddonsDisabled);
     _worldPacket << Bits<1>(Unused1000);
     _worldPacket << Bits<1>(AccountSaveDataExportEnabled);
@@ -251,7 +255,6 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Bits<11>(RealmHiddenAlert.length() + 1);
 
     _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
-
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(CharacterSelectListModeRealmless);
 

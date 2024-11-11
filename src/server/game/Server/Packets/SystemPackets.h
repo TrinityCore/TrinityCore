@@ -227,6 +227,10 @@ namespace WorldPackets
             bool Unknown901CheckoutRelated           = false; // NYI
             bool IsNameReservationEnabled            = false; // classic only
             bool TimerunningEnabled                  = false; // NYI
+            bool Unk441_0                            = false;
+            bool Unk441_1                            = false;
+            bool SoMNotificationEnabled              = false;
+            bool Unk441_2                            = false;
             bool AddonsDisabled                      = false;
             bool Unused1000                          = false;
             bool AccountSaveDataExportEnabled        = false;
