@@ -1601,7 +1601,7 @@ void Spell::EffectPersistentAA()
 
     ASSERT(_dynObjAura->GetDynobjOwner());
     for (size_t i = 0; i < m_spellInfo->GetEffects().size(); ++i)
-        if (!m_spellInfo->GetEffect(SpellEffIndex(i)).IsEffect(SPELL_EFFECT_NONE))
+        if (m_spellInfo->GetEffect(SpellEffIndex(i)).IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
             _dynObjAura->_ApplyEffectForTargets(i);
 }
 
