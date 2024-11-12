@@ -145,6 +145,10 @@ namespace WorldPackets
             std::vector<GlyphBinding> Glyphs;
             bool IsFullUpdate = false;
         };
+
+        ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentInfoUpdate const& talentInfoUpdate);
+        ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentGroupInfo const& talentGroupInfo);
+        ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentInfo const& talentInfo);
     }
 }
 

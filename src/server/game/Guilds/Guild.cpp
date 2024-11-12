@@ -1360,7 +1360,6 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.GuildClubMemberID = Battlenet::Services::Clubs::CreateClubMemberId(member.GetGUID());
 
         memberData.Authenticated = false;
-        memberData.SorEligible = false;
 
         memberData.Name = member.GetName();
         memberData.Note = member.GetPublicNote();

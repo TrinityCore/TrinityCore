@@ -185,8 +185,6 @@ InspectItemData::InspectItemData(::Item const* item, uint8 index)
 WorldPacket const* InspectResult::Write()
 {
     _worldPacket << DisplayInfo;
-    _worldPacket << uint32(Glyphs.size());
-    _worldPacket << uint32(Talents.size());
     _worldPacket << uint32(PvpTalents.size());
     _worldPacket << int32(ItemLevel);
     _worldPacket << uint8(LifetimeMaxRank);
@@ -194,12 +192,11 @@ WorldPacket const* InspectResult::Write()
     _worldPacket << uint16(YesterdayHK);
     _worldPacket << uint32(LifetimeHK);
     _worldPacket << uint32(HonorLevel);
-    if (!Glyphs.empty())
-        _worldPacket.append(Glyphs.data(), Glyphs.size());
-    if (!Talents.empty())
-        _worldPacket.append(Talents.data(), Talents.size());
+
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
+
+    _worldPacket << TalentInfo;
 
     _worldPacket.WriteBit(GuildData.has_value());
     _worldPacket.WriteBit(AzeriteLevel.has_value());

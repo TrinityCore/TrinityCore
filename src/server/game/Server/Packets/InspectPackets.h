@@ -24,6 +24,7 @@
 #include "ObjectGuid.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "TalentPackets.h".h"
 #include "TraitPacketsCommon.h"
 
 class Item;
@@ -135,9 +136,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             PlayerModelDisplayInfo DisplayInfo;
-            std::vector<uint16> Glyphs;
-            std::vector<uint16> Talents;
             std::array<uint16, 3> PvpTalents;
+            Talent::TalentInfoUpdate TalentInfo;
+
             Optional<InspectGuildData> GuildData;
             std::array<PVPBracketData, 9> Bracket;
             Optional<int32> AzeriteLevel;
