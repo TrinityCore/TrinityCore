@@ -1853,21 +1853,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
         {
             for (WorldObject* target : targets)
-                if (IsUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     switch (e.action.setunitByte.type)
                     {
                         case 0:
-                            target->ToUnit()->SetStandState(UnitStandStateType(e.action.setunitByte.byte1));
+                            unitTarget->SetStandState(UnitStandStateType(e.action.setunitByte.byte1));
                             break;
                         case 1:
                             // pet talent points
                             break;
                         case 2:
-                            target->ToUnit()->SetVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
+                            unitTarget->SetVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
+                            unitTarget->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
                             break;
                     }
                 }
@@ -1876,21 +1876,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
         {
             for (WorldObject* target : targets)
-                if (IsUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     switch (e.action.setunitByte.type)
                     {
                         case 0:
-                            target->ToUnit()->SetStandState(UNIT_STAND_STATE_STAND);
+                            unitTarget->SetStandState(UNIT_STAND_STATE_STAND);
                             break;
                         case 1:
                             // pet talent points
                             break;
                         case 2:
-                            target->ToUnit()->RemoveVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
+                            unitTarget->RemoveVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(AnimTier::Ground);
+                            unitTarget->SetAnimTier(AnimTier::Ground);
                             break;
                     }
                 }
