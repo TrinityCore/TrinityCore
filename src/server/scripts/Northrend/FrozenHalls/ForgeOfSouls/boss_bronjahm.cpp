@@ -109,17 +109,6 @@ struct boss_bronjahm : public BossAI
             Talk(SAY_SLAY);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (events.IsInPhase(PHASE_1) && !HealthAbovePct(30))
-        {
-            events.SetPhase(PHASE_2);
-            DoCast(me, SPELL_TELEPORT);
-            events.ScheduleEvent(EVENT_FEAR, 12s, 16s, 0, PHASE_2);
-            events.ScheduleEvent(EVENT_SOULSTORM, 100ms, 0, PHASE_2);
-        }
-    }
-
     void JustSummoned(Creature* summon) override
     {
         if (summon->GetEntry() == NPC_CORRUPTED_SOUL_FRAGMENT)
@@ -157,6 +146,14 @@ struct boss_bronjahm : public BossAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
+
+        if (events.IsInPhase(PHASE_1) && !HealthAbovePct(30))
+        {
+            events.SetPhase(PHASE_2);
+            DoCast(me, SPELL_TELEPORT);
+            events.ScheduleEvent(EVENT_FEAR, 12s, 16s, 0, PHASE_2);
+            events.ScheduleEvent(EVENT_SOULSTORM, 100ms, 0, PHASE_2);
+        }
 
         while (uint32 eventId = events.ExecuteEvent())
         {
@@ -199,9 +196,6 @@ struct boss_bronjahm : public BossAI
                 default:
                     break;
             }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
 
         if (!events.IsInPhase(PHASE_2))
