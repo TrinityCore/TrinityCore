@@ -1509,7 +1509,7 @@ class spell_ethereal_pet_aura : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        uint32 levelDiff = std::abs(GetTarget()->GetLevel() - eventInfo.GetProcTarget()->GetLevel());
+        uint32 levelDiff = std::abs(eventInfo.GetActor()->GetLevel() - eventInfo.GetActionTarget()->GetLevel());
         return levelDiff <= 9;
     }
 
@@ -1524,7 +1524,7 @@ class spell_ethereal_pet_aura : public AuraScript
             if (minion->IsAIEnabled())
             {
                 minion->AI()->Talk(SAY_STEAL_ESSENCE);
-                minion->CastSpell(eventInfo.GetProcTarget(), SPELL_STEAL_ESSENCE_VISUAL);
+                minion->CastSpell(eventInfo.GetActionTarget(), SPELL_STEAL_ESSENCE_VISUAL);
             }
         }
     }
