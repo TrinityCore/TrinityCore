@@ -33,8 +33,8 @@ CREATE TABLE `account` (
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `reg_mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
-  `last_attempt_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `last_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `last_attempt_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int unsigned NOT NULL DEFAULT '0',
   `locked` tinyint unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '00',
@@ -424,7 +424,7 @@ CREATE TABLE `battlenet_accounts` (
   `salt` binary(32) NOT NULL,
   `verifier` blob NOT NULL,
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `last_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int unsigned NOT NULL DEFAULT '0',
   `locked` tinyint unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '00',
@@ -1092,7 +1092,7 @@ DROP TABLE IF EXISTS `ip_banned`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ip_banned` (
-  `ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `bandate` int unsigned NOT NULL,
   `unbandate` int unsigned NOT NULL,
   `bannedby` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '[Console]',
@@ -1148,7 +1148,7 @@ CREATE TABLE `logs_ip_actions` (
   `character_guid` bigint unsigned NOT NULL COMMENT 'Character Guid',
   `realm_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Realm ID',
   `type` tinyint unsigned NOT NULL,
-  `ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `systemnote` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Notes inserted by system',
   `unixtime` int unsigned NOT NULL COMMENT 'Unixtime',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp',
@@ -3147,7 +3147,8 @@ INSERT INTO `updates` VALUES
 ('2024_10_27_00_auth.sql','D0D457EB1827ACC5908B3AC11239D0DC281BEB0F','ARCHIVED','2024-10-27 19:22:40',0),
 ('2024_10_31_00_auth.sql','FCBF83D6981B26DE2807BDF338A3754972535906','RELEASED','2024-10-31 19:29:16',0),
 ('2024_11_02_00_auth.sql','93A7F7A3C3BA586C139B4060180F7E032C535669','RELEASED','2024-11-02 12:35:24',0),
-('2024_11_06_00_auth.sql','0C8D79745E070CEEE55D9546EC78FE89C5CCB040','RELEASED','2024-11-06 17:27:41',0);
+('2024_11_06_00_auth.sql','0C8D79745E070CEEE55D9546EC78FE89C5CCB040','RELEASED','2024-11-06 17:27:41',0),
+('2024_11_11_00_auth.sql','F47CDFB857DB4105306739AF4FBBB3C92CA43363','RELEASED','2024-11-11 13:34:09',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
