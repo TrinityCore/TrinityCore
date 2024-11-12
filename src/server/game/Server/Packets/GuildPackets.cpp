@@ -186,7 +186,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     data.WriteBits(rosterMemberData.Note.length(), 8);
     data.WriteBits(rosterMemberData.OfficerNote.length(), 8);
     data.WriteBit(rosterMemberData.Authenticated);
-    data.WriteBit(rosterMemberData.SorEligible);
     data.FlushBits();
 
     data << rosterMemberData.DungeonScore;

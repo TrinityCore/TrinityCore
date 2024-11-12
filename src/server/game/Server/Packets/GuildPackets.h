@@ -116,7 +116,6 @@ namespace WorldPackets
             uint64 GuildClubMemberID = 0;
             uint8 RaceID = 0;
             bool Authenticated = false;
-            bool SorEligible = false;
             GuildRosterProfessionData Profession[2];
             MythicPlus::DungeonScoreSummary DungeonScore;
         };
