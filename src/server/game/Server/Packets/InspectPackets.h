@@ -24,7 +24,7 @@
 #include "ObjectGuid.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
-#include "TalentPackets.h".h"
+#include "TalentPackets.h"
 #include "TraitPacketsCommon.h"
 
 class Item;

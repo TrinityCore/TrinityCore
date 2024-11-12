@@ -112,7 +112,6 @@ ByteBuffer& operator<<(ByteBuffer& data, TalentInfoUpdate const& talentInfoUpdat
     return data;
 }
 
-
 ByteBuffer& operator<<(ByteBuffer& data, TalentGroupInfo const& talentGroupInfo)
 {
     data << uint8(talentGroupInfo.Talents.size());
