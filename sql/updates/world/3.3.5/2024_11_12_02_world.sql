@@ -29,4 +29,4 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 (@OGUID+22, 195256, 571, 67, 4441, 1, 1, 7807.439453125, -2977.43408203125, 1258.9766845703125, 2.72271275520324707, 0, 0, 0.978147506713867187, 0.207912087440490722, 120, 255, 1, 0); -- Standing, Exterior, Medium - Brewfest (Area: Camp Tunka'lo - Difficulty: 0) CreateObject1
 
 DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+22 AND `eventEntry`=@EVENT;
-INSERT INTO `game_event_gameobject` SELECT @EVENT, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+32;
+INSERT INTO `game_event_gameobject` SELECT @EVENT, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+22;
