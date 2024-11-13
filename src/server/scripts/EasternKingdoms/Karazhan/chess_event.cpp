@@ -50,8 +50,96 @@
 #include "EventMap.h"
 #include "SpellHistory.h"
 
+///                                             *** CHESS EVENT GUIDE ***
+///
+/// npc_echo_of_medivh - Periodically casts random spells that hinder the player and help Medivh.
+/// npc_chess_piece_generic - Responsible for AI of all chess pieces.
+/// npc_chess_piece_king - Responsible for the death of kings and sounds when taking damage
+///
+/// Start:
+/// After a dialog with one of the kings, the event starts (instance->SetBossState(DATA_CHESS, IN_PROGRESS)).
+/// Further in the file instance_karazhan.cpp the PrepareChessEvent method is executed
+///
+/// PrepareChessEvent:
+///     - Applies the USED effect on the squares where the pieces are standing, imposes silence debuff on the players
+///     - The SPELL_CHESS_AI_ATTACK_TIMER spell for a melee attack is triggered
+///     - Sorts stalkers (places for pieces after death) depending on their distance to the NPC Status Bar for correct
+///   display of pieces after death
+///
+/// End:
+/// After the death of any of the kings, the event ends and the EndChessGame method is called,
+///
+/// EndChessGame:
+///     - Removing the effects from the players and preparing the game to restart.
+///
+/// When you win, EVENT_CHESS_WIN is triggered if it is not a friendly game
+///
+///                                             *** MOVEMENT AI ***.
+///
+/// At the start of the event each chess piece is called Reset and EVENT_MOVE_COMMAND is queued.
+/// If this chess piece is allied or a friendly game is started, EVENT_MOVE_COMMAND is canceled and the chess pieces do not move.
+///
+/// EVENT_MOVE_COMMAND:
+///     - The nearest enemy target is searched for using GetPiece
+///        - If a target is found, the SPELL_CHANGE_FACING spell is cast to change the direction of the piece towards the target
+///        - If the enemy target is not found, an attempt to move the piece is made with a 15% probability
+///        - The GetMovementSquare() function selects a square to move
+///        - The next EVENT_MOVE event is then scheduled after 2 seconds to complete the movement
+///     - EVENT_MOVE_COMMAND is scheduled to be called after 5 seconds to keep the cycle of movement commands going
+///
+/// EVENT_MOVE:
+///     - AddUsedAura(false) is called to remove the USED aura from the previous square before moving
+///        - The chess piece is moved to the position of the new square
+///
+/// GetPiece:
+///     - A faction is defined
+///     - GetChessPieces returns the GuidList of chess pieces of the specified faction
+///     - Friendly targets with full health and targets out of radius or angle are excluded from the search
+///     - If the list of targets is not empty, a random item is returned
+///
+/// GetMovementSquare:
+///     - Calls GetChessMovementSquare() and initializes for it ChessTargetSearcherGUID (instnace_karazhan.cpp)
+///        - A list of black and white squares within the radius is compiled
+///        - The occupied squares are filtered out
+///        - A list of enemy chess pieces is determined depending on the faction of the chess piece
+///        - Enemies are sorted by distance to the current chess piece to find the nearest enemy
+///        - Squares are sorted by distance to the nearest enemy to select the square that minimizes the distance to the enemy
+///        - The GUID of the first square in the sorted list of squares that is closest to the enemy is returned
+///
+///                                             *** SPELL AI ***
+///
+/// On Reset, EVENT_SPELL_COMMAND is queued if the piece is not currently controlled by the player.
+///
+/// EVENT_SPELL_COMMAND:
+///        - Called DoCastChessSpell(primarySpell), casts one of two spells.
+///        If primarySpell is true, it casts the primary spell; if false, it casts the secondary spell.
+///        - DoCastChessSpell returns the spellCooldown value to schedule the next EVENT_SPELL_COMMAND.
+///        - primarySpell is inverted, switching between primary and secondary spells
+///
+/// DoCastChessSpell:
+///        - GetPrimarySpellId or GetSecondarySpellId, depending on the value of primarySpell, is used to get the ID of the spell
+///        - GetSpellRange returns the radius and GetSpellArc returns the angle of view to find the piece
+///        - ExecuteSpell uses the obtained parameters and casts the selected spell on itself, on target, or in AOE
+///
+///                                             *** PIECE DEATH ***
+///
+/// When a chess piece dies, the USED aura is removed from the square it was standing on.
+/// MoveChessPieceToSides is called with the guid parameter of the dead piece (instnace_karazhan.cpp)
+///
+/// MoveChessPieceToSides:
+///        - If the dead creature is a king, the flag isGameEnd = true is set. Otherwise the flag is set to false
+///        - The spellId is determined using the GetSpellIdAndPlaySound(creature) function, which also plays the corresponding sound.
+///        - The corresponding vector of stalkers and the number of dead pieces are selected.
+///        - Takes the available stalker by the current count and changes the model to the model of the dead chess piece.
+///        - If isGameEnd == true, the winning side executes EMOTE_ONESHOT_APPLAUD
+///
+/// GetSpellIdAndPlaySound:
+///        - Depending on the isAlliance flag, a specific sound effect is played for a loss or a gain
+///        - Assigns the appropriate spell for the transformation
+///        - PlaySoundAndSetSpellId takes soundId and spellIdValue, plays the sound and sets spellId to spellIdValue
+
+
 //todo Sometimes several chess pieces fit into the same square
-//todo If a corpse lies for more than 300 seconds, it disappears and will not respawn when the game ends
 
 enum SpellsChess
 {
@@ -289,12 +377,8 @@ struct npc_chess_piece_generic : public ScriptedAI
         primarySpell = true;
 
         // cancel move event for player faction npcs or for friendly games
-        if ((instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && me->GetFaction() != FACTION_ID_CHESS_HORDE) ||
-            (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE && me->GetFaction() != FACTION_ID_CHESS_ALLIANCE) ||
-            instance->GetBossState(DATA_CHESS) == DONE)
-        {
+        if (IsSameFactionAndTeam() || instance->GetBossState(DATA_CHESS) == DONE)
             events.CancelEvent(EVENT_MOVE_COMMAND);
-        }
     }
 
     void AttackStart(Unit* /*who*/) override { }
@@ -322,7 +406,7 @@ struct npc_chess_piece_generic : public ScriptedAI
     {
         if (spellInfo->Id != SPELL_ACTION_MELEE)
             return;
-        if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, 8.1f, 1.6f))
+        if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, 8.1f, M_PI_2))
             DoCast(target, SPELL_MELEE_DAMAGE, true);
     }
 
@@ -371,8 +455,7 @@ struct npc_chess_piece_generic : public ScriptedAI
             case EVENT_SPELL_COMMAND:
             {
                 // Alternate between primary and secondary spells and reset the timer
-                uint32 spellCooldown = urand(0, 2000);
-                spellCooldown = primarySpell ? DoCastPrimarySpell() : DoCastSecondarySpell();
+                uint32 spellCooldown = DoCastChessSpell(primarySpell);
                 events.ScheduleEvent(EVENT_SPELL_COMMAND, Milliseconds(spellCooldown));
                 primarySpell = !primarySpell;
             }
@@ -562,193 +645,162 @@ struct npc_chess_piece_generic : public ScriptedAI
         return nullptr;
     }
 
-    uint32 DoCastPrimarySpell()
+    uint32 DoCastChessSpell(bool primarySpell)
     {
-        uint32 spellId = 0;
-        float range = 25.0f;
-        float arc = float(M_PI);
+        uint32 spellId = primarySpell ? GetPrimarySpellId(me->GetEntry()) : GetSecondarySpellId(me->GetEntry());
+        float range = GetSpellRange(spellId);
+        float arc = GetSpellArc(spellId);
+        ExecuteSpell(spellId, range, arc);
+        const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
+    }
 
-        switch (me->GetEntry())
+    bool IsSameFactionAndTeam()
+    {
+        return (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && me->GetFaction() != FACTION_ID_CHESS_HORDE) ||
+            (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE && me->GetFaction() != FACTION_ID_CHESS_ALLIANCE);
+    }
+
+    uint32 GetPrimarySpellId(uint32 entry)
+    {
+        switch (entry)
         {
-        case  NPC_KING_LLANE:               spellId = SPELL_HEROISM;         break;
-        case  NPC_WARCHIEF_BLACKHAND:       spellId = SPELL_BLOODLUST;       break;
-        case  NPC_HUMAN_CONJURER:           spellId = SPELL_ELEMENTAL_BLAST; break;
-        case  NPC_ORC_WARLOCK:              spellId = SPELL_FIREBALL;        break;
-        case  NPC_HUMAN_FOOTMAN:            spellId = SPELL_HEROIC_BLOW;     break;
-        case  NPC_ORC_GRUNT:                spellId = SPELL_VICIOUS_STRIKE;  break;
-        case  NPC_CONJURED_WATER_ELEMENTAL: spellId = SPELL_GEYSER;          break;
-        case  NPC_SUMMONED_DAEMON:          spellId = SPELL_HELLFIRE;        break;
-        case  NPC_HUMAN_CHARGER:            spellId = SPELL_SMASH;           break;
-        case  NPC_ORC_WOLF:                 spellId = SPELL_BITE;            break;
-        case  NPC_HUMAN_CLERIC:             spellId = SPELL_HEALING;         break;
-        case  NPC_ORC_NECROLYTE:            spellId = SPELL_SHADOW_MEND;     break;
+        case NPC_KING_LLANE:               return SPELL_HEROISM;
+        case NPC_WARCHIEF_BLACKHAND:       return SPELL_BLOODLUST;
+        case NPC_HUMAN_CONJURER:           return SPELL_ELEMENTAL_BLAST;
+        case NPC_ORC_WARLOCK:              return SPELL_FIREBALL;
+        case NPC_HUMAN_FOOTMAN:            return SPELL_HEROIC_BLOW;
+        case NPC_ORC_GRUNT:                return SPELL_VICIOUS_STRIKE;
+        case NPC_CONJURED_WATER_ELEMENTAL: return SPELL_GEYSER;
+        case NPC_SUMMONED_DAEMON:          return SPELL_HELLFIRE;
+        case NPC_HUMAN_CHARGER:            return SPELL_SMASH;
+        case NPC_ORC_WOLF:                 return SPELL_BITE;
+        case NPC_HUMAN_CLERIC:             return SPELL_HEALING;
+        case NPC_ORC_NECROLYTE:            return SPELL_SHADOW_MEND;
+        default:                           return 0;
         }
+    }
 
+    uint32 GetSecondarySpellId(uint32 entry)
+    {
+        switch (entry)
+        {
+        case NPC_KING_LLANE:               return SPELL_SWEEP;
+        case NPC_WARCHIEF_BLACKHAND:       return SPELL_CLEAVE;
+        case NPC_HUMAN_CONJURER:           return SPELL_RAIN_OF_FIRE;
+        case NPC_ORC_WARLOCK:              return SPELL_POISON_CLOUD;
+        case NPC_HUMAN_FOOTMAN:            return SPELL_SHIELD_BLOCK;
+        case NPC_ORC_GRUNT:                return SPELL_WEAPON_DEFLECTION;
+        case NPC_CONJURED_WATER_ELEMENTAL: return SPELL_WATER_SHIELD;
+        case NPC_SUMMONED_DAEMON:          return SPELL_FIRE_SHIELD;
+        case NPC_HUMAN_CHARGER:            return SPELL_STOMP;
+        case NPC_ORC_WOLF:                 return SPELL_HOWL;
+        case NPC_HUMAN_CLERIC:             return SPELL_HOLY_LANCE;
+        case NPC_ORC_NECROLYTE:            return SPELL_SHADOW_SPEAR;
+        default:                           return 0;
+        }
+    }
+
+    float GetSpellRange(uint32 spellId)
+    {
+        switch (spellId)
+        {
+        case SPELL_HEROISM:
+        case SPELL_BLOODLUST:
+        case SPELL_ELEMENTAL_BLAST:
+        case SPELL_FIREBALL:
+        case SPELL_HEALING:
+        case SPELL_SHADOW_MEND:
+        case SPELL_RAIN_OF_FIRE:
+        case SPELL_POISON_CLOUD:
+            return 25.0f;
+        case SPELL_GEYSER:
+        case SPELL_HELLFIRE:
+            return 9.0f;
+        case SPELL_HEROIC_BLOW:
+        case SPELL_VICIOUS_STRIKE:
+        case SPELL_SMASH:
+        case SPELL_BITE:
+        case SPELL_WATER_SHIELD:
+        case SPELL_FIRE_SHIELD:
+        case SPELL_SHIELD_BLOCK:
+        case SPELL_WEAPON_DEFLECTION:
+            return 8.0f;
+        case SPELL_SWEEP:
+        case SPELL_CLEAVE:
+        case SPELL_STOMP:
+        case SPELL_HOWL:
+            return 10.0f;
+        case SPELL_HOLY_LANCE:
+        case SPELL_SHADOW_SPEAR:
+            return 18.0f;
+        default:
+            return 0.0f;
+        }
+    }
+
+    float GetSpellArc(uint32 spellId)
+    {
+        switch (spellId)
+        {
+        case SPELL_HEROIC_BLOW:
+        case SPELL_VICIOUS_STRIKE:
+        case SPELL_SMASH:
+        case SPELL_BITE:
+        case SPELL_STOMP:
+        case SPELL_HOWL:
+        case SPELL_HOLY_LANCE:
+        case SPELL_SHADOW_SPEAR:
+            return float(M_PI_2);
+        default:
+            return float(M_PI);
+        }
+    }
+
+    void ExecuteSpell(uint32 spellId, float range, float arc)
+    {
         // Even if the target is not used in some cases, the check is necessary so that the spell is not cast in vain
         switch (spellId)
         {
         case SPELL_HEROISM:
         case SPELL_BLOODLUST:
-            range = 20.0f;
+        case SPELL_WATER_SHIELD:
+        case SPELL_FIRE_SHIELD:
+        case SPELL_SHIELD_BLOCK:
+        case SPELL_WEAPON_DEFLECTION:
             if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
-            {
                 DoCastSelf(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
             break;
         case SPELL_HEROIC_BLOW:
         case SPELL_VICIOUS_STRIKE:
         case SPELL_SMASH:
         case SPELL_BITE:
-            range = 8.0f;
-            arc = 1.6f;
-            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
-            {
-                DoCastAOE(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
-            break;
         case SPELL_GEYSER:
         case SPELL_HELLFIRE:
-            range = 9.0f;
+        case SPELL_SWEEP:
+        case SPELL_CLEAVE:
+        case SPELL_STOMP:
+        case SPELL_HOWL:
+        case SPELL_HOLY_LANCE:
+        case SPELL_SHADOW_SPEAR:
             if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
-            {
                 DoCastAOE(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
             break;
         case SPELL_ELEMENTAL_BLAST:
         case SPELL_FIREBALL:
-            range = 20.0f;
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range))
-            {
+        case SPELL_RAIN_OF_FIRE:
+        case SPELL_POISON_CLOUD:
+            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range, arc))
                 DoCast(target, spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
             break;
         case SPELL_HEALING:
         case SPELL_SHADOW_MEND:
-            range = 25.0f;
             if (Unit* target = GetPiece(TARGET_TYPE_FRIENDLY, range))
-            {
                 DoCast(target, spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
             break;
         default:
             break;
         }
-        return 5000;
-    }
-
-    uint32 DoCastSecondarySpell()
-    {
-        uint32 spellId = 0;
-        float range = 25.0f;
-        float arc = float(M_PI);
-
-        switch (me->GetEntry())
-        {
-        case  NPC_KING_LLANE:               spellId = SPELL_SWEEP;               break;
-        case  NPC_WARCHIEF_BLACKHAND:       spellId = SPELL_CLEAVE;              break;
-        case  NPC_HUMAN_CONJURER:           spellId = SPELL_RAIN_OF_FIRE;        break;
-        case  NPC_ORC_WARLOCK:              spellId = SPELL_POISON_CLOUD;        break;
-        case  NPC_HUMAN_FOOTMAN:            spellId = SPELL_SHIELD_BLOCK;        break;
-        case  NPC_ORC_GRUNT:                spellId = SPELL_WEAPON_DEFLECTION;   break;
-        case  NPC_CONJURED_WATER_ELEMENTAL: spellId = SPELL_WATER_SHIELD;        break;
-        case  NPC_SUMMONED_DAEMON:          spellId = SPELL_FIRE_SHIELD;         break;
-        case  NPC_HUMAN_CHARGER:            spellId = SPELL_STOMP;               break;
-        case  NPC_ORC_WOLF:                 spellId = SPELL_HOWL;                break;
-        case  NPC_HUMAN_CLERIC:             spellId = SPELL_HOLY_LANCE;          break;
-        case  NPC_ORC_NECROLYTE:            spellId = SPELL_SHADOW_SPEAR;        break;
-        }
-
-        // Even if the target is not used in some cases, the check is necessary so that the spell is not cast in vain
-        switch (spellId)
-        {
-        case SPELL_RAIN_OF_FIRE:
-        case SPELL_POISON_CLOUD:
-        {
-            if (Unit* target = GetPiece(TARGET_TYPE_HOSTILE, range))
-            {
-                DoCast(target, spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
-        }
-        break;
-        case SPELL_SWEEP:
-        case SPELL_CLEAVE:
-        {
-            range = 10.0f;
-            if (GetPiece(TARGET_TYPE_HOSTILE, range))
-            {
-                DoCastAOE(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
-        }
-        break;
-        case SPELL_WATER_SHIELD:
-        case SPELL_FIRE_SHIELD:
-        {
-            range = 9.0f;
-            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
-            {
-                DoCastSelf(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
-        }
-        break;
-        case SPELL_SHIELD_BLOCK:
-        case SPELL_WEAPON_DEFLECTION:
-        {
-            range = 8.0f;
-            if (GetPiece(TARGET_TYPE_HOSTILE, range, arc))
-            {
-                DoCastSelf(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
-        }
-        break;
-        case SPELL_STOMP:
-        case SPELL_HOWL:
-        {
-            range = 10.0f;
-            arc = 1.6f;
-            if (GetPiece(TARGET_TYPE_HOSTILE, range))
-            {
-                DoCastAOE(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
-        }
-        break;
-        case SPELL_HOLY_LANCE:
-        case SPELL_SHADOW_SPEAR:
-        {
-            range = 18.0f;
-            arc = 1.6f;
-            if (GetPiece(TARGET_TYPE_HOSTILE, range))
-            {
-                DoCastAOE(spellId);
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                return spellInfo->GetRecoveryTime() ? spellInfo->GetRecoveryTime() : 5000;
-            }
-        }
-        break;
-        default:
-            break;
-        }
-
-        return 5000;
     }
 
     void AddUsedAura(bool on)
@@ -874,7 +926,7 @@ struct spell_king_primary : public SpellScript
         targets.remove_if([&](WorldObject* obj)
             {
                 //if (!caster->isInFrontInMap(obj->ToUnit(), 4.2f, 1.6f))
-                if ((caster->GetExactDist2d(obj) <= 8.1f && caster->HasInArc(1.6f, obj))) //HasInLine
+                if ((caster->GetExactDist2d(obj) <= 8.1f && caster->HasInArc(M_PI_2, obj))) //HasInLine
                     return false;
                 return true;
             });

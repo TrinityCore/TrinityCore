@@ -215,7 +215,6 @@ enum KZMisc
     FACTION_ID_CHESS_ALLIANCE      = 1690
 };
 
-
 GuidList const* GetChessPieces(InstanceScript const* scr, uint32 faciton);
 
 template <class AI, class T>

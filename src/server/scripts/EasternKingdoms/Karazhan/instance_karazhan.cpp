@@ -31,6 +31,7 @@ EndScriptData */
 #include "karazhan.h"
 #include "Containers.h"
 #include "Map.h"
+#include "MapReference.h"
 
 /*
 0  - Attumen + Midnight (optional)
@@ -480,7 +481,7 @@ public:
                         {
                             ChessPiecesAllianceGUIDs.erase(itr);
                             temp->Respawn(true);
-                            temp->RemoveCorpse();
+                            temp->DespawnOrUnsummon();
                         }
                     }
                     for (GuidList::const_iterator itr = ChessPiecesHordeGUIDs.begin(); itr != ChessPiecesHordeGUIDs.end(); ++itr)
@@ -489,7 +490,7 @@ public:
                         {
                             ChessPiecesHordeGUIDs.erase(itr);
                             temp->Respawn(true);
-                            temp->RemoveCorpse();
+                            temp->DespawnOrUnsummon();
                         }
                     }
                     for (GuidVector::const_iterator itr = ChessAllianceStalkerGUIDs.begin(); itr != ChessAllianceStalkerGUIDs.end(); ++itr)
@@ -573,6 +574,9 @@ public:
                                 square = GetClosestCreatureWithEntry(chessPiece, NPC_SQUARE_BLACK, 0.0f);
                             if (!square)
                                 continue;
+
+                            //This is to ensure that the corpse does not disappear and is respawned at the end of the game
+                            chessPiece->SetCorpseDelay(DAY);
 
                             chessPiece->AI()->Reset();
                             chessPiece->AI()->DoCastSelf(SPELL_CHESS_AI_ATTACK_TIMER);
