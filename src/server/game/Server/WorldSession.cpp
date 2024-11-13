@@ -827,7 +827,7 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
         }
         else if (v6.is_v4_mapped())
         {
-            memcpy(connectTo.Payload.Where.Address.V4.data(), Trinity::Net::make_address_v4(boost::asio::ip::v4_mapped, v6).to_bytes().data(), 4);
+            memcpy(connectTo.Payload.Where.Address.V4.data(), Trinity::Net::make_address_v4(Trinity::Net::v4_mapped, v6).to_bytes().data(), 4);
             connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv4;
         }
         else
