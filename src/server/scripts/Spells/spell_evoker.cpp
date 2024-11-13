@@ -58,7 +58,7 @@ enum EvokerSpells
     SPELL_EVOKER_SCOURING_FLAME                 = 378438,
     SPELL_EVOKER_SOAR_RACIAL                    = 369536,
     SPELL_EVOKER_VERDANT_EMBRACE_HEAL           = 361195,
-    SPELL_EVOKER_VERDANT_EMBRACE_JUMP           = 373514,
+    SPELL_EVOKER_VERDANT_EMBRACE_JUMP           = 373514
 };
 
 enum EvokerSpellLabels
@@ -378,7 +378,7 @@ class spell_evo_verdant_embrace : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (!target->IsPlayer() || target == caster)
+        if (target == caster)
             caster->CastSpell(caster, SPELL_EVOKER_VERDANT_EMBRACE_HEAL, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
