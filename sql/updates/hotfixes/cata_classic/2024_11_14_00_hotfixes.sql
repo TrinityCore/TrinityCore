@@ -1,0 +1,3 @@
+DELETE FROM `broadcast_text` WHERE `VerifiedBuild`>0 AND `ID`=278009;
+INSERT INTO `broadcast_text` (`Text`, `Text1`, `ID`, `LanguageID`, `ConditionID`, `EmotesID`, `Flags`, `ChatBubbleDurationMs`, `VoiceOverPriorityID`, `SoundKitID1`, `SoundKitID2`, `EmoteID1`, `EmoteID2`, `EmoteID3`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `VerifiedBuild`) VALUES
+('The device whirs as it rotates, hinting at the raw and untapped power contained within, waiting to be unleashed.', 'The device whirs as it rotates, hinting at the raw and untapped power contained within, waiting to be unleashed.', 278009, 0, 0, 0, 256, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 57359);
