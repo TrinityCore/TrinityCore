@@ -376,8 +376,13 @@ WorldPacket const* AttackerStateUpdate::Write()
         attackRoundInfo << float(UnkState.State7);
         attackRoundInfo << float(UnkState.State8);
         attackRoundInfo << float(UnkState.State9);
-        attackRoundInfo << float(UnkState.State10);
-        attackRoundInfo << float(UnkState.State11);
+
+        for (size_t i = 0; i < UnkState.State10.size(); ++i)
+        {
+            attackRoundInfo << float(UnkState.State10[i]);
+            attackRoundInfo << float(UnkState.State11[i]);
+        }
+
         attackRoundInfo << uint32(UnkState.State12);
     }
 

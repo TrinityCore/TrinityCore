@@ -293,8 +293,8 @@ namespace WorldPackets
             float State7 = 0.0f;
             float State8 = 0.0f;
             float State9 = 0.0f;
-            float State10 = 0.0f;
-            float State11 = 0.0f;
+            std::array<float, 5> State10 = {};
+            std::array<float, 5> State11 = {};
             uint32 State12 = 0;
         };
 
