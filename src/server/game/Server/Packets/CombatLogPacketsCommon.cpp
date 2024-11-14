@@ -65,63 +65,27 @@ bool ContentTuningParams::GenerateDataForUnits(T* /*attacker*/, U* /*target*/)
 }
 
 template<>
-bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
+bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* /*attacker*/, Player* /*target*/)
 {
-    CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
-    CreatureDifficulty const* creatureDifficulty = creatureTemplate->GetDifficulty(attacker->GetMap()->GetDifficultyID());
-
-    Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
-    PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
-    PlayerItemLevel = target->GetAverageItemLevel();
-    TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = 0; // target->m_unitData->ScalingHealthItemLevelCurveID;
-    TargetLevel = target->GetLevel();
-    Expansion = creatureDifficulty->HealthScalingExpansion;
-    TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
     return true;
 }
 
 template<>
-bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacker, Creature* target)
+bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* /*attacker*/, Creature* /*target*/)
 {
-    CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
-    CreatureDifficulty const* creatureDifficulty = creatureTemplate->GetDifficulty(target->GetMap()->GetDifficultyID());
-
-    Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
-    PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
-    PlayerItemLevel = attacker->GetAverageItemLevel();
-    TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = 0; // target->m_unitData->ScalingHealthItemLevelCurveID;
-    TargetLevel = target->GetLevel();
-    Expansion = creatureDifficulty->HealthScalingExpansion;
-    TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
     return true;
 }
 
 template<>
-bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* attacker, Creature* target)
+bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* /*attacker*/, Creature* /*target*/)
 {
-    Creature* accessor = attacker;
-    CreatureTemplate const* creatureTemplate = accessor->GetCreatureTemplate();
-    CreatureDifficulty const* creatureDifficulty = creatureTemplate->GetDifficulty(accessor->GetMap()->GetDifficultyID());
-
-    Type = TYPE_CREATURE_TO_CREATURE_DAMAGE;
-    PlayerLevelDelta = 0;
-    PlayerItemLevel = 0;
-    TargetLevel = target->GetLevel();
-    Expansion = creatureDifficulty->HealthScalingExpansion;
-    TargetScalingLevelDelta = int8(accessor->m_unitData->ScalingLevelDelta);
     return true;
 }
 
 template<>
-bool ContentTuningParams::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
+bool ContentTuningParams::GenerateDataForUnits<Unit, Unit>(Unit* /*attacker*/, Unit* /*target*/)
 {
-    if (Player* playerAttacker = Object::ToPlayer(attacker))
-        if (Player* playerTarget = Object::ToPlayer(target))
-            return GenerateDataForUnits(playerAttacker, playerTarget);
-
-    return false;
+    return true;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogData)
@@ -145,18 +109,16 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogDat
 
 ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTuningParams)
 {
-    data << float(contentTuningParams.PlayerItemLevel);
-    data << float(contentTuningParams.TargetItemLevel);
+    data << uint16(contentTuningParams.PlayerItemLevel);
     data << int16(contentTuningParams.PlayerLevelDelta);
-    data << uint32(contentTuningParams.ScalingHealthItemLevelCurveID);
+    data << uint32(contentTuningParams.TargetItemLevel);
     data << uint8(contentTuningParams.TargetLevel);
     data << uint8(contentTuningParams.Expansion);
+    data << uint8(contentTuningParams.TargetMinScalingLevel);
+    data << uint8(contentTuningParams.TargetMaxScalingLevel);
     data << int8(contentTuningParams.TargetScalingLevelDelta);
-    data << uint32(contentTuningParams.Flags);
-    data << int32(contentTuningParams.PlayerContentTuningID);
-    data << int32(contentTuningParams.TargetContentTuningID);
-    data << int32(contentTuningParams.Unused927);
     data.WriteBits(contentTuningParams.Type, 4);
+    data.WriteBits(contentTuningParams.ScalesWithItemLevel, 1);
     data.FlushBits();
     return data;
 }
