@@ -781,7 +781,7 @@ WorldPacket const* WorldPackets::Misc::SplashScreenShowLatest::Write()
 WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
 {
     _worldPacket << uint64(Quantity);
-    _worldPacket << uint8(AsUnderlyingType(DisplayToastMethod));
+    _worldPacket << uint32(AsUnderlyingType(DisplayToastMethod));
     _worldPacket << uint32(QuestID);
 
     _worldPacket.WriteBit(Mailed);
