@@ -60,7 +60,7 @@ enum class VendorInventoryReason : uint8
 };
 
 static constexpr uint8 WILD_BATTLE_PET_DEFAULT_LEVEL = 1;
-static constexpr size_t CREATURE_TAPPERS_SOFT_CAP = 5;
+static constexpr size_t CREATURE_TAPPERS_SOFT_CAP = 1; // Classic Only - only allow one tapper at a time
 
 //used for handling non-repeatable random texts
 typedef std::vector<uint8> CreatureTextRepeatIds;
