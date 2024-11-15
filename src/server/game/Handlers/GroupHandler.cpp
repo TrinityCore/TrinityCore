@@ -359,10 +359,8 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& packe
     }
 }
 
-void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& /*packet*/)
+void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& packet)
 {
-    // not allowed to change
-    /*
     Group* group = GetPlayer()->GetGroup(packet.PartyIndex);
     if (!group)
         return;
@@ -373,16 +371,8 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (group->isLFGGroup())
         return;
 
-    switch (packet.LootMethod)
-    {
-        case FREE_FOR_ALL:
-        case MASTER_LOOT:
-        case GROUP_LOOT:
-        case PERSONAL_LOOT:
-            break;
-        default:
-            return;
-    }
+    if (packet.LootMethod > NEED_BEFORE_GREED)
+        return;
 
     if (packet.LootThreshold < ITEM_QUALITY_UNCOMMON || packet.LootThreshold > ITEM_QUALITY_ARTIFACT)
         return;
@@ -395,7 +385,6 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     group->SetMasterLooterGuid(packet.LootMasterGUID);
     group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
-    */
 }
 
 void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)
