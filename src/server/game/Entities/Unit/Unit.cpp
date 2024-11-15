@@ -10815,7 +10815,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
     bool isRewardAllowed = attacker != victim;
     if (creature)
-        isRewardAllowed = isRewardAllowed && !creature->GetTapList().empty();
+        isRewardAllowed = isRewardAllowed || !creature->GetTapList().empty();
 
     std::vector<Player*> tappers;
     if (isRewardAllowed && creature)
@@ -10848,6 +10848,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                     partyKillLog.Victim = victim->GetGUID();
                     partyKillLog.Write();
 
+
                     tapperGroup->BroadcastPacket(partyKillLog.GetRawPacket(), tapperGroup->GetMemberGroup(tapper->GetGUID()) != 0);
 
                     if (creature)
@@ -10872,35 +10873,32 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
             if (creature->GetMap()->IsDungeon())
             {
+                Group* group = !groups.empty() ? *groups.begin() : nullptr;
+                Player* looter = group ? ASSERT_NOTNULL(ObjectAccessor::GetPlayer(*creature, group->GetLooterGuid())) : tappers[0];
+
+                Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, dungeonEncounter ? group : nullptr);
+
                 if (dungeonEncounter)
-                {
-                    creature->m_personalLoot = GenerateDungeonEncounterPersonalLoot(dungeonEncounter->ID, creature->GetLootId(),
-                        LootTemplates_Creature, LOOT_CORPSE, creature, creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax,
-                        creature->GetLootMode(), creature->GetMap()->GetMapDifficulty(), tappers);
-                }
-                else if (!tappers.empty())
-                {
-                    Group* group = !groups.empty() ? *groups.begin() : nullptr;
-                    Player* looter = group ? ASSERT_NOTNULL(ObjectAccessor::GetPlayer(*creature, group->GetLooterGuid())) : tappers[0];
+                    loot->SetDungeonEncounterId(dungeonEncounter->ID);
 
-                    Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, dungeonEncounter ? group : nullptr);
+                if (uint32 lootid = creature->GetLootId())
+                    loot->FillLoot(lootid, LootTemplates_Creature, looter, dungeonEncounter != nullptr, false, creature->GetLootMode(), ItemBonusMgr::GetContextForPlayer(creature->GetMap()->GetMapDifficulty(), looter));
 
-                    if (uint32 lootid = creature->GetLootId())
-                        loot->FillLoot(lootid, LootTemplates_Creature, looter, dungeonEncounter != nullptr, false, creature->GetLootMode(), ItemBonusMgr::GetContextForPlayer(creature->GetMap()->GetMapDifficulty(), looter));
+                if (creature->GetLootMode() > 0)
+                    loot->generateMoneyLoot(creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax);
 
-                    if (creature->GetLootMode() > 0)
-                        loot->generateMoneyLoot(creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax);
+                if (group)
+                    loot->NotifyLootList(creature->GetMap());
 
-                    if (group)
-                        loot->NotifyLootList(creature->GetMap());
-
+                if (dungeonEncounter || groups.empty()) // Classic Only - Boss encounter loot is no longer personal
+                    creature->m_loot.reset(loot);
+                else
                     creature->m_personalLoot[looter->GetGUID()].reset(loot);   // trash mob loot is personal, generated with round robin rules
 
-                    // Update round robin looter only if the creature had loot
-                    if (!loot->isLooted())
-                        for (Group* tapperGroup : groups)
-                            tapperGroup->UpdateLooterGuid(creature);
-                }
+                // Update round robin looter only if the creature had loot
+                if (!loot->isLooted())
+                    for (Group* tapperGroup : groups)
+                        tapperGroup->UpdateLooterGuid(creature);
             }
             else
             {
