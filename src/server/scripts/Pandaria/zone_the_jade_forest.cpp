@@ -46,8 +46,6 @@ class spell_into_the_mists_scene_jf : public SpellScript
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         Unit* hitUnit = GetHitUnit();
-        if (!hitUnit)
-            return;
 
         hitUnit->CastSpell(hitUnit, TheJadeForest::Spells::CancelBlackout, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -101,8 +99,6 @@ class spell_into_the_mists_scene_end : public SpellScript
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         Unit* hitUnit = GetHitUnit();
-        if (!hitUnit)
-            return;
 
         CastSpellExtraArgs const& castSpellExtraArgs = CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
