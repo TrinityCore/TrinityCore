@@ -46,6 +46,7 @@ struct BarberShopStyleEntry;
 struct BattlegroundTemplate;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
+struct ChrCustomizationOptionEntry;
 struct ChrSpecializationEntry;
 struct CreatureTemplate;
 struct CurrencyTypesEntry;
@@ -444,6 +445,12 @@ enum DrunkenState
 };
 
 #define MAX_DRUNKEN   4
+
+enum BarberState
+{
+    NOT_IN_BARBER_STATE = 0,
+    JUST_PASSED_BARBER_CHECKS = 1,
+};
 
 enum PlayerFlags
 {
@@ -1798,6 +1805,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDatabaseTransaction trans, bool create = false);
         void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans);                    // fast save function for item/money cheating preventing
 
+        static void RemoveRaceGenderModelCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 race, uint8 gender);
+        static void RemoveShapehiftRaceCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 oldRace, uint8 newRace);
         static void SaveCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid,
             Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans);
@@ -2839,18 +2848,11 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void SetAverageItemLevel(float newItemLevel, AvgItemLevelCategory category) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, uint32(category)), newItemLevel); }
 
-        uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const
-        {
-            int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
-            {
-                return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
-            });
-
-            if (choiceIndex >= 0)
-                return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
-
-            return 0;
-        }
+        uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const;
+        void ClearPreviousCustomizations(std::vector<ChrCustomizationOptionEntry const*> const* oldCustomizations);
+        void ClearPreviousModelCustomizations(const uint32 oldModel);
+        void ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender);
+        void SetMissingCustomizations();
 
         template<typename Iter>
         void SetCustomizations(Trinity::IteratorPair<Iter> customizations, bool markChanged = true)
@@ -2858,7 +2860,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
             if (markChanged)
                 m_customizationsChanged = true;
 
-            ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
             for (auto&& customization : customizations)
             {
                 UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
@@ -3311,6 +3312,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool _usePvpItemLevels;
         ObjectGuid _areaSpiritHealerGUID;
+
+        bool _justPassedBarberChecks;
 
         // Spell cast request handling
     public:

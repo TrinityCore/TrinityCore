@@ -353,6 +353,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _restMgr = std::make_unique<RestMgr>(this);
 
     _usePvpItemLevels = false;
+
+    _justPassedBarberChecks = false;
 }
 
 Player::~Player()
@@ -477,6 +479,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetWatchedFactionIndex(-1);
 
     SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
+    SetMissingCustomizations();
     SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NORMAL);
     SetRestState(REST_TYPE_HONOR, REST_STATE_NORMAL);
     SetNativeGender(Gender(createInfo->Sex));
@@ -1124,6 +1127,9 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+    if (_justPassedBarberChecks)
+        _justPassedBarberChecks = false;
 }
 
 void Player::Heartbeat()
@@ -17901,11 +17907,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             UF::ChrCustomizationChoice& choice = customizations.back();
             choice.ChrCustomizationOptionID = fields[0].GetUInt32();
             choice.ChrCustomizationChoiceID = fields[1].GetUInt32();
-
         } while (customizationsResult->NextRow());
     }
-
     SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()), false);
+    SetMissingCustomizations();
+
     SetInventorySlotCount(fields.inventorySlots);
     SetBackpackAutoSortDisabled(fields.inventoryBagFlags.HasFlag(BagSlotFlags::DisableAutoSort));
     SetBackpackSellJunkDisabled(fields.inventoryBagFlags.HasFlag(BagSlotFlags::ExcludeJunkSell));
@@ -20466,17 +20472,117 @@ void Player::SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans)
 template<typename iterator>
 void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, Trinity::IteratorPair<iterator> customizations)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATIONS);
-    stmt->setUInt64(0, guid);
-    trans->Append(stmt);
-
     for (auto&& customization : customizations)
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_CUSTOMIZATION);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_CUSTOMIZATION);
         stmt->setUInt64(0, guid);
         stmt->setUInt32(1, customization.ChrCustomizationOptionID);
         stmt->setUInt32(2, customization.ChrCustomizationChoiceID);
         trans->Append(stmt);
+    }
+}
+
+uint32 Player::GetCustomizationChoice(uint32 chrCustomizationOptionId) const
+{
+    int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
+        {
+            return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
+        });
+
+    if (choiceIndex >= 0)
+        return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
+
+    return 0;
+}
+
+void Player::ClearPreviousCustomizations(std::vector<ChrCustomizationOptionEntry const*> const* oldCustomizations)
+{
+    for (const auto optionEntry : *oldCustomizations)
+    {
+        const int32 index = m_playerData->Customizations.FindIndexIf([optionEntry](UF::ChrCustomizationChoice const& choice) { return choice.ChrCustomizationOptionID == optionEntry->ID; });
+        if (index >= 0)
+            RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations), index);
+    }
+}
+
+void Player::ClearPreviousModelCustomizations(const uint32 oldModel)
+{
+    if (std::vector<ChrCustomizationOptionEntry const*> const* oldModelCustomizations = sDB2Manager.GetCustomiztionOptions(oldModel))
+    {
+        ClearPreviousCustomizations(oldModelCustomizations);
+    }
+}
+
+void Player::ClearPreviousRaceGenderCustomizations(const uint8 race, const uint8 gender)
+{
+    if (std::vector<ChrCustomizationOptionEntry const*> const* oldRaceGenderCustomizations = sDB2Manager.GetCustomiztionOptions(race, gender))
+    {
+        ClearPreviousCustomizations(oldRaceGenderCustomizations);
+    }
+}
+
+// Force apply race specific druid customizations if they are not set (at character creation & occasionally on race change when previously using race-specific forms)
+void Player::SetMissingCustomizations()
+{
+    if (GetClass() == CLASS_DRUID)
+    {
+        const std::array<ShapeshiftForm, 5> shapeshiftForms = { FORM_BEAR_FORM, FORM_CAT_FORM, FORM_TRAVEL_FORM, FORM_FLIGHT_FORM_EPIC, FORM_AQUATIC_FORM };
+        for (const auto shapeshiftForm : shapeshiftForms)
+        {
+            if (ChrCustomizationChoiceEntry const* customization = sDB2Manager.GetShapeshiftRaceDefaultOptions(GetRace(), shapeshiftForm))
+            {
+                const int32 index = m_playerData->Customizations.FindIndexIf([customization](UF::ChrCustomizationChoice const& choice) { return int32(choice.ChrCustomizationOptionID) == customization->ChrCustomizationOptionID; });
+                if (index < 0)
+                {
+                    UF::ChrCustomizationChoice& defaultChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
+                    defaultChoice.ChrCustomizationOptionID = customization->ChrCustomizationOptionID;
+                    defaultChoice.ChrCustomizationChoiceID = customization->ID;
+                    m_customizationsChanged = true;
+                }
+            }
+        }
+    }
+}
+
+void RemoveShapeshiftFormRaceCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, ShapeshiftFormModelData const* shapeshiftFormModelData, const uint8 newRace)
+{
+    for (const auto choice : *shapeshiftFormModelData->Choices)
+    {
+        if (ChrCustomizationReqEntry const* customizationReq = sChrCustomizationReqStore.LookupEntry(choice->ChrCustomizationReqID))
+        {
+            if (!customizationReq->RaceMask.HasRace(newRace))
+            {
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATION_CHOICE);
+                stmt->setUInt64(0, guid);
+                stmt->setUInt32(1, choice->ChrCustomizationOptionID);
+                stmt->setUInt32(2, choice->ID);
+                trans->Append(stmt);
+            }
+        }
+    }
+}
+
+void Player::RemoveShapehiftRaceCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 oldRace, uint8 newRace)
+{
+    static const std::vector<ShapeshiftForm> shapeshiftForms = { FORM_BEAR_FORM, FORM_CAT_FORM, FORM_TRAVEL_FORM, FORM_FLIGHT_FORM_EPIC, FORM_AQUATIC_FORM };
+    for (const auto shapeshiftForm : shapeshiftForms)
+    {
+        if (ShapeshiftFormModelData const* shapeshiftFormModelData = sDB2Manager.GetShapeshiftFormModelData(oldRace, shapeshiftForm))
+            RemoveShapeshiftFormRaceCustomizations(trans, guid, shapeshiftFormModelData, newRace);
+    }
+}
+
+void Player::RemoveRaceGenderModelCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::LowType guid, uint8 race, uint8 gender)
+{
+    if (std::vector<ChrCustomizationOptionEntry const*> const* modelCustomizations = sDB2Manager.GetCustomiztionOptions(race, gender))
+    {
+        for (const auto option : *modelCustomizations)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATION);
+            stmt->setUInt64(0, guid);
+            stmt->setUInt32(1, option->ID);
+            trans->Append(stmt);
+        }
     }
 }
 
@@ -20492,6 +20598,10 @@ void Player::_SaveCustomizations(CharacterDatabaseTransaction trans)
         return;
 
     m_customizationsChanged = false;
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_CUSTOMIZATIONS);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    trans->Append(stmt);
 
     SavePlayerCustomizations(trans, GetGUID().GetCounter(), Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
 }
