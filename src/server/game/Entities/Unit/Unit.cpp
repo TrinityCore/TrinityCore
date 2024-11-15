@@ -10815,7 +10815,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
     bool isRewardAllowed = attacker != victim;
     if (creature)
-        isRewardAllowed = isRewardAllowed || !creature->GetTapList().empty();
+        isRewardAllowed = !creature->GetTapList().empty();
 
     std::vector<Player*> tappers;
     if (isRewardAllowed && creature)
