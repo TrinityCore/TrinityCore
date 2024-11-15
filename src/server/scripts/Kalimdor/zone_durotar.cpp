@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "ScriptedGossip.h"
@@ -31,7 +32,9 @@ namespace Durotar
 {
     namespace Spells
     {
-        static constexpr uint32 PhasePlayer = 130750;
+        static constexpr uint32 PhasePlayer               = 130750;
+        static constexpr uint32 TeleportTimer             = 132034;
+        static constexpr uint32 TeleportPlayerToCrashSite = 102930;
     }
 }
 
@@ -1240,6 +1243,61 @@ public:
     }
 };
 
+// 130810 - Teleport Prep
+class spell_teleport_prep : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Durotar::Spells::TeleportTimer
+        });
+    }
+
+    void HandleAfterEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetTarget(), Durotar::Spells::TeleportTimer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = aurEff->GetBase()->GetCastId()
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_teleport_prep::HandleAfterEffectApply, EFFECT_0, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 132034 - Teleport Timer
+class spell_teleport_timer : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Durotar::Spells::TeleportPlayerToCrashSite
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetTarget(), Durotar::Spells::TeleportPlayerToCrashSite, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_teleport_timer::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
@@ -1283,4 +1341,6 @@ void AddSC_durotar()
 
     // Hellscream's Fist
     new at_hellscreams_fist_gunship();
+    RegisterSpellScript(spell_teleport_prep);
+    RegisterSpellScript(spell_teleport_timer);
 }

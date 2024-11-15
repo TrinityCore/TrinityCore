@@ -51,7 +51,7 @@ class spell_art_of_war_movie_aura : public AuraScript
 
         caster->CastSpell(GetTarget(), Orgrimmar::Spells::FadeToBlack, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
+            .OriginalCastId = aurEff->GetBase()->GetCastId()
         });
     }
 
