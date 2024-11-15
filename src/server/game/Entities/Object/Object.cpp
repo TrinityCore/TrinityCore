@@ -801,7 +801,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
             {
                 auto const& itr = actionButtonList.find(i);
                 if (itr != actionButtonList.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-                    *data << uint32(itr->second.GetAction());
+                    *data << uint32(itr->second.packedData);
                 else
                     *data << uint32(0);
             }
