@@ -10848,7 +10848,6 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                     partyKillLog.Victim = victim->GetGUID();
                     partyKillLog.Write();
 
-
                     tapperGroup->BroadcastPacket(partyKillLog.GetRawPacket(), tapperGroup->GetMemberGroup(tapper->GetGUID()) != 0);
 
                     if (creature)
