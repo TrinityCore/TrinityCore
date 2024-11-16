@@ -39,7 +39,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
         response.SuccessInfo.emplace();
 
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
-        response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
+        response.SuccessInfo->AccountExpansionLevel = 0; // GetAccountExpansion(); -- Classic Only: Blizzard does not send account expansions for Classic
         response.SuccessInfo->Time = int32(GameTime::GetGameTime());
 
         // Send current home realm. Also there is no need to send it later in realm queries.
