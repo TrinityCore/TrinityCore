@@ -3470,8 +3470,8 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << uint32(SpellPctModByLabel.size());
     data << uint32(SpellFlatModByLabel.size());
     data << uint32(TaskQuests.size());
+    data << int32(TimerunningSeasonID);
     data << int32(TransportServerTime);
-    data << int32(Field_15BC);
     data << uint32(TraitConfigs.size());
     data << uint32(ActiveCombatTraitConfigID);
     for (uint32 i = 0; i < 9; ++i)
@@ -4416,11 +4416,11 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[124])
         {
-            data << int32(TransportServerTime);
+            data << int32(TimerunningSeasonID);
         }
         if (changesMask[125])
         {
-            data << int32(Field_15BC);
+            data << int32(TransportServerTime);
         }
         if (changesMask[126])
         {
@@ -4752,8 +4752,8 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(PerksProgramCurrency);
     Base::ClearChangesMask(ResearchHistory);
     Base::ClearChangesMask(FrozenPerksVendorItem);
+    Base::ClearChangesMask(TimerunningSeasonID);
     Base::ClearChangesMask(TransportServerTime);
-    Base::ClearChangesMask(Field_15BC);
     Base::ClearChangesMask(ActiveCombatTraitConfigID);
     Base::ClearChangesMask(GlyphsEnabled);
     Base::ClearChangesMask(LfgRoles);

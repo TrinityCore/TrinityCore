@@ -829,8 +829,8 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<int32, 102, 121> PerksProgramCurrency;
     UpdateField<UF::ResearchHistory, 102, 122> ResearchHistory;
     UpdateField<WorldPackets::PerksProgram::PerksVendorItem, 102, 123> FrozenPerksVendorItem;
-    UpdateField<int32, 102, 124> TransportServerTime;
-    UpdateField<int32, 102, 125> Field_15BC;
+    UpdateField<int32, 102, 124> TimerunningSeasonID;
+    UpdateField<int32, 102, 125> TransportServerTime;
     UpdateField<uint32, 102, 126> ActiveCombatTraitConfigID;
     UpdateField<uint16, 102, 127> GlyphsEnabled;
     UpdateField<uint8, 102, 128> LfgRoles;
