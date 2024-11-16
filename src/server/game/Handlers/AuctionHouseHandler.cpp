@@ -508,7 +508,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (auction && auction->Owner == player->GetGUID())
     {
-        if (auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
+        if (!auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
         {
             uint64 cancelCost = CalculatePct(auction->BidAmount, 5u);
             if (!player->HasEnoughMoney(cancelCost))          //player doesn't have enough money

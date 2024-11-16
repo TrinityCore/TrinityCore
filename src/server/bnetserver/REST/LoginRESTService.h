@@ -83,8 +83,7 @@ private:
     JSON::Login::FormInputs _formInputs;
     std::string _bindIP;
     uint16 _port;
-    std::array<std::string, 2> _hostnames;
-    std::array<boost::asio::ip::address, 2> _addresses;
+    std::array<std::pair<std::string, std::vector<boost::asio::ip::address>>, 2> _hostnames;
     uint32 _loginTicketDuration;
 };
 }

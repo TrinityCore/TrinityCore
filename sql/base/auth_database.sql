@@ -33,8 +33,8 @@ CREATE TABLE `account` (
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `reg_mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
-  `last_attempt_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `last_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `last_attempt_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int unsigned NOT NULL DEFAULT '0',
   `locked` tinyint unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '00',
@@ -424,7 +424,7 @@ CREATE TABLE `battlenet_accounts` (
   `salt` binary(32) NOT NULL,
   `verifier` blob NOT NULL,
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `last_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int unsigned NOT NULL DEFAULT '0',
   `locked` tinyint unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '00',
@@ -842,7 +842,14 @@ INSERT INTO `build_auth_key` VALUES
 (57388,'Mac','x64','WoWC',0xBFFDD44D892A2143B61BB59E448E348C),
 (57388,'Win','A64','WoW',0x92129DE92D2BA5F67581C5DE642B1289),
 (57388,'Win','x64','WoW',0x16F9CB724C662E3E8029A442443C6305),
-(57388,'Win','x64','WoWC',0xDFD9BFFD00FBEFECBF0AEF0FFC9E8F2D);
+(57388,'Win','x64','WoWC',0xDFD9BFFD00FBEFECBF0AEF0FFC9E8F2D),
+(57534,'Mac','A64','WoW',0x073B823E8991A0DF012AE33D661A6060),
+(57534,'Mac','A64','WoWC',0xC8824559DC24858EA7E3BD0971F98A15),
+(57534,'Mac','x64','WoW',0x0C7C67AAAD4011AA9D81AB838B255CDF),
+(57534,'Mac','x64','WoWC',0xCE9CD9A02B04F0C3B126F3C7E1BF7228),
+(57534,'Win','A64','WoW',0xCC612F1485F158C8B2730B7DFD926563),
+(57534,'Win','x64','WoW',0x948857BF76A28FD24C5A06D18B4F2FCF),
+(57534,'Win','x64','WoWC',0x62B0812A4518C21360685D4422C2A312);
 /*!40000 ALTER TABLE `build_auth_key` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1196,7 +1203,8 @@ INSERT INTO `build_info` VALUES
 (57171,11,0,5,NULL),
 (57212,11,0,5,NULL),
 (57292,11,0,5,NULL),
-(57388,11,0,5,NULL);
+(57388,11,0,5,NULL),
+(57534,11,0,5,NULL);
 /*!40000 ALTER TABLE `build_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1208,7 +1216,7 @@ DROP TABLE IF EXISTS `ip_banned`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ip_banned` (
-  `ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `bandate` int unsigned NOT NULL,
   `unbandate` int unsigned NOT NULL,
   `bannedby` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '[Console]',
@@ -1264,7 +1272,7 @@ CREATE TABLE `logs_ip_actions` (
   `character_guid` bigint unsigned NOT NULL COMMENT 'Character Guid',
   `realm_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Realm ID',
   `type` tinyint unsigned NOT NULL,
-  `ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `systemnote` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Notes inserted by system',
   `unixtime` int unsigned NOT NULL COMMENT 'Unixtime',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp',
@@ -2799,6 +2807,8 @@ CREATE TABLE `realmlist` (
   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   `localAddress` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `address3` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address4` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `localSubnetMask` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '255.255.255.0',
   `port` smallint unsigned NOT NULL DEFAULT '8085',
   `icon` tinyint unsigned NOT NULL DEFAULT '0',
@@ -2806,7 +2816,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
   `population` float NOT NULL DEFAULT '0',
-  `gamebuild` int unsigned NOT NULL DEFAULT '57388',
+  `gamebuild` int unsigned NOT NULL DEFAULT '57534',
   `Region` tinyint unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2821,7 +2831,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,57388,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1',NULL,NULL,'255.255.255.0',8085,0,0,1,0,0,57534,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3287,7 +3297,10 @@ INSERT INTO `updates` VALUES
 ('2024_10_23_00_auth.sql','78203AE9051E866F103CC7B8A6EE09D5C25BCB9A','RELEASED','2024-10-23 15:48:13',0),
 ('2024_10_23_01_auth.sql','06257BB5FF23564549529C14822DD5780AA7F7C3','RELEASED','2024-10-23 22:30:54',0),
 ('2024_10_30_00_auth.sql','B4C930B0CE499704CEBF208A71871061DC27008C','RELEASED','2024-10-30 13:04:40',0),
-('2024_11_01_00_auth.sql','62EF7FC9CD2DCD8D24CE1BCED3BF9E2917B6674B','RELEASED','2024-11-01 13:26:56',0);
+('2024_11_01_00_auth.sql','62EF7FC9CD2DCD8D24CE1BCED3BF9E2917B6674B','RELEASED','2024-11-01 13:26:56',0),
+('2024_11_11_00_auth.sql','F47CDFB857DB4105306739AF4FBBB3C92CA43363','RELEASED','2024-11-11 13:34:09',0),
+('2024_11_12_00_auth.sql','5A236A557291758C0F2C46FDEC02692E7C53F751','RELEASED','2024-11-12 11:42:13',0),
+('2024_11_14_00_auth.sql','646A438FAD5A83D80DCDDEDC71BB6CF21A1FE490','RELEASED','2024-11-14 10:29:52',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

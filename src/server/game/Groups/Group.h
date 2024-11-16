@@ -167,7 +167,7 @@ struct RaidMarker
 
     RaidMarker(uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty)
     {
-        Location.WorldRelocate(mapId, positionX, positionY, positionZ);
+        Location.WorldRelocate(mapId, positionX, positionY, positionZ, 0.0f);
         TransportGUID = transportGuid;
     }
 };
