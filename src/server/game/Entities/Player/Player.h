@@ -1155,7 +1155,7 @@ enum class ZonePVPTypeOverride : uint32
     Combat      = 4
 };
 
-float constexpr MIN_LOAD_SCREEN_DISTANCE = 200.0f;
+float constexpr TELEPORT_MIN_LOAD_SCREEN_DISTANCE = 200.0f;
 
 struct TeleportLocation
 {

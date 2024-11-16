@@ -1001,7 +1001,7 @@ void Spell::EffectTeleportUnits()
     {
         // Custom loading screen
         if (uint32 customLoadingScreenId = effectInfo->MiscValue)
-            if (targetDest.GetMapId() != unitTarget->GetMapId() || !unitTarget->IsInDist2d(targetDest, MIN_LOAD_SCREEN_DISTANCE))
+            if (targetDest.GetMapId() != unitTarget->GetMapId() || !unitTarget->IsInDist2d(targetDest, TELEPORT_MIN_LOAD_SCREEN_DISTANCE))
                 player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
         TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
