@@ -81,53 +81,12 @@ enum OratorKrixVizkMisc
 };
 
 // Id xxxx - Areatrigger
-struct at_orator_conversation_intro_1 : AreaTriggerAI
-{
-    at_orator_conversation_intro_1(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        InstanceScript* instance = at->GetInstanceScript();
-        if (!instance)
-            return;
-
-        Player* player = unit->ToPlayer();
-        if (!player || player->IsGameMaster())
-            return;
-
-        if (Creature* oratorKrixVizk = instance->GetCreature(DATA_ORATOR_CONVO)) // Different creature
-            Conversation::CreateConversation(CONVERSATION_ORATOR_INTRO_1, oratorKrixVizk, player->GetPosition(), player->GetGUID());
-
-        at->Remove();
-    }
-};
-
 // Id xxxx - Areatrigger
-struct at_orator_conversation_intro_2 : AreaTriggerAI
-{
-    at_orator_conversation_intro_2(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        InstanceScript* instance = at->GetInstanceScript();
-        if (!instance)
-            return;
-
-        Player* player = unit->ToPlayer();
-        if (!player || player->IsGameMaster())
-            return;
-
-        if (Creature* oratorKrixVizk = instance->GetCreature(DATA_ORATOR_KRIX_VIZK))
-            Conversation::CreateConversation(CONVERSATION_ORATOR_INTRO_2, oratorKrixVizk, player->GetPosition(), player->GetGUID());
-
-        at->Remove();
-    }
-};
-
 // Id xxxx - Areatrigger
-struct at_orator_conversation_intro_3 : AreaTriggerAI
+template<uint32 conversationEntry, uint32 data>
+struct at_orator_conversation_intro : AreaTriggerAI
 {
-    at_orator_conversation_intro_3(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_orator_conversation_intro(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -139,8 +98,8 @@ struct at_orator_conversation_intro_3 : AreaTriggerAI
         if (!player || player->IsGameMaster())
             return;
 
-        if (Creature* oratorKrixVizk = instance->GetCreature(DATA_ORATOR_KRIX_VIZK))
-            Conversation::CreateConversation(CONVERSATION_ORATOR_INTRO_3, oratorKrixVizk, player->GetPosition(), player->GetGUID());
+        if (Creature* oratorKrixVizk = instance->GetCreature(data))
+            Conversation::CreateConversation(conversationEntry, oratorKrixVizk, player->GetPosition(), player->GetGUID());
 
         at->Remove();
     }
@@ -455,9 +414,10 @@ struct at_orator_krix_vizk_lingering_influence : AreaTriggerAI
 
 void AddSC_boss_orator_krix_vizk()
 {
-    RegisterAreaTriggerAI(at_orator_conversation_intro_1);
-    RegisterAreaTriggerAI(at_orator_conversation_intro_2);
-    RegisterAreaTriggerAI(at_orator_conversation_intro_3);
+    new GenericAreaTriggerEntityScript<at_orator_conversation_intro<CONVERSATION_ORATOR_INTRO_1, DATA_ORATOR_CONVO>>("at_orator_conversation_intro_1");
+    new GenericAreaTriggerEntityScript<at_orator_conversation_intro<CONVERSATION_ORATOR_INTRO_2, DATA_ORATOR_KRIX_VIZK>>("at_orator_conversation_intro_2");
+    new GenericAreaTriggerEntityScript<at_orator_conversation_intro<CONVERSATION_ORATOR_INTRO_3, DATA_ORATOR_KRIX_VIZK>>("at_orator_conversation_intro_3");
+
     RegisterCityOfThreadsCreatureAI(boss_orator_krix_vizk);
 
     RegisterSpellScript(spell_orator_krix_vizk_terrorize_selector);
