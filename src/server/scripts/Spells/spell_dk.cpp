@@ -78,6 +78,7 @@ enum DeathKnightSpells
     SPELL_DK_OBLITERATION_RUNE_ENERGIZE         = 281327,
     SPELL_DK_PILLAR_OF_FROST                    = 51271,
     SPELL_DK_RAISE_DEAD_SUMMON                  = 52150,
+    SPELL_DK_REAPER_OF_SOULS_PROC               = 469172,
     SPELL_DK_RUNIC_CORRUPTION                   = 51460,
     SPELL_DK_RECENTLY_USED_DEATH_STRIKE         = 180612,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
@@ -1030,6 +1031,40 @@ class spell_dk_raise_dead : public SpellScript
     }
 };
 
+// 440002 - Reaper of Souls (attached to 343294 - Soul Reaper)
+class spell_dk_reaper_of_souls : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_REAPER_OF_SOULS_PROC });
+    }
+
+    bool IsAffectedByReaperOfSouls() const
+    {
+        if (Aura* reaperOfSouls = GetCaster()->GetAura(SPELL_DK_REAPER_OF_SOULS_PROC))
+            return GetSpell()->m_appliedMods.contains(reaperOfSouls);
+        return false;
+    }
+
+    void HandleDefault(WorldObject*& target) const
+    {
+        if (IsAffectedByReaperOfSouls())
+            target = nullptr;
+    }
+
+    void HandleReaperOfSouls(SpellEffIndex effIndex)
+    {
+        if (!IsAffectedByReaperOfSouls())
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dk_reaper_of_souls::HandleDefault, EFFECT_1, TARGET_UNIT_TARGET_ENEMY);
+        OnEffectLaunch += SpellEffectFn(spell_dk_reaper_of_souls::HandleReaperOfSouls, EFFECT_3, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
 // 59057 - Rime
 class spell_dk_rime : public AuraScript
 {
@@ -1054,8 +1089,13 @@ class spell_dk_rime : public AuraScript
 };
 
 // 343294 - Soul Reaper
+// 469180 - Soul Reaper
 class spell_dk_soul_reaper : public AuraScript
 {
+public:
+    explicit spell_dk_soul_reaper(SpellEffIndex auraEffectIndex, Optional<SpellEffIndex> healthLimitEffectIndex)
+        : _auraEffectIndex(auraEffectIndex), _healthLimitEffectIndex(healthLimitEffectIndex) { }
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DK_SOUL_REAPER, SPELL_DK_SOUL_REAPER_DAMAGE, SPELL_DK_RUNIC_CORRUPTION });
@@ -1068,20 +1108,23 @@ class spell_dk_soul_reaper : public AuraScript
         if (!caster)
             return;
 
-        if (target->GetHealthPct() < float(GetEffectInfo(EFFECT_2).CalcValue(target)))
+        if (!_healthLimitEffectIndex || target->GetHealthPct() < float(GetEffectInfo(*_healthLimitEffectIndex).CalcValue(caster)))
             caster->CastSpell(target, SPELL_DK_SOUL_REAPER_DAMAGE, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
             });
     }
 
-    void RemoveEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void RemoveEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
             return;
 
-        Unit* caster = GetCaster();
-        if (caster->ToPlayer()->isHonorOrXPTarget(GetTarget()))
+        Player* caster = Object::ToPlayer(GetCaster());
+        if (!caster)
+            return;
+
+        if (caster->isHonorOrXPTarget(GetTarget()))
             caster->CastSpell(caster, SPELL_DK_RUNIC_CORRUPTION, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
@@ -1090,9 +1133,13 @@ class spell_dk_soul_reaper : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_soul_reaper::HandleOnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_soul_reaper::RemoveEffect, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_soul_reaper::HandleOnTick, _auraEffectIndex, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_soul_reaper::RemoveEffect, _auraEffectIndex, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
+
+private:
+    SpellEffIndex _auraEffectIndex;
+    Optional<SpellEffIndex> _healthLimitEffectIndex;
 };
 
 // Called by 383312 Abomination Limb and 49576 - Death Grip
@@ -1242,8 +1289,10 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_pet_skeleton_transform);
     RegisterSpellScript(spell_dk_pvp_4p_bonus);
     RegisterSpellScript(spell_dk_raise_dead);
+    RegisterSpellScript(spell_dk_reaper_of_souls);
     RegisterSpellScript(spell_dk_rime);
-    RegisterSpellScript(spell_dk_soul_reaper);
+    RegisterSpellScriptWithArgs(spell_dk_soul_reaper, "spell_dk_soul_reaper", EFFECT_1, EFFECT_2);
+    RegisterSpellScriptWithArgs(spell_dk_soul_reaper, "spell_dk_soul_reaper_reaper_of_souls", EFFECT_0, Optional<SpellEffIndex>());
     RegisterSpellScript(spell_dk_subduing_grasp);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
