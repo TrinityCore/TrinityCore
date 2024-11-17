@@ -1066,6 +1066,12 @@ struct at_dk_death_and_decay : AreaTriggerAI
     {
         if (!unit->HasAura(SPELL_DK_CLEAVING_STRIKES))
             unit->RemoveAurasDueToSpell(SPELL_DK_UNHOLY_GROUND_HASTE);
+
+        if (Aura* deathAndDecay = unit->GetAura(SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS))
+        {
+            if (AuraEffect* const cleavingStrikes = unit->GetAuraEffect(SPELL_DK_CLEAVING_STRIKES, EFFECT_3))
+                deathAndDecay->SetDuration(cleavingStrikes->GetAmount());
+        }
     }
 };
 
