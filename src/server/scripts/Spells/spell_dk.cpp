@@ -68,6 +68,7 @@ enum DeathKnightSpells
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
+    SPELL_DK_GOREFIENDS_GRASP                   = 108199,
     SPELL_DK_HEARTBREAKER_TALENT                = 221536,
     SPELL_DK_HEARTBREAKER_ENERGIZE              = 210738,
     SPELL_DK_KILLING_MACHINE_PROC               = 51124,
@@ -83,6 +84,8 @@ enum DeathKnightSpells
     SPELL_DK_SLUDGE_BELCHER                     = 207313,
     SPELL_DK_SLUDGE_BELCHER_SUMMON              = 212027,
     SPELL_DK_SMOTHERING_OFFENSE                 = 435005,
+    SPELL_DK_SUBDUING_GRASP_TALENT              = 454822,
+    SPELL_DK_SUBDUING_GRASP_DEBUFF              = 454824,
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832, // Server Side
     SPELL_DK_TIGHTENING_GRASP                   = 206970,
     //SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375, // dropped in BfA
@@ -1047,6 +1050,37 @@ class spell_dk_rime : public AuraScript
     }
 };
 
+// Called by 383312 Abomination Limb and 49576 - Death Grip
+// 454822 - Subduing Grasp
+class spell_dk_subduing_grasp : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_SUBDUING_GRASP_TALENT, SPELL_DK_SUBDUING_GRASP_DEBUFF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DK_SUBDUING_GRASP_TALENT);
+    }
+
+    void HandleSubduingGrasp(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_SUBDUING_GRASP_DEBUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_DK_GOREFIENDS_GRASP)
+            OnEffectHitTarget += SpellEffectFn(spell_dk_subduing_grasp::HandleSubduingGrasp, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        else
+            OnEffectHitTarget += SpellEffectFn(spell_dk_subduing_grasp::HandleSubduingGrasp, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 242057 - Rune Empowered
 class spell_dk_t20_2p_rune_empowered : public AuraScript
 {
@@ -1164,6 +1198,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_pvp_4p_bonus);
     RegisterSpellScript(spell_dk_raise_dead);
     RegisterSpellScript(spell_dk_rime);
+    RegisterSpellScript(spell_dk_subduing_grasp);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
 
