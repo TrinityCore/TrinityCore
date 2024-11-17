@@ -459,11 +459,11 @@ struct TC_GAME_API CastSpellTargetArg
 struct CastSpellExtraArgsInit
 {
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
+    Difficulty CastDifficulty = Difficulty(0);
     Item* CastItem = nullptr;
     Spell const* TriggeringSpell = nullptr;
     AuraEffect const* TriggeringAura = nullptr;
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
-    Difficulty CastDifficulty = Difficulty(0);
     ObjectGuid OriginalCastId = ObjectGuid::Empty;
     Optional<int32> OriginalCastItemLevel;
     struct SpellValueOverride

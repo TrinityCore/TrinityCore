@@ -206,25 +206,25 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketLFGListSearchResult>& lfgListSearchResult)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketLFGListEntryInfo>& lfgListSearchResult)
 {
     lfgListSearchResult.emplace();
 
-    data >> lfgListSearchResult->RideTicket;
-    data >> lfgListSearchResult->GroupFinderActivityID;
-    data >> lfgListSearchResult->Unknown1007;
-    data >> lfgListSearchResult->LastTitleAuthorGuid;
-    data >> lfgListSearchResult->LastDescriptionAuthorGuid;
-    data >> lfgListSearchResult->LastVoiceChatAuthorGuid;
-    data >> lfgListSearchResult->ListingCreatorGuid;
-    data >> lfgListSearchResult->Unknown735;
+    data >> lfgListSearchResult->Ticket;
+    data >> lfgListSearchResult->ActivityID;
+    data >> lfgListSearchResult->FactionID;
+    data >> lfgListSearchResult->LastTouchedName;
+    data >> lfgListSearchResult->LastTouchedComment;
+    data >> lfgListSearchResult->LastTouchedVoiceChat;
+    data >> lfgListSearchResult->LastTouchedAny;
+    data >> lfgListSearchResult->PartyGuid;
 
-    uint32 titleLength = data.ReadBits(10);
-    uint32 descriptionLength = data.ReadBits(11);
+    uint32 nameLength = data.ReadBits(10);
+    uint32 commentLength = data.ReadBits(11);
     uint32 voiceChatLength = data.ReadBits(8);
 
-    lfgListSearchResult->Title = data.ReadString(titleLength);
-    lfgListSearchResult->Description = data.ReadString(descriptionLength);
+    lfgListSearchResult->Name = data.ReadString(nameLength);
+    lfgListSearchResult->Comment = data.ReadString(commentLength);
     lfgListSearchResult->VoiceChat = data.ReadString(voiceChatLength);
 
     return data;
@@ -234,31 +234,31 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 {
     lfgListApplicant.emplace();
 
-    data >> lfgListApplicant->RideTicket;
+    data >> lfgListApplicant->Ticket;
     lfgListApplicant->Comment = data.ReadString(data.ReadBits(9));
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketClubFinderResult>& clubInfo)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketClubFinderInfo>& clubInfo)
 {
     clubInfo.emplace();
 
-    data >> clubInfo->ClubFinderPostingID;
+    data >> clubInfo->PostingID;
     data >> clubInfo->ClubID;
-    data >> clubInfo->ClubFinderGUID;
-    clubInfo->ClubName = data.ReadString(data.ReadBits(12));
+    data >> clubInfo->GuildID;
+    clubInfo->PostingDescription = data.ReadString(data.ReadBits(12));
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketUnused910>& unused)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketArenaTeamInfo>& arenaTeam)
 {
-    unused.emplace();
+    arenaTeam.emplace();
 
-    uint32 field_0Length = data.ReadBits(7);
-    data >> unused->field_104;
-    unused->field_0 = data.ReadString(field_0Length);
+    uint32 arenaTeamNameLength = data.ReadBits(7);
+    data >> arenaTeam->ArenaTeamID;
+    arenaTeam->ArenaTeamName = data.ReadString(arenaTeamNameLength);
 
     return data;
 }
@@ -277,18 +277,18 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     bool hasCalendarInfo = _worldPacket.ReadBit();
     bool hasPetInfo = _worldPacket.ReadBit();
     bool hasGuildInfo = _worldPacket.ReadBit();
-    bool hasLFGListSearchResult = _worldPacket.ReadBit();
-    bool hasLFGListApplicant = _worldPacket.ReadBit();
-    bool hasClubMessage = _worldPacket.ReadBit();
+    bool hasLfgListEntryInfo = _worldPacket.ReadBit();
+    bool hasLfgListAppInfo = _worldPacket.ReadBit();
+    bool hasVoiceChatInfo = _worldPacket.ReadBit();
     bool hasClubFinderResult = _worldPacket.ReadBit();
-    bool hasUnk910 = _worldPacket.ReadBit();
+    bool hasArenaTeamInfo = _worldPacket.ReadBit();
 
     _worldPacket.ResetBitPos();
 
-    if (hasClubMessage)
+    if (hasVoiceChatInfo)
     {
-        CommunityMessage.emplace();
-        CommunityMessage->IsPlayerUsingVoice = _worldPacket.ReadBit();
+        VoiceChatInfo.emplace();
+        VoiceChatInfo->TargetIsCurrentlyInVoiceChatWithPlayer = _worldPacket.ReadBit();
         _worldPacket.ResetBitPos();
     }
 
@@ -308,17 +308,17 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     if (hasGuildInfo)
         _worldPacket >> GuildInfo;
 
-    if (hasLFGListSearchResult)
-        _worldPacket >> LFGListSearchResult;
+    if (hasLfgListEntryInfo)
+        _worldPacket >> LfgListEntryInfo;
 
-    if (hasLFGListApplicant)
-        _worldPacket >> LFGListApplicant;
+    if (hasLfgListAppInfo)
+        _worldPacket >> LfgListAppInfo;
 
     if (hasClubFinderResult)
-        _worldPacket >> ClubFinderResult;
+        _worldPacket >> ClubFinderInfo;
 
-    if (hasUnk910)
-        _worldPacket >> Unused910;
+    if (hasArenaTeamInfo)
+        _worldPacket >> ArenaTeamInfo;
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintOffender& complaintOffender)

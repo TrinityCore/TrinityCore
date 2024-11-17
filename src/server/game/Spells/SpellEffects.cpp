@@ -997,15 +997,15 @@ void Spell::EffectTeleportUnits()
 
     Player* player = unitTarget->ToPlayer();
 
-    // Custom loading screen
     if (player)
     {
+        // Custom loading screen
         if (uint32 customLoadingScreenId = effectInfo->MiscValue)
-            player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
+            if (targetDest.GetMapId() != unitTarget->GetMapId() || !unitTarget->IsInDist2d(targetDest, TELEPORT_MIN_LOAD_SCREEN_DISTANCE))
+                player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
         TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
-
-        player->TeleportTo(targetDest, options);
+        player->TeleportTo(targetDest, options, {}, m_spellInfo->Id);
 
     }
     else if (targetDest.GetMapId() == unitTarget->GetMapId())
@@ -1896,7 +1896,6 @@ void Spell::EffectSummonType()
     {
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
-        case SUMMON_CATEGORY_UNK:
         {
             if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup))
             {
@@ -2000,6 +1999,7 @@ void Spell::EffectSummonType()
             summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
             break;
         }
+        case SUMMON_CATEGORY_POSSESSED_VEHICLE:
         case SUMMON_CATEGORY_VEHICLE:
         {
             if (!unitCaster)
@@ -3433,7 +3433,7 @@ void Spell::EffectDisEnchant()
             caster->UpdateCraftSkill(m_spellInfo);
 
         itemTarget->m_loot.reset(new Loot(caster->GetMap(), itemTarget->GetGUID(), LOOT_DISENCHANTING, nullptr));
-        itemTarget->m_loot->FillLoot(ASSERT_NOTNULL(itemTarget->GetDisenchantLoot(caster))->ID, LootTemplates_Disenchant, caster, true);
+        itemTarget->m_loot->FillLoot(*itemTarget->GetDisenchantLootId(), LootTemplates_Disenchant, caster, true);
         caster->SendLoot(*itemTarget->m_loot);
     }
 

@@ -163,10 +163,10 @@ namespace WorldPackets
                 uint32 Flags2            = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
                 uint32 Flags3            = 0; ///< Character flags 3 @todo research
                 bool FirstLogin      = false;
-                uint8 unkWod61x          = 0;
-                Timestamp<> LastPlayedTime;
+                uint8 CantLoginReason    = 0;
+                Timestamp<> LastActiveTime;
                 uint16 SpecID            = 0;
-                uint32 Unknown703        = 0;
+                uint32 SaveVersion       = 0;
                 uint32 LastLoginVersion  = 0;
                 uint32 OverrideSelectScreenFileDataID = 0;
                 int32 TimerunningSeasonID = 0;
@@ -195,7 +195,7 @@ namespace WorldPackets
             struct CharacterRestrictionAndMailData
             {
                 bool BoostInProgress = false; ///< @todo
-                uint32 Flags4            = 0;
+                uint32 RestrictionFlags  = 0;
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
                 bool RpeResetAvailable = false;
@@ -224,18 +224,18 @@ namespace WorldPackets
 
             struct RaceUnlock
             {
-                int32 RaceID          = 0;
-                bool HasExpansion     = false;
-                bool HasAchievement   = false;
-                bool HasHeritageArmor = false;
-                bool IsLocked         = false;
-                bool Unused1027       = false;
+                int32 RaceID = 0;
+                bool HasUnlockedLicense = false;
+                bool HasUnlockedAchievement = false;
+                bool HasHeritageArmorUnlockAchievement = false;
+                bool HideRaceOnClient = false;
+                bool Unused1027 = false;
             };
 
             struct UnlockedConditionalAppearance
             {
                 int32 AchievementID = 0;
-                int32 Unused = 0;
+                int32 ConditionalType = 0;
             };
 
             struct RaceLimitDisableInfo
@@ -247,7 +247,7 @@ namespace WorldPackets
                 };
 
                 int32 RaceID = 0;
-                int32 BlockReason = 0;
+                int32 Reason = 0;
             };
 
             EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
@@ -257,14 +257,14 @@ namespace WorldPackets
             bool Success                          = false;
             bool Realmless                        = false;
             bool IsDeletedCharacters              = false; ///< used for character undelete list
-            bool IsNewPlayerRestrictionSkipped    = false; ///< allows client to skip new player restrictions
-            bool IsNewPlayerRestricted            = false; ///< forbids using level boost and class trials
-            bool IsNewPlayer                      = false; ///< forbids hero classes and allied races
-            bool IsTrialAccountRestricted         = false;
+            bool IgnoreNewPlayerRestrictions      = false; ///< allows client to skip new player restrictions
+            bool IsRestrictedNewPlayer            = false; ///< forbids using level boost and class trials
+            bool IsNewcomerChatCompleted          = false; ///< forbids hero classes and allied races
+            bool IsRestrictedTrial                = false;
             bool DontCreateCharacterDisplays      = false;
 
             int32 MaxCharacterLevel     = 1;
-            Optional<uint32> DisabledClassesMask;
+            Optional<uint32> ClassDisableMask;
 
             std::vector<CharacterInfo> Characters; ///< all characters on the list
             std::vector<RegionwideCharacterListEntry> RegionwideCharacters;
