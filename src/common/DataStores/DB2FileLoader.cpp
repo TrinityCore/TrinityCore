@@ -19,11 +19,13 @@
 #include "ByteConverter.h"
 #include "DB2Meta.h"
 #include "Errors.h"
-#include "Log.h"
+#include "StringFormat.h"
+#include <fmt/ranges.h>
 #include <limits>
-#include <sstream>
 #include <system_error>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 #include <cstring>
 
 enum class DB2ColumnCompression : uint32
@@ -182,8 +184,6 @@ public:
     virtual uint32 GetMaxId() const = 0;
     virtual DB2FileLoadInfo const* GetLoadInfo() const = 0;
     virtual DB2SectionHeader& GetSection(uint32 section) const = 0;
-    virtual bool IsSignedField(uint32 field) const = 0;
-    virtual char const* GetExpectedSignMismatchReason(uint32 field) const = 0;
 
 private:
     friend class DB2Record;
@@ -229,8 +229,6 @@ public:
     uint32 GetMaxId() const override;
     DB2FileLoadInfo const* GetLoadInfo() const override;
     DB2SectionHeader& GetSection(uint32 section) const override;
-    bool IsSignedField(uint32 field) const override;
-    char const* GetExpectedSignMismatchReason(uint32 field) const override;
 
 private:
     void FillParentLookup(char* dataTable);
@@ -295,8 +293,6 @@ public:
     uint32 GetMaxId() const override;
     DB2FileLoadInfo const* GetLoadInfo() const override;
     DB2SectionHeader& GetSection(uint32 section) const override;
-    bool IsSignedField(uint32 field) const override;
-    char const* GetExpectedSignMismatchReason(uint32 field) const override;
 
 private:
     void FillParentLookup(char* dataTable);
@@ -519,19 +515,14 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
 {
     if (!(_header->Locale & (1 << locale)))
     {
-        char const* sep = "";
-        std::ostringstream str;
+        std::array<char const*, TOTAL_LOCALES> detectedLocales;
+        auto itr = detectedLocales.begin();
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-        {
             if (_header->Locale & (1 << i))
-            {
-                str << sep << localeNames[i];
-                sep = ", ";
-            }
-        }
+                *itr++ = localeNames[i];
 
-        TC_LOG_ERROR("", "Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.", _fileName, str.str(), localeNames[locale]);
-        return nullptr;
+        throw DB2FileLoadException(Trinity::StringFormat("Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.",
+            _fileName, fmt::join(detectedLocales.begin(), itr, ", "), localeNames[locale]));
     }
 
     if (!_loadInfo->GetStringFieldCount(false))
@@ -982,68 +973,6 @@ DB2SectionHeader& DB2FileLoaderRegularImpl::GetSection(uint32 section) const
     return _sections[section];
 }
 
-bool DB2FileLoaderRegularImpl::IsSignedField(uint32 field) const
-{
-    if (field >= _header->TotalFieldCount)
-    {
-        ASSERT(field == _header->TotalFieldCount);
-        ASSERT(int32(field) == _loadInfo->Meta->ParentIndexField);
-        return _loadInfo->Meta->IsSignedField(field);
-    }
-
-    DB2ColumnCompression compressionType = _columnMeta ? _columnMeta[field].CompressionType : DB2ColumnCompression::None;
-    switch (compressionType)
-    {
-        case DB2ColumnCompression::None:
-        case DB2ColumnCompression::CommonData:
-        case DB2ColumnCompression::Pallet:
-        case DB2ColumnCompression::PalletArray:
-            return _loadInfo->Meta->IsSignedField(field);
-        case DB2ColumnCompression::SignedImmediate:
-            return field != uint32(_loadInfo->Meta->IndexField);
-        case DB2ColumnCompression::Immediate:
-            return false;
-        default:
-            ABORT_MSG("Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
-            break;
-    }
-
-    return false;
-}
-
-char const* DB2FileLoaderRegularImpl::GetExpectedSignMismatchReason(uint32 field) const
-{
-    if (field >= _header->TotalFieldCount)
-    {
-        ASSERT(field == _header->TotalFieldCount);
-        ASSERT(int32(field) == _loadInfo->Meta->ParentIndexField);
-        return " (ParentIndexField must always be unsigned)";
-    }
-
-    DB2ColumnCompression compressionType = _columnMeta ? _columnMeta[field].CompressionType : DB2ColumnCompression::None;
-    switch (compressionType)
-    {
-        case DB2ColumnCompression::None:
-        case DB2ColumnCompression::CommonData:
-        case DB2ColumnCompression::Pallet:
-        case DB2ColumnCompression::PalletArray:
-            if (int32(field) == _loadInfo->Meta->IndexField)
-                return " (IndexField must always be unsigned)";
-            if (int32(field) == _loadInfo->Meta->ParentIndexField)
-                return " (ParentIndexField must always be unsigned)";
-            return "";
-        case DB2ColumnCompression::SignedImmediate:
-            return " (CompressionType is SignedImmediate)";
-        case DB2ColumnCompression::Immediate:
-            return " (CompressionType is Immediate)";
-        default:
-            ABORT_MSG("Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
-            break;
-    }
-
-    return "";
-}
-
 DB2FileLoaderSparseImpl::DB2FileLoaderSparseImpl(char const* fileName, DB2FileLoadInfo const* loadInfo, DB2Header const* header, DB2FileSource* source) :
     _fileName(fileName),
     _loadInfo(loadInfo),
@@ -1239,19 +1168,14 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
 
     if (!(_header->Locale & (1 << locale)))
     {
-        char const* sep = "";
-        std::ostringstream str;
+        std::array<char const*, TOTAL_LOCALES> detectedLocales;
+        auto itr = detectedLocales.begin();
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-        {
             if (_header->Locale & (1 << i))
-            {
-                str << sep << localeNames[i];
-                sep = ", ";
-            }
-        }
+                *itr++ = localeNames[i];
 
-        TC_LOG_ERROR("", "Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.", _fileName, str.str(), localeNames[locale]);
-        return nullptr;
+        throw DB2FileLoadException(Trinity::StringFormat("Attempted to load {} which has locales {} as {}. Check if you placed your localized db2 files in correct directory.",
+            _fileName, fmt::join(detectedLocales.begin(), itr, ", "), localeNames[locale]));
     }
 
     uint32 records = _catalog.size();
@@ -1657,22 +1581,6 @@ DB2SectionHeader& DB2FileLoaderSparseImpl::GetSection(uint32 section) const
     return _sections[section];
 }
 
-bool DB2FileLoaderSparseImpl::IsSignedField(uint32 field) const
-{
-    ASSERT(field < _header->FieldCount);
-    return _loadInfo->Meta->IsSignedField(field);
-}
-
-char const* DB2FileLoaderSparseImpl::GetExpectedSignMismatchReason(uint32 field) const
-{
-    ASSERT(field < _header->FieldCount);
-    if (int32(field) == _loadInfo->Meta->IndexField)
-        return " (IndexField must always be unsigned)";
-    if (int32(field) == _loadInfo->Meta->ParentIndexField)
-        return " (ParentIndexField must always be unsigned)";
-    return "";
-}
-
 DB2Record::DB2Record(DB2FileLoaderImpl const& db2, uint32 recordIndex, std::size_t* fieldOffsets)
     : _db2(db2), _recordIndex(recordIndex), _recordData(db2.GetRawRecordData(recordIndex, nullptr)), _fieldOffsets(fieldOffsets)
 {
@@ -2076,23 +1984,30 @@ void DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     if (loadInfo)
     {
         uint32 fieldIndex = 0;
-        std::string signValidationResult;
+        std::vector<std::string> signValidationResult;
         if (!loadInfo->Meta->HasIndexFieldInData())
         {
             if (loadInfo->Fields[0].IsSigned)
-                signValidationResult += Trinity::StringFormat("ID must be unsigned in {}", source->GetFileName());
+                signValidationResult.emplace_back(Trinity::StringFormat("ID must be unsigned in {}", source->GetFileName()));
             ++fieldIndex;
         }
         for (uint32 f = 0; f < loadInfo->Meta->FieldCount; ++f)
         {
-            if (loadInfo->Fields[fieldIndex].IsSigned != _impl->IsSignedField(f))
-                signValidationResult += Trinity::StringFormat("Field {} in {} must be {}{}", loadInfo->Fields[fieldIndex].Name,
-                    source->GetFileName(), _impl->IsSignedField(f) ? "signed" : "unsigned", _impl->GetExpectedSignMismatchReason(f));
+            if (loadInfo->Fields[fieldIndex].IsSigned != loadInfo->Meta->IsSignedField(f))
+            {
+                signValidationResult.emplace_back(Trinity::StringFormat("Field {} in {} must be {}", loadInfo->Fields[fieldIndex].Name,
+                    source->GetFileName(), loadInfo->Meta->IsSignedField(f) ? "signed" : "unsigned"));
+
+                if (int32(f) == loadInfo->Meta->IndexField)
+                    signValidationResult.back() += " (IndexField must always be unsigned)";
+                if (int32(f) == loadInfo->Meta->ParentIndexField)
+                    signValidationResult.back() += " (ParentIndexField must always be unsigned)";
+            }
 
             fieldIndex += loadInfo->Meta->Fields[f].ArraySize;
         }
         if (!signValidationResult.empty())
-            throw DB2FileLoadException(std::move(signValidationResult));
+            throw DB2FileLoadException(Trinity::StringFormat("{}", fmt::join(signValidationResult, "\n")));
     }
 }
 

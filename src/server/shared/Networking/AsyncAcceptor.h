@@ -22,6 +22,7 @@
 #include "IpAddress.h"
 #include "Log.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/v6_only.hpp>
 #include <atomic>
 #include <functional>
 
@@ -87,6 +88,11 @@ public:
             return false;
         }
 #endif
+
+        // v6_only is enabled on some *BSD distributions by default
+        // we want to allow both v4 and v6 connections to the same listener
+        if (_endpoint.protocol() == boost::asio::ip::tcp::v6())
+            _acceptor.set_option(boost::asio::ip::v6_only(false));
 
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)

@@ -194,8 +194,8 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << BitsSize<10>(Info.PortraitTurnInText);
         _worldPacket << BitsSize<8>(Info.PortraitTurnInName);
         _worldPacket << BitsSize<11>(Info.QuestCompletionLog);
-        _worldPacket << Bits<1>(Info.ReadyForTranslation);
         _worldPacket << Bits<1>(Info.ResetByScheduler);
+        _worldPacket << Bits<1>(Info.ReadyForTranslation);
         _worldPacket.FlushBits();
 
         for (QuestObjective const& questObjective : Info.Objectives)

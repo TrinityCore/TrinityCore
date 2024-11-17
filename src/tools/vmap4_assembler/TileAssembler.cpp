@@ -27,6 +27,7 @@
 #include "VMapDefinitions.h"
 #include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <mutex>
 #include <set>
 
 template<> struct BoundsTrait<VMAP::ModelSpawn*>
@@ -38,7 +39,7 @@ namespace VMAP
 {
     static auto OpenFile(boost::filesystem::path const& p, char const* mode)
     {
-        return Trinity::make_unique_ptr_with_deleter(fopen(p.string().c_str(), mode), &::fclose);
+        return Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(p.string().c_str(), mode));
     }
 
     G3D::Vector3 ModelPosition::transform(G3D::Vector3 const& pIn) const

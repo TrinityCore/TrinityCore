@@ -49,6 +49,7 @@ enum WarlockSpells
     SPELL_WARLOCK_CREATE_HEALTHSTONE                = 23517,
     SPELL_WARLOCK_CURSE_OF_EXHAUSTION               = 334275,
     SPELL_WARLOCK_DEATHS_EMBRACE                    = 453189,
+    SPELL_WARLOCK_DEMONBOLT_ENERGIZE                = 280127,
     SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -454,6 +455,28 @@ class spell_warl_deaths_embrace_drain_life : public AuraScript
     void Register() override
     {
         DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_warl_deaths_embrace_drain_life::CalculateHeal, EFFECT_0, SPELL_AURA_PERIODIC_LEECH);
+    }
+};
+
+// 264178 - Demonbolt
+class spell_warl_demonbolt : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_WARLOCK_DEMONBOLT_ENERGIZE });
+    }
+
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_DEMONBOLT_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warl_demonbolt::HandleAfterCast);
     }
 };
 
@@ -1482,6 +1505,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_deaths_embrace);
     RegisterSpellScript(spell_warl_deaths_embrace_dots);
     RegisterSpellScript(spell_warl_deaths_embrace_drain_life);
+    RegisterSpellScript(spell_warl_demonbolt);
     RegisterSpellScript(spell_warl_demonic_circle_summon);
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
     RegisterSpellScript(spell_warl_devour_magic);
