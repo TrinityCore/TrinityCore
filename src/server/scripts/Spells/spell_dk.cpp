@@ -68,6 +68,7 @@ enum DeathKnightSpells
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
+    SPELL_DK_GOREFIENDS_GRASP                   = 108199,
     SPELL_DK_HEARTBREAKER_TALENT                = 221536,
     SPELL_DK_HEARTBREAKER_ENERGIZE              = 210738,
     SPELL_DK_KILLING_MACHINE_PROC               = 51124,
@@ -1063,7 +1064,7 @@ class spell_dk_subduing_grasp : public SpellScript
         return GetCaster()->HasAura(SPELL_DK_SUBDUING_GRASP_TALENT);
     }
 
-    void HandleSubduingGrasp(SpellEffIndex /*effIndex*/)
+    void HandleSubduingGrasp(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_SUBDUING_GRASP_DEBUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -1073,7 +1074,10 @@ class spell_dk_subduing_grasp : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dk_subduing_grasp::HandleSubduingGrasp, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        if (m_scriptSpellId == SPELL_DK_GOREFIENDS_GRASP)
+            OnEffectHitTarget += SpellEffectFn(spell_dk_subduing_grasp::HandleSubduingGrasp, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        else
+            OnEffectHitTarget += SpellEffectFn(spell_dk_subduing_grasp::HandleSubduingGrasp, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
