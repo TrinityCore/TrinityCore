@@ -86,7 +86,7 @@ public:
         }
         else if (GameObject const* gameObject = object->ToGameObject())
         {
-            uint32 dynFlags = 0;
+            uint32 dynFlags = GO_DYNFLAG_LO_STATE_TRANSITION_ANIM_DONE;
             switch (gameObject->GetGoType())
             {
                 case GAMEOBJECT_TYPE_BUTTON:
