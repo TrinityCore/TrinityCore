@@ -667,6 +667,20 @@ class spell_dk_festering_strike : public SpellScript
     }
 };
 
+// 195621 - Frost Fever
+class spell_dk_frost_fever_proc : public AuraScript
+{
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_frost_fever_proc::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 47496 - Explode, Ghoul spell for Corpse Explosion
 class spell_dk_ghoul_explode : public SpellScript
 {
@@ -1134,6 +1148,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_death_strike);
     RegisterSpellScript(spell_dk_death_strike_enabler);
     RegisterSpellScript(spell_dk_festering_strike);
+    RegisterSpellScript(spell_dk_frost_fever_proc);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterSpellScript(spell_dk_heartbreaker);
