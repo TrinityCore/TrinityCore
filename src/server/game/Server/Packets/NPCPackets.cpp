@@ -141,7 +141,6 @@ ByteBuffer& operator<<(ByteBuffer& data, VendorItem const& item)
     data << uint64(item.Price);
     data << uint32(item.MuID);
     data << int32(item.Type);
-    data << int32(item.Durability);
     data << int32(item.StackCount);
     data << int32(item.Quantity);
     data << int32(item.ExtendedCostID);
@@ -159,7 +158,7 @@ ByteBuffer& operator<<(ByteBuffer& data, VendorItem const& item)
 WorldPacket const* VendorInventory::Write()
 {
     _worldPacket << Vendor;
-    _worldPacket << uint8(Reason);
+    _worldPacket << int32(Reason);
     _worldPacket << uint32(Items.size());
     for (VendorItem const& item : Items)
         _worldPacket << item;

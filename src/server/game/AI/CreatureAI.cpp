@@ -172,7 +172,6 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
             return true;
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
-        case SUMMON_CATEGORY_UNK:
             if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup))
                 return true;
             switch (SummonTitle(properties->Title))

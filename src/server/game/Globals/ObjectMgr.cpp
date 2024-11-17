@@ -2355,13 +2355,10 @@ void ObjectMgr::LoadCreatures()
                 *data.unit_flags2 &= UNIT_FLAG2_ALLOWED;
             }
 
-            if (data.unit_flags.has_value())
+            if (*data.unit_flags2 & UNIT_FLAG2_FEIGN_DEATH && (!data.unit_flags.has_value() || !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC))))
             {
-                if (*data.unit_flags2 & UNIT_FLAG2_FEIGN_DEATH && !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
-                {
-                    TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG2_FEIGN_DEATH set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
-                    *data.unit_flags2 &= ~UNIT_FLAG2_FEIGN_DEATH;
-                }
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG2_FEIGN_DEATH set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
+                *data.unit_flags2 &= ~UNIT_FLAG2_FEIGN_DEATH;
             }
         }
 
@@ -2373,13 +2370,10 @@ void ObjectMgr::LoadCreatures()
                 *data.unit_flags3 &= UNIT_FLAG3_ALLOWED;
             }
 
-            if (data.unit_flags.has_value())
+            if (*data.unit_flags3 & UNIT_FLAG3_FAKE_DEAD && (!data.unit_flags.has_value() || !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC))))
             {
-                if (*data.unit_flags3 & UNIT_FLAG3_FAKE_DEAD && !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
-                {
-                    TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG3_FAKE_DEAD set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
-                    *data.unit_flags3 &= ~UNIT_FLAG3_FAKE_DEAD;
-                }
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG3_FAKE_DEAD set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
+                *data.unit_flags3 &= ~UNIT_FLAG3_FAKE_DEAD;
             }
         }
 
@@ -4313,7 +4307,10 @@ void ObjectMgr::LoadPlayerInfo()
                 if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_LEGION && class_ == CLASS_DEMON_HUNTER)
                     continue;
 
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_DRAGONFLIGHT && class_ == CLASS_EVOKER)
+                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_DRAGONFLIGHT && (class_ == CLASS_EVOKER || race == RACE_DRACTHYR_ALLIANCE || race == RACE_DRACTHYR_HORDE))
+                    continue;
+
+                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_THE_WAR_WITHIN && (race == RACE_EARTHEN_DWARF_HORDE || race == RACE_EARTHEN_DWARF_ALLIANCE))
                     continue;
 
                 // fatal error if no level 1 data
@@ -7358,7 +7355,7 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         if (itr->second.target_mapId == entrance_map)
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry && atEntry->ContinentID == int32(Map))
+            if (atEntry && atEntry->ContinentID == Map)
                 return &itr->second;
         }
     }

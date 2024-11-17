@@ -94,23 +94,18 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Calendar::CalendarAddEv
     buffer >> invite.Guid;
     buffer >> invite.Status;
     buffer >> invite.Moderator;
-    if (buffer.ReadBit())
-        invite.Unused_801_1.emplace();
+    buffer >> WorldPackets::OptionalInit(invite.BnetAccountID);
+    buffer >> WorldPackets::OptionalInit(invite.RealmAddress);
+    buffer >> WorldPackets::OptionalInit(invite.CommunityID);
 
-    if (buffer.ReadBit())
-        invite.Unused_801_2.emplace();
+    if (invite.BnetAccountID)
+        buffer >> *invite.BnetAccountID;
 
-    if (buffer.ReadBit())
-        invite.Unused_801_3.emplace();
+    if (invite.RealmAddress)
+        buffer >> *invite.RealmAddress;
 
-    if (invite.Unused_801_1)
-        buffer >> *invite.Unused_801_1;
-
-    if (invite.Unused_801_2)
-        buffer >> *invite.Unused_801_2;
-
-    if (invite.Unused_801_3)
-        buffer >> *invite.Unused_801_3;
+    if (invite.CommunityID)
+        buffer >> *invite.CommunityID;
 
     return buffer;
 }

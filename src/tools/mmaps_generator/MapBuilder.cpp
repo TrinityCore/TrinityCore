@@ -202,7 +202,7 @@ namespace MMAP
         if (offMeshFilePath == nullptr)
             return;
 
-        auto fp = Trinity::make_unique_ptr_with_deleter(fopen(offMeshFilePath, "rb"), &::fclose);
+        auto fp = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(offMeshFilePath, "rb"));
         if (!fp)
         {
             printf(" loadOffMeshConnections:: input file %s not found!\n", offMeshFilePath);

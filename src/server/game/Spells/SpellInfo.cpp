@@ -1224,6 +1224,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         AttributesEx12 = _misc->Attributes[12];
         AttributesEx13 = _misc->Attributes[13];
         AttributesEx14 = _misc->Attributes[14];
+        AttributesEx15 = _misc->Attributes[15];
         CastTimeEntry = sSpellCastTimesStore.LookupEntry(_misc->CastingTimeIndex);
         DurationEntry = sSpellDurationStore.LookupEntry(_misc->DurationIndex);
         RangeEntry = sSpellRangeStore.LookupEntry(_misc->RangeIndex);
@@ -1548,7 +1549,7 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-        if (_spell_idx->second->SkillLine == int32(skillType))
+        if (_spell_idx->second->SkillLine == skillType)
             return true;
 
     return false;

@@ -34,6 +34,7 @@ struct PerksVendorItem
     int32 Price = 0;
     Timestamp<> AvailableUntil;
     bool Disabled = false;
+    bool Field_41 = false;
 };
 
 ByteBuffer& operator<<(ByteBuffer& data, PerksVendorItem const& perksVendorItem);

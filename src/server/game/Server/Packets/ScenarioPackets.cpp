@@ -87,8 +87,8 @@ WorldPacket const* ScenarioVacate::Write()
 {
     _worldPacket << ScenarioGUID;
     _worldPacket << int32(ScenarioID);
-    _worldPacket << int32(Unk1);
-    _worldPacket.WriteBits(Unk2, 2);
+    _worldPacket << int32(TimeRemain);
+    _worldPacket.WriteBits(Reason, 2);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

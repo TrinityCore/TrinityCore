@@ -658,7 +658,7 @@ WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.FlushBits();
 
-    _worldPacket << int32(Unk);
+    _worldPacket << int32(ItemCollectionType);
 
     // both lists have to have the same size
     _worldPacket << uint32(Heirlooms->size());

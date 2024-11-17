@@ -153,13 +153,12 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.FlushBits();
 
         {
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.BillingPlan);
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.TimeRemain);
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.Unknown735);
-            // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // not used anywhere in the client
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.BillingType);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.MinutesRemaining);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.RealBillingType);
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.IsInIGR); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.IsPaidForByIGR); // inGameRoom lua return from Script_GetBillingPlan
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.IsCAISEnabled); // not used anywhere in the client
             _worldPacket.FlushBits();
         }
 

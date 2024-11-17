@@ -349,7 +349,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //277 unused (4.3.4) old SPELL_AURA_MOD_MAX_AFFECTED_TARGETS
     &AuraEffect::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &AuraEffect::HandleNoImmediateEffect,                         //279 SPELL_AURA_INITIALIZE_IMAGES
-    &AuraEffect::HandleUnused,                                    //280 unused (4.3.4) old SPELL_AURA_MOD_ARMOR_PENETRATION_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         //280 SPELL_AURA_MOD_ARMOR_PENETRATION_PCT implemented in Unit::CalcArmorReducedDamage
     &AuraEffect::HandleNoImmediateEffect,                         //281 SPELL_AURA_PROVIDE_SPELL_FOCUS implemented in Spell::CheckCast
     &AuraEffect::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_MOD_BASE_HEALTH_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
@@ -515,7 +515,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //443 SPELL_AURA_MOD_LEECH
     &AuraEffect::HandleNULL,                                      //444
     &AuraEffect::HandleNULL,                                      //445
-    &AuraEffect::HandleNULL,                                      //446
+    &AuraEffect::HandleModAdvFlying,                              //446 SPELL_AURA_ADV_FLYING
     &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE implemented in KillRewarder::_RewardXP
     &AuraEffect::HandleNULL,                                      //448
     &AuraEffect::HandleNULL,                                      //449
@@ -557,7 +557,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModMovementForceMagnitude,                 //485 SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE
     &AuraEffect::HandleNULL,                                      //486
     &AuraEffect::HandleCosmeticMounted,                           //487 SPELL_AURA_COSMETIC_MOUNTED
-    &AuraEffect::HandleNULL,                                      //488
+    &AuraEffect::HandleAuraDisableGravity,                        //488 SPELL_AURA_DISABLE_GRAVITY
     &AuraEffect::HandleModAlternativeDefaultLanguage,             //489 SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE
     &AuraEffect::HandleNULL,                                      //490
     &AuraEffect::HandleNULL,                                      //491
@@ -582,18 +582,18 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //510 SPELL_AURA_MODIFIED_RAID_INSTANCE
     &AuraEffect::HandleNULL,                                      //511 SPELL_AURA_APPLY_PROFESSION_EFFECT
     &AuraEffect::HandleNULL,                                      //512
-    &AuraEffect::HandleNULL,                                      //513
-    &AuraEffect::HandleNULL,                                      //514
-    &AuraEffect::HandleNULL,                                      //515
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //513 SPELL_AURA_MOD_ADV_FLYING_AIR_FRICTION
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //514 SPELL_AURA_MOD_ADV_FLYING_MAX_VEL
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //515 SPELL_AURA_MOD_ADV_FLYING_LIFT_COEF
     &AuraEffect::HandleNULL,                                      //516
     &AuraEffect::HandleNULL,                                      //517
-    &AuraEffect::HandleNULL,                                      //518
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //518 SPELL_AURA_MOD_ADV_FLYING_ADD_IMPULSE_MAX_SPEED
     &AuraEffect::HandleNULL,                                      //519 SPELL_AURA_MOD_COOLDOWN_RECOVERY_RATE_ALL
-    &AuraEffect::HandleNULL,                                      //520
-    &AuraEffect::HandleNULL,                                      //521
-    &AuraEffect::HandleNULL,                                      //522
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //520 SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //521 SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //522 SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP
     &AuraEffect::HandleNULL,                                      //523
-    &AuraEffect::HandleNULL,                                      //524
+    &AuraEffect::HandleAuraModAdvFlyingSpeed,                     //524 SPELL_AURA_MOD_ADV_FLYING_OVER_MAX_DECELERATION
     &AuraEffect::HandleNULL,                                      //525 SPELL_AURA_DISPLAY_PROFESSION_EQUIPMENT
     &AuraEffect::HandleNULL,                                      //526
     &AuraEffect::HandleNULL,                                      //527
@@ -1644,14 +1644,14 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
         return;
 
     Unit* target = aurApp->GetTarget();
-    Player* playerTarget = target->ToPlayer();
     InvisibilityType type = InvisibilityType(GetMiscValue());
 
     if (apply)
     {
         // apply glow vision
-        if (playerTarget && type == INVISIBILITY_GENERAL)
-            playerTarget->AddAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
+        if (type == INVISIBILITY_GENERAL)
+            if (Player* playerTarget = target->ToPlayer())
+                playerTarget->AddAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
         target->m_invisibility.AddFlag(type);
         target->m_invisibility.AddValue(type, GetAmount());
@@ -1660,39 +1660,19 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     }
     else
     {
-        if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_INVISIBILITY, type))
         {
-            // if not have different invisibility auras.
-            // always remove glow vision
-            if (Player * playerTarget = target->ToPlayer())
-                playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-
-            target->m_invisibility.DelFlag(type);
-
-            target->RemoveVisFlag(UNIT_VIS_FLAGS_INVISIBLE);
-        }
-        else
-        {
-            bool found = false;
-            Unit::AuraEffectList const& invisAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
-            for (Unit::AuraEffectList::const_iterator i = invisAuras.begin(); i != invisAuras.end(); ++i)
-            {
-                if (GetMiscValue() == (*i)->GetMiscValue())
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                // if not have invisibility auras of type INVISIBILITY_GENERAL
-                // remove glow vision
-                if (playerTarget && type == INVISIBILITY_GENERAL)
+            // if not have invisibility auras of type INVISIBILITY_GENERAL
+            // remove glow vision
+            if (type == INVISIBILITY_GENERAL)
+                if (Player* playerTarget = target->ToPlayer())
                     playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
-                target->m_invisibility.DelFlag(type);
-            }
+            target->m_invisibility.DelFlag(type);
         }
+
+        if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
+            target->RemoveVisFlag(UNIT_VIS_FLAGS_INVISIBLE);
 
         target->m_invisibility.AddValue(type, -GetAmount());
     }
@@ -2795,8 +2775,13 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
 
         // cast speed aura
         if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
+        {
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
+            {
+                target->SetFlightCapabilityID(mountCapability->FlightCapabilityID, true);
                 target->CastSpell(target, mountCapability->ModSpellAuraID, this);
+            }
+        }
     }
     else
     {
@@ -2813,6 +2798,8 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
             // remove speed aura
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
                 target->RemoveAurasDueToSpell(mountCapability->ModSpellAuraID, target->GetGUID());
+
+        target->SetFlightCapabilityID(0, true);
     }
 }
 
@@ -2939,6 +2926,17 @@ void AuraEffect::HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, ui
     }
 
     target->SetCanTurnWhileFalling(apply);
+}
+
+void AuraEffect::HandleModAdvFlying(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    target->SetCanDoubleJump(apply || target->HasAura(SPELL_DH_DOUBLE_JUMP));
+    target->SetCanFly(apply);
+    target->SetCanAdvFly(apply);
 }
 
 void AuraEffect::HandleIgnoreMovementForces(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3126,6 +3124,21 @@ void AuraEffect::HandlePreventFleeing(AuraApplication const* aurApp, uint8 mode,
     target->SetControlled(false, UNIT_STATE_FLEEING);
 }
 
+static void HandleAuraDisableGravity(Unit* target, bool apply)
+{
+    // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
+    if (!apply)
+        if (target->HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY)
+            || target->HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY)
+            || target->HasAuraType(SPELL_AURA_DISABLE_GRAVITY)
+            || (target->IsCreature() && target->ToCreature()->IsFloating()))
+        return;
+
+    if (target->SetDisableGravity(apply))
+        if (!apply && !target->IsFlying())
+            target->GetMotionMaster()->MoveFall();
+}
+
 void AuraEffect::HandleAuraModRootAndDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
@@ -3135,13 +3148,7 @@ void AuraEffect::HandleAuraModRootAndDisableGravity(AuraApplication const* aurAp
 
     target->SetControlled(apply, UNIT_STATE_ROOT);
 
-    // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-    if (!apply && (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY) || (target->IsCreature() && target->ToCreature()->IsFloating())))
-        return;
-
-    if (target->SetDisableGravity(apply))
-        if (!apply && !target->IsFlying())
-            target->GetMotionMaster()->MoveFall();
+    ::HandleAuraDisableGravity(target, apply);
 }
 
 void AuraEffect::HandleAuraModStunAndDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3156,13 +3163,17 @@ void AuraEffect::HandleAuraModStunAndDisableGravity(AuraApplication const* aurAp
     if (apply)
         target->GetThreatManager().EvaluateSuppressed();
 
-    // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-    if (!apply && (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY) || (target->IsCreature() && target->ToCreature()->IsFloating())))
+    ::HandleAuraDisableGravity(target, apply);
+}
+
+void AuraEffect::HandleAuraDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (target->SetDisableGravity(apply))
-        if (!apply && !target->IsFlying())
-            target->GetMotionMaster()->MoveFall();
+    Unit* target = aurApp->GetTarget();
+
+    ::HandleAuraDisableGravity(target, apply);
 }
 
 /***************************/
@@ -3422,6 +3433,43 @@ void AuraEffect::HandleModMovementForceMagnitude(AuraApplication const* aurApp, 
         return;
 
     aurApp->GetTarget()->UpdateMovementForcesModMagnitude();
+}
+
+void AuraEffect::HandleAuraModAdvFlyingSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_ADV_FLYING_AIR_FRICTION:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_AIR_FRICTION, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_MAX_VEL:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_MAX_VEL, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_LIFT_COEF:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_LIFT_COEFFICIENT, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_ADD_IMPULSE_MAX_SPEED:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_ADD_IMPULSE_MAX_SPEED, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_BANKING_RATE, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_DOWN, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_PITCHING_RATE_UP, true);
+            break;
+        case SPELL_AURA_MOD_ADV_FLYING_OVER_MAX_DECELERATION:
+            target->UpdateAdvFlyingSpeed(ADV_FLYING_OVER_MAX_DECELERATION, true);
+            break;
+        default:
+            break;
+    }
 }
 
 /*********************************************************/
@@ -6362,13 +6410,24 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
 
     if (!apply && aurApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
     {
-        if (GameObject* gameObjectCaster = target->GetMap()->GetGameObject(GetCasterGUID()))
+        if (GetCasterGUID().IsGameObject())
         {
-            if (gameObjectCaster->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+            if (GameObjectTemplate const* gobTemplate = sObjectMgr->GetGameObjectTemplate(GetCasterGUID().GetEntry()))
             {
-                gameObjectCaster->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Dropped, target));
-                if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, target->GetPosition(), QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
-                    droppedFlag->SetOwnerGUID(gameObjectCaster->GetGUID());
+                if (gobTemplate->type == GAMEOBJECT_TYPE_NEW_FLAG)
+                {
+                    if (GameObject* gameObjectCaster = target->GetMap()->GetGameObject(GetCasterGUID()))
+                    {
+                        gameObjectCaster->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Dropped, target));
+                        if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, target->GetPosition(), QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
+                            droppedFlag->SetOwnerGUID(gameObjectCaster->GetGUID());
+                    }
+                }
+                else if (gobTemplate->type == GAMEOBJECT_TYPE_FLAGSTAND)
+                {
+                    if (ZoneScript* zonescript = target->FindZoneScript())
+                        zonescript->OnFlagDropped(GetCasterGUID(), target);
+                }
             }
         }
     }

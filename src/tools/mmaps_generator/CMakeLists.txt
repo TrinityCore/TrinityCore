@@ -35,9 +35,9 @@ target_include_directories(mmaps_generator
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(mmaps_generator
-    PROPERTIES
-      FOLDER
-        "tools")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "tools")
 
 if(UNIX)
   install(TARGETS mmaps_generator DESTINATION bin)

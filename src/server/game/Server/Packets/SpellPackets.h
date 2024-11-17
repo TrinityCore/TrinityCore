@@ -228,7 +228,7 @@ namespace WorldPackets
             int32 ItemID = 0;
             int32 DataSlotIndex = 0;
             int32 Quantity = 0;
-            Optional<uint8> Unknown_1000;
+            Optional<uint8> Source;
         };
 
         struct SpellExtraCurrencyCost
@@ -1051,7 +1051,7 @@ namespace WorldPackets
 
             ObjectGuid Guid;
             ObjectGuid CastID;
-            uint16 MoveMsgID = 0;
+            uint32 MoveMsgID = 0;
             int32 SpellID = 0;
             float Pitch = 0.0f;
             float Speed = 0.0f;

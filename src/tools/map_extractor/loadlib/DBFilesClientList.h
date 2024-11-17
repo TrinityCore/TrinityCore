@@ -933,6 +933,7 @@ DB2FileInfo const DBFilesClientList[] =
     { 975024, "Trophy.db2" },
     { 5011999, "UIArrowCallout.db2" },
     { 3488582, "UIChromieTimeExpansionInfo.db2" },
+    { 6155772, "UICinematicIntroInfo.db2" },
     { 3502042, "UICovenantAbility.db2" },
     { 3502043, "UICovenantPreview.db2" },
     { 4579858, "UIDeadlyDebuff.db2" },

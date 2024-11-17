@@ -107,7 +107,7 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
 
     uint32 size;
     std::string dirname = Trinity::StringFormat("{}/dir_bin/{:04}", szWorkDirWmo, map_num);
-    auto dirfile = Trinity::make_unique_ptr_with_deleter(fopen(dirname.c_str(), "ab"), &::fclose);
+    auto dirfile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(dirname.c_str(), "ab"));
     if(!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
@@ -239,7 +239,7 @@ bool ADTFile::initFromCache(uint32 map_num, uint32 originalMapId)
         return true;
 
     std::string dirname = Trinity::StringFormat("{}/dir_bin/{:04}", szWorkDirWmo, map_num);
-    auto dirfile = Trinity::make_unique_ptr_with_deleter(fopen(dirname.c_str(), "ab"), &::fclose);
+    auto dirfile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(dirname.c_str(), "ab"));
     if (!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
