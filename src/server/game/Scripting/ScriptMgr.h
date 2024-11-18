@@ -79,6 +79,7 @@ struct MapEntry;
 struct Position;
 struct QuestObjective;
 struct SceneTemplate;
+struct SpellNonMeleeDamage;
 struct WorldStateTemplate;
 
 namespace Trinity::ChatCommands { struct ChatCommandBuilder; }
@@ -427,7 +428,7 @@ class TC_GAME_API UnitScript : public ScriptObject
         virtual void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
 
         // Called when Spell Damage is being Dealt
-        virtual void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo);
+        virtual void ModifySpellDamageTaken(SpellNonMeleeDamage* damageInfo);
 };
 
 class TC_GAME_API CreatureScript : public ScriptObject
@@ -1270,7 +1271,7 @@ class TC_GAME_API ScriptMgr
         void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
-        void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo);
+        void ModifySpellDamageTaken(SpellNonMeleeDamage* damageInfo);
 
     public: /* AreaTriggerEntityScript */
 
