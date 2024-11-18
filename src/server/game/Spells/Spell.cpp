@@ -2906,7 +2906,9 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                 caster->SetLastDamagedTargetGuid(spell->unitTarget->GetGUID());
 
                 // Add bonuses and fill damageInfo struct
-                caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, MissCondition == SPELL_MISS_BLOCK, spell);
+                damageInfo.critical = IsCrit;
+                damageInfo.blocked = MissCondition == SPELL_MISS_BLOCK;
+                caster->CalculateSpellDamageTaken(&damageInfo, spell);
                 Unit::DealDamageMods(damageInfo.attacker, damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
                 ProcHitMask |= createProcHitMask(&damageInfo, MissCondition);
