@@ -62,7 +62,7 @@ enum Says
  // SAY_VAEL_INTRO             = 14, Not used - when he corrupts Vaelastrasz
 
     // Nefarian
-    SAY_RANDOM                 = 0,
+    SAY_AGGRO                  = 0,
     SAY_RAISE_SKELETONS        = 1,
     SAY_SLAY                   = 2,
     SAY_DEATH                  = 3,
@@ -76,7 +76,10 @@ enum Says
     SAY_WARLOCK                = 10,
     SAY_HUNTER                 = 11,
     SAY_ROGUE                  = 12,
-    SAY_DEATH_KNIGHT           = 13
+    SAY_DEATH_KNIGHT           = 13,
+
+    SAY_XHEALTH                = 14,
+    SAY_SHADOWFLAME            = 15
 };
 
 enum Gossip
@@ -439,7 +442,7 @@ struct boss_nefarian : public BossAI
         events.ScheduleEvent(EVENT_CLEAVE, 7s);
         //events.ScheduleEvent(EVENT_TAILLASH, 10s);
         events.ScheduleEvent(EVENT_CLASSCALL, 30s, 35s);
-        Talk(SAY_RANDOM);
+        Talk(SAY_AGGRO);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -491,6 +494,8 @@ struct boss_nefarian : public BossAI
             Phase3 = true;
             Talk(SAY_RAISE_SKELETONS);
         }
+        if (me->HealthBelowPctDamaged(5, damage))
+            Talk(SAY_XHEALTH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -524,6 +529,8 @@ struct boss_nefarian : public BossAI
                 case EVENT_SHADOWFLAME:
                     DoCastVictim(SPELL_SHADOWFLAME);
                     events.ScheduleEvent(EVENT_SHADOWFLAME, 12s);
+                    if (roll_chance_i(10))
+                        Talk(SAY_SHADOWFLAME);
                     break;
                 case EVENT_FEAR:
                     DoCastVictim(SPELL_BELLOWINGROAR);
