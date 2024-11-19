@@ -5451,6 +5451,50 @@ class spell_bg_defending_cart_aura_AuraScript final : public AuraScript
     }
 };
 
+// 296837 - Comfortable Rider's Barding
+class spell_gen_comfortable_riders_barding : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DAZED });
+    }
+
+    template <bool apply>
+    void HandleEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->ApplySpellImmune(GetId(), IMMUNITY_ID, SPELL_DAZED, apply);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_comfortable_riders_barding::HandleEffect<true>, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectApplyFn(spell_gen_comfortable_riders_barding::HandleEffect<false>, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 297091 - Parachute
+class spell_gen_saddlechute : public AuraScript
+{
+    static constexpr uint32 SPELL_PARACHUTE = 297092;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PARACHUTE });
+    }
+
+    void TriggerParachute(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        if (target->IsFlying() || target->IsFalling())
+            target->CastSpell(target, SPELL_PARACHUTE, TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectApplyFn(spell_gen_saddlechute::TriggerParachute, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5632,4 +5676,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
     RegisterSpellAndAuraScriptPair(spell_bg_defending_cart_aura, spell_bg_defending_cart_aura_AuraScript);
+    RegisterSpellScript(spell_gen_comfortable_riders_barding);
+    RegisterSpellScript(spell_gen_saddlechute);
 }
