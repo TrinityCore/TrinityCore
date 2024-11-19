@@ -30,6 +30,12 @@ namespace VMAP
     enum class LoadResult : uint8;
     enum class ModelIgnoreFlags : uint32;
 
+    struct GroupLocationInfo
+    {
+        const GroupModel* hitModel = nullptr;
+        int32 rootId = -1;
+    };
+
     struct TC_COMMON_API LocationInfo
     {
         LocationInfo(): rootId(-1), hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
