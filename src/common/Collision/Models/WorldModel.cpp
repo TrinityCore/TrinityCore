@@ -529,25 +529,6 @@ namespace VMAP
             }
     };
 
-    bool WorldModel::IntersectPoint(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, AreaInfo &info) const
-    {
-        if (groupModels.empty())
-            return false;
-
-        WModelAreaCallback callback(groupModels, down);
-        groupTree.intersectPoint(p, callback);
-        if (callback.hit != groupModels.end())
-        {
-            info.rootId = RootWMOID;
-            info.groupId = callback.hit->GetWmoID();
-            info.flags = callback.hit->GetMogpFlags();
-            info.result = true;
-            dist = callback.zDist;
-            return true;
-        }
-        return false;
-    }
-
     bool WorldModel::GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, GroupLocationInfo& info) const
     {
         if (groupModels.empty())
