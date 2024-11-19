@@ -312,7 +312,7 @@ class TC_GAME_API Spell
         GameObject* SearchSpellFocus();
 
         SpellCastResult prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura = nullptr);
-        void cancel();
+        void cancel(SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
@@ -338,6 +338,7 @@ class TC_GAME_API Spell
         SpellCastResult CheckPower() const;
         SpellCastResult CheckRuneCost(uint32 runeCostID) const;
         SpellCastResult CheckCasterAuras(uint32* param1) const;
+        SpellCastResult CheckMovement() const;
 
         bool CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const;
         bool CheckSpellCancelsCharm(uint32* param1) const;
@@ -382,7 +383,7 @@ class TC_GAME_API Spell
         void ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject* obj);
         void ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject* obj);
         void ExecuteLogEffectResurrect(uint8 effIndex, Unit* target);
-        void SendInterrupted(uint8 result);
+        void SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther = {});
         void SendChannelUpdate(uint32 time);
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
@@ -529,6 +530,7 @@ class TC_GAME_API Spell
         DynObjAura* _dynObjAura;
 
         // -------------------------------------------
+        ObjectGuid m_focusObjectGUID;
         GameObject* focusObject;
 
         // Damage and healing in effects need just calculate

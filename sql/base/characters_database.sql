@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	8.0.36-0ubuntu0.22.04.1
+-- Server version	8.0.39-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1340,7 +1340,7 @@ DROP TABLE IF EXISTS `characters`;
 CREATE TABLE `characters` (
   `guid` int unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `account` int unsigned NOT NULL DEFAULT '0' COMMENT 'Account Identifier',
-  `name` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `name` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `race` tinyint unsigned NOT NULL DEFAULT '0',
   `class` tinyint unsigned NOT NULL DEFAULT '0',
   `gender` tinyint unsigned NOT NULL DEFAULT '0',
@@ -1415,9 +1415,9 @@ CREATE TABLE `characters` (
   `deleteInfos_Name` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `deleteDate` int unsigned DEFAULT NULL,
   PRIMARY KEY (`guid`),
+  UNIQUE KEY `idx_name` (`name`),
   KEY `idx_account` (`account`),
-  KEY `idx_online` (`online`),
-  KEY `idx_name` (`name`)
+  KEY `idx_online` (`online`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2685,7 +2685,9 @@ INSERT INTO `updates` VALUES
 ('2023_09_10_00_characters.sql','5DE09CA31B5168CF3622CB462816B6C598893D96','ARCHIVED','2023-09-10 12:23:34',0),
 ('2024_01_21_00_characters.sql','4D27D8DAC9F78795DB6938B54F32502EF8D8AAE6','ARCHIVED','2024-01-21 11:38:22',0),
 ('2024_02_05_00_characters.sql','1777CBCA822AD85777DA4A390DF7AAF41AF68EBD','ARCHIVED','2024-02-05 12:17:19',0),
-('2024_04_10_00_characters.sql','E0D6E19ACE6759332402FA27C23B0F7745C49742','ARCHIVED','2024-04-10 16:07:02',0);
+('2024_04_10_00_characters.sql','E0D6E19ACE6759332402FA27C23B0F7745C49742','ARCHIVED','2024-04-10 16:07:02',0),
+('2024_08_17_00_characters.sql','08705FBCB8504E8B1009FDAF955F56D734FAD782','ARCHIVED','2024-08-17 22:26:12',0),
+('2024_10_03_00_characters.sql','408249A6992999A36EB94089D184972E8E0767A3','RELEASED','2024-10-03 11:10:18',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2856,4 +2858,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-10 16:07:06
+-- Dump completed on 2024-08-17 22:26:14

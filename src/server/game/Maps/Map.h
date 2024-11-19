@@ -55,6 +55,7 @@ class Unit;
 class Weather;
 class WorldObject;
 class WorldPacket;
+class WorldSession;
 struct MapDifficulty;
 struct MapEntry;
 struct Position;
@@ -484,6 +485,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
 
         void SendToPlayers(WorldPacket const* data) const;
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession const* self = nullptr, uint32 team = 0) const;
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
@@ -503,7 +505,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, WorldObject* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0, bool visibleOnlyBySummoner = false);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, WorldObject* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
         Player* GetPlayer(ObjectGuid const& guid);
         Corpse* GetCorpse(ObjectGuid const& guid);
@@ -615,6 +617,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SendZoneDynamicInfo(uint32 zoneId, Player* player) const;
         void SendZoneWeather(uint32 zoneId, Player* player) const;
         void SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const;
+        void SendZoneText(uint32 zoneId, const char* text, WorldSession const* self = nullptr, uint32 team = 0) const;
 
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
         Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);

@@ -486,12 +486,12 @@ m_metadataResult(result)
         return;
     }
 
-    m_rows.resize(uint32(m_rowCount) * m_fieldCount);
+    m_rows.resize(std::size_t(m_rowCount) * m_fieldCount);
     while (_NextRow())
     {
         for (uint32 fIndex = 0; fIndex < m_fieldCount; ++fIndex)
         {
-            m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&m_fieldMetadata[fIndex]);
+            m_rows[std::size_t(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&m_fieldMetadata[fIndex]);
 
             unsigned long buffer_length = m_rBind[fIndex].buffer_length;
             unsigned long fetched_length = *m_rBind[fIndex].length;
@@ -518,7 +518,7 @@ m_metadataResult(result)
                         break;
                 }
 
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetValue(
+                m_rows[std::size_t(m_rowPosition) * m_fieldCount + fIndex].SetValue(
                     (char const*)buffer,
                     fetched_length);
 
@@ -527,7 +527,7 @@ m_metadataResult(result)
             }
             else
             {
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetValue(
+                m_rows[std::size_t(m_rowPosition) * m_fieldCount + fIndex].SetValue(
                     nullptr,
                     *m_rBind[fIndex].length);
             }
@@ -552,12 +552,10 @@ PreparedResultSet::~PreparedResultSet()
 
 bool ResultSet::NextRow()
 {
-    MYSQL_ROW row;
-
     if (!_result)
         return false;
 
-    row = mysql_fetch_row(_result);
+    MYSQL_ROW row = mysql_fetch_row(_result);
     if (!row)
     {
         CleanUp();
@@ -616,21 +614,33 @@ void ResultSet::CleanUp()
 
 Field const& ResultSet::operator[](std::size_t index) const
 {
-    ASSERT(index < _fieldCount);
+    ASSERT(index < std::size_t(_fieldCount));
     return _currentRow[index];
+}
+
+QueryResultFieldMetadata const& ResultSet::GetFieldMetadata(std::size_t index) const
+{
+    ASSERT(index < std::size_t(_fieldCount));
+    return _fieldMetadata[index];
 }
 
 Field* PreparedResultSet::Fetch() const
 {
     ASSERT(m_rowPosition < m_rowCount);
-    return const_cast<Field*>(&m_rows[uint32(m_rowPosition) * m_fieldCount]);
+    return const_cast<Field*>(&m_rows[std::size_t(m_rowPosition) * m_fieldCount]);
 }
 
 Field const& PreparedResultSet::operator[](std::size_t index) const
 {
     ASSERT(m_rowPosition < m_rowCount);
-    ASSERT(index < m_fieldCount);
-    return m_rows[uint32(m_rowPosition) * m_fieldCount + index];
+    ASSERT(index < std::size_t(m_fieldCount));
+    return m_rows[std::size_t(m_rowPosition) * m_fieldCount + index];
+}
+
+QueryResultFieldMetadata const& PreparedResultSet::GetFieldMetadata(std::size_t index) const
+{
+    ASSERT(index < std::size_t(m_fieldCount));
+    return m_fieldMetadata[index];
 }
 
 void PreparedResultSet::CleanUp()

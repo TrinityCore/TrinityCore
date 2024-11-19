@@ -30,7 +30,7 @@ struct FactionTemplateEntry;
 class TC_GAME_API PlayerTaxi
 {
     public:
-        PlayerTaxi() : m_flightMasterFactionId(0) { m_taximask.fill(0); }
+        PlayerTaxi() : m_flightMasterFactionId(0) { }
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
