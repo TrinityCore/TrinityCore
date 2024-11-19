@@ -3884,6 +3884,20 @@ struct MountCapabilityLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 10, &MountCapabilityMeta::Instance, HOTFIX_SEL_MOUNT_CAPABILITY };
 };
 
+struct MountEquipmentLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Item" },
+        { true, FT_INT, "BuffSpell" },
+        { true, FT_INT, "Unknown820" },
+        { false, FT_INT, "LearnedBySpell" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &MountEquipmentMeta::Instance, HOTFIX_SEL_MOUNT_EQUIPMENT };
+};
+
 struct MountTypeXCapabilityLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =

@@ -238,6 +238,7 @@ DB2Storage<MawPowerEntry>                       sMawPowerStore("MawPower.db2", &
 DB2Storage<ModifierTreeEntry>                   sModifierTreeStore("ModifierTree.db2", &ModifierTreeLoadInfo::Instance);
 DB2Storage<MountCapabilityEntry>                sMountCapabilityStore("MountCapability.db2", &MountCapabilityLoadInfo::Instance);
 DB2Storage<MountEntry>                          sMountStore("Mount.db2", &MountLoadInfo::Instance);
+DB2Storage<MountEquipmentEntry>                 sMountEquipmentStore("MountEquipment.db2", &MountEquipmentLoadInfo::Instance);
 DB2Storage<MountTypeXCapabilityEntry>           sMountTypeXCapabilityStore("MountTypeXCapability.db2", &MountTypeXCapabilityLoadInfo::Instance);
 DB2Storage<MountXDisplayEntry>                  sMountXDisplayStore("MountXDisplay.db2", &MountXDisplayLoadInfo::Instance);
 DB2Storage<MovieEntry>                          sMovieStore("Movie.db2", &MovieLoadInfo::Instance);
@@ -851,6 +852,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sModifierTreeStore);
     LOAD_DB2(sMountCapabilityStore);
     LOAD_DB2(sMountStore);
+    LOAD_DB2(sMountEquipmentStore);
     LOAD_DB2(sMountTypeXCapabilityStore);
     LOAD_DB2(sMountXDisplayStore);
     LOAD_DB2(sMovieStore);

@@ -1570,7 +1570,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         // -probability is between 0% and 40%
         RoundToInterval(chance, 0.0f, 40.0f);
         if (roll_chance_f(chance))
-            CastSpell(victim, 1604 /*SPELL_DAZED*/, true);
+            CastSpell(victim, SPELL_DAZED, true);
     }
 
     if (GetTypeId() == TYPEID_PLAYER)

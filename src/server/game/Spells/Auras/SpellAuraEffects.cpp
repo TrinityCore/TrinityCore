@@ -2729,7 +2729,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
             {
                 if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mountEntry->ID))
                 {
-                    if (mountEntry->IsSelfMount())
+                    if (mountEntry->GetFlags().HasFlag(MountFlags::IsSelfMount))
                     {
                         displayId = DISPLAYID_HIDDEN_MOUNT;
                     }
@@ -2751,6 +2751,18 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
                 // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
                 //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
                 //    creatureEntry = mountVehicle->VehicleCreatureId;
+
+                if (mode & AURA_EFFECT_HANDLE_REAL && !mountEntry->GetFlags().HasFlag(MountFlags::MountEquipmentEffectsSuppressed))
+                {
+                    if (Player* playerTarget = target->ToPlayer())
+                    {
+                        auto mountEquipmentItr = std::ranges::find_if(sMountEquipmentStore,
+                            [&](int32 equipmentSpell) { return playerTarget->HasSpell(equipmentSpell); },
+                            &MountEquipmentEntry::LearnedBySpell);
+                        if (mountEquipmentItr != sMountEquipmentStore.end())
+                            playerTarget->CastSpell(playerTarget, mountEquipmentItr->BuffSpell, this);
+                    }
+                }
             }
 
             if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry))
@@ -2792,7 +2804,11 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
         if (mode & AURA_EFFECT_HANDLE_REAL)
+        {
             target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            for (MountEquipmentEntry const* mountEquipmentStore : sMountEquipmentStore)
+                target->RemoveOwnedAura(mountEquipmentStore->BuffSpell);
+        }
 
         if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
             // remove speed aura

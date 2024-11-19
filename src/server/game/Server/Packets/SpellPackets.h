@@ -1105,6 +1105,24 @@ namespace WorldPackets
             uint32 Result = 0;
         };
 
+        class ApplyMountEquipmentResult final : public ServerPacket
+        {
+        public:
+            enum ApplyResult : int32
+            {
+                Success = 0,
+                Failure = 1
+            };
+
+            ApplyMountEquipmentResult() : ServerPacket(SMSG_APPLY_MOUNT_EQUIPMENT_RESULT, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGUID;
+            int32 ItemID = 0;
+            ApplyResult Result = Success;
+        };
+
         class MissileCancel final : public ServerPacket
         {
         public:
