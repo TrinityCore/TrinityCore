@@ -12129,7 +12129,7 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
     float missChance = victim->GetUnitMissChance();
 
     // Check if dual wielding, add additional miss penalty - when mainhand has on next swing spell, offhand doesnt suffer penalty
-    if (!spellId && haveOffhandWeapon() && (attType != RANGED_ATTACK) && !m_currentSpells[CURRENT_MELEE_SPELL])
+    if (!spellId && haveOffhandWeapon() && attType != RANGED_ATTACK && !m_currentSpells[CURRENT_MELEE_SPELL])
         missChance += 19.0f;
 
     // bonus from skills is 0.04%
