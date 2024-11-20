@@ -458,13 +458,13 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapDifficulty const* GetMapDifficulty() const;
 
         bool Instanceable() const;
+        bool IsWorldMap() const;
         bool IsDungeon() const;
         bool IsNonRaidDungeon() const;
         bool IsRaid() const;
         bool IsRaidOrHeroicDungeon() const;
         bool IsHeroic() const;
         bool Is25ManRaid() const;
-        bool IsWorldMap() const;
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;
