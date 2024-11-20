@@ -2352,7 +2352,7 @@ float GridMap::getLiquidLevel(float x, float y) const
 }
 
 // Get water state on map
-inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data, float collisionHeight)
+inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<uint8> ReqLiquidType, LiquidData* data, float collisionHeight)
 {
     // Check water type (if no water return)
     if (!_liquidGlobalFlags && !_liquidFlags)
@@ -2400,7 +2400,7 @@ inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 R
         return LIQUID_MAP_NO_WATER;
 
     // Check req liquid type mask
-    if (ReqLiquidType && !(ReqLiquidType&type))
+    if (ReqLiquidType && !(*ReqLiquidType & type))
         return LIQUID_MAP_NO_WATER;
 
     // Check water level:
@@ -2466,7 +2466,7 @@ float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, fl
 
         LiquidData liquid_status;
 
-        ZLiquidStatus res = GetLiquidStatus(phasemask, x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status, collisionHeight);
+        ZLiquidStatus res = GetLiquidStatus(phasemask, x, y, ground_z, {}, &liquid_status, collisionHeight);
         switch (res)
         {
             case LIQUID_MAP_ABOVE_WATER:
@@ -2542,27 +2542,18 @@ static inline bool IsInWMOInterior(uint32 mogpFlags)
 
 bool Map::GetAreaInfo(uint32 phaseMask, float x, float y, float z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
 {
-    float vmap_z = z;
-    float dynamic_z = z;
     float check_z = z;
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
-    uint32 vflags;
-    int32 vadtId;
-    int32 vrootId;
-    int32 vgroupId;
-    uint32 dflags;
-    int32 dadtId;
-    int32 drootId;
-    int32 dgroupId;
+    VMAP::AreaAndLiquidData vdata;
+    VMAP::AreaAndLiquidData ddata;
 
-    bool hasVmapAreaInfo = vmgr->getAreaInfo(GetId(), x, y, vmap_z, vflags, vadtId, vrootId, vgroupId);
-    bool hasDynamicAreaInfo = _dynamicTree.getAreaInfo(x, y, dynamic_z, phaseMask, dflags, dadtId, drootId, dgroupId);
-    auto useVmap = [&]() { check_z = vmap_z; flags = vflags; adtId = vadtId; rootId = vrootId; groupId = vgroupId; };
-    auto useDyn = [&]() { check_z = dynamic_z; flags = dflags; adtId = dadtId; rootId = drootId; groupId = dgroupId; };
-
+    bool hasVmapAreaInfo = vmgr->getAreaAndLiquidData(GetId(), x, y, z, {}, vdata) && vdata.areaInfo.has_value();
+    bool hasDynamicAreaInfo = _dynamicTree.getAreaAndLiquidData(x, y, z, phaseMask, {}, ddata) && ddata.areaInfo.has_value();
+    auto useVmap = [&] { check_z = vdata.floorZ; groupId = vdata.areaInfo->groupId; adtId = vdata.areaInfo->adtId; rootId = vdata.areaInfo->rootId; flags = vdata.areaInfo->mogpFlags; };
+    auto useDyn = [&] { check_z = ddata.floorZ; groupId = ddata.areaInfo->groupId; adtId = ddata.areaInfo->adtId; rootId = ddata.areaInfo->rootId; flags = ddata.areaInfo->mogpFlags; };
     if (hasVmapAreaInfo)
     {
-        if (hasDynamicAreaInfo && dynamic_z > vmap_z)
+        if (hasDynamicAreaInfo && ddata.floorZ > vdata.floorZ)
             useDyn();
         else
             useVmap();
@@ -2641,34 +2632,31 @@ void Map::GetZoneAndAreaId(uint32 phaseMask, uint32& zoneid, uint32& areaid, flo
             zoneid = area->ParentAreaID;
 }
 
-ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data, float collisionHeight) const
+ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, Optional<uint8> ReqLiquidType, LiquidData* data, float collisionHeight) const
 {
     ZLiquidStatus result = LIQUID_MAP_NO_WATER;
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
-    float liquid_level = INVALID_HEIGHT;
-    float ground_level = INVALID_HEIGHT;
-    uint32 liquid_type = 0;
-    uint32 mogpFlags = 0;
+    VMAP::AreaAndLiquidData vmapData;
     bool useGridLiquid = true;
-    if (vmgr->GetLiquidLevel(GetId(), x, y, z, ReqLiquidType, liquid_level, ground_level, liquid_type, mogpFlags))
+    if (vmgr->getAreaAndLiquidData(GetId(), x, y, z, ReqLiquidType, vmapData) && vmapData.liquidInfo)
     {
-        useGridLiquid = !IsInWMOInterior(mogpFlags);
-        TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: {} ground: {} type: {}", liquid_level, ground_level, liquid_type);
+        useGridLiquid = !vmapData.areaInfo || !IsInWMOInterior(vmapData.areaInfo->mogpFlags);
+        TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: {} ground: {} type: {}", vmapData.liquidInfo->level, vmapData.floorZ, vmapData.liquidInfo->type);
         // Check water level and ground level
-        if (liquid_level > ground_level && G3D::fuzzyGe(z, ground_level - GROUND_HEIGHT_TOLERANCE))
+        if (vmapData.liquidInfo->level > vmapData.floorZ && G3D::fuzzyGe(z, vmapData.floorZ - GROUND_HEIGHT_TOLERANCE))
         {
             // All ok in water -> store data
             if (data)
             {
                 // hardcoded in client like this
-                if (GetId() == 530 && liquid_type == 2)
-                    liquid_type = 15;
+                if (GetId() == 530 && vmapData.liquidInfo->type == 2)
+                    vmapData.liquidInfo->type = 15;
 
                 uint32 liquidFlagType = 0;
-                if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquid_type))
+                if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(vmapData.liquidInfo->type))
                     liquidFlagType = liq->SoundBank;
 
-                if (liquid_type && liquid_type < 21)
+                if (vmapData.liquidInfo->type && vmapData.liquidInfo->type < 21)
                 {
                     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId(phaseMask, x, y, z)))
                     {
@@ -2682,20 +2670,20 @@ ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, 
 
                         if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
                         {
-                            liquid_type = overrideLiquid;
+                            vmapData.liquidInfo->type = overrideLiquid;
                             liquidFlagType = liq->SoundBank;
                         }
                     }
                 }
 
-                data->level = liquid_level;
-                data->depth_level = ground_level;
+                data->level = vmapData.liquidInfo->level;
+                data->depth_level = vmapData.floorZ;
 
-                data->entry = liquid_type;
+                data->entry = vmapData.liquidInfo->type;
                 data->type_flags = 1 << liquidFlagType;
             }
 
-            float delta = liquid_level - z;
+            float delta = vmapData.liquidInfo->level - z;
 
             // Get position delta
             if (delta > collisionHeight)                   // Under water
@@ -2715,7 +2703,7 @@ ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, 
             LiquidData map_data;
             ZLiquidStatus map_result = gmap->GetLiquidStatus(x, y, z, ReqLiquidType, &map_data, collisionHeight);
             // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
-            if (map_result != LIQUID_MAP_NO_WATER && (map_data.level > ground_level))
+            if (map_result != LIQUID_MAP_NO_WATER && (map_data.level > vmapData.floorZ))
             {
                 if (data)
                 {
@@ -2732,7 +2720,7 @@ ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, 
     return result;
 }
 
-void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType, float collisionHeight) const
+void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, float z, PositionFullTerrainStatus& data, Optional<uint8> reqLiquidType, float collisionHeight) const
 {
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
@@ -2779,7 +2767,7 @@ void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, fl
     {
         if (wmoData->areaInfo)
         {
-            data.areaInfo.emplace(wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->groupId, wmoData->areaInfo->mogpFlags);
+            data.wmoLocation.emplace(wmoData->areaInfo->groupId, wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->uniqueId);
             // wmo found
             WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
             data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
@@ -2908,7 +2896,7 @@ bool Map::IsInWater(uint32 phaseMask, float x, float y, float pZ, LiquidData* da
 {
     LiquidData liquid_status;
     LiquidData* liquid_ptr = data ? data : &liquid_status;
-    return (GetLiquidStatus(phaseMask, x, y, pZ, MAP_ALL_LIQUIDS, liquid_ptr) & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
+    return (GetLiquidStatus(phaseMask, x, y, pZ, {}, liquid_ptr) & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
 }
 
 bool Map::IsUnderWater(uint32 phaseMask, float x, float y, float z) const
