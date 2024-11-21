@@ -12128,8 +12128,8 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
     //calculate miss chance
     float missChance = victim->GetUnitMissChance();
 
-    // melee attacks while dual wielding have +19% chance to miss
-    if (!spellId && haveOffhandWeapon())
+    // Check if dual wielding, add additional miss penalty - when mainhand has on next swing spell, offhand doesnt suffer penalty
+    if (!spellId && haveOffhandWeapon() && attType != RANGED_ATTACK && !m_currentSpells[CURRENT_MELEE_SPELL])
         missChance += 19.0f;
 
     // bonus from skills is 0.04%
