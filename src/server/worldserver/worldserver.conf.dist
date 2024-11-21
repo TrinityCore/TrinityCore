@@ -785,7 +785,7 @@ CharacterCreating.Disabled = 0
 #
 #    CharacterCreating.Disabled.RaceMask
 #        Description: Mask of races which cannot be created by players.
-#        Example:     1536 - (1024 + 512, Blood Elf and Draenei races are disabled)
+#        Example:     1536 - (512 + 1024, Blood Elf and Draenei races are disabled)
 #        Default:     0    - (Enabled, All races are allowed)
 #                     1    - (Disabled, Human)
 #                     2    - (Disabled, Orc)
@@ -802,6 +802,8 @@ CharacterCreating.Disabled = 0
 #                     4096 - (Disabled, Vulpera)
 #                     8192 - (Disabled, Maghar Orc)
 #                     16384 - (Disabled, Mechagnome)
+#                     32768 - (Disabled, Dracthyr Horde)
+#                     65536 - (Disabled, Dracthyr Alliance)
 #                     2097152 - (Disabled, Worgen)
 #                     8388608 - (Disabled, Pandaren Neutral)
 #                     16777216 - (Disabled, Pandaren Alliance)
@@ -832,6 +834,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     512  - (Disabled, Monk)
 #                     1024 - (Disabled, Druid)
 #                     2048 - (Disabled, Demon Hunter)
+#                     4096 - (Disabled, Evoker)
 
 CharacterCreating.Disabled.ClassMask = 0
 
