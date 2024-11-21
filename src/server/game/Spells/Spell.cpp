@@ -7754,23 +7754,6 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                 if (!item || item->IsBroken())
                     return SPELL_FAILED_EQUIPPED_ITEM;
 
-                switch (item->GetTemplate()->GetSubClass())
-                {
-                    case ITEM_SUBCLASS_WEAPON_THROWN:
-                    {
-                        uint32 const ammo = item->GetEntry();
-                        if (!player->HasItemCount(ammo))
-                            return SPELL_FAILED_NO_AMMO;
-                        break;
-                    }
-                    case ITEM_SUBCLASS_WEAPON_GUN:
-                    case ITEM_SUBCLASS_WEAPON_BOW:
-                    case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    case ITEM_SUBCLASS_WEAPON_WAND:
-                        break;
-                    default:
-                        break;
-                }
                 break;
             }
             case SPELL_EFFECT_RECHARGE_ITEM:
