@@ -451,14 +451,14 @@ WorldPacket const* SpellGo::Write()
 ByteBuffer& operator<<(ByteBuffer& data, LearnedSpellInfo const& learnedSpellInfo)
 {
     data << int32(learnedSpellInfo.SpellID);
-    data.WriteBit(learnedSpellInfo.IsFavorite);
-    data.WriteBit(learnedSpellInfo.field_8.has_value());
+    data.WriteBit(learnedSpellInfo.Favorite);
+    data.WriteBit(learnedSpellInfo.EquipableSpellInvSlot.has_value());
     data.WriteBit(learnedSpellInfo.Superceded.has_value());
     data.WriteBit(learnedSpellInfo.TraitDefinitionID.has_value());
     data.FlushBits();
 
-    if (learnedSpellInfo.field_8)
-        data << int32(*learnedSpellInfo.field_8);
+    if (learnedSpellInfo.EquipableSpellInvSlot)
+        data << int32(*learnedSpellInfo.EquipableSpellInvSlot);
 
     if (learnedSpellInfo.Superceded)
         data << int32(*learnedSpellInfo.Superceded);
@@ -645,13 +645,13 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellHistoryEntry const& historyEntry)
     data << int32(historyEntry.RecoveryTime);
     data << int32(historyEntry.CategoryRecoveryTime);
     data << float(historyEntry.ModRate);
-    data.WriteBit(historyEntry.unused622_1.has_value());
-    data.WriteBit(historyEntry.unused622_2.has_value());
+    data.WriteBit(historyEntry.RecoveryTimeStartOffset.has_value());
+    data.WriteBit(historyEntry.CategoryRecoveryTimeStartOffset.has_value());
     data.WriteBit(historyEntry.OnHold);
-    if (historyEntry.unused622_1)
-        data << uint32(*historyEntry.unused622_1);
-    if (historyEntry.unused622_2)
-        data << uint32(*historyEntry.unused622_2);
+    if (historyEntry.RecoveryTimeStartOffset)
+        data << uint32(*historyEntry.RecoveryTimeStartOffset);
+    if (historyEntry.CategoryRecoveryTimeStartOffset)
+        data << uint32(*historyEntry.CategoryRecoveryTimeStartOffset);
     data.FlushBits();
 
     return data;

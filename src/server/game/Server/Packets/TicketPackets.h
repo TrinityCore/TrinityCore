@@ -124,19 +124,19 @@ namespace WorldPackets
         {
             SupportTicketHorusChatLine(ByteBuffer& data);
 
-            struct SenderRealm
+            struct ServerSpec
             {
-                uint32 VirtualRealmAddress;
-                uint16 field_4;
-                uint8 field_6;
+                uint32 Realm;
+                uint16 Server;
+                uint8 Type;
             };
 
             WorldPackets::Timestamp<> Timestamp;
-            ObjectGuid AuthorGUID;
+            ObjectGuid PlayerGuid;
             Optional<uint64> ClubID;
-            Optional<ObjectGuid> ChannelGUID;
-            Optional<SenderRealm> RealmAddress;
-            Optional<int32> SlashCmd;
+            Optional<ObjectGuid> ChannelGuid;
+            Optional<ServerSpec> WorldServer;
+            Optional<int32> Cmd;
             std::string Text;
         };
 

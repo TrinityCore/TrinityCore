@@ -120,7 +120,7 @@ namespace WorldPackets
             int32 FriendshipFactionID = 0;
             ObjectGuid GossipGUID;
             std::vector<ClientGossipText> GossipText;
-            Optional<int32> TextID;             // in classic variants this still holds npc_text id
+            Optional<int32> RandomTextID;             // in classic variants this still holds npc_text id
             Optional<int32> BroadcastTextID;
             int32 GossipID = 0;
             int32 LfgDungeonsID = 0;
