@@ -85,6 +85,6 @@ class spell_art_of_war_movie_aura_aura : public AuraScript
 
 void AddSC_orgrimmar()
 {
-    // Grommash Hold
+    // Spells
     RegisterSpellAndAuraScriptPair(spell_art_of_war_movie_aura, spell_art_of_war_movie_aura_aura);
 }

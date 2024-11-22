@@ -1338,8 +1338,10 @@ void AddSC_durotar()
     RegisterCreatureAI(npc_voljin_garrosh_vision);
     RegisterCreatureAI(npc_voljin_thrall_vision);
 
-    // Hellscream's Fist
+    // AreaTriggers
     new at_hellscreams_fist_gunship();
+
+    // Spells
     RegisterSpellScript(spell_teleport_prep);
     RegisterSpellScript(spell_teleport_timer);
 }

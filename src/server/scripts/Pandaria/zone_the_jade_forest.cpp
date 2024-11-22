@@ -117,7 +117,7 @@ class spell_into_the_mists_scene_end : public SpellScript
 
 void AddSC_zone_the_jade_forest()
 {
-    // Hellscream's Fist
+    // Spells
     RegisterSpellScript(spell_into_the_mists_scene_jf);
     RegisterSpellScript(spell_cancel_blackout);
     RegisterSpellScript(spell_into_the_mists_scene_end);
