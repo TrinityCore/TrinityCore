@@ -577,7 +577,5 @@ void AddSC_stormwind_city()
     // Spells
     RegisterSpellScript(spell_despawn_sailor_memory);
     RegisterSpellScript(spell_kultiras_skip_intro);
-
-    // Stormwind Keep
     RegisterSpellAndAuraScriptPair(spell_the_kings_command_movie_aura, spell_the_kings_command_movie_aura_aura);
 }
