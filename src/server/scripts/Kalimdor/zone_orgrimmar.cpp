@@ -33,25 +33,37 @@ namespace Orgrimmar
 }
 
 // 130412 - Art of War Movie Aura
-class spell_art_of_war_movie_aura : public AuraScript
+class spell_art_of_war_movie_aura : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
-            Orgrimmar::Spells::MOPHordeIntroMoviePlay,
             Orgrimmar::Spells::FadeToBlack
         });
     }
 
-    void HandleAfterEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        Unit* hitUnit = GetHitUnit();
 
-        caster->CastSpell(GetTarget(), Orgrimmar::Spells::FadeToBlack, CastSpellExtraArgsInit{
+        hitUnit->CastSpell(hitUnit, Orgrimmar::Spells::FadeToBlack, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = aurEff->GetBase()->GetCastId()
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_art_of_war_movie_aura::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_art_of_war_movie_aura_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Orgrimmar::Spells::MOPHordeIntroMoviePlay
         });
     }
 
@@ -68,13 +80,12 @@ class spell_art_of_war_movie_aura : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_art_of_war_movie_aura::HandleAfterEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_art_of_war_movie_aura::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_art_of_war_movie_aura_aura::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 void AddSC_orgrimmar()
 {
     // Grommash Hold
-    RegisterSpellScript(spell_art_of_war_movie_aura);
+    RegisterSpellAndAuraScriptPair(spell_art_of_war_movie_aura, spell_art_of_war_movie_aura_aura);
 }

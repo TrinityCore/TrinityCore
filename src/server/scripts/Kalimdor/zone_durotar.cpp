@@ -1244,7 +1244,7 @@ public:
 };
 
 // 130810 - Teleport Prep
-class spell_teleport_prep : public AuraScript
+class spell_teleport_prep : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1253,21 +1253,19 @@ class spell_teleport_prep : public AuraScript
         });
     }
 
-    void HandleAfterEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        Unit* hitUnit = GetHitUnit();
 
-        caster->CastSpell(GetTarget(), Durotar::Spells::TeleportTimer, CastSpellExtraArgsInit{
+        hitUnit->CastSpell(hitUnit, Durotar::Spells::TeleportTimer, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = aurEff->GetBase()->GetCastId()
+            .OriginalCastId = GetSpell()->m_castId
         });
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_teleport_prep::HandleAfterEffectApply, EFFECT_0, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectHitTarget += SpellEffectFn(spell_teleport_prep::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
