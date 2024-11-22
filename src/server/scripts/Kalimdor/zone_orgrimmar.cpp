@@ -17,9 +17,8 @@
 
 #include "Define.h"
 #include "ScriptMgr.h"
-#include "SpellAuraDefines.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellDefines.h"
 #include "SpellScript.h"
 #include "Unit.h"
 
