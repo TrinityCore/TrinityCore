@@ -94,6 +94,7 @@ struct boss_drakkari_colossus : public BossAI
     void Initialize()
     {
         phase = COLOSSUS_PHASE_NORMAL;
+        isFrozen = false;
     }
 
     void Reset() override
@@ -110,6 +111,20 @@ struct boss_drakkari_colossus : public BossAI
         events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
 
         Initialize();
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (why == EVADE_REASON_NO_HOSTILES)
+        {
+            if (isFrozen)
+                return;
+
+            DoZoneInCombat();
+        }
+
+        if (!me->IsInCombat() || why != EVADE_REASON_NO_HOSTILES)
+            BossAI::EnterEvadeMode(why);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -137,6 +152,7 @@ struct boss_drakkari_colossus : public BossAI
                 me->SetReactState(REACT_PASSIVE);
                 me->SetImmuneToPC(true);
                 DoCast(me, SPELL_FREEZE_ANIM);
+                isFrozen = true;
                 break;
             case ACTION_UNFREEZE_COLOSSUS:
 
@@ -146,9 +162,7 @@ struct boss_drakkari_colossus : public BossAI
                 me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAura(SPELL_FREEZE_ANIM);
-
-                DoZoneInCombat();
-
+                isFrozen = false;
                 break;
         }
     }
@@ -226,6 +240,7 @@ struct boss_drakkari_colossus : public BossAI
 private:
     uint8 phase;
     bool introDone;
+    bool isFrozen;
 };
 
 struct boss_drakkari_elemental : public ScriptedAI
@@ -323,11 +338,6 @@ struct boss_drakkari_elemental : public ScriptedAI
                 }
             }
         }
-    }
-
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        me->DespawnOrUnsummon();
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
