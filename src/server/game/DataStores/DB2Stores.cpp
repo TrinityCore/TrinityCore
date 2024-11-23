@@ -36,6 +36,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <numeric>
 #include <cctype>
+#include <cmath>
 
 DB2Storage<AchievementEntry>                    sAchievementStore("Achievement.db2", &AchievementLoadInfo::Instance);
 DB2Storage<Achievement_CategoryEntry>           sAchievementCategoryStore("Achievement_Category.db2", &AchievementCategoryLoadInfo::Instance);

@@ -19,6 +19,7 @@
 #define TRINITYCORE_WOWCS_ENTITY_DEFINITIONS_H
 
 #include "Define.h"
+#include <array>
 #include <span>
 
 namespace WowCS
