@@ -35,6 +35,7 @@
 #include <numeric>
 #include <sstream>
 #include <cctype>
+#include <cmath>
 
 // temporary hack until includes are sorted out (don't want to pull in Windows.h)
 #ifdef GetClassName
