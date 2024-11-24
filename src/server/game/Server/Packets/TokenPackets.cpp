@@ -19,20 +19,20 @@
 
 void WorldPackets::Token::CommerceTokenGetLog::Read()
 {
-    _worldPacket >> UnkInt;
+    _worldPacket >> ClientToken;
 }
 
 WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
 {
-    _worldPacket << UnkInt;
+    _worldPacket << ClientToken;
     _worldPacket << Result;
-    _worldPacket << uint32(AuctionableTokenAuctionableList.size());
-    for (AuctionableTokenInfo const& auctionableTokenAuctionable : AuctionableTokenAuctionableList)
+    _worldPacket << uint32(AuctionableTokens.size());
+    for (AuctionableTokenInfo const& auctionableTokenAuctionable : AuctionableTokens)
     {
-        _worldPacket << auctionableTokenAuctionable.UnkInt1;
-        _worldPacket << auctionableTokenAuctionable.UnkInt2;
-        _worldPacket << auctionableTokenAuctionable.BuyoutPrice;
-        _worldPacket << auctionableTokenAuctionable.Owner;
+        _worldPacket << auctionableTokenAuctionable.Id;
+        _worldPacket << auctionableTokenAuctionable.LastUpdate;
+        _worldPacket << auctionableTokenAuctionable.Price;
+        _worldPacket << auctionableTokenAuctionable.Status;
         _worldPacket << auctionableTokenAuctionable.DurationLeft;
     }
 
@@ -41,15 +41,15 @@ WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
 
 void WorldPackets::Token::CommerceTokenGetMarketPrice::Read()
 {
-    _worldPacket >> UnkInt;
+    _worldPacket >> ClientToken;
 }
 
 WorldPacket const* WorldPackets::Token::CommerceTokenGetMarketPriceResponse::Write()
 {
-    _worldPacket << CurrentMarketPrice;
-    _worldPacket << UnkInt;
-    _worldPacket << Result;
-    _worldPacket << AuctionDuration;
+    _worldPacket << PriceGuarantee;
+    _worldPacket << ClientToken;
+    _worldPacket << ServerToken;
+    _worldPacket << PriceLockDurationSeconds;
 
     return &_worldPacket;
 }

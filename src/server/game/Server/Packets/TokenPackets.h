@@ -32,7 +32,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 UnkInt   = 0;
+            uint32 ClientToken   = 0;
         };
 
         class CommerceTokenGetLogResponse final : public ServerPacket
@@ -44,16 +44,16 @@ namespace WorldPackets
 
             struct AuctionableTokenInfo
             {
-                uint64 UnkInt1      = 0;
-                Timestamp<> UnkInt2;
-                int32 Owner         = 0;
-                uint64 BuyoutPrice  = 0;
+                uint64 Id           = 0;
+                Timestamp<> LastUpdate;
+                int32 Status        = 0;
+                uint64 Price        = 0;
                 uint32 DurationLeft = 0;
             };
 
-            uint32 UnkInt           = 0; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
+            uint32 ClientToken      = 0;
             uint32 Result           = 0;
-            std::vector<AuctionableTokenInfo> AuctionableTokenAuctionableList;
+            std::vector<AuctionableTokenInfo> AuctionableTokens;
         };
 
         class CommerceTokenGetMarketPrice final : public ClientPacket
@@ -63,7 +63,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 UnkInt = 0;
+            uint32 ClientToken = 0;
         };
 
         class CommerceTokenGetMarketPriceResponse final : public ServerPacket
@@ -73,10 +73,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint64 CurrentMarketPrice   = 0;
-            uint32 UnkInt               = 0; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
-            uint32 Result               = 0;
-            uint32 AuctionDuration      = 0; // preset auction duration enum
+            uint64 PriceGuarantee       = 0;
+            uint32 ClientToken          = 0;
+            uint32 ServerToken          = 0;
+            uint32 PriceLockDurationSeconds = 0; // preset auction duration enum
         };
     }
 }

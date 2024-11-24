@@ -859,7 +859,8 @@ enum class InstanceResetResult : uint8
 class TC_GAME_API InstanceMap : public Map
 {
     public:
-        InstanceMap(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock);
+        InstanceMap(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock,
+            Optional<uint32> lfgDungeonsId);
         ~InstanceMap();
         bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
         void RemovePlayerFromMap(Player*, bool) override;
@@ -882,6 +883,7 @@ class TC_GAME_API InstanceMap : public Map
         uint32 GetMaxPlayers() const;
         TeamId GetTeamIdInInstance() const;
         Team GetTeamInInstance() const { return GetTeamIdInInstance() == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
+        Optional<uint32> GetLfgDungeonsId() const { return i_lfgDungeonsId; }
 
         virtual void InitVisibilityDistance() override;
 
@@ -896,6 +898,7 @@ class TC_GAME_API InstanceMap : public Map
         InstanceScenario* i_scenario;
         InstanceLock* i_instanceLock;
         GroupInstanceReference i_owningGroupRef;
+        Optional<uint32> i_lfgDungeonsId;
 };
 
 class TC_GAME_API BattlegroundMap : public Map

@@ -24,8 +24,6 @@
 #include <boost/core/demangle.hpp>
 #include <utf8.h>
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <cctype>
 #include <cstdarg>
@@ -131,86 +129,49 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
             return Trinity::StringFormat("0:{:02}", secs);
     }
 
-    std::ostringstream ss;
-    if (days)
+    std::string result;
+    if (timeFormat == TimeFormat::ShortText)
     {
-        ss << days;
-        switch (timeFormat)
+        std::back_insert_iterator<std::string> itr = std::back_inserter(result);
+        if (days)
+            Trinity::StringFormatTo(itr, "{}d", days);
+        if (hours || hoursOnly)
+            Trinity::StringFormatTo(itr, "{}h", hours);
+        if (!hoursOnly)
         {
-            case TimeFormat::ShortText:
-                ss << "d";
-                break;
-            case TimeFormat::FullText:
-                if (days == 1)
-                    ss << " Day ";
-                else
-                    ss << " Days ";
-                break;
-            default:
-                return "<Unknown time format>";
+            if (minutes)
+                Trinity::StringFormatTo(itr, "{}m", minutes);
+            if (secs || result.empty())
+                Trinity::StringFormatTo(itr, "{}s", secs);
         }
     }
-
-    if (hours || hoursOnly)
+    else if (timeFormat == TimeFormat::FullText)
     {
-        ss << hours;
-        switch (timeFormat)
+        auto formatTimeField = [](std::string& result, uint64 value, std::string_view label)
         {
-            case TimeFormat::ShortText:
-                ss << "h";
-                break;
-            case TimeFormat::FullText:
-                if (hours <= 1)
-                    ss << " Hour ";
-                else
-                    ss << " Hours ";
-                break;
-            default:
-                return "<Unknown time format>";
+            if (!result.empty())
+                result.append(1, ' ');
+            Trinity::StringFormatTo(std::back_inserter(result), "{} {}", value, label);
+            if (value != 1)
+                result.append(1, 's');
+        };
+        if (days)
+            formatTimeField(result, days, "Day");
+        if (hours || hoursOnly)
+            formatTimeField(result, hours, "Hour");
+        if (!hoursOnly)
+        {
+            if (minutes)
+                formatTimeField(result, minutes, "Minute");
+            if (secs || result.empty())
+                formatTimeField(result, secs, "Second");
         }
+        result.append(1, '.');
     }
-    if (!hoursOnly)
-    {
-        if (minutes)
-        {
-            ss << minutes;
-            switch (timeFormat)
-            {
-                case TimeFormat::ShortText:
-                    ss << "m";
-                    break;
-                case TimeFormat::FullText:
-                    if (minutes == 1)
-                        ss << " Minute ";
-                    else
-                        ss << " Minutes ";
-                    break;
-                default:
-                    return "<Unknown time format>";
-            }
-        }
+    else
+        result = "<Unknown time format>";
 
-        if (secs || (!days && !hours && !minutes))
-        {
-            ss << secs;
-            switch (timeFormat)
-            {
-                case TimeFormat::ShortText:
-                    ss << "s";
-                    break;
-                case TimeFormat::FullText:
-                    if (secs <= 1)
-                        ss << " Second.";
-                    else
-                        ss << " Seconds.";
-                    break;
-                default:
-                    return "<Unknown time format>";
-            }
-        }
-    }
-
-    return ss.str();
+    return result;
 }
 
 Optional<int64> MoneyStringToMoney(std::string const& moneyString)

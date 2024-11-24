@@ -4369,7 +4369,8 @@ void Spell::update(uint32 difftime)
                     m_caster->SendMessageToSet(empowerSetStage.Write(), true);
 
                     m_empower->CompletedStages = completedStages;
-                    m_caster->ToUnit()->SetSpellEmpowerStage(completedStages);
+                    if (Unit* unitCaster = m_caster->ToUnit())
+                        unitCaster->SetSpellEmpowerStage(completedStages);
 
                     CallScriptEmpowerStageCompletedHandlers(completedStages);
                 }
@@ -7882,10 +7883,10 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                 if (!itemProto)
                     return SPELL_FAILED_CANT_BE_SALVAGED;
 
-                ItemDisenchantLootEntry const* itemDisenchantLoot = item->GetDisenchantLoot(m_caster->ToPlayer());
-                if (!itemDisenchantLoot)
+                Optional<uint16> disenchantSkillRequired = item->GetDisenchantSkillRequired();
+                if (!disenchantSkillRequired)
                     return SPELL_FAILED_CANT_BE_SALVAGED;
-                if (itemDisenchantLoot->SkillRequired > player->GetSkillValue(SKILL_ENCHANTING))
+                if (disenchantSkillRequired > player->GetSkillValue(SKILL_ENCHANTING))
                     return SPELL_FAILED_CANT_BE_SALVAGED_SKILL;
                 break;
             }
