@@ -804,6 +804,8 @@ CharacterCreating.Disabled = 0
 #                     16384 - (Disabled, Mechagnome)
 #                     32768 - (Disabled, Dracthyr Horde)
 #                     65536 - (Disabled, Dracthyr Alliance)
+#                     131072 - (Disabled, Earthen Horde)
+#                     262144 - (Disabled, Earthen Alliance)
 #                     2097152 - (Disabled, Worgen)
 #                     8388608 - (Disabled, Pandaren Neutral)
 #                     16777216 - (Disabled, Pandaren Alliance)
