@@ -69,7 +69,7 @@ class spell_cancel_blackout : public AuraScript
         });
     }
 
-    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* caster = GetCaster();
         if (!caster)

@@ -66,7 +66,7 @@ class spell_art_of_war_movie_aura_aura : public AuraScript
         });
     }
 
-    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* caster = GetCaster();
         if (!caster)

@@ -1280,7 +1280,7 @@ class spell_teleport_timer : public AuraScript
         });
     }
 
-    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* caster = GetCaster();
         if (!caster)
