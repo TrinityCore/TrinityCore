@@ -366,7 +366,7 @@ public:
                     npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
 
                 if (!creature->IsClassTrainerFor(receiver))
-                    npcFlag &= ~UNIT_NPC_FLAG_TRAINER_CLASS;
+                    npcFlag &= ~(UNIT_NPC_FLAG_TRAINER_CLASS | UNIT_NPC_FLAG_TRAINER);
             }
         }
         return npcFlag;
