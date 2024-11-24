@@ -539,7 +539,7 @@ class spell_the_kings_command_movie_aura_aura : public AuraScript
         });
     }
 
-    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* caster = GetCaster();
         if (!caster)
