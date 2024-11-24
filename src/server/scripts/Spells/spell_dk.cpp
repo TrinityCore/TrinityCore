@@ -464,14 +464,14 @@ class spell_dk_death_and_decay_increase_targets : public AuraScript
         return ValidateSpellInfo({ SPELL_DK_UNHOLY_GROUND_HASTE });
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_DK_UNHOLY_GROUND_HASTE);
     }
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_dk_death_and_decay_increase_targets::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_death_and_decay_increase_targets::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1255,25 +1255,25 @@ class spell_dk_vampiric_blood : public AuraScript
 // 43265 - Death and Decay
 struct at_dk_death_and_decay : AreaTriggerAI
 {
-    at_dk_death_and_decay(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            if (caster == unit)
-            {
-                if (caster->HasAura(SPELL_DK_CLEAVING_STRIKES))
-                    caster->CastSpell(caster, SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS);
+        if (unit->GetGUID() != at->GetCasterGuid())
+            return;
 
-                if (caster->HasAura(SPELL_DK_UNHOLY_GROUND_TALENT))
-                    caster->CastSpell(caster, SPELL_DK_UNHOLY_GROUND_HASTE);
-            }
-        }
+        if (unit->HasAura(SPELL_DK_CLEAVING_STRIKES))
+            unit->CastSpell(unit, SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS, TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        if (unit->HasAura(SPELL_DK_UNHOLY_GROUND_TALENT))
+            unit->CastSpell(unit, SPELL_DK_UNHOLY_GROUND_HASTE);
     }
 
     void OnUnitExit(Unit* unit) override
     {
+        if (unit->GetGUID() != at->GetCasterGuid())
+            return;
+
         if (!unit->HasAura(SPELL_DK_CLEAVING_STRIKES))
             unit->RemoveAurasDueToSpell(SPELL_DK_UNHOLY_GROUND_HASTE);
 
