@@ -58,7 +58,6 @@ enum RogueSpells
     SPELL_ROGUE_CRIPPLING_POISON_DEBUFF             = 3409,
     SPELL_ROGUE_DEADLY_POISON                       = 2823,
     SPELL_ROGUE_DEADLY_POISON_DEBUFF                = 2818,
-    //SPELL_ROGUE_DEATH_FROM_ABOVE                    = 152150, // dropped in BfA
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
     SPELL_ROGUE_IMPROVED_GARROTE_AFTER_STEALTH      = 392401,
@@ -72,8 +71,6 @@ enum RogueSpells
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
     SPELL_ROGUE_MARKED_FOR_DEATH                    = 137619,
-    //SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665, // dropped in BfA
-    //SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223, // dropped in BfA
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
     SPELL_ROGUE_NUMBING_POISON                      = 5761,
     SPELL_ROGUE_NUMBING_POISON_DEBUFF               = 5760,
