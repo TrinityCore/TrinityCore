@@ -35,6 +35,7 @@
 #include <numeric>
 #include <sstream>
 #include <cctype>
+#include <cmath>
 
 // temporary hack until includes are sorted out (don't want to pull in Windows.h)
 #ifdef GetClassName
@@ -238,6 +239,7 @@ DB2Storage<MawPowerEntry>                       sMawPowerStore("MawPower.db2", &
 DB2Storage<ModifierTreeEntry>                   sModifierTreeStore("ModifierTree.db2", &ModifierTreeLoadInfo::Instance);
 DB2Storage<MountCapabilityEntry>                sMountCapabilityStore("MountCapability.db2", &MountCapabilityLoadInfo::Instance);
 DB2Storage<MountEntry>                          sMountStore("Mount.db2", &MountLoadInfo::Instance);
+DB2Storage<MountEquipmentEntry>                 sMountEquipmentStore("MountEquipment.db2", &MountEquipmentLoadInfo::Instance);
 DB2Storage<MountTypeXCapabilityEntry>           sMountTypeXCapabilityStore("MountTypeXCapability.db2", &MountTypeXCapabilityLoadInfo::Instance);
 DB2Storage<MountXDisplayEntry>                  sMountXDisplayStore("MountXDisplay.db2", &MountXDisplayLoadInfo::Instance);
 DB2Storage<MovieEntry>                          sMovieStore("Movie.db2", &MovieLoadInfo::Instance);
@@ -851,6 +853,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sModifierTreeStore);
     LOAD_DB2(sMountCapabilityStore);
     LOAD_DB2(sMountStore);
+    LOAD_DB2(sMountEquipmentStore);
     LOAD_DB2(sMountTypeXCapabilityStore);
     LOAD_DB2(sMountXDisplayStore);
     LOAD_DB2(sMovieStore);
@@ -2690,32 +2693,34 @@ uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
 
 MapDifficultyEntry const* DB2Manager::GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty /*= nullptr*/) const
 {
-    auto itr = _mapDifficulties.find(mapId);
-    if (itr == _mapDifficulties.end())
+    std::unordered_map<uint32, MapDifficultyEntry const*>* difficultiesForMap = Trinity::Containers::MapGetValuePtr(_mapDifficulties, mapId);
+    if (!difficultiesForMap)
         return nullptr;
 
-    if (itr->second.empty())
-        return nullptr;
+    auto difficultyEnd = difficultiesForMap->end();
 
-    for (auto& p : itr->second)
+    // first find any valid difficulty
+    auto foundDifficulty = std::ranges::find_if(difficultiesForMap->begin(), difficultyEnd,
+        [](std::pair<uint32 const, MapDifficultyEntry const*> const& p) { return sDifficultyStore.HasRecord(p.first); });
+
+    if (foundDifficulty == difficultyEnd)
+        return nullptr; // nothing valid was found
+
+    if (!(sDifficultyStore.AssertEntry(foundDifficulty->first)->Flags & DIFFICULTY_FLAG_DEFAULT))
     {
-        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(p.first);
-        if (!difficultyEntry)
-            continue;
+        // first valid difficulty wasn't default, try finding one
+        auto defaultDifficulty = std::ranges::find_if(foundDifficulty, difficultyEnd,
+            [](DifficultyEntry const* difficultyEntry) { return difficultyEntry && (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT) != 0; },
+            [](std::pair<uint32 const, MapDifficultyEntry const*> const& p) { return sDifficultyStore.LookupEntry(p.first); });
 
-        if (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT)
-        {
-            if (difficulty)
-                *difficulty = Difficulty(p.first);
-
-            return p.second;
-        }
+        if (defaultDifficulty != difficultyEnd)
+            foundDifficulty = defaultDifficulty; // got a default
     }
 
     if (difficulty)
-        *difficulty = Difficulty(itr->second.begin()->first);
+        *difficulty = Difficulty(foundDifficulty->first);
 
-    return itr->second.begin()->second;
+    return foundDifficulty->second;
 }
 
 MapDifficultyEntry const* DB2Manager::GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.40, for Linux (x86_64)
 --
 -- Host: localhost    Database: hotfixes
 -- ------------------------------------------------------
--- Server version	8.0.39-0ubuntu0.22.04.1
+-- Server version	8.0.40-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -34,7 +34,7 @@ CREATE TABLE `achievement` (
   `MinimumCriteria` tinyint NOT NULL DEFAULT '0',
   `Points` tinyint NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
-  `UiOrder` smallint NOT NULL DEFAULT '0',
+  `UiOrder` smallint unsigned NOT NULL DEFAULT '0',
   `IconFileID` int NOT NULL DEFAULT '0',
   `RewardItemID` int NOT NULL DEFAULT '0',
   `CriteriaTree` int unsigned NOT NULL DEFAULT '0',
@@ -58,7 +58,7 @@ CREATE TABLE `achievement_category` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Parent` smallint NOT NULL DEFAULT '0',
-  `UiOrder` tinyint NOT NULL DEFAULT '0',
+  `UiOrder` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -374,7 +374,7 @@ CREATE TABLE `area_trigger` (
   `PosY` float NOT NULL DEFAULT '0',
   `PosZ` float NOT NULL DEFAULT '0',
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ContinentID` smallint NOT NULL DEFAULT '0',
+  `ContinentID` smallint unsigned NOT NULL DEFAULT '0',
   `PhaseUseFlags` int NOT NULL DEFAULT '0',
   `PhaseID` smallint NOT NULL DEFAULT '0',
   `PhaseGroupID` smallint NOT NULL DEFAULT '0',
@@ -614,7 +614,7 @@ CREATE TABLE `artifact_power` (
   `MaxPurchasableRank` tinyint unsigned NOT NULL DEFAULT '0',
   `Label` int NOT NULL DEFAULT '0',
   `Flags` tinyint unsigned NOT NULL DEFAULT '0',
-  `Tier` tinyint NOT NULL DEFAULT '0',
+  `Tier` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -981,10 +981,10 @@ DROP TABLE IF EXISTS `azerite_power_set_member`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `azerite_power_set_member` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `AzeritePowerSetID` int NOT NULL DEFAULT '0',
+  `AzeritePowerSetID` int unsigned NOT NULL DEFAULT '0',
   `AzeritePowerID` int NOT NULL DEFAULT '0',
   `Class` int NOT NULL DEFAULT '0',
-  `Tier` tinyint NOT NULL DEFAULT '0',
+  `Tier` tinyint unsigned NOT NULL DEFAULT '0',
   `OrderIndex` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -1184,7 +1184,7 @@ CREATE TABLE `battle_pet_breed_quality` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `MaxQualityRoll` int NOT NULL DEFAULT '0',
   `StateMultiplier` float NOT NULL DEFAULT '0',
-  `QualityEnum` tinyint NOT NULL DEFAULT '0',
+  `QualityEnum` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1392,9 +1392,9 @@ DROP TABLE IF EXISTS `broadcast_text_duration`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `broadcast_text_duration` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `BroadcastTextID` int NOT NULL DEFAULT '0',
   `Locale` int NOT NULL DEFAULT '0',
   `Duration` int NOT NULL DEFAULT '0',
+  `BroadcastTextID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1588,7 +1588,7 @@ CREATE TABLE `character_loadout` (
   `RaceMask` bigint NOT NULL DEFAULT '0',
   `ChrClassID` tinyint NOT NULL DEFAULT '0',
   `Purpose` int NOT NULL DEFAULT '0',
-  `ItemContext` tinyint NOT NULL DEFAULT '0',
+  `ItemContext` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1786,7 +1786,7 @@ DROP TABLE IF EXISTS `chr_customization_choice`;
 CREATE TABLE `chr_customization_choice` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ChrCustomizationOptionID` int NOT NULL DEFAULT '0',
+  `ChrCustomizationOptionID` int unsigned NOT NULL DEFAULT '0',
   `ChrCustomizationReqID` int NOT NULL DEFAULT '0',
   `ChrCustomizationVisReqID` int NOT NULL DEFAULT '0',
   `SortOrder` smallint unsigned NOT NULL DEFAULT '0',
@@ -1886,9 +1886,7 @@ CREATE TABLE `chr_customization_option` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `SecondaryID` smallint unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
-  `ChrRacesID` int NOT NULL DEFAULT '0',
-  `Sex` int NOT NULL DEFAULT '0',
-  `ChrModelID` int NOT NULL DEFAULT '0',
+  `ChrModelID` int unsigned NOT NULL DEFAULT '0',
   `SortIndex` int NOT NULL DEFAULT '0',
   `ChrCustomizationCategoryID` int NOT NULL DEFAULT '0',
   `OptionType` int NOT NULL DEFAULT '0',
@@ -2010,7 +2008,7 @@ CREATE TABLE `chr_model` (
   `CustomizeOffset3` float NOT NULL DEFAULT '0',
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Sex` tinyint NOT NULL DEFAULT '0',
-  `DisplayID` int NOT NULL DEFAULT '0',
+  `DisplayID` int unsigned NOT NULL DEFAULT '0',
   `CharComponentTextureLayoutID` int NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
   `SkeletonFileDataID` int NOT NULL DEFAULT '0',
@@ -2037,7 +2035,7 @@ DROP TABLE IF EXISTS `chr_race_x_chr_model`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `chr_race_x_chr_model` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ChrRacesID` int NOT NULL DEFAULT '0',
+  `ChrRacesID` int unsigned NOT NULL DEFAULT '0',
   `ChrModelID` int NOT NULL DEFAULT '0',
   `Sex` int NOT NULL DEFAULT '0',
   `AllowedTransmogSlots` int NOT NULL DEFAULT '0',
@@ -2173,7 +2171,7 @@ CREATE TABLE `chr_specialization` (
   `FemaleName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ClassID` tinyint NOT NULL DEFAULT '0',
+  `ClassID` tinyint unsigned NOT NULL DEFAULT '0',
   `OrderIndex` tinyint NOT NULL DEFAULT '0',
   `PetTalentType` tinyint NOT NULL DEFAULT '0',
   `Role` tinyint NOT NULL DEFAULT '0',
@@ -2270,7 +2268,7 @@ DROP TABLE IF EXISTS `conditional_chr_model`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `conditional_chr_model` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ChrModelID` int NOT NULL DEFAULT '0',
+  `ChrModelID` int unsigned NOT NULL DEFAULT '0',
   `ChrCustomizationReqID` int NOT NULL DEFAULT '0',
   `PlayerConditionID` int NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
@@ -2946,11 +2944,12 @@ CREATE TABLE `difficulty` (
   `MinPlayers` tinyint unsigned NOT NULL DEFAULT '0',
   `MaxPlayers` tinyint unsigned NOT NULL DEFAULT '0',
   `Flags` smallint unsigned NOT NULL DEFAULT '0',
-  `ItemContext` tinyint NOT NULL DEFAULT '0',
+  `ItemContext` tinyint unsigned NOT NULL DEFAULT '0',
   `ToggleDifficultyID` tinyint unsigned NOT NULL DEFAULT '0',
   `GroupSizeHealthCurveID` int unsigned NOT NULL DEFAULT '0',
   `GroupSizeDmgCurveID` int unsigned NOT NULL DEFAULT '0',
   `GroupSizeSpellPointsCurveID` int unsigned NOT NULL DEFAULT '0',
+  `Unknown1105` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2993,7 +2992,7 @@ DROP TABLE IF EXISTS `dungeon_encounter`;
 CREATE TABLE `dungeon_encounter` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `MapID` smallint NOT NULL DEFAULT '0',
+  `MapID` smallint unsigned NOT NULL DEFAULT '0',
   `DifficultyID` int NOT NULL DEFAULT '0',
   `OrderIndex` int NOT NULL DEFAULT '0',
   `CompleteWorldStateID` int NOT NULL DEFAULT '0',
@@ -3309,6 +3308,45 @@ CREATE TABLE `faction_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `flight_capability`
+--
+
+DROP TABLE IF EXISTS `flight_capability`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `flight_capability` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `AirFriction` float NOT NULL DEFAULT '0',
+  `MaxVel` float NOT NULL DEFAULT '0',
+  `Unknown1000_2` float NOT NULL DEFAULT '0',
+  `DoubleJumpVelMod` float NOT NULL DEFAULT '0',
+  `LiftCoefficient` float NOT NULL DEFAULT '0',
+  `GlideStartMinHeight` float NOT NULL DEFAULT '0',
+  `AddImpulseMaxSpeed` float NOT NULL DEFAULT '0',
+  `BankingRateMin` float NOT NULL DEFAULT '0',
+  `BankingRateMax` float NOT NULL DEFAULT '0',
+  `PitchingRateDownMin` float NOT NULL DEFAULT '0',
+  `PitchingRateDownMax` float NOT NULL DEFAULT '0',
+  `PitchingRateUpMin` float NOT NULL DEFAULT '0',
+  `PitchingRateUpMax` float NOT NULL DEFAULT '0',
+  `TurnVelocityThresholdMin` float NOT NULL DEFAULT '0',
+  `TurnVelocityThresholdMax` float NOT NULL DEFAULT '0',
+  `SurfaceFriction` float NOT NULL DEFAULT '0',
+  `OverMaxDeceleration` float NOT NULL DEFAULT '0',
+  `Unknown1000_17` float NOT NULL DEFAULT '0',
+  `Unknown1000_18` float NOT NULL DEFAULT '0',
+  `Unknown1000_19` float NOT NULL DEFAULT '0',
+  `Unknown1000_20` float NOT NULL DEFAULT '0',
+  `Unknown1000_21` float NOT NULL DEFAULT '0',
+  `LaunchSpeedCoefficient` float NOT NULL DEFAULT '0',
+  `VigorRegenMaxVelCoefficient` float NOT NULL DEFAULT '0',
+  `SpellID` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `friendship_rep_reaction`
 --
 
@@ -3318,7 +3356,7 @@ DROP TABLE IF EXISTS `friendship_rep_reaction`;
 CREATE TABLE `friendship_rep_reaction` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Reaction` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `FriendshipRepID` int NOT NULL DEFAULT '0',
+  `FriendshipRepID` int unsigned NOT NULL DEFAULT '0',
   `ReactionThreshold` int NOT NULL DEFAULT '0',
   `OverrideColor` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -3465,7 +3503,7 @@ CREATE TABLE `gameobjects` (
   `Rot3` float NOT NULL DEFAULT '0',
   `Rot4` float NOT NULL DEFAULT '0',
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `OwnerID` int NOT NULL DEFAULT '0',
+  `OwnerID` int unsigned NOT NULL DEFAULT '0',
   `DisplayID` int NOT NULL DEFAULT '0',
   `Scale` float NOT NULL DEFAULT '0',
   `TypeID` int NOT NULL DEFAULT '0',
@@ -3576,7 +3614,7 @@ CREATE TABLE `garr_building` (
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Tooltip` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `GarrTypeID` tinyint NOT NULL DEFAULT '0',
-  `BuildingType` tinyint NOT NULL DEFAULT '0',
+  `BuildingType` tinyint unsigned NOT NULL DEFAULT '0',
   `HordeGameObjectID` int NOT NULL DEFAULT '0',
   `AllianceGameObjectID` int NOT NULL DEFAULT '0',
   `GarrSiteID` int NOT NULL DEFAULT '0',
@@ -3820,7 +3858,7 @@ CREATE TABLE `garr_mission` (
   `EnvGarrMechanicID` int unsigned NOT NULL DEFAULT '0',
   `EnvGarrMechanicTypeID` int NOT NULL DEFAULT '0',
   `PlayerConditionID` int unsigned NOT NULL DEFAULT '0',
-  `GarrMissionSetID` int NOT NULL DEFAULT '0',
+  `GarrMissionSetID` int unsigned NOT NULL DEFAULT '0',
   `TargetLevel` tinyint NOT NULL DEFAULT '0',
   `TargetItemLevel` smallint unsigned NOT NULL DEFAULT '0',
   `MissionDuration` int NOT NULL DEFAULT '0',
@@ -3879,7 +3917,7 @@ DROP TABLE IF EXISTS `garr_plot`;
 CREATE TABLE `garr_plot` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `PlotType` tinyint NOT NULL DEFAULT '0',
+  `PlotType` tinyint unsigned NOT NULL DEFAULT '0',
   `HordeConstructObjID` int NOT NULL DEFAULT '0',
   `AllianceConstructObjID` int NOT NULL DEFAULT '0',
   `Flags` tinyint unsigned NOT NULL DEFAULT '0',
@@ -3985,7 +4023,7 @@ CREATE TABLE `garr_talent_tree` (
   `GarrTalentTreeType` int NOT NULL DEFAULT '0',
   `PlayerConditionID` int NOT NULL DEFAULT '0',
   `FeatureTypeIndex` tinyint unsigned NOT NULL DEFAULT '0',
-  `FeatureSubtypeIndex` tinyint NOT NULL DEFAULT '0',
+  `FeatureSubtypeIndex` tinyint unsigned NOT NULL DEFAULT '0',
   `CurrencyID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -4077,7 +4115,7 @@ DROP TABLE IF EXISTS `glyph_properties`;
 CREATE TABLE `glyph_properties` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `SpellID` int unsigned NOT NULL DEFAULT '0',
-  `GlyphType` tinyint NOT NULL DEFAULT '0',
+  `GlyphType` tinyint unsigned NOT NULL DEFAULT '0',
   `GlyphExclusiveCategoryID` tinyint unsigned NOT NULL DEFAULT '0',
   `SpellIconFileDataID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -4619,7 +4657,7 @@ DROP TABLE IF EXISTS `item_bonus_list_group_entry`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_bonus_list_group_entry` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ItemBonusListGroupID` int NOT NULL DEFAULT '0',
+  `ItemBonusListGroupID` int unsigned NOT NULL DEFAULT '0',
   `ItemBonusListID` int NOT NULL DEFAULT '0',
   `ItemLevelSelectorID` int NOT NULL DEFAULT '0',
   `SequenceValue` int NOT NULL DEFAULT '0',
@@ -4672,7 +4710,7 @@ DROP TABLE IF EXISTS `item_bonus_tree_node`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_bonus_tree_node` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ItemContext` tinyint NOT NULL DEFAULT '0',
+  `ItemContext` tinyint unsigned NOT NULL DEFAULT '0',
   `ChildItemBonusTreeID` smallint unsigned NOT NULL DEFAULT '0',
   `ChildItemBonusListID` smallint unsigned NOT NULL DEFAULT '0',
   `ChildItemLevelSelectorID` smallint unsigned NOT NULL DEFAULT '0',
@@ -4695,7 +4733,7 @@ DROP TABLE IF EXISTS `item_child_equipment`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_child_equipment` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ParentItemID` int NOT NULL DEFAULT '0',
+  `ParentItemID` int unsigned NOT NULL DEFAULT '0',
   `ChildItemID` int NOT NULL DEFAULT '0',
   `ChildItemEquipSlot` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -4757,7 +4795,7 @@ DROP TABLE IF EXISTS `item_context_picker_entry`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_context_picker_entry` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ItemCreationContext` tinyint NOT NULL DEFAULT '0',
+  `ItemCreationContext` tinyint unsigned NOT NULL DEFAULT '0',
   `OrderIndex` tinyint unsigned NOT NULL DEFAULT '0',
   `PVal` int NOT NULL DEFAULT '0',
   `LabelID` int NOT NULL DEFAULT '0',
@@ -4778,7 +4816,7 @@ DROP TABLE IF EXISTS `item_currency_cost`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_currency_cost` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ItemID` int NOT NULL DEFAULT '0',
+  `ItemID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -5097,7 +5135,7 @@ DROP TABLE IF EXISTS `item_modified_appearance`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_modified_appearance` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ItemID` int NOT NULL DEFAULT '0',
+  `ItemID` int unsigned NOT NULL DEFAULT '0',
   `ItemAppearanceModifierID` int NOT NULL DEFAULT '0',
   `ItemAppearanceID` int NOT NULL DEFAULT '0',
   `OrderIndex` int NOT NULL DEFAULT '0',
@@ -5907,7 +5945,7 @@ CREATE TABLE `lfg_dungeons` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `TypeID` tinyint unsigned NOT NULL DEFAULT '0',
-  `Subtype` tinyint NOT NULL DEFAULT '0',
+  `Subtype` tinyint unsigned NOT NULL DEFAULT '0',
   `Faction` tinyint NOT NULL DEFAULT '0',
   `IconTextureFileID` int NOT NULL DEFAULT '0',
   `RewardsBgTextureFileID` int NOT NULL DEFAULT '0',
@@ -5931,6 +5969,7 @@ CREATE TABLE `lfg_dungeons` (
   `BonusReputationAmount` smallint unsigned NOT NULL DEFAULT '0',
   `MentorItemLevel` smallint unsigned NOT NULL DEFAULT '0',
   `MentorCharLevel` tinyint unsigned NOT NULL DEFAULT '0',
+  `MaxPremadeGroupSize` tinyint unsigned NOT NULL DEFAULT '0',
   `ContentTuningID` int NOT NULL DEFAULT '0',
   `Flags1` int NOT NULL DEFAULT '0',
   `Flags2` int NOT NULL DEFAULT '0',
@@ -6276,7 +6315,7 @@ CREATE TABLE `map_difficulty` (
   `Message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `DifficultyID` int NOT NULL DEFAULT '0',
   `LockID` int NOT NULL DEFAULT '0',
-  `ResetInterval` tinyint NOT NULL DEFAULT '0',
+  `ResetInterval` tinyint unsigned NOT NULL DEFAULT '0',
   `MaxPlayers` int NOT NULL DEFAULT '0',
   `ItemContext` tinyint unsigned NOT NULL DEFAULT '0',
   `ItemContextPickerID` int NOT NULL DEFAULT '0',
@@ -6401,7 +6440,7 @@ DROP TABLE IF EXISTS `maw_power`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `maw_power` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `SpellID` int NOT NULL DEFAULT '0',
+  `SpellID` int unsigned NOT NULL DEFAULT '0',
   `MawPowerRarityID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -6843,7 +6882,7 @@ CREATE TABLE `player_condition` (
   `ChrSpecializationRole` tinyint NOT NULL DEFAULT '0',
   `ModifierTreeID` int unsigned NOT NULL DEFAULT '0',
   `PowerType` tinyint NOT NULL DEFAULT '0',
-  `PowerTypeComp` tinyint NOT NULL DEFAULT '0',
+  `PowerTypeComp` tinyint unsigned NOT NULL DEFAULT '0',
   `PowerTypeValue` tinyint unsigned NOT NULL DEFAULT '0',
   `WeaponSubclassMask` int NOT NULL DEFAULT '0',
   `MaxGuildLevel` tinyint unsigned NOT NULL DEFAULT '0',
@@ -7141,7 +7180,7 @@ DROP TABLE IF EXISTS `pvp_stat`;
 CREATE TABLE `pvp_stat` (
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `MapID` int NOT NULL DEFAULT '0',
+  `MapID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -7184,7 +7223,7 @@ DROP TABLE IF EXISTS `pvp_talent`;
 CREATE TABLE `pvp_talent` (
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `SpecID` int NOT NULL DEFAULT '0',
+  `SpecID` int unsigned NOT NULL DEFAULT '0',
   `SpellID` int NOT NULL DEFAULT '0',
   `OverridesSpellID` int NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
@@ -7271,7 +7310,7 @@ CREATE TABLE `pvp_tier` (
   `MaxRating` smallint NOT NULL DEFAULT '0',
   `PrevTier` int NOT NULL DEFAULT '0',
   `NextTier` int NOT NULL DEFAULT '0',
-  `BracketID` tinyint NOT NULL DEFAULT '0',
+  `BracketID` tinyint unsigned NOT NULL DEFAULT '0',
   `Rank` tinyint NOT NULL DEFAULT '0',
   `RankIconFileDataID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -7867,7 +7906,7 @@ CREATE TABLE `skill_line_ability` (
   `AbilityVerb` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `AbilityAllVerb` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `SkillLine` smallint NOT NULL DEFAULT '0',
+  `SkillLine` smallint unsigned NOT NULL DEFAULT '0',
   `Spell` int NOT NULL DEFAULT '0',
   `MinSkillLineRank` smallint NOT NULL DEFAULT '0',
   `ClassMask` int NOT NULL DEFAULT '0',
@@ -7952,7 +7991,7 @@ DROP TABLE IF EXISTS `skill_line_x_trait_tree`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `skill_line_x_trait_tree` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `SkillLineID` int NOT NULL DEFAULT '0',
+  `SkillLineID` int unsigned NOT NULL DEFAULT '0',
   `TraitTreeID` int NOT NULL DEFAULT '0',
   `OrderIndex` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -7970,7 +8009,7 @@ DROP TABLE IF EXISTS `skill_race_class_info`;
 CREATE TABLE `skill_race_class_info` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `RaceMask` bigint NOT NULL DEFAULT '0',
-  `SkillID` smallint NOT NULL DEFAULT '0',
+  `SkillID` smallint unsigned NOT NULL DEFAULT '0',
   `ClassMask` int NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
   `Availability` int NOT NULL DEFAULT '0',
@@ -8629,7 +8668,7 @@ DROP TABLE IF EXISTS `spell_learn_spell`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `spell_learn_spell` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `SpellID` int NOT NULL DEFAULT '0',
+  `SpellID` int unsigned NOT NULL DEFAULT '0',
   `LearnSpellID` int NOT NULL DEFAULT '0',
   `OverridesSpellID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -8681,6 +8720,7 @@ CREATE TABLE `spell_misc` (
   `Attributes13` int NOT NULL DEFAULT '0',
   `Attributes14` int NOT NULL DEFAULT '0',
   `Attributes15` int NOT NULL DEFAULT '0',
+  `Attributes16` int NOT NULL DEFAULT '0',
   `DifficultyID` tinyint unsigned NOT NULL DEFAULT '0',
   `CastingTimeIndex` smallint unsigned NOT NULL DEFAULT '0',
   `DurationIndex` smallint unsigned NOT NULL DEFAULT '0',
@@ -8945,7 +8985,7 @@ DROP TABLE IF EXISTS `spell_reagents_currency`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `spell_reagents_currency` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `SpellID` int NOT NULL DEFAULT '0',
+  `SpellID` int unsigned NOT NULL DEFAULT '0',
   `CurrencyTypesID` smallint unsigned NOT NULL DEFAULT '0',
   `CurrencyCount` smallint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -9537,7 +9577,7 @@ DROP TABLE IF EXISTS `trait_cond`;
 CREATE TABLE `trait_cond` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `CondType` int NOT NULL DEFAULT '0',
-  `TraitTreeID` int NOT NULL DEFAULT '0',
+  `TraitTreeID` int unsigned NOT NULL DEFAULT '0',
   `GrantedRanks` int NOT NULL DEFAULT '0',
   `QuestID` int NOT NULL DEFAULT '0',
   `AchievementID` int NOT NULL DEFAULT '0',
@@ -9602,7 +9642,7 @@ DROP TABLE IF EXISTS `trait_currency_source`;
 CREATE TABLE `trait_currency_source` (
   `Requirement` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitCurrencyID` int NOT NULL DEFAULT '0',
+  `TraitCurrencyID` int unsigned NOT NULL DEFAULT '0',
   `Amount` int NOT NULL DEFAULT '0',
   `QuestID` int NOT NULL DEFAULT '0',
   `AchievementID` int NOT NULL DEFAULT '0',
@@ -9671,7 +9711,7 @@ DROP TABLE IF EXISTS `trait_definition_effect_points`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_definition_effect_points` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitDefinitionID` int NOT NULL DEFAULT '0',
+  `TraitDefinitionID` int unsigned NOT NULL DEFAULT '0',
   `EffectIndex` int NOT NULL DEFAULT '0',
   `OperationType` int NOT NULL DEFAULT '0',
   `CurveID` int NOT NULL DEFAULT '0',
@@ -9719,7 +9759,7 @@ DROP TABLE IF EXISTS `trait_edge`;
 CREATE TABLE `trait_edge` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `VisualStyle` int NOT NULL DEFAULT '0',
-  `LeftTraitNodeID` int NOT NULL DEFAULT '0',
+  `LeftTraitNodeID` int unsigned NOT NULL DEFAULT '0',
   `RightTraitNodeID` int NOT NULL DEFAULT '0',
   `Type` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -9736,7 +9776,7 @@ DROP TABLE IF EXISTS `trait_node`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitTreeID` int NOT NULL DEFAULT '0',
+  `TraitTreeID` int unsigned NOT NULL DEFAULT '0',
   `PosX` int NOT NULL DEFAULT '0',
   `PosY` int NOT NULL DEFAULT '0',
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
@@ -9775,7 +9815,7 @@ DROP TABLE IF EXISTS `trait_node_entry_x_trait_cond`;
 CREATE TABLE `trait_node_entry_x_trait_cond` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `TraitCondID` int NOT NULL DEFAULT '0',
-  `TraitNodeEntryID` int NOT NULL DEFAULT '0',
+  `TraitNodeEntryID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -9790,7 +9830,7 @@ DROP TABLE IF EXISTS `trait_node_entry_x_trait_cost`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node_entry_x_trait_cost` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitNodeEntryID` int NOT NULL DEFAULT '0',
+  `TraitNodeEntryID` int unsigned NOT NULL DEFAULT '0',
   `TraitCostID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -9806,7 +9846,7 @@ DROP TABLE IF EXISTS `trait_node_group`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node_group` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitTreeID` int NOT NULL DEFAULT '0',
+  `TraitTreeID` int unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -9823,7 +9863,7 @@ DROP TABLE IF EXISTS `trait_node_group_x_trait_cond`;
 CREATE TABLE `trait_node_group_x_trait_cond` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `TraitCondID` int NOT NULL DEFAULT '0',
-  `TraitNodeGroupID` int NOT NULL DEFAULT '0',
+  `TraitNodeGroupID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -9838,7 +9878,7 @@ DROP TABLE IF EXISTS `trait_node_group_x_trait_cost`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node_group_x_trait_cost` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitNodeGroupID` int NOT NULL DEFAULT '0',
+  `TraitNodeGroupID` int unsigned NOT NULL DEFAULT '0',
   `TraitCostID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -9854,7 +9894,7 @@ DROP TABLE IF EXISTS `trait_node_group_x_trait_node`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node_group_x_trait_node` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitNodeGroupID` int NOT NULL DEFAULT '0',
+  `TraitNodeGroupID` int unsigned NOT NULL DEFAULT '0',
   `TraitNodeID` int NOT NULL DEFAULT '0',
   `Index` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -9872,7 +9912,7 @@ DROP TABLE IF EXISTS `trait_node_x_trait_cond`;
 CREATE TABLE `trait_node_x_trait_cond` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `TraitCondID` int NOT NULL DEFAULT '0',
-  `TraitNodeID` int NOT NULL DEFAULT '0',
+  `TraitNodeID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -9887,7 +9927,7 @@ DROP TABLE IF EXISTS `trait_node_x_trait_cost`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node_x_trait_cost` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitNodeID` int NOT NULL DEFAULT '0',
+  `TraitNodeID` int unsigned NOT NULL DEFAULT '0',
   `TraitCostID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -9903,7 +9943,7 @@ DROP TABLE IF EXISTS `trait_node_x_trait_node_entry`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node_x_trait_node_entry` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitNodeID` int NOT NULL DEFAULT '0',
+  `TraitNodeID` int unsigned NOT NULL DEFAULT '0',
   `TraitNodeEntryID` int NOT NULL DEFAULT '0',
   `Index` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -9923,7 +9963,7 @@ CREATE TABLE `trait_sub_tree` (
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
   `UiTextureAtlasElementID` int NOT NULL DEFAULT '0',
-  `TraitTreeID` int NOT NULL DEFAULT '0',
+  `TraitTreeID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -9966,7 +10006,7 @@ DROP TABLE IF EXISTS `trait_tree`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_tree` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitSystemID` int NOT NULL DEFAULT '0',
+  `TraitSystemID` int unsigned NOT NULL DEFAULT '0',
   `Unused1000_1` int NOT NULL DEFAULT '0',
   `FirstTraitNodeID` int NOT NULL DEFAULT '0',
   `PlayerConditionID` int NOT NULL DEFAULT '0',
@@ -9987,7 +10027,7 @@ DROP TABLE IF EXISTS `trait_tree_loadout`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_tree_loadout` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitTreeID` int NOT NULL DEFAULT '0',
+  `TraitTreeID` int unsigned NOT NULL DEFAULT '0',
   `ChrSpecializationID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -10003,7 +10043,7 @@ DROP TABLE IF EXISTS `trait_tree_loadout_entry`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_tree_loadout_entry` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitTreeLoadoutID` int NOT NULL DEFAULT '0',
+  `TraitTreeLoadoutID` int unsigned NOT NULL DEFAULT '0',
   `SelectedTraitNodeID` int NOT NULL DEFAULT '0',
   `SelectedTraitNodeEntryID` int NOT NULL DEFAULT '0',
   `NumPoints` int NOT NULL DEFAULT '0',
@@ -10039,7 +10079,7 @@ DROP TABLE IF EXISTS `trait_tree_x_trait_currency`;
 CREATE TABLE `trait_tree_x_trait_currency` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Index` int NOT NULL DEFAULT '0',
-  `TraitTreeID` int NOT NULL DEFAULT '0',
+  `TraitTreeID` int unsigned NOT NULL DEFAULT '0',
   `TraitCurrencyID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -10094,7 +10134,7 @@ CREATE TABLE `transmog_set` (
   `Flags` int NOT NULL DEFAULT '0',
   `TransmogSetGroupID` int NOT NULL DEFAULT '0',
   `ItemNameDescriptionID` int NOT NULL DEFAULT '0',
-  `ParentTransmogSetID` int NOT NULL DEFAULT '0',
+  `ParentTransmogSetID` int unsigned NOT NULL DEFAULT '0',
   `Unknown810` int NOT NULL DEFAULT '0',
   `ExpansionID` int NOT NULL DEFAULT '0',
   `PatchID` int NOT NULL DEFAULT '0',
@@ -10241,9 +10281,9 @@ DROP TABLE IF EXISTS `ui_map`;
 CREATE TABLE `ui_map` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ParentUiMapID` int NOT NULL DEFAULT '0',
+  `ParentUiMapID` int unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
-  `System` tinyint NOT NULL DEFAULT '0',
+  `System` tinyint unsigned NOT NULL DEFAULT '0',
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
   `BountySetID` int NOT NULL DEFAULT '0',
   `BountyDisplayLocation` int unsigned NOT NULL DEFAULT '0',
@@ -10279,7 +10319,7 @@ CREATE TABLE `ui_map_assignment` (
   `Region2Y` float NOT NULL DEFAULT '0',
   `Region2Z` float NOT NULL DEFAULT '0',
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `UiMapID` int NOT NULL DEFAULT '0',
+  `UiMapID` int unsigned NOT NULL DEFAULT '0',
   `OrderIndex` int NOT NULL DEFAULT '0',
   `MapID` int NOT NULL DEFAULT '0',
   `AreaID` int NOT NULL DEFAULT '0',
@@ -10303,7 +10343,7 @@ CREATE TABLE `ui_map_link` (
   `UiMaxX` float NOT NULL DEFAULT '0',
   `UiMaxY` float NOT NULL DEFAULT '0',
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ParentUiMapID` int NOT NULL DEFAULT '0',
+  `ParentUiMapID` int unsigned NOT NULL DEFAULT '0',
   `OrderIndex` int NOT NULL DEFAULT '0',
   `ChildUiMapID` int NOT NULL DEFAULT '0',
   `PlayerConditionID` int NOT NULL DEFAULT '0',
@@ -10377,7 +10417,7 @@ CREATE TABLE `ui_splash_screen` (
   `RightFeatureDesc` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `AllianceQuestID` int NOT NULL DEFAULT '0',
   `HordeQuestID` int NOT NULL DEFAULT '0',
-  `ScreenType` tinyint NOT NULL DEFAULT '0',
+  `ScreenType` tinyint unsigned NOT NULL DEFAULT '0',
   `TextureKitID` int NOT NULL DEFAULT '0',
   `SoundKitID` int NOT NULL DEFAULT '0',
   `PlayerConditionID` int NOT NULL DEFAULT '0',
@@ -10864,4 +10904,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-23 22:48:16
+-- Dump completed on 2024-11-16 21:57:45
