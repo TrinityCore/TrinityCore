@@ -437,10 +437,10 @@ bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str)
     return true;
 }
 
-void wstrToUpper(std::wstring& str) { std::transform(std::begin(str), std::end(str), std::begin(str), wcharToUpper); }
-void wstrToLower(std::wstring& str) { std::transform(std::begin(str), std::end(str), std::begin(str), wcharToLower); }
-void strToUpper(std::string& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToUpper); }
-void strToLower(std::string& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToLower); }
+void wstrToUpper(std::wstring& str) { std::ranges::transform(str, std::begin(str), wcharToUpper); }
+void wstrToLower(std::wstring& str) { std::ranges::transform(str, std::begin(str), wcharToLower); }
+void strToUpper(std::string& str) { std::ranges::transform(str, std::begin(str), charToUpper); }
+void strToLower(std::string& str) { std::ranges::transform(str, std::begin(str), charToLower); }
 
 std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConstant locale)
 {
@@ -629,51 +629,55 @@ std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConsta
 
 std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
+    std::wstring result = wname;
+
     // supported only Cyrillic cases
     if (wname.empty() || !isCyrillicCharacter(wname[0]) || declension > 5)
-        return wname;
+        return result;
 
     // Important: end length must be <= MAX_INTERNAL_PLAYER_NAME-MAX_PLAYER_NAME (3 currently)
-    static std::wstring const a_End    = { wchar_t(0x0430)                  };
-    static std::wstring const o_End    = { wchar_t(0x043E)                  };
-    static std::wstring const ya_End   = { wchar_t(0x044F)                  };
-    static std::wstring const ie_End   = { wchar_t(0x0435)                  };
-    static std::wstring const i_End    = { wchar_t(0x0438)                  };
-    static std::wstring const yeru_End = { wchar_t(0x044B)                  };
-    static std::wstring const u_End    = { wchar_t(0x0443)                  };
-    static std::wstring const yu_End   = { wchar_t(0x044E)                  };
-    static std::wstring const oj_End   = { wchar_t(0x043E), wchar_t(0x0439) };
-    static std::wstring const ie_j_End = { wchar_t(0x0435), wchar_t(0x0439) };
-    static std::wstring const io_j_End = { wchar_t(0x0451), wchar_t(0x0439) };
-    static std::wstring const o_m_End  = { wchar_t(0x043E), wchar_t(0x043C) };
-    static std::wstring const io_m_End = { wchar_t(0x0451), wchar_t(0x043C) };
-    static std::wstring const ie_m_End = { wchar_t(0x0435), wchar_t(0x043C) };
-    static std::wstring const soft_End = { wchar_t(0x044C)                  };
-    static std::wstring const j_End    = { wchar_t(0x0439)                  };
+    static constexpr std::wstring_view a_End    = L"\x430";
+    static constexpr std::wstring_view o_End    = L"\x43E";
+    static constexpr std::wstring_view ya_End   = L"\x44F";
+    static constexpr std::wstring_view ie_End   = L"\x435";
+    static constexpr std::wstring_view i_End    = L"\x438";
+    static constexpr std::wstring_view yeru_End = L"\x44B";
+    static constexpr std::wstring_view u_End    = L"\x443";
+    static constexpr std::wstring_view yu_End   = L"\x44E";
+    static constexpr std::wstring_view oj_End   = L"\x43E\x439";
+    static constexpr std::wstring_view ie_j_End = L"\x435\x439";
+    static constexpr std::wstring_view io_j_End = L"\x451\x439";
+    static constexpr std::wstring_view o_m_End  = L"\x43E\x43C";
+    static constexpr std::wstring_view io_m_End = L"\x451\x43C";
+    static constexpr std::wstring_view ie_m_End = L"\x435\x43C";
+    static constexpr std::wstring_view soft_End = L"\x44C";
+    static constexpr std::wstring_view j_End    = L"\x439";
 
-    static std::array<std::array<std::wstring const*, 7>, 6> const dropEnds = {{
-        { &a_End,  &o_End,    &ya_End,   &ie_End,  &soft_End, &j_End,    nullptr },
-        { &a_End,  &ya_End,   &yeru_End, &i_End,   nullptr,   nullptr,   nullptr },
-        { &ie_End, &u_End,    &yu_End,   &i_End,   nullptr,   nullptr,   nullptr },
-        { &u_End,  &yu_End,   &o_End,    &ie_End,  &soft_End, &ya_End,   &a_End  },
-        { &oj_End, &io_j_End, &ie_j_End, &o_m_End, &io_m_End, &ie_m_End, &yu_End },
-        { &ie_End, &i_End,    nullptr,   nullptr,  nullptr,   nullptr,   nullptr }
+    static constexpr std::array<std::array<std::wstring_view, 7>, 6> dropEnds = {{
+        { a_End,  o_End,    ya_End,   ie_End,  soft_End, j_End,    {} },
+        { a_End,  ya_End,   yeru_End, i_End,   {},       {},       {} },
+        { ie_End, u_End,    yu_End,   i_End,   {},       {},       {} },
+        { u_End,  yu_End,   o_End,    ie_End,  soft_End, ya_End,   a_End  },
+        { oj_End, io_j_End, ie_j_End, o_m_End, io_m_End, ie_m_End, yu_End },
+        { ie_End, i_End,    {},       {},      {},       {},       {} }
     }};
 
     std::size_t const thisLen = wname.length();
-    std::array<std::wstring const*, 7> const& endings = dropEnds[declension];
-    for (auto itr = endings.begin(), end = endings.end(); (itr != end) && *itr; ++itr)
+    std::array<std::wstring_view, 7> const& endings = dropEnds[declension];
+    for (auto itr = endings.begin(), end = endings.end(); itr != end && !itr->empty(); ++itr)
     {
-        std::wstring const& ending = **itr;
-        std::size_t const endLen = ending.length();
-        if (!(endLen <= thisLen))
+        std::size_t const endLen = itr->length();
+        if (endLen > thisLen)
             continue;
 
-        if (wname.substr(thisLen-endLen, thisLen) == ending)
-            return wname.substr(0, thisLen-endLen);
+        if (wname.ends_with(*itr))
+        {
+            result.erase(thisLen - endLen);
+            break;
+        }
     }
 
-    return wname;
+    return result;
 }
 
 bool utf8ToConsole(std::string_view utf8str, std::string& conStr)
@@ -759,7 +763,7 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
     if (!Utf8toWStr(utf8String, wstr))
         return false;
 
-    std::transform(wstr.begin(), wstr.end(), wstr.begin(), wcharToUpperOnlyLatin);
+    std::ranges::transform(wstr, wstr.begin(), wcharToUpperOnlyLatin);
 
     return WStrToUtf8(wstr, utf8String);
 }
@@ -852,18 +856,18 @@ void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t o
 
 bool StringEqualI(std::string_view a, std::string_view b)
 {
-    return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+    return std::ranges::equal(a, b, {}, charToLower, charToLower);
 }
 
 bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 {
     return haystack.end() !=
-        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+        std::ranges::search(haystack, needle, {}, charToLower, charToLower).begin();
 }
 
 bool StringCompareLessI(std::string_view a, std::string_view b)
 {
-    return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
+    return std::ranges::lexicographical_compare(a, b, {}, charToLower, charToLower);
 }
 
 std::string Trinity::Impl::GetTypeName(std::type_info const& info)
