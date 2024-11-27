@@ -862,7 +862,7 @@ bool StringEqualI(std::string_view a, std::string_view b)
 bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 {
     return haystack.end() !=
-        std::ranges::search(haystack, needle, {}, charToLower, charToLower).begin();
+        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return charToLower(c1) == charToLower(c2); });
 }
 
 bool StringCompareLessI(std::string_view a, std::string_view b)
