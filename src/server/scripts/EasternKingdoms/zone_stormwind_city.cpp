@@ -541,11 +541,9 @@ class spell_the_kings_command_movie_aura_aura : public AuraScript
 
     void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        Unit* target = GetTarget();
 
-        caster->CastSpell(GetTarget(), StormwindCity::Spells::MOPAllianceIntroMoviePlay, CastSpellExtraArgsInit{
+        target->CastSpell(target, StormwindCity::Spells::MOPAllianceIntroMoviePlay, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
