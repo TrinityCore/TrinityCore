@@ -71,11 +71,7 @@ class spell_cancel_blackout : public AuraScript
 
     void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->RemoveAurasDueToSpell(TheJadeForest::Spells::TeleportPrep);
+        GetTarget()->RemoveAurasDueToSpell(TheJadeForest::Spells::TeleportPrep);
     }
 
     void Register() override

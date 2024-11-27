@@ -1282,11 +1282,9 @@ class spell_teleport_timer : public AuraScript
 
     void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        Unit* target = GetTarget();
 
-        caster->CastSpell(GetTarget(), Durotar::Spells::TeleportPlayerToCrashSite, CastSpellExtraArgsInit{
+        target->CastSpell(target, Durotar::Spells::TeleportPlayerToCrashSite, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
