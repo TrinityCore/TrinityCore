@@ -846,6 +846,14 @@ StartDeathKnightPlayerLevel = 55
 StartPlayerMoney = 0
 
 #
+#    StartDeathKnightPlayerMoney
+#        Description: Amount of money (in Copper) that a death knight character has after creation.
+#        Default:     2000
+#                     100 - (1 Silver)
+
+StartDeathKnightPlayerMoney = 2000
+
+#
 #    MaxHonorPoints
 #        Description: Maximum honor points a character can have.
 #        Default:     75000
