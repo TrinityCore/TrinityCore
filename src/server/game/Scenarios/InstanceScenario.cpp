@@ -68,7 +68,7 @@ void InstanceScenario::LoadInstanceData()
                 // count creatures in despawned spawn groups
                 if (uint64* progress = Trinity::Containers::MapGetValuePtr(despawnedCreatureCountsById, criteria->Entry->Asset.CreatureID))
                 {
-                    SetCriteriaProgress(criteria, *progress, nullptr, PROGRESS_SET);
+                    SetCriteriaProgress(criteria, *progress, _guid, PROGRESS_SET);
 
                     if (CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID))
                         for (CriteriaTree const* tree : *trees)
@@ -83,7 +83,7 @@ void InstanceScenario::LoadInstanceData()
         if (!instanceScript->IsEncounterCompleted(criteria->Entry->Asset.DungeonEncounterID))
             continue;
 
-        SetCriteriaProgress(criteria, 1, nullptr, PROGRESS_SET);
+        SetCriteriaProgress(criteria, 1, _guid, PROGRESS_SET);
 
         if (CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID))
             for (CriteriaTree const* tree : *trees)

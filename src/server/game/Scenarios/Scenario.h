@@ -102,8 +102,9 @@ class TC_GAME_API Scenario : public CriteriaHandler
         CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const override;
         ScenarioData const* _data;
 
-    private:
         ObjectGuid const _guid;
+
+    private:
         ScenarioStepEntry const* _currentstep;
         std::map<ScenarioStepEntry const*, ScenarioStepState> _stepStates;
 };

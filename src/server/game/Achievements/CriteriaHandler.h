@@ -285,7 +285,7 @@ protected:
     virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const = 0;
 
     CriteriaProgress* GetCriteriaProgress(Criteria const* entry);
-    void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);
+    void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, ObjectGuid const& playerGUID, ProgressType progressType = PROGRESS_SET);
     void RemoveCriteriaProgress(Criteria const* criteria);
     virtual void SendCriteriaProgressRemoved(uint32 criteriaId) = 0;
 
