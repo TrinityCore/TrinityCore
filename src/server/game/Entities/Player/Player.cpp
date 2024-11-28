@@ -26990,8 +26990,8 @@ void Player::FailCriteria(CriteriaFailEvent condition, int32 failAsset)
 
 void Player::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject* ref /*= nullptr*/)
 {
-    m_achievementMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
-    m_questObjectiveCriteriaMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
+    m_achievementMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this, GetGUID());
+    m_questObjectiveCriteriaMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this, GetGUID());
 
     // Update only individual achievement criteria here, otherwise we may get multiple updates
     // from a single boss kill
@@ -26999,7 +26999,7 @@ void Player::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*/, uint64
         return;
 
     if (Scenario* scenario = GetScenario())
-        scenario->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
+        scenario->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this, scenario->GetGUID());
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
         guild->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);

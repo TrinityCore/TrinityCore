@@ -77,6 +77,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         void SendScenarioState(Player const* player) const;
         void SendBootPlayer(Player const* player) const;
 
+        ObjectGuid const& GetGUID() const { return _guid; }
+
     protected:
         Map const* _map;
         GuidUnorderedSet _players;

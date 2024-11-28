@@ -39,7 +39,7 @@ void QuestObjectiveCriteriaMgr::CheckAllQuestObjectiveCriteria(Player* reference
 {
     // suppress sending packets
     for (uint32 i = 0; i < uint32(CriteriaType::Count); ++i)
-        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer);
+        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer, referencePlayer->GetGUID());
 }
 
 void QuestObjectiveCriteriaMgr::Reset()

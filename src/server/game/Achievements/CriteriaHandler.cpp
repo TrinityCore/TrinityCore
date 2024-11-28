@@ -461,7 +461,8 @@ void CriteriaHandler::Reset()
 /**
  * this function will be called whenever the user might have done a criteria relevant action
  */
-void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject const* ref /*= nullptr*/, Player* referencePlayer /*= nullptr*/)
+void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject const* ref /*= nullptr*/,
+    Player* referencePlayer /*= nullptr*/, ObjectGuid const& playerGUID /*= ObjectGuid::Empty*/)
 {
     if (type >= CriteriaType::Count)
     {
@@ -562,7 +563,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::CompleteAnyReplayQuest:
             case CriteriaType::BuyItemsFromVendors:
             case CriteriaType::SellItemsToVendors:
-                SetCriteriaProgress(criteria, 1, referencePlayer->GetGUID(), PROGRESS_ACCUMULATE);
+                SetCriteriaProgress(criteria, 1, playerGUID, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
             case CriteriaType::MoneyEarnedFromSales:
@@ -582,7 +583,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::EarnArtifactXPForAzeriteItem:
             case CriteriaType::GainLevels:
             case CriteriaType::EarnArtifactXP:
-                SetCriteriaProgress(criteria, miscValue1, referencePlayer->GetGUID(), PROGRESS_ACCUMULATE);
+                SetCriteriaProgress(criteria, miscValue1, playerGUID, PROGRESS_ACCUMULATE);
                 break;
             case CriteriaType::KillCreature:
             case CriteriaType::KillAnyCreature:
@@ -590,7 +591,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::AcquireItem:
             case CriteriaType::LootItem:
             case CriteriaType::CurrencyGained:
-                SetCriteriaProgress(criteria, miscValue2, referencePlayer->GetGUID(), PROGRESS_ACCUMULATE);
+                SetCriteriaProgress(criteria, miscValue2, playerGUID, PROGRESS_ACCUMULATE);
                 break;
             // std case: high value at miscValue1
             case CriteriaType::HighestAuctionBid:
@@ -602,21 +603,21 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::AzeriteLevelReached:
             case CriteriaType::ReachRenownLevel:
-                SetCriteriaProgress(criteria, miscValue1, referencePlayer->GetGUID(), PROGRESS_HIGHEST);
+                SetCriteriaProgress(criteria, miscValue1, playerGUID, PROGRESS_HIGHEST);
                 break;
             case CriteriaType::ReachLevel:
-                SetCriteriaProgress(criteria, referencePlayer->GetLevel(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetLevel(), playerGUID);
                 break;
             case CriteriaType::SkillRaised:
                 if (uint32 skillvalue = referencePlayer->GetBaseSkillValue(criteria->Entry->Asset.SkillID))
-                    SetCriteriaProgress(criteria, skillvalue, referencePlayer->GetGUID());
+                    SetCriteriaProgress(criteria, skillvalue, playerGUID);
                 break;
             case CriteriaType::AchieveSkillStep:
                 if (uint32 maxSkillvalue = referencePlayer->GetPureMaxSkillValue(criteria->Entry->Asset.SkillID))
-                    SetCriteriaProgress(criteria, maxSkillvalue, referencePlayer->GetGUID());
+                    SetCriteriaProgress(criteria, maxSkillvalue, playerGUID);
                 break;
             case CriteriaType::CompleteQuestsCount:
-                SetCriteriaProgress(criteria, referencePlayer->GetRewardedQuestCount(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetRewardedQuestCount(), playerGUID);
                 break;
             case CriteriaType::CompleteAnyDailyQuestPerDay:
             {
@@ -627,7 +628,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                 {
                     // reset if player missed one day.
                     if (progress && progress->Date < (nextDailyResetTime - 2 * DAY))
-                        SetCriteriaProgress(criteria, 0, referencePlayer->GetGUID(), PROGRESS_SET);
+                        SetCriteriaProgress(criteria, 0, playerGUID, PROGRESS_SET);
                     continue;
                 }
 
@@ -645,14 +646,14 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                     // last progress is within the day before the reset => Already counted today.
                     continue;
 
-                SetCriteriaProgress(criteria, 1, referencePlayer->GetGUID(), progressType);
+                SetCriteriaProgress(criteria, 1, playerGUID, progressType);
                 break;
             }
             case CriteriaType::CompleteQuestsInZone:
             {
                 if (miscValue1)
                 {
-                    SetCriteriaProgress(criteria, 1, referencePlayer->GetGUID(), PROGRESS_ACCUMULATE);
+                    SetCriteriaProgress(criteria, 1, playerGUID, PROGRESS_ACCUMULATE);
                 }
                 else // login case
                 {
@@ -665,13 +666,13 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                         if (quest && quest->GetZoneOrSort() >= 0 && quest->GetZoneOrSort() == criteria->Entry->Asset.ZoneID)
                             ++counter;
                     }
-                    SetCriteriaProgress(criteria, counter, referencePlayer->GetGUID(), PROGRESS_HIGHEST);
+                    SetCriteriaProgress(criteria, counter, playerGUID, PROGRESS_HIGHEST);
                 }
                 break;
             }
             case CriteriaType::MaxDistFallenWithoutDying:
                 // miscValue1 is the ingame fallheight*100 as stored in dbc
-                SetCriteriaProgress(criteria, miscValue1, referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, miscValue1, playerGUID);
                 break;
             case CriteriaType::EarnAchievement:
             case CriteriaType::CompleteQuest:
@@ -691,20 +692,20 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::CollectTransmogSetFromGroup:
             case CriteriaType::EnterTopLevelArea:
             case CriteriaType::LeaveTopLevelArea:
-                SetCriteriaProgress(criteria, 1, referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, 1, playerGUID);
                 break;
             case CriteriaType::BankSlotsPurchased:
-                SetCriteriaProgress(criteria, referencePlayer->GetBankBagSlotCount(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetBankBagSlotCount(), playerGUID);
                 break;
             case CriteriaType::ReputationGained:
             {
                 int32 reputation = referencePlayer->GetReputationMgr().GetReputation(criteria->Entry->Asset.FactionID);
                 if (reputation > 0)
-                    SetCriteriaProgress(criteria, reputation, referencePlayer->GetGUID());
+                    SetCriteriaProgress(criteria, reputation, playerGUID);
                 break;
             }
             case CriteriaType::TotalExaltedFactions:
-                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetExaltedFactionCount(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetExaltedFactionCount(), playerGUID);
                 break;
             case CriteriaType::LearnSpellFromSkillLine:
             case CriteriaType::LearnTradeskillSkillLine:
@@ -723,28 +724,28 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                         }
                     }
                 }
-                SetCriteriaProgress(criteria, spellCount, referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, spellCount, playerGUID);
                 break;
             }
             case CriteriaType::TotalReveredFactions:
-                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetReveredFactionCount(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetReveredFactionCount(), playerGUID);
                 break;
             case CriteriaType::TotalHonoredFactions:
-                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetHonoredFactionCount(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetHonoredFactionCount(), playerGUID);
                 break;
             case CriteriaType::TotalFactionsEncountered:
-                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetVisibleFactionCount(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetVisibleFactionCount(), playerGUID);
                 break;
             case CriteriaType::HonorableKills:
-                SetCriteriaProgress(criteria, referencePlayer->m_activePlayerData->LifetimeHonorableKills, referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->m_activePlayerData->LifetimeHonorableKills, playerGUID);
                 break;
             case CriteriaType::MostMoneyOwned:
-                SetCriteriaProgress(criteria, referencePlayer->GetMoney(), referencePlayer->GetGUID(), PROGRESS_HIGHEST);
+                SetCriteriaProgress(criteria, referencePlayer->GetMoney(), playerGUID, PROGRESS_HIGHEST);
                 break;
             case CriteriaType::EarnAchievementPoints:
                 if (!miscValue1)
                     continue;
-                SetCriteriaProgress(criteria, miscValue1, referencePlayer->GetGUID(), PROGRESS_ACCUMULATE);
+                SetCriteriaProgress(criteria, miscValue1, playerGUID, PROGRESS_ACCUMULATE);
                 break;
             case CriteriaType::EarnPersonalArenaRating:
             {
@@ -755,7 +756,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                     if (miscValue2 != reqTeamType)
                         continue;
 
-                    SetCriteriaProgress(criteria, miscValue1, referencePlayer->GetGUID(), PROGRESS_HIGHEST);
+                    SetCriteriaProgress(criteria, miscValue1, playerGUID, PROGRESS_HIGHEST);
                 }
                 else // login case
                 {
@@ -771,7 +772,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
 
                         if (ArenaTeamMember const* member = team->GetMember(referencePlayer->GetGUID()))
                         {
-                            SetCriteriaProgress(criteria, member->PersonalRating, referencePlayer->GetGUID(), PROGRESS_HIGHEST);
+                            SetCriteriaProgress(criteria, member->PersonalRating, playerGUID, PROGRESS_HIGHEST);
                             break;
                         }
                     }
@@ -779,10 +780,10 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                 break;
             }
             case CriteriaType::UniquePetsOwned:
-                SetCriteriaProgress(criteria, referencePlayer->GetSession()->GetBattlePetMgr()->GetPetUniqueSpeciesCount(), referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, referencePlayer->GetSession()->GetBattlePetMgr()->GetPetUniqueSpeciesCount(), playerGUID);
                 break;
             case CriteriaType::GuildAttainedLevel:
-                SetCriteriaProgress(criteria, miscValue1, referencePlayer->GetGUID());
+                SetCriteriaProgress(criteria, miscValue1, playerGUID);
                 break;
             // FIXME: not triggered in code as result, need to implement
             case CriteriaType::RunInstance:

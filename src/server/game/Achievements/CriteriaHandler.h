@@ -273,7 +273,8 @@ public:
 
     virtual void Reset();
 
-    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
+    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr,
+        Player* referencePlayer = nullptr, ObjectGuid const& playerGUID = ObjectGuid::Empty);
 
     virtual void SendAllData(Player const* receiver) const = 0;
 

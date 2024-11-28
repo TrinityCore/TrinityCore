@@ -62,7 +62,7 @@ void AchievementMgr::CheckAllAchievementCriteria(Player* referencePlayer)
 {
     // suppress sending packets
     for (uint32 i = 0; i < uint32(CriteriaType::Count); ++i)
-        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer);
+        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer, referencePlayer->GetGUID());
 }
 
 bool AchievementMgr::HasAchieved(uint32 achievementId) const
@@ -973,8 +973,8 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
         _achievementPoints += achievement->Points;
 
-    UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
-    UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
+    UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer, referencePlayer->GetGUID());
+    UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer, referencePlayer->GetGUID());
 
     sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
 }
