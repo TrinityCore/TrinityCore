@@ -79,7 +79,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
         void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr)
         {
-            return CriteriaHandler::UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, referencePlayer, _guid);
+            CriteriaHandler::UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, referencePlayer, _guid);
         }
 
     protected:
