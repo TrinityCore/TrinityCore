@@ -298,7 +298,7 @@ void KillRewarder::Reward()
                     guild->UpdateCriteria(CriteriaType::KillCreature, victim->GetEntry(), 1, 0, victim, *_killers.begin());
 
             if (Scenario* scenario = victim->GetScenario())
-                scenario->UpdateCriteria(CriteriaType::KillCreature, victim->GetEntry(), 1, 0, victim, *_killers.begin(), scenario->GetGUID());
+                scenario->UpdateCriteria(CriteriaType::KillCreature, victim->GetEntry(), 1, 0, victim, *_killers.begin());
         }
     }
 }

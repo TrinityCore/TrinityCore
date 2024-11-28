@@ -3778,7 +3778,7 @@ bool Guild::HasAchieved(uint32 achievementId) const
 
 void Guild::UpdateCriteria(CriteriaType type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* player)
 {
-    GetAchievementMgr().UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, player, player->GetGUID());
+    GetAchievementMgr().UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, player);
 }
 
 void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky)
