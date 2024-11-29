@@ -106,11 +106,33 @@ namespace Scripts::Spells::Hunter
             OnEffectLaunchTarget += SpellEffectFn(spell_hun_steady_shot::HandleEnergize, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
         }
     };
+
+    // 77767 - Cobra Shot
+    class spell_hun_cobra_shot: public SpellScript
+    {
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_HUN_STEADY_SHOT_ENERGIZE });
+        }
+
+        // Cast the energize spell when successfully launching the spell against a target. Will not trigger when the target is missed (intentional)
+        // Despite the energize spell being called 'Steady Shot', it's also being used by Cobra Shot
+        void HandleEnergize(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(nullptr, SPELL_HUN_STEADY_SHOT_ENERGIZE, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        }
+
+        void Register() override
+        {
+            OnEffectLaunchTarget += SpellEffectFn(spell_hun_cobra_shot::HandleEnergize, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+        }
+    };
 }
 
 void AddSC_hunter_spell_scripts()
 {
     using namespace Scripts::Spells::Hunter;
+    RegisterSpellScript(spell_hun_cobra_shot);
     RegisterSpellScript(spell_hun_improved_steady_shot);
     RegisterSpellScript(spell_hun_steady_shot);
 }
