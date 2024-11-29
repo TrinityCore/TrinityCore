@@ -399,8 +399,8 @@ namespace WorldPackets
         struct LearnedSpellInfo
         {
             int32 SpellID = 0;
-            bool IsFavorite = false;
-            Optional<int32> field_8;
+            bool Favorite = false;
+            Optional<int32> EquipableSpellInvSlot;
             Optional<int32> Superceded;
             Optional<int32> TraitDefinitionID;
         };
@@ -596,8 +596,8 @@ namespace WorldPackets
             int32 CategoryRecoveryTime = 0;
             float ModRate = 1.0f;
             bool OnHold = false;
-            Optional<uint32> unused622_1; ///< This field is not used for anything in the client in 6.2.2.20444
-            Optional<uint32> unused622_2; ///< This field is not used for anything in the client in 6.2.2.20444
+            Optional<int32> RecoveryTimeStartOffset;
+            Optional<int32> CategoryRecoveryTimeStartOffset;
         };
 
         class SendSpellHistory final : public ServerPacket
@@ -1103,6 +1103,24 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Result = 0;
+        };
+
+        class ApplyMountEquipmentResult final : public ServerPacket
+        {
+        public:
+            enum ApplyResult : int32
+            {
+                Success = 0,
+                Failure = 1
+            };
+
+            ApplyMountEquipmentResult() : ServerPacket(SMSG_APPLY_MOUNT_EQUIPMENT_RESULT, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGUID;
+            int32 ItemID = 0;
+            ApplyResult Result = Success;
         };
 
         class MissileCancel final : public ServerPacket

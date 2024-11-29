@@ -117,15 +117,15 @@ WorldPacket const* GossipMessage::Write()
     _worldPacket << int32(FriendshipFactionID);
     _worldPacket << uint32(GossipOptions.size());
     _worldPacket << uint32(GossipText.size());
-    _worldPacket << OptionalInit(TextID);
+    _worldPacket << OptionalInit(RandomTextID);
     _worldPacket << OptionalInit(BroadcastTextID);
     _worldPacket.FlushBits();
 
     for (ClientGossipOptions const& options : GossipOptions)
         _worldPacket << options;
 
-    if (TextID)
-        _worldPacket << int32(*TextID);
+    if (RandomTextID)
+        _worldPacket << int32(*RandomTextID);
 
     if (BroadcastTextID)
         _worldPacket << int32(*BroadcastTextID);

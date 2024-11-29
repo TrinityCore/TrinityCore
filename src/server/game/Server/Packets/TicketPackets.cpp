@@ -19,7 +19,9 @@
 #include "PacketUtilities.h"
 #include "SupportMgr.h"
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHeader& header)
+namespace WorldPackets::Ticket
+{
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHeader& header)
 {
     data >> header.MapID;
     data >> header.Position;
@@ -29,14 +31,14 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHead
     return data;
 }
 
-WorldPacket const* WorldPackets::Ticket::GMTicketSystemStatus::Write()
+WorldPacket const* GMTicketSystemStatus::Write()
 {
     _worldPacket << int32(Status);
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
+WorldPacket const* GMTicketCaseStatus::Write()
 {
     _worldPacket << int32(Cases.size());
 
@@ -60,12 +62,12 @@ WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Ticket::GMTicketAcknowledgeSurvey::Read()
+void GMTicketAcknowledgeSurvey::Read()
 {
     _worldPacket >> CaseID;
 }
 
-void WorldPackets::Ticket::SubmitUserFeedback::Read()
+void SubmitUserFeedback::Read()
 {
     _worldPacket >> Header;
     uint32 noteLength = _worldPacket.ReadBits(24);
@@ -77,11 +79,11 @@ void WorldPackets::Ticket::SubmitUserFeedback::Read()
     }
 }
 
-WorldPackets::Ticket::SupportTicketChatLine::SupportTicketChatLine(time_t timestamp, std::string const& text) :
+SupportTicketChatLine::SupportTicketChatLine(time_t timestamp, std::string const& text) :
     Timestamp(timestamp), Text(text)
 { }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketChatLine& line)
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketChatLine& line)
 {
     data >> line.Timestamp;
     line.Text = data.ReadString(data.ReadBits(12));
@@ -89,12 +91,12 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketChat
     return data;
 }
 
-WorldPackets::Ticket::SupportTicketChatLine::SupportTicketChatLine(ByteBuffer& data)
+SupportTicketChatLine::SupportTicketChatLine(ByteBuffer& data)
 {
     data >> *this;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketChatLog& chatlog)
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketChatLog& chatlog)
 {
     uint32 linesCount = data.read<uint32>();
     bool hasReportLineIndex = data.ReadBit();
@@ -109,48 +111,44 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketChat
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHorusChatLine& line)
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHorusChatLine& line)
 {
     data >> line.Timestamp;
-    data >> line.AuthorGUID;
+    data >> line.PlayerGuid;
 
-    bool hasClubID = data.ReadBit();
-    bool hasChannelGUID = data.ReadBit();
-    bool hasRealmAddress = data.ReadBit();
-    bool hasSlashCmd = data.ReadBit();
+    data >> OptionalInit(line.ClubID);
+    data >> OptionalInit(line.ChannelGuid);
+    data >> OptionalInit(line.WorldServer);
+    data >> OptionalInit(line.Cmd);
     uint32 textLength = data.ReadBits(12);
 
-    if (hasClubID)
-        line.ClubID = data.read<uint64>();
+    if (line.ClubID)
+        data >> *line.ClubID;
 
-    if (hasChannelGUID)
+    if (line.ChannelGuid)
+        data >> *line.ChannelGuid;
+
+    if (line.WorldServer)
     {
-        line.ChannelGUID.emplace();
-        data >> *line.ChannelGUID;
+        data >> line.WorldServer->Realm;
+        data >> line.WorldServer->Server;
+        data >> line.WorldServer->Type;
     }
 
-    if (hasRealmAddress)
-    {
-        line.RealmAddress.emplace();
-        data >> line.RealmAddress->VirtualRealmAddress;
-        data >> line.RealmAddress->field_4;
-        data >> line.RealmAddress->field_6;
-    }
-
-    if (hasSlashCmd)
-        line.SlashCmd = data.read<int32>();
+    if (line.Cmd)
+        data >> *line.Cmd;
 
     line.Text = data.ReadString(textLength);
 
     return data;
 }
 
-WorldPackets::Ticket::SupportTicketHorusChatLine::SupportTicketHorusChatLine(ByteBuffer& data)
+SupportTicketHorusChatLine::SupportTicketHorusChatLine(ByteBuffer& data)
 {
     data >> *this;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHorusChatLog& chatlog)
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHorusChatLog& chatlog)
 {
     uint32 linesCount = data.read<uint32>();
     data.ResetBitPos();
@@ -161,7 +159,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHoru
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketMailInfo>& mail)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketMailInfo>& mail)
 {
     mail.emplace();
 
@@ -174,7 +172,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketCalendarEventInfo>& event)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketCalendarEventInfo>& event)
 {
     event.emplace();
 
@@ -185,7 +183,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketPetInfo>& pet)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketPetInfo>& pet)
 {
     pet.emplace();
 
@@ -195,7 +193,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketGuildInfo>& guild)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketGuildInfo>& guild)
 {
     guild.emplace();
 
@@ -206,7 +204,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketLFGListEntryInfo>& lfgListSearchResult)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketLFGListEntryInfo>& lfgListSearchResult)
 {
     lfgListSearchResult.emplace();
 
@@ -230,7 +228,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketLFGListApplicant>& lfgListApplicant)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketLFGListApplicant>& lfgListApplicant)
 {
     lfgListApplicant.emplace();
 
@@ -240,7 +238,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketClubFinderInfo>& clubInfo)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketClubFinderInfo>& clubInfo)
 {
     clubInfo.emplace();
 
@@ -252,7 +250,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketArenaTeamInfo>& arenaTeam)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<SupportTicketArenaTeamInfo>& arenaTeam)
 {
     arenaTeam.emplace();
 
@@ -263,7 +261,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
-void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
+void SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
     _worldPacket >> TargetCharacterGUID;
@@ -321,7 +319,7 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
         _worldPacket >> ArenaTeamInfo;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintOffender& complaintOffender)
+ByteBuffer& operator>>(ByteBuffer& data, Complaint::ComplaintOffender& complaintOffender)
 {
     data >> complaintOffender.PlayerGuid;
     data >> complaintOffender.RealmAddress;
@@ -330,7 +328,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::Compla
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintChat& chat)
+ByteBuffer& operator>>(ByteBuffer& data, Complaint::ComplaintChat& chat)
 {
     data >> chat.Command;
     data >> chat.ChannelID;
@@ -339,7 +337,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::Compla
     return data;
 }
 
-void WorldPackets::Ticket::Complaint::Read()
+void Complaint::Read()
 {
     _worldPacket >> ComplaintType;
     _worldPacket >> Offender;
@@ -361,7 +359,7 @@ void WorldPackets::Ticket::Complaint::Read()
     }
 }
 
-WorldPacket const* WorldPackets::Ticket::ComplaintResult::Write()
+WorldPacket const* ComplaintResult::Write()
 {
     _worldPacket << uint32(ComplaintType);
     _worldPacket << uint8(Result);
@@ -369,11 +367,12 @@ WorldPacket const* WorldPackets::Ticket::ComplaintResult::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Ticket::BugReport::Read()
+void BugReport::Read()
 {
     Type = _worldPacket.ReadBit();
     uint32 diagLen = _worldPacket.ReadBits(12);
     uint32 textLen = _worldPacket.ReadBits(10);
     DiagInfo = _worldPacket.ReadString(diagLen);
     Text = _worldPacket.ReadString(textLen);
+}
 }

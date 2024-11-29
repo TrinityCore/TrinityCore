@@ -356,7 +356,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectLearnAzeriteEssencePower,                 //265 SPELL_EFFECT_LEARN_AZERITE_ESSENCE_POWER
     &Spell::EffectNULL,                                     //266 SPELL_EFFECT_SET_ITEM_BONUS_LIST_GROUP_ENTRY
     &Spell::EffectCreatePrivateConversation,                //267 SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION
-    &Spell::EffectNULL,                                     //268 SPELL_EFFECT_APPLY_MOUNT_EQUIPMENT
+    &Spell::EffectApplyMountEquipment,                      //268 SPELL_EFFECT_APPLY_MOUNT_EQUIPMENT
     &Spell::EffectNULL,                                     //269 SPELL_EFFECT_INCREASE_ITEM_BONUS_LIST_GROUP_STEP
     &Spell::EffectNULL,                                     //270 SPELL_EFFECT_270
     &Spell::EffectUnused,                                   //271 SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM
@@ -997,15 +997,15 @@ void Spell::EffectTeleportUnits()
 
     Player* player = unitTarget->ToPlayer();
 
-    // Custom loading screen
     if (player)
     {
+        // Custom loading screen
         if (uint32 customLoadingScreenId = effectInfo->MiscValue)
-            player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
+            if (targetDest.GetMapId() != unitTarget->GetMapId() || !unitTarget->IsInDist2d(targetDest, TELEPORT_MIN_LOAD_SCREEN_DISTANCE))
+                player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
         TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
-
-        player->TeleportTo(targetDest, options);
+        player->TeleportTo(targetDest, options, {}, m_spellInfo->Id);
 
     }
     else if (targetDest.GetMapId() == unitTarget->GetMapId())
@@ -5924,6 +5924,40 @@ void Spell::EffectCreatePrivateConversation()
         return;
 
     Conversation::CreateConversation(effectInfo->MiscValue, unitTarget, destTarget->GetPosition(), unitTarget->GetGUID(), GetSpellInfo());
+}
+
+void Spell::EffectApplyMountEquipment()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    Player* playerTarget = unitTarget->ToPlayer();
+    if (!playerTarget)
+        return;
+
+    for (MountEquipmentEntry const* mountEquipment : sMountEquipmentStore)
+    {
+        if (mountEquipment->LearnedBySpell == effectInfo->TriggerSpell)
+        {
+            playerTarget->LearnSpell(mountEquipment->LearnedBySpell, false, 0, true);
+            Unit::AuraEffectList const& mountAuras = playerTarget->GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+            if (!mountAuras.empty())
+                if (MountEntry const* mountEntry = sDB2Manager.GetMount(mountAuras.front()->GetId()))
+                    if (!mountEntry->GetFlags().HasFlag(MountFlags::MountEquipmentEffectsSuppressed))
+                        playerTarget->CastSpell(playerTarget, mountEquipment->BuffSpell, true);
+        }
+        else
+        {
+            playerTarget->RemoveOwnedAura(mountEquipment->BuffSpell);
+            playerTarget->RemoveSpell(mountEquipment->LearnedBySpell, false, false, true);
+        }
+    }
+
+    WorldPackets::Spells::ApplyMountEquipmentResult applyMountEquipmentResult;
+    applyMountEquipmentResult.ItemGUID = m_castItemGUID;
+    applyMountEquipmentResult.ItemID = m_castItemEntry;
+    applyMountEquipmentResult.Result = WorldPackets::Spells::ApplyMountEquipmentResult::Success;
+    playerTarget->SendDirectMessage(applyMountEquipmentResult.Write());
 }
 
 void Spell::EffectSendChatMessage()

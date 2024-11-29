@@ -1194,6 +1194,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "ReqMapID, PlayerConditionID, FlightCapabilityID FROM mount_capability WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_MOUNT_CAPABILITY, "SELECT MAX(ID) + 1 FROM mount_capability", CONNECTION_SYNCH);
 
+    // MountEquipment.db2
+    PrepareStatement(HOTFIX_SEL_MOUNT_EQUIPMENT, "SELECT ID, Item, BuffSpell, Unknown820, LearnedBySpell FROM mount_equipment"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_MOUNT_EQUIPMENT, "SELECT MAX(ID) + 1 FROM mount_equipment", CONNECTION_SYNCH);
+
     // MountTypeXCapability.db2
     PrepareStatement(HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY, "SELECT ID, MountTypeID, MountCapabilityID, OrderIndex FROM mount_type_x_capability"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
