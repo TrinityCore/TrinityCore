@@ -4443,6 +4443,8 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
 
     Unit* target = aurApp->GetTarget();
     int32 spellGroupVal = target->GetHighestExclusiveSameEffectSpellGroupValue(this, GetAuraType());
+    bool applyHasteRegenMod = GetAuraType() == SPELL_AURA_MOD_MELEE_HASTE;
+
     if (std::abs(spellGroupVal) >= std::abs(GetAmount()))
         return;
 
@@ -4450,11 +4452,14 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
     {
         target->ApplyAttackTimePercentMod(BASE_ATTACK, float(spellGroupVal), !apply);
         target->ApplyAttackTimePercentMod(OFF_ATTACK, float(spellGroupVal), !apply);
-        target->ApplyHasteRegenMod(float(spellGroupVal), !apply);
+        if (applyHasteRegenMod)
+            target->ApplyHasteRegenMod(float(spellGroupVal), !apply);
     }
     target->ApplyAttackTimePercentMod(BASE_ATTACK, float(GetAmount()), apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK,  float(GetAmount()), apply);
-    target->ApplyHasteRegenMod(float(GetAmount()), apply);
+
+    if (applyHasteRegenMod)
+        target->ApplyHasteRegenMod(float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const
