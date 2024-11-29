@@ -1000,6 +1000,19 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_PLAYER_MONEY] = 0x7FFFFFFF-1;
     }
 
+    m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartPlayerMoney", 2000);
+    if (int32(m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY]) < 0)
+    {
+        TC_LOG_ERROR("server.loading", "StartPlayerMoney ({}) must be in range 0..{}. Set to {}.", m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY], MAX_MONEY_AMOUNT, 0);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = 0;
+    }
+    else if (m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] > 0x7FFFFFFF-1) // TODO: (See MAX_MONEY_AMOUNT)
+    {
+        TC_LOG_ERROR("server.loading", "StartPlayerMoney ({}) must be in range 0..{}. Set to {}.",
+            m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY], 0x7FFFFFFF-1, 0x7FFFFFFF-1);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = 0x7FFFFFFF-1;
+    }
+
     m_int_configs[CONFIG_CURRENCY_RESET_HOUR] = sConfigMgr->GetIntDefault("Currency.ResetHour", 3);
     if (m_int_configs[CONFIG_CURRENCY_RESET_HOUR] > 23)
     {

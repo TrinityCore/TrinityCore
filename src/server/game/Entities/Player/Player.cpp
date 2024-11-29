@@ -470,7 +470,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     InitRunes();
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), GetClass() != CLASS_DEATH_KNIGHT
+        ? sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY)
+        : sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY));
 
     // Played time
     m_Last_tick = GameTime::GetGameTime();
