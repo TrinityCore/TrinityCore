@@ -160,10 +160,10 @@ void Unit::UpdatePowerRegen(Powers powerType)
             float combatRegen = powerTypeEntry->RegenCombat;
 
             // Haste Regen
-            if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste) && G3D::fuzzyNe(m_unitData->ModHaste, 0.0f))
+            if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste) && G3D::fuzzyNe(m_unitData->ModHasteRegen, 0.0f))
             {
-                peaceRegen /= m_unitData->ModHaste;
-                combatRegen /= m_unitData->ModHaste;
+                peaceRegen /= m_unitData->ModHasteRegen;
+                combatRegen /= m_unitData->ModHasteRegen;
             }
 
             peaceRegen *= powerRegenModPct;
