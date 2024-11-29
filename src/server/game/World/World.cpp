@@ -899,6 +899,7 @@ void World::LoadConfigSettings(bool reload)
     { {
         { .Name = "CharacterCreating.Disabled.RaceMask"sv, .DefaultValue = 0, .Index = CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK },
         { .Name = "StartPlayerMoney"sv, .DefaultValue = 0, .Index = CONFIG_START_PLAYER_MONEY, .Min = 0, .Max = MAX_MONEY_AMOUNT },
+        { .Name = "StartDeathKnightPlayerMoney"sv, .DefaultValue = 2000, .Index = CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY, .Min = 0, .Max = MAX_MONEY_AMOUNT },
     } };
 
     static constexpr ConfigOptionLoadDefinitionArray<float, FLOAT_CONFIG_VALUE_COUNT> floats =
