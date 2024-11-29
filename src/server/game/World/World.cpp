@@ -917,6 +917,19 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_PLAYER_MONEY] = MAX_MONEY_AMOUNT;
     }
 
+    m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartDeathKnightPlayerMoney", 2000);
+    if (int32(m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY]) < 0)
+    {
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerMoney ({}) must be in range 0..{}. Set to {}.", m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY], MAX_MONEY_AMOUNT, 2000);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = 2000;
+    }
+    else if (m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] > MAX_MONEY_AMOUNT)
+    {
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerMoney ({}) must be in range 0..{}. Set to {}.",
+            m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY], MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = MAX_MONEY_AMOUNT;
+    }
+
     m_int_configs[CONFIG_MAX_HONOR_POINTS] = sConfigMgr->GetIntDefault("MaxHonorPoints", 75000);
     if (int32(m_int_configs[CONFIG_MAX_HONOR_POINTS]) < 0)
     {
