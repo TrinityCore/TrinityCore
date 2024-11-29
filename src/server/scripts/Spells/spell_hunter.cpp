@@ -31,7 +31,8 @@ namespace Scripts::Spells::Hunter
 {
     enum HunterSpells
     {
-        SPELL_HUN_IMPROVED_STEADY_SHOT_TRIGGERED = 53220
+        SPELL_HUN_IMPROVED_STEADY_SHOT_TRIGGERED    = 53220,
+        SPELL_HUN_STEADY_SHOT_ENERGIZE              = 77443
     };
 
     enum HunterSpellFamilies
@@ -85,10 +86,31 @@ namespace Scripts::Spells::Hunter
     private:
         uint8 _steadyShotCount = 0;
     };
+
+    // 56641 - Steady Shot
+    class spell_hun_steady_shot : public SpellScript
+    {
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_HUN_STEADY_SHOT_ENERGIZE });
+        }
+
+        // Cast the energize spell when successfully launching the spell against a target. Will not trigger when the target is missed (intentional)
+        void HandleEnergize(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(nullptr, SPELL_HUN_STEADY_SHOT_ENERGIZE, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        }
+
+        void Register() override
+        {
+            OnEffectLaunchTarget += SpellEffectFn(spell_hun_steady_shot::HandleEnergize, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+        }
+    };
 }
 
 void AddSC_hunter_spell_scripts()
 {
     using namespace Scripts::Spells::Hunter;
     RegisterSpellScript(spell_hun_improved_steady_shot);
+    RegisterSpellScript(spell_hun_steady_shot);
 }
