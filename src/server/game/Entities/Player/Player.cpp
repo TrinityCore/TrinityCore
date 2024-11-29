@@ -19584,7 +19584,7 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
 {
 
     ////                                                       0        1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data FROM character_queststatus_objectivesWHERE guid = '{}'", GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data FROM character_queststatus_objectives WHERE guid = '{}'", GetGUIDLow());
 
     if (result)
     {
