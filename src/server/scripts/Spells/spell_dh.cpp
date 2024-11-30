@@ -241,6 +241,29 @@ private:
     uint32 _healAmount = 0;
 };
 
+// 209426 - Darkness
+class spell_dh_darkness : public AuraScript
+{
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+    {
+        // Set absorbtion amount to unlimited
+        amount = -1;
+    }
+
+    void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        int32 chance = GetEffectInfo(EFFECT_1).CalcValue(GetTarget());
+        if (roll_chance_i(chance))
+            absorbAmount = dmgInfo.GetDamage();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_darkness::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dh_darkness::Absorb, EFFECT_0);
+    }
+};
+
 // 206416 - First Blood
 class spell_dh_first_blood : public AuraScript
 {
@@ -569,15 +592,42 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
     }
 };
 
+// 196718 - Darkness
+// Id: 6615
+struct areatrigger_dh_darkness : AreaTriggerAI
+{
+    areatrigger_dh_darkness(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsFriendlyTo(unit))
+            return;
+
+        caster->CastSpell(unit, SPELL_DH_DARKNESS_ABSORB, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsFriendlyTo(unit))
+            return;
+
+        unit->RemoveAura(SPELL_DH_DARKNESS_ABSORB, caster->GetGUID());
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_chaos_strike);
     RegisterSpellScript(spell_dh_charred_warblades);
+    RegisterSpellScript(spell_dh_darkness);
 
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>("areatrigger_dh_sigil_of_silence");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>("areatrigger_dh_sigil_of_misery");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE>("areatrigger_dh_sigil_of_flame");
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
+    RegisterAreaTriggerAI(areatrigger_dh_darkness);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
