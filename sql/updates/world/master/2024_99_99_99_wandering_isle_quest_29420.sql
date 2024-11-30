@@ -8,8 +8,8 @@ INSERT INTO `areatrigger_scripts` VALUES
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceGroup`=1 AND `SourceEntry`=7736;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 7736, 2, 0, 47, 0, 29420, 2, 0, 0, 0, 0, '', 'Areatrigger 7736 only triggers when quest 29420 is taken'),
-(22, 1, 7736, 2, 0, 1, 0, 92571, 0, 0, 1, 0, 0, '', 'Areatrigger 7736 only triggers when player has not aura 92571');
+(30, 0, 7736, 0, 0, 47, 0, 29420, 2, 0, 0, 0, 0, '', 'Areatrigger 7736 only triggers when quest 29420 is taken'),
+(30, 0, 7736, 0, 0, 1, 0, 92571, 0, 0, 1, 0, 0, '', 'Areatrigger 7736 only triggers when player has not aura 92571');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceEntry`=59626;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
