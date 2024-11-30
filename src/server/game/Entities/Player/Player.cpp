@@ -544,7 +544,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     InitRunes();
 
-    SetMoney(sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
+    SetMoney(GetClass() != CLASS_DEATH_KNIGHT
+        ? sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY)
+        : sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY));
     SetHonorPoints(sWorld->getIntConfig(CONFIG_START_HONOR_POINTS));
     SetArenaPoints(sWorld->getIntConfig(CONFIG_START_ARENA_POINTS));
 
