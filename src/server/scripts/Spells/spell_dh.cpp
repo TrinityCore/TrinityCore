@@ -46,6 +46,7 @@ enum DemonHunterSpells
     SPELL_DH_ANNIHILATION_MH                       = 227518,
     SPELL_DH_ANNIHILATION_OH                       = 201428,
     SPELL_DH_AWAKEN_THE_DEMON_WITHIN_CD            = 207128,
+    SPELL_DH_BLADE_DANCE                           = 188499,
     SPELL_DH_BLUR                                  = 212800,
     SPELL_DH_BLUR_TRIGGER                          = 198589,
     SPELL_DH_BURNING_ALIVE                         = 207739,
@@ -55,6 +56,7 @@ enum DemonHunterSpells
     SPELL_DH_CHAOS_STRIKE_ENERGIZE                 = 193840,
     SPELL_DH_CHAOS_STRIKE_MH                       = 222031,
     SPELL_DH_CHAOS_STRIKE_OH                       = 199547,
+    SPELL_DH_CHAOTIC_TRANSFORMATION                = 388112,
     SPELL_DH_CHARRED_WARBLADES_HEAL                = 213011,
     SPELL_DH_CONSUME_SOUL_HAVOC                    = 228542,
     SPELL_DH_CONSUME_SOUL_HAVOC_DEMON              = 228556,
@@ -196,6 +198,31 @@ class spell_dh_chaos_strike : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// Called by 191427 - Metamorphosis
+class spell_dh_chaotic_transformation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_CHAOTIC_TRANSFORMATION, SPELL_DH_EYE_BEAM, SPELL_DH_BLADE_DANCE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_CHAOTIC_TRANSFORMATION);
+    }
+
+    void HandleCooldown() const
+    {
+        GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_DH_EYE_BEAM, true);
+        GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_DH_BLADE_DANCE, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_chaotic_transformation::HandleCooldown);
     }
 };
 
@@ -572,6 +599,7 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_chaos_strike);
+    RegisterSpellScript(spell_dh_chaotic_transformation);
     RegisterSpellScript(spell_dh_charred_warblades);
 
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>("areatrigger_dh_sigil_of_silence");
