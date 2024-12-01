@@ -709,7 +709,7 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
 
                     auto newEnd = std::remove_if(lootersForItem.begin(), lootersForItem.end(), [&](Player const* looter)
                     {
-                        return std::ranges::find(gotLoot, looter) != gotLoot.end();
+                        return advstd::ranges::contains(gotLoot, looter);
                     });
 
                     if (lootersForItem.begin() == newEnd)

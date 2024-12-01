@@ -52,4 +52,32 @@ template <typename To, typename From,
 #endif
 }
 
+// std::ranges::contains
+#ifndef __cpp_lib_ranges_contains
+#include <functional> // for std::ranges::equal_to, std::identity
+#include <iterator> // for std::input_iterator, std::sentinel_for, std::projected
+
+namespace advstd::ranges
+{
+struct Contains
+{
+    template<std::input_iterator I, std::sentinel_for<I> S, class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<I, Proj>, T const*>
+    [[nodiscard]] inline constexpr bool operator()(I first, S last, T const& value, Proj proj = {}) const
+    {
+        return std::ranges::find(std::move(first), last, value, proj) != last;
+    }
+
+    template<std::ranges::input_range R, class T, class Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<std::ranges::iterator_t<R>, Proj>, T const*>
+    [[nodiscard]] inline constexpr bool operator()(R&& r, T const& value, Proj proj = {}) const
+    {
+        auto first = std::ranges::begin(r);
+        auto last = std::ranges::end(r);
+        return std::ranges::find(std::move(first), last, value, proj) != last;
+    }
+} inline constexpr contains;
+}
+#endif
+
 #endif
