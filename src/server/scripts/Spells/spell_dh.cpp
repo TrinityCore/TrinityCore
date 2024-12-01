@@ -282,17 +282,22 @@ private:
 // 209426 - Darkness
 class spell_dh_darkness : public AuraScript
 {
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         // Set absorbtion amount to unlimited
         amount = -1;
     }
 
-    void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void Absorb(AuraEffect const* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount) const
     {
-        int32 chance = GetEffectInfo(EFFECT_1).CalcValue(GetTarget());
-        if (roll_chance_i(chance))
-            absorbAmount = dmgInfo.GetDamage();
+        if (AuraEffect const* chanceEffect = GetEffect(EFFECT_1))
+            if (roll_chance_i(chanceEffect->GetAmount()))
+                absorbAmount = dmgInfo.GetDamage();
     }
 
     void Register() override
@@ -306,25 +311,28 @@ class spell_dh_darkness : public AuraScript
 // Id: 6615
 struct areatrigger_dh_darkness : AreaTriggerAI
 {
-    areatrigger_dh_darkness(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger) { }
+    areatrigger_dh_darkness(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger),
+        _absorbAuraInfo(sSpellMgr->GetSpellInfo(SPELL_DH_DARKNESS_ABSORB, DIFFICULTY_NONE)) { }
 
     void OnUnitEnter(Unit* unit) override
     {
         Unit* caster = at->GetCaster();
-        if (!caster || !caster->IsFriendlyTo(unit))
+        if (!caster || !caster->IsValidAssistTarget(unit, _absorbAuraInfo))
             return;
 
-        caster->CastSpell(unit, SPELL_DH_DARKNESS_ABSORB, true);
+        caster->CastSpell(unit, SPELL_DH_DARKNESS_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, at->GetDuration() } }
+        });
     }
 
     void OnUnitExit(Unit* unit) override
     {
-        Unit* caster = at->GetCaster();
-        if (!caster || !caster->IsFriendlyTo(unit))
-            return;
-
-        unit->RemoveAura(SPELL_DH_DARKNESS_ABSORB, caster->GetGUID());
+        unit->RemoveAura(SPELL_DH_DARKNESS_ABSORB, at->GetCasterGuid());
     }
+
+private:
+    SpellInfo const* _absorbAuraInfo;
 };
 
 // 198013 - Eye Beam
