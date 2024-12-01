@@ -279,6 +279,62 @@ private:
     uint32 _healAmount = 0;
 };
 
+// 209426 - Darkness
+class spell_dh_darkness : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        // Set absorbtion amount to unlimited
+        amount = -1;
+    }
+
+    void Absorb(AuraEffect const* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount) const
+    {
+        if (AuraEffect const* chanceEffect = GetEffect(EFFECT_1))
+            if (roll_chance_i(chanceEffect->GetAmount()))
+                absorbAmount = dmgInfo.GetDamage();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_darkness::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dh_darkness::Absorb, EFFECT_0);
+    }
+};
+
+// 196718 - Darkness
+// Id: 6615
+struct areatrigger_dh_darkness : AreaTriggerAI
+{
+    areatrigger_dh_darkness(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger),
+        _absorbAuraInfo(sSpellMgr->GetSpellInfo(SPELL_DH_DARKNESS_ABSORB, DIFFICULTY_NONE)) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsValidAssistTarget(unit, _absorbAuraInfo))
+            return;
+
+        caster->CastSpell(unit, SPELL_DH_DARKNESS_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, at->GetDuration() } }
+        });
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAura(SPELL_DH_DARKNESS_ABSORB, at->GetCasterGuid());
+    }
+
+private:
+    SpellInfo const* _absorbAuraInfo;
+};
+
 // 198013 - Eye Beam
 class spell_dh_eye_beam : public AuraScript
 {
@@ -389,71 +445,6 @@ class spell_dh_blade_dance_damage : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_dh_blade_dance_damage::HandleHitTarget);
-    }
-};
-
-// 204596 - Sigil of Flame
-// 207684 - Sigil of Misery
-// 202137 - Sigil of Silence
-template<uint32 TriggerSpellId>
-class areatrigger_dh_generic_sigil : public AreaTriggerEntityScript
-{
-public:
-    areatrigger_dh_generic_sigil(char const* script) : AreaTriggerEntityScript(script) { }
-
-    template<uint32 Trigger>
-    struct areatrigger_dh_generic_sigilAI : AreaTriggerAI
-    {
-        areatrigger_dh_generic_sigilAI(AreaTrigger* at) : AreaTriggerAI(at) { }
-
-        void OnRemove() override
-        {
-            if (Unit* caster = at->GetCaster())
-                caster->CastSpell(at->GetPosition(), Trigger);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* at) const override
-    {
-        return new areatrigger_dh_generic_sigilAI<TriggerSpellId>(at);
-    }
-};
-
-// 208673 - Sigil of Chains
-class spell_dh_sigil_of_chains : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_CHAINS_SLOW, SPELL_DH_SIGIL_OF_CHAINS_GRIP });
-    }
-
-    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
-    {
-        if (WorldLocation const* loc = GetExplTargetDest())
-        {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_DH_SIGIL_OF_CHAINS_SLOW, true);
-            GetHitUnit()->CastSpell(loc->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_GRIP, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_dh_sigil_of_chains::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 202138 - Sigil of Chains
-struct areatrigger_dh_sigil_of_chains : AreaTriggerAI
-{
-    areatrigger_dh_sigil_of_chains(AreaTrigger* at) : AreaTriggerAI(at) { }
-
-    void OnRemove() override
-    {
-        if (Unit* caster = at->GetCaster())
-        {
-            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_VISUAL);
-            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT);
-        }
     }
 };
 
@@ -583,6 +574,71 @@ class spell_dh_soul_furnace_conduit : public AuraScript
     }
 };
 
+// 204596 - Sigil of Flame
+// 207684 - Sigil of Misery
+// 202137 - Sigil of Silence
+template<uint32 TriggerSpellId>
+class areatrigger_dh_generic_sigil : public AreaTriggerEntityScript
+{
+public:
+    areatrigger_dh_generic_sigil(char const* script) : AreaTriggerEntityScript(script) { }
+
+    template<uint32 Trigger>
+    struct areatrigger_dh_generic_sigilAI : AreaTriggerAI
+    {
+        areatrigger_dh_generic_sigilAI(AreaTrigger* at) : AreaTriggerAI(at) { }
+
+        void OnRemove() override
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), Trigger);
+        }
+    };
+
+    AreaTriggerAI* GetAI(AreaTrigger* at) const override
+    {
+        return new areatrigger_dh_generic_sigilAI<TriggerSpellId>(at);
+    }
+};
+
+// 208673 - Sigil of Chains
+class spell_dh_sigil_of_chains : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_CHAINS_SLOW, SPELL_DH_SIGIL_OF_CHAINS_GRIP });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (WorldLocation const* loc = GetExplTargetDest())
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_DH_SIGIL_OF_CHAINS_SLOW, true);
+            GetHitUnit()->CastSpell(loc->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_GRIP, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_sigil_of_chains::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 202138 - Sigil of Chains
+struct areatrigger_dh_sigil_of_chains : AreaTriggerAI
+{
+    areatrigger_dh_sigil_of_chains(AreaTrigger* at) : AreaTriggerAI(at) { }
+
+    void OnRemove() override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_VISUAL);
+            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT);
+        }
+    }
+};
+
 // Called by 198793 - Vengeful Retreat
 class spell_dh_tactical_retreat : public SpellScript
 {
@@ -635,11 +691,13 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_chaos_strike);
     RegisterSpellScript(spell_dh_chaotic_transformation);
     RegisterSpellScript(spell_dh_charred_warblades);
+    RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
 
+    RegisterAreaTriggerAI(areatrigger_dh_darkness);
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>("areatrigger_dh_sigil_of_silence");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>("areatrigger_dh_sigil_of_misery");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE>("areatrigger_dh_sigil_of_flame");
