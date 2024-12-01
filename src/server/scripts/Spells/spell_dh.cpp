@@ -23,6 +23,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "DB2Stores.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
@@ -46,7 +47,6 @@ enum DemonHunterSpells
     SPELL_DH_ANNIHILATION_MH                       = 227518,
     SPELL_DH_ANNIHILATION_OH                       = 201428,
     SPELL_DH_AWAKEN_THE_DEMON_WITHIN_CD            = 207128,
-    SPELL_DH_BLADE_DANCE                           = 188499,
     SPELL_DH_BLUR                                  = 212800,
     SPELL_DH_BLUR_TRIGGER                          = 198589,
     SPELL_DH_BURNING_ALIVE                         = 207739,
@@ -178,6 +178,12 @@ enum DemonHunterSpells
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
 };
 
+enum DemonHunterSpellCategories
+{
+    SPELL_CATEGORY_DH_EYE_BEAM      = 1582,
+    SPELL_CATEGORY_DH_BLADE_DANCE   = 1640
+};
+
 // 197125 - Chaos Strike
 class spell_dh_chaos_strike : public AuraScript
 {
@@ -206,7 +212,9 @@ class spell_dh_chaotic_transformation : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_CHAOTIC_TRANSFORMATION, SPELL_DH_EYE_BEAM, SPELL_DH_BLADE_DANCE });
+        return ValidateSpellInfo({ SPELL_DH_CHAOTIC_TRANSFORMATION })
+            && sSpellCategoryStore.LookupEntry(SPELL_CATEGORY_DH_EYE_BEAM)
+            && sSpellCategoryStore.LookupEntry(SPELL_CATEGORY_DH_BLADE_DANCE);
     }
 
     bool Load() override
@@ -216,8 +224,11 @@ class spell_dh_chaotic_transformation : public SpellScript
 
     void HandleCooldown() const
     {
-        GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_DH_EYE_BEAM, true);
-        GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_DH_BLADE_DANCE, true);
+        GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
+        {
+            uint32 category = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE)->CategoryId;
+            return category == SPELL_CATEGORY_DH_EYE_BEAM || category == SPELL_CATEGORY_DH_BLADE_DANCE;
+        }, true);
     }
 
     void Register() override
