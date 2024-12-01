@@ -74,7 +74,7 @@ enum DemonHunterSpells
     SPELL_DH_DEMONIC_TRAMPLE_STUN                  = 213491,
     SPELL_DH_DEMONS_BITE                           = 162243,
     SPELL_DH_EYE_BEAM                              = 198013,
-    SPELL_DH_EYE_BEAM_DMG                          = 198030,
+    SPELL_DH_EYE_BEAM_DAMAGE                       = 198030,
     SPELL_DH_EYE_OF_LEOTHERAS_DMG                  = 206650,
     SPELL_DH_FEAST_OF_SOULS                        = 207697,
     SPELL_DH_FEAST_OF_SOULS_PERIODIC_HEAL          = 207693,
@@ -239,6 +239,29 @@ class spell_dh_charred_warblades : public AuraScript
 
 private:
     uint32 _healAmount = 0;
+};
+
+// 198013 - Eye Beam
+class spell_dh_eye_beam : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_EYE_BEAM_DAMAGE });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(nullptr, SPELL_DH_EYE_BEAM_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_eye_beam::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
 };
 
 // 206416 - First Blood
@@ -573,14 +596,15 @@ void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_chaos_strike);
     RegisterSpellScript(spell_dh_charred_warblades);
+    RegisterSpellScript(spell_dh_eye_beam);
+    RegisterSpellScript(spell_dh_sigil_of_chains);
+    RegisterSpellScript(spell_dh_tactical_retreat);
+    RegisterSpellScript(spell_dh_vengeful_retreat_damage);
 
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>("areatrigger_dh_sigil_of_silence");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>("areatrigger_dh_sigil_of_misery");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE>("areatrigger_dh_sigil_of_flame");
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
-    RegisterSpellScript(spell_dh_sigil_of_chains);
-    RegisterSpellScript(spell_dh_tactical_retreat);
-    RegisterSpellScript(spell_dh_vengeful_retreat_damage);
 
     // Havoc
 
