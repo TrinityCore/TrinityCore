@@ -27,6 +27,7 @@
 #include "Util.h"
 #include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
+#include "advstd.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <zlib.h>
 
@@ -129,7 +130,7 @@ void RealmList::UpdateRealms()
                 for (boost::asio::ip::tcp::endpoint const& endpoint : _resolver->ResolveAll(fields[2 + i].GetStringView(), ""))
                 {
                     boost::asio::ip::address address = endpoint.address();
-                    if (std::ranges::find(addresses, address) != addresses.end())
+                    if (advstd::ranges::contains(addresses, address))
                         continue;
 
                     addresses.push_back(std::move(address));
