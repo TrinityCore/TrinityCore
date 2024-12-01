@@ -54,6 +54,7 @@ template <typename To, typename From,
 
 // std::ranges::contains
 #ifndef __cpp_lib_ranges_contains
+#include <algorithm> // for std::ranges::find
 #include <functional> // for std::ranges::equal_to, std::identity
 #include <iterator> // for std::input_iterator, std::sentinel_for, std::projected
 
