@@ -249,7 +249,7 @@ class spell_dh_eye_beam : public AuraScript
         return ValidateSpellInfo({ SPELL_DH_EYE_BEAM_DAMAGE });
     }
 
-    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    void HandleEffectPeriodic(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
             caster->CastSpell(nullptr, SPELL_DH_EYE_BEAM_DAMAGE, CastSpellExtraArgsInit{
