@@ -8115,6 +8115,18 @@ void Unit::Dismount()
     }
 }
 
+void Unit::CancelMountAura(bool force)
+{
+    if (!HasAuraType(SPELL_AURA_MOUNTED))
+        return;
+
+    RemoveAurasByType(SPELL_AURA_MOUNTED, [force](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return force || (!spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive());
+    });
+}
+
 MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 {
     if (!mountType)
@@ -9215,6 +9227,36 @@ uint32 Unit::GetCreatureTypeMask() const
 void Unit::SetShapeshiftForm(ShapeshiftForm form)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ShapeshiftForm), form);
+}
+
+void Unit::CancelShapeshift(bool onlyTravelShapeshiftForm, bool force)
+{
+    ShapeshiftForm form = GetShapeshiftForm();
+    if (form == FORM_NONE)
+        return;
+
+    bool isTravelShapeshiftForm = [form]()
+    {
+        if (SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form))
+        {
+            if (shapeInfo->MountTypeID)
+                return true;
+
+            if (shapeInfo->ID == FORM_TRAVEL_FORM || shapeInfo->ID == FORM_AQUATIC_FORM)
+                return true;
+        }
+
+        return false;
+    }();
+
+    if (onlyTravelShapeshiftForm && !isTravelShapeshiftForm)
+        return;
+
+    RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, [force](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return force || (!spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive());
+    });
 }
 
 bool Unit::IsInFeralForm() const
