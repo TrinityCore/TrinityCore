@@ -23,6 +23,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "DB2Stores.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
@@ -55,6 +56,7 @@ enum DemonHunterSpells
     SPELL_DH_CHAOS_STRIKE_ENERGIZE                 = 193840,
     SPELL_DH_CHAOS_STRIKE_MH                       = 222031,
     SPELL_DH_CHAOS_STRIKE_OH                       = 199547,
+    SPELL_DH_CHAOTIC_TRANSFORMATION                = 388112,
     SPELL_DH_CHARRED_WARBLADES_HEAL                = 213011,
     SPELL_DH_CONSUME_SOUL_HAVOC                    = 228542,
     SPELL_DH_CONSUME_SOUL_HAVOC_DEMON              = 228556,
@@ -176,6 +178,12 @@ enum DemonHunterSpells
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
 };
 
+enum DemonHunterSpellCategories
+{
+    SPELL_CATEGORY_DH_EYE_BEAM      = 1582,
+    SPELL_CATEGORY_DH_BLADE_DANCE   = 1640
+};
+
 // 197125 - Chaos Strike
 class spell_dh_chaos_strike : public AuraScript
 {
@@ -196,6 +204,36 @@ class spell_dh_chaos_strike : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// Called by 191427 - Metamorphosis
+class spell_dh_chaotic_transformation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_CHAOTIC_TRANSFORMATION })
+            && sSpellCategoryStore.LookupEntry(SPELL_CATEGORY_DH_EYE_BEAM)
+            && sSpellCategoryStore.LookupEntry(SPELL_CATEGORY_DH_BLADE_DANCE);
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_CHAOTIC_TRANSFORMATION);
+    }
+
+    void HandleCooldown() const
+    {
+        GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
+        {
+            uint32 category = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE)->CategoryId;
+            return category == SPELL_CATEGORY_DH_EYE_BEAM || category == SPELL_CATEGORY_DH_BLADE_DANCE;
+        }, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_chaotic_transformation::HandleCooldown);
     }
 };
 
@@ -595,6 +633,7 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_chaos_strike);
+    RegisterSpellScript(spell_dh_chaotic_transformation);
     RegisterSpellScript(spell_dh_charred_warblades);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_sigil_of_chains);
