@@ -157,6 +157,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { .Name = "Player Condition",          .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
     { .Name = "Private Object",            .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
     { .Name = "String ID",                 .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 =  true },
+    { .Name = "Label",                     .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
 };
 
 ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1, WorldObject const* target2)
@@ -675,6 +676,14 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = go->HasStringId(ConditionStringValue1);
             break;
         }
+        case CONDITION_LABEL:
+        {
+            if (Creature const* creature = object->ToCreature())
+                condMeets = creature->HasLabel(ConditionValue1);
+            else if (GameObject const* go = object->ToGameObject())
+                condMeets = go->HasLabel(ConditionValue1);
+            break;
+        }
         default:
             break;
     }
@@ -891,6 +900,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_ALL & ~GRID_MAP_TYPE_MASK_PLAYER;
             break;
         case CONDITION_STRING_ID:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            break;
+        case CONDITION_LABEL:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT;
             break;
         default:
@@ -2592,6 +2604,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_GAMEMASTER:
         case CONDITION_PRIVATE_OBJECT:
         case CONDITION_STRING_ID:
+        case CONDITION_LABEL:
             break;
         case CONDITION_DIFFICULTY_ID:
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
@@ -3882,7 +3895,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsMounted:
             return unit->GetMountDisplayId() != 0;
         case UnitConditionVariable::Label:
-            break;
+            return unit->IsCreature() && unit->ToCreature()->HasLabel(value) ? value : 0;
         case UnitConditionVariable::IsMySummon:
             return otherUnit && (otherUnit->GetCharmerGUID() == unit->GetGUID() || otherUnit->GetCreatorGUID() == unit->GetGUID());
         case UnitConditionVariable::IsSummoner:

@@ -3602,6 +3602,16 @@ std::string GameObject::GetNameForLocaleIdx(LocaleConstant locale) const
     return GetName();
 }
 
+bool GameObject::HasLabel(int32 gameobjectLabel) const
+{
+    return advstd::ranges::contains(GetLabels(), gameobjectLabel);
+}
+
+std::span<int32 const> GameObject::GetLabels() const
+{
+    return sDB2Manager.GetGameObjectLabels(GetEntry());
+}
+
 void GameObject::UpdatePackedRotation()
 {
     static const int32 PACK_YZ = 1 << 20;

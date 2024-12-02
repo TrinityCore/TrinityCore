@@ -5010,6 +5010,7 @@ void ObjectMgr::LoadQuests()
                 case QUEST_OBJECTIVE_MONEY:
                 case QUEST_OBJECTIVE_WINPVPPETBATTLES:
                 case QUEST_OBJECTIVE_PROGRESS_BAR:
+                case QUEST_OBJECTIVE_KILL_WITH_LABEL:
                     break;
                 default:
                     TC_LOG_ERROR("sql.sql", "Quest {} objective {} has unhandled type {}", qinfo->GetQuestId(), obj.ID, obj.Type);

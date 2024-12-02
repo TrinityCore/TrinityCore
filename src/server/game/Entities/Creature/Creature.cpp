@@ -3320,6 +3320,16 @@ std::string Creature::GetNameForLocaleIdx(LocaleConstant locale) const
     return GetName();
 }
 
+bool Creature::HasLabel(int32 cretureLabel) const
+{
+    return advstd::ranges::contains(GetLabels(), cretureLabel);
+}
+
+std::span<int32 const> Creature::GetLabels() const
+{
+    return sDB2Manager.GetCreatureLabels(GetCreatureDifficulty()->CreatureDifficultyID);
+}
+
 uint8 Creature::GetPetAutoSpellSize() const
 {
     return MAX_SPELL_CHARM;
