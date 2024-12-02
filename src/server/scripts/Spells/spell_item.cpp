@@ -1019,7 +1019,7 @@ class spell_item_extract_gas : public AuraScript
         // move loot to player inventory and despawn target
         if (GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER &&
             GetTarget()->GetTypeId() == TYPEID_UNIT &&
-            GetTarget()->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_GAS_CLOUD)
+            GetTarget()->ToCreature()->GetCreatureTemplate()->CreatureTypeID == CREATURE_TYPE_GAS_CLOUD)
         {
             Player* player = GetCaster()->ToPlayer();
             Creature* creature = GetTarget()->ToCreature();

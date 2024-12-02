@@ -4872,7 +4872,7 @@ enum CreatureTypeFlags2
     CREATURE_TYPE_FLAG_2_UNK8 = 0x00000080
 };
 
-enum class CreatureClassifications : uint32
+enum class CreatureClassifications : int32
 {
     Normal                    = 0,
     Elite                     = 1,

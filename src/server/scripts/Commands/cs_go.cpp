@@ -538,7 +538,7 @@ public:
             if (count)
             {
                 matches.emplace(count, &data);
-                spawnLookup.try_emplace(data.Entry);    // inserts default-constructed vector
+                spawnLookup.try_emplace(data.CreatureID);    // inserts default-constructed vector
             }
         }
 
@@ -554,7 +554,7 @@ public:
             }
 
             // remove any matches without spawns
-            Trinity::Containers::EraseIf(matches, [&spawnLookup](decltype(matches)::value_type const& pair) { return spawnLookup[pair.second->Entry].empty(); });
+            Trinity::Containers::EraseIf(matches, [&spawnLookup](decltype(matches)::value_type const& pair) { return spawnLookup[pair.second->CreatureID].empty(); });
         }
 
         // check if we even have any matches left
@@ -573,19 +573,19 @@ public:
             handler->SendSysMessage(LANG_COMMAND_MULTIPLE_BOSSES_MATCH);
             --it;
             do
-                handler->PSendSysMessage(LANG_COMMAND_MULTIPLE_BOSSES_ENTRY, it->second->Entry, it->second->Name.c_str(), sObjectMgr->GetScriptName(it->second->ScriptID).c_str());
+                handler->PSendSysMessage(LANG_COMMAND_MULTIPLE_BOSSES_ENTRY, it->second->CreatureID, it->second->Name.c_str(), sObjectMgr->GetScriptName(it->second->ScriptID).c_str());
             while (((++it) != end) && (it->first == maxCount));
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         CreatureTemplate const* const boss = matches.cbegin()->second;
-        std::vector<CreatureData const*> const& spawns = spawnLookup[boss->Entry];
+        std::vector<CreatureData const*> const& spawns = spawnLookup[boss->CreatureID];
         ASSERT(!spawns.empty());
 
         if (spawns.size() > 1)
         {
-            handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWNS, boss->Name.c_str(), boss->Entry);
+            handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWNS, boss->Name.c_str(), boss->CreatureID);
             for (CreatureData const* spawn : spawns)
             {
                 uint32 const mapId = spawn->mapId;
@@ -607,12 +607,12 @@ public:
         if (!player->TeleportTo({ mapId, spawn->spawnPoint }))
         {
             char const* const mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId))->MapName[handler->GetSessionDbcLocale()];
-            handler->PSendSysMessage(LANG_COMMAND_GO_BOSS_FAILED, spawn->spawnId, boss->Name.c_str(), boss->Entry, mapName);
+            handler->PSendSysMessage(LANG_COMMAND_GO_BOSS_FAILED, spawn->spawnId, boss->Name.c_str(), boss->CreatureID, mapName);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_WENT_TO_BOSS, boss->Name.c_str(), boss->Entry, spawn->spawnId);
+        handler->PSendSysMessage(LANG_COMMAND_WENT_TO_BOSS, boss->Name.c_str(), boss->CreatureID, spawn->spawnId);
         return true;
     }
 };

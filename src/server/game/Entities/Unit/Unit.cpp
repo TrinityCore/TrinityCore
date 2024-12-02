@@ -1514,7 +1514,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         return;
 
     if (damageInfo->TargetState == VICTIMSTATE_PARRY &&
-        (victim->GetTypeId() != TYPEID_UNIT || (victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN) == 0))
+        (victim->GetTypeId() != TYPEID_UNIT || (victim->ToCreature()->GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN) == 0))
     {
         // Get attack timers
         float offtime  = float(victim->getAttackTimer(OFF_ATTACK));
@@ -2419,7 +2419,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     if (attackerLevel >= victimLevel + 4 &&
         // can be from by creature (if can) or from controlled player that considered as creature
         !IsControlledByPlayer() &&
-        !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS))
+        !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS))
     {
         // add 2% chance per level, min. is 15%
         tmp = attackerLevel - victimLevel * 1000 - 1500;
@@ -2745,7 +2745,7 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
     }
     else
     {
-        if (!victim->IsTotem() && !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
+        if (!victim->IsTotem() && !(victim->ToCreature()->GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
             chance = 6.0f;
             chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
@@ -2789,7 +2789,7 @@ float Unit::GetUnitBlockChance(WeaponAttackType /*attType*/, Unit const* victim)
     }
     else
     {
-        if (!victim->IsTotem() && !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK))
+        if (!victim->IsTotem() && !(victim->ToCreature()->GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_NO_BLOCK))
         {
             chance = 3.0f;
             chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
@@ -2827,7 +2827,7 @@ float Unit::GetUnitCriticalChanceDone(WeaponAttackType attackType) const
     }
     else
     {
-        if (!(ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
+        if (!(ToCreature()->GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_NO_CRIT))
         {
             chance = 5.0f;
             chance += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
@@ -6809,7 +6809,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
     // Pet damage?
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
-        DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->Classification);
+        DoneTotalMod *= ToCreature()->GetSpellDamageMod(static_cast<CreatureClassifications>(ToCreature()->GetCreatureTemplate()->Classification));
 
     // Versatility
     if (Player* modOwner = GetSpellModOwner())
@@ -8610,14 +8610,14 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
         {
             // Set creature speed rate
             if (GetTypeId() == TYPEID_UNIT)
-                speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
+                speed *= ToCreature()->GetCreatureTemplate()->SpeedRun;    // at this point, MOVE_WALK is never reached
 
             // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
             /// @todo possible affect only on MOVE_RUN
             if (int32 normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
             {
                 if (Creature* creature = ToCreature())
-                    if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(creature->GetCreatureTemplate()->CreatureImmunitiesId))
+                    if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(creature->GetCreatureTemplate()->CreatureImmunitiesID))
                         if (immunities->Mechanic[MECHANIC_SNARE] || immunities->Mechanic[MECHANIC_DAZE])
                             break;
 
@@ -8670,7 +8670,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
     {
         float baseMinSpeed = 1.0f;
         if (!GetOwnerGUID().IsPlayer() && !IsHunterPet() && GetTypeId() == TYPEID_UNIT)
-            baseMinSpeed = ToCreature()->GetCreatureTemplate()->speed_run;
+            baseMinSpeed = ToCreature()->GetCreatureTemplate()->SpeedRun;
 
         float min_speed = CalculatePct(baseMinSpeed, minSpeedMod);
         if (speed < min_speed)
@@ -9110,7 +9110,7 @@ bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& dur
     {
         case DIMINISHING_TAUNT:
         {
-            if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS))
+            if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS))
             {
                 DiminishingLevels diminish = previousLevel;
                 switch (diminish)
@@ -9203,7 +9203,7 @@ uint32 Unit::GetCreatureType() const
         }
     }
     else
-        return ToCreature()->GetCreatureTemplate()->type;
+        return ToCreature()->GetCreatureTemplate()->CreatureTypeID;
 }
 
 uint32 Unit::GetCreatureTypeMask() const
@@ -11591,7 +11591,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 if (GetTypeId() == TYPEID_UNIT && charmer->GetClass() == CLASS_WARLOCK)
                 {
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
-                    if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
+                    if (cinfo && cinfo->CreatureTypeID == CREATURE_TYPE_DEMON)
                     {
                         // to prevent client crash
                         SetClass(CLASS_MAGE);
@@ -11690,9 +11690,9 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                 if (GetTypeId() == TYPEID_UNIT && charmer->GetClass() == CLASS_WARLOCK)
                 {
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
-                    if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
+                    if (cinfo && cinfo->CreatureTypeID == CREATURE_TYPE_DEMON)
                     {
-                        SetClass(uint8(cinfo->unit_class));
+                        SetClass(uint8(cinfo->Class));
                         if (GetCharmInfo())
                             GetCharmInfo()->SetPetNumber(0, true);
                         else
@@ -11749,7 +11749,7 @@ void Unit::RestoreFaction()
         }
 
         if (CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate())  // normal creature
-            SetFaction(cinfo->faction);
+            SetFaction(cinfo->FactionTemplateID);
     }
 }
 

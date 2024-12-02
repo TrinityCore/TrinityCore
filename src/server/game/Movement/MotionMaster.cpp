@@ -1199,7 +1199,7 @@ void MotionMaster::CalculateJumpSpeeds(float dist, UnitMoveType moveType, float 
 {
     float baseSpeed = _owner->IsControlledByPlayer() ? playerBaseMoveSpeed[moveType] : baseMoveSpeed[moveType];
     if (Creature* creature = _owner->ToCreature())
-        baseSpeed *= creature->GetCreatureTemplate()->speed_run;
+        baseSpeed *= creature->GetCreatureTemplate()->SpeedRun;
 
     speedXY = std::min(baseSpeed * 3.0f * speedMultiplier, std::max(28.0f, _owner->GetSpeed(moveType) * 4.0f));
 

@@ -424,11 +424,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(target->ToCreature()->GetEntry()))
                         {
-                            if (target->ToCreature()->GetFaction() != ci->faction)
+                            if (target->ToCreature()->GetFaction() != ci->FactionTemplateID)
                             {
-                                target->ToCreature()->SetFaction(ci->faction);
-                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature {} set faction to {}",
-                                    target->GetGUID().ToString(), ci->faction);
+                                target->ToCreature()->SetFaction(ci->FactionTemplateID);
+                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature {} set FactionTemplateID to {}",
+                                    target->GetGUID().ToString(), ci->FactionTemplateID);
                             }
                         }
                     }

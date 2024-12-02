@@ -116,7 +116,7 @@ public:
                     me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[5], TEMPSUMMON_DEAD_DESPAWN, 1min);
                     break;
                 case 27:
-                    me->SetFaction(me->GetCreatureTemplate()->faction);
+                    me->SetFaction(me->GetCreatureTemplate()->FactionTemplateID);
                     me->RemoveAurasDueToSpell(RUUL_SHAPECHANGE);
                     Talk(SAY_FINISH, player);
                     player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);

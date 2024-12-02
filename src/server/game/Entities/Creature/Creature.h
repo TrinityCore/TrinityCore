@@ -123,9 +123,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
         bool IsRacialLeader() const { return GetCreatureTemplate()->RacialLeader; }
-        bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
-        bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
-        bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
+        bool IsCivilian() const { return (GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
+        bool IsTrigger() const { return (GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
+        bool IsGuard() const { return (GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
 
         void InitializeMovementCapabilities();
         void UpdateMovementCapabilities();
@@ -163,11 +163,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
-        CreatureClassifications GetCreatureClassification() const { return GetCreatureTemplate()->Classification; }
-        bool HasClassification(CreatureClassifications classification) const { return GetCreatureTemplate()->Classification == classification; }
+        CreatureClassifications GetCreatureClassification() const { return static_cast<CreatureClassifications>(GetCreatureTemplate()->Classification); }
+        bool HasClassification(CreatureClassifications classification) const { return static_cast<CreatureClassifications>(GetCreatureTemplate()->Classification) == classification; }
 
-        bool IsDungeonBoss() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
-        bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
+        bool IsDungeonBoss() const { return (GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
+        bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->FlagsExtra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
 
         Unit* SelectVictim();
 

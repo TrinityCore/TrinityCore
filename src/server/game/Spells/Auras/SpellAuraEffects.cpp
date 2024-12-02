@@ -2767,7 +2767,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
 
             if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry))
             {
-                vehicleId = creatureInfo->VehicleId;
+                vehicleId = creatureInfo->VehicleID;
 
                 if (!displayId)
                 {

@@ -544,7 +544,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_CREATURE_TYPE:
         {
             if (Creature const* creature = object->ToCreature())
-                condMeets = creature->GetCreatureTemplate()->type == ConditionValue1;
+                condMeets = creature->GetCreatureTemplate()->CreatureTypeID == CreatureType(ConditionValue1);
             break;
         }
         case CONDITION_IN_WATER:

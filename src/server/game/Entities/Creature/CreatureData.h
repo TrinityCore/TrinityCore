@@ -486,52 +486,52 @@ struct CreatureDifficulty
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
 {
-    uint32  Entry;
+    uint32  CreatureID;
     uint32  KillCredit[MAX_KILL_CREDIT];
     std::vector<CreatureModel> Models;
     std::string  Name;
-    std::string FemaleName;
-    std::string  SubName;
+    std::string  NameAlt;
+    std::string  Title;
     std::string  TitleAlt;
     std::string  IconName;
     std::vector<uint32> GossipMenuIds;
     std::unordered_map<Difficulty, CreatureDifficulty> difficultyStore;
     uint32  RequiredExpansion;
     uint32  VignetteID;
-    uint32  faction;
-    uint64  npcflag;
-    float   speed_walk;
-    float   speed_run;
-    float   scale;
-    CreatureClassifications  Classification;
-    uint32  dmgschool;
+    uint32  FactionTemplateID;
+    uint64  NpcFlags;
+    float   SpeedWalk;
+    float   SpeedRun;
+    float   Scale;
+    int32  Classification;
+    uint8  DamageSchool;
     uint32  BaseAttackTime;
     uint32  RangeAttackTime;
     float   BaseVariance;
     float   RangeVariance;
-    uint32  unit_class;                                     // enum Classes. Note only 4 classes are known for creatures.
-    uint32  unit_flags;                                     // enum UnitFlags mask values
-    uint32  unit_flags2;                                    // enum UnitFlags2 mask values
-    uint32  unit_flags3;                                    // enum UnitFlags3 mask values
-    CreatureFamily  family;                                 // enum CreatureFamily values (optional)
-    uint32  trainer_class;
-    uint32  type;                                           // enum CreatureType values
-    int32   resistance[MAX_SPELL_SCHOOL];
-    uint32  spells[MAX_CREATURE_SPELLS];
-    uint32  VehicleId;
+    uint8   Class;                                          // enum Classes. Note only 4 classes are known for creatures.
+    uint32  UnitFlags;                                      // enum UnitFlags mask values
+    uint32  UnitFlags2;                                     // enum UnitFlags2 mask values
+    uint32  UnitFlags3;                                     // enum UnitFlags3 mask values
+    int32  CreatureFamilyID;                                // enum CreatureFamily values (optional)
+    uint8  TrainerClass;
+    int32  CreatureTypeID;                                  // enum CreatureType values
+    int32   Resistance[MAX_SPELL_SCHOOL];
+    uint32  Spells[MAX_CREATURE_SPELLS];
+    uint32  VehicleID;
     std::string AIName;
     uint32  MovementType;
     CreatureMovementData Movement;
     float   ModExperience;
     bool    RacialLeader;
-    uint32  movementId;
+    uint32  CreatureMovementInfoID;
     int32   WidgetSetID;
     int32   WidgetSetUnitConditionID;
     bool    RegenHealth;
-    int32   CreatureImmunitiesId;
-    uint32  flags_extra;
+    int32   CreatureImmunitiesID;
+    uint32  FlagsExtra;
     uint32  ScriptID;
-    std::string StringId;
+    std::string StringID;
     WorldPacket QueryData[TOTAL_LOCALES];
     CreatureModel const* GetModelByIdx(uint32 idx) const;
     CreatureModel const* GetRandomValidModel() const;
@@ -549,7 +549,7 @@ struct TC_GAME_API CreatureTemplate
 
     bool IsTameable(bool canTameExotic, CreatureDifficulty const* creatureDifficulty) const
     {
-        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
+        if (CreatureTypeID != CREATURE_TYPE_BEAST || CreatureFamilyID == CREATURE_FAMILY_NONE || (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable

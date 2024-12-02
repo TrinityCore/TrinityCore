@@ -80,7 +80,7 @@ void EscortAI::InitializeAI()
     // add a small delay before going to first waypoint, normal in near all cases
     _pauseTimer = 2s;
 
-    if (me->GetFaction() != me->GetCreatureTemplate()->faction)
+    if (me->GetFaction() != me->GetCreatureTemplate()->FactionTemplateID)
         me->RestoreFaction();
 
     Reset();

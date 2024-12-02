@@ -499,7 +499,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
     // Is there a better way? what about game objects?
     if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
-        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->CreatureID;
 
     // RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell(), DIFFICULTY_NONE))
@@ -586,8 +586,8 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     // Is there a better way? what about game objects?
     if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
     {
-        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
-        offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->CreatureID;
+        offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->CreatureID;
     }
 
     offer.QuestID = quest->GetQuestId();
@@ -650,7 +650,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
     // Is there a better way? what about game objects?
     if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
-        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->CreatureID;
 
     packet.QuestID = quest->GetQuestId();
 
