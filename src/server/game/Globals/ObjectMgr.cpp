@@ -4938,24 +4938,8 @@ void ObjectMgr::LoadQuests()
             _questObjectives[obj.ID] = &obj;
 
             // Check storage index for objectives which store data
-            if (obj.StorageIndex < 0)
-            {
-                switch (obj.Type)
-                {
-                    case QUEST_OBJECTIVE_MONSTER:
-                    case QUEST_OBJECTIVE_ITEM:
-                    case QUEST_OBJECTIVE_GAMEOBJECT:
-                    case QUEST_OBJECTIVE_TALKTO:
-                    case QUEST_OBJECTIVE_PLAYERKILLS:
-                    case QUEST_OBJECTIVE_AREATRIGGER:
-                    case QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC:
-                    case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
-                        TC_LOG_ERROR("sql.sql", "Quest {} objective {} has invalid StorageIndex = {} for objective type {}", qinfo->GetQuestId(), obj.ID, obj.StorageIndex, obj.Type);
-                        break;
-                    default:
-                        break;
-                }
-            }
+            if (obj.IsStoringValue() && obj.StorageIndex < 0)
+                TC_LOG_ERROR("sql.sql", "Quest {} objective {} has invalid StorageIndex = {} for objective type {}", qinfo->GetQuestId(), obj.ID, obj.StorageIndex, obj.Type);
 
             switch (obj.Type)
             {
