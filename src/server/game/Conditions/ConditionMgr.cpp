@@ -743,6 +743,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
         case CONDITION_GAMEMASTER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
+        case CONDITION_STRING_ID:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            break;
         default:
             ABORT_MSG("Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
