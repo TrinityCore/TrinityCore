@@ -57,7 +57,7 @@ enum class PlayerConditionLfgStatus : uint8;
     Step 7: Define condition name and expected condition values in ConditionMgr::StaticConditionTypeData.
 */
 enum ConditionTypes
-{                                                           // value1                 value2         value3
+{                                                              // value1                 value2         value3
     CONDITION_NONE                     = 0,                    // 0                      0              0                  always true
     CONDITION_AURA                     = 1,                    // spell_id               effindex       0                  true if target has aura of spell_id with effect effindex
     CONDITION_ITEM                     = 2,                    // item_id                count          bank               true if has #count of item_ids (if 'bank' is set it searches in bank slots too)
