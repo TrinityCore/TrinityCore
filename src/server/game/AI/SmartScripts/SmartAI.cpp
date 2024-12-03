@@ -735,9 +735,9 @@ void SmartAI::SetRun(bool run)
     _run = run;
 }
 
-void SmartAI::SetDisableGravity(bool fly)
+void SmartAI::SetFloating(bool fly)
 {
-    me->SetDisableGravity(fly);
+    me->SetFloating(fly);
 }
 
 void SmartAI::SetEvadeDisabled(bool disable)
