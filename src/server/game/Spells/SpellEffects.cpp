@@ -404,8 +404,8 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
     &Spell::EffectNULL,                                     //314 SPELL_EFFECT_ADD_SOCKET_BONUS
     &Spell::EffectNULL,                                     //315 SPELL_EFFECT_LEARN_TRANSMOG_APPEARANCE_FROM_ITEM_MOD_APPEARANCE_GROUP
-    &Spell::EffectNULL,                                     //316 SPELL_EFFECT_KILL_CREDIT_LABEL_1
-    &Spell::EffectNULL,                                     //317 SPELL_EFFECT_KILL_CREDIT_LABEL_2
+    &Spell::EffectKillCreditLabel,                          //316 SPELL_EFFECT_KILL_CREDIT_LABEL_1
+    &Spell::EffectKillCreditLabel,                          //317 SPELL_EFFECT_KILL_CREDIT_LABEL_2
     &Spell::EffectNULL,                                     //318 SPELL_EFFECT_318
     &Spell::EffectNULL,                                     //319 SPELL_EFFECT_319
     &Spell::EffectNULL,                                     //320 SPELL_EFFECT_320
@@ -4765,6 +4765,18 @@ void Spell::EffectKillCredit()
 
     if (int32 creatureEntry = effectInfo->MiscValue)
         unitTarget->ToPlayer()->RewardPlayerAndGroupAtEvent(creatureEntry, unitTarget);
+}
+
+void Spell::EffectKillCreditLabel()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* playerTarget = Object::ToPlayer(unitTarget);
+    if (!playerTarget)
+        return;
+
+    playerTarget->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_KILL_WITH_LABEL, effectInfo->MiscValue, std::max(1, effectInfo->MiscValueB));
 }
 
 void Spell::EffectQuestFail()

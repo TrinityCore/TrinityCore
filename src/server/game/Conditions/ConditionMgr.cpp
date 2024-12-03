@@ -98,65 +98,66 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
 {
-    { "None",                     false, false, false, false },
-    { "Aura",                      true, true,  true,  false },
-    { "Item Stored",               true, true,  true,  false },
-    { "Item Equipped",             true, false, false, false },
-    { "Zone",                      true, false, false, false },
-    { "Reputation",                true, true,  false, false },
-    { "Team",                      true, false, false, false },
-    { "Skill",                     true, true,  false, false },
-    { "Quest Rewarded",            true, false, false, false },
-    { "Quest Taken",               true, false, false, false },
-    { "Drunken",                   true, false, false, false },
-    { "WorldState",                true, true,  false, false },
-    { "Active Event",              true, false, false, false },
-    { "Instance Info",             true, true,  true,  false },
-    { "Quest None",                true, false, false, false },
-    { "Class",                     true, false, false, false },
-    { "Race",                      true, false, false, false },
-    { "Achievement",               true, false, false, false },
-    { "Title",                     true, false, false, false },
-    { "SpawnMask",                 true, false, false, false },
-    { "Gender",                    true, false, false, false },
-    { "Unit State",                true, false, false, false },
-    { "Map",                       true, false, false, false },
-    { "Area",                      true, false, false, false },
-    { "CreatureType",              true, false, false, false },
-    { "Spell Known",               true, false, false, false },
-    { "Phase",                     true, false, false, false },
-    { "Level",                     true, true,  false, false },
-    { "Quest Completed",           true, false, false, false },
-    { "Near Creature",             true, true,  true,  false },
-    { "Near GameObject",           true, true,  false, false },
-    { "Object Entry or Guid",      true, true,  true,  false },
-    { "Object TypeMask",           true, false, false, false },
-    { "Relation",                  true, true,  false, false },
-    { "Reaction",                  true, true,  false, false },
-    { "Distance",                  true, true,  true,  false },
-    { "Alive",                    false, false, false, false },
-    { "Health Value",              true, true,  false, false },
-    { "Health Pct",                true, true,  false, false },
-    { "Realm Achievement",         true, false, false, false },
-    { "In Water",                 false, false, false, false },
-    { "Terrain Swap",              true, false, false, false },
-    { "Sit/stand state",           true, true,  false, false },
-    { "Daily Quest Completed",     true, false, false, false },
-    { "Charmed",                  false, false, false, false },
-    { "Pet type",                  true, false, false, false },
-    { "On Taxi",                  false, false, false, false },
-    { "Quest state mask",          true, true,  false, false },
-    { "Quest objective progress",  true, false, true,  false },
-    { "Map Difficulty",            true, false, false, false },
-    { "Is Gamemaster",             true, false, false, false },
-    { "Object Entry or Guid",      true, true,  true,  false },
-    { "Object TypeMask",           true, false, false, false },
-    { "BattlePet Species Learned", true, true,  true,  false },
-    { "On Scenario Step",          true, false, false, false },
-    { "Scene In Progress",         true, false, false, false },
-    { "Player Condition",          true, false, false, false },
-    { "Private Object",           false, false, false, false },
-    { "String ID",                false, false, false, true }
+    { .Name = "None",                      .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Aura",                      .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Item Stored",               .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Item Equipped",             .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Zone",                      .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Reputation",                .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Team",                      .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Skill",                     .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Quest Rewarded",            .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Quest Taken",               .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Drunken",                   .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "WorldState",                .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Active Event",              .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Instance Info",             .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Quest None",                .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Class",                     .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Race",                      .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Achievement",               .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Title",                     .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "SpawnMask",                 .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Gender",                    .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Unit State",                .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Map",                       .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Area",                      .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "CreatureType",              .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Spell Known",               .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Phase",                     .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Level",                     .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Quest Completed",           .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Near Creature",             .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Near GameObject",           .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Object Entry or Guid",      .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Object TypeMask",           .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Relation",                  .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Reaction",                  .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Distance",                  .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Alive",                     .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Health Value",              .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Health Pct",                .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Realm Achievement",         .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "In Water",                  .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Terrain Swap",              .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Sit/stand state",           .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Daily Quest Completed",     .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Charmed",                   .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Pet type",                  .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "On Taxi",                   .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Quest state mask",          .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Quest objective progress",  .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Map Difficulty",            .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Is Gamemaster",             .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Object Entry or Guid",      .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Object TypeMask",           .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "BattlePet Species Learned", .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "On Scenario Step",          .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Scene In Progress",         .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Player Condition",          .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "Private Object",            .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
+    { .Name = "String ID",                 .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 =  true },
+    { .Name = "Label",                     .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
 };
 
 ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1, WorldObject const* target2)
@@ -675,6 +676,14 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = go->HasStringId(ConditionStringValue1);
             break;
         }
+        case CONDITION_LABEL:
+        {
+            if (Creature const* creature = object->ToCreature())
+                condMeets = creature->HasLabel(ConditionValue1);
+            else if (GameObject const* go = object->ToGameObject())
+                condMeets = go->HasLabel(ConditionValue1);
+            break;
+        }
         default:
             break;
     }
@@ -889,6 +898,12 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_PRIVATE_OBJECT:
             mask |= GRID_MAP_TYPE_MASK_ALL & ~GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_STRING_ID:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            break;
+        case CONDITION_LABEL:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT;
             break;
         default:
             ABORT_MSG("Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2589,6 +2604,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_GAMEMASTER:
         case CONDITION_PRIVATE_OBJECT:
         case CONDITION_STRING_ID:
+        case CONDITION_LABEL:
             break;
         case CONDITION_DIFFICULTY_ID:
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
@@ -3879,7 +3895,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsMounted:
             return unit->GetMountDisplayId() != 0;
         case UnitConditionVariable::Label:
-            break;
+            return unit->IsCreature() && unit->ToCreature()->HasLabel(value) ? value : 0;
         case UnitConditionVariable::IsMySummon:
             return otherUnit && (otherUnit->GetCharmerGUID() == unit->GetGUID() || otherUnit->GetCreatorGUID() == unit->GetGUID());
         case UnitConditionVariable::IsSummoner:
