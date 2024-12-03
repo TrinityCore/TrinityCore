@@ -59,8 +59,6 @@ public:
     uint32 GetAchievementPoints() const;
     std::vector<uint32> GetCompletedAchievementIds() const;
 
-    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
-
 protected:
     bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const override;
     bool CanCompleteCriteriaTree(CriteriaTree const* tree) override;

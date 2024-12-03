@@ -177,11 +177,6 @@ void QuestObjectiveCriteriaMgr::ResetCriteriaTree(uint32 criteriaTreeId)
     });
 }
 
-void QuestObjectiveCriteriaMgr::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject const* ref /*= nullptr*/, Player* referencePlayer /*= nullptr*/)
-{
-    CriteriaHandler::UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, referencePlayer, referencePlayer ? referencePlayer->GetGUID() : ObjectGuid::Empty);
-}
-
 void QuestObjectiveCriteriaMgr::SendAllData(Player const* /*receiver*/) const
 {
     for (const auto& criteriaProgres : _criteriaProgress)

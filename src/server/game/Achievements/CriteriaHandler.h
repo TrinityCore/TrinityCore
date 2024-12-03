@@ -273,6 +273,8 @@ public:
 
     virtual void Reset();
 
+    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
+
     virtual void SendAllData(Player const* receiver) const = 0;
 
     void UpdateTimedCriteria(Milliseconds timeDiff);
@@ -280,12 +282,10 @@ public:
     virtual void FailCriteria(CriteriaFailEvent failEvent, uint32 asset);
 
 protected:
-    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr,
-        Player* referencePlayer = nullptr, ObjectGuid const& playerGUID = ObjectGuid::Empty);
     virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const = 0;
 
     CriteriaProgress* GetCriteriaProgress(Criteria const* entry);
-    void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, ObjectGuid const& playerGUID, ProgressType progressType = PROGRESS_SET);
+    void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);
     void RemoveCriteriaProgress(Criteria const* criteria);
     virtual void SendCriteriaProgressRemoved(uint32 criteriaId) = 0;
 

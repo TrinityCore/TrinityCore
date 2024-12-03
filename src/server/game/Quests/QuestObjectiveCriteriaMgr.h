@@ -37,8 +37,6 @@ public:
 
     void ResetCriteriaTree(uint32 criteriaTreeId);
 
-    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
-
     void SendAllData(Player const* receiver) const override;
 
     void CompletedObjective(QuestObjective const* questObjective, Player* referencePlayer);
