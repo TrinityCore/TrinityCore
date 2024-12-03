@@ -157,7 +157,7 @@ ScenarioStepState Scenario::GetStepState(ScenarioStepEntry const* step) const
 
 void Scenario::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const
 {
-    DoForAllPlayers([=](Player const* receiver)
+    DoForAllPlayers([=, this](Player const* receiver)
     {
         WorldPackets::Scenario::ScenarioProgressUpdate progressUpdate;
         progressUpdate.CriteriaProgress.Id = criteria->ID;
