@@ -1650,7 +1650,7 @@ void Spell::EffectOpenLock()
     }
 
     if (gameObjTarget)
-        gameObjTarget->Use(player);
+        gameObjTarget->Use(player, true);
     else if (itemTarget)
     {
         itemTarget->SetItemFlag(ITEM_FIELD_FLAG_UNLOCKED);
