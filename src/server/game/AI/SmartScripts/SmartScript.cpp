@@ -1361,10 +1361,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SET_DISABLE_GRAVITY:
         {
-            if (!IsSmart())
-                break;
-
-            ENSURE_AI(SmartAI, me->AI())->SetFloating(e.action.setDisableGravity.disable != 0);
+            for (WorldObject* target : targets)
+                if (IsCreature(target))
+                    target->ToCreature()->SetFloating(e.action.setDisableGravity.disable != 0);
             break;
         }
         case SMART_ACTION_SET_RUN:

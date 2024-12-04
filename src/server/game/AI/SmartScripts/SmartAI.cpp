@@ -735,11 +735,6 @@ void SmartAI::SetRun(bool run)
     _run = run;
 }
 
-void SmartAI::SetFloating(bool fly)
-{
-    me->SetFloating(fly);
-}
-
 void SmartAI::SetEvadeDisabled(bool disable)
 {
     _evadeDisabled = disable;
