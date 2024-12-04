@@ -297,7 +297,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void EnableCollision(bool enable);
 
-        void Use(Unit* user);
+        void Use(Unit* user, bool ignoreCastInProgress = false);
 
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
