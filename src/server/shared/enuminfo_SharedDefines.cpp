@@ -529,7 +529,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr2>::ToString(SpellAttr2 value)
         case SPELL_ATTR2_CAN_TARGET_DEAD: return { "SPELL_ATTR2_CAN_TARGET_DEAD", "Can target dead players or corpses", "" };
         case SPELL_ATTR2_UNK1: return { "SPELL_ATTR2_UNK1", "Unknown attribute 1@Attr2", "" };
         case SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS: return { "SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS", "Ignore Line of Sight", "" };
-        case SPELL_ATTR2_UNK3: return { "SPELL_ATTR2_UNK3", "Ignore aura scaling", "" };
+        case SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF: return { "SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF", "Allow Low Level Buff", "" };
         case SPELL_ATTR2_DISPLAY_IN_STANCE_BAR: return { "SPELL_ATTR2_DISPLAY_IN_STANCE_BAR", "Show in stance bar (client only)", "" };
         case SPELL_ATTR2_AUTOREPEAT_FLAG: return { "SPELL_ATTR2_AUTOREPEAT_FLAG", "Ranged auto-attack spell", "" };
         case SPELL_ATTR2_CANT_TARGET_TAPPED: return { "SPELL_ATTR2_CANT_TARGET_TAPPED", "Cannot target others' tapped units", "Can only target untapped units, or those tapped by caster" };
@@ -573,7 +573,7 @@ TC_API_EXPORT SpellAttr2 EnumUtils<SpellAttr2>::FromIndex(size_t index)
         case 0: return SPELL_ATTR2_CAN_TARGET_DEAD;
         case 1: return SPELL_ATTR2_UNK1;
         case 2: return SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        case 3: return SPELL_ATTR2_UNK3;
+        case 3: return SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF;
         case 4: return SPELL_ATTR2_DISPLAY_IN_STANCE_BAR;
         case 5: return SPELL_ATTR2_AUTOREPEAT_FLAG;
         case 6: return SPELL_ATTR2_CANT_TARGET_TAPPED;
@@ -614,7 +614,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr2>::ToIndex(SpellAttr2 value)
         case SPELL_ATTR2_CAN_TARGET_DEAD: return 0;
         case SPELL_ATTR2_UNK1: return 1;
         case SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS: return 2;
-        case SPELL_ATTR2_UNK3: return 3;
+        case SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF: return 3;
         case SPELL_ATTR2_DISPLAY_IN_STANCE_BAR: return 4;
         case SPELL_ATTR2_AUTOREPEAT_FLAG: return 5;
         case SPELL_ATTR2_CANT_TARGET_TAPPED: return 6;
