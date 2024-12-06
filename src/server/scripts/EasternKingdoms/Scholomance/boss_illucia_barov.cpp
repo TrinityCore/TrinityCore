@@ -49,7 +49,7 @@ class boss_illucia_barov : public CreatureScript
 
         struct boss_illuciabarovAI : public BossAI
         {
-            boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) { }
+            boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADY_ILLUCIA_BAROV) { }
 
             void JustEngagedWith(Unit* who) override
             {

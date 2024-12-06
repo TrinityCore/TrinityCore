@@ -396,7 +396,7 @@ mmap.enablePathFinding = 1
 #
 #    vmap.enableLOS
 #    vmap.enableHeight
-#        Description: VMmap support for line of sight and height calculation.
+#        Description: Vmap support for line of sight and height calculation.
 #        Default:     1 - (Enabled, vmap.enableLOS)
 #                     1 - (Enabled, vmap.enableHeight)
 #                     0 - (Disabled)
@@ -844,6 +844,14 @@ StartDeathKnightPlayerLevel = 55
 #                     100 - (1 Silver)
 
 StartPlayerMoney = 0
+
+#
+#    StartDeathKnightPlayerMoney
+#        Description: Amount of money (in Copper) that a death knight character has after creation.
+#        Default:     2000
+#                     100 - (1 Silver)
+
+StartDeathKnightPlayerMoney = 2000
 
 #
 #    MaxHonorPoints

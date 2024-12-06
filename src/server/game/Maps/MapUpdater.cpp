@@ -106,7 +106,7 @@ void MapUpdater::WorkerThread()
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
 
-    while (1)
+    while (true)
     {
         MapUpdateRequest* request = nullptr;
 

@@ -13,7 +13,6 @@
 #define G3D_HashTrait_h
 
 #include "G3D/platform.h"
-#include "G3D/Crypto.h"
 #include "G3D/g3dmath.h"
 #include "G3D/uint128.h"
 #include <typeinfo>

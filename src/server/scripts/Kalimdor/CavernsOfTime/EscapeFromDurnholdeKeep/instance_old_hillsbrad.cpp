@@ -113,7 +113,7 @@ public:
                         ++mBarrelCount;
                         DoUpdateWorldState(WORLD_STATE_OH, mBarrelCount);
 
-                        TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u", mBarrelCount);
+                        TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: go_barrel_old_hillsbrad count {}", mBarrelCount);
 
                         if (mBarrelCount == 5)
                         {
@@ -140,7 +140,7 @@ public:
                         else
                             ThrallEscortState = OH_ESCORT_PRISON_TO_SKARLOC; // not correct, see npc_thrall_old_hillsbrad::InitializeAI for details
                     }
-                    TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall escort event adjusted to data %u.", data);
+                    TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall escort event adjusted to data {}.", data);
                     break;
                 }
             }

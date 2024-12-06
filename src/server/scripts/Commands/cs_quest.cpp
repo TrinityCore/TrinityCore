@@ -58,7 +58,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleQuestAdd(ChatHandler* handler, char const* args)
+    static bool HandleQuestAdd(ChatHandler* handler, Quest const* quest)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
@@ -68,19 +68,9 @@ public:
             return false;
         }
 
-        // .addquest #entry'
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
-        if (!cId)
-            return false;
-
-        uint32 entry = atoul(cId);
-
-        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
-
-        if (!quest || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), nullptr))
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, quest->GetQuestId());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -94,12 +84,12 @@ public:
 
         if (itr != std::end(itc))
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, itr->first);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, quest->GetQuestId(), itr->first);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (player->IsActiveQuest(entry))
+        if (player->IsActiveQuest(quest->GetQuestId()))
             return false;
 
         // ok, normal (creature/GO starting) quest
@@ -109,7 +99,7 @@ public:
         return true;
     }
 
-    static bool HandleQuestRemove(ChatHandler* handler, char const* args)
+    static bool HandleQuestRemove(ChatHandler* handler, Quest const* quest)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -119,30 +109,20 @@ public:
             return false;
         }
 
-        // .removequest #entry'
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
-        if (!cId)
-            return false;
-
-        uint32 entry = atoul(cId);
-
-        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
-
         if (!quest)
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, quest->GetQuestId());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (player->GetQuestStatus(entry) != QUEST_STATUS_NONE)
+        if (player->GetQuestStatus(quest->GetQuestId()) != QUEST_STATUS_NONE)
         {
             // remove all quest entries for 'entry' from quest log
             for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
             {
                 uint32 logQuest = player->GetQuestSlotQuestId(slot);
-                if (logQuest == entry)
+                if (logQuest == quest->GetQuestId())
                 {
                     player->SetQuestSlot(slot, 0);
 
@@ -156,23 +136,23 @@ public:
                     }
                 }
             }
-            player->RemoveActiveQuest(entry, false);
-            player->RemoveRewardedQuest(entry);
+            player->RemoveActiveQuest(quest->GetQuestId(), false);
+            player->RemoveRewardedQuest(quest->GetQuestId());
 
-            sScriptMgr->OnQuestStatusChange(player, entry);
+            sScriptMgr->OnQuestStatusChange(player, quest->GetQuestId());
 
             handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
             return true;
         }
         else
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, quest->GetQuestId());
             handler->SetSentErrorMessage(true);
             return false;
         }
     }
 
-    static bool HandleQuestComplete(ChatHandler* handler, char const* args)
+    static bool HandleQuestComplete(ChatHandler* handler, Quest const* quest)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
@@ -182,21 +162,11 @@ public:
             return false;
         }
 
-        // .quest complete #entry
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
-        if (!cId)
-            return false;
-
-        uint32 entry = atoul(cId);
-
-        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
-
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE
-            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
+        if (player->GetQuestStatus(quest->GetQuestId()) == QUEST_STATUS_NONE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), nullptr))
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, quest->GetQuestId());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -278,11 +248,11 @@ public:
             CharacterDatabase.Execute(stmt);
         }
 
-        player->CompleteQuest(entry);
+        player->CompleteQuest(quest->GetQuestId());
         return true;
     }
 
-    static bool HandleQuestReward(ChatHandler* handler, char const* args)
+    static bool HandleQuestReward(ChatHandler* handler, Quest const* quest)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -292,21 +262,11 @@ public:
             return false;
         }
 
-        // .quest reward #entry
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
-        if (!cId)
-            return false;
-
-        uint32 entry = atoul(cId);
-
-        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
-
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE
-            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
+        if (player->GetQuestStatus(quest->GetQuestId()) != QUEST_STATUS_COMPLETE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), nullptr))
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, quest->GetQuestId());
             handler->SetSentErrorMessage(true);
             return false;
         }

@@ -281,6 +281,10 @@ class TC_GAME_API SpellScript : public _SpellScript
             public:
                 ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
                 void Call(SpellScript* spellScript, std::list<WorldObject*>& targets);
+                bool HasSameTargetFunctionAs(ObjectAreaTargetSelectHandler const& other) const
+                {
+                    return pObjectAreaTargetSelectHandlerScript == other.pObjectAreaTargetSelectHandlerScript;
+                }
             private:
                 SpellObjectAreaTargetSelectFnType pObjectAreaTargetSelectHandlerScript;
         };
@@ -290,6 +294,10 @@ class TC_GAME_API SpellScript : public _SpellScript
             public:
                 ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
                 void Call(SpellScript* spellScript, WorldObject*& target);
+                bool HasSameTargetFunctionAs(ObjectTargetSelectHandler const& other) const
+                {
+                    return pObjectTargetSelectHandlerScript == other.pObjectTargetSelectHandlerScript;
+                }
             private:
                 SpellObjectTargetSelectFnType pObjectTargetSelectHandlerScript;
         };
@@ -325,6 +333,8 @@ class TC_GAME_API SpellScript : public _SpellScript
 
         #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:
+        SpellScript();
+        ~SpellScript();
         bool _Validate(SpellInfo const* entry) override;
         bool _Load(Spell* spell);
         void _InitHit();
@@ -730,8 +740,8 @@ class TC_GAME_API AuraScript : public _SpellScript
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
     public:
-        AuraScript() : _SpellScript(), m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
-        { }
+        AuraScript();
+        ~AuraScript();
         bool _Validate(SpellInfo const* entry) override;
         bool _Load(Aura* aura);
         void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = nullptr);

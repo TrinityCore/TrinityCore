@@ -17,9 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
-#include "Creature.h"
-#include "CreatureAI.h"
-#include "GameObject.h"
+#include "Containers.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -28,10 +26,10 @@
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "VehicleDefines.h"
 
 enum ICCTexts
 {

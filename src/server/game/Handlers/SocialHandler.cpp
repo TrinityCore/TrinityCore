@@ -43,8 +43,8 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
     if (!normalizePlayerName(friendName))
         return;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleAddFriendOpcode: %s asked to add friend: %s",
-        GetPlayer()->GetName().c_str(), friendName.c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleAddFriendOpcode: {} asked to add friend: {}",
+        GetPlayer()->GetName(), friendName);
 
     CharacterCacheEntry const* friendCharacterInfo = sCharacterCache->GetCharacterCacheByName(friendName);
     if (!friendCharacterInfo)
@@ -122,7 +122,7 @@ void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
 {
     ObjectGuid friendGuid;
     recvData >> friendGuid;
-    TC_LOG_DEBUG("network", "WorldSession::HandleDelFriendOpcode: %s", friendGuid.ToString().c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleDelFriendOpcode: {}", friendGuid.ToString());
 
     _player->GetSocial()->RemoveFromSocialList(friendGuid, SOCIAL_FLAG_FRIEND);
 
@@ -137,8 +137,8 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
     if (!normalizePlayerName(ignoreName))
         return;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: %s asked to Ignore: %s",
-        GetPlayer()->GetName().c_str(), ignoreName.c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: {} asked to Ignore: {}",
+        GetPlayer()->GetName(), ignoreName);
 
     ObjectGuid ignoreGuid = sCharacterCache->GetCharacterGuidByName(ignoreName);
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
@@ -166,7 +166,7 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
     ObjectGuid ignoreGuid;
     recvData >> ignoreGuid;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleDelIgnoreOpcode: %s", ignoreGuid.ToString().c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleDelIgnoreOpcode: {}", ignoreGuid.ToString());
 
     _player->GetSocial()->RemoveFromSocialList(ignoreGuid, SOCIAL_FLAG_IGNORED);
 
@@ -179,7 +179,7 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
     std::string note;
     recvData >> guid >> note;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: %s, Notes: %s", guid.ToString().c_str(), note.c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: {}, Notes: {}", guid.ToString(), note);
 
     _player->GetSocial()->SetFriendNote(guid, note);
 }

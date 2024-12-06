@@ -35,8 +35,9 @@ add_executable(authserver
 )
 
 if(NOT WIN32)
-  set_target_properties(authserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+  target_compile_definitions(authserver PRIVATE
+    _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+    _TRINITY_REALM_CONFIG_DIR="${CONF_DIR}/authserver.conf.d"
   )
 endif()
 

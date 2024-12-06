@@ -213,7 +213,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                                 rank = 2;
                                 break;
                             default:
-                                TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                                TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: {}", aurEff->GetId());
                                 break;
                         }
                     }
@@ -727,7 +727,7 @@ class spell_warl_life_tap : public SpellScript
         int32 base = GetEffectInfo(effIndex).CalcValue();
 
         float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
-        float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f * penalty;
+        float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_SHADOW)) * 0.5f * penalty;
 
         // Improved Life Tap mod
         if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))

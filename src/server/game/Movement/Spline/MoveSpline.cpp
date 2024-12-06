@@ -201,9 +201,9 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
     if (!(exp))\
     {\
         if (unit)\
-            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for %s", #exp, unit->GetDebugInfo().c_str());\
+            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for {}", #exp, unit->GetDebugInfo());\
         else\
-            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for cyclic spline continuation", #exp); \
+            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for cyclic spline continuation", #exp); \
         return false;\
     }
     CHECK(path.size() > 1);
@@ -218,17 +218,25 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 // each vertex offset packed into 11 bytes
 bool MoveSplineInitArgs::_checkPathBounds() const
 {
+    constexpr float MIN_XY_OFFSET = -(1 << 11) / 4.0f;
+    constexpr float MIN_Z_OFFSET = -(1 << 10) / 4.0f;
+
+    // positive values have 1 less bit limit (if the highest bit was set, value would be sign extended into negative when decompressing)
+    constexpr float MAX_XY_OFFSET = (1 << 10) / 4.0f;
+    constexpr float MAX_Z_OFFSET = (1 << 9) / 4.0f;
+
+    auto isValidPackedXYOffset = [](float coord) -> bool { return coord > MIN_XY_OFFSET && coord < MAX_XY_OFFSET; };
+    auto isValidPackedZOffset = [](float coord) -> bool { return coord > MIN_Z_OFFSET && coord < MAX_Z_OFFSET; };
+
     if (!(flags & MoveSplineFlag::Mask_CatmullRom) && path.size() > 2)
     {
-        enum{
-            MAX_OFFSET = (1 << 11) / 2
-        };
-        Vector3 middle = (path.front()+path.back()) / 2;
-        Vector3 offset;
-        for (uint32 i = 1; i < path.size()-1; ++i)
+        Vector3 middle = (path.front() + path.back()) / 2;
+        for (uint32 i = 1; i < path.size() - 1; ++i)
         {
-            offset = path[i] - middle;
-            if (std::fabs(offset.x) >= MAX_OFFSET || std::fabs(offset.y) >= MAX_OFFSET || std::fabs(offset.z) >= MAX_OFFSET)
+            // when compression is enabled, each point coord is packed into 11 bits (10 for Z)
+            if (!isValidPackedXYOffset(middle.x - path[i].x)
+               || !isValidPackedXYOffset(middle.y - path[i].y)
+               || !isValidPackedZOffset(middle.z - path[i].z))
             {
                 TC_LOG_ERROR("misc", "MoveSplineInitArgs::_checkPathBounds check failed");
                 return false;

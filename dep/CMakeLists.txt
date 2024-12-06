@@ -22,12 +22,16 @@ if(SERVERS OR TOOLS)
   add_subdirectory(openssl)
   add_subdirectory(jemalloc)
   add_subdirectory(argon2)
+  add_subdirectory(short_alloc)
 endif()
 
 if(SERVERS)
   add_subdirectory(mysql)
   add_subdirectory(readline)
   add_subdirectory(gsoap)
+endif()
+
+if(SERVERS AND BUILD_EFSW)
   add_subdirectory(efsw)
 endif()
 

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"

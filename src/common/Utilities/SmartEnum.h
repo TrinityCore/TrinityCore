@@ -85,13 +85,10 @@ class EnumUtils
                 Iterator() : _index(EnumUtils::Count<Enum>()) {}
                 explicit Iterator(size_t index) : _index(index) { }
 
-                bool operator==(const Iterator& other) const { return other._index == _index; }
-                bool operator!=(const Iterator& other) const { return !operator==(other); }
+                bool operator==(const Iterator& other) const = default;
+                std::strong_ordering operator<=>(const Iterator& other) const = default;
+
                 difference_type operator-(Iterator const& other) const { return _index - other._index; }
-                bool operator<(const Iterator& other) const { return _index < other._index; }
-                bool operator<=(const Iterator& other) const { return _index <= other._index; }
-                bool operator>(const Iterator& other) const { return _index > other._index; }
-                bool operator>=(const Iterator& other) const { return _index >= other._index; }
 
                 value_type operator[](difference_type d) const { return FromIndex<Enum>(_index + d); }
                 value_type operator*() const { return operator[](0); }

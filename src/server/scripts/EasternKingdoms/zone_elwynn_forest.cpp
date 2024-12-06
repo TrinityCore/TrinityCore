@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "GameEventMgr.h"
@@ -113,8 +114,8 @@ struct npc_cameron : public ScriptedAI
         // first we break formation because children will need to move on their own now
         for (auto guid : _childrenGUIDs)
             if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
-                if (child->GetFormation())
-                    child->GetFormation()->RemoveMember(child);
+                if (CreatureGroup* creatureGroup = child->GetFormation())
+                    sFormationMgr->RemoveCreatureFromGroup(creatureGroup, child);
 
         // Move each child to an random position
         for (uint32 i = 0; i < _childrenGUIDs.size(); ++i)

@@ -16,6 +16,7 @@
  */
 
 #include "MailPackets.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Mail.h"
 #include "Player.h"
@@ -87,7 +88,7 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     StationeryID = mail->stationery;
     SentMoney = mail->money;
     Flags = mail->checked;
-    DaysLeft = float(mail->expire_time - time(nullptr)) / DAY;
+    DaysLeft = float(mail->expire_time - GameTime::GetGameTime()) / float(DAY);
     MailTemplateID = mail->mailTemplateId;
     Subject = mail->subject;
     Body = mail->body;

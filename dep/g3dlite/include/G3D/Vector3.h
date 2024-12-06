@@ -17,9 +17,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
-#include "G3D/Random.h"
 #include "G3D/Vector2.h"
-#include "G3D/Table.h"
 #include "G3D/HashTrait.h"
 #include "G3D/PositionTrait.h"
 #include "G3D/Vector2.h"
@@ -365,7 +363,7 @@ public:
        Distribution rendered by G3D::DirectionHistogram:
        \image html vector3-random.png
       */
-    static Vector3 random(Random& r = Random::common());
+    static Vector3 random(Random& r = commonRandom());
 
     /** \brief Random unit vector, distributed according to \f$\max(\cos \theta,0)\f$.
 
@@ -380,9 +378,9 @@ public:
 
         @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
     */
-    static Vector3 cosHemiRandom(const Vector3& n, Random& r = Random::common());
+    static Vector3 cosHemiRandom(const Vector3& n, Random& r = commonRandom());
 
-    static Vector3 cosSphereRandom(const Vector3& n, Random& r = Random::common());
+    static Vector3 cosSphereRandom(const Vector3& n, Random& r = commonRandom());
 
     /** \brief Random unit vector, distributed according to \f$\max(\cos^k \theta,0)\f$.
 
@@ -397,7 +395,7 @@ public:
 
         @cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
     */
-    static Vector3 cosPowHemiRandom(const Vector3& n, const float k, Random& r = Random::common());
+    static Vector3 cosPowHemiRandom(const Vector3& n, const float k, Random& r = commonRandom());
 
     /**
      \brief Random vector distributed over the hemisphere about normal.
@@ -405,7 +403,7 @@ public:
      Distribution rendered by G3D::DirectionHistogram:
       \image html vector3-hemirandom.png
      */
-    static Vector3 hemiRandom(const Vector3& normal, Random& r = Random::common());
+    static Vector3 hemiRandom(const Vector3& normal, Random& r = commonRandom());
 
     inline float sum() const {
         return x + y + z;

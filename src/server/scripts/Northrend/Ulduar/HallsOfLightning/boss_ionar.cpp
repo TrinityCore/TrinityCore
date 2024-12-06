@@ -57,9 +57,10 @@ enum Creatures
 enum Misc
 {
     DATA_MAX_SPARKS                               = 5,
-    DATA_MAX_SPARK_DISTANCE                       = 90, // Distance to boss - prevent runs through the whole instance
     DATA_POINT_CALLBACK                           = 0
 };
+
+static constexpr float DATA_MAX_SPARK_DISTANCE = 90; // Distance to boss - prevent runs through the whole instance
 
 /*######
 ## Boss Ionar
@@ -144,9 +145,12 @@ struct boss_ionar : public BossAI
 
         Position pos = me->GetPosition();
 
-        for (ObjectGuid guid : summons)
+        for (SummonList::const_iterator itr = summons.begin(); itr != summons.end();)
         {
-            if (Creature* pSpark = ObjectAccessor::GetCreature(*me, guid))
+            Creature* pSpark = ObjectAccessor::GetCreature(*me, *itr);
+            ++itr;
+
+            if (pSpark)
             {
                 if (pSpark->IsAlive())
                 {

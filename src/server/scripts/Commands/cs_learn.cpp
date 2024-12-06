@@ -140,8 +140,8 @@ public:
         Player* player = handler->GetPlayer();
         for (auto const& [id, quest] : sObjectMgr->GetQuestTemplates())
         {
-            if (quest.GetRequiredClasses() && player->SatisfyQuestClass(&quest, false))
-                player->LearnQuestRewardedSpells(&quest);
+            if (quest->GetRequiredClasses() && player->SatisfyQuestClass(quest.get(), false))
+                player->LearnQuestRewardedSpells(quest.get());
         }
         return true;
     }

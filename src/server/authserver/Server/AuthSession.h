@@ -19,20 +19,18 @@
 #define __AUTHSESSION_H__
 
 #include "AsyncCallbackProcessor.h"
-#include "BigNumber.h"
-#include "ByteBuffer.h"
 #include "Common.h"
 #include "CryptoHash.h"
+#include "DatabaseEnvFwd.h"
+#include "Duration.h"
 #include "Optional.h"
 #include "Socket.h"
 #include "SRP6.h"
-#include "QueryResult.h"
-#include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
 
-class Field;
+class ByteBuffer;
 struct AuthHandler;
 
 enum AuthStatus
@@ -102,6 +100,7 @@ private:
     std::string _os;
     std::string _ipCountry;
     uint16 _build;
+    Minutes _timezoneOffset;
     uint8 _expversion;
 
     QueryCallbackProcessor _queryProcessor;

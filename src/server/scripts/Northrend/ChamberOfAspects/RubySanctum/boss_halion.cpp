@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -1656,7 +1657,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
             {
                 GetTarget()->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*handle*/)
@@ -1667,7 +1668,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
 
                 target->RemoveAurasDueToSpell(_beforeHitSpellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 if (InstanceScript* instance = target->GetInstanceScript())
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED);
             }
 
             void Register() override

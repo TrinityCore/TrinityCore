@@ -16,6 +16,7 @@
  */
 
 #include "RealmList.h"
+#include "ClientBuildInfo.h"
 #include "DatabaseEnv.h"
 #include "DeadlineTimer.h"
 #include "IoContext.h"
@@ -43,7 +44,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
     _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
 
-    LoadBuildInfo();
+    ClientBuild::LoadBuildInfo();
     // Get the content of the realmlist table in the database
     UpdateRealms(boost::system::error_code());
 }
@@ -51,37 +52,6 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 void RealmList::Close()
 {
     _updateTimer->cancel();
-}
-
-void RealmList::LoadBuildInfo()
-{
-    //                                                              0             1              2              3      4                5                6
-    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, winChecksumSeed, macChecksumSeed FROM build_info ORDER BY build ASC"))
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            RealmBuildInfo& build = _builds.emplace_back();
-            build.MajorVersion = fields[0].GetUInt32();
-            build.MinorVersion = fields[1].GetUInt32();
-            build.BugfixVersion = fields[2].GetUInt32();
-            std::string hotfixVersion = fields[3].GetString();
-            if (hotfixVersion.length() < build.HotfixVersion.size())
-                std::copy(hotfixVersion.begin(), hotfixVersion.end(), build.HotfixVersion.begin());
-            else
-                std::fill(hotfixVersion.begin(), hotfixVersion.end(), '\0');
-
-            build.Build = fields[4].GetUInt32();
-            std::string windowsHash = fields[5].GetString();
-            if (windowsHash.length() == build.WindowsHash.size() * 2)
-                HexStrToByteArray(windowsHash, build.WindowsHash);
-
-            std::string macHash = fields[6].GetString();
-            if (macHash.length() == build.MacHash.size() * 2)
-                HexStrToByteArray(macHash, build.MacHash);
-
-        } while (result->NextRow());
-    }
 }
 
 void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, std::string const& name,
@@ -141,21 +111,21 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
                 if (!externalAddress)
                 {
-                    TC_LOG_ERROR("server.authserver", "Could not resolve address %s for realm \"%s\" id %u", externalAddressString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("server.authserver", "Could not resolve address {} for realm \"{}\" id {}", externalAddressString, name, realmId);
                     continue;
                 }
 
                 Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
                 if (!localAddress)
                 {
-                    TC_LOG_ERROR("server.authserver", "Could not resolve localAddress %s for realm \"%s\" id %u", localAddressString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("server.authserver", "Could not resolve localAddress {} for realm \"{}\" id {}", localAddressString, name, realmId);
                     continue;
                 }
 
                 Optional<boost::asio::ip::tcp::endpoint> localSubmask = _resolver->Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
                 if (!localSubmask)
                 {
-                    TC_LOG_ERROR("server.authserver", "Could not resolve localSubnetMask %s for realm \"%s\" id %u", localSubmaskString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("server.authserver", "Could not resolve localSubnetMask {} for realm \"{}\" id {}", localSubmaskString, name, realmId);
                     continue;
                 }
 
@@ -177,15 +147,15 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                     timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
                 if (!existingRealms.count(id))
-                    TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_INFO("server.authserver", "Added realm \"{}\" at {}:{}.", name, externalAddressString, port);
                 else
-                    TC_LOG_DEBUG("server.authserver", "Updating realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_DEBUG("server.authserver", "Updating realm \"{}\" at {}:{}.", name, externalAddressString, port);
 
                 existingRealms.erase(id);
             }
             catch (std::exception& ex)
             {
-                TC_LOG_ERROR("server.authserver", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                TC_LOG_ERROR("server.authserver", "Realmlist::UpdateRealms has thrown an exception: {}", ex.what());
                 ABORT();
             }
         }
@@ -193,7 +163,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     }
 
     for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
-        TC_LOG_INFO("server.authserver", "Removed realm \"%s\".", itr->second.c_str());
+        TC_LOG_INFO("server.authserver", "Removed realm \"{}\".", itr->second);
 
     if (_updateInterval)
     {
@@ -207,15 +177,6 @@ Realm const* RealmList::GetRealm(RealmHandle const& id) const
     auto itr = _realms.find(id);
     if (itr != _realms.end())
         return &itr->second;
-
-    return nullptr;
-}
-
-RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const
-{
-    for (RealmBuildInfo const& clientBuild : _builds)
-        if (clientBuild.Build == build)
-            return &clientBuild;
 
     return nullptr;
 }

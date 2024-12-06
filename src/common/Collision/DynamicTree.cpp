@@ -18,10 +18,8 @@
 #include "DynamicTree.h"
 #include "BoundingIntervalHierarchyWrapper.h"
 #include "GameObjectModel.h"
-#include "Log.h"
 #include "MapTree.h"
 #include "ModelIgnoreFlags.h"
-#include "ModelInstance.h"
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
@@ -152,44 +150,6 @@ struct DynamicTreeIntersectionCallback
     bool didHit() const { return did_hit;}
 };
 
-struct DynamicTreeIntersectionCallback_WithLogger
-{
-    bool did_hit;
-    uint32 phase_mask;
-    DynamicTreeIntersectionCallback_WithLogger(uint32 phasemask) : did_hit(false), phase_mask(phasemask)
-    {
-        TC_LOG_DEBUG("maps", "Dynamic Intersection log");
-    }
-    bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
-    {
-        TC_LOG_DEBUG("maps", "testing intersection with %s", obj.name.c_str());
-        bool hit = obj.intersectRay(r, distance, true, phase_mask, VMAP::ModelIgnoreFlags::Nothing);
-        if (hit)
-        {
-            did_hit = true;
-            TC_LOG_DEBUG("maps", "result: intersects");
-        }
-        return hit;
-    }
-    bool didHit() const { return did_hit;}
-};
-
-struct DynamicTreeAreaInfoCallback
-{
-    DynamicTreeAreaInfoCallback(uint32 phaseMask) : _phaseMask(phaseMask) {}
-
-    void operator()(G3D::Vector3 const& p, GameObjectModel const& obj)
-    {
-        obj.intersectPoint(p, _areaInfo, _phaseMask);
-    }
-
-    VMAP::AreaInfo const& GetAreaInfo() const { return _areaInfo; }
-
-private:
-    uint32 _phaseMask;
-    VMAP::AreaInfo _areaInfo;
-};
-
 struct DynamicTreeLocationInfoCallback
 {
     DynamicTreeLocationInfoCallback(uint32 phaseMask) : _phaseMask(phaseMask), _hitModel(nullptr) {}
@@ -289,24 +249,7 @@ float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, 
         return -G3D::finf();
 }
 
-bool DynamicMapTree::getAreaInfo(float x, float y, float& z, uint32 phasemask, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
-{
-    G3D::Vector3 v(x, y, z + 0.5f);
-    DynamicTreeAreaInfoCallback intersectionCallBack(phasemask);
-    impl->intersectPoint(v, intersectionCallBack);
-    if (intersectionCallBack.GetAreaInfo().result)
-    {
-        flags = intersectionCallBack.GetAreaInfo().flags;
-        adtId = intersectionCallBack.GetAreaInfo().adtId;
-        rootId = intersectionCallBack.GetAreaInfo().rootId;
-        groupId = intersectionCallBack.GetAreaInfo().groupId;
-        z = intersectionCallBack.GetAreaInfo().ground_Z;
-        return true;
-    }
-    return false;
-}
-
-void DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, uint32 phasemask, uint8 reqLiquidType, VMAP::AreaAndLiquidData& data) const
+bool DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, uint32 phasemask, Optional<uint8> reqLiquidType, VMAP::AreaAndLiquidData& data) const
 {
     G3D::Vector3 v(x, y, z + 0.5f);
     DynamicTreeLocationInfoCallback intersectionCallBack(phasemask);
@@ -316,13 +259,16 @@ void DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, uint32 phas
         data.floorZ = intersectionCallBack.GetLocationInfo().ground_Z;
         uint32 liquidType = intersectionCallBack.GetLocationInfo().hitModel->GetLiquidType();
         float liquidLevel;
-        if (!reqLiquidType || VMAP::VMapFactory::createOrGetVMapManager()->GetLiquidFlagsPtr(liquidType) & reqLiquidType)
+        if (!reqLiquidType || VMAP::VMapFactory::createOrGetVMapManager()->GetLiquidFlagsPtr(liquidType) & *reqLiquidType)
             if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, intersectionCallBack.GetLocationInfo(), liquidLevel))
                 data.liquidInfo.emplace(liquidType, liquidLevel);
 
-        data.areaInfo.emplace(0,
+        data.areaInfo.emplace(intersectionCallBack.GetLocationInfo().hitModel->GetWmoID(),
+            0,
             intersectionCallBack.GetLocationInfo().rootId,
-            intersectionCallBack.GetLocationInfo().hitModel->GetWmoID(),
-            intersectionCallBack.GetLocationInfo().hitModel->GetMogpFlags());
+            intersectionCallBack.GetLocationInfo().hitModel->GetMogpFlags(),
+            0);
+        return true;
     }
+    return false;
 }

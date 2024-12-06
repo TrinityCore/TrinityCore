@@ -131,7 +131,7 @@ struct TC_GAME_API LootItem
     ConditionContainer conditions;                          // additional loot condition
     GuidSet allowedGUIDs;
     ObjectGuid rollWinnerGUID;                              // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
-    uint8   count             : 8;
+    uint8   count;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
     bool    freeforall        : 1;                          // free for all
@@ -150,7 +150,9 @@ struct TC_GAME_API LootItem
                  { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
+    bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter, ObjectGuid ownerGuid) const;
     bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
+    bool AllowedForPlayer(Player const* player, ObjectGuid ownerGuid) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
 };

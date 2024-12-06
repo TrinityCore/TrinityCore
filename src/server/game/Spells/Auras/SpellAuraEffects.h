@@ -83,7 +83,7 @@ class TC_GAME_API AuraEffect
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
-        bool IsAffectedOnSpell(SpellInfo const* spell) const;
+        bool IsAffectingSpell(SpellInfo const* spell) const;
         bool HasSpellClassMask() const { return GetSpellEffectInfo().SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
@@ -288,6 +288,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraPreventRegeneratePower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 

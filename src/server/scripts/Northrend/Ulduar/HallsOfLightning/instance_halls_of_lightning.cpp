@@ -37,6 +37,7 @@ ObjectData const creatureData[] =
     { NPC_VOLKHAN,              DATA_VOLKHAN            },
     { NPC_IONAR,                DATA_IONAR              },
     { NPC_LOKEN,                DATA_LOKEN              },
+    { NPC_INVISIBLE_STALKER,    DATA_INVISIBLE_STALKER  },
     { NPC_VOLKHANS_ANVIL,       DATA_VOLKHANS_ANVIL     },
     { 0,                        0                       } // END
 };

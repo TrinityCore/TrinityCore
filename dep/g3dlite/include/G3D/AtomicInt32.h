@@ -12,7 +12,9 @@
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 
-#if defined(G3D_OSX)
+#if defined(G3D_WINDOWS)
+#   include <Windows.h>
+#elif defined(G3D_OSX)
 #   include <libkern/OSAtomic.h>
 #endif
 

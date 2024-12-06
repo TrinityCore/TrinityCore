@@ -46,7 +46,7 @@ void SystemMgr::LoadScriptWaypoints()
     if (result)
         entryCount = result->GetRowCount();
 
-    TC_LOG_INFO("server.loading", "Loading Script Waypoints for " UI64FMTD " creature(s)...", entryCount);
+    TC_LOG_INFO("server.loading", "Loading Script Waypoints for {} creature(s)...", entryCount);
 
     //                                     0       1         2           3           4           5
     result = WorldDatabase.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
@@ -71,12 +71,12 @@ void SystemMgr::LoadScriptWaypoints()
         CreatureTemplate const* info = sObjectMgr->GetCreatureTemplate(entry);
         if (!info)
         {
-            TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for non-existant creature entry %u", entry);
+            TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for non-existant creature entry {}", entry);
             continue;
         }
 
         if (!info->ScriptID)
-            TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", entry);
+            TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for creature entry {}, but creature does not have ScriptName defined and then useless.", entry);
 
         WaypointPath& path = _waypointStore[entry];
         path.id = entry;
@@ -85,7 +85,7 @@ void SystemMgr::LoadScriptWaypoints()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Script Waypoint nodes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Script Waypoint nodes in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SystemMgr::LoadScriptSplineChains()
@@ -115,7 +115,7 @@ void SystemMgr::LoadScriptSplineChains()
 
             if (splineId != chain.size())
             {
-                TC_LOG_WARN("server.loading", "Creature #%u: Chain %u has orphaned spline %u, skipped.", entry, chainId, splineId);
+                TC_LOG_WARN("server.loading", "Creature #{}: Chain {} has orphaned spline {}, skipped.", entry, chainId, splineId);
                 continue;
             }
 
@@ -139,26 +139,26 @@ void SystemMgr::LoadScriptSplineChains()
             auto it = m_mSplineChainsMap.find({entry,chainId});
             if (it == m_mSplineChainsMap.end())
             {
-                TC_LOG_WARN("server.loading", "Creature #%u has waypoint data for spline chain %u. No such chain exists - entry skipped.", entry, chainId);
+                TC_LOG_WARN("server.loading", "Creature #{} has waypoint data for spline chain {}. No such chain exists - entry skipped.", entry, chainId);
                 continue;
             }
             std::vector<SplineChainLink>& chain = it->second;
             if (splineId >= chain.size())
             {
-                TC_LOG_WARN("server.loading", "Creature #%u has waypoint data for spline (%u,%u). The specified chain does not have a spline with this index - entry skipped.", entry, chainId, splineId);
+                TC_LOG_WARN("server.loading", "Creature #{} has waypoint data for spline ({},{}). The specified chain does not have a spline with this index - entry skipped.", entry, chainId, splineId);
                 continue;
             }
             SplineChainLink& spline = chain[splineId];
             if (wpId != spline.Points.size())
             {
-                TC_LOG_WARN("server.loading", "Creature #%u has orphaned waypoint data in spline (%u,%u) at index %u. Skipped.", entry, chainId, splineId, wpId);
+                TC_LOG_WARN("server.loading", "Creature #{} has orphaned waypoint data in spline ({},{}) at index {}. Skipped.", entry, chainId, splineId, wpId);
                 continue;
             }
             spline.Points.emplace_back(posX, posY, posZ);
             ++wpCount;
         } while (resultWP->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded spline chain data for %u chains, consisting of %u splines with %u waypoints in %u ms", chainCount, splineCount, wpCount, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded spline chain data for {} chains, consisting of {} splines with {} waypoints in {} ms", chainCount, splineCount, wpCount, GetMSTimeDiffToNow(oldMSTime));
     }
 }
 

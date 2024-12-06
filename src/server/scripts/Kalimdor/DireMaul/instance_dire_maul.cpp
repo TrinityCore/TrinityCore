@@ -93,6 +93,9 @@ public:
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
                         creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     break;
+                case NPC_TORTHELDRIN:
+                    _tortheldrinGUID = creature->GetGUID();
+                break;
                 default:
                     break;
             }
@@ -147,6 +150,8 @@ public:
                     return _forcefieldGUID;
                 case NPC_IMMOLTHAR:
                     return _immoGUID;
+                case NPC_TORTHELDRIN:
+                    return _tortheldrinGUID;
                 default:
                     break;
             }
@@ -266,12 +271,22 @@ public:
             }
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            if (unit->GetGUID() == _immoGUID)
+            {
+                if (Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID))
+                    tortheldrin->SetFaction(FACTION_ENEMY);
+            }
+        }
+
 protected:
         EventMap _events;
         std::array<ObjectGuid, 5> _crystalGUIDs;
         std::array<std::array<ObjectGuid, 4>, 5> _crystalCreatureGUIDs; // 5 different Crystals, maximum of 4 Creatures
         ObjectGuid _forcefieldGUID;
         ObjectGuid _immoGUID;
+        ObjectGuid _tortheldrinGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

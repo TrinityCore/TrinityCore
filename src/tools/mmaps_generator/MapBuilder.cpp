@@ -214,7 +214,7 @@ namespace MMAP
 
     void TileBuilder::WorkerThread()
     {
-        while (1)
+        while (true)
         {
             TileInfo tileInfo;
 
@@ -922,7 +922,7 @@ namespace MMAP
             // now that tile is written to disk, we can unload it
             navMesh->removeTile(tileRef, nullptr, nullptr);
         }
-        while (0);
+        while (false);
 
         if (m_debugOutput)
         {

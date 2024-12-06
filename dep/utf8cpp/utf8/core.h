@@ -30,6 +30,23 @@ DEALINGS IN THE SOFTWARE.
 
 #include <iterator>
 
+// Determine the C++ standard version.
+// If the user defines UTF_CPP_CPLUSPLUS, use that.
+// Otherwise, trust the unreliable predefined macro __cplusplus
+
+#if !defined UTF_CPP_CPLUSPLUS
+    #define UTF_CPP_CPLUSPLUS __cplusplus
+#endif
+
+#if UTF_CPP_CPLUSPLUS >= 201103L // C++ 11 or later
+    #define UTF_CPP_OVERRIDE override
+    #define UTF_CPP_NOEXCEPT noexcept
+#else // C++ 98/03
+    #define UTF_CPP_OVERRIDE
+    #define UTF_CPP_NOEXCEPT throw()
+#endif // C++ 11 or later
+
+
 namespace utf8
 {
     // The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
@@ -49,8 +66,8 @@ namespace internal
     const uint16_t LEAD_SURROGATE_MAX  = 0xdbffu;
     const uint16_t TRAIL_SURROGATE_MIN = 0xdc00u;
     const uint16_t TRAIL_SURROGATE_MAX = 0xdfffu;
-    const uint16_t LEAD_OFFSET         = LEAD_SURROGATE_MIN - (0x10000 >> 10);
-    const uint32_t SURROGATE_OFFSET    = 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN;
+    const uint16_t LEAD_OFFSET         = 0xd7c0u;       // LEAD_SURROGATE_MIN - (0x10000 >> 10)
+    const uint32_t SURROGATE_OFFSET    = 0xfca02400u;   // 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN
 
     // Maximum valid value for a Unicode code point
     const uint32_t CODE_POINT_MAX      = 0x0010ffffu;
@@ -142,7 +159,7 @@ namespace internal
 
         if (!utf8::internal::is_trail(*it))
             return INCOMPLETE_SEQUENCE;
-        
+
         return UTF8_OK;
     }
 
@@ -165,7 +182,7 @@ namespace internal
     {
         if (it == end) 
             return NOT_ENOUGH_ROOM;
-        
+
         code_point = utf8::internal::mask8(*it);
 
         UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(it, end)
@@ -222,6 +239,9 @@ namespace internal
     template <typename octet_iterator>
     utf_error validate_next(octet_iterator& it, octet_iterator end, uint32_t& code_point)
     {
+        if (it == end)
+            return NOT_ENOUGH_ROOM;
+
         // Save the original value of it so we can go back in case of failure
         // Of course, it does not make much sense with i.e. stream iterators
         octet_iterator original_it = it;
@@ -234,7 +254,7 @@ namespace internal
         // Get trail octets and calculate the code point
         utf_error err = UTF8_OK;
         switch (length) {
-            case 0: 
+            case 0:
                 return INVALID_LEAD;
             case 1:
                 err = utf8::internal::get_sequence_1(it, end, cp);
@@ -277,6 +297,55 @@ namespace internal
         return utf8::internal::validate_next(it, end, ignored);
     }
 
+    // Internal implementation of both checked and unchecked append() function
+    // This function will be invoked by the overloads below, as they will know
+    // the octet_type.
+    template <typename octet_iterator, typename octet_type>
+    octet_iterator append(uint32_t cp, octet_iterator result) {
+        if (cp < 0x80)                        // one octet
+            *(result++) = static_cast<octet_type>(cp);
+        else if (cp < 0x800) {                // two octets
+            *(result++) = static_cast<octet_type>((cp >> 6)          | 0xc0);
+            *(result++) = static_cast<octet_type>((cp & 0x3f)        | 0x80);
+        }
+        else if (cp < 0x10000) {              // three octets
+            *(result++) = static_cast<octet_type>((cp >> 12)         | 0xe0);
+            *(result++) = static_cast<octet_type>(((cp >> 6) & 0x3f) | 0x80);
+            *(result++) = static_cast<octet_type>((cp & 0x3f)        | 0x80);
+        }
+        else {                                // four octets
+            *(result++) = static_cast<octet_type>((cp >> 18)         | 0xf0);
+            *(result++) = static_cast<octet_type>(((cp >> 12) & 0x3f)| 0x80);
+            *(result++) = static_cast<octet_type>(((cp >> 6) & 0x3f) | 0x80);
+            *(result++) = static_cast<octet_type>((cp & 0x3f)        | 0x80);
+        }
+        return result;
+    }
+    
+    // One of the following overloads will be invoked from the API calls
+
+    // A simple (but dangerous) case: the caller appends byte(s) to a char array
+    inline char* append(uint32_t cp, char* result) {
+        return append<char*, char>(cp, result);
+    }
+
+    // Hopefully, most common case: the caller uses back_inserter
+    // i.e. append(cp, std::back_inserter(str));
+    template<typename container_type>
+    std::back_insert_iterator<container_type> append
+            (uint32_t cp, std::back_insert_iterator<container_type> result) {
+        return append<std::back_insert_iterator<container_type>,
+            typename container_type::value_type>(cp, result);
+    }
+
+    // The caller uses some other kind of output operator - not covered above
+    // Note that in this case we are not able to determine octet_type
+    // so we assume it's uint_8; that can cause a conversion warning if we are wrong.
+    template <typename octet_iterator>
+    octet_iterator append(uint32_t cp, octet_iterator result) {
+        return append<octet_iterator, uint8_t>(cp, result);
+    }
+
 } // namespace internal
 
     /// The library API - functions intended to be called by the users
@@ -310,18 +379,7 @@ namespace internal
             ((it != end) && (utf8::internal::mask8(*it++)) == bom[1]) &&
             ((it != end) && (utf8::internal::mask8(*it))   == bom[2])
            );
-    }
-	
-    //Deprecated in release 2.3 
-    template <typename octet_iterator>
-    inline bool is_bom (octet_iterator it)
-    {
-        return (
-            (utf8::internal::mask8(*it++)) == bom[0] &&
-            (utf8::internal::mask8(*it++)) == bom[1] &&
-            (utf8::internal::mask8(*it))   == bom[2]
-           );
-    }
+    }	
 } // namespace utf8
 
 #endif // header guard

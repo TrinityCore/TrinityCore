@@ -50,7 +50,7 @@ class boss_instructor_malicia : public CreatureScript
 
         struct boss_instructormaliciaAI : public BossAI
         {
-            boss_instructormaliciaAI(Creature* creature) : BossAI(creature, DATA_INSTRUCTORMALICIA)
+            boss_instructormaliciaAI(Creature* creature) : BossAI(creature, DATA_INSTRUCTOR_MALICIA)
             {
                 Initialize();
             }
