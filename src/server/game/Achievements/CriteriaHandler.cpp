@@ -562,6 +562,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::CompleteAnyReplayQuest:
             case CriteriaType::BuyItemsFromVendors:
             case CriteriaType::SellItemsToVendors:
+            case CriteriaType::ReachMaxLevel:
+            case CriteriaType::LearnTaxiNode:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1229,6 +1231,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::BuyItemsFromVendors:
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
+        case CriteriaType::ReachRenownLevel:
+        case CriteriaType::LearnTaxiNode:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
         case CriteriaType::CompleteQuest:
@@ -1247,6 +1251,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::PrestigeLevelIncrease:
         case CriteriaType::ActivelyReachLevel:
         case CriteriaType::CollectTransmogSetFromGroup:
+        case CriteriaType::ReachMaxLevel:
         case CriteriaType::EnterTopLevelArea:
         case CriteriaType::LeaveTopLevelArea:
             return progress->Counter >= 1;
@@ -1619,6 +1624,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CriteriaType::CurrencyGained:
+        case CriteriaType::ReachRenownLevel:
             if (!miscValue1 || !miscValue2 || int64(miscValue2) < 0
                 || miscValue1 != uint32(criteria->Entry->Asset.CurrencyID))
                 return false;
@@ -1674,6 +1680,10 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::EnterAreaTriggerWithActionSet:
         case CriteriaType::LeaveAreaTriggerWithActionSet:
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.AreaTriggerActionSetID))
+                return false;
+            break;
+        case CriteriaType::LearnTaxiNode:
+            if (miscValue1 != uint32(criteria->Entry->Asset.TaxiNodesID))
                 return false;
             break;
         default:
@@ -4504,6 +4514,14 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaType type)
             return "CompleteTrackingQuest";
         case CriteriaType::GainLevels:
             return "GainLevels";
+        case CriteriaType::CompleteQuestsCountOnAccount:
+            return "CompleteQuestsCountOnAccount";
+        case CriteriaType::WarbandBankTabPurchased:
+            return "WarbandBankTabPurchased";
+        case CriteriaType::ReachRenownLevel:
+            return "ReachRenownLevel";
+        case CriteriaType::LearnTaxiNode:
+            return "LearnTaxiNode";
         default:
             return "MissingType";
     }
@@ -4554,6 +4572,8 @@ inline bool IsCriteriaTypeStoredByAsset(CriteriaType type)
         case CriteriaType::LandTargetedSpellOnTarget:
         case CriteriaType::LearnTradeskillSkillLine:
         case CriteriaType::DefeatDungeonEncounter:
+        case CriteriaType::LearnToy:
+        case CriteriaType::LearnAnyTransmog:
             return true;
         default:
             break;
@@ -4923,4 +4943,66 @@ ModifierTreeNode const* CriteriaMgr::GetModifierTree(uint32 modifierTreeId) cons
         return itr->second;
 
     return nullptr;
+}
+
+std::span<CriteriaType const> CriteriaMgr::GetRetroactivelyUpdateableCriteriaTypes()
+{
+    static constexpr CriteriaType Types[] =
+    {
+        CriteriaType::CompleteResearchProject,
+        CriteriaType::CompleteAnyResearchProject,
+        CriteriaType::ReachLevel,
+        CriteriaType::SkillRaised,
+        CriteriaType::CompleteQuestsCount,
+        CriteriaType::CompleteAnyDailyQuestPerDay,
+        CriteriaType::CompleteQuestsInZone,
+        CriteriaType::CompleteQuest,
+        CriteriaType::LearnOrKnowSpell,
+        CriteriaType::AcquireItem,
+        CriteriaType::EarnPersonalArenaRating,
+        CriteriaType::AchieveSkillStep,
+        CriteriaType::RevealWorldMapOverlay,
+        //CriteriaType::EarnTitle,  /*NYI*/
+        CriteriaType::BankSlotsPurchased,
+        CriteriaType::ReputationGained,
+        CriteriaType::TotalExaltedFactions,
+        //CriteriaType::CompleteQuestsInSort,  /*NYI*/
+        CriteriaType::LearnSpellFromSkillLine,
+        CriteriaType::MostMoneyOwned,
+        CriteriaType::TotalReveredFactions,
+        CriteriaType::TotalHonoredFactions,
+        CriteriaType::TotalFactionsEncountered,
+        //CriteriaType::AccountKnownPet,  /*NYI*/
+        CriteriaType::LearnTradeskillSkillLine,
+        CriteriaType::HonorableKills,
+        //CriteriaType::GuildBankTabsPurchased, /*NYI*/
+        //CriteriaType::EarnGuildAchievementPoints, /*NYI*/
+        //CriteriaType::EarnBattlegroundRating, /*NYI*/
+        //CriteriaType::GuildTabardCreated, /*NYI*/
+        CriteriaType::LearnedNewPet,
+        CriteriaType::UniquePetsOwned,
+        //CriteriaType::UpgradeGarrison, /*NYI*/
+        //CriteriaType::AcquireGarrison, /*NYI*/
+        //CriteriaType::LearnGarrisonBlueprint, /*NYI*/
+        //CriteriaType::LearnGarrisonSpecialization, /*NYI*/
+        //CriteriaType::LearnToy, /*NYI*/ // Learn Toy "{Item}"
+        //CriteriaType::LearnAnyToy, /*NYI*/ // Learn Any Toy
+        //CriteriaType::LearnTransmog, /*NYI*/
+        CriteriaType::HonorLevelIncrease,
+        //CriteriaType::AccountHonorLevelReached, /*NYI*/
+        CriteriaType::ReachMaxLevel,
+        //CriteriaType::MemorizeSpell, /*NYI*/
+        //CriteriaType::LearnTransmogIllusion, /*NYI*/
+        //CriteriaType::MythicPlusRatingAttained, /*NYI*/
+        //CriteriaType::MythicPlusDisplaySeasonEnded, /*NYI*/
+        //CriteriaType::CompleteTrackingQuest, /*NYI*/
+        //CriteriaType::WarbandBankTabPurchased, /*NYI*/
+        CriteriaType::LearnTaxiNode,
+
+        CriteriaType::EarnAchievementPoints,
+        CriteriaType::BattlePetAchievementPointsEarned,
+        CriteriaType::EarnAchievement // criteria possibly completed by retroactive scan, must be last
+    };
+
+    return Types;
 }
