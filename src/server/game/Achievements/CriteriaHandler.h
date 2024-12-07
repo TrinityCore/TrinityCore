@@ -395,6 +395,8 @@ public:
     Criteria const* GetCriteria(uint32 criteriaId) const;
     ModifierTreeNode const* GetModifierTree(uint32 modifierTreeId) const;
 
+    static std::span<CriteriaType const> GetRetroactivelyUpdateableCriteriaTypes();
+
 private:
     std::unordered_map<uint32, CriteriaDataSet> _criteriaDataMap;
 

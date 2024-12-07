@@ -861,6 +861,7 @@ struct CriteriaEntry
 
         // CriteriaType::CurrencyGained                             = 12
         // CriteriaType::ObtainAnyItemWithCurrencyValue             = 229
+        // CriteriaType::ReachRenownLevel                           = 261
         int32 CurrencyID;
 
         // CriteriaType::DieInInstance                              = 18
@@ -1017,6 +1018,9 @@ struct CriteriaEntry
 
         // CriteriaType::MythicPlusRatingAttained                   = 230
         int32 DungeonScore;
+
+        // CriteriaType::LearnTaxiNode                              = 262
+        int32 TaxiNodesID;
     } Asset;
     uint32 ModifierTreeId;
     int32 StartEvent;
