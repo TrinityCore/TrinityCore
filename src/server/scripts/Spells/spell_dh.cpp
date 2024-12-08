@@ -302,7 +302,7 @@ class spell_dh_darkglare_boon : public AuraScript
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        // Tooltip mentions "fully channeled" being a requirement but ingame it always reduces cooldown and energizes, even when manually cancelled
+        // Tooltip mentions "fully channelled" being a requirement but ingame it always reduces cooldown and energizes, even when manually cancelled
         //if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
         //    return;
 
