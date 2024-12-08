@@ -58,6 +58,7 @@ option(COPY_CONF        "Copy authserver and worldserver .conf.dist files to the
 set(WITH_SOURCE_TREE    "hierarchical" CACHE STRING "Build the source tree for IDE's.")
 set_property(CACHE WITH_SOURCE_TREE PROPERTY STRINGS no flat hierarchical hierarchical-folders)
 option(WITHOUT_GIT      "Disable the GIT testing routines"                            0)
+option(TRANSMOG_PRESETS "Enable presets for transmogrification"                       1)
 option(BUILD_TESTING    "Build test suite"                                            0)
 
 if(UNIX)
