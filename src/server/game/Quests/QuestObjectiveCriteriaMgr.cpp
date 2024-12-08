@@ -165,15 +165,23 @@ void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction trans)
     }
 }
 
-void QuestObjectiveCriteriaMgr::ResetCriteriaTree(uint32 criteriaTreeId)
+void QuestObjectiveCriteriaMgr::ResetCriteriaTree(QuestObjective const* questObjective)
 {
-    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(criteriaTreeId);
+    _completedObjectives.erase(questObjective->ID);
+
+    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(questObjective->ObjectID);
     if (!tree)
         return;
 
     CriteriaMgr::WalkCriteriaTree(tree, [this](CriteriaTree const* criteriaTree)
     {
         RemoveCriteriaProgress(criteriaTree->Criteria);
+    });
+
+    CriteriaMgr::WalkCriteriaTree(tree, [this](CriteriaTree const* criteriaTree)
+    {
+        if (criteriaTree->Criteria && advstd::ranges::contains(CriteriaMgr::GetRetroactivelyUpdateableCriteriaTypes(), CriteriaType(criteriaTree->Criteria->Entry->Type)))
+            UpdateCriteria(criteriaTree->Criteria, 0, 0, 0, nullptr, _owner);
     });
 }
 
@@ -210,7 +218,7 @@ void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* questOb
 
 bool QuestObjectiveCriteriaMgr::HasCompletedObjective(QuestObjective const* questObjective) const
 {
-    return _completedObjectives.find(questObjective->ID) != _completedObjectives.end();
+    return _completedObjectives.contains(questObjective->ID);
 }
 
 void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const
@@ -293,7 +301,9 @@ void QuestObjectiveCriteriaMgr::CompletedCriteriaTree(CriteriaTree const* tree, 
     if (!objective)
         return;
 
-    CompletedObjective(objective, referencePlayer);
+    CriteriaTree const* entireObjectiveTree = sCriteriaMgr->GetCriteriaTree(objective->ObjectID);
+    if (IsCompletedCriteriaTree(entireObjectiveTree))
+        CompletedObjective(objective, referencePlayer);
 }
 
 void QuestObjectiveCriteriaMgr::SendPacket(WorldPacket const* data) const
