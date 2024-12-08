@@ -302,8 +302,9 @@ class spell_dh_darkglare_boon : public AuraScript
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-            return;
+        // Tooltip mentions "fully channeled" being a requirement but ingame it always reduces cooldown and energizes
+        //if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        //    return;
 
         Unit* target = GetTarget();
         Aura const* darkglareBoon = target->GetAura(SPELL_DH_DARKGLARE_BOON);
