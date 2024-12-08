@@ -300,7 +300,7 @@ class spell_dh_darkglare_boon : public AuraScript
         return GetUnitOwner()->HasAura(SPELL_DH_DARKGLARE_BOON);
     }
 
-    void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
