@@ -286,35 +286,41 @@ class spell_dh_darkglare_boon : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_DARKGLARE_BOON, SPELL_DH_DARKGLARE_BOON_ENERGIZE, SPELL_DH_FEL_DEVASTATION });
+        if (!ValidateSpellInfo({ SPELL_DH_DARKGLARE_BOON_ENERGIZE, SPELL_DH_FEL_DEVASTATION })
+            || !ValidateSpellEffect({ { SPELL_DH_DARKGLARE_BOON, EFFECT_3 } }))
+            return false;
+
+        SpellInfo const* darkglareBoon = sSpellMgr->GetSpellInfo(SPELL_DH_DARKGLARE_BOON, DIFFICULTY_NONE);
+        return darkglareBoon->GetEffect(EFFECT_0).CalcValue() < darkglareBoon->GetEffect(EFFECT_1).CalcValue()
+            && darkglareBoon->GetEffect(EFFECT_2).CalcValue() < darkglareBoon->GetEffect(EFFECT_3).CalcValue();
     }
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_DH_DARKGLARE_BOON);
+        return GetUnitOwner()->HasAura(SPELL_DH_DARKGLARE_BOON);
     }
 
-    void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
         Unit* target = GetTarget();
+        Aura const* darkglareBoon = target->GetAura(SPELL_DH_DARKGLARE_BOON);
 
-        SpellInfo const* darkglareBoon = sSpellMgr->GetSpellInfo(SPELL_DH_DARKGLARE_BOON, DIFFICULTY_NONE);
+        SpellHistory::Duration cooldown, categoryCooldown;
+        SpellHistory::GetCooldownDurations(GetSpellInfo(), 0, &cooldown, nullptr, &categoryCooldown);
+        int32 reductionPct = irand(darkglareBoon->GetEffect(EFFECT_0)->GetAmount(), darkglareBoon->GetEffect(EFFECT_1)->GetAmount());
+        SpellHistory::Duration cooldownReduction(CalculatePct(std::max(cooldown, categoryCooldown).count(), reductionPct));
 
-        uint32 cooldown = GetSpellInfo()->GetRecoveryTime();
-        uint32 minCD = CalculatePct(cooldown, float(darkglareBoon->GetEffect(EFFECT_0).CalcValue(GetCaster())));
-        uint32 maxCD = CalculatePct(cooldown, float(darkglareBoon->GetEffect(EFFECT_1).CalcValue(GetCaster())));
+        int32 energizeValue = irand(darkglareBoon->GetEffect(EFFECT_2)->GetAmount(), darkglareBoon->GetEffect(EFFECT_3)->GetAmount());
 
-        int32 minEnergize = darkglareBoon->GetEffect(EFFECT_2).CalcValue(GetCaster());
-        int32 maxEnergize = darkglareBoon->GetEffect(EFFECT_3).CalcValue(GetCaster());
+        target->GetSpellHistory()->ModifyCooldown(SPELL_DH_FEL_DEVASTATION, -cooldownReduction);
 
-        target->GetSpellHistory()->ModifyCooldown(SPELL_DH_FEL_DEVASTATION, -Milliseconds(urand(minCD, maxCD)));
-        target->CastSpell(target, SPELL_DH_DARKGLARE_BOON_ENERGIZE, CastSpellExtraArgs()
-            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
-            .SetTriggeringAura(aurEff)
-            .AddSpellMod(SPELLVALUE_BASE_POINT0, irand(minEnergize, maxEnergize)));
+        target->CastSpell(target, SPELL_DH_DARKGLARE_BOON_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, energizeValue } }
+        });
     }
 
     void Register() override
