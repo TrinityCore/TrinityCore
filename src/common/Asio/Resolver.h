@@ -21,6 +21,7 @@
 #include "IoContext.h"
 #include "Optional.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <algorithm>
 #include <string_view>
 #include <vector>
 
