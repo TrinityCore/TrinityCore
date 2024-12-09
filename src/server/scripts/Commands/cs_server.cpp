@@ -204,12 +204,12 @@ public:
                 continue;
             }
 
-            auto end = boost::filesystem::directory_iterator();
-            std::size_t folderSize = std::accumulate(boost::filesystem::directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, boost::filesystem::path const& mapFile)
+            auto end = boost::filesystem::recursive_directory_iterator();
+            std::size_t folderSize = std::accumulate(boost::filesystem::recursive_directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, boost::filesystem::directory_entry const& mapFile)
             {
                 boost::system::error_code ec;
-                if (boost::filesystem::is_regular_file(mapFile, ec))
-                    val += boost::filesystem::file_size(mapFile);
+                if (mapFile.is_regular_file(ec) && !ec)
+                    val += boost::filesystem::file_size(mapFile.path(), ec);
                 return val;
             });
 
