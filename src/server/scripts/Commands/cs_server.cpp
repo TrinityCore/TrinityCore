@@ -208,7 +208,7 @@ public:
             std::size_t folderSize = std::accumulate(boost::filesystem::recursive_directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, boost::filesystem::directory_entry const& mapFile)
             {
                 boost::system::error_code ec;
-                if (mapFile.is_regular_file(ec) && !ec)
+                if (boost::filesystem::is_regular_file(mapFile.path(), ec) && !ec)
                     val += boost::filesystem::file_size(mapFile.path(), ec);
                 return val;
             });
