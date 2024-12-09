@@ -419,11 +419,11 @@ class spell_dh_fel_devastation : public AuraScript
 
     void HandlePeriodicEffect(AuraEffect const* aurEff) const
     {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_DH_FEL_DEVASTATION_HEAL, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
-        });
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_DH_FEL_DEVASTATION_HEAL, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
     }
 
     void Register() override
