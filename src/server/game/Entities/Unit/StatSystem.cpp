@@ -101,27 +101,22 @@ bool Player::UpdateStats(Stats stat)
     if (stat > STAT_SPIRIT)
         return false;
 
-    // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
-
     SetStat(stat, int32(value));
-
-    if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
-    {
-        Pet* pet = GetPet();
-        if (pet)
-            pet->UpdateStats(stat);
-    }
 
     switch (stat)
     {
         case STAT_STRENGTH:
+            UpdateBlockPercentage();
             UpdateShieldBlockValue();
+            UpdateAttackPowerAndDamage(false);
+            SetSpeed(SPEED_RUN);
             break;
         case STAT_AGILITY:
-            UpdateArmor();
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
+            UpdateParryPercentage();
+            UpdateAttackPowerAndDamage(true);
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
@@ -129,49 +124,20 @@ bool Player::UpdateStats(Stats stat)
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
             UpdateAllSpellCritChances();
-            UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
+            UpdateSpellDamageAndHealingBonus();
             break;
         case STAT_SPIRIT:
+            UpdateHealthRegen();
+            UpdatePowerRegen(POWER_MANA);
+            UpdatePowerRegen(POWER_ENERGY);
+            UpdateSpellDamageAndHealingBonus();            
             break;
         default:
             break;
     }
 
-    if (stat == STAT_STRENGTH)
-    {
-        UpdateAttackPowerAndDamage(false);
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(true);
-    }
-    else if (stat == STAT_AGILITY)
-    {
-        UpdateAttackPowerAndDamage(false);
-        UpdateAttackPowerAndDamage(true);
-    }
-    else
-    {
-        // Need update (exist AP from stat auras)
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(false);
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(true);
-    }
 
-    UpdateSpellDamageAndHealingBonus();
-    UpdatePowerRegen(POWER_MANA);
 
-    // Update ratings in exist SPELL_AURA_MOD_RATING_FROM_STAT and only depends from stat
-    uint32 mask = 0;
-    AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
-    for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if (Stats((*i)->GetMiscValueB()) == stat)
-            mask |= (*i)->GetMiscValue();
-    if (mask)
-    {
-        for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
-            if (mask & (1 << rating))
-                ApplyRatingMod(CombatRating(rating), 0, true);
-    }
     return true;
 }
 
