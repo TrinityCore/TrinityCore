@@ -1,20 +1,3 @@
-/*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "Unit.h"
 #include "Creature.h"
 #include "Item.h"
@@ -26,6 +9,22 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include <numeric>
+
+// ----------------------------------------------------------------------------------------------------------------------------
+// _ModifyUint32
+// Unit::UpdateAllResistances
+// Unit::UpdateDamagePhysical
+// Player::UpdateStats
+// Player::ApplySpellPowerBonus
+// Player::UpdateSpellDamageAndHealingBonus
+// Player::UpdateAllStats
+// Player::ApplySpellPenetrationBonus
+// Player::UpdateResistances
+// Player::UpdateArmor
+// Player::GetHealthBonusFromStamina
+// Player::GetManaBonusFromIntellect
+// Player::UpdateMaxHealth
+// ----------------------------------------------------------------------------------------------------------------------------
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
@@ -44,20 +43,19 @@ inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
             amount = baseValue;
         baseValue -= amount;
     }
+    
     return apply;
 }
 
-/*#######################################
-########                         ########
-########    UNIT STAT SYSTEM     ########
-########                         ########
-#######################################*/
+// ----------------------------------------------------------------------------------------------------------------------------
 
 void Unit::UpdateAllResistances()
 {
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 void Unit::UpdateDamagePhysical(WeaponAttackType attType)
 {
@@ -90,11 +88,7 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
     }
 }
 
-/*#######################################
-########                         ########
-########   PLAYERS STAT SYSTEM   ########
-########                         ########
-#######################################*/
+// ----------------------------------------------------------------------------------------------------------------------------
 
 bool Player::UpdateStats(Stats stat)
 {
@@ -120,6 +114,7 @@ bool Player::UpdateStats(Stats stat)
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
+            UpdateMaxPower(POWER_ENERGY);
             break;
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
@@ -136,28 +131,24 @@ bool Player::UpdateStats(Stats stat)
             break;
     }
 
-
-
     return true;
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 {
     apply = _ModifyUInt32(apply, m_baseSpellPower, amount);
-
-    // For speed just update for client
     ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
     for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, amount, apply);
 }
 
+// ----------------------------------------------------------------------------------------------------------------------------
+
 void Player::UpdateSpellDamageAndHealingBonus()
 {
-    // Magic damage modifiers implemented in Unit::SpellDamageBonusDone
-    // This information for client side use only
-    // Get healing bonus for all schools
     SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
-    // Get damage bonus for all schools
     Unit::AuraEffectList const& modDamageAuras = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
     {
@@ -170,6 +161,8 @@ void Player::UpdateSpellDamageAndHealingBonus()
         SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i));
     }
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 bool Player::UpdateAllStats()
 {
@@ -205,11 +198,15 @@ bool Player::UpdateAllStats()
     return true;
 }
 
+// ----------------------------------------------------------------------------------------------------------------------------
+
 void Player::ApplySpellPenetrationBonus(int32 amount, bool apply)
 {
     ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -amount, apply);
     m_spellPenetrationItemMod += apply ? amount : -amount;
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 void Player::UpdateResistances(uint32 school)
 {
@@ -217,71 +214,56 @@ void Player::UpdateResistances(uint32 school)
     {
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
-
-        Pet* pet = GetPet();
-        if (pet)
-            pet->UpdateResistances(school);
     }
     else
         UpdateArmor();
 }
 
+// ----------------------------------------------------------------------------------------------------------------------------
+
 void Player::UpdateArmor()
 {
     UnitMods unitMod = UNIT_MOD_ARMOR;
-
-    float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor (from items)
-    value *= GetPctModifierValue(unitMod, BASE_PCT);            // armor percent from items
-    value += GetStat(STAT_AGILITY) * 2.0f;                      // armor bonus from stats
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
-
-    //add dynamic flat mods
-    AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
-    for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
-    {
-        if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            value += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
-    }
-
-    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
+    float value = GetFlatModifierValue(UNIT_MOD_ARMOR, BASE_VALUE);
     SetArmor(int32(value));
-
-    Pet* pet = GetPet();
-    if (pet)
-        pet->UpdateArmor();
+    UpdateSpeed(SPEED_RUN);
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 float Player::GetHealthBonusFromStamina()
 {
     float stamina = GetStat(STAT_STAMINA);
     float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
-
+    
     return baseStam + (moreStam*10.0f);
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 float Player::GetManaBonusFromIntellect()
 {
     float intellect = GetStat(STAT_INTELLECT);
-
     float baseInt = std::min(20.0f, intellect);
     float moreInt = intellect - baseInt;
-
-    return baseInt + (moreInt * 15.0f);
+    
+    return baseInt + (moreInt * 10.0f);
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 void Player::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
-
     float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
     SetMaxHealth((uint32)value);
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 void Player::UpdateMaxPower(Powers power)
 {
