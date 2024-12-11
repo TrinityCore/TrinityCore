@@ -491,7 +491,7 @@ class spell_dh_last_resort : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_DH_UNCONTAINED_FEL, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void HandleAbsorb(AuraEffect const* aurEff, DamageInfo const& /*dmgInfo*/, uint32& absorbAmount)
