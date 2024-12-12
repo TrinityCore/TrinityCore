@@ -132,7 +132,7 @@ bool Player::UpdateStats(Stats stat)
             UpdateSpellDamageAndHealingBonus();
             break;
         case STAT_SPIRIT:
-            UpdateHealthRegen();
+            //UpdateHealthRegen();
             UpdatePowerRegen(POWER_MANA);
             UpdatePowerRegen(POWER_ENERGY);
             UpdateSpellDamageAndHealingBonus();            
@@ -166,7 +166,7 @@ void Player::UpdateSpellDamageAndHealingBonus()
     float healbonus = 1.0f + (spirit - 20.0f);
     if (healbonus < 1.0f)
         healbonus = 1.0f;
-    for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++1)
+    for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
     {
         SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i));
     }
@@ -336,7 +336,6 @@ void Player::ApplyFeralAPBonus(int32 amount, bool apply)
 void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
     float val2 = 0.0f;
-    float level = float(GetLevel());
 
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
