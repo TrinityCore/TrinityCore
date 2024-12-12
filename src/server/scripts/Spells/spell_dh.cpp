@@ -97,10 +97,10 @@ enum DemonHunterSpells
     SPELL_DH_FEL_RUSH_WATER_AIR                    = 197923,
     SPELL_DH_FELBLADE                              = 232893,
     SPELL_DH_FELBLADE_CHARGE                       = 213241,
-    SPELL_DH_FELBLADE_DMG                          = 213243,
-    SPELL_DH_FELBLADE_PROC                         = 203557,
-    SPELL_DH_FELBLADE_PROC_VISUAL                  = 204497,
-    SPELL_DH_FELBLADE_PROC1                        = 236167,
+    SPELL_DH_FELBLADE_COOLDOWN_RESET_PROC_HAVOC    = 236167,
+    SPELL_DH_FELBLADE_COOLDOWN_RESET_PROC_VENGEANCE= 203557,
+    SPELL_DH_FELBLADE_COOLDOWN_RESET_PROC_VISUAL   = 204497,
+    SPELL_DH_FELBLADE_DAMAGE                       = 213243,
     SPELL_DH_FIERY_BRAND                           = 204021,
     SPELL_DH_FIERY_BRAND_DMG_REDUCTION_DEBUFF      = 207744,
     SPELL_DH_FIERY_BRAND_DOT                       = 207771,
@@ -469,6 +469,71 @@ class spell_dh_fel_flame_fortification : public AuraScript
     }
 };
 
+// 232893 - Felblade
+class spell_dh_felblade : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FELBLADE_CHARGE });
+    }
+
+    void HandleCharge(SpellEffIndex /*effIndex*/) const
+    {
+        uint32 spellToCast = GetCaster()->IsWithinMeleeRange(GetHitUnit()) ? SPELL_DH_FELBLADE_DAMAGE : SPELL_DH_FELBLADE_CHARGE;
+        GetCaster()->CastSpell(GetHitUnit(), spellToCast, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_felblade::HandleCharge, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 213241 - Felblade Charge
+class spell_dh_felblade_charge : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FELBLADE_DAMAGE });
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DH_FELBLADE_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_felblade_charge::HandleDamage, EFFECT_0, SPELL_EFFECT_CHARGE);
+    }
+};
+
+// 203557 - Felblade (Vengeance cooldow reset proc aura)
+// 236167 - Felblade (Havoc cooldow reset proc aura)
+class spell_dh_felblade_cooldown_reset_proc : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FELBLADE });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_DH_FELBLADE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_felblade_cooldown_reset_proc::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 206416 - First Blood
 class spell_dh_first_blood : public AuraScript
 {
@@ -807,6 +872,9 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
+    RegisterSpellScript(spell_dh_felblade);
+    RegisterSpellScript(spell_dh_felblade_charge);
+    RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
