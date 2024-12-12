@@ -8505,25 +8505,47 @@ void Unit::SetVisible(bool x)
     UpdateObjectVisibility();
 }
 
+// -----------------------------------------------------------------------------------------------------------
+
 void Unit::UpdateSpeed(UnitMoveType mtype)
 {
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
 
+    armor = 0.0f;
+    strength = 0.0f;
+    encumbrance = 1.0f;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        armor = GetArmor();
+        strength = (GetStat(STAT_STRENGTH) - 20.0f) * 2.0f;
+        if (armor > 100.0f)
+            armor = 100.0f;
+        if (strength > 100.0f)
+            strength = 100.0f;
+        if (strength < 0.0f)
+            strength = 0.0f;
+        encumbrance = 100.0f / (100.0f + armor - strength);
+        if (encumbrance > 1.0f)
+            encumbrance = 1.0f;        
+    }
+    
     switch (mtype)
     {
         // Only apply debuffs
         case MOVE_FLIGHT_BACK:
+            encumbrance = 1.0f;
         case MOVE_RUN_BACK:
         case MOVE_SWIM_BACK:
             break;
         case MOVE_WALK:
-            return;
         case MOVE_RUN:
         {
             if (IsMounted()) // Use on mount auras
             {
+                encumbrance = 1.0f;
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS);
                 non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK) / 100.0f;
@@ -8543,6 +8565,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
         }
         case MOVE_FLIGHT:
         {
+            encumbrance = 1.0f;
             if (GetTypeId() == TYPEID_UNIT && IsControlledByPlayer()) // not sure if good for pet
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
@@ -8558,6 +8581,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
             }
             else if (IsMounted())
             {
+                encumbrance = 1.0f;
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS);
             }
@@ -8647,8 +8671,12 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
             speed = min_speed;
     }
 
+    speed = speed * encumbrance;
+    
     SetSpeedRate(mtype, speed);
 }
+
+// -----------------------------------------------------------------------------------------------------------
 
 float Unit::GetSpeed(UnitMoveType mtype) const
 {
