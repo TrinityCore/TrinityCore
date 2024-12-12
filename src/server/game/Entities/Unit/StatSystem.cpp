@@ -16,7 +16,7 @@
 // Unit::UpdateDamagePhysical                   -- No changes
 // Player::UpdateStats                          -- Calls multiple player-wide updates
 // Player::ApplySpellPowerBonus                 -- No changes
-// Player::UpdateSpellDamageAndHealingBonus     -- TBA -- to be based on Intellect, Spirit and Spell Power
+// Player::UpdateSpellDamageAndHealingBonus     -- Based on Intellect and Spirit - probably borked
 // Player::UpdateAllStats                       -- Calls multiple player-wide updates
 // Player::ApplySpellPenetrationBonus           -- No changes (but Spell Penetration is deprecated)
 // Player::UpdateResistances                    -- No changes
@@ -148,28 +148,41 @@ bool Player::UpdateStats(Stats stat)
 
 void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 {
-    apply = _ModifyUInt32(apply, m_baseSpellPower, amount);
-    ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
-    for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, amount, apply);
+    //apply = _ModifyUInt32(apply, m_baseSpellPower, amount);
+    //ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
+    //for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+        //ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, amount, apply);
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------
 
 void Player::UpdateSpellDamageAndHealingBonus()
 {
-    SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
-    Unit::AuraEffectList const& modDamageAuras = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
-    for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+    float intellect = GetStat(STAT_INTELLECT);
+    float spirit = GetStat(STAT_SPIRIT);
+    float spellbonus = 1.0f + (intellect - 20.0f);
+    if (spellbonus < 1.0f)
+        spellbonus = 1.0f;
+    float healbonus = 1.0f + (spirit - 20.0f);
+    if (healbonus < 1.0f)
+        healbonus = 1.0f;
+    for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++1)
     {
-        SetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, std::accumulate(modDamageAuras.begin(), modDamageAuras.end(), 0, [i](int32 negativeMod, AuraEffect const* aurEff)
-        {
-            if (aurEff->GetAmount() < 0 && aurEff->GetMiscValue() & (1 << i))
-                negativeMod += aurEff->GetAmount();
-            return negativeMod;
-        }));
         SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i));
     }
+        
+    //SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
+    //Unit::AuraEffectList const& modDamageAuras = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
+    //for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+    //{
+        //SetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, std::accumulate(modDamageAuras.begin(), modDamageAuras.end(), 0, [i](int32 negativeMod, AuraEffect const* aurEff)
+        //{
+            //if (aurEff->GetAmount() < 0 && aurEff->GetMiscValue() & (1 << i))
+                //negativeMod += aurEff->GetAmount();
+            //return negativeMod;
+        //}));
+        //SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i));
+    //}
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------
