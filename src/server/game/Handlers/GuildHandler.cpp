@@ -260,10 +260,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTa
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->SendBankList(this, packet.Tab, true /*packet.FullUpdate*/);
-                                                          // HACK: client doesn't query entire tab content if it had received SMSG_GUILD_BANK_LIST in this session
-                                                          // but we broadcast bank updates to entire guild when *ANYONE* changes anything, incorrectly initializing clients
-                                                          // tab content with only data for that change
+            guild->SendBankList(this, packet.Tab, packet.FullUpdate);
 }
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet)

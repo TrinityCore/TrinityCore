@@ -1076,6 +1076,13 @@ struct CreatureFamilyEntry
     std::array<int16, 2> SkillLine;
 };
 
+struct CreatureLabelEntry
+{
+    uint32 ID;
+    int32 LabelID;
+    uint32 CreatureDifficultyID;
+};
+
 struct CreatureModelDataEntry
 {
     uint32 ID;
@@ -1169,6 +1176,7 @@ struct CriteriaEntry
 
         // CriteriaType::CurrencyGained                             = 12
         // CriteriaType::ObtainAnyItemWithCurrencyValue             = 229
+        // CriteriaType::ReachRenownLevel                           = 261
         int32 CurrencyID;
 
         // CriteriaType::DieInInstance                              = 18
@@ -1325,6 +1333,9 @@ struct CriteriaEntry
 
         // CriteriaType::MythicPlusRatingAttained                   = 230
         int32 DungeonScore;
+
+        // CriteriaType::LearnTaxiNode                              = 262
+        int32 TaxiNodesID;
     } Asset;
     uint32 ModifierTreeId;
     int32 StartEvent;
@@ -1750,6 +1761,13 @@ struct GameObjectDisplayInfoEntry
     int32 ClientCreatureDisplayInfoID;
     int32 ClientItemID;
     uint16 Unknown1100;
+};
+
+struct GameObjectLabelEntry
+{
+    uint32 ID;
+    int32 LabelID;
+    uint32 GameObjectID;
 };
 
 struct GameObjectsEntry

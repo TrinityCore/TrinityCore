@@ -7789,9 +7789,19 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                 if (!targetItem)
                     return SPELL_FAILED_ITEM_NOT_FOUND;
 
-                // required level has to be checked also! Exploit fix
-                if (targetItem->GetItemLevel(targetItem->GetOwner()) < m_spellInfo->BaseLevel || (targetItem->GetRequiredLevel() && uint32(targetItem->GetRequiredLevel()) < m_spellInfo->BaseLevel))
-                    return SPELL_FAILED_LOWLEVEL;
+                // Apply item level restriction
+                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF))
+                {
+                    uint32 requiredLevel = targetItem->GetRequiredLevel();
+                    if (!requiredLevel)
+                        requiredLevel = targetItem->GetItemLevel(targetItem->GetOwner());
+
+                    if (requiredLevel < m_spellInfo->BaseLevel)
+                        return SPELL_FAILED_LOWLEVEL;
+                }
+                if ((m_CastItem || effectInfo->IsEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC))
+                    && m_spellInfo->MaxLevel > 0 && targetItem->GetItemLevel(targetItem->GetOwner()) > m_spellInfo->MaxLevel)
+                    return SPELL_FAILED_HIGHLEVEL;
 
                 bool isItemUsable = false;
                 for (ItemEffectEntry const* itemEffect : targetItem->GetEffects())
@@ -7856,14 +7866,18 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                         return SPELL_FAILED_NOT_TRADEABLE;
                 }
 
-                // Apply item level restriction if the enchanting spell has max level restrition set
-                if (m_CastItem && m_spellInfo->MaxLevel > 0)
+                // Apply item level restriction
+                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF))
                 {
-                    if (item->GetTemplate()->GetBaseItemLevel() < (uint32)m_CastItem->GetTemplate()->GetBaseRequiredLevel())
+                    uint32 requiredLevel = item->GetRequiredLevel();
+                    if (!requiredLevel)
+                        requiredLevel = item->GetItemLevel(item->GetOwner());
+
+                    if (requiredLevel < m_spellInfo->BaseLevel)
                         return SPELL_FAILED_LOWLEVEL;
-                    if (item->GetTemplate()->GetBaseItemLevel() > m_spellInfo->MaxLevel)
-                        return SPELL_FAILED_HIGHLEVEL;
                 }
+                if (m_CastItem && m_spellInfo->MaxLevel > 0 && item->GetItemLevel(item->GetOwner()) > m_spellInfo->MaxLevel)
+                    return SPELL_FAILED_HIGHLEVEL;
                 break;
             }
             case SPELL_EFFECT_ENCHANT_HELD_ITEM:

@@ -192,8 +192,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Makes the creature run/walk
         void SetRun(bool run = true);
 
-        void SetDisableGravity(bool disable = true);
-
         void SetEvadeDisabled(bool disable = true);
 
         void SetInvincibilityHpLevel(uint32 level)

@@ -507,6 +507,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CREATURE_FAMILY, "SELECT MAX(ID) + 1 FROM creature_family", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CREATURE_FAMILY, "SELECT ID, Name_lang FROM creature_family_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
+    // CreatureLabel.db2
+    PrepareStatement(HOTFIX_SEL_CREATURE_LABEL, "SELECT ID, LabelID, CreatureDifficultyID FROM creature_label WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CREATURE_LABEL, "SELECT MAX(ID) + 1 FROM creature_label", CONNECTION_SYNCH);
+
     // CreatureModelData.db2
     PrepareStatement(HOTFIX_SEL_CREATURE_MODEL_DATA, "SELECT ID, GeoBox1, GeoBox2, GeoBox3, GeoBox4, GeoBox5, GeoBox6, Flags, FileDataID, WalkSpeed, "
         "RunSpeed, BloodID, FootprintTextureID, FootprintTextureLength, FootprintTextureWidth, FootprintParticleScale, FoleyMaterialID, "
@@ -667,6 +671,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "FileDataID, ObjectEffectPackageID, OverrideLootEffectScale, OverrideNameScale, AlternateDisplayType, ClientCreatureDisplayInfoID, "
         "ClientItemID, Unknown1100 FROM gameobject_display_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO, "SELECT MAX(ID) + 1 FROM gameobject_display_info", CONNECTION_SYNCH);
+
+    // GameobjectLabel.db2
+    PrepareStatement(HOTFIX_SEL_GAMEOBJECT_LABEL, "SELECT ID, LabelID, GameObjectID FROM gameobject_label WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_GAMEOBJECT_LABEL, "SELECT MAX(ID) + 1 FROM gameobject_label", CONNECTION_SYNCH);
 
     // Gameobjects.db2
     PrepareStatement(HOTFIX_SEL_GAMEOBJECTS, "SELECT Name, PosX, PosY, PosZ, Rot1, Rot2, Rot3, Rot4, ID, OwnerID, DisplayID, Scale, TypeID, "
