@@ -110,7 +110,11 @@ bool Player::UpdateStats(Stats stat)
             UpdateBlockPercentage();
             UpdateShieldBlockValue();
             UpdateAttackPowerAndDamage(false);
-            SetSpeed(SPEED_RUN);
+            UpdateSpeed(MOVE_WALK);
+            UpdateSpeed(MOVE_RUN);
+            UpdateSpeed(MOVE_RUN_BACK);
+            UpdateSpeed(MOVE_SWIM);
+            UpdateSpeed(MOVE_SWIM_BACK);
             break;
         case STAT_AGILITY:
             UpdateAllCritPercentages();
@@ -232,7 +236,11 @@ void Player::UpdateArmor()
     UnitMods unitMod = UNIT_MOD_ARMOR;
     float value = GetFlatModifierValue(UNIT_MOD_ARMOR, BASE_VALUE);
     SetArmor(int32(value));
-    UpdateSpeed(SPEED_RUN);
+    UpdateSpeed(MOVE_WALK);
+    UpdateSpeed(MOVE_RUN);
+    UpdateSpeed(MOVE_RUN_BACK);
+    UpdateSpeed(MOVE_SWIM);
+    UpdateSpeed(MOVE_SWIM_BACK);
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------
