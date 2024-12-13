@@ -1685,6 +1685,10 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.AreaTriggerActionSetID))
                 return false;
             break;
+        case CriteriaType::ReachMaxLevel:
+            if (!referencePlayer->IsMaxLevel())
+                return false;
+            break;
         case CriteriaType::LearnTaxiNode:
             if (miscValue1 != uint32(criteria->Entry->Asset.TaxiNodesID))
                 return false;
