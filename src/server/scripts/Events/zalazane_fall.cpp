@@ -234,8 +234,6 @@ struct npc_tiger_matriarch : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -287,7 +285,7 @@ struct npc_troll_volunteer : public ScriptedAI
         }
         me->SetDisplayId(trollmodel[urand(0, 39)]);
         if (Player* player = me->GetOwner()->ToPlayer())
-            me->GetMotionMaster()->MoveFollow(player, 5.0f, float(rand_norm() + 1.0f) * float(M_PI) / 3.0f * 4.0f);
+            me->GetMotionMaster()->MoveFollow(player, 5.0f, (rand_norm() + 1.0f) * float(M_PI) / 3.0f * 4.0f);
     }
 
     void Reset() override

@@ -183,7 +183,7 @@ void InstanceScript::LoadDoorData(DoorData const* data)
     while (data->entry)
     {
         if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type)));
+            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->Behavior)));
 
         ++data;
     }
@@ -228,16 +228,19 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     for (; range.first != range.second && open; ++range.first)
     {
         DoorInfo const& info = range.first->second;
-        switch (info.type)
+        switch (info.Behavior)
         {
-            case DOOR_TYPE_ROOM:
+            case EncounterDoorBehavior::OpenWhenNotInProgress:
                 open = (info.bossInfo->state != IN_PROGRESS);
                 break;
-            case DOOR_TYPE_PASSAGE:
+            case EncounterDoorBehavior::OpenWhenDone:
                 open = (info.bossInfo->state == DONE);
                 break;
-            case DOOR_TYPE_SPAWN_HOLE:
+            case EncounterDoorBehavior::OpenWhenInProgress:
                 open = (info.bossInfo->state == IN_PROGRESS);
+                break;
+            case EncounterDoorBehavior::OpenWhenNotDone:
+                open = (info.bossInfo->state != DONE);
                 break;
             default:
                 break;
@@ -347,11 +350,9 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
         DoorInfo const& data = range.first->second;
 
         if (add)
-        {
-            data.bossInfo->door[data.type].insert(door->GetGUID());
-        }
+            data.bossInfo->door[AsUnderlyingType(data.Behavior)].insert(door->GetGUID());
         else
-            data.bossInfo->door[data.type].erase(door->GetGUID());
+            data.bossInfo->door[AsUnderlyingType(data.Behavior)].erase(door->GetGUID());
     }
 
     if (add)
@@ -431,6 +432,12 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     dungeonEncounter = bossInfo->GetDungeonEncounterForDifficulty(instance->GetDifficultyID());
                     if (dungeonEncounter)
                     {
+                        instance->DoOnPlayers([&](Player* player)
+                        {
+                            if (!player->IsLockedToDungeonEncounter(dungeonEncounter->ID))
+                                player->UpdateCriteria(CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot, dungeonEncounter->ID);
+                        });
+
                         DoUpdateCriteria(CriteriaType::DefeatDungeonEncounter, dungeonEncounter->ID);
                         SendBossKillCredit(dungeonEncounter->ID);
                         if (dungeonEncounter->CompleteWorldStateID)
@@ -454,9 +461,9 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 instance->UpdateInstanceLock({ dungeonEncounter, id, state });
         }
 
-        for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
-            for (GuidSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
-                if (GameObject* door = instance->GetGameObject(*i))
+        for (GuidSet const& doorSet : bossInfo->door)
+            for (ObjectGuid const& doorGUID : doorSet)
+                if (GameObject* door = instance->GetGameObject(doorGUID))
                     UpdateDoorState(door);
 
         GuidSet minions = bossInfo->minion; // Copy to prevent iterator invalidation (minion might be unsummoned in UpdateMinionState)
@@ -793,7 +800,7 @@ void InstanceScript::SetEntranceLocation(uint32 worldSafeLocationId)
     _temporaryEntranceId = 0;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, uint8 priority)
+void InstanceScript::SendEncounterUnit(EncounterFrameType type, Unit const* unit, Optional<int32> param1 /*= {}*/, Optional<int32> param2 /*= {}*/)
 {
     switch (type)
     {
@@ -804,7 +811,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, ui
 
             WorldPackets::Instance::InstanceEncounterEngageUnit encounterEngageMessage;
             encounterEngageMessage.Unit = unit->GetGUID();
-            encounterEngageMessage.TargetFramePriority = priority;
+            encounterEngageMessage.TargetFramePriority = param1.value_or(0);
             instance->SendToPlayers(encounterEngageMessage.Write());
             break;
         }
@@ -825,8 +832,43 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, ui
 
             WorldPackets::Instance::InstanceEncounterChangePriority encounterChangePriorityMessage;
             encounterChangePriorityMessage.Unit = unit->GetGUID();
-            encounterChangePriorityMessage.TargetFramePriority = priority;
+            encounterChangePriorityMessage.TargetFramePriority = param1.value_or(0);
             instance->SendToPlayers(encounterChangePriorityMessage.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_ADD_TIMER:
+        {
+            WorldPackets::Instance::InstanceEncounterTimerStart instanceEncounterTimerStart;
+            instanceEncounterTimerStart.TimeRemaining = param1.value_or(0);
+            instance->SendToPlayers(instanceEncounterTimerStart.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
+        {
+            WorldPackets::Instance::InstanceEncounterObjectiveStart instanceEncounterObjectiveStart;
+            instanceEncounterObjectiveStart.ObjectiveID = param1.value_or(0);
+            instance->SendToPlayers(instanceEncounterObjectiveStart.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
+        {
+            WorldPackets::Instance::InstanceEncounterObjectiveUpdate instanceEncounterObjectiveUpdate;
+            instanceEncounterObjectiveUpdate.ObjectiveID = param1.value_or(0);
+            instanceEncounterObjectiveUpdate.ProgressAmount = param2.value_or(0);
+            instance->SendToPlayers(instanceEncounterObjectiveUpdate.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
+        {
+            WorldPackets::Instance::InstanceEncounterObjectiveComplete instanceEncounterObjectiveComplete;
+            instanceEncounterObjectiveComplete.ObjectiveID = param1.value_or(0);
+            instance->SendToPlayers(instanceEncounterObjectiveComplete.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED:
+        {
+            WorldPackets::Instance::InstanceEncounterPhaseShiftChanged instanceEncounterPhaseShiftChanged;
+            instance->SendToPlayers(instanceEncounterPhaseShiftChanged.Write());
             break;
         }
         default:

@@ -22,7 +22,7 @@
 #include "DB2Stores.h"
 #include "Log.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -69,7 +69,7 @@ ChannelMgr::~ChannelMgr()
     {
         Field* fields = result->Fetch();
         std::string dbName = fields[0].GetString();
-        uint32 team = fields[1].GetUInt32();
+        Team team = Team(fields[1].GetUInt32());
         bool dbAnnounce = fields[2].GetBool();
         bool dbOwnership = fields[3].GetBool();
         std::string dbPass = fields[4].GetString();
@@ -111,19 +111,26 @@ ChannelMgr::~ChannelMgr()
     TC_LOG_INFO("server.loading", ">> Loaded {} custom chat channels in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-/*static*/ ChannelMgr* ChannelMgr::ForTeam(uint32 team)
+/*static*/ ChannelMgr* ChannelMgr::ForTeam(Team team)
 {
     static ChannelMgr allianceChannelMgr(ALLIANCE);
     static ChannelMgr hordeChannelMgr(HORDE);
+    static ChannelMgr neutralChannelMgr(PANDARIA_NEUTRAL);
 
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        return &allianceChannelMgr;        // cross-faction
+        return &neutralChannelMgr;         // cross-faction
 
-    if (team == ALLIANCE)
-        return &allianceChannelMgr;
-
-    if (team == HORDE)
-        return &hordeChannelMgr;
+    switch (team)
+    {
+        case HORDE:
+            return &hordeChannelMgr;
+        case ALLIANCE:
+            return &allianceChannelMgr;
+        case PANDARIA_NEUTRAL:
+            return &neutralChannelMgr;
+        default:
+            break;
+    }
 
     return nullptr;
 }
@@ -279,9 +286,10 @@ ObjectGuid ChannelMgr::CreateBuiltinChannelGuid(uint32 channelId, AreaTableEntry
         zoneId = zoneEntry->ID;
 
     if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::GlobalForTournament))
-        if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(realm.Timezone))
-            if (category->GetFlags().HasFlag(CfgCategoriesFlags::Tournament))
-                zoneId = 0;
+        if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+            if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(currentRealm->Timezone))
+                if (category->GetFlags().HasFlag(CfgCategoriesFlags::Tournament))
+                    zoneId = 0;
 
     return ObjectGuid::Create<HighGuid::ChatChannel>(true, channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel), zoneId, _team == ALLIANCE ? 3 : 5, channelId);
 }

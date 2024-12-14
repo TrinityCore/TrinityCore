@@ -29,8 +29,8 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_FIRE_WALL,    DATA_KOKIA_BLAZEHOOF,  DOOR_TYPE_PASSAGE },
-    { 0,               0,                     DOOR_TYPE_ROOM    }  // END
+    { GO_FIRE_WALL,    DATA_KOKIA_BLAZEHOOF,  EncounterDoorBehavior::OpenWhenDone },
+    { 0,               0,                     EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 DungeonEncounterData const encounters[] =

@@ -161,8 +161,6 @@ struct boss_general_zarithrian : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -242,8 +240,6 @@ struct npc_onyx_flamecaller : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;

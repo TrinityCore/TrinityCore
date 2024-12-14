@@ -24,8 +24,9 @@
 #include "GameTime.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "SystemPackets.h"
+#include "Timezone.h"
 #include "World.h"
 
 void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
@@ -39,11 +40,14 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
-        response.SuccessInfo->VirtualRealmAddress = realm.Id.GetAddress();
         response.SuccessInfo->Time = int32(GameTime::GetGameTime());
 
         // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo->VirtualRealms.emplace_back(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
+        if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+        {
+            response.SuccessInfo->VirtualRealmAddress = currentRealm->Id.GetAddress();
+            response.SuccessInfo->VirtualRealms.emplace_back(currentRealm->Id.GetAddress(), true, false, currentRealm->Name, currentRealm->NormalizedName);
+        }
 
         if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
             for (auto&& templ : sCharacterTemplateDataStore->GetCharacterTemplates())
@@ -89,12 +93,14 @@ void WorldSession::SendClientCacheVersion(uint32 version)
 
 void WorldSession::SendSetTimeZoneInformation()
 {
-    /// @todo: replace dummy values
-    WorldPackets::System::SetTimeZoneInformation packet;
-    packet.ServerTimeTZ = "Europe/Paris";
-    packet.GameTimeTZ = "Europe/Paris";
-    packet.ServerRegionalTZ = "Europe/Paris";
+    Minutes timezoneOffset = Trinity::Timezone::GetSystemZoneOffset(false);
+    std::string realTimezone = Trinity::Timezone::GetSystemZoneName();
+    std::string_view clientSupportedTZ = Trinity::Timezone::FindClosestClientSupportedTimezone(realTimezone, timezoneOffset);
 
+    WorldPackets::System::SetTimeZoneInformation packet;
+    packet.ServerTimeTZ = clientSupportedTZ;
+    packet.GameTimeTZ = clientSupportedTZ;
+    packet.ServerRegionalTimeTZ = clientSupportedTZ;
     SendPacket(packet.Write());
 }
 
@@ -105,7 +111,7 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.BpayStoreDisabledByParentalControls = false;
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
-    features.MaxCharactersPerRealm = sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM);
+    features.MaxCharactersOnThisRealm = sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM);
     features.MinimumExpansionLevel = EXPANSION_CLASSIC;
     features.MaximumExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
 

@@ -135,8 +135,6 @@ struct boss_chrono_lord_deja : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

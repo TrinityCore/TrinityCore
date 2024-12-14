@@ -32,9 +32,9 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_COLLISION,                 DATA_GAROTHI_WORLDBREAKER,  DOOR_TYPE_PASSAGE },
-    { GO_ROCK,                      DATA_GAROTHI_WORLDBREAKER,  DOOR_TYPE_PASSAGE },
-    { 0,                            0,                          DOOR_TYPE_ROOM }  // END
+    { GO_COLLISION,                 DATA_GAROTHI_WORLDBREAKER,  EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROCK,                      DATA_GAROTHI_WORLDBREAKER,  EncounterDoorBehavior::OpenWhenDone },
+    { 0,                            0,                          EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 DungeonEncounterData const encounters[] =

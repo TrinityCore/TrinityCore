@@ -30,12 +30,17 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <mutex>
 
+namespace JSON::RealmList
+{
+class RealmJoinTicket;
+}
+
 typedef struct z_stream_s z_stream;
 class EncryptablePacket;
 class WorldPacket;
 class WorldSession;
 enum ConnectionType : int8;
-enum OpcodeClient : uint16;
+enum OpcodeClient : uint32;
 
 class EncryptablePacket : public WorldPacket
 {
@@ -77,7 +82,7 @@ struct PacketHeader
 
 struct IncomingPacketHeader : PacketHeader
 {
-    uint16 EncryptedOpcode;
+    uint32 EncryptedOpcode;
 };
 
 #pragma pack(pop)
@@ -128,7 +133,7 @@ protected:
     ReadDataHandlerResult ReadDataHandler();
 private:
     void CheckIpCallback(PreparedQueryResult result);
-    void InitializeHandler(boost::system::error_code error, std::size_t transferedBytes);
+    void InitializeHandler(boost::system::error_code const& error, std::size_t transferedBytes);
 
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
@@ -140,7 +145,8 @@ private:
 
     void HandleSendAuthSession();
     void HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession);
-    void HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result);
+    void HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession,
+        std::shared_ptr<JSON::RealmList::RealmJoinTicket> joinTicket, PreparedQueryResult result);
     void HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession);
     void HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result);
     void LoadSessionPermissionsCallback(PreparedQueryResult result);

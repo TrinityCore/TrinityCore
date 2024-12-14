@@ -156,8 +156,6 @@ struct emerald_dragonAI : public WorldBossAI
 
         if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, -50.0f, true))
             DoCast(target, SPELL_SUMMON_PLAYER);
-
-        DoMeleeAttackIfReady();
     }
 };
 

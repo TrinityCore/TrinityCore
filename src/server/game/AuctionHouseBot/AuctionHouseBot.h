@@ -209,7 +209,7 @@ enum AuctionBotConfigFloatValues
 class TC_GAME_API AuctionBotConfig
 {
 private:
-    AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20) {}
+    AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20), _configUint32Values(), _configBoolValues(), _configFloatValues() { }
     ~AuctionBotConfig() {}
     AuctionBotConfig(AuctionBotConfig const&) = delete;
     AuctionBotConfig& operator=(AuctionBotConfig const&) = delete;

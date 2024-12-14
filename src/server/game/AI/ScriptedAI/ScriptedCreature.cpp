@@ -149,16 +149,13 @@ void ScriptedAI::AttackStart(Unit* who)
 void ScriptedAI::UpdateAI(uint32 /*diff*/)
 {
     // Check if we have a current target
-    if (!UpdateVictim())
-        return;
-
-    DoMeleeAttackIfReady();
+    UpdateVictim();
 }
 
 void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)
 {
     if (victim)
-        me->GetMotionMaster()->MoveChase(victim, distance, angle);
+        me->StartDefaultCombatMovement(victim, distance, angle);
 }
 
 void ScriptedAI::DoStartNoMovement(Unit* victim)
@@ -546,7 +543,6 @@ void BossAI::_Reset()
     if (!me->IsAlive())
         return;
 
-    me->SetCombatPulseDelay(0);
     me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
@@ -582,9 +578,7 @@ void BossAI::_JustEngagedWith(Unit* who)
         instance->SetBossState(_bossId, IN_PROGRESS);
     }
 
-    me->SetCombatPulseDelay(5);
     me->setActive(true);
-    DoZoneInCombat();
     ScheduleTasks();
 }
 
@@ -629,8 +623,6 @@ void BossAI::UpdateAI(uint32 diff)
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
     }
-
-    DoMeleeAttackIfReady();
 }
 
 bool BossAI::CanAIAttack(Unit const* target) const
@@ -716,6 +708,4 @@ void WorldBossAI::UpdateAI(uint32 diff)
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
     }
-
-    DoMeleeAttackIfReady();
 }

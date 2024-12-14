@@ -121,8 +121,9 @@ void InstanceLockMgr::Load()
         } while (result->NextRow());
     }
 
+    // ORDER BY required by MapManager::RegisterInstanceId
     //                                                          0      1       2           3           4     5                        6           7         8
-    if (QueryResult result = CharacterDatabase.Query("SELECT guid, mapId, lockId, instanceId, difficulty, data, completedEncountersMask, expiryTime, extended FROM character_instance_lock"))
+    if (QueryResult result = CharacterDatabase.Query("SELECT guid, mapId, lockId, instanceId, difficulty, data, completedEncountersMask, expiryTime, extended FROM character_instance_lock ORDER BY instanceId"))
     {
         do
         {

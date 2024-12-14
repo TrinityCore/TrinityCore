@@ -34,6 +34,7 @@ class TC_COMMON_API BigNumber
         BigNumber(uint32 v) : BigNumber() { SetDword(v); }
         BigNumber(int32 v) : BigNumber() { SetDword(v); }
         BigNumber(std::string const& v) : BigNumber() { SetHexStr(v); }
+        BigNumber(std::vector<uint8> const& v, bool littleEndian = true) : BigNumber() { SetBinary(v.data(), v.size(), littleEndian); }
         template <size_t Size>
         BigNumber(std::array<uint8, Size> const& v, bool littleEndian = true) : BigNumber() { SetBinary(v.data(), Size, littleEndian); }
 
@@ -45,6 +46,8 @@ class TC_COMMON_API BigNumber
         void SetBinary(uint8 const* bytes, int32 len, bool littleEndian = true);
         template <typename Container>
         auto SetBinary(Container const& c, bool littleEndian = true) -> std::enable_if_t<!std::is_pointer_v<std::decay_t<Container>>> { SetBinary(std::data(c), std::size(c), littleEndian); }
+        bool SetDecStr(char const* str);
+        bool SetDecStr(std::string const& str) { return SetDecStr(str.c_str()); }
         bool SetHexStr(char const* str);
         bool SetHexStr(std::string const& str) { return SetHexStr(str.c_str()); }
 
@@ -113,6 +116,7 @@ class TC_COMMON_API BigNumber
         BigNumber Exp(BigNumber const&) const;
 
         int32 GetNumBytes() const;
+        int32 GetNumBits() const;
 
         struct bignum_st* BN() { return _bn; }
         struct bignum_st const* BN() const { return _bn; }

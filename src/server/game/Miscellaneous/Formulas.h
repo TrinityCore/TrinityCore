@@ -191,7 +191,7 @@ namespace Trinity
                     if ((uint32(creature->GetCreatureDifficulty()->GetHealthScalingExpansion()) < GetExpansionForLevel(player->GetLevel())))
                         gain = uint32(round(gain / 10.0f));
 
-                    if (creature->isElite())
+                    if (creature->IsElite())
                     {
                         // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
                         if (u->GetMap()->IsDungeon())

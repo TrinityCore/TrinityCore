@@ -82,6 +82,7 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerDenied::Write()
 WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
 {
     _worldPacket << TriggerGUID;
+    _worldPacket << Unused_1100;
 
     _worldPacket.WriteBit(AreaTriggerSpline.has_value());
     _worldPacket.WriteBit(AreaTriggerOrbit.has_value());
@@ -96,6 +97,14 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
 
     if (AreaTriggerOrbit)
         _worldPacket << *AreaTriggerOrbit;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerPlaySpellVisual::Write()
+{
+    _worldPacket << AreaTriggerGUID;
+    _worldPacket << uint32(SpellVisualID);
 
     return &_worldPacket;
 }

@@ -31,7 +31,7 @@ TaskScheduler& TaskScheduler::Update(success_t const& callback/* = nullptr*/)
     return *this;
 }
 
-TaskScheduler& TaskScheduler::Update(size_t const milliseconds, success_t const& callback/* = nullptr*/)
+TaskScheduler& TaskScheduler::Update(size_t milliseconds, success_t const& callback/* = nullptr*/)
 {
     return Update(std::chrono::milliseconds(milliseconds), callback);
 }
@@ -50,7 +50,7 @@ TaskScheduler& TaskScheduler::CancelAll()
     return *this;
 }
 
-TaskScheduler& TaskScheduler::CancelGroup(group_t const group)
+TaskScheduler& TaskScheduler::CancelGroup(group_t group)
 {
     _task_holder.RemoveIf([group](TaskContainer const& task) -> bool
     {
@@ -61,8 +61,8 @@ TaskScheduler& TaskScheduler::CancelGroup(group_t const group)
 
 TaskScheduler& TaskScheduler::CancelGroupsOf(std::vector<group_t> const& groups)
 {
-    std::for_each(groups.begin(), groups.end(),
-        std::bind(&TaskScheduler::CancelGroup, this, std::placeholders::_1));
+    for (group_t group : groups)
+        CancelGroup(group);
 
     return *this;
 }
@@ -200,22 +200,31 @@ TaskScheduler::repeated_t TaskContext::GetRepeatCounter() const
 
 TaskContext& TaskContext::Async(std::function<void()> const& callable)
 {
-    return Dispatch(std::bind(&TaskScheduler::Async, std::placeholders::_1, callable));
+    return Dispatch([&](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.Async(callable);
+    });
 }
 
 TaskContext& TaskContext::CancelAll()
 {
-    return Dispatch(std::mem_fn(&TaskScheduler::CancelAll));
+    return Dispatch(&TaskScheduler::CancelAll);
 }
 
 TaskContext& TaskContext::CancelGroup(TaskScheduler::group_t const group)
 {
-    return Dispatch(std::bind(&TaskScheduler::CancelGroup, std::placeholders::_1, group));
+    return Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.CancelGroup(group);
+    });
 }
 
 TaskContext& TaskContext::CancelGroupsOf(std::vector<TaskScheduler::group_t> const& groups)
 {
-    return Dispatch(std::bind(&TaskScheduler::CancelGroupsOf, std::placeholders::_1, std::cref(groups)));
+    return Dispatch([&](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.CancelGroupsOf(groups);
+    });
 }
 
 void TaskContext::AssertOnConsumed() const

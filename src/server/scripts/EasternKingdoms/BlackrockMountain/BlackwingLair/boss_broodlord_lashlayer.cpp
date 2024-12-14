@@ -119,8 +119,6 @@ struct boss_broodlord : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

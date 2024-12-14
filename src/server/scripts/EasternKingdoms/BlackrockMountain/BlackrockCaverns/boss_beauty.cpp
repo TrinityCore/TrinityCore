@@ -102,8 +102,6 @@ class boss_beauty : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

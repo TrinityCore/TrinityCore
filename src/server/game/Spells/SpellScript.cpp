@@ -431,7 +431,7 @@ WorldLocation const* SpellScript::GetExplTargetDest() const
     return nullptr;
 }
 
-void SpellScript::SetExplTargetDest(WorldLocation& loc)
+void SpellScript::SetExplTargetDest(WorldLocation const& loc)
 {
     m_spell->m_targets.SetDst(loc);
 }

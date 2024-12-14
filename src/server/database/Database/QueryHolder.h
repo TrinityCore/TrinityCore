@@ -18,8 +18,12 @@
 #ifndef _QUERYHOLDER_H
 #define _QUERYHOLDER_H
 
-#include "SQLOperation.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include <future>
 #include <vector>
+
+class MySQLConnection;
 
 class TC_DATABASE_API SQLQueryHolderBase
 {
@@ -47,26 +51,16 @@ public:
     }
 };
 
-class TC_DATABASE_API SQLQueryHolderTask : public SQLOperation
+class TC_DATABASE_API SQLQueryHolderTask
 {
-    private:
-        std::shared_ptr<SQLQueryHolderBase> m_holder;
-        QueryResultHolderPromise m_result;
-
-    public:
-        explicit SQLQueryHolderTask(std::shared_ptr<SQLQueryHolderBase> holder)
-            : m_holder(std::move(holder)) { }
-
-        ~SQLQueryHolderTask();
-
-        bool Execute() override;
-        QueryResultHolderFuture GetFuture() { return m_result.get_future(); }
+public:
+    static bool Execute(MySQLConnection* conn, SQLQueryHolderBase* holder);
 };
 
 class TC_DATABASE_API SQLQueryHolderCallback
 {
 public:
-    SQLQueryHolderCallback(std::shared_ptr<SQLQueryHolderBase>&& holder, QueryResultHolderFuture&& future)
+    SQLQueryHolderCallback(std::shared_ptr<SQLQueryHolderBase>&& holder, std::future<void>&& future)
         : m_holder(std::move(holder)), m_future(std::move(future)) { }
 
     SQLQueryHolderCallback(SQLQueryHolderCallback&&) = default;
@@ -81,7 +75,7 @@ public:
     bool InvokeIfReady();
 
     std::shared_ptr<SQLQueryHolderBase> m_holder;
-    QueryResultHolderFuture m_future;
+    std::future<void> m_future;
     std::function<void(SQLQueryHolderBase const&)> m_callback;
 };
 

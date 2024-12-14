@@ -50,7 +50,7 @@ class OutdoorPvPSI : public OutdoorPvP
         bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
 
     private:
-        uint32 m_LastController;
+        Team m_LastController;
 };
 
 #endif

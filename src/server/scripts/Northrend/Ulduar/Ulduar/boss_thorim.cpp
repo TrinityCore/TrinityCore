@@ -709,7 +709,7 @@ class boss_thorim : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetDisableGravity(false);
                             me->SetControlled(false, UNIT_STATE_ROOT);
-                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, me->GetOrientation(), 30.0f, 20.0f);
+                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, 30.0f, 20.0f);
                             events.ScheduleEvent(EVENT_START_PERIODIC_CHARGE, 2s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 15s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 20s, 0, PHASE_2);
@@ -798,8 +798,6 @@ class boss_thorim : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void DoAction(int32 action) override
@@ -952,6 +950,8 @@ struct npc_thorim_trashAI : public ScriptedAI
                 _info = &StaticThorimTrashInfo[i];
 
         ASSERT(_info);
+        if (_info->Type == DARK_RUNE_ACOLYTE)
+            me->SetCanMelee(false); // DoSpellAttackIfReady
     }
 
     struct AIHelper
@@ -1101,8 +1101,6 @@ struct npc_thorim_trashAI : public ScriptedAI
 
         if (_info->Type == DARK_RUNE_ACOLYTE)
             DoSpellAttackIfReady(SPELL_HOLY_SMITE);
-        else
-            DoMeleeAttackIfReady();
     }
 
     virtual void ExecuteEvent(uint32 eventId) = 0;
@@ -1470,8 +1468,6 @@ class npc_runic_colossus : public CreatureScript
 
                 if (!UpdateVictim())
                     return;
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -1555,8 +1551,6 @@ class npc_ancient_rune_giant : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

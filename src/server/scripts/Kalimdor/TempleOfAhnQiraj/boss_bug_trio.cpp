@@ -128,8 +128,6 @@ public:
                     Check_Timer = 2000;
                 } else Check_Timer -=diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -215,8 +213,6 @@ public:
                 DoCast(me, SPELL_ENRAGE);
                 Enraged = true;
             } else Charge_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -323,8 +319,6 @@ public:
                 }
                 Check_Timer = 2000;
             } else Check_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

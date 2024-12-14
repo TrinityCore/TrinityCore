@@ -304,7 +304,7 @@ void PoolGroup<T>::SpawnObject(SpawnedPoolData& spawns, uint32 limit, uint64 tri
         // roll objects to be spawned
         if (!ExplicitlyChanced.empty())
         {
-            float roll = (float)rand_chance();
+            float roll = rand_chance();
 
             for (PoolObject& obj : ExplicitlyChanced)
             {

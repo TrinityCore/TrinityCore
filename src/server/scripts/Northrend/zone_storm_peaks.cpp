@@ -526,6 +526,7 @@ struct npc_wild_wyrm : public VehicleAI
         InitSpellsForPhase();
 
         me->SetImmuneToPC(false);
+        me->SetCanMelee(true);
     }
 
     void DoAction(int32 action) override
@@ -565,6 +566,7 @@ struct npc_wild_wyrm : public VehicleAI
         _playerGuid = caster->GetGUID();
         DoCastAOE(SPELL_FULL_HEAL_MANA, true);
         me->SetImmuneToPC(true);
+        me->SetCanMelee(false);
 
         me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
     }
@@ -697,8 +699,7 @@ struct npc_wild_wyrm : public VehicleAI
     {
         if (!_playerGuid)
         {
-            if (UpdateVictim())
-                DoMeleeAttackIfReady();
+            UpdateVictim();
             return;
         }
 

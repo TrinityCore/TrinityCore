@@ -32,30 +32,28 @@ void VisibleNotifier::SendToSelf()
     // but exist one case when this possible and object not out of range: transports
     if (Transport* transport = dynamic_cast<Transport*>(i_player.GetTransport()))
     {
-        for (Transport::PassengerSet::const_iterator itr = transport->GetPassengers().begin(); itr != transport->GetPassengers().end(); ++itr)
+        for (WorldObject* passenger : transport->GetPassengers())
         {
-            if (vis_guids.find((*itr)->GetGUID()) != vis_guids.end())
+            if (vis_guids.erase(passenger->GetGUID()) > 0)
             {
-                vis_guids.erase((*itr)->GetGUID());
-
-                switch ((*itr)->GetTypeId())
+                switch (passenger->GetTypeId())
                 {
                     case TYPEID_GAMEOBJECT:
-                        i_player.UpdateVisibilityOf((*itr)->ToGameObject(), i_data, i_visibleNow);
+                        i_player.UpdateVisibilityOf(passenger->ToGameObject(), i_data, i_visibleNow);
                         break;
                     case TYPEID_PLAYER:
-                        i_player.UpdateVisibilityOf((*itr)->ToPlayer(), i_data, i_visibleNow);
-                        if (!(*itr)->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
-                            (*itr)->ToPlayer()->UpdateVisibilityOf(&i_player);
+                        i_player.UpdateVisibilityOf(passenger->ToPlayer(), i_data, i_visibleNow);
+                        if (!passenger->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
+                            passenger->ToPlayer()->UpdateVisibilityOf(&i_player);
                         break;
                     case TYPEID_UNIT:
-                        i_player.UpdateVisibilityOf((*itr)->ToCreature(), i_data, i_visibleNow);
+                        i_player.UpdateVisibilityOf(passenger->ToCreature(), i_data, i_visibleNow);
                         break;
                     case TYPEID_DYNAMICOBJECT:
-                        i_player.UpdateVisibilityOf((*itr)->ToDynObject(), i_data, i_visibleNow);
+                        i_player.UpdateVisibilityOf(passenger->ToDynObject(), i_data, i_visibleNow);
                         break;
                     case TYPEID_AREATRIGGER:
-                        i_player.UpdateVisibilityOf((*itr)->ToAreaTrigger(), i_data, i_visibleNow);
+                        i_player.UpdateVisibilityOf(passenger->ToAreaTrigger(), i_data, i_visibleNow);
                         break;
                     default:
                         break;
@@ -64,14 +62,14 @@ void VisibleNotifier::SendToSelf()
         }
     }
 
-    for (auto it = vis_guids.begin(); it != vis_guids.end(); ++it)
+    for (ObjectGuid const& outOfRangeGuid : vis_guids)
     {
-        i_player.m_clientGUIDs.erase(*it);
-        i_data.AddOutOfRangeGUID(*it);
+        i_player.m_clientGUIDs.erase(outOfRangeGuid);
+        i_data.AddOutOfRangeGUID(outOfRangeGuid);
 
-        if (it->IsPlayer())
+        if (outOfRangeGuid.IsPlayer())
         {
-            Player* player = ObjectAccessor::FindPlayer(*it);
+            Player* player = ObjectAccessor::GetPlayer(i_player, outOfRangeGuid);
             if (player && !player->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
                 player->UpdateVisibilityOf(&i_player);
         }
@@ -84,8 +82,8 @@ void VisibleNotifier::SendToSelf()
     i_data.BuildPacket(&packet);
     i_player.SendDirectMessage(&packet);
 
-    for (std::set<Unit*>::const_iterator it = i_visibleNow.begin(); it != i_visibleNow.end(); ++it)
-        i_player.SendInitialVisiblePackets(*it);
+    for (WorldObject* visibleObject : i_visibleNow)
+        i_player.SendInitialVisiblePackets(visibleObject);
 }
 
 void VisibleChangesNotifier::Visit(PlayerMapType &m)

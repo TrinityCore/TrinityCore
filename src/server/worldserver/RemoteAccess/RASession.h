@@ -42,7 +42,6 @@ private:
     int Send(std::string_view data);
     std::string ReadString();
     bool CheckAccessLevel(const std::string& user);
-    bool CheckPassword(const std::string& user, const std::string& pass);
     bool ProcessCommand(std::string& command);
 
     static void CommandPrint(void* callbackArg, std::string_view text);

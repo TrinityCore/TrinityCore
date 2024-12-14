@@ -191,10 +191,7 @@ class boss_skeram : public CreatureScript
                 }
 
                 if (me->IsWithinMeleeRange(me->GetVictim()))
-                {
                     events.RescheduleEvent(EVENT_EARTH_SHOCK, 2s);
-                    DoMeleeAttackIfReady();
-                }
             }
 
         private:

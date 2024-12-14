@@ -55,7 +55,7 @@ class TC_GAME_API UnitAI
         virtual ~UnitAI() { }
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
-        virtual void AttackStart(Unit* /*target*/);
+        virtual void AttackStart(Unit* victim);
         virtual void UpdateAI(uint32 diff) = 0;
 
         virtual void InitializeAI();
@@ -160,7 +160,6 @@ class TC_GAME_API UnitAI
         SpellCastResult DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
         SpellCastResult DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { return DoCast(nullptr, spellId, args); }
 
-        void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spellId);
 
         static std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> AISpellInfo;

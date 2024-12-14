@@ -36,7 +36,7 @@ typedef std::vector<uint32> AutoSpellList;
 class Player;
 class PetAura;
 
-class TC_GAME_API Pet : public Guardian
+class TC_GAME_API Pet final : public Guardian
 {
     public:
         explicit Pet(Player* owner, PetType type = MAX_PET_TYPE);

@@ -24,6 +24,8 @@
 class Unit;
 class WorldObject;
 
+enum Powers : int8;
+
 namespace Trinity
 {
     namespace Predicates
@@ -36,6 +38,33 @@ namespace Trinity
                 bool operator()(WorldObject const* obj) const { return obj && (_victim == obj); }
             private:
                 WorldObject const* _victim;
+        };
+
+        /// Binary predicate for sorting Units based on percent value of a power
+        class TC_GAME_API PowerPctOrderPred
+        {
+            public:
+                PowerPctOrderPred(Powers power, bool ascending = true) : _power(power), _ascending(ascending) { }
+
+                bool operator()(WorldObject const* objA, WorldObject const* objB) const;
+                bool operator()(Unit const* a, Unit const* b) const;
+
+            private:
+                Powers const _power;
+                bool const _ascending;
+        };
+
+        /// Binary predicate for sorting Units based on percent value of health
+        class TC_GAME_API HealthPctOrderPred
+        {
+            public:
+                HealthPctOrderPred(bool ascending = true) : _ascending(ascending) { }
+
+                bool operator()(WorldObject const* objA, WorldObject const* objB) const;
+                bool operator() (Unit const* a, Unit const* b) const;
+
+            private:
+                bool const _ascending;
         };
 
         template <typename PRED>

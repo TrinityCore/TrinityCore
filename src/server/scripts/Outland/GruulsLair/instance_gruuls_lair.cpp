@@ -22,9 +22,9 @@
 
 DoorData const doorData[] =
 {
-    { GO_MAULGAR_DOOR,  DATA_MAULGAR,   DOOR_TYPE_PASSAGE },
-    { GO_GRUUL_DOOR,    DATA_GRUUL,     DOOR_TYPE_ROOM },
-    { 0,                0,              DOOR_TYPE_ROOM } // END
+    { GO_MAULGAR_DOOR,  DATA_MAULGAR,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_GRUUL_DOOR,    DATA_GRUUL,     EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                0,              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 MinionData const minionData[] =

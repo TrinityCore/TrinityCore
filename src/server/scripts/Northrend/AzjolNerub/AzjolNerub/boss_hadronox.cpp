@@ -348,8 +348,6 @@ struct boss_hadronox : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     // Safeguard to prevent Hadronox dying to NPCs
@@ -474,8 +472,6 @@ struct npc_hadronox_crusherPackAI : public ScriptedAI
 
         while (uint32 eventId = _events.ExecuteEvent())
             DoEvent(eventId);
-
-        DoMeleeAttackIfReady();
     }
 
     protected:
@@ -745,8 +741,6 @@ struct npc_hadronox_foeAI : public ScriptedAI
 
         while (uint32 eventId = _events.ExecuteEvent())
             DoEvent(eventId);
-
-        DoMeleeAttackIfReady();
     }
 
     protected:

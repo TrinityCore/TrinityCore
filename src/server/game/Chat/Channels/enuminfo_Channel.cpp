@@ -67,6 +67,7 @@ TC_API_EXPORT EnumText EnumUtils<ChatNotify>::ToString(ChatNotify value)
         case CHAT_NOT_IN_LFG_NOTICE: return { "CHAT_NOT_IN_LFG_NOTICE", "CHAT_NOT_IN_LFG_NOTICE", "+ \042[%s] You must be queued in looking for group before joining this channel.\042; -- The user must be in the looking for group system to join LFG chat channels." };
         case CHAT_VOICE_ON_NOTICE: return { "CHAT_VOICE_ON_NOTICE", "CHAT_VOICE_ON_NOTICE", "+ \042[%s] Channel voice enabled by %s.\042;" };
         case CHAT_VOICE_OFF_NOTICE: return { "CHAT_VOICE_OFF_NOTICE", "CHAT_VOICE_OFF_NOTICE", "+ \042[%s] Channel voice disabled by %s.\042;" };
+        case CHAT_VOICE_ON_NO_ANNOUNCE_NOTICE: return { "CHAT_VOICE_ON_NO_ANNOUNCE_NOTICE", "CHAT_VOICE_ON_NO_ANNOUNCE_NOTICE", "same as CHAT_VOICE_ON_NOTICE but no chat mode change announcement" };
         case CHAT_TRIAL_RESTRICTED: return { "CHAT_TRIAL_RESTRICTED", "CHAT_TRIAL_RESTRICTED", "+ \042[%s] Free Trial accounts cannot send messages to this channel. |cffffd000|Hstorecategory:gametime|h[Click To Upgrade]|h|r\042" };
         case CHAT_NOT_ALLOWED_IN_CHANNEL: return { "CHAT_NOT_ALLOWED_IN_CHANNEL", "CHAT_NOT_ALLOWED_IN_CHANNEL", "+ \042That operation is not permitted in this channel.\042" };
         default: throw std::out_of_range("value");
@@ -74,7 +75,7 @@ TC_API_EXPORT EnumText EnumUtils<ChatNotify>::ToString(ChatNotify value)
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<ChatNotify>::Count() { return 38; }
+TC_API_EXPORT size_t EnumUtils<ChatNotify>::Count() { return 39; }
 
 template <>
 TC_API_EXPORT ChatNotify EnumUtils<ChatNotify>::FromIndex(size_t index)
@@ -117,8 +118,9 @@ TC_API_EXPORT ChatNotify EnumUtils<ChatNotify>::FromIndex(size_t index)
         case 33: return CHAT_NOT_IN_LFG_NOTICE;
         case 34: return CHAT_VOICE_ON_NOTICE;
         case 35: return CHAT_VOICE_OFF_NOTICE;
-        case 36: return CHAT_TRIAL_RESTRICTED;
-        case 37: return CHAT_NOT_ALLOWED_IN_CHANNEL;
+        case 36: return CHAT_VOICE_ON_NO_ANNOUNCE_NOTICE;
+        case 37: return CHAT_TRIAL_RESTRICTED;
+        case 38: return CHAT_NOT_ALLOWED_IN_CHANNEL;
         default: throw std::out_of_range("index");
     }
 }
@@ -164,8 +166,9 @@ TC_API_EXPORT size_t EnumUtils<ChatNotify>::ToIndex(ChatNotify value)
         case CHAT_NOT_IN_LFG_NOTICE: return 33;
         case CHAT_VOICE_ON_NOTICE: return 34;
         case CHAT_VOICE_OFF_NOTICE: return 35;
-        case CHAT_TRIAL_RESTRICTED: return 36;
-        case CHAT_NOT_ALLOWED_IN_CHANNEL: return 37;
+        case CHAT_VOICE_ON_NO_ANNOUNCE_NOTICE: return 36;
+        case CHAT_TRIAL_RESTRICTED: return 37;
+        case CHAT_NOT_ALLOWED_IN_CHANNEL: return 38;
         default: throw std::out_of_range("value");
     }
 }

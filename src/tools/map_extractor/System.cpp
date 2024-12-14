@@ -22,19 +22,23 @@
 #include "DB2Meta.h"
 #include "DBFilesClientList.h"
 #include "ExtractorDB2LoadInfo.h"
+#include "IteratorPair.h"
+#include "Locales.h"
 #include "MapDefines.h"
 #include "StringFormat.h"
+#include "Util.h"
 #include "adt.h"
 #include "wdt.h"
 #include <CascLib.h>
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <bitset>
-#include <cstdio>
 #include <deque>
 #include <fstream>
 #include <set>
 #include <unordered_map>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
@@ -306,7 +310,7 @@ void ReadMapDBC()
         }
     }
 
-    map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
+    std::erase_if(map_ids, [](MapEntry const& map) { return !map.WdtFileDataId; });
 
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
@@ -494,9 +498,9 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
     bool hasHoles = false;
     bool hasFlightBox = false;
 
-    for (std::multimap<std::string, FileChunk*>::const_iterator itr = adt.chunks.lower_bound("MCNK"); itr != adt.chunks.upper_bound("MCNK"); ++itr)
+    for (auto const& [_, rawChunk] : Trinity::Containers::MapEqualRange(adt.chunks, "MCNK"))
     {
-        adt_MCNK* mcnk = itr->second->As<adt_MCNK>();
+        adt_MCNK* mcnk = rawChunk->As<adt_MCNK>();
 
         // Area data
         area_ids[mcnk->iy][mcnk->ix] = mcnk->areaid;
@@ -541,7 +545,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         }
 
         // Get custom height
-        if (FileChunk* chunk = itr->second->GetSubChunk("MCVT"))
+        if (FileChunk* chunk = rawChunk->GetSubChunk("MCVT"))
         {
             adt_MCVT* mcvt = chunk->As<adt_MCVT>();
             // get V9 height map
@@ -570,7 +574,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         // Liquid data
         if (mcnk->sizeMCLQ > 8)
         {
-            if (FileChunk* chunk = itr->second->GetSubChunk("MCLQ"))
+            if (FileChunk* chunk = rawChunk->GetSubChunk("MCLQ"))
             {
                 adt_MCLQ* liquid = chunk->As<adt_MCLQ>();
                 int count = 0;
@@ -1398,7 +1402,7 @@ bool OpenCascStorage(int locale)
 
         return true;
     }
-    catch (boost::filesystem::filesystem_error const& error)
+    catch (std::exception const& error)
     {
         printf("Error opening CASC storage: %s\n", error.what());
         return false;
@@ -1426,7 +1430,7 @@ uint32 GetInstalledLocalesMask()
 
         return storage->GetInstalledLocalesMask();
     }
-    catch (boost::filesystem::filesystem_error const& error)
+    catch (std::exception const& error)
     {
         printf("Unable to determine installed locales mask: %s\n", error.what());
     }
@@ -1468,6 +1472,10 @@ static bool RetardCheck()
 
 int main(int argc, char * arg[])
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     PrintProgress = isatty(fileno(stdout));
@@ -1559,3 +1567,9 @@ int main(int argc, char * arg[])
 
     return 0;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

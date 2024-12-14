@@ -124,8 +124,6 @@ struct boss_lord_valthalak : public BossAI
                 frenzy15 = true;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
     private:
         bool frenzy40;

@@ -89,7 +89,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 Tier = 0;
+            uint8 Tier = 0;
             int32 AzeritePowerID = 0;
             uint8 ContainerSlot = 0;
             uint8 Slot = 0;

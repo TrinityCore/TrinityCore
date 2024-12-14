@@ -257,8 +257,6 @@ public:
                 DoCastVictim(SPELL_DYNAMITE);
                 DynamiteTimer = 8000;
             } else DynamiteTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
     private:

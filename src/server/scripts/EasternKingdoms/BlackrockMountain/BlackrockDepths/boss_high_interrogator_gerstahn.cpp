@@ -86,8 +86,6 @@ class boss_high_interrogator_gerstahn : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

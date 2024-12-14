@@ -110,8 +110,6 @@ class boss_rajaxx : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
             private:
                 bool enraged;

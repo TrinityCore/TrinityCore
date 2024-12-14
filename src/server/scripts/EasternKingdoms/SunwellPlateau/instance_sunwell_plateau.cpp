@@ -34,13 +34,13 @@
 
 DoorData const doorData[] =
 {
-    { GO_FIRE_BARRIER,     DATA_FELMYST,  DOOR_TYPE_PASSAGE },
-    { GO_MURUS_GATE_1,     DATA_MURU,     DOOR_TYPE_ROOM },
-    { GO_MURUS_GATE_2,     DATA_MURU,     DOOR_TYPE_PASSAGE },
-    { GO_BOSS_COLLISION_1, DATA_KALECGOS, DOOR_TYPE_ROOM },
-    { GO_BOSS_COLLISION_2, DATA_KALECGOS, DOOR_TYPE_ROOM },
-    { GO_FORCE_FIELD,      DATA_KALECGOS, DOOR_TYPE_ROOM },
-    { 0,                   0,             DOOR_TYPE_ROOM } // END
+    { GO_FIRE_BARRIER,     DATA_FELMYST,  EncounterDoorBehavior::OpenWhenDone },
+    { GO_MURUS_GATE_1,     DATA_MURU,     EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_MURUS_GATE_2,     DATA_MURU,     EncounterDoorBehavior::OpenWhenDone },
+    { GO_BOSS_COLLISION_1, DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_BOSS_COLLISION_2, DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_FORCE_FIELD,      DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                   0,             EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

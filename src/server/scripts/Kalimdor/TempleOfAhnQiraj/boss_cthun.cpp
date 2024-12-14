@@ -1069,8 +1069,6 @@ public:
                 DoCastVictim(SPELL_HAMSTRING);
                 HamstringTimer = 5000;
             } else HamstringTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1193,8 +1191,6 @@ public:
                 DoCastVictim(SPELL_HAMSTRING);
                 HamstringTimer = 10000;
             } else HamstringTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

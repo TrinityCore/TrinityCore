@@ -53,6 +53,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "Transport.h"
+#include "Vignette.h"
 #include "World.h"
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
@@ -62,7 +63,12 @@
 void GameObjectTemplate::InitializeQueryData()
 {
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && loc != DEFAULT_LOCALE)
+            continue;
+
         QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
+    }
 }
 
 WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
@@ -96,7 +102,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
         for (int32 item : *items)
             stats.QuestItems.push_back(item);
 
-    memcpy(stats.Data, raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
+    memcpy(stats.Data.data(), raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
     stats.ContentTuningId = ContentTuningId;
 
     queryTemp.Write();
@@ -695,38 +701,56 @@ public:
         HandleUnitEnterExit(targetList);
     }
 
-    float CalculatePointsPerSecond(std::vector<Player*> const& targetList)
+    float CalculatePointsPerSecond(std::vector<Player*> const& targetList) const
     {
-        int32 delta = 0;
+        int32 hordePlayers = 0;
+        int32 alliancePlayers = 0;
 
-        for (Player* player : targetList)
+        for (Player const* player : targetList)
         {
             if (!player->IsOutdoorPvPActive())
                 continue;
 
             if (player->GetTeamId() == TEAM_HORDE)
-                delta--;
+                hordePlayers++;
             else
-                delta++;
+                alliancePlayers++;
         }
 
-        uint32 minTime = _owner.GetGOInfo()->controlZone.minTime;
-        uint32 maxTime = _owner.GetGOInfo()->controlZone.maxTime;
-        uint32 minSuperiority = _owner.GetGOInfo()->controlZone.minSuperiority;
-        uint32 maxSuperiority = _owner.GetGOInfo()->controlZone.maxSuperiority;
+        int8 factionCoefficient = 0; // alliance superiority = 1; horde superiority = -1
 
-        if (static_cast<uint32>(std::abs(delta)) < minSuperiority)
-            return 0;
+        if (alliancePlayers > hordePlayers)
+            factionCoefficient = 1;
+        else if (hordePlayers > alliancePlayers)
+            factionCoefficient = -1;
 
-        float slope = (static_cast<float>(minTime) - maxTime) / (maxSuperiority - minSuperiority);
-        float intercept = maxTime - slope * minSuperiority;
-        float timeNeeded = slope * std::abs(delta) + intercept;
-        float percentageIncrease = 100.0f / timeNeeded;
+        float const timeNeeded = CalculateTimeNeeded(hordePlayers, alliancePlayers);
+        if (timeNeeded == 0.0f)
+            return 0.0f;
 
-        if (delta < 0)
-            percentageIncrease *= -1;
+        return 100.0f / timeNeeded * static_cast<float>(factionCoefficient);
+    }
 
-        return percentageIncrease;
+    float CalculateTimeNeeded(int32 hordePlayers, int32 alliancePlayers) const
+    {
+        uint32 const uncontestedTime = _owner.GetGOInfo()->controlZone.UncontestedTime;
+        uint32 const delta = std::abs(alliancePlayers - hordePlayers);
+        uint32 const minSuperiority = _owner.GetGOInfo()->controlZone.minSuperiority;
+
+        if (delta < minSuperiority)
+            return 0.0f;
+
+        // return the uncontested time if controlzone is not contested
+        if (uncontestedTime && (hordePlayers == 0 || alliancePlayers == 0))
+            return static_cast<float>(uncontestedTime);
+
+        uint32 const minTime = _owner.GetGOInfo()->controlZone.minTime;
+        uint32 const maxTime = _owner.GetGOInfo()->controlZone.maxTime;
+        uint32 const maxSuperiority = _owner.GetGOInfo()->controlZone.maxSuperiority;
+
+        float const slope = static_cast<float>(minTime - maxTime) / static_cast<float>(std::max<uint32>(maxSuperiority - minSuperiority, 1));
+        float const intercept = static_cast<float>(maxTime) - slope * static_cast<float>(minSuperiority);
+        return slope * static_cast<float>(delta) + intercept;
     }
 
     void HandleUnitEnterExit(std::vector<Player*> const& newTargetList)
@@ -812,13 +836,15 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
+    m_model(nullptr), m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
     m_updateFlag.Stationary = true;
     m_updateFlag.Rotation = true;
+
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_GameObject, false);
 
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
@@ -874,6 +900,8 @@ std::string const& GameObject::GetAIName() const
 
 void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 {
+    SetVignette(0);
+
     WorldObject::CleanupsBeforeDelete(finalCleanup);
 
     RemoveFromOwner();
@@ -1064,10 +1092,10 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
         {
-            // TODO: Get the values somehow, no longer in gameobject_template
-            m_goValue.Building.Health = 20000/*goinfo->destructibleBuilding.intactNumHits + goinfo->destructibleBuilding.damagedNumHits*/;
-            m_goValue.Building.MaxHealth = m_goValue.Building.Health;
+            m_goValue.Building.DestructibleHitpoint = sObjectMgr->GetDestructibleHitpoint(GetGOInfo()->destructibleBuilding.HealthRec);
+            m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint ? m_goValue.Building.DestructibleHitpoint->GetMaxHealth() : 0;
             SetGoAnimProgress(255);
+
             // yes, even after the updatefield rewrite this garbage hack is still in client
             QuaternionData reinterpretId;
             memcpy(&reinterpretId.x, &m_goInfo->destructibleBuilding.DestructibleModelRec, sizeof(float));
@@ -1076,6 +1104,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
         case GAMEOBJECT_TYPE_TRANSPORT:
         {
+            m_updateFlag.GameObject = true;
             m_goTypeImpl = std::make_unique<GameObjectType::Transport>(*this);
             if (goInfo->transport.startOpen)
                 SetGoState(GO_STATE_TRANSPORT_STOPPED);
@@ -1152,9 +1181,12 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             _animKitId = gameObjectAddon->AIAnimKitID;
     }
 
+    if (uint32 vignetteId = GetGOInfo()->GetSpawnVignette())
+        SetVignette(vignetteId);
+
     LastUsedScriptID = GetGOInfo()->ScriptId;
 
-    m_stringIds[0] = goInfo->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Template)] = &goInfo->StringId;
 
     AIM_Initialize();
 
@@ -1974,7 +2006,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     m_goData = data;
 
-    m_stringIds[1] = data->StringId;
+    m_stringIds[AsUnderlyingType(StringIdType::Spawn)] = &data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -2183,7 +2215,7 @@ uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
     if (GetGoType() == GAMEOBJECT_TYPE_TRAP)
     {
         if (Player const* player = target->ToPlayer())
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
                 return uint8(std::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
 
         if (Unit const* targetUnit = target->ToUnit())
@@ -2219,13 +2251,38 @@ void GameObject::Respawn()
     }
 }
 
+bool GameObject::HasConditionalInteraction() const
+{
+    if (GetGOInfo()->GetQuestID())
+        return true;
+
+    if (GetGoType() != GAMEOBJECT_TYPE_AURA_GENERATOR && GetGOInfo()->GetConditionID1())
+        return true;
+
+    if (sObjectMgr->IsGameObjectForQuests(GetEntry()))
+        return true;
+
+    return false;
+}
+
+bool GameObject::CanActivateForPlayer(Player const* target) const
+{
+    if (!MeetsInteractCondition(target))
+        return false;
+
+    if (!ActivateToQuest(target))
+        return false;
+
+    return true;
+}
+
 bool GameObject::ActivateToQuest(Player const* target) const
 {
     if (target->HasQuestForGO(GetEntry()))
         return true;
 
     if (!sObjectMgr->IsGameObjectForQuests(GetEntry()))
-        return false;
+        return true;
 
     switch (GetGoType())
     {
@@ -2249,8 +2306,6 @@ bool GameObject::ActivateToQuest(Player const* target) const
                 || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestPersonalLoot, target)
                 || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestPushLoot, target))
             {
-                if (Battleground const* bg = target->GetBattleground())
-                    return bg->CanActivateGO(GetEntry(), bg->GetPlayerTeam(target->GetGUID()));
                 return true;
             }
             break;
@@ -2261,9 +2316,21 @@ bool GameObject::ActivateToQuest(Player const* target) const
                 return true;
             break;
         }
+        case GAMEOBJECT_TYPE_SPELL_FOCUS:
+        {
+            if (target->GetQuestStatus(GetGOInfo()->spellFocus.questID) == QUEST_STATUS_INCOMPLETE)
+                return true;
+            break;
+        }
         case GAMEOBJECT_TYPE_GOOBER:
         {
             if (target->GetQuestStatus(GetGOInfo()->goober.questID) == QUEST_STATUS_INCOMPLETE)
+                return true;
+            break;
+        }
+        case GAMEOBJECT_TYPE_GATHERING_NODE:
+        {
+            if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->gatheringNode.chestLoot, target))
                 return true;
             break;
         }
@@ -2502,12 +2569,14 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
         SetGoState(GO_STATE_READY);
 }
 
-void GameObject::Use(Unit* user)
+void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
 {
     // by default spell caster is user
     Unit* spellCaster = user;
     uint32 spellId = 0;
-    bool triggered = false;
+    CastSpellExtraArgs spellArgs;
+    if (ignoreCastInProgress)
+        spellArgs.TriggerFlags |= TRIGGERED_IGNORE_CAST_IN_PROGRESS;
 
     if (Player* playerUser = user->ToPlayer())
     {
@@ -2554,10 +2623,6 @@ void GameObject::Use(Unit* user)
             Player* player = user->ToPlayer();
             if (!player)
                 return;
-
-            if (Battleground* bg = player->GetBattleground())
-                if (!bg->CanActivateGO(GetEntry(), bg->GetPlayerTeam(user->GetGUID())))
-                    return;
 
             GameObjectTemplate const* info = GetGOInfo();
             if (!m_loot && info->GetLootId())
@@ -2903,7 +2968,7 @@ void GameObject::Use(Unit* user)
 
                         if (fishingPool)
                         {
-                            fishingPool->Use(player);
+                            fishingPool->Use(player, ignoreCastInProgress);
                             SetLootState(GO_JUST_DEACTIVATED);
                         }
                         else
@@ -2986,7 +3051,7 @@ void GameObject::Use(Unit* user)
                 player->CastSpell(player, info->ritual.animSpell, true);
 
                 // for this case, summoningRitual.spellId is always triggered
-                triggered = true;
+                spellArgs.TriggerFlags = TRIGGERED_FULL_MASK;
             }
 
             // full amount unique participants including original summoner
@@ -3002,7 +3067,7 @@ void GameObject::Use(Unit* user)
                     // spell have reagent and mana cost but it not expected use its
                     // it triggered spell in fact cast at currently channeled GO
                     spellId = 61993;
-                    triggered = true;
+                    spellArgs.TriggerFlags = TRIGGERED_FULL_MASK;
                 }
 
                 // Cast casterTargetSpell at a random GO user
@@ -3073,11 +3138,11 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
                 if (player->GetLevel() < userLevels->MaxLevel)
                     return;
 
-            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ConditionalFlags))
                 if (targetPlayer->GetLevel() < targetLevels->MaxLevel)
                     return;
 
@@ -3098,25 +3163,19 @@ void GameObject::Use(Unit* user)
 
             if (player->CanUseBattlegroundObject(this))
             {
-                // in battleground check
-                Battleground* bg = player->GetBattleground();
-                if (!bg)
+                if (player->GetVehicle())
                     return;
 
-                if (player->GetVehicle())
+                if (HasFlag(GO_FLAG_IN_USE))
+                    return;
+
+                if (!MeetsInteractCondition(player))
                     return;
 
                 player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
-                // BG flag click
-                // AB:
-                // 15001
-                // 15002
-                // 15003
-                // 15004
-                // 15005
-                bg->EventPlayerClickedOnFlag(player, this);
-                return;                                     //we don;t need to delete flag ... it is despawned!
+                spellId = GetGOInfo()->flagStand.pickupSpell;
+                spellCaster = nullptr;
             }
             break;
         }
@@ -3146,11 +3205,6 @@ void GameObject::Use(Unit* user)
 
             if (player->CanUseBattlegroundObject(this))
             {
-                // in battleground check
-                Battleground* bg = player->GetBattleground();
-                if (!bg)
-                    return;
-
                 if (player->GetVehicle())
                     return;
 
@@ -3163,24 +3217,8 @@ void GameObject::Use(Unit* user)
                 // EotS:
                 // 184142 - Netherstorm Flag
                 GameObjectTemplate const* info = GetGOInfo();
-                if (info)
-                {
-                    switch (info->entry)
-                    {
-                        case 179785:                        // Silverwing Flag
-                        case 179786:                        // Warsong Flag
-                            if (bg->GetTypeID() == BATTLEGROUND_WS)
-                                bg->EventPlayerClickedOnFlag(player, this);
-                            break;
-                        case 184142:                        // Netherstorm Flag
-                            if (bg->GetTypeID() == BATTLEGROUND_EY)
-                                bg->EventPlayerClickedOnFlag(player, this);
-                            break;
-                    }
-
-                    if (info->flagDrop.eventID)
-                        GameEvents::Trigger(info->flagDrop.eventID, player, this);
-                }
+                if (info->flagDrop.eventID)
+                    GameEvents::Trigger(info->flagDrop.eventID, player, this);
                 //this cause to call return, all flags must be deleted here!!
                 spellId = 0;
                 Delete();
@@ -3281,6 +3319,15 @@ void GameObject::Use(Unit* user)
             Delete();
             return;
         }
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:
+        {
+            Player* player = user->ToPlayer();
+            if (!player)
+                return;
+
+            AssaultCapturePoint(player);
+            return;
+        }
         case GAMEOBJECT_TYPE_ITEM_FORGE:
         {
             GameObjectTemplate const* info = GetGOInfo();
@@ -3291,9 +3338,9 @@ void GameObject::Use(Unit* user)
                 return;
 
             Player* player = user->ToPlayer();
-            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(info->itemForge.conditionID1))
-                if (!sConditionMgr->IsPlayerMeetingCondition(player, playerCondition))
-                    return;
+
+            if (!MeetsInteractCondition(player))
+                return;
 
             switch (info->itemForge.ForgeType)
             {
@@ -3416,6 +3463,24 @@ void GameObject::Use(Unit* user)
             break;
     }
 
+    if (m_vignette)
+    {
+        if (Player* player = user->ToPlayer())
+        {
+            if (Quest const* reward = sObjectMgr->GetQuestTemplate(m_vignette->Data->RewardQuestID))
+                if (!player->GetQuestRewardStatus(m_vignette->Data->RewardQuestID))
+                    player->RewardQuest(reward, LootItemType::Item, 0, this, false);
+
+            if (m_vignette->Data->VisibleTrackingQuestID)
+                player->SetRewardedQuest(m_vignette->Data->VisibleTrackingQuestID);
+        }
+
+        // only unregister it from visibility (need to keep vignette for other gameobject users in case its usable by multiple players
+        // to flag their quest completion
+        if (GetGOInfo()->ClearObjectVignetteonOpening())
+            Vignettes::Remove(*m_vignette, this);
+    }
+
     if (!spellId)
         return;
 
@@ -3432,14 +3497,27 @@ void GameObject::Use(Unit* user)
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, triggered);
+        spellCaster->CastSpell(user, spellId, spellArgs);
     else
     {
-        SpellCastResult castResult = CastSpell(user, spellId);
+        SpellCastResult castResult = CastSpell(user, spellId, spellArgs);
         if (castResult == SPELL_FAILED_SUCCESS)
         {
-            if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
-                HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+            switch (GetGoType())
+            {
+                case GAMEOBJECT_TYPE_NEW_FLAG:
+                    HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+                    break;
+                case GAMEOBJECT_TYPE_FLAGSTAND:
+                    SetFlag(GO_FLAG_IN_USE);
+                    if (ZoneScript* zonescript = GetZoneScript())
+                        zonescript->OnFlagTaken(this, Object::ToPlayer(user));
+
+                    Delete();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
@@ -3487,9 +3565,18 @@ uint32 GameObject::GetScriptId() const
     return GetGOInfo()->ScriptId;
 }
 
+void GameObject::InheritStringIds(GameObject const* parent)
+{
+    // copy references to stringIds from template and spawn
+    m_stringIds = parent->m_stringIds;
+
+    // then copy script stringId, not just its reference
+    SetScriptStringId(std::string(parent->GetStringId(StringIdType::Script)));
+}
+
 bool GameObject::HasStringId(std::string_view id) const
 {
-    return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
+    return std::ranges::any_of(m_stringIds, [id](std::string const* stringId) { return stringId && *stringId == id; });
 }
 
 void GameObject::SetScriptStringId(std::string id)
@@ -3497,12 +3584,12 @@ void GameObject::SetScriptStringId(std::string id)
     if (!id.empty())
     {
         m_scriptStringId.emplace(std::move(id));
-        m_stringIds[2] = *m_scriptStringId;
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = &*m_scriptStringId;
     }
     else
     {
         m_scriptStringId.reset();
-        m_stringIds[2] = {};
+        m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
 }
 
@@ -3515,6 +3602,16 @@ std::string GameObject::GetNameForLocaleIdx(LocaleConstant locale) const
                 return cl->Name[locale];
 
     return GetName();
+}
+
+bool GameObject::HasLabel(int32 gameobjectLabel) const
+{
+    return advstd::ranges::contains(GetLabels(), gameobjectLabel);
+}
+
+std::span<int32 const> GameObject::GetLabels() const
+{
+    return sDB2Manager.GetGameObjectLabels(GetEntry());
 }
 
 void GameObject::UpdatePackedRotation()
@@ -3573,7 +3670,7 @@ QuaternionData GameObject::GetWorldRotation() const
 
 void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)
 {
-    if (!m_goValue.Building.MaxHealth || !change)
+    if (!m_goValue.Building.DestructibleHitpoint || !change)
         return;
 
     // prevent double destructions of the same object
@@ -3582,13 +3679,13 @@ void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nu
 
     if (int32(m_goValue.Building.Health) + change <= 0)
         m_goValue.Building.Health = 0;
-    else if (int32(m_goValue.Building.Health) + change >= int32(m_goValue.Building.MaxHealth))
-        m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+    else if (int32(m_goValue.Building.Health) + change >= int32(m_goValue.Building.DestructibleHitpoint->GetMaxHealth()))
+        m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
     else
         m_goValue.Building.Health += change;
 
     // Set the health bar, value = 255 * healthPct;
-    SetGoAnimProgress(m_goValue.Building.Health * 255 / m_goValue.Building.MaxHealth);
+    SetGoAnimProgress(m_goValue.Building.Health * 255 / m_goValue.Building.DestructibleHitpoint->GetMaxHealth());
 
     // dealing damage, send packet
     if (Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr)
@@ -3609,9 +3706,9 @@ void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nu
 
     if (!m_goValue.Building.Health)
         newState = GO_DESTRUCTIBLE_DESTROYED;
-    else if (m_goValue.Building.Health <= 10000/*GetGOInfo()->destructibleBuilding.damagedNumHits*/) // TODO: Get health somewhere
+    else if (m_goValue.Building.Health <= m_goValue.Building.DestructibleHitpoint->DamagedNumHits)
         newState = GO_DESTRUCTIBLE_DAMAGED;
-    else if (m_goValue.Building.Health == m_goValue.Building.MaxHealth)
+    else if (m_goValue.Building.Health == m_goValue.Building.DestructibleHitpoint->GetMaxHealth())
         newState = GO_DESTRUCTIBLE_INTACT;
 
     if (newState == GetDestructibleState())
@@ -3630,9 +3727,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_INTACT:
             RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
             SetDisplayId(m_goInfo->displayId);
-            if (setHealth)
+            if (setHealth && m_goValue.Building.DestructibleHitpoint)
             {
-                m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+                m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
             EnableCollision(true);
@@ -3652,10 +3749,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                     modelId = modelData->State1Wmo;
             SetDisplayId(modelId);
 
-            if (setHealth)
+            if (setHealth && m_goValue.Building.DestructibleHitpoint)
             {
-                m_goValue.Building.Health = 10000/*m_goInfo->destructibleBuilding.damagedNumHits*/;
-                uint32 maxHealth = m_goValue.Building.MaxHealth;
+                m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->DamagedNumHits;
+                uint32 maxHealth = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 // in this case current health is 0 anyway so just prevent crashing here
                 if (!maxHealth)
                     maxHealth = 1;
@@ -3668,10 +3765,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             if (GetGOInfo()->destructibleBuilding.DestroyedEvent && attackerOrHealer)
                 GameEvents::Trigger(GetGOInfo()->destructibleBuilding.DestroyedEvent, attackerOrHealer, this);
             AI()->Destroyed(attackerOrHealer, m_goInfo->destructibleBuilding.DestroyedEvent);
-
-            if (Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr)
-                if (Battleground* bg = player->GetBattleground())
-                    bg->DestroyGate(player, this);
 
             RemoveFlag(GO_FLAG_DAMAGED);
             SetFlag(GO_FLAG_DESTROYED);
@@ -3703,9 +3796,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             SetDisplayId(modelId);
 
             // restores to full health
-            if (setHealth)
+            if (setHealth && m_goValue.Building.DestructibleHitpoint)
             {
-                m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+                m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
             EnableCollision(true);
@@ -3895,7 +3988,7 @@ void GameObject::EnableCollision(bool enable)
     /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
         GetMap()->InsertGameObjectModel(*m_model);*/
 
-    m_model->enableCollision(enable);
+    m_model->EnableCollision(enable);
 }
 
 void GameObject::UpdateModel()
@@ -3934,8 +4027,8 @@ Loot* GameObject::GetLootForPlayer(Player const* player) const
     if (m_personalLoot.empty())
         return m_loot.get();
 
-    if (std::unique_ptr<Loot> const* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
-        return loot->get();
+    if (Loot* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
+        return loot;
 
     return nullptr;
 }
@@ -3945,22 +4038,14 @@ GameObject* GameObject::GetLinkedTrap()
     return ObjectAccessor::GetGameObject(*this, m_linkedTrap);
 }
 
-void GameObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void GameObject::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_gameObjectData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void GameObject::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -3968,13 +4053,12 @@ void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 
     if (m_values.HasChanged(TYPEID_GAMEOBJECT))
         m_gameObjectData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const
 {
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -3985,6 +4069,7 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
@@ -4025,20 +4110,7 @@ std::vector<uint32> const* GameObject::GetPauseTimes() const
 
 void GameObject::SetPathProgressForClient(float progress)
 {
-    DoWithSuppressingObjectUpdates([&]()
-    {
-        UF::ObjectData::Base dynflagMask;
-        dynflagMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-        bool marked = (m_objectData->GetChangesMask() & dynflagMask.GetChangesMask()).IsAnySet();
-
-        uint32 dynamicFlags = GetDynamicFlags();
-        dynamicFlags &= 0xFFFF; // remove high bits
-        dynamicFlags |= uint32(progress * 65535.0f) << 16;
-        ReplaceAllDynamicFlags(dynamicFlags);
-
-        if (!marked)
-            const_cast<UF::ObjectData&>(*m_objectData).ClearChanged(&UF::ObjectData::DynamicFlags);
-    });
+    m_transportPathProgress = progress;
 }
 
 void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = nullptr*/) const
@@ -4080,6 +4152,10 @@ void GameObject::AfterRelocation()
     UpdatePositionData();
     if (m_goTypeImpl)
         m_goTypeImpl->OnRelocated();
+
+    // TODO: on heartbeat
+    if (m_vignette)
+        Vignettes::Update(*m_vignette, this);
 
     UpdateObjectVisibility(false);
 }
@@ -4156,6 +4232,21 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
     activateAnimKit.AnimKitID = animKitId;
     activateAnimKit.Maintain = !oneshot;
     SendMessageToSet(activateAnimKit.Write(), true);
+}
+
+void GameObject::SetVignette(uint32 vignetteId)
+{
+    if (m_vignette)
+    {
+        if (m_vignette->Data->ID == vignetteId)
+            return;
+
+        Vignettes::Remove(*m_vignette, this);
+        m_vignette = nullptr;
+    }
+
+    if (VignetteEntry const* vignette = sVignetteStore.LookupEntry(vignetteId))
+        m_vignette = Vignettes::Create(vignette, this);
 }
 
 void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)
@@ -4376,14 +4467,7 @@ GuidUnorderedSet const* GameObject::GetInsidePlayers() const
 
 bool GameObject::MeetsInteractCondition(Player const* user) const
 {
-    if (!m_goInfo->GetConditionID1())
-        return true;
-
-    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(m_goInfo->GetConditionID1()))
-        if (!ConditionMgr::IsPlayerMeetingCondition(user, playerCondition))
-            return false;
-
-    return true;
+    return ConditionMgr::IsPlayerMeetingCondition(user, m_goInfo->GetConditionID1());
 }
 
 std::unordered_map<ObjectGuid, GameObject::PerPlayerState>& GameObject::GetOrCreatePerPlayerStates()
@@ -4425,11 +4509,29 @@ void GameObject::HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const
         command.Execute(*m_goTypeImpl);
 }
 
+TeamId GameObject::GetControllingTeam() const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
+        return TEAM_NEUTRAL;
+
+    GameObjectType::ControlZone const* controlZone = dynamic_cast<GameObjectType::ControlZone const*>(m_goTypeImpl.get());
+    if (!controlZone)
+        return TEAM_NEUTRAL;
+
+    return controlZone->GetControllingTeam();
+}
+
 void GameObject::CreateModel()
 {
     m_model = GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
-    if (m_model && m_model->isMapObject())
-        SetFlag(GO_FLAG_MAP_OBJECT);
+    if (m_model)
+    {
+        if (m_model->IsMapObject())
+            SetFlag(GO_FLAG_MAP_OBJECT);
+
+        if (GetGoType() == GAMEOBJECT_TYPE_DOOR)
+            m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+    }
 }
 
 std::string GameObject::GetDebugInfo() const

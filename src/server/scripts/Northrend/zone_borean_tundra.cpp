@@ -114,8 +114,6 @@ struct npc_beryl_sorcerer : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -638,8 +636,6 @@ struct npc_hidden_cultist : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     bool OnGossipHello(Player* player) override
@@ -1083,8 +1079,6 @@ struct npc_thassarian : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -1227,7 +1221,6 @@ struct npc_counselor_talbot : public ScriptedAI
                 }
             }
         }
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -1312,10 +1305,7 @@ struct npc_bloodmage_laurith : public ScriptedAI
     void UpdateAI(uint32 diff) override
     {
         if (UpdateVictim())
-        {
-            DoMeleeAttackIfReady();
             return;
-        }
 
         _events.Update(diff);
 

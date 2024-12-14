@@ -163,8 +163,7 @@ public:
             { "support",                       rbac::RBAC_PERM_COMMAND_RELOAD_SUPPORT_SYSTEM,                   true,  &HandleReloadSupportSystemCommand,              "" },
             { "trainer",                       rbac::RBAC_PERM_COMMAND_RELOAD_TRAINER,                          true,  &HandleReloadTrainerCommand,                    "" },
             { "trinity_string",                rbac::RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING,                   true,  &HandleReloadTrinityStringCommand,              "" },
-            { "waypoint_scripts",              rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS,                 true,  &HandleReloadWpScriptsCommand,                  "" },
-            { "waypoint_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA,                    true,  &HandleReloadWpCommand,                         "" },
+            { "waypoint_path",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_PATH,                    true,  &HandleReloadWpCommand,                         "" },
             { "vehicle_template",              rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE,                 true,  &HandleReloadVehicleTemplateCommand,            "" },
             { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY,                 true,  &HandleReloadVehicleAccessoryCommand,           "" },
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY,       true,  &HandleReloadVehicleTemplateAccessoryCommand,   "" },
@@ -281,7 +280,6 @@ public:
         HandleReloadSpellScriptsCommand(handler, "a");
         HandleReloadSpellScriptNamesCommand(handler, "a");
         handler->SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
-        HandleReloadWpScriptsCommand(handler, "a");
         HandleReloadWpCommand(handler, "a");
         return true;
     }
@@ -907,35 +905,15 @@ public:
         return true;
     }
 
-    static bool HandleReloadWpScriptsCommand(ChatHandler* handler, char const* args)
-    {
-        if (sMapMgr->IsScriptScheduled())
-        {
-            handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Scripts from `waypoint_scripts`...");
-
-        sObjectMgr->LoadWaypointScripts();
-
-        if (*args != 'a')
-            handler->SendGlobalGMSysMessage("DB table `waypoint_scripts` reloaded.");
-
-        return true;
-    }
-
     static bool HandleReloadWpCommand(ChatHandler* handler, char const* args)
     {
         if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Waypoints data from 'waypoints_data'");
+            TC_LOG_INFO("misc", "Re-Loading Waypoints data from 'waypoint_path' and 'waypoint_path_node'");
 
-        sWaypointMgr->Load();
+        sWaypointMgr->LoadPaths();
 
         if (*args != 'a')
-            handler->SendGlobalGMSysMessage("DB Table 'waypoint_data' reloaded.");
+            handler->SendGlobalGMSysMessage("DB Tables 'waypoint_path' and 'waypoint_path_node' reloaded.");
 
         return true;
     }

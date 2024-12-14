@@ -474,8 +474,6 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     InstanceScript* _instance;

@@ -337,8 +337,6 @@ struct boss_shade_of_akama : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -518,8 +516,6 @@ struct npc_akama_shade : public ScriptedAI
         {
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
     }
 
@@ -757,8 +753,6 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -825,8 +819,6 @@ struct npc_ashtongue_defender : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -883,8 +875,6 @@ struct npc_ashtongue_rogue : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -941,8 +931,6 @@ struct npc_ashtongue_elementalist : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1029,8 +1017,6 @@ struct npc_ashtongue_spiritbinder : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:

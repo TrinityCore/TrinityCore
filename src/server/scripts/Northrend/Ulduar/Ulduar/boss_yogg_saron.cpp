@@ -998,7 +998,7 @@ class boss_yogg_saron : public CreatureScript
                             break;
                         case EVENT_LUNATIC_GAZE:
                             DoCast(me, SPELL_LUNATIC_GAZE);
-                            CreatureTextMgr::SendSound(me, SOUND_LUNATIC_GAZE, CHAT_MSG_MONSTER_YELL);
+                            me->PlayDirectSound(SOUND_LUNATIC_GAZE);
                             _events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12s, 0, PHASE_THREE);
                             break;
                         case EVENT_DEAFENING_ROAR:
@@ -1218,8 +1218,6 @@ class npc_guardian_of_yogg_saron : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void IsSummonedBy(WorldObject* summoner) override
@@ -1392,8 +1390,6 @@ class npc_crusher_tentacle : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -1517,8 +1513,6 @@ class npc_immortal_guardian : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

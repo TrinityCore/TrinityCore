@@ -97,18 +97,18 @@ namespace WorldPackets
         struct PVPBracketData
         {
             int32 Rating = 0;
+            int32 RatingID = 0;
             int32 Rank = 0;
             int32 WeeklyPlayed = 0;
             int32 WeeklyWon = 0;
             int32 SeasonPlayed = 0;
             int32 SeasonWon = 0;
             int32 WeeklyBestRating = 0;
+            int32 LastWeeksBestRating = 0;
+            int32 Tier = 0;
+            int32 WeeklyBestTier = 0;
             int32 SeasonBestRating = 0;
-            int32 PvpTierID = 0;
-            int32 WeeklyBestWinPvpTierID = 0;
-            int32 Unused1 = 0;
-            int32 Unused2 = 0;
-            int32 Unused3 = 0;
+            int32 SeasonBestTierEnum = 0;
             int32 RoundsSeasonPlayed = 0;
             int32 RoundsSeasonWon = 0;
             int32 RoundsWeeklyPlayed = 0;
@@ -127,7 +127,7 @@ namespace WorldPackets
         class InspectResult final : public ServerPacket
         {
         public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
+            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 4096)
             {
                 PvpTalents.fill(0);
             }
@@ -139,7 +139,7 @@ namespace WorldPackets
             std::vector<uint16> Talents;
             std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
             Optional<InspectGuildData> GuildData;
-            std::array<PVPBracketData, 7> Bracket;
+            std::array<PVPBracketData, 9> Bracket;
             Optional<int32> AzeriteLevel;
             int32 ItemLevel = 0;
             uint32 LifetimeHK = 0;

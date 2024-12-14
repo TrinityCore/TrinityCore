@@ -32,6 +32,7 @@
 #include "Spell.h"
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include "StringConvert.h"
 #include <G3D/g3dmath.h>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/composite_key.hpp>
@@ -97,6 +98,7 @@ namespace
     std::vector<ServersideSpellName> mServersideSpellNames;
 
     std::unordered_map<std::pair<uint32, Difficulty>, SpellProcEntry> mSpellProcMap;
+    std::unordered_map<int32, CreatureImmunities> mCreatureImmunities;
 }
 
 PetFamilySpellsStore sPetFamilySpellsStore;
@@ -117,7 +119,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
 {
     SkillLineAbilityMapBounds skillBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
     for (SkillLineAbilityMap::const_iterator itr = skillBounds.first; itr != skillBounds.second; ++itr)
-        if (itr->second->SkillLine == int32(skillId))
+        if (itr->second->SkillLine == skillId)
             return true;
 
     return false;
@@ -338,6 +340,11 @@ bool SpellMgr::IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const
         if (i->second.Spell == spell_id2)
             return true;
     return false;
+}
+
+Trinity::IteratorPair<SpellLearnedBySpellMap::const_iterator> SpellMgr::GetSpellLearnedBySpellMapBounds(uint32 learnedSpellId) const
+{
+    return Trinity::Containers::MapEqualRange(mSpellLearnedBySpells, learnedSpellId);
 }
 
 SpellTargetPosition const* SpellMgr::GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const
@@ -672,6 +679,11 @@ SpellAreaForAreaMapBounds SpellMgr::GetSpellAreaForAreaMapBounds(uint32 area_id)
     return mSpellAreaForAreaMap.equal_range(area_id);
 }
 
+CreatureImmunities const* SpellMgr::GetCreatureImmunities(int32 creatureImmunitiesId)
+{
+    return Trinity::Containers::MapGetValuePtr(mCreatureImmunities, creatureImmunitiesId);
+}
+
 SpellInfo const* SpellMgr::GetSpellInfo(uint32 spellId, Difficulty difficulty) const
 {
     auto itr = mSpellInfoMap.find(boost::make_tuple(spellId, difficulty));
@@ -735,12 +747,6 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     if (auraSpell)                               // does not have expected aura
         if (!player || (auraSpell > 0 && !player->HasAura(auraSpell)) || (auraSpell < 0 && player->HasAura(-auraSpell)))
             return false;
-
-    if (player)
-    {
-        if (Battleground* bg = player->GetBattleground())
-            return bg->IsSpellAllowed(spellId, player);
-    }
 
     // Extra conditions
     switch (spellId)
@@ -991,6 +997,7 @@ void SpellMgr::LoadSpellLearnSpells()
 {
     uint32 oldMSTime = getMSTime();
 
+    mSpellLearnedBySpells.clear();
     mSpellLearnSpells.clear();                              // need for reload case
 
     //                                                  0      1        2
@@ -1009,6 +1016,7 @@ void SpellMgr::LoadSpellLearnSpells()
         uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
+        node.SourceSpell = spell_id;
         node.Spell       = fields[1].GetUInt32();
         node.OverridesSpell = 0;
         node.Active      = fields[2].GetBool();
@@ -1053,6 +1061,7 @@ void SpellMgr::LoadSpellLearnSpells()
             if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
             {
                 SpellLearnSpellNode dbc_node;
+                dbc_node.SourceSpell = entry.Id;
                 dbc_node.Spell = spellEffectInfo.TriggerSpell;
                 dbc_node.Active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
                 dbc_node.OverridesSpell = 0;
@@ -1126,6 +1135,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
 
         SpellLearnSpellNode dbcLearnNode;
+        dbcLearnNode.SourceSpell = spellLearnSpell->SpellID;
         dbcLearnNode.Spell = spellLearnSpell->LearnSpellID;
         dbcLearnNode.OverridesSpell = spellLearnSpell->OverridesSpellID;
         dbcLearnNode.Active = true;
@@ -1134,6 +1144,9 @@ void SpellMgr::LoadSpellLearnSpells()
         mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->SpellID, dbcLearnNode));
         ++dbc_count;
     }
+
+    for (auto const& [spellId, learnedSpellNode] : mSpellLearnSpells)
+        mSpellLearnedBySpells.emplace(learnedSpellNode.Spell, &learnedSpellNode);
 
     TC_LOG_INFO("server.loading", ">> Loaded {} spell learn spells, {} found in Spell.dbc in {} ms", count, dbc_count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -1144,8 +1157,8 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                               0   1            2      3          4          5
-    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ FROM spell_target_position");
+    //                                               0   1            2      3          4          5          6
+    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -1193,11 +1206,16 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        // target facing is in degrees for 6484 & 9268... (blizz sucks)
-        if (spellInfo->GetEffect(effIndex).PositionFacing > 2 * M_PI)
-            st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing * float(M_PI) / 180;
+        if (!fields[6].IsNull())
+            st.target_Orientation = fields[6].GetFloat();
         else
-            st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing;
+        {
+            // target facing is in degrees for 6484 & 9268... (blizz sucks)
+            if (spellInfo->GetEffect(effIndex).PositionFacing > 2 * float(M_PI))
+                st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing * float(M_PI) / 180;
+            else
+                st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing;
+        }
 
         auto hasTarget = [&](Targets target)
         {
@@ -2517,7 +2535,11 @@ void SpellMgr::LoadSpellInfoStore()
             case SPELL_AURA_ADD_PCT_MODIFIER:
             case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
             case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
-                ASSERT(effect->EffectMiscValue[0] < MAX_SPELLMOD, "MAX_SPELLMOD must be at least %d", effect->EffectMiscValue[0] + 1);
+                if (effect->EffectMiscValue[0] >= MAX_SPELLMOD)
+                {
+                    TC_LOG_ERROR("server.loading", "Invalid spell modifier type {} found on spell {} effect index {}, consider increasing MAX_SPELLMOD",
+                        effect->EffectMiscValue[0], effect->SpellID, effect->EffectIndex);
+                }
                 break;
             default:
                 break;
@@ -2541,6 +2563,18 @@ void SpellMgr::LoadSpellInfoStore()
 
     for (SpellCooldownsEntry const* cooldowns : sSpellCooldownsStore)
         loadData[{ cooldowns->SpellID, Difficulty(cooldowns->DifficultyID) }].Cooldowns = cooldowns;
+
+    for (SpellEmpowerStageEntry const* empowerStage : sSpellEmpowerStageStore)
+    {
+        if (SpellEmpowerEntry const* empower = sSpellEmpowerStore.LookupEntry(empowerStage->SpellEmpowerID))
+        {
+            std::vector<SpellEmpowerStageEntry const*>& empowerStages = loadData[{empower->SpellID, DIFFICULTY_NONE}].EmpowerStages;
+
+            auto where = std::ranges::lower_bound(empowerStages, empowerStage->Stage, std::ranges::less(), &SpellEmpowerStageEntry::Stage);
+
+            empowerStages.insert(where, empowerStage);
+        }
+    }
 
     for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
         loadData[{ equippedItems->SpellID, DIFFICULTY_NONE }].EquippedItems = equippedItems;
@@ -2592,98 +2626,98 @@ void SpellMgr::LoadSpellInfoStore()
     {
         SpellVisualVector& visuals = loadData[{ visual->SpellID, Difficulty(visual->DifficultyID) }].Visuals;
 
-        auto where = std::lower_bound(visuals.begin(), visuals.end(), visual, [](SpellXSpellVisualEntry const* first, SpellXSpellVisualEntry const* second)
-        {
-            return first->CasterPlayerConditionID > second->CasterPlayerConditionID;
-        });
+        auto where = std::ranges::lower_bound(visuals, visual->CasterPlayerConditionID, std::ranges::greater(), &SpellXSpellVisualEntry::CasterPlayerConditionID);
 
         // sorted with unconditional visuals being last
         visuals.insert(where, visual);
     }
 
-    for (std::pair<std::pair<uint32, Difficulty> const, SpellInfoLoadHelper>& data : loadData)
+    for (auto& [key, data] : loadData)
     {
-        SpellNameEntry const* spellNameEntry = sSpellNameStore.LookupEntry(data.first.first);
+        SpellNameEntry const* spellNameEntry = sSpellNameStore.LookupEntry(key.first);
         if (!spellNameEntry)
             continue;
 
         // fill blanks
-        if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(data.first.second))
+        if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(key.second))
         {
             do
             {
-                if (SpellInfoLoadHelper const* fallbackData = Trinity::Containers::MapGetValuePtr(loadData, { data.first.first, Difficulty(difficultyEntry->FallbackDifficultyID) }))
+                if (SpellInfoLoadHelper const* fallbackData = Trinity::Containers::MapGetValuePtr(loadData, { key.first, Difficulty(difficultyEntry->FallbackDifficultyID) }))
                 {
-                    if (!data.second.AuraOptions)
-                        data.second.AuraOptions = fallbackData->AuraOptions;
+                    if (!data.AuraOptions)
+                        data.AuraOptions = fallbackData->AuraOptions;
 
-                    if (!data.second.AuraRestrictions)
-                        data.second.AuraRestrictions = fallbackData->AuraRestrictions;
+                    if (!data.AuraRestrictions)
+                        data.AuraRestrictions = fallbackData->AuraRestrictions;
 
-                    if (!data.second.CastingRequirements)
-                        data.second.CastingRequirements = fallbackData->CastingRequirements;
+                    if (!data.CastingRequirements)
+                        data.CastingRequirements = fallbackData->CastingRequirements;
 
-                    if (!data.second.Categories)
-                        data.second.Categories = fallbackData->Categories;
+                    if (!data.Categories)
+                        data.Categories = fallbackData->Categories;
 
-                    if (!data.second.ClassOptions)
-                        data.second.ClassOptions = fallbackData->ClassOptions;
+                    if (!data.ClassOptions)
+                        data.ClassOptions = fallbackData->ClassOptions;
 
-                    if (!data.second.Cooldowns)
-                        data.second.Cooldowns = fallbackData->Cooldowns;
+                    if (!data.Cooldowns)
+                        data.Cooldowns = fallbackData->Cooldowns;
 
-                    for (std::size_t i = 0; i < data.second.Effects.size(); ++i)
-                        if (!data.second.Effects[i])
-                            data.second.Effects[i] = fallbackData->Effects[i];
+                    for (std::size_t i = 0; i < data.Effects.size(); ++i)
+                        if (!data.Effects[i])
+                            data.Effects[i] = fallbackData->Effects[i];
 
-                    if (!data.second.EquippedItems)
-                        data.second.EquippedItems = fallbackData->EquippedItems;
+                    if (data.EmpowerStages.empty())
+                        data.EmpowerStages = fallbackData->EmpowerStages;
 
-                    if (!data.second.Interrupts)
-                        data.second.Interrupts = fallbackData->Interrupts;
+                    if (!data.EquippedItems)
+                        data.EquippedItems = fallbackData->EquippedItems;
 
-                    if (data.second.Labels.empty())
-                        data.second.Labels = fallbackData->Labels;
+                    if (!data.Interrupts)
+                        data.Interrupts = fallbackData->Interrupts;
 
-                    if (!data.second.Levels)
-                        data.second.Levels = fallbackData->Levels;
+                    if (data.Labels.empty())
+                        data.Labels = fallbackData->Labels;
 
-                    if (!data.second.Misc)
-                        data.second.Misc = fallbackData->Misc;
+                    if (!data.Levels)
+                        data.Levels = fallbackData->Levels;
+
+                    if (!data.Misc)
+                        data.Misc = fallbackData->Misc;
 
                     for (std::size_t i = 0; i < fallbackData->Powers.size(); ++i)
-                        if (!data.second.Powers[i])
-                            data.second.Powers[i] = fallbackData->Powers[i];
+                        if (!data.Powers[i])
+                            data.Powers[i] = fallbackData->Powers[i];
 
-                    if (!data.second.Reagents)
-                        data.second.Reagents = fallbackData->Reagents;
+                    if (!data.Reagents)
+                        data.Reagents = fallbackData->Reagents;
 
-                    if (data.second.ReagentsCurrency.empty())
-                        data.second.ReagentsCurrency = fallbackData->ReagentsCurrency;
+                    if (data.ReagentsCurrency.empty())
+                        data.ReagentsCurrency = fallbackData->ReagentsCurrency;
 
-                    if (!data.second.Scaling)
-                        data.second.Scaling = fallbackData->Scaling;
+                    if (!data.Scaling)
+                        data.Scaling = fallbackData->Scaling;
 
-                    if (!data.second.Shapeshift)
-                        data.second.Shapeshift = fallbackData->Shapeshift;
+                    if (!data.Shapeshift)
+                        data.Shapeshift = fallbackData->Shapeshift;
 
-                    if (!data.second.TargetRestrictions)
-                        data.second.TargetRestrictions = fallbackData->TargetRestrictions;
+                    if (!data.TargetRestrictions)
+                        data.TargetRestrictions = fallbackData->TargetRestrictions;
 
-                    if (!data.second.Totems)
-                        data.second.Totems = fallbackData->Totems;
+                    if (!data.Totems)
+                        data.Totems = fallbackData->Totems;
 
                     // visuals fall back only to first difficulty that defines any visual
                     // they do not stack all difficulties in fallback chain
-                    if (data.second.Visuals.empty())
-                        data.second.Visuals = fallbackData->Visuals;
+                    if (data.Visuals.empty())
+                        data.Visuals = fallbackData->Visuals;
                 }
 
                 difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
             } while (difficultyEntry);
         }
 
-        mSpellInfoMap.emplace(spellNameEntry, data.first.second, data.second);
+        mSpellInfoMap.emplace(spellNameEntry, key.second, data);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in {} ms", GetMSTimeDiffToNow(oldMSTime));
@@ -3469,19 +3503,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     }
 
-    // Allows those to crit
-    ApplySpellFix({
-        379,   // Earth Shield
-        71607, // Item - Bauble of True Blood 10m
-        71646, // Item - Bauble of True Blood 25m
-        71610, // Item - Althor's Abacus trigger 10m
-        71641  // Item - Althor's Abacus trigger 25m
-    }, [](SpellInfo* spellInfo)
-    {
-        // We need more spells to find a general way (if there is any)
-        spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-    });
-
     ApplySpellFix({
         63026, // Summon Aspirant Test NPC (HACK: Target shouldn't be changed)
         63137  // Summon Valiant Test (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
@@ -3998,10 +4019,30 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
 
+    // Death and Decay (target increase)
+    ApplySpellFix({ 188290 }, [](SpellInfo* spellInfo)
+    {
+        // Change SpellClassMask to exclude 49020 and only keep its triggered spells
+        ApplySpellEffectFix(spellInfo, EFFECT_3, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->SpellClassMask.Set(0x80, 0, 0, 0x8000);
+        });
+    });
+
     // Chrono Shift (enemy slow part)
     ApplySpellFix({ 236299 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
+    });
+
+    // Inescapable Torment
+    ApplySpellFix({ 373427 }, [](SpellInfo* spellInfo)
+    {
+        // Remove self-damage from passive aura on learn
+        ApplySpellEffectFix(spellInfo, EFFECT_3, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_DUMMY;
+        });
     });
 
     //
@@ -4628,6 +4669,34 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF FIRELANDS
 
     //
+    // SCARLET HALLS SPELLS
+    //
+
+    // 111755 - Call Reinforcement
+    ApplySpellFix({ 111755 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
+    // 111756 - Call Reinforcement
+    ApplySpellFix({ 111756 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
+    // ENDOF SCARLET HALLS SPELLS
+
+    //
     // MARDUM SPELLS
     //
 
@@ -4654,6 +4723,22 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF MARDUM SPELLS
 
     //
+    // MAW OF SOULS SPELLS
+    //
+
+    // 193465 - Bane
+    ApplySpellFix({ 193465 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Normal difficulty should also be using the regular heroic+ AreaTriggerCreateProperties
+            spellEffectInfo->MiscValue = 5838;
+        });
+    });
+
+    // ENDOF MAW OF SOULS SPELLS
+
+    //
     // ANTORUS THE BURNING THRONE SPELLS
     //
 
@@ -4671,17 +4756,215 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF ANTORUS THE BURNING THRONE SPELLS
 
     //
+    // STORMSONG VALLEY SPELLS
+    //
+
+    // Void Orb
+    ApplySpellFix({ 273467 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_0_5_YARDS);
+        });
+    });
+
+    // ENDOF STORMSONG VALLEY SPELLS
+
+    //
+    // KINGS REST SPELLS
+    //
+
+    // Fixate
+    ApplySpellFix({ 269936 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // ENDOF KINGS REST SPELLS
+
+    //
+    // WAYCREST MANOR SPELLS
+    //
+
+    // Discordant Cadenza
+    ApplySpellFix({ 268308 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
+    // Waycrest Manor - Waycrests Defeated (Horde)
+    // Waycrest Manor - Waycrests Defeated (Alliance)
+    ApplySpellFix({ 267595, 267597, 267609 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_CREATE_CONVERSATION;
+        });
+    });
+
+    // ENDOF WAYCREST MANOR SPELLS
+
+    //
+    // SEPULCHER OF THE FIRST ONES
+    //
+
+    // Wicked Star (Marker)
+    ApplySpellFix({ 365021 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // Empowered Wicked Star (Marker)
+    ApplySpellFix({ 367632 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // Wicked Star Areatrigger
+    ApplySpellFix({ 365017 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Willpower Energize Large
+    ApplySpellFix({ 365228 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
+    });
+
+    // Willpower Energize Small
+    ApplySpellFix({ 365217 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
+    });
+
+    // Force of Will
+    ApplySpellFix({ 368913 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // Fragment of Hope Areatrigger
+    ApplySpellFix({ 365816 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Shadestep
+    ApplySpellFix({ 363976 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+    // ENDOF SEPULCHER OF THE FIRST ONES
+
+    //
     // THE AZURE VAULT SPELLS
     //
 
     // Stinging Sap
     ApplySpellFix({ 374523 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
+    });
+
+    // Jump to Center (DNT)
+    ApplySpellFix({ 387981 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Jump to Platform (DNT)
+    ApplySpellFix({ 388082 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
     });
 
     // ENDOF THE AZURE VAULT SPELLS
     //
+
+    //
+    // SHRINE OF THE STORM SPELLS
+    //
+
+    // These spells have TARGET_DEST_NEARBY_ENTRY for serverside unit
+    ApplySpellFix({
+        274365, // Requiem of the Abyss
+        274367, // Requiem of the Abyss
+        264911, // Erupting Waters
+        264912, // Erupting Waters
+        264913, // Erupting Waters
+    }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Conversation
+    ApplySpellFix({ 274668, 274669 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_CREATE_CONVERSATION;
+        });
+    });
+
+    // ENDOF SHRINE OF THE STORM SPELLS
+    //
+
+    //
+    // WAYCREST MANOR SPELLS
+    //
+
+    ApplySpellFix({
+        260566, // Wildfire Missile
+        260570  // Wildfire Missile Impact
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
+    });
+
+    // ENDOF WAYCREST MANOR SPELLS
+    //
+
+    //
+    // ATAL DAZAR SPELLS
+    //
+
+    // Reverse Cast Ride Vehicle
+    ApplySpellFix({ 258344 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx8 &= ~SPELL_ATTR8_ONLY_TARGET_IF_SAME_CREATOR;
+    });
+
+    // ENDOF ATAL DAZAR SPELLS
+    //
+
+    //
+    // THE WANDERING ISLE SPELLS
+    //
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
@@ -4690,6 +4973,27 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
         });
     });
+
+    // Summon Amberleaf Troublemaker
+    ApplySpellFix({ 114698 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
+    });
+
+    // Summon Living Air
+    ApplySpellFix({ 102207 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_TARGET_RANDOM);
+        });
+    });
+
+    // ENDOF THE WANDERING ISLE SPELLS
+    //
 
     // Earthquake
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
@@ -4755,6 +5059,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx4 |= SPELL_ATTR4_AURA_IS_BUFF;
     });
 
+    // TODO: temporary, remove with dragonriding
+    ApplySpellFix({ 404468 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
+    });
+
+    // Eye Beam
+    ApplySpellFix({ 198030 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, {});
+    });
+
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
@@ -4785,7 +5101,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case SPELL_EFFECT_JUMP:
                 case SPELL_EFFECT_JUMP_DEST:
                 case SPELL_EFFECT_LEAP_BACK:
-                    if (!spellInfo->Speed && !spellInfo->SpellFamilyName && !spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+                    if (!spellInfo->Speed && !spellInfo->SpellFamilyName && !spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
                 default:
@@ -4856,6 +5172,54 @@ void SpellMgr::LoadSpellInfoDiminishing()
 void SpellMgr::LoadSpellInfoImmunities()
 {
     uint32 oldMSTime = getMSTime();
+
+    mCreatureImmunities.clear();
+
+    //                                                   0   1           2               3              4        5      6          7
+    if (QueryResult result = WorldDatabase.Query("SELECT ID, SchoolMask, DispelTypeMask, MechanicsMask, Effects, Auras, ImmuneAoE, ImmuneChain FROM creature_immunities"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            int32 id = fields[0].GetInt32();
+            uint8 school = fields[1].GetInt8();
+            uint16 dispelType = fields[2].GetInt16();
+            uint64 mechanics = fields[3].GetInt64();
+
+            CreatureImmunities& immunities = mCreatureImmunities[id];
+            immunities.School = school;
+            immunities.DispelType = dispelType;
+            immunities.Mechanic = mechanics;
+            if (fields[6].GetBool())
+                immunities.Other |= SpellOtherImmunity::AoETarget;
+            if (fields[7].GetBool())
+                immunities.Other |= SpellOtherImmunity::ChainTarget;
+
+            if (immunities.School.to_ullong() != school)
+                TC_LOG_ERROR("sql.sql", "Invalid value in `SchoolMask` {} for creature immunities {}, truncated", school, id);
+            if (immunities.DispelType.to_ullong() != dispelType)
+                TC_LOG_ERROR("sql.sql", "Invalid value in `DispelTypeMask` {} for creature immunities {}, truncated", dispelType, id);
+            if (immunities.Mechanic.to_ullong() != mechanics)
+                TC_LOG_ERROR("sql.sql", "Invalid value in `MechanicsMask` {} for creature immunities {}, truncated", mechanics, id);
+
+            for (std::string_view token : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
+            {
+                if (Optional<uint32> effect = Trinity::StringTo<uint32>(token); effect && effect < uint32(TOTAL_SPELL_EFFECTS))
+                    immunities.Effect.push_back(SpellEffectName(*effect));
+                else
+                    TC_LOG_ERROR("sql.sql", "Invalid effect type in `Effects` {} for creature immunities {}, skipped", token, id);
+            }
+
+            for (std::string_view token : Trinity::Tokenize(fields[5].GetStringView(), ',', false))
+            {
+                if (Optional<uint32> aura = Trinity::StringTo<uint32>(token); aura && aura < TOTAL_AURAS)
+                    immunities.Aura.push_back(AuraType(*aura));
+                else
+                    TC_LOG_ERROR("sql.sql", "Invalid aura type in `Auras` {} for creature immunities {}, skipped", token, id);
+            }
+        }
+        while (result->NextRow());
+    }
 
     for (SpellInfo const& spellInfo : mSpellInfoMap)
         const_cast<SpellInfo&>(spellInfo)._LoadImmunityInfo();

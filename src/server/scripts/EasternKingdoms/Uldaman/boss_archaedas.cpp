@@ -202,8 +202,6 @@ class boss_archaedas : public CreatureScript
                     //45 seconds until we should cast this agian
                     uiTremorTimer  = 45000;
                 } else uiTremorTimer  -= uiDiff;
-
-                DoMeleeAttackIfReady();
             }
 
             void JustDied (Unit* /*killer*/) override
@@ -314,8 +312,6 @@ class npc_archaedas_minions : public CreatureScript
                 //Return since we have no target
                 if (!UpdateVictim())
                     return;
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -371,8 +367,6 @@ class npc_stonekeepers : public CreatureScript
                 //Return since we have no target
                 if (!UpdateVictim())
                     return;
-
-                DoMeleeAttackIfReady();
             }
 
             void JustDied(Unit* /*killer*/) override

@@ -180,8 +180,6 @@ class boss_buru : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_THORNS);
                     _phase = PHASE_TRANSFORM;
                 }
-
-                DoMeleeAttackIfReady();
             }
         private:
             GuidList Eggs;

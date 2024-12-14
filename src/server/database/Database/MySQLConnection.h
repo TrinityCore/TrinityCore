@@ -18,19 +18,16 @@
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H
 
+#include "AsioHacksFwd.h"
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 #include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
-template <typename T>
-class ProducerConsumerQueue;
-
-class DatabaseWorker;
 class MySQLPreparedStatement;
-class SQLOperation;
 
 enum ConnectionFlags
 {
@@ -57,11 +54,10 @@ class TC_DATABASE_API MySQLConnection
     friend class PingOperation;
 
     public:
-        MySQLConnection(MySQLConnectionInfo& connInfo);                               //!< Constructor for synchronous connections.
-        MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, MySQLConnectionInfo& connInfo);  //!< Constructor for asynchronous connections.
+        MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
         virtual ~MySQLConnection();
 
-        virtual uint32 Open();
+        uint32 Open();
         void Close();
 
         bool PrepareStatements();
@@ -81,6 +77,9 @@ class TC_DATABASE_API MySQLConnection
         void Ping();
 
         uint32 GetLastError();
+
+        void StartWorkerThread(Trinity::Asio::IoContext* context);
+        std::thread::id GetWorkerThreadId() const;
 
     protected:
         /// Tries to acquire lock. If lock is acquired by another thread
@@ -105,8 +104,8 @@ class TC_DATABASE_API MySQLConnection
     private:
         bool _HandleMySQLErrno(uint32 errNo, uint8 attempts = 5);
 
-        ProducerConsumerQueue<SQLOperation*>* m_queue;      //!< Queue shared with other asynchronous connections.
-        std::unique_ptr<DatabaseWorker> m_worker;           //!< Core worker task.
+        struct WorkerThread;
+        std::unique_ptr<WorkerThread> m_workerThread;       //!< Core worker thread.
         MySQLHandle*          m_Mysql;                      //!< MySQL Handle.
         MySQLConnectionInfo&  m_connectionInfo;             //!< Connection info (used for logging)
         ConnectionFlags       m_connectionFlags;            //!< Connection flags (for preparing relevant statements)

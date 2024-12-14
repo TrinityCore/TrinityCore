@@ -168,8 +168,6 @@ public:
                 InfernoTimer = 45000;
                 Talk(SAY_INFERNO);
             } else InfernoTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -245,8 +243,6 @@ public:
                 DoCast(me, SPELL_IMMOLATION);
                 ImmolationTimer = 5000;
             } else ImmolationTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

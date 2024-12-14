@@ -499,8 +499,6 @@ struct npc_rotting_frost_giant : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -625,7 +623,7 @@ public:
 
     bool operator()(Creature* target) const
     {
-        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPath() || _owner->GetDistance(target) > 10.0f)
+        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPathId() || _owner->GetDistance(target) > 10.0f)
             return false;
 
         switch (target->GetEntry())
@@ -779,7 +777,7 @@ struct DarkFallenAI : public ScriptedAI
 
     void Reset() override
     {
-        IsDoingEmotes = me->GetWaypointPath() ? false : true;
+        IsDoingEmotes = me->GetWaypointPathId() ? false : true;
         Scheduler.CancelAll();
         Scheduler.SetValidator([this]
         {
@@ -848,8 +846,6 @@ struct DarkFallenAI : public ScriptedAI
 
         if (AttackSpellId)
             DoSpellAttackIfReady(AttackSpellId);
-        else
-            DoMeleeAttackIfReady();
     }
 
 protected:
@@ -884,7 +880,10 @@ struct npc_darkfallen_blood_knight : public DarkFallenAI
 
 struct npc_darkfallen_noble : public DarkFallenAI
 {
-    npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature) { }
+    npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void ScheduleSpells() override
     {
@@ -934,8 +933,6 @@ struct npc_vampiric_fiend : public ScriptedAI
             return;
 
         _scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -944,7 +941,10 @@ private:
 
 struct npc_darkfallen_archmage : public DarkFallenAI
 {
-    npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature) { }
+    npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void ScheduleSpells() override
     {
@@ -1103,8 +1103,6 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

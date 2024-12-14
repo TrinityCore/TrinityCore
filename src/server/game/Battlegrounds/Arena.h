@@ -55,9 +55,9 @@ enum ArenaWorldStates
 
 class TC_GAME_API Arena : public Battleground
 {
-    protected:
+    public:
         Arena(BattlegroundTemplate const* battlegroundTemplate);
-
+    protected:
         void AddPlayer(Player* player, BattlegroundQueueTypeId queueId) override;
         void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) override;
 
@@ -70,7 +70,7 @@ class TC_GAME_API Arena : public Battleground
     private:
         void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket) override;
         void CheckWinConditions() override;
-        void EndBattleground(uint32 winner) override;
+        void EndBattleground(Team winner) override;
 
         ArenaTeamScore _arenaTeamScores[PVP_TEAMS_COUNT];
 };

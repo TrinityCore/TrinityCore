@@ -493,8 +493,6 @@ struct boss_sartharion : public BossAI
         {
             _isSoftEnraged = true;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

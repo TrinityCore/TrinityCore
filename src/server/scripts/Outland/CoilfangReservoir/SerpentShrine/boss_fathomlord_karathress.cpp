@@ -274,8 +274,6 @@ struct boss_fathomlord_karathress : public BossAI
                 Talk(SAY_GAIN_BLESSING);
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -406,8 +404,6 @@ struct boss_fathomguard_sharkkis : public ScriptedAI
                 }
             }
         } else Pet_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -516,8 +512,6 @@ struct boss_fathomguard_tidalvess : public ScriptedAI
         }
         else
             Earthbind_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -630,8 +624,6 @@ struct boss_fathomguard_caribdis : public ScriptedAI
         }
         else
             Heal_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     Unit* selectAdvisorUnit()

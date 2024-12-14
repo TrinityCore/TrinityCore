@@ -591,8 +591,6 @@ void PlayerAI::DoAutoAttackIfReady()
 {
     if (IsRangedAttacker())
         DoRangedAttackIfReady();
-    else
-        DoMeleeAttackIfReady();
 }
 
 void PlayerAI::CancelAllShapeshifts()

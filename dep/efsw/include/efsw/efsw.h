@@ -80,7 +80,22 @@ enum efsw_error
 	EFSW_OUTOFSCOPE		= -3,
 	EFSW_NOTREADABLE	= -4,
 	EFSW_REMOTE			= -5,
-	EFSW_UNSPECIFIED	= -6
+	EFSW_WATCHER_FAILED	= -6,
+	EFSW_UNSPECIFIED	= -7
+};
+
+enum efsw_option
+{
+	/// For Windows, the default buffer size of 63*1024 bytes sometimes is not enough and
+	/// file system events may be dropped. For that, using a different (bigger) buffer size
+	/// can be defined here, but note that this does not work for network drives,
+	/// because a buffer larger than 64K will fail the folder being watched, see
+	/// http://msdn.microsoft.com/en-us/library/windows/desktop/aa365465(v=vs.85).aspx)
+	EFSW_OPT_WIN_BUFFER_SIZE = 1,
+	/// For Windows, per default all events are captured but we might only be interested
+	/// in a subset; the value of the option should be set to a bitwise or'ed set of
+	/// FILE_NOTIFY_CHANGE_* flags.
+	EFSW_OPT_WIN_NOTIFY_FILTER = 2
 };
 
 /// Basic interface for listening for file events.
@@ -94,6 +109,11 @@ typedef void (*efsw_pfn_fileaction_callback) (
 		void* param
 );
 
+typedef struct {
+	enum efsw_option option;
+	int value;
+} efsw_watcher_option;
+
 /**
  * Creates a new file-watcher
  * @param generic_mode Force the use of the Generic file watcher
@@ -103,14 +123,23 @@ efsw_watcher EFSW_API efsw_create(int generic_mode);
 /// Release the file-watcher and unwatch any directories
 void EFSW_API efsw_release(efsw_watcher watcher);
 
-/// Retreive last error occured by file-watcher
+/// Retrieve last error occured by file-watcher
 EFSW_API const char* efsw_getlasterror();
 
-/// Add a directory watch. Same as the other addWatch, but doesn't have recursive option.
-/// For backwards compatibility.
+/// Reset file-watcher last error
+EFSW_API void efsw_clearlasterror();
+
+/// Add a directory watch
 /// On error returns WatchID with Error type.
 efsw_watchid EFSW_API efsw_addwatch(efsw_watcher watcher, const char* directory, 
 	efsw_pfn_fileaction_callback callback_fn, int recursive, void* param);
+
+/// Add a directory watch, specifying options
+/// @param options Pointer to an array of watcher options
+/// @param nr_options Number of options referenced by \p options
+efsw_watchid EFSW_API efsw_addwatch_withoptions(efsw_watcher watcher, const char* directory,
+	efsw_pfn_fileaction_callback callback_fn, int recursive, efsw_watcher_option *options,
+	int options_number, void* param);
 
 /// Remove a directory watch. This is a brute force search O(nlogn).
 void EFSW_API efsw_removewatch(efsw_watcher watcher, const char* directory);

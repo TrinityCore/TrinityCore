@@ -148,8 +148,6 @@ public:
                 DoCast(me, SPELL_BERSERK);
                 Berserk = true;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 

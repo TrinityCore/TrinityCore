@@ -72,8 +72,6 @@ struct boss_hazzarah : public BossAI
                 return;
         }
         */
-
-        DoMeleeAttackIfReady();
     }
 };
 

@@ -148,8 +148,6 @@ struct boss_varos : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -194,14 +192,6 @@ struct npc_azure_ring_captain : public ScriptedAI
             target->CastSpell(target, SPELL_SUMMON_ARCANE_BEAM, true);
             me->DespawnOrUnsummon();
         }
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 
     void MovementInform(uint32 type, uint32 id) override

@@ -34,13 +34,13 @@ BossBoundaryData const boundaries =
 
 DoorData const doorData[] =
 {
-    { GO_FIRE_FIELD,          DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE },
-    { GO_FLAME_WALLS,         DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE },
-    { GO_FLAME_WALLS,         DATA_SAVIANA_RAGEFIRE,      DOOR_TYPE_PASSAGE },
-    { GO_FLAME_WALLS,         DATA_GENERAL_ZARITHRIAN,    DOOR_TYPE_ROOM    },
-    { GO_FLAME_RING,          DATA_HALION,                DOOR_TYPE_ROOM    },
-    { GO_TWILIGHT_FLAME_RING, DATA_HALION,                DOOR_TYPE_ROOM    },
-    { 0,                      0,                          DOOR_TYPE_ROOM    } // END
+    { GO_FIRE_FIELD,          DATA_BALTHARUS_THE_WARBORN, EncounterDoorBehavior::OpenWhenDone },
+    { GO_FLAME_WALLS,         DATA_BALTHARUS_THE_WARBORN, EncounterDoorBehavior::OpenWhenDone },
+    { GO_FLAME_WALLS,         DATA_SAVIANA_RAGEFIRE,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_FLAME_WALLS,         DATA_GENERAL_ZARITHRIAN,    EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_FLAME_RING,          DATA_HALION,                EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_TWILIGHT_FLAME_RING, DATA_HALION,                EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                      0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

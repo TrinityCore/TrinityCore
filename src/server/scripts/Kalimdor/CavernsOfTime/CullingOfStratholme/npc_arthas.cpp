@@ -908,8 +908,6 @@ public:
             }
             else
                 _exorcismCooldown -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         void UpdateAI(uint32 diff) override

@@ -156,8 +156,6 @@ struct boss_lieutenant_drake : public BossAI
             DoCastVictim(SPELL_MORTAL_STRIKE);
             MortalStrike_Timer = 20000 + rand32() % 10000;
         } else MortalStrike_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

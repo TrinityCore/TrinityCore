@@ -249,8 +249,6 @@ public:
 
                 uiRadianceTimer = 16000;
             } else uiRadianceTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -406,8 +404,6 @@ public:
 
                 bHealth = true;
             }
-
-            DoMeleeAttackIfReady();
         }
 
         void JustSummoned(Creature* summon) override
@@ -480,8 +476,6 @@ public:
                 }
                 uiShadowPastTimer = 5000;
             }else uiShadowPastTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -588,16 +582,6 @@ public:
 
             Start(false);
             uiWaypoint = uiType;
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            EscortAI::UpdateAI(uiDiff);
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override

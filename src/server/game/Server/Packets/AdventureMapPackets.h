@@ -24,6 +24,27 @@ namespace WorldPackets
 {
     namespace AdventureMap
     {
+        class CheckIsAdventureMapPoiValid final : public ClientPacket
+        {
+        public:
+            CheckIsAdventureMapPoiValid(WorldPacket&& packet) : ClientPacket(CMSG_CHECK_IS_ADVENTURE_MAP_POI_VALID, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 AdventureMapPoiID = 0;
+        };
+
+        class PlayerIsAdventureMapPoiValid final : public ServerPacket
+        {
+        public:
+            PlayerIsAdventureMapPoiValid() : ServerPacket(SMSG_PLAYER_IS_ADVENTURE_MAP_POI_VALID) { }
+
+            WorldPacket const* Write() override;
+
+            int32 AdventureMapPoiID = 0;
+            bool IsVisible = false;
+        };
+
         class AdventureMapStartQuest final : public ClientPacket
         {
         public:

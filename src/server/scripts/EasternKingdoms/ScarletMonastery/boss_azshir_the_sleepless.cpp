@@ -96,8 +96,6 @@ struct boss_azshir_the_sleepless : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

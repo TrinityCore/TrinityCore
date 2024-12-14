@@ -41,7 +41,7 @@ enum class GossipOptionNpc : uint8
     Binder                     = 5,    // Golden interaction wheel
     Banker                     = 6,    // Brown bag (with gold coin in lower corner)
     PetitionVendor             = 7,    // White chat bubble (with "..." inside)
-    TabardVendor               = 8,    // White tabard
+    GuildTabardVendor          = 8,    // White tabard
     Battlemaster               = 9,    // Two crossed swords
     Auctioneer                 = 10,   // Stack of gold coins
     TalentMaster               = 11,   // White chat bubble
@@ -87,6 +87,10 @@ enum class GossipOptionNpc : uint8
     TraitSystem                = 51,
     BarbersChoice              = 52,
     MajorFactionRenown         = 53,
+    PersonalTabardVendor       = 54,
+    ForgeMaster                = 55,
+    CharacterBanker            = 56,
+    AccountBanker              = 57,
 
     Count
 };
@@ -107,8 +111,9 @@ enum class GossipOptionRewardType : uint8
 
 enum class GossipOptionFlags : int32
 {
-    None                = 0x0,
-    QuestLabelPrepend   = 0x1
+    None                    = 0x0,
+    QuestLabelPrepend       = 0x1,
+    HideOptionIDFromClient  = 0x2
 };
 
 struct GossipMenuItem

@@ -167,7 +167,6 @@ struct npc_wrathbone_flayer : public ScriptedAI
                     break;
             }
         }
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -225,8 +224,6 @@ struct npc_angered_soul_fragment : public ScriptedAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:

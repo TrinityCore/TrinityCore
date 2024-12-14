@@ -33,15 +33,15 @@ enum DynamicObjectType
     DYNAMIC_OBJECT_FARSIGHT_FOCUS   = 0x2
 };
 
-class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicObject>, public MapObject
+class TC_GAME_API DynamicObject final : public WorldObject, public GridObject<DynamicObject>, public MapObject
 {
     public:
         DynamicObject(bool isWorldObject);
         ~DynamicObject();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -79,10 +79,11 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         uint32 GetSpellId() const { return m_dynamicObjectData->SpellID; }
         SpellInfo const* GetSpellInfo() const;
         ObjectGuid GetCasterGUID() const { return m_dynamicObjectData->Caster; }
+        ObjectGuid GetCreatorGUID() const override { return GetCasterGUID(); }
         ObjectGuid GetOwnerGUID() const override { return GetCasterGUID(); }
         float GetRadius() const { return m_dynamicObjectData->Radius; }
 
-        UF::UpdateField<UF::DynamicObjectData, 0, TYPEID_DYNAMICOBJECT> m_dynamicObjectData;
+        UF::UpdateField<UF::DynamicObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_DYNAMICOBJECT> m_dynamicObjectData;
 
     protected:
         Aura* _aura;

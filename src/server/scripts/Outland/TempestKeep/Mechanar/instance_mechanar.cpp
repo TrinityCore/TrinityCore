@@ -21,10 +21,10 @@
 
 static DoorData const doorData[] =
 {
-    { GO_DOOR_MOARG_1,          DATA_GATEWATCHER_IRON_HAND,     DOOR_TYPE_PASSAGE },
-    { GO_DOOR_MOARG_2,          DATA_GATEWATCHER_GYROKILL,      DOOR_TYPE_PASSAGE },
-    { GO_DOOR_NETHERMANCER,     DATA_NETHERMANCER_SEPRETHREA,   DOOR_TYPE_ROOM    },
-    { 0,                        0,                              DOOR_TYPE_ROOM    }
+    { GO_DOOR_MOARG_1,          DATA_GATEWATCHER_IRON_HAND,     EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOOR_MOARG_2,          DATA_GATEWATCHER_GYROKILL,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_DOOR_NETHERMANCER,     DATA_NETHERMANCER_SEPRETHREA,   EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                        0,                              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 DungeonEncounterData const encounters[] =

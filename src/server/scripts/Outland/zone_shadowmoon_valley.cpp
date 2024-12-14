@@ -177,14 +177,6 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-
     private:
         ObjectGuid casterGUID;
     };
@@ -333,8 +325,6 @@ public:
             }
             else
                 CastTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -454,8 +444,6 @@ public:
                 }
                 return;
             }
-
-            DoMeleeAttackIfReady();
         }
 
     private:
@@ -876,8 +864,6 @@ public:
                     SpellTimer3 = SpawnCast[8].Timer2 + (rand32() % 7 * 1000);//Spell Reflection
                 } else SpellTimer3 -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* killer) override
@@ -1179,8 +1165,6 @@ public:
                     SpellTimer2 = SpawnCast[5].Timer2 + (rand32() % 7 * 13000);
                 } else SpellTimer2 -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -1433,11 +1417,9 @@ public:
                 }
             }
 
-        if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
-            if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
-                DoCastSelf(SPELL_ENRAGE);
-
-        DoMeleeAttackIfReady();
+            if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
+                if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
+                    DoCastSelf(SPELL_ENRAGE);
         }
 
         void JustDied(Unit* /*killer*/) override

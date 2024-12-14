@@ -148,8 +148,6 @@ struct boss_murmur : public BossAI
 
         if (!me->IsWithinMeleeRange(me->GetVictim()))
             me->GetThreatManager().ResetThreat(me->GetVictim());
-
-        DoMeleeAttackIfReady();
     }
 };
 

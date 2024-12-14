@@ -123,9 +123,9 @@ enum COSMisc
 
 DoorData const doorData[] =
 {
-    { GO_MALGANIS_GATE_2, DATA_MAL_GANIS, DOOR_TYPE_ROOM },
-    { GO_EXIT_GATE,       DATA_MAL_GANIS, DOOR_TYPE_PASSAGE },
-    { 0,                  0,              DOOR_TYPE_ROOM } // END
+    { GO_MALGANIS_GATE_2, DATA_MAL_GANIS, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_EXIT_GATE,       DATA_MAL_GANIS, EncounterDoorBehavior::OpenWhenDone },
+    { 0,                  0,              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 DungeonEncounterData const encounters[] =
@@ -405,8 +405,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 if (player->GetGUID() == guid || !player->IsGameMaster())
                                 {
                                     player->CombatStop(true);
-                                    const float offsetDist = 10;
-                                    float myAngle = rand_norm() * 2.0 * M_PI;
+                                    constexpr float offsetDist = 10.0f;
+                                    float myAngle = rand_norm() * static_cast<float>(2.0f * M_PI);
                                     Position myTarget(target.GetPositionX() + std::sin(myAngle) * offsetDist, target.GetPositionY() + std::sin(myAngle) * offsetDist, target.GetPositionZ(), myAngle + M_PI);
                                     player->NearTeleportTo(myTarget);
                                 }

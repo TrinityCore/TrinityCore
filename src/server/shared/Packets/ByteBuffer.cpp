@@ -21,28 +21,22 @@
 #include "Log.h"
 #include "Util.h"
 #include <utf8.h>
+#include <algorithm>
 #include <sstream>
 #include <cmath>
-#include <ctime>
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())
 {
 }
 
 ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size, size_t valueSize)
+    : ByteBufferException(Trinity::StringFormat("Attempted to get value with size: {} in ByteBuffer (pos: {} size: {})", valueSize, pos, size))
 {
-    std::ostringstream ss;
-
-    ss << "Attempted to get value with size: "
-       << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
-       << ")";
-
-    message().assign(ss.str());
 }
 
-ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, std::string_view value)
+    : ByteBufferException(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value))
 {
-    message().assign(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value));
 }
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
@@ -61,57 +55,47 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
     return *this;
 }
 
-std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
+std::string_view ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
 {
-    std::string value;
-    while (rpos() < size())                         // prevent crash at wrong string format in packet
-    {
-        char c = read<char>();
-        if (c == 0)
-            break;
-        value += c;
-    }
+    if (_rpos >= size())
+        throw ByteBufferPositionException(_rpos, 1, size());
+
+    ResetBitPos();
+
+    char const* begin = reinterpret_cast<char const*>(_storage.data()) + _rpos;
+    char const* end = reinterpret_cast<char const*>(_storage.data()) + size();
+    char const* stringEnd = std::ranges::find(begin, end, '\0');
+    if (stringEnd == end)
+        throw ByteBufferPositionException(size(), 1, size());
+
+    std::string_view value(begin, stringEnd);
+    _rpos += value.length() + 1;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value.c_str());
+        throw ByteBufferInvalidValueException("string", value);
     return value;
 }
 
-std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
+std::string_view ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
 {
     if (_rpos + length > size())
         throw ByteBufferPositionException(_rpos, length, size());
 
     ResetBitPos();
     if (!length)
-        return std::string();
+        return {};
 
-    std::string value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
+    std::string_view value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
     _rpos += length;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value.c_str());
+        throw ByteBufferInvalidValueException("string", value);
     return value;
-}
-
-uint32 ByteBuffer::ReadPackedTime()
-{
-    uint32 packedDate = read<uint32>();
-    tm lt = tm();
-
-    lt.tm_min = packedDate & 0x3F;
-    lt.tm_hour = (packedDate >> 6) & 0x1F;
-    //lt.tm_wday = (packedDate >> 11) & 7;
-    lt.tm_mday = ((packedDate >> 14) & 0x3F) + 1;
-    lt.tm_mon = (packedDate >> 20) & 0xF;
-    lt.tm_year = ((packedDate >> 24) & 0x1F) + 100;
-
-    return uint32(mktime(&lt));
 }
 
 void ByteBuffer::append(uint8 const* src, size_t cnt)
 {
     ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
-    ASSERT(size() < 10000000);
+    ASSERT((size() + cnt) < 100000000);
 
     FlushBits();
 
@@ -132,13 +116,6 @@ void ByteBuffer::append(uint8 const* src, size_t cnt)
         _storage.resize(newSize);
     std::memcpy(&_storage[_wpos], src, cnt);
     _wpos = newSize;
-}
-
-void ByteBuffer::AppendPackedTime(time_t time)
-{
-    tm lt;
-    localtime_r(&time, &lt);
-    append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
 }
 
 void ByteBuffer::put(size_t pos, uint8 const* src, size_t cnt)
@@ -175,7 +152,7 @@ void ByteBuffer::print_storage() const
     o << "STORAGE_SIZE: " << size();
     for (uint32 i = 0; i < size(); ++i)
         o << read<uint8>(i) << " - ";
-    o << " ";
+    o << ' ';
 
     TC_LOG_TRACE("network", "{}", o.str());
 }
@@ -193,7 +170,7 @@ void ByteBuffer::textlike() const
         snprintf(buf, 2, "%c", read<uint8>(i));
         o << buf;
     }
-    o << " ";
+    o << ' ';
     TC_LOG_TRACE("network", "{}", o.str());
 }
 
@@ -210,7 +187,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[4];
-        snprintf(buf, 4, "%2X", read<uint8>(i));
+        snprintf(buf, 4, "%02X", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";
@@ -218,13 +195,13 @@ void ByteBuffer::hexlike() const
         }
         else if (i == (k * 16))
         {
-            o << "\n";
+            o << '\n';
             ++k;
             ++j;
         }
 
         o << buf;
     }
-    o << " ";
+    o << ' ';
     TC_LOG_TRACE("network", "{}", o.str());
 }

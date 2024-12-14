@@ -41,6 +41,7 @@
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
 #    PVP SETTINGS
+#    LOAD SETTINGS
 #
 ###################################################################################################
 
@@ -175,6 +176,7 @@ InstanceServerPort = 8086
 #
 #    BindIP
 #        Description: Bind world server to IP/hostname.
+#                     Using IPv6 address (such as "::") will enable both IPv4 and IPv6 connections
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)
 
 BindIP = "0.0.0.0"
@@ -328,6 +330,15 @@ BaseMapLoadAllGrids = 0
 #                     1 - (Preload all grids in the instance upon load)
 
 InstanceMapLoadAllGrids = 0
+
+#
+#    BattlegroundMapLoadAllGrids
+#        Description: Load all grids for battleground maps upon load.
+#                     Upon loading an battleground map, all creatures/objects in the map will be pre-loaded
+#        Default:     1 - (Preload all grids in the instance upon load)
+#                     0 - (Don't preload all base maps, dynamically load as used)
+
+BattlegroundMapLoadAllGrids = 1
 
 #
 #    SocketTimeOutTime
@@ -699,7 +710,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     9 - (Expansion 9)
+#        Default:     10 - (Expansion 10)
+#                     9 - (Expansion 9)
 #                     8 - (Expansion 8)
 #                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
@@ -710,7 +722,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 9
+Expansion = 10
 
 #
 #    MinPlayerName
@@ -773,7 +785,7 @@ CharacterCreating.Disabled = 0
 #
 #    CharacterCreating.Disabled.RaceMask
 #        Description: Mask of races which cannot be created by players.
-#        Example:     1536 - (1024 + 512, Blood Elf and Draenei races are disabled)
+#        Example:     1536 - (512 + 1024, Blood Elf and Draenei races are disabled)
 #        Default:     0    - (Enabled, All races are allowed)
 #                     1    - (Disabled, Human)
 #                     2    - (Disabled, Orc)
@@ -790,6 +802,10 @@ CharacterCreating.Disabled = 0
 #                     4096 - (Disabled, Vulpera)
 #                     8192 - (Disabled, Maghar Orc)
 #                     16384 - (Disabled, Mechagnome)
+#                     32768 - (Disabled, Dracthyr Horde)
+#                     65536 - (Disabled, Dracthyr Alliance)
+#                     131072 - (Disabled, Earthen Horde)
+#                     262144 - (Disabled, Earthen Alliance)
 #                     2097152 - (Disabled, Worgen)
 #                     8388608 - (Disabled, Pandaren Neutral)
 #                     16777216 - (Disabled, Pandaren Alliance)
@@ -820,6 +836,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     512  - (Disabled, Monk)
 #                     1024 - (Disabled, Druid)
 #                     2048 - (Disabled, Demon Hunter)
+#                     4096 - (Disabled, Evoker)
 
 CharacterCreating.Disabled.ClassMask = 0
 
@@ -888,9 +905,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     70
+#        Default:     80
 
-MaxPlayerLevel = 70
+MaxPlayerLevel = 80
 
 #
 #    MinDualSpecLevel
@@ -927,9 +944,9 @@ StartDemonHunterPlayerLevel = 8
 #    StartEvokerPlayerLevel
 #        Description: Staring level for evokers after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     58
+#        Default:     10
 
-StartEvokerPlayerLevel = 58
+StartEvokerPlayerLevel = 10
 
 #
 #    StartAlliedRacePlayerLevel
@@ -1778,23 +1795,29 @@ CreatureFamilyFleeDelay = 7000
 WorldBossLevelDiff = 3
 
 #
-#    Corpse.Decay.NORMAL
-#    Corpse.Decay.RARE
-#    Corpse.Decay.ELITE
-#    Corpse.Decay.RAREELITE
-#    Corpse.Decay.WORLDBOSS
+#    Corpse.Decay.Normal
+#    Corpse.Decay.Elite
+#    Corpse.Decay.RareElite
+#    Corpse.Decay.Obsolete
+#    Corpse.Decay.Rare
+#    Corpse.Decay.Trivial
+#    Corpse.Decay.MinusMob
 #        Description: Time (in seconds) until creature corpse will decay if not looted or skinned.
-#        Default:     300  - (5 Minutes, Corpse.Decay.NORMAL)
-#                     300  - (5 Minutes, Corpse.Decay.RARE)
-#                     300  - (5 Minutes, Corpse.Decay.ELITE)
-#                     300  - (5 Minutes, Corpse.Decay.RAREELITE)
-#                     3600 - (1 Hour, Corpse.Decay.WORLDBOSS)
+#        Default:     300  - (5 Minutes,   Corpse.Decay.Normal)
+#                     300  - (5 Minutes,   Corpse.Decay.Elite)
+#                     300  - (5 Minutes,   Corpse.Decay.RareElite)
+#                     3600 - (1 Hour,      Corpse.Decay.Obsolete)
+#                     300 -  (5 Minutes,   Corpse.Decay.Rare)
+#                     300 -  (5 Minutes,   Corpse.Decay.Trivial)
+#                     150 -  (2.5 Minutes, Corpse.Decay.MinusMob)
 
-Corpse.Decay.NORMAL    = 300
-Corpse.Decay.RARE      = 300
-Corpse.Decay.ELITE     = 300
-Corpse.Decay.RAREELITE = 300
-Corpse.Decay.WORLDBOSS = 3600
+Corpse.Decay.Normal    = 300
+Corpse.Decay.Elite     = 300
+Corpse.Decay.RareElite = 300
+Corpse.Decay.Obsolete  = 3600
+Corpse.Decay.Rare      = 300
+Corpse.Decay.Trivial   = 300
+Corpse.Decay.MinusMob  = 150
 
 #
 #    Rate.Corpse.Decay.Looted
@@ -1805,62 +1828,79 @@ Corpse.Decay.WORLDBOSS = 3600
 Rate.Corpse.Decay.Looted = 0.5
 
 #
-#    Rate.Creature.Normal.Damage
-#    Rate.Creature.Elite.Elite.Damage
-#    Rate.Creature.Elite.RARE.Damage
-#    Rate.Creature.Elite.RAREELITE.Damage
-#    Rate.Creature.Elite.WORLDBOSS.Damage
+#    Rate.Creature.Damage.Normal
+#    Rate.Creature.Damage.Elite
+#    Rate.Creature.Damage.RareElite
+#    Rate.Creature.Damage.Obsolete
+#    Rate.Creature.Damage.Rare
+#    Rate.Creature.Damage.Trivial
+#    Rate.Creature.Damage.MinusMob
 #        Description: Multiplier for creature melee damage.
-#        Default:     1 - (Rate.Creature.Normal.Damage)
-#                     1 - (Rate.Creature.Elite.Elite.Damage)
-#                     1 - (Rate.Creature.Elite.RARE.Damage)
-#                     1 - (Rate.Creature.Elite.RAREELITE.Damage)
-#                     1 - (Rate.Creature.Elite.WORLDBOSS.Damage)
-#
+#        Default:     1 - (Rate.Creature.Damage.Normal)
+#                     1 - (Rate.Creature.Damage.Elite)
+#                     1 - (Rate.Creature.Damage.RareElite)
+#                     1 - (Rate.Creature.Damage.Obsolete)
+#                     1 - (Rate.Creature.Damage.Rare)
+#                     1 - (Rate.Creature.Damage.Trivial)
+#                     1 - (Rate.Creature.Damage.MinusMob)
 
-Rate.Creature.Normal.Damage          = 1
-Rate.Creature.Elite.Elite.Damage     = 1
-Rate.Creature.Elite.RARE.Damage      = 1
-Rate.Creature.Elite.RAREELITE.Damage = 1
-Rate.Creature.Elite.WORLDBOSS.Damage = 1
+Rate.Creature.Damage.Normal    = 1
+Rate.Creature.Damage.Elite     = 1
+Rate.Creature.Damage.RareElite = 1
+Rate.Creature.Damage.Obsolete  = 1
+Rate.Creature.Damage.Rare      = 1
+Rate.Creature.Damage.Trivial   = 1
+Rate.Creature.Damage.MinusMob  = 1
 
 #
-#    Rate.Creature.Normal.SpellDamage
-#    Rate.Creature.Elite.Elite.SpellDamage
-#    Rate.Creature.Elite.RARE.SpellDamage
-#    Rate.Creature.Elite.RAREELITE.SpellDamage
-#    Rate.Creature.Elite.WORLDBOSS.SpellDamage
+#    Rate.Creature.SpellDamage.Normal
+#    Rate.Creature.SpellDamage.Elite
+#    Rate.Creature.SpellDamage.RareElite
+#    Rate.Creature.SpellDamage.Obsolete
+#    Rate.Creature.SpellDamage.Rare
+#    Rate.Creature.SpellDamage.Trivial
+#    Rate.Creature.SpellDamage.MinusMob
 #        Description: Multiplier for creature spell damage.
-#        Default:     1 - (Rate.Creature.Normal.SpellDamage)
-#                     1 - (Rate.Creature.Elite.Elite.SpellDamage)
-#                     1 - (Rate.Creature.Elite.RARE.SpellDamage)
-#                     1 - (Rate.Creature.Elite.RAREELITE.SpellDamage)
-#                     1 - (Rate.Creature.Elite.WORLDBOSS.SpellDamage)
+#        Default:     1 - (Rate.Creature.SpellDamage.Normal)
+#                     1 - (Rate.Creature.SpellDamage.Elite)
+#                     1 - (Rate.Creature.SpellDamage.RareElite)
+#                     1 - (Rate.Creature.SpellDamage.Obsolete)
+#                     1 - (Rate.Creature.SpellDamage.Rare)
+#                     1 - (Rate.Creature.SpellDamage.Trivial)
+#                     1 - (Rate.Creature.SpellDamage.MinusMob)
 
-Rate.Creature.Normal.SpellDamage          = 1
-Rate.Creature.Elite.Elite.SpellDamage     = 1
-Rate.Creature.Elite.RARE.SpellDamage      = 1
-Rate.Creature.Elite.RAREELITE.SpellDamage = 1
-Rate.Creature.Elite.WORLDBOSS.SpellDamage = 1
+Rate.Creature.SpellDamage.Normal    = 1
+Rate.Creature.SpellDamage.Elite     = 1
+Rate.Creature.SpellDamage.RareElite = 1
+Rate.Creature.SpellDamage.Obsolete  = 1
+Rate.Creature.SpellDamage.Rare      = 1
+Rate.Creature.SpellDamage.Trivial   = 1
+Rate.Creature.SpellDamage.MinusMob  = 1
 
 #
-#    Rate.Creature.Normal.HP
-#    Rate.Creature.Elite.Elite.HP
-#    Rate.Creature.Elite.RARE.HP
-#    Rate.Creature.Elite.RAREELITE.HP
-#    Rate.Creature.Elite.WORLDBOSS.HP
-#        Description: Multiplier for creature health.
-#        Default:     1 - (Rate.Creature.Normal.HP)
-#                     1 - (Rate.Creature.Elite.Elite.HP)
-#                     1 - (Rate.Creature.Elite.RARE.HP)
-#                     1 - (Rate.Creature.Elite.RAREELITE.HP)
-#                     1 - (Rate.Creature.Elite.WORLDBOSS.HP)
+#    Rate.Creature.HP.Normal
+#    Rate.Creature.HP.Elite
+#    Rate.Creature.HP.RareElite
+#    Rate.Creature.HP.Obsolete
+#    Rate.Creature.HP.Rare
+#    Rate.Creature.HP.Trivial
+#    Rate.Creature.HP.MinusMob
+#        Description: Multiplier for creature spell damage.
+#        Default:     1 - (Rate.Creature.HP.Normal)
+#                     1 - (Rate.Creature.HP.Elite)
+#                     1 - (Rate.Creature.HP.RareElite)
+#                     1 - (Rate.Creature.HP.Obsolete)
+#                     1 - (Rate.Creature.HP.Rare)
+#                     1 - (Rate.Creature.HP.Trivial)
+#                     1 - (Rate.Creature.HP.MinusMob)
 
-Rate.Creature.Normal.HP          = 1
-Rate.Creature.Elite.Elite.HP     = 1
-Rate.Creature.Elite.RARE.HP      = 1
-Rate.Creature.Elite.RAREELITE.HP = 1
-Rate.Creature.Elite.WORLDBOSS.HP = 1
+Rate.Creature.HP.Normal    = 1
+Rate.Creature.HP.Elite     = 1
+Rate.Creature.HP.RareElite = 1
+Rate.Creature.HP.Obsolete  = 1
+Rate.Creature.HP.Rare      = 1
+Rate.Creature.HP.Trivial   = 1
+Rate.Creature.HP.MinusMob  = 1
 
 #
 #    Creature.PickPocketRefillDelay
@@ -3523,6 +3563,14 @@ Creature.CheckInvalidPosition = 0
 GameObject.CheckInvalidPosition = 0
 
 #
+#     Loot.EnableAELoot
+#        Description: Enables AE loot which will allow looting all creatures within a 30 yards radius at once
+#        Default:     1  - (AE loot enabled)
+#                     0  - (AE loot disabled)
+
+Loot.EnableAELoot = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -4351,7 +4399,6 @@ Metric.OverallStatusInterval = 1
 ###################################################################################################
 # PVP SETTINGS
 #
-#
 #    Pvp.FactionBalance.LevelCheckDiff
 #        Description: The amount of levels below the maximum level that accounts people for faction balance.
 #                     That is, if max level is 60 and this has a value of 5, all players that are level 55 and above (including) will be included in the check
@@ -4381,6 +4428,21 @@ Pvp.FactionBalance.Pct10 = 0.7
 #        Default:     0.8
 
 Pvp.FactionBalance.Pct20 = 0.8
+
+#
+###################################################################################################
+
+###################################################################################################
+# LOAD SETTINGS
+#
+# These settings control content loading
+#
+#    Load.Locales
+#        Description: Toggles the loading of Locales.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Load.Locales = 1
 
 #
 ###################################################################################################

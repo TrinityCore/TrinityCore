@@ -49,7 +49,7 @@ namespace Trinity
     {
         Player &i_player;
         UpdateData i_data;
-        std::set<Unit*> i_visibleNow;
+        std::set<WorldObject*> i_visibleNow;
         GuidUnorderedSet vis_guids;
 
         VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) { }
@@ -1010,7 +1010,7 @@ namespace Trinity
                 if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
-                if (!u->IsInMap(i_obj) || !u->InSamePhase(i_obj) || !u->IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius))
+                if (!u->IsInMap(i_obj) || !u->InSamePhase(i_obj) || !u->IsWithinVerticalCylinder(*i_obj, searchRadius, searchRadius, true))
                     return false;
 
                 if (!i_funit->IsFriendlyTo(u))
@@ -1059,7 +1059,7 @@ namespace Trinity
                 if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
-                return u->IsInMap(_source) && u->InSamePhase(_source) && u->IsWithinDoubleVerticalCylinder(_source, searchRadius, searchRadius);
+                return u->IsInMap(_source) && u->InSamePhase(_source) && u->IsWithinVerticalCylinder(*_source, searchRadius, searchRadius, true);
             }
 
         private:
@@ -1075,20 +1075,24 @@ namespace Trinity
     class AnyUnitInObjectRangeCheck
     {
         public:
-            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range, bool check3D = true) : i_obj(obj), i_range(range), i_check3D(check3D) { }
+            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range, bool check3D = true, bool reqAlive = true) : i_obj(obj), i_range(range), i_check3D(check3D), i_reqAlive(reqAlive) { }
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDist(u, i_range, i_check3D))
-                    return true;
+                if (i_reqAlive && !u->IsAlive())
+                    return false;
 
-                return false;
+                if (!i_obj->IsWithinDist(u, i_range, i_check3D))
+                    return false;
+
+                return true;
             }
 
         private:
             WorldObject const* i_obj;
             float i_range;
             bool i_check3D;
+            bool i_reqAlive;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
@@ -1155,7 +1159,7 @@ namespace Trinity
                 if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
-                return u->IsInMap(i_obj) && u->InSamePhase(i_obj) && u->IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius);
+                return u->IsInMap(i_obj) && u->InSamePhase(i_obj) && u->IsWithinVerticalCylinder(*i_obj, searchRadius, searchRadius, true);
             }
 
         private:

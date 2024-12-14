@@ -239,8 +239,6 @@ class boss_selin_fireheart : public CreatureScript
                             events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, 20s, 25s, 0, PHASE_NORMAL);
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

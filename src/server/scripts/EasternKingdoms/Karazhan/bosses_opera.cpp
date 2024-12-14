@@ -229,8 +229,6 @@ public:
                     SummonTito();
                 else SummonTitoTimer -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -291,8 +289,6 @@ public:
                 DoCastVictim(SPELL_YIPPING);
                 YipTimer = 10000;
             } else YipTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -423,8 +419,6 @@ public:
                     DoCast(target, SPELL_BRAIN_WIPE);
                 BrainWipeTimer = 20000;
             } else BrainWipeTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -538,8 +532,6 @@ public:
                     RustTimer = 6000;
                 } else RustTimer -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -652,8 +644,6 @@ public:
                 DoCastVictim(SPELL_FRIGHTENED_SCREAM);
                 ScreamTimer = urand(20000, 30000);
             } else ScreamTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -737,8 +727,6 @@ public:
                 DoCastVictim(SPELL_CHAIN_LIGHTNING);
                 ChainLightningTimer = 15000;
             } else ChainLightningTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -913,8 +901,6 @@ public:
         {
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
 
             if (ChaseTimer <= diff)
             {
@@ -1358,8 +1344,6 @@ public:
                 DoCastVictim(SPELL_POISON_THRUST);
                 PoisonThrustTimer = urand(10000, 20000);
             } else PoisonThrustTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -1480,8 +1464,6 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
 
         EternalAffectionTimer = urand(45000, 60000);
     } else EternalAffectionTimer -= diff;
-
-    DoMeleeAttackIfReady();
 }
 
 void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)

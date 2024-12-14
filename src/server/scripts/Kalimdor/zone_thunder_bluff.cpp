@@ -124,8 +124,6 @@ public:
                 DoCastVictim(SPELL_CLEAVE);
                 CleaveTimer = 7000;
             } else CleaveTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override

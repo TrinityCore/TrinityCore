@@ -382,6 +382,7 @@ enum CharacterDatabaseStatements : uint32
     CHAR_UPD_GROUP_DIFFICULTY,
     CHAR_UPD_GROUP_RAID_DIFFICULTY,
     CHAR_UPD_GROUP_LEGACY_RAID_DIFFICULTY,
+    CHAR_UPD_GROUP_PING_RESTRICTION,
     CHAR_DEL_INVALID_SPELL_SPELLS,
     CHAR_UPD_DELETE_INFO,
     CHAR_UPD_RESTORE_DELETE_INFO,
@@ -653,9 +654,7 @@ class TC_DATABASE_API CharacterDatabaseConnection : public MySQLConnection
 public:
     typedef CharacterDatabaseStatements Statements;
 
-    //- Constructors for sync and async connections
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
-    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~CharacterDatabaseConnection();
 
     //- Loads database type specific prepared statements

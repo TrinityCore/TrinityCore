@@ -17,29 +17,41 @@
 
 #include "BattlenetAccountMgr.h"
 #include "AccountMgr.h"
-#include "CryptoHash.h"
 #include "DatabaseEnv.h"
+#include "SRP6.h"
 #include "Util.h"
 
 using GameAccountMgr = AccountMgr;
+using BnetSRP6_OLD = Trinity::Crypto::SRP::BnetSRP6v1<Trinity::Crypto::SHA256>;
+using BnetSRP6 = Trinity::Crypto::SRP::BnetSRP6v2<Trinity::Crypto::SHA256>;
+
+enum class SrpVersion : int8
+{
+    v1 = 1, // password length limit 16 characters, case-insensitive, uses SHA256 to generate verifier
+    v2 = 2  // password length limit 128 characters, case-sensitive, uses PBKDF2 with SHA512 to generate verifier
+};
 
 AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount, std::string* gameAccountName)
 {
     if (utf8length(email) > MAX_BNET_EMAIL_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
 
-    if (utf8length(password) > MAX_PASS_STR)
+    if (utf8length(password) > MAX_BNET_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
     Utf8ToUpperOnlyLatin(email);
-    Utf8ToUpperOnlyLatin(password);
 
     if (GetId(email))
         return AccountOpResult::AOR_NAME_ALREADY_EXIST;
 
+    std::string srpUsername = GetSrpUsername(email);
+    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData<BnetSRP6>(srpUsername, password);
+
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
     stmt->setString(0, email);
-    stmt->setString(1, CalculateShaPassHash(email, password));
+    stmt->setInt8(1, AsUnderlyingType(SrpVersion::v2));
+    stmt->setBinary(2, salt);
+    stmt->setBinary(3, verifier);
     LoginDatabase.DirectExecute(stmt);
 
     uint32 newAccountId = GetId(email);
@@ -48,7 +60,9 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     if (withGameAccount)
     {
         *gameAccountName = std::to_string(newAccountId) + "#1";
-        GameAccountMgr::instance()->CreateAccount(*gameAccountName, password, email, newAccountId, 1);
+        std::string gameAccountPassword = password.substr(0, MAX_PASS_STR);
+        Utf8ToUpperOnlyLatin(gameAccountPassword);
+        GameAccountMgr::instance()->CreateAccount(*gameAccountName, gameAccountPassword, email, newAccountId, 1);
     }
 
     return AccountOpResult::AOR_OK;
@@ -60,14 +74,17 @@ AccountOpResult Battlenet::AccountMgr::ChangePassword(uint32 accountId, std::str
     if (!GetName(accountId, username))
         return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
 
-    Utf8ToUpperOnlyLatin(username);
-    Utf8ToUpperOnlyLatin(newPassword);
-    if (utf8length(newPassword) > MAX_PASS_STR)
+    if (utf8length(newPassword) > MAX_BNET_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_PASSWORD);
-    stmt->setString(0, CalculateShaPassHash(username, newPassword));
-    stmt->setUInt32(1, accountId);
+    std::string srpUsername = GetSrpUsername(username);
+    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData<BnetSRP6>(srpUsername, newPassword);
+
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LOGON);
+    stmt->setInt8(0, AsUnderlyingType(SrpVersion::v2));
+    stmt->setBinary(1, salt);
+    stmt->setBinary(2, verifier);
+    stmt->setUInt32(3, accountId);
     LoginDatabase.Execute(stmt);
 
     return AccountOpResult::AOR_OK;
@@ -80,14 +97,26 @@ bool Battlenet::AccountMgr::CheckPassword(uint32 accountId, std::string password
     if (!GetName(accountId, username))
         return false;
 
-    Utf8ToUpperOnlyLatin(username);
-    Utf8ToUpperOnlyLatin(password);
-
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHECK_PASSWORD);
     stmt->setUInt32(0, accountId);
-    stmt->setString(1, CalculateShaPassHash(username, password));
 
-    return LoginDatabase.Query(stmt) != nullptr;
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+    {
+        Trinity::Crypto::SRP::Salt salt = (*result)[1].GetBinary<Trinity::Crypto::SRP::SALT_LENGTH>();
+        Trinity::Crypto::SRP::Verifier verifier = (*result)[2].GetBinary();
+        switch (SrpVersion((*result)[0].GetInt8()))
+        {
+            case SrpVersion::v1:
+                Utf8ToUpperOnlyLatin(password);
+                return BnetSRP6_OLD(username, salt, verifier).CheckCredentials(username, password);
+            case SrpVersion::v2:
+                return BnetSRP6(username, salt, verifier).CheckCredentials(username, password);
+            default:
+                break;
+        }
+    }
+
+    return false;
 }
 
 AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string_view email, std::string_view gameAccountName)
@@ -179,17 +208,8 @@ uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 accountId)
     return 0;
 }
 
-std::string Battlenet::AccountMgr::CalculateShaPassHash(std::string_view name, std::string_view password)
+std::string Battlenet::AccountMgr::GetSrpUsername(std::string name)
 {
-    Trinity::Crypto::SHA256 email;
-    email.UpdateData(name);
-    email.Finalize();
-
-    Trinity::Crypto::SHA256 sha;
-    sha.UpdateData(ByteArrayToHexStr(email.GetDigest()));
-    sha.UpdateData(":");
-    sha.UpdateData(password);
-    sha.Finalize();
-
-    return ByteArrayToHexStr(sha.GetDigest(), true);
+    Utf8ToUpperOnlyLatin(name);
+    return ByteArrayToHexStr(Trinity::Crypto::SHA256::GetDigestOf(name));
 }

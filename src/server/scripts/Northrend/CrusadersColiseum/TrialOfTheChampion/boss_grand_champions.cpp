@@ -296,8 +296,6 @@ public:
                 }
                 uiShieldBreakerTimer = 7000;
             }else uiShieldBreakerTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -429,8 +427,6 @@ public:
                 DoCastVictim(SPELL_MORTAL_STRIKE);
                 uiMortalStrikeTimer = urand(8000, 12000);
             } else uiMortalStrikeTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -573,8 +569,6 @@ public:
                 DoCast(me, SPELL_HASTE);
                 uiHasteTimer = 22000;
             } else uiHasteTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -725,8 +719,6 @@ public:
 
                 uiHexMendingTimer = urand(20000, 25000);
             } else uiHexMendingTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -886,8 +878,6 @@ public:
                 }
                 bShoot = false;
             } else uiMultiShotTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -1012,8 +1002,6 @@ public:
                     DoCast(target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override

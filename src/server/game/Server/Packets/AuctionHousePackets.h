@@ -45,7 +45,7 @@ namespace WorldPackets
             uint32 ItemID = 0;
             uint16 ItemLevel = 0;
             Optional<uint16> BattlePetSpeciesID;
-            Optional<uint16> SuffixItemNameDescriptionID;
+            Optional<uint16> ItemSuffix;
         };
 
         struct AuctionListFilterSubClass
@@ -100,7 +100,7 @@ namespace WorldPackets
             Optional<uint8> MaxBattlePetQuality;
             Optional<uint8> MaxBattlePetLevel;
             Optional<uint8> BattlePetBreedID;
-            Optional<uint32> Unk901_1;
+            Optional<uint32> BattlePetLevelMask;
             bool ContainsOwnerItem = false;
             bool ContainsOnlyCollectedAppearances = false;
         };
@@ -157,6 +157,7 @@ namespace WorldPackets
             AuctionHouseFilterMask Filters = AuctionHouseFilterMask(0);
             std::vector<uint8> KnownPets; // size checked separately in Read()
             int8 MaxPetLevel = 0;
+            uint32 Unused1026 = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
             std::string Name;
             Array<AuctionListFilterClass, 7> ItemClassFilters;
@@ -306,14 +307,6 @@ namespace WorldPackets
             uint32 ChangeNumberTombstone = 0;
             uint32 Count = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
-        };
-
-        class AuctionRequestFavoriteList final : public ClientPacket
-        {
-        public:
-            AuctionRequestFavoriteList(WorldPacket&& packet) : ClientPacket(CMSG_AUCTION_REQUEST_FAVORITE_LIST, std::move(packet)) { }
-
-            void Read() override { }
         };
 
         class AuctionSellCommodity final : public ClientPacket

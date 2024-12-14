@@ -25,10 +25,10 @@
 
 DoorData const doorData[] =
 {
-    { GO_VOLKHAN_DOOR, DATA_VOLKHAN, DOOR_TYPE_PASSAGE },
-    { GO_IONAR_DOOR,   DATA_IONAR,   DOOR_TYPE_PASSAGE },
-    { GO_LOKEN_DOOR,   DATA_LOKEN,   DOOR_TYPE_PASSAGE },
-    { 0,               0,            DOOR_TYPE_ROOM    } // END
+    { GO_VOLKHAN_DOOR, DATA_VOLKHAN, EncounterDoorBehavior::OpenWhenDone },
+    { GO_IONAR_DOOR,   DATA_IONAR,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_LOKEN_DOOR,   DATA_LOKEN,   EncounterDoorBehavior::OpenWhenDone },
+    { 0,               0,            EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

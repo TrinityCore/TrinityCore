@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "CharmInfo.h"
 #include "CombatAI.h"
 #include "Containers.h"
 #include "CreatureTextMgr.h"
@@ -251,8 +252,7 @@ public:
                     ResetFlagTimer -= diff;
             }
 
-            if (UpdateVictim())
-                DoMeleeAttackIfReady();
+            UpdateVictim();
         }
 
         void ReceiveEmote(Player* player, uint32 emote) override
@@ -1005,7 +1005,7 @@ public:
 
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             // expect database to have RegenHealth=0
-            me->SetHealth(me->CountPctFromMaxHealth(70));
+            me->SetSpawnHealth();
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -2069,12 +2069,14 @@ public:
 
                 if (owner->HasAchieved(ACHIEVEMENT_PONY_UP) && !me->HasAura(SPELL_AURA_TIRED_S) && !me->HasAura(SPELL_AURA_TIRED_G))
                 {
-                    me->SetNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+                    me->SetVendor(UNIT_NPC_FLAG_VENDOR, true);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX);
                     return;
                 }
             }
 
-            me->RemoveNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+            me->SetVendor(UNIT_NPC_FLAG_VENDOR_MASK, false);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX);
         }
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -2083,7 +2085,8 @@ public:
             {
                 case GOSSIP_OPTION_BANK:
                 {
-                    me->RemoveNpcFlag(UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+                    me->SetVendor(UNIT_NPC_FLAG_VENDOR_MASK, false);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_MAILBOX);
                     uint32 _bankAura = IsArgentSquire() ? SPELL_AURA_BANK_S : SPELL_AURA_BANK_G;
                     if (!me->HasAura(_bankAura))
                         DoCastSelf(_bankAura);
@@ -2105,7 +2108,8 @@ public:
                 }
                 case GOSSIP_OPTION_MAIL:
                 {
-                    me->RemoveNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_VENDOR);
+                    me->SetVendor(UNIT_NPC_FLAG_VENDOR_MASK, false);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_BANKER);
                     uint32 _mailAura = IsArgentSquire() ? SPELL_AURA_POSTMAN_S : SPELL_AURA_POSTMAN_G;
                     if (!me->HasAura(_mailAura))
                         DoCastSelf(_mailAura);

@@ -15,6 +15,565 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "Containers.h"
+#include "Conversation.h"
+#include "CreatureAIImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PhasingHandler.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+
+namespace StormwindCity
+{
+    namespace Spells
+    {
+        static constexpr uint32 MOPAllianceIntroMoviePlay = 130805;
+        static constexpr uint32 FadeToBlack               = 130411;
+    }
+}
+
+enum TidesOfWarData
+{
+    QUEST_TIDES_OF_WAR                      = 46727,
+
+    QUEST_OBJECTIVE_ATTEND_COUNCIL          = 337817,
+
+    MOVIE_POST_TIDES_OF_WAR                 = 858,
+
+    NPC_JAINA_TIDES_OF_WAR                  = 120590,
+    NPC_ANDUIN_TIDES_OF_WAR                 = 120756,
+    NPC_VISION_OF_SAILORS_MEMORY            = 139645,
+
+    SPELL_JAINA_ARCANE_CHANNEL              = 54219,
+    SPELL_CONVO_POST_MOVIE_TIDES_OF_WAR     = 281343,
+
+    CONVERSATION_START_COUNCIL_TIDES_OF_WAR = 4857,
+
+    PATH_JAINA_VISION_START                 = 12059000,
+    PATH_JAINA_VISION_FINISH                = 12059001
+};
+
+enum NationOfKulTirasData
+{
+    QUEST_NATION_OF_KULTIRAS            = 46728,
+    QUEST_NATION_OF_KULTIRAS_NPE        = 59641,
+    QUEST_OUT_LIKE_FLYNN                = 47098,
+    QUEST_DAUGHTER_OF_THE_SEA           = 51341,
+
+    SAY_JAINA_LEAVE_COUNCIL             = 0,
+
+    SPELL_JAINA_TELEPORT                = 40163,
+    SPELL_SKIP_KULTIRAS_INTRO           = 279998,
+    SPELL_SKIP_TOLDAGOR_TELEPORT        = 247285,
+
+    CONVERSATION_JAINA_LEAVE_COUNCIL    = 4896,
+
+    ACTION_JAINA_LEAVE_COUNCIL          = 1,
+
+    GOSSIP_MENU_NATION_OF_KULTIRAS      = 22328,
+
+    GOSSIP_OPTION_START_KULTIRAS_INTRO  = 0,
+    GOSSIP_OPTION_SKIP_KULTIRAS_INTRO   = 1
+};
+
+// 55 - Stormwind Keep - Tides of War
+struct at_stormwind_keep_tides_of_war : AreaTriggerAI
+{
+    at_stormwind_keep_tides_of_war(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_TIDES_OF_WAR) != QUEST_STATUS_INCOMPLETE)
+            return;
+
+        // @TODO: cooldown after generic impl
+
+        Conversation::CreateConversation(CONVERSATION_START_COUNCIL_TIDES_OF_WAR, unit, unit->GetPosition(), unit->GetGUID(), nullptr, false);
+    }
+};
+
+Position const VisionOfSailorsMemoryPosition = { -8384.131f, 324.383f, 148.443f, 1.559973f };
+
+// 4857 - Conversation
+class conversation_start_council_tides_of_war : public ConversationScript
+{
+public:
+    conversation_start_council_tides_of_war() : ConversationScript("conversation_start_council_tides_of_war") { }
+
+    enum Events
+    {
+        EVENT_JAINA_WALK            = 1,
+        EVENT_KILL_CREDIT
+    };
+
+    enum ConversatonData
+    {
+        CONVO_ACTOR_JAINA           = 467,
+
+        CONVO_LINE_JAINA_WALK       = 19485,
+        CONVO_LINE_JAINA_CREDIT     = 19486,
+    };
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* jainaObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true });
+        if (!jainaObject)
+            return;
+
+        TempSummon* jainaClone = jainaObject->SummonPersonalClone(jainaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!jainaClone)
+            return;
+
+        conversation->AddActor(CONVO_ACTOR_JAINA, 3, jainaClone->GetGUID());
+        conversation->Start();
+    }
+
+    void OnConversationStart(Conversation* conversation) override
+    {
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+
+        if (Milliseconds const* jainaWalkStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_JAINA_WALK))
+            _events.ScheduleEvent(EVENT_JAINA_WALK, *jainaWalkStartTime);
+
+        _events.ScheduleEvent(EVENT_KILL_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_JAINA_CREDIT));
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_JAINA_WALK:
+            {
+                Creature* jainaClone = conversation->GetActorCreature(3);
+                if (!jainaClone)
+                    break;
+
+                jainaClone->GetMotionMaster()->MovePath(PATH_JAINA_VISION_START, false);
+                break;
+            }
+            case EVENT_KILL_CREDIT:
+            {
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                if (!privateObjectOwner)
+                    break;
+
+                Player* player = privateObjectOwner->ToPlayer();
+                if (!player)
+                    break;
+
+                player->KilledMonsterCredit(NPC_ANDUIN_TIDES_OF_WAR);
+                privateObjectOwner->SummonCreature(NPC_VISION_OF_SAILORS_MEMORY, VisionOfSailorsMemoryPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, privateObjectOwner->GetGUID());
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// 120590 - Jaina Proudmoore
+struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
+{
+    npc_jaina_proudmoore_tides_of_war(Creature* creature) : ScriptedAI(creature) { }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        if (menuId == GOSSIP_MENU_NATION_OF_KULTIRAS)
+        {
+            if (gossipListId == GOSSIP_OPTION_START_KULTIRAS_INTRO)
+            {
+                CloseGossipMenuFor(player);
+                // @TODO: script start of TolDagor intro
+            }
+            else if (gossipListId == GOSSIP_OPTION_SKIP_KULTIRAS_INTRO)
+            {
+                CloseGossipMenuFor(player);
+                player->CastSpell(nullptr, SPELL_SKIP_KULTIRAS_INTRO, false);
+            }
+        }
+        return true;
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_JAINA_VISION_START)
+        {
+            me->SetFacingTo(5.1164f);
+            DoCastAOE(SPELL_JAINA_ARCANE_CHANNEL);
+
+            _scheduler.Schedule(14s, [this](TaskContext /*context*/)
+            {
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                me->GetMotionMaster()->MovePath(PATH_JAINA_VISION_FINISH, false);
+            });
+        }
+        else if (pathId == PATH_JAINA_VISION_FINISH)
+            me->DespawnOrUnsummon();
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_JAINA_LEAVE_COUNCIL)
+        {
+            _scheduler.Schedule(1s, [this](TaskContext task)
+            {
+                Talk(SAY_JAINA_LEAVE_COUNCIL, me);
+                task.Schedule(4s, [this](TaskContext task)
+                {
+                    DoCastSelf(SPELL_JAINA_TELEPORT);
+                    task.Schedule(2s, [this](TaskContext /*task*/)
+                    {
+                        Unit* privateObjectOwner = ObjectAccessor::GetUnit(*me, me->GetPrivateObjectOwner());
+                        if (!privateObjectOwner)
+                            return;
+
+                        Conversation::CreateConversation(CONVERSATION_JAINA_LEAVE_COUNCIL, privateObjectOwner, *privateObjectOwner, privateObjectOwner->GetGUID(), nullptr, true);
+                        me->DespawnOrUnsummon();
+                    });
+                });
+            });
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 858 - Movie
+class player_conv_after_movie_tides_of_war : public PlayerScript
+{
+public:
+    player_conv_after_movie_tides_of_war() : PlayerScript("player_conv_after_movie_tides_of_war") { }
+
+    void OnMovieComplete(Player* player, uint32 movieId) override
+    {
+        if (movieId == MOVIE_POST_TIDES_OF_WAR)
+        {
+            Creature* jainaClone = GetClosestCreatureWithOptions(player, 30.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() });
+            if (!jainaClone)
+                return;
+
+            jainaClone->DespawnOrUnsummon();
+            player->CastSpell(player, SPELL_CONVO_POST_MOVIE_TIDES_OF_WAR, true);
+        }
+    }
+};
+
+// 284807 - Despawn
+class spell_despawn_sailor_memory : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitUnit()->ToCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_despawn_sailor_memory::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 120756 - Anduin Wrynn
+struct npc_anduin_wrynn_nation_of_kultiras : public ScriptedAI
+{
+    npc_anduin_wrynn_nation_of_kultiras(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_NATION_OF_KULTIRAS)
+        {
+            PhasingHandler::OnConditionChange(player);
+
+            Creature* jainaObject = GetClosestCreatureWithOptions(player, 15.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true });
+            if (!jainaObject)
+                return;
+
+            TempSummon* jainaClone = jainaObject->SummonPersonalClone(jainaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->ToPlayer());
+            if (!jainaClone)
+                return;
+
+            jainaClone->AI()->DoAction(ACTION_JAINA_LEAVE_COUNCIL);
+        }
+    }
+};
+
+// 279998 - Kul Tiras: Skip Intro
+class spell_kultiras_skip_intro : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            player->CastSpell(nullptr, SPELL_SKIP_TOLDAGOR_TELEPORT, false);
+            player->SkipQuests({ QUEST_NATION_OF_KULTIRAS, QUEST_NATION_OF_KULTIRAS_NPE, QUEST_OUT_LIKE_FLYNN, QUEST_DAUGHTER_OF_THE_SEA });
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_kultiras_skip_intro::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum AncientCursesData
+{
+    QUEST_ANCIENT_CURSES            = 75891,
+
+    NPC_ARKONARIN_STARSHADE         = 207353,
+    NPC_LYSANDER_STARSHADE          = 202700,
+
+    DISPLAY_ID_STARSHADE_MOUNT      = 63626,
+
+    CONVERSATION_ANCIENT_CURSES     = 22025,
+
+    POINT_LYSANDER_STEP_TO_DOOR     = 1,
+
+    PATH_ARKONARIN_WALK_TO_MOUNT_UP = 20735300,
+    PATH_ARKONARIN_FLY_TO_FELWOOD   = 20735301,
+    PATH_LYSANDER_WALK_TO_MOUNT_UP  = 20270001,
+    PATH_LYSANDER_FLY_TO_FELWOOD    = 20270002
+};
+
+Position const LysanderWalkToTheDoor = { -8051.493f, 820.21704f, 68.30904f };
+
+// 207353 - Arko'narin Starshade
+struct npc_arkonarin_starshade_ancient_curses : public ScriptedAI
+{
+    npc_arkonarin_starshade_ancient_curses(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_ANCIENT_CURSES)
+        {
+            PhasingHandler::OnConditionChange(player);
+            Conversation::CreateConversation(CONVERSATION_ANCIENT_CURSES, player, *player, player->GetGUID(), nullptr, false);
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_ARKONARIN_WALK_TO_MOUNT_UP)
+        {
+            me->SetDisableGravity(true, true);
+            me->SetMountDisplayId(DISPLAY_ID_STARSHADE_MOUNT);
+            _scheduler.Schedule(2s + 500ms, [this](TaskContext /*context*/)
+            {
+                me->GetMotionMaster()->MovePath(PATH_ARKONARIN_FLY_TO_FELWOOD, false);
+                me->DespawnOrUnsummon(5s);
+            });
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 202700 - Lysander Starshade
+struct npc_lysande_starshade_ancient_curses : public ScriptedAI
+{
+    npc_lysande_starshade_ancient_curses(Creature* creature) : ScriptedAI(creature) { }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_LYSANDER_WALK_TO_MOUNT_UP)
+        {
+            me->SetDisableGravity(true, true);
+            me->SetMountDisplayId(DISPLAY_ID_STARSHADE_MOUNT);
+            _scheduler.Schedule(2s + 500ms, [this](TaskContext /*context*/)
+            {
+                me->GetMotionMaster()->MovePath(PATH_LYSANDER_FLY_TO_FELWOOD, false);
+                me->DespawnOrUnsummon(5s);
+            });
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 22025 - Conversation
+class conversation_quest_ancient_curses_accept : public ConversationScript
+{
+public:
+    conversation_quest_ancient_curses_accept() : ConversationScript("conversation_quest_ancient_curses_accept") { }
+
+    enum AncientCursesConversationEvents
+    {
+        EVENT_ARKONARIN_START_PATH      = 1,
+        EVENT_LYSANDER_START_PATH       = 2
+    };
+
+    enum AncientCursesConversationData
+    {
+        CONVO_LINE_ARKONARIN_START_PATH = 58685,
+        CONVO_LINE_LYSANDER_START_PATH  = 60113,
+    };
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* arkonarinObject = GetClosestCreatureWithOptions(creator, 20.0f, { .CreatureId = NPC_ARKONARIN_STARSHADE, .IgnorePhases = true });
+        Creature* lysanderObject = GetClosestCreatureWithOptions(creator, 20.0f, { .CreatureId = NPC_LYSANDER_STARSHADE, .IgnorePhases = true });
+        if (!arkonarinObject || !lysanderObject)
+            return;
+
+        TempSummon* arkonarinClone = arkonarinObject->SummonPersonalClone(arkonarinObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        TempSummon* lysanderClone = lysanderObject->SummonPersonalClone(lysanderObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!arkonarinClone || !lysanderClone)
+            return;
+
+        arkonarinClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+        lysanderClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP));
+        lysanderClone->SetWalk(true);
+        lysanderClone->GetMotionMaster()->MovePoint(POINT_LYSANDER_STEP_TO_DOOR, LysanderWalkToTheDoor);
+
+        conversation->AddActor(CONVERSATION_ANCIENT_CURSES, 1, arkonarinClone->GetGUID());
+        conversation->AddActor(CONVERSATION_ANCIENT_CURSES, 2, lysanderClone->GetGUID());
+        conversation->Start();
+    }
+
+    void OnConversationStart(Conversation* conversation) override
+    {
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+
+        if (Milliseconds const* lysanderPathStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_ARKONARIN_START_PATH))
+            _events.ScheduleEvent(EVENT_ARKONARIN_START_PATH, *lysanderPathStartTime + 2s);
+
+        if (Milliseconds const* lysanderPathStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_LYSANDER_START_PATH))
+            _events.ScheduleEvent(EVENT_LYSANDER_START_PATH, *lysanderPathStartTime);
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_ARKONARIN_START_PATH:
+            {
+                Creature* arkonarinClone = conversation->GetActorCreature(1);
+                if (!arkonarinClone)
+                    break;
+
+                arkonarinClone->GetMotionMaster()->MovePath(PATH_ARKONARIN_WALK_TO_MOUNT_UP, false);
+                break;
+            }
+            case EVENT_LYSANDER_START_PATH:
+            {
+                Creature* lysanderClone = conversation->GetActorCreature(2);
+                if (!lysanderClone)
+                    break;
+
+                lysanderClone->GetMotionMaster()->MovePath(PATH_LYSANDER_WALK_TO_MOUNT_UP, false);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+private:
+    EventMap _events;
+};
+
+// 130804 - The King's Command Movie Aura
+class spell_the_kings_command_movie_aura : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            StormwindCity::Spells::FadeToBlack
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* hitUnit = GetHitUnit();
+
+        hitUnit->CastSpell(hitUnit, StormwindCity::Spells::FadeToBlack, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_the_kings_command_movie_aura::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_the_kings_command_movie_aura_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            StormwindCity::Spells::MOPAllianceIntroMoviePlay
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+
+        target->CastSpell(target, StormwindCity::Spells::MOPAllianceIntroMoviePlay, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_the_kings_command_movie_aura_aura::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_stormwind_city()
 {
+    // Creature
+    RegisterCreatureAI(npc_jaina_proudmoore_tides_of_war);
+    RegisterCreatureAI(npc_anduin_wrynn_nation_of_kultiras);
+    RegisterCreatureAI(npc_arkonarin_starshade_ancient_curses);
+    RegisterCreatureAI(npc_lysande_starshade_ancient_curses);
+
+    // Conversation
+    new conversation_start_council_tides_of_war();
+    new conversation_quest_ancient_curses_accept();
+
+    // PlayerScript
+    new player_conv_after_movie_tides_of_war();
+
+    // AreaTrigger
+    RegisterAreaTriggerAI(at_stormwind_keep_tides_of_war);
+
+    // Spells
+    RegisterSpellScript(spell_despawn_sailor_memory);
+    RegisterSpellScript(spell_kultiras_skip_intro);
+    RegisterSpellAndAuraScriptPair(spell_the_kings_command_movie_aura, spell_the_kings_command_movie_aura_aura);
 }

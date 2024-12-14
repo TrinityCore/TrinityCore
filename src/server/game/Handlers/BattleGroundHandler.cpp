@@ -100,7 +100,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
         return;
 
     // expected bracket entry
-    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgTemplate->BattlemasterEntry->MapID[0], _player->GetLevel());
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgTemplate->MapIDs.front(), _player->GetLevel());
     if (!bracketEntry)
         return;
 
@@ -323,7 +323,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
         return;
     }
 
-    uint32 mapId = bgTemplate->BattlemasterEntry->MapID[0];
+    uint32 mapId = bgTemplate->MapIDs.front();
 
     // BGTemplateId returns BATTLEGROUND_AA when it is arena queue.
     // Do instance id search as there is no AA bg instances.
@@ -501,7 +501,7 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
                 continue;
 
             // expected bracket entry
-            PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgTemplate->BattlemasterEntry->MapID[0], _player->GetLevel());
+            PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgTemplate->MapIDs.front(), _player->GetLevel());
             if (!bracketEntry)
                 continue;
 
@@ -537,7 +537,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::Battl
 
     BattlegroundTypeId bgTypeId = bgTemplate->Id;
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, BattlegroundQueueIdType::Arena, true, arenatype);
-    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgTemplate->BattlemasterEntry->MapID[0], _player->GetLevel());
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgTemplate->MapIDs.front(), _player->GetLevel());
     if (!bracketEntry)
         return;
 
@@ -636,14 +636,17 @@ void WorldSession::HandleRequestRatedPvpInfo(WorldPackets::Battleground::Request
 
 void WorldSession::HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& /*getPvPOptionsEnabled*/)
 {
-    // This packet is completely irrelevant, it triggers PVP_TYPES_ENABLED lua event but that is not handled in interface code as of 6.1.2
     WorldPackets::Battleground::PVPOptionsEnabled pvpOptionsEnabled;
+    pvpOptionsEnabled.RatedBattlegrounds = false;
+    pvpOptionsEnabled.PugBattlegrounds = true;
+    pvpOptionsEnabled.WargameBattlegrounds = false;
     pvpOptionsEnabled.WargameArenas = false;
     pvpOptionsEnabled.RatedArenas = false;
-    pvpOptionsEnabled.WargameBattlegrounds = false;
     pvpOptionsEnabled.ArenaSkirmish = false;
-    pvpOptionsEnabled.PugBattlegrounds = true;
-    pvpOptionsEnabled.RatedBattlegrounds = false;
+    pvpOptionsEnabled.SoloShuffle = false;
+    pvpOptionsEnabled.RatedSoloShuffle = false;
+    pvpOptionsEnabled.BattlegroundBlitz = false;
+    pvpOptionsEnabled.RatedBattlegroundBlitz = false;
     SendPacket(pvpOptionsEnabled.Write());
 }
 

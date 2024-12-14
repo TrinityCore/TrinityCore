@@ -50,7 +50,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Social::ContactInfo const
     data << uint32(contact.Level);
     data << uint32(contact.ClassID);
     data.WriteBits(contact.Notes.length(), 10);
-    data.WriteBit(contact.Mobile);
     data.FlushBits();
     data.WriteString(contact.Notes);
 
@@ -93,7 +92,6 @@ WorldPacket const* WorldPackets::Social::FriendStatus::Write()
     _worldPacket << uint32(Level);
     _worldPacket << uint32(ClassID);
     _worldPacket.WriteBits(Notes.length(), 10);
-    _worldPacket.WriteBit(Mobile);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(Notes);
 
@@ -111,7 +109,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Social::QualifiedGUID& qG
 void WorldPackets::Social::AddFriend::Read()
 {
     uint32 nameLength = _worldPacket.ReadBits(9);
-    uint32 noteslength = _worldPacket.ReadBits(10);
+    uint32 noteslength = _worldPacket.ReadBits(9);
     Name = _worldPacket.ReadString(nameLength);
     Notes = _worldPacket.ReadString(noteslength);
 }

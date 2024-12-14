@@ -170,8 +170,6 @@ class boss_shattered_executioner : public CreatureScript
                 }
                 else
                     cleaveTimer -= diff;
-
-                DoMeleeAttackIfReady();
             }
         private:
             uint32 cleaveTimer;

@@ -108,21 +108,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         return;
     }
 
-    uint32 freeBagSlots = 0;
-    if (!voidStorageTransfer.Withdrawals.empty())
-    {
-        // make this a Player function
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
-            if (Bag* bag = _player->GetBagByPos(i))
-                freeBagSlots += bag->GetFreeSlots();
-
-        uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + _player->GetInventorySlotCount();
-        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < inventoryEnd; i++)
-            if (!_player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                ++freeBagSlots;
-    }
-
-    if (voidStorageTransfer.Withdrawals.size() > freeBagSlots)
+    if (!voidStorageTransfer.Withdrawals.empty() && voidStorageTransfer.Withdrawals.size() > _player->GetFreeInventorySlotCount(ItemSearchLocation::Inventory))
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INVENTORY_FULL);
         return;
@@ -187,10 +173,12 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             return;
         }
 
-        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->RandomBonusListId, GuidSet(), itemVS->Context, &itemVS->BonusListIDs);
-        item->SetCreator(itemVS->CreatorGuid);
-        item->SetBinding(true);
-        GetCollectionMgr()->AddItemAppearance(item);
+        if (Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->RandomBonusListId, GuidSet(), itemVS->Context, &itemVS->BonusListIDs))
+        {
+            item->SetCreator(itemVS->CreatorGuid);
+            item->SetBinding(true);
+            GetCollectionMgr()->AddItemAppearance(item);
+        }
 
         voidStorageTransferChanges.RemovedItems.push_back(ObjectGuid::Create<HighGuid::Item>(itemVS->ItemId));
 

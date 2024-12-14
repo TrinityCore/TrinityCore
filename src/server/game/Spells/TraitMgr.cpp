@@ -17,6 +17,7 @@
 
 #include "TraitMgr.h"
 #include "DB2Stores.h"
+#include "FlatSet.h"
 #include "IteratorPair.h"
 #include "MapUtils.h"
 #include "TraitPacketsCommon.h"
@@ -29,6 +30,7 @@ namespace
 struct NodeEntry;
 struct Node;
 struct NodeGroup;
+struct SubTree;
 struct Tree;
 
 struct NodeEntry
@@ -56,17 +58,26 @@ struct NodeGroup
     std::vector<Node const*> Nodes;
 };
 
+struct SubTree
+{
+    TraitSubTreeEntry const* Data = nullptr;
+    std::vector<Node const*> Nodes;
+    Trinity::Containers::FlatSet<TraitCurrencyEntry const*> Currencies;
+};
+
 struct Tree
 {
     TraitTreeEntry const* Data = nullptr;
     std::vector<Node const*> Nodes;
     std::vector<TraitCostEntry const*> Costs;
     std::vector<TraitCurrencyEntry const*> Currencies;
+    std::vector<SubTree const*> SubTrees;
     TraitConfigType ConfigType = TraitConfigType::Invalid;
 };
 
-std::unordered_map<int32, NodeGroup> _traitGroups;
+std::unordered_map<uint32, NodeGroup> _traitGroups;
 std::unordered_map<int32, Node> _traitNodes;
+std::unordered_map<int32, SubTree> _traitSubTrees;
 std::unordered_map<int32, Tree> _traitTrees;
 std::array<int32, MAX_CLASSES> _skillLinesByClass;
 std::unordered_map<int32, std::vector<Tree const*>> _traitTreesBySkillLine;
@@ -81,41 +92,41 @@ void Load()
 {
     _configIdGenerator = time(nullptr);
 
-    std::unordered_map<int32, std::vector<TraitCondEntry const*>> nodeEntryConditions;
+    std::unordered_map<uint32, std::vector<TraitCondEntry const*>> nodeEntryConditions;
     for (TraitNodeEntryXTraitCondEntry const* traitNodeEntryXTraitCondEntry : sTraitNodeEntryXTraitCondStore)
         if (TraitCondEntry const* traitCondEntry = sTraitCondStore.LookupEntry(traitNodeEntryXTraitCondEntry->TraitCondID))
             nodeEntryConditions[traitNodeEntryXTraitCondEntry->TraitNodeEntryID].push_back(traitCondEntry);
 
-    std::unordered_map<int32, std::vector<TraitCostEntry const*>> nodeEntryCosts;
+    std::unordered_map<uint32, std::vector<TraitCostEntry const*>> nodeEntryCosts;
     for (TraitNodeEntryXTraitCostEntry const* traitNodeEntryXTraitCostEntry : sTraitNodeEntryXTraitCostStore)
         if (TraitCostEntry const* traitCostEntry = sTraitCostStore.LookupEntry(traitNodeEntryXTraitCostEntry->TraitCostID))
             nodeEntryCosts[traitNodeEntryXTraitCostEntry->TraitNodeEntryID].push_back(traitCostEntry);
 
-    std::unordered_map<int32, std::vector<TraitCondEntry const*>> nodeGroupConditions;
+    std::unordered_map<uint32, std::vector<TraitCondEntry const*>> nodeGroupConditions;
     for (TraitNodeGroupXTraitCondEntry const* traitNodeGroupXTraitCondEntry : sTraitNodeGroupXTraitCondStore)
         if (TraitCondEntry const* traitCondEntry = sTraitCondStore.LookupEntry(traitNodeGroupXTraitCondEntry->TraitCondID))
             nodeGroupConditions[traitNodeGroupXTraitCondEntry->TraitNodeGroupID].push_back(traitCondEntry);
 
-    std::unordered_map<int32, std::vector<TraitCostEntry const*>> nodeGroupCosts;
+    std::unordered_map<uint32, std::vector<TraitCostEntry const*>> nodeGroupCosts;
     for (TraitNodeGroupXTraitCostEntry const* traitNodeGroupXTraitCostEntry : sTraitNodeGroupXTraitCostStore)
         if (TraitCostEntry const* traitCondEntry = sTraitCostStore.LookupEntry(traitNodeGroupXTraitCostEntry->TraitCostID))
             nodeGroupCosts[traitNodeGroupXTraitCostEntry->TraitNodeGroupID].push_back(traitCondEntry);
 
-    std::unordered_multimap<int32, int32> nodeGroups;
+    std::unordered_multimap<int32, uint32> nodeGroups;
     for (TraitNodeGroupXTraitNodeEntry const* traitNodeGroupXTraitNodeEntry : sTraitNodeGroupXTraitNodeStore)
             nodeGroups.emplace(traitNodeGroupXTraitNodeEntry->TraitNodeID, traitNodeGroupXTraitNodeEntry->TraitNodeGroupID);
 
-    std::unordered_map<int32, std::vector<TraitCondEntry const*>> nodeConditions;
+    std::unordered_map<uint32, std::vector<TraitCondEntry const*>> nodeConditions;
     for (TraitNodeXTraitCondEntry const* traitNodeXTraitCondEntry : sTraitNodeXTraitCondStore)
         if (TraitCondEntry const* traitCondEntry = sTraitCondStore.LookupEntry(traitNodeXTraitCondEntry->TraitCondID))
             nodeConditions[traitNodeXTraitCondEntry->TraitNodeID].push_back(traitCondEntry);
 
-    std::unordered_map<int32, std::vector<TraitCostEntry const*>> nodeCosts;
+    std::unordered_map<uint32, std::vector<TraitCostEntry const*>> nodeCosts;
     for (TraitNodeXTraitCostEntry const* traitNodeXTraitCostEntry : sTraitNodeXTraitCostStore)
         if (TraitCostEntry const* traitCostEntry = sTraitCostStore.LookupEntry(traitNodeXTraitCostEntry->TraitCostID))
             nodeCosts[traitNodeXTraitCostEntry->TraitNodeID].push_back(traitCostEntry);
 
-    std::unordered_multimap<int32, TraitNodeEntryEntry const*> nodeEntries;
+    std::unordered_multimap<uint32, TraitNodeEntryEntry const*> nodeEntries;
     for (TraitNodeXTraitNodeEntryEntry const* traitNodeXTraitNodeEntryEntry : sTraitNodeXTraitNodeEntryStore)
         if (TraitNodeEntryEntry const* traitNodeEntryEntry = sTraitNodeEntryStore.LookupEntry(traitNodeXTraitNodeEntryEntry->TraitNodeEntryID))
             nodeEntries.emplace(traitNodeXTraitNodeEntryEntry->TraitNodeID, traitNodeEntryEntry);
@@ -125,10 +136,10 @@ void Load()
         if (TraitCostEntry const* traitCostEntry = sTraitCostStore.LookupEntry(traitTreeXTraitCostEntry->TraitCostID))
             treeCosts[traitTreeXTraitCostEntry->TraitTreeID].push_back(traitCostEntry);
 
-    std::unordered_map<int32, std::vector<TraitCurrencyEntry const*>> treeCurrencies;
+    std::unordered_map<uint32, std::vector<TraitTreeXTraitCurrencyEntry const*>> treeCurrencies;
     for (TraitTreeXTraitCurrencyEntry const* traitTreeXTraitCurrencyEntry : sTraitTreeXTraitCurrencyStore)
-        if (TraitCurrencyEntry const* traitCurrencyEntry = sTraitCurrencyStore.LookupEntry(traitTreeXTraitCurrencyEntry->TraitCurrencyID))
-            treeCurrencies[traitTreeXTraitCurrencyEntry->TraitTreeID].push_back(traitCurrencyEntry);
+        if (sTraitCurrencyStore.HasRecord(traitTreeXTraitCurrencyEntry->TraitCurrencyID))
+            treeCurrencies[traitTreeXTraitCurrencyEntry->TraitTreeID].push_back(traitTreeXTraitCurrencyEntry);
 
     std::unordered_map<int32, std::vector<int32>> traitTreesIdsByTraitSystem;
 
@@ -140,14 +151,29 @@ void Load()
         if (std::vector<TraitCostEntry const*>* costs = Trinity::Containers::MapGetValuePtr(treeCosts, traitTree->ID))
             tree.Costs = std::move(*costs);
 
-        if (std::vector<TraitCurrencyEntry const*>* currencies = Trinity::Containers::MapGetValuePtr(treeCurrencies, traitTree->ID))
-            tree.Currencies = std::move(*currencies);
+        if (std::vector<TraitTreeXTraitCurrencyEntry const*>* currencies = Trinity::Containers::MapGetValuePtr(treeCurrencies, traitTree->ID))
+        {
+            tree.Currencies.resize(currencies->size());
+            std::ranges::sort(*currencies, {}, &TraitTreeXTraitCurrencyEntry::Index);
+            std::ranges::transform(*currencies, tree.Currencies.begin(),
+                [](uint32 traitCurrencyId) { return sTraitCurrencyStore.AssertEntry(traitCurrencyId); },
+                &TraitTreeXTraitCurrencyEntry::TraitCurrencyID);
+        }
 
         if (traitTree->TraitSystemID)
         {
             traitTreesIdsByTraitSystem[traitTree->TraitSystemID].push_back(traitTree->ID);
             tree.ConfigType = TraitConfigType::Generic;
         }
+    }
+
+    for (TraitSubTreeEntry const* traitSubTree : sTraitSubTreeStore)
+    {
+        SubTree& subTree = _traitSubTrees[traitSubTree->ID];
+        subTree.Data = traitSubTree;
+
+        if (Tree* tree = Trinity::Containers::MapGetValuePtr(_traitTrees, traitSubTree->TraitTreeID))
+            tree->SubTrees.push_back(&subTree);
     }
 
     for (TraitNodeGroupEntry const* traitNodeGroup : sTraitNodeGroupStore)
@@ -197,6 +223,30 @@ void Load()
 
         if (std::vector<TraitCostEntry const*>* costs = Trinity::Containers::MapGetValuePtr(nodeCosts, traitNode->ID))
             node.Costs = std::move(*costs);
+
+        if (SubTree* subTree = Trinity::Containers::MapGetValuePtr(_traitSubTrees, traitNode->TraitSubTreeID))
+        {
+            subTree->Nodes.push_back(&node);
+
+            for (NodeEntry const& nodeEntry : node.Entries)
+                for (TraitCostEntry const* cost : nodeEntry.Costs)
+                    if (TraitCurrencyEntry const* traitCurrency = sTraitCurrencyStore.LookupEntry(cost->TraitCurrencyID))
+                        subTree->Currencies.insert(traitCurrency);
+
+            for (NodeGroup const* nodeGroup : node.Groups)
+                for (TraitCostEntry const* cost : nodeGroup->Costs)
+                    if (TraitCurrencyEntry const* traitCurrency = sTraitCurrencyStore.LookupEntry(cost->TraitCurrencyID))
+                        subTree->Currencies.insert(traitCurrency);
+
+            for (TraitCostEntry const* cost : node.Costs)
+                if (TraitCurrencyEntry const* traitCurrency = sTraitCurrencyStore.LookupEntry(cost->TraitCurrencyID))
+                    subTree->Currencies.insert(traitCurrency);
+
+            if (Tree* tree = Trinity::Containers::MapGetValuePtr(_traitTrees, traitNode->TraitTreeID))
+                for (TraitCostEntry const* cost : tree->Costs)
+                    if (TraitCurrencyEntry const* traitCurrency = sTraitCurrencyStore.LookupEntry(cost->TraitCurrencyID))
+                        subTree->Currencies.insert(traitCurrency);
+        }
     }
 
     for (TraitEdgeEntry const* traitEdgeEntry : sTraitEdgeStore)
@@ -244,7 +294,7 @@ void Load()
     for (TraitDefinitionEffectPointsEntry const* traitDefinitionEffectPoints : sTraitDefinitionEffectPointsStore)
         _traitDefinitionEffectPointModifiers[traitDefinitionEffectPoints->TraitDefinitionID].push_back(traitDefinitionEffectPoints);
 
-    std::unordered_map<int32, std::vector<TraitTreeLoadoutEntryEntry const*>> traitTreeLoadoutEntries;
+    std::unordered_map<uint32, std::vector<TraitTreeLoadoutEntryEntry const*>> traitTreeLoadoutEntries;
     for (TraitTreeLoadoutEntryEntry const* traitTreeLoadoutEntry : sTraitTreeLoadoutEntryStore)
         traitTreeLoadoutEntries[traitTreeLoadoutEntry->TraitTreeLoadoutID].push_back(traitTreeLoadoutEntry);
 
@@ -252,10 +302,7 @@ void Load()
     {
         if (std::vector<TraitTreeLoadoutEntryEntry const*>* entries = Trinity::Containers::MapGetValuePtr(traitTreeLoadoutEntries, traitTreeLoadout->ID))
         {
-            std::sort(entries->begin(), entries->end(), [](TraitTreeLoadoutEntryEntry const* left, TraitTreeLoadoutEntryEntry const* right)
-            {
-                return left->OrderIndex < right->OrderIndex;
-            });
+            std::ranges::sort(*entries, {}, & TraitTreeLoadoutEntryEntry::OrderIndex);
             // there should be only one loadout per spec, we take last one encountered
             _traitTreeLoadoutsByChrSpecialization[traitTreeLoadout->ChrSpecializationID] = std::move(*entries);
         }
@@ -321,7 +368,7 @@ bool HasEnoughCurrency(WorldPackets::Traits::TraitEntry const& entry, std::map<i
             if (getCurrencyCount(cost->TraitCurrencyID) < cost->Amount * entry.Rank)
                 return false;
 
-    auto nodeEntryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
+    auto nodeEntryItr = std::ranges::find_if(node->Entries, [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
     if (nodeEntryItr != node->Entries.end())
         for (TraitCostEntry const* cost : nodeEntryItr->Costs)
             if (getCurrencyCount(cost->TraitCurrencyID) < cost->Amount * entry.Rank)
@@ -346,7 +393,7 @@ void TakeCurrencyCost(WorldPackets::Traits::TraitEntry const& entry, std::map<in
         for (TraitCostEntry const* cost : group->Costs)
             currencies[cost->TraitCurrencyID] -= cost->Amount * entry.Rank;
 
-    auto nodeEntryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
+    auto nodeEntryItr = std::ranges::find_if(node->Entries, [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
     if (nodeEntryItr != node->Entries.end())
         for (TraitCostEntry const* cost : nodeEntryItr->Costs)
             currencies[cost->TraitCurrencyID] -= cost->Amount * entry.Rank;
@@ -367,7 +414,7 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
 
     auto hasTraitNodeEntry = [&traitConfig](int32 traitNodeEntryId)
     {
-        return std::find_if(traitConfig.Entries.begin(), traitConfig.Entries.end(), [traitNodeEntryId](WorldPackets::Traits::TraitEntry const& traitEntry)
+        return std::ranges::find_if(traitConfig.Entries, [traitNodeEntryId](WorldPackets::Traits::TraitEntry const& traitEntry)
         {
             return traitEntry.TraitNodeEntryID == traitNodeEntryId && (traitEntry.Rank > 0 || traitEntry.GrantedRanks > 0);
         }) != traitConfig.Entries.end();
@@ -419,30 +466,54 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
     }
 }
 
-void FillSpentCurrenciesMap(WorldPackets::Traits::TraitEntry const& entry, std::map<int32, int32>& cachedCurrencies)
+void AddSpentCurrenciesForEntry(WorldPackets::Traits::TraitEntry const& entry, std::map<int32, int32>& cachedCurrencies, int32 multiplier)
 {
     Node const* node = Trinity::Containers::MapGetValuePtr(_traitNodes, entry.TraitNodeID);
     for (NodeGroup const* group : node->Groups)
         for (TraitCostEntry const* cost : group->Costs)
-            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 
-    auto nodeEntryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
+    auto nodeEntryItr = std::ranges::find_if(node->Entries, [&entry](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID) == entry.TraitNodeEntryID; });
     if (nodeEntryItr != node->Entries.end())
         for (TraitCostEntry const* cost : nodeEntryItr->Costs)
-            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 
     for (TraitCostEntry const* cost : node->Costs)
-        cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+        cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 
     if (Tree const* tree = Trinity::Containers::MapGetValuePtr(_traitTrees, node->Data->TraitTreeID))
         for (TraitCostEntry const* cost : tree->Costs)
-            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank;
+            cachedCurrencies[cost->TraitCurrencyID] += cost->Amount * entry.Rank * multiplier;
 }
 
-void FillSpentCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig, std::map<int32, int32>& cachedCurrencies)
+void FillSpentCurrenciesMap(std::vector<WorldPackets::Traits::TraitEntry> const& traitEntries, std::map<int32, int32>& cachedCurrencies)
 {
-    for (WorldPackets::Traits::TraitEntry const& entry : traitConfig.Entries)
-        FillSpentCurrenciesMap(entry, cachedCurrencies);
+    for (WorldPackets::Traits::TraitEntry const& entry : traitEntries)
+        AddSpentCurrenciesForEntry(entry, cachedCurrencies, 1);
+}
+
+std::array<int32, 2> GetClassAndSpecTreeCurrencies(WorldPackets::Traits::TraitConfig const& traitConfig)
+{
+    std::array<int32, 2> currencies = {};
+
+    if (std::vector<Tree const*> const* trees = GetTreesForConfig(traitConfig))
+    {
+        auto dest = currencies.begin();
+        for (auto treeItr = trees->begin(); treeItr != trees->end() && dest != currencies.end(); ++treeItr)
+            for (auto currencyItr = (*treeItr)->Currencies.begin(); currencyItr != (*treeItr)->Currencies.end() && dest != currencies.end(); ++currencyItr)
+                *dest++ = (*currencyItr)->ID;
+    }
+
+    return currencies;
+}
+
+std::span<TraitCurrencyEntry const* const> GetSubTreeCurrency(int32 traitSubTreeId)
+{
+    SubTree const* subTree = Trinity::Containers::MapGetValuePtr(_traitSubTrees, traitSubTreeId);
+    if (!subTree)
+        return {};
+
+    return subTree->Currencies;
 }
 
 bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player, TraitCondEntry const* condition,
@@ -467,15 +538,9 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
     if (condition->TraitCurrencyID && condition->SpentAmountRequired)
     {
         if (!cachedCurrencies)
-            FillSpentCurrenciesMap(traitConfig, cachedCurrencies.emplace());
+            FillSpentCurrenciesMap(traitConfig.Entries, cachedCurrencies.emplace());
 
-        if (condition->TraitNodeGroupID)
-        {
-            auto itr = cachedCurrencies->try_emplace(condition->TraitCurrencyID, 0).first;
-            if (itr->second < condition->SpentAmountRequired)
-                return false;
-        }
-        else if (condition->TraitNodeID)
+        if (condition->TraitNodeGroupID || condition->TraitNodeID || condition->TraitNodeEntryID)
         {
             auto itr = cachedCurrencies->try_emplace(condition->TraitCurrencyID, 0).first;
             if (itr->second < condition->SpentAmountRequired)
@@ -489,6 +554,67 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
     return true;
 }
 
+bool NodeMeetsTraitConditions(WorldPackets::Traits::TraitConfig const& traitConfig, Node const* node, uint32 traitNodeEntryId, PlayerDataAccessor player, Optional<std::map<int32, int32>>& spentCurrencies)
+{
+    auto meetsConditions = [&](std::vector<TraitCondEntry const*> const& conditions)
+    {
+        struct
+        {
+            bool IsSufficient = false;
+            bool HasFailedConditions = false;
+        } result;
+
+        for (TraitCondEntry const* condition : conditions)
+        {
+            if (condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
+            {
+                if (MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
+                {
+                    if (condition->GetFlags().HasFlag(TraitCondFlags::IsSufficient))
+                    {
+                        result.IsSufficient = true;
+                        break;
+                    }
+                    continue;
+                }
+
+                result.HasFailedConditions = true;
+            }
+        }
+
+        return result;
+    };
+
+    bool hasFailedConditions = false;
+    for (NodeEntry const& entry : node->Entries)
+    {
+        if (entry.Data->ID == traitNodeEntryId)
+        {
+            auto [IsSufficient, HasFailedConditions] = meetsConditions(entry.Conditions);
+            if (IsSufficient)
+                return true;
+            if (HasFailedConditions)
+                hasFailedConditions = true;
+        }
+    }
+
+    if (auto [IsSufficient, HasFailedConditions] = meetsConditions(node->Conditions); IsSufficient)
+        return true;
+    else if (HasFailedConditions)
+        hasFailedConditions = true;
+
+    for (NodeGroup const* group : node->Groups)
+    {
+        auto [IsSufficient, HasFailedConditions] = meetsConditions(group->Conditions);
+        if (IsSufficient)
+            return true;
+        if (HasFailedConditions)
+            hasFailedConditions = true;
+    }
+
+    return !hasFailedConditions;
+};
+
 std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player)
 {
     std::vector<UF::TraitEntry> entries;
@@ -496,21 +622,23 @@ std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits
     if (!trees)
         return entries;
 
-    auto getOrCreateEntry = [&entries](int32 nodeId, int32 entryId)
+    auto addGrantedRankToEntry = [&entries](int32 nodeId, NodeEntry const& entry, int32 grantedRanks)
     {
-        auto itr = std::find_if(entries.begin(), entries.end(), [&](UF::TraitEntry const& traitEntry)
+        auto itr = std::ranges::find_if(entries, [&](UF::TraitEntry const& traitEntry)
         {
-            return traitEntry.TraitNodeID == nodeId && traitEntry.TraitNodeEntryID == entryId;
+            return traitEntry.TraitNodeID == nodeId && traitEntry.TraitNodeEntryID == int32(entry.Data->ID);
         });
         if (itr == entries.end())
         {
             itr = entries.emplace(entries.end());
             itr->TraitNodeID = nodeId;
-            itr->TraitNodeEntryID = entryId;
+            itr->TraitNodeEntryID = int32(entry.Data->ID);
             itr->Rank = 0;
             itr->GrantedRanks = 0;
         }
-        return &*itr;
+        itr->GrantedRanks += grantedRanks;
+        if (itr->GrantedRanks > entry.Data->MaxRanks)
+            itr->GrantedRanks = entry.Data->MaxRanks;
     };
 
     Optional<std::map<int32, int32>> cachedCurrencies;
@@ -522,18 +650,18 @@ std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits
             for (NodeEntry const& entry : node->Entries)
                 for (TraitCondEntry const* condition : entry.Conditions)
                     if (condition->GetCondType() == TraitConditionType::Granted && MeetsTraitCondition(traitConfig, player, condition, cachedCurrencies))
-                        getOrCreateEntry(node->Data->ID, entry.Data->ID)->GrantedRanks += condition->GrantedRanks;
+                        addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
 
             for (TraitCondEntry const* condition : node->Conditions)
                 if (condition->GetCondType() == TraitConditionType::Granted && MeetsTraitCondition(traitConfig, player, condition, cachedCurrencies))
                     for (NodeEntry const& entry : node->Entries)
-                        getOrCreateEntry(node->Data->ID, entry.Data->ID)->GrantedRanks += condition->GrantedRanks;
+                        addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
 
             for (NodeGroup const* group : node->Groups)
                 for (TraitCondEntry const* condition : group->Conditions)
                     if (condition->GetCondType() == TraitConditionType::Granted && MeetsTraitCondition(traitConfig, player, condition, cachedCurrencies))
                         for (NodeEntry const& entry : node->Entries)
-                            getOrCreateEntry(node->Data->ID, entry.Data->ID)->GrantedRanks += condition->GrantedRanks;
+                            addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
         }
     }
 
@@ -546,7 +674,7 @@ bool IsValidEntry(WorldPackets::Traits::TraitEntry const& traitEntry)
     if (!node)
         return false;
 
-    auto entryItr = std::find_if(node->Entries.begin(), node->Entries.end(), [&](NodeEntry const& entry) { return entry.Data->ID == uint32(traitEntry.TraitNodeEntryID); });
+    auto entryItr = std::ranges::find_if(node->Entries, [&](NodeEntry const& entry) { return entry.Data->ID == uint32(traitEntry.TraitNodeEntryID); });
     if (entryItr == node->Entries.end())
         return false;
 
@@ -556,19 +684,16 @@ bool IsValidEntry(WorldPackets::Traits::TraitEntry const& traitEntry)
     return true;
 }
 
-LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player, bool requireSpendingAllCurrencies /*= false*/)
+LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig& traitConfig, PlayerDataAccessor player, bool requireSpendingAllCurrencies /*= false*/, bool removeInvalidEntries /*= false*/)
 {
     auto getNodeEntryCount = [&](int32 traitNodeId)
     {
-        return std::count_if(traitConfig.Entries.begin(), traitConfig.Entries.end(), [traitNodeId](WorldPackets::Traits::TraitEntry const& traitEntry)
-        {
-            return traitEntry.TraitNodeID == traitNodeId;
-        });
+        return std::ranges::count(traitConfig.Entries, traitNodeId, &WorldPackets::Traits::TraitEntry::TraitNodeID);
     };
 
     auto getNodeEntry = [&](int32 traitNodeId, int32 traitNodeEntryId)
     {
-        auto entryItr = std::find_if(traitConfig.Entries.begin(), traitConfig.Entries.end(), [=](WorldPackets::Traits::TraitEntry const& traitEntry)
+        auto entryItr = std::ranges::find_if(traitConfig.Entries, [=](WorldPackets::Traits::TraitEntry const& traitEntry)
         {
             return traitEntry.TraitNodeID == traitNodeId && traitEntry.TraitNodeEntryID == traitNodeEntryId;
         });
@@ -577,60 +702,33 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig,
 
     auto isNodeFullyFilled = [&](Node const* node)
     {
-        if (node->Data->GetType() == TraitNodeType::Selection)
-            return std::any_of(node->Entries.begin(), node->Entries.end(), [&](NodeEntry const& nodeEntry)
-            {
-                WorldPackets::Traits::TraitEntry const* traitEntry = getNodeEntry(node->Data->ID, nodeEntry.Data->ID);
-                return traitEntry && (traitEntry->Rank + traitEntry->GrantedRanks) == nodeEntry.Data->MaxRanks;
-            });
-
-        return std::all_of(node->Entries.begin(), node->Entries.end(), [&](NodeEntry const& nodeEntry)
+        auto nodeEntryMatches = [&](NodeEntry const& nodeEntry)
         {
             WorldPackets::Traits::TraitEntry const* traitEntry = getNodeEntry(node->Data->ID, nodeEntry.Data->ID);
             return traitEntry && (traitEntry->Rank + traitEntry->GrantedRanks) == nodeEntry.Data->MaxRanks;
-        });
+        };
+
+        if (node->Data->GetType() == TraitNodeType::Selection)
+            return std::ranges::any_of(node->Entries, nodeEntryMatches);
+
+        return std::ranges::all_of(node->Entries, nodeEntryMatches);
     };
 
     Optional<std::map<int32, int32>> spentCurrencies;
-    FillSpentCurrenciesMap(traitConfig, spentCurrencies.emplace());
+    FillSpentCurrenciesMap(traitConfig.Entries, spentCurrencies.emplace());
 
-    auto meetsConditions = [&](std::vector<TraitCondEntry const*> const& conditions)
-    {
-        bool hasConditions = false;
-        for (TraitCondEntry const* condition : conditions)
-        {
-            if (condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
-            {
-                if (MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
-                   return true;
-
-                hasConditions = true;
-            }
-        }
-
-        return !hasConditions;
-    };
-
-    for (WorldPackets::Traits::TraitEntry const& traitEntry : traitConfig.Entries)
+    auto isValidTraitEntry = [&](WorldPackets::Traits::TraitEntry const& traitEntry)
     {
         if (!IsValidEntry(traitEntry))
             return LearnResult::Unknown;
 
         Node const* node = Trinity::Containers::MapGetValuePtr(_traitNodes, traitEntry.TraitNodeID);
-        if (node->Data->GetType() == TraitNodeType::Selection)
+        if (node->Data->GetType() == TraitNodeType::Selection || node->Data->GetType() == TraitNodeType::SubTreeSelection)
             if (getNodeEntryCount(traitEntry.TraitNodeID) != 1)
                 return LearnResult::Unknown;
 
-        for (NodeEntry const& entry : node->Entries)
-            if (!meetsConditions(entry.Conditions))
-                return LearnResult::Unknown;
-
-        if (!meetsConditions(node->Conditions))
+        if (!NodeMeetsTraitConditions(traitConfig, node, traitEntry.TraitNodeEntryID, player, spentCurrencies))
             return LearnResult::Unknown;
-
-        for (NodeGroup const* group : node->Groups)
-            if (!meetsConditions(group->Conditions))
-                return LearnResult::Unknown;
 
         if (!node->ParentNodes.empty())
         {
@@ -651,6 +749,67 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig,
             if (!hasAnyParentTrait)
                 return LearnResult::NotEnoughTalentsInPrimaryTree;
         }
+
+        return LearnResult::Ok;
+    };
+
+    for (auto itr = traitConfig.Entries.begin(); itr != traitConfig.Entries.end(); )
+    {
+        LearnResult result = isValidTraitEntry(*itr);
+        if (result != LearnResult::Ok)
+        {
+            if (!removeInvalidEntries)
+                return result;
+
+            AddSpentCurrenciesForEntry(*itr, *spentCurrencies, -1);
+
+            if (!itr->GrantedRanks  // fully remove entries that don't have granted ranks
+                || !itr->Rank)      // ... or entries that do have them and don't have any additional spent ranks (can happen if the same entry is revalidated after first removing all spent ranks)
+                traitConfig.Entries.erase(itr);
+            else
+                itr->Rank = 0;
+
+            // revalidate entire config - a removed entry will invalidate all other entries that depend on it
+            itr = traitConfig.Entries.begin();
+        }
+        else
+            ++itr;
+    }
+
+    struct SubtreeValidationData
+    {
+        std::vector<WorldPackets::Traits::TraitEntry> Entries;
+        bool IsSelected = false;
+    };
+    std::unordered_map<int32, SubtreeValidationData> subtrees;
+
+    for (WorldPackets::Traits::TraitEntry const& traitEntry : traitConfig.Entries)
+    {
+        Node const* node = Trinity::Containers::MapGetValuePtr(_traitNodes, traitEntry.TraitNodeID);
+        auto entryItr = std::ranges::find(node->Entries, traitEntry.TraitNodeEntryID, [](NodeEntry const& nodeEntry) { return int32(nodeEntry.Data->ID); });
+        ASSERT(entryItr != node->Entries.end());
+
+        if (node->Data->GetType() == TraitNodeType::SubTreeSelection)
+            subtrees[entryItr->Data->TraitSubTreeID].IsSelected = true;
+
+        if (node->Data->TraitSubTreeID)
+            subtrees[node->Data->TraitSubTreeID].Entries.push_back(traitEntry);
+    }
+
+    for (WorldPackets::Traits::TraitSubTreeCache& subTree : traitConfig.SubTrees)
+        subTree.Active = false;
+
+    for (auto&& [selectedSubTreeId, data] : subtrees)
+    {
+        auto subtreeDataItr = std::ranges::find(traitConfig.SubTrees, selectedSubTreeId, &WorldPackets::Traits::TraitSubTreeCache::TraitSubTreeID);
+        if (subtreeDataItr == std::ranges::end(traitConfig.SubTrees))
+        {
+            subtreeDataItr = traitConfig.SubTrees.emplace(traitConfig.SubTrees.end());
+            subtreeDataItr->TraitSubTreeID = selectedSubTreeId;
+        }
+
+        subtreeDataItr->Entries = std::move(data.Entries);
+        subtreeDataItr->Active = data.IsSelected;
     }
 
     std::map<int32, int32> grantedCurrencies;
@@ -671,18 +830,53 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig,
 
     if (requireSpendingAllCurrencies && traitConfig.Type == TraitConfigType::Combat)
     {
-        for (auto [traitCurrencyId, grantedAmount] : grantedCurrencies)
+        // client checks only first two currencies for trait tree
+        for (int32 traitCurrencyId : GetClassAndSpecTreeCurrencies(traitConfig))
         {
+            int32* grantedAmount = Trinity::Containers::MapGetValuePtr(grantedCurrencies, traitCurrencyId);
             if (!grantedAmount)
                 continue;
 
             int32* spentAmount = Trinity::Containers::MapGetValuePtr(*spentCurrencies, traitCurrencyId);
-            if (!spentAmount || *spentAmount != grantedAmount)
+            if (!spentAmount || *spentAmount != *grantedAmount)
                 return LearnResult::UnspentTalentPoints;
+        }
+
+        for (auto&& [selectedTraitSubTreeId, data] : subtrees)
+        {
+            if (!data.IsSelected)
+                continue;
+
+            for (TraitCurrencyEntry const* subTreeCurrency : GetSubTreeCurrency(selectedTraitSubTreeId))
+            {
+                int32* grantedAmount = Trinity::Containers::MapGetValuePtr(grantedCurrencies, subTreeCurrency->ID);
+                if (!grantedAmount)
+                    continue;
+
+                int32* spentAmount = Trinity::Containers::MapGetValuePtr(*spentCurrencies, subTreeCurrency->ID);
+                if (!spentAmount || *spentAmount != *grantedAmount)
+                    return LearnResult::UnspentTalentPoints;
+            }
         }
     }
 
     return LearnResult::Ok;
+}
+
+bool CanApplyTraitNode(UF::TraitConfig const& traitConfig, UF::TraitEntry const& traitEntry)
+{
+    Node const* node = Trinity::Containers::MapGetValuePtr(_traitNodes, traitEntry.TraitNodeID);
+    if (!node)
+        return false;
+
+    if (node->Data->TraitSubTreeID)
+    {
+        auto subTreeItr = std::ranges::find(traitConfig.SubTrees, node->Data->TraitSubTreeID, &UF::TraitSubTreeCache::TraitSubTreeID);
+        if (subTreeItr == std::ranges::end(traitConfig.SubTrees) || !subTreeItr->Active)
+            return false;
+    }
+
+    return true;
 }
 
 std::vector<TraitDefinitionEffectPointsEntry const*> const* GetTraitDefinitionEffectPointModifiers(int32 traitDefinitionId)
@@ -712,7 +906,7 @@ void InitializeStarterBuildTraitConfig(WorldPackets::Traits::TraitConfig& traitC
     {
         auto findEntry = [](WorldPackets::Traits::TraitConfig& config, int32 traitNodeId, int32 traitNodeEntryId) -> WorldPackets::Traits::TraitEntry*
         {
-            auto entryItr = std::find_if(config.Entries.begin(), config.Entries.end(), [=](WorldPackets::Traits::TraitEntry const& traitEntry)
+            auto entryItr = std::ranges::find_if(config.Entries, [=](WorldPackets::Traits::TraitEntry const& traitEntry)
             {
                 return traitEntry.TraitNodeID == traitNodeId && traitEntry.TraitNodeEntryID == traitNodeEntryId;
             });

@@ -49,15 +49,15 @@ enum CorpseFlags
     CORPSE_FLAG_FFA_PVP     = 0x40
 };
 
-class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
+class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
 {
     public:
         explicit Corpse(CorpseType type = CORPSE_BONES);
         ~Corpse();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -94,6 +94,7 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         void RemoveCorpseDynamicFlag(CorpseDynFlags dynamicFlags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::DynamicFlags), dynamicFlags); }
         void ReplaceAllCorpseDynamicFlags(CorpseDynFlags dynamicFlags) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::DynamicFlags), dynamicFlags); }
 
+        ObjectGuid GetCreatorGUID() const override { return m_corpseData->Owner; }
         ObjectGuid GetOwnerGUID() const override { return m_corpseData->Owner; }
         void SetOwnerGUID(ObjectGuid owner) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Owner), owner); }
         void SetPartyGUID(ObjectGuid partyGuid) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::PartyGUID), partyGuid); }
@@ -134,7 +135,7 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
 
         bool IsExpired(time_t t) const;
 
-        UF::UpdateField<UF::CorpseData, 0, TYPEID_CORPSE> m_corpseData;
+        UF::UpdateField<UF::CorpseData, int32(WowCS::EntityFragment::CGObject), TYPEID_CORPSE> m_corpseData;
 
     private:
         CorpseType m_type;

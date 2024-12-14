@@ -37,8 +37,8 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_WALL_DOOR_SHORTCUT_ENTRANCE,        DATA_SPORECALLER_ZANCHA,  DOOR_TYPE_PASSAGE },
-    { 0,                                     0,                        DOOR_TYPE_ROOM    }  // END
+    { GO_WALL_DOOR_SHORTCUT_ENTRANCE,        DATA_SPORECALLER_ZANCHA,  EncounterDoorBehavior::OpenWhenDone },
+    { 0,                                     0,                        EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 DungeonEncounterData const encounters[] =

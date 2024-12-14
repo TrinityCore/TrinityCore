@@ -25,6 +25,7 @@
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include <set>
 #include <unordered_map>
 
@@ -71,6 +72,24 @@ enum GuildMemberData
     GUILD_MEMBER_DATA_ZONEID,
     GUILD_MEMBER_DATA_ACHIEVEMENT_POINTS,
     GUILD_MEMBER_DATA_LEVEL,
+};
+
+// Base Club/Community roles. Do not change.
+enum class ClubRoleIdentifier : uint32
+{
+    Owner     = 1,
+    Leader    = 2,
+    Moderator = 3,
+    Member    = 4
+};
+
+// Base Club/Community chat stream types. Do not change.
+enum class ClubStreamType : uint32
+{
+    General = 0,
+    Guild   = 1,
+    Officer = 2,
+    Other   = 3
 };
 
 enum class GuildRankId : uint8
@@ -256,7 +275,11 @@ class TC_GAME_API EmblemInfo
         bool LoadFromDB(Field* fields);
         void SaveToDB(ObjectGuid::LowType guildId) const;
         void ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet);
-        bool ValidateEmblemColors() const;
+        bool ValidateEmblemColors() const
+        {
+            return ValidateEmblemColors(m_style, m_color, m_borderStyle, m_borderColor, m_backgroundColor);
+        }
+        static bool ValidateEmblemColors(uint32 style, uint32 color, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor);
 
         uint32 GetStyle() const { return m_style; }
         uint32 GetColor() const { return m_color; }
@@ -304,7 +327,7 @@ using SlotIds = std::set<uint8>;
 
 class TC_GAME_API Guild
 {
-    private:
+    public:
         // Class representing guild member
         class Member
         {
@@ -348,9 +371,8 @@ class TC_GAME_API Guild
                 uint32 GetTotalReputation() const { return m_totalReputation; }
                 uint32 GetWeekReputation() const { return m_weekReputation; }
 
-                std::set<uint32> const& GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
                 void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds = std::move(criteriaIds); }
-                bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
+                bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds && m_trackedCriteriaIds->contains(criteriaId);  }
 
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
@@ -362,8 +384,8 @@ class TC_GAME_API Guild
 
                 void UpdateBankTabWithdrawValue(CharacterDatabaseTransaction trans, uint8 tabId, uint32 amount);
                 void UpdateBankMoneyWithdrawValue(CharacterDatabaseTransaction trans, uint64 amount);
-                uint32 GetBankTabWithdrawValue(uint8 tabId) const { return m_bankWithdraw[tabId]; };
-                uint64 GetBankMoneyWithdrawValue() const { return m_bankWithdrawMoney; };
+                uint32 GetBankTabWithdrawValue(uint8 tabId) const { return m_bankWithdraw[tabId]; }
+                uint64 GetBankMoneyWithdrawValue() const { return m_bankWithdrawMoney; }
                 void ResetValues(bool weekly = false);
 
                 Player* FindPlayer() const;
@@ -387,7 +409,7 @@ class TC_GAME_API Guild
                 std::string m_publicNote;
                 std::string m_officerNote;
 
-                std::set<uint32> m_trackedCriteriaIds;
+                Optional<std::set<uint32>> m_trackedCriteriaIds;
 
                 std::array<uint32, GUILD_BANK_MAX_TABS> m_bankWithdraw;
                 uint64 m_bankWithdrawMoney;
@@ -398,6 +420,7 @@ class TC_GAME_API Guild
                 uint32 m_weekReputation;
         };
 
+    private:
         // Base class for event entries
         class LogEntry
         {
@@ -806,15 +829,14 @@ class TC_GAME_API Guild
         void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string_view msg, std::string_view prefix, bool isLogged) const;
         void BroadcastPacketToRank(WorldPacket const* packet, GuildRankId rankId) const;
         void BroadcastPacket(WorldPacket const* packet) const;
-        void BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const;
 
         void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, GuildRankOrder minRank);
 
         template<class Do>
-        void BroadcastWorker(Do& _do, Player* except = nullptr)
+        void BroadcastWorker(Do&& _do, Player const* except = nullptr) const
         {
-            for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
-                if (Player* player = itr->second.FindConnectedPlayer())
+            for (auto const& [_, member] : m_members)
+                if (Player* player = member.FindConnectedPlayer())
                     if (player != except)
                         _do(player);
         }
@@ -822,11 +844,13 @@ class TC_GAME_API Guild
         // Members
         // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
         bool AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, Optional<GuildRankId> rankId = {});
-        void DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
+        bool DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false);
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, GuildRankId newRank);
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
+        std::unordered_map<ObjectGuid, Member> const& GetMembers() const { return m_members; }
         uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
+        std::vector<Player*> GetMembersTrackingCriteria(uint32 criteriaId) const;
 
         // Bank
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
@@ -848,6 +872,9 @@ class TC_GAME_API Guild
 
         bool HasAchieved(uint32 achievementId) const;
         void UpdateCriteria(CriteriaType type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* player);
+
+        Trinity::unique_weak_ptr<Guild> GetWeakPtr() const { return m_weakRef; }
+        void SetWeakPtr(Trinity::unique_weak_ptr<Guild> weakRef) { m_weakRef = std::move(weakRef); }
 
     protected:
         ObjectGuid::LowType m_id;
@@ -871,6 +898,8 @@ class TC_GAME_API Guild
         LogHolder<NewsLogEntry> m_newsLog;
         std::unique_ptr<GuildAchievementMgr> m_achievementMgr;
 
+        Trinity::unique_weak_ptr<Guild> m_weakRef;
+
     private:
         inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
         RankInfo const* GetRankInfo(GuildRankId rankId) const;
@@ -878,19 +907,24 @@ class TC_GAME_API Guild
         RankInfo const* GetRankInfo(GuildRankOrder rankOrder) const;
         RankInfo* GetRankInfo(GuildRankOrder rankOrder);
         bool _HasRankRight(Player const* player, uint32 right) const;
+    public:
+        bool HasAnyRankRight(GuildRankId rankId, GuildRankRights rights) const;
 
+    private:
         inline GuildRankId _GetLowestRankId() const { return m_ranks.back().GetId(); }
 
         inline uint8 _GetPurchasedTabsSize() const { return uint8(m_bankTabs.size()); }
         inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? &m_bankTabs[tabId] : nullptr; }
         inline BankTab const* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? &m_bankTabs[tabId] : nullptr; }
 
+    public:
         inline Member const* GetMember(ObjectGuid const& guid) const
         {
             auto itr = m_members.find(guid);
             return (itr != m_members.end()) ? &itr->second : nullptr;
         }
 
+    private:
         inline Member* GetMember(ObjectGuid const& guid)
         {
             auto itr = m_members.find(guid);

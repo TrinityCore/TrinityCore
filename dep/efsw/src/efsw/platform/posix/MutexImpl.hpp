@@ -9,23 +9,22 @@
 
 namespace efsw { namespace Platform {
 
-class MutexImpl
-{
-	public:
-		MutexImpl();
+class MutexImpl {
+  public:
+	MutexImpl();
 
-		~MutexImpl();
+	~MutexImpl();
 
-		void lock();
+	void lock();
 
-		void unlock();
-	private:
-		pthread_mutex_t mMutex;
+	void unlock();
+
+  private:
+	pthread_mutex_t mMutex;
 };
 
-}}
+}} // namespace efsw::Platform
 
 #endif
 
 #endif
- 

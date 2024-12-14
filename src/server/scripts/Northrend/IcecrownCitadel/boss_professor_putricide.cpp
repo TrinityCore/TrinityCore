@@ -272,7 +272,6 @@ struct boss_professor_putricide : public BossAI
         Talk(SAY_AGGRO);
         DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
         DoZoneInCombat(me);
-        me->SetCombatPulseDelay(5);
         instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
     }
 
@@ -697,8 +696,6 @@ struct boss_professor_putricide : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -753,8 +750,6 @@ class npc_putricide_oozeAI : public ScriptedAI
 
             if (!_newTargetSelectTimer && !me->IsNonMeleeSpellCast(false, false, true, false, true))
                 _newTargetSelectTimer = 1000;
-
-            DoMeleeAttackIfReady();
 
             if (!_newTargetSelectTimer)
                 return;

@@ -26,7 +26,7 @@
 struct CreatureData;
 struct SummonPropertiesEntry;
 
-class TC_GAME_API Transport : public GameObject, public TransportBase
+class TC_GAME_API Transport final : public GameObject, public TransportBase
 {
         friend Transport* TransportMgr::CreateTransport(uint32, Map*, ObjectGuid::LowType, uint8, uint32, uint32);
 
@@ -89,6 +89,8 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         uint32 GetTransportPeriod() const { return m_gameObjectData->Level; }
         void SetPeriod(uint32 period) { SetLevel(period); }
         uint32 GetTimer() const { return _pathProgress; }
+        bool IsStopRequested() const { return _requestStopTimestamp.has_value(); }
+        bool IsStopped() const { return HasDynamicFlag(GO_DYNFLAG_LO_STOPPED); }
 
         void UpdatePosition(float x, float y, float z, float o);
 
@@ -109,7 +111,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
     private:
         bool TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, float y, float z, float o);
-        void TeleportPassengersAndHideTransport(uint32 newMapid, float x, float y, float z, float o);
+        void TeleportPassengersAndHideTransport(uint32 newMapid);
         void UpdatePassengerPositions(PassengerSet const& passengers);
 
         TransportTemplate const* _transportInfo;

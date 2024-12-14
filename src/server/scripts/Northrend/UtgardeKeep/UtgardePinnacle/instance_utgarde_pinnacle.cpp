@@ -28,9 +28,9 @@ BossBoundaryData const boundaries =
 
 DoorData const doorData[] =
 {
-    { GO_SKADI_THE_RUTHLESS_DOOR,   DATA_SKADI_THE_RUTHLESS,    DOOR_TYPE_PASSAGE },
-    { GO_KING_YMIRON_DOOR,          DATA_KING_YMIRON,           DOOR_TYPE_PASSAGE },
-    { 0,                            0,                          DOOR_TYPE_ROOM    } // END
+    { GO_SKADI_THE_RUTHLESS_DOOR,   DATA_SKADI_THE_RUTHLESS,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_KING_YMIRON_DOOR,          DATA_KING_YMIRON,           EncounterDoorBehavior::OpenWhenDone },
+    { 0,                            0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

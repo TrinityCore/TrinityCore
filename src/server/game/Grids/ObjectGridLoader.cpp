@@ -158,7 +158,7 @@ void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
         {
             corpse->AddToWorld();
             GridType& cell = i_grid.GetGridType(i_cell.CellX(), i_cell.CellY());
-            if (corpse->IsWorldObject())
+            if (corpse->IsStoredInWorldObjectGridContainer())
                 cell.AddWorldObject(corpse);
             else
                 cell.AddGridObject(corpse);

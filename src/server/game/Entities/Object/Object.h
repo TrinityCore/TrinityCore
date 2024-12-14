@@ -22,6 +22,7 @@
 #include "Duration.h"
 #include "Errors.h"
 #include "EventProcessor.h"
+#include "MapDefines.h"
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
@@ -31,7 +32,9 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "UpdateFields.h"
+#include "WowCSEntityDefinitions.h"
 #include <list>
 #include <unordered_map>
 
@@ -43,6 +46,7 @@ class CreatureAI;
 class DynamicObject;
 class GameObject;
 class InstanceScript;
+class Item;
 class Map;
 class Object;
 class Player;
@@ -62,10 +66,8 @@ class WorldPacket;
 class ZoneScript;
 struct FactionTemplateEntry;
 struct Loot;
-struct PositionFullTerrainStatus;
 struct QuaternionData;
 struct SpellPowerCost;
-enum ZLiquidStatus : uint32;
 
 namespace WorldPackets
 {
@@ -106,6 +108,39 @@ struct CreateObjectBits
 
 namespace UF
 {
+    class UpdateFieldHolder
+    {
+    public:
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline OptionalUpdateFieldSetter<T> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 /*dummy*/);
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        uint32 GetChangedObjectTypeMask() const { return _changesMask; }
+
+        bool HasChanged(uint32 index) const { return (_changesMask & UpdateMaskHelpers::GetBlockFlag(index)) != 0; }
+
+        inline Object* GetOwner();
+
+    private:
+        friend Object;
+
+        // This class is tightly tied to Object::m_values member, do not construct elsewhere
+        UpdateFieldHolder() : _changesMask(0) { }
+
+        uint32 _changesMask;
+    };
+
     template<typename T>
     inline bool SetUpdateFieldValue(UpdateFieldSetter<T>& setter, typename UpdateFieldSetter<T>::value_type&& value)
     {
@@ -144,6 +179,7 @@ namespace UF
 }
 
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
+static constexpr Milliseconds const HEARTBEAT_INTERVAL = 5s + 200ms;
 
 class TC_GAME_API Object
 {
@@ -195,6 +231,18 @@ class TC_GAME_API Object
         void SetDestroyedObject(bool destroyed) { m_isDestroyedObject = destroyed; }
         virtual void BuildUpdate(UpdateDataMapType&) { }
         void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
+
+        inline bool IsWorldObject() const { return isType(TYPEMASK_WORLDOBJECT); }
+        static WorldObject* ToWorldObject(Object* o) { return o ? o->ToWorldObject() : nullptr; }
+        static WorldObject const* ToWorldObject(Object const* o) { return o ? o->ToWorldObject() : nullptr; }
+        WorldObject* ToWorldObject() { if (IsWorldObject()) return reinterpret_cast<WorldObject*>(this); else return nullptr; }
+        WorldObject const* ToWorldObject() const { if (IsWorldObject()) return reinterpret_cast<WorldObject const*>(this); else return nullptr; }
+
+        inline bool IsItem() const { return isType(TYPEMASK_ITEM); }
+        static Item* ToItem(Object* o) { return o ? o->ToItem() : nullptr; }
+        static Item const* ToItem(Object const* o) { return o ? o->ToItem() : nullptr; }
+        Item* ToItem() { if (IsItem()) return reinterpret_cast<Item*>(this); else return nullptr; }
+        Item const* ToItem() const { if (IsItem()) return reinterpret_cast<Item const*>(this); else return nullptr; }
 
         inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
         static Player* ToPlayer(Object* o) { return o ? o->ToPlayer() : nullptr; }
@@ -250,8 +298,9 @@ class TC_GAME_API Object
         Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
         Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
 
+        friend UF::UpdateFieldHolder;
         UF::UpdateFieldHolder m_values;
-        UF::UpdateField<UF::ObjectData, 0, TYPEID_OBJECT> m_objectData;
+        UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_OBJECT> m_objectData;
 
         template<typename T>
         void ForceUpdateFieldChange(UF::UpdateFieldSetter<T> const& /*setter*/)
@@ -260,6 +309,8 @@ class TC_GAME_API Object
         }
 
         virtual std::string GetDebugInfo() const;
+
+        Trinity::unique_weak_ptr<Object> GetWeakPtr() const { return m_scriptRef; }
 
         virtual Loot* GetLootForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
 
@@ -374,10 +425,12 @@ class TC_GAME_API Object
             }
         }
 
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
+        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
+        static void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags);
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
@@ -387,6 +440,7 @@ class TC_GAME_API Object
 
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
+        WowCS::EntityFragmentsHolder m_entityFragments;
 
         virtual bool AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;
@@ -400,11 +454,87 @@ class TC_GAME_API Object
         bool m_isNewObject;
         bool m_isDestroyedObject;
 
+        struct NoopObjectDeleter { void operator()(Object*) const { /*noop - not managed*/ } };
+        Trinity::unique_trackable_ptr<Object> m_scriptRef;
+
         Object(Object const& right) = delete;
         Object(Object&& right) = delete;
         Object& operator=(Object const& right) = delete;
         Object& operator=(Object&& right) = delete;
 };
+
+inline Object* UF::UpdateFieldHolder::GetOwner()
+{
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#endif
+
+    return reinterpret_cast<Object*>(reinterpret_cast<std::byte*>(this) - offsetof(Object, m_values));
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic pop
+#endif
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    return { (static_cast<Derived*>(owner)->*field)._value };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::OptionalUpdateFieldSetter<T> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    return { static_cast<Derived*>(owner)->*field };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field, uint32 /*dummy*/)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    auto& uf = (static_cast<Derived*>(owner)->*field);
+    if (!uf.has_value())
+        uf.ConstructValue();
+
+    return { *uf._value };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    (static_cast<Derived*>(owner)->*field)._value->ClearChangesMask();
+}
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
@@ -486,9 +616,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetNearPoint2D(WorldObject const* searcher, float& x, float& y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const;
         void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0) const;
-        void MovePosition(Position &pos, float dist, float angle);
+        void MovePosition(Position &pos, float dist, float angle, float maxHeightChange = 6.0f) const;
         Position GetNearPosition(float dist, float angle);
-        void MovePositionToFirstCollision(Position &pos, float dist, float angle);
+        void MovePositionToFirstCollision(Position &pos, float dist, float angle) const;
         Position GetFirstCollisionPosition(float dist, float angle);
         Position GetRandomNearPosition(float radius);
         void GetContactPoint(WorldObject const* obj, float& x, float& y, float& z, float distance2d = CONTACT_DISTANCE) const;
@@ -530,6 +660,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsInWorldPvpZone() const;
         bool IsOutdoors() const { return m_outdoors; }
         ZLiquidStatus GetLiquidStatus() const { return m_liquidStatus; }
+        WmoLocation const* GetCurrentWmo() const { return m_currentWmo ? &*m_currentWmo : nullptr; }
 
         InstanceScript* GetInstanceScript() const;
 
@@ -578,10 +709,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual uint8 GetLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-        void PlayDistanceSound(uint32 soundId, Player* target = nullptr);
-        void PlayDirectSound(uint32 soundId, Player* target = nullptr, uint32 broadcastTextId = 0);
-        void PlayDirectMusic(uint32 musicId, Player* target = nullptr);
-        void PlayObjectSound(int32 soundKitId, ObjectGuid targetObject, Player* target = nullptr, int32 broadcastTextId = 0);
+        void PlayDistanceSound(uint32 soundId, Player const* target = nullptr) const;
+        void StopDistanceSound(Player const* target = nullptr) const;
+        void PlayDirectSound(uint32 soundId, Player const* target = nullptr, uint32 broadcastTextId = 0) const;
+        void PlayDirectMusic(uint32 musicId, Player const* target = nullptr) const;
+        void PlayObjectSound(int32 soundKitId, ObjectGuid targetObject, Player const* target = nullptr, int32 broadcastTextId = 0) const;
 
         void AddObjectToRemoveList();
 
@@ -625,8 +757,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObjectWithOptions(float range, FindGameObjectOptions const& options) const;
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
-        Player* SelectNearestPlayer(float distance) const;
+        Player*     SelectNearestPlayer(float range) const;
 
+        virtual ObjectGuid GetCreatorGUID() const = 0;
         virtual ObjectGuid GetOwnerGUID() const = 0;
         virtual ObjectGuid GetCharmerOrOwnerGUID() const { return GetOwnerGUID(); }
         ObjectGuid GetCharmerOrOwnerOrOwnGUID() const;
@@ -671,6 +804,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // CastSpell's third arg can be a variety of things - check out CastSpellExtraArgs' constructors!
         SpellCastResult CastSpell(CastSpellTargetArg const& targets, uint32 spellId, CastSpellExtraArgs const& args = { });
 
+        void SendPlayOrphanSpellVisual(Position const& sourceLocation, ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
+        void SendPlayOrphanSpellVisual(Position const& sourceLocation, Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendCancelOrphanSpellVisual(uint32 id);
@@ -719,9 +854,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetFarVisible(bool on);
         bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.has_value(); }
         void SetVisibilityDistanceOverride(VisibilityDistanceType type);
-        void SetWorldObject(bool apply);
-        bool IsPermanentWorldObject() const { return m_isWorldObject; }
-        bool IsWorldObject() const;
+        void SetIsStoredInWorldObjectGridContainer(bool apply);
+        bool IsAlwaysStoredInWorldObjectGridContainer() const { return m_isStoredInWorldObjectGridContainer; }
+        bool IsStoredInWorldObjectGridContainer() const;
 
         uint32  LastUsedScriptID;
 
@@ -775,7 +910,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool m_isActive;
         bool m_isFarVisible;
         Optional<float> m_visibilityDistanceOverride;
-        bool const m_isWorldObject;
+        bool const m_isStoredInWorldObjectGridContainer;
         ZoneScript* m_zoneScript;
 
         // transports (gameobjects only)
@@ -787,6 +922,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float m_staticFloorZ;
         bool m_outdoors;
         ZLiquidStatus m_liquidStatus;
+        Optional<WmoLocation> m_currentWmo;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
@@ -801,6 +937,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual bool IsInvisibleDueToDespawn([[maybe_unused]] WorldObject const* seer) const { return false; }
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor([[maybe_unused]] WorldObject const* seer) const { return false; }
+
+        virtual void Heartbeat() { }
     private:
         Map* m_currMap;                                   // current object's Map location
 
@@ -814,6 +952,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         ObjectGuid _privateObjectOwner;
 
         std::unique_ptr<SmoothPhasing> _smoothPhasing;
+
+        Milliseconds _heartbeatTimer;
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 

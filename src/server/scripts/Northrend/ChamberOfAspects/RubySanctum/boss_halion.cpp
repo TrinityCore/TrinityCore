@@ -346,7 +346,7 @@ class boss_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_BREATH, randtime(Seconds(16), Seconds(25)));
                             break;
                         case EVENT_ACTIVATE_FIREWALL:
-                            // Flame ring is activated 5 seconds after starting encounter, DOOR_TYPE_ROOM is only instant.
+                            // Flame ring is activated 5 seconds after starting encounter, EncounterStateForOpenDoor::NotInProgress is only instant.
                             for (uint8 i = DATA_FLAME_RING; i <= DATA_TWILIGHT_FLAME_RING; ++i)
                                 if (GameObject* flameRing = instance->GetGameObject(i))
                                     instance->HandleGameObject(ObjectGuid::Empty, false, flameRing);
@@ -374,8 +374,6 @@ class boss_halion : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void SetData(uint32 index, uint32 value) override
@@ -545,8 +543,6 @@ class boss_twilight_halion : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -1510,7 +1506,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
                     return;
 
                 uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-                int32 radius = caster->GetObjectScale() * M_PI * 10000 / 3;
+                float radius = caster->GetObjectScale() * M_PI / 3;
 
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
@@ -1650,7 +1646,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
             {
                 GetTarget()->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED, nullptr);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*handle*/)
@@ -1661,7 +1657,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
 
                 target->RemoveAurasDueToSpell(_beforeHitSpellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 if (InstanceScript* instance = target->GetInstanceScript())
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED, nullptr);
             }
 
             void Register() override

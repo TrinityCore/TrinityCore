@@ -27,15 +27,15 @@
 
 DoorData const doorData[] =
 {
-    { GO_PORTCULLIS_RAZORGORE,    DATA_RAZORGORE_THE_UNTAMED,  DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_VAELASTRASZ,  DATA_VAELASTRAZ_THE_CORRUPT, DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_BROODLORD,    DATA_BROODLORD_LASHLAYER,    DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_THREEDRAGONS, DATA_FIREMAW,                DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_THREEDRAGONS, DATA_EBONROC,                DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_THREEDRAGONS, DATA_FLAMEGOR,               DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_CHROMAGGUS,   DATA_CHROMAGGUS,             DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_NEFARIAN,     DATA_NEFARIAN,               DOOR_TYPE_ROOM },
-    { 0,                         0,                            DOOR_TYPE_ROOM } // END
+    { GO_PORTCULLIS_RAZORGORE,    DATA_RAZORGORE_THE_UNTAMED,  EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_VAELASTRASZ,  DATA_VAELASTRAZ_THE_CORRUPT, EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_BROODLORD,    DATA_BROODLORD_LASHLAYER,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FIREMAW,                EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_EBONROC,                EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FLAMEGOR,               EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_CHROMAGGUS,   DATA_CHROMAGGUS,             EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_NEFARIAN,     DATA_NEFARIAN,               EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                         0,                            EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =

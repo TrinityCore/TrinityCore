@@ -412,12 +412,15 @@ void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auct
     auction->Bidder = newBidder;
     auction->BidAmount = auction->BuyoutOrUnitPrice;
 
-    // Mails must be under transaction control too to prevent data loss
-    auctionHouse->SendAuctionWon(auction, nullptr, trans);
-    auctionHouse->SendAuctionSold(auction, nullptr, trans);
+    // Copy data before freeing AuctionPosting in auctionHouse->RemoveAuction
+    // Because auctionHouse->SendAuctionWon can unload items if bidder is offline
+    // we need to RemoveAuction before sending mails
+    std::map<uint32, AuctionPosting>::node_type removedAuctionNode = auctionHouse->RemoveAuction(trans, auction);
+    auction = &removedAuctionNode.mapped();
 
-    // Remove auction
-    auctionHouse->RemoveAuction(trans, auction);
+    // Mails must be under transaction control too to prevent data loss
+    auctionHouse->SendAuctionSold(auction, nullptr, trans);
+    auctionHouse->SendAuctionWon(auction, nullptr, trans);
 
     // Run SQLs
     CharacterDatabase.CommitTransaction(trans);

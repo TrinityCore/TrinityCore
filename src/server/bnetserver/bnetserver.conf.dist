@@ -83,6 +83,7 @@ LoginREST.TicketDuration=3600
 #
 #    BindIP
 #        Description: Bind auth server to IP/hostname
+#                     Using IPv6 address (such as "::") will enable both IPv4 and IPv6 connections
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)
 
 BindIP = "0.0.0.0"
@@ -434,6 +435,10 @@ Appender.Bnet=2,2,0,Bnet.log,w
 
 Logger.root=3,Console Bnet
 Logger.realmlist=3,Console Bnet
+Logger.server.http=3,Console Bnet
+Logger.server.http.login=3,Console Bnet
+Logger.server.http.dispatcher.login=3,Console Bnet
+Logger.server.http.session.login=3,Console Bnet
 Logger.session=3,Console Bnet
 Logger.session.packets=3,Console Bnet
 Logger.sql.updates=3,Console Bnet

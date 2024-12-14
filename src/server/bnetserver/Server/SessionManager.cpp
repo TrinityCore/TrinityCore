@@ -17,7 +17,6 @@
 
 #include "SessionManager.h"
 #include "DatabaseEnv.h"
-#include "SRP6.h"
 #include "Util.h"
 
 bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
@@ -25,7 +24,6 @@ bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext
     if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
-    _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
     _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
     return true;
 }

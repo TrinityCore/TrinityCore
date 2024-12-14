@@ -94,7 +94,7 @@ Position const FryeMovePos = { -196.2483f, 2197.224f, 79.9315f, 0.0f };
 
 struct boss_apothecary_hummel : public BossAI
 {
-    boss_apothecary_hummel(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
+    boss_apothecary_hummel(Creature* creature) : BossAI(creature, BOSS_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
 
     bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
@@ -171,7 +171,7 @@ struct boss_apothecary_hummel : public BossAI
 
         events.Reset();
         me->SetUninteractible(false);
-        instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
+        instance->SetBossState(BOSS_APOTHECARY_HUMMEL, DONE);
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
         if (!players.isEmpty())
@@ -256,8 +256,6 @@ struct boss_apothecary_hummel : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
@@ -354,8 +352,6 @@ struct npc_apothecary_baxter : public npc_apothecary_genericAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

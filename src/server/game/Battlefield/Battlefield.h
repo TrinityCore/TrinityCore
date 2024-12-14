@@ -218,7 +218,6 @@ class TC_GAME_API Battlefield : public ZoneScript
         // Battlefield - generic methods
         TeamId GetDefenderTeam() const { return m_DefenderTeam; }
         TeamId GetAttackerTeam() const { return TeamId(1 - m_DefenderTeam); }
-        TeamId GetOtherTeam(TeamId team) const { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
         void SetDefenderTeam(TeamId team) { m_DefenderTeam = team; }
 
         // Group methods

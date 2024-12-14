@@ -109,8 +109,6 @@ class boss_corla : public CreatureScript
                     }
                     return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

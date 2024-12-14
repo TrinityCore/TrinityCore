@@ -22,6 +22,7 @@
 #include "IpAddress.h"
 #include "Log.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/v6_only.hpp>
 #include <atomic>
 #include <functional>
 
@@ -34,7 +35,7 @@ public:
 
     AsyncAcceptor(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
         _acceptor(ioContext), _endpoint(Trinity::Net::make_address(bindIp), port),
-        _socket(ioContext), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
+        _socket(ioContext), _closed(false), _socketFactory([this] { return DefeaultSocketFactory(); })
     {
     }
 
@@ -88,6 +89,11 @@ public:
         }
 #endif
 
+        // v6_only is enabled on some *BSD distributions by default
+        // we want to allow both v4 and v6 connections to the same listener
+        if (_endpoint.protocol() == boost::asio::ip::tcp::v6())
+            _acceptor.set_option(boost::asio::ip::v6_only(false));
+
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)
         {
@@ -114,7 +120,7 @@ public:
         _acceptor.close(err);
     }
 
-    void SetSocketFactory(std::function<std::pair<boost::asio::ip::tcp::socket*, uint32>()> func) { _socketFactory = func; }
+    void SetSocketFactory(std::function<std::pair<boost::asio::ip::tcp::socket*, uint32>()> func) { _socketFactory = std::move(func); }
 
 private:
     std::pair<boost::asio::ip::tcp::socket*, uint32> DefeaultSocketFactory() { return std::make_pair(&_socket, 0); }

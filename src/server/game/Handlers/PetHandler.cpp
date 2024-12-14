@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "CharmInfo.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
@@ -166,7 +167,9 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     break;
                 case COMMAND_FOLLOW: // spellid = 1792 - FOLLOW
                     pet->AttackStop();
-                    pet->InterruptNonMeleeSpells(false);
+                    pet->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
+                    if (Spell const* channeledSpell = pet->GetCurrentSpell(CURRENT_CHANNELED_SPELL); channeledSpell && !channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR9_CHANNEL_PERSISTS_ON_PET_FOLLOW))
+                        pet->InterruptSpell(CURRENT_CHANNELED_SPELL, true, true);
                     pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, pet->GetFollowAngle());
 
                     charmInfo->SetCommandState(COMMAND_FOLLOW);
@@ -611,6 +614,19 @@ void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
     if (pet && pet->ToPet() && pet->ToPet()->getPetType() == HUNTER_PET)
     {
         _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+    }
+}
+
+void WorldSession::HandlePetAbandonByNumber(WorldPackets::Pet::PetAbandonByNumber const& petAbandonByNumber)
+{
+    if (Pet* pet = _player->GetPet())
+    {
+        if (pet->IsHunterPet() && pet->m_unitData->PetNumber == petAbandonByNumber.PetNumber)
+            _player->RemovePet(pet, PET_SAVE_AS_DELETED);
+    }
+    else
+    {
+        _player->DeletePetFromDB(petAbandonByNumber.PetNumber);
     }
 }
 

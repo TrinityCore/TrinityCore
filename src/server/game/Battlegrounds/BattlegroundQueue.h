@@ -38,7 +38,7 @@ struct PlayerQueueInfo                                      // stores informatio
 struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
 {
     std::map<ObjectGuid, PlayerQueueInfo*> Players;         // player queue info map
-    uint32  Team;                                           // Player team (ALLIANCE/HORDE)
+    ::Team  Team;                                           // Player team (ALLIANCE/HORDE)
     uint32  ArenaTeamId;                                    // team id if rated match
     uint32  JoinTime;                                       // time when group was added
     uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
@@ -127,7 +127,7 @@ class TC_GAME_API BattlegroundQueue
 
         BattlegroundQueueTypeId m_queueId;
 
-        bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side);
+        bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, Team side);
         uint32 m_WaitTimes[PVP_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
         uint32 m_WaitTimeLastPlayer[PVP_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
         uint32 m_SumOfWaitTimes[PVP_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];

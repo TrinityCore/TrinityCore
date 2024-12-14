@@ -18,10 +18,9 @@
 #ifndef HotfixPackets_h__
 #define HotfixPackets_h__
 
-#include "Packet.h"
 #include "Common.h"
 #include "DB2Stores.h"
-#include "ObjectGuid.h"
+#include "Packet.h"
 
 namespace WorldPackets
 {
@@ -60,13 +59,12 @@ namespace WorldPackets
         class AvailableHotfixes final : public ServerPacket
         {
         public:
-            AvailableHotfixes(int32 virtualRealmAddress, DB2Manager::HotfixContainer const& hotfixes)
-                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), VirtualRealmAddress(virtualRealmAddress), Hotfixes(hotfixes) { }
+            AvailableHotfixes() : ServerPacket(SMSG_AVAILABLE_HOTFIXES, 0) { }
 
             WorldPacket const* Write() override;
 
-            int32 VirtualRealmAddress;
-            DB2Manager::HotfixContainer const& Hotfixes;
+            int32 VirtualRealmAddress = 0;
+            std::set<DB2Manager::HotfixId> Hotfixes;
         };
 
         class HotfixRequest final : public ClientPacket

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
 #include "CreatureAIImpl.h"
@@ -23,6 +24,8 @@
 #include "Player.h"
 #include "CellImpl.h"
 #include "Containers.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -30,11 +33,19 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptSystem.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Loot.h"
+#include "SpellHistory.h"
+#include "WorldStateMgr.h"
+#include "Unit.h"
+#include "Vehicle.h"
+#include "WorldSession.h"
+#include "CombatAI.h"
+#include "PhasingHandler.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -276,7 +287,10 @@ public:
     {
         // Remove aura if player drops quest
         if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
+        }
     }
 };
 
@@ -284,6 +298,8 @@ public:
 // 325108 - Summon Throg - Combat Training (DNT)
 class spell_summon_sparring_partner : public SpellScript
 {
+    // @TODO: drop after TARGET_UNK_142 impl
+
     void SelectTarget(WorldObject*& target)
     {
         Player* caster = GetCaster()->ToPlayer();
@@ -325,18 +341,8 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
             _actorId = ACTOR_ID_HORDE;
             _actorIndex = 1;
         }
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetImmuneToPC(true);
         _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 1s);
-    }
-
-    void IsSummonedBy(WorldObject* summonerWO) override
-    {
-        Unit* summoner = summonerWO->ToUnit();
-
-        if (!summoner || !summoner->IsPlayer())
-            return;
-
-        _playerGUID = summoner->GetGUID();
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -359,11 +365,11 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
         {
             case POSITION_SPARPOINT_ADVERTISMENT:
                 me->SetWalk(true);
-                me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, (float)rand_norm() * static_cast<float>(2 * M_PI)));
+                me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, rand_norm() * static_cast<float>(2 * M_PI)));
                 break;
             case POSITION_SPARPOINT_READY:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    me->SetFacingToObject(player);
+                if (Unit* owner = me->GetDemonCreator())
+                    me->SetFacingToObject(owner);
                 me->SetImmuneToPC(false);
                 me->SetUninteractible(false);
                 break;
@@ -377,11 +383,11 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
         if (pathId != _path)
             return;
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetDemonCreator())
         {
             me->DespawnOrUnsummon();
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->CastSpell(owner, SPELL_COMBAT_TRAINING_COMPLETE);
         }
     }
 
@@ -396,7 +402,7 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
             me->SetUninteractible(true);
             _events.CancelEvent(EVENT_JUMP_BEHIND);
 
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            if (Player* player = me->GetDemonCreatorPlayer())
             {
                 me->SetFacingToObject(player);
                 Talk(TALK_SPARING_COMPLETE, player);
@@ -427,9 +433,9 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
 
     void StartPrivateConversation(uint32 conversationId)
     {
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetDemonCreator())
         {
-            Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
+            Conversation* conversation = Conversation::CreateConversation(conversationId, owner, *owner, owner->GetGUID(), nullptr, false);
             conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
             conversation->Start();
         }
@@ -480,8 +486,6 @@ struct npc_sparring_partner_exiles_reach : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -489,7 +493,6 @@ private:
     uint8 _actorIndex;
     uint32 _actorId;
     uint32 _path;
-    ObjectGuid _playerGUID;
 };
 
 enum FirstMateStandYourGroundData
@@ -1024,7 +1027,7 @@ public:
     }
 };
 
-CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
+CreatureAI* CaptainGarrickAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
     {
@@ -1418,8 +1421,8 @@ struct npc_alliance_survivors_beach_laying : public ScriptedAI
         if (Player* player = caster->ToPlayer())
         {
             player->KilledMonsterCredit(me->GetEntry());
-
             Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID(), nullptr);
+            player->UpdateVisibilityForPlayer(); // Needed to make survivor stand instantly
         }
     }
 };
@@ -1485,7 +1488,7 @@ struct npc_mithran_dawntracker_beach_laying : public ScriptedAI
         if (spellInfo->Id != SPELL_BANDAGING_QUEST)
             return;
 
-        static Position const MithranCloneSpawnPosition = { -428.576f, -2593.93f, 0.152832f, 4.849576f };
+        static constexpr Position MithranCloneSpawnPosition = { -428.576f, -2593.93f, 0.152832f, 4.849576f };
 
         if (Player* player = caster->ToPlayer())
         {
@@ -1507,7 +1510,7 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
         if (spellInfo->Id != SPELL_BANDAGING_QUEST)
             return;
 
-        static Position const LanaCloneSpawnPosition = { -420.656f, -2600.28f, 0.556646f, 4.046853f };
+        static constexpr Position LanaCloneSpawnPosition = { -420.656f, -2600.28f, 0.556646f, 4.046853f };
 
         if (Player* player = caster->ToPlayer())
         {
@@ -1521,10 +1524,10 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
 
 enum ExilesReachMurlocsData
 {
-    ITEM_STITCHED_CLOTH_SHOES = 174791,
-    ITEM_STITCHED_LEATHER_BOOTS = 174792,
-    ITEM_LINKED_MAIL_BOOTS = 174793,
-    ITEM_DENTED_PLATE_BOOTS = 174794,
+    ITEM_STITCHED_CLOTH_SHOES           = 174791,
+    ITEM_STITCHED_LEATHER_BOOTS         = 174792,
+    ITEM_LINKED_MAIL_BOOTS              = 174793,
+    ITEM_DENTED_PLATE_BOOTS             = 174794,
 
     QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED = 58883
 };
@@ -1539,21 +1542,30 @@ struct npc_murloc_spearhunter_watershaper : public ScriptedAI
     {
         for (auto const& [playerGuid, loot] : me->m_personalLoot)
         {
-            for (LootItem const& lootItem : loot->items)
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
             {
-                if (lootItem.itemid == ITEM_STITCHED_CLOTH_SHOES || lootItem.itemid == ITEM_STITCHED_LEATHER_BOOTS || lootItem.itemid == ITEM_LINKED_MAIL_BOOTS || lootItem.itemid == ITEM_DENTED_PLATE_BOOTS)
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-                        player->SetRewardedQuest(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED);
+                if (player->IsQuestRewarded(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED))
+                    break;
+
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.type != LootItemType::Item)
+                        continue;
+
+                    switch (lootItem.itemid)
+                    {
+                        case ITEM_STITCHED_CLOTH_SHOES:
+                        case ITEM_STITCHED_LEATHER_BOOTS:
+                        case ITEM_LINKED_MAIL_BOOTS:
+                        case ITEM_DENTED_PLATE_BOOTS:
+                            player->SetRewardedQuest(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         }
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -1729,14 +1741,8 @@ CreatureAI* AustinBeachStandingAISelector(Creature* creature)
 
 enum LostExpeditionFollowerData
 {
-    ACTOR_ID_EMPTY                              = 0,
     ACTOR_ID_ALLIANCE_SURVIVOR                  = 69830,
     ACTOR_ID_HORDE_SURVIVOR                     = 76283,
-
-    ACTOR_INDEX_SURVIVOR_ZERO                   = 0,
-    ACTOR_INDEX_SURVIVOR_ONE,
-    ACTOR_INDEX_SURVIVOR_TWO,
-    ACTOR_INDEX_SURVIVOR_THREE,
 
     AREA_ABANDONED_CAMP                         = 10452,
 
@@ -1754,8 +1760,8 @@ enum LostExpeditionFollowerData
     POINT_CAMP_POSITION                         = 0,
 };
 
-Position const GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
-Position const GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
+static constexpr Position GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
+static constexpr Position GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
 
 // 165359 - Captain Garrick
 // This script is used by Captian Garrick Follower for Finding the Lost Expedition quest
@@ -1763,18 +1769,12 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 {
     npc_garrick_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
-        Player* player = summoner->ToPlayer();
-        if (!player)
-            return;
-
-        _playerGUID = player->GetGUID();
-
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
     }
 
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id != SPELL_GARRICK_PING)
             return;
@@ -1784,10 +1784,10 @@ struct npc_garrick_summoned_beach : public ScriptedAI
 
         _reachedCamp = true;
 
-        if (Player* player = caster->ToPlayer())
+        if (Unit* owner = me->GetOwner())
         {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
+            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
             conversation->Start();
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
@@ -1800,10 +1800,10 @@ struct npc_garrick_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetOwner())
         {
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
         }
     }
 
@@ -1817,23 +1817,23 @@ struct npc_garrick_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                    if (!player)
+                    Unit* owner = me->GetOwner();
+                    if (!owner)
                         break;
 
-                    Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
+                    Creature* survivor = FindCreatureIgnorePhase(owner, "spawn_check");
 
                     if (!survivor)
                     {
-                        if (player->GetAreaId() != AREA_ABANDONED_CAMP)
-                            player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
+                        if (owner->GetAreaId() != AREA_ABANDONED_CAMP)
+                            owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
                         else
                             _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
                     }
                     else
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
-                        conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false);
+                        conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
                         conversation->Start();
 
                         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
@@ -1841,8 +1841,8 @@ struct npc_garrick_summoned_beach : public ScriptedAI
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -1851,7 +1851,6 @@ struct npc_garrick_summoned_beach : public ScriptedAI
     }
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     bool _reachedCamp;
 };
 
@@ -1861,19 +1860,14 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
 {
     npc_grimaxe_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
-        Player* player = summoner->ToPlayer();
-        if (!player)
-            return;
-
-        _playerGUID = player->GetGUID();
         _reachedCamp = false;
 
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
     }
 
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id != SPELL_GARRICK_PING)
             return;
@@ -1881,12 +1875,13 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (_reachedCamp)
             return;
 
-        if (Player* player = caster->ToPlayer())
+        if (Unit* owner = me->GetOwner())
         {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_THREE, me->GetGUID());
-            conversation->Start();
-
+            if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false))
+            {
+                conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
+                conversation->Start();
+            }
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
             me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GrimaxeAbandonedCampPosition, false);
         }
@@ -1897,10 +1892,10 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* owner = me->GetOwner())
         {
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
         }
     }
 
@@ -1914,32 +1909,33 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
                 {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                    if (!player)
+                    Unit* owner = me->GetOwner();
+                    if (!owner)
                         break;
 
-                    Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
+                    Creature* survivor = FindCreatureIgnorePhase(owner, "spawn_check");
 
                     if (!survivor)
                     {
-                        if (player->GetAreaId() != AREA_ABANDONED_CAMP)
-                            player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
+                        if (owner->GetAreaId() != AREA_ABANDONED_CAMP)
+                            owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
                         else
                             _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
                     }
                     else
                     {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
-                        conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_TWO, me->GetGUID());
-                        conversation->Start();
-
+                        if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false))
+                        {
+                            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
+                            conversation->Start();
+                        }
                         _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
                     }
                     break;
                 }
                 case EVENT_FOLLOW_PLAYER:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
                     break;
                 default:
                     break;
@@ -1948,7 +1944,6 @@ struct npc_grimaxe_summoned_beach : public ScriptedAI
     }
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     bool _reachedCamp;
 };
 
@@ -2024,6 +2019,8 @@ public:
 // 325076 - Summon Warlord Grimaxe
 class spell_summon_survivor_beach : public SpellScript
 {
+    // @TODO: drop after TARGET_UNK_142 impl
+
     void SelectTarget(WorldObject*& target)
     {
         Player* caster = GetCaster()->ToPlayer();
@@ -2082,7 +2079,7 @@ enum CookingMeatQuestData
     ANIMATION_KIT_INJURED = 14432
 };
 
-Position const InjuredNpcPositionAbandonedCamp = { -245.40973f, -2492.0886f, 18.404648f, 2.4754f };
+static constexpr Position InjuredNpcPositionAbandonedCamp = { -245.40973f, -2492.0886f, 18.404648f, 2.4754f };
 
 // 55174 - Cooking Meat
 // 59932 - Cooking Meat
@@ -2106,7 +2103,8 @@ public:
                 if (!injured)
                     break;
 
-                injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
+                Creature* injuredTemp = injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
+                injuredTemp->SetAIAnimKitId(ANIMATION_KIT_INJURED);
                 break;
             }
             default:
@@ -2191,6 +2189,4903 @@ struct areatrigger_find_the_lost_expedition_follower : AreaTriggerAI
     }
 };
 
+enum EnhancedCombatTacticsData
+{
+    SPELL_SUMMON_CAPTAIN_GARRICK_COMBAT = 320211,
+    SPELL_SUMMON_WARLORD_GRIMAXE_COMBAT = 325180
+};
+
+// 59254 - Enhanced Combat Tactics (Alliance)
+// 59339 - Enhanced Combat Tactics (Alliance Monk)
+// 59933 - Enhanced Combat Tactics (Horde)
+// 59934 - Enhanced Combat Tactics (Horde Monk)
+class quest_enhanced_combat_tactics : public QuestScript
+{
+public:
+    quest_enhanced_combat_tactics() : QuestScript("quest_enhanced_combat_tactics") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, player->GetTeam() == ALLIANCE ? SPELL_SUMMON_CAPTAIN_GARRICK_COMBAT : SPELL_SUMMON_WARLORD_GRIMAXE_COMBAT);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(player->GetTeam() == ALLIANCE ? SPELL_SUMMON_CAPTAIN_GARRICK_COMBAT : SPELL_SUMMON_WARLORD_GRIMAXE_COMBAT);
+                player->UpdateObjectVisibility();
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 320175 - Summon Garrick - Combat Training (DNT)
+// 325181 - Summon Grimaxe - Combat Training (DNT)
+class spell_summon_combat_trainer : public SpellScript
+{
+    // @TODO: drop after TARGET_UNK_142 impl
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        Creature* partner = FindCreatureIgnorePhase(caster, caster->GetTeam() == ALLIANCE ? "garrick_camp" : "grimaxe_camp", 10.0f);
+        if (!partner)
+            return;
+
+        target = partner;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_combat_trainer::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+enum EnhancedCombatTrainerData
+{
+    ACTOR_ID_ALLIANCE_ENHANCED_TRAINING                 = 74771,
+    ACTOR_ID_HORDE_ENHANCED_TRAINING                    = 76285,
+
+    CHARGE_CATEGORY_CHARGE_SPELL                        = 1386,
+
+    CONVERSATION_PREFIGHT_WALK_ENHANCED                 = 13710,
+    CONVERSATION_USE_SPELLS_AT_RANGE                    = 13630,
+    CONVERSATION_READY_COMBAT                           = 14440,
+    // Warrior
+    CONVERSATION_READY_COMBAT_WARRIOR                   = 14441,
+    CONVERSATION_CHARGE_ZERO_RES_ENHANCED               = 14444,
+    CONVERSATION_SLAM_ENHANCED                          = 14447,
+    CONVERSATION_CHARGE_ONE_RES_ENHANCED                = 14448,
+    CONVERSATION_CHARGE_FINAL_ENHANCED                  = 14449,
+    CONVERSATION_CHARGE_KICKBACK                        = 13611,
+    // Paladin
+    CONVERSATION_HOLY_POWER_ONE_PALADIN                 = 14452,
+    CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN            = 14453,
+    CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN            = 14454,
+    CONVERSATION_SHIELD_SLAM_ONE_PALADIN                = 14455,
+    CONVERSATION_HOLY_POWER_TWO_PALADIN                 = 14456,
+    CONVERSATION_SHIELD_SLAM_TWO_PALADIN                = 14457,
+    CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN          = 14458,
+    CONVERSATION_HOLY_POWER_THREE_PALADIN               = 14459,
+    // Rogue
+    CONVERSATION_SINISTER_STRIKE_ONE_ROGUE              = 14486,
+    CONVERSATION_REGULAR_ATTACKS_ROGUE                  = 14487,
+    CONVERSATION_THREE_COMBO_POINTS_ROGUE               = 14488,
+    CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE           = 14489,
+    CONVERSATION_SINISTER_STRIKE_TWO_ROGUE              = 14490,
+    CONVERSATION_FOUR_COMBO_POINTS_ROGUE                = 14491,
+    CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE            = 14492,
+    CONVERSATION_SINISTER_STRIKE_THREE_ROGUE            = 14493,
+    CONVERSATION_FIVE_COMBO_POINTS_ROGUE                = 14494,
+    CONVERSATION_FAILED_EVISCERATE_ROGUE                = 14495,
+    // Priest
+    CONVERSATION_SHADOW_WORD_PAIN_QUEST_CREDIT_PRIEST   = 13892,
+    CONVERSATION_SMITE_PRE_COMBAT_PRIEST                = 14460,
+    CONVERSATION_SHADOW_WORD_PAIN_PRE_COMBAT_PRIEST     = 14461,
+    CONVERSATION_SHADOW_WORD_PAIN_TOO_SOON_PRIEST       = 14462,
+    CONVERSATION_SHADOW_WORD_PAIN_FADING_PRIEST         = 14463,
+    // Shaman
+    CONVERSATION_LIGHTNINGBOLT_FIRST_SHAMAN             = 13631,
+    CONVERSATION_PRIMAL_STRIKE_FIRST_SHAMAN             = 13632,
+    CONVERSATION_PRIMAL_STRIKE_QUEST_CREDIT_SHAMAN      = 13633,
+    CONVERSATION_LIGHTNINGBOLT_RANGE_SHAMAN             = 14475,
+    // Mage
+    CONVERSATION_FROSTBOLT_MAGE                         = 13634,
+    CONVERSATION_FIRE_BLAST_QUEST_CREDIT_MAGE           = 13635,
+    CONVERSATION_FROSTBOLT_CLOSE_MAGE                   = 14476,
+    CONVERSATION_FIRE_BLAST_MAGE_NO_CREDIT              = 14477,
+    // Warlock
+    CONVERSATION_CORRUPTION_QUEST_CREDIT_WARLOCK        = 13895,
+    CONVERSATION_SHADOW_BOLT_PRE_COMBAT_WARLOCK         = 14465,
+    CONVERSATION_CORRUPTION_CAST_PRE_COMBAT_WARLOCK     = 14466,
+    CONVERSATION_CORRUPTION_CAST_TOO_SOON_WARLOCK       = 14467,
+    CONVERSATION_CORRUPTION_IS_FADING_WARLOCK           = 14468,
+    // Druid
+    CONVERSATION_MOONFIRE_QUEST_CREDIT_DRUID            = 13893,
+    CONVERSATION_WRATH_PRE_COMBAT_DRUID                 = 14471,
+    CONVERSATION_MOONFIRE_CAST_PRE_COMBAT_DRUID         = 14472,
+    CONVERSATION_MOONFIRE_CAST_TOO_SOON_DRUID           = 14473,
+    CONVERSATION_MOONFIRE_WEARING_OFF_DRUID             = 14474,
+
+    // All classes
+    EVENT_COMBAT_TRAINING_WALK_AND_TALK                 = 1,
+    EVENT_COMBAT_TRAINING_FACE_PLAYER,
+    EVENT_COMBAT_RUN_BACK,
+    EVENT_COMBAT_TRAINING_END,
+    EVENT_COMBAT_CHECK_PLAYER,
+    // Rogue
+    EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE,
+    // Priest, Warlock, Druid
+    EVENT_COMBAT_TRAINING_SPELL_FADING,
+    // Shaman
+    EVENT_COMBAT_TRAINING_RESET_SHAMAN,
+    EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN,
+    // Mage
+    EVENT_COMBAT_TRAINING_RESET_MAGE,
+    EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE,
+
+    NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED              = 164577,
+    NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED2             = 164775,
+    //NPC_HORDE_SPARING_PARTNER_ENHANCED                  = 166916,
+    NPC_INVISBUNNY_CAMP                                 = 167761,
+
+    PATH_COMBAT_TRAINER_HOME                            = 10512100,
+
+    POINT_WALK_POINT_ENHANCED_TRAINING                  = 1,
+    POINT_RUN_POINT_ENHANCED_TRAINING                   = 2,
+    POINT_TRAINING_POINT_ENHANCED_TRAINING              = 3,
+
+    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE              = 59254,
+    QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE_MONK         = 59339,
+    QUEST_ENHANCED_COMBAT_TACTICS_HORDE                 = 59933,
+    QUEST_ENHANCED_COMBAT_TACTICS_HORDE_MONK            = 59934,
+
+    QUEST_OBJECTIVE_HORDE_ABILITIES_PROVEN              = 397255,
+    QUEST_OBJECTIVE_HORDE_TIGER_PALM                    = 397258,
+    QUEST_OBJECTIVE_HORDE_BLACKOUT_KICK                 = 397259,
+    QUEST_OBJECTIVE_ALLIANCE_ABILITIES_PROVEN           = 396220,
+    QUEST_OBJECTIVE_ALLIANCE_TIGER_PALM                 = 396353,
+    QUEST_OBJECTIVE_ALLIANCE_BLACKOUT_KICK              = 396354,
+
+    SPELL_DRINK_HEALING_POTION                          = 320229,
+    SPELL_KNOCKBACK                                     = 320735,
+    SPELL_CHARGE_KNOCKBACK_DRUID                        = 320767,
+    SPELL_CHARGE                                        = 100,
+    SPELL_SLAM                                          = 1464,
+    SPELL_CHARGE_KNOCKBACK_WARRIOR                      = 320583,
+    SPELL_SHIELD_OF_THE_RIGHTEOUS                       = 53600,
+    SPELL_CRUSADER_STRIKE                               = 35395,
+    SPELL_SINISTER_STRIKE                               = 1752,
+    SPELL_EVISCERATE                                    = 196819,
+    SPELL_SMITE                                         = 585,
+    SPELL_SHADOW_WORD_PAIN                              = 589,
+    SPELL_CHARGE_KNOCKBACK                              = 320605,
+    SPELL_PRIMAL_STRIKE                                 = 73899,
+    SPELL_LIGHTNING_BOLT                                = 188196,
+    SPELL_FIRE_BLAST                                    = 319836,
+    SPELL_FROSTBOLT                                     = 116,
+    SPELL_CORRUPTION                                    = 172,
+    SPELL_SHADOWBOLT                                    = 686,
+    SPELL_MOONFIRE                                      = 164812,
+    SPELL_WRATH                                         = 5176,
+    SPELL_TIGER_PALM                                    = 100780,
+    SPELL_BLACKOUT_KICK                                 = 100784,
+    SPELL_RANGED_ROOT_DNT                               = 320608,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR                = 320741,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_PRIEST                 = 320649,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN                 = 320705,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE           = 320741,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_WARLOCK                = 320606,
+    SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID                  = 320766
+};
+
+static constexpr Position EnhancedTrainingWalkPosition = { -250.60243f, -2485.2517f, 17.787413f };
+static constexpr Position EnhancedTrainingRunPosition = { -231.5225f, -2480.5276f, 19.019197f };
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_combat_training : public ScriptedAI
+{
+    npc_sparring_partner_combat_training(Creature* creature) : ScriptedAI(creature), _questID(0), _summonSpellAuraID(0) { }
+
+    virtual void OnReadyPointReached() { }
+
+    virtual void HandleClassEvent(uint32 /*eventId*/) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_WALK_AND_TALK, 2s);
+    }
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Player* player = summonerWO->GetAffectingPlayer();
+        if (!player)
+            return;
+
+        if (player->GetTeam() == ALLIANCE)
+        {
+            _summonSpellAuraID = SPELL_SUMMON_CAPTAIN_GARRICK_COMBAT;
+
+            if (player->GetClass() == CLASS_MONK)
+                _questID = QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE_MONK;
+            else
+                _questID = QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE;
+        }
+        else
+        {
+            _summonSpellAuraID = SPELL_SUMMON_WARLORD_GRIMAXE_COMBAT;
+
+            if (player->GetClass() == CLASS_MONK)
+                _questID = QUEST_ENHANCED_COMBAT_TACTICS_HORDE_MONK;
+            else
+                _questID = QUEST_ENHANCED_COMBAT_TACTICS_HORDE;
+        }
+    }
+
+    uint8 GetQuestCredits()
+    {
+        Player* player = me->GetDemonCreatorPlayer();
+        if (!player)
+            return 0;
+
+        uint32 objectiveId = 0;
+        switch (_questID)
+        {
+            case QUEST_ENHANCED_COMBAT_TACTICS_ALLIANCE:
+                objectiveId = QUEST_OBJECTIVE_ALLIANCE_ABILITIES_PROVEN;
+                break;
+            case QUEST_ENHANCED_COMBAT_TACTICS_HORDE:
+                objectiveId = QUEST_OBJECTIVE_HORDE_ABILITIES_PROVEN;
+                break;
+            default:
+                break;
+        }
+
+        return player->GetQuestObjectiveData(_questID, objectiveId);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (!me->IsAlive())
+            return;
+
+        me->CombatStop(true);
+        EngagementOver();
+        me->ResetPlayerDamageReq();
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        switch (uiId)
+        {
+            case POINT_WALK_POINT_ENHANCED_TRAINING:
+                me->SetWalk(false);
+                me->GetMotionMaster()->MovePoint(POINT_RUN_POINT_ENHANCED_TRAINING, EnhancedTrainingRunPosition);
+                break;
+            case POINT_RUN_POINT_ENHANCED_TRAINING:
+            {
+                std::list<Creature*> sparpoints;
+                GetCreatureListWithEntryInGrid(sparpoints, me, NPC_INVISBUNNY_CAMP, 100.0f);
+                Trinity::Containers::RandomResize(sparpoints, 1);
+
+                for (Creature* creature : sparpoints)
+                    me->GetMotionMaster()->MovePoint(POINT_TRAINING_POINT_ENHANCED_TRAINING, creature->GetPosition());
+                break;
+            }
+            case POINT_TRAINING_POINT_ENHANCED_TRAINING:
+            {
+                Unit* owner = me->GetDemonCreator();
+                if (!owner)
+                    break;
+
+                me->SetFacingToObject(owner);
+                me->SetImmuneToPC(false);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 1s);
+
+                OnReadyPointReached();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        damage = me->GetHealth() - 1;
+
+        if (me->HealthBelowPctDamaged(20, damage))
+            me->CastSpell(me, SPELL_DRINK_HEALING_POTION);
+    }
+
+    void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+    {
+        if (target->GetHealthPct() < 91)
+            damage = 0;
+    }
+
+    void StartConversationWithPlayer(uint32 conversationId)
+    {
+        if (Player* player = me->GetDemonCreatorPlayer())
+        {
+            Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
+            if (!conversation)
+                return;
+
+            conversation->AddActor(ACTOR_ID_ALLIANCE_ENHANCED_TRAINING, 0, player->GetTeam() == ALLIANCE ? me->GetGUID() : ObjectGuid::Empty);
+            conversation->AddActor(ACTOR_ID_HORDE_ENHANCED_TRAINING, 1, player->GetTeam() == HORDE ? me->GetGUID() : ObjectGuid::Empty);
+            conversation->Start();
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        // Used to check if reached home
+        if (pathId == PATH_COMBAT_TRAINER_HOME)
+        {
+            if (Unit* owner = me->GetDemonCreator())
+            {
+                owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+                owner->RemoveAura(_summonSpellAuraID);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_COMBAT_TRAINING_WALK_AND_TALK:
+                    // Used by all classes
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(POINT_WALK_POINT_ENHANCED_TRAINING, EnhancedTrainingWalkPosition);
+                    StartConversationWithPlayer(CONVERSATION_PREFIGHT_WALK_ENHANCED);
+                    break;
+                case EVENT_COMBAT_TRAINING_FACE_PLAYER:
+                {
+                    // Used by all classes
+                    if (Unit* owner = me->GetDemonCreator())
+                        me->SetFacingToObject(owner);
+
+                    me->SetImmuneToPC(false);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    break;
+                }
+                case EVENT_COMBAT_TRAINING_END:
+                    // Used by all classes
+                    me->SetImmuneToPC(true);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveAllAuras();
+                    if (Unit* owner = me->GetDemonCreator())
+                    {
+                        me->SetFacingToObject(owner);
+                        StartConversationWithPlayer(CONVERSATION_CHARGE_FINAL_ENHANCED);
+                        _events.ScheduleEvent(EVENT_COMBAT_RUN_BACK, 4s);
+                    }
+                    break;
+                case EVENT_COMBAT_RUN_BACK:
+                    // Used by all classes
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePath(PATH_COMBAT_TRAINER_HOME, false);
+                    break;
+                default:
+                    HandleClassEvent(eventId);
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+    }
+
+protected:
+    uint32 _questID;
+    uint32 _summonSpellAuraID;
+    EventMap _events;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_warrior : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_warrior(Creature* creature) : npc_sparring_partner_combat_training(creature), _slamCounter(0), _secondaryCheck(false) { }
+
+    void ResetWarrior(Player* player)
+    {
+        _slamCounter = 0;
+        me->SetImmuneToPC(true);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        player->GetSpellHistory()->ResetCharges(CHARGE_CATEGORY_CHARGE_SPELL);
+        me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
+        me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_FACE_PLAYER, 1s);
+        StartConversationWithPlayer(CONVERSATION_CHARGE_KICKBACK);
+    }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT_WARRIOR);
+        me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
+        me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+        _secondaryCheck = true;
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_CHARGE)
+        {
+            me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+            me->RemoveAura(SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
+
+            player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+            switch (GetQuestCredits())
+            {
+                case 1:
+                    StartConversationWithPlayer(CONVERSATION_CHARGE_ZERO_RES_ENHANCED);
+                    break;
+                case 2:
+                    StartConversationWithPlayer(CONVERSATION_CHARGE_ONE_RES_ENHANCED);
+                    break;
+                case 3:
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (spellInfo->Id == SPELL_SLAM)
+        {
+            ++_slamCounter;
+
+            if (_slamCounter == 3 && GetQuestCredits())
+                ResetWarrior(player);
+
+            if (!_secondaryCheck)
+                return;
+
+            _secondaryCheck = false;
+            StartConversationWithPlayer(CONVERSATION_SLAM_ENHANCED);
+        }
+    }
+
+private:
+    uint8 _slamCounter;
+    bool _secondaryCheck;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_paladin : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_paladin(Creature* creature) : npc_sparring_partner_combat_training(creature), _secondaryCheck(false), _holyPowerCheck(false) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+        _holyPowerCheck = true;
+        _secondaryCheck = true;
+    }
+
+    void HandleClassEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_COMBAT_CHECK_PLAYER:
+            {
+                if (_holyPowerCheck) // Used by paladin
+                {
+                    if (Unit* owner = me->GetDemonCreator())
+                    {
+                        if (owner->GetPower(POWER_HOLY_POWER) >= 3)
+                        {
+                            switch (GetQuestCredits())
+                            {
+                                case 0:
+                                    StartConversationWithPlayer(CONVERSATION_HOLY_POWER_ONE_PALADIN);
+                                    break;
+                                case 1:
+                                    StartConversationWithPlayer(CONVERSATION_HOLY_POWER_TWO_PALADIN);
+                                    break;
+                                case 2:
+                                    StartConversationWithPlayer(CONVERSATION_HOLY_POWER_THREE_PALADIN);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            _holyPowerCheck = false;
+                        }
+                    }
+                }
+                _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 500ms);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_SHIELD_OF_THE_RIGHTEOUS)
+        {
+            player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+            switch (GetQuestCredits())
+            {
+                case 1:
+                    StartConversationWithPlayer(CONVERSATION_SHIELD_SLAM_ONE_PALADIN);
+                    _secondaryCheck = true;
+                    break;
+                case 2:
+                    StartConversationWithPlayer(CONVERSATION_SHIELD_SLAM_TWO_PALADIN);
+                    _secondaryCheck = true;
+                    break;
+                case 3:
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                    _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (spellInfo->Id == SPELL_CRUSADER_STRIKE)
+        {
+            if (_secondaryCheck)
+            {
+                switch (GetQuestCredits())
+                {
+                    case 0:
+                        StartConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_ONE_PALADIN);
+                        break;
+                    case 1:
+                        StartConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_TWO_PALADIN);
+                        break;
+                    case 2:
+                        StartConversationWithPlayer(CONVERSATION_CRUSADER_STRIKE_THREE_PALADIN);
+                        break;
+                    default:
+                        break;
+                }
+                _secondaryCheck = false;
+                _holyPowerCheck = true;
+            }
+        }
+    }
+
+private:
+    bool _secondaryCheck;
+    bool _holyPowerCheck;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_rogue : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_rogue(Creature* creature) : npc_sparring_partner_combat_training(creature), _comboPointsCounter(0), _secondaryCheck(false), _comboPointCheck(false) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+        _comboPointCheck = true;
+        _secondaryCheck = true;
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        if (!GetQuestCredits())
+            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
+    }
+
+    void HandleClassEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE:
+                StartConversationWithPlayer(CONVERSATION_REGULAR_ATTACKS_ROGUE);
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
+                break;
+            case EVENT_COMBAT_CHECK_PLAYER:
+            {
+                if (_comboPointCheck) // Used by rogue
+                {
+                    if (Unit* owner = me->GetDemonCreator())
+                        _comboPointsCounter = owner->GetPower(POWER_COMBO_POINTS);
+
+                    if (_comboPointsCounter >= (GetQuestCredits() + 3))
+                    {
+                        switch (GetQuestCredits())
+                        {
+                            case 0:
+                                StartConversationWithPlayer(CONVERSATION_THREE_COMBO_POINTS_ROGUE);
+                                break;
+                            case 1:
+                                StartConversationWithPlayer(CONVERSATION_FOUR_COMBO_POINTS_ROGUE);
+                                break;
+                            case 2:
+                                StartConversationWithPlayer(CONVERSATION_FIVE_COMBO_POINTS_ROGUE);
+                                break;
+                            default:
+                                break;
+                        }
+                        _comboPointCheck = false;
+                    }
+                }
+                _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 500ms);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_EVISCERATE)
+        {
+            _comboPointCheck = true;
+            if (_comboPointsCounter >= (GetQuestCredits() + 3))
+            {
+                player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+                switch (GetQuestCredits())
+                {
+                    case 1:
+                        StartConversationWithPlayer(CONVERSATION_THREE_COMBO_EVISCERATE_ROGUE);
+                        _secondaryCheck = true;
+                        break;
+                    case 2:
+                        StartConversationWithPlayer(CONVERSATION_FOUR_COMBO_EVISCERATE_ROGUE);
+                        _secondaryCheck = true;
+                        break;
+                    case 3:
+                        _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                        _events.CancelEvent(EVENT_COMBAT_CHECK_PLAYER);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                StartConversationWithPlayer(CONVERSATION_FAILED_EVISCERATE_ROGUE);
+            }
+        }
+        else if (spellInfo->Id == SPELL_SINISTER_STRIKE)
+        {
+            if (!GetQuestCredits())
+                _events.RescheduleEvent(EVENT_COMBAT_TRAINING_SINISTER_CHECK_ROGUE, 8s, 20s);
+
+            if (_secondaryCheck)
+            {
+                switch (GetQuestCredits())
+                {
+                    case 0:
+                        StartConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_ONE_ROGUE);
+                        break;
+                    case 1:
+                        StartConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_TWO_ROGUE);
+                        break;
+                    case 2:
+                        StartConversationWithPlayer(CONVERSATION_SINISTER_STRIKE_THREE_ROGUE);
+                        break;
+                    default:
+                        break;
+                }
+                _secondaryCheck = false;
+            }
+        }
+    }
+
+private:
+    uint8 _comboPointsCounter;
+    bool _secondaryCheck;
+    bool _comboPointCheck;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_priest : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_priest(Creature* creature) : npc_sparring_partner_combat_training(creature), _shadowWordPainInPandemicWindow(false), _secondaryCheck(false) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+        me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_PRIEST);
+        me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+        _secondaryCheck = true;
+    }
+
+    void HandleClassEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_COMBAT_TRAINING_SPELL_FADING:
+            {
+                Aura* aura = me->GetAura(SPELL_SHADOW_WORD_PAIN);
+                if (!aura)
+                    break;
+
+                if (!_shadowWordPainInPandemicWindow)
+                {
+                    int32 pandemicDuration = CalculatePct(aura->GetMaxDuration(), 30.0f);
+                    if (aura->GetDuration() <= pandemicDuration)
+                    {
+                        _shadowWordPainInPandemicWindow = true;
+                        StartConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_FADING_PRIEST);
+                    }
+                }
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_SHADOW_WORD_PAIN)
+        {
+            if (_events.GetTimeUntilEvent(EVENT_COMBAT_TRAINING_SPELL_FADING) == Milliseconds::max())
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 1s);
+
+            if (!_shadowWordPainInPandemicWindow)
+            {
+                if (_secondaryCheck)
+                {
+                    StartConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRE_COMBAT_PRIEST);
+                    me->SetImmuneToPC(false);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                    _secondaryCheck = false;
+                }
+                else
+                    StartConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_TOO_SOON_PRIEST);
+            }
+            else
+            {
+                _shadowWordPainInPandemicWindow = false;
+                player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+                if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                else
+                    StartConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_QUEST_CREDIT_PRIEST);
+            }
+        }
+        else if (spellInfo->Id == SPELL_SMITE)
+        {
+            if (_secondaryCheck)
+                StartConversationWithPlayer(CONVERSATION_SMITE_PRE_COMBAT_PRIEST);
+        }
+    }
+
+private:
+    bool _shadowWordPainInPandemicWindow;
+    bool _secondaryCheck;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_shaman : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_shaman(Creature* creature) : npc_sparring_partner_combat_training(creature), _primalStrikeCounter(0), _secondaryCheck(false) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+        me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
+        me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+        _secondaryCheck = true;
+    }
+
+    void HandleClassEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_COMBAT_TRAINING_RESET_SHAMAN:
+                if (Unit* owner = me->GetDemonCreator())
+                {
+                    me->CastSpell(owner, SPELL_KNOCKBACK);
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN, 2s);
+                }
+                break;
+            case EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN:
+                me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
+                me->SetImmuneToPC(false);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                _secondaryCheck = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_PRIMAL_STRIKE)
+        {
+            if (!player->IsWithinDist(me, 2.0f))
+                return;
+
+            ++_primalStrikeCounter;
+
+            if (_primalStrikeCounter < 3)
+            {
+                if (_primalStrikeCounter == 1)
+                    StartConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_FIRST_SHAMAN);
+                return;
+            }
+
+            _primalStrikeCounter = 0;
+            player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+            if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+            {
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+            }
+            else
+            {
+                StartConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_QUEST_CREDIT_SHAMAN);
+                me->SetImmuneToPC(true);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_SHAMAN, 3s);
+            }
+        }
+        else if (spellInfo->Id == SPELL_LIGHTNING_BOLT)
+        {
+            me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+            me->RemoveAura(SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
+            if (_secondaryCheck)
+            {
+                StartConversationWithPlayer(CONVERSATION_LIGHTNINGBOLT_FIRST_SHAMAN);
+                _secondaryCheck = false;
+            }
+            else
+            {
+                if (player->IsWithinDist(me, 2.0f))
+                    StartConversationWithPlayer(CONVERSATION_LIGHTNINGBOLT_RANGE_SHAMAN);
+            }
+        }
+    }
+
+private:
+    uint8 _primalStrikeCounter;
+    bool _secondaryCheck;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_mage : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_mage(Creature* creature) : npc_sparring_partner_combat_training(creature), _secondaryCheck(true) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+        me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
+        me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+        _secondaryCheck = true;
+    }
+
+    void HandleClassEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_COMBAT_TRAINING_RESET_MAGE:
+                if (Unit* owner = me->GetDemonCreator())
+                {
+                    me->CastSpell(owner, SPELL_KNOCKBACK);
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE, 2s);
+                }
+                break;
+            case EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE:
+                me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
+                me->SetImmuneToPC(false);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                _secondaryCheck = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_FIRE_BLAST)
+        {
+            if (player->IsWithinDist(me, 2.0f))
+            {
+                player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+                if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                {
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                }
+                else
+                {
+                    StartConversationWithPlayer(CONVERSATION_FIRE_BLAST_QUEST_CREDIT_MAGE);
+                    me->SetImmuneToPC(true);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_MAGE, 4s);
+                }
+            }
+            else
+            {
+                StartConversationWithPlayer(CONVERSATION_FIRE_BLAST_MAGE_NO_CREDIT);
+            }
+        }
+        else if (spellInfo->Id == SPELL_FROSTBOLT)
+        {
+            me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+            me->RemoveAura(SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
+            if (_secondaryCheck)
+            {
+                StartConversationWithPlayer(CONVERSATION_FROSTBOLT_MAGE);
+                _secondaryCheck = false;
+            }
+            else
+            {
+                if (player->IsWithinDist(me, 2.0f))
+                    StartConversationWithPlayer(CONVERSATION_FROSTBOLT_CLOSE_MAGE);
+            }
+        }
+    }
+
+private:
+    bool _secondaryCheck;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_warlock : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_warlock(Creature* creature) : npc_sparring_partner_combat_training(creature), _corruptionInPandemicWindow(false), _secondaryCheck(false) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+        me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARLOCK);
+        me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+        _secondaryCheck = true;
+    }
+
+    void HandleClassEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_COMBAT_TRAINING_SPELL_FADING:
+            {
+                Aura* aura = me->GetAura(SPELL_CORRUPTION);
+                if (!aura)
+                    break;
+
+                if (!_corruptionInPandemicWindow)
+                {
+                    int32 pandemicDuration = CalculatePct(aura->GetMaxDuration(), 30.0f);
+                    if (aura->GetDuration() <= pandemicDuration)
+                    {
+                        _corruptionInPandemicWindow = true;
+                        StartConversationWithPlayer(CONVERSATION_CORRUPTION_IS_FADING_WARLOCK);
+                    }
+                }
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_CORRUPTION)
+        {
+            if (_events.GetTimeUntilEvent(EVENT_COMBAT_TRAINING_SPELL_FADING) == Milliseconds::max())
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 1s);
+
+            if (!_corruptionInPandemicWindow)
+            {
+                if (_secondaryCheck)
+                {
+                    StartConversationWithPlayer(CONVERSATION_CORRUPTION_CAST_PRE_COMBAT_WARLOCK);
+                    me->SetImmuneToPC(false);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                    _secondaryCheck = false;
+                }
+                else
+                    StartConversationWithPlayer(CONVERSATION_CORRUPTION_CAST_TOO_SOON_WARLOCK);
+            }
+            else
+            {
+                _corruptionInPandemicWindow = false;
+                player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+                if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                else
+                    StartConversationWithPlayer(CONVERSATION_CORRUPTION_QUEST_CREDIT_WARLOCK);
+            }
+        }
+        else if (spellInfo->Id == SPELL_SHADOWBOLT)
+        {
+            if (_secondaryCheck)
+                StartConversationWithPlayer(CONVERSATION_SHADOW_BOLT_PRE_COMBAT_WARLOCK);
+        }
+    }
+
+private:
+    bool _corruptionInPandemicWindow;
+    bool _secondaryCheck;
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_monk : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_monk(Creature* creature) : npc_sparring_partner_combat_training(creature) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_TIGER_PALM)
+            player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+        else if (spellInfo->Id == SPELL_BLACKOUT_KICK)
+            player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED2);
+
+        if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+            _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+    }
+};
+
+// 164577 - Alliance Sparring Partner
+// 166916 - Horde Sparring Partner
+struct npc_sparring_partner_enhanced_combat_training_druid : public npc_sparring_partner_combat_training
+{
+    npc_sparring_partner_enhanced_combat_training_druid(Creature* creature) : npc_sparring_partner_combat_training(creature), _hitByMoonfire(false), _moonfireInPandemicWindow(false) { }
+
+    void OnReadyPointReached() override
+    {
+        StartConversationWithPlayer(CONVERSATION_READY_COMBAT);
+        me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_DRUID);
+        me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
+        _moonfireInPandemicWindow = false;
+        _hitByMoonfire = false;
+    }
+
+    void HandleClassEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_COMBAT_TRAINING_SPELL_FADING:
+            {
+                Aura* aura = me->GetAura(SPELL_MOONFIRE);
+                if (!aura)
+                    break;
+
+                if (!_moonfireInPandemicWindow)
+                {
+                    int32 pandemicDuration = CalculatePct(aura->GetMaxDuration(), 30.0f);
+                    if (aura->GetDuration() <= pandemicDuration)
+                    {
+                        _moonfireInPandemicWindow = true;
+                        StartConversationWithPlayer(CONVERSATION_MOONFIRE_WEARING_OFF_DRUID);
+                    }
+                }
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        if (spellInfo->Id == SPELL_MOONFIRE)
+        {
+            if (_events.GetTimeUntilEvent(EVENT_COMBAT_TRAINING_SPELL_FADING) == Milliseconds::max())
+                _events.ScheduleEvent(EVENT_COMBAT_TRAINING_SPELL_FADING, 1s);
+
+            if (!_moonfireInPandemicWindow)
+            {
+                if (!_hitByMoonfire)
+                {
+                    StartConversationWithPlayer(CONVERSATION_MOONFIRE_CAST_PRE_COMBAT_DRUID);
+                    me->SetImmuneToPC(false);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveAura(SPELL_RANGED_ROOT_DNT);
+                    _hitByMoonfire = true;
+                }
+                else
+                    StartConversationWithPlayer(CONVERSATION_MOONFIRE_CAST_TOO_SOON_DRUID);
+            }
+            else
+            {
+                _moonfireInPandemicWindow = false;
+                player->KilledMonsterCredit(NPC_ALLIANCE_SPARRING_PARTNER_ENHANCED);
+
+                if (player->GetQuestStatus(_questID) == QUEST_STATUS_COMPLETE)
+                    _events.ScheduleEvent(EVENT_COMBAT_TRAINING_END, 1s);
+                else
+                    StartConversationWithPlayer(CONVERSATION_MOONFIRE_QUEST_CREDIT_DRUID);
+            }
+        }
+        else if (spellInfo->Id == SPELL_WRATH)
+        {
+            if (!_hitByMoonfire)
+                StartConversationWithPlayer(CONVERSATION_WRATH_PRE_COMBAT_DRUID);
+        }
+    }
+
+private:
+    bool _hitByMoonfire;
+    bool _moonfireInPandemicWindow;
+};
+
+CreatureAI* SparringPartnerEnhancedCombatTrainingSelector(Creature* creature)
+{
+    TempSummon* summon = creature->ToTempSummon();
+    if (!summon)
+        return new NullCreatureAI(creature);
+
+    Unit* summoner = summon->GetSummonerUnit();
+    if (!summoner)
+        return new NullCreatureAI(creature);
+
+    Player* player = summoner->ToPlayer();
+    if (!player)
+        return new NullCreatureAI(creature);
+
+    switch (player->GetClass())
+    {
+        case CLASS_WARRIOR:
+            return new npc_sparring_partner_enhanced_combat_training_warrior(creature);
+        case CLASS_PALADIN:
+            return new npc_sparring_partner_enhanced_combat_training_paladin(creature);
+        case CLASS_ROGUE:
+            return new npc_sparring_partner_enhanced_combat_training_rogue(creature);
+        case CLASS_PRIEST:
+            return new npc_sparring_partner_enhanced_combat_training_priest(creature);
+        case CLASS_SHAMAN:
+            return new npc_sparring_partner_enhanced_combat_training_shaman(creature);
+        case CLASS_MAGE:
+            return new npc_sparring_partner_enhanced_combat_training_mage(creature);
+        case CLASS_WARLOCK:
+            return new npc_sparring_partner_enhanced_combat_training_warlock(creature);
+        case CLASS_MONK:
+            return new npc_sparring_partner_enhanced_combat_training_monk(creature);
+        case CLASS_DRUID:
+            return new npc_sparring_partner_enhanced_combat_training_druid(creature);
+        default:
+            return new NullCreatureAI(creature);
+    }
+    if (creature->IsPrivateObject())
+        return new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature);
+    return new NullCreatureAI(creature);
+};
+
+struct at_aggro_radius_check_enhanced_combat_tactics : AreaTriggerAI
+{
+    at_aggro_radius_check_enhanced_combat_tactics(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        Unit* caster = at->GetCaster();
+        if (!caster)
+        {
+            at->RemoveFromWorld();
+            return;
+        }
+
+        caster->SetFacingToObject(player);
+
+        switch (player->GetClass())
+        {
+            case CLASS_WARRIOR:
+                caster->CastSpell(player, SPELL_CHARGE_KNOCKBACK_WARRIOR);
+                break;
+            case CLASS_PRIEST:
+            case CLASS_SHAMAN:
+            case CLASS_MAGE:
+            case CLASS_WARLOCK:
+                caster->CastSpell(player, SPELL_CHARGE_KNOCKBACK);
+                break;
+            case CLASS_DRUID:
+                caster->CastSpell(player, SPELL_CHARGE_KNOCKBACK_DRUID);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 320605 - Charge Knockback (DNT)
+class spell_knockback_charge_enhanced_training : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Player* player = GetHitUnit()->ToPlayer();
+        if (!player)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_ID_ALLIANCE_ENHANCED_TRAINING, 0, player->GetTeam() == ALLIANCE ? caster->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_ID_HORDE_ENHANCED_TRAINING, 1, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : caster->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_knockback_charge_enhanced_training::HandleLaunch, EFFECT_1, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_knockback_charge_enhanced_training::HandleEffect, EFFECT_1, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+enum NorthboundData
+{
+    CONVERSATION_QUEST_NORTHBOUND_ACCEPT_ALLIANCE       = 12066,
+    CONVERSATION_QUEST_NORTHBOUND_ACCEPT_HORDE          = 14499,
+
+    POINT_LEADER_RUN                                    = 0,
+
+    ACTOR_ID_0_NORTHBOUND_ACCEPT_ALLIANCE               = 71310,
+    ACTOR_ID_1_NORTHBOUND_ACCEPT_ALLIANCE               = 71297,
+    ACTOR_ID_0_NORTHBOUND_ACCEPT_HORDE                  = 79890,
+    ACTOR_ID_1_NORTHBOUND_ACCEPT_HORDE                  = 79888,
+    ACTOR_ID_0_NORTHBOUND_AREATRIGGER_ALLIANCE          = 71317,
+    ACTOR_ID_1_NORTHBOUND_AREATRIGGER_HORDE             = 76319,
+
+    QUEST_NORTHBOND_ALLIANCE                            = 55173,
+    QUEST_NORTHBOND_HORDE                               = 59935,
+
+    SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND    = 305660,
+    SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND    = 344382,
+    SPELL_LINGER_NORTHBOUND_ALLIANCE                    = 305665,
+    SPELL_LINGER_NORTHBOUND_HORDE                       = 344385,
+};
+
+static constexpr Position GarrickQuillboarBriarpatchPosition = { -142.62154f, -2641.0364f, 48.775497f };
+static constexpr Position GrimaxeQuillboarBriarpatchPosition = { -142.56076f, -2640.9915f, 48.755478f };
+
+// 165360 - Alliance Survivor
+// This script is used by Captian Garrick Follower for Northbound quest
+struct npc_leader_northbound : public ScriptedAI
+{
+    npc_leader_northbound(Creature* creature) : ScriptedAI(creature), _conversationId(0), _actorIdOne(0), _actorIdTwo(0), _lingerSpellId(0), _guardianSpellId(0) {}
+
+    void JustAppeared() override
+    {
+        Player* player = me->GetAffectingPlayer();
+        if (!player)
+            return;
+
+        player->UpdateVisibilityForPlayer();
+
+        Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "alaria_standing_abandoned_camp" : "wonza_standing_abandoned_camp", 5.0f);
+        if (!survivor)
+            return;
+
+        if (player->GetTeam() == ALLIANCE)
+        {
+            _conversationId = CONVERSATION_QUEST_NORTHBOUND_ACCEPT_ALLIANCE;
+            _actorIdOne = ACTOR_ID_0_NORTHBOUND_ACCEPT_ALLIANCE;
+            _actorIdTwo = ACTOR_ID_1_NORTHBOUND_ACCEPT_ALLIANCE;
+            _runToPosition = GarrickQuillboarBriarpatchPosition;
+            _lingerSpellId = SPELL_LINGER_NORTHBOUND_ALLIANCE;
+            _guardianSpellId = SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND;
+        }
+        else
+        {
+            _conversationId = CONVERSATION_QUEST_NORTHBOUND_ACCEPT_HORDE;
+            _actorIdOne = ACTOR_ID_0_NORTHBOUND_ACCEPT_HORDE;
+            _actorIdTwo = ACTOR_ID_1_NORTHBOUND_ACCEPT_HORDE;
+            _runToPosition = GrimaxeQuillboarBriarpatchPosition;
+            _lingerSpellId = SPELL_LINGER_NORTHBOUND_HORDE;
+            _guardianSpellId = SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND;
+        }
+
+        Conversation* conversation = Conversation::CreateConversation(_conversationId, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(_actorIdOne, 1, me->GetGUID());
+        conversation->AddActor(_actorIdTwo, 2, survivor->GetGUID());
+        conversation->Start();
+    }
+
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 3s);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == _lingerSpellId)
+        {
+            me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
+            me->GetMotionMaster()->MovePoint(POINT_LEADER_RUN, _runToPosition, false);
+        }
+        return;
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId != POINT_LEADER_RUN)
+            return;
+
+        me->SetFacingTo(6.0737457275390625);
+
+        if (Player* player = me->GetAffectingPlayer())
+        {
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            player->RemoveAura(_guardianSpellId);
+            player->UpdateVisibilityForPlayer();
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FOLLOW_PLAYER:
+                    if (Player* player = me->GetAffectingPlayer())
+                        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    uint32 _conversationId;
+    uint32 _actorIdOne;
+    uint32 _actorIdTwo;
+    Position _runToPosition;
+    uint32 _lingerSpellId;
+    uint32 _guardianSpellId;
+};
+
+// 55173 - Northbound
+// 59935 - Northbound
+class quest_northbound : public QuestScript
+{
+public:
+    quest_northbound(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 summonSpellId)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, summonSpellId);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(summonSpellId);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->UpdateVisibilityForPlayer();
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 55173 - Northbound
+class quest_northbound_alliance : public quest_northbound
+{
+public:
+    quest_northbound_alliance() : quest_northbound("quest_northbound_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND);
+    }
+};
+
+// 59935 - Northbound
+class quest_northbound_horde : public quest_northbound
+{
+public:
+    quest_northbound_horde() : quest_northbound("quest_northbound_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND);
+    }
+};
+
+// 305661 - Summon Admiral Garrick Guardian Summons Alliance Entry: 165360
+// 344383 - Summon Admiral Garrick Guardian Summons Horde Entry: 175034
+class spell_summon_leader_northbound : public SpellScript
+{
+    // @TODO: drop after TARGET_UNK_142 impl
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(caster, caster->GetTeam() == ALLIANCE ? "garrick_camp" : "grimaxe_camp", 5.0f);
+        if (!survivor)
+            return;
+
+        target = survivor;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_leader_northbound::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+struct at_northbound_linger : AreaTriggerAI
+{
+    at_northbound_linger(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (player->GetTeam() == ALLIANCE)
+        {
+            if (player->GetQuestStatus(QUEST_NORTHBOND_ALLIANCE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            if (!player->HasAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN_NORTHBOUND))
+                return;
+
+            if (player->HasAura(SPELL_LINGER_NORTHBOUND_ALLIANCE))
+                return;
+
+            player->CastSpell(player, SPELL_LINGER_NORTHBOUND_ALLIANCE);
+        }
+        else
+        {
+            if (player->GetQuestStatus(QUEST_NORTHBOND_HORDE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            if (!player->HasAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN_NORTHBOUND))
+                return;
+
+            if (player->HasAura(SPELL_LINGER_NORTHBOUND_HORDE))
+                return;
+
+            player->CastSpell(player, SPELL_LINGER_NORTHBOUND_HORDE);
+        }
+    }
+};
+
+// @TODO: drop
+// 305665 - Scene Linger (DNT)
+// 344385 - Scene Linger (DNT)
+class spell_scene_linger_northbound: public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = GetHitUnit()->ToPlayer();
+        if (!player)
+            return;
+
+        Creature* scout = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "huxworth_briarpatch" : "dawntracker_briarpatch", 100.0f);
+        if (!scout)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_ID_0_NORTHBOUND_AREATRIGGER_ALLIANCE, 0, player->GetTeam() == ALLIANCE ? scout->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_ID_1_NORTHBOUND_AREATRIGGER_HORDE, 1, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : scout->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_scene_linger_northbound::HandleLaunch, EFFECT_2, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_scene_linger_northbound::HandleEffect, EFFECT_2, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+// ***********************************************************************
+// * Scripting in this section occurs after reaching Quilboar Briarpatch *
+// ***********************************************************************
+
+// Taming the Wild Quest
+enum TamingTheWilds
+{
+    QUEST_TAMING_THE_WILDS_ALLIANCE         = 59342,
+    QUEST_TAMING_THE_WILDS_HORDE            = 59937,
+    QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE = 55607,
+
+    QUEST_OBJECTIVE_TRAINED_ALLIANCE        = 84761,
+    QUEST_OBJECTIVE_TRAINED_HORDE           = 85021,
+    QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE    = 84759,
+    QUEST_OBJECTIVE_BEAST_TAMED_HORDE       = 85023,
+
+    SPELL_TAME_BEAST                        = 1515
+};
+
+// 59342 - Taming the Wilds
+// 59937 - Taming the Wilds
+class quest_taming_the_wilds : public QuestScript
+{
+public:
+    quest_taming_the_wilds(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureString, uint32 questObjective1, uint32 questObjective2)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                if (Creature* survivor = FindCreatureIgnorePhase(player, creatureString, 5.0f))
+                    survivor->SummonPersonalClone(survivor->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+
+                // Hacks QUEST_OBJECTIVE_CRITERIA_TREE needs research
+                if (player->HasSpell(SPELL_TAME_BEAST))
+                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, questObjective1, 1);
+
+                if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) == QUEST_STATUS_REWARDED)
+                    player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, questObjective2, 1);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 59342 - Taming The Wild
+class quest_taming_the_wilds_alliance : public quest_taming_the_wilds
+{
+public:
+    quest_taming_the_wilds_alliance() : quest_taming_the_wilds("quest_taming_the_wilds_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "huxworth_briarpatch", QUEST_OBJECTIVE_TRAINED_ALLIANCE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE);
+    }
+};
+
+// 59937 - Taming The Wild
+class quest_taming_the_wilds_horde : public quest_taming_the_wilds
+{
+public:
+    quest_taming_the_wilds_horde() : quest_taming_the_wilds("quest_taming_the_wilds_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "dawntracker_briarpatch", QUEST_OBJECTIVE_TRAINED_HORDE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE);
+    }
+};
+
+enum TamingTheWildsData
+{
+    CONVERSATION_HORDE_TRAINER          = 14613,
+    CONVERSATION_HORDE_ACTOR            = 76440,
+
+    EVENT_ME_TURN_TO_PLAYER             = 1,
+    EVENT_ME_END_OF_CAST                = 2,
+
+    SPELL_TUTORIAL_HEALTH_DNT           = 316840,
+    SPELL_LEARNING_TAME_BEAST           = 320852,
+    SPELL_LEARN_TAME_BEAST              = 320840,
+    SPELL_LEARN_CALL_PET                = 320842,
+    SPELL_TAME_BEAST_EFFECT             = 13481,
+
+    SAY_PET_TRAINING_ALLIANCE           = 0,
+    SAY_FIND_A_BEAST_ALLIANCE           = 1,
+    SAY_FIND_A_BEAST_HORDE              = 0
+};
+
+// 154327 - Austin Huxsworth
+struct npc_huxsworth_hunter_quest_private : public ScriptedAI
+{
+    npc_huxsworth_hunter_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        _events.ScheduleEvent(EVENT_ME_TURN_TO_PLAYER, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ME_TURN_TO_PLAYER:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        me->SetFacingToObject(player);
+                        me->SetEmoteState(EMOTE_STATE_TALK);
+                        Talk(SAY_PET_TRAINING_ALLIANCE);
+                        player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
+                        _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
+                    }
+                    break;
+                case EVENT_ME_END_OF_CAST:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
+                            player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
+
+                        if (!player->HasSpell(SPELL_TAME_BEAST))
+                        {
+                            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_ALLIANCE, 1);
+                            player->CastSpell(player, SPELL_LEARN_TAME_BEAST);
+                            player->CastSpell(player, SPELL_LEARN_CALL_PET);
+                        }
+
+                        me->SetEmoteState(EMOTE_STATE_NONE);
+                        Talk(SAY_FIND_A_BEAST_ALLIANCE);
+                    }
+                    me->DespawnOrUnsummon(4s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+enum HuxsworthBriarpatchData
+{
+    CONVERSATION_BRIARPATCH_ALLIANCE        = 12073,
+
+    CONVERSATION_ACTOR_GARRICK_BRIARPATCH   = 71326,
+    CONVERSATION_ACTOR_HUXSWORTH_BRIARPATCH = 71327,
+
+    EVENT_HUXSWORTH_GARRICK_CONVERSATION    = 1,
+    EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH  = 2,
+};
+
+static constexpr Position GarrickBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
+static constexpr Position HuxworthBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
+
+// 154327 - Austin Huxsworth
+struct npc_huxsworth_briarpatch_quest_private : public ScriptedAI
+{
+    npc_huxsworth_briarpatch_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        if (Creature* garrick = ObjectAccessor::GetCreature(*me, _garrickGUID))
+            garrick->SetStandState(UNIT_STAND_STATE_STAND);
+
+        _events.ScheduleEvent(EVENT_HUXSWORTH_GARRICK_CONVERSATION, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HUXSWORTH_GARRICK_CONVERSATION:
+                {
+                    if (Unit* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_ALLIANCE, player, *player, player->GetGUID(), nullptr, false);
+                        if (!conversation)
+                            break;
+
+                        conversation->AddActor(CONVERSATION_ACTOR_GARRICK_BRIARPATCH, 0, _garrickGUID);
+                        conversation->AddActor(CONVERSATION_ACTOR_HUXSWORTH_BRIARPATCH, 1, me->GetGUID());
+                        conversation->Start();
+                        _events.ScheduleEvent(EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH, 13s);
+                    }
+                    break;
+                }
+                case EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH:
+                    if (Creature* garrick = ObjectAccessor::GetCreature(*me, _garrickGUID))
+                    {
+                        garrick->GetMotionMaster()->MovePoint(0, GarrickBriarpatchDespawnPosition);
+                        garrick->DespawnOrUnsummon(3s);
+                    }
+                    me->GetMotionMaster()->MovePoint(0, HuxworthBriarpatchDespawnPosition);
+                    me->DespawnOrUnsummon(3s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+public:
+    void SetGarrickGUID(ObjectGuid garrickGUID)
+    {
+        _garrickGUID = garrickGUID;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _garrickGUID;
+};
+
+// 166996 - Mithdran Dawntracker
+struct npc_dawntracker_hunter_quest_private : public ScriptedAI
+{
+    npc_dawntracker_hunter_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        _events.ScheduleEvent(EVENT_ME_TURN_TO_PLAYER, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ME_TURN_TO_PLAYER:
+                    if (Unit* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        me->SetFacingToObject(player);
+                        me->SetEmoteState(EMOTE_STATE_TALK);
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_HORDE_TRAINER, player, *player, player->GetGUID(), nullptr, false);
+                        if (conversation)
+                        {
+                            conversation->AddActor(CONVERSATION_HORDE_ACTOR, 0, me->GetGUID());
+                            conversation->Start();
+                        }
+                        player->CastSpell(player, SPELL_LEARNING_TAME_BEAST);
+                        _events.ScheduleEvent(EVENT_ME_END_OF_CAST, 8s);
+                    }
+                    break;
+                case EVENT_ME_END_OF_CAST:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        if (player->GetQuestStatus(QUEST_TRACKER_TAMING_THE_WILDS_COMPLETE) != QUEST_STATUS_REWARDED)
+                            player->CastSpell(player, SPELL_TUTORIAL_HEALTH_DNT);
+
+                        if (!player->HasSpell(SPELL_TAME_BEAST))
+                        {
+                            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_TRAINED_HORDE, 1);
+                            player->CastSpell(player, SPELL_LEARN_TAME_BEAST);
+                            player->CastSpell(player, SPELL_LEARN_CALL_PET);
+                        }
+                    }
+                    me->SetEmoteState(EMOTE_STATE_NONE);
+                    Talk(SAY_FIND_A_BEAST_HORDE);
+                    me->DespawnOrUnsummon(4s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+enum DawntrackerBriarpatch
+{
+    CONVERSATION_BRIARPATCH_HORDE               = 14513,
+
+    CONVERSATION_ACTOR_GRIMAXE_BRIARPATCH       = 76330,
+    CONVERSATION_ACTOR_DAWNTRACKER_BRIARPATCH   = 76331,
+
+    EVENT_DAWNTRACKER_GRIMAXE_CONVERSATION      = 1,
+    EVENT_DAWNTRACKER_GRIMAXE_RUN_BRIARPATCH    = 2,
+};
+
+static constexpr Position GrimaxeBriarpatchDespawnPosition = { -112.92383f, -2640.541f, 52.35042f };
+static constexpr Position DawntrackerBriarpatchDespawnPosition = { -112.61979f, -2645.9775f, 52.22835f };
+
+// 166996 - Mithdran Dawntracker
+struct npc_dawntracker_briarpatch_quest_private : public ScriptedAI
+{
+    npc_dawntracker_briarpatch_quest_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        if (Creature* grimaxe = ObjectAccessor::GetCreature(*me, _grimaxeGUID))
+            grimaxe->SetStandState(UNIT_STAND_STATE_STAND);
+
+        _events.ScheduleEvent(EVENT_DAWNTRACKER_GRIMAXE_CONVERSATION, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_DAWNTRACKER_GRIMAXE_CONVERSATION:
+                {
+                    if (Unit* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_BRIARPATCH_HORDE, player, *player, player->GetGUID(), nullptr, false);
+                        if (!conversation)
+                            break;
+
+                        conversation->AddActor(CONVERSATION_ACTOR_GRIMAXE_BRIARPATCH, 0, _grimaxeGUID);
+                        conversation->AddActor(CONVERSATION_ACTOR_DAWNTRACKER_BRIARPATCH, 1, me->GetGUID());
+                        conversation->Start();
+                        _events.ScheduleEvent(EVENT_HUXSWORTH_GARRICK_RUN_BRIARPATCH, 13s);
+                    }
+                    break;
+                }
+                case EVENT_DAWNTRACKER_GRIMAXE_RUN_BRIARPATCH:
+                    if (Creature* grimaxe = ObjectAccessor::GetCreature(*me, _grimaxeGUID))
+                    {
+                        grimaxe->GetMotionMaster()->MovePoint(0, GrimaxeBriarpatchDespawnPosition );
+                        grimaxe->DespawnOrUnsummon(2s);
+                    }
+                    me->GetMotionMaster()->MovePoint(0, DawntrackerBriarpatchDespawnPosition);
+                    me->DespawnOrUnsummon(2s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+public:
+    void SetGrimaxeGUID(ObjectGuid grimaxeGUID)
+    {
+        _grimaxeGUID = grimaxeGUID;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _grimaxeGUID;
+};
+
+CreatureAI* HuxsworthBriarpatchSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if (privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
+                return new npc_huxsworth_hunter_quest_private(creature);
+            else
+                return new npc_huxsworth_briarpatch_quest_private(creature);
+        }
+    }
+    return new NullCreatureAI(creature);
+};
+
+CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if (privateObjectOwner->GetQuestStatus(QUEST_TAMING_THE_WILDS_HORDE) == QUEST_STATUS_INCOMPLETE)
+                return new npc_dawntracker_hunter_quest_private(creature);
+            else
+                return new npc_dawntracker_briarpatch_quest_private(creature);
+        }
+    }
+    return new NullCreatureAI(creature);
+};
+
+// 316840 - Tutorial - Health (DNT)
+class spell_tutorial_health_dnt_proc_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TAME_BEAST_EFFECT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_TAME_BEAST_EFFECT)
+            return true;
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_tutorial_health_dnt_proc_aura::CheckProc);
+    }
+};
+
+// 316841 - Tutorial - Health (DNT)
+class spell_tutorial_health_dnt : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        // This shouldn't happen until tame beast spell completes
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            if (player->GetTeam() == ALLIANCE)
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_ALLIANCE, 1);
+            else
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_CRITERIA_TREE, QUEST_OBJECTIVE_BEAST_TAMED_HORDE, 1);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_tutorial_health_dnt::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum QuilboarQuest
+{
+    QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE            = 55186,
+    QUEST_FORBIDDEN_QUILBOAR_NECROMANY_ALLIANCE      = 55184,
+    QUEST_DOWN_WITH_THE_QUILBOAR_HORDE               = 59938,
+    QUEST_FORBIDDEN_QUILBOAR_NECROMANY_HORDE         = 59939,
+
+    SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_ALLIANCE = 298984,
+    SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE    = 325309
+};
+
+// 55186 - Quest Down with the Quilboar "Alliance"
+// 55184 - Forbidden Quilboar Necromancy "Alliance"
+// 59938 - Quest Down with the Quilboar "Horde"
+// 59939 - Forbidden Quilboar Necromancy "Horde"
+class quest_briarpatch : public QuestScript
+{
+public:
+    quest_briarpatch(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 questDown, uint32 questForbidden, uint32 spellValidated)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                if (player->GetQuestStatus(questDown) != QUEST_STATUS_NONE && player->GetQuestStatus(questForbidden) != QUEST_STATUS_NONE)
+                {
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                    player->CastSpell(player, spellValidated);
+                }
+                break;
+            case QUEST_STATUS_NONE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 55186 - Quest Down with the Quilboar "Alliance"
+// 55184 - Forbidden Quilboar Necromancy "Alliance"
+class quest_briarpatch_alliance : public quest_briarpatch
+{
+public:
+    quest_briarpatch_alliance() : quest_briarpatch("quest_briarpatch_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE, QUEST_FORBIDDEN_QUILBOAR_NECROMANY_ALLIANCE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_ALLIANCE);
+    }
+};
+
+// 59938 - Quest Down with the Quilboar "Horde"
+// 59939 - Forbidden Quilboar Necromancy "Horde"
+class quest_briarpatch_horde : public quest_briarpatch
+{
+public:
+    quest_briarpatch_horde() : quest_briarpatch("quest_briarpatch_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, QUEST_DOWN_WITH_THE_QUILBOAR_HORDE, QUEST_FORBIDDEN_QUILBOAR_NECROMANY_HORDE, SPELL_VALIDATED_QUEST_ACCEPT_BRIARPATCH_HORDE);
+    }
+};
+
+// 298984 - Validated Quest Accept
+class spell_validated_quest_accept_briarpatch_alliance : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            Creature* huxsworth = FindCreatureIgnorePhase(player, "huxworth_briarpatch", 10.0f);
+            Creature* garrick = FindCreatureIgnorePhase(player, "garrick_briarpatch", 10.0f);
+            if (!huxsworth || !garrick)
+                return;
+
+            Creature* huxsworthPersonal = huxsworth->SummonPersonalClone(huxsworth->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            Creature* garrickPersonal = garrick->SummonPersonalClone(garrick->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!huxsworthPersonal || !garrickPersonal)
+                return;
+
+            if (npc_huxsworth_briarpatch_quest_private* huxworthAI = CAST_AI(npc_huxsworth_briarpatch_quest_private, huxsworthPersonal->AI()))
+                huxworthAI->SetGarrickGUID(garrickPersonal->GetGUID());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_validated_quest_accept_briarpatch_alliance::HandleScript, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+// 325309 - Validated Quest Accept
+class spell_validated_quest_accept_briarpatch_horde : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            Creature* dawntracker = FindCreatureIgnorePhase(player, "dawntracker_briarpatch", 10.0f);
+            Creature* grimaxe = FindCreatureIgnorePhase(player, "grimaxe_briarpatch", 10.0f);
+            if (!dawntracker || !grimaxe)
+                return;
+
+            Creature* dawntrackerPersonal = dawntracker->SummonPersonalClone(dawntracker->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            Creature* grimaxePersonal = grimaxe->SummonPersonalClone(grimaxe->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!dawntrackerPersonal || !grimaxePersonal)
+                return;
+
+            if (npc_dawntracker_briarpatch_quest_private* dawntrackerAI = CAST_AI(npc_dawntracker_briarpatch_quest_private, dawntrackerPersonal->AI()))
+                dawntrackerAI->SetGrimaxeGUID(grimaxePersonal->GetGUID());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_validated_quest_accept_briarpatch_horde::HandleScript, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+enum GeolordData
+{
+    CONVERSATION_GEOLORD_AGGRO  = 13712,
+
+    CONVERSATION_ACTOR_GEOLORD  = 70670,
+    CONVERSATION_ACTOR_LINDIE   = 71238,
+    CONVERSATION_ACTOR_CORK     = 75976,
+
+    EVENT_CAST_EARTH_BOLT       = 1,
+    EVENT_CAST_UPHEAVAL         = 2,
+
+    NPC_CORK_FIZZLEPOP          = 167008,
+    NPC_LINDIE_SPRINGSTOCK      = 154301,
+    NPC_INVIS_BUNNY_GEOLORD     = 155371,
+
+    ACTION_FREE_PRISONER        = 1,
+
+    SPELL_NECROTIC_RITUAL_DNT   = 305513,
+    SPELL_EARTH_BOLT            = 270453,
+    SPELL_UPHEAVAL              = 319273,
+
+    WORLDSTATE_HORDE            = 4486
+};
+
+static constexpr Position PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
+
+// 151091 - Geolord Grek'og
+struct npc_geolord_grekog : public ScriptedAI
+{
+    npc_geolord_grekog(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        uint32 prisonerEntry = NPC_LINDIE_SPRINGSTOCK;
+
+        if (sWorldStateMgr->GetValue(WORLDSTATE_HORDE, me->GetMap()) == 1)
+            prisonerEntry = NPC_CORK_FIZZLEPOP;
+
+        Creature* bunny = me->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_INVIS_BUNNY_GEOLORD, .IgnorePhases = true });
+        if (!bunny)
+            return;
+
+        if (Creature* prisoner = bunny->SummonCreature(prisonerEntry, PrisonerPosition, TEMPSUMMON_MANUAL_DESPAWN))
+            _prisonerGUID = prisoner->GetGUID();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* prisoner = ObjectAccessor::GetCreature(*me, _prisonerGUID))
+            prisoner->AI()->DoAction(ACTION_FREE_PRISONER);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (Player* player = who->ToPlayer())
+        {
+            Conversation::CreateConversation(CONVERSATION_GEOLORD_AGGRO, player, *player, player->GetGUID(), nullptr, true);
+
+            _events.ScheduleEvent(EVENT_CAST_EARTH_BOLT, 3s, 5s);
+            _events.ScheduleEvent(EVENT_CAST_UPHEAVAL, 10s, 15s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAST_EARTH_BOLT:
+                {
+                    DoCastVictim(SPELL_EARTH_BOLT);
+                    _events.ScheduleEvent(EVENT_CAST_EARTH_BOLT, 10s, 12s);
+                    break;
+                }
+                case EVENT_CAST_UPHEAVAL:
+                {
+                    DoCastSelf(SPELL_UPHEAVAL);
+                    _events.ScheduleEvent(EVENT_CAST_UPHEAVAL, 10s, 15s);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    ObjectGuid _prisonerGUID;
+};
+
+enum BriarpatchPrisonerData
+{
+    EVENT_RUN_TO_PLAINS = 1,
+
+    SAY_GET_OUT_OF_HERE = 0
+};
+
+static constexpr Position BriarpatchPrisonerJumpToPosition = { 19.5174f, -2513.75f, 74.0545f };
+static constexpr Position PrisonerBriarpatchDespawnPosition = { 51.005207f, -2485.644f, 78.15223f };
+
+// 167008 - Cork Fizzlepop
+// 154301 - Lindie Springstock
+struct npc_briarpatch_prisoner : public ScriptedAI
+{
+    npc_briarpatch_prisoner(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetDisableGravity(true);
+        me->SetControlled(true, UNIT_STATE_ROOT);
+        me->CastSpell(me, SPELL_NECROTIC_RITUAL_DNT);
+    }
+
+    void DoAction(int32 param) override
+    {
+        if (param == ACTION_FREE_PRISONER)
+        {
+            me->RemoveAllAuras();
+            me->SetDisableGravity(false);
+            me->SetControlled(false, UNIT_STATE_ROOT);
+            me->GetMotionMaster()->MoveJump(BriarpatchPrisonerJumpToPosition, 7.9894905f, 19.29110336303710937f);
+            Talk(SAY_GET_OUT_OF_HERE);
+            _events.ScheduleEvent(EVENT_RUN_TO_PLAINS, 4s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RUN_TO_PLAINS:
+                    me->GetMotionMaster()->MovePoint(0, PrisonerBriarpatchDespawnPosition);
+                    me->DespawnOrUnsummon(5s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum OgreOverseerQuilboarText
+{
+    SAY_AGGRO = 0,
+    SAY_DEATH = 1,
+};
+
+enum ExilesReachQuilboarData
+{
+    ITEM_STITCHED_CLOTH_TUNIC      = 174811,
+    ITEM_STITCHED_LEATHER_TUNIC    = 174812,
+    ITEM_LINKED_MAIL_HAUBERK       = 174813,
+    ITEM_DENTED_CHESTPLATE         = 174814,
+
+    QUEST_BRIARPATCH_CHEST_DROPPED = 58904
+};
+
+enum QuilboarWarriorGeomancerData
+{
+    EVENT_BRUTAL_STRIKE        = 1,
+    EVENT_GEOMANCER_EARTH_BOLT = 1,
+
+    SPELL_NECROTIC_BURST       = 313261,
+    SPELL_QUILBOAR_SLEEP_DNT   = 313265,
+    SPELL_BRUTAL_STRIKE        = 317383,
+    SPELL_GEOMANCER_EARTH_BOLT = 321188
+};
+
+// 150237 - Quilboar Warrior
+struct npc_quilboar_warrior : public ScriptedAI
+{
+    npc_quilboar_warrior(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
+
+        if (roll_chance_f(33.33f))
+            Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 3s, 5s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (roll_chance_f(33.33f))
+            Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+            {
+                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
+                    break;
+
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.type != LootItemType::Item)
+                        continue;
+
+                    switch (lootItem.itemid)
+                    {
+                        case ITEM_STITCHED_CLOTH_TUNIC:
+                        case ITEM_STITCHED_LEATHER_TUNIC:
+                        case ITEM_LINKED_MAIL_HAUBERK:
+                        case ITEM_DENTED_CHESTPLATE:
+                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BRUTAL_STRIKE:
+                    DoCastVictim(SPELL_BRUTAL_STRIKE);
+                    _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 8s, 12s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// 150238 - Quilboar Geomancer
+struct npc_quilboar_geomancer : public ScriptedAI
+{
+    npc_quilboar_geomancer(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
+
+        if (roll_chance_f(33.33f))
+            Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 5s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (roll_chance_f(33.33f))
+            Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+            {
+                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
+                    break;
+
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.type != LootItemType::Item)
+                        continue;
+
+                    switch (lootItem.itemid)
+                    {
+                        case ITEM_STITCHED_CLOTH_TUNIC:
+                        case ITEM_STITCHED_LEATHER_TUNIC:
+                        case ITEM_LINKED_MAIL_HAUBERK:
+                        case ITEM_DENTED_CHESTPLATE:
+                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GEOMANCER_EARTH_BOLT:
+                    DoCastVictim(SPELL_GEOMANCER_EARTH_BOLT);
+                    _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 10s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum ExilesReachOgreOverseerData
+{
+    EVENT_OVERSEER_BACKHAND                 = 1,
+    EVENT_OVERSEER_EARTHSHATTER             = 2,
+
+    ITEM_BATTERED_CLOAK                     = 11847,
+    ITEM_OVERSEERS_MANDATE                  = 174790,
+
+    QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED = 56051,
+
+    SPELL_BACKHAND                          = 276991,
+    SPELL_EARTHSHATTER                      = 319292
+};
+
+// 156676 - Ogre Overseer
+struct npc_ogre_overseer : public ScriptedAI
+{
+    npc_ogre_overseer(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_OVERSEER_BACKHAND, 5s);
+        _events.ScheduleEvent(EVENT_OVERSEER_EARTHSHATTER, 10s, 15s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+            {
+                if (player->IsQuestRewarded(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED))
+                    break;
+
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_BATTERED_CLOAK)
+                    {
+                        player->SetRewardedQuest(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_OVERSEER_BACKHAND:
+                    DoCastVictim(SPELL_BACKHAND);
+                    _events.ScheduleEvent(EVENT_OVERSEER_BACKHAND, 15s, 20s);
+                    break;
+                case EVENT_OVERSEER_EARTHSHATTER:
+                    DoCastAOE(SPELL_EARTHSHATTER);
+                    _events.ScheduleEvent(EVENT_OVERSEER_EARTHSHATTER, 15s, 20s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum BriarpathPlainsConversations
+{
+    CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_ALLIANCE = 12076,
+    CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_HORDE    = 14514
+};
+
+struct at_briarpatch_to_plains : AreaTriggerAI
+{
+    at_briarpatch_to_plains(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    // @TODO: remove when conversation cooldown is implemented
+    void StartConversation(Player* player, uint32 conversationId)
+    {
+        std::vector<WorldObject*> objs;
+
+        Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), conversationId);
+        Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
+        Cell::VisitGridObjects(player, checker, 100.0f);
+
+        if (objs.empty())
+            Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (player->GetTeam() == ALLIANCE)
+        {
+            if (player->GetQuestStatus(QUEST_DOWN_WITH_THE_QUILBOAR_ALLIANCE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            StartConversation(player, CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_ALLIANCE);
+        }
+        else
+        {
+            if (player->GetQuestStatus(QUEST_DOWN_WITH_THE_QUILBOAR_HORDE) != QUEST_STATUS_COMPLETE)
+                return;
+
+            StartConversation(player, CONVERSATION_DOWN_WITH_THE_QUILLBOAR_COMPLETE_HORDE);
+        }
+    }
+};
+
+class spell_quilboar_sleep_dnt : public AuraScript
+{
+    void ApplyEffect(AuraEffect const* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* target = GetTarget()->ToCreature())
+            target->SetReactState(REACT_PASSIVE);
+    }
+
+    void RemoveEffect(AuraEffect const* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* target = GetTarget()->ToCreature())
+        {
+            target->SetReactState(REACT_AGGRESSIVE);
+            target->SetStandState(UNIT_STAND_STATE_STAND);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_quilboar_sleep_dnt::RemoveEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_quilboar_sleep_dnt::ApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// **************************************************************
+// * Scripting in this section occurs after reaching The Plains *
+// **************************************************************
+
+enum LindieSpringStockData
+{
+    CONVERSATION_RESIZE_COPTER_ALLIANCE = 12078,
+    CONVERSATION_RESIZE_COPTER_HORDE    = 14516,
+
+    CONVERSATION_ACTOR_GOBLIN_ALLIANCE  = 71345,
+    CONVERSATION_ACTOR_GOBLIN_HORDE     = 76337,
+    CONVERSATION_ACTOR_COPTER           = 71344,
+
+    EVENT_CONVERSATION                  = 1,
+    EVENT_RESIZE_COPTER_1               = 2,
+    EVENT_RESIZE_COPTER_2               = 3,
+    EVENT_RESIZE_COPTER_3               = 4,
+    EVENT_RESIZE_COPTER_4               = 5,
+    EVENT_RESIZE_COPTER_5               = 6,
+    EVENT_RESIZE_COPTER_6               = 7,
+
+    NPC_LINDIE_SPRINGSTOCK_PLAINS       = 149899,
+
+    QUEST_THE_SCOUT_O_MATIC_5000        = 55193,
+    QUEST_THE_CHOPPY_BOOSTER_MK5        = 59940,
+
+    SPELL_RE_SIZING                     = 313269,
+    SPELL_GROW_ONE                      = 129310,
+    SPELL_GROW_TWO                      = 94214,
+    SPELL_GROW_THREE                    = 111701
+};
+
+static constexpr Position MiniChopperJumpPosition = { 107.979f, -2414.13f, 95.6243f };
+
+// 149899 - Lindie Springstock
+// 167019 - Cork Fizzlepop
+struct npc_gnome_goblin_plains_make_copter_private : public ScriptedAI
+{
+    npc_gnome_goblin_plains_make_copter_private(Creature* creature) : ScriptedAI(creature), _conversationId(0), _conversationActorId(0), _timer(0ms) { }
+
+    void JustAppeared() override
+    {
+        if (me->GetEntry() == NPC_LINDIE_SPRINGSTOCK_PLAINS)
+        {
+            _conversationId = CONVERSATION_RESIZE_COPTER_ALLIANCE;
+            _conversationActorId = CONVERSATION_ACTOR_GOBLIN_ALLIANCE;
+            _timer = 1350ms;
+        }
+        else
+        {
+            _conversationId = CONVERSATION_RESIZE_COPTER_HORDE;
+            _conversationActorId = CONVERSATION_ACTOR_GOBLIN_HORDE;
+            _timer = 750ms;
+        }
+
+        _events.ScheduleEvent(EVENT_CONVERSATION, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CONVERSATION:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner()))
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(_conversationId, player, *player, player->GetGUID(), nullptr, false);
+                        if (!conversation)
+                            break;
+
+                        conversation->AddActor(_conversationActorId, 0, me->GetGUID());
+                        conversation->AddActor(CONVERSATION_ACTOR_COPTER, 1, _copterGUID);
+                        conversation->Start();
+                    }
+
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->GetMotionMaster()->MoveJump(MiniChopperJumpPosition, 19.29f, 6.99f);
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_1, 6s);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_1:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                    {
+                        me->SetFacingTo(0.488383f);
+                        me->CastSpell(copter, SPELL_RE_SIZING);
+                        copter->CastSpell(copter, SPELL_GROW_ONE);
+                    }
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_2, 2s);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_2:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->RemoveAura(SPELL_GROW_ONE);
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_3, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_3:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->CastSpell(copter, SPELL_GROW_TWO);
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_4, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_4:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->RemoveAura(SPELL_GROW_TWO);
+
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_5, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_5:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                        copter->CastSpell(copter, SPELL_GROW_THREE);
+
+                    me->CastStop(SPELL_RE_SIZING);
+                    me->SetFacingTo(4.50382f);
+                    me->DespawnOrUnsummon(27s);
+                    _events.ScheduleEvent(EVENT_RESIZE_COPTER_6, _timer);
+                    break;
+                }
+                case EVENT_RESIZE_COPTER_6:
+                {
+                    if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
+                    {
+                        copter->RemoveAura(SPELL_GROW_THREE);
+                        copter->DespawnOrUnsummon(2s);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+public:
+    void SetCopterGUID(ObjectGuid copterGUID)
+    {
+        _copterGUID = copterGUID;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _copterGUID;
+    uint32 _conversationId;
+    uint32 _conversationActorId;
+    Milliseconds _timer;
+};
+
+CreatureAI* LindieSpringstockSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if (privateObjectOwner->GetQuestStatus(QUEST_THE_SCOUT_O_MATIC_5000) == QUEST_STATUS_INCOMPLETE)
+                return new npc_gnome_goblin_plains_make_copter_private(creature);
+        }
+    }
+    return new NullCreatureAI(creature);
+};
+
+CreatureAI* CorkFizzlepopSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if (privateObjectOwner->GetQuestStatus(QUEST_THE_CHOPPY_BOOSTER_MK5) == QUEST_STATUS_INCOMPLETE)
+                return new npc_gnome_goblin_plains_make_copter_private(creature);
+        }
+    }
+    return new NullCreatureAI(creature);
+};
+
+enum CopterRideData
+{
+    CONVERSATION_RIDE_TO_OGRE_RUINS_ALLIANCE   = 12083,
+    CONVERSATION_RIDE_FROM_OGRE_RUINS_ALLIANCE = 12084,
+    CONVERSATION_RIDE_TO_OGRE_RUINS_HORDE      = 14517,
+    CONVERSATION_RIDE_FROM_OGRE_RUINS_HORDE    = 14520,
+
+    EVENT_START_SCOUT_OGRE_RUINS               = 1,
+    EVENT_RETURN_FROM_OGRE_RUINS               = 2,
+    EVENT_TRIGGER_CREW_MOVE                    = 3,
+
+    NPC_SCOUT_O_MATIC_5000                     = 156518,
+    NPC_CHOPPY_BOOSTER_MK5                     = 167027,
+
+    PATH_COPTER_TO_RUINS                       = 15652600,
+    PATH_COPTER_FROM_RUINS                     = 15652601,
+    PATH_WONSA_PLAINS                          = 16790900,
+    PATH_BO_PLAINS                             = 16791000,
+    PATH_LANA_PLAINS                           = 16791100,
+    PATH_JINHAKE_PLAINS                        = 16791200,
+    PATH_THROG_PLAINS                          = 16791300,
+
+    SPELL_SCENE_OGRE_RUINS_ALLIANCE            = 321342,
+    SPELL_SCENE_OGRE_RUINS_HORDE               = 326626,
+    SPELL_ROPED_DNT                            = 303067,
+    SPELL_SCOUT_O_MATIC_PING_DNT               = 321340,
+    SCOUT_O_MATIC_DESUMMON                     = 305548
+};
+
+// 156526 - Scout-o-Matic 5000
+struct npc_scoutomatic_5000 : public ScriptedAI
+{
+    npc_scoutomatic_5000(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply && passenger->IsPlayer())
+        {
+            me->CastSpell(passenger, SPELL_ROPED_DNT);
+            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 2s);
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID());
+        if (!player)
+            return;
+
+        if (pathId == PATH_COPTER_TO_RUINS)
+        {
+            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_ALLIANCE);
+        }
+        else
+        {
+            player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE));
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SCOUT_O_MATIC_PING_DNT)
+        {
+            if (Player* player = caster->ToPlayer())
+                player->KilledMonsterCredit(NPC_SCOUT_O_MATIC_5000);
+
+            _events.ScheduleEvent(EVENT_RETURN_FROM_OGRE_RUINS, 1s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_SCOUT_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        me->SetSpeed(MOVE_WALK, 5.5f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_TO_RUINS, false);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_TO_OGRE_RUINS_ALLIANCE, player, *player, player->GetGUID(), nullptr);
+                    }
+                    break;
+                }
+                case EVENT_RETURN_FROM_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        me->SetSpeed(MOVE_WALK, 5.0f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_FROM_RUINS, false);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_FROM_OGRE_RUINS_ALLIANCE, player, *player, player->GetGUID(), nullptr);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+static constexpr Position HordeCrewPersonalSpawnLocation[] =
+{
+    { 50.920593f, -2477.466f, 79.444374f, 0.8753076f },
+    { 60.51328f, -2476.4822f, 81.034775f, 0.9128374f },
+    { 53.08128f, -2476.5154f, 79.822624f, 0.9394135f },
+    { 53.281864f, -2480.052f, 79.18003f, 0.78539818f },
+    { 53.936935f, -2475.588f, 80.24179f, 0.91009599f }
+};
+
+// 167905 - Choppy Booster Mk. 5
+struct npc_choppy_booster_scout : public ScriptedAI
+{
+    npc_choppy_booster_scout(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply && passenger->IsPlayer())
+        {
+            me->CastSpell(passenger, SPELL_ROPED_DNT);
+            _events.ScheduleEvent(EVENT_START_SCOUT_OGRE_RUINS, 2s);
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID());
+        if (!player)
+            return;
+
+        if (pathId == PATH_COPTER_TO_RUINS)
+        {
+            player->CastSpell(player, SPELL_SCENE_OGRE_RUINS_HORDE);
+        }
+        else
+        {
+            player->CastSpell(player, SCOUT_O_MATIC_DESUMMON, CastSpellExtraArgs(TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE));
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SCOUT_O_MATIC_PING_DNT)
+        {
+            if (Player* player = caster->ToPlayer())
+                player->KilledMonsterCredit(NPC_CHOPPY_BOOSTER_MK5);
+
+            _events.ScheduleEvent(EVENT_RETURN_FROM_OGRE_RUINS, 1s);
+        }
+        return;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_SCOUT_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        me->SetSpeed(MOVE_WALK, 6.0f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_TO_RUINS, false);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_TO_OGRE_RUINS_HORDE, player, *player, player->GetGUID(), nullptr);
+                    }
+                    break;
+                }
+                case EVENT_RETURN_FROM_OGRE_RUINS:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        me->SetSpeed(MOVE_WALK, 4.5f);
+                        me->GetMotionMaster()->MovePath(PATH_COPTER_FROM_RUINS, false);
+                        Conversation::CreateConversation(CONVERSATION_RIDE_FROM_OGRE_RUINS_HORDE, player, *player, player->GetGUID(), nullptr);
+                        _events.ScheduleEvent(EVENT_TRIGGER_CREW_MOVE, 11s);
+                    }
+                    break;
+                }
+                case EVENT_TRIGGER_CREW_MOVE:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, me->GetOwnerGUID()))
+                    {
+                        if (Creature* wonsa = FindCreatureIgnorePhase(player, "wonsa_darkmaul_plains"))
+                            if (Creature* wonsaClone = wonsa->SummonPersonalClone(HordeCrewPersonalSpawnLocation[0], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player))
+                                wonsaClone->GetMotionMaster()->MovePath(PATH_WONSA_PLAINS, false);
+
+                        if (Creature* bo = FindCreatureIgnorePhase(player, "bo_darkmaul_plains"))
+                            if (Creature* boClone = bo->SummonPersonalClone(HordeCrewPersonalSpawnLocation[1], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player))
+                                boClone->GetMotionMaster()->MovePath(PATH_BO_PLAINS, false);
+
+                        if (Creature* lana = FindCreatureIgnorePhase(player, "lana_darkmaul_plains"))
+                            if (Creature* lanaClone = lana->SummonPersonalClone(HordeCrewPersonalSpawnLocation[2], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player))
+                                lanaClone->GetMotionMaster()->MovePath(PATH_LANA_PLAINS, false);
+
+                        if (Creature* jinhake = FindCreatureIgnorePhase(player, "jinhake_darkmaul_plains"))
+                            if (Creature* jinhakeClone = jinhake->SummonPersonalClone(HordeCrewPersonalSpawnLocation[3], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player))
+                                jinhakeClone->GetMotionMaster()->MovePath(PATH_JINHAKE_PLAINS, false);
+
+                        if (Creature* throg = FindCreatureIgnorePhase(player, "throg_darkmaul_plains"))
+                            if (Creature* throgClone = throg->SummonPersonalClone(HordeCrewPersonalSpawnLocation[4], TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player))
+                                throgClone->GetMotionMaster()->MovePath(PATH_THROG_PLAINS, false);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+CreatureAI* ChoppyBoosterSelector(Creature* creature)
+{
+    if (Player* player = ObjectAccessor::GetPlayer(*creature, creature->GetOwnerGUID()))
+    {
+        if (player->GetQuestStatus(QUEST_THE_CHOPPY_BOOSTER_MK5) == QUEST_STATUS_INCOMPLETE)
+            return new npc_choppy_booster_scout(creature);
+    }
+    return new NullCreatureAI(creature);
+};
+
+// 167909 - Won'sa
+// 167910 - Bo
+// 167911 - Lana Jordan
+// 167912 - Provisoner Jin'hake
+// 167913 - Grunt Throg
+struct npc_horde_crew_plains_private : public ScriptedAI
+{
+    npc_horde_crew_plains_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->DespawnOrUnsummon();
+    }
+};
+
+CreatureAI* HordeCrewPlainsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_horde_crew_plains_private(creature);
+
+    return new NullCreatureAI(creature);
+};
+
+static constexpr Position CopterCloneSpawnPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
+
+// Quest 55193 - The Scout-o-Matic 5000 "Alliance"
+// Quest 59940 - The Choppy Booster Mk. 5 "Horde"
+class quest_scout_chopper : public QuestScript
+{
+public:
+    quest_scout_chopper(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view goblinString, std::string_view copterString)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+            {
+                Creature* goblin = FindCreatureIgnorePhase(player, goblinString, 10.0f);
+                Creature* copter = FindCreatureIgnorePhase(player, copterString, 10.0f);
+                if (!goblin || !copter)
+                    return;
+
+                Creature* goblinPersonal = goblin->SummonPersonalClone(goblin->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                Creature* copterPersonal = copter->SummonPersonalClone(CopterCloneSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!goblinPersonal || !copterPersonal)
+                    return;
+
+                copterPersonal->SetObjectScale(0.2f);
+                copterPersonal->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+
+                if (npc_gnome_goblin_plains_make_copter_private* personalAI = CAST_AI(npc_gnome_goblin_plains_make_copter_private, goblinPersonal->AI()))
+                    personalAI->SetCopterGUID(copterPersonal->GetGUID());
+
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            }
+            case QUEST_STATUS_NONE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 55193 - The Scout-o-Matic 5000 "Alliance"
+class quest_scout_o_matic_5000 : public quest_scout_chopper
+{
+public:
+    quest_scout_o_matic_5000() : quest_scout_chopper("quest_scout_o_matic_5000") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "lindie_springstock_plains", "scout_o_matic");
+    }
+};
+
+// 59940 - The Choppy Booster Mk. 5 "Horde"
+class quest_choppy_booster_mk5 : public quest_scout_chopper
+{
+public:
+    quest_choppy_booster_mk5() : quest_scout_chopper("quest_choppy_booster_mk5") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "cork_fizzlepop_plains", "choppy_booster");
+    }
+};
+
+// Quest 56034 - Re-sizing the Situation "Alliance"
+// Quest 59941 - Re-sizing the Situation "Horde"
+enum ResizingQuestData
+{
+    ACTOR_LINDIE_RESIZING_QUEST                     = 71366,
+    ACTOR_CORK_RESIZING_QUEST                       = 76343,
+
+    CONVERSATION_RESIZING_QUEST_ACCEPT              = 12086,
+    CONVERSATION_RESIZING_REPORT_BACK               = 12089,
+
+    EVENT_RESIZING_FOLLOW_PLAYER                    = 1,
+    EVENT_RESIZING_RUN_HOME                         = 2,
+
+    POINT_HOME_POSITION                             = 0,
+
+    SPELL_SUMMON_LINDIE_SPRINGSTOCK_GUARDIAN_Q56034 = 305750,
+    SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941     = 326634,
+    SPELL_LINDIE_DESUMMON_Q56034                    = 305756,
+    SPELL_PING_LINDIE_Q56034_Q59941                 = 305754,
+};
+
+Position ResizingGuardianPosition = { 100.56077f, -2418.0713f, 90.34765f };
+
+// 156749 - Lindie Springstock
+struct npc_lindie_springstock_q56034 : public ScriptedAI
+{
+    npc_lindie_springstock_q56034(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Unit* owner = me->GetOwner();
+
+        Player* player = owner->ToPlayer();
+        if (!player)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, me->GetGUID());
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, ObjectGuid::Empty);
+        conversation->Start();
+
+        _events.ScheduleEvent(EVENT_RESIZING_FOLLOW_PLAYER, 2s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId != 0)
+            return;
+
+        if (Unit* owner = me->GetOwner())
+            owner->CastSpell(owner, SPELL_LINDIE_DESUMMON_Q56034);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_PING_LINDIE_Q56034_Q59941)
+            return;
+
+        _events.ScheduleEvent(EVENT_RESIZING_RUN_HOME, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RESIZING_FOLLOW_PLAYER:
+                {
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
+                    break;
+                }
+                case EVENT_RESIZING_RUN_HOME:
+                {
+                    me->GetMotionMaster()->MovePoint(POINT_HOME_POSITION, ResizingGuardianPosition);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// 167915 - Cork Fizzlepop
+struct npc_cork_fizzlepop_q59941 : public ScriptedAI
+{
+    npc_cork_fizzlepop_q59941(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_QUEST_ACCEPT, owner, *owner, owner->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, owner->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, me->GetGUID());
+        conversation->Start();
+
+        _events.ScheduleEvent(EVENT_RESIZING_FOLLOW_PLAYER, 2s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId != 0)
+            return;
+
+        if (Unit* owner = me->GetOwner())
+        {
+            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+            owner->RemoveAura(SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941);
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_PING_LINDIE_Q56034_Q59941)
+            return;
+
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_RESIZING_REPORT_BACK, owner, *owner, owner->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, owner->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, me->GetGUID());
+        conversation->Start();
+
+        _events.ScheduleEvent(EVENT_RESIZING_RUN_HOME, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RESIZING_FOLLOW_PLAYER:
+                {
+                    if (Unit* owner = me->GetOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
+                    break;
+                }
+                case EVENT_RESIZING_RUN_HOME:
+                {
+                    me->GetMotionMaster()->MovePoint(POINT_HOME_POSITION, ResizingGuardianPosition);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+enum ReSizedBoarData
+{
+    EVENT_BOAR_GROW   = 1,
+    EVENT_BOAR_MOVE   = 2,
+
+    SPELL_GROW_Q56034 = 129310,
+
+    SOUND_GROW_Q56034 = 157469
+};
+
+Position GiantBoarPosition = { 116.146f, -2430.48f, 90.508415f };
+
+// 156736 - Wandering Boar
+struct npc_re_sized_boar_q56034 : public ScriptedAI
+{
+    npc_re_sized_boar_q56034(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_BOAR_GROW, 1s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId != POINT_HOME_POSITION)
+            return;
+
+        me->SetFacingTo(0.785398f);
+
+        if (Unit* summoner = me->GetDemonCreator())
+            summoner->CastSpell(summoner, SPELL_UPDATE_PHASE_SHIFT);
+
+        me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BOAR_GROW:
+                    me->CastSpell(me, SPELL_GROW_Q56034);
+                    me->PlayDirectSound(SOUND_GROW_Q56034);
+                    _events.ScheduleEvent(EVENT_BOAR_MOVE, 1s);
+                    break;
+                case EVENT_BOAR_MOVE:
+                    me->SetWalk(false);
+                    me->GetMotionMaster()->MovePoint(POINT_HOME_POSITION, GiantBoarPosition);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// Spell 305749 - Summon Admiral Garrick Guardian
+// Spell 326635 - Summon Cork (DNT)
+class spell_summon_guardian_q56034_q59941 : public SpellScript
+{
+    // @TODO: drop after TARGET_UNK_142 impl
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "lindie_springstock_plains" : "cork_fizzlepop_plains", 5.0f);
+        if (!survivor)
+            return;
+
+        target = survivor;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_guardian_q56034_q59941::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+enum ReSizingData
+{
+    NPC_WANDERING_BOAR                               = 156716,
+    NPC_LINDIE_SPRINGSTOCK_GUARDIAN                  = 156749,
+    NPC_CORK_FIZZLEPOP_GUARDIAN                      = 167915,
+
+    QUEST_RE_SIZING_THE_SITUATION_ALLIANCE           = 56034,
+    QUEST_RE_SIZING_THE_SITUATION_HORDE              = 59941,
+
+    QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_ALLIANCE = 390101,
+    QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_HORDE    = 397274,
+
+    SPELL_RESIZER_HIT_ONE_Q56034_Q59941              = 305724,
+    SPELL_RESIZER_HIT_TWO_Q56034_Q59941              = 305721,
+    SPELL_RESIZER_HIT_THREE_Q56034                   = 305742,
+    SPELL_RESIZING_Q59941                            = 325345,
+    SPELL_RE_SIZER_OVERCHARGED_Q56034                = 325347
+};
+
+// 305716 - Re-Sizing
+class spell_re_sizing_q56034 : public SpellScript
+{
+    SpellCastResult CheckCast()
+    {
+        if (!GetExplTargetUnit())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        Creature* target = GetExplTargetUnit()->ToCreature();
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (target->GetEntry() != NPC_WANDERING_BOAR)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_re_sizing_q56034::CheckCast);
+    }
+};
+
+// 305716 - Re-Sizing
+class spell_re_sizing_aura_q56034 : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZER_HIT_ONE_Q56034_Q59941,
+            SPELL_RESIZER_HIT_TWO_Q56034_Q59941,
+            SPELL_PING_LINDIE_Q56034_Q59941,
+        });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        Creature* creature = Object::ToCreature(GetTarget());
+        if (!player || !creature)
+            return;
+
+        switch (player->GetQuestObjectiveData(QUEST_RE_SIZING_THE_SITUATION_ALLIANCE, QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_ALLIANCE))
+        {
+            case 0:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_ONE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon(2s);
+                break;
+            case 1:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_TWO_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon();
+                break;
+            case 2:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_THREE_Q56034, true);
+                player->CastSpell(player, SPELL_PING_LINDIE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q56034::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 305724 - Resizer Hit
+// 305721 - Resizer Hit
+class spell_resizer_hit_one_two_q56034_q59941 : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        uint32 guardianID = player->GetTeam() == ALLIANCE ? NPC_LINDIE_SPRINGSTOCK_GUARDIAN : NPC_CORK_FIZZLEPOP_GUARDIAN;
+
+        Creature* guardian = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = guardianID, .OwnerGuid = player->GetGUID() });
+        if (!guardian)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, player->GetTeam() == ALLIANCE ? guardian->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : guardian->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_resizer_hit_one_two_q56034_q59941::HandleLaunch, EFFECT_3, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_resizer_hit_one_two_q56034_q59941::HandleEffect, EFFECT_3, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+// 305742 - Resizer Hit
+class spell_resizer_hit_three_q56034 : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        uint32 guardianID = player->GetTeam() == ALLIANCE ? NPC_LINDIE_SPRINGSTOCK_GUARDIAN : NPC_CORK_FIZZLEPOP_GUARDIAN;
+
+        Creature* guardian = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = guardianID, .OwnerGuid = player->GetGUID() });
+        if (!guardian)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_LINDIE_RESIZING_QUEST, 1, player->GetTeam() == ALLIANCE ? guardian->GetGUID() : ObjectGuid::Empty);
+        conversation->AddActor(ACTOR_CORK_RESIZING_QUEST, 2, player->GetTeam() == ALLIANCE ? ObjectGuid::Empty : guardian->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_resizer_hit_three_q56034::HandleLaunch, EFFECT_4, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_resizer_hit_three_q56034::HandleEffect, EFFECT_4, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+// 325346 - Re-Sizing
+class spell_re_sizing_q59941 : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZING_Q59941,
+            SPELL_RE_SIZER_OVERCHARGED_Q56034,
+            SPELL_PING_LINDIE_Q56034_Q59941,
+        });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        if (!GetExplTargetUnit())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        Creature* target = GetExplTargetUnit()->ToCreature();
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (target->GetEntry() != NPC_WANDERING_BOAR)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        Creature* creature = Object::ToCreature(GetHitUnit());
+        if (!player || !creature)
+            return;
+
+        switch (player->GetQuestObjectiveData(QUEST_RE_SIZING_THE_SITUATION_HORDE, QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_HORDE))
+        {
+            case 0:
+            case 1:
+                player->CastSpell(creature, SPELL_RESIZING_Q59941, true);
+                break;
+            case 2:
+                player->CastSpell(creature, SPELL_RE_SIZER_OVERCHARGED_Q56034, true);
+                player->CastSpell(player, SPELL_PING_LINDIE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon(3s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_re_sizing_q59941::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_re_sizing_q59941::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 325345 - Re-Sizing
+class spell_re_sizing_aura_q59941 : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RESIZER_HIT_ONE_Q56034_Q59941,
+            SPELL_RESIZER_HIT_TWO_Q56034_Q59941
+        });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        Creature* creature = Object::ToCreature(GetTarget());
+        if (!player || !creature)
+            return;
+
+        switch (player->GetQuestObjectiveData(QUEST_RE_SIZING_THE_SITUATION_HORDE, QUEST_OBJECTIVE_RE_SIZING_THE_SITUATION_HORDE))
+        {
+            case 0:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_ONE_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon(2s);
+                break;
+            case 1:
+                player->CastSpell(creature, SPELL_RESIZER_HIT_TWO_Q56034_Q59941, true);
+                creature->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizing_aura_q59941::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 325368 - Re-sizer Slaughter (DNT)
+class spell_re_sizer_slaughter : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_UPDATE_PHASE_SHIFT
+        });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_re_sizer_slaughter::OnApply, EFFECT_0, SPELL_AURA_PLAY_SCENE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_re_sizer_slaughter::OnApply, EFFECT_0, SPELL_AURA_PLAY_SCENE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 56034 - Re-sizing the Situation "Alliance"
+// 59941 - Re-sizing the Situation "Horde"
+class quest_resizing_the_situation : public QuestScript
+{
+public:
+    quest_resizing_the_situation(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 SummonSpell)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, SummonSpell);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(SummonSpell);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 56034 - Re-sizing the Situation "Alliance"
+class quest_resizing_the_situation_alliance : public quest_resizing_the_situation
+{
+public:
+    quest_resizing_the_situation_alliance() : quest_resizing_the_situation("quest_resizing_the_situation_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_LINDIE_SPRINGSTOCK_GUARDIAN_Q56034);
+    }
+};
+
+// 59941 - Re-sizing the Situation "Horde"
+class quest_resizing_the_situation_horde : public quest_resizing_the_situation
+{
+public:
+    quest_resizing_the_situation_horde() : quest_resizing_the_situation("quest_resizing_the_situation_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, SPELL_SUMMON_CORK_FIZZLEPOP_GUARDIAN_Q59941);
+    }
+};
+
+enum QuestRideBoar
+{
+    NPC_ALLIANCE_CAPTAIN                            = 174955,
+    NPC_HENRY_GARRICK_PRISONER                      = 156799,
+
+    SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON = 305779,
+    SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA   = 305776,
+    SPELL_PING_GARRICK_TORGOK                       = 316982,
+    SPELL_REUNION_DNT_ALLIANCE                      = 305893,
+    SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT             = 321693,
+    SPELL_RITUAL_SCENE_HRUN_BEAM_DNT                = 321692,
+    SPELL_RITUAL_SCENE_HARPY_BEAM_DNT               = 321691,
+    SPELL_RITUAL_SCENE_MAIN_BEAM_DNT                = 321690
+};
+
+static constexpr Position ReDeatherAbandonTeleportPos = { 102.3f, -2422.5f, 90.1f, 0.764454185962677001f };
+
+// 55879 - Ride of the Scientifically Enhanced Boar
+class quest_ride_of_the_scientifically_enhanced_boar : public QuestScript
+{
+public:
+    quest_ride_of_the_scientifically_enhanced_boar() : QuestScript("quest_ride_of_the_scientifically_enhanced_boar") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_SUMMON);
+                break;
+            case QUEST_STATUS_COMPLETE:
+                player->CombatStop();
+                player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
+                break;
+            case QUEST_STATUS_REWARDED:
+                player->CastSpell(player, SPELL_REUNION_DNT_ALLIANCE);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            case QUEST_STATUS_NONE:
+                player->RemoveAura(SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->RemoveAura(SPELL_SUMMON_DARKMAUL_PLAINS_QUESTGIVERS_AURA);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->NearTeleportTo(ReDeatherAbandonTeleportPos);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+enum SceneOgreRuinsRideBoar
+{
+    QUEST_RIDE_ENHANCED_BOAR            = 55879,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO       = 396499,
+    QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX   = 8,
+
+    SPELL_ENHANCED_BOAR_TRAMPLE         = 305557,
+    SPELL_ENHANCED_BOAR_CHARGE          = 321627,
+    SPELL_ENHANCED_BOAR_KILL_CREDIT     = 321668,
+    SPELL_ENHANCED_BOAR_PING_VEHICLE    = 305559,
+    SPELL_ENHANCED_BOAR_CHARGE_CONVO    = 305815,
+    SPELL_ENHANCED_BOAR_KNOCKBACK       = 306356,
+    SPELL_ENHANCED_BOAR_KNOCKBACK_HINT  = 306357
+};
+
+// Script scene for Ride of the Scientifically Enhanced Boar quest
+class scene_darkmaul_plains_skeleton_army_alliance : public SceneScript
+{
+public:
+    scene_darkmaul_plains_skeleton_army_alliance() : SceneScript("scene_darkmaul_plains_skeleton_army_alliance") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Trampling Time")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_TRAMPLE, true);
+            if (Unit* boar = player->GetVehicleBase())
+                boar->CastSpell(boar, SPELL_ENHANCED_BOAR_CHARGE, true);
+        }
+        else if (triggerName == "Big Kill Credit")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KILL_CREDIT, true);
+
+            if (player->GetQuestObjectiveData(QUEST_RIDE_ENHANCED_BOAR, QUEST_RIDE_BOAR_OBJECTIVE_TWO) == QUEST_RIDE_BOAR_OBJECTIVE_TWO_MAX)
+                player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE);
+        }
+        else if (triggerName == "Conversation")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_CHARGE_CONVO, true);
+        }
+        else if (triggerName == "Knockback")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KNOCKBACK, true);
+        }
+        else if (triggerName == "Hint")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KNOCKBACK_HINT, true);
+        }
+    }
+};
+
+// Spell 305779 - Summon Darkmaul Plains Questgivers (DNT)
+class spell_summon_darkmaul_plains_questgivers_q55879 : public SpellScript
+{
+    // @TODO: drop after TARGET_UNK_142 impl
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        Creature* survivor = FindCreatureIgnorePhase(player, "captain_garrick_plains", 5.0f);
+        if (!survivor)
+            return;
+
+        target = survivor;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_darkmaul_plains_questgivers_q55879::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
+enum SpellRidingGiantBoar
+{
+    SPELL_RIDING_GIANT_BOAR_305068 = 305068,
+    SPELL_RIDING_GIANT_BOAR_321670 = 321670
+};
+
+// 173426 - Riding Giant Boar
+class spell_riding_giant_boar_q55879 : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RIDING_GIANT_BOAR_305068,
+            SPELL_RIDING_GIANT_BOAR_321670,
+            SPELL_UPDATE_PHASE_SHIFT
+        });
+    }
+
+    void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        player->RemoveAura(SPELL_RIDING_GIANT_BOAR_305068);
+        player->RemoveAura(SPELL_RIDING_GIANT_BOAR_321670);
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_riding_giant_boar_q55879::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum SpellKnockbackHint
+{
+    ACTOR_ALLIANCE_CAPTAIN = 71372
+};
+
+// 305742 - Resizer Hit
+class spell_knockback_hint_q56034 : public SpellScript
+{
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        Creature* garrick = player->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_ALLIANCE_CAPTAIN, .OwnerGuid = player->GetGUID() });
+        if (!garrick)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(GetSpellInfo()->GetEffect(effIndex).MiscValue, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, garrick->GetGUID());
+        conversation->Start();
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_knockback_hint_q56034::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+        OnEffectHitTarget += SpellEffectFn(spell_knockback_hint_q56034::HandleEffect, EFFECT_0, SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION);
+    }
+};
+
+enum CaptainGarrickGiantBoar
+{
+    ACTION_EXIT_BOAR                                        = 1,
+
+    ACTOR_HENRY_GARRICK_PRISONER                            = 78493,
+
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT     = 12090,
+
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY      = 15615,
+    CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT       = 12092,
+
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR                         = 1,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_CHECK_OWNER             = 2,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY           = 3,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN           = 4,
+    EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION  = 5,
+
+    NPC_GIANT_BOAR                                          = 156267,
+
+    PHASE_SEE_TORGOK                                        = 14663,
+
+    POINT_HENRY_POSITION                                    = 0,
+
+    SPELL_PING_GARRICK_TO_RIDE_BOAR                         = 316984,
+    SPELL_RIDE_VEHICLE_CAPTIAN_BOAR                         = 63315
+};
+
+Position MoveToPrisonerPosition = { 232.16145f, -2292.5347f, 80.91198f };
+
+// 174955 - Captain Garrick
+struct npc_captain_garrick_q55879 : public ScriptedAI
+{
+    npc_captain_garrick_q55879(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        Player* player = Object::ToPlayer(me->GetOwner());
+        if (!player)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_ACCEPT, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(0, 0, player->GetGUID());
+        conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 1, me->GetGUID());
+        conversation->Start();
+
+        me->SetReactState(REACT_PASSIVE);
+        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetHealth() <= damage)
+            damage = me->GetHealth() - 1;
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_PING_GARRICK_TO_RIDE_BOAR:
+            {
+                Unit* owner = me->GetOwner();
+                if (!owner)
+                    break;
+
+                PhasingHandler::InheritPhaseShift(me, owner);
+                PhasingHandler::ResetPhaseShift(me);
+
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR, 2s);
+                break;
+            }
+            case SPELL_ENHANCED_BOAR_PING_VEHICLE:
+            {
+                PhasingHandler::AddPhase(me, PHASE_SEE_TORGOK, true);
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION, 500ms);
+                break;
+            }
+            case SPELL_PING_GARRICK_TORGOK:
+            {
+                Player* player = Object::ToPlayer(me->GetOwner());
+                if (!player)
+                    break;
+
+                Creature* henry = FindCreatureIgnorePhase(me, "henry_garrick_ogre_ruins_prisoner");
+                if (!henry)
+                    break;
+
+                Creature* henryPersonal = henry->SummonPersonalClone(henry->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!henryPersonal)
+                    break;
+
+                me->SetReactState(REACT_AGGRESSIVE);
+                _henryGUID = henryPersonal->GetGUID();
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR:
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Creature* boar = owner->FindNearestCreatureWithOptions(10.0f, { .CreatureId = NPC_GIANT_BOAR, .OwnerGuid = owner->GetGUID() });
+                        if (!boar)
+                            return;
+
+                        boar->SetControlled(false, UNIT_STATE_ROOT);
+                        me->CastSpell(boar, SPELL_RIDE_VEHICLE_CAPTIAN_BOAR);
+                    }
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
+                {
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_HENRY, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 0, me->GetGUID());
+                    conversation->AddActor(ACTOR_HENRY_GARRICK_PRISONER, 1, _henryGUID);
+                    conversation->Start();
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN, 18s);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
+                {
+                    me->DespawnOrUnsummon();
+                    if (Creature* henry = ObjectAccessor::GetCreature(*me, _henryGUID))
+                        henry->DespawnOrUnsummon();
+
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_EXIT_BOAR_CONVERSATION:
+                {
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_CAPTAIN_GARRICK_RIDE_BOAR_QUEST_EXIT, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(0, 0, player->GetGUID());
+                    conversation->AddActor(ACTOR_ALLIANCE_CAPTAIN, 1, me->GetGUID());
+                    conversation->Start();
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        UpdateVictim();
+    }
+private:
+    EventMap _events;
+    ObjectGuid _henryGUID;
+};
+
+enum GiantBoar
+{
+    EVENT_GIANT_BOAR_SIZE_ONE           = 1,
+    EVENT_GIANT_BOAR_SIZE_TWO           = 2,
+    EVENT_GIANT_BOAR_SIZE_THREE         = 3,
+    EVENT_GIANT_BOAR_SIZE_FOUR          = 4,
+    EVENT_GIANT_BOAR_EJECT_PASSENGERS   = 5,
+    EVENT_GIANT_BOAR_UNROOT             = 6,
+
+    SOUND_ENLARGE_BOAR                  = 157516,
+    SOUND_SHRINK_BOAR                   = 157517,
+
+    VEHICLE_BOAR_SEAT_ONE               = 1
+};
+
+// 156267 - Giant Boar
+struct npc_giant_boar_vehicle_q55879 : public VehicleAI
+{
+    npc_giant_boar_vehicle_q55879(Creature* creature) : VehicleAI(creature), _endOfScene(false)
+    {
+        me->SetOrientation(0.844224f);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetSpeed(MOVE_RUN, 14.0f);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply && passenger->IsPlayer())
+        {
+            me->SetControlled(true, UNIT_STATE_ROOT);
+            passenger->SetMovedUnit(me);
+            passenger->CastSpell(passenger, SPELL_PING_GARRICK_TO_RIDE_BOAR); // Ping Garrick to ride Boar (DNT)
+            passenger->CastSpell(passenger, SPELL_UPDATE_PHASE_SHIFT);
+        }
+        else if (apply && passenger->IsCreature())
+        {
+            passenger->ChangeSeat(VEHICLE_BOAR_SEAT_ONE);
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_ENHANCED_BOAR_PING_VEHICLE)
+        {
+            me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
+            me->SetControlled(true, UNIT_STATE_ROOT);
+            me->CastSpell(me, SPELL_ENHANCED_BOAR_CHARGE);
+            _endOfScene = true;
+            _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_ONE, 4s);
+
+            if (Unit* owner = me->GetOwner())
+                owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_endOfScene)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GIANT_BOAR_SIZE_ONE:
+                    me->PlayDirectSound(SOUND_ENLARGE_BOAR);
+                    me->SetObjectScale(1.2f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_TWO, 1000ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_TWO:
+                    me->PlayDirectSound(SOUND_SHRINK_BOAR);
+                    me->SetObjectScale(0.7f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_THREE, 1000ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_THREE:
+                    me->PlayDirectSound(SOUND_ENLARGE_BOAR);
+                    me->SetObjectScale(1.2f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_SIZE_FOUR, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_SIZE_FOUR:
+                    me->PlayDirectSound(SOUND_SHRINK_BOAR);
+                    me->SetObjectScale(0.1f);
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_EJECT_PASSENGERS, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_EJECT_PASSENGERS:
+                    me->RemoveAllAuras();
+                    _events.ScheduleEvent(EVENT_GIANT_BOAR_UNROOT, 500ms);
+                    break;
+                case EVENT_GIANT_BOAR_UNROOT:
+                    me->SetControlled(false, UNIT_STATE_ROOT);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    bool _endOfScene;
+};
+
+enum TorgokData
+{
+    EVENT_CAST_SPIRIT_BOLT              = 1,
+    EVENT_CAST_SOUL_GRASP               = 2,
+
+    ITEM_TORGOKS_REAGENT_POUCH          = 176398,
+
+    QUEST_TORGOKS_REAGENT_POUCH_DROPPED = 59610,
+
+    SPELL_SPIRIT_BOLT                   = 319294,
+    SPELL_SOUL_GRASP                    = 319298
+};
+
+// 162817 - Torgok
+struct npc_torgok_q55879 : public ScriptedAI
+{
+    npc_torgok_q55879(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO, who);
+
+        _events.ScheduleEvent(EVENT_CAST_SPIRIT_BOLT, 4s);
+        _events.ScheduleEvent(EVENT_CAST_SOUL_GRASP, 14s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        Talk(SAY_DEATH, killer);
+
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+            {
+                for (LootItem const& lootItem : loot->items)
+                {
+                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_TORGOKS_REAGENT_POUCH)
+                    {
+                        player->SetRewardedQuest(QUEST_TORGOKS_REAGENT_POUCH_DROPPED);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAST_SPIRIT_BOLT:
+                    DoCastVictim(SPELL_SPIRIT_BOLT);
+                    _events.ScheduleEvent(EVENT_CAST_SPIRIT_BOLT, 6s);
+                    break;
+                case EVENT_CAST_SOUL_GRASP:
+                    DoCastAOE(SPELL_SOUL_GRASP);
+                    _events.ScheduleEvent(EVENT_CAST_SOUL_GRASP, 14s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum PrisonerQuest55879
+{
+    PATH_PRISONER_TO_GROUND = 80000230
+};
+
+// 156799 - Henry Garrick
+// 167126 - Shuja Grimaxe
+struct npc_prisoner_q55879_private : public ScriptedAI
+{
+    npc_prisoner_q55879_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        me->RemoveAllAuras();
+        me->GetMotionMaster()->MovePath(PATH_PRISONER_TO_GROUND, false);
+    }
+};
+
+CreatureAI* PrisonerQ55879Selector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_prisoner_q55879_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum TheReDeather
+{
+    CONVERSATION_ACCEPT_RE_DEATHER_QUEST    = 14525,
+    CONVERSATION_RE_DEATHER_EXPLODE         = 14526,
+
+    NPC_HORDE_WARRIOR                       = 167146,
+    NPC_SHUJA_GRIMAXE_PRISONER              = 167126,
+
+    QUEST_RE_DEATHER                        = 59942,
+
+    OBJECTIVE_RE_DEATHER_CADAVERS_KILLED    = 397279,
+
+    RE_DEATHER_CADAVERS_KILLED_MAX          = 8,
+
+    SPELL_REUNION_DNT_HORDE                 = 326678,
+    SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK   = 325394,
+    SPELL_RE_DEATHER_ROUGH_LANDING_DNT      = 325401,
+    SPELL_RE_DEATHER_SUMMON_GRIMAXE         = 325429
+};
+
+// 59942 - The Re-Deather
+class quest_the_re_deather : public QuestScript
+{
+public:
+    quest_the_re_deather() : QuestScript("quest_the_re_deather") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                Conversation::CreateConversation(CONVERSATION_ACCEPT_RE_DEATHER_QUEST, player, *player, player->GetGUID(), nullptr);
+                break;
+            case QUEST_STATUS_COMPLETE:
+                player->CombatStop();
+                player->CastSpell(player, SPELL_PING_GARRICK_TORGOK);
+                break;
+            case QUEST_STATUS_REWARDED:
+                player->CastSpell(player, SPELL_REUNION_DNT_HORDE);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->CastSpell(player, SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            case QUEST_STATUS_NONE:
+            {
+                player->CastSpell(player, SPELL_RITUAL_SCENE_OGRE_CITADEL_DNT);
+                player->RemoveAura(SPELL_RE_DEATHER_SUMMON_GRIMAXE);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HRUN_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_HARPY_BEAM_DNT);
+                player->RemoveAura(SPELL_RITUAL_SCENE_MAIN_BEAM_DNT);
+                player->RemoveAura(SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK);
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->NearTeleportTo(ReDeatherAbandonTeleportPos);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+};
+
+// 2489
+class scene_darkmaul_plains_skeleton_army_horde : public SceneScript
+{
+public:
+    scene_darkmaul_plains_skeleton_army_horde() : SceneScript("scene_darkmaul_plains_skeleton_army_horde") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Big Kill Credit")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_KILL_CREDIT, true);
+
+            if (player->GetQuestObjectiveData(QUEST_RE_DEATHER, OBJECTIVE_RE_DEATHER_CADAVERS_KILLED) == RE_DEATHER_CADAVERS_KILLED_MAX)
+            {
+                player->CastSpell(player, SPELL_ENHANCED_BOAR_PING_VEHICLE); // Ping Vehicle
+                player->CastSpell(player, SPELL_RE_DEATHER_TEMP_OBJECTIVE_CHECK); // Temp Objective Check
+                Conversation::CreateConversation(CONVERSATION_RE_DEATHER_EXPLODE, player, *player, player->GetGUID(), nullptr);
+            }
+        }
+        else if (triggerName == "Conversation")
+        {
+            player->CastSpell(player, SPELL_ENHANCED_BOAR_CHARGE_CONVO, true); // Does nothing but it's blizzlike
+        }
+        else if (triggerName == "Teleport")
+        {
+            player->CastSpell(player, SPELL_RE_DEATHER_ROUGH_LANDING_DNT);
+        }
+    }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+    }
+};
+
+enum GrimaxeReDeather
+{
+    ACTOR_SHUJA_GRIMAXE_PRISONER                        = 76004,
+    ACTOR_WARLORD_GRIMAXE_Q59942                        = 76357,
+    ACTOR_SHUJA_GRIMAXE_FREED                           = 78501,
+
+    CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942           = 14527,
+    CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942  = 15618
+};
+
+// 167146 - Warlord Grimaxe
+struct npc_warlord_grimaxe_q59942 : public ScriptedAI
+{
+    npc_warlord_grimaxe_q59942(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+    }
+
+    void JustAppeared() override
+    {
+        Player* player = Object::ToPlayer(me->GetOwner());
+        if (!player)
+            return;
+
+        Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
+        if (!shuja)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_WARLORD_GRIMAXE_SPAWN_Q59942, player, *player, player->GetGUID(), nullptr, false);
+        if (!conversation)
+            return;
+
+        conversation->AddActor(ACTOR_SHUJA_GRIMAXE_PRISONER, 0, shuja->GetGUID());
+        conversation->AddActor(ACTOR_WARLORD_GRIMAXE_Q59942, 1, me->GetGUID());
+        conversation->Start();
+
+        me->GetMotionMaster()->MoveFollow(player, 0.0f, float(M_PI / 4.0f));
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetHealth() <= damage)
+            damage = me->GetHealth() - 1;
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_PING_GARRICK_TORGOK:
+            {
+                Player* player = Object::ToPlayer(me->GetOwner());
+                if (!player)
+                    break;
+
+                Creature* shuja = FindCreatureIgnorePhase(me, "shuja_grimaxe_ogre_ruins_prisoner");
+                if (!shuja)
+                    break;
+
+                Creature* shujaPersonal = shuja->SummonPersonalClone(shuja->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!shujaPersonal)
+                    break;
+
+                me->SetReactState(REACT_AGGRESSIVE);
+                _shujaGUID = shujaPersonal->GetGUID();
+                _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY, 1s);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void OnDespawn() override
+    {
+        if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+            shuja->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_TALK_TO_HENRY:
+                {
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_WARLORD_GRIMAXE_QUEST_COMPLETE_Q59942, player, *player, player->GetGUID(), nullptr, false);
+                    if (!conversation)
+                        break;
+
+                    conversation->AddActor(ACTOR_WARLORD_GRIMAXE_Q59942, 0, me->GetGUID());
+                    conversation->AddActor(ACTOR_SHUJA_GRIMAXE_FREED, 1, _shujaGUID);
+                    conversation->Start();
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(POINT_HENRY_POSITION, MoveToPrisonerPosition);
+                    _events.ScheduleEvent(EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN, 22s);
+                    break;
+                }
+                case EVENT_CAPTAIN_GARRICK_RIDE_BOAR_HENRY_DESPAWN:
+                {
+                    me->DespawnOrUnsummon();
+                    if (Creature* shuja = ObjectAccessor::GetCreature(*me, _shujaGUID))
+                        shuja->DespawnOrUnsummon();
+
+                    Player* player = Object::ToPlayer(me->GetOwner());
+                    if (!player)
+                        break;
+                    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        UpdateVictim();
+    }
+private:
+    EventMap _events;
+    ObjectGuid _shujaGUID;
+};
+
+// ***************************************************************
+// * Scripting in this section occurs between Ogre Ruins and Pit *
+// ***************************************************************
+
+enum WestwardBound
+{
+    NPC_BJORN_STOUTHANDS_PIT_ONE    = 156891,
+    NPC_ALARIA_PIT_ONE              = 156803,
+    NPC_LANAJORDAN_PIT_ONE          = 167225,
+    NPC_WONSA_PIT_ONE               = 167226
+};
+
+static constexpr Position BjornWestwardBoundRuinsPos = { 192.181f, -2311.44f, 80.6975f, 3.368485450744628906f };
+static constexpr Position AlariaWestwardBoundRuinsPos = { 190.953f, -2308.32f, 80.6586f, 2.984513044357299804f };
+static constexpr Position LanaWestwardBoundRuinsPos = { 160.486f, -2307.31f, 84.053f, 2.932153224945068359f };
+static constexpr Position WonsaWestwardBoundRuinsPos = { 160.431f, -2310.11f, 84.4598f, 3.03687286376953125f };
+
+// 55965 - Quest Westward Bound "Alliance"
+// 59948 - Quest Westward Bound "Horde"
+class quest_westward_bound : public QuestScript
+{
+public:
+    quest_westward_bound(char const* script) : QuestScript(script) { }
+
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view creatureStringOne, std::string_view creatureStringTwo, uint32 questEnderEntry, uint32 questEnderCompanionEntry, Position questGiverPos, Position companionPos)
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_INCOMPLETE:
+            {
+                Creature* questEnder = FindCreatureIgnorePhase(player, creatureStringOne, 125.0f);
+                if (!questEnder)
+                    return;
+
+                Creature* questEnderCompanion = FindCreatureIgnorePhase(player, creatureStringTwo, 125.0f);
+                if (!questEnderCompanion)
+                    return;
+
+                questEnder->SummonPersonalClone(questGiverPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                questEnderCompanion->SummonPersonalClone(companionPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                break;
+            }
+            case QUEST_STATUS_NONE:
+            {
+                player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+
+                if (Creature* questGiver = player->FindNearestCreatureWithOptions(100.0f, { .CreatureId = questEnderEntry, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() }))
+                    questGiver->DespawnOrUnsummon();
+
+                if (Creature* companion = player->FindNearestCreatureWithOptions(100.0f, { .CreatureId = questEnderCompanionEntry, .IgnorePhases = true, .PrivateObjectOwnerGuid = player->GetGUID() }))
+                    companion->DespawnOrUnsummon();
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
+};
+
+// 55965 - Quest Westward Bound "Alliance"
+class quest_westward_bound_alliance : public quest_westward_bound
+{
+public:
+    quest_westward_bound_alliance() : quest_westward_bound("quest_westward_bound_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "bjorn_stouthands_pit_pre_quest", "alaria_pit_pre_quest", NPC_BJORN_STOUTHANDS_PIT_ONE, NPC_ALARIA_PIT_ONE, BjornWestwardBoundRuinsPos, AlariaWestwardBoundRuinsPos);
+    }
+};
+
+// 59948 - Quest Westward Bound "Horde"
+class quest_westward_bound_horde : public quest_westward_bound
+{
+public:
+    quest_westward_bound_horde() : quest_westward_bound("quest_westward_bound_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus, "lana_joran_pit_pre_quest", "wonsa_pit_pre_quest", NPC_LANAJORDAN_PIT_ONE, NPC_WONSA_PIT_ONE, LanaWestwardBoundRuinsPos, WonsaWestwardBoundRuinsPos);
+    }
+};
+
+enum BjornRunToPit
+{
+    EVENT_BJORN_RUN_TO_PIT = 1,
+
+    PATH_BJORN_RUN_TO_PIT  = 10518900,
+
+    SAY_BJORN_RUN_TO_PIT   = 0,
+    SAY_BJORN_REACHED_PIT  = 1
+};
+
+// 156891 - Bjorn Stouthands
+struct npc_bjorn_stouthands_q55965_private : public ScriptedAI
+{
+    npc_bjorn_stouthands_q55965_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_BJORN_RUN_TO_PIT, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        Talk(SAY_BJORN_REACHED_PIT);
+        me->DespawnOrUnsummon(4s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BJORN_RUN_TO_PIT:
+                    Talk(SAY_BJORN_RUN_TO_PIT);
+                    me->GetMotionMaster()->MovePath(PATH_BJORN_RUN_TO_PIT, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* BjornRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_bjorn_stouthands_q55965_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum LanaRunToPit
+{
+    EVENT_LANA_SAY_AT_RUINS = 1,
+    EVENT_LANA_RUN_TO_PIT   = 2,
+
+    PATH_LANA_RUN_TO_PIT    = 80000570,
+
+    SAY_LANA_RUN_TO_PIT     = 0,
+    SAY_LANA_REACHED_PIT    = 1
+};
+
+// 167225 - Lana Jordan
+struct npc_lana_jordan_q59948_private : public ScriptedAI
+{
+    npc_lana_jordan_q59948_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_LANA_SAY_AT_RUINS, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        Talk(SAY_LANA_REACHED_PIT);
+        me->DespawnOrUnsummon(7s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LANA_SAY_AT_RUINS:
+                    Talk(SAY_BJORN_RUN_TO_PIT);
+                    _events.ScheduleEvent(EVENT_LANA_RUN_TO_PIT, 5s);
+                    break;
+                case EVENT_LANA_RUN_TO_PIT:
+                    me->GetMotionMaster()->MovePath(PATH_LANA_RUN_TO_PIT, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* LanaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_lana_jordan_q59948_private(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+enum CompanionRunToPit
+{
+    EVENT_COMPANION_RUN_TO_PIT = 1,
+
+    PATH_ALARIA_RUN_TO_PIT     = 10518890,
+    PATH_WONSA_RUN_TO_PIT      = 80000580
+};
+
+// 156891 - Alaria
+// 167226 - Won'sa
+template<uint32 PitPathId>
+struct npc_companion_q55965_q59948_private : public ScriptedAI
+{
+    npc_companion_q55965_q59948_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_COMPANION_RUN_TO_PIT, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->DespawnOrUnsummon(1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_COMPANION_RUN_TO_PIT:
+                    me->GetMotionMaster()->MovePath(PitPathId, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+CreatureAI* AlariaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_companion_q55965_q59948_private<PATH_ALARIA_RUN_TO_PIT>(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
+CreatureAI* WansaRuinsSelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_companion_q55965_q59948_private<PATH_WONSA_RUN_TO_PIT>(creature);
+    else
+        return new NullCreatureAI(creature);
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -2200,7 +7095,7 @@ void AddSC_zone_exiles_reach()
     new quest_stand_your_ground();
     RegisterCreatureAI(npc_sparring_partner_exiles_reach);
     RegisterSpellScript(spell_summon_sparring_partner);
-    new FactoryCreatureScript<CreatureAI, &CaptainGarrickShipAISelector>("npc_captain_garrick_ship");
+    new FactoryCreatureScript<CreatureAI, &CaptainGarrickAISelector>("npc_captain_garrick");
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_lower_ship", npc_ship_captain_warming_up_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_upper_ship", npc_ship_captain_brace_for_impact_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_cole_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
@@ -2210,7 +7105,6 @@ void AddSC_zone_exiles_reach()
     new quest_brace_for_impact();
     new player_exiles_reach_ship_crash();
     new scene_alliance_and_horde_ship();
-
     // Beach
     RegisterSpellScript(spell_knocked_down_exiles_reach_beach);
     new scene_alliance_and_horde_crash();
@@ -2240,7 +7134,6 @@ void AddSC_zone_exiles_reach()
     new quest_finding_the_lost_expedition_alliance();
     new quest_finding_the_lost_expedition_horde();
     RegisterSpellScript(spell_summon_survivor_beach);
-
     // Abandoned Camp
     new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_ALLIANCE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE>>("npc_captain_garrick_abandoned_camp");
     new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_HORDE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE>>("npc_warlord_grimaxe_abandoned_camp");
@@ -2248,4 +7141,79 @@ void AddSC_zone_exiles_reach()
     new quest_cooking_meat_horde();
     RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition);
     RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition_follower);
-}
+    // Quest Enhanced Combat Tactics
+    new quest_enhanced_combat_tactics();
+    RegisterSpellScript(spell_summon_combat_trainer);
+    new FactoryCreatureScript<CreatureAI, &SparringPartnerEnhancedCombatTrainingSelector>("npc_sparring_partner_combat_training");
+    RegisterAreaTriggerAI(at_aggro_radius_check_enhanced_combat_tactics);
+    RegisterSpellScript(spell_knockback_charge_enhanced_training);
+    // Quest Northbound
+    RegisterCreatureAI(npc_leader_northbound);
+    new quest_northbound_alliance();
+    new quest_northbound_horde();
+    RegisterSpellScript(spell_summon_leader_northbound);
+    RegisterAreaTriggerAI(at_northbound_linger);
+    RegisterSpellScript(spell_scene_linger_northbound);
+    // Quest Taming The Wilds
+    new quest_taming_the_wilds_alliance();
+    new quest_taming_the_wilds_horde();
+    new FactoryCreatureScript<CreatureAI, &HuxsworthBriarpatchSelector>("npc_huxsworth_briarpatch");
+    new FactoryCreatureScript<CreatureAI, &DawntrackerBriarpatchSelector>("npc_dawntracker_briarpatch");
+    RegisterSpellScript(spell_tutorial_health_dnt_proc_aura);
+    RegisterSpellScript(spell_tutorial_health_dnt);
+    // Briarpatch
+    new quest_briarpatch_alliance();
+    new quest_briarpatch_horde();
+    RegisterSpellScript(spell_validated_quest_accept_briarpatch_alliance);
+    RegisterSpellScript(spell_validated_quest_accept_briarpatch_horde);
+    RegisterCreatureAI(npc_geolord_grekog);
+    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_cork_fizzlepop_briarpatch");
+    new GenericCreatureScript<npc_briarpatch_prisoner>("npc_lindie_springstock_briarpatch");
+    RegisterCreatureAI(npc_quilboar_warrior);
+    RegisterCreatureAI(npc_quilboar_geomancer);
+    RegisterCreatureAI(npc_ogre_overseer);
+    RegisterAreaTriggerAI(at_briarpatch_to_plains);
+    RegisterSpellScript(spell_quilboar_sleep_dnt);
+    // Plains scouting quest
+    new quest_scout_o_matic_5000();
+    new quest_choppy_booster_mk5();
+    new FactoryCreatureScript<CreatureAI, &LindieSpringstockSelector>("npc_lindie_springstock_plains");
+    new FactoryCreatureScript<CreatureAI, &CorkFizzlepopSelector>("npc_cork_fizzlepop_plains");
+    RegisterCreatureAI(npc_scoutomatic_5000);
+    new FactoryCreatureScript<CreatureAI, &ChoppyBoosterSelector>("npc_choppy_booster");
+    new FactoryCreatureScript<CreatureAI, &HordeCrewPlainsSelector>("npc_horde_crew_plains");
+    // Plains Resizing the situation
+    new quest_resizing_the_situation_alliance();
+    new quest_resizing_the_situation_horde();
+    RegisterCreatureAI(npc_lindie_springstock_q56034);
+    RegisterCreatureAI(npc_cork_fizzlepop_q59941);
+    RegisterCreatureAI(npc_re_sized_boar_q56034);
+    RegisterSpellScript(spell_summon_guardian_q56034_q59941);
+    RegisterSpellAndAuraScriptPair(spell_re_sizing_q56034, spell_re_sizing_aura_q56034);
+    RegisterSpellScript(spell_resizer_hit_one_two_q56034_q59941);
+    RegisterSpellScript(spell_resizer_hit_three_q56034);
+    RegisterSpellScript(spell_re_sizing_q59941);
+    RegisterSpellScript(spell_re_sizing_aura_q59941);
+    RegisterSpellScript(spell_re_sizer_slaughter);
+    // Ride Boar
+    new quest_ride_of_the_scientifically_enhanced_boar();
+    new scene_darkmaul_plains_skeleton_army_alliance();
+    RegisterSpellScript(spell_summon_darkmaul_plains_questgivers_q55879);
+    RegisterSpellScript(spell_riding_giant_boar_q55879);
+    RegisterSpellScript(spell_knockback_hint_q56034);
+    RegisterCreatureAI(npc_captain_garrick_q55879);
+    RegisterCreatureAI(npc_giant_boar_vehicle_q55879);
+    RegisterCreatureAI(npc_torgok_q55879);
+    new FactoryCreatureScript<CreatureAI, &PrisonerQ55879Selector>("npc_prisoner_q55879");
+    // The Re-Deather
+    new quest_the_re_deather();
+    new scene_darkmaul_plains_skeleton_army_horde();
+    RegisterCreatureAI(npc_warlord_grimaxe_q59942);
+    // Westward Bound
+    new quest_westward_bound_alliance();
+    new quest_westward_bound_horde();
+    new FactoryCreatureScript<CreatureAI, &BjornRuinsSelector>("npc_bjorn_stouthands_q55965");
+    new FactoryCreatureScript<CreatureAI, &LanaRuinsSelector>("npc_lana_jordan_q59948");
+    new FactoryCreatureScript<CreatureAI, &AlariaRuinsSelector>("npc_alaria_q55965");
+    new FactoryCreatureScript<CreatureAI, &WansaRuinsSelector>("npc_wonsa_q59948");
+};

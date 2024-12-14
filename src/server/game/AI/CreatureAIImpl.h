@@ -75,7 +75,7 @@ enum SelectEffect : uint8
 struct AISpellInfoType
 {
     AISpellInfoType() : target(AITARGET_SELF), condition(AICOND_COMBAT)
-        , cooldown(AI_DEFAULT_COOLDOWN), realCooldown(0), maxRange(0.0f){ }
+        , cooldown(AI_DEFAULT_COOLDOWN), realCooldown(0), maxRange(0.0f), Targets(0), Effects(0) { }
     AITarget target;
     AICondition condition;
     Milliseconds cooldown;

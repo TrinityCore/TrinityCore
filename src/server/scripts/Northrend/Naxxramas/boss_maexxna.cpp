@@ -173,8 +173,6 @@ struct boss_maexxna : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

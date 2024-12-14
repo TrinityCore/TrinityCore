@@ -228,8 +228,6 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -343,9 +341,6 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        if (me->HasReactState(REACT_AGGRESSIVE))
-            DoMeleeAttackIfReady();
     }
 
     void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override

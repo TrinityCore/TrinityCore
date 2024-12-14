@@ -174,8 +174,6 @@ class boss_moam : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         private:
             bool _isStonePhase;

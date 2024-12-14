@@ -302,7 +302,7 @@ public:
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(nodeId);
         if (!node)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, nodeId);
+            handler->PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, *nodeId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -314,7 +314,7 @@ public:
         AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(areaTriggerId);
         if (!at)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, areaTriggerId);
+            handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, *areaTriggerId);
             handler->SetSentErrorMessage(true);
             return false;
         }

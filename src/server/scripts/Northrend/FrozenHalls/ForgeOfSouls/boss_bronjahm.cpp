@@ -82,6 +82,7 @@ struct boss_bronjahm : public BossAI
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
         events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
         events.ScheduleEvent(EVENT_CORRUPT_SOUL, 25s, 35s, 0, PHASE_1);
+        me->SetCanMelee(true);
     }
 
     void JustReachedHome() override
@@ -117,6 +118,7 @@ struct boss_bronjahm : public BossAI
             DoCast(me, SPELL_TELEPORT);
             events.ScheduleEvent(EVENT_FEAR, 12s, 16s, 0, PHASE_2);
             events.ScheduleEvent(EVENT_SOULSTORM, 100ms, 0, PHASE_2);
+            me->SetCanMelee(false);
         }
     }
 
@@ -203,9 +205,6 @@ struct boss_bronjahm : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        if (!events.IsInPhase(PHASE_2))
-            DoMeleeAttackIfReady();
     }
 };
 

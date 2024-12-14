@@ -774,8 +774,6 @@ public:
                 hasTarget = false;
                 return;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 

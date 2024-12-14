@@ -27,6 +27,7 @@
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 
@@ -41,7 +42,6 @@ class Player;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
-struct Realm;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -195,6 +195,9 @@ enum WorldBoolConfigs
     CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID,
     CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE,
     CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT,
+    CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS,
+    CONFIG_ENABLE_AE_LOOT,
+    CONFIG_LOAD_LOCALES,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -325,10 +328,12 @@ enum WorldIntConfigs
     CONFIG_AUCTION_LEVEL_REQ,
     CONFIG_MAIL_LEVEL_REQ,
     CONFIG_CORPSE_DECAY_NORMAL,
-    CONFIG_CORPSE_DECAY_RARE,
     CONFIG_CORPSE_DECAY_ELITE,
     CONFIG_CORPSE_DECAY_RAREELITE,
-    CONFIG_CORPSE_DECAY_WORLDBOSS,
+    CONFIG_CORPSE_DECAY_OBSOLETE,
+    CONFIG_CORPSE_DECAY_RARE,
+    CONFIG_CORPSE_DECAY_TRIVIAL,
+    CONFIG_CORPSE_DECAY_MINUSMOB,
     CONFIG_DEATH_SICKNESS_LEVEL,
     CONFIG_INSTANT_LOGOUT,
     CONFIG_DISABLE_BREATHING,
@@ -485,21 +490,27 @@ enum Rates
     RATE_REPUTATION_LOWLEVEL_KILL,
     RATE_REPUTATION_LOWLEVEL_QUEST,
     RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS,
-    RATE_CREATURE_NORMAL_HP,
-    RATE_CREATURE_ELITE_ELITE_HP,
-    RATE_CREATURE_ELITE_RAREELITE_HP,
-    RATE_CREATURE_ELITE_WORLDBOSS_HP,
-    RATE_CREATURE_ELITE_RARE_HP,
-    RATE_CREATURE_NORMAL_DAMAGE,
-    RATE_CREATURE_ELITE_ELITE_DAMAGE,
-    RATE_CREATURE_ELITE_RAREELITE_DAMAGE,
-    RATE_CREATURE_ELITE_WORLDBOSS_DAMAGE,
-    RATE_CREATURE_ELITE_RARE_DAMAGE,
-    RATE_CREATURE_NORMAL_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_RAREELITE_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_WORLDBOSS_SPELLDAMAGE,
-    RATE_CREATURE_ELITE_RARE_SPELLDAMAGE,
+    RATE_CREATURE_HP_NORMAL,
+    RATE_CREATURE_HP_ELITE,
+    RATE_CREATURE_HP_RAREELITE,
+    RATE_CREATURE_HP_OBSOLETE,
+    RATE_CREATURE_HP_RARE,
+    RATE_CREATURE_HP_TRIVIAL,
+    RATE_CREATURE_HP_MINUSMOB,
+    RATE_CREATURE_DAMAGE_NORMAL,
+    RATE_CREATURE_DAMAGE_ELITE,
+    RATE_CREATURE_DAMAGE_RAREELITE,
+    RATE_CREATURE_DAMAGE_OBSOLETE,
+    RATE_CREATURE_DAMAGE_RARE,
+    RATE_CREATURE_DAMAGE_TRIVIAL,
+    RATE_CREATURE_DAMAGE_MINUSMOB,
+    RATE_CREATURE_SPELLDAMAGE_NORMAL,
+    RATE_CREATURE_SPELLDAMAGE_ELITE,
+    RATE_CREATURE_SPELLDAMAGE_RAREELITE,
+    RATE_CREATURE_SPELLDAMAGE_OBSOLETE,
+    RATE_CREATURE_SPELLDAMAGE_RARE,
+    RATE_CREATURE_SPELLDAMAGE_TRIVIAL,
+    RATE_CREATURE_SPELLDAMAGE_MINUSMOB,
     RATE_CREATURE_AGGRO,
     RATE_REST_INGAME,
     RATE_REST_OFFLINE_IN_TAVERN_OR_CITY,
@@ -637,17 +648,17 @@ class TC_GAME_API World
             return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5;
         }
 
-        void SetInitialWorldSettings();
+        bool SetInitialWorldSettings();
         void LoadConfigSettings(bool reload = false);
 
         void SendWorldText(uint32 string_id, ...);
         void SendGlobalText(char const* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
-        void SendServerMessage(ServerMessageType messageID, std::string stringParam = "", Player* player = nullptr);
-        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
+        void SendServerMessage(ServerMessageType messageID, std::string_view stringParam = {}, Player const* player = nullptr);
+        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, Optional<Team> team = { });
+        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, Optional<Team> team = { });
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, Optional<Team> team = { });
+        void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, Optional<Team> team = { });
 
         /// Are we in the middle of a shutdown?
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
@@ -753,7 +764,7 @@ class TC_GAME_API World
 
         void ForceGameEventUpdate();
 
-        void UpdateRealmCharCount(uint32 accid);
+        void UpdateRealmCharCount(uint32 accountId);
 
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
@@ -912,8 +923,6 @@ class TC_GAME_API World
 
     friend class debug_commandscript;
 };
-
-TC_GAME_API extern Realm realm;
 
 TC_GAME_API uint32 GetVirtualRealmAddress();
 

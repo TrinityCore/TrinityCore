@@ -102,7 +102,9 @@ namespace WorldPackets
         {
             uint32 WaitCount = 0; ///< position of the account in the login queue
             uint32 WaitTime = 0; ///< Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
+            int32 AllowedFactionGroupForCharacterCreate = 0;
             bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
+            bool CanCreateOnlyIfExisting = false; ///< Can create characters on realm only if player has other existing characters there
         };
 
         struct VirtualRealmNameInfo
@@ -134,10 +136,12 @@ namespace WorldPackets
             {
                 struct GameTime
                 {
-                    uint32 BillingPlan = 0;
-                    uint32 TimeRemain = 0;
-                    uint32 Unknown735 = 0;
-                    bool InGameRoom = false;
+                    uint32 BillingType = 0;
+                    uint32 MinutesRemaining = 0;
+                    uint32 RealBillingType = 0;
+                    bool IsInIGR = false;
+                    bool IsPaidForByIGR = false;
+                    bool IsCAISEnabled = false;
                 };
 
                 struct NewBuild

@@ -69,8 +69,6 @@ struct boss_renataki : public BossAI
             }
         }
         */
-
-        DoMeleeAttackIfReady();
     }
 };
 

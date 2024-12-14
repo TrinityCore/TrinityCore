@@ -159,11 +159,11 @@ static inline Position const& GetRandomMinionSpawnPoint()
 // uniformly distribute on the circle
 static Position GetRandomPositionOnCircle(Position const& center, float radius)
 {
-    double angle = rand_norm() * 2.0 * M_PI;
-    double relDistance = rand_norm() + rand_norm();
+    float angle = float(M_PI * rand_norm() * 2.0);
+    float relDistance = rand_norm() + rand_norm();
     if (relDistance > 1)
         relDistance = 1 - relDistance;
-    return Position(center.GetPositionX() + std::sin(angle)*relDistance*radius, center.GetPositionY() + std::cos(angle)*relDistance*radius, center.GetPositionZ());
+    return Position(center.GetPositionX() + std::sin(angle) * relDistance * radius, center.GetPositionY() + std::cos(angle) * relDistance * radius, center.GetPositionZ());
 }
 
 class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
@@ -508,8 +508,6 @@ struct boss_kelthuzad : public BossAI
                 DoCastVictim(SPELL_FROSTBOLT_SINGLE);
                 _frostboltCooldown = 3 * IN_MILLISECONDS;
             }
-            else
-                DoMeleeAttackIfReady();
         }
 
         uint32 GetData(uint32 data) const override
@@ -691,8 +689,6 @@ struct npc_kelthuzad_skeleton : public npc_kelthuzad_minionAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -706,8 +702,6 @@ struct npc_kelthuzad_banshee : public npc_kelthuzad_minionAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -729,8 +723,6 @@ struct npc_kelthuzad_abomination : public npc_kelthuzad_minionAI
         }
         else
             _woundTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* killer) override
@@ -756,7 +748,6 @@ struct npc_kelthuzad_guardian : public ScriptedAI
                     me->SetVisible(false);
                     me->SetHomePosition(me->GetPosition());
                     DoZoneInCombat();
-                    me->SetCombatPulseDelay(5);
                     _visibilityTimer =  2 * IN_MILLISECONDS;
                     _bloodTapTimer   = 25 * IN_MILLISECONDS;
                     break;
@@ -789,7 +780,6 @@ struct npc_kelthuzad_guardian : public ScriptedAI
 
         void Reset() override
         {
-            me->SetCombatPulseDelay(0);
             ScriptedAI::Reset();
         }
 
@@ -817,8 +807,6 @@ struct npc_kelthuzad_guardian : public ScriptedAI
             }
             else
                 _bloodTapTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
     private:

@@ -54,8 +54,6 @@ struct boss_gelihast : public BossAI
                 events.ScheduleEvent(EVENT_THROW_NET, 4s, 7s);
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

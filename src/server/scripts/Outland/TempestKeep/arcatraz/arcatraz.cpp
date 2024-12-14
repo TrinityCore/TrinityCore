@@ -212,8 +212,6 @@ struct npc_millhouse_manastorm : public ScriptedAI
         }
         else
             Fireball_Timer -=diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 /*#####

@@ -110,8 +110,6 @@ public:
                 RaiseUndeadScarab(me->GetVictim());
                 RaiseUndeadScarab_Timer = 16000;
             } else RaiseUndeadScarab_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

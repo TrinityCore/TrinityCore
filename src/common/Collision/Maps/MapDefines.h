@@ -127,7 +127,8 @@ enum ZLiquidStatus : uint32
     LIQUID_MAP_ABOVE_WATER  = 0x00000001,
     LIQUID_MAP_WATER_WALK   = 0x00000002,
     LIQUID_MAP_IN_WATER     = 0x00000004,
-    LIQUID_MAP_UNDER_WATER  = 0x00000008
+    LIQUID_MAP_UNDER_WATER  = 0x00000008,
+    LIQUID_MAP_OCEAN_FLOOR  = 0x00000010
 };
 
 #define MAP_LIQUID_STATUS_SWIMMING (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)
@@ -141,23 +142,26 @@ struct LiquidData
     float  depth_level;
 };
 
+struct WmoLocation
+{
+    WmoLocation() = default;
+    WmoLocation(int32 groupId, int32 nameSetId, int32 rootId, uint32 uniqueId)
+        : GroupId(groupId), NameSetId(nameSetId), RootId(rootId), UniqueId(uniqueId) { }
+
+    int32 GroupId = 0;
+    int32 NameSetId = 0;
+    int32 RootId = 0;
+    uint32 UniqueId = 0;
+};
+
 struct PositionFullTerrainStatus
 {
-    struct AreaInfo
-    {
-        AreaInfo(int32 _adtId, int32 _rootId, int32 _groupId, uint32 _flags) : adtId(_adtId), rootId(_rootId), groupId(_groupId), mogpFlags(_flags) { }
-        int32 const adtId;
-        int32 const rootId;
-        int32 const groupId;
-        uint32 const mogpFlags;
-    };
-
     PositionFullTerrainStatus() : areaId(0), floorZ(0.0f), outdoors(true), liquidStatus(LIQUID_MAP_NO_WATER) { }
     uint32 areaId;
     float floorZ;
     bool outdoors;
     ZLiquidStatus liquidStatus;
-    Optional<AreaInfo> areaInfo;
+    Optional<WmoLocation> wmoLocation;
     Optional<LiquidData> liquidInfo;
 };
 

@@ -131,8 +131,6 @@ struct boss_loatheb : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

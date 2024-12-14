@@ -85,6 +85,8 @@ namespace WorldPackets
 
             WhoRequest Request;
             uint32 RequestID = 0;
+            uint8 Origin = 0;   // 1 = Social, 2 = Chat, 3 = Item
+            bool IsFromAddOn = false;
             Array<int32, 10> Areas;
         };
 

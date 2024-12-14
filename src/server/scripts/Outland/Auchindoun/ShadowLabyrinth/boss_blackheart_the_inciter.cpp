@@ -57,6 +57,11 @@ enum BlackheartEvents
     EVENT_WAR_STOMP
 };
 
+enum BlackheartPaths
+{
+    PATH_BLACKHEART_IDLE = 5354960,
+};
+
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     using SimpleCharmedPlayerAI::SimpleCharmedPlayerAI;
@@ -158,8 +163,17 @@ struct boss_blackheart_the_inciter : public BossAI
             if (me->HasReactState(REACT_PASSIVE) || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
+    }
 
-        DoMeleeAttackIfReady();
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId != PATH_BLACKHEART_IDLE)
+            return;
+
+        if (waypointId == 2)
+            Talk(SAY_DEATH); // ?
+        else if (waypointId == 3)
+            Talk(SAY_AGGRO); // ?
     }
 };
 

@@ -145,8 +145,6 @@ struct boss_captain_skarloc : public BossAI
             //DoCastVictim(SPELL_CONSECRATION);
             Consecration_Timer = urand(5000, 10000);
         } else Consecration_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

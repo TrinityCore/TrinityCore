@@ -30,7 +30,8 @@ ByteBuffer& operator<<(ByteBuffer& data, PerksVendorItem const& perksVendorItem)
     data << int32(perksVendorItem.Field_18);
     data << int32(perksVendorItem.Price);
     data << perksVendorItem.AvailableUntil;
-    data.WriteBit(perksVendorItem.Disabled);
+    data << Bits<1>(perksVendorItem.Disabled);
+    data << Bits<1>(perksVendorItem.Field_41);
     data.FlushBits();
 
     return data;

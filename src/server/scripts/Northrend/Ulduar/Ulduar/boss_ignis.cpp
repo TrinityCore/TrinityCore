@@ -283,8 +283,6 @@ class boss_ignis : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -358,8 +356,6 @@ class npc_iron_construct : public CreatureScript
                     me->RemoveAura(SPELL_MOLTEN);
                     _brittled = true;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

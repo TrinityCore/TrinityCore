@@ -280,7 +280,6 @@ struct boss_sindragosa : public BossAI
         DoCastSelf(SPELL_PERMAEATING_CHILL);
         Talk(SAY_AGGRO);
         instance->SetBossState(DATA_SINDRAGOSA, IN_PROGRESS);
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         me->SetFarVisible(true);
         DoZoneInCombat();
@@ -522,8 +521,8 @@ struct boss_sindragosa : public BossAI
                 case EVENT_FROST_BOMB:
                 {
                     float destX, destY, destZ;
-                    destX = float(rand_norm()) * 75.0f + 4350.0f;
-                    destY = float(rand_norm()) * 75.0f + 2450.0f;
+                    destX = rand_norm() * 75.0f + 4350.0f;
+                    destY = rand_norm() * 75.0f + 2450.0f;
                     destZ = 205.0f; // random number close to ground, get exact in next call
                     me->UpdateGroundPositionZ(destX, destY, destZ);
                     me->CastSpell(Position{ destX, destY, destZ }, SPELL_FROST_BOMB_TRIGGER, false);
@@ -564,8 +563,6 @@ struct boss_sindragosa : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -751,8 +748,6 @@ struct npc_spinestalker : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -904,8 +899,6 @@ struct npc_rimefang_icc : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1003,8 +996,6 @@ struct npc_sindragosa_trash : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1025,13 +1016,13 @@ class spell_sindragosa_s_fury : public SpellScript
 
     void SelectDest()
     {
-        if (Position* dest = const_cast<WorldLocation*>(GetExplTargetDest()))
+        if (WorldLocation const* dest = GetExplTargetDest())
         {
-            float destX = float(rand_norm()) * 75.0f + 4350.0f;
-            float destY = float(rand_norm()) * 75.0f + 2450.0f;
+            float destX = rand_norm() * 75.0f + 4350.0f;
+            float destY = rand_norm() * 75.0f + 2450.0f;
             float destZ = 205.0f; // random number close to ground, get exact in next call
             GetCaster()->UpdateGroundPositionZ(destX, destY, destZ);
-            dest->Relocate(destX, destY, destZ);
+            SetExplTargetDest(WorldLocation(dest->GetMapId(), destX, destY, destZ));
         }
     }
 
@@ -1057,7 +1048,7 @@ class spell_sindragosa_s_fury : public SpellScript
         if (!GetHitUnit()->IsAlive() || !_targetCount)
             return;
 
-        if (GetHitUnit()->IsImmunedToDamage(GetSpellInfo(), &GetEffectInfo()))
+        if (GetHitUnit()->IsImmunedToDamage(GetCaster(), GetSpellInfo(), &GetEffectInfo()))
         {
             GetCaster()->SendSpellDamageImmune(GetHitUnit(), GetSpellInfo()->Id, false);
             return;

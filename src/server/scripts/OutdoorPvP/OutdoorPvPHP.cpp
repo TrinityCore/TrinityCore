@@ -109,7 +109,7 @@ void OutdoorPvPHP::HandlePlayerEnterZone(Player* player, uint32 zone)
         if (m_AllianceTowersControlled >=3)
             player->CastSpell(player, AllianceBuff, true);
     }
-    else
+    else if (player->GetTeam() == HORDE)
     {
         if (m_HordeTowersControlled >=3)
             player->CastSpell(player, HordeBuff, true);
@@ -124,7 +124,7 @@ void OutdoorPvPHP::HandlePlayerLeaveZone(Player* player, uint32 zone)
     {
         player->RemoveAurasDueToSpell(AllianceBuff);
     }
-    else
+    else if (player->GetTeam() == HORDE)
     {
         player->RemoveAurasDueToSpell(HordeBuff);
     }
@@ -246,7 +246,7 @@ void HPControlZoneHandler::HandleProgressEventHorde(GameObject* controlZone)
     if (GuidUnorderedSet const* guidSet = controlZone->GetInsidePlayers())
         for (ObjectGuid const& guid : *guidSet)
             if (Player* player = ObjectAccessor::GetPlayer(*controlZone, guid))
-                if (player->GetTeam() == TEAM_HORDE)
+                if (player->GetTeam() == HORDE)
                     player->KilledMonsterCredit(_killCredit);
 }
 
@@ -268,7 +268,7 @@ void HPControlZoneHandler::HandleProgressEventAlliance(GameObject* controlZone)
     if (GuidUnorderedSet const* guidSet = controlZone->GetInsidePlayers())
         for (ObjectGuid const& guid : *guidSet)
             if (Player* player = ObjectAccessor::GetPlayer(*controlZone, guid))
-                if (player->GetTeam() == TEAM_ALLIANCE)
+                if (player->GetTeam() == ALLIANCE)
                     player->KilledMonsterCredit(_killCredit);
 }
 

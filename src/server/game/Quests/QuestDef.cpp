@@ -115,7 +115,7 @@ Quest::Quest(Field* questRecord)
     _areaGroupID = questRecord[100].GetUInt32();
     _limitTime = questRecord[101].GetInt64();
     _allowableRaces.RawValue = questRecord[102].GetUInt64();
-    _treasurePickerID = questRecord[103].GetInt32();
+    _resetByScheduler = questRecord[103].GetBool();
     _expansion = questRecord[104].GetInt32();
     _managedWorldStateID = questRecord[105].GetInt32();
     _questSessionBonus = questRecord[106].GetInt32();
@@ -151,8 +151,11 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 
     if (playerConditionId && !sPlayerConditionStore.LookupEntry(playerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition ({}) set for quest {} and spell {}. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
-        playerConditionId = 0;
+        if (!sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_PLAYER_CONDITION, playerConditionId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has serverside PlayerCondition ({}) set for quest {} and spell {} without conditions. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
+            playerConditionId = 0;
+        }
     }
 
     if (type >= AsUnderlyingType(QuestCompleteSpellType::Max))
@@ -306,6 +309,9 @@ void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
 void Quest::LoadConditionalConditionalQuestDescription(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_description_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -326,6 +332,9 @@ void Quest::LoadConditionalConditionalQuestDescription(Field* fields)
 void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_request_items_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -346,6 +355,9 @@ void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
 void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -366,6 +378,9 @@ void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
 void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
 {
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && locale != DEFAULT_LOCALE)
+        return;
+
     if (locale >= TOTAL_LOCALES)
     {
         TC_LOG_ERROR("sql.sql", "Table `quest_completion_log_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
@@ -381,6 +396,11 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
     text.PlayerConditionId = fields[1].GetInt32();
     text.QuestgiverCreatureId = fields[2].GetInt32();
     ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, text.Text);
+}
+
+void Quest::LoadTreasurePickers(Field* fields)
+{
+    _treasurePickerID.push_back(fields[1].GetInt32());
 }
 
 uint32 Quest::XPValue(Player const* player) const
@@ -472,6 +492,14 @@ bool Quest::IsImportant() const
     return false;
 }
 
+bool Quest::IsMeta() const
+{
+    if (QuestInfoEntry const* questInfo = sQuestInfoStore.LookupEntry(GetQuestInfoID()))
+        return (questInfo->Modifiers & 0x800) != 0;
+
+    return false;
+}
+
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
@@ -484,9 +512,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     auto displaySpellItr = rewards.SpellCompletionDisplayID.begin();
     for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
     {
-        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(displaySpell.PlayerConditionId))
-            if (!ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
-                continue;
+        if (!ConditionMgr::IsPlayerMeetingCondition(player, displaySpell.PlayerConditionId))
+            continue;
 
         *displaySpellItr = displaySpell.SpellId;
         if (++displaySpellItr == rewards.SpellCompletionDisplayID.end())
@@ -507,8 +534,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
     for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
     {
-        rewards.ItemID[i] = RewardItemId[i];
-        rewards.ItemQty[i] = RewardItemCount[i];
+        rewards.Items[i].ItemID = RewardItemId[i];
+        rewards.Items[i].ItemQty = RewardItemCount[i];
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
@@ -521,8 +548,8 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
-        rewards.CurrencyID[i] = RewardCurrencyId[i];
-        rewards.CurrencyQty[i] = RewardCurrencyCount[i];
+        rewards.Currencies[i].CurrencyID = RewardCurrencyId[i];
+        rewards.Currencies[i].CurrencyQty = RewardCurrencyCount[i];
     }
 }
 
@@ -602,7 +629,12 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
 void Quest::InitializeQueryData()
 {
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_LOAD_LOCALES) && loc != DEFAULT_LOCALE)
+            continue;
+
         QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc), nullptr);
+    }
 }
 
 WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
@@ -760,6 +792,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.CompleteSoundKitID = GetSoundTurnIn();
     response.Info.AreaGroupID = GetAreaGroupID();
     response.Info.TimeAllowed = GetLimitTime();
+    response.Info.ResetByScheduler = IsResetByScheduler();
 
     response.Write();
     response.ShrinkToFit();

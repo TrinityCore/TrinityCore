@@ -222,6 +222,7 @@ struct boss_sapphiron : public BossAI
 
     void EnterPhaseGround(bool initial)
     {
+        me->SetCanMelee(true);
         me->SetReactState(REACT_AGGRESSIVE);
         events.ScheduleEvent(EVENT_CLEAVE, randtime(Seconds(5), Seconds(15)), 0, PHASE_GROUND);
         events.ScheduleEvent(EVENT_TAIL, randtime(Seconds(7), Seconds(10)), 0, PHASE_GROUND);
@@ -313,6 +314,7 @@ struct boss_sapphiron : public BossAI
                             events.SetPhase(PHASE_FLIGHT);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
+                            me->SetCanMelee(false);
                             float x, y, z, o;
                             me->GetHomePosition(x, y, z, o);
                             me->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -321,8 +323,6 @@ struct boss_sapphiron : public BossAI
                         break;
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
         else
         {

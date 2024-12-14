@@ -19,55 +19,76 @@
 #define TRINITY_WAYPOINTDEFINES_H
 
 #include "Define.h"
+#include "Duration.h"
+#include "EnumFlag.h"
 #include "Optional.h"
 #include <vector>
 
-enum WaypointMoveType
-{
-    WAYPOINT_MOVE_TYPE_WALK,
-    WAYPOINT_MOVE_TYPE_RUN,
-    WAYPOINT_MOVE_TYPE_LAND,
-    WAYPOINT_MOVE_TYPE_TAKEOFF,
+static inline constexpr std::size_t WAYPOINT_PATH_FLAG_FOLLOW_PATH_BACKWARDS_MINIMUM_NODES = 2;
 
-    WAYPOINT_MOVE_TYPE_MAX
+enum class WaypointMoveType : uint8
+{
+    Walk        = 0,
+    Run         = 1,
+    Land        = 2,
+    TakeOff     = 3,
+
+    Max
 };
+
+enum class WaypointPathFlags : uint8
+{
+    None                                = 0x00,
+    FollowPathBackwardsFromEndToStart   = 0x01,
+    ExactSplinePath                     = 0x02, // Points are going to be merged into single packets and pathfinding is disabled
+
+    FlyingPath                          = ExactSplinePath   // flying paths are always exact splines
+};
+
+DEFINE_ENUM_FLAG(WaypointPathFlags);
 
 struct WaypointNode
 {
-    WaypointNode() : id(0), x(0.f), y(0.f), z(0.f), delay(0), eventId(0), moveType(WAYPOINT_MOVE_TYPE_RUN), eventChance(0) { }
-    WaypointNode(uint32 _id, float _x, float _y, float _z, Optional<float> _orientation = { }, uint32 _delay = 0)
+    constexpr WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), MoveType(WaypointMoveType::Walk) { }
+    constexpr WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, Optional<Milliseconds> delay = {})
     {
-        id = _id;
-        x = _x;
-        y = _y;
-        z = _z;
-        orientation = _orientation;
-        delay = _delay;
-        eventId = 0;
-        moveType = WAYPOINT_MOVE_TYPE_WALK;
-        eventChance = 100;
+        Id = id;
+        X = x;
+        Y = y;
+        Z = z;
+        Orientation = orientation;
+        Delay = delay;
+        MoveType = WaypointMoveType::Walk;
     }
 
-    uint32 id;
-    float x, y, z;
-    Optional<float> orientation;
-    uint32 delay;
-    uint32 eventId;
-    uint32 moveType;
-    uint8 eventChance;
+    uint32 Id;
+    float X;
+    float Y;
+    float Z;
+    Optional<float> Orientation;
+    Optional<Milliseconds> Delay;
+    WaypointMoveType MoveType;
 };
 
 struct WaypointPath
 {
-    WaypointPath() : id(0) { }
-    WaypointPath(uint32 _id, std::vector<WaypointNode>&& _nodes)
+    WaypointPath() = default;
+    WaypointPath(uint32 id, std::vector<WaypointNode>&& nodes, WaypointMoveType moveType = WaypointMoveType::Walk, WaypointPathFlags flags = WaypointPathFlags::None)
     {
-        id = _id;
-        nodes = _nodes;
+        Id = id;
+        Nodes = std::move(nodes);
+        Flags = flags;
+        MoveType = moveType;
     }
 
-    std::vector<WaypointNode> nodes;
-    uint32 id;
+    std::vector<WaypointNode> Nodes;
+    std::vector<std::pair<std::size_t, std::size_t>> ContinuousSegments;
+    uint32 Id = 0;
+    WaypointMoveType MoveType = WaypointMoveType::Walk;
+    EnumFlag<WaypointPathFlags> Flags = WaypointPathFlags::None;
+    Optional<float> Velocity;
+
+    void BuildSegments();
 };
 
 #endif

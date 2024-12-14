@@ -12,7 +12,7 @@
 # This is done EACH compile so they can be alerted about the consequences.
 
 if(NOT BUILDDIR)
-  # Workaround for funny MSVC behaviour - this segment is only used when using cmake gui
+  # Workaround for cmake script mode
   set(BUILDDIR ${CMAKE_BINARY_DIR})
 endif()
 
@@ -122,12 +122,29 @@ set(rev_month ${CMAKE_MATCH_2})
 set(rev_day ${CMAKE_MATCH_3})
 
 # Create the actual revision_data.h file from the above params
-if(NOT "${rev_hash_cached}" STREQUAL "${rev_hash}" OR NOT "${rev_branch_cached}" STREQUAL "${rev_branch}" OR NOT EXISTS "${BUILDDIR}/revision_data.h")
-  configure_file(
-    "${CMAKE_SOURCE_DIR}/revision_data.h.in.cmake"
-    "${BUILDDIR}/revision_data.h"
-    @ONLY
+cmake_host_system_information(RESULT TRINITY_BUILD_HOST_SYSTEM QUERY OS_NAME)
+cmake_host_system_information(RESULT TRINITY_BUILD_HOST_DISTRO QUERY DISTRIB_INFO)
+cmake_host_system_information(RESULT TRINITY_BUILD_HOST_SYSTEM_RELEASE QUERY OS_RELEASE)
+# on windows OS_RELEASE contains sub-type string tag like "Professional" instead of a version number and OS_VERSION has only build number
+# so we grab that with Get-CimInstance powershell cmdlet
+if(WIN32)
+  execute_process(
+    COMMAND powershell -NoProfile -Command "$v=(Get-CimInstance -ClassName Win32_OperatingSystem); '{0} ({1})' -f $v.Caption, $v.Version"
+    OUTPUT_VARIABLE TRINITY_BUILD_HOST_SYSTEM_RELEASE
+	OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  set(rev_hash_cached "${rev_hash}" CACHE INTERNAL "Cached commit-hash")
-  set(rev_branch_cached "${rev_branch}" CACHE INTERNAL "Cached branch name")
+  # Remove "Microsoft Windows" from the result
+  string(REGEX REPLACE "^.* Windows " "" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
 endif()
+
+if(CMAKE_SCRIPT_MODE_FILE)
+  # hack for CMAKE_SYSTEM_PROCESSOR missing in script mode 
+  set(CMAKE_PLATFORM_INFO_DIR ${BUILDDIR}${CMAKE_FILES_DIRECTORY})
+  include(${CMAKE_ROOT}/Modules/CMakeDetermineSystem.cmake)
+endif()
+
+configure_file(
+  "${CMAKE_SOURCE_DIR}/revision_data.h.in.cmake"
+  "${BUILDDIR}/revision_data.h"
+  @ONLY
+)

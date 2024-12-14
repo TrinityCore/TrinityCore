@@ -26,15 +26,15 @@ class Unit;
 class SpellInfo;
 enum class ConversationActorType : uint32;
 
-class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
+class TC_GAME_API Conversation final : public WorldObject, public GridObject<Conversation>
 {
     public:
         Conversation();
         ~Conversation();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -66,8 +66,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid);
         void AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId);
 
-        ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
-        ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
+        ObjectGuid GetCreatorGUID() const override { return _creatorGuid; }
+        ObjectGuid GetOwnerGUID() const override { return GetCreatorGUID(); }
         uint32 GetFaction() const override { return 0; }
 
         float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
@@ -87,7 +87,7 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
 
         uint32 GetScriptId() const;
 
-        UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
+        UF::UpdateField<UF::ConversationData, int32(WowCS::EntityFragment::CGObject), TYPEID_CONVERSATION> m_conversationData;
 
     private:
         Position _stationaryPosition;

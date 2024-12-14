@@ -263,7 +263,7 @@ struct boss_lady_deathwhisper : public BossAI
                     break;
                 case 5:
                     Talk(SAY_INTRO_7);
-                    return;
+                    break;
                 default:
                     break;
             }
@@ -289,7 +289,6 @@ struct boss_lady_deathwhisper : public BossAI
         }
 
         _phase = PHASE_ONE;
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         DoZoneInCombat();
         scheduler.CancelGroup(GROUP_INTRO);
@@ -336,6 +335,7 @@ struct boss_lady_deathwhisper : public BossAI
             });
 
         Talk(SAY_AGGRO);
+        me->SetCanMelee(false);
         DoStartNoMovement(who);
         me->RemoveAurasDueToSpell(SPELL_SHADOW_CHANNELING);
         DoCastSelf(SPELL_MANA_BARRIER, true);
@@ -417,6 +417,7 @@ struct boss_lady_deathwhisper : public BossAI
             damage -= me->GetPower(POWER_MANA);
             me->SetPower(POWER_MANA, 0);
             me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
+            me->SetCanMelee(true);
             scheduler.CancelGroup(GROUP_ONE);
 
             scheduler
@@ -495,12 +496,7 @@ struct boss_lady_deathwhisper : public BossAI
         if (!UpdateVictim() && _phase != PHASE_INTRO)
             return;
 
-        scheduler.Update(diff, [this]
-        {
-            // We should not melee attack when barrier is up
-            if (!me->HasAura(SPELL_MANA_BARRIER))
-                DoMeleeAttackIfReady();
-        });
+        scheduler.Update(diff);
     }
 
     // summoning function for first phase
@@ -668,10 +664,7 @@ struct npc_cult_fanatic : public ScriptedAI
         if (!UpdateVictim() && !me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 protected:
@@ -811,10 +804,7 @@ struct npc_vengeful_shade : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -933,8 +923,6 @@ struct npc_darnavan : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

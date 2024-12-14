@@ -124,19 +124,19 @@ namespace WorldPackets
         {
             SupportTicketHorusChatLine(ByteBuffer& data);
 
-            struct SenderRealm
+            struct ServerSpec
             {
-                uint32 VirtualRealmAddress;
-                uint16 field_4;
-                uint8 field_6;
+                uint32 Realm;
+                uint16 Server;
+                uint8 Type;
             };
 
             WorldPackets::Timestamp<> Timestamp;
-            ObjectGuid AuthorGUID;
+            ObjectGuid PlayerGuid;
             Optional<uint64> ClubID;
-            Optional<ObjectGuid> ChannelGUID;
-            Optional<SenderRealm> RealmAddress;
-            Optional<int32> SlashCmd;
+            Optional<ObjectGuid> ChannelGuid;
+            Optional<ServerSpec> WorldServer;
+            Optional<int32> Cmd;
             std::string Text;
         };
 
@@ -171,44 +171,44 @@ namespace WorldPackets
             std::string GuildName;
         };
 
-        struct SupportTicketLFGListSearchResult
+        struct SupportTicketLFGListEntryInfo
         {
-            WorldPackets::LFG::RideTicket RideTicket;
-            uint32 GroupFinderActivityID = 0;
-            uint8 Unknown1007 = 0;
-            ObjectGuid LastTitleAuthorGuid;
-            ObjectGuid LastDescriptionAuthorGuid;
-            ObjectGuid LastVoiceChatAuthorGuid;
-            ObjectGuid ListingCreatorGuid;
-            ObjectGuid Unknown735;
-            std::string Title;
-            std::string Description;
+            WorldPackets::LFG::RideTicket Ticket;
+            uint32 ActivityID = 0;
+            uint8 FactionID = 0;
+            ObjectGuid LastTouchedName;
+            ObjectGuid LastTouchedComment;
+            ObjectGuid LastTouchedVoiceChat;
+            ObjectGuid LastTouchedAny;
+            ObjectGuid PartyGuid;
+            std::string Name;
+            std::string Comment;
             std::string VoiceChat;
         };
 
         struct SupportTicketLFGListApplicant
         {
-            WorldPackets::LFG::RideTicket RideTicket;
+            WorldPackets::LFG::RideTicket Ticket;
             std::string Comment;
         };
 
-        struct SupportTicketCommunityMessage
+        struct SupportTicketVoiceChatInfo
         {
-            bool IsPlayerUsingVoice = false;
+            bool TargetIsCurrentlyInVoiceChatWithPlayer = false;
         };
 
-        struct SupportTicketClubFinderResult
+        struct SupportTicketClubFinderInfo
         {
-            uint64 ClubFinderPostingID = 0;
+            uint64 PostingID = 0;
             uint64 ClubID = 0;
-            ObjectGuid ClubFinderGUID;
-            std::string ClubName;
+            ObjectGuid GuildID;
+            std::string PostingDescription;
         };
 
-        struct SupportTicketUnused910
+        struct SupportTicketArenaTeamInfo
         {
-            std::string field_0;
-            ObjectGuid field_104;
+            std::string ArenaTeamName;
+            ObjectGuid ArenaTeamID;
         };
 
         class SupportTicketSubmitComplaint final : public ClientPacket
@@ -230,11 +230,11 @@ namespace WorldPackets
             Optional<SupportTicketCalendarEventInfo> CalenderInfo;
             Optional<SupportTicketPetInfo> PetInfo;
             Optional<SupportTicketGuildInfo> GuildInfo;
-            Optional<SupportTicketLFGListSearchResult> LFGListSearchResult;
-            Optional<SupportTicketLFGListApplicant> LFGListApplicant;
-            Optional<SupportTicketCommunityMessage> CommunityMessage;
-            Optional<SupportTicketClubFinderResult> ClubFinderResult;
-            Optional<SupportTicketUnused910> Unused910;
+            Optional<SupportTicketLFGListEntryInfo> LfgListEntryInfo;
+            Optional<SupportTicketLFGListApplicant> LfgListAppInfo;
+            Optional<SupportTicketVoiceChatInfo> VoiceChatInfo;
+            Optional<SupportTicketClubFinderInfo> ClubFinderInfo;
+            Optional<SupportTicketArenaTeamInfo> ArenaTeamInfo;
         };
 
         class Complaint final : public ClientPacket

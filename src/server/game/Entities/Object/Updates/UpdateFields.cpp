@@ -126,20 +126,20 @@ void ItemEnchantment::ClearChangesMask()
 
 void ItemMod::WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const
 {
-    data << int32(Value);
     data << uint8(Type);
+    data << int32(Value);
 }
 
 void ItemMod::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Item const* owner, Player const* receiver) const
 {
-    data << int32(Value);
     data << uint8(Type);
+    data << int32(Value);
 }
 
 bool ItemMod::operator==(ItemMod const& right) const
 {
-    return Value == right.Value
-        && Type == right.Type;
+    return Type == right.Type
+        && Value == right.Value;
 }
 
 void ItemModList::WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const
@@ -286,7 +286,7 @@ void ItemData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
         data << uint32(MaxDurability);
     }
     data << uint32(CreatePlayedTime);
-    data << int32(Context);
+    data << uint8(Context);
     data << int64(CreateTime);
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
@@ -325,7 +325,7 @@ void ItemData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
 void ItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x07F58D80u, 0x00000000u };
+        allowedMaskForTarget |= std::array<uint32, 2>{ 0x07F58D80u, 0x00000000u };
 }
 
 void ItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
@@ -424,7 +424,7 @@ void ItemData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[13])
         {
-            data << int32(Context);
+            data << uint8(Context);
         }
         if (changesMask[14])
         {
@@ -506,7 +506,7 @@ void ItemData::ClearChangesMask()
 
 void ContainerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Bag const* owner, Player const* receiver) const
 {
-    for (uint32 i = 0; i < 36; ++i)
+    for (uint32 i = 0; i < 98; ++i)
     {
         data << Slots[i];
     }
@@ -520,8 +520,8 @@ void ContainerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fiel
 
 void ContainerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Bag const* owner, Player const* receiver) const
 {
-    data.WriteBits(changesMask.GetBlocksMask(0), 2);
-    for (uint32 i = 0; i < 2; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 4);
+    for (uint32 i = 0; i < 4; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -535,7 +535,7 @@ void ContainerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool 
     }
     if (changesMask[2])
     {
-        for (uint32 i = 0; i < 36; ++i)
+        for (uint32 i = 0; i < 98; ++i)
         {
             if (changesMask[3 + i])
             {
@@ -707,7 +707,7 @@ void AzeriteItemData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
 void AzeriteItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x000003E2u };
+        allowedMaskForTarget |= std::array<uint32, 1>{ 0x000003E2u };
 }
 
 void AzeriteItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
@@ -860,6 +860,7 @@ void VisibleItem::WriteCreate(ByteBuffer& data, Unit const* owner, Player const*
 {
     data << int32(ItemID);
     data << int32(SecondaryItemModifiedAppearanceID);
+    data << int32(ConditionalItemAppearanceID);
     data << uint16(ItemAppearanceModID);
     data << uint16(ItemVisual);
 }
@@ -870,7 +871,7 @@ void VisibleItem::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Unit con
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 5);
+    data.WriteBits(changesMask.GetBlock(0), 6);
 
     data.FlushBits();
     if (changesMask[0])
@@ -885,9 +886,13 @@ void VisibleItem::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Unit con
         }
         if (changesMask[3])
         {
-            data << uint16(ItemAppearanceModID);
+            data << int32(ConditionalItemAppearanceID);
         }
         if (changesMask[4])
+        {
+            data << uint16(ItemAppearanceModID);
+        }
+        if (changesMask[5])
         {
             data << uint16(ItemVisual);
         }
@@ -898,6 +903,7 @@ void VisibleItem::ClearChangesMask()
 {
     Base::ClearChangesMask(ItemID);
     Base::ClearChangesMask(SecondaryItemModifiedAppearanceID);
+    Base::ClearChangesMask(ConditionalItemAppearanceID);
     Base::ClearChangesMask(ItemAppearanceModID);
     Base::ClearChangesMask(ItemVisual);
     _changesMask.ResetAll();
@@ -924,10 +930,8 @@ bool PassiveSpellHistory::operator==(PassiveSpellHistory const& right) const
 void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
     data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(this, owner, receiver));
-    for (uint32 i = 0; i < 2; ++i)
-    {
-        data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, i, owner, receiver));
-    }
+    data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, owner, receiver));
+    data << uint32(ViewerDependentValue<NpcFlags2Tag>::GetValue(this, owner, receiver));
     data << uint32(StateSpellVisualID);
     data << uint32(StateAnimID);
     data << uint32(StateAnimKitID);
@@ -983,15 +987,13 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << int32(ScalingLevelMax);
     data << int32(ScalingLevelDelta);
     data << int32(ScalingFactionGroup);
-    data << int32(ScalingHealthItemLevelCurveID);
-    data << int32(ScalingDamageItemLevelCurveID);
     data << int32(ViewerDependentValue<FactionTemplateTag>::GetValue(this, owner, receiver));
     for (uint32 i = 0; i < 3; ++i)
     {
         VirtualItems[i].WriteCreate(data, owner, receiver);
     }
     data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
-    data << uint32(Flags2);
+    data << uint32(ViewerDependentValue<Flags2Tag>::GetValue(this, owner, receiver));
     data << uint32(ViewerDependentValue<Flags3Tag>::GetValue(this, owner, receiver));
     data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(this, owner, receiver));
     for (uint32 i = 0; i < 2; ++i)
@@ -1089,8 +1091,8 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
         data << float(MinRangedDamage);
         data << float(MaxRangedDamage);
         data << float(ManaCostMultiplier);
-        data << float(MaxHealthModifier);
     }
+    data << float(MaxHealthModifier);
     data << float(HoverHeight);
     data << int32(MinItemLevelCutoff);
     data << int32(MinItemLevel);
@@ -1099,7 +1101,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << int32(WildBattlePetLevel);
     data << int32(BattlePetCompanionExperience);
     data << uint32(BattlePetCompanionNameTimestamp);
-    data << int32(InteractSpellID);
+    data << int32(ViewerDependentValue<InteractSpellIDTag>::GetValue(this, owner, receiver));
     data << int32(ScaleDuration);
     data << int32(LooksLikeMountID);
     data << int32(LooksLikeCreatureID);
@@ -1112,8 +1114,12 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << uint32(ChannelObjects.size());
     data << int32(FlightCapabilityID);
     data << float(GlideEventSpeedDivisor);
+    data << int32(MaxHealthModifierFlatNeg);
+    data << int32(MaxHealthModifierFlatPos);
     data << uint32(SilencedSchoolMask);
     data << uint32(CurrentAreaID);
+    data << float(Field_31C);
+    data << float(Field_320);
     data << NameplateAttachToGUID;
     for (uint32 i = 0; i < PassiveSpells.size(); ++i)
     {
@@ -1127,11 +1133,13 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     {
         data << ChannelObjects[i];
     }
+    data.WriteBit(Field_314);
+    data.FlushBits();
 }
 
 void UnitData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
-    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xC3FEFFFFu, 0x003DFFFFu, 0xFFFFFC01u, 0x007FFFFFu, 0x0003F800u, 0x00000000u });
+    Mask allowedMaskForTarget({ 0xFFFEFFFFu, 0x87FDFFFFu, 0x007BFFFFu, 0xFFFFFC01u, 0x03FFFFFFu, 0x001FC000u, 0x00000000u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
@@ -1139,16 +1147,16 @@ void UnitData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
 void UnitData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x00002000u, 0x3C010000u, 0xFFC20000u, 0x000003FEu, 0xFF800004u, 0xFFFC07FFu, 0x01FFFFFFu };
+        allowedMaskForTarget |= std::array<uint32, 7>{ 0x00010000u, 0x78020000u, 0xFF840000u, 0x000003FEu, 0xFC000020u, 0xFFE03FFFu, 0x0FFFFFFFu };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::UnitAll))
-        allowedMaskForTarget |= { 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFF800004u, 0x000007FFu, 0x00000000u };
+        allowedMaskForTarget |= std::array<uint32, 7>{ 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFC000020u, 0x00003FFFu, 0x00000000u };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
-        allowedMaskForTarget |= { 0x00000000u, 0x3C000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x000007F8u };
+        allowedMaskForTarget |= std::array<uint32, 7>{ 0x00000000u, 0x78000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00003FC0u };
 }
 
 void UnitData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
-    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xC3FEFFFFu, 0x003DFFFFu, 0xFFFFFC01u, 0x007FFFFFu, 0x0003F800u, 0x00000000u });
+    Mask allowedMaskForTarget({ 0xFFFEFFFFu, 0x87FDFFFFu, 0x007BFFFFu, 0xFFFFFC01u, 0x03FFFFFFu, 0x001FC000u, 0x00000000u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     changesMask &= allowedMaskForTarget;
 }
@@ -1164,6 +1172,10 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
     {
         if (changesMask[1])
         {
+            data.WriteBit(Field_314);
+        }
+        if (changesMask[2])
+        {
             data.WriteBits(StateWorldEffectIDs->size(), 32);
             for (uint32 i = 0; i < StateWorldEffectIDs->size(); ++i)
             {
@@ -1174,21 +1186,21 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
     data.FlushBits();
     if (changesMask[0])
     {
-        if (changesMask[2])
+        if (changesMask[3])
         {
             if (!ignoreNestedChangesMask)
                 PassiveSpells.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(PassiveSpells.size(), data);
         }
-        if (changesMask[3])
+        if (changesMask[4])
         {
             if (!ignoreNestedChangesMask)
                 WorldEffects.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(WorldEffects.size(), data);
         }
-        if (changesMask[4])
+        if (changesMask[5])
         {
             if (!ignoreNestedChangesMask)
                 ChannelObjects.WriteUpdateMask(data);
@@ -1199,7 +1211,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
     data.FlushBits();
     if (changesMask[0])
     {
-        if (changesMask[2])
+        if (changesMask[3])
         {
             for (uint32 i = 0; i < PassiveSpells.size(); ++i)
             {
@@ -1209,7 +1221,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
                 }
             }
         }
-        if (changesMask[3])
+        if (changesMask[4])
         {
             for (uint32 i = 0; i < WorldEffects.size(); ++i)
             {
@@ -1219,7 +1231,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
                 }
             }
         }
-        if (changesMask[4])
+        if (changesMask[5])
         {
             for (uint32 i = 0; i < ChannelObjects.size(); ++i)
             {
@@ -1229,593 +1241,606 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
                 }
             }
         }
-        if (changesMask[5])
+        if (changesMask[6])
         {
             data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(this, owner, receiver));
         }
-        if (changesMask[6])
-        {
-            data << uint32(StateSpellVisualID);
-        }
         if (changesMask[7])
         {
-            data << uint32(StateAnimID);
+            data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[8])
         {
-            data << uint32(StateAnimKitID);
+            data << uint32(ViewerDependentValue<NpcFlags2Tag>::GetValue(this, owner, receiver));
         }
         if (changesMask[9])
         {
-            data << uint32(StateWorldEffectsQuestObjectiveID);
+            data << uint32(StateSpellVisualID);
         }
         if (changesMask[10])
         {
-            data << int32(SpellOverrideNameID);
+            data << uint32(StateAnimID);
         }
         if (changesMask[11])
         {
-            data << Charm;
+            data << uint32(StateAnimKitID);
         }
         if (changesMask[12])
         {
-            data << Summon;
+            data << uint32(StateWorldEffectsQuestObjectiveID);
         }
         if (changesMask[13])
         {
-            data << Critter;
+            data << int32(SpellOverrideNameID);
         }
         if (changesMask[14])
         {
-            data << CharmedBy;
+            data << Charm;
         }
         if (changesMask[15])
         {
-            data << SummonedBy;
+            data << Summon;
         }
         if (changesMask[16])
         {
-            data << CreatedBy;
+            data << Critter;
         }
         if (changesMask[17])
         {
-            data << DemonCreator;
+            data << CharmedBy;
         }
         if (changesMask[18])
         {
-            data << LookAtControllerTarget;
+            data << SummonedBy;
         }
         if (changesMask[19])
         {
-            data << Target;
+            data << CreatedBy;
         }
         if (changesMask[20])
         {
-            data << BattlePetCompanionGUID;
+            data << DemonCreator;
         }
         if (changesMask[21])
         {
-            data << uint64(BattlePetDBID);
+            data << LookAtControllerTarget;
         }
         if (changesMask[22])
         {
-            ChannelData->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            data << Target;
         }
         if (changesMask[23])
         {
-            data << int8(SpellEmpowerStage);
+            data << BattlePetCompanionGUID;
         }
         if (changesMask[24])
         {
-            data << uint32(SummonedByHomeRealm);
+            data << uint64(BattlePetDBID);
         }
         if (changesMask[25])
         {
-            data << uint8(Race);
+            ChannelData->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
         if (changesMask[26])
         {
-            data << uint8(ClassId);
+            data << int8(SpellEmpowerStage);
         }
         if (changesMask[27])
         {
-            data << uint8(PlayerClassId);
+            data << uint32(SummonedByHomeRealm);
         }
         if (changesMask[28])
         {
-            data << uint8(Sex);
+            data << uint8(Race);
         }
         if (changesMask[29])
         {
-            data << uint8(DisplayPower);
+            data << uint8(ClassId);
         }
         if (changesMask[30])
         {
-            data << uint32(OverrideDisplayPowerID);
+            data << uint8(PlayerClassId);
         }
         if (changesMask[31])
         {
-            data << int64(Health);
+            data << uint8(Sex);
         }
     }
     if (changesMask[32])
     {
         if (changesMask[33])
         {
-            data << int64(MaxHealth);
+            data << uint8(DisplayPower);
         }
         if (changesMask[34])
         {
-            data << int32(Level);
+            data << uint32(OverrideDisplayPowerID);
         }
         if (changesMask[35])
         {
-            data << int32(EffectiveLevel);
+            data << int64(Health);
         }
         if (changesMask[36])
         {
-            data << int32(ContentTuningID);
+            data << int64(MaxHealth);
         }
         if (changesMask[37])
         {
-            data << int32(ScalingLevelMin);
+            data << int32(Level);
         }
         if (changesMask[38])
         {
-            data << int32(ScalingLevelMax);
+            data << int32(EffectiveLevel);
         }
         if (changesMask[39])
         {
-            data << int32(ScalingLevelDelta);
+            data << int32(ContentTuningID);
         }
         if (changesMask[40])
         {
-            data << int32(ScalingFactionGroup);
+            data << int32(ScalingLevelMin);
         }
         if (changesMask[41])
         {
-            data << int32(ScalingHealthItemLevelCurveID);
+            data << int32(ScalingLevelMax);
         }
         if (changesMask[42])
         {
-            data << int32(ScalingDamageItemLevelCurveID);
+            data << int32(ScalingLevelDelta);
         }
         if (changesMask[43])
         {
-            data << int32(ViewerDependentValue<FactionTemplateTag>::GetValue(this, owner, receiver));
+            data << int32(ScalingFactionGroup);
         }
         if (changesMask[44])
         {
-            data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
+            data << int32(ViewerDependentValue<FactionTemplateTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[45])
         {
-            data << uint32(Flags2);
+            data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[46])
         {
-            data << uint32(ViewerDependentValue<Flags3Tag>::GetValue(this, owner, receiver));
+            data << uint32(ViewerDependentValue<Flags2Tag>::GetValue(this, owner, receiver));
         }
         if (changesMask[47])
         {
-            data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(this, owner, receiver));
+            data << uint32(ViewerDependentValue<Flags3Tag>::GetValue(this, owner, receiver));
         }
         if (changesMask[48])
         {
-            data << uint32(RangedAttackRoundBaseTime);
+            data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[49])
         {
-            data << float(BoundingRadius);
+            data << uint32(RangedAttackRoundBaseTime);
         }
         if (changesMask[50])
         {
-            data << float(CombatReach);
+            data << float(BoundingRadius);
         }
         if (changesMask[51])
         {
-            data << float(DisplayScale);
+            data << float(CombatReach);
         }
         if (changesMask[52])
         {
-            data << int32(CreatureFamily);
+            data << float(DisplayScale);
         }
         if (changesMask[53])
         {
-            data << int32(CreatureType);
+            data << int32(CreatureFamily);
         }
         if (changesMask[54])
         {
-            data << int32(NativeDisplayID);
+            data << int32(CreatureType);
         }
         if (changesMask[55])
         {
-            data << float(NativeXDisplayScale);
+            data << int32(NativeDisplayID);
         }
         if (changesMask[56])
         {
-            data << int32(MountDisplayID);
+            data << float(NativeXDisplayScale);
         }
         if (changesMask[57])
         {
-            data << int32(CosmeticMountDisplayID);
+            data << int32(MountDisplayID);
         }
         if (changesMask[58])
         {
-            data << float(MinDamage);
+            data << int32(CosmeticMountDisplayID);
         }
         if (changesMask[59])
         {
-            data << float(MaxDamage);
+            data << float(MinDamage);
         }
         if (changesMask[60])
         {
-            data << float(MinOffHandDamage);
+            data << float(MaxDamage);
         }
         if (changesMask[61])
         {
-            data << float(MaxOffHandDamage);
+            data << float(MinOffHandDamage);
         }
         if (changesMask[62])
         {
-            data << uint8(StandState);
+            data << float(MaxOffHandDamage);
         }
         if (changesMask[63])
         {
-            data << uint8(PetTalentPoints);
+            data << uint8(StandState);
         }
     }
     if (changesMask[64])
     {
         if (changesMask[65])
         {
-            data << uint8(VisFlags);
+            data << uint8(PetTalentPoints);
         }
         if (changesMask[66])
         {
-            data << uint8(AnimTier);
+            data << uint8(VisFlags);
         }
         if (changesMask[67])
         {
-            data << uint32(PetNumber);
+            data << uint8(AnimTier);
         }
         if (changesMask[68])
         {
-            data << uint32(PetNameTimestamp);
+            data << uint32(PetNumber);
         }
         if (changesMask[69])
         {
-            data << uint32(PetExperience);
+            data << uint32(PetNameTimestamp);
         }
         if (changesMask[70])
         {
-            data << uint32(PetNextLevelExperience);
+            data << uint32(PetExperience);
         }
         if (changesMask[71])
         {
-            data << float(ModCastingSpeed);
+            data << uint32(PetNextLevelExperience);
         }
         if (changesMask[72])
         {
-            data << float(ModCastingSpeedNeg);
+            data << float(ModCastingSpeed);
         }
         if (changesMask[73])
         {
-            data << float(ModSpellHaste);
+            data << float(ModCastingSpeedNeg);
         }
         if (changesMask[74])
         {
-            data << float(ModHaste);
+            data << float(ModSpellHaste);
         }
         if (changesMask[75])
         {
-            data << float(ModRangedHaste);
+            data << float(ModHaste);
         }
         if (changesMask[76])
         {
-            data << float(ModHasteRegen);
+            data << float(ModRangedHaste);
         }
         if (changesMask[77])
         {
-            data << float(ModTimeRate);
+            data << float(ModHasteRegen);
         }
         if (changesMask[78])
         {
-            data << int32(CreatedBySpell);
+            data << float(ModTimeRate);
         }
         if (changesMask[79])
         {
-            data << int32(EmoteState);
+            data << int32(CreatedBySpell);
         }
         if (changesMask[80])
         {
-            data << int32(BaseMana);
+            data << int32(EmoteState);
         }
         if (changesMask[81])
         {
-            data << int32(BaseHealth);
+            data << int32(BaseMana);
         }
         if (changesMask[82])
         {
-            data << uint8(SheatheState);
+            data << int32(BaseHealth);
         }
         if (changesMask[83])
         {
-            data << uint8(ViewerDependentValue<PvpFlagsTag>::GetValue(this, owner, receiver));
+            data << uint8(SheatheState);
         }
         if (changesMask[84])
         {
-            data << uint8(PetFlags);
+            data << uint8(ViewerDependentValue<PvpFlagsTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[85])
         {
-            data << uint8(ShapeshiftForm);
+            data << uint8(PetFlags);
         }
         if (changesMask[86])
         {
-            data << int32(AttackPower);
+            data << uint8(ShapeshiftForm);
         }
         if (changesMask[87])
         {
-            data << int32(AttackPowerModPos);
+            data << int32(AttackPower);
         }
         if (changesMask[88])
         {
-            data << int32(AttackPowerModNeg);
+            data << int32(AttackPowerModPos);
         }
         if (changesMask[89])
         {
-            data << float(AttackPowerMultiplier);
+            data << int32(AttackPowerModNeg);
         }
         if (changesMask[90])
         {
-            data << int32(AttackPowerModSupport);
+            data << float(AttackPowerMultiplier);
         }
         if (changesMask[91])
         {
-            data << int32(RangedAttackPower);
+            data << int32(AttackPowerModSupport);
         }
         if (changesMask[92])
         {
-            data << int32(RangedAttackPowerModPos);
+            data << int32(RangedAttackPower);
         }
         if (changesMask[93])
         {
-            data << int32(RangedAttackPowerModNeg);
+            data << int32(RangedAttackPowerModPos);
         }
         if (changesMask[94])
         {
-            data << float(RangedAttackPowerMultiplier);
+            data << int32(RangedAttackPowerModNeg);
         }
         if (changesMask[95])
         {
-            data << int32(RangedAttackPowerModSupport);
+            data << float(RangedAttackPowerMultiplier);
         }
     }
     if (changesMask[96])
     {
         if (changesMask[97])
         {
-            data << int32(MainHandWeaponAttackPower);
+            data << int32(RangedAttackPowerModSupport);
         }
         if (changesMask[98])
         {
-            data << int32(OffHandWeaponAttackPower);
+            data << int32(MainHandWeaponAttackPower);
         }
         if (changesMask[99])
         {
-            data << int32(RangedWeaponAttackPower);
+            data << int32(OffHandWeaponAttackPower);
         }
         if (changesMask[100])
         {
-            data << int32(SetAttackSpeedAura);
+            data << int32(RangedWeaponAttackPower);
         }
         if (changesMask[101])
         {
-            data << float(Lifesteal);
+            data << int32(SetAttackSpeedAura);
         }
         if (changesMask[102])
         {
-            data << float(MinRangedDamage);
+            data << float(Lifesteal);
         }
         if (changesMask[103])
         {
-            data << float(MaxRangedDamage);
+            data << float(MinRangedDamage);
         }
         if (changesMask[104])
         {
-            data << float(ManaCostMultiplier);
+            data << float(MaxRangedDamage);
         }
         if (changesMask[105])
         {
-            data << float(MaxHealthModifier);
+            data << float(ManaCostMultiplier);
         }
         if (changesMask[106])
         {
-            data << float(HoverHeight);
+            data << float(MaxHealthModifier);
         }
         if (changesMask[107])
         {
-            data << int32(MinItemLevelCutoff);
+            data << float(HoverHeight);
         }
         if (changesMask[108])
         {
-            data << int32(MinItemLevel);
+            data << int32(MinItemLevelCutoff);
         }
         if (changesMask[109])
         {
-            data << int32(MaxItemLevel);
+            data << int32(MinItemLevel);
         }
         if (changesMask[110])
         {
-            data << int32(AzeriteItemLevel);
+            data << int32(MaxItemLevel);
         }
         if (changesMask[111])
         {
-            data << int32(WildBattlePetLevel);
+            data << int32(AzeriteItemLevel);
         }
         if (changesMask[112])
         {
-            data << int32(BattlePetCompanionExperience);
+            data << int32(WildBattlePetLevel);
         }
         if (changesMask[113])
         {
-            data << uint32(BattlePetCompanionNameTimestamp);
+            data << int32(BattlePetCompanionExperience);
         }
         if (changesMask[114])
         {
-            data << int32(InteractSpellID);
+            data << uint32(BattlePetCompanionNameTimestamp);
         }
         if (changesMask[115])
         {
-            data << int32(ScaleDuration);
+            data << int32(ViewerDependentValue<InteractSpellIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[116])
         {
-            data << int32(LooksLikeMountID);
+            data << int32(ScaleDuration);
         }
         if (changesMask[117])
         {
-            data << int32(LooksLikeCreatureID);
+            data << int32(LooksLikeMountID);
         }
         if (changesMask[118])
         {
-            data << int32(LookAtControllerID);
+            data << int32(LooksLikeCreatureID);
         }
         if (changesMask[119])
         {
-            data << int32(PerksVendorItemID);
+            data << int32(LookAtControllerID);
         }
         if (changesMask[120])
         {
-            data << int32(TaxiNodesID);
+            data << int32(PerksVendorItemID);
         }
         if (changesMask[121])
         {
-            data << GuildGUID;
+            data << int32(TaxiNodesID);
         }
         if (changesMask[122])
         {
-            data << int32(FlightCapabilityID);
+            data << GuildGUID;
         }
         if (changesMask[123])
         {
-            data << float(GlideEventSpeedDivisor);
+            data << int32(FlightCapabilityID);
         }
         if (changesMask[124])
         {
-            data << uint32(SilencedSchoolMask);
+            data << float(GlideEventSpeedDivisor);
         }
         if (changesMask[125])
         {
-            data << uint32(CurrentAreaID);
+            data << int32(MaxHealthModifierFlatNeg);
         }
         if (changesMask[126])
+        {
+            data << int32(MaxHealthModifierFlatPos);
+        }
+        if (changesMask[127])
+        {
+            data << uint32(SilencedSchoolMask);
+        }
+    }
+    if (changesMask[128])
+    {
+        if (changesMask[129])
+        {
+            data << uint32(CurrentAreaID);
+        }
+        if (changesMask[130])
+        {
+            data << float(Field_31C);
+        }
+        if (changesMask[131])
+        {
+            data << float(Field_320);
+        }
+        if (changesMask[132])
         {
             data << NameplateAttachToGUID;
         }
     }
-    if (changesMask[127])
-    {
-        for (uint32 i = 0; i < 2; ++i)
-        {
-            if (changesMask[128 + i])
-            {
-                data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, i, owner, receiver));
-            }
-        }
-    }
-    if (changesMask[130])
+    if (changesMask[133])
     {
         for (uint32 i = 0; i < 10; ++i)
         {
-            if (changesMask[131 + i])
+            if (changesMask[134 + i])
             {
                 data << int32(Power[i]);
             }
-            if (changesMask[141 + i])
+            if (changesMask[144 + i])
             {
                 data << int32(MaxPower[i]);
             }
-            if (changesMask[151 + i])
+            if (changesMask[154 + i])
             {
                 data << float(PowerRegenFlatModifier[i]);
             }
-            if (changesMask[161 + i])
+            if (changesMask[164 + i])
             {
                 data << float(PowerRegenInterruptedFlatModifier[i]);
             }
         }
     }
-    if (changesMask[171])
+    if (changesMask[174])
     {
         for (uint32 i = 0; i < 3; ++i)
         {
-            if (changesMask[172 + i])
+            if (changesMask[175 + i])
             {
                 VirtualItems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[175])
+    if (changesMask[178])
     {
         for (uint32 i = 0; i < 2; ++i)
         {
-            if (changesMask[176 + i])
+            if (changesMask[179 + i])
             {
                 data << uint32(AttackRoundBaseTime[i]);
             }
         }
     }
-    if (changesMask[178])
+    if (changesMask[181])
     {
         for (uint32 i = 0; i < 4; ++i)
         {
-            if (changesMask[179 + i])
+            if (changesMask[182 + i])
             {
                 data << int32(Stats[i]);
             }
-            if (changesMask[183 + i])
+            if (changesMask[186 + i])
             {
                 data << int32(StatPosBuff[i]);
             }
-            if (changesMask[187 + i])
+            if (changesMask[190 + i])
             {
                 data << int32(StatNegBuff[i]);
             }
-            if (changesMask[191 + i])
+            if (changesMask[194 + i])
             {
                 data << int32(StatSupportBuff[i]);
             }
         }
     }
-    if (changesMask[195])
+    if (changesMask[198])
     {
         for (uint32 i = 0; i < 7; ++i)
         {
-            if (changesMask[196 + i])
+            if (changesMask[199 + i])
             {
                 data << int32(Resistances[i]);
             }
-            if (changesMask[203 + i])
+            if (changesMask[206 + i])
             {
                 data << int32(BonusResistanceMods[i]);
             }
-            if (changesMask[210 + i])
+            if (changesMask[213 + i])
             {
                 data << int32(ManaCostModifier[i]);
             }
         }
     }
+    data.FlushBits();
 }
 
 void UnitData::ClearChangesMask()
 {
+    Base::ClearChangesMask(Field_314);
     Base::ClearChangesMask(StateWorldEffectIDs);
     Base::ClearChangesMask(PassiveSpells);
     Base::ClearChangesMask(WorldEffects);
     Base::ClearChangesMask(ChannelObjects);
     Base::ClearChangesMask(DisplayID);
+    Base::ClearChangesMask(NpcFlags);
+    Base::ClearChangesMask(NpcFlags2);
     Base::ClearChangesMask(StateSpellVisualID);
     Base::ClearChangesMask(StateAnimID);
     Base::ClearChangesMask(StateAnimKitID);
@@ -1850,8 +1875,6 @@ void UnitData::ClearChangesMask()
     Base::ClearChangesMask(ScalingLevelMax);
     Base::ClearChangesMask(ScalingLevelDelta);
     Base::ClearChangesMask(ScalingFactionGroup);
-    Base::ClearChangesMask(ScalingHealthItemLevelCurveID);
-    Base::ClearChangesMask(ScalingDamageItemLevelCurveID);
     Base::ClearChangesMask(FactionTemplate);
     Base::ClearChangesMask(Flags);
     Base::ClearChangesMask(Flags2);
@@ -1931,10 +1954,13 @@ void UnitData::ClearChangesMask()
     Base::ClearChangesMask(GuildGUID);
     Base::ClearChangesMask(FlightCapabilityID);
     Base::ClearChangesMask(GlideEventSpeedDivisor);
+    Base::ClearChangesMask(MaxHealthModifierFlatNeg);
+    Base::ClearChangesMask(MaxHealthModifierFlatPos);
     Base::ClearChangesMask(SilencedSchoolMask);
     Base::ClearChangesMask(CurrentAreaID);
+    Base::ClearChangesMask(Field_31C);
+    Base::ClearChangesMask(Field_320);
     Base::ClearChangesMask(NameplateAttachToGUID);
-    Base::ClearChangesMask(NpcFlags);
     Base::ClearChangesMask(Power);
     Base::ClearChangesMask(MaxPower);
     Base::ClearChangesMask(PowerRegenFlatModifier);
@@ -2098,31 +2124,215 @@ void ArenaCooldown::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
+void ZonePlayerForcedReaction::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int32(FactionID);
+    data << int32(Reaction);
+}
+
+void ZonePlayerForcedReaction::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 3);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            data << int32(FactionID);
+        }
+        if (changesMask[2])
+        {
+            data << int32(Reaction);
+        }
+    }
+}
+
+void ZonePlayerForcedReaction::ClearChangesMask()
+{
+    Base::ClearChangesMask(FactionID);
+    Base::ClearChangesMask(Reaction);
+    _changesMask.ResetAll();
+}
+
+void PetCreatureName::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << uint32(CreatureID);
+    data.WriteBits(Name->size(), 8);
+    data.WriteString(Name);
+    data.FlushBits();
+}
+
+void PetCreatureName::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 3);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            data << uint32(CreatureID);
+        }
+        if (changesMask[2])
+        {
+            data.WriteBits(Name->size(), 8);
+            data.WriteString(Name);
+        }
+    }
+    data.FlushBits();
+}
+
+void PetCreatureName::ClearChangesMask()
+{
+    Base::ClearChangesMask(CreatureID);
+    Base::ClearChangesMask(Name);
+    _changesMask.ResetAll();
+}
+
 void CTROptions::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << int32(ContentTuningConditionMask);
-    data << uint32(Field_4);
-    data << uint32(ExpansionLevelMask);
+    data << int32(ConditionalFlags);
+    data << uint32(FactionGroup);
+    data << uint32(ChromieTimeExpansionMask);
 }
 
 void CTROptions::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
 {
-    data << int32(ContentTuningConditionMask);
-    data << uint32(Field_4);
-    data << uint32(ExpansionLevelMask);
+    data << int32(ConditionalFlags);
+    data << uint32(FactionGroup);
+    data << uint32(ChromieTimeExpansionMask);
 }
 
 bool CTROptions::operator==(CTROptions const& right) const
 {
-    return ContentTuningConditionMask == right.ContentTuningConditionMask
-        && Field_4 == right.Field_4
-        && ExpansionLevelMask == right.ExpansionLevelMask;
+    return ConditionalFlags == right.ConditionalFlags
+        && FactionGroup == right.FactionGroup
+        && ChromieTimeExpansionMask == right.ChromieTimeExpansionMask;
+}
+
+void DeclinedNames::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    for (uint32 i = 0; i < 5; ++i)
+    {
+        data.WriteBits(Name[i].size(), 10);
+    }
+    data.FlushBits();
+    for (uint32 i = 0; i < 5; ++i)
+    {
+        data.WriteString(Name[i]);
+    }
+    data.FlushBits();
+}
+
+void DeclinedNames::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlocksMask(0), 1);
+    if (changesMask.GetBlock(0))
+        data.WriteBits(changesMask.GetBlock(0), 32);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        for (uint32 i = 0; i < 5; ++i)
+        {
+            if (changesMask[1 + i])
+            {
+                data.WriteBits(Name[i].size(), 10);
+            }
+        }
+    }
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        for (uint32 i = 0; i < 5; ++i)
+        {
+            if (changesMask[1 + i])
+            {
+                data.WriteString(Name[i]);
+            }
+        }
+    }
+    data.FlushBits();
+}
+
+void DeclinedNames::ClearChangesMask()
+{
+    Base::ClearChangesMask(Name);
+    _changesMask.ResetAll();
+}
+
+void CustomTabardInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int32(EmblemStyle);
+    data << int32(EmblemColor);
+    data << int32(BorderStyle);
+    data << int32(BorderColor);
+    data << int32(BackgroundColor);
+}
+
+void CustomTabardInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 6);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            data << int32(EmblemStyle);
+        }
+        if (changesMask[2])
+        {
+            data << int32(EmblemColor);
+        }
+        if (changesMask[3])
+        {
+            data << int32(BorderStyle);
+        }
+        if (changesMask[4])
+        {
+            data << int32(BorderColor);
+        }
+        if (changesMask[5])
+        {
+            data << int32(BackgroundColor);
+        }
+    }
+}
+
+void CustomTabardInfo::ClearChangesMask()
+{
+    Base::ClearChangesMask(EmblemStyle);
+    Base::ClearChangesMask(EmblemColor);
+    Base::ClearChangesMask(BorderStyle);
+    Base::ClearChangesMask(BorderColor);
+    Base::ClearChangesMask(BackgroundColor);
+    _changesMask.ResetAll();
 }
 
 void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
     data << DuelArbiter;
     data << WowAccount;
+    data << BnetAccount;
+    data << uint64(GuildClubMemberID);
     data << LootTargetGUID;
     data << uint32(PlayerFlags);
     data << uint32(PlayerFlagsEx);
@@ -2130,6 +2340,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     data << uint32(GuildDeleteDate);
     data << int32(GuildLevel);
     data << uint32(Customizations.size());
+    data << uint32(QaCustomizations.size());
     for (uint32 i = 0; i < 2; ++i)
     {
         data << uint8(PartyType[i]);
@@ -2165,21 +2376,32 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     data << int32(HonorLevel);
     data << int64(LogoutTime);
     data << uint32(ArenaCooldowns.size());
-    data << int32(Field_B0);
-    data << int32(Field_B4);
+    for (uint32 i = 0; i < 32; ++i)
+    {
+        ForcedReactions[i].WriteCreate(data, owner, receiver);
+    }
+    data << int32(Field_1AC);
+    data << int32(Field_1B0);
     data << int32(CurrentBattlePetSpeciesID);
-    data << field_138;
+    data << uint32(PetNames.size());
     CtrOptions->WriteCreate(data, owner, receiver);
     data << int32(CovenantID);
     data << int32(SoulbindID);
+    data << SpectateTarget;
+    data << int32(Field_200);
     data << uint32(VisualItemReplacements.size());
     for (uint32 i = 0; i < 19; ++i)
     {
         data << uint32(Field_3120[i]);
     }
+    PersonalTabard->WriteCreate(data, owner, receiver);
     for (uint32 i = 0; i < Customizations.size(); ++i)
     {
         Customizations[i].WriteCreate(data, owner, receiver);
+    }
+    for (uint32 i = 0; i < QaCustomizations.size(); ++i)
+    {
+        QaCustomizations[i].WriteCreate(data, owner, receiver);
     }
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
     {
@@ -2196,18 +2418,34 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     {
         data << int32(VisualItemReplacements[i]);
     }
+    data.FlushBits();
+    data.WriteBits(Name->size(), 6);
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
     {
         data.WriteBit(HasQuestSession);
     }
     data.WriteBit(HasLevelLink);
+    data.WriteBits(DeclinedNames.has_value(), 1);
     data << DungeonScore;
+    data.WriteString(Name);
+    for (uint32 i = 0; i < 16; ++i)
+    {
+        data << VisibleEquipableSpells[i];
+    }
+    for (uint32 i = 0; i < PetNames.size(); ++i)
+    {
+        PetNames[i].WriteCreate(data, owner, receiver);
+    }
+    if (DeclinedNames.has_value())
+    {
+        DeclinedNames->WriteCreate(data, owner, receiver);
+    }
     data.FlushBits();
 }
 
 void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x000001FFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFE000000u, 0xFFFFFFFFu, 0x000000FFu });
+    Mask allowedMaskForTarget({ 0xFFFFFFDDu, 0x0001FFFFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFFFEu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000003u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
@@ -2215,20 +2453,20 @@ void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
-        allowedMaskForTarget |= { 0x00000012u, 0xFFFFFE00u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x01FFFFFFu, 0x00000000u, 0x00000000u };
+        allowedMaskForTarget |= std::array<uint32, 11>{ 0x00000022u, 0xFFFE0000u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000001u, 0x00000000u, 0x00000000u, 0x00000000u };
 }
 
 void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x000001FFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFE000000u, 0xFFFFFFFFu, 0x000000FFu });
+    Mask allowedMaskForTarget({ 0xFFFFFFDDu, 0x0001FFFFu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFFFEu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000003u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     changesMask &= allowedMaskForTarget;
 }
 
 void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Player const* owner, Player const* receiver) const
 {
-    data.WriteBits(changesMask.GetBlocksMask(0), 9);
-    for (uint32 i = 0; i < 9; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 11);
+    for (uint32 i = 0; i < 11; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -2253,18 +2491,32 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         if (changesMask[4])
         {
             if (!ignoreNestedChangesMask)
+                QaCustomizations.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(QaCustomizations.size(), data);
+        }
+        if (changesMask[5])
+        {
+            if (!ignoreNestedChangesMask)
                 QuestSessionQuestLog.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(QuestSessionQuestLog.size(), data);
         }
-        if (changesMask[5])
+        if (changesMask[6])
         {
             if (!ignoreNestedChangesMask)
                 ArenaCooldowns.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(ArenaCooldowns.size(), data);
         }
-        if (changesMask[6])
+        if (changesMask[7])
+        {
+            if (!ignoreNestedChangesMask)
+                PetNames.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(PetNames.size(), data);
+        }
+        if (changesMask[8])
         {
             if (!ignoreNestedChangesMask)
                 VisualItemReplacements.WriteUpdateMask(data);
@@ -2287,6 +2539,16 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         if (changesMask[4])
         {
+            for (uint32 i = 0; i < QaCustomizations.size(); ++i)
+            {
+                if (QaCustomizations.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    QaCustomizations[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
+        }
+        if (changesMask[5])
+        {
             for (uint32 i = 0; i < QuestSessionQuestLog.size(); ++i)
             {
                 if (QuestSessionQuestLog.HasChanged(i) || ignoreNestedChangesMask)
@@ -2298,7 +2560,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
                 }
             }
         }
-        if (changesMask[5])
+        if (changesMask[6])
         {
             for (uint32 i = 0; i < ArenaCooldowns.size(); ++i)
             {
@@ -2308,7 +2570,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
                 }
             }
         }
-        if (changesMask[6])
+        if (changesMask[8])
         {
             for (uint32 i = 0; i < VisualItemReplacements.size(); ++i)
             {
@@ -2320,143 +2582,186 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         if (changesMask[7])
         {
-            data << DuelArbiter;
-        }
-        if (changesMask[8])
-        {
-            data << WowAccount;
+            for (uint32 i = 0; i < PetNames.size(); ++i)
+            {
+                if (PetNames.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    PetNames[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
         }
         if (changesMask[9])
         {
-            data << LootTargetGUID;
+            data << DuelArbiter;
         }
         if (changesMask[10])
         {
-            data << uint32(PlayerFlags);
+            data << WowAccount;
         }
         if (changesMask[11])
         {
-            data << uint32(PlayerFlagsEx);
+            data << BnetAccount;
         }
         if (changesMask[12])
         {
-            data << uint32(GuildRankID);
+            data << uint64(GuildClubMemberID);
         }
         if (changesMask[13])
         {
-            data << uint32(GuildDeleteDate);
+            data << LootTargetGUID;
         }
         if (changesMask[14])
         {
-            data << int32(GuildLevel);
+            data << uint32(PlayerFlags);
         }
         if (changesMask[15])
         {
-            data << uint8(NativeSex);
+            data << uint32(PlayerFlagsEx);
         }
         if (changesMask[16])
         {
-            data << uint8(Inebriation);
+            data << uint32(GuildRankID);
         }
         if (changesMask[17])
         {
-            data << uint8(PvpTitle);
+            data << uint32(GuildDeleteDate);
         }
         if (changesMask[18])
         {
-            data << uint8(ArenaFaction);
+            data << int32(GuildLevel);
         }
         if (changesMask[19])
         {
-            data << uint32(DuelTeam);
+            data << uint8(NativeSex);
         }
         if (changesMask[20])
         {
-            data << int32(GuildTimeStamp);
+            data << uint8(Inebriation);
         }
         if (changesMask[21])
         {
-            data << int32(PlayerTitle);
+            data << uint8(PvpTitle);
         }
         if (changesMask[22])
         {
-            data << int32(FakeInebriation);
+            data << uint8(ArenaFaction);
         }
         if (changesMask[23])
         {
-            data << uint32(VirtualPlayerRealm);
+            data << uint32(DuelTeam);
         }
         if (changesMask[24])
         {
-            data << uint32(CurrentSpecID);
+            data << int32(GuildTimeStamp);
         }
         if (changesMask[25])
         {
-            data << int32(TaxiMountAnimKitID);
+            data << int32(PlayerTitle);
         }
         if (changesMask[26])
         {
-            data << uint8(CurrentBattlePetBreedQuality);
+            data << int32(FakeInebriation);
         }
         if (changesMask[27])
         {
-            data << int32(HonorLevel);
+            data << uint32(VirtualPlayerRealm);
         }
         if (changesMask[28])
         {
-            data << int64(LogoutTime);
+            data << uint32(CurrentSpecID);
         }
         if (changesMask[29])
         {
-            data << int32(Field_B0);
+            data << int32(TaxiMountAnimKitID);
         }
         if (changesMask[30])
         {
-            data << int32(Field_B4);
+            data << uint8(CurrentBattlePetBreedQuality);
         }
         if (changesMask[31])
         {
-            data << int32(CurrentBattlePetSpeciesID);
+            data << int32(HonorLevel);
         }
     }
     if (changesMask[32])
     {
         if (changesMask[33])
         {
-            data << field_138;
-        }
-        if (changesMask[34])
-        {
-            CtrOptions->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            data << int64(LogoutTime);
         }
         if (changesMask[35])
         {
-            data << int32(CovenantID);
+            data << int32(Field_1AC);
         }
         if (changesMask[36])
         {
-            data << int32(SoulbindID);
+            data << int32(Field_1B0);
         }
         if (changesMask[37])
         {
+            data << int32(CurrentBattlePetSpeciesID);
+        }
+        if (changesMask[38])
+        {
+            CtrOptions->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+        }
+        if (changesMask[39])
+        {
+            data << int32(CovenantID);
+        }
+        if (changesMask[40])
+        {
+            data << int32(SoulbindID);
+        }
+        if (changesMask[42])
+        {
+            data << SpectateTarget;
+        }
+        if (changesMask[43])
+        {
+            data << int32(Field_200);
+        }
+        if (changesMask[45])
+        {
+            PersonalTabard->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+        }
+        if (changesMask[34])
+        {
+            data.WriteBits(Name->size(), 6);
+        }
+        data.WriteBits(DeclinedNames.has_value(), 1);
+        data.FlushBits();
+        if (changesMask[41])
+        {
             data << DungeonScore;
         }
+        if (changesMask[34])
+        {
+            data.WriteString(Name);
+        }
+        if (changesMask[44])
+        {
+            if (DeclinedNames.has_value())
+            {
+                DeclinedNames->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            }
+        }
     }
-    if (changesMask[38])
+    if (changesMask[46])
     {
         for (uint32 i = 0; i < 2; ++i)
         {
-            if (changesMask[39 + i])
+            if (changesMask[47 + i])
             {
                 data << uint8(PartyType[i]);
             }
         }
     }
-    if (changesMask[41])
+    if (changesMask[49])
     {
         for (uint32 i = 0; i < 175; ++i)
         {
-            if (changesMask[42 + i])
+            if (changesMask[50 + i])
             {
                 if (noQuestLogChangesMask)
                     QuestLog[i].WriteCreate(data, owner, receiver);
@@ -2465,33 +2770,53 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
             }
         }
     }
-    if (changesMask[217])
+    if (changesMask[225])
     {
         for (uint32 i = 0; i < 19; ++i)
         {
-            if (changesMask[218 + i])
+            if (changesMask[226 + i])
             {
                 VisibleItems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[237])
+    if (changesMask[245])
     {
         for (uint32 i = 0; i < 6; ++i)
         {
-            if (changesMask[238 + i])
+            if (changesMask[246 + i])
             {
                 data << float(AvgItemLevel[i]);
             }
         }
     }
-    if (changesMask[244])
+    if (changesMask[252])
+    {
+        for (uint32 i = 0; i < 32; ++i)
+        {
+            if (changesMask[253 + i])
+            {
+                ForcedReactions[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            }
+        }
+    }
+    if (changesMask[302])
     {
         for (uint32 i = 0; i < 19; ++i)
         {
-            if (changesMask[245 + i])
+            if (changesMask[303 + i])
             {
                 data << uint32(Field_3120[i]);
+            }
+        }
+    }
+    if (changesMask[285])
+    {
+        for (uint32 i = 0; i < 16; ++i)
+        {
+            if (changesMask[286 + i])
+            {
+                data << VisibleEquipableSpells[i];
             }
         }
     }
@@ -2503,11 +2828,15 @@ void PlayerData::ClearChangesMask()
     Base::ClearChangesMask(HasQuestSession);
     Base::ClearChangesMask(HasLevelLink);
     Base::ClearChangesMask(Customizations);
+    Base::ClearChangesMask(QaCustomizations);
     Base::ClearChangesMask(QuestSessionQuestLog);
     Base::ClearChangesMask(ArenaCooldowns);
     Base::ClearChangesMask(VisualItemReplacements);
+    Base::ClearChangesMask(PetNames);
     Base::ClearChangesMask(DuelArbiter);
     Base::ClearChangesMask(WowAccount);
+    Base::ClearChangesMask(BnetAccount);
+    Base::ClearChangesMask(GuildClubMemberID);
     Base::ClearChangesMask(LootTargetGUID);
     Base::ClearChangesMask(PlayerFlags);
     Base::ClearChangesMask(PlayerFlagsEx);
@@ -2528,18 +2857,24 @@ void PlayerData::ClearChangesMask()
     Base::ClearChangesMask(CurrentBattlePetBreedQuality);
     Base::ClearChangesMask(HonorLevel);
     Base::ClearChangesMask(LogoutTime);
-    Base::ClearChangesMask(Field_B0);
-    Base::ClearChangesMask(Field_B4);
+    Base::ClearChangesMask(Name);
+    Base::ClearChangesMask(Field_1AC);
+    Base::ClearChangesMask(Field_1B0);
     Base::ClearChangesMask(CurrentBattlePetSpeciesID);
-    Base::ClearChangesMask(field_138);
     Base::ClearChangesMask(CtrOptions);
     Base::ClearChangesMask(CovenantID);
     Base::ClearChangesMask(SoulbindID);
     Base::ClearChangesMask(DungeonScore);
+    Base::ClearChangesMask(SpectateTarget);
+    Base::ClearChangesMask(Field_200);
+    Base::ClearChangesMask(DeclinedNames);
+    Base::ClearChangesMask(PersonalTabard);
     Base::ClearChangesMask(PartyType);
     Base::ClearChangesMask(QuestLog);
     Base::ClearChangesMask(VisibleItems);
     Base::ClearChangesMask(AvgItemLevel);
+    Base::ClearChangesMask(ForcedReactions);
+    Base::ClearChangesMask(VisibleEquipableSpells);
     Base::ClearChangesMask(Field_3120);
     _changesMask.ResetAll();
 }
@@ -2618,6 +2953,127 @@ void SkillInfo::ClearChangesMask()
     Base::ClearChangesMask(SkillTempBonus);
     Base::ClearChangesMask(SkillPermBonus);
     _changesMask.ResetAll();
+}
+
+void BitVector::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << uint32(Values.size());
+    for (uint32 i = 0; i < Values.size(); ++i)
+    {
+        data << uint64(Values[i]);
+    }
+}
+
+void BitVector::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 2);
+
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            if (!ignoreChangesMask)
+                Values.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(Values.size(), data);
+        }
+    }
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            for (uint32 i = 0; i < Values.size(); ++i)
+            {
+                if (Values.HasChanged(i) || ignoreChangesMask)
+                {
+                    data << uint64(Values[i]);
+                }
+            }
+        }
+    }
+}
+
+void BitVector::ClearChangesMask()
+{
+    Base::ClearChangesMask(Values);
+    _changesMask.ResetAll();
+}
+
+void BitVectors::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    for (uint32 i = 0; i < 13; ++i)
+    {
+        Values[i].WriteCreate(data, owner, receiver);
+    }
+}
+
+void BitVectors::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlocksMask(0), 1);
+    if (changesMask.GetBlock(0))
+        data.WriteBits(changesMask.GetBlock(0), 32);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        for (uint32 i = 0; i < 13; ++i)
+        {
+            if (changesMask[1 + i])
+            {
+                Values[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
+            }
+        }
+    }
+}
+
+void BitVectors::ClearChangesMask()
+{
+    Base::ClearChangesMask(Values);
+    _changesMask.ResetAll();
+}
+
+void PlayerDataElement::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data.WriteBits(Type, 1);
+    if (Type == 1)
+    {
+        data << float(FloatValue);
+    }
+    if (Type == 0)
+    {
+        data << int64(Int64Value);
+    }
+    data.FlushBits();
+}
+
+void PlayerDataElement::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    data.WriteBits(Type, 1);
+    if (Type == 1)
+    {
+        data << float(FloatValue);
+    }
+    if (Type == 0)
+    {
+        data << int64(Int64Value);
+    }
+    data.FlushBits();
+}
+
+bool PlayerDataElement::operator==(PlayerDataElement const& right) const
+{
+    return Type == right.Type
+        && FloatValue == right.FloatValue
+        && Int64Value == right.Int64Value;
 }
 
 void RestInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
@@ -2951,23 +3407,23 @@ void ResearchHistory::ClearChangesMask()
 
 void MawPower::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << int32(Field_0);
-    data << int32(Field_4);
-    data << int32(Field_8);
+    data << int32(SpellID);
+    data << int32(MawPowerID);
+    data << int32(Stacks);
 }
 
 void MawPower::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
 {
-    data << int32(Field_0);
-    data << int32(Field_4);
-    data << int32(Field_8);
+    data << int32(SpellID);
+    data << int32(MawPowerID);
+    data << int32(Stacks);
 }
 
 bool MawPower::operator==(MawPower const& right) const
 {
-    return Field_0 == right.Field_0
-        && Field_4 == right.Field_4
-        && Field_8 == right.Field_8;
+    return SpellID == right.SpellID
+        && MawPowerID == right.MawPowerID
+        && Stacks == right.Stacks;
 }
 
 void MultiFloorExplore::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
@@ -3050,7 +3506,7 @@ void ActivePlayerUnk901::ClearChangesMask()
 void QuestSession::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << Owner;
-    for (uint32 i = 0; i < 875; ++i)
+    for (uint32 i = 0; i < 950; ++i)
     {
         data << uint64(QuestCompleted[i]);
     }
@@ -3062,8 +3518,8 @@ void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player 
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlocksMask(0), 28);
-    for (uint32 i = 0; i < 28; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 30);
+    for (uint32 i = 0; i < 30; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -3077,7 +3533,7 @@ void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player 
     }
     if (changesMask[2])
     {
-        for (uint32 i = 0; i < 875; ++i)
+        for (uint32 i = 0; i < 950; ++i)
         {
             if (changesMask[3 + i])
             {
@@ -3153,11 +3609,44 @@ bool TraitEntry::operator==(TraitEntry const& right) const
         && GrantedRanks == right.GrantedRanks;
 }
 
+void TraitSubTreeCache::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int32(TraitSubTreeID);
+    data << uint32(Entries.size());
+    for (uint32 i = 0; i < Entries.size(); ++i)
+    {
+        Entries[i].WriteCreate(data, owner, receiver);
+    }
+    data.WriteBits(Active, 1);
+    data.FlushBits();
+}
+
+void TraitSubTreeCache::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    data << int32(TraitSubTreeID);
+    data << uint32(Entries.size());
+    for (uint32 i = 0; i < Entries.size(); ++i)
+    {
+        Entries[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
+    }
+    data.FlushBits();
+    data.WriteBits(Active, 1);
+    data.FlushBits();
+}
+
+bool TraitSubTreeCache::operator==(TraitSubTreeCache const& right) const
+{
+    return Entries == right.Entries
+        && TraitSubTreeID == right.TraitSubTreeID
+        && Active == right.Active;
+}
+
 void TraitConfig::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << int32(ID);
     data << int32(Type);
     data << uint32(Entries.size());
+    data << uint32(SubTrees.size());
     if (Type == 2)
     {
         data << int32(SkillLineID);
@@ -3177,6 +3666,10 @@ void TraitConfig::WriteCreate(ByteBuffer& data, Player const* owner, Player cons
         Entries[i].WriteCreate(data, owner, receiver);
     }
     data.WriteBits(Name->size(), 9);
+    for (uint32 i = 0; i < SubTrees.size(); ++i)
+    {
+        SubTrees[i].WriteCreate(data, owner, receiver);
+    }
     data.WriteString(Name);
     data.FlushBits();
 }
@@ -3187,7 +3680,7 @@ void TraitConfig::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player c
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 12);
+    data.WriteBits(changesMask.GetBlock(0), 14);
 
     if (changesMask[0])
     {
@@ -3197,6 +3690,13 @@ void TraitConfig::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player c
                 Entries.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(Entries.size(), data);
+        }
+        if (changesMask[2])
+        {
+            if (!ignoreChangesMask)
+                SubTrees.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(SubTrees.size(), data);
         }
     }
     data.FlushBits();
@@ -3214,27 +3714,30 @@ void TraitConfig::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player c
         }
         if (changesMask[2])
         {
+            for (uint32 i = 0; i < SubTrees.size(); ++i)
+            {
+                if (SubTrees.HasChanged(i) || ignoreChangesMask)
+                {
+                    SubTrees[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
+                }
+            }
+        }
+        if (changesMask[3])
+        {
             data << int32(ID);
         }
     }
     if (changesMask[4])
     {
-        if (changesMask[5])
+        if (changesMask[6])
         {
             data << int32(Type);
         }
-        if (changesMask[6])
+        if (changesMask[7])
         {
             if (Type == 2)
             {
                 data << int32(SkillLineID);
-            }
-        }
-        if (changesMask[7])
-        {
-            if (Type == 1)
-            {
-                data << int32(ChrSpecializationID);
             }
         }
     }
@@ -3244,17 +3747,27 @@ void TraitConfig::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player c
         {
             if (Type == 1)
             {
-                data << int32(CombatConfigFlags);
+                data << int32(ChrSpecializationID);
             }
         }
         if (changesMask[10])
         {
             if (Type == 1)
             {
-                data << int32(LocalIdentifier);
+                data << int32(CombatConfigFlags);
             }
         }
         if (changesMask[11])
+        {
+            if (Type == 1)
+            {
+                data << int32(LocalIdentifier);
+            }
+        }
+    }
+    if (changesMask[12])
+    {
+        if (changesMask[13])
         {
             if (Type == 3)
             {
@@ -3262,9 +3775,9 @@ void TraitConfig::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player c
             }
         }
     }
-    if (changesMask[0])
+    if (changesMask[4])
     {
-        if (changesMask[3])
+        if (changesMask[5])
         {
             data.WriteBits(Name->size(), 9);
             data.WriteString(Name);
@@ -3276,6 +3789,7 @@ void TraitConfig::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player c
 void TraitConfig::ClearChangesMask()
 {
     Base::ClearChangesMask(Entries);
+    Base::ClearChangesMask(SubTrees);
     Base::ClearChangesMask(ID);
     Base::ClearChangesMask(Name);
     Base::ClearChangesMask(Type);
@@ -3359,6 +3873,70 @@ void CraftingOrderItem::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
+void CraftingOrderCustomer::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << CustomerGUID;
+    data << CustomerAccountGUID;
+}
+
+void CraftingOrderCustomer::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 2);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        data << CustomerGUID;
+    }
+    if (changesMask[1])
+    {
+        data << CustomerAccountGUID;
+    }
+}
+
+void CraftingOrderCustomer::ClearChangesMask()
+{
+    Base::ClearChangesMask(CustomerGUID);
+    Base::ClearChangesMask(CustomerAccountGUID);
+    _changesMask.ResetAll();
+}
+
+void CraftingOrderNpcCustomer::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int64(NpcCraftingOrderCustomerID);
+    data << int32(Field_8);
+}
+
+void CraftingOrderNpcCustomer::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 2);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        data << int64(NpcCraftingOrderCustomerID);
+    }
+    if (changesMask[1])
+    {
+        data << int32(Field_8);
+    }
+}
+
+void CraftingOrderNpcCustomer::ClearChangesMask()
+{
+    Base::ClearChangesMask(NpcCraftingOrderCustomerID);
+    Base::ClearChangesMask(Field_8);
+    _changesMask.ResetAll();
+}
+
 void CraftingOrderData::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << int32(Field_0);
@@ -3372,12 +3950,14 @@ void CraftingOrderData::WriteCreate(ByteBuffer& data, Player const* owner, Playe
     data << int64(TipAmount);
     data << int64(ConsortiumCut);
     data << uint32(Flags);
-    data << CustomerGUID;
-    data << CustomerAccountGUID;
     data << CrafterGUID;
     data << PersonalCrafterGUID;
+    data << int32(NpcCraftingOrderSetID);
+    data << int32(NpcTreasureID);
     data << uint32(Reagents.size());
     data.WriteBits(CustomerNotes->size(), 10);
+    data.WriteBits(Customer.has_value(), 1);
+    data.WriteBits(NpcCustomer.has_value(), 1);
     data.WriteBits(OutputItem.has_value(), 1);
     data.WriteBits(OutputItemData.has_value(), 1);
     data.FlushBits();
@@ -3386,6 +3966,14 @@ void CraftingOrderData::WriteCreate(ByteBuffer& data, Player const* owner, Playe
         Reagents[i].WriteCreate(data, owner, receiver);
     }
     data.WriteString(CustomerNotes);
+    if (Customer.has_value())
+    {
+        Customer->WriteCreate(data, owner, receiver);
+    }
+    if (NpcCustomer.has_value())
+    {
+        NpcCustomer->WriteCreate(data, owner, receiver);
+    }
     if (OutputItem.has_value())
     {
         OutputItem->WriteCreate(data, owner, receiver);
@@ -3403,7 +3991,7 @@ void CraftingOrderData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 24);
+    data.WriteBits(changesMask.GetBlock(0), 26);
 
     if (changesMask[0])
     {
@@ -3440,13 +4028,13 @@ void CraftingOrderData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
         {
             data << int32(SkillLineAbilityID);
         }
-    }
-    if (changesMask[5])
-    {
-        if (changesMask[6])
+        if (changesMask[5])
         {
             data << uint8(OrderState);
         }
+    }
+    if (changesMask[6])
+    {
         if (changesMask[7])
         {
             data << uint8(OrderType);
@@ -3459,17 +4047,17 @@ void CraftingOrderData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
         {
             data << int64(ExpirationTime);
         }
-    }
-    if (changesMask[10])
-    {
-        if (changesMask[11])
+        if (changesMask[10])
         {
             data << int64(ClaimEndTime);
         }
-        if (changesMask[12])
+        if (changesMask[11])
         {
             data << int64(TipAmount);
         }
+    }
+    if (changesMask[12])
+    {
         if (changesMask[13])
         {
             data << int64(ConsortiumCut);
@@ -3478,44 +4066,68 @@ void CraftingOrderData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
         {
             data << uint32(Flags);
         }
-    }
-    if (changesMask[15])
-    {
-        if (changesMask[16])
-        {
-            data << CustomerGUID;
-        }
-        if (changesMask[17])
-        {
-            data << CustomerAccountGUID;
-        }
-        if (changesMask[18])
+        if (changesMask[15])
         {
             data << CrafterGUID;
         }
-        if (changesMask[19])
+        if (changesMask[16])
         {
             data << PersonalCrafterGUID;
         }
+        if (changesMask[17])
+        {
+            data << int32(NpcCraftingOrderSetID);
+        }
     }
-    if (changesMask[20])
+    if (changesMask[18])
     {
-        if (changesMask[21])
+        if (changesMask[19])
+        {
+            data << int32(NpcTreasureID);
+        }
+        if (changesMask[20])
         {
             data.WriteBits(CustomerNotes->size(), 10);
+        }
+        data.WriteBits(Customer.has_value(), 1);
+        data.WriteBits(NpcCustomer.has_value(), 1);
+        data.WriteBits(OutputItem.has_value(), 1);
+    }
+    if (changesMask[24])
+    {
+        data.WriteBits(OutputItemData.has_value(), 1);
+    }
+    if (changesMask[18])
+    {
+        if (changesMask[20])
+        {
             data.WriteString(CustomerNotes);
         }
-        data.WriteBits(OutputItem.has_value(), 1);
-        data.WriteBits(OutputItemData.has_value(), 1);
-        data.FlushBits();
+        if (changesMask[21])
+        {
+            if (Customer.has_value())
+            {
+                Customer->WriteUpdate(data, ignoreChangesMask, owner, receiver);
+            }
+        }
         if (changesMask[22])
+        {
+            if (NpcCustomer.has_value())
+            {
+                NpcCustomer->WriteUpdate(data, ignoreChangesMask, owner, receiver);
+            }
+        }
+        if (changesMask[23])
         {
             if (OutputItem.has_value())
             {
                 OutputItem->WriteUpdate(data, ignoreChangesMask, owner, receiver);
             }
         }
-        if (changesMask[23])
+    }
+    if (changesMask[24])
+    {
+        if (changesMask[25])
         {
             if (OutputItemData.has_value())
             {
@@ -3540,11 +4152,13 @@ void CraftingOrderData::ClearChangesMask()
     Base::ClearChangesMask(TipAmount);
     Base::ClearChangesMask(ConsortiumCut);
     Base::ClearChangesMask(Flags);
-    Base::ClearChangesMask(CustomerGUID);
-    Base::ClearChangesMask(CustomerAccountGUID);
     Base::ClearChangesMask(CrafterGUID);
     Base::ClearChangesMask(PersonalCrafterGUID);
+    Base::ClearChangesMask(NpcCraftingOrderSetID);
+    Base::ClearChangesMask(NpcTreasureID);
     Base::ClearChangesMask(CustomerNotes);
+    Base::ClearChangesMask(Customer);
+    Base::ClearChangesMask(NpcCustomer);
     Base::ClearChangesMask(OutputItem);
     Base::ClearChangesMask(OutputItemData);
     _changesMask.ResetAll();
@@ -3648,14 +4262,72 @@ void PersonalCraftingOrderCount::WriteCreate(ByteBuffer& data, Player const* own
 
 void PersonalCraftingOrderCount::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
 {
-    data << int32(ProfessionID);
-    data << uint32(Count);
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 2);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        data << int32(ProfessionID);
+    }
+    if (changesMask[1])
+    {
+        data << uint32(Count);
+    }
 }
 
-bool PersonalCraftingOrderCount::operator==(PersonalCraftingOrderCount const& right) const
+void PersonalCraftingOrderCount::ClearChangesMask()
 {
-    return ProfessionID == right.ProfessionID
-        && Count == right.Count;
+    Base::ClearChangesMask(ProfessionID);
+    Base::ClearChangesMask(Count);
+    _changesMask.ResetAll();
+}
+
+void NPCCraftingOrderInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << uint64(OrderID);
+    data << int32(NpcCraftingOrderSetID);
+    data << int32(NpcTreasureID);
+    data << int32(NpcCraftingOrderCustomerID);
+}
+
+void NPCCraftingOrderInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 4);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        data << uint64(OrderID);
+    }
+    if (changesMask[1])
+    {
+        data << int32(NpcCraftingOrderSetID);
+    }
+    if (changesMask[2])
+    {
+        data << int32(NpcTreasureID);
+    }
+    if (changesMask[3])
+    {
+        data << int32(NpcCraftingOrderCustomerID);
+    }
+}
+
+void NPCCraftingOrderInfo::ClearChangesMask()
+{
+    Base::ClearChangesMask(OrderID);
+    Base::ClearChangesMask(NpcCraftingOrderSetID);
+    Base::ClearChangesMask(NpcTreasureID);
+    Base::ClearChangesMask(NpcCraftingOrderCustomerID);
+    _changesMask.ResetAll();
 }
 
 void CategoryCooldownMod::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
@@ -3859,6 +4531,134 @@ void CollectableSourceTrackedData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
+void BankTabSettings::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data.WriteBits(Name->size(), 7);
+    data.WriteBits(Icon->size(), 9);
+    data.WriteBits(Description->size(), 14);
+    data << int32(DepositFlags);
+    data.WriteString(Name);
+    data.WriteString(Icon);
+    data.WriteString(Description);
+    data.FlushBits();
+}
+
+void BankTabSettings::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    Mask changesMask = _changesMask;
+    if (ignoreChangesMask)
+        changesMask.SetAll();
+
+    data.WriteBits(changesMask.GetBlock(0), 4);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        data.WriteBits(Name->size(), 7);
+    }
+    if (changesMask[1])
+    {
+        data.WriteBits(Icon->size(), 9);
+    }
+    if (changesMask[2])
+    {
+        data.WriteBits(Description->size(), 14);
+    }
+    if (changesMask[3])
+    {
+        data << int32(DepositFlags);
+    }
+    if (changesMask[0])
+    {
+        data.WriteString(Name);
+    }
+    if (changesMask[1])
+    {
+        data.WriteString(Icon);
+    }
+    if (changesMask[2])
+    {
+        data.WriteString(Description);
+    }
+    data.FlushBits();
+}
+
+void BankTabSettings::ClearChangesMask()
+{
+    Base::ClearChangesMask(Name);
+    Base::ClearChangesMask(Icon);
+    Base::ClearChangesMask(Description);
+    Base::ClearChangesMask(DepositFlags);
+    _changesMask.ResetAll();
+}
+
+void WalkInData::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int32(MapID);
+    data << int64(Field_8);
+    data << Field_18;
+    data.WriteBits(Type, 1);
+    data.FlushBits();
+}
+
+void WalkInData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    data << int32(MapID);
+    data << int64(Field_8);
+    data << Field_18;
+    data.WriteBits(Type, 1);
+    data.FlushBits();
+}
+
+bool WalkInData::operator==(WalkInData const& right) const
+{
+    return MapID == right.MapID
+        && Field_8 == right.Field_8
+        && Type == right.Type
+        && Field_18 == right.Field_18;
+}
+
+void DelveData::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+{
+    data << int32(Field_0);
+    data << uint64(Field_8);
+    data << int32(Field_10);
+    data << int32(SpellID);
+    data << uint32(Owners.size());
+    for (uint32 i = 0; i < Owners.size(); ++i)
+    {
+        data << Owners[i];
+    }
+    data.WriteBits(Started, 1);
+    data.FlushBits();
+}
+
+void DelveData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+{
+    data.FlushBits();
+    data << int32(Field_0);
+    data << uint64(Field_8);
+    data << int32(Field_10);
+    data << int32(SpellID);
+    data << uint32(Owners.size());
+    for (uint32 i = 0; i < Owners.size(); ++i)
+    {
+        data << Owners[i];
+    }
+    data.WriteBits(Started, 1);
+    data.FlushBits();
+}
+
+bool DelveData::operator==(DelveData const& right) const
+{
+    return Owners == right.Owners
+        && Field_0 == right.Field_0
+        && Field_8 == right.Field_8
+        && Field_10 == right.Field_10
+        && SpellID == right.SpellID
+        && Started == right.Started;
+}
+
 void Research::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << int16(ResearchProjectID);
@@ -3876,7 +4676,7 @@ bool Research::operator==(Research const& right) const
 
 void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    for (uint32 i = 0; i < 227; ++i)
+    for (uint32 i = 0; i < 232; ++i)
     {
         data << InvSlots[i];
     }
@@ -3884,6 +4684,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << SummonedBattlePetGUID;
     data << uint32(KnownTitles.size());
     data << uint64(Coinage);
+    data << uint64(AccountBankCoinage);
     data << int32(XP);
     data << int32(NextLevelXP);
     data << int32(TrialXP);
@@ -3914,10 +4715,9 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << float(VersatilityBonus);
     data << float(PvpPowerDamage);
     data << float(PvpPowerHealing);
-    for (uint32 i = 0; i < 240; ++i)
-    {
-        data << uint64(ExploredZones[i]);
-    }
+    BitVectors->WriteCreate(data, owner, receiver);
+    data << uint32(CharacterDataElements.size());
+    data << uint32(AccountDataElements.size());
     for (uint32 i = 0; i < 2; ++i)
     {
         RestInfo[i].WriteCreate(data, owner, receiver);
@@ -3987,8 +4787,6 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << int32(OverrideSpellsID);
     data << uint16(LootSpecID);
     data << uint32(OverrideZonePVPType);
-    data << BnetAccount;
-    data << uint64(GuildClubMemberID);
     for (uint32 i = 0; i < 5; ++i)
     {
         data << uint32(BagSlotFlags[i]);
@@ -3997,7 +4795,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     {
         data << uint32(BankBagSlotFlags[i]);
     }
-    for (uint32 i = 0; i < 875; ++i)
+    for (uint32 i = 0; i < 1000; ++i)
     {
         data << uint64(QuestCompleted[i]);
     }
@@ -4005,6 +4803,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << int32(HonorNextLevel);
     data << int32(PerksProgramCurrency);
     data << uint8(NumBankSlots);
+    data << uint8(NumAccountBankTabs);
     for (uint32 i = 0; i < 1; ++i)
     {
         data << uint32(ResearchSites[i].size());
@@ -4044,6 +4843,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << uint32(TaskQuests.size());
     data << uint32(DisabledSpells.size());
     data << int32(UiChromieTimeExpansionID);
+    data << int32(TimerunningSeasonID);
     data << int32(TransportServerTime);
     data << uint32(WeeklyRewardsPeriodSinceOrigin);
     data << int16(DEBUGSoulbindConduitRank);
@@ -4051,6 +4851,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << uint32(ActiveCombatTraitConfigID);
     data << uint32(CraftingOrders.size());
     data << uint32(PersonalCraftingOrderCounts.size());
+    data << uint32(NpcCraftingOrders.size());
     data << uint32(CategoryCooldownMods.size());
     data << uint32(WeeklySpellUses.size());
     for (uint32 i = 0; i < 17; ++i)
@@ -4149,6 +4950,10 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     {
         PersonalCraftingOrderCounts[i].WriteCreate(data, owner, receiver);
     }
+    for (uint32 i = 0; i < NpcCraftingOrders.size(); ++i)
+    {
+        NpcCraftingOrders[i].WriteCreate(data, owner, receiver);
+    }
     for (uint32 i = 0; i < CategoryCooldownMods.size(); ++i)
     {
         CategoryCooldownMods[i].WriteCreate(data, owner, receiver);
@@ -4170,6 +4975,9 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data.WriteBit(HasPerksProgramPendingReward);
     data.WriteBits(QuestSession.has_value(), 1);
     data.WriteBits(PetStable.has_value(), 1);
+    data.WriteBits(AccountBankTabSettings.size(), 3);
+    data.WriteBits(WalkInData.has_value(), 1);
+    data.WriteBits(DelveData.has_value(), 1);
     data.FlushBits();
     ResearchHistory->WriteCreate(data, owner, receiver);
     if (QuestSession.has_value())
@@ -4179,6 +4987,14 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << FrozenPerksVendorItem;
     Field_1410->WriteCreate(data, owner, receiver);
     data << DungeonScore;
+    for (uint32 i = 0; i < CharacterDataElements.size(); ++i)
+    {
+        CharacterDataElements[i].WriteCreate(data, owner, receiver);
+    }
+    for (uint32 i = 0; i < AccountDataElements.size(); ++i)
+    {
+        AccountDataElements[i].WriteCreate(data, owner, receiver);
+    }
     for (uint32 i = 0; i < PvpInfo.size(); ++i)
     {
         PvpInfo[i].WriteCreate(data, owner, receiver);
@@ -4199,6 +5015,18 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     {
         PetStable->WriteCreate(data, owner, receiver);
     }
+    for (uint32 i = 0; i < AccountBankTabSettings.size(); ++i)
+    {
+        AccountBankTabSettings[i].WriteCreate(data, owner, receiver);
+    }
+    if (WalkInData.has_value())
+    {
+        WalkInData->WriteCreate(data, owner, receiver);
+    }
+    if (DelveData.has_value())
+    {
+        DelveData->WriteCreate(data, owner, receiver);
+    }
     data.FlushBits();
 }
 
@@ -4211,8 +5039,8 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
 {
     for (uint32 i = 0; i < 1; ++i)
         data << uint32(changesMask.GetBlocksMask(i));
-    data.WriteBits(changesMask.GetBlocksMask(1), 19);
-    for (uint32 i = 0; i < 51; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(1), 16);
+    for (uint32 i = 0; i < 48; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -4252,16 +5080,30 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         if (changesMask[8])
         {
             if (!ignoreNestedChangesMask)
+                CharacterDataElements.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(CharacterDataElements.size(), data);
+        }
+        if (changesMask[9])
+        {
+            if (!ignoreNestedChangesMask)
+                AccountDataElements.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(AccountDataElements.size(), data);
+        }
+        if (changesMask[10])
+        {
+            if (!ignoreNestedChangesMask)
                 PvpInfo.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(PvpInfo.size(), data);
         }
     }
-    if (changesMask[36])
+    if (changesMask[40])
     {
         for (uint32 i = 0; i < 1; ++i)
         {
-            if (changesMask[37 + i])
+            if (changesMask[41])
             {
                 if (!ignoreNestedChangesMask)
                     ResearchSites[i].WriteUpdateMask(data);
@@ -4270,11 +5112,11 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
             }
         }
     }
-    if (changesMask[38])
+    if (changesMask[42])
     {
         for (uint32 i = 0; i < 1; ++i)
         {
-            if (changesMask[39 + i])
+            if (changesMask[43])
             {
                 if (!ignoreNestedChangesMask)
                     ResearchSiteProgress[i].WriteUpdateMask(data);
@@ -4283,11 +5125,11 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
             }
         }
     }
-    if (changesMask[40])
+    if (changesMask[44])
     {
         for (uint32 i = 0; i < 1; ++i)
         {
-            if (changesMask[41 + i])
+            if (changesMask[45])
             {
                 if (!ignoreNestedChangesMask)
                     Research[i].WriteUpdateMask(data);
@@ -4296,11 +5138,11 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
             }
         }
     }
-    if (changesMask[36])
+    if (changesMask[40])
     {
         for (uint32 i = 0; i < 1; ++i)
         {
-            if (changesMask[37 + i])
+            if (changesMask[41])
             {
                 for (uint32 j = 0; j < ResearchSites[i].size(); ++j)
                 {
@@ -4312,11 +5154,11 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
             }
         }
     }
-    if (changesMask[38])
+    if (changesMask[42])
     {
         for (uint32 i = 0; i < 1; ++i)
         {
-            if (changesMask[39 + i])
+            if (changesMask[43])
             {
                 for (uint32 j = 0; j < ResearchSiteProgress[i].size(); ++j)
                 {
@@ -4328,11 +5170,11 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
             }
         }
     }
-    if (changesMask[40])
+    if (changesMask[44])
     {
         for (uint32 i = 0; i < 1; ++i)
         {
-            if (changesMask[41 + i])
+            if (changesMask[45])
             {
                 for (uint32 j = 0; j < Research[i].size(); ++j)
                 {
@@ -4347,166 +5189,152 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
     data.FlushBits();
     if (changesMask[0])
     {
-        if (changesMask[9])
+        if (changesMask[11])
         {
             if (!ignoreNestedChangesMask)
                 DailyQuestsCompleted.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(DailyQuestsCompleted.size(), data);
         }
-        if (changesMask[10])
+        if (changesMask[12])
         {
             if (!ignoreNestedChangesMask)
                 AvailableQuestLineXQuestIDs.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(AvailableQuestLineXQuestIDs.size(), data);
         }
-        if (changesMask[11])
+        if (changesMask[13])
         {
             if (!ignoreNestedChangesMask)
                 Heirlooms.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(Heirlooms.size(), data);
         }
-        if (changesMask[12])
+        if (changesMask[14])
         {
             if (!ignoreNestedChangesMask)
                 HeirloomFlags.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(HeirloomFlags.size(), data);
         }
-        if (changesMask[13])
+        if (changesMask[15])
         {
             if (!ignoreNestedChangesMask)
                 Toys.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(Toys.size(), data);
         }
-        if (changesMask[14])
+        if (changesMask[16])
         {
             if (!ignoreNestedChangesMask)
                 ToyFlags.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(ToyFlags.size(), data);
         }
-        if (changesMask[15])
+        if (changesMask[17])
         {
             if (!ignoreNestedChangesMask)
                 Transmog.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(Transmog.size(), data);
         }
-        if (changesMask[16])
+        if (changesMask[18])
         {
             if (!ignoreNestedChangesMask)
                 ConditionalTransmog.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(ConditionalTransmog.size(), data);
         }
-        if (changesMask[17])
+        if (changesMask[19])
         {
             if (!ignoreNestedChangesMask)
                 SelfResSpells.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(SelfResSpells.size(), data);
         }
-        if (changesMask[18])
+        if (changesMask[20])
         {
             if (!ignoreNestedChangesMask)
                 RuneforgePowers.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(RuneforgePowers.size(), data);
         }
-        if (changesMask[19])
+        if (changesMask[21])
         {
             if (!ignoreNestedChangesMask)
                 TransmogIllusions.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(TransmogIllusions.size(), data);
         }
-        if (changesMask[20])
+        if (changesMask[22])
         {
             if (!ignoreNestedChangesMask)
                 CharacterRestrictions.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(CharacterRestrictions.size(), data);
         }
-        if (changesMask[21])
+        if (changesMask[23])
         {
             if (!ignoreNestedChangesMask)
                 SpellPctModByLabel.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(SpellPctModByLabel.size(), data);
         }
-        if (changesMask[22])
+        if (changesMask[24])
         {
             if (!ignoreNestedChangesMask)
                 SpellFlatModByLabel.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(SpellFlatModByLabel.size(), data);
         }
-        if (changesMask[23])
+        if (changesMask[25])
         {
             if (!ignoreNestedChangesMask)
                 MawPowers.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(MawPowers.size(), data);
         }
-        if (changesMask[24])
+        if (changesMask[26])
         {
             if (!ignoreNestedChangesMask)
                 MultiFloorExploration.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(MultiFloorExploration.size(), data);
         }
-        if (changesMask[25])
+        if (changesMask[27])
         {
             if (!ignoreNestedChangesMask)
                 RecipeProgression.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(RecipeProgression.size(), data);
         }
-        if (changesMask[26])
+        if (changesMask[28])
         {
             if (!ignoreNestedChangesMask)
                 ReplayedQuests.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(ReplayedQuests.size(), data);
         }
-        if (changesMask[27])
+        if (changesMask[29])
         {
             if (!ignoreNestedChangesMask)
                 TaskQuests.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(TaskQuests.size(), data);
         }
-        if (changesMask[28])
+        if (changesMask[30])
         {
             if (!ignoreNestedChangesMask)
                 DisabledSpells.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(DisabledSpells.size(), data);
         }
-        if (changesMask[29])
+        if (changesMask[31])
         {
             if (!ignoreNestedChangesMask)
                 TraitConfigs.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(TraitConfigs.size(), data);
-        }
-        if (changesMask[30])
-        {
-            if (!ignoreNestedChangesMask)
-                CraftingOrders.WriteUpdateMask(data);
-            else
-                WriteCompleteDynamicFieldUpdateMask(CraftingOrders.size(), data);
-        }
-        if (changesMask[31])
-        {
-            if (!ignoreNestedChangesMask)
-                PersonalCraftingOrderCounts.WriteUpdateMask(data);
-            else
-                WriteCompleteDynamicFieldUpdateMask(PersonalCraftingOrderCounts.size(), data);
         }
     }
     if (changesMask[32])
@@ -4514,18 +5342,39 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         if (changesMask[33])
         {
             if (!ignoreNestedChangesMask)
+                CraftingOrders.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(CraftingOrders.size(), data);
+        }
+        if (changesMask[34])
+        {
+            if (!ignoreNestedChangesMask)
+                PersonalCraftingOrderCounts.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(PersonalCraftingOrderCounts.size(), data);
+        }
+        if (changesMask[35])
+        {
+            if (!ignoreNestedChangesMask)
+                NpcCraftingOrders.WriteUpdateMask(data);
+            else
+                WriteCompleteDynamicFieldUpdateMask(NpcCraftingOrders.size(), data);
+        }
+        if (changesMask[36])
+        {
+            if (!ignoreNestedChangesMask)
                 CategoryCooldownMods.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(CategoryCooldownMods.size(), data);
         }
-        if (changesMask[34])
+        if (changesMask[37])
         {
             if (!ignoreNestedChangesMask)
                 WeeklySpellUses.WriteUpdateMask(data);
             else
                 WriteCompleteDynamicFieldUpdateMask(WeeklySpellUses.size(), data);
         }
-        if (changesMask[35])
+        if (changesMask[38])
         {
             if (!ignoreNestedChangesMask)
                 TrackedCollectableSources.WriteUpdateMask(data);
@@ -4546,7 +5395,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[9])
+        if (changesMask[11])
         {
             for (uint32 i = 0; i < DailyQuestsCompleted.size(); ++i)
             {
@@ -4556,7 +5405,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[10])
+        if (changesMask[12])
         {
             for (uint32 i = 0; i < AvailableQuestLineXQuestIDs.size(); ++i)
             {
@@ -4566,7 +5415,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[11])
+        if (changesMask[13])
         {
             for (uint32 i = 0; i < Heirlooms.size(); ++i)
             {
@@ -4576,7 +5425,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[12])
+        if (changesMask[14])
         {
             for (uint32 i = 0; i < HeirloomFlags.size(); ++i)
             {
@@ -4586,7 +5435,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[13])
+        if (changesMask[15])
         {
             for (uint32 i = 0; i < Toys.size(); ++i)
             {
@@ -4596,7 +5445,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[14])
+        if (changesMask[16])
         {
             for (uint32 i = 0; i < ToyFlags.size(); ++i)
             {
@@ -4606,7 +5455,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[15])
+        if (changesMask[17])
         {
             for (uint32 i = 0; i < Transmog.size(); ++i)
             {
@@ -4616,7 +5465,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[16])
+        if (changesMask[18])
         {
             for (uint32 i = 0; i < ConditionalTransmog.size(); ++i)
             {
@@ -4626,7 +5475,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[17])
+        if (changesMask[19])
         {
             for (uint32 i = 0; i < SelfResSpells.size(); ++i)
             {
@@ -4636,7 +5485,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[18])
+        if (changesMask[20])
         {
             for (uint32 i = 0; i < RuneforgePowers.size(); ++i)
             {
@@ -4646,7 +5495,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[19])
+        if (changesMask[21])
         {
             for (uint32 i = 0; i < TransmogIllusions.size(); ++i)
             {
@@ -4656,7 +5505,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[21])
+        if (changesMask[23])
         {
             for (uint32 i = 0; i < SpellPctModByLabel.size(); ++i)
             {
@@ -4666,7 +5515,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[22])
+        if (changesMask[24])
         {
             for (uint32 i = 0; i < SpellFlatModByLabel.size(); ++i)
             {
@@ -4676,7 +5525,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[23])
+        if (changesMask[25])
         {
             for (uint32 i = 0; i < MawPowers.size(); ++i)
             {
@@ -4686,7 +5535,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[24])
+        if (changesMask[26])
         {
             for (uint32 i = 0; i < MultiFloorExploration.size(); ++i)
             {
@@ -4696,7 +5545,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[25])
+        if (changesMask[27])
         {
             for (uint32 i = 0; i < RecipeProgression.size(); ++i)
             {
@@ -4706,7 +5555,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[26])
+        if (changesMask[28])
         {
             for (uint32 i = 0; i < ReplayedQuests.size(); ++i)
             {
@@ -4716,7 +5565,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[27])
+        if (changesMask[29])
         {
             for (uint32 i = 0; i < TaskQuests.size(); ++i)
             {
@@ -4726,7 +5575,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[28])
+        if (changesMask[30])
         {
             for (uint32 i = 0; i < DisabledSpells.size(); ++i)
             {
@@ -4736,7 +5585,10 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[31])
+    }
+    if (changesMask[32])
+    {
+        if (changesMask[34])
         {
             for (uint32 i = 0; i < PersonalCraftingOrderCounts.size(); ++i)
             {
@@ -4746,10 +5598,17 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-    }
-    if (changesMask[32])
-    {
-        if (changesMask[33])
+        if (changesMask[35])
+        {
+            for (uint32 i = 0; i < NpcCraftingOrders.size(); ++i)
+            {
+                if (NpcCraftingOrders.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    NpcCraftingOrders[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
+        }
+        if (changesMask[36])
         {
             for (uint32 i = 0; i < CategoryCooldownMods.size(); ++i)
             {
@@ -4759,7 +5618,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[34])
+        if (changesMask[37])
         {
             for (uint32 i = 0; i < WeeklySpellUses.size(); ++i)
             {
@@ -4769,7 +5628,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[35])
+        if (changesMask[38])
         {
             for (uint32 i = 0; i < TrackedCollectableSources.size(); ++i)
             {
@@ -4779,10 +5638,37 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
+        if (changesMask[39])
+        {
+            if (!ignoreNestedChangesMask)
+                AccountBankTabSettings.WriteUpdateMask(data, 3);
+            else
+                WriteCompleteDynamicFieldUpdateMask(AccountBankTabSettings.size(), data, 3);
+        }
     }
     if (changesMask[0])
     {
         if (changesMask[8])
+        {
+            for (uint32 i = 0; i < CharacterDataElements.size(); ++i)
+            {
+                if (CharacterDataElements.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    CharacterDataElements[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
+        }
+        if (changesMask[9])
+        {
+            for (uint32 i = 0; i < AccountDataElements.size(); ++i)
+            {
+                if (AccountDataElements.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    AccountDataElements[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
+        }
+        if (changesMask[10])
         {
             for (uint32 i = 0; i < PvpInfo.size(); ++i)
             {
@@ -4792,7 +5678,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[20])
+        if (changesMask[22])
         {
             for (uint32 i = 0; i < CharacterRestrictions.size(); ++i)
             {
@@ -4802,7 +5688,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[29])
+        if (changesMask[31])
         {
             for (uint32 i = 0; i < TraitConfigs.size(); ++i)
             {
@@ -4812,7 +5698,10 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-        if (changesMask[30])
+    }
+    if (changesMask[32])
+    {
+        if (changesMask[33])
         {
             for (uint32 i = 0; i < CraftingOrders.size(); ++i)
             {
@@ -4822,359 +5711,374 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
-    }
-    if (changesMask[32])
-    {
-        if (changesMask[42])
+        if (changesMask[39])
         {
-            data << FarsightObject;
-        }
-        if (changesMask[43])
-        {
-            data << SummonedBattlePetGUID;
-        }
-        if (changesMask[44])
-        {
-            data << uint64(Coinage);
-        }
-        if (changesMask[45])
-        {
-            data << int32(XP);
+            for (uint32 i = 0; i < AccountBankTabSettings.size(); ++i)
+            {
+                if (AccountBankTabSettings.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    AccountBankTabSettings[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
         }
         if (changesMask[46])
         {
-            data << int32(NextLevelXP);
+            data << FarsightObject;
         }
         if (changesMask[47])
         {
-            data << int32(TrialXP);
+            data << SummonedBattlePetGUID;
         }
         if (changesMask[48])
         {
-            Skill->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            data << uint64(Coinage);
         }
         if (changesMask[49])
         {
-            data << int32(CharacterPoints);
+            data << uint64(AccountBankCoinage);
         }
         if (changesMask[50])
         {
-            data << int32(MaxTalentTiers);
+            data << int32(XP);
         }
         if (changesMask[51])
         {
-            data << uint32(TrackCreatureMask);
+            data << int32(NextLevelXP);
         }
         if (changesMask[52])
         {
-            data << float(MainhandExpertise);
+            data << int32(TrialXP);
         }
         if (changesMask[53])
         {
-            data << float(OffhandExpertise);
+            Skill->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
         if (changesMask[54])
         {
-            data << float(RangedExpertise);
+            data << int32(CharacterPoints);
         }
         if (changesMask[55])
         {
-            data << float(CombatRatingExpertise);
+            data << int32(MaxTalentTiers);
         }
         if (changesMask[56])
         {
-            data << float(BlockPercentage);
+            data << uint32(TrackCreatureMask);
         }
         if (changesMask[57])
         {
-            data << float(DodgePercentage);
+            data << float(MainhandExpertise);
         }
         if (changesMask[58])
         {
-            data << float(DodgePercentageFromAttribute);
+            data << float(OffhandExpertise);
         }
         if (changesMask[59])
         {
-            data << float(ParryPercentage);
+            data << float(RangedExpertise);
         }
         if (changesMask[60])
         {
-            data << float(ParryPercentageFromAttribute);
+            data << float(CombatRatingExpertise);
         }
         if (changesMask[61])
         {
-            data << float(CritPercentage);
+            data << float(BlockPercentage);
         }
         if (changesMask[62])
         {
-            data << float(RangedCritPercentage);
+            data << float(DodgePercentage);
         }
         if (changesMask[63])
         {
-            data << float(OffhandCritPercentage);
+            data << float(DodgePercentageFromAttribute);
         }
         if (changesMask[64])
         {
-            data << float(SpellCritPercentage);
+            data << float(ParryPercentage);
         }
         if (changesMask[65])
         {
-            data << int32(ShieldBlock);
+            data << float(ParryPercentageFromAttribute);
         }
         if (changesMask[66])
         {
-            data << float(ShieldBlockCritPercentage);
+            data << float(CritPercentage);
         }
         if (changesMask[67])
         {
-            data << float(Mastery);
+            data << float(RangedCritPercentage);
         }
         if (changesMask[68])
         {
-            data << float(Speed);
+            data << float(OffhandCritPercentage);
         }
         if (changesMask[69])
         {
-            data << float(Avoidance);
+            data << float(SpellCritPercentage);
         }
     }
     if (changesMask[70])
     {
         if (changesMask[71])
         {
-            data << float(Sturdiness);
+            data << int32(ShieldBlock);
         }
         if (changesMask[72])
         {
-            data << int32(Versatility);
+            data << float(ShieldBlockCritPercentage);
         }
         if (changesMask[73])
         {
-            data << float(VersatilityBonus);
+            data << float(Mastery);
         }
         if (changesMask[74])
         {
-            data << float(PvpPowerDamage);
+            data << float(Speed);
         }
         if (changesMask[75])
         {
-            data << float(PvpPowerHealing);
+            data << float(Avoidance);
         }
         if (changesMask[76])
         {
-            data << int32(ModHealingDonePos);
+            data << float(Sturdiness);
         }
         if (changesMask[77])
         {
-            data << float(ModHealingPercent);
+            data << int32(Versatility);
         }
         if (changesMask[78])
         {
-            data << float(ModPeriodicHealingDonePercent);
+            data << float(VersatilityBonus);
         }
         if (changesMask[79])
         {
-            data << float(ModSpellPowerPercent);
+            data << float(PvpPowerDamage);
         }
         if (changesMask[80])
         {
-            data << float(ModResiliencePercent);
+            data << float(PvpPowerHealing);
         }
         if (changesMask[81])
         {
-            data << float(OverrideSpellPowerByAPPercent);
+            BitVectors->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
         if (changesMask[82])
         {
-            data << float(OverrideAPBySpellPowerPercent);
+            data << int32(ModHealingDonePos);
         }
         if (changesMask[83])
         {
-            data << int32(ModTargetResistance);
+            data << float(ModHealingPercent);
         }
         if (changesMask[84])
         {
-            data << int32(ModTargetPhysicalResistance);
+            data << float(ModPeriodicHealingDonePercent);
         }
         if (changesMask[85])
         {
-            data << uint32(LocalFlags);
+            data << float(ModSpellPowerPercent);
         }
         if (changesMask[86])
         {
-            data << uint8(GrantableLevels);
+            data << float(ModResiliencePercent);
         }
         if (changesMask[87])
         {
-            data << uint8(MultiActionBars);
+            data << float(OverrideSpellPowerByAPPercent);
         }
         if (changesMask[88])
         {
-            data << uint8(LifetimeMaxRank);
+            data << float(OverrideAPBySpellPowerPercent);
         }
         if (changesMask[89])
         {
-            data << uint8(NumRespecs);
+            data << int32(ModTargetResistance);
         }
         if (changesMask[90])
         {
-            data << uint32(PvpMedals);
+            data << int32(ModTargetPhysicalResistance);
         }
         if (changesMask[91])
         {
-            data << uint16(TodayHonorableKills);
+            data << uint32(LocalFlags);
         }
         if (changesMask[92])
         {
-            data << uint16(YesterdayHonorableKills);
+            data << uint8(GrantableLevels);
         }
         if (changesMask[93])
         {
-            data << uint32(LifetimeHonorableKills);
+            data << uint8(MultiActionBars);
         }
         if (changesMask[94])
         {
-            data << int32(WatchedFactionIndex);
+            data << uint8(LifetimeMaxRank);
         }
         if (changesMask[95])
         {
-            data << int32(MaxLevel);
+            data << uint8(NumRespecs);
         }
         if (changesMask[96])
         {
-            data << int32(ScalingPlayerLevelDelta);
+            data << uint32(PvpMedals);
         }
         if (changesMask[97])
         {
-            data << int32(MaxCreatureScalingLevel);
+            data << uint16(TodayHonorableKills);
         }
         if (changesMask[98])
         {
-            data << int32(PetSpellPower);
+            data << uint16(YesterdayHonorableKills);
         }
         if (changesMask[99])
         {
-            data << float(UiHitModifier);
+            data << uint32(LifetimeHonorableKills);
         }
         if (changesMask[100])
         {
-            data << float(UiSpellHitModifier);
+            data << int32(WatchedFactionIndex);
         }
         if (changesMask[101])
         {
-            data << int32(HomeRealmTimeOffset);
+            data << int32(MaxLevel);
         }
     }
     if (changesMask[102])
     {
         if (changesMask[103])
         {
-            data << float(ModPetHaste);
+            data << int32(ScalingPlayerLevelDelta);
         }
         if (changesMask[104])
         {
-            data << int8(JailersTowerLevelMax);
+            data << int32(MaxCreatureScalingLevel);
         }
         if (changesMask[105])
         {
-            data << int8(JailersTowerLevel);
+            data << int32(PetSpellPower);
         }
         if (changesMask[106])
         {
-            data << uint8(LocalRegenFlags);
+            data << float(UiHitModifier);
         }
         if (changesMask[107])
         {
-            data << uint8(AuraVision);
+            data << float(UiSpellHitModifier);
         }
         if (changesMask[108])
         {
-            data << uint8(NumBackpackSlots);
+            data << int32(HomeRealmTimeOffset);
         }
         if (changesMask[109])
         {
-            data << int32(OverrideSpellsID);
+            data << float(ModPetHaste);
         }
         if (changesMask[110])
         {
-            data << uint16(LootSpecID);
+            data << int8(JailersTowerLevelMax);
         }
         if (changesMask[111])
         {
-            data << uint32(OverrideZonePVPType);
+            data << int8(JailersTowerLevel);
         }
         if (changesMask[112])
         {
-            data << BnetAccount;
+            data << uint8(LocalRegenFlags);
         }
         if (changesMask[113])
         {
-            data << uint64(GuildClubMemberID);
+            data << uint8(AuraVision);
         }
         if (changesMask[114])
         {
-            data << int32(Honor);
+            data << uint8(NumBackpackSlots);
         }
         if (changesMask[115])
         {
-            data << int32(HonorNextLevel);
+            data << int32(OverrideSpellsID);
         }
         if (changesMask[116])
         {
-            data << int32(PerksProgramCurrency);
+            data << uint16(LootSpecID);
         }
         if (changesMask[117])
+        {
+            data << uint32(OverrideZonePVPType);
+        }
+        if (changesMask[118])
+        {
+            data << int32(Honor);
+        }
+        if (changesMask[119])
+        {
+            data << int32(HonorNextLevel);
+        }
+        if (changesMask[120])
+        {
+            data << int32(PerksProgramCurrency);
+        }
+        if (changesMask[121])
         {
             data << uint8(NumBankSlots);
         }
         if (changesMask[122])
         {
-            data << int32(UiChromieTimeExpansionID);
-        }
-        if (changesMask[123])
-        {
-            data << int32(TransportServerTime);
-        }
-        if (changesMask[124])
-        {
-            data << uint32(WeeklyRewardsPeriodSinceOrigin);
-        }
-        if (changesMask[125])
-        {
-            data << int16(DEBUGSoulbindConduitRank);
+            data << uint8(NumAccountBankTabs);
         }
         if (changesMask[127])
         {
-            data << uint32(ActiveCombatTraitConfigID);
+            data << int32(UiChromieTimeExpansionID);
         }
         if (changesMask[128])
         {
-            data << int32(ItemUpgradeHighOnehandWeaponItemID);
+            data << int32(TimerunningSeasonID);
         }
         if (changesMask[129])
         {
-            data << int32(ItemUpgradeHighFingerItemID);
+            data << int32(TransportServerTime);
         }
         if (changesMask[130])
         {
-            data << float(ItemUpgradeHighFingerWatermark);
+            data << uint32(WeeklyRewardsPeriodSinceOrigin);
         }
         if (changesMask[131])
         {
-            data << int32(ItemUpgradeHighTrinketItemID);
-        }
-        if (changesMask[132])
-        {
-            data << float(ItemUpgradeHighTrinketWatermark);
+            data << int16(DEBUGSoulbindConduitRank);
         }
         if (changesMask[133])
         {
-            data << uint64(LootHistoryInstanceID);
+            data << uint32(ActiveCombatTraitConfigID);
         }
     }
     if (changesMask[134])
     {
+        if (changesMask[135])
+        {
+            data << int32(ItemUpgradeHighOnehandWeaponItemID);
+        }
         if (changesMask[136])
+        {
+            data << int32(ItemUpgradeHighFingerItemID);
+        }
+        if (changesMask[137])
+        {
+            data << float(ItemUpgradeHighFingerWatermark);
+        }
+        if (changesMask[138])
+        {
+            data << int32(ItemUpgradeHighTrinketItemID);
+        }
+        if (changesMask[139])
+        {
+            data << float(ItemUpgradeHighTrinketWatermark);
+        }
+        if (changesMask[140])
+        {
+            data << uint64(LootHistoryInstanceID);
+        }
+        if (changesMask[142])
         {
             data << uint8(RequiredMountCapabilityFlags);
         }
@@ -5186,189 +6090,195 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
     if (changesMask[134])
     {
         data.WriteBits(PetStable.has_value(), 1);
+        data.WriteBits(WalkInData.has_value(), 1);
+        data.WriteBits(DelveData.has_value(), 1);
     }
     data.FlushBits();
     if (changesMask[102])
     {
-        if (changesMask[118])
+        if (changesMask[123])
         {
             ResearchHistory->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
-        if (changesMask[120])
+        if (changesMask[125])
         {
             if (QuestSession.has_value())
             {
                 QuestSession->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
-        if (changesMask[119])
+        if (changesMask[124])
         {
             data << FrozenPerksVendorItem;
         }
-        if (changesMask[121])
+        if (changesMask[126])
         {
             Field_1410->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
-        if (changesMask[126])
+        if (changesMask[132])
         {
             data << DungeonScore;
         }
     }
     if (changesMask[134])
     {
-        if (changesMask[135])
+        if (changesMask[141])
         {
             if (PetStable.has_value())
             {
                 PetStable->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
-    }
-    if (changesMask[137])
-    {
-        for (uint32 i = 0; i < 227; ++i)
+        if (changesMask[143])
         {
-            if (changesMask[138 + i])
+            if (WalkInData.has_value())
+            {
+                WalkInData->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            }
+        }
+        if (changesMask[144])
+        {
+            if (DelveData.has_value())
+            {
+                DelveData->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            }
+        }
+    }
+    if (changesMask[145])
+    {
+        for (uint32 i = 0; i < 232; ++i)
+        {
+            if (changesMask[146 + i])
             {
                 data << InvSlots[i];
             }
         }
     }
-    if (changesMask[365])
-    {
-        for (uint32 i = 0; i < 240; ++i)
-        {
-            if (changesMask[366 + i])
-            {
-                data << uint64(ExploredZones[i]);
-            }
-        }
-    }
-    if (changesMask[606])
+    if (changesMask[378])
     {
         for (uint32 i = 0; i < 2; ++i)
         {
-            if (changesMask[607 + i])
+            if (changesMask[379 + i])
             {
                 RestInfo[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[609])
+    if (changesMask[381])
     {
         for (uint32 i = 0; i < 7; ++i)
         {
-            if (changesMask[610 + i])
+            if (changesMask[382 + i])
             {
                 data << int32(ModDamageDonePos[i]);
             }
-            if (changesMask[617 + i])
+            if (changesMask[389 + i])
             {
                 data << int32(ModDamageDoneNeg[i]);
             }
-            if (changesMask[624 + i])
+            if (changesMask[396 + i])
             {
                 data << float(ModDamageDonePercent[i]);
             }
-            if (changesMask[631 + i])
+            if (changesMask[403 + i])
             {
                 data << float(ModHealingDonePercent[i]);
             }
         }
     }
-    if (changesMask[638])
+    if (changesMask[410])
     {
         for (uint32 i = 0; i < 3; ++i)
         {
-            if (changesMask[639 + i])
+            if (changesMask[411 + i])
             {
                 data << float(WeaponDmgMultipliers[i]);
             }
-            if (changesMask[642 + i])
+            if (changesMask[414 + i])
             {
                 data << float(WeaponAtkSpeedMultipliers[i]);
             }
         }
     }
-    if (changesMask[645])
+    if (changesMask[417])
     {
         for (uint32 i = 0; i < 12; ++i)
         {
-            if (changesMask[646 + i])
+            if (changesMask[418 + i])
             {
                 data << uint32(BuybackPrice[i]);
             }
-            if (changesMask[658 + i])
+            if (changesMask[430 + i])
             {
                 data << int64(BuybackTimestamp[i]);
             }
         }
     }
-    if (changesMask[670])
+    if (changesMask[442])
     {
         for (uint32 i = 0; i < 32; ++i)
         {
-            if (changesMask[671 + i])
+            if (changesMask[443 + i])
             {
                 data << int32(CombatRatings[i]);
             }
         }
     }
-    if (changesMask[703])
+    if (changesMask[475])
     {
         for (uint32 i = 0; i < 4; ++i)
         {
-            if (changesMask[704 + i])
+            if (changesMask[476 + i])
             {
                 data << uint32(NoReagentCostMask[i]);
             }
         }
     }
-    if (changesMask[708])
+    if (changesMask[480])
     {
         for (uint32 i = 0; i < 2; ++i)
         {
-            if (changesMask[709 + i])
+            if (changesMask[481 + i])
             {
                 data << int32(ProfessionSkillLine[i]);
             }
         }
     }
-    if (changesMask[711])
+    if (changesMask[483])
     {
         for (uint32 i = 0; i < 5; ++i)
         {
-            if (changesMask[712 + i])
+            if (changesMask[484 + i])
             {
                 data << uint32(BagSlotFlags[i]);
             }
         }
     }
-    if (changesMask[717])
+    if (changesMask[489])
     {
         for (uint32 i = 0; i < 7; ++i)
         {
-            if (changesMask[718 + i])
+            if (changesMask[490 + i])
             {
                 data << uint32(BankBagSlotFlags[i]);
             }
         }
     }
-    if (changesMask[725])
+    if (changesMask[497])
     {
-        for (uint32 i = 0; i < 875; ++i)
+        for (uint32 i = 0; i < 1000; ++i)
         {
-            if (changesMask[726 + i])
+            if (changesMask[498 + i])
             {
                 data << uint64(QuestCompleted[i]);
             }
         }
     }
-    if (changesMask[1601])
+    if (changesMask[1498])
     {
         for (uint32 i = 0; i < 17; ++i)
         {
-            if (changesMask[1602 + i])
+            if (changesMask[1499 + i])
             {
                 data << float(ItemUpgradeHighWatermark[i]);
             }
@@ -5409,16 +6319,21 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(TaskQuests);
     Base::ClearChangesMask(DisabledSpells);
     Base::ClearChangesMask(PersonalCraftingOrderCounts);
+    Base::ClearChangesMask(NpcCraftingOrders);
     Base::ClearChangesMask(CategoryCooldownMods);
     Base::ClearChangesMask(WeeklySpellUses);
     Base::ClearChangesMask(TrackedCollectableSources);
+    Base::ClearChangesMask(CharacterDataElements);
+    Base::ClearChangesMask(AccountDataElements);
     Base::ClearChangesMask(PvpInfo);
     Base::ClearChangesMask(CharacterRestrictions);
     Base::ClearChangesMask(TraitConfigs);
     Base::ClearChangesMask(CraftingOrders);
+    Base::ClearChangesMask(AccountBankTabSettings);
     Base::ClearChangesMask(FarsightObject);
     Base::ClearChangesMask(SummonedBattlePetGUID);
     Base::ClearChangesMask(Coinage);
+    Base::ClearChangesMask(AccountBankCoinage);
     Base::ClearChangesMask(XP);
     Base::ClearChangesMask(NextLevelXP);
     Base::ClearChangesMask(TrialXP);
@@ -5449,6 +6364,7 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(VersatilityBonus);
     Base::ClearChangesMask(PvpPowerDamage);
     Base::ClearChangesMask(PvpPowerHealing);
+    Base::ClearChangesMask(BitVectors);
     Base::ClearChangesMask(ModHealingDonePos);
     Base::ClearChangesMask(ModHealingPercent);
     Base::ClearChangesMask(ModPeriodicHealingDonePercent);
@@ -5484,17 +6400,17 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(OverrideSpellsID);
     Base::ClearChangesMask(LootSpecID);
     Base::ClearChangesMask(OverrideZonePVPType);
-    Base::ClearChangesMask(BnetAccount);
-    Base::ClearChangesMask(GuildClubMemberID);
     Base::ClearChangesMask(Honor);
     Base::ClearChangesMask(HonorNextLevel);
     Base::ClearChangesMask(PerksProgramCurrency);
     Base::ClearChangesMask(NumBankSlots);
+    Base::ClearChangesMask(NumAccountBankTabs);
     Base::ClearChangesMask(ResearchHistory);
     Base::ClearChangesMask(FrozenPerksVendorItem);
     Base::ClearChangesMask(Field_1410);
     Base::ClearChangesMask(QuestSession);
     Base::ClearChangesMask(UiChromieTimeExpansionID);
+    Base::ClearChangesMask(TimerunningSeasonID);
     Base::ClearChangesMask(TransportServerTime);
     Base::ClearChangesMask(WeeklyRewardsPeriodSinceOrigin);
     Base::ClearChangesMask(DEBUGSoulbindConduitRank);
@@ -5508,8 +6424,9 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(LootHistoryInstanceID);
     Base::ClearChangesMask(PetStable);
     Base::ClearChangesMask(RequiredMountCapabilityFlags);
+    Base::ClearChangesMask(WalkInData);
+    Base::ClearChangesMask(DelveData);
     Base::ClearChangesMask(InvSlots);
-    Base::ClearChangesMask(ExploredZones);
     Base::ClearChangesMask(RestInfo);
     Base::ClearChangesMask(ModDamageDonePos);
     Base::ClearChangesMask(ModDamageDoneNeg);
@@ -6012,7 +6929,7 @@ void VisualAnim::WriteCreate(ByteBuffer& data, AreaTrigger const* owner, Player 
     data << uint32(AnimationDataID);
     data << uint32(AnimKitID);
     data << uint32(AnimProgress);
-    data.WriteBit(Field_C);
+    data.WriteBit(IsDecay);
     data.FlushBits();
 }
 
@@ -6028,7 +6945,7 @@ void VisualAnim::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, AreaTrigg
     {
         if (changesMask[1])
         {
-            data.WriteBit(Field_C);
+            data.WriteBit(IsDecay);
         }
     }
     data.FlushBits();
@@ -6052,7 +6969,7 @@ void VisualAnim::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, AreaTrigg
 
 void VisualAnim::ClearChangesMask()
 {
-    Base::ClearChangesMask(Field_C);
+    Base::ClearChangesMask(IsDecay);
     Base::ClearChangesMask(AnimationDataID);
     Base::ClearChangesMask(AnimKitID);
     Base::ClearChangesMask(AnimProgress);
@@ -6290,6 +7207,7 @@ void SceneObjectData::ClearChangesMask()
 void ConversationLine::WriteCreate(ByteBuffer& data, Conversation const* owner, Player const* receiver) const
 {
     data << int32(ConversationLineID);
+    data << int32(BroadcastTextID);
     data << uint32(ViewerDependentValue<StartTimeTag>::GetValue(this, owner, receiver));
     data << int32(UiCameraID);
     data << uint8(ActorIndex);
@@ -6300,6 +7218,7 @@ void ConversationLine::WriteCreate(ByteBuffer& data, Conversation const* owner, 
 void ConversationLine::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Conversation const* owner, Player const* receiver) const
 {
     data << int32(ConversationLineID);
+    data << int32(BroadcastTextID);
     data << uint32(ViewerDependentValue<StartTimeTag>::GetValue(this, owner, receiver));
     data << int32(UiCameraID);
     data << uint8(ActorIndex);
@@ -6310,6 +7229,7 @@ void ConversationLine::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Con
 bool ConversationLine::operator==(ConversationLine const& right) const
 {
     return ConversationLineID == right.ConversationLineID
+        && BroadcastTextID == right.BroadcastTextID
         && StartTime == right.StartTime
         && UiCameraID == right.UiCameraID
         && ActorIndex == right.ActorIndex
@@ -6439,6 +7359,36 @@ void ConversationData::ClearChangesMask()
     Base::ClearChangesMask(Actors);
     Base::ClearChangesMask(LastLineEndTime);
     Base::ClearChangesMask(Progress);
+    Base::ClearChangesMask(Flags);
+    _changesMask.ResetAll();
+}
+
+void VendorData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const
+{
+    data << int32(Flags);
+}
+
+void VendorData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const
+{
+    WriteUpdate(data, _changesMask, false, owner, receiver);
+}
+
+void VendorData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Creature const* owner, Player const* receiver) const
+{
+    data.WriteBits(changesMask.GetBlock(0), 2);
+
+    data.FlushBits();
+    if (changesMask[0])
+    {
+        if (changesMask[1])
+        {
+            data << int32(Flags);
+        }
+    }
+}
+
+void VendorData::ClearChangesMask()
+{
     Base::ClearChangesMask(Flags);
     _changesMask.ResetAll();
 }
