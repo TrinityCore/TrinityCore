@@ -832,6 +832,7 @@ class TC_GAME_API Spell
             int32 AuraBasePoints[MAX_SPELL_EFFECTS] = { };
             bool Positive = true;
             UnitAura* HitAura = nullptr;
+            ProcFlagsHit ProcHitMask = { };
 
         private:
             Unit* _spellHitTarget = nullptr; // changed for example by reflect
