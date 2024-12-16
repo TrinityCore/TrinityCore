@@ -30,6 +30,11 @@ class FleeingMovementGenerator : public MovementGenerator
     public:
         explicit FleeingMovementGenerator(ObjectGuid fleeTargetGUID,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+        FleeingMovementGenerator(FleeingMovementGenerator const&) = delete;
+        FleeingMovementGenerator(FleeingMovementGenerator&&) = delete;
+        FleeingMovementGenerator& operator=(FleeingMovementGenerator const&) = delete;
+        FleeingMovementGenerator& operator=(FleeingMovementGenerator&&) = delete;
+        ~FleeingMovementGenerator();
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 

@@ -53,13 +53,13 @@ template <typename To, typename From,
 }
 
 // std::ranges::contains
-#ifndef __cpp_lib_ranges_contains
-#include <algorithm> // for std::ranges::find
-#include <functional> // for std::ranges::equal_to, std::identity
-#include <iterator> // for std::input_iterator, std::sentinel_for, std::projected
+#include <algorithm>
 
 namespace advstd::ranges
 {
+#ifndef __cpp_lib_ranges_contains
+#include <functional> // for std::ranges::equal_to, std::identity
+#include <iterator> // for std::input_iterator, std::sentinel_for, std::projected
 struct Contains
 {
     template<std::input_iterator I, std::sentinel_for<I> S, class T, class Proj = std::identity>
@@ -78,7 +78,9 @@ struct Contains
         return std::ranges::find(std::move(first), last, value, proj) != last;
     }
 } inline constexpr contains;
-}
+#else
+using std::ranges::contains;
 #endif
+}
 
 #endif
