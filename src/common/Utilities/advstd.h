@@ -57,7 +57,7 @@ template <typename To, typename From,
 #ifndef __cpp_lib_ranges_contains
 #include <functional> // for std::ranges::equal_to, std::identity
 #include <iterator> // for std::input_iterator, std::sentinel_for, std::projected
-#endif 
+#endif
 
 namespace advstd::ranges
 {
