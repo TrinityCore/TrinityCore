@@ -388,6 +388,35 @@ namespace WorldPackets
     template<typename T>
     inline OptionalInitReaderWriter<T> OptionalInit(Optional<T>& value) { return { value }; }
 
+    template<typename T>
+    struct PtrInitWriter
+    {
+        std::unique_ptr<T> const& Ptr;
+
+        friend inline ByteBuffer& operator<<(ByteBuffer& data, PtrInitWriter const& opt)
+        {
+            data.WriteBit(opt.Ptr != nullptr);
+            return data;
+        }
+    };
+
+    template<typename T>
+    struct PtrInitReaderWriter : PtrInitWriter<T>
+    {
+        friend inline ByteBuffer& operator>>(ByteBuffer& data, PtrInitReaderWriter const& opt)
+        {
+            if (data.ReadBit())
+                const_cast<std::unique_ptr<T>&>(opt.Ptr) = std::make_unique<T>();
+            return data;
+        }
+    };
+
+    template<typename T>
+    inline PtrInitWriter<T> OptionalInit(std::unique_ptr<T> const& value) { return { value }; }
+
+    template<typename T>
+    inline PtrInitReaderWriter<T> OptionalInit(std::unique_ptr<T>& value) { return { value }; }
+
     template<uint32 BitCount, typename T>
     struct BitsWriter
     {
@@ -443,6 +472,106 @@ namespace WorldPackets
 
     template<uint32 BitCount, typename Container>
     inline BitsSizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
+
+    namespace SizedString
+    {
+        template<uint32 BitCount, typename Container>
+        inline BitsSizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
+
+        template<uint32 BitCount, typename Container>
+        inline BitsSizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
+
+        template<typename Container>
+        struct SizedStringWriter
+        {
+            Container const& Value;
+
+            friend inline ByteBuffer& operator<<(ByteBuffer& data, SizedStringWriter const& string)
+            {
+                data.WriteString(string.Value);
+                return data;
+            }
+        };
+
+        template<typename Container>
+        struct SizedStringReaderWriter : SizedStringWriter<Container>
+        {
+            friend inline ByteBuffer& operator>>(ByteBuffer& data, SizedStringReaderWriter const& string)
+            {
+                const_cast<Container&>(string.Value) = data.ReadString(string.Value.length());
+                return data;
+            }
+        };
+
+        template<typename Container>
+        inline SizedStringWriter<Container> Data(Container const& value) { return { value }; }
+
+        template<typename Container>
+        inline SizedStringReaderWriter<Container> Data(Container& value) { return { value }; }
+    }
+
+    // SizedCString (sends size + string + null terminator but only if not empty)
+    namespace SizedCString
+    {
+        template<uint32 BitCount, typename Container>
+        struct SizeWriter
+        {
+            Container const& Value;
+
+            friend inline ByteBuffer& operator<<(ByteBuffer& data, SizeWriter const& bits)
+            {
+                data.WriteBits(static_cast<uint32>(bits.Value.length() + 1), BitCount);
+                return data;
+            }
+        };
+
+        template<uint32 BitCount, typename Container>
+        struct SizeReaderWriter : SizeWriter<BitCount, Container>
+        {
+            friend inline ByteBuffer& operator>>(ByteBuffer& data, SizeReaderWriter const& bits)
+            {
+                if (uint32 bytesIncludingNullTerminator = data.ReadBits(BitCount); bytesIncludingNullTerminator > 1)
+                    const_cast<Container&>(bits.Value).resize(bytesIncludingNullTerminator - 1);
+                return data;
+            }
+        };
+
+        template<uint32 BitCount, typename Container>
+        inline SizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
+
+        template<uint32 BitCount, typename Container>
+        inline SizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
+
+        template<typename Container>
+        struct DataWriter
+        {
+            Container const& Value;
+
+            friend inline ByteBuffer& operator<<(ByteBuffer& data, DataWriter const& string)
+            {
+                if (!string.Value.empty())
+                    data << string.Value;
+                return data;
+            }
+        };
+
+        template<typename Container>
+        struct DataReaderWriter : DataWriter<Container>
+        {
+            friend inline ByteBuffer& operator>>(ByteBuffer& data, DataReaderWriter const& string)
+            {
+                const_cast<Container&>(string.Value) = data.ReadString(string.Value.length());
+                data.read_skip<char>(); // null terminator
+                return data;
+            }
+        };
+
+        template<typename Container>
+        inline DataWriter<Container> Data(Container const& value) { return { value }; }
+
+        template<typename Container>
+        inline DataReaderWriter<Container> Data(Container& value) { return { value }; }
+    };
 }
 
 #endif // PacketUtilities_h__
