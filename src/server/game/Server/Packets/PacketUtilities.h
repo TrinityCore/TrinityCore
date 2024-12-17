@@ -23,6 +23,7 @@
 #include "Optional.h"
 #include "Tuples.h"
 #include <short_alloc/short_alloc.h>
+#include <memory>
 #include <string_view>
 #include <ctime>
 
