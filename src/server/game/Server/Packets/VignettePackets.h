@@ -32,6 +32,9 @@ struct VignetteData
     uint32 ZoneID = 0;
     uint32 WMOGroupID = 0;
     uint32 WMODoodadPlacementID = 0;
+    float HealthPercent = 1.0f;
+    uint16 RecommendedGroupSizeMin = 0;
+    uint16 RecommendedGroupSizeMax = 0;
 };
 
 struct VignetteDataSet

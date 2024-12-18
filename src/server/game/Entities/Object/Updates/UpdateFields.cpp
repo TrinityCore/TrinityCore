@@ -297,7 +297,7 @@ void ItemData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << uint32(Gems.size());
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
-        data << uint32(DynamicFlags2);
+        data << uint32(ZoneFlags);
     }
     data << ItemBonusKey;
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
@@ -440,7 +440,7 @@ void ItemData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[18])
         {
-            data << uint32(DynamicFlags2);
+            data << uint32(ZoneFlags);
         }
         if (changesMask[19])
         {
@@ -496,7 +496,7 @@ void ItemData::ClearChangesMask()
     Base::ClearChangesMask(ArtifactXP);
     Base::ClearChangesMask(ItemAppearanceModID);
     Base::ClearChangesMask(Modifiers);
-    Base::ClearChangesMask(DynamicFlags2);
+    Base::ClearChangesMask(ZoneFlags);
     Base::ClearChangesMask(ItemBonusKey);
     Base::ClearChangesMask(DEBUGItemLevel);
     Base::ClearChangesMask(SpellCharges);
@@ -3506,10 +3506,7 @@ void ActivePlayerUnk901::ClearChangesMask()
 void QuestSession::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << Owner;
-    for (uint32 i = 0; i < 1000; ++i)
-    {
-        data << uint64(QuestCompleted[i]);
-    }
+    QuestCompleted->WriteCreate(data, owner, receiver);
 }
 
 void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
@@ -3518,10 +3515,7 @@ void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player 
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlocksMask(0), 32);
-    for (uint32 i = 0; i < 32; ++i)
-        if (changesMask.GetBlock(i))
-            data.WriteBits(changesMask.GetBlock(i), 32);
+    data.WriteBits(changesMask.GetBlock(0), 3);
 
     data.FlushBits();
     if (changesMask[0])
@@ -3530,15 +3524,9 @@ void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player 
         {
             data << Owner;
         }
-    }
-    if (changesMask[2])
-    {
-        for (uint32 i = 0; i < 1000; ++i)
+        if (changesMask[2])
         {
-            if (changesMask[3 + i])
-            {
-                data << uint64(QuestCompleted[i]);
-            }
+            QuestCompleted->WriteUpdate(data, ignoreChangesMask, owner, receiver);
         }
     }
 }

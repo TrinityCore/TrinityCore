@@ -343,7 +343,7 @@ ByteBuffer& operator<<(ByteBuffer& data, LfgBootInfo const& lfgBootInfo)
     data << Bits<1>(lfgBootInfo.VotePassed);
     data << Bits<1>(lfgBootInfo.MyVoteCompleted);
     data << Bits<1>(lfgBootInfo.MyVote);
-    data << SizedString::BitsSize<8>(lfgBootInfo.Reason);
+    data << SizedString::BitsSize<9>(lfgBootInfo.Reason);
     data << lfgBootInfo.Target;
     data << uint32(lfgBootInfo.TotalVotes);
     data << uint32(lfgBootInfo.BootVotes);
