@@ -3506,7 +3506,7 @@ void ActivePlayerUnk901::ClearChangesMask()
 void QuestSession::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << Owner;
-    for (uint32 i = 0; i < 950; ++i)
+    for (uint32 i = 0; i < 1000; ++i)
     {
         data << uint64(QuestCompleted[i]);
     }
@@ -3518,8 +3518,8 @@ void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player 
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlocksMask(0), 30);
-    for (uint32 i = 0; i < 30; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 32);
+    for (uint32 i = 0; i < 32; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -3533,7 +3533,7 @@ void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player 
     }
     if (changesMask[2])
     {
-        for (uint32 i = 0; i < 950; ++i)
+        for (uint32 i = 0; i < 1000; ++i)
         {
             if (changesMask[3 + i])
             {
