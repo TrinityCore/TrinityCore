@@ -194,18 +194,50 @@ class TC_SHARED_API ByteBuffer
             return ((_curbitval >> (7 - _bitpos)) & 1) != 0;
         }
 
-        void WriteBits(std::size_t value, int32 bits)
+        void WriteBits(uint64 value, int32 bits)
         {
-            for (int32 i = bits - 1; i >= 0; --i)
-                WriteBit((value >> i) & 1);
+            // remove bits that don't fit
+            value &= (1 << bits) - 1;
+
+            if (bits > int32(_bitpos))
+            {
+                // first write to fill bit buffer
+                _curbitval |= value >> (bits - _bitpos);
+                bits -= _bitpos;
+                _bitpos = 8; // required "unneccessary" write to avoid double flushing
+                append(&_curbitval, sizeof(_curbitval));
+
+                // then append as many full bytes as possible
+                while (bits >= 8)
+                {
+                    bits -= 8;
+                    append<uint8>(value >> bits);
+                }
+
+                // store remaining bits in the bit buffer
+                _bitpos = 8 - bits;
+                _curbitval = (value & ((1 << bits) - 1)) << _bitpos;
+            }
+            else
+            {
+                // entire value fits in the bit buffer
+                _bitpos -= bits;
+                _curbitval |= value << _bitpos;
+
+                if (_bitpos == 0)
+                {
+                    _bitpos = 8;
+                    append(&_curbitval, sizeof(_curbitval));
+                    _curbitval = 0;
+                }
+            }
         }
 
         uint32 ReadBits(int32 bits)
         {
             uint32 value = 0;
             for (int32 i = bits - 1; i >= 0; --i)
-                if (ReadBit())
-                    value |= (1 << (i));
+                value |= uint32(ReadBit()) << i;
 
             return value;
         }
@@ -552,11 +584,6 @@ class TC_SHARED_API ByteBuffer
             _storage.shrink_to_fit();
         }
 
-        void append(char const* src, size_t cnt)
-        {
-            return append(reinterpret_cast<uint8 const*>(src), cnt);
-        }
-
         template <typename T>
         void append(T const* src, size_t cnt)
         {
@@ -634,7 +661,8 @@ class TC_SHARED_API ByteBuffer
         void hexlike() const;
 
     protected:
-        size_t _rpos, _wpos, _bitpos;
+        size_t _rpos, _wpos;
+        uint8 _bitpos;
         uint8 _curbitval;
         std::vector<uint8> _storage;
 };
