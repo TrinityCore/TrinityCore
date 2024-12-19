@@ -320,50 +320,50 @@ class TC_SHARED_API ByteBuffer
 
         ByteBuffer& operator>>(uint8& value)
         {
-            value = read<uint8>();
+            read(&value, 1);
             return *this;
         }
 
         ByteBuffer& operator>>(uint16& value)
         {
-            value = read<uint16>();
+            read(&value, 1);
             return *this;
         }
 
         ByteBuffer& operator>>(uint32& value)
         {
-            value = read<uint32>();
+            read(&value, 1);
             return *this;
         }
 
         ByteBuffer& operator>>(uint64& value)
         {
-            value = read<uint64>();
+            read(&value, 1);
             return *this;
         }
 
         //signed as in 2e complement
         ByteBuffer& operator>>(int8& value)
         {
-            value = read<int8>();
+            read(&value, 1);
             return *this;
         }
 
         ByteBuffer& operator>>(int16& value)
         {
-            value = read<int16>();
+            read(&value, 1);
             return *this;
         }
 
         ByteBuffer& operator>>(int32& value)
         {
-            value = read<int32>();
+            read(&value, 1);
             return *this;
         }
 
         ByteBuffer& operator>>(int64& value)
         {
-            value = read<int64>();
+            read(&value, 1);
             return *this;
         }
 
