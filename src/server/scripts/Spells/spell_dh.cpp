@@ -753,6 +753,11 @@ class spell_dh_soul_furnace_conduit : public AuraScript
 // 388116 - Shattered Destiny
 class spell_dh_shattered_destiny : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_METAMORPHOSIS_TRANSFORM });
+    }
+
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         if (Spell const* procSpell = eventInfo.GetProcSpell())
