@@ -19,6 +19,7 @@
 #include "MoveSpline.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
+#include "PacketUtilities.h"
 #include "Unit.h"
 #include "Util.h"
 
@@ -935,7 +936,7 @@ void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
     _worldPacket >> Data;
     _worldPacket >> Height;
     _worldPacket >> MountDisplayID;
-    Reason = _worldPacket.read<UpdateCollisionHeightReason, uint8>();
+    _worldPacket >> As<uint8>(Reason);
 }
 
 void WorldPackets::Movement::MoveTimeSkipped::Read()

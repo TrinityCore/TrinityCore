@@ -70,7 +70,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitEntry const& traitEntry)
 ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
 {
     data >> traitConfig.ID;
-    traitConfig.Type = data.read<TraitConfigType, int32>();
+    data >> As<int32>(traitConfig.Type);
     uint32 entriesSize = data.read<uint32>();
     if (entriesSize > 100)
         throw PacketArrayMaxCapacityException(entriesSize, 100);
@@ -80,7 +80,7 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
     {
         case TraitConfigType::Combat:
             data >> traitConfig.ChrSpecializationID;
-            traitConfig.CombatConfigFlags = data.read<TraitCombatConfigFlags, int32>();
+            data >> As<int32>(traitConfig.CombatConfigFlags);
             data >> traitConfig.LocalIdentifier;
             break;
         case TraitConfigType::Profession:

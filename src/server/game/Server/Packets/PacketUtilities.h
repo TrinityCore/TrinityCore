@@ -288,7 +288,7 @@ namespace WorldPackets
 
         friend ByteBuffer& operator>>(ByteBuffer& data, Timestamp& timestamp)
         {
-            timestamp._value = data.read<time_t, Underlying>();
+            timestamp._value = static_cast<time_t>(data.read<Underlying>());
             return data;
         }
 

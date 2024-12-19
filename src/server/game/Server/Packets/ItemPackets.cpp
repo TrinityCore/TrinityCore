@@ -30,7 +30,7 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Quantity;
     _worldPacket >> Muid;
     _worldPacket >> Slot;
-    ItemType = _worldPacket.read<ItemVendorType, int32>();
+    _worldPacket >> As<int32>(ItemType);
     _worldPacket >> Item;
 }
 

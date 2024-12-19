@@ -433,24 +433,24 @@ class TC_SHARED_API ByteBuffer
             _rpos += skip;
         }
 
-        template <typename T, typename Underlying = T>
+        template <typename T>
         T read()
         {
             ResetBitPos();
-            T r = read<T, Underlying>(_rpos);
-            _rpos += sizeof(Underlying);
+            T r = read<T>(_rpos);
+            _rpos += sizeof(T);
             return r;
         }
 
-        template <typename T, typename Underlying = T>
+        template <typename T>
         T read(size_t pos) const
         {
-            if (pos + sizeof(Underlying) > size())
-                throw ByteBufferPositionException(pos, sizeof(Underlying), size());
-            Underlying val;
-            std::memcpy(&val, &_storage[pos], sizeof(Underlying));
+            if (pos + sizeof(T) > size())
+                throw ByteBufferPositionException(pos, sizeof(T), size());
+            T val;
+            std::memcpy(&val, &_storage[pos], sizeof(T));
             EndianConvert(val);
-            return static_cast<T>(val);
+            return val;
         }
 
         template <typename T>
