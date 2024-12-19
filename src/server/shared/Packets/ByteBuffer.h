@@ -457,7 +457,11 @@ class TC_SHARED_API ByteBuffer
         void read(T* dest, size_t count)
         {
             static_assert(std::is_trivially_copyable_v<T>, "read(T*, size_t) must be used with trivially copyable types");
-            return read(reinterpret_cast<uint8*>(dest), count * sizeof(T));
+            read(reinterpret_cast<uint8*>(dest), count * sizeof(T));
+#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
+            for (size_t i = 0; i < count; ++i)
+                EndianConvert(dest[i]);
+#endif
         }
 
         void read(uint8* dest, size_t len)
@@ -556,7 +560,12 @@ class TC_SHARED_API ByteBuffer
         template <typename T>
         void append(T const* src, size_t cnt)
         {
-            return append(reinterpret_cast<uint8 const*>(src), cnt * sizeof(T));
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            append(reinterpret_cast<uint8 const*>(src), cnt * sizeof(T));
+#else
+            for (size_t i = 0; i < cnt; ++i)
+                append<T>(src[i]);
+#endif
         }
 
         void append(uint8 const* src, size_t cnt);
