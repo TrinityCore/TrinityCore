@@ -750,6 +750,34 @@ class spell_dh_soul_furnace_conduit : public AuraScript
     }
 };
 
+// 388116 - Shattered Destiny
+class spell_dh_shattered_destiny : public AuraScript
+{
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        if (Spell const* procSpell = eventInfo.GetProcSpell())
+            return procSpell->GetPowerTypeCostAmount(POWER_FURY) >= aurEff->GetAmount();
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+        if (!target)
+            return;
+
+        if (Aura* metamorphosis = target->GetAura(SPELL_DH_METAMORPHOSIS_TRANSFORM))
+            metamorphosis->SetDuration(metamorphosis->GetDuration() + Milliseconds(aurEff->GetAmount()).count());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dh_shattered_destiny::CheckProc, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dh_shattered_destiny::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 204596 - Sigil of Flame
 // 207684 - Sigil of Misery
 // 202137 - Sigil of Silence
@@ -875,6 +903,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade);
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
+    RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
