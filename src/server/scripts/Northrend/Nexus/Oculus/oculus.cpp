@@ -438,7 +438,7 @@ class spell_oculus_shock_lance : public SpellScript
         return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
     }
 
-    void CalculateDamage(Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
         if (AuraEffect const* shockCharges = victim->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
         {

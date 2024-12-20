@@ -239,7 +239,7 @@ private:
 // 45477 - Icy Touch
 class spell_dk_icy_touch : public SpellScript
 {
-    void CalculateDamage(Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
     {
         damage += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f;
     }
