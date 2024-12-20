@@ -5946,7 +5946,10 @@ void Spell::EffectActivateRune()
     for (uint32 i = 0; i < MAX_RUNES && count > 0; ++i)
     {
         // We will check for base and current rune because some spell effects also activate Death Runes while specifying Blood Runes in their misc value
-        if ((player->GetBaseRune(i) == runeType || player->GetCurrentRune(i) == runeType) && G3D::fuzzyNe(player->GetRuneCooldown(i), 0.0f))
+        if (player->GetBaseRune(i) != runeType && player->GetCurrentRune(i) != runeType)
+            continue;
+
+        if (player->IsRuneFullyDepleted(i))
         {
             player->SetRuneCooldown(i, 0.0f);
             --count;

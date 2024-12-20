@@ -128,7 +128,7 @@ class spell_dk_runic_empowerment : public AuraScript
 
         for (RuneType runeType : { RuneType::Blood, RuneType::Unholy, RuneType::Frost })
         {
-            if (player->IsRuneFullyDepleted(runeType))
+            if (player->HasFullyDepletedRune(runeType))
             {
                 switch (runeType)
                 {

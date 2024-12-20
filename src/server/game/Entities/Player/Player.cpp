@@ -25306,13 +25306,26 @@ Powers Player::GetPowerTypeForBaseRune(uint8 index) const
     }
 }
 
-bool Player::IsRuneFullyDepleted(RuneType runeType) const
+bool Player::IsRuneFullyDepleted(uint8 index) const
 {
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == runeType && G3D::fuzzyEq(GetRuneCooldown(i), 0.0f))
-            return false;
+    return G3D::fuzzyEq(GetRuneCooldown(index), RUNE_BASE_COOLDOWN);
+}
 
-    return true;
+bool Player::HasFullyDepletedRune(RuneType runeType) const
+{
+    if (!m_runes)
+        return false;
+
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    {
+        if (GetBaseRune(i) != runeType)
+            continue;
+
+        if (IsRuneFullyDepleted(i))
+            return true;
+    }
+
+    return false;
 }
 
 void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo)
