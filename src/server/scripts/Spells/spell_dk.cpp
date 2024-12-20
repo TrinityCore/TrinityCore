@@ -265,8 +265,24 @@ class spell_dk_frost_fever : public AuraScript
     }
 };
 
+// 55078 - Blood Plague
+class spell_dk_blood_plague: public AuraScript
+{
+    // According to tooltip: ($m1*1.15+$AP*0.055*1.15)
+    void CalculateDamage(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+    {
+        damage = damage * 1.15f + GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f * 1.15f;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_dk_blood_plague::CalculateDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    RegisterSpellScript(spell_dk_blood_plague);
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
     RegisterSpellScript(spell_dk_death_coil);
