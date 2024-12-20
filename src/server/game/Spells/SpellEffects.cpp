@@ -390,7 +390,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
     &Spell::EffectNULL,                                     //304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
     &Spell::EffectNULL,                                     //305 SPELL_EFFECT_305
-    &Spell::EffectNULL,                                     //306 SPELL_EFFECT_UPDATE_INTERACTIONS
+    &Spell::EffectUpdateInteractions,                       //306 SPELL_EFFECT_UPDATE_INTERACTIONS
     &Spell::EffectNULL,                                     //307 SPELL_EFFECT_307
     &Spell::EffectNULL,                                     //308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     &Spell::EffectNULL,                                     //309 SPELL_EFFECT_PRELOAD_WORLD
@@ -5899,6 +5899,18 @@ void Spell::EffectTeleportGraveyard()
         return;
 
     target->RepopAtGraveyard();
+}
+
+void Spell::EffectUpdateInteractions()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->UpdateVisibleObjectInteractions(true, false, true, true);
 }
 
 void Spell::EffectAddComboPoints()

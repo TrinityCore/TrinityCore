@@ -427,6 +427,7 @@ class TC_GAME_API Spell
         void EffectModifyCooldownsByCategory();
         void EffectModifySpellCharges();
         void EffectTeleportGraveyard();
+        void EffectUpdateInteractions();
         void EffectActivateRune();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
