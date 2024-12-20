@@ -5071,6 +5071,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_LoadSqrtTargetLimit(5, 0, {}, {});
     });
 
+    // Collective Anguish channel hack (triggered by another channel)
+    ApplySpellFix({ 391057, 393831 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
+    });
+
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
