@@ -528,7 +528,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;
     }
-    else if (GetScalingExpectedStat() == ExpectedStatType::None)
+    else
     {
         if (casterUnit && basePointsPerLevel != 0.0)
         {
