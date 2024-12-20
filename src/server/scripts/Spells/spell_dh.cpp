@@ -108,7 +108,7 @@ enum DemonHunterSpells
     SPELL_DH_FLAME_CRASH                           = 227322,
     SPELL_DH_FRAILTY                               = 224509,
     SPELL_DH_FURIOUS_GAZE                          = 343311,
-    SPELL_DH_FURIOUS_GAZE_SLOW                     = 343312,
+    SPELL_DH_FURIOUS_GAZE_BUFF                     = 343312,
     SPELL_DH_GLIDE                                 = 131347,
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
@@ -557,7 +557,7 @@ class spell_dh_furious_gaze : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_FURIOUS_GAZE, SPELL_DH_FURIOUS_GAZE_SLOW });
+        return ValidateSpellInfo({ SPELL_DH_FURIOUS_GAZE, SPELL_DH_FURIOUS_GAZE_BUFF });
     }
 
     bool Load() override
@@ -571,7 +571,7 @@ class spell_dh_furious_gaze : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_DH_FURIOUS_GAZE_SLOW, CastSpellExtraArgsInit{
+        target->CastSpell(target, SPELL_DH_FURIOUS_GAZE_BUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff
         });
