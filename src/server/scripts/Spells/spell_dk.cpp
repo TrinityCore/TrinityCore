@@ -28,6 +28,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellDefines.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Unit.h"
 
