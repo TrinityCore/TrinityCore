@@ -412,8 +412,6 @@ struct RuneInfo
     AuraEffect const* ConvertAura;
     AuraType ConvertAuraType;
     SpellInfo const* ConvertAuraInfo;
-
-    bool IsFullyDepleted() const;
 };
 
 struct Runes
