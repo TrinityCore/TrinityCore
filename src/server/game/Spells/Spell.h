@@ -440,6 +440,7 @@ class TC_GAME_API Spell
         void EffectCreateTraitTreeConfig();
         void EffectChangeActiveCombatTraitConfig();
         void EffectTeleportGraveyard();
+        void EffectUpdateInteractions();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
