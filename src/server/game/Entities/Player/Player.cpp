@@ -25306,7 +25306,7 @@ Powers Player::GetPowerTypeForBaseRune(uint8 index) const
     }
 }
 
-bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
+bool Player::IsRuneFullyDepleted(RuneType runeType) const
 {
     for (uint8 i = 0; i < MAX_RUNES; ++i)
         if (GetBaseRune(i) == runeType && G3D::fuzzyEq(GetRuneCooldown(i), 0.0f))
