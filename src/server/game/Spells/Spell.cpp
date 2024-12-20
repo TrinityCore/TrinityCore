@@ -9046,25 +9046,25 @@ void Spell::CallScriptCalcCritChanceHandlers(Unit const* victim, float& critChan
     }
 }
 
-void Spell::CallScriptCalcDamageHandlers(Unit* victim, int32& damage, int32& flatMod, float& pctMod)
+void Spell::CallScriptCalcDamageHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damage, int32& flatMod, float& pctMod)
 {
     for (SpellScript* script : m_loadedScripts)
     {
         script->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_DAMAGE);
         for (SpellScript::DamageAndHealingCalcHandler const& calcDamage : script->CalcDamage)
-            calcDamage.Call(script, victim, damage, flatMod, pctMod);
+            calcDamage.Call(script, spellEffectInfo, victim, damage, flatMod, pctMod);
 
         script->_FinishScriptCall();
     }
 }
 
-void Spell::CallScriptCalcHealingHandlers(Unit* victim, int32& healing, int32& flatMod, float& pctMod)
+void Spell::CallScriptCalcHealingHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& healing, int32& flatMod, float& pctMod)
 {
     for (SpellScript* script : m_loadedScripts)
     {
         script->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_HEALING);
         for (SpellScript::DamageAndHealingCalcHandler const& calcHealing : script->CalcHealing)
-            calcHealing.Call(script, victim, healing, flatMod, pctMod);
+            calcHealing.Call(script, spellEffectInfo, victim, healing, flatMod, pctMod);
 
         script->_FinishScriptCall();
     }

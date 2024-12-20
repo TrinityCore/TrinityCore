@@ -196,7 +196,7 @@ class spell_evo_fire_breath_damage : public SpellScript
             && spellInfo->GetEffect(EFFECT_2).IsAura(SPELL_AURA_MOD_SILENCE); // validate we are removing the correct effect
     }
 
-    void AddBonusUpfrontDamage(Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    void AddBonusUpfrontDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
         spell_evo_fire_breath::data const* params = std::any_cast<spell_evo_fire_breath::data>(&GetSpell()->m_customArg);
         if (!params)
