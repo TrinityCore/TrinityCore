@@ -197,7 +197,7 @@ class TC_SHARED_API ByteBuffer
         void WriteBits(uint64 value, int32 bits)
         {
             // remove bits that don't fit
-            value &= (1 << bits) - 1;
+            value &= (UI64LIT(1) << bits) - 1;
 
             if (bits > int32(_bitpos))
             {
@@ -216,7 +216,7 @@ class TC_SHARED_API ByteBuffer
 
                 // store remaining bits in the bit buffer
                 _bitpos = 8 - bits;
-                _curbitval = (value & ((1 << bits) - 1)) << _bitpos;
+                _curbitval = (value & ((UI64LIT(1) << bits) - 1)) << _bitpos;
             }
             else
             {
