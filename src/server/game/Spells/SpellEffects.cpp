@@ -5941,15 +5941,12 @@ void Spell::EffectActivateRune()
     m_runesState = player->GetRunesState();
 
     uint32 count = damage;
-    int32 miscValue = (1 << effectInfo->MiscValue);
-
-    // Death Runes may also activate Blood Runes (Blood Tap)
-    if (miscValue & (1 << AsUnderlyingType(RuneType::Death)))
-        miscValue |= (1 << AsUnderlyingType(RuneType::Blood));
+    RuneType runeType = static_cast<RuneType>(effectInfo->MiscValue);
 
     for (uint32 i = 0; i < MAX_RUNES && count > 0; ++i)
     {
-        if ((1 << AsUnderlyingType(player->GetCurrentRune(i))) & miscValue && G3D::fuzzyNe(player->GetRuneCooldown(i), 0.0f))
+        // We will check for base and current rune because some spell effects also activate Death Runes while specifying Blood Runes in their misc value
+        if ((player->GetBaseRune(i) == runeType || player->GetCurrentRune(i) == runeType) && G3D::fuzzyNe(player->GetRuneCooldown(i), 0.0f))
         {
             player->SetRuneCooldown(i, 0.0f);
             --count;
