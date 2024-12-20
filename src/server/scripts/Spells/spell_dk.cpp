@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "SpellDefines.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Unit.h"
@@ -36,7 +37,9 @@ enum DeathKnightSpells
     SPELL_DK_DARK_SIMULACRUM_SPELLPOWER_BUFF    = 94984,
     SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
     SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
-    SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169
+    SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169,
+    SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
+    SPELL_DK_DEATH_COIL_HEAL                    = 47633
 };
 
 // 77606 - Dark Simulacrum
@@ -160,9 +163,82 @@ class spell_dk_runic_empowerment : public AuraScript
     }
 };
 
+// 47541 - Death Coil
+class spell_dk_death_coil : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_DEATH_COIL_DAMAGE, SPELL_DK_DEATH_COIL_HEAL });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (caster->IsValidAttackTarget(target, sSpellMgr->AssertSpellInfo(SPELL_DK_DEATH_COIL_DAMAGE, DIFFICULTY_NONE)))
+        {
+            if (!caster->isInFront(target))
+                return SPELL_FAILED_UNIT_NOT_INFRONT;
+
+            return SPELL_CAST_OK;
+        }
+
+        if (caster->IsValidAssistTarget(target, sSpellMgr->AssertSpellInfo(SPELL_DK_DEATH_COIL_HEAL, DIFFICULTY_NONE)))
+        {
+            if (target->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                return SPELL_FAILED_BAD_TARGETS;
+
+            _healTarget = true;
+
+            return SPELL_CAST_OK;
+        }
+
+        return SPELL_FAILED_BAD_TARGETS;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        // According to tooltip: ($m1+0.23*$AP)
+        int32 damage = GetEffectValue() + 0.23f * GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+        if (_healTarget)
+            damage *= 3.5f;
+
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (_healTarget)
+        {
+            caster->CastSpell(target, SPELL_DK_DEATH_COIL_HEAL, CastSpellExtraArgsInit{
+                .TriggeringSpell = GetSpell(),
+                .SpellValueOverrides = { {SPELLVALUE_BASE_POINT0, damage} },
+            });
+        }
+        else
+        {
+            caster->CastSpell(target, SPELL_DK_DEATH_COIL_DAMAGE, CastSpellExtraArgsInit{
+                .TriggeringSpell = GetSpell(),
+                .SpellValueOverrides = { {SPELLVALUE_BASE_POINT0, damage} },
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dk_death_coil::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_dk_death_coil::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+private:
+    bool _healTarget = false;
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
+    RegisterSpellScript(spell_dk_death_coil);
     RegisterSpellScript(spell_dk_runic_empowerment);
 }
