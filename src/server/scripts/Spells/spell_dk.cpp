@@ -236,10 +236,41 @@ private:
     bool _healTarget = false;
 };
 
+// 45477 - Icy Touch
+class spell_dk_icy_touch : public SpellScript
+{
+    void CalculateDamage(Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+    {
+        damage += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f;
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dk_icy_touch::CalculateDamage);
+    }
+};
+
+// 55095 - Frost Fever
+class spell_dk_frost_fever : public AuraScript
+{
+    // According to tooltip: ($m1*1.15+$AP*0.055*1.15)
+    void CalculateDamage(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+    {
+        damage = damage * 1.15f + GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f * 1.15f;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_dk_frost_fever::CalculateDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
     RegisterSpellScript(spell_dk_death_coil);
+    RegisterSpellScript(spell_dk_frost_fever);
+    RegisterSpellScript(spell_dk_icy_touch);
     RegisterSpellScript(spell_dk_runic_empowerment);
 }
