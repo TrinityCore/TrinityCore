@@ -22,6 +22,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
+#include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
@@ -31,7 +33,10 @@
 enum DeathKnightSpells
 {
     SPELL_DK_DARK_SIMULACRUM_BUFF               = 77616,
-    SPELL_DK_DARK_SIMULACRUM_SPELLPOWER_BUFF    = 94984
+    SPELL_DK_DARK_SIMULACRUM_SPELLPOWER_BUFF    = 94984,
+    SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
+    SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
+    SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169
 };
 
 // 77606 - Dark Simulacrum
@@ -100,8 +105,64 @@ class spell_dk_dark_simulacrum_buff : public AuraScript
     }
 };
 
+// 81229 - Runic Empowerment
+class spell_dk_runic_empowerment : public AuraScript
+{
+    bool Load() override
+    {
+        if (!GetCaster()->IsPlayer() || GetCaster()->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
+            return false;
+
+        return true;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_ENERGIZE_BLOOD_RUNE, SPELL_DK_ENERGIZE_UNHOLY_RUNE, SPELL_DK_ENERGIZE_FROST_RUNE });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        std::vector<uint32> energizeSpells;
+        Player* player = GetTarget()->ToPlayer();
+
+        for (RuneType runeType : { RuneType::Blood, RuneType::Unholy, RuneType::Frost })
+        {
+            if (player->IsRuneFullyDepleted(runeType))
+            {
+                switch (runeType)
+                {
+                    case RuneType::Blood:
+                        energizeSpells.push_back(SPELL_DK_ENERGIZE_BLOOD_RUNE);
+                        break;
+                    case RuneType::Frost:
+                        energizeSpells.push_back(SPELL_DK_ENERGIZE_FROST_RUNE);
+                        break;
+                    case RuneType::Unholy:
+                        energizeSpells.push_back(SPELL_DK_ENERGIZE_UNHOLY_RUNE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (energizeSpells.empty())
+            return;
+
+        uint32 spellId = Trinity::Containers::SelectRandomContainerElement(energizeSpells);
+        player->CastSpell(nullptr, spellId, CastSpellExtraArgs(aurEff));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_runic_empowerment::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
+    RegisterSpellScript(spell_dk_runic_empowerment);
 }
