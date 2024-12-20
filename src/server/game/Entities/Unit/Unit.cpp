@@ -8229,6 +8229,11 @@ void Unit::UpdateMountCapability()
     if (IsLoading())
         return;
 
+    if (SpellShapeshiftFormEntry const* spellShapeshiftForm = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm()))
+        if (uint32 mountType = spellShapeshiftForm->MountTypeID)
+            if (!GetMountCapability(mountType))
+                CancelTravelShapeshiftForm(AURA_REMOVE_BY_INTERRUPT);
+
     AuraEffectVector mounts = CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_MOUNTED));
     for (AuraEffect* aurEff : mounts)
     {
@@ -9229,7 +9234,7 @@ void Unit::SetShapeshiftForm(ShapeshiftForm form)
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ShapeshiftForm), form);
 }
 
-void Unit::CancelShapeshift(bool onlyTravelShapeshiftForm, bool force)
+void Unit::CancelShapeshiftForm(bool onlyTravelShapeshiftForm /*= false*/, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool force /*= false*/)
 {
     ShapeshiftForm form = GetShapeshiftForm();
     if (form == FORM_NONE)
@@ -9252,11 +9257,13 @@ void Unit::CancelShapeshift(bool onlyTravelShapeshiftForm, bool force)
     if (onlyTravelShapeshiftForm && !isTravelShapeshiftForm)
         return;
 
-    RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, [force](AuraApplication const* aurApp)
+    AuraEffectVector shapeshifts = CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT));
+    for (AuraEffect* aurEff : shapeshifts)
     {
-        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
-        return force || (!spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive());
-    });
+        SpellInfo const* spellInfo = aurEff->GetBase()->GetSpellInfo();
+        if (force || (!spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive()))
+            aurEff->GetBase()->Remove(removeMode);
+    }
 }
 
 bool Unit::IsInFeralForm() const

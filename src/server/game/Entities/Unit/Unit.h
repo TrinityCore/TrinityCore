@@ -1479,8 +1479,8 @@ class TC_GAME_API Unit : public WorldObject
 
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(*m_unitData->ShapeshiftForm); }
         void SetShapeshiftForm(ShapeshiftForm form);
-        void CancelShapeshift(bool onlyTravelShapeshiftForm = false, bool force = false);
-        void CancelTravelShapeshift(bool force = false) { CancelShapeshift(true, force); };
+        void CancelShapeshiftForm(bool onlyTravelShapeshiftForm = false, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false);
+        void CancelTravelShapeshiftForm(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false) { CancelShapeshiftForm(true, removeMode, force); };
 
         bool IsInFeralForm() const;
 
