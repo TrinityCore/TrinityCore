@@ -1447,7 +1447,7 @@ namespace Trinity
                         }
                         case FindCreatureAliveState::Dead:
                         {
-                            if (u->IsAlive() && !u->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH))
+                            if (u->IsAlive())
                                 return false;
                             break;
                         }
@@ -1459,7 +1459,7 @@ namespace Trinity
                         }
                         case FindCreatureAliveState::EffectivelyDead:
                         {
-                            if (u->IsAlive())
+                            if (u->IsAlive() && !u->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH))
                                 return false;
                             break;
                         }
