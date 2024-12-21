@@ -25,22 +25,26 @@
 #include "SpellScript.h"
 #include "Unit.h"
 
-// 78 - Heroic Strike
-class spell_warr_heroic_strike : public SpellScript
+namespace Scripts::Spells::Warrior
 {
-    // Damage = {8+$ap*60/100}
-    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+    // 78 - Heroic Strike
+    class spell_warr_heroic_strike : public SpellScript
     {
-        damage = static_cast<int32>(8 + GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.6f);
-    }
+        // Damage = {8+$ap*60/100}
+        void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+        {
+            damage = static_cast<int32>(8 + GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.6f);
+        }
 
-    void Register() override
-    {
-        CalcDamage += SpellCalcDamageFn(spell_warr_heroic_strike::CalculateDamage);
-    }
-};
+        void Register() override
+        {
+            CalcDamage += SpellCalcDamageFn(spell_warr_heroic_strike::CalculateDamage);
+        }
+    };
+}
 
 void AddSC_warrior_spell_scripts()
 {
+    using namespace Scripts::Spells::Warrior;
     RegisterSpellScript(spell_warr_heroic_strike);
 }
