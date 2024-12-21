@@ -545,7 +545,7 @@ struct BroadcastTextEntry
     int32 LanguageID;
     int32 ConditionID;
     uint16 EmotesID;
-    uint8 Flags;
+    uint16 Flags;
     uint32 ChatBubbleDurationMs;
     int32 VoiceOverPriorityID;
     std::array<uint32, 2> SoundKitID;
@@ -556,9 +556,9 @@ struct BroadcastTextEntry
 struct BroadcastTextDurationEntry
 {
     uint32 ID;
-    uint32 BroadcastTextID;
     int32 Locale;
     int32 Duration;
+    uint32 BroadcastTextID;
 };
 
 struct Cfg_CategoriesEntry
@@ -751,8 +751,6 @@ struct ChrCustomizationOptionEntry
     uint32 ID;
     uint16 SecondaryID;
     int32 Flags;
-    int32 ChrRacesID;
-    int32 Sex;
     uint32 ChrModelID;
     int32 SortIndex;
     int32 ChrCustomizationCategoryID;
@@ -1078,6 +1076,13 @@ struct CreatureFamilyEntry
     std::array<int16, 2> SkillLine;
 };
 
+struct CreatureLabelEntry
+{
+    uint32 ID;
+    int32 LabelID;
+    uint32 CreatureDifficultyID;
+};
+
 struct CreatureModelDataEntry
 {
     uint32 ID;
@@ -1171,6 +1176,7 @@ struct CriteriaEntry
 
         // CriteriaType::CurrencyGained                             = 12
         // CriteriaType::ObtainAnyItemWithCurrencyValue             = 229
+        // CriteriaType::ReachRenownLevel                           = 261
         int32 CurrencyID;
 
         // CriteriaType::DieInInstance                              = 18
@@ -1327,6 +1333,9 @@ struct CriteriaEntry
 
         // CriteriaType::MythicPlusRatingAttained                   = 230
         int32 DungeonScore;
+
+        // CriteriaType::LearnTaxiNode                              = 262
+        int32 TaxiNodesID;
     } Asset;
     uint32 ModifierTreeId;
     int32 StartEvent;
@@ -1504,6 +1513,7 @@ struct DifficultyEntry
     uint32 GroupSizeHealthCurveID;
     uint32 GroupSizeDmgCurveID;
     uint32 GroupSizeSpellPointsCurveID;
+    int32 Unknown1105;
 };
 
 struct DungeonEncounterEntry
@@ -1751,6 +1761,13 @@ struct GameObjectDisplayInfoEntry
     int32 ClientCreatureDisplayInfoID;
     int32 ClientItemID;
     uint16 Unknown1100;
+};
+
+struct GameObjectLabelEntry
+{
+    uint32 ID;
+    int32 LabelID;
+    uint32 GameObjectID;
 };
 
 struct GameObjectsEntry
@@ -2687,9 +2704,13 @@ struct LFGDungeonsEntry
     uint8 MinCountTank;
     uint8 MinCountHealer;
     uint8 MinCountDamage;
+    uint8 MaxPremadeCountTank;
+    uint8 MaxPremadeCountHealer;
+    uint8 MaxPremadeCountDamage;
     uint16 BonusReputationAmount;
     uint16 MentorItemLevel;
     uint8 MentorCharLevel;
+    uint8 MaxPremadeGroupSize;
     int32 ContentTuningID;
     std::array<int32, 2> Flags;
 
@@ -2861,8 +2882,8 @@ struct MapChallengeModeEntry
 
 struct MapDifficultyEntry
 {
-    uint32 ID;
     LocalizedString Message;                                // m_message_lang (text showed when transfer to map failed)
+    uint32 ID;
     int32 DifficultyID;
     int32 LockID;
     uint8 ResetInterval;
@@ -2935,7 +2956,7 @@ struct MountEntry
     int32 MountSpecialRiderAnimKitID;
     int32 MountSpecialSpellVisualKitID;
 
-    bool IsSelfMount() const { return (Flags & MOUNT_FLAG_SELF_MOUNT) != 0; }
+    EnumFlag<MountFlags> GetFlags() const { return static_cast<MountFlags>(Flags); }
 };
 
 struct MountCapabilityEntry
@@ -2950,6 +2971,15 @@ struct MountCapabilityEntry
     int16 ReqMapID;
     int32 PlayerConditionID;
     int32 FlightCapabilityID;
+};
+
+struct MountEquipmentEntry
+{
+    uint32 ID;
+    int32 Item;
+    int32 BuffSpell;
+    int32 Unknown820;
+    uint32 LearnedBySpell;
 };
 
 struct MountTypeXCapabilityEntry
@@ -3092,6 +3122,8 @@ struct PlayerConditionEntry
     uint32 ID;
     Trinity::RaceMask<int64> RaceMask;
     LocalizedString FailureDescription;
+    uint16 MinLevel;
+    uint16 MaxLevel;
     int32 ClassMask;
     uint32 SkillLogic;
     int32 LanguageID;
@@ -3833,7 +3865,7 @@ struct SpellLevelsEntry
 struct SpellMiscEntry
 {
     uint32 ID;
-    std::array<int32, 15> Attributes;
+    std::array<int32, 16> Attributes;
     uint8 DifficultyID;
     uint16 CastingTimeIndex;
     uint16 DurationIndex;
@@ -4725,6 +4757,8 @@ struct VignetteEntry
     int8 VignetteType;
     int32 RewardQuestID;
     int32 UiWidgetSetID;
+    int32 UiMapPinInfoID;
+    int8 ObjectiveType;
 
     EnumFlag<VignetteFlags> GetFlags() const { return static_cast<VignetteFlags>(Flags); }
     bool IsInfiniteAOI() const { return GetFlags().HasFlag(VignetteFlags::InfiniteAOI | VignetteFlags::ZoneInfiniteAOI); }

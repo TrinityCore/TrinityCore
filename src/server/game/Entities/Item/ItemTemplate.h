@@ -170,12 +170,12 @@ enum ItemFieldFlags : uint32
 
 DEFINE_ENUM_FLAG(ItemFieldFlags);
 
-enum ItemFieldFlags2 : uint32
+enum ItemZoneFlags : uint32
 {
     ITEM_FIELD_FLAG2_EQUIPPED   = 0x1
 };
 
-DEFINE_ENUM_FLAG(ItemFieldFlags2);
+DEFINE_ENUM_FLAG(ItemZoneFlags);
 
 enum ItemFlags : uint32
 {

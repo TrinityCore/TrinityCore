@@ -153,13 +153,12 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.FlushBits();
 
         {
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.BillingPlan);
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.TimeRemain);
-            _worldPacket << uint32(SuccessInfo->GameTimeInfo.Unknown735);
-            // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
-            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // not used anywhere in the client
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.BillingType);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.MinutesRemaining);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.RealBillingType);
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.IsInIGR); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.IsPaidForByIGR); // inGameRoom lua return from Script_GetBillingPlan
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.IsCAISEnabled); // not used anywhere in the client
             _worldPacket.FlushBits();
         }
 
@@ -346,12 +345,13 @@ void WorldPackets::Auth::EnterEncryptedMode::ShutdownEncryption()
     EnterEncryptedModeSigner.reset();
 }
 
-std::array<uint8, 16> constexpr EnableEncryptionSeed = { 0x90, 0x9C, 0xD0, 0x50, 0x5A, 0x2C, 0x14, 0xDD, 0x5C, 0x2C, 0xC0, 0x64, 0x14, 0xF3, 0xFE, 0xC9 };
+std::array<uint8, 32> constexpr EnableEncryptionSeed = { 0x66, 0xBE, 0x29, 0x79, 0xEF, 0xF2, 0xD5, 0xB5, 0x61, 0x53, 0xF6, 0x5F, 0x45, 0xAE, 0x81, 0xCB,
+    0x32, 0xEC, 0x94, 0xEC, 0x75, 0xB3, 0x5F, 0x44, 0x6A, 0x63, 0x43, 0x67, 0x17, 0x20, 0x44, 0x34 };
 std::array<uint8, 16> constexpr EnableEncryptionContext = { 0xA7, 0x1F, 0xB6, 0x9B, 0xC9, 0x7C, 0xDD, 0x96, 0xE9, 0xBB, 0xB8, 0x21, 0x39, 0x8D, 0x5A, 0xD4 };
 
 WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
 {
-    std::array<uint8, 32> toSign = Trinity::Crypto::HMAC_SHA256::GetDigestOf(EncryptionKey,
+    std::array<uint8, 64> toSign = Trinity::Crypto::HMAC_SHA512::GetDigestOf(EncryptionKey,
         std::array<uint8, 1>{uint8(Enabled ? 1 : 0)},
         EnableEncryptionSeed);
 

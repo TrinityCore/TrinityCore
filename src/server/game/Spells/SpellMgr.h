@@ -231,9 +231,13 @@ DEFINE_ENUM_FLAG(ProcFlags);
 enum ProcFlags2 : int32
 {
     PROC_FLAG_2_NONE                            = 0x00000000,
-    PROC_FLAG_2_TARGET_DIES                     = 0x00000001,
-    PROC_FLAG_2_KNOCKBACK                       = 0x00000002,
-    PROC_FLAG_2_CAST_SUCCESSFUL                 = 0x00000004
+    PROC_FLAG_2_TARGET_DIES                     = 0x00000001,    // 32 Kill or assist in killing target (not restricted to killing blow)
+    PROC_FLAG_2_KNOCKBACK                       = 0x00000002,    // 33 Knockback
+    PROC_FLAG_2_CAST_SUCCESSFUL                 = 0x00000004,    // 34 Cast Successful
+
+    PROC_FLAG_2_SUCCESSFUL_DISPEL               = 0x00000010,    // 36 Successful dispel
+
+    PROC_FLAG_2_DO_EMOTE                        = 0x00000040     // 38 Do Emote
 };
 
 DEFINE_ENUM_FLAG(ProcFlags2);

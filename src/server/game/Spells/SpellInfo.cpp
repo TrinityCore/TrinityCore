@@ -1153,7 +1153,7 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 305 SPELL_EFFECT_305
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 306 SPELL_EFFECT_UPDATE_INTERACTIONS
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 306 SPELL_EFFECT_UPDATE_INTERACTIONS
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 307 SPELL_EFFECT_307
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 309 SPELL_EFFECT_PRELOAD_WORLD
@@ -1181,6 +1181,13 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 331 SPELL_EFFECT_331
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 332 SPELL_EFFECT_332
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 333 SPELL_EFFECT_333
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 334 SPELL_EFFECT_334
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 335 SPELL_EFFECT_335
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 336 SPELL_EFFECT_336
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 337 SPELL_EFFECT_337
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 338 SPELL_EFFECT_338
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 339 SPELL_EFFECT_UI_ACTION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 340 SPELL_EFFECT_340
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -1224,6 +1231,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         AttributesEx12 = _misc->Attributes[12];
         AttributesEx13 = _misc->Attributes[13];
         AttributesEx14 = _misc->Attributes[14];
+        AttributesEx15 = _misc->Attributes[15];
         CastTimeEntry = sSpellCastTimesStore.LookupEntry(_misc->CastingTimeIndex);
         DurationEntry = sSpellDurationStore.LookupEntry(_misc->DurationIndex);
         RangeEntry = sSpellRangeStore.LookupEntry(_misc->RangeIndex);
@@ -2341,6 +2349,12 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
         return SPELL_FAILED_TARGET_AURASTATE;
 
     if (ExcludeTargetAuraSpell && unitTarget->HasAura(ExcludeTargetAuraSpell))
+        return SPELL_FAILED_TARGET_AURASTATE;
+
+    if (TargetAuraType && !unitTarget->HasAuraType(TargetAuraType))
+        return SPELL_FAILED_TARGET_AURASTATE;
+
+    if (ExcludeTargetAuraType && unitTarget->HasAuraType(ExcludeTargetAuraType))
         return SPELL_FAILED_TARGET_AURASTATE;
 
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !HasAttribute(SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA))

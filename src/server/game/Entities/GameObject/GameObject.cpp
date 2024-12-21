@@ -844,6 +844,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_updateFlag.Stationary = true;
     m_updateFlag.Rotation = true;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_GameObject, false);
+
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;
@@ -1102,6 +1104,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
         case GAMEOBJECT_TYPE_TRANSPORT:
         {
+            m_updateFlag.GameObject = true;
             m_goTypeImpl = std::make_unique<GameObjectType::Transport>(*this);
             if (goInfo->transport.startOpen)
                 SetGoState(GO_STATE_TRANSPORT_STOPPED);
@@ -2105,17 +2108,6 @@ bool GameObject::IsTransport() const
     return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT;
 }
 
-// is Dynamic transport = non-stop Transport
-bool GameObject::IsDynTransport() const
-{
-    // If something is marked as a transport, don't transmit an out of range packet for it.
-    GameObjectTemplate const* gInfo = GetGOInfo();
-    if (!gInfo)
-        return false;
-
-    return gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_TRANSPORT;
-}
-
 bool GameObject::IsDestructibleBuilding() const
 {
     GameObjectTemplate const* gInfo = GetGOInfo();
@@ -2212,7 +2204,7 @@ uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
     if (GetGoType() == GAMEOBJECT_TYPE_TRAP)
     {
         if (Player const* player = target->ToPlayer())
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
                 return uint8(std::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
 
         if (Unit const* targetUnit = target->ToUnit())
@@ -2566,12 +2558,14 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
         SetGoState(GO_STATE_READY);
 }
 
-void GameObject::Use(Unit* user)
+void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
 {
     // by default spell caster is user
     Unit* spellCaster = user;
     uint32 spellId = 0;
-    bool triggered = false;
+    CastSpellExtraArgs spellArgs;
+    if (ignoreCastInProgress)
+        spellArgs.TriggerFlags |= TRIGGERED_IGNORE_CAST_IN_PROGRESS;
 
     if (Player* playerUser = user->ToPlayer())
     {
@@ -2963,7 +2957,7 @@ void GameObject::Use(Unit* user)
 
                         if (fishingPool)
                         {
-                            fishingPool->Use(player);
+                            fishingPool->Use(player, ignoreCastInProgress);
                             SetLootState(GO_JUST_DEACTIVATED);
                         }
                         else
@@ -3046,7 +3040,7 @@ void GameObject::Use(Unit* user)
                 player->CastSpell(player, info->ritual.animSpell, true);
 
                 // for this case, summoningRitual.spellId is always triggered
-                triggered = true;
+                spellArgs.TriggerFlags = TRIGGERED_FULL_MASK;
             }
 
             // full amount unique participants including original summoner
@@ -3062,7 +3056,7 @@ void GameObject::Use(Unit* user)
                     // spell have reagent and mana cost but it not expected use its
                     // it triggered spell in fact cast at currently channeled GO
                     spellId = 61993;
-                    triggered = true;
+                    spellArgs.TriggerFlags = TRIGGERED_FULL_MASK;
                 }
 
                 // Cast casterTargetSpell at a random GO user
@@ -3133,11 +3127,11 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
                 if (player->GetLevel() < userLevels->MaxLevel)
                     return;
 
-            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ConditionalFlags))
                 if (targetPlayer->GetLevel() < targetLevels->MaxLevel)
                     return;
 
@@ -3161,9 +3155,16 @@ void GameObject::Use(Unit* user)
                 if (player->GetVehicle())
                     return;
 
+                if (HasFlag(GO_FLAG_IN_USE))
+                    return;
+
+                if (!MeetsInteractCondition(player))
+                    return;
+
                 player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
-                return;                                     //we don;t need to delete flag ... it is despawned!
+                spellId = GetGOInfo()->flagStand.pickupSpell;
+                spellCaster = nullptr;
             }
             break;
         }
@@ -3485,14 +3486,27 @@ void GameObject::Use(Unit* user)
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, triggered);
+        spellCaster->CastSpell(user, spellId, spellArgs);
     else
     {
-        SpellCastResult castResult = CastSpell(user, spellId);
+        SpellCastResult castResult = CastSpell(user, spellId, spellArgs);
         if (castResult == SPELL_FAILED_SUCCESS)
         {
-            if (GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
-                HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+            switch (GetGoType())
+            {
+                case GAMEOBJECT_TYPE_NEW_FLAG:
+                    HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+                    break;
+                case GAMEOBJECT_TYPE_FLAGSTAND:
+                    SetFlag(GO_FLAG_IN_USE);
+                    if (ZoneScript* zonescript = GetZoneScript())
+                        zonescript->OnFlagTaken(this, Object::ToPlayer(user));
+
+                    Delete();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
@@ -3577,6 +3591,16 @@ std::string GameObject::GetNameForLocaleIdx(LocaleConstant locale) const
                 return cl->Name[locale];
 
     return GetName();
+}
+
+bool GameObject::HasLabel(int32 gameobjectLabel) const
+{
+    return advstd::ranges::contains(GetLabels(), gameobjectLabel);
+}
+
+std::span<int32 const> GameObject::GetLabels() const
+{
+    return sDB2Manager.GetGameObjectLabels(GetEntry());
 }
 
 void GameObject::UpdatePackedRotation()
@@ -4003,22 +4027,14 @@ GameObject* GameObject::GetLinkedTrap()
     return ObjectAccessor::GetGameObject(*this, m_linkedTrap);
 }
 
-void GameObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void GameObject::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_gameObjectData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void GameObject::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -4026,13 +4042,12 @@ void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 
     if (m_values.HasChanged(TYPEID_GAMEOBJECT))
         m_gameObjectData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const
 {
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -4043,6 +4058,7 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
@@ -4083,20 +4099,7 @@ std::vector<uint32> const* GameObject::GetPauseTimes() const
 
 void GameObject::SetPathProgressForClient(float progress)
 {
-    DoWithSuppressingObjectUpdates([&]()
-    {
-        UF::ObjectData::Base dynflagMask;
-        dynflagMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-        bool marked = (m_objectData->GetChangesMask() & dynflagMask.GetChangesMask()).IsAnySet();
-
-        uint32 dynamicFlags = GetDynamicFlags();
-        dynamicFlags &= 0xFFFF; // remove high bits
-        dynamicFlags |= uint32(progress * 65535.0f) << 16;
-        ReplaceAllDynamicFlags(dynamicFlags);
-
-        if (!marked)
-            const_cast<UF::ObjectData&>(*m_objectData).ClearChanged(&UF::ObjectData::DynamicFlags);
-    });
+    m_transportPathProgress = progress;
 }
 
 void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = nullptr*/) const

@@ -37,6 +37,7 @@ class Bag;
 class ByteBuffer;
 class Conversation;
 class Corpse;
+class Creature;
 class DynamicObject;
 class GameObject;
 class Item;
@@ -134,7 +135,7 @@ struct ItemData : public IsUpdateFieldStructureTag, public HasChangesMask<41>
     UpdateField<uint64, 0, 15> ArtifactXP;
     UpdateField<uint8, 0, 16> ItemAppearanceModID;
     UpdateField<UF::ItemModList, 0, 17> Modifiers;
-    UpdateField<uint32, 0, 18> DynamicFlags2;
+    UpdateField<uint32, 0, 18> ZoneFlags;
     UpdateField<WorldPackets::Item::ItemBonusKey, 0, 19> ItemBonusKey;
     UpdateField<uint16, 0, 20> DEBUGItemLevel;
     UpdateFieldArray<int32, 5, 21, 22> SpellCharges;
@@ -390,8 +391,8 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<220>
     UpdateField<ObjectGuid, 96, 122> GuildGUID;
     UpdateField<int32, 96, 123> FlightCapabilityID;
     UpdateField<float, 96, 124> GlideEventSpeedDivisor;                         // Movement speed gets divided by this value when evaluating what GlideEvents to use
-    UpdateField<uint32, 96, 125> MaxHealthModifierFlatNeg;
-    UpdateField<uint32, 96, 126> MaxHealthModifierFlatPos;
+    UpdateField<int32, 96, 125> MaxHealthModifierFlatNeg;
+    UpdateField<int32, 96, 126> MaxHealthModifierFlatPos;
     UpdateField<uint32, 96, 127> SilencedSchoolMask;
     UpdateField<uint32, 128, 129> CurrentAreaID;
     UpdateField<float, 128, 130> Field_31C;
@@ -480,9 +481,9 @@ struct PetCreatureName : public IsUpdateFieldStructureTag, public HasChangesMask
 
 struct CTROptions : public IsUpdateFieldStructureTag
 {
-    int32 ContentTuningConditionMask;
-    uint32 Field_4;
-    uint32 ExpansionLevelMask;
+    int32 ConditionalFlags;
+    uint32 FactionGroup;
+    uint32 ChromieTimeExpansionMask;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -590,9 +591,18 @@ struct SkillInfo : public IsUpdateFieldStructureTag, public HasChangesMask<1793>
     void ClearChangesMask();
 };
 
-struct BitVectors : public IsUpdateFieldStructureTag, public HasChangesMask<1>
+struct BitVector : public IsUpdateFieldStructureTag, public HasChangesMask<2>
 {
-    UpdateFieldArray<DynamicUpdateFieldBase<uint64>, 11, 0, -1> Values;
+    DynamicUpdateField<uint64, 0, 1> Values;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct BitVectors : public IsUpdateFieldStructureTag, public HasChangesMask<14>
+{
+    UpdateFieldArray<UF::BitVector, 13, 0, 1> Values;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -747,10 +757,10 @@ struct ActivePlayerUnk901 : public IsUpdateFieldStructureTag, public HasChangesM
     void ClearChangesMask();
 };
 
-struct QuestSession : public IsUpdateFieldStructureTag, public HasChangesMask<953>
+struct QuestSession : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
     UpdateField<ObjectGuid, 0, 1> Owner;
-    UpdateFieldArray<uint64, 950, 2, 3> QuestCompleted;
+    UpdateField<UF::BitVector, 0, 2> QuestCompleted;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -995,7 +1005,7 @@ struct DelveData : public IsUpdateFieldStructureTag
 {
     std::vector<ObjectGuid> Owners;
     int32 Field_0;
-    int64 Field_8;
+    uint64 Field_8;
     int32 Field_10;
     int32 SpellID;
     uint32 Started;                                                             // Restricts rewards to players in m_owners if set to true. Intended to prevent rewarwding players that join in-progress delve?
@@ -1016,7 +1026,7 @@ struct Research : public IsUpdateFieldStructureTag
     bool operator!=(Research const& right) const { return !(*this == right); }
 };
 
-struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1476>
+struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1516>
 {
     UpdateField<bool, 0, 1> BackpackAutoSortDisabled;
     UpdateField<bool, 0, 2> BackpackSellJunkDisabled;
@@ -1170,8 +1180,8 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateFieldArray<int32, 2, 480, 481> ProfessionSkillLine;
     UpdateFieldArray<uint32, 5, 483, 484> BagSlotFlags;
     UpdateFieldArray<uint32, 7, 489, 490> BankBagSlotFlags;
-    UpdateFieldArray<uint64, 960, 497, 498> QuestCompleted;
-    UpdateFieldArray<float, 17, 1458, 1459> ItemUpgradeHighWatermark;
+    UpdateFieldArray<uint64, 1000, 497, 498> QuestCompleted;
+    UpdateFieldArray<float, 17, 1498, 1499> ItemUpgradeHighWatermark;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
@@ -1265,7 +1275,7 @@ struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 
 struct VisualAnim : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
-    UpdateField<bool, 0, 1> Field_C;
+    UpdateField<bool, 0, 1> IsDecay;
     UpdateField<uint32, 0, 2> AnimationDataID;
     UpdateField<uint32, 0, 3> AnimKitID;
     UpdateField<uint32, 0, 4> AnimProgress;
@@ -1367,6 +1377,16 @@ struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMas
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Conversation const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct VendorData : public IsUpdateFieldStructureTag, public HasChangesMask<2>
+{
+    UpdateField<int32, 0, 1> Flags;
+
+    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Creature const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Creature const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 

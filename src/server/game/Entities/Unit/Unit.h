@@ -34,6 +34,7 @@
 
 #define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs
 #define WORLD_TRIGGER 12999
+#define SPELL_DAZED 1604
 #define ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE 197886
 #define SPELL_DH_DOUBLE_JUMP 196055
 #define DISPLAYID_HIDDEN_MOUNT 73200
@@ -1628,7 +1629,7 @@ class TC_GAME_API Unit : public WorldObject
         float SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const;
         int32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 healamount, DamageEffectType damagetype) const;
 
-        int32 MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, Mechanics mechanic = MECHANIC_NONE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, Spell* spell = nullptr, AuraEffect const* aurEff = nullptr);
+        int32 MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellEffectInfo const* spellEffectInfo = nullptr, Mechanics mechanic = MECHANIC_NONE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, Spell* spell = nullptr, AuraEffect const* aurEff = nullptr);
         int32 MeleeDamageBonusTaken(Unit* attacker, int32 pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
 
         bool IsBlockCritical() const;
@@ -1836,32 +1837,13 @@ class TC_GAME_API Unit : public WorldObject
 
         std::string GetDebugInfo() const override;
 
-        UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;
+        UF::UpdateField<UF::UnitData, int32(WowCS::EntityFragment::CGObject), TYPEID_UNIT> m_unitData;
 
     protected:
         explicit Unit (bool isWorldObject);
 
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
 
-    public:
-        void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::UnitData::Mask const& requestedUnitMask, Player const* target) const;
-
-        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
-        {
-            explicit ValuesUpdateForPlayerWithMaskSender(Unit const* owner) : Owner(owner) { }
-
-            Unit const* Owner;
-            UF::ObjectData::Base ObjectMask;
-            UF::UnitData::Base UnitMask;
-
-            void operator()(Player const* player) const;
-        };
-
-    protected:
         void DestroyForPlayer(Player* target) const override;
         void ClearUpdateMask(bool remove) override;
 

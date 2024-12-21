@@ -21,11 +21,23 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "ScriptedGossip.h"
 #include "PassiveAI.h"
 #include "ObjectAccessor.h"
+
+namespace Durotar
+{
+    namespace Spells
+    {
+        static constexpr uint32 PhasePlayer               = 130750;
+        static constexpr uint32 TeleportTimer             = 132034;
+        static constexpr uint32 TeleportPlayerToCrashSite = 102930;
+    }
+}
 
 /*######
 ## Quest 37446: Lazy Peons
@@ -1211,6 +1223,78 @@ private:
     ObjectGuid _brazierGUID;
 };
 
+// 8595 - Hellscream's Fist Gunship
+class at_hellscreams_fist_gunship : public AreaTriggerScript
+{
+public:
+    at_hellscreams_fist_gunship() : AreaTriggerScript("at_hellscreams_fist_gunship") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->CastSpell(player, Durotar::Spells::PhasePlayer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+        });
+        return true;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->RemoveAurasDueToSpell(Durotar::Spells::PhasePlayer);
+        return true;
+    }
+};
+
+// 130810 - Teleport Prep
+class spell_teleport_prep : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Durotar::Spells::TeleportTimer
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* hitUnit = GetHitUnit();
+
+        hitUnit->CastSpell(hitUnit, Durotar::Spells::TeleportTimer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_teleport_prep::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 132034 - Teleport Timer
+class spell_teleport_timer : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Durotar::Spells::TeleportPlayerToCrashSite
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+
+        target->CastSpell(target, Durotar::Spells::TeleportPlayerToCrashSite, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_teleport_timer::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
@@ -1251,4 +1335,11 @@ void AddSC_durotar()
     new quest_proving_pit<NPC_TRAINER_ZABRAX>("quest_proving_pit_monk");
     RegisterCreatureAI(npc_voljin_garrosh_vision);
     RegisterCreatureAI(npc_voljin_thrall_vision);
+
+    // AreaTriggers
+    new at_hellscreams_fist_gunship();
+
+    // Spells
+    RegisterSpellScript(spell_teleport_prep);
+    RegisterSpellScript(spell_teleport_timer);
 }

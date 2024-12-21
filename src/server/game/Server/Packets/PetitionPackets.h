@@ -100,7 +100,7 @@ namespace WorldPackets
 
             ObjectGuid Unit;
             std::string Title;
-            uint32 Unused910 = 0;
+            uint32 Muid = 0;
         };
 
         class PetitionShowSignatures final : public ClientPacket
@@ -240,7 +240,5 @@ namespace WorldPackets
         };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Petition::PetitionInfo const& petitionInfo);
 
 #endif // PetitionPackets_h__
