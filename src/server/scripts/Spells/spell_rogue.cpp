@@ -27,28 +27,32 @@
 #include "SpellScript.h"
 #include "Unit.h"
 
-// 2098 - Eviscerate
-class spell_rog_eviscerate : public SpellScript
+namespace Scripts::Spells::Rogue
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    // 2098 - Eviscerate
+    class spell_rog_eviscerate : public SpellScript
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
-    }
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
+        }
 
-    // Damage: effectValue + (basePoints * Combo) + (AP * 0.091 * Combo)
-    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
-    {
-        int32 combo = GetSpell()->m_spentComboPoints;
-        flatMod += (GetSpellInfo()->GetEffect(EFFECT_0).BasePoints * combo) + (GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f * combo);
-    }
+        // Damage: effectValue + (basePoints * Combo) + (AP * 0.091 * Combo)
+        void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+        {
+            int32 combo = GetSpell()->m_spentComboPoints;
+            flatMod += (GetSpellInfo()->GetEffect(EFFECT_0).BasePoints * combo) + (GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f * combo);
+        }
 
-    void Register() override
-    {
-        CalcDamage += SpellCalcDamageFn(spell_rog_eviscerate::CalculateDamage);
-    }
-};
+        void Register() override
+        {
+            CalcDamage += SpellCalcDamageFn(spell_rog_eviscerate::CalculateDamage);
+        }
+    };
+}
 
 void AddSC_rogue_spell_scripts()
 {
+    using namespace Scripts::Spells::Rogue;
     RegisterSpellScript(spell_rog_eviscerate);
 }
