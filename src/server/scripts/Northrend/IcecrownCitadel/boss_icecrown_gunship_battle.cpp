@@ -1888,7 +1888,7 @@ class spell_igb_incinerating_blast : public SpellScript
         GetCaster()->SetPower(POWER_ENERGY, 0);
     }
 
-    void CalculateDamage(Unit const* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
         flatMod += _energyLeft * _energyLeft * 8;
     }

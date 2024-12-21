@@ -627,7 +627,7 @@ enum class CriteriaType : int16
     TotalFactionsEncountered                       = 89,  // Total factions encountered
     LootAnyItem                                    = 90,  // Loot any item
     ObtainAnyItem                                  = 91,  // Obtain any item
-    AnyoneTriggerGameEventScenario                 = 92,  /*NYI*/ // Anyone will Trigger game event "{GameEvents}" (Scenario Only)
+    AnyoneTriggerGameEventScenario                 = 92,  // Anyone will Trigger game event "{GameEvents}" (Scenario Only)
     RollAnyNeed                                    = 93,  // Roll any number on need
     RollAnyGreed                                   = 94,  // Roll any number on greed
     ReleasedSpirit                                 = 95,  /*NYI*/ // Released Spirit
@@ -756,7 +756,7 @@ enum class CriteriaType : int16
     CompleteAnyReplayQuest                         = 218, // Complete Any Replay Quest
     BuyItemsFromVendors                            = 219, // Buy items from vendors
     SellItemsToVendors                             = 220, // Sell items to vendors
-    ReachMaxLevel                                  = 221, /*NYI*/ // Reach Max Level
+    ReachMaxLevel                                  = 221, // Reach Max Level
     MemorizeSpell                                  = 222, /*NYI*/ // Memorize Spell "{Spell}"
     LearnTransmogIllusion                          = 223, /*NYI*/ // Learn Transmog Illusion
     LearnAnyTransmogIllusion                       = 224, /*NYI*/ // Learn Any Transmog Illusion
@@ -1836,14 +1836,24 @@ enum MountCapabilityFlags
     MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS   = 0x20,
 };
 
-enum MountFlags
+enum class MountFlags : int32
 {
-    MOUNT_FLAG_SELF_MOUNT               = 0x02,                   // Player becomes the mount himself
-    MOUNT_FLAG_FACTION_SPECIFIC         = 0x04,
-    MOUNT_FLAG_PREFERRED_SWIMMING       = 0x10,
-    MOUNT_FLAG_PREFERRED_WATER_WALKING  = 0x20,
-    MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
+    ServerOnly                              = 0x00000001,
+    IsSelfMount                             = 0x00000002,
+    ExcludeFromJournalIfFactionDoesntMatch  = 0x00000004,
+    AllowMountedCombat                      = 0x00000008,
+    SummonRandomFavorWhileUnderwater        = 0x00000010,
+    SummonRandomFavorWhileAtWaterSurface    = 0x00000020,
+    ExcludeFromJournalIfNotLearned          = 0x00000040,
+    SummonRandomDoNotFavorWhenGrounded      = 0x00000080,
+    ShowInSpellbook                         = 0x00000100,
+    AddToActionBarOnLearn                   = 0x00000200,
+    NotForUseAsATaxi                        = 0x00000400,
+    MountEquipmentEffectsSuppressed         = 0x00000800,
+    DisablePlayerMountPreview               = 0x00001000,
 };
+
+DEFINE_ENUM_FLAG(MountFlags);
 
 enum class PathPropertyIndex : uint8
 {

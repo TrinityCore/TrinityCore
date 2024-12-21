@@ -371,7 +371,7 @@ enum AuraType : uint32
     SPELL_AURA_277                                          = 277,  // old SPELL_AURA_MOD_MAX_AFFECTED_TARGETS. unused 4.3.4
     SPELL_AURA_MOD_DISARM_RANGED                            = 278,
     SPELL_AURA_INITIALIZE_IMAGES                            = 279,
-    SPELL_AURA_280                                          = 280,  // old SPELL_AURA_MOD_ARMOR_PENETRATION_PCT unused 4.3.4
+    SPELL_AURA_MOD_ARMOR_PENETRATION_PCT                    = 280,
     SPELL_AURA_PROVIDE_SPELL_FOCUS                          = 281,
     SPELL_AURA_MOD_BASE_HEALTH_PCT                          = 282,
     SPELL_AURA_MOD_HEALING_RECEIVED                         = 283,  // Possibly only for some spell family class spells
@@ -579,7 +579,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
     SPELL_AURA_486                                          = 486,
     SPELL_AURA_COSMETIC_MOUNTED                             = 487,
-    SPELL_AURA_488                                          = 488,
+    SPELL_AURA_DISABLE_GRAVITY                              = 488,
     SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE             = 489,
     SPELL_AURA_490                                          = 490,
     SPELL_AURA_491                                          = 491,

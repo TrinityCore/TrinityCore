@@ -35,6 +35,7 @@
 #include <numeric>
 #include <sstream>
 #include <cctype>
+#include <cmath>
 
 // temporary hack until includes are sorted out (don't want to pull in Windows.h)
 #ifdef GetClassName
@@ -121,6 +122,7 @@ DB2Storage<CorruptionEffectsEntry>              sCorruptionEffectsStore("Corrupt
 DB2Storage<CreatureDisplayInfoEntry>            sCreatureDisplayInfoStore("CreatureDisplayInfo.db2", &CreatureDisplayInfoLoadInfo::Instance);
 DB2Storage<CreatureDisplayInfoExtraEntry>       sCreatureDisplayInfoExtraStore("CreatureDisplayInfoExtra.db2", &CreatureDisplayInfoExtraLoadInfo::Instance);
 DB2Storage<CreatureFamilyEntry>                 sCreatureFamilyStore("CreatureFamily.db2", &CreatureFamilyLoadInfo::Instance);
+DB2Storage<CreatureLabelEntry>                  sCreatureLabelStore("CreatureLabel.db2", &CreatureLabelLoadInfo::Instance);
 DB2Storage<CreatureModelDataEntry>              sCreatureModelDataStore("CreatureModelData.db2", &CreatureModelDataLoadInfo::Instance);
 DB2Storage<CreatureTypeEntry>                   sCreatureTypeStore("CreatureType.db2", &CreatureTypeLoadInfo::Instance);
 DB2Storage<CriteriaEntry>                       sCriteriaStore("Criteria.db2", &CriteriaLoadInfo::Instance);
@@ -146,6 +148,7 @@ DB2Storage<FriendshipRepReactionEntry>          sFriendshipRepReactionStore("Fri
 DB2Storage<FriendshipReputationEntry>           sFriendshipReputationStore("FriendshipReputation.db2", &FriendshipReputationLoadInfo::Instance);
 DB2Storage<GameObjectArtKitEntry>               sGameObjectArtKitStore("GameObjectArtKit.db2", &GameobjectArtKitLoadInfo::Instance);
 DB2Storage<GameObjectDisplayInfoEntry>          sGameObjectDisplayInfoStore("GameObjectDisplayInfo.db2", &GameobjectDisplayInfoLoadInfo::Instance);
+DB2Storage<GameObjectLabelEntry>                sGameObjectLabelStore("GameObjectLabel.db2", &GameobjectLabelLoadInfo::Instance);
 DB2Storage<GameObjectsEntry>                    sGameObjectsStore("GameObjects.db2", &GameobjectsLoadInfo::Instance);
 DB2Storage<GarrAbilityEntry>                    sGarrAbilityStore("GarrAbility.db2", &GarrAbilityLoadInfo::Instance);
 DB2Storage<GarrBuildingEntry>                   sGarrBuildingStore("GarrBuilding.db2", &GarrBuildingLoadInfo::Instance);
@@ -238,6 +241,7 @@ DB2Storage<MawPowerEntry>                       sMawPowerStore("MawPower.db2", &
 DB2Storage<ModifierTreeEntry>                   sModifierTreeStore("ModifierTree.db2", &ModifierTreeLoadInfo::Instance);
 DB2Storage<MountCapabilityEntry>                sMountCapabilityStore("MountCapability.db2", &MountCapabilityLoadInfo::Instance);
 DB2Storage<MountEntry>                          sMountStore("Mount.db2", &MountLoadInfo::Instance);
+DB2Storage<MountEquipmentEntry>                 sMountEquipmentStore("MountEquipment.db2", &MountEquipmentLoadInfo::Instance);
 DB2Storage<MountTypeXCapabilityEntry>           sMountTypeXCapabilityStore("MountTypeXCapability.db2", &MountTypeXCapabilityLoadInfo::Instance);
 DB2Storage<MountXDisplayEntry>                  sMountXDisplayStore("MountXDisplay.db2", &MountXDisplayLoadInfo::Instance);
 DB2Storage<MovieEntry>                          sMovieStore("Movie.db2", &MovieLoadInfo::Instance);
@@ -474,6 +478,7 @@ namespace
     std::unordered_map<int32, ConditionalChrModelEntry const*> _conditionalChrModelsByChrModelId;
     std::unordered_map<uint32 /*contentTuningId*/, std::vector<ConditionalContentTuningEntry const*>> _conditionalContentTuning;
     std::unordered_set<std::pair<uint32, int32>> _contentTuningLabels;
+    std::unordered_map<uint32 /*creatureDifficultyId*/, std::vector<int32>> _creatureLabels;
     std::unordered_multimap<uint32, CurrencyContainerEntry const*> _currencyContainers;
     CurvePointsContainer _curvePoints;
     EmotesTextSoundContainer _emoteTextSounds;
@@ -482,6 +487,7 @@ namespace
     FactionTeamContainer _factionTeams;
     std::unordered_map<uint32, std::set<FriendshipRepReactionEntry const*, DB2Manager::FriendshipRepReactionEntryComparator>> _friendshipRepReactions;
     HeirloomItemsContainer _heirlooms;
+    std::unordered_map<uint32 /*gameobjectId*/, std::vector<int32>> _gameobjectLabels;
     GlyphBindableSpellsContainer _glyphBindableSpells;
     GlyphRequiredSpecsContainer _glyphRequiredSpecs;
     ItemChildEquipmentContainer _itemChildEquipment;
@@ -734,6 +740,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sCreatureDisplayInfoStore);
     LOAD_DB2(sCreatureDisplayInfoExtraStore);
     LOAD_DB2(sCreatureFamilyStore);
+    LOAD_DB2(sCreatureLabelStore);
     LOAD_DB2(sCreatureModelDataStore);
     LOAD_DB2(sCreatureTypeStore);
     LOAD_DB2(sCriteriaStore);
@@ -760,6 +767,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGameObjectsStore);
     LOAD_DB2(sGameObjectArtKitStore);
     LOAD_DB2(sGameObjectDisplayInfoStore);
+    LOAD_DB2(sGameObjectLabelStore);
     LOAD_DB2(sGarrAbilityStore);
     LOAD_DB2(sGarrBuildingStore);
     LOAD_DB2(sGarrBuildingPlotInstStore);
@@ -851,6 +859,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sModifierTreeStore);
     LOAD_DB2(sMountCapabilityStore);
     LOAD_DB2(sMountStore);
+    LOAD_DB2(sMountEquipmentStore);
     LOAD_DB2(sMountTypeXCapabilityStore);
     LOAD_DB2(sMountXDisplayStore);
     LOAD_DB2(sMovieStore);
@@ -1013,14 +1022,14 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(15786) ||               // last area added in 11.0.2 (56647)
-        !sCharTitlesStore.LookupEntry(854) ||                // last char title added in 11.0.2 (56647)
+    if (!sAreaTableStore.LookupEntry(16108) ||               // last area added in 11.0.7 (58162)
+        !sCharTitlesStore.LookupEntry(876) ||                // last char title added in 11.0.7 (58162)
         !sFlightCapabilityStore.LookupEntry(1) ||            // default flight capability (required)
-        !sGemPropertiesStore.LookupEntry(4251) ||            // last gem property added in 11.0.2 (56647)
-        !sItemStore.LookupEntry(232498) ||                   // last item added in 11.0.2 (56647)
-        !sItemExtendedCostStore.LookupEntry(9369) ||         // last item extended cost added in 11.0.2 (56647)
-        !sMapStore.LookupEntry(2786) ||                      // last map added in 11.0.2 (56647)
-        !sSpellNameStore.LookupEntry(471174))                // last spell added in 11.0.2 (56647)
+        !sGemPropertiesStore.LookupEntry(4266) ||            // last gem property added in 11.0.7 (58162)
+        !sItemStore.LookupEntry(235551) ||                   // last item added in 11.0.7 (58162)
+        !sItemExtendedCostStore.LookupEntry(9918) ||         // last item extended cost added in 11.0.7 (58162)
+        !sMapStore.LookupEntry(2829) ||                      // last map added in 11.0.7 (58162)
+        !sSpellNameStore.LookupEntry(1218101))               // last spell added in 11.0.7 (58162)
     {
         TC_LOG_FATAL("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         return 0;
@@ -1253,6 +1262,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (ContentTuningXLabelEntry const* contentTuningXLabel : sContentTuningXLabelStore)
         _contentTuningLabels.emplace(contentTuningXLabel->ContentTuningID, contentTuningXLabel->LabelID);
 
+    for (CreatureLabelEntry const* creatureLabel : sCreatureLabelStore)
+        _creatureLabels[creatureLabel->CreatureDifficultyID].push_back(creatureLabel->LabelID);
+
     for (CurrencyContainerEntry const* currencyContainer : sCurrencyContainerStore)
         _currencyContainers.emplace(currencyContainer->CurrencyTypesID, currencyContainer);
 
@@ -1293,6 +1305,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         if (gameObjectDisplayInfo->GeoBoxMax.Z < gameObjectDisplayInfo->GeoBoxMin.Z)
             std::swap(const_cast<GameObjectDisplayInfoEntry*>(gameObjectDisplayInfo)->GeoBoxMax.Z, const_cast<GameObjectDisplayInfoEntry*>(gameObjectDisplayInfo)->GeoBoxMin.Z);
     }
+
+    for (GameObjectLabelEntry const* gameobjectLabel : sGameObjectLabelStore)
+        _creatureLabels[gameobjectLabel->GameObjectID].push_back(gameobjectLabel->LabelID);
 
     for (HeirloomEntry const* heirloom : sHeirloomStore)
         _heirlooms[heirloom->ItemID] = heirloom;
@@ -2237,6 +2252,12 @@ char const* DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstan
     return petFamily->Name[locale][0] != '\0' ? petFamily->Name[locale] : nullptr;
 }
 
+std::span<int32 const> DB2Manager::GetCreatureLabels(uint32 creatureDifficultyId) const
+{
+    std::vector<int32> const* labels = Trinity::Containers::MapGetValuePtr(_creatureLabels, creatureDifficultyId);
+    return labels ? std::span<int32 const>(*labels) : std::span<int32 const>();
+}
+
 CurrencyContainerEntry const* DB2Manager::GetCurrencyContainerForCurrencyQuantity(uint32 currencyId, int32 quantity) const
 {
     for (std::pair<uint32 const, CurrencyContainerEntry const*> const& p : Trinity::Containers::MapEqualRange(_currencyContainers, currencyId))
@@ -2564,6 +2585,12 @@ DB2Manager::FriendshipRepReactionSet const* DB2Manager::GetFriendshipRepReaction
     return Trinity::Containers::MapGetValuePtr(_friendshipRepReactions, friendshipRepID);
 }
 
+std::span<int32 const> DB2Manager::GetGameObjectLabels(uint32 gameobjectId) const
+{
+    std::vector<int32> const* labels = Trinity::Containers::MapGetValuePtr(_gameobjectLabels, gameobjectId);
+    return labels ? std::span<int32 const>(*labels) : std::span<int32 const>();
+}
+
 uint32 DB2Manager::GetGlobalCurveId(GlobalCurve globalCurveType) const
 {
     for (GlobalCurveEntry const* globalCurveEntry : sGlobalCurveStore)
@@ -2690,32 +2717,34 @@ uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
 
 MapDifficultyEntry const* DB2Manager::GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty /*= nullptr*/) const
 {
-    auto itr = _mapDifficulties.find(mapId);
-    if (itr == _mapDifficulties.end())
+    std::unordered_map<uint32, MapDifficultyEntry const*>* difficultiesForMap = Trinity::Containers::MapGetValuePtr(_mapDifficulties, mapId);
+    if (!difficultiesForMap)
         return nullptr;
 
-    if (itr->second.empty())
-        return nullptr;
+    auto difficultyEnd = difficultiesForMap->end();
 
-    for (auto& p : itr->second)
+    // first find any valid difficulty
+    auto foundDifficulty = std::ranges::find_if(difficultiesForMap->begin(), difficultyEnd,
+        [](std::pair<uint32 const, MapDifficultyEntry const*> const& p) { return sDifficultyStore.HasRecord(p.first); });
+
+    if (foundDifficulty == difficultyEnd)
+        return nullptr; // nothing valid was found
+
+    if (!(sDifficultyStore.AssertEntry(foundDifficulty->first)->Flags & DIFFICULTY_FLAG_DEFAULT))
     {
-        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(p.first);
-        if (!difficultyEntry)
-            continue;
+        // first valid difficulty wasn't default, try finding one
+        auto defaultDifficulty = std::ranges::find_if(foundDifficulty, difficultyEnd,
+            [](DifficultyEntry const* difficultyEntry) { return difficultyEntry && (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT) != 0; },
+            [](std::pair<uint32 const, MapDifficultyEntry const*> const& p) { return sDifficultyStore.LookupEntry(p.first); });
 
-        if (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT)
-        {
-            if (difficulty)
-                *difficulty = Difficulty(p.first);
-
-            return p.second;
-        }
+        if (defaultDifficulty != difficultyEnd)
+            foundDifficulty = defaultDifficulty; // got a default
     }
 
     if (difficulty)
-        *difficulty = Difficulty(itr->second.begin()->first);
+        *difficulty = Difficulty(foundDifficulty->first);
 
-    return itr->second.begin()->second;
+    return foundDifficulty->second;
 }
 
 MapDifficultyEntry const* DB2Manager::GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const

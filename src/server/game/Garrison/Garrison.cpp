@@ -287,27 +287,15 @@ void Garrison::Upgrade()
 void Garrison::Enter() const
 {
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-    {
         if (int32(_owner->GetMapId()) == map->ParentMapID)
-        {
-            WorldLocation loc(_siteLevel->MapID);
-            loc.Relocate(_owner);
-            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
-        }
-    }
+            _owner->TeleportTo(WorldLocation(_siteLevel->MapID, *_owner), TELE_TO_SEAMLESS);
 }
 
 void Garrison::Leave() const
 {
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-    {
         if (_owner->GetMapId() == _siteLevel->MapID)
-        {
-            WorldLocation loc(map->ParentMapID);
-            loc.Relocate(_owner);
-            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
-        }
-    }
+            _owner->TeleportTo(WorldLocation(map->ParentMapID, *_owner), TELE_TO_SEAMLESS);
 }
 
 GarrisonFactionIndex Garrison::GetFaction() const
