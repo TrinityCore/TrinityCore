@@ -32,6 +32,8 @@
 #include "SpellScript.h"
 #include "Unit.h"
 
+namespace Scripts::Spells::DeathKnight
+{
 enum DeathKnightSpells
 {
     SPELL_DK_DARK_SIMULACRUM_BUFF               = 77616,
@@ -279,9 +281,11 @@ class spell_dk_blood_plague: public AuraScript
         DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_dk_blood_plague::CalculateDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
+}
 
 void AddSC_deathknight_spell_scripts()
 {
+    using namespace Scripts::Spells::DeathKnight;
     RegisterSpellScript(spell_dk_blood_plague);
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
