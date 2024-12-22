@@ -909,6 +909,41 @@ public:
     }
 };
 
+// 388116 - Shattered Destiny
+class spell_dh_shattered_destiny : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_METAMORPHOSIS_TRANSFORM });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return;
+
+        Aura* metamorphosis = GetTarget()->GetAura(SPELL_DH_METAMORPHOSIS_TRANSFORM);
+        if (!metamorphosis)
+            return;
+
+        int32 _furySpent = 0;
+        int32 _furyAmount = GetEffect(EFFECT_1)->GetAmount();
+        _furySpent += procSpell->GetPowerTypeCostAmount(POWER_FURY).value_or(0);
+
+        if (_furySpent >= _furyAmount)
+        {
+            metamorphosis->SetDuration(metamorphosis->GetDuration() + Milliseconds(GetEffect(EFFECT_0)->GetAmount()).count());
+            _furySpent -= _furyAmount;
+        }
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_dh_shattered_destiny::HandleProc);
+    }
+};
+
 // 208673 - Sigil of Chains
 class spell_dh_sigil_of_chains : public SpellScript
 {
@@ -1011,6 +1046,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_furious_gaze);
+    RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
