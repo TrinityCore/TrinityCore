@@ -114,6 +114,7 @@ enum DemonHunterSpells
     SPELL_DH_FRAILTY                               = 224509,
     SPELL_DH_FURIOUS_GAZE                          = 343311,
     SPELL_DH_FURIOUS_GAZE_BUFF                     = 343312,
+    SPELL_DH_FURIOUS_THROWS                        = 393029,
     SPELL_DH_GLIDE                                 = 131347,
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
@@ -351,7 +352,7 @@ class spell_dh_collective_anguish_eye_beam : public AuraScript
     }
 };
 
-// Called by 188499 - Blade Dance, 162794 - Chaos Strike and 342817 - Glaive Tempest
+// Called by 188499 - Blade Dance, 162794 - Chaos Strike, 185123 - Throw Glaive and 342817 - Glaive Tempest
 class spell_dh_cycle_of_hatred : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -361,7 +362,14 @@ class spell_dh_cycle_of_hatred : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_DH_CYCLE_OF_HATRED);
+        if (!GetCaster()->HasAura(SPELL_DH_CYCLE_OF_HATRED))
+            return false;
+
+        if (GetSpellInfo()->Id != SPELL_DH_THROW_GLAIVE)
+            return true;
+
+        // Throw Glaive triggers this talent only with Furious Throws
+        return GetCaster()->HasAura(SPELL_DH_FURIOUS_THROWS);
     }
 
     void ReduceEyeBeamCooldown() const
