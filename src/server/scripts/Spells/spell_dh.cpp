@@ -490,6 +490,28 @@ private:
     SpellInfo const* _absorbAuraInfo;
 };
 
+// 203819 - Demon Spikes
+class spell_dh_deflecting_spikes : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_DEFLECTING_SPIKES })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_PARRY_PERCENT);
+    }
+
+    void HandleParryChance(WorldObject*& target) const
+    {
+        if (!GetCaster()->HasAura(SPELL_DH_DEFLECTING_SPIKES))
+            target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_deflecting_spikes::HandleParryChance, EFFECT_0, TARGET_UNIT_CASTER);
+    }
+};
+
 // 203720 - Demon Spikes
 class spell_dh_demon_spikes : public SpellScript
 {
@@ -509,26 +531,6 @@ class spell_dh_demon_spikes : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_demon_spikes::HandleArmor, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 203819 - Demon Spikes
-class spell_dh_demon_spikes_armor : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_DEFLECTING_SPIKES });
-    }
-
-    void HandleParryChance(WorldObject*& target) const
-    {
-        if (!GetCaster()->HasAura(SPELL_DH_DEFLECTING_SPIKES))
-            target = nullptr;
-    }
-
-    void Register() override
-    {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_demon_spikes_armor::HandleParryChance, EFFECT_0, TARGET_UNIT_CASTER);
     }
 };
 
@@ -1047,8 +1049,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_cycle_of_hatred);
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
+    RegisterSpellScript(spell_dh_deflecting_spikes);
     RegisterSpellScript(spell_dh_demon_spikes);
-    RegisterSpellScript(spell_dh_demon_spikes_armor);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
