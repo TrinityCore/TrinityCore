@@ -484,7 +484,7 @@ class spell_pri_abyssal_reverie : public SpellScript
         return ValidateSpellEffect({ { SPELL_PRIEST_ABYSSAL_REVERIE, EFFECT_0 }  });
     }
 
-    void CalculateHealingBonus(Unit const* /*victim*/, int32 const& /*healing*/, int32 const& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*healing*/, int32 const& /*flatMod*/, float& pctMod) const
     {
         spell_pri_atonement::TriggerArgs const* args = std::any_cast<spell_pri_atonement::TriggerArgs>(&GetSpell()->m_customArg);
         if (!args || !(args->DamageSchoolMask & SPELL_SCHOOL_MASK_SHADOW))
@@ -1001,7 +1001,7 @@ class spell_pri_divine_service : public SpellScript
             && ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 } });
     }
 
-    void CalculateHealingBonus(Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect const* divineServiceEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
             if (Aura const* prayerOfMending = victim->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, GetCaster()->GetGUID()))
@@ -1267,7 +1267,7 @@ class spell_pri_focused_mending : public SpellScript
         return ValidateSpellEffect({ { SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0 } });
     }
 
-    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect const* focusedMendingEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0))
         {
@@ -1675,7 +1675,7 @@ class spell_pri_lights_wrath : public SpellScript
         }
     }
 
-    void CalculateDamageBonus(Unit const* /*victim*/, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
+    void CalculateDamageBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
     {
         Aura const* atonement = GetCaster()->GetAura(SPELL_PRIEST_ATONEMENT);
         if (!atonement)
@@ -1775,7 +1775,7 @@ class spell_pri_mind_devourer_buff : public SpellScript
         _damageIncrease = mindDevourer->GetAmount();
     }
 
-    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         AddPct(pctMod, _damageIncrease);
     }
@@ -2075,7 +2075,7 @@ class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
     }
 
-    void CalculateDamageBonus(Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateDamageBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect* powerOfTheDarkSide = GetCaster()->GetAuraEffect(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, EFFECT_0))
             AddPct(pctMod, powerOfTheDarkSide->GetAmount());
@@ -2096,7 +2096,7 @@ class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_OF_THE_DARK_SIDE });
     }
 
-    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (AuraEffect* powerOfTheDarkSide = GetCaster()->GetAuraEffect(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, EFFECT_0))
             AddPct(pctMod, powerOfTheDarkSide->GetAmount());
@@ -3094,7 +3094,7 @@ class spell_pri_shadow_word_death : public SpellScript
             && spellInfo->GetEffect(EFFECT_5).IsEffect(SPELL_EFFECT_DUMMY);
     }
 
-    void HandleDamageCalculation(Unit const* victim, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
+    void HandleDamageCalculation(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
     {
         if (victim->HealthBelowPct(GetEffectInfo(EFFECT_2).CalcValue(GetCaster())))
             AddPct(pctMod, GetEffectInfo(EFFECT_3).CalcValue(GetCaster()));

@@ -1282,7 +1282,7 @@ class spell_blood_council_shadow_prison : public AuraScript
 // 72999 - Shadow Prison
 class spell_blood_council_shadow_prison_damage : public SpellScript
 {
-    void CalculateDamage(Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
         if (Aura const* aur = victim->GetAura(GetSpellInfo()->Id))
             if (AuraEffect const* eff = aur->GetEffect(EFFECT_1))

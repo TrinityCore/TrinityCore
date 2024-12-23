@@ -620,6 +620,47 @@ WorldPacket const* LogoutResponse::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, GameModeData const& gameModeData)
+{
+    data << int32(gameModeData.Unknown_1107_0);
+    data << gameModeData.Guid;
+    data << uint8(gameModeData.GameMode);
+    data << int32(gameModeData.MapID);
+    data << uint8(gameModeData.Unknown_1107_1);
+    data << uint8(gameModeData.Unknown_1107_2);
+    data << uint8(gameModeData.Unknown_1107_3);
+    data << uint32(gameModeData.Customizations.size());
+    data << uint32(gameModeData.Unknown_1107_4.size());
+
+    for (ChrCustomizationChoice const& customization : gameModeData.Customizations)
+        data << customization;
+
+    for (ChrCustomizationChoice const& customization : gameModeData.Unknown_1107_4)
+        data << customization;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SwitchGameModeData const& switchGameModeData)
+{
+    data << Bits<1>(switchGameModeData.IsFastLogin);
+    data << switchGameModeData.Current;
+    data << switchGameModeData.New;
+
+    return data;
+}
+
+WorldPacket const* LogoutComplete::Write()
+{
+    _worldPacket << OptionalInit(SwitchGameMode);
+    _worldPacket.FlushBits();
+
+    if (SwitchGameMode)
+        _worldPacket << *SwitchGameMode;
+
+    return &_worldPacket;
+}
+
 void LoadingScreenNotify::Read()
 {
     _worldPacket >> MapID;

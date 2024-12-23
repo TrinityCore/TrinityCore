@@ -51,14 +51,18 @@ WorldPacket const* GMTicketCaseStatus::Write()
         _worldPacket << uint64(c.CharacterID);
         _worldPacket << int32(c.WaitTimeOverrideMinutes);
 
-        _worldPacket.WriteBits(c.Url.size(), 11);
-        _worldPacket.WriteBits(c.WaitTimeOverrideMessage.size(), 10);
+        _worldPacket << SizedString::BitsSize<11>(c.Url);
+        _worldPacket << SizedString::BitsSize<10>(c.WaitTimeOverrideMessage);
+        _worldPacket << SizedCString::BitsSize<24>(c.Title);
+        _worldPacket << SizedCString::BitsSize<24>(c.Description);
+        _worldPacket.FlushBits();
 
-        _worldPacket.WriteString(c.Url);
-        _worldPacket.WriteString(c.WaitTimeOverrideMessage);
+        _worldPacket << SizedString::Data(c.Url);
+        _worldPacket << SizedString::Data(c.WaitTimeOverrideMessage);
+        _worldPacket << SizedCString::Data(c.Title);
+        _worldPacket << SizedCString::Data(c.Description);
     }
 
-    _worldPacket.FlushBits();
     return &_worldPacket;
 }
 

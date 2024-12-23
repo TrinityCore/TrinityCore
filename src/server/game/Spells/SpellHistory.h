@@ -178,6 +178,8 @@ public:
     void PauseCooldowns();
     void ResumeCooldowns();
 
+    static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, Duration* cooldown, uint32* categoryId, Duration* categoryCooldown);
+
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
 
@@ -194,8 +196,6 @@ private:
     }
 
     void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection);
-
-    static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, Duration* cooldown, uint32* categoryId, Duration* categoryCooldown);
 
     Unit* _owner;
     CooldownStorageType _spellCooldowns;

@@ -603,12 +603,34 @@ namespace WorldPackets
             bool Instant = false;
         };
 
+        struct GameModeData
+        {
+            int32 Unknown_1107_0 = 0;
+            ObjectGuid Guid;
+            uint8 GameMode = 0;
+            int32 MapID = 0;
+            uint8 Unknown_1107_1 = 0;
+            uint8 Unknown_1107_2 = 0;
+            uint8 Unknown_1107_3 = 0;
+            Array<ChrCustomizationChoice, 250> Customizations;
+            Array<ChrCustomizationChoice, 250> Unknown_1107_4;
+        };
+
+        struct SwitchGameModeData
+        {
+            bool IsFastLogin = false;
+            GameModeData Current;
+            GameModeData New;
+        };
+
         class LogoutComplete final : public ServerPacket
         {
         public:
-            LogoutComplete() : ServerPacket(SMSG_LOGOUT_COMPLETE, 0) { }
+            LogoutComplete() : ServerPacket(SMSG_LOGOUT_COMPLETE, 1) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            std::unique_ptr<SwitchGameModeData> SwitchGameMode;
         };
 
         class LogoutCancel final : public ClientPacket

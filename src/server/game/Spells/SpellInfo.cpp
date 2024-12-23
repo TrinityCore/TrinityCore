@@ -1153,7 +1153,7 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 305 SPELL_EFFECT_305
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 306 SPELL_EFFECT_UPDATE_INTERACTIONS
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 306 SPELL_EFFECT_UPDATE_INTERACTIONS
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 307 SPELL_EFFECT_307
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 309 SPELL_EFFECT_PRELOAD_WORLD
@@ -1181,6 +1181,13 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 331 SPELL_EFFECT_331
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 332 SPELL_EFFECT_332
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 333 SPELL_EFFECT_333
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 334 SPELL_EFFECT_334
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 335 SPELL_EFFECT_335
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 336 SPELL_EFFECT_336
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 337 SPELL_EFFECT_337
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 338 SPELL_EFFECT_338
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 339 SPELL_EFFECT_UI_ACTION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 340 SPELL_EFFECT_340
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -3476,38 +3483,53 @@ void SpellInfo::_LoadImmunityInfo()
     }
 }
 
-void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets, Optional<SpellEffIndex> maxTargetsEffectValueHolder,
-    Optional<SpellEffIndex> numNonDiminishedTargetsEffectValueHolder)
+void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets,
+    Optional<uint32> maxTargetsValueHolderSpell, Optional<SpellEffIndex> maxTargetsValueHolderEffect,
+    Optional<uint32> numNonDiminishedTargetsValueHolderSpell, Optional<SpellEffIndex> numNonDiminishedTargetsValueHolderEffect)
 {
     SqrtDamageAndHealingDiminishing.MaxTargets = maxTargets;
     SqrtDamageAndHealingDiminishing.NumNonDiminishedTargets = numNonDiminishedTargets;
 
-    if (maxTargetsEffectValueHolder)
+    if (maxTargetsValueHolderEffect)
     {
-        if (maxTargetsEffectValueHolder < GetEffects().size())
+        SpellInfo const* maxTargetValueHolder = this;
+        if (maxTargetsValueHolderSpell)
+            maxTargetValueHolder = sSpellMgr->GetSpellInfo(*maxTargetsValueHolderSpell, Difficulty);
+
+        if (!maxTargetValueHolder)
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not exist", maxTargetsValueHolderSpell);
+        else if (maxTargetsValueHolderEffect >= maxTargetValueHolder->GetEffects().size())
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not have effect {}",
+                maxTargetValueHolder->Id, AsUnderlyingType(*maxTargetsValueHolderEffect));
+        else
         {
-            SpellEffectInfo const& valueHolder = GetEffect(*maxTargetsEffectValueHolder);
+            SpellEffectInfo const& valueHolder = maxTargetValueHolder->GetEffect(*maxTargetsValueHolderEffect);
             int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
             if (maxTargets != expectedValue)
                 TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
-                    Id, AsUnderlyingType(*maxTargetsEffectValueHolder), maxTargets, expectedValue);
+                    maxTargetValueHolder->Id, AsUnderlyingType(*maxTargetsValueHolderEffect), maxTargets, expectedValue);
         }
-        else
-            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not have effect {}", Id, AsUnderlyingType(*maxTargetsEffectValueHolder));
     }
 
-    if (numNonDiminishedTargetsEffectValueHolder)
+    if (numNonDiminishedTargetsValueHolderEffect)
     {
-        if (numNonDiminishedTargetsEffectValueHolder < GetEffects().size())
+        SpellInfo const* numNonDiminishedTargetsValueHolder = this;
+        if (numNonDiminishedTargetsValueHolderSpell)
+            numNonDiminishedTargetsValueHolder = sSpellMgr->GetSpellInfo(*numNonDiminishedTargetsValueHolderSpell, Difficulty);
+
+        if (!numNonDiminishedTargetsValueHolder)
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not exist", maxTargetsValueHolderSpell);
+        else if (numNonDiminishedTargetsValueHolderEffect >= numNonDiminishedTargetsValueHolder->GetEffects().size())
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not have effect {}",
+                numNonDiminishedTargetsValueHolder->Id, AsUnderlyingType(*maxTargetsValueHolderEffect));
+        else
         {
-            SpellEffectInfo const& valueHolder = GetEffect(*numNonDiminishedTargetsEffectValueHolder);
+            SpellEffectInfo const& valueHolder = numNonDiminishedTargetsValueHolder->GetEffect(*numNonDiminishedTargetsValueHolderEffect);
             int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
             if (numNonDiminishedTargets != expectedValue)
                 TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
-                    Id, AsUnderlyingType(*numNonDiminishedTargetsEffectValueHolder), numNonDiminishedTargets, expectedValue);
+                    numNonDiminishedTargetsValueHolder->Id, AsUnderlyingType(*numNonDiminishedTargetsValueHolderEffect), numNonDiminishedTargets, expectedValue);
         }
-        else
-            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not have effect {}", Id, AsUnderlyingType(*numNonDiminishedTargetsEffectValueHolder));
     }
 }
 
