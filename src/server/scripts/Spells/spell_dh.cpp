@@ -918,7 +918,7 @@ class spell_dh_shattered_destiny : public AuraScript
         return ValidateSpellInfo({ SPELL_DH_METAMORPHOSIS_TRANSFORM });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    void HandleProc(ProcEventInfo const& eventInfo)
     {
         Spell const* procSpell = eventInfo.GetProcSpell();
         if (!procSpell)
@@ -928,7 +928,6 @@ class spell_dh_shattered_destiny : public AuraScript
         if (!metamorphosis)
             return;
 
-        int32 _furySpent = 0;
         int32 _furyAmount = GetEffect(EFFECT_1)->GetAmount();
         _furySpent += procSpell->GetPowerTypeCostAmount(POWER_FURY).value_or(0);
 
@@ -943,6 +942,9 @@ class spell_dh_shattered_destiny : public AuraScript
     {
         OnProc += AuraProcFn(spell_dh_shattered_destiny::HandleProc);
     }
+
+private:
+    int32 _furySpent = 0;
 };
 
 // 208673 - Sigil of Chains
