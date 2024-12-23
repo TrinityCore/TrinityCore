@@ -826,6 +826,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoSpellSpecificAndAuraState();
         void LoadSpellInfoDiminishing();
         void LoadSpellInfoImmunities();
+        void LoadSpellInfoTargetCaps();
         void LoadSpellTotemModel();
 
     private:

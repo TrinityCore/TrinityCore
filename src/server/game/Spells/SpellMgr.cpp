@@ -5123,6 +5123,13 @@ void SpellMgr::LoadSpellInfoImmunities()
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo immunity infos in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
+void SpellMgr::LoadSpellInfoTargetCaps()
+{
+    uint32 oldMSTime = getMSTime();
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
 void SpellMgr::LoadPetFamilySpellsStore()
 {
     std::unordered_map<uint32, SpellLevelsEntry const*> levelsBySpell;
