@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -104,10 +105,10 @@ struct at_stormwind_keep_tides_of_war : AreaTriggerAI
 Position const VisionOfSailorsMemoryPosition = { -8384.131f, 324.383f, 148.443f, 1.559973f };
 
 // 4857 - Conversation
-class conversation_start_council_tides_of_war : public ConversationScript
+class conversation_start_council_tides_of_war : public ConversationAI
 {
 public:
-    conversation_start_council_tides_of_war() : ConversationScript("conversation_start_council_tides_of_war") { }
+    conversation_start_council_tides_of_war(Conversation* convo) : ConversationAI(convo) { }
 
     enum Events
     {
@@ -123,7 +124,7 @@ public:
         CONVO_LINE_JAINA_CREDIT     = 19486,
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* jainaObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true });
         if (!jainaObject)
@@ -133,21 +134,21 @@ public:
         if (!jainaClone)
             return;
 
-        conversation->AddActor(CONVO_ACTOR_JAINA, 3, jainaClone->GetGUID());
-        conversation->Start();
+        convo->AddActor(CONVO_ACTOR_JAINA, 3, jainaClone->GetGUID());
+        convo->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
 
-        if (Milliseconds const* jainaWalkStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_JAINA_WALK))
+        if (Milliseconds const* jainaWalkStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_JAINA_WALK))
             _events.ScheduleEvent(EVENT_JAINA_WALK, *jainaWalkStartTime);
 
-        _events.ScheduleEvent(EVENT_KILL_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_JAINA_CREDIT));
+        _events.ScheduleEvent(EVENT_KILL_CREDIT, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_JAINA_CREDIT));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -155,7 +156,7 @@ public:
         {
             case EVENT_JAINA_WALK:
             {
-                Creature* jainaClone = conversation->GetActorCreature(3);
+                Creature* jainaClone = convo->GetActorCreature(3);
                 if (!jainaClone)
                     break;
 
@@ -164,7 +165,7 @@ public:
             }
             case EVENT_KILL_CREDIT:
             {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*convo, convo->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     break;
 
@@ -422,10 +423,10 @@ private:
 };
 
 // 22025 - Conversation
-class conversation_quest_ancient_curses_accept : public ConversationScript
+class conversation_quest_ancient_curses_accept : public ConversationAI
 {
 public:
-    conversation_quest_ancient_curses_accept() : ConversationScript("conversation_quest_ancient_curses_accept") { }
+    conversation_quest_ancient_curses_accept(Conversation* convo) : ConversationAI(convo) { }
 
     enum AncientCursesConversationEvents
     {
@@ -439,7 +440,7 @@ public:
         CONVO_LINE_LYSANDER_START_PATH  = 60113,
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* arkonarinObject = GetClosestCreatureWithOptions(creator, 20.0f, { .CreatureId = NPC_ARKONARIN_STARSHADE, .IgnorePhases = true });
         Creature* lysanderObject = GetClosestCreatureWithOptions(creator, 20.0f, { .CreatureId = NPC_LYSANDER_STARSHADE, .IgnorePhases = true });
@@ -456,23 +457,23 @@ public:
         lysanderClone->SetWalk(true);
         lysanderClone->GetMotionMaster()->MovePoint(POINT_LYSANDER_STEP_TO_DOOR, LysanderWalkToTheDoor);
 
-        conversation->AddActor(CONVERSATION_ANCIENT_CURSES, 1, arkonarinClone->GetGUID());
-        conversation->AddActor(CONVERSATION_ANCIENT_CURSES, 2, lysanderClone->GetGUID());
-        conversation->Start();
+        convo->AddActor(CONVERSATION_ANCIENT_CURSES, 1, arkonarinClone->GetGUID());
+        convo->AddActor(CONVERSATION_ANCIENT_CURSES, 2, lysanderClone->GetGUID());
+        convo->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
 
-        if (Milliseconds const* lysanderPathStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_ARKONARIN_START_PATH))
+        if (Milliseconds const* lysanderPathStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_ARKONARIN_START_PATH))
             _events.ScheduleEvent(EVENT_ARKONARIN_START_PATH, *lysanderPathStartTime + 2s);
 
-        if (Milliseconds const* lysanderPathStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_LYSANDER_START_PATH))
+        if (Milliseconds const* lysanderPathStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_LYSANDER_START_PATH))
             _events.ScheduleEvent(EVENT_LYSANDER_START_PATH, *lysanderPathStartTime);
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -480,7 +481,7 @@ public:
         {
             case EVENT_ARKONARIN_START_PATH:
             {
-                Creature* arkonarinClone = conversation->GetActorCreature(1);
+                Creature* arkonarinClone = convo->GetActorCreature(1);
                 if (!arkonarinClone)
                     break;
 
@@ -489,7 +490,7 @@ public:
             }
             case EVENT_LYSANDER_START_PATH:
             {
-                Creature* lysanderClone = conversation->GetActorCreature(2);
+                Creature* lysanderClone = convo->GetActorCreature(2);
                 if (!lysanderClone)
                     break;
 
@@ -563,8 +564,8 @@ void AddSC_stormwind_city()
     RegisterCreatureAI(npc_lysande_starshade_ancient_curses);
 
     // Conversation
-    new conversation_start_council_tides_of_war();
-    new conversation_quest_ancient_curses_accept();
+    RegisterConversationAI(conversation_start_council_tides_of_war);
+    RegisterConversationAI(conversation_quest_ancient_curses_accept);
 
     // PlayerScript
     new player_conv_after_movie_tides_of_war();

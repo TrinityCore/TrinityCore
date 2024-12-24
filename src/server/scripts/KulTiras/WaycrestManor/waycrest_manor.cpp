@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "Creature.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -351,20 +352,20 @@ class spell_waycrest_manor_organ_missiles : public SpellScript
 // 267597 - Waycrest Manor - Waycrests Defeated (Alliance)
 // 7351 - Conversation
 // 7352 - Conversation
-class conversation_waycrest_manor_waycrests_defeated : public ConversationScript
+class conversation_waycrest_manor_waycrests_defeated : public ConversationAI
 {
 public:
-    conversation_waycrest_manor_waycrests_defeated() : ConversationScript("conversation_waycrest_manor_waycrests_defeated") { }
+    conversation_waycrest_manor_waycrests_defeated(Conversation* convo) : ConversationAI(convo) { }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
-        if (Milliseconds const* gorakTulMoveStartTimeAlliance = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_LUCILLE_WAYCREST))
+        if (Milliseconds const* gorakTulMoveStartTimeAlliance = convo->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_LUCILLE_WAYCREST))
             _events.ScheduleEvent(EVENT_GORAK_TUL_TRANSFORM, *gorakTulMoveStartTimeAlliance);
-        else if (Milliseconds const* gorakTulMoveStartTimeHorde = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_GORAK_TUL_HORDE))
+        else if (Milliseconds const* gorakTulMoveStartTimeHorde = convo->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_GORAK_TUL_HORDE))
             _events.ScheduleEvent(EVENT_GORAK_TUL_TRANSFORM, *gorakTulMoveStartTimeHorde + 3s);
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -372,7 +373,7 @@ public:
         {
             case EVENT_GORAK_TUL_TRANSFORM:
             {
-                Creature* gorakTul = conversation->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
+                Creature* gorakTul = convo->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
                 if (!gorakTul)
                     break;
 
@@ -382,7 +383,7 @@ public:
             }
             case EVENT_GORAK_TUL_MOVE:
             {
-                Creature* gorakTul = conversation->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
+                Creature* gorakTul = convo->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
                 if (!gorakTul)
                     break;
 
@@ -442,5 +443,5 @@ void AddSC_waycrest_manor()
     // Lord and Lady Waycrest outro
     RegisterAreaTriggerAI(at_waycrest_manor_organ_missiles);
     RegisterSpellScript(spell_waycrest_manor_organ_missiles);
-    new conversation_waycrest_manor_waycrests_defeated();
+    RegisterConversationAI(conversation_waycrest_manor_waycrests_defeated);
 }

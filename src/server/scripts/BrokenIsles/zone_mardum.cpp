@@ -20,6 +20,7 @@
 #include "CellImpl.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAIImpl.h"
 #include "EventProcessor.h"
 #include "GridNotifiersImpl.h"
@@ -376,10 +377,10 @@ struct npc_cyana_nightglaive_invasion_begins : public ScriptedAI
 };
 
 // 922 - The Invasion Begins
-class conversation_the_invasion_begins : public ConversationScript
+class conversation_the_invasion_begins : public ConversationAI
 {
 public:
-    conversation_the_invasion_begins() : ConversationScript("conversation_the_invasion_begins") { }
+    conversation_the_invasion_begins(Conversation* convo) : ConversationAI(convo) { }
 
     enum TheInvasionBeginsConversationData
     {
@@ -396,7 +397,7 @@ public:
         EVENT_ILLIDARI_START_PATH
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* kaynObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_KAYN_SUNFURY_INVASION_BEGINS, .IgnorePhases = true });
         Creature* jayceObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_JAYCE_DARKWEAVER_INVASION_BEGINS, .IgnorePhases = true });
@@ -423,38 +424,38 @@ public:
         allariaClone->SetAIAnimKitId(ANIM_DH_RUN_ALLARI);
         kaynClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
 
-        conversation->AddActor(CONVO_THE_INVASION_BEGINS, CONVO_ACTOR_IDX_KAYN, kaynClone->GetGUID());
-        conversation->AddActor(CONVO_THE_INVASION_BEGINS, CONVO_ACTOR_IDX_KORVAS, korvasClone->GetGUID());
-        conversation->Start();
+        convo->AddActor(CONVO_THE_INVASION_BEGINS, CONVO_ACTOR_IDX_KAYN, kaynClone->GetGUID());
+        convo->AddActor(CONVO_THE_INVASION_BEGINS, CONVO_ACTOR_IDX_KORVAS, korvasClone->GetGUID());
+        convo->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
 
-        if (Milliseconds const* illidariFacingLineStarted = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_TRIGGER_FACING))
+        if (Milliseconds const* illidariFacingLineStarted = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_TRIGGER_FACING))
             _events.ScheduleEvent(EVENT_ILLIDARI_FACE_PLAYERS, *illidariFacingLineStarted);
 
-        if (Milliseconds const* illidariStartPathLineStarted = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_START_PATH))
+        if (Milliseconds const* illidariStartPathLineStarted = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_START_PATH))
             _events.ScheduleEvent(EVENT_ILLIDARI_START_PATH, *illidariStartPathLineStarted);
     }
 
-    static void StartCloneChannel(ObjectGuid guid, Conversation* conversation)
+    void StartCloneChannel(ObjectGuid guid)
     {
-        Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+        Unit* privateObjectOwner = ObjectAccessor::GetUnit(*convo, convo->GetPrivateObjectOwner());
         if (!privateObjectOwner)
             return;
 
-        Creature* clone = ObjectAccessor::GetCreature(*conversation, guid);
+        Creature* clone = ObjectAccessor::GetCreature(*convo, guid);
         if (!clone)
             return;
 
         clone->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
     }
 
-    static void StartCloneMovement(ObjectGuid cloneGUID, uint32 pathId, uint32 animKit, Conversation* conversation)
+    void StartCloneMovement(ObjectGuid cloneGUID, uint32 pathId, uint32 animKit)
     {
-        Creature* clone = ObjectAccessor::GetCreature(*conversation, cloneGUID);
+        Creature* clone = ObjectAccessor::GetCreature(*convo, cloneGUID);
         if (!clone)
             return;
 
@@ -464,7 +465,7 @@ public:
             clone->SetAIAnimKitId(animKit);
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -472,21 +473,21 @@ public:
         {
             case EVENT_ILLIDARI_FACE_PLAYERS:
             {
-                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KAYN)->GetGUID(), conversation);
-                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), conversation);
-                StartCloneChannel(_jayceGUID, conversation);
-                StartCloneChannel(_allariGUID, conversation);
-                StartCloneChannel(_cyanaGUID, conversation);
-                StartCloneChannel(_sevisGUID, conversation);
+                StartCloneChannel(convo->GetActorUnit(CONVO_ACTOR_IDX_KAYN)->GetGUID());
+                StartCloneChannel(convo->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID());
+                StartCloneChannel(_jayceGUID);
+                StartCloneChannel(_allariGUID);
+                StartCloneChannel(_cyanaGUID);
+                StartCloneChannel(_sevisGUID);
                 break;
             }
             case EVENT_ILLIDARI_START_PATH:
             {
-                Creature* kaynClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_KAYN);
+                Creature* kaynClone = convo->GetActorCreature(CONVO_ACTOR_IDX_KAYN);
                 if (!kaynClone)
                     break;
 
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*convo, convo->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     return;
 
@@ -501,11 +502,11 @@ public:
                 kaynClone->SetSheath(SHEATH_STATE_MELEE);
                 kaynClone->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
 
-                StartCloneMovement(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), PATH_KORVAS_INVASION_BEGINS, ANIM_DH_RUN, conversation);
-                StartCloneMovement(_jayceGUID, PATH_JAYCE_INVASION_BEGINS, 0, conversation);
-                StartCloneMovement(_allariGUID, PATH_ALLARI_INVASION_BEGINS, ANIM_DH_RUN_ALLARI, conversation);
-                StartCloneMovement(_cyanaGUID, PATH_CYANA_INVASION_BEGINS, 0, conversation);
-                StartCloneMovement(_sevisGUID, PATH_SEVIS_INVASION_BEGINS, ANIM_DH_RUN, conversation);
+                StartCloneMovement(convo->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), PATH_KORVAS_INVASION_BEGINS, ANIM_DH_RUN);
+                StartCloneMovement(_jayceGUID, PATH_JAYCE_INVASION_BEGINS, 0);
+                StartCloneMovement(_allariGUID, PATH_ALLARI_INVASION_BEGINS, ANIM_DH_RUN_ALLARI);
+                StartCloneMovement(_cyanaGUID, PATH_CYANA_INVASION_BEGINS, 0);
+                StartCloneMovement(_sevisGUID, PATH_SEVIS_INVASION_BEGINS, ANIM_DH_RUN);
                 break;
             }
             default:
@@ -2002,7 +2003,7 @@ void AddSC_zone_mardum()
     new event_sevis_sacrifice_self();
 
     // Conversation
-    new conversation_the_invasion_begins();
+    RegisterConversationAI(conversation_the_invasion_begins);
 
     // Scene
     new scene_demonhunter_intro();

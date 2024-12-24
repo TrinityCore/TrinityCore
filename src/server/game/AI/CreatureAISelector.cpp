@@ -28,6 +28,9 @@
 
 #include "AreaTriggerAI.h"
 
+#include "Conversation.h"
+#include "ConversationAI.h"
+
 #include "ScriptMgr.h"
 
 namespace FactorySelector
@@ -186,5 +189,31 @@ namespace FactorySelector
         }
 
         return GetNullAreaTriggerAIScriptId();
+    }
+
+    static uint32 GetNullConversationAIScriptId()
+    {
+        return sObjectMgr->GetScriptId("NullConversationAI", false);
+    }
+
+    ConversationAI* SelectConversationAI(Conversation* convo)
+    {
+        if (ConversationAI* ai = sScriptMgr->GetConversationAI(convo))
+            return ai;
+        else
+            return new NullConversationAI(convo, GetNullConversationAIScriptId());
+    }
+
+    uint32 GetSelectedAIId(Conversation const* convo)
+    {
+        if (uint32 id = convo->GetScriptId())
+        {
+            if (sScriptMgr->CanCreateConversationAI(id))
+            {
+                return id;
+            }
+        }
+
+        return GetNullConversationAIScriptId();
     }
 }
