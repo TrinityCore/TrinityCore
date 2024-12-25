@@ -41,7 +41,7 @@ ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* typ
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
-    value = read<float>();
+    read(&value, 1);
     if (!std::isfinite(value))
         throw ByteBufferInvalidValueException("float", "infinity");
     return *this;
@@ -49,7 +49,7 @@ ByteBuffer& ByteBuffer::operator>>(float& value)
 
 ByteBuffer& ByteBuffer::operator>>(double& value)
 {
-    value = read<double>();
+    read(&value, 1);
     if (!std::isfinite(value))
         throw ByteBufferInvalidValueException("double", "infinity");
     return *this;

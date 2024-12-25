@@ -30,6 +30,8 @@ std::mutex TransactionTask::_deadlockLock;
 
 #define DEADLOCK_MAX_RETRY_TIME_MS 60000
 
+TransactionData::~TransactionData() = default;
+
 //- Append a raw ad-hoc query to the transaction
 void TransactionBase::Append(char const* sql)
 {

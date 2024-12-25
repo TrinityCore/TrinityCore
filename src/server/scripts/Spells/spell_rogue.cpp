@@ -406,7 +406,7 @@ class spell_rog_deadly_poison : public SpellScript
 // 32645 - Envenom
 class spell_rog_envenom : public SpellScript
 {
-    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
     {
         pctMod *= GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
 
@@ -423,7 +423,7 @@ class spell_rog_envenom : public SpellScript
 // 196819 - Eviscerate
 class spell_rog_eviscerate : public SpellScript
 {
-    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
     {
         pctMod *= GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
 

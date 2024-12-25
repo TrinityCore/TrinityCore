@@ -30,7 +30,7 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Quantity;
     _worldPacket >> Muid;
     _worldPacket >> Slot;
-    ItemType = _worldPacket.read<ItemVendorType, int32>();
+    _worldPacket >> As<int32>(ItemType);
     _worldPacket >> Item;
 }
 
@@ -378,15 +378,15 @@ void WorldPackets::Item::RemoveNewItem::Read()
 void WorldPackets::Item::ChangeBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
-    FlagToChange = _worldPacket.read<BagSlotFlags, uint32>();
-    On = _worldPacket.ReadBit();
+    _worldPacket >> As<uint32>(FlagToChange);
+    _worldPacket >> Bits<1>(On);
 }
 
 void WorldPackets::Item::ChangeBankBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
-    FlagToChange = _worldPacket.read<BagSlotFlags, uint32>();
-    On = _worldPacket.ReadBit();
+    _worldPacket >> As<uint32>(FlagToChange);
+    _worldPacket >> Bits<1>(On);
 }
 
 void WorldPackets::Item::SetBackpackAutosortDisabled::Read()
