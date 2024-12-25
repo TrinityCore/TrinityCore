@@ -23,7 +23,8 @@ WorldPacket const* WorldPackets::Pet::PetSpells::Write()
     _worldPacket << uint16(_CreatureFamily);
     _worldPacket << uint16(Specialization);
     _worldPacket << uint32(TimeLimit);
-    _worldPacket << uint16(CommandState | (Flag << 16));
+    _worldPacket << uint8(CommandState);
+    _worldPacket << uint8(Flag);
     _worldPacket << uint8(ReactState);
     _worldPacket.append(ActionButtons.data(), ActionButtons.size());
     _worldPacket << uint32(Actions.size());
@@ -204,7 +205,8 @@ WorldPacket const* WorldPackets::Pet::PetTameFailure::Write()
 WorldPacket const* WorldPackets::Pet::PetMode::Write()
 {
     _worldPacket << PetGUID;
-    _worldPacket << uint16(CommandState | Flag << 8);
+    _worldPacket << uint8(CommandState);
+    _worldPacket << uint8(Flag);
     _worldPacket << uint8(ReactState);
 
     return &_worldPacket;

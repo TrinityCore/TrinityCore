@@ -545,7 +545,7 @@ struct BroadcastTextEntry
     int32 LanguageID;
     int32 ConditionID;
     uint16 EmotesID;
-    uint8 Flags;
+    uint16 Flags;
     uint32 ChatBubbleDurationMs;
     int32 VoiceOverPriorityID;
     std::array<uint32, 2> SoundKitID;
@@ -1176,6 +1176,7 @@ struct CriteriaEntry
 
         // CriteriaType::CurrencyGained                             = 12
         // CriteriaType::ObtainAnyItemWithCurrencyValue             = 229
+        // CriteriaType::ReachRenownLevel                           = 261
         int32 CurrencyID;
 
         // CriteriaType::DieInInstance                              = 18
@@ -1332,6 +1333,9 @@ struct CriteriaEntry
 
         // CriteriaType::MythicPlusRatingAttained                   = 230
         int32 DungeonScore;
+
+        // CriteriaType::LearnTaxiNode                              = 262
+        int32 TaxiNodesID;
     } Asset;
     uint32 ModifierTreeId;
     int32 StartEvent;
@@ -2700,6 +2704,9 @@ struct LFGDungeonsEntry
     uint8 MinCountTank;
     uint8 MinCountHealer;
     uint8 MinCountDamage;
+    uint8 MaxPremadeCountTank;
+    uint8 MaxPremadeCountHealer;
+    uint8 MaxPremadeCountDamage;
     uint16 BonusReputationAmount;
     uint16 MentorItemLevel;
     uint8 MentorCharLevel;
@@ -2875,8 +2882,8 @@ struct MapChallengeModeEntry
 
 struct MapDifficultyEntry
 {
-    uint32 ID;
     LocalizedString Message;                                // m_message_lang (text showed when transfer to map failed)
+    uint32 ID;
     int32 DifficultyID;
     int32 LockID;
     uint8 ResetInterval;
@@ -3115,6 +3122,8 @@ struct PlayerConditionEntry
     uint32 ID;
     Trinity::RaceMask<int64> RaceMask;
     LocalizedString FailureDescription;
+    uint16 MinLevel;
+    uint16 MaxLevel;
     int32 ClassMask;
     uint32 SkillLogic;
     int32 LanguageID;
@@ -4748,6 +4757,8 @@ struct VignetteEntry
     int8 VignetteType;
     int32 RewardQuestID;
     int32 UiWidgetSetID;
+    int32 UiMapPinInfoID;
+    int8 ObjectiveType;
 
     EnumFlag<VignetteFlags> GetFlags() const { return static_cast<VignetteFlags>(Flags); }
     bool IsInfiniteAOI() const { return GetFlags().HasFlag(VignetteFlags::InfiniteAOI | VignetteFlags::ZoneInfiniteAOI); }

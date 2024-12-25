@@ -608,8 +608,8 @@ class TC_GAME_API SpellInfo
         void _LoadSpellDiminishInfo();
         void _LoadImmunityInfo();
         void _LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets,
-            Optional<SpellEffIndex> maxTargetsEffectValueHolder,
-            Optional<SpellEffIndex> numNonDiminishedTargetsEffectValueHolder);
+            Optional<uint32> maxTargetsValueHolderSpell, Optional<SpellEffIndex> maxTargetsValueHolderEffect,
+            Optional<uint32> numNonDiminishedTargetsValueHolderSpell, Optional<SpellEffIndex> numNonDiminishedTargetsValueHolderEffect);
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();
