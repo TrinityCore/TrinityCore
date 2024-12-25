@@ -708,7 +708,6 @@ class spell_dh_fiery_brand : public SpellScript
     }
 };
 
-
 // 206416 - First Blood
 class spell_dh_first_blood : public AuraScript
 {
