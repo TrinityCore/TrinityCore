@@ -913,7 +913,7 @@ public:
 // 388116 - Shattered Destiny
 class spell_dh_shattered_destiny : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_DH_METAMORPHOSIS_TRANSFORM })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 }, { spellInfo->Id, EFFECT_1 } });
