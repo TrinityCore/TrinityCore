@@ -64,7 +64,7 @@ class TC_GAME_API ConversationAI
         uint32 GetId() const { return _scriptId; }
 };
 
-class NullConversationAI : public ConversationAI
+class NullConversationAI final : public ConversationAI
 {
     public:
         using ConversationAI::ConversationAI;
