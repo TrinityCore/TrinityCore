@@ -98,6 +98,7 @@ enum DemonHunterSpells
     SPELL_DH_FELBLADE_PROC_VISUAL                  = 204497,
     SPELL_DH_FELBLADE_PROC1                        = 236167,
     SPELL_DH_FIERY_BRAND                           = 204021,
+    SPELL_DH_FIERY_BRAND_RANK_2                    = 320962,
     SPELL_DH_FIERY_BRAND_DMG_REDUCTION_DEBUFF      = 207744,
     SPELL_DH_FIERY_BRAND_DOT                       = 207771,
     SPELL_DH_FIRST_BLOOD                           = 206416,
@@ -363,7 +364,12 @@ class spell_dh_fiery_brand : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_FIERY_BRAND_DOT });
+        return ValidateSpellInfo({ SPELL_DH_FIERY_BRAND_DOT, SPELL_DH_FIERY_BRAND_RANK_2 });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_FIERY_BRAND_RANK_2);
     }
 
     void HandleDamage(SpellEffIndex /*effIndex*/)
