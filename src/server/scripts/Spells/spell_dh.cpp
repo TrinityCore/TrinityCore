@@ -1019,6 +1019,25 @@ class spell_dh_tactical_retreat : public SpellScript
     }
 };
 
+// 444931 - Unhindered Assault
+class spell_dh_unhindered_assault : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FELBLADE });
+    }
+
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_DH_FELBLADE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_unhindered_assault::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 198813 - Vengeful Retreat
 class spell_dh_vengeful_retreat_damage : public SpellScript
 {
@@ -1060,6 +1079,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
+    RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
