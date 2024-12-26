@@ -887,15 +887,6 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         }
     }
 
-    // Rage from Damage made (only from direct weapon damage)
-    if (attacker && cleanDamage && (cleanDamage->attackType == BASE_ATTACK || cleanDamage->attackType == OFF_ATTACK) && damagetype == DIRECT_DAMAGE && attacker != victim && attacker->GetPowerType() == POWER_RAGE)
-    {
-        uint32 rage = uint32(attacker->GetBaseAttackTime(cleanDamage->attackType) / 1000.f * 1.75f);
-        if (cleanDamage->attackType == OFF_ATTACK)
-            rage /= 2;
-        attacker->RewardRage(rage);
-    }
-
     if (!damageDone)
         return 0;
 
@@ -1319,6 +1310,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
     damageInfo->Blocked          = 0;
     damageInfo->HitInfo          = 0;
     damageInfo->TargetState      = 0;
+    damageInfo->RageGained       = 0;
 
     damageInfo->AttackType       = attackType;
     damageInfo->ProcAttacker     = PROC_FLAG_NONE;
@@ -2208,6 +2200,19 @@ void Unit::DoMeleeAttackIfReady()
     }
 }
 
+// Calculates the normalized rage amount per weapon swing
+static uint32 CalcMeleeAttackRageGain(Unit const* attacker, WeaponAttackType attType)
+{
+    if (!attacker || (attType != BASE_ATTACK && attType != OFF_ATTACK))
+        return 0;
+
+    uint32 rage = uint32(attacker->GetBaseAttackTime(attType) / 1000.f * 1.75f);
+    if (attType == OFF_ATTACK)
+        rage /= 2;
+
+    return rage;
+}
+
 void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extra)
 {
     if (HasUnitFlag(UNIT_FLAG_PACIFIED))
@@ -2273,6 +2278,16 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
                     damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
             }
 
+            // Rage reward
+            if (this != victim && damageInfo.HitOutCome != MELEE_HIT_MISS && GetPowerType() == POWER_RAGE)
+            {
+                if (uint32 rageReward = CalcMeleeAttackRageGain(this, attType))
+                {
+                    damageInfo.HitInfo |= HITINFO_RAGE_GAIN;
+                    damageInfo.RageGained = RewardRage(rageReward);
+                }
+            }
+
             SendAttackStateUpdate(&damageInfo);
 
             _lastDamagedTargetGuid = victim->GetGUID();
@@ -2293,7 +2308,7 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
             if (attType == OFF_ATTACK)
                 hitInfo |= HITINFO_OFFHAND;
 
-            SendAttackStateUpdate(hitInfo, victim, 0, GetMeleeDamageSchoolMask(), 0, 0, 0, VICTIMSTATE_HIT, 0);
+            SendAttackStateUpdate(hitInfo, victim, 0, GetMeleeDamageSchoolMask(), 0, 0, 0, VICTIMSTATE_HIT, 0, 0);
         }
     }
 }
@@ -5558,6 +5573,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 
     packet.VictimState = damageInfo->TargetState;
     packet.BlockAmount = damageInfo->Blocked;
+    packet.RageGained = damageInfo->RageGained;
 
     packet.LogData.Initialize(damageInfo->Attacker);
 
@@ -5568,7 +5584,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     SendCombatLogMessage(&packet);
 }
 
-void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)
+void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount, uint32 RageGained)
 {
     CalcDamageInfo dmgInfo;
     dmgInfo.HitInfo = HitInfo;
@@ -5581,6 +5597,7 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
     dmgInfo.Resist = Resist;
     dmgInfo.TargetState = TargetState;
     dmgInfo.Blocked = BlockedAmount;
+    dmgInfo.RageGained = RageGained;
     SendAttackStateUpdate(&dmgInfo);
 }
 
@@ -12767,7 +12784,7 @@ void Unit::UpdateHeight(float newZ)
 }
 
 // baseRage means damage taken when attacker = false
-void Unit::RewardRage(uint32 baseRage)
+int32 Unit::RewardRage(uint32 baseRage)
 {
     float addRage = baseRage;
 
@@ -12776,7 +12793,7 @@ void Unit::RewardRage(uint32 baseRage)
 
     addRage *= sWorld->getRate(RATE_POWER_RAGE_INCOME);
 
-    ModifyPower(POWER_RAGE, uint32(addRage * 10));
+    return ModifyPower(POWER_RAGE, uint32(addRage * 10), false);
 }
 
 void Unit::StopAttackFaction(uint32 faction_id)
