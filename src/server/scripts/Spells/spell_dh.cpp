@@ -512,6 +512,60 @@ class spell_dh_deflecting_spikes : public SpellScript
     }
 };
 
+struct spell_dh_demonic_impl
+{
+    static void HandleMetamorphosisSpec(Unit* target, uint32 spellId)
+    {
+        SpellInfo const* demonic = sSpellMgr->GetSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE);
+
+        if (!demonic)
+            return;
+
+        if (Aura* aura = target->GetAura(spellId))
+            aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
+        else if (Aura* aura = target->AddAura(spellId, target))
+            aura->SetDuration(demonic->GetEffect(EFFECT_0).CalcValue());
+    }
+};
+
+// Called by 212084 - Fel Devastation and 198013 - Eye Beam
+class spell_dh_demonic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_DEMONIC, SPELL_DH_METAMORPHOSIS_TRANSFORM, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DH_DEMONIC);
+    }
+
+    void HandleHavocMetamorphosis(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        spell_dh_demonic_impl::HandleMetamorphosisSpec(GetTarget(), SPELL_DH_METAMORPHOSIS_TRANSFORM);
+    }
+
+    void HandleVengeanceMetamorphosis(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        spell_dh_demonic_impl::HandleMetamorphosisSpec(GetTarget(), SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_DH_EYE_BEAM)
+            OnEffectRemove += AuraEffectRemoveFn(spell_dh_demonic::HandleHavocMetamorphosis, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        else
+            OnEffectRemove += AuraEffectRemoveFn(spell_dh_demonic::HandleVengeanceMetamorphosis, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 203720 - Demon Spikes
 class spell_dh_demon_spikes : public SpellScript
 {
@@ -1050,6 +1104,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
+    RegisterSpellScript(spell_dh_demonic);
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_fel_devastation);
