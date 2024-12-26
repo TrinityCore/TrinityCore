@@ -137,6 +137,7 @@ enum DemonHunterSpells
     SPELL_DH_METAMORPHOSIS_TRANSFORM               = 162264,
     SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM     = 187827,
     SPELL_DH_MOMENTUM                              = 208628,
+    SPELL_DH_MONSTER_RISING_AGILITY                = 452550,
     SPELL_DH_NEMESIS_ABERRATIONS                   = 208607,
     SPELL_DH_NEMESIS_BEASTS                        = 208608,
     SPELL_DH_NEMESIS_CRITTERS                      = 208609,
@@ -727,6 +728,32 @@ class spell_dh_furious_gaze : public AuraScript
     }
 };
 
+// 452414 - Monster Rising
+class spell_dh_monster_rising : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_MONSTER_RISING_AGILITY, SPELL_DH_METAMORPHOSIS_TRANSFORM, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_DH_METAMORPHOSIS_TRANSFORM) || target->HasAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM))
+            target->RemoveAurasDueToSpell(SPELL_DH_MONSTER_RISING_AGILITY);
+        else
+            target->CastSpell(target, SPELL_DH_MONSTER_RISING_AGILITY, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_monster_rising::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 188499 - Blade Dance
 // 210152 - Death Sweep
 class spell_dh_blade_dance : public SpellScript
@@ -1058,6 +1085,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_furious_gaze);
+    RegisterSpellScript(spell_dh_monster_rising);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
