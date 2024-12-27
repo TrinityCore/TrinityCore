@@ -2175,7 +2175,7 @@ static uint32 CalcMeleeAttackRageGain(Unit const* attacker, WeaponAttackType att
     if (!attacker || (attType != BASE_ATTACK && attType != OFF_ATTACK))
         return 0;
 
-    uint32 rage = uint32(attacker->GetBaseAttackTime(attType) / 1000.f * 1.75f);
+    uint32 rage = uint32(attacker->GetBaseAttackTime(attType) / 1000.f * 6.5f);
     if (attType == OFF_ATTACK)
         rage /= 2;
 
