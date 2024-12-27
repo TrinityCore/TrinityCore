@@ -31,6 +31,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 #include "Unit.h"
 
 enum DemonHunterSpells
@@ -116,6 +117,7 @@ enum DemonHunterSpells
     SPELL_DH_FURIOUS_GAZE                          = 343311,
     SPELL_DH_FURIOUS_GAZE_BUFF                     = 343312,
     SPELL_DH_FURIOUS_THROWS                        = 393029,
+    SPELL_DH_GLAIVE_TEMPEST                        = 342857,
     SPELL_DH_GLIDE                                 = 131347,
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
@@ -1039,6 +1041,35 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
     }
 };
 
+// 342817 - Glaive Tempest
+// ID - 21832
+struct at_dh_glaive_tempest : AreaTriggerAI
+{
+    at_dh_glaive_tempest(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        if (Unit* caster = at->GetCaster())
+            caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)));
+
+        _scheduler.Schedule(200ms, 250ms, [this](TaskContext task)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)));
+
+            task.Repeat(200ms, 250ms);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_chaos_strike);
@@ -1067,6 +1098,7 @@ void AddSC_demon_hunter_spell_scripts()
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>("areatrigger_dh_sigil_of_misery");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE>("areatrigger_dh_sigil_of_flame");
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
+    RegisterAreaTriggerAI(at_dh_glaive_tempest);
 
     // Havoc
 
