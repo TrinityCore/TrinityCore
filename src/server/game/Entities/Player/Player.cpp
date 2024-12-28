@@ -16548,6 +16548,20 @@ void Player::RemoveQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex)
         .ModifyValue(&UF::QuestLog::ObjectiveFlags), 1 << objectiveIndex);
 }
 
+bool Player::IsQuestCompletedBitSet(uint32 questId) const
+{
+    uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId);
+    if (!questBit)
+        return false;
+
+    uint32 fieldOffset = (questBit - 1) / QUESTS_COMPLETED_BITS_PER_BLOCK;
+    if (fieldOffset >= m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX].Values.size())
+        return false;
+
+    uint64 flag = UI64LIT(1) << ((questBit - 1) % QUESTS_COMPLETED_BITS_PER_BLOCK);
+    return (m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX].Values[fieldOffset] & flag) != 0;
+}
+
 void Player::SetQuestCompletedBit(uint32 questBit, bool completed)
 {
     if (!questBit)

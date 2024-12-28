@@ -1709,6 +1709,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetQuestSlotEndTime(uint16 slot, time_t endTime);
         void SetQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex);
         void RemoveQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex);
+        bool IsQuestCompletedBitSet(uint32 questId) const;
         void SetQuestCompletedBit(uint32 questBit, bool completed);
 
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const;
