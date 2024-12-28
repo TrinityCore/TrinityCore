@@ -936,7 +936,7 @@ void Creature::Heartbeat()
         _aggroGracePeriodExpired = true;
 
         // trigger MoveInLineOfSight
-        Trinity::CreatureAggroGraceNotifier notifier(*this);
+        Trinity::CreatureAggroGracePeriodExpiredNotifier notifier(*this);
         Cell::VisitAllObjects(this, notifier, GetVisibilityRange());
     }
 }

@@ -108,10 +108,10 @@ namespace Trinity
         void Visit(CreatureMapType &);
     };
 
-    struct TC_GAME_API CreatureAggroGraceNotifier
+    struct TC_GAME_API CreatureAggroGracePeriodExpiredNotifier
     {
         Creature& i_creature;
-        CreatureAggroGraceNotifier(Creature& c) : i_creature(c) { }
+        CreatureAggroGracePeriodExpiredNotifier(Creature& c) : i_creature(c) { }
         template<class T> void Visit(GridRefManager<T>&) { }
         void Visit(CreatureMapType&);
         void Visit(PlayerMapType&);

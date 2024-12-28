@@ -242,7 +242,7 @@ void AIRelocationNotifier::Visit(CreatureMapType &m)
     }
 }
 
-void CreatureAggroGraceNotifier::Visit(CreatureMapType& m)
+void CreatureAggroGracePeriodExpiredNotifier::Visit(CreatureMapType& m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -252,7 +252,7 @@ void CreatureAggroGraceNotifier::Visit(CreatureMapType& m)
     }
 }
 
-void CreatureAggroGraceNotifier::Visit(PlayerMapType& m)
+void CreatureAggroGracePeriodExpiredNotifier::Visit(PlayerMapType& m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
