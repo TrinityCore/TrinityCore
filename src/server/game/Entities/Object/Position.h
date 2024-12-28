@@ -102,6 +102,8 @@ public:
     Streamer<PackedXYZ> PositionPackedXYZStream() { return Streamer<PackedXYZ>(*this); }
     ConstStreamer<PackedXYZ> PositionPackedXYZStream() const { return ConstStreamer<PackedXYZ>(*this); }
 
+    void RelocatePositionByAngle(Position& pos, float dist, float angle, bool relative = false) const;
+
     bool IsPositionValid() const;
 
     constexpr float GetExactDist2dSq(const float x, const float y) const
