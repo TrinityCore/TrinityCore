@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -94,10 +95,10 @@ struct at_stormwind_keep_tides_of_war : AreaTriggerAI
 Position const VisionOfSailorsMemoryPosition = { -8384.131f, 324.383f, 148.443f, 1.559973f };
 
 // 4857 - Conversation
-class conversation_start_council_tides_of_war : public ConversationScript
+class conversation_start_council_tides_of_war : public ConversationAI
 {
 public:
-    conversation_start_council_tides_of_war() : ConversationScript("conversation_start_council_tides_of_war") { }
+    conversation_start_council_tides_of_war(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum Events
     {
@@ -113,7 +114,7 @@ public:
         CONVO_LINE_JAINA_CREDIT     = 19486,
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* jainaObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true });
         if (!jainaObject)
@@ -127,7 +128,7 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
@@ -137,7 +138,7 @@ public:
         _events.ScheduleEvent(EVENT_KILL_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_JAINA_CREDIT));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -332,7 +333,7 @@ void AddSC_stormwind_city()
     RegisterCreatureAI(npc_anduin_wrynn_nation_of_kultiras);
 
     // Conversation
-    new conversation_start_council_tides_of_war();
+    RegisterConversationAI(conversation_start_council_tides_of_war);
 
     // PlayerScript
     new player_conv_after_movie_tides_of_war();
