@@ -913,7 +913,7 @@ class TC_GAME_API ConversationScript : public ScriptObject
         ~ConversationScript();
 
         // Called when a ConversationAI object is needed for the conversation.
-        virtual ConversationAI* GetAI(Conversation* c) const;
+        virtual ConversationAI* GetAI(Conversation* convo) const;
 };
 
 class TC_GAME_API SceneScript : public ScriptObject

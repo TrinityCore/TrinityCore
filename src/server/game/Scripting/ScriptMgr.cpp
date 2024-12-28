@@ -3197,7 +3197,7 @@ ConversationScript::ConversationScript(char const* name)
 
 ConversationScript::~ConversationScript() = default;
 
-ConversationAI* ConversationScript::GetAI(Conversation* /*c*/) const
+ConversationAI* ConversationScript::GetAI(Conversation* /*convo*/) const
 {
     return nullptr;
 }

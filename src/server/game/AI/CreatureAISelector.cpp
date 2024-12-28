@@ -200,8 +200,8 @@ namespace FactorySelector
     {
         if (ConversationAI* ai = sScriptMgr->GetConversationAI(convo))
             return ai;
-        else
-            return new NullConversationAI(convo, GetNullConversationAIScriptId());
+
+        return new NullConversationAI(convo, GetNullConversationAIScriptId());
     }
 
     uint32 GetSelectedAIId(Conversation const* convo)
@@ -209,9 +209,7 @@ namespace FactorySelector
         if (uint32 id = convo->GetScriptId())
         {
             if (sScriptMgr->CanCreateConversationAI(id))
-            {
                 return id;
-            }
         }
 
         return GetNullConversationAIScriptId();
