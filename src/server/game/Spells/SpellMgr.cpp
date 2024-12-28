@@ -5074,7 +5074,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Fel Barrage
     ApplySpellFix({ 258925 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::NonPeriodicDamage;
+        spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::Moving;
     });
 
     for (SpellInfo const& s : mSpellInfoMap)
