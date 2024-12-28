@@ -2179,6 +2179,10 @@ static uint32 CalcMeleeAttackRageGain(Unit const* attacker, WeaponAttackType att
     if (attType == OFF_ATTACK)
         rage /= 2;
 
+    // Players below level 10 start with a 50% rage gain reduction that slowly diminishes
+    if (attacker->IsPlayer() && attacker->GetLevel() < 10)
+        rage -= (rage / 2.f) * (1.0f - (attacker->GetLevel() / 10.f));
+
     return rage;
 }
 
