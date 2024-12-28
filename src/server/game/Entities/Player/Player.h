@@ -1619,7 +1619,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void RemoveQuestSlotState(uint16 slot, uint32 state);
         void SetQuestSlotEndTime(uint16 slot, time_t endTime);
         bool IsQuestCompletedBitSet(uint32 questId) const;
-        void SetQuestCompletedBit(uint32 questBit, bool completed);
+        void SetQuestCompletedBit(uint32 questId, bool completed);
 
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const;
         void AreaExploredOrEventHappens(uint32 questId);
