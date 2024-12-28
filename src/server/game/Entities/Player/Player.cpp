@@ -15333,8 +15333,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     // make full db save
     SaveToDB(false);
 
-    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
-        SetQuestCompletedBit(questBit, true);
+    SetQuestCompletedBit(quest_id, true);
 
     if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
     {
@@ -15386,8 +15385,7 @@ void Player::SetRewardedQuest(uint32 quest_id)
     m_RewardedQuests.insert(quest_id);
     m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
 
-    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
-        SetQuestCompletedBit(questBit, true);
+    SetQuestCompletedBit(quest_id, true);
 }
 
 void Player::FailQuest(uint32 questId)
@@ -16087,8 +16085,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         m_RewardedQuestsSave[questId] = QUEST_FORCE_DELETE_SAVE_TYPE;
     }
 
-    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
-        SetQuestCompletedBit(questBit, false);
+    SetQuestCompletedBit(questId, false);
 
     // Remove seasonal quest also
     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
@@ -16562,8 +16559,9 @@ bool Player::IsQuestCompletedBitSet(uint32 questId) const
     return (m_activePlayerData->BitVectors->Values[PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX].Values[fieldOffset] & flag) != 0;
 }
 
-void Player::SetQuestCompletedBit(uint32 questBit, bool completed)
+void Player::SetQuestCompletedBit(uint32 questId, bool completed)
 {
+    uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId);
     if (!questBit)
         return;
 
@@ -19526,8 +19524,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
                 // instead add them separately from load daily/weekly/monthly/seasonal
                 if (!quest->IsDailyOrWeekly() && !quest->IsMonthly() && !quest->IsSeasonal())
-                    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
-                        SetQuestCompletedBit(questBit, true);
+                    SetQuestCompletedBit(quest_id, true);
 
                 for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
                     GetSession()->GetCollectionMgr()->AddItemAppearance(quest->RewardChoiceItemId[i]);
@@ -19579,8 +19576,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 continue;
 
             AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DailyQuestsCompleted)) = quest_id;
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
-                SetQuestCompletedBit(questBit, true);
+            SetQuestCompletedBit(quest_id, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadDailyQuestStatus: Loaded daily quest cooldown (QuestID: {}) for player '{}' ({})",
                 quest_id, GetName(), GetGUID().ToString());
@@ -19606,8 +19602,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_weeklyquests.insert(quest_id);
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
-                SetQuestCompletedBit(questBit, true);
+            SetQuestCompletedBit(quest_id, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadWeeklyQuestStatus: Loaded weekly quest cooldown (QuestID: {}) for player '{}' ({})",
                 quest_id, GetName(), GetGUID().ToString());
@@ -19635,8 +19630,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_seasonalquests[event_id][quest_id] = completedTime;
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
-                SetQuestCompletedBit(questBit, true);
+            SetQuestCompletedBit(quest_id, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadSeasonalQuestStatus: Loaded seasonal quest cooldown (QuestID: {}) for player '{}' ({})",
                 quest_id, GetName(), GetGUID().ToString());
@@ -19662,8 +19656,7 @@ void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_monthlyquests.insert(quest_id);
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
-                SetQuestCompletedBit(questBit, true);
+            SetQuestCompletedBit(quest_id, true);
 
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadMonthlyQuestStatus: Loaded monthly quest cooldown (QuestID: {}) for player '{}' ({})",
                 quest_id, GetName(), GetGUID().ToString());
@@ -25099,8 +25092,7 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
 void Player::DailyReset()
 {
     for (int32 questId : m_activePlayerData->DailyQuestsCompleted)
-        if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
-            SetQuestCompletedBit(questBit, false);
+        SetQuestCompletedBit(questId, false);
 
     WorldPackets::Quest::DailyQuestsReset dailyQuestsReset;
     dailyQuestsReset.Count = int32(m_activePlayerData->DailyQuestsCompleted.size());
@@ -25147,8 +25139,7 @@ void Player::ResetWeeklyQuestStatus()
         return;
 
     for (uint32 questId : m_weeklyquests)
-        if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
-            SetQuestCompletedBit(questBit, false);
+        SetQuestCompletedBit(questId, false);
 
     for (uint16 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
@@ -25192,8 +25183,7 @@ void Player::ResetSeasonalQuestStatus(uint16 event_id, time_t eventStartTime)
     {
         if (questItr->second < eventStartTime)
         {
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questItr->first))
-                SetQuestCompletedBit(questBit, false);
+            SetQuestCompletedBit(questItr->first, false);
 
             questItr = eventItr->second.erase(questItr);
         }
@@ -25212,8 +25202,7 @@ void Player::ResetMonthlyQuestStatus()
         return;
 
     for (uint32 questId : m_monthlyquests)
-        if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
-            SetQuestCompletedBit(questBit, false);
+        SetQuestCompletedBit(questId, false);
 
     m_monthlyquests.clear();
     // DB data deleted in caller
