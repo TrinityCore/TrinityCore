@@ -283,13 +283,18 @@ class spell_orator_krix_vizk_chains_of_oppression_periodic : public AuraScript
 
     void Tick(AuraEffect const* /*aurEff*/)
     {
-        GetCaster()->CastSpell(GetTarget(), SPELL_CHAINS_OF_OPPRESSION_DAMAGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
+        if (Unit* caster = GetCaster())
+        {
+            Unit* target = GetTarget();
 
-        GetTarget()->CastSpell(GetCaster(), SPELL_CHAINS_OF_OPPRESSION_CHARGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
+            caster->CastSpell(target, SPELL_CHAINS_OF_OPPRESSION_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
+
+            target->CastSpell(caster, SPELL_CHAINS_OF_OPPRESSION_CHARGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
+        }
     }
 
     void Register() override
@@ -309,10 +314,13 @@ class spell_orator_krix_vizk_shadows_of_doubt_periodic : public AuraScript
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
-            GetCaster()->CastSpell(GetTarget(), SPELL_DOUBT, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetAura()->GetCastId()
-        });
+        {
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(GetTarget(), SPELL_DOUBT, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .OriginalCastId = GetAura()->GetCastId()
+                });
+        }
     }
 
     void Register() override
@@ -331,17 +339,19 @@ class spell_orator_krix_vizk_vociferous_indoctrination_periodic : public AuraScr
 
     void Tick(AuraEffect const* /*aurEff*/)
     {
-        GetCaster()->CastSpell(GetTarget(), SPELL_VOCIFEROUS_INDOCTRINATION_DAMAGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetAura()->GetCastId()
-        });
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_VOCIFEROUS_INDOCTRINATION_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .OriginalCastId = GetAura()->GetCastId()
+            });
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetCaster(), SPELL_LINGERING_INFLUENCE_AREATRIGGER, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
+        if (Unit* caster = GetCaster())
+            GetTarget()->CastSpell(caster, SPELL_LINGERING_INFLUENCE_AREATRIGGER, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
 
         if (Creature* creatureTarget = GetTarget()->ToCreature())
             creatureTarget->SetPower(POWER_ENERGY, 0);
