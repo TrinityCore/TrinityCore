@@ -37,12 +37,12 @@ namespace FactorySelector
     TC_GAME_API MovementGenerator* SelectMovementGenerator(Unit* unit);
     TC_GAME_API GameObjectAI* SelectGameObjectAI(GameObject* go);
     TC_GAME_API AreaTriggerAI* SelectAreaTriggerAI(AreaTrigger* at);
-    TC_GAME_API ConversationAI* SelectConversationAI(Conversation* convo);
+    TC_GAME_API ConversationAI* SelectConversationAI(Conversation* conversation);
 
     TC_GAME_API uint32 GetSelectedAIId(Creature const* creature);
     TC_GAME_API uint32 GetSelectedAIId(GameObject const* go);
     TC_GAME_API uint32 GetSelectedAIId(AreaTrigger const* at);
-    TC_GAME_API uint32 GetSelectedAIId(Conversation const* convo);
+    TC_GAME_API uint32 GetSelectedAIId(Conversation const* conversation);
 }
 
 #endif

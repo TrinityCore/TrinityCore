@@ -355,13 +355,13 @@ class spell_waycrest_manor_organ_missiles : public SpellScript
 class conversation_waycrest_manor_waycrests_defeated : public ConversationAI
 {
 public:
-    conversation_waycrest_manor_waycrests_defeated(Conversation* convo) : ConversationAI(convo) { }
+    conversation_waycrest_manor_waycrests_defeated(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnStart() override
     {
-        if (Milliseconds const* gorakTulMoveStartTimeAlliance = convo->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_LUCILLE_WAYCREST))
+        if (Milliseconds const* gorakTulMoveStartTimeAlliance = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_LUCILLE_WAYCREST))
             _events.ScheduleEvent(EVENT_GORAK_TUL_TRANSFORM, *gorakTulMoveStartTimeAlliance);
-        else if (Milliseconds const* gorakTulMoveStartTimeHorde = convo->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_GORAK_TUL_HORDE))
+        else if (Milliseconds const* gorakTulMoveStartTimeHorde = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_GORAK_TUL_HORDE))
             _events.ScheduleEvent(EVENT_GORAK_TUL_TRANSFORM, *gorakTulMoveStartTimeHorde + 3s);
     }
 
@@ -373,7 +373,7 @@ public:
         {
             case EVENT_GORAK_TUL_TRANSFORM:
             {
-                Creature* gorakTul = convo->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
+                Creature* gorakTul = conversation->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
                 if (!gorakTul)
                     break;
 
@@ -383,7 +383,7 @@ public:
             }
             case EVENT_GORAK_TUL_MOVE:
             {
-                Creature* gorakTul = convo->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
+                Creature* gorakTul = conversation->GetActorCreature(CONVO_ACTOR_IDX_GORAK_TUL);
                 if (!gorakTul)
                     break;
 

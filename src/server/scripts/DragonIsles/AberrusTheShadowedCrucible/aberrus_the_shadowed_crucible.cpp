@@ -111,14 +111,14 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
 class conversation_aberrus_sabellian_intro : public ConversationAI
 {
 public:
-    conversation_aberrus_sabellian_intro(Conversation* convo) : ConversationAI(convo) { }
+    conversation_aberrus_sabellian_intro(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnStart() override
     {
-        if (Milliseconds const* sabellianMoveStartTime = convo->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_01))
+        if (Milliseconds const* sabellianMoveStartTime = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_01))
             _events.ScheduleEvent(EVENT_SABELLIAN_MOVE, *sabellianMoveStartTime);
 
-        if (Milliseconds const* sabellianHomeMoveStartTime = convo->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_02))
+        if (Milliseconds const* sabellianHomeMoveStartTime = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_02))
             _events.ScheduleEvent(EVENT_SABELLIAN_MOVE_HOME_POS, *sabellianHomeMoveStartTime + Seconds(2));
     }
 
@@ -130,7 +130,7 @@ public:
         {
             case EVENT_SABELLIAN_MOVE:
             {
-                Creature* sabellian = convo->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
+                Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
                 if (!sabellian)
                     break;
 
@@ -140,7 +140,7 @@ public:
             }
             case EVENT_SABELLIAN_MOVE_HOME_POS:
             {
-                Creature* sabellian = convo->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
+                Creature* sabellian = conversation->GetActorCreature(CONVO_ACTOR_IDX_SABELLIAN);
                 if (!sabellian)
                     break;
 
@@ -161,11 +161,11 @@ private:
 class conversation_aberrus_kazzara_intro : public ConversationAI
 {
 public:
-    conversation_aberrus_kazzara_intro(Conversation* convo) : ConversationAI(convo) { }
+    conversation_aberrus_kazzara_intro(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnStart() override
     {
-        _events.ScheduleEvent(EVENT_KAZZARA_INTRO, convo->GetLineEndTime(DEFAULT_LOCALE, CONVO_SARKARETH_LAST_LINE));
+        _events.ScheduleEvent(EVENT_KAZZARA_INTRO, conversation->GetLineEndTime(DEFAULT_LOCALE, CONVO_SARKARETH_LAST_LINE));
     }
 
     void OnUpdate(uint32 diff) override
@@ -176,9 +176,9 @@ public:
         {
             case EVENT_KAZZARA_INTRO:
             {
-                Creature* winglordDezran = convo->GetActorCreature(CONVO_ACTOR_IDX_WINGLORD_DEZRAN);
-                Creature* zskarn = convo->GetActorCreature(CONVO_ACTOR_IDX_ZSKARN);
-                Creature* sarkareth = convo->GetActorCreature(CONVO_ACTOR_IDX_SARKARETH);
+                Creature* winglordDezran = conversation->GetActorCreature(CONVO_ACTOR_IDX_WINGLORD_DEZRAN);
+                Creature* zskarn = conversation->GetActorCreature(CONVO_ACTOR_IDX_ZSKARN);
+                Creature* sarkareth = conversation->GetActorCreature(CONVO_ACTOR_IDX_SARKARETH);
 
                 if (!winglordDezran || !zskarn || !sarkareth)
                     return;
@@ -192,7 +192,7 @@ public:
                 zskarn->GetMotionMaster()->MovePath(PATH_ZSKARN, false);
                 zskarn->DespawnOrUnsummon(45s, Seconds::max()); // override respawn time to prevent instant respawn due to CREATURE_FLAG_EXTRA_DUNGEON_BOSS
 
-                if (InstanceScript* instance = convo->GetInstanceScript())
+                if (InstanceScript* instance = conversation->GetInstanceScript())
                 {
                     instance->SetData(DATA_KAZZARA_INTRO_STATE, DONE);
                     if (Creature* kazzara = instance->GetCreature(DATA_KAZZARA_THE_HELLFORGED))

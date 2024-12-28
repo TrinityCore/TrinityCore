@@ -30,7 +30,7 @@ class TC_GAME_API ConversationAI
         uint32 _scriptId;
 
     protected:
-        Conversation* const convo;
+        Conversation* const conversation;
     public:
         explicit ConversationAI(Conversation* c, uint32 scriptId = {});
         virtual ~ConversationAI();

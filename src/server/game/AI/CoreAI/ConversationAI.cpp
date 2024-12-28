@@ -18,7 +18,7 @@
 #include "Conversation.h"
 #include "ConversationAI.h"
 
-ConversationAI::ConversationAI(Conversation* c, uint32 scriptId) : _scriptId(scriptId ? scriptId : c->GetScriptId()), convo(c)
+ConversationAI::ConversationAI(Conversation* c, uint32 scriptId) : _scriptId(scriptId ? scriptId : c->GetScriptId()), conversation(c)
 {
     ASSERT(_scriptId, "A ConversationAI was initialized with an invalid scriptId!");
 }

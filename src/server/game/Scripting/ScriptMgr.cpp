@@ -486,20 +486,20 @@ class CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks
     }
 
     // Hook which is called before a conversation is swapped
-    static void UnloadResetScript(Conversation* convo)
+    static void UnloadResetScript(Conversation* conversation)
     {
         // Remove deletable events only,
         // otherwise it causes crashes with non-deletable spell events.
-        convo->m_Events.KillAllEvents(false);
+        conversation->m_Events.KillAllEvents(false);
 
-        convo->AI()->OnRemove();
+        conversation->AI()->OnRemove();
     }
 
-    static void UnloadDestroyScript(Conversation* convo)
+    static void UnloadDestroyScript(Conversation* conversation)
     {
-        convo->AI_Destroy();
+        conversation->AI_Destroy();
 
-        ASSERT(!convo->AI(),
+        ASSERT(!conversation->AI(),
             "The AI should be null here!");
     }
 
@@ -563,17 +563,17 @@ class CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks
     }
 
     // Hook which is called after a conversation was swapped
-    static void LoadInitializeScript(Conversation* convo)
+    static void LoadInitializeScript(Conversation* conversation)
     {
-        ASSERT(!convo->AI(),
+        ASSERT(!conversation->AI(),
             "The AI should be null here!");
 
-        convo->AI_Initialize();
+        conversation->AI_Initialize();
     }
 
-    static void LoadResetScript(Conversation* convo)
+    static void LoadResetScript(Conversation* conversation)
     {
-        convo->AI()->OnCreate(nullptr);
+        conversation->AI()->OnCreate(nullptr);
     }
 
     static Creature* GetEntityFromMap(std::common_type<Creature>, Map* map, ObjectGuid const& guid)
@@ -1803,12 +1803,12 @@ bool ScriptMgr::CanCreateConversationAI(uint32 scriptId) const
     return !!ScriptRegistry<ConversationScript>::Instance()->GetScriptById(scriptId);
 }
 
-ConversationAI* ScriptMgr::GetConversationAI(Conversation* convo)
+ConversationAI* ScriptMgr::GetConversationAI(Conversation* conversation)
 {
-    ASSERT(convo);
+    ASSERT(conversation);
 
-    GET_SCRIPT_RET(ConversationScript, convo->GetScriptId(), tmpscript, nullptr);
-    return tmpscript->GetAI(convo);
+    GET_SCRIPT_RET(ConversationScript, conversation->GetScriptId(), tmpscript, nullptr);
+    return tmpscript->GetAI(conversation);
 }
 
 Battlefield* ScriptMgr::CreateBattlefield(uint32 scriptId, Map* map)
@@ -3197,7 +3197,7 @@ ConversationScript::ConversationScript(char const* name)
 
 ConversationScript::~ConversationScript() = default;
 
-ConversationAI* ConversationScript::GetAI(Conversation* /*convo*/) const
+ConversationAI* ConversationScript::GetAI(Conversation* /*conversation*/) const
 {
     return nullptr;
 }

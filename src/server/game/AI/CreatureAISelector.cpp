@@ -196,17 +196,17 @@ namespace FactorySelector
         return sObjectMgr->GetScriptId("NullConversationAI", false);
     }
 
-    ConversationAI* SelectConversationAI(Conversation* convo)
+    ConversationAI* SelectConversationAI(Conversation* conversation)
     {
-        if (ConversationAI* ai = sScriptMgr->GetConversationAI(convo))
+        if (ConversationAI* ai = sScriptMgr->GetConversationAI(conversation))
             return ai;
 
-        return new NullConversationAI(convo, GetNullConversationAIScriptId());
+        return new NullConversationAI(conversation, GetNullConversationAIScriptId());
     }
 
-    uint32 GetSelectedAIId(Conversation const* convo)
+    uint32 GetSelectedAIId(Conversation const* conversation)
     {
-        if (uint32 id = convo->GetScriptId())
+        if (uint32 id = conversation->GetScriptId())
         {
             if (sScriptMgr->CanCreateConversationAI(id))
                 return id;

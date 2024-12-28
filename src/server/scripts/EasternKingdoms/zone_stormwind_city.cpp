@@ -108,7 +108,7 @@ Position const VisionOfSailorsMemoryPosition = { -8384.131f, 324.383f, 148.443f,
 class conversation_start_council_tides_of_war : public ConversationAI
 {
 public:
-    conversation_start_council_tides_of_war(Conversation* convo) : ConversationAI(convo) { }
+    conversation_start_council_tides_of_war(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum Events
     {
@@ -134,18 +134,18 @@ public:
         if (!jainaClone)
             return;
 
-        convo->AddActor(CONVO_ACTOR_JAINA, 3, jainaClone->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_JAINA, 3, jainaClone->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        if (Milliseconds const* jainaWalkStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_JAINA_WALK))
+        if (Milliseconds const* jainaWalkStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_JAINA_WALK))
             _events.ScheduleEvent(EVENT_JAINA_WALK, *jainaWalkStartTime);
 
-        _events.ScheduleEvent(EVENT_KILL_CREDIT, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_JAINA_CREDIT));
+        _events.ScheduleEvent(EVENT_KILL_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_JAINA_CREDIT));
     }
 
     void OnUpdate(uint32 diff) override
@@ -156,7 +156,7 @@ public:
         {
             case EVENT_JAINA_WALK:
             {
-                Creature* jainaClone = convo->GetActorCreature(3);
+                Creature* jainaClone = conversation->GetActorCreature(3);
                 if (!jainaClone)
                     break;
 
@@ -165,7 +165,7 @@ public:
             }
             case EVENT_KILL_CREDIT:
             {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*convo, convo->GetPrivateObjectOwner());
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     break;
 
@@ -426,7 +426,7 @@ private:
 class conversation_quest_ancient_curses_accept : public ConversationAI
 {
 public:
-    conversation_quest_ancient_curses_accept(Conversation* convo) : ConversationAI(convo) { }
+    conversation_quest_ancient_curses_accept(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum AncientCursesConversationEvents
     {
@@ -457,19 +457,19 @@ public:
         lysanderClone->SetWalk(true);
         lysanderClone->GetMotionMaster()->MovePoint(POINT_LYSANDER_STEP_TO_DOOR, LysanderWalkToTheDoor);
 
-        convo->AddActor(CONVERSATION_ANCIENT_CURSES, 1, arkonarinClone->GetGUID());
-        convo->AddActor(CONVERSATION_ANCIENT_CURSES, 2, lysanderClone->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVERSATION_ANCIENT_CURSES, 1, arkonarinClone->GetGUID());
+        conversation->AddActor(CONVERSATION_ANCIENT_CURSES, 2, lysanderClone->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        if (Milliseconds const* lysanderPathStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_ARKONARIN_START_PATH))
+        if (Milliseconds const* lysanderPathStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_ARKONARIN_START_PATH))
             _events.ScheduleEvent(EVENT_ARKONARIN_START_PATH, *lysanderPathStartTime + 2s);
 
-        if (Milliseconds const* lysanderPathStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_LYSANDER_START_PATH))
+        if (Milliseconds const* lysanderPathStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_LYSANDER_START_PATH))
             _events.ScheduleEvent(EVENT_LYSANDER_START_PATH, *lysanderPathStartTime);
     }
 
@@ -481,7 +481,7 @@ public:
         {
             case EVENT_ARKONARIN_START_PATH:
             {
-                Creature* arkonarinClone = convo->GetActorCreature(1);
+                Creature* arkonarinClone = conversation->GetActorCreature(1);
                 if (!arkonarinClone)
                     break;
 
@@ -490,7 +490,7 @@ public:
             }
             case EVENT_LYSANDER_START_PATH:
             {
-                Creature* lysanderClone = convo->GetActorCreature(2);
+                Creature* lysanderClone = conversation->GetActorCreature(2);
                 if (!lysanderClone)
                     break;
 

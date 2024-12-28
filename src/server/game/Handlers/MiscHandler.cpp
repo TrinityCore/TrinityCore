@@ -1165,8 +1165,8 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 
 void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted)
 {
-    if (Conversation* convo = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
-        convo->AI()->OnLineStarted(conversationLineStarted.LineID, _player);
+    if (Conversation* conversation = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
+        conversation->AI()->OnLineStarted(conversationLineStarted.LineID, _player);
 }
 
 void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& /*requestLatestSplashScreen*/)

@@ -266,7 +266,7 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
 class conversation_sylvanas_windrunner_introduction : public ConversationAI
 {
 public:
-    conversation_sylvanas_windrunner_introduction(Conversation* convo) : ConversationAI(convo) { }
+    conversation_sylvanas_windrunner_introduction(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {
@@ -279,7 +279,7 @@ public:
             return;
 
         instance->SetData(DATA_SYLVANAS_INTRODUCTION, IN_PROGRESS);
-        convo->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID, bolvar->GetGUID());
+        conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID, bolvar->GetGUID());
 
         _events.ScheduleEvent(EVENT_INTRODUCTION, 5s + 500ms);
     }
@@ -294,11 +294,11 @@ public:
 
         if (eventId)
         {
-            sylvanas = convo->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
+            sylvanas = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_SYLVANAS_ID);
             if (!sylvanas)
                 return;
 
-            bolvar = convo->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID);
+            bolvar = conversation->GetActorCreature(CONVERSATION_SYLVANAS_INTRODUCTION_ACTOR_BOLVAR_ID);
             if (!bolvar)
                 return;
         }

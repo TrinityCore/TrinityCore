@@ -31,7 +31,7 @@ public:
         CONVERSATION_LINE_PLAYER            = 32926
     };
 
-    conversation_allied_race_dk_defender_of_azeroth(Conversation* convo) : ConversationAI(convo) { }
+    conversation_allied_race_dk_defender_of_azeroth(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {

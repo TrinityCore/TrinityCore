@@ -913,7 +913,7 @@ class TC_GAME_API ConversationScript : public ScriptObject
         ~ConversationScript();
 
         // Called when a ConversationAI object is needed for the conversation.
-        virtual ConversationAI* GetAI(Conversation* convo) const;
+        virtual ConversationAI* GetAI(Conversation* conversation) const;
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -1272,7 +1272,7 @@ class TC_GAME_API ScriptMgr
     public: /* ConversationScript */
 
         bool CanCreateConversationAI(uint32 scriptId) const;
-        ConversationAI* GetConversationAI(Conversation* convo);
+        ConversationAI* GetConversationAI(Conversation* conversation);
 
     public: /* SceneScript */
 
@@ -1400,7 +1400,7 @@ class GenericConversationScript : public ConversationScript
 {
 public:
     GenericConversationScript(char const* name) : ConversationScript(name) {}
-    ConversationAI* GetAI(Conversation* convo) const override { return new AI(convo); }
+    ConversationAI* GetAI(Conversation* conversation) const override { return new AI(conversation); }
 };
 #define RegisterConversationAI(ai_name) new GenericConversationScript<ai_name>(#ai_name)
 

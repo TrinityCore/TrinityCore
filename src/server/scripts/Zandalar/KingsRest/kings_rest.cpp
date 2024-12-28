@@ -89,7 +89,7 @@ struct at_kings_rest_trigger_intro_event_with_zul : AreaTriggerAI
 class conversation_kings_rest_intro : public ConversationAI
 {
 public:
-    conversation_kings_rest_intro(Conversation* convo) : ConversationAI(convo) { }
+    conversation_kings_rest_intro(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum KingsRestIntroConversationData
     {
@@ -106,17 +106,17 @@ public:
 
     void OnCreate(Unit* /*creator*/) override
     {
-        TempSummon* shadowOfZul = convo->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulIntroSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN);
+        TempSummon* shadowOfZul = conversation->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulIntroSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN);
         if (!shadowOfZul)
             return;
 
-        convo->AddActor(CONVO_ACTOR_INTRO_ZUL, 0, shadowOfZul->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_INTRO_ZUL, 0, shadowOfZul->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        _events.ScheduleEvent(EVENT_ZUL_OPEN_INTRO_DOOR, convo->GetLineEndTime(DEFAULT_LOCALE, CONVO_LINE_INTRO_DOOR));
+        _events.ScheduleEvent(EVENT_ZUL_OPEN_INTRO_DOOR, conversation->GetLineEndTime(DEFAULT_LOCALE, CONVO_LINE_INTRO_DOOR));
     }
 
     void OnUpdate(uint32 diff) override
@@ -127,14 +127,14 @@ public:
         {
             case EVENT_ZUL_OPEN_INTRO_DOOR:
             {
-                Creature* shadowOfZul = convo->GetActorCreature(0);
+                Creature* shadowOfZul = conversation->GetActorCreature(0);
                 if (!shadowOfZul)
                     break;
 
                 shadowOfZul->RemoveAurasDueToSpell(SPELL_ZUL_SHADOWFORM);
                 _events.ScheduleEvent(EVENT_ZUL_INTRO_DESPAWN, 1s);
 
-                if (InstanceScript* instance = convo->GetInstanceScript())
+                if (InstanceScript* instance = conversation->GetInstanceScript())
                 {
                     if (GameObject* gate = instance->GetGameObject(DATA_KINGS_REST_INTRO_DOOR))
                     {
@@ -146,7 +146,7 @@ public:
             }
             case EVENT_ZUL_INTRO_DESPAWN:
             {
-                Creature* shadowOfZul = convo->GetActorCreature(0);
+                Creature* shadowOfZul = conversation->GetActorCreature(0);
                 if (!shadowOfZul)
                     break;
 

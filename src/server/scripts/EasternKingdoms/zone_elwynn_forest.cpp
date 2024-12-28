@@ -473,7 +473,7 @@ struct at_human_heritage_lions_pride_inn_basement_enter : AreaTriggerAI
 class conversation_an_unlikely_informant : public ConversationAI
 {
 public:
-    conversation_an_unlikely_informant(Conversation* convo) : ConversationAI(convo) { }
+    conversation_an_unlikely_informant(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {
@@ -491,25 +491,25 @@ public:
         vanessaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         vanessaClone->SetVirtualItem(1, vanessaClone->GetVirtualItemId(0)); // add 2nd dagger to hands
 
-        convo->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_MATHIAS, mathiasClone->GetGUID());
-        convo->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_VANESSA, vanessaClone->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_MATHIAS, mathiasClone->GetGUID());
+        conversation->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_VANESSA, vanessaClone->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        if (Milliseconds const* teleportLineStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_VANESSA_TELEPORT))
+        if (Milliseconds const* teleportLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_VANESSA_TELEPORT))
             _events.ScheduleEvent(EVENT_VANESSA_TELEPORT, *teleportLineStartTime);
 
-        if (Milliseconds const* movementStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_VANESSA_MOVEMENT))
+        if (Milliseconds const* movementStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_VANESSA_MOVEMENT))
             _events.ScheduleEvent(EVENT_VANESSA_MOVE, *movementStartTime);
 
-        if (Milliseconds const* questCreditStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_MATHIAS_QUEST_CREDIT))
+        if (Milliseconds const* questCreditStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_MATHIAS_QUEST_CREDIT))
             _events.ScheduleEvent(EVENT_MATHIAS_QUEST_CREDIT, *questCreditStartTime);
 
-        _events.ScheduleEvent(EVENT_MATHIAS_CLONE_DESPAWN, convo->GetLastLineEndTime(privateOwnerLocale));
+        _events.ScheduleEvent(EVENT_MATHIAS_CLONE_DESPAWN, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
 
     void OnUpdate(uint32 diff) override
@@ -520,11 +520,11 @@ public:
         {
             case EVENT_VANESSA_TELEPORT:
             {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*convo, convo->GetPrivateObjectOwner());
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     break;
 
-                Creature* vanessaClone = convo->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
                 if (!vanessaClone)
                     break;
 
@@ -536,7 +536,7 @@ public:
             }
             case EVENT_VANESSA_MOVE:
             {
-                Creature* vanessaClone = convo->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
                 if (!vanessaClone)
                     break;
 
@@ -547,15 +547,15 @@ public:
             }
             case EVENT_MATHIAS_QUEST_CREDIT:
             {
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*convo, convo->GetPrivateObjectOwner());
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     break;
 
-                Creature* vanessaClone = convo->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
                 if (!vanessaClone)
                     break;
 
-                Creature* mathiasClone = convo->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS);
                 if (!mathiasClone)
                     break;
 
@@ -566,7 +566,7 @@ public:
             }
             case EVENT_MATHIAS_CLONE_DESPAWN:
             {
-                Creature* mathiasClone = convo->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS);
                 if (!mathiasClone)
                     break;
 
@@ -586,7 +586,7 @@ private:
 class conversation_the_new_classington_estate : public ConversationAI
 {
 public:
-    conversation_the_new_classington_estate(Conversation* convo) : ConversationAI(convo) { }
+    conversation_the_new_classington_estate(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {
@@ -604,23 +604,23 @@ public:
         vanessaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         vanessaClone->SetVirtualItem(1, vanessaClone->GetVirtualItemId(0)); // add 2nd dagger to hands
 
-        convo->AddActor(CONVO_THE_NEW_CLASSINGTON_ESTATE, CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE, mathiasClone->GetGUID());
-        convo->AddActor(CONVO_THE_NEW_CLASSINGTON_ESTATE, CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE, vanessaClone->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_THE_NEW_CLASSINGTON_ESTATE, CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE, mathiasClone->GetGUID());
+        conversation->AddActor(CONVO_THE_NEW_CLASSINGTON_ESTATE, CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE, vanessaClone->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        _events.ScheduleEvent(EVENT_VANESSA_START_WALK, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_VANESSA_START_WALK));
+        _events.ScheduleEvent(EVENT_VANESSA_START_WALK, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_VANESSA_START_WALK));
 
-        if (Milliseconds const* facingLineStartTime = convo->GetLineStartTime(privateOwnerLocale, CONVO_LINE_HANDLE_CLONE_FACING))
+        if (Milliseconds const* facingLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_HANDLE_CLONE_FACING))
             _events.ScheduleEvent(EVENT_MATHIAS_SET_FACING, *facingLineStartTime);
 
-        _events.ScheduleEvent(EVENT_VANESSA_SET_FACING, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_HANDLE_CLONE_FACING));
+        _events.ScheduleEvent(EVENT_VANESSA_SET_FACING, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_HANDLE_CLONE_FACING));
 
-        _events.ScheduleEvent(EVENT_MATHIAS_CLONE_DESPAWN, convo->GetLastLineEndTime(privateOwnerLocale));
+        _events.ScheduleEvent(EVENT_MATHIAS_CLONE_DESPAWN, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
 
     void OnUpdate(uint32 diff) override
@@ -631,11 +631,11 @@ public:
         {
             case EVENT_VANESSA_START_WALK:
             {
-                Creature* vanessaClone = convo->GetActorCreature(CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE);
                 if (!vanessaClone)
                     break;
 
-                Creature* mathiasClone = convo->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
                 if (!mathiasClone)
                     break;
 
@@ -647,11 +647,11 @@ public:
             }
             case EVENT_MATHIAS_SET_FACING:
             {
-                Creature* vanessaClone = convo->GetActorCreature(CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE);
                 if (!vanessaClone)
                     break;
 
-                Creature* mathiasClone = convo->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
                 if (!mathiasClone)
                     break;
 
@@ -661,11 +661,11 @@ public:
             }
             case EVENT_VANESSA_SET_FACING:
             {
-                Creature* vanessaClone = convo->GetActorCreature(CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA_CLASSINGTON_ESTATE);
                 if (!vanessaClone)
                     break;
 
-                Creature* mathiasClone = convo->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
                 if (!mathiasClone)
                     break;
 
@@ -674,7 +674,7 @@ public:
             }
             case EVENT_MATHIAS_CLONE_DESPAWN:
             {
-                Creature* mathiasClone = convo->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS_CLASSINGTON_ESTATE);
                 if (!mathiasClone)
                     break;
 

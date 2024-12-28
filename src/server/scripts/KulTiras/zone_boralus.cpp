@@ -142,7 +142,7 @@ struct npc_taelia_get_your_bearings : public ScriptedAI
 class conversation_boralus_hub_tour_00 : public ConversationAI
 {
 public:
-    conversation_boralus_hub_tour_00(Conversation* convo) : ConversationAI(convo) { }
+    conversation_boralus_hub_tour_00(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {
@@ -150,8 +150,8 @@ public:
         if (!kultiranGuard)
             return;
 
-        convo->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
+        conversation->Start();
     }
 };
 
@@ -178,7 +178,7 @@ struct at_boralus_get_your_bearings : AreaTriggerAI
 class conversation_boralus_hub_tour : public ConversationAI
 {
 public:
-    conversation_boralus_hub_tour(Conversation* convo) : ConversationAI(convo) { }
+    conversation_boralus_hub_tour(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum ConversationFerryData
     {
@@ -197,15 +197,15 @@ public:
         kultiranGuard->GetMotionMaster()->Clear();
         kultiranGuard->GetMotionMaster()->MovePoint(POINT_KULTIRAN_GUARD, GetGuardMovePosition());
 
-        convo->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        _events.ScheduleEvent(EVENT_TAELIA_CREDIT, convo->GetLastLineEndTime(privateOwnerLocale));
+        _events.ScheduleEvent(EVENT_TAELIA_CREDIT, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
 
     void OnUpdate(uint32 diff) override
@@ -216,7 +216,7 @@ public:
         {
             case EVENT_TAELIA_CREDIT:
             {
-                Player* player = ObjectAccessor::GetPlayer(*convo, convo->GetPrivateObjectOwner());
+                Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
                 if (!player)
                     break;
 
@@ -242,7 +242,7 @@ Position const TaeliaFerryPos = { 1039.5955f, -598.00653f, 1.458778f };
 class conversation_boralus_hub_tour_ferry : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_ferry(Conversation* convo) : conversation_boralus_hub_tour(convo) { }
+    conversation_boralus_hub_tour_ferry(Conversation* conversation) : conversation_boralus_hub_tour(conversation) { }
 
     Position const& GetGuardMovePosition()
     {
@@ -261,7 +261,7 @@ Position const TaeliaBankPos = { 1118.7385f, -622.4115f, 17.76035f };
 class conversation_boralus_hub_tour_counting_house : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_counting_house(Conversation* convo) : conversation_boralus_hub_tour(convo) { }
+    conversation_boralus_hub_tour_counting_house(Conversation* conversation) : conversation_boralus_hub_tour(conversation) { }
 
     Position const& GetGuardMovePosition()
     {
@@ -280,7 +280,7 @@ Position const TaeliaInnPos = { 1177.39f, -587.682f, 31.557224f };
 class conversation_boralus_hub_tour_harbor_inn : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_harbor_inn(Conversation* convo) : conversation_boralus_hub_tour(convo) { }
+    conversation_boralus_hub_tour_harbor_inn(Conversation* conversation) : conversation_boralus_hub_tour(conversation) { }
 
     Position const& GetGuardMovePosition()
     {
@@ -299,7 +299,7 @@ Position const TaeliaFlightMasterPos = { 1149.82f, -471.071f, 30.503826f };
 class conversation_boralus_hub_tour_flight_master : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_flight_master(Conversation* convo) : conversation_boralus_hub_tour(convo) {}
+    conversation_boralus_hub_tour_flight_master(Conversation* conversation) : conversation_boralus_hub_tour(conversation) {}
 
     Position const& GetGuardMovePosition()
     {
@@ -316,7 +316,7 @@ public:
 class conversation_boralus_accept_old_knight : public ConversationAI
 {
 public:
-    conversation_boralus_accept_old_knight(Conversation* convo) : ConversationAI(convo) { }
+    conversation_boralus_accept_old_knight(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {
@@ -324,8 +324,8 @@ public:
         if (!kultiranGuard)
             return;
 
-        convo->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
+        conversation->Start();
     }
 };
 
@@ -348,7 +348,7 @@ struct at_boralus_old_knight_enter_harbormasters_office : AreaTriggerAI
 class conversation_boralus_enter_harbormaster_office : public ConversationAI
 {
 public:
-    conversation_boralus_enter_harbormaster_office(Conversation* convo) : ConversationAI(convo) { }
+    conversation_boralus_enter_harbormaster_office(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {
@@ -359,8 +359,8 @@ public:
         kultiranGuard->GetMotionMaster()->Clear();
         kultiranGuard->GetMotionMaster()->MovePath(PATH_KULTIRAN_GUARD_ENTER_OFFICE, false);
 
-        convo->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_KULTIRAN_GUARD, 0, kultiranGuard->GetGUID());
+        conversation->Start();
     }
 };
 
@@ -432,7 +432,7 @@ Position const GreyguardTwoOfficePos = { 1042.359f, -467.738f, 8.386f, 6.04665f 
 class conversation_boralus_cyrus_meets_genn : public ConversationAI
 {
 public:
-    conversation_boralus_cyrus_meets_genn(Conversation* convo) : ConversationAI(convo) { }
+    conversation_boralus_cyrus_meets_genn(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum OldKnightsConversationData
     {
@@ -467,15 +467,15 @@ public:
         greyguardOneClone->GetMotionMaster()->MovePath(PATH_GREYGUARD_ONE_AFTER_SCENE_OFFICE, false);
         greyguardTwoClone->GetMotionMaster()->MovePath(PATH_GREYGUARD_TWO_AFTER_SCENE_OFFICE, false);
 
-        convo->AddActor(CONVO_ACTOR_CYRUS_CRESTFAL, 0, cyrusClone->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_CYRUS_CRESTFAL, 0, cyrusClone->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        _events.ScheduleEvent(EVENT_OLD_KNIGHTS_CLONE_DESPAWN, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_AND_GENN_DESPAWN));
+        _events.ScheduleEvent(EVENT_OLD_KNIGHTS_CLONE_DESPAWN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_AND_GENN_DESPAWN));
     }
 
     void OnUpdate(uint32 diff) override
@@ -486,15 +486,15 @@ public:
         {
             case EVENT_OLD_KNIGHTS_CLONE_DESPAWN:
             {
-                Creature* cyrusClone = convo->GetActorCreature(0);
+                Creature* cyrusClone = conversation->GetActorCreature(0);
                 if (!cyrusClone)
                     break;
 
-                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*convo, convo->GetPrivateObjectOwner());
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     return;
 
-                if (Creature* gennClone = ObjectAccessor::GetCreature(*convo, _gennCloneGUID))
+                if (Creature* gennClone = ObjectAccessor::GetCreature(*conversation, _gennCloneGUID))
                     gennClone->DespawnOrUnsummon();
 
                 cyrusClone->DespawnOrUnsummon();
@@ -536,7 +536,7 @@ Position const CyrusStaticOfficePos = { 1071.428f, -486.312f, 9.783f, 3.4995f };
 class conversation_cyrus_crestfall_shaking_hands : public ConversationAI
 {
 public:
-    conversation_cyrus_crestfall_shaking_hands(Conversation* convo) : ConversationAI(convo) { }
+    conversation_cyrus_crestfall_shaking_hands(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum ShakingHandsConversationData
     {
@@ -566,18 +566,18 @@ public:
 
         cyrusClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
 
-        convo->AddActor(CONVO_ACTOR_CYRUS_CRESTFAL, 1, cyrusClone->GetGUID());
-        convo->Start();
+        conversation->AddActor(CONVO_ACTOR_CYRUS_CRESTFAL, 1, cyrusClone->GetGUID());
+        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = convo->GetPrivateObjectOwnerLocale();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        _events.ScheduleEvent(EVENT_CYRUS_START_WALK_TO_FIRE, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_START_WALK_TO_FIRE));
-        _events.ScheduleEvent(EVENT_CYRUS_CHANGE_FACING_GENN, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_CHANGE_FACING_GENN));
-        _events.ScheduleEvent(EVENT_CYRUS_MOVE_BACK_TO_GENN, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_MOVE_BACK_TO_GENN));
-        _events.ScheduleEvent(EVENT_CYRUS_DESPAWN_CLONE_OFFICE, convo->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_DESPAWN_CLONE_OFFICE));
+        _events.ScheduleEvent(EVENT_CYRUS_START_WALK_TO_FIRE, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_START_WALK_TO_FIRE));
+        _events.ScheduleEvent(EVENT_CYRUS_CHANGE_FACING_GENN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_CHANGE_FACING_GENN));
+        _events.ScheduleEvent(EVENT_CYRUS_MOVE_BACK_TO_GENN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_MOVE_BACK_TO_GENN));
+        _events.ScheduleEvent(EVENT_CYRUS_DESPAWN_CLONE_OFFICE, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_DESPAWN_CLONE_OFFICE));
     }
 
     void OnUpdate(uint32 diff) override
@@ -588,7 +588,7 @@ public:
         {
             case EVENT_CYRUS_START_WALK_TO_FIRE:
             {
-                Creature* cyrusClone = convo->GetActorCreature(1);
+                Creature* cyrusClone = conversation->GetActorCreature(1);
                 if (!cyrusClone)
                     break;
 
@@ -598,7 +598,7 @@ public:
             }
             case EVENT_CYRUS_CHANGE_FACING_GENN:
             {
-                Creature* cyrusClone = convo->GetActorCreature(1);
+                Creature* cyrusClone = conversation->GetActorCreature(1);
                 if (!cyrusClone)
                     break;
 
@@ -607,11 +607,11 @@ public:
             }
             case EVENT_CYRUS_MOVE_BACK_TO_GENN:
             {
-                Creature* cyrusClone = convo->GetActorCreature(1);
+                Creature* cyrusClone = conversation->GetActorCreature(1);
                 if (!cyrusClone)
                     break;
 
-                Player* privateObjectOwner = ObjectAccessor::GetPlayer(*convo, convo->GetPrivateObjectOwner());
+                Player* privateObjectOwner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
                     return;
 
@@ -622,7 +622,7 @@ public:
             }
             case EVENT_CYRUS_DESPAWN_CLONE_OFFICE:
             {
-                Creature* cyrusClone = convo->GetActorCreature(1);
+                Creature* cyrusClone = conversation->GetActorCreature(1);
                 if (!cyrusClone)
                     break;
 
