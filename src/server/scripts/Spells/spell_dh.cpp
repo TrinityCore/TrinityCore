@@ -557,6 +557,26 @@ class spell_dh_eye_beam : public AuraScript
     }
 };
 
+// 258925 - Fel Barrage
+class spell_dh_fel_barrage : public AuraScript
+{
+    void HandlePeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST).SetOriginalCastId(GetAura()->GetCastId()));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_fel_barrage::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 212084 - Fel Devastation
 class spell_dh_fel_devastation : public AuraScript
 {
@@ -1052,6 +1072,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_deflecting_spikes);
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScript(spell_dh_eye_beam);
+    RegisterSpellScript(spell_dh_fel_barrage);
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
     RegisterSpellScript(spell_dh_felblade);
