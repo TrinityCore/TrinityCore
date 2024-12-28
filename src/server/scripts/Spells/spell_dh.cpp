@@ -727,6 +727,39 @@ class spell_dh_furious_gaze : public AuraScript
     }
 };
 
+// 388118 - Know Your Enemy
+class spell_dh_know_your_enemy : public AuraScript
+{
+    bool Load() override
+    {
+        return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) || !spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS))
+            return false;
+
+        return true;
+    }
+
+    void UpdatePeriodic(AuraEffect* aurEff)
+    {
+        AuraEffect* bonus = GetAura()->GetEffect(EFFECT_0);
+        if (!bonus)
+            return;
+
+        float critChanceDone = GetCaster()->SpellCritChanceDone(nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+        int32 amount = CalculatePct(critChanceDone, aurEff->GetAmount());
+        bonus->ChangeAmount(amount);
+    }
+
+    void Register() override
+    {
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dh_know_your_enemy::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 188499 - Blade Dance
 // 210152 - Death Sweep
 class spell_dh_blade_dance : public SpellScript
@@ -1058,6 +1091,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_furious_gaze);
+    RegisterSpellScript(spell_dh_know_your_enemy);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
