@@ -241,7 +241,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
             return 0min;
 
         rapidjson::Document doc;
-        doc.Parse(logonRequest->device_id());
+        doc.Parse(logonRequest->device_id().c_str(), logonRequest->device_id().length());
         if (doc.HasParseError())
             return 0min;
 

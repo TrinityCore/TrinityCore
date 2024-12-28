@@ -563,12 +563,22 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+enum class FindCreatureAliveState : uint8
+{
+    Alive               = 0, // includes feign death
+    Dead                = 1, // excludes feign death
+    EffectivelyAlive    = 2, // excludes feign death
+    EffectivelyDead     = 3, // includes feign death
+
+    Max
+};
+
 struct FindCreatureOptions
 {
     Optional<uint32> CreatureId;
     Optional<std::string_view> StringId;
 
-    Optional<bool> IsAlive;
+    Optional<FindCreatureAliveState> IsAlive;
     Optional<bool> IsInCombat;
     Optional<bool> IsSummon;
 

@@ -536,6 +536,7 @@ struct CalcDamageInfo
     uint32 Blocked;
     uint32 HitInfo;
     uint32 TargetState;
+    uint32 RageGained;
 
     // Helpers
     WeaponAttackType AttackType; //
@@ -1112,7 +1113,7 @@ class TC_GAME_API Unit : public WorldObject
         void DeMorph();
 
         void SendAttackStateUpdate(CalcDamageInfo* damageInfo);
-        void SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
+        void SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount, uint32 RageGained);
         void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
@@ -1765,7 +1766,7 @@ class TC_GAME_API Unit : public WorldObject
 
         float GetHoverOffset() const { return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? *m_unitData->HoverHeight : 0.0f; }
 
-        void RewardRage(uint32 baseRage);
+        int32 RewardRage(uint32 baseRage);
 
         virtual float GetFollowAngle() const { return static_cast<float>(M_PI/2); }
 
