@@ -17,6 +17,7 @@
 
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -37,17 +38,17 @@ enum PreciousGemsData
 };
 
 // 25586 - Conversation
-class conversation_natalia_pearces_accept_precious_gems : public ConversationScript
+class conversation_natalia_pearces_accept_precious_gems : public ConversationAI
 {
 public:
-    conversation_natalia_pearces_accept_precious_gems() : ConversationScript("conversation_natalia_pearces_accept_precious_gems") { }
+    conversation_natalia_pearces_accept_precious_gems(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum ConversationPreciousGemsIntro
     {
         EVENT_NATALIA_START_INTRO_PATH  = 1
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* nataliaObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_NATALIA_PEARCES_FREYWOLD, .IgnorePhases = true });
         if (!nataliaObject)
@@ -63,45 +64,30 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        _events.ScheduleEvent(EVENT_NATALIA_START_INTRO_PATH, conversation->GetLastLineEndTime(privateOwnerLocale));
-    }
-
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
-    {
-        _events.Update(diff);
-
-        switch (_events.ExecuteEvent())
-        {
-        case EVENT_NATALIA_START_INTRO_PATH:
+        conversation->m_Events.AddEvent([this]()
         {
             Creature* nataliaClone = conversation->GetActorCreature(0);
             if (!nataliaClone)
-                break;
+                return;
 
             nataliaClone->GetMotionMaster()->MovePath(PATH_NATALIA_CLONE_FREYWOLD, false);
-            break;
-        }
-        default:
-            break;
-        }
+        }, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
-private:
-    EventMap _events;
 };
 
 constexpr Position NataliaSpawnPos = { 568.539f, -1205.899f, 2.48101f, 1.82973f };
 
 // 25590 - Conversation
-class conversation_natalia_pearces_complete_precious_gems : public ConversationScript
+class conversation_natalia_pearces_complete_precious_gems : public ConversationAI
 {
 public:
-    conversation_natalia_pearces_complete_precious_gems() : ConversationScript("conversation_natalia_pearces_complete_precious_gems") { }
+    conversation_natalia_pearces_complete_precious_gems(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* nataliaObject = GetClosestCreatureWithOptions(creator, 60.0f, { .CreatureId = NPC_NATALIA_PEARCES_INSIDE_BASALTEOUS, .IgnorePhases = true });
         if (!nataliaObject)
@@ -123,6 +109,6 @@ public:
 void AddSC_zone_isle_of_dorn()
 {
     // Conversation
-    new conversation_natalia_pearces_accept_precious_gems();
-    new conversation_natalia_pearces_complete_precious_gems();
+    RegisterConversationAI(conversation_natalia_pearces_accept_precious_gems);
+    RegisterConversationAI(conversation_natalia_pearces_complete_precious_gems);
 }
