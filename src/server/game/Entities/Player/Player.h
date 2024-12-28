@@ -156,6 +156,7 @@ enum PlayerDataFlagConstants
     PLAYER_DATA_FLAG_ACCOUNT_COMBINED_QUESTS_INDEX          = 6,
     PLAYER_DATA_FLAG_ACCOUNT_COMBINED_QUEST_REWARDS_INDEX   = 7,
     PLAYER_DATA_FLAG_CHARACTER_CONTENTPUSH_INDEX            = 8,
+    PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX        = 9,
 };
 
 enum SpellModType : uint8
@@ -1708,7 +1709,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetQuestSlotEndTime(uint16 slot, time_t endTime);
         void SetQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex);
         void RemoveQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex);
-        void SetQuestCompletedBit(uint32 questBit, bool completed);
+        bool IsQuestCompletedBitSet(uint32 questId) const;
+        void SetQuestCompletedBit(uint32 questId, bool completed);
 
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const;
         void AreaExploredOrEventHappens(uint32 questId);

@@ -1113,6 +1113,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player co
             {
                 WorldPackets::Loot::LootItemData& lootItem = packet.Items.emplace_back();
                 lootItem.LootListID = item.LootListId;
+                lootItem.Type = item.type;
                 lootItem.UIType = *uiType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);

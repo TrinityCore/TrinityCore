@@ -4659,8 +4659,8 @@ void ObjectMgr::LoadQuests()
     }
 
     // Load `quest_visual_effect` join table with quest_objectives because visual effects are based on objective ID (core stores objectives by their index in quest)
-    //                                   0     1     2          3        4
-    result = WorldDatabase.Query("SELECT v.ID, o.ID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
+    //                                           0            1    2          3        4
+    result = WorldDatabase.Query("SELECT v.ID AS vID, o.ID AS oID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
 
     if (!result)
     {

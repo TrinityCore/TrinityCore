@@ -93,10 +93,10 @@ class TC_GAME_API WorldSocket : public Socket<WorldSocket>
     static std::string const ClientConnectionInitialize;
     static uint32 const MinSizeForCompression;
 
-    static uint8 const AuthCheckSeed[16];
-    static uint8 const SessionKeySeed[16];
-    static uint8 const ContinuedSessionSeed[16];
-    static uint8 const EncryptionKeySeed[16];
+    static std::array<uint8, 32> const AuthCheckSeed;
+    static std::array<uint8, 32> const SessionKeySeed;
+    static std::array<uint8, 32> const ContinuedSessionSeed;
+    static std::array<uint8, 32> const EncryptionKeySeed;
 
     typedef Socket<WorldSocket> BaseSocket;
 
@@ -157,10 +157,10 @@ private:
     ConnectionType _type;
     uint64 _key;
 
-    std::array<uint8, 16> _serverChallenge;
+    std::array<uint8, 32> _serverChallenge;
     WorldPacketCrypt _authCrypt;
     SessionKey _sessionKey;
-    std::array<uint8, 16> _encryptKey;
+    std::array<uint8, 32> _encryptKey;
 
     TimePoint _LastPingTime;
     uint32 _OverSpeedPings;

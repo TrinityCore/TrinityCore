@@ -440,6 +440,7 @@ class TC_GAME_API Spell
         void EffectCreateTraitTreeConfig();
         void EffectChangeActiveCombatTraitConfig();
         void EffectTeleportGraveyard();
+        void EffectUpdateInteractions();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -832,6 +833,7 @@ class TC_GAME_API Spell
             int32 AuraBasePoints[MAX_SPELL_EFFECTS] = { };
             bool Positive = true;
             UnitAura* HitAura = nullptr;
+            ProcFlagsHit ProcHitMask = { };
 
         private:
             Unit* _spellHitTarget = nullptr; // changed for example by reflect
@@ -908,8 +910,8 @@ class TC_GAME_API Spell
         void CallScriptAfterHitHandlers();
     public:
         void CallScriptCalcCritChanceHandlers(Unit const* victim, float& chance);
-        void CallScriptCalcDamageHandlers(Unit* victim, int32& damage, int32& flatMod, float& pctMod);
-        void CallScriptCalcHealingHandlers(Unit* victim, int32& healing, int32& flatMod, float& pctMod);
+        void CallScriptCalcDamageHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damage, int32& flatMod, float& pctMod);
+        void CallScriptCalcHealingHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& healing, int32& flatMod, float& pctMod);
     protected:
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);

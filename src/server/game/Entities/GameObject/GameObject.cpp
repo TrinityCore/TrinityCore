@@ -2108,17 +2108,6 @@ bool GameObject::IsTransport() const
     return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT;
 }
 
-// is Dynamic transport = non-stop Transport
-bool GameObject::IsDynTransport() const
-{
-    // If something is marked as a transport, don't transmit an out of range packet for it.
-    GameObjectTemplate const* gInfo = GetGOInfo();
-    if (!gInfo)
-        return false;
-
-    return gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_TRANSPORT;
-}
-
 bool GameObject::IsDestructibleBuilding() const
 {
     GameObjectTemplate const* gInfo = GetGOInfo();
