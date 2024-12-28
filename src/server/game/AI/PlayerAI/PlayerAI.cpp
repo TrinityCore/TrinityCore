@@ -950,7 +950,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                 case SPEC_SHAMAN_ELEMENTAL:
                     if (Unit* victim = me->GetVictim())
                     {
-                        if (victim->GetAuraOfRankedSpell(SPELL_FLAME_SHOCK, GetGUID()))
+                        if (victim->GetAuraOfRankedSpell(SPELL_FLAME_SHOCK, me->GetGUID()))
                             VerifyAndPushSpellCast(spells, SPELL_LAVA_BURST, TARGET_VICTIM, 5);
                         else
                             VerifyAndPushSpellCast(spells, SPELL_FLAME_SHOCK, TARGET_VICTIM, 3);
