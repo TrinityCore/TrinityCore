@@ -9214,7 +9214,7 @@ void Player::SendLoot(Loot& loot, bool aeLooting)
     SendDirectMessage(packet.Write());
 
     // add 'this' player as one of the players that are looting 'loot'
-    loot.OnLootOpened(GetMap(), GetGUID());
+    loot.OnLootOpened(GetMap(), this);
     m_AELootView[loot.GetGUID()] = &loot;
 
     if (loot.loot_type == LOOT_CORPSE && !loot.GetOwnerGUID().IsItem())
@@ -26707,6 +26707,9 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
         }
         case LootItemType::Currency:
             ModifyCurrency(item->itemid, item->count, CurrencyGainSource::Loot);
+            break;
+        case LootItemType::TrackingQuest:
+            // nothing to do, already handled
             break;
     }
 
