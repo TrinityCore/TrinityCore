@@ -2435,7 +2435,7 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
 
                 me->SetFacingToObject(owner);
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 _events.ScheduleEvent(EVENT_COMBAT_CHECK_PLAYER, 1s);
 
                 OnReadyPointReached();
@@ -2508,13 +2508,13 @@ struct npc_sparring_partner_combat_training : public ScriptedAI
                         me->SetFacingToObject(owner);
 
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     break;
                 }
                 case EVENT_COMBAT_TRAINING_END:
                     // Used by all classes
                     me->SetImmuneToPC(true);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     me->RemoveAllAuras();
                     if (Unit* owner = me->GetDemonCreator())
                     {
@@ -2554,7 +2554,7 @@ struct npc_sparring_partner_enhanced_combat_training_warrior : public npc_sparri
     {
         _slamCounter = 0;
         me->SetImmuneToPC(true);
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(true);
         player->GetSpellHistory()->ResetCharges(CHARGE_CATEGORY_CHARGE_SPELL);
         me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
         me->CastSpell(me, SPELL_RANGED_ROOT_DNT);
@@ -2913,7 +2913,7 @@ struct npc_sparring_partner_enhanced_combat_training_priest : public npc_sparrin
                 {
                     StartConversationWithPlayer(CONVERSATION_SHADOW_WORD_PAIN_PRE_COMBAT_PRIEST);
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     _secondaryCheck = false;
                 }
@@ -2971,7 +2971,7 @@ struct npc_sparring_partner_enhanced_combat_training_shaman : public npc_sparrin
             case EVENT_COMBAT_TRAINING_AGGRO_CHECK_SHAMAN:
                 me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_SHAMAN);
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 _secondaryCheck = true;
                 break;
             default:
@@ -3010,7 +3010,7 @@ struct npc_sparring_partner_enhanced_combat_training_shaman : public npc_sparrin
             {
                 StartConversationWithPlayer(CONVERSATION_PRIMAL_STRIKE_QUEST_CREDIT_SHAMAN);
                 me->SetImmuneToPC(true);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_SHAMAN, 3s);
             }
         }
@@ -3064,7 +3064,7 @@ struct npc_sparring_partner_enhanced_combat_training_mage : public npc_sparring_
             case EVENT_COMBAT_TRAINING_AGGRO_CHECK_MAGE:
                 me->CastSpell(me, SPELL_AGGRO_RADIUS_CHECK_DNT_WARRIOR_MAGE);
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 _secondaryCheck = true;
                 break;
             default:
@@ -3092,7 +3092,7 @@ struct npc_sparring_partner_enhanced_combat_training_mage : public npc_sparring_
                 {
                     StartConversationWithPlayer(CONVERSATION_FIRE_BLAST_QUEST_CREDIT_MAGE);
                     me->SetImmuneToPC(true);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     _events.ScheduleEvent(EVENT_COMBAT_TRAINING_RESET_MAGE, 4s);
                 }
             }
@@ -3180,7 +3180,7 @@ struct npc_sparring_partner_enhanced_combat_training_warlock : public npc_sparri
                 {
                     StartConversationWithPlayer(CONVERSATION_CORRUPTION_CAST_PRE_COMBAT_WARLOCK);
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     _secondaryCheck = false;
                 }
@@ -3296,7 +3296,7 @@ struct npc_sparring_partner_enhanced_combat_training_druid : public npc_sparring
                 {
                     StartConversationWithPlayer(CONVERSATION_MOONFIRE_CAST_PRE_COMBAT_DRUID);
                     me->SetImmuneToPC(false);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->RemoveAura(SPELL_RANGED_ROOT_DNT);
                     _hitByMoonfire = true;
                 }

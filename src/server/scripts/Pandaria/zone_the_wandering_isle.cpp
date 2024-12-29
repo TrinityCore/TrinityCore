@@ -106,7 +106,7 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
             }
 
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
-            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->CombatStop();
 
             _scheduler.Schedule(1s, [this](TaskContext /*task*/)

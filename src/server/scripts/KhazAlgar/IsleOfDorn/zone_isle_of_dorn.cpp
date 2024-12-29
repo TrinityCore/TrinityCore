@@ -41,7 +41,7 @@ enum PreciousGemsData
 class conversation_natalia_pearces_accept_precious_gems : public ConversationAI
 {
 public:
-    conversation_natalia_pearces_accept_precious_gems(Conversation* conversation) : ConversationAI(conversation) { }
+    using ConversationAI::ConversationAI;
 
     enum ConversationPreciousGemsIntro
     {
@@ -68,7 +68,7 @@ public:
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        conversation->m_Events.AddEvent([this]()
+        conversation->m_Events.AddEvent([conversation = conversation]()
         {
             Creature* nataliaClone = conversation->GetActorCreature(0);
             if (!nataliaClone)
@@ -85,7 +85,7 @@ constexpr Position NataliaSpawnPos = { 568.539f, -1205.899f, 2.48101f, 1.82973f 
 class conversation_natalia_pearces_complete_precious_gems : public ConversationAI
 {
 public:
-    conversation_natalia_pearces_complete_precious_gems(Conversation* conversation) : ConversationAI(conversation) { }
+    using ConversationAI::ConversationAI;
 
     void OnCreate(Unit* creator) override
     {
@@ -98,7 +98,7 @@ public:
             return;
 
         nataliaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
-        nataliaClone->SetUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+        nataliaClone->SetUninteractible(true);
         nataliaClone->GetMotionMaster()->MovePath(PATH_NATALIA_CLONE_BASALTEOUS_CAVE, false);
 
         conversation->AddActor(CONVO_ACTOR_NATALIA_BASALTEOUS_CAVE, 0, nataliaClone->GetGUID());
