@@ -727,6 +727,40 @@ class spell_dh_furious_gaze : public AuraScript
     }
 };
 
+// 209258 - Last Resort
+class spell_dh_last_resort : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_UNCONTAINED_FEL, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& /*dmgInfo*/, uint32& absorbAmount)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_DH_UNCONTAINED_FEL))
+        {
+            absorbAmount = 0;
+            return;
+        }
+
+        PreventDefaultAction();
+
+        CastSpellExtraArgs castArgs = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD;
+
+        target->CastSpell(target, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM, castArgs);
+        target->CastSpell(target, SPELL_DH_UNCONTAINED_FEL, castArgs);
+
+        target->SetHealth(target->CountPctFromMaxHealth(GetEffectInfo(EFFECT_1).CalcValue(target)));
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_dh_last_resort::HandleAbsorb, EFFECT_0);
+    }
+};
+
 // 188499 - Blade Dance
 // 210152 - Death Sweep
 class spell_dh_blade_dance : public SpellScript
@@ -1058,6 +1092,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_furious_gaze);
+    RegisterSpellScript(spell_dh_last_resort);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
