@@ -914,6 +914,51 @@ class spell_dh_glide_timer : public AuraScript
     }
 };
 
+// 388116 - Shattered Destiny
+class spell_dh_shattered_destiny : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_METAMORPHOSIS_TRANSFORM })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura()
+            && spellInfo->GetEffect(EFFECT_1).IsAura();
+    }
+
+    bool CheckFurySpent(ProcEventInfo const& eventInfo)
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        if (!eventInfo.GetActor()->HasAura(SPELL_DH_METAMORPHOSIS_TRANSFORM))
+            return false;
+
+        _furySpent += procSpell->GetPowerTypeCostAmount(POWER_FURY).value_or(0);
+        return _furySpent >= GetEffect(EFFECT_1)->GetAmount();
+    }
+
+    void HandleProc(ProcEventInfo const& /*eventInfo*/)
+    {
+        Aura* metamorphosis = GetTarget()->GetAura(SPELL_DH_METAMORPHOSIS_TRANSFORM);
+        if (!metamorphosis)
+            return;
+
+        int32 requiredFuryAmount = GetEffect(EFFECT_1)->GetAmount();
+        metamorphosis->SetDuration(metamorphosis->GetDuration() + _furySpent / requiredFuryAmount * GetEffect(EFFECT_0)->GetAmount());
+        _furySpent %= requiredFuryAmount;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dh_shattered_destiny::CheckFurySpent);
+        OnProc += AuraProcFn(spell_dh_shattered_destiny::HandleProc);
+    }
+
+private:
+    int32 _furySpent = 0;
+};
+
 // 391166 - Soul Furnace
 class spell_dh_soul_furnace : public AuraScript
 {
@@ -987,44 +1032,6 @@ public:
     {
         return new areatrigger_dh_generic_sigilAI<TriggerSpellId>(at);
     }
-};
-
-// 388116 - Shattered Destiny
-class spell_dh_shattered_destiny : public AuraScript
-{
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_METAMORPHOSIS_TRANSFORM })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 }, { spellInfo->Id, EFFECT_1 } });
-    }
-
-    void HandleProc(ProcEventInfo const& eventInfo)
-    {
-        Spell const* procSpell = eventInfo.GetProcSpell();
-        if (!procSpell)
-            return;
-
-        Aura* metamorphosis = GetTarget()->GetAura(SPELL_DH_METAMORPHOSIS_TRANSFORM);
-        if (!metamorphosis)
-            return;
-
-        int32 _furyAmount = GetEffect(EFFECT_1)->GetAmount();
-        _furySpent += procSpell->GetPowerTypeCostAmount(POWER_FURY).value_or(0);
-
-        if (_furySpent >= _furyAmount)
-        {
-            metamorphosis->SetDuration(metamorphosis->GetDuration() + Milliseconds(GetEffect(EFFECT_0)->GetAmount()).count());
-            _furySpent -= _furyAmount;
-        }
-    }
-
-    void Register() override
-    {
-        OnProc += AuraProcFn(spell_dh_shattered_destiny::HandleProc);
-    }
-
-private:
-    int32 _furySpent = 0;
 };
 
 // 208673 - Sigil of Chains
