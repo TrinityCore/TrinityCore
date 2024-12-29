@@ -15,37 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
-#include "Conversation.h"
-#include "CreatureAIImpl.h"
-#include "Map.h"
-#include "Object.h"
-#include "Player.h"
 #include "CellImpl.h"
+#include "CombatAI.h"
 #include "Containers.h"
+#include "Conversation.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "PassiveAI.h"
+#include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
-#include "ScriptSystem.h"
 #include "SpellAuras.h"
+#include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "Transport.h"
-#include "Loot.h"
-#include "SpellHistory.h"
+#include "VehicleDefines.h"
 #include "WorldStateMgr.h"
-#include "Unit.h"
-#include "Vehicle.h"
-#include "WorldSession.h"
-#include "CombatAI.h"
-#include "PhasingHandler.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -1522,58 +1513,11 @@ struct npc_lana_jordan_beach_laying : public ScriptedAI
     }
 };
 
-enum ExilesReachMurlocsData
-{
-    ITEM_STITCHED_CLOTH_SHOES           = 174791,
-    ITEM_STITCHED_LEATHER_BOOTS         = 174792,
-    ITEM_LINKED_MAIL_BOOTS              = 174793,
-    ITEM_DENTED_PLATE_BOOTS             = 174794,
-
-    QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED = 58883
-};
-
 // 150228 - Murloc Spearhunter
 // 150229 - Murloc Watershaper
-struct npc_murloc_spearhunter_watershaper : public ScriptedAI
+struct npc_murloc_spearhunter_watershaper_higher_ground : public ScriptedAI
 {
-    npc_murloc_spearhunter_watershaper(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type != LootItemType::Item)
-                        continue;
-
-                    switch (lootItem.itemid)
-                    {
-                        case ITEM_STITCHED_CLOTH_SHOES:
-                        case ITEM_STITCHED_LEATHER_BOOTS:
-                        case ITEM_LINKED_MAIL_BOOTS:
-                        case ITEM_DENTED_PLATE_BOOTS:
-                            player->SetRewardedQuest(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
-    }
-};
-
-// 150228 - Murloc Spearhunter
-// 150229 - Murloc Watershaper
-struct npc_murloc_spearhunter_watershaper_higher_ground : public npc_murloc_spearhunter_watershaper
-{
-    npc_murloc_spearhunter_watershaper_higher_ground(Creature* creature) : npc_murloc_spearhunter_watershaper(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void JustEngagedWith(Unit* who) override
     {
@@ -4377,8 +4321,6 @@ enum GeolordData
     SPELL_NECROTIC_RITUAL_DNT   = 305513,
     SPELL_EARTH_BOLT            = 270453,
     SPELL_UPHEAVAL              = 319273,
-
-    WORLDSTATE_HORDE            = 4486
 };
 
 static constexpr Position PrisonerPosition = { 16.4271f, -2511.82f, 78.8215f, 5.66398f  };
@@ -4392,7 +4334,7 @@ struct npc_geolord_grekog : public ScriptedAI
     {
         uint32 prisonerEntry = NPC_LINDIE_SPRINGSTOCK;
 
-        if (sWorldStateMgr->GetValue(WORLDSTATE_HORDE, me->GetMap()) == 1)
+        if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_HORDE, me->GetMap()) == 1)
             prisonerEntry = NPC_CORK_FIZZLEPOP;
 
         Creature* bunny = me->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_INVIS_BUNNY_GEOLORD, .IgnorePhases = true });
@@ -4516,16 +4458,6 @@ enum OgreOverseerQuilboarText
     SAY_DEATH = 1,
 };
 
-enum ExilesReachQuilboarData
-{
-    ITEM_STITCHED_CLOTH_TUNIC      = 174811,
-    ITEM_STITCHED_LEATHER_TUNIC    = 174812,
-    ITEM_LINKED_MAIL_HAUBERK       = 174813,
-    ITEM_DENTED_CHESTPLATE         = 174814,
-
-    QUEST_BRIARPATCH_CHEST_DROPPED = 58904
-};
-
 enum QuilboarWarriorGeomancerData
 {
     EVENT_BRUTAL_STRIKE        = 1,
@@ -4561,33 +4493,6 @@ struct npc_quilboar_warrior : public ScriptedAI
     {
         if (roll_chance_f(33.33f))
             Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type != LootItemType::Item)
-                        continue;
-
-                    switch (lootItem.itemid)
-                    {
-                        case ITEM_STITCHED_CLOTH_TUNIC:
-                        case ITEM_STITCHED_LEATHER_TUNIC:
-                        case ITEM_LINKED_MAIL_HAUBERK:
-                        case ITEM_DENTED_CHESTPLATE:
-                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -4639,33 +4544,6 @@ struct npc_quilboar_geomancer : public ScriptedAI
     {
         if (roll_chance_f(33.33f))
             Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_BRIARPATCH_CHEST_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type != LootItemType::Item)
-                        continue;
-
-                    switch (lootItem.itemid)
-                    {
-                        case ITEM_STITCHED_CLOTH_TUNIC:
-                        case ITEM_STITCHED_LEATHER_TUNIC:
-                        case ITEM_LINKED_MAIL_HAUBERK:
-                        case ITEM_DENTED_CHESTPLATE:
-                            player->SetRewardedQuest(QUEST_BRIARPATCH_CHEST_DROPPED);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -4697,11 +4575,6 @@ enum ExilesReachOgreOverseerData
     EVENT_OVERSEER_BACKHAND                 = 1,
     EVENT_OVERSEER_EARTHSHATTER             = 2,
 
-    ITEM_BATTERED_CLOAK                     = 11847,
-    ITEM_OVERSEERS_MANDATE                  = 174790,
-
-    QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED = 56051,
-
     SPELL_BACKHAND                          = 276991,
     SPELL_EARTHSHATTER                      = 319292
 };
@@ -4727,24 +4600,6 @@ struct npc_ogre_overseer : public ScriptedAI
     void JustDied(Unit* killer) override
     {
         Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                if (player->IsQuestRewarded(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED))
-                    break;
-
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_BATTERED_CLOAK)
-                    {
-                        player->SetRewardedQuest(QUEST_BRIARPATCH_OVERSEER_CLOAK_DROPPED);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -6481,10 +6336,6 @@ enum TorgokData
     EVENT_CAST_SPIRIT_BOLT              = 1,
     EVENT_CAST_SOUL_GRASP               = 2,
 
-    ITEM_TORGOKS_REAGENT_POUCH          = 176398,
-
-    QUEST_TORGOKS_REAGENT_POUCH_DROPPED = 59610,
-
     SPELL_SPIRIT_BOLT                   = 319294,
     SPELL_SOUL_GRASP                    = 319298
 };
@@ -6510,21 +6361,6 @@ struct npc_torgok_q55879 : public ScriptedAI
     void JustDied(Unit* killer) override
     {
         Talk(SAY_DEATH, killer);
-
-        for (auto const& [playerGuid, loot] : me->m_personalLoot)
-        {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-            {
-                for (LootItem const& lootItem : loot->items)
-                {
-                    if (lootItem.type == LootItemType::Item && lootItem.itemid == ITEM_TORGOKS_REAGENT_POUCH)
-                    {
-                        player->SetRewardedQuest(QUEST_TORGOKS_REAGENT_POUCH_DROPPED);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -7121,7 +6957,6 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_bo_beach_laying);
     RegisterCreatureAI(npc_mithran_dawntracker_beach_laying);
     RegisterCreatureAI(npc_lana_jordan_beach_laying);
-    RegisterCreatureAI(npc_murloc_spearhunter_watershaper);
     RegisterCreatureAI(npc_murloc_spearhunter_watershaper_higher_ground);
     new FactoryCreatureScript<CreatureAI, &BoBeachStandingAISelector>("npc_bo_beach_standing");
     new FactoryCreatureScript<CreatureAI, &MithdranBeachStandingAISelector>("npc_mithdran_dawntracker_beach_standing");
