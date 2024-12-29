@@ -37,7 +37,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `SourceGroup
 (27, @WORLD_SAFE_LOC+4, 14990, 0, 6, 469, 0, 0, 'Graveyard - Deephaul Ravine - Alliance Center Graveyard - Team Alliance'),
 (27, @WORLD_SAFE_LOC+4, 14990, 0, 23, 15100, 0, 0, 'Graveyard - Deephaul Ravine - Alliance Center Graveyard - Earthenworks area'),
 (27, @WORLD_SAFE_LOC+2, 14990, 0, 6, 67, 0, 0, 'Graveyard - Deephaul Ravine - Horde Center Graveyard - Team Horde'),
-(27, @WORLD_SAFE_LOC+4, 14990, 0, 23, 15099, 0, 0, 'Graveyard - Deephaul Ravine - Horde Center Graveyard - Waterworks area'),
+(27, @WORLD_SAFE_LOC+2, 14990, 0, 23, 15099, 0, 0, 'Graveyard - Deephaul Ravine - Horde Center Graveyard - Waterworks area'),
 (27, @WORLD_SAFE_LOC+5, 14990, 0, 6, 469, 0, 0, 'Graveyard - Deephaul Ravine - Alliance Spawn Graveyard - Team Alliance'),
 (27, @WORLD_SAFE_LOC+3, 14990, 0, 6, 67, 0, 0, 'Graveyard - Deephaul Ravine - Horde Spawn Graveyard - Team Horde');
 
