@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -138,12 +139,12 @@ struct npc_taelia_get_your_bearings : public ScriptedAI
 };
 
 // 5360 - Conversation
-class conversation_boralus_hub_tour_00 : public ConversationScript
+class conversation_boralus_hub_tour_00 : public ConversationAI
 {
 public:
-    conversation_boralus_hub_tour_00() : ConversationScript("conversation_boralus_hub_tour_00") { }
+    conversation_boralus_hub_tour_00(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
         if (!kultiranGuard)
@@ -174,10 +175,10 @@ struct at_boralus_get_your_bearings : AreaTriggerAI
 };
 
 // 5362 - Conversation - Get your Bearings (Ferry)
-class conversation_boralus_hub_tour : public ConversationScript
+class conversation_boralus_hub_tour : public ConversationAI
 {
 public:
-    conversation_boralus_hub_tour(char const* scriptName) : ConversationScript(scriptName) { }
+    conversation_boralus_hub_tour(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum ConversationFerryData
     {
@@ -187,7 +188,7 @@ public:
     virtual Position const& GetGuardMovePosition() = 0;
     virtual uint32 GetKillCreditId() = 0;
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
         if (!kultiranGuard)
@@ -200,14 +201,14 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
         _events.ScheduleEvent(EVENT_TAELIA_CREDIT, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -241,7 +242,7 @@ Position const TaeliaFerryPos = { 1039.5955f, -598.00653f, 1.458778f };
 class conversation_boralus_hub_tour_ferry : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_ferry() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_ferry") { }
+    conversation_boralus_hub_tour_ferry(Conversation* conversation) : conversation_boralus_hub_tour(conversation) { }
 
     Position const& GetGuardMovePosition()
     {
@@ -260,7 +261,7 @@ Position const TaeliaBankPos = { 1118.7385f, -622.4115f, 17.76035f };
 class conversation_boralus_hub_tour_counting_house : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_counting_house() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_counting_house") { }
+    conversation_boralus_hub_tour_counting_house(Conversation* conversation) : conversation_boralus_hub_tour(conversation) { }
 
     Position const& GetGuardMovePosition()
     {
@@ -279,7 +280,7 @@ Position const TaeliaInnPos = { 1177.39f, -587.682f, 31.557224f };
 class conversation_boralus_hub_tour_harbor_inn : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_harbor_inn() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_harbor_inn") { }
+    conversation_boralus_hub_tour_harbor_inn(Conversation* conversation) : conversation_boralus_hub_tour(conversation) { }
 
     Position const& GetGuardMovePosition()
     {
@@ -298,7 +299,7 @@ Position const TaeliaFlightMasterPos = { 1149.82f, -471.071f, 30.503826f };
 class conversation_boralus_hub_tour_flight_master : public conversation_boralus_hub_tour
 {
 public:
-    conversation_boralus_hub_tour_flight_master() : conversation_boralus_hub_tour("conversation_boralus_hub_tour_flight_master") { }
+    conversation_boralus_hub_tour_flight_master(Conversation* conversation) : conversation_boralus_hub_tour(conversation) {}
 
     Position const& GetGuardMovePosition()
     {
@@ -312,12 +313,12 @@ public:
 };
 
 // 9556 - Conversation The Old Knight (accept Quest)
-class conversation_boralus_accept_old_knight : public ConversationScript
+class conversation_boralus_accept_old_knight : public ConversationAI
 {
 public:
-    conversation_boralus_accept_old_knight() : ConversationScript("conversation_boralus_accept_old_knight") { }
+    conversation_boralus_accept_old_knight(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
         if (!kultiranGuard)
@@ -344,12 +345,12 @@ struct at_boralus_old_knight_enter_harbormasters_office : AreaTriggerAI
 };
 
 // 7605 - Conversation The Old Knight (Enter the Harbormasters Office)
-class conversation_boralus_enter_harbormaster_office : public ConversationScript
+class conversation_boralus_enter_harbormaster_office : public ConversationAI
 {
 public:
-    conversation_boralus_enter_harbormaster_office() : ConversationScript("conversation_boralus_enter_harbormaster_office") { }
+    conversation_boralus_enter_harbormaster_office(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* kultiranGuard = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMONED_KULTIRAN_GUARD, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
         if (!kultiranGuard)
@@ -428,10 +429,10 @@ Position const GreyguardOneOfficePos = { 1044.979f, -468.523f, 8.386f, 6.03047f 
 Position const GreyguardTwoOfficePos = { 1042.359f, -467.738f, 8.386f, 6.04665f };
 
 // 8062 - Conversation
-class conversation_boralus_cyrus_meets_genn : public ConversationScript
+class conversation_boralus_cyrus_meets_genn : public ConversationAI
 {
 public:
-    conversation_boralus_cyrus_meets_genn() : ConversationScript("conversation_boralus_cyrus_meets_genn") { }
+    conversation_boralus_cyrus_meets_genn(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum OldKnightsConversationData
     {
@@ -440,7 +441,7 @@ public:
         EVENT_OLD_KNIGHTS_CLONE_DESPAWN     = 1
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* cyrusObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_CYRUS_CRESTFALL, .IgnorePhases = true });
         Creature* gennObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_GENN_GREYMANE, .IgnorePhases = true });
@@ -470,14 +471,14 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
         _events.ScheduleEvent(EVENT_OLD_KNIGHTS_CLONE_DESPAWN, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_AND_GENN_DESPAWN));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -532,10 +533,10 @@ Position const CyrusMoveToOfficeFirePos = { 1075.257f, -487.25696f, 9.812291f };
 Position const CyrusStaticOfficePos = { 1071.428f, -486.312f, 9.783f, 3.4995f };
 
 // 7653 - Conversation
-class conversation_cyrus_crestfall_shaking_hands : public ConversationScript
+class conversation_cyrus_crestfall_shaking_hands : public ConversationAI
 {
 public:
-    conversation_cyrus_crestfall_shaking_hands() : ConversationScript("conversation_cyrus_crestfall_shaking_hands") { }
+    conversation_cyrus_crestfall_shaking_hands(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum ShakingHandsConversationData
     {
@@ -553,7 +554,7 @@ public:
         POINT_CYRUS_MOVE_BACK_TO_GENN           = 2
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* cyrusObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_CYRUS_CRESTFALL, .IgnorePhases = true });
         if (!cyrusObject)
@@ -569,7 +570,7 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
@@ -579,7 +580,7 @@ public:
         _events.ScheduleEvent(EVENT_CYRUS_DESPAWN_CLONE_OFFICE, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_CYRUS_DESPAWN_CLONE_OFFICE));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -778,15 +779,15 @@ void AddSC_zone_boralus()
     RegisterCreatureAI(npc_7th_legion_magus_sanctum_of_the_sages);
 
     // Conversation
-    new conversation_boralus_hub_tour_00();
-    new conversation_boralus_hub_tour_ferry();
-    new conversation_boralus_hub_tour_counting_house();
-    new conversation_boralus_hub_tour_harbor_inn();
-    new conversation_boralus_hub_tour_flight_master();
-    new conversation_boralus_accept_old_knight();
-    new conversation_boralus_enter_harbormaster_office();
-    new conversation_boralus_cyrus_meets_genn();
-    new conversation_cyrus_crestfall_shaking_hands();
+    RegisterConversationAI(conversation_boralus_hub_tour_00);
+    RegisterConversationAI(conversation_boralus_hub_tour_ferry);
+    RegisterConversationAI(conversation_boralus_hub_tour_counting_house);
+    RegisterConversationAI(conversation_boralus_hub_tour_harbor_inn);
+    RegisterConversationAI(conversation_boralus_hub_tour_flight_master);
+    RegisterConversationAI(conversation_boralus_accept_old_knight);
+    RegisterConversationAI(conversation_boralus_enter_harbormaster_office);
+    RegisterConversationAI(conversation_boralus_cyrus_meets_genn);
+    RegisterConversationAI(conversation_cyrus_crestfall_shaking_hands);
 
     // Scene
     new scene_boralus_client_scene_cyrus_and_genn();

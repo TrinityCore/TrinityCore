@@ -15,48 +15,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_AREATRIGGERAI_H
-#define TRINITY_AREATRIGGERAI_H
+#ifndef TRINITY_CONVERSATIONAI_H
+#define TRINITY_CONVERSATIONAI_H
 
 #include "Define.h"
 #include "ObjectGuid.h"
 
-class AreaTrigger;
-class Spell;
+class Conversation;
 class Unit;
+class Player;
 
-class TC_GAME_API AreaTriggerAI
+class TC_GAME_API ConversationAI
 {
         uint32 _scriptId;
 
     protected:
-        AreaTrigger* const at;
+        Conversation* const conversation;
     public:
-        explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {});
-        virtual ~AreaTriggerAI();
+        explicit ConversationAI(Conversation* c, uint32 scriptId = {});
+        virtual ~ConversationAI();
 
-        // Called when the AreaTrigger has just been initialized, just before added to map
-        virtual void OnInitialize() { }
+        // Called when the Conversation has just been initialized, just before added to map
+        virtual void OnInitialize() {}
 
-        // Called when the AreaTrigger has just been created
-        virtual void OnCreate([[maybe_unused]] Spell const* creatingSpell) { }
+        // Called when Conversation is created but not added to Map yet.
+        virtual void OnCreate([[maybe_unused]] Unit* creator) { }
 
-        // Called on each AreaTrigger update
+        // Called when Conversation is started
+        virtual void OnStart() { }
+
+        // Called when player sends CMSG_CONVERSATION_LINE_STARTED with valid conversation guid
+        virtual void OnLineStarted([[maybe_unused]] uint32 lineId, [[maybe_unused]] Player* sender) { }
+
+        // Called for each update tick
         virtual void OnUpdate([[maybe_unused]] uint32 diff) { }
 
-        // Called when the AreaTrigger reach splineIndex
-        virtual void OnSplineIndexReached([[maybe_unused]] int32 splineIndex) { }
-
-        // Called when the AreaTrigger reach its destination
-        virtual void OnDestinationReached() { }
-
-        // Called when an unit enter the AreaTrigger
-        virtual void OnUnitEnter([[maybe_unused]] Unit* unit) { }
-
-        // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
-        virtual void OnUnitExit([[maybe_unused]] Unit* unit) { }
-
-        // Called when the AreaTrigger is removed
+        // Called when the Conversation is removed
         virtual void OnRemove() { }
 
         // Pass parameters between AI
@@ -70,10 +64,10 @@ class TC_GAME_API AreaTriggerAI
         uint32 GetId() const { return _scriptId; }
 };
 
-class NullAreaTriggerAI : public AreaTriggerAI
+class NullConversationAI final : public ConversationAI
 {
     public:
-        using AreaTriggerAI::AreaTriggerAI;
+        using ConversationAI::ConversationAI;
 };
 
 #endif
