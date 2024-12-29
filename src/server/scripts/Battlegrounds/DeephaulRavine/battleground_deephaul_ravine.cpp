@@ -225,6 +225,12 @@ namespace DeephaulRavine
         // See SilvershardMines
         static constexpr int32 AllianceCapturedCart = 6954;
         static constexpr int32 HordeCapturedCart = 6955;
+
+        namespace Values
+        {
+            static constexpr int32 FlagClaimed = 2; // On Player
+            static constexpr int32 FlagUnclaimed = 1; // Not on player (in base, dropped, respawning)
+        }
     }
 }
 
@@ -386,16 +392,16 @@ struct battleground_deephaul_ravine : BattlegroundScript
                 battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::CrystalTaken, player->GetBGTeam() == HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
                 battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::CrystalTakenTutorial, CHAT_MSG_RAID_BOSS_EMOTE, player); // player should also be the sender
                 battleground->PlaySoundToAll(player->GetBGTeam() == HORDE ? DeephaulRavine::Sounds::PvpFlagTakenHorde : DeephaulRavine::Sounds::PvpFlagTakenAlliance);
-                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, player->GetBGTeam() == HORDE ? 2 : 1);
-                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, player->GetBGTeam() == ALLIANCE ? 2 : 1);
+                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, player->GetBGTeam() == HORDE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
+                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, player->GetBGTeam() == ALLIANCE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 break;
             case FlagState::Dropped:
-                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, 1);
-                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, 1);
+                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
+                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 break;
             case FlagState::Respawning:
-                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, 1);
-                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, 1);
+                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
+                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
 
                 _scheduler.Schedule(Milliseconds(flagInBase->GetGOInfo()->newflag.RespawnTime) - 5s, [&](TaskContext)
                 {
@@ -406,8 +412,8 @@ struct battleground_deephaul_ravine : BattlegroundScript
                 });
                 break;
             case FlagState::InBase:
-                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, 1);
-                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, 1);
+                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
+                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 break;
             default:
                 break;
@@ -784,6 +790,8 @@ private:
     GuidVector _doorGUIDs;
 };
 
+// 214690 - Mine Cart
+// 217346 - Mine Cart
 class npc_bg_deephaul_cavern_mine_cart : public ScriptedAI
 {
 public:
@@ -853,6 +861,8 @@ class spell_bg_deephaul_ravine_cart_cap final : public SpellScript
     }
 };
 
+// 211271 - Earthen Mine Cart
+// 211155 - Earthen Mine Cart
 class npc_bg_deephaul_ravine_earthen_mine_cart final : public ScriptedAI
 {
 public:
@@ -869,6 +879,7 @@ public:
     }
 };
 
+// 211153 - Earthen Mine Cart
 class npc_bg_deephaul_ravine_earthen_mine_cart_horde final : public ScriptedAI
 {
 public:
@@ -927,6 +938,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 211270 - Earthen Mine Cart
 class npc_bg_deephaul_ravine_earthen_mine_cart_alliance final : public ScriptedAI
 {
 public:
@@ -990,6 +1002,9 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 21076 - PvP Rune Rejuv Visual (New)
+// 21077 - PvP Rune Berserking Visual (New)
+// 33926 - PvP Rune Cooldown Visual (New)
 struct at_bg_deephaul_ravine_buff final : AreaTriggerAI
 {
     explicit at_bg_deephaul_ravine_buff(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger) { }
@@ -1002,6 +1017,8 @@ struct at_bg_deephaul_ravine_buff final : AreaTriggerAI
     }
 };
 
+// 224087 - Ruffious
+// 224086 - Foreman Uzjax
 template<uint32 Path1, uint32 Path2, uint32 Path3, uint32 Path4>
 class npc_bg_deephaul_ravine_commander : public ScriptedAI
 {
