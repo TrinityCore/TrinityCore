@@ -27,6 +27,9 @@ ByteBuffer& operator<<(ByteBuffer& data, VignetteData const& vignetteData)
     data << uint32(vignetteData.ZoneID);
     data << uint32(vignetteData.WMOGroupID);
     data << uint32(vignetteData.WMODoodadPlacementID);
+    data << float(vignetteData.HealthPercent);
+    data << uint16(vignetteData.RecommendedGroupSizeMin);
+    data << uint16(vignetteData.RecommendedGroupSizeMax);
 
     return data;
 }

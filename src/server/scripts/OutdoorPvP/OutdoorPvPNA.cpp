@@ -39,7 +39,6 @@ uint32 const FlightPathEndNodes[FLIGHT_NODES_NUM] = { 104, 106, 108, 110 };
 OutdoorPvPNA::OutdoorPvPNA(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_NA;
-    m_obj = nullptr;
     ControlZoneHandlers[182210] = std::make_unique<NAControlZoneHandler>(this);
 }
 
@@ -220,7 +219,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
     RegisterZone(NA_BUFF_ZONE);
 
     // halaa
-    m_obj = new OPvPCapturePointNA(this);
+    m_obj = std::make_unique<OPvPCapturePointNA>(this);
 
     return true;
 }

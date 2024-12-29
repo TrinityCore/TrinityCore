@@ -29,12 +29,13 @@ struct PerksVendorItem
     int32 BattlePetSpeciesID = 0;
     int32 TransmogSetID = 0;
     int32 ItemModifiedAppearanceID = 0;
-    int32 Field_14 = 0;
-    int32 Field_18 = 0;
+    int32 TransmogIllusionID = 0;
+    int32 ToyID = 0;
     int32 Price = 0;
+    int32 OriginalPrice = 0;
     Timestamp<> AvailableUntil;
     bool Disabled = false;
-    bool Field_41 = false;
+    bool DoesNotExpire = false;
 };
 
 ByteBuffer& operator<<(ByteBuffer& data, PerksVendorItem const& perksVendorItem);

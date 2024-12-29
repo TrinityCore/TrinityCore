@@ -594,8 +594,14 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.farthest.isInLos);
             break;
         case SMART_TARGET_CLOSEST_CREATURE:
-            TC_SAI_IS_BOOLEAN_VALID(e, e.target.unitClosest.dead);
+        {
+            if (e.target.unitClosest.findCreatureAliveState < (uint32)FindCreatureAliveState::Alive || e.target.unitClosest.findCreatureAliveState >= (uint32)FindCreatureAliveState::Max)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has invalid alive state {}", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType(), e.target.unitClosest.findCreatureAliveState);
+                return false;
+            }
             break;
+        }
         case SMART_TARGET_CLOSEST_ENEMY:
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.closestAttackable.playerOnly);
             break;

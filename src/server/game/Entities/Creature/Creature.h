@@ -455,6 +455,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetNoThreatFeedback(bool noThreatFeedback) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_3_NO_THREAT_FEEDBACK, noThreatFeedback); }
         void ForcePartyMembersIntoCombat();
 
+        bool IsAggroGracePeriodExpired() { return _aggroGracePeriodExpired; }
+
         void OverrideSparringHealthPct(float healthPct) { _sparringHealthPct = healthPct; }
         void OverrideSparringHealthPct(std::vector<float> const& healthPct);
         float GetSparringHealthPct() const { return _sparringHealthPct; }
@@ -578,6 +580,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureGroup* m_formation;
         bool m_triggerJustAppeared;
         bool m_respawnCompatibilityMode;
+
+        bool _aggroGracePeriodExpired;
 
         /* Spell focus system */
         void ReacquireSpellFocusTarget();
