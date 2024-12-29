@@ -321,7 +321,7 @@ Creature::Creature(bool isWorldObject) : Unit(isWorldObject), MapObject(), m_Pla
     m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(),
     m_creatureInfo(nullptr), m_creatureData(nullptr), m_creatureDifficulty(nullptr), m_stringIds(), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
-    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
+    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _aggroGracePeriodExpired(false), _lastDamagedTime(0),
     _regenerateHealth(true), _creatureImmunitiesId(0), _gossipMenuId(0), _sparringHealthPct(0)
 {
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
@@ -877,6 +877,16 @@ void Creature::Heartbeat()
 
     // Creatures with CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT periodically force party members into combat
     ForcePartyMembersIntoCombat();
+
+    // creatures should only attack surroundings initially after heartbeat has passed or until attacked
+    if (!_aggroGracePeriodExpired)
+    {
+        _aggroGracePeriodExpired = true;
+
+        // trigger MoveInLineOfSight
+        Trinity::CreatureAggroGracePeriodExpiredNotifier notifier(*this);
+        Cell::VisitAllObjects(this, notifier, GetVisibilityRange());
+    }
 }
 
 void Creature::RegenerateHealth()
@@ -2256,6 +2266,7 @@ void Creature::Respawn(bool force)
                 ai->Reset();
 
             m_triggerJustAppeared = true;
+            _aggroGracePeriodExpired = false;
 
             uint32 poolid = GetCreatureData() ? GetCreatureData()->poolId : 0;
             if (poolid)
@@ -3430,6 +3441,8 @@ bool Creature::IsEngaged() const
 void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
+
+    _aggroGracePeriodExpired = true;
 
     GetThreatManager().ResetUpdateTimer();
 
