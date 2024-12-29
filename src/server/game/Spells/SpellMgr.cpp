@@ -5243,6 +5243,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(8, 0, 453034, EFFECT_1, {}, {});
     });
 
+    // Essence Break
+    ApplySpellFix({ 258860 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, 258860, EFFECT_1, {}, {});
+    });
+
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
