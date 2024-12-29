@@ -157,6 +157,7 @@ namespace DeephaulRavine
     namespace PvpStats
     {
         static constexpr int32 FlagCaptures = 1020;
+        static constexpr int32 CartsControlled = 1021;
     }
 
     namespace Sounds
@@ -518,11 +519,11 @@ struct battleground_deephaul_ravine : BattlegroundScript
         {
             case DeephaulRavine::Events::ProgressEventAllianceEast:
             case DeephaulRavine::Events::ProgressEventAllianceWest:
-                HandleProgressEventAlliance(Object::ToGameObject(invoker));
+                HandleProgressEvent(Object::ToGameObject(invoker), ALLIANCE, DeephaulRavine::Spells::ControlVisualAlliance, DeephaulRavine::BroadcastTexts::AllianceControlMineCart, CHAT_MSG_BG_SYSTEM_ALLIANCE);
                 break;
             case DeephaulRavine::Events::ProgressEventHordeEast:
             case DeephaulRavine::Events::ProgressEventHordeWest:
-                HandleProgressEventHorde(Object::ToGameObject(invoker));
+                HandleProgressEvent(Object::ToGameObject(invoker), HORDE, DeephaulRavine::Spells::ControlVisualHorde, DeephaulRavine::BroadcastTexts::HordeControlMineCart, CHAT_MSG_BG_SYSTEM_HORDE);
                 break;
             default:
                 break;
@@ -548,7 +549,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
         }
     }
 
-    void HandleProgressEventHorde(GameObject const* controlZone) const
+    void HandleProgressEvent(GameObject const* controlZone, Team team, uint32 controlVisualSpell, uint32 textId, ChatMsg msgType) const
     {
         if (!controlZone)
             return;
@@ -559,25 +560,15 @@ struct battleground_deephaul_ravine : BattlegroundScript
 
         mineCart->RemoveAurasDueToSpell(DeephaulRavine::Spells::ControlVisualNeutral);
         mineCart->RemoveAurasDueToSpell(DeephaulRavine::Spells::ControlVisualAlliance);
-        mineCart->CastSpell(mineCart, DeephaulRavine::Spells::ControlVisualHorde, true);
-        UpdateCartWorldStates(controlZone);
-        battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::HordeControlMineCart, CHAT_MSG_BG_SYSTEM_HORDE, controlZone);
-    }
-
-    void HandleProgressEventAlliance(GameObject const* controlZone) const
-    {
-        if (!controlZone)
-            return;
-
-        Creature* mineCart = Object::ToCreature(controlZone->GetOwner());
-        if (!mineCart)
-            return;
-
-        mineCart->RemoveAurasDueToSpell(DeephaulRavine::Spells::ControlVisualNeutral);
         mineCart->RemoveAurasDueToSpell(DeephaulRavine::Spells::ControlVisualHorde);
-        mineCart->CastSpell(mineCart, DeephaulRavine::Spells::ControlVisualAlliance, true);
+        mineCart->CastSpell(mineCart, controlVisualSpell, true);
         UpdateCartWorldStates(controlZone);
-        battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::HordeControlMineCart, CHAT_MSG_BG_SYSTEM_ALLIANCE, controlZone);
+        battleground->SendBroadcastText(textId, msgType, controlZone);
+
+        for (ObjectGuid const& guid : *controlZone->GetInsidePlayers())
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
+                if (player->GetBGTeam() == team)
+                    battleground->UpdatePvpStat(player, DeephaulRavine::PvpStats::CartsControlled, 1);
     }
 
     void HandleMineCartCaptured()
