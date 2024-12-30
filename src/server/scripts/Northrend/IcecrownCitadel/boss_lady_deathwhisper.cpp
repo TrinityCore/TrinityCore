@@ -310,7 +310,7 @@ struct boss_lady_deathwhisper : public BossAI
                     DoCast(target, SPELL_DEATH_AND_DECAY);
                 death_and_decay.Repeat(Seconds(22), Seconds(30));
             });
-            if (GetDifficulty() != DIFFICULTY_10_N)
+            if (GetDifficulty() != DIFFICULTY_10_NORMAL)
                 scheduler.Schedule(Seconds(27), [this](TaskContext dominate_mind)
                 {
                     Talk(SAY_DOMINATE_MIND);

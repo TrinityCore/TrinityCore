@@ -137,7 +137,7 @@ struct boss_baltharus_the_warborn : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (GetDifficulty() == DIFFICULTY_10_N)
+        if (GetDifficulty() == DIFFICULTY_10_NORMAL)
         {
             if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 0)
             {

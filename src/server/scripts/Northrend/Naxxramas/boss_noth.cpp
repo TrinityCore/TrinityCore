@@ -140,7 +140,7 @@ struct boss_noth : public BossAI
             events.ScheduleEvent(EVENT_BALCONY, Seconds(timeGround), 0, PHASE_GROUND);
             events.ScheduleEvent(EVENT_CURSE, randtime(Seconds(10), Seconds(25)), 0, PHASE_GROUND);
             events.ScheduleEvent(EVENT_WARRIOR, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
-            if (GetDifficulty() == DIFFICULTY_25_N)
+            if (GetDifficulty() == DIFFICULTY_25_NORMAL)
                 events.ScheduleEvent(EVENT_BLINK, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
         }
     }

@@ -154,9 +154,9 @@ void LoadDisables()
                     case MAP_RAID:
                         if (flags & DUNGEON_STATUSFLAG_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_HEROIC))
                             flags -= DUNGEON_STATUSFLAG_HEROIC;
-                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_10_HC))
+                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_10_HEROIC))
                             flags -= RAID_STATUSFLAG_10MAN_HEROIC;
-                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_25_HC))
+                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !sDB2Manager.GetMapDifficultyData(entry, DIFFICULTY_25_HEROIC))
                             flags -= RAID_STATUSFLAG_25MAN_HEROIC;
                         if (!flags)
                             isFlagInvalid = true;
@@ -376,9 +376,9 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                             return (disabledModes & DUNGEON_STATUSFLAG_NORMAL) != 0;
                         case DIFFICULTY_HEROIC:
                             return (disabledModes & DUNGEON_STATUSFLAG_HEROIC) != 0;
-                        case DIFFICULTY_10_HC:
+                        case DIFFICULTY_10_HEROIC:
                             return (disabledModes & RAID_STATUSFLAG_10MAN_HEROIC) != 0;
-                        case DIFFICULTY_25_HC:
+                        case DIFFICULTY_25_HEROIC:
                             return (disabledModes & RAID_STATUSFLAG_25MAN_HEROIC) != 0;
                         default:
                             return false;

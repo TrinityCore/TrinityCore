@@ -839,10 +839,69 @@ DEFINE_ENUM_FLAG(ChrCustomizationReqFlag);
 
 enum CurrencyConsts
 {
-    CURRENCY_TYPE_ANCIENT_MANA    = 1155,
-    CURRENCY_TYPE_AZERITE         = 1553,
-
-    CURRENCY_MAX_CAP_ANCIENT_MANA = 2000
+    CURRENCY_TYPE_ANCIENT_MANA              = 1155,
+    CURRENCY_TYPE_AZERITE                   = 1553, // Grants %d |4Artifact Power:Artifact Power; to your Heart of Azeroth.
+    CURRENCY_TYPE_CHAMPIONS_OF_AZEROTH      = 1579, // Grants reputation with the Champions of Azeroth.
+    CURRENCY_TYPE_ORDER_OF_EMBERS           = 1592, // Grants reputation with the Order of Embers.
+    CURRENCY_TYPE_PROUDMOORE_ADMIRALTY      = 1593, // Grants reputation with Proudmoore Admiralty.
+    CURRENCY_TYPE_STORMS_WAKE               = 1594, // Grants reputation with Storm's Wake.
+    CURRENCY_TYPE_TALANJIS_EXPEDITION       = 1595, // Grants reputation with Talanji's Expedition.
+    CURRENCY_TYPE_VOLDUNAI                  = 1596, // Grants reputation with the Voldunai.
+    CURRENCY_TYPE_ZANDALARI_EMPIRE          = 1597, // Grants reputation with the Zandalari Empire.
+    CURRENCY_TYPE_TORTOLLAS_SEEKERS         = 1598, // Grants reputation with the Tortollan Seekers.
+    CURRENCY_TYPE_7TH_LEGION                = 1599, // Grants reputation with the 7th Legion.
+    CURRENCY_TYPE_HONORBOUND                = 1600, // Grants reputation with the Honorbound.
+    CURRENCY_TYPE_ASCENDED                  = 1804, // Grants reputation with the Ascended.
+    CURRENCY_TYPE_UNDYING_ARMY              = 1805, // Grants reputation with the Undying Army.
+    CURRENCY_TYPE_WILD_HUNT                 = 1806, // Grants reputation with the Wild Hunt.
+    CURRENCY_TYPE_COURT_OF_HARVESTERS       = 1807, // Grants reputation with the Court of Harvesters.
+    CURRENCY_TYPE_RENOW                     = 1822, // It's Renown
+    CURRENCY_TYPE_THE_EMBER_COURT           = 1837, // Increases the reputation of the The Ember Court.
+    CURRENCY_TYPE_THE_COUNTESS              = 1838, // A happy party with The Countess increases her friendhip with you.
+    CURRENCY_TYPE_RENDLE_AND_CUDGELFACE     = 1839, // A happy party with Rendle and Cudgelface increases their friendhip with you.
+    CURRENCY_TYPE_STONEHEAD                 = 1840, // A happy party with Stonehead increases his friendhip with you.
+    CURRENCY_TYPE_CRYPTKEEPER_KASSIR        = 1841, // A happy party with Cryptkeeper Kassir increases his friendhip with you.
+    CURRENCY_TYPE_BARONESS_VASHJ            = 1842, // A happy party with Baroness Vashj increases her friendhip with you.
+    CURRENCY_TYPE_PLAGUE_DEVISER_MARILETH   = 1843, // A happy party with Plague Deviser Marileth increases his friendhip with you.
+    CURRENCY_TYPE_GRANDMASTER_VOLE          = 1844, // A happy party with Grandmaster Vole increases his friendhip with you.
+    CURRENCY_TYPE_ALEXANDROS_MOGRAINE       = 1845, // A happy party with Alexandros Mograine increases his friendhip with you.
+    CURRENCY_TYPE_SIKA                      = 1846, // A happy party with Sika increases her friendhip with you.
+    CURRENCY_TYPE_KLEIA_AND_PELEGOS         = 1847, // A happy party with Kleia and Pelagos increases their friendhip with you.
+    CURRENCY_TYPE_POLEMARCH_ADRESTES        = 1848, // A happy party with Polemarch Adrestes increases his friendhip with you.
+    CURRENCY_TYPE_MIKANIKOS                 = 1849, // A happy party with Mikanikos increases his friendhip with you.
+    CURRENCY_TYPE_CHOOFA                    = 1850, // A happy party with Choofa increases his friendhip with you.
+    CURRENCY_TYPE_DROMAN_ALIOTHE            = 1851, // A happy party with Droman Aliothe increases her friendhip with you.
+    CURRENCY_TYPE_HUNT_CAPTAIN_KORAYN       = 1852, // A happy party with Hunt-Captain Korayn increases his friendhip with you.
+    CURRENCY_TYPE_LADY_MOONBERRY            = 1853, // A happy party with Lady Moonberry increases her friendhip with you.
+    CURRENCY_TYPE_BONUS_EXPERIENCE          = 1877, // Provides a significant increase to player experience.
+    CURRENCY_TYPE_STITCHMASTERS             = 1878, // Grants reputation with the Stitchmasters.
+    CURRENCY_TYPE_VENARI                    = 1880, // Grants reputation with Ve'nari.
+    CURRENCY_TYPE_THE_AVOWED                = 1884, // Grants reputation with the Avowed.
+    CURRENCY_TYPE_DEATHS_ADVANCE            = 1907, // Grants reputation with the Death's Advance.
+    CURRENCY_TYPE_THE_ENLIGHTENED           = 1982, // Grants reputation with The Enlightened.
+    CURRENCY_TYPE_ARCHIVISTS_CODEX          = 1997, // Grants progress with the Archivists' Codex.
+    CURRENCY_TYPE_DRAGON_ISLES_SUPPLIES     = 2003, // Various resources and building materials that can assist the friendly factions of the Dragon Isles in their fight against the Primalists. Used to purchase items unlocked from renown.
+    CURRENCY_TYPE_DRAGONSCALE_EXPEDITION    = 2031, // Grants Reputation with the Dragonscale Expedition.
+    CURRENCY_TYPE_VALDRAKKEN_ACCORD         = 2106, // Grants Reputation with the Valdrakken Accord.
+    CURRENCY_TYPE_MARUUK_CENTAUR            = 2108, // Grants Reputation with the Maruuk Centaur.
+    CURRENCY_TYPE_ISKAARA_TUSKARR           = 2109, // Grants Reputation with the Iskaara Tuskarr.
+    CURRENCY_TYPE_COBALT_ASSEMBLY           = 2134, // Grants Cobalt Assembly Reputation
+    CURRENCY_TYPE_LOAMM_NIFFEM              = 2420, // Grants Reputation with the Loamm Niffen.
+    CURRENCY_TYPE_SORIDORMIS_RECOGNITION    = 2645, // Grants Reputation with Soridormi.
+    CURRENCY_TYPE_DREAM_WARDENS             = 2652, // Grants Reputation with the Dream Wardens.
+    CURRENCY_TYPE_WHELPLINGS_DREAMING_CREST = 2715, // Earned from many outdoor activities, Raid Finder Amirdrassil, and Mythic Keystone dungeons up to +5 during Dragonflight Season 3.
+    CURRENCY_TYPE_DRAKES_DREAMING           = 2716, // Earned from some outdoor activities, Normal difficulty Amirdrassil, and Mythic Keystone dungeons from +6 to +10 during Dragonflight Season 3.
+    CURRENCY_TYPE_WYRMS_DREAMING            = 2717, // Earned from Heroic difficulty Amirdrassil and Mythic Keystone dungeons from +11 to +15 during Dragonflight Season 3.
+    CURRENCY_TYPE_ASPECTS_DREAMING          = 2718, // Earned from Mythic difficulty Amirdrassil and Mythic Keystone dungeons from +16 and up during Dragonflight Season 3.
+    CURRENCY_TYPE_AZEROTHIAN_ARCHIVES       = 2719, // Progress with the Azerothian Archivists.
+    CURRENCY_TYPE_COUNCIL_OF_DORNOGAL       = 2897, // Grants Reputation with the Council of Dornogal.
+    CURRENCY_TYPE_HALLOWFALL_ARATHI         = 2899, // Grants Reputation with the Hallowfall Arathi.
+    CURRENCY_TYPE_THE_ASSEMBLY_OF_THE_DEEPS = 2902, // Grants Reputation with The Assembly of the Deeps
+    CURRENCY_TYPE_THE_SEVERED_THREADS       = 2903, // Grants Reputation with The Severed Threads.
+    CURRENCY_TYPE_THE_WEAVER_NOTORIETY      = 3002, // Grants Reputation with The Weaver.
+    CURRENCY_TYPE_THE_GENERAL_NOTORIETY     = 3003, // Grants Reputation with The General.
+    CURRENCY_TYPE_THE_VIZIER_NOTORIETY      = 3004, // Grants Reputation with The Vizier.
+    CURRENCY_MAX_CAP_ANCIENT_MANA           = 4000
 };
 
 enum class CurrencyTypesFlags : uint32
@@ -916,56 +975,70 @@ enum class CurveInterpolationMode : uint8
 
 enum Difficulty : uint8
 {
-    DIFFICULTY_NONE                 = 0,
-    DIFFICULTY_NORMAL               = 1,
-    DIFFICULTY_HEROIC               = 2,
-    DIFFICULTY_10_N                 = 3,
-    DIFFICULTY_25_N                 = 4,
-    DIFFICULTY_10_HC                = 5,
-    DIFFICULTY_25_HC                = 6,
-    DIFFICULTY_LFR                  = 7,
-    DIFFICULTY_MYTHIC_KEYSTONE      = 8,
-    DIFFICULTY_40                   = 9,
-    DIFFICULTY_3_MAN_SCENARIO_HC    = 11,
-    DIFFICULTY_3_MAN_SCENARIO_N     = 12,
-    DIFFICULTY_NORMAL_RAID          = 14,
-    DIFFICULTY_HEROIC_RAID          = 15,
-    DIFFICULTY_MYTHIC_RAID          = 16,
-    DIFFICULTY_LFR_NEW              = 17,
-    DIFFICULTY_EVENT_RAID           = 18,
-    DIFFICULTY_EVENT_DUNGEON        = 19,
-    DIFFICULTY_EVENT_SCENARIO       = 20,
-    DIFFICULTY_MYTHIC               = 23,
-    DIFFICULTY_TIMEWALKING          = 24,
-    DIFFICULTY_WORLD_PVP_SCENARIO   = 25,
-    DIFFICULTY_5_MAN_SCENARIO_N     = 26,
-    DIFFICULTY_20_MAN_SCENARIO_N    = 27,
-    DIFFICULTY_PVEVP_SCENARIO       = 29,
-    DIFFICULTY_EVENT_SCENARIO_6     = 30,
-    DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
-    DIFFICULTY_TIMEWALKING_RAID     = 33,
-    DIFFICULTY_PVP                  = 34,
-    DIFFICULTY_NORMAL_ISLAND        = 38,
-    DIFFICULTY_HEROIC_ISLAND        = 39,
-    DIFFICULTY_MYTHIC_ISLAND        = 40,
-    DIFFICULTY_PVP_ISLAND           = 45,
-    DIFFICULTY_NORMAL_WARFRONT      = 147,
-    DIFFICULTY_HEROIC_WARFRONT      = 149,
-    DIFFICULTY_LFR_15TH_ANNIVERSARY = 151,
-    DIFFICULTY_VISIONS_OF_NZOTH     = 152,
-    DIFFICULTY_TEEMING_ISLAND       = 153
+    DIFFICULTY_NONE                         = 0,
+    DIFFICULTY_NORMAL                       = 1,    // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_HEROIC                       = 2,    // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_10_NORMAL                    = 3,    // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 10
+    DIFFICULTY_25_NORMAL                    = 4,    // 2 (Raid Dungeon),    MinPlayers: 25, MaxPlayers: 25
+    DIFFICULTY_10_HEROIC                    = 5,    // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 10
+    DIFFICULTY_25_HEROIC                    = 6,    // 2 (Raid Dungeon),    MinPlayers: 25, MaxPlayers: 25
+    DIFFICULTY_LFR                          = 7,    // 2 (Raid Dungeon),    MinPlayers: 25, MaxPlayers: 25
+    DIFFICULTY_MYTHIC_KEYSTONE              = 8,    // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_40_PLAYER                    = 9,    // 2 (Raid Dungeon),    MinPlayers: 40, MaxPlayers: 40
+    DIFFICULTY_HEROIC_SCENARIO              = 11,   // 5 (Scenario),        MinPlayers:  3, MaxPlayers:  3
+    DIFFICULTY_NORMAL_SCENARIO              = 12,   // 5 (Scenario),        MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_NORMAL_RAID                  = 14,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
+    DIFFICULTY_HEROIC_RAID                  = 15,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
+    DIFFICULTY_MYTHIC_RAID                  = 16,   // 2 (Raid Dungeon),    MinPlayers: 20, MaxPlayers: 20
+    DIFFICULTY_LFR_NEW                      = 17,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
+    DIFFICULTY_EVENT_RAID                   = 18,   // 2 (Raid Dungeon),    MinPlayers: 40, MaxPlayers: 40
+    DIFFICULTY_EVENT_PARTY                  = 19,   // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_EVENT_SCENARIO               = 20,   // 5 (Scenario),        MinPlayers: 25, MaxPlayers: 25
+    DIFFICULTY_MYTHIC                       = 23,   // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_TIMEWALKING_PARTY            = 24,   // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_WORLD_PVP_SCENARIO           = 25,   // 5 (Scenario),        MinPlayers:  0, MaxPlayers: 40
+    DIFFICULTY_PEPVP_SCENARIO               = 29,   // 3 (PVP Battlefield), MinPlayers:  0, MaxPlayers:  5
+    DIFFICULTY_EVENT_SCENARIO_2             = 30,   // 5 (Scenario),        MinPlayers:  6, MaxPlayers:  6
+    DIFFICULTY_WORLD_PVP_SCENARIO_2         = 32,   // 5 (Scenario),        MinPlayers:  0, MaxPlayers: 40
+    DIFFICULTY_TIMEWALKING_RAID             = 33,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
+    DIFFICULTY_PVP_BATTLEFIELD              = 34,   // 3 (PVP Battlefield), MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_NORMAL_ISLAND                = 38,   // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  3
+    DIFFICULTY_HEROIC_ISLAND                = 39,   // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  3
+    DIFFICULTY_MYTHIC_ISLAND                = 40,   // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  3
+    DIFFICULTY_PVP_ISLAND                   = 45,   // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  3
+    DIFFICULTY_NORMAL_WARFRONT              = 147,  // 5 (Scenario),        MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_HEROIC_WARFRONT              = 149,  // 5 (Scenario),        MinPlayers: 10, MaxPlayers: 30
+    DIFFICULTY_NORMAL_SCALIN                = 150,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  5
+    DIFFICULTY_LFR_15TH_ANNIVERSARY         = 151,  // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
+    DIFFICULTY_VISIONS_OF_NZOTH             = 152,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  5
+    DIFFICULTY_TEEMING_ISLAND               = 153,  // 5 (Scenario),        MinPlayers: 10, MaxPlayers: 10
+    DIFFICULTY_TORGHAST                     = 167,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  5
+    DIFFICULTY_PATH_OF_ASCENSION_COURAGE    = 168,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  1
+    DIFFICULTY_PATH_OF_ASCENSION_LOYALTY    = 169,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  1
+    DIFFICULTY_PATH_OF_ASCENSION_WISDOM     = 170,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  1
+    DIFFICULTY_PATH_OF_ASCENSION_HUMILITY   = 171,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  1
+    DIFFICULTY_WORLD_BOSS                   = 172,  // 0 (Not Instanced),   MinPlayers:  1, MaxPlayers: 40
+    DIFFICULTY_CHALLENGE_LEVEL_1            = 192,  // 0 (Not Instanced),   MinPlayers:  1, MaxPlayers: 40
+    DIFFICULTY_FOLLOWER                     = 205,  // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_DELVES                       = 208,  // 5 (Scenario),        MinPlayers:  1, MaxPlayers:  5
+    DIFFICULTY_QUEST                        = 216,  // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
+    DIFFICULTY_STORY                        = 220,  // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 10
+    DIFFICULTY_HEROIC_NOT_INSTANCED         = 230   // 0 (Not Instanced),   MinPlayers:  1, MaxPlayers:  1
 };
 
 enum DifficultyFlags
 {
-    DIFFICULTY_FLAG_HEROIC_STYLE_LOCKOUTS   = 0x01,
-    DIFFICULTY_FLAG_DEFAULT                 = 0x02,
-    DIFFICULTY_FLAG_CAN_SELECT              = 0x04, // Player can select this difficulty in dropdown menu
-    //DIFFICULTY_FLAG_CHALLENGE_MODE          = 0x08, // deprecated since Legion expansion
-    DIFFICULTY_FLAG_LFG_ONLY                = 0x10,
-    DIFFICULTY_FLAG_LEGACY                  = 0x20,
-    DIFFICULTY_FLAG_DISPLAY_HEROIC          = 0x40, // Controls icon displayed on minimap when inside the instance
-    DIFFICULTY_FLAG_DISPLAY_MYTHIC          = 0x80  // Controls icon displayed on minimap when inside the instance
+    DIFFICULTY_FLAG_NONE                    = 0x000,
+    DIFFICULTY_FLAG_HEROIC_STYLE_LOCKOUTS   = 0x001,
+    DIFFICULTY_FLAG_DEFAULT                 = 0x002,
+    DIFFICULTY_FLAG_USER_SELECTABLE         = 0x004, // Player can select this difficulty in dropdown menu
+    // DIFFICULTY_FLAG_CHALLENGE_MODE       = 0x008, // deprecated since Legion expansion
+    DIFFICULTY_FLAG_LFG_ONLY                = 0x010,
+    DIFFICULTY_FLAG_LEGACY                  = 0x020,
+    DIFFICULTY_FLAG_DISPLAY_HEROIC          = 0x040, // Controls icon displayed on minimap when inside the instance
+    DIFFICULTY_FLAG_DISPLAY_MYTHIC          = 0x080, // Controls icon displayed on minimap when inside the instance
+    DIFFICULTY_FLAG_UNK100                  = 0x100,
+    DIFFICULTY_FLAG_UNK200                  = 0x200
 };
 
 enum class ExpectedStatType : uint8

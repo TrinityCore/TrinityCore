@@ -580,9 +580,9 @@ bool Quest::IsRaidQuest(Difficulty difficulty) const
         case QUEST_INFO_RAID:
             return true;
         case QUEST_INFO_RAID_10:
-            return difficulty == DIFFICULTY_10_N || difficulty == DIFFICULTY_10_HC;
+            return difficulty == DIFFICULTY_10_NORMAL || difficulty == DIFFICULTY_10_HEROIC;
         case QUEST_INFO_RAID_25:
-            return difficulty == DIFFICULTY_25_N || difficulty == DIFFICULTY_25_HC;
+            return difficulty == DIFFICULTY_25_NORMAL || difficulty == DIFFICULTY_25_HEROIC;
         default:
             break;
     }

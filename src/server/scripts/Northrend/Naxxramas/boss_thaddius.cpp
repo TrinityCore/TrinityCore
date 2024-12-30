@@ -973,10 +973,10 @@ class spell_thaddius_polarity_charge : public SpellScript
         if (GetCaster())
             switch (GetCaster()->GetMap()->GetDifficultyID())
             {
-                case DIFFICULTY_10_N:
+                case DIFFICULTY_10_NORMAL:
                     maxStacks = MAX_POLARITY_10M;
                     break;
-                case DIFFICULTY_25_N:
+                case DIFFICULTY_25_NORMAL:
                     maxStacks = MAX_POLARITY_25M;
                     break;
                 default:

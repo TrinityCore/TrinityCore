@@ -3280,8 +3280,8 @@ bool Map::IsNormal() const
     switch (i_spawnMode)
     {
         case DIFFICULTY_NORMAL:
-        case DIFFICULTY_10_N:
-        case DIFFICULTY_25_N:
+        case DIFFICULTY_10_NORMAL:
+        case DIFFICULTY_25_NORMAL:
         case DIFFICULTY_NORMAL_RAID:
         case DIFFICULTY_NORMAL_ISLAND:
         case DIFFICULTY_NORMAL_WARFRONT:
@@ -3302,10 +3302,10 @@ bool Map::IsHeroic() const
     // compatibility purposes of old difficulties
     switch (i_spawnMode)
     {
-        case DIFFICULTY_10_HC:
-        case DIFFICULTY_25_HC:
+        case DIFFICULTY_10_HEROIC:
+        case DIFFICULTY_25_HEROIC:
         case DIFFICULTY_HEROIC:
-        case DIFFICULTY_3_MAN_SCENARIO_HC:
+        case DIFFICULTY_HEROIC_SCENARIO:
             return true;
         default:
             return false;
@@ -3331,12 +3331,12 @@ bool Map::IsHeroicOrHigher() const
 
 bool Map::Is25ManRaid() const
 {
-    return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
+    return IsRaid() && (i_spawnMode == DIFFICULTY_25_NORMAL || i_spawnMode == DIFFICULTY_25_HEROIC);
 }
 
 bool Map::IsTimewalking() const
 {
-    return (IsDungeon() && i_spawnMode == DIFFICULTY_TIMEWALKING) || (IsRaid() && i_spawnMode == DIFFICULTY_TIMEWALKING_RAID);
+    return (IsDungeon() && i_spawnMode == DIFFICULTY_TIMEWALKING_PARTY) || (IsRaid() && i_spawnMode == DIFFICULTY_TIMEWALKING_RAID);
 }
 
 bool Map::IsBattleground() const

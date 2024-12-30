@@ -133,7 +133,7 @@ Position const airPos     = {4595.7090f, 2769.4190f, 422.3893f, 0.000000f};
 bool IsVampire(Unit const* unit)
 {
     for (uint8 i = 0; i < 3; ++i)
-        if (unit->HasAura(vampireAuras[i][unit->GetMap()->GetDifficultyID() - DIFFICULTY_10_N]))
+        if (unit->HasAura(vampireAuras[i][unit->GetMap()->GetDifficultyID() - DIFFICULTY_10_NORMAL]))
             return true;
     return false;
 }

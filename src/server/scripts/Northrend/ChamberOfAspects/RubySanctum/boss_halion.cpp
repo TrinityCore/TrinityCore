@@ -1283,7 +1283,7 @@ class npc_living_inferno : public CreatureScript
                 me->CastSpell(me, SPELL_BLAZING_AURA, true);
 
                 // SMSG_SPELL_GO for the living ember stuff isn't even sent to the client - Blizzard on drugs.
-                if (me->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
+                if (me->GetMap()->GetDifficultyID() == DIFFICULTY_25_HEROIC)
                     scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
                     {
                         me->CastSpell(me, SPELL_SPAWN_LIVING_EMBERS, true);

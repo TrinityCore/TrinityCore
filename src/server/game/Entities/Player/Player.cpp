@@ -281,7 +281,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_InstanceValid = true;
     m_dungeonDifficulty = DIFFICULTY_NORMAL;
     m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
-    m_legacyRaidDifficulty = DIFFICULTY_10_N;
+    m_legacyRaidDifficulty = DIFFICULTY_10_NORMAL;
 
     m_lastPotionId = 0;
     m_empowerMinHoldStagePercent = 1.0f;
@@ -30020,7 +30020,7 @@ Difficulty Player::CheckLoadedDungeonDifficultyID(Difficulty difficulty)
     if (difficultyEntry->InstanceType != MAP_INSTANCE)
         return DIFFICULTY_NORMAL;
 
-    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_USER_SELECTABLE))
         return DIFFICULTY_NORMAL;
 
     return difficulty;
@@ -30035,7 +30035,7 @@ Difficulty Player::CheckLoadedRaidDifficultyID(Difficulty difficulty)
     if (difficultyEntry->InstanceType != MAP_RAID)
         return DIFFICULTY_NORMAL_RAID;
 
-    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || (difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_USER_SELECTABLE) || (difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
         return DIFFICULTY_NORMAL_RAID;
 
     return difficulty;
@@ -30045,13 +30045,13 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
 {
     DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!difficultyEntry)
-        return DIFFICULTY_10_N;
+        return DIFFICULTY_10_NORMAL;
 
     if (difficultyEntry->InstanceType != MAP_RAID)
-        return DIFFICULTY_10_N;
+        return DIFFICULTY_10_NORMAL;
 
-    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || !(difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
-        return DIFFICULTY_10_N;
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_USER_SELECTABLE) || !(difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
+        return DIFFICULTY_10_NORMAL;
 
     return difficulty;
 }

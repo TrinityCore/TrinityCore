@@ -928,7 +928,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDunge
         return;
     }
 
-    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_USER_SELECTABLE))
     {
         TC_LOG_DEBUG("network", "WorldSession::HandleSetDungeonDifficultyOpcode: player {} sent unselectable instance mode {}!",
             _player->GetGUID().ToString(), difficultyEntry->ID);
@@ -986,7 +986,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
         return;
     }
 
-    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_USER_SELECTABLE))
     {
         TC_LOG_DEBUG("network", "WorldSession::HandleSetDungeonDifficultyOpcode: player {} sent unselectable instance mode {}!",
             _player->GetGUID().ToString(), difficultyEntry->ID);

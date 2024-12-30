@@ -399,7 +399,7 @@ struct boss_malygos : public BossAI
         {
             _summonDeaths = value;
 
-            if (GetDifficulty() == DIFFICULTY_10_N)
+            if (GetDifficulty() == DIFFICULTY_10_NORMAL)
             {
                 if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_10MAN)
                 {
@@ -407,7 +407,7 @@ struct boss_malygos : public BossAI
                     DoAction(ACTION_HANDLE_P_THREE_INTRO);
                 }
             }
-            else if (GetDifficulty() == DIFFICULTY_25_N)
+            else if (GetDifficulty() == DIFFICULTY_25_NORMAL)
             {
                 if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_25MAN)
                 {
@@ -825,7 +825,7 @@ struct boss_malygos : public BossAI
 
                     if (_arcaneReinforcements)
                     {
-                        for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == DIFFICULTY_10_N ? 4 : 5); rangeDisks++)
+                        for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == DIFFICULTY_10_NORMAL ? 4 : 5); rangeDisks++)
                         {
                             Creature* casterDiskSummon = me->SummonCreature(NPC_HOVER_DISK_CASTER, RangeHoverDisksSpawnPositions[rangeDisks]);
 
@@ -841,7 +841,7 @@ struct boss_malygos : public BossAI
 
                         _arcaneReinforcements = false;
 
-                        if (GetDifficulty() == DIFFICULTY_25_N)
+                        if (GetDifficulty() == DIFFICULTY_25_NORMAL)
                             events.ScheduleEvent(EVENT_DELAYED_REINFORCEMENTS, 1s, 0, PHASE_TWO);
                     }
                     break;
@@ -921,7 +921,7 @@ struct boss_malygos : public BossAI
                     SetPhase(PHASE_THREE, true);
                     break;
                 case EVENT_SURGE_OF_POWER_P_THREE:
-                    if (GetDifficulty() == DIFFICULTY_10_N)
+                    if (GetDifficulty() == DIFFICULTY_10_NORMAL)
                     {
                         if (Unit* tempSurgeTarget = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
                         {
@@ -938,7 +938,7 @@ struct boss_malygos : public BossAI
                             }
                         }
                     }
-                    else if (GetDifficulty() == DIFFICULTY_25_N)
+                    else if (GetDifficulty() == DIFFICULTY_25_NORMAL)
                     {
                         for (ObjectGuid& guid : _surgeTargetGUID)
                             guid.Clear();
@@ -1568,10 +1568,10 @@ class spell_malygos_arcane_storm : public SpellScript
         {
             // Resize list only to objects that are vehicles.
             IsCreatureVehicleCheck check(true);
-            Trinity::Containers::RandomResize(targets, check, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_N ? 4 : 10));
+            Trinity::Containers::RandomResize(targets, check, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_NORMAL ? 4 : 10));
         }
         else
-            Trinity::Containers::RandomResize(targets, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_N ? 4 : 10));
+            Trinity::Containers::RandomResize(targets, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_NORMAL ? 4 : 10));
     }
 
     void HandleVisual(SpellEffIndex /*effIndex*/)
@@ -2068,9 +2068,9 @@ private:
     {
         if (Creature* target = GetTarget()->ToCreature())
         {
-            if (target->GetMap()->GetDifficultyID() == DIFFICULTY_10_N)
+            if (target->GetMap()->GetDifficultyID() == DIFFICULTY_10_NORMAL)
                 _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0s);
-            else if (target->GetMap()->GetDifficultyID() == DIFFICULTY_25_N)
+            else if (target->GetMap()->GetDifficultyID() == DIFFICULTY_25_NORMAL)
                 _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0s);
         }
     }

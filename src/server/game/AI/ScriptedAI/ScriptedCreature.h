@@ -249,7 +249,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         Difficulty GetDifficulty() const { return _difficulty; }
 
         // return true for 25 man or 25 man heroic mode
-        bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
+        bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_NORMAL || _difficulty == DIFFICULTY_25_HEROIC; }
 
         template <class T>
         inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const
@@ -272,9 +272,9 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         {
             switch (_difficulty)
             {
-                case DIFFICULTY_10_N:
+                case DIFFICULTY_10_NORMAL:
                     return normal10;
-                case DIFFICULTY_25_N:
+                case DIFFICULTY_25_NORMAL:
                     return normal25;
                 default:
                     break;
@@ -288,13 +288,13 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         {
             switch (_difficulty)
             {
-                case DIFFICULTY_10_N:
+                case DIFFICULTY_10_NORMAL:
                     return normal10;
-                case DIFFICULTY_25_N:
+                case DIFFICULTY_25_NORMAL:
                     return normal25;
-                case DIFFICULTY_10_HC:
+                case DIFFICULTY_10_HEROIC:
                     return heroic10;
-                case DIFFICULTY_25_HC:
+                case DIFFICULTY_25_HEROIC:
                     return heroic25;
                 default:
                     break;
