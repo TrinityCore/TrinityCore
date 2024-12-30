@@ -242,6 +242,25 @@ void AIRelocationNotifier::Visit(CreatureMapType &m)
     }
 }
 
+void CreatureAggroGracePeriodExpiredNotifier::Visit(CreatureMapType& m)
+{
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Creature* c = iter->GetSource();
+        CreatureUnitRelocationWorker(c, &i_creature);
+        CreatureUnitRelocationWorker(&i_creature, c);
+    }
+}
+
+void CreatureAggroGracePeriodExpiredNotifier::Visit(PlayerMapType& m)
+{
+    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Player* player = iter->GetSource();
+        CreatureUnitRelocationWorker(&i_creature, player);
+    }
+}
+
 /*
 void
 MessageDistDeliverer::VisitObject(Player* player)

@@ -2580,13 +2580,6 @@ Rate.Auction.Cut     = 1
 Rate.Honor = 1
 
 #
-#    Rate.Talent
-#        Description: Talent point rate.
-#        Default:     1
-
-Rate.Talent = 1
-
-#
 #    Rate.Reputation.Gain
 #        Description: Reputation gain rate.
 #        Default:     1

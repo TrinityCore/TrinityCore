@@ -170,7 +170,7 @@ class boss_corborus : public CreatureScript
                             // Face Corborus to players and set new home position
                             me->SetFacingTo(3.176499f);
                             me->SetHomePosition(1154.55f, 878.843f, 284.963f, 3.176499f);
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
 
                             // Despawn Millhouse and all trash
                             instance->SetData(DATA_MILLHOUSE_EVENT_DESPAWN, 0);
