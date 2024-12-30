@@ -291,7 +291,7 @@ struct boss_lord_marrowgar : public BossAI
         return &_coldflameLastPos;
     }
 
-    ObjectGuid GetGUID(int32 type /*= 0 */) const override
+    ObjectGuid GetGUID(int32 type) const override
     {
         switch (type)
         {

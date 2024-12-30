@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
@@ -85,10 +86,10 @@ struct at_kings_rest_trigger_intro_event_with_zul : AreaTriggerAI
 };
 
 // 7690 - Shadow of Zul - KingsRest Intro
-class conversation_kings_rest_intro : public ConversationScript
+class conversation_kings_rest_intro : public ConversationAI
 {
 public:
-    conversation_kings_rest_intro() : ConversationScript("conversation_kings_rest_intro") { }
+    conversation_kings_rest_intro(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum KingsRestIntroConversationData
     {
@@ -103,7 +104,7 @@ public:
         EVENT_ZUL_INTRO_DESPAWN,
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* /*creator*/) override
+    void OnCreate(Unit* /*creator*/) override
     {
         TempSummon* shadowOfZul = conversation->SummonCreature(NPC_SHADOW_OF_ZUL, ShadowOfZulIntroSpawnPosition, TEMPSUMMON_MANUAL_DESPAWN);
         if (!shadowOfZul)
@@ -113,12 +114,12 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         _events.ScheduleEvent(EVENT_ZUL_OPEN_INTRO_DOOR, conversation->GetLineEndTime(DEFAULT_LOCALE, CONVO_LINE_INTRO_DOOR));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -595,7 +596,7 @@ void AddSC_kings_rest()
     RegisterAreaTriggerAI(at_kings_rest_gust_slash);
 
     // Conversation
-    new conversation_kings_rest_intro();
+    RegisterConversationAI(conversation_kings_rest_intro);
 
     // Spells
     RegisterSpellScript(spell_kings_rest_suppression_slam);

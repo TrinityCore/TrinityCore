@@ -15,16 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LootItemType_h__
-#define LootItemType_h__
+#include "Conversation.h"
+#include "ConversationAI.h"
 
-#include "Define.h"
-
-enum class LootItemType : uint8
+ConversationAI::ConversationAI(Conversation* c, uint32 scriptId) : _scriptId(scriptId ? scriptId : c->GetScriptId()), conversation(c)
 {
-    Item            = 0,
-    Currency        = 1,
-    TrackingQuest   = 2
-};
+    ASSERT(_scriptId, "A ConversationAI was initialized with an invalid scriptId!");
+}
 
-#endif // LootItemType_h__
+ConversationAI::~ConversationAI()
+{
+}
