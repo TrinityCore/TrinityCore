@@ -112,7 +112,6 @@ enum DemonHunterSpells
     SPELL_DH_FELBLADE_DAMAGE                       = 213243,
     SPELL_DH_FIERY_BRAND                           = 204021,
     SPELL_DH_FIERY_BRAND_RANK_2                    = 320962,
-    SPELL_DH_FIERY_BRAND_DMG_REDUCTION_DEBUFF      = 207744,
     SPELL_DH_FIERY_BRAND_DEBUFF_RANK_1             = 207744,
     SPELL_DH_FIERY_BRAND_DEBUFF_RANK_2             = 207771,
     SPELL_DH_FIRST_BLOOD                           = 206416,
