@@ -18,8 +18,10 @@
 #include "Conversation.h"
 #include "ConditionMgr.h"
 #include "Containers.h"
+#include "ConversationAI.h"
 #include "ConversationDataStore.h"
 #include "Creature.h"
+#include "CreatureAISelector.h"
 #include "DB2Stores.h"
 #include "IteratorPair.h"
 #include "Log.h"
@@ -61,6 +63,8 @@ void Conversation::RemoveFromWorld()
     ///- Remove the Conversation from the accessor and from all lists of objects in world
     if (IsInWorld())
     {
+        _ai->OnRemove();
+
         WorldObject::RemoveFromWorld();
         GetMap()->GetObjectsStore().Remove<Conversation>(GetGUID());
     }
@@ -68,7 +72,7 @@ void Conversation::RemoveFromWorld()
 
 void Conversation::Update(uint32 diff)
 {
-    sScriptMgr->OnConversationUpdate(this, diff);
+    _ai->OnUpdate(diff);
 
     if (GetDuration() > Milliseconds(diff))
     {
@@ -183,6 +187,8 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     SetEntry(conversationEntry);
     SetObjectScale(1.0f);
 
+    AI_Initialize();
+
     _textureKitId = conversationTemplate->TextureKitId;
 
     for (ConversationActorTemplate const& actor : conversationTemplate->Actors)
@@ -227,7 +233,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     // conversations are despawned 5-20s after LastLineEndTime
     _duration += 10s;
 
-    sScriptMgr->OnConversationCreate(this, creator);
+    _ai->OnCreate(creator);
 }
 
 bool Conversation::Start()
@@ -255,7 +261,7 @@ bool Conversation::Start()
     if (!GetMap()->AddToMap(this))
         return false;
 
-    sScriptMgr->OnConversationStart(this);
+    _ai->OnStart();
     return true;
 }
 
@@ -342,6 +348,18 @@ Creature* Conversation::GetActorCreature(uint32 actorIdx) const
     if (!actor)
         return nullptr;
     return actor->ToCreature();
+}
+
+void Conversation::AI_Initialize()
+{
+    AI_Destroy();
+    _ai.reset(FactorySelector::SelectConversationAI(this));
+    _ai->OnInitialize();
+}
+
+void Conversation::AI_Destroy()
+{
+    _ai.reset();
 }
 
 uint32 Conversation::GetScriptId() const

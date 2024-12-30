@@ -3004,8 +3004,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         std::array<bool, std::tuple_size_v<decltype(condition->PrevQuestID)>> results;
         results.fill(true);
         for (std::size_t i = 0; i < condition->PrevQuestID.size(); ++i)
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
-                results[i] = (player->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))) != 0;
+            results[i] = player->IsQuestCompletedBitSet(condition->PrevQuestID[i]);
 
         if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
             return false;
