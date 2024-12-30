@@ -3266,8 +3266,8 @@ bool Map::IsLFR() const
 {
     switch (i_spawnMode)
     {
+        case DIFFICULTY_LFR_OLD:
         case DIFFICULTY_LFR:
-        case DIFFICULTY_LFR_NEW:
         case DIFFICULTY_LFR_15TH_ANNIVERSARY:
             return true;
         default:

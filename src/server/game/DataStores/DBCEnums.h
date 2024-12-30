@@ -982,7 +982,7 @@ enum Difficulty : uint8
     DIFFICULTY_25_NORMAL                    = 4,    // 2 (Raid Dungeon),    MinPlayers: 25, MaxPlayers: 25
     DIFFICULTY_10_HEROIC                    = 5,    // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 10
     DIFFICULTY_25_HEROIC                    = 6,    // 2 (Raid Dungeon),    MinPlayers: 25, MaxPlayers: 25
-    DIFFICULTY_LFR                          = 7,    // 2 (Raid Dungeon),    MinPlayers: 25, MaxPlayers: 25
+    DIFFICULTY_LFR_OLD                      = 7,    // 2 (Raid Dungeon),    MinPlayers: 25, MaxPlayers: 25
     DIFFICULTY_MYTHIC_KEYSTONE              = 8,    // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
     DIFFICULTY_40_PLAYER                    = 9,    // 2 (Raid Dungeon),    MinPlayers: 40, MaxPlayers: 40
     DIFFICULTY_HEROIC_SCENARIO              = 11,   // 5 (Scenario),        MinPlayers:  3, MaxPlayers:  3
@@ -990,7 +990,7 @@ enum Difficulty : uint8
     DIFFICULTY_NORMAL_RAID                  = 14,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
     DIFFICULTY_HEROIC_RAID                  = 15,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
     DIFFICULTY_MYTHIC_RAID                  = 16,   // 2 (Raid Dungeon),    MinPlayers: 20, MaxPlayers: 20
-    DIFFICULTY_LFR_NEW                      = 17,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
+    DIFFICULTY_LFR                          = 17,   // 2 (Raid Dungeon),    MinPlayers: 10, MaxPlayers: 30
     DIFFICULTY_EVENT_RAID                   = 18,   // 2 (Raid Dungeon),    MinPlayers: 40, MaxPlayers: 40
     DIFFICULTY_EVENT_PARTY                  = 19,   // 1 (Party Dungeon),   MinPlayers:  5, MaxPlayers:  5
     DIFFICULTY_EVENT_SCENARIO               = 20,   // 5 (Scenario),        MinPlayers: 25, MaxPlayers: 25

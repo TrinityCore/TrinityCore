@@ -202,7 +202,7 @@ struct boss_garothi_worldbreaker : public BossAI
                 _apocalypseDriveHealthLimit[1] = 35;
                 break;
             case DIFFICULTY_NORMAL_RAID:
-            case DIFFICULTY_LFR_NEW:
+            case DIFFICULTY_LFR:
                 _apocalypseDriveHealthLimit[0] = 60;
                 _apocalypseDriveHealthLimit[1] = 20;
                 break;

@@ -671,7 +671,7 @@ struct boss_anduin_wrynn : public BossAI
                 float marchSpeed = 0.0f;
                 switch (me->GetMap()->GetDifficultyID())
                 {
-                    case DIFFICULTY_LFR_NEW:
+                    case DIFFICULTY_LFR:
                     case DIFFICULTY_NORMAL_RAID:
                     case DIFFICULTY_HEROIC_RAID:
                         marchSpeed = 0.40f;
@@ -3223,7 +3223,7 @@ class spell_anduin_wrynn_march_of_the_damned : public AuraScript
 
         switch (GetCaster()->GetMap()->GetDifficultyID())
         {
-            case DIFFICULTY_LFR_NEW:
+            case DIFFICULTY_LFR:
             case DIFFICULTY_NORMAL_RAID:
             case DIFFICULTY_HEROIC_RAID:
                 raidDifficulty = 28s;
