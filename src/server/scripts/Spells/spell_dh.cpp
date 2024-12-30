@@ -154,6 +154,8 @@ enum DemonHunterSpells
     SPELL_DH_RAIN_OF_CHAOS                         = 205628,
     SPELL_DH_RAIN_OF_CHAOS_IMPACT                  = 232538,
     SPELL_DH_RAZOR_SPIKES                          = 210003,
+    SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
+    SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
     SPELL_DH_SEVER                                 = 235964,
     SPELL_DH_SHATTER_SOUL                          = 209980,
     SPELL_DH_SHATTER_SOUL_1                        = 209981,
@@ -964,6 +966,38 @@ class spell_dh_glide_timer : public AuraScript
     }
 };
 
+// Called by 162264 - Metamorphosis
+class spell_dh_restless_hunter : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_RESTLESS_HUNTER_TALENT, SPELL_DH_RESTLESS_HUNTER_BUFF, SPELL_DH_FEL_RUSH })
+            && sSpellCategoryStore.HasRecord(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, DIFFICULTY_NONE)->ChargeCategoryId);
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_RESTLESS_HUNTER_TALENT);
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+
+        target->CastSpell(target, SPELL_DH_RESTLESS_HUNTER_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+
+        target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty())->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_restless_hunter::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 // 388116 - Shattered Destiny
 class spell_dh_shattered_destiny : public AuraScript
 {
@@ -1191,6 +1225,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterSpellScript(spell_dh_last_resort);
+    RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_tactical_retreat);
