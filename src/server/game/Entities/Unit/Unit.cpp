@@ -3268,6 +3268,7 @@ void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
     ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
     WorldObject::ProcessPositionDataChanged(data);
     ProcessTerrainStatusUpdate(oldLiquidStatus, data.liquidInfo);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CurrentAreaID), data.areaId);
 }
 
 void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData)
