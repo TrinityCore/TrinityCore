@@ -63,9 +63,9 @@ class TC_GAME_API GameObjectAI
         virtual void Reset() { }
 
         // Pass parameters between AI
-        virtual void DoAction(int32 /*param = 0 */) { }
-        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id = 0 */) { }
-        virtual ObjectGuid GetGUID(int32 /*id = 0 */) const { return ObjectGuid::Empty; }
+        virtual void DoAction([[maybe_unused]] int32 param) { }
+        virtual void SetGUID([[maybe_unused]] ObjectGuid const& guid, [[maybe_unused]] int32 id) { }
+        virtual ObjectGuid GetGUID([[maybe_unused]] int32 id) const { return ObjectGuid::Empty; }
 
         static int32 Permissible(GameObject const* go);
 
