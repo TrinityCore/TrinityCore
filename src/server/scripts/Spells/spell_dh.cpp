@@ -215,9 +215,6 @@ class spell_dh_calcified_spikes : public AuraScript
 
     void HandleAfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-            return;
-
         Unit* target = GetTarget();
         target->CastSpell(target, SPELL_DH_CALCIFIED_SPIKES_MOD_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -227,7 +224,7 @@ class spell_dh_calcified_spikes : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_calcified_spikes::HandleAfterRemove, EFFECT_1, SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_calcified_spikes::HandleAfterRemove, EFFECT_1, SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -236,10 +233,10 @@ class spell_dh_calcified_spikes_periodic : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 }, { spellInfo->Id, EFFECT_1 } });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
         if (AuraEffect* damagePctTaken = GetEffect(EFFECT_0))
             damagePctTaken->ChangeAmount(damagePctTaken->GetAmount() + 1);
