@@ -971,7 +971,8 @@ class spell_dh_restless_hunter : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_RESTLESS_HUNTER_TALENT, SPELL_DH_RESTLESS_HUNTER_BUFF, SPELL_DH_FEL_RUSH });
+        return ValidateSpellInfo({ SPELL_DH_RESTLESS_HUNTER_TALENT, SPELL_DH_RESTLESS_HUNTER_BUFF, SPELL_DH_FEL_RUSH })
+            && sSpellCategoryStore.HasRecord(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, DIFFICULTY_NONE)->ChargeCategoryId);
     }
 
     bool Load() override
@@ -979,7 +980,7 @@ class spell_dh_restless_hunter : public AuraScript
         return GetCaster()->HasAura(SPELL_DH_RESTLESS_HUNTER_TALENT);
     }
 
-    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
         Unit* target = GetTarget();
 
@@ -988,7 +989,7 @@ class spell_dh_restless_hunter : public AuraScript
             .TriggeringAura = aurEff
         });
 
-        target->GetSpellHistory()->RestoreCharge(sSpellMgr->GetSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty())->ChargeCategoryId);
+        target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty())->ChargeCategoryId);
     }
 
     void Register() override
