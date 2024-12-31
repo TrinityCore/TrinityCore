@@ -1442,7 +1442,7 @@ class spell_warl_vile_taint : public SpellScript
         CastSpellTargetArg target = GetHitUnit();
 
         CastSpellExtraArgs args;
-        args.SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST
+        args.SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST
             | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         args.SetTriggeringSpell(GetSpell());
 
