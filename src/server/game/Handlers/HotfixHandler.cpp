@@ -16,12 +16,10 @@
  */
 
 #include "WorldSession.h"
-#include "Containers.h"
-#include "DB2Stores.h"
 #include "GameTime.h"
 #include "HotfixPackets.h"
 #include "Log.h"
-#include "Realm.h"
+#include "MapUtils.h"
 #include "World.h"
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)

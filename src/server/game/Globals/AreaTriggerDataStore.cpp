@@ -16,13 +16,12 @@
  */
 
 #include "AreaTriggerDataStore.h"
-#include "AreaTrigger.h"
 #include "AreaTriggerTemplate.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Timer.h"

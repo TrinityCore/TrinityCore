@@ -17,7 +17,6 @@
 
 #include "Conversation.h"
 #include "ConditionMgr.h"
-#include "Containers.h"
 #include "ConversationAI.h"
 #include "ConversationDataStore.h"
 #include "Creature.h"
@@ -26,10 +25,10 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "UpdateData.h"
 #include "WorldSession.h"
 

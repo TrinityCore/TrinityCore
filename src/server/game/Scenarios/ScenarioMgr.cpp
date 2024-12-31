@@ -16,12 +16,12 @@
  */
 
 #include "ScenarioMgr.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "InstanceScenario.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ScenarioPackets.h"
 
 ScenarioMgr* ScenarioMgr::Instance()
