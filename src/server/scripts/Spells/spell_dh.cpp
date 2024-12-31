@@ -513,24 +513,8 @@ class spell_dh_deflecting_spikes : public SpellScript
     }
 };
 
-struct spell_dh_demonic_impl
-{
-    static void HandleMetamorphosisSpec(Unit* target, uint32 spellId)
-    {
-        SpellInfo const* demonic = sSpellMgr->GetSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE);
-
-        if (!demonic)
-            return;
-
-        if (Aura* aura = target->GetAura(spellId))
-            aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
-        else if (Aura* aura = target->AddAura(spellId, target))
-            aura->SetDuration(demonic->GetEffect(EFFECT_0).CalcValue());
-    }
-};
-
 // Called by 212084 - Fel Devastation and 198013 - Eye Beam
-class spell_dh_demonic : public AuraScript
+class spell_dh_demonic : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -539,31 +523,59 @@ class spell_dh_demonic : public AuraScript
 
     bool Load() override
     {
-        return GetUnitOwner()->HasAura(SPELL_DH_DEMONIC);
+        return GetCaster()->HasAura(SPELL_DH_DEMONIC);
     }
 
-    void HandleHavocMetamorphosis(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleHavocMetamorphosis()
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        SpellInfo const* demonic = sSpellMgr->GetSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE);
+
+        if (!demonic)
             return;
 
-        spell_dh_demonic_impl::HandleMetamorphosisSpec(GetTarget(), SPELL_DH_METAMORPHOSIS_TRANSFORM);
+        if (Aura* aura = GetCaster()->GetAura(SPELL_DH_METAMORPHOSIS_TRANSFORM))
+            aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
+        else if (Aura* aura = GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_TRANSFORM, GetCaster()))
+        {
+            SpellCastTargets targets;
+            targets.SetUnitTarget(GetCaster());
+
+            Spell* spell = new Spell(GetCaster(), sSpellMgr->GetSpellInfo(SPELL_DH_METAMORPHOSIS_TRANSFORM, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, GetCaster()->GetGUID());
+            spell->m_SpellVisual.SpellXSpellVisualID = 0;
+            spell->m_SpellVisual.ScriptVisualID = 0;
+            spell->SetSpellValue(SPELLVALUE_DURATION, demonic->GetEffect(EFFECT_0).CalcValue() + GetHitAura()->GetDuration());
+            spell->prepare(targets);
+        }
     }
 
-    void HandleVengeanceMetamorphosis(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleVengeanceMetamorphosis()
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        SpellInfo const* demonic = sSpellMgr->GetSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE);
+
+        if (!demonic)
             return;
 
-        spell_dh_demonic_impl::HandleMetamorphosisSpec(GetTarget(), SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
+        if (Aura* aura = GetCaster()->GetAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM))
+            aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
+        else if (Aura* aura = GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM, GetCaster()))
+        {
+            SpellCastTargets targets;
+            targets.SetUnitTarget(GetCaster());
+
+            Spell* spell = new Spell(GetCaster(), sSpellMgr->GetSpellInfo(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, GetCaster()->GetGUID());
+            spell->m_SpellVisual.SpellXSpellVisualID = 0;
+            spell->m_SpellVisual.ScriptVisualID = 0;
+            spell->SetSpellValue(SPELLVALUE_DURATION, demonic->GetEffect(EFFECT_0).CalcValue() + GetHitAura()->GetDuration());
+            spell->prepare(targets);
+        }
     }
 
     void Register() override
     {
         if (m_scriptSpellId == SPELL_DH_EYE_BEAM)
-            OnEffectRemove += AuraEffectRemoveFn(spell_dh_demonic::HandleHavocMetamorphosis, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            AfterHit += SpellHitFn(spell_dh_demonic::HandleHavocMetamorphosis);
         else
-            OnEffectRemove += AuraEffectRemoveFn(spell_dh_demonic::HandleVengeanceMetamorphosis, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            AfterHit += SpellHitFn(spell_dh_demonic::HandleVengeanceMetamorphosis);
     }
 };
 
