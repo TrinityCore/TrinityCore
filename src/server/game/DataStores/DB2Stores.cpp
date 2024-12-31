@@ -23,6 +23,7 @@
 #include "ItemTemplate.h"
 #include "IteratorPair.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "Random.h"
 #include "Regex.h"
 #include "Timer.h"
@@ -33,7 +34,6 @@
 #include <array>
 #include <bitset>
 #include <numeric>
-#include <sstream>
 #include <cctype>
 #include <cmath>
 

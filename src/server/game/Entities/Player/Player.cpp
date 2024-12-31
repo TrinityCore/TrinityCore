@@ -87,6 +87,7 @@
 #include "Mail.h"
 #include "MailPackets.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "MovementPackets.h"

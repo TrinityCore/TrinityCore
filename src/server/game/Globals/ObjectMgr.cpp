@@ -16,35 +16,36 @@
  */
 
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
+#include "ArenaTeamMgr.h"
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "Chat.h"
 #include "Containers.h"
 #include "CreatureAIFactory.h"
 #include "CriteriaHandler.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
 #include "GameTables.h"
 #include "GameTime.h"
-#include "GridDefines.h"
 #include "GossipDef.h"
+#include "GridDefines.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
 #include "InstanceScript.h"
 #include "Item.h"
 #include "ItemBonusMgr.h"
-#include "Language.h"
 #include "LFGMgr.h"
+#include "Language.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "Mail.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "MovementTypedefs.h"
 #include "ObjectAccessor.h"
@@ -67,13 +68,13 @@
 #include "ThreadPool.h"
 #include "Timer.h"
 #include "TransportMgr.h"
-#include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include "Vehicle.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
-#include <numeric>
 #include <limits>
+#include <numeric>
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;

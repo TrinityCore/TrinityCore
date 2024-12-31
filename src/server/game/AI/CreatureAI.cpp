@@ -17,7 +17,6 @@
 
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
@@ -27,6 +26,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapReference.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

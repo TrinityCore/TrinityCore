@@ -27,6 +27,7 @@
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

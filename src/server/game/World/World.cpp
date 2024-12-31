@@ -72,6 +72,7 @@
 #include "MMapFactory.h"
 #include "Map.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"

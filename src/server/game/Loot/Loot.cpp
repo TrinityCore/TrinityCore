@@ -16,7 +16,6 @@
  */
 
 #include "Loot.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
@@ -28,6 +27,7 @@
 #include "LootMgr.h"
 #include "LootPackets.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

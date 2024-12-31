@@ -34,6 +34,7 @@
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
