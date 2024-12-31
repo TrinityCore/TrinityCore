@@ -18,6 +18,7 @@
 #ifndef TRINITY_CONTAINERS_H
 #define TRINITY_CONTAINERS_H
 
+#include "Concepts.h"
 #include "Define.h"
 #include "MapUtils.h"
 #include "Random.h"
@@ -63,14 +64,15 @@ namespace Trinity
     {
         // resizes <container> to have at most <requestedSize> elements
         // if it has more than <requestedSize> elements, the elements to keep are selected randomly
-        template<class C>
+        template <std::ranges::forward_range C>
         void RandomResize(C& container, std::size_t requestedSize)
         {
-            static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Trinity::Containers::RandomResize");
-            if (std::size(container) <= requestedSize)
+            uint32 elementsToProcess = uint32(std::ranges::size(container));
+            if (elementsToProcess <= requestedSize)
                 return;
-            auto keepIt = std::begin(container), curIt = std::begin(container);
-            uint32 elementsToKeep = requestedSize, elementsToProcess = std::size(container);
+
+            auto keepIt = std::ranges::begin(container), curIt = std::ranges::begin(container);
+            uint32 elementsToKeep = uint32(requestedSize);
             while (elementsToProcess)
             {
                 // this element has chance (elementsToKeep / elementsToProcess) of being kept
@@ -84,15 +86,15 @@ namespace Trinity
                 ++curIt;
                 --elementsToProcess;
             }
-            container.erase(keepIt, std::end(container));
+            container.erase(keepIt, std::ranges::end(container));
         }
 
-        template<class C, class Predicate>
+        template <std::ranges::forward_range C, invocable_r<bool, std::ranges::range_reference_t<C>> Predicate>
         void RandomResize(C& container, Predicate&& predicate, std::size_t requestedSize)
         {
             //! First use predicate filter
             C containerCopy;
-            std::copy_if(std::begin(container), std::end(container), std::inserter(containerCopy, std::end(containerCopy)), predicate);
+            std::ranges::copy_if(container, std::inserter(containerCopy, std::ranges::end(containerCopy)), std::forward<Predicate>(predicate));
 
             if (requestedSize)
                 RandomResize(containerCopy, requestedSize);
@@ -105,11 +107,11 @@ namespace Trinity
          *
          * Note: container cannot be empty
          */
-        template<class C>
-        inline auto SelectRandomContainerElement(C const& container) -> typename std::add_const<decltype(*std::begin(container))>::type&
+        template <std::ranges::input_range C>
+        inline auto SelectRandomContainerElement(C const& container) -> std::add_const_t<decltype(*std::ranges::begin(container))>&
         {
-            auto it = std::begin(container);
-            std::advance(it, urand(0, uint32(std::size(container)) - 1));
+            auto it = std::ranges::begin(container);
+            std::ranges::advance(it, urand(0, uint32(std::ranges::size(container)) - 1));
             return *it;
         }
 
@@ -122,11 +124,11 @@ namespace Trinity
          *
          * Note: container cannot be empty
          */
-        template<class C>
-        inline auto SelectRandomWeightedContainerElement(C const& container, std::span<double> const& weights) -> decltype(std::begin(container))
+        template <std::ranges::input_range C>
+        inline auto SelectRandomWeightedContainerElement(C const& container, std::span<double> const& weights) -> decltype(std::ranges::begin(container))
         {
-            auto it = std::begin(container);
-            std::advance(it, urandweighted(weights.size(), weights.data()));
+            auto it = std::ranges::begin(container);
+            std::ranges::advance(it, urandweighted(weights.size(), weights.data()));
             return it;
         }
 
@@ -138,10 +140,10 @@ namespace Trinity
          *
          * Note: container cannot be empty
          */
-        template<class C, class Fn>
-        inline auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
+        template <std::ranges::input_range C, invocable_r<double, std::ranges::range_reference_t<C>> Fn>
+        inline auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::ranges::begin(container))
         {
-            std::size_t size = std::size(container);
+            std::size_t size = std::ranges::size(container);
             std::size_t i = 0;
             double* weights = new double[size];
             double weightSum = 0.0;
@@ -152,8 +154,8 @@ namespace Trinity
                 weightSum += weight;
             }
 
-            auto it = std::begin(container);
-            std::advance(it, weightSum > 0.0 ? urandweighted(size, weights) : urand(0, uint32(std::size(container)) - 1));
+            auto it = std::ranges::begin(container);
+            std::ranges::advance(it, weightSum > 0.0 ? urandweighted(size, weights) : urand(0, uint32(std::ranges::size(container)) - 1));
             delete[] weights;
             return it;
         }
@@ -166,10 +168,10 @@ namespace Trinity
          * @param begin Beginning of the range to reorder
          * @param end End of the range to reorder
          */
-        template<class Iterator>
+        template <std::random_access_iterator Iterator>
         inline void RandomShuffle(Iterator begin, Iterator end)
         {
-            std::shuffle(begin, end, RandomEngine::Instance());
+            std::ranges::shuffle(begin, end, RandomEngine::Instance());
         }
 
         /**
@@ -179,10 +181,10 @@ namespace Trinity
          *
          * @param container Container to reorder
          */
-        template<class C>
+        template <std::ranges::random_access_range C>
         inline void RandomShuffle(C& container)
         {
-            RandomShuffle(std::begin(container), std::end(container));
+            RandomShuffle(std::ranges::begin(container), std::ranges::end(container));
         }
 
         /**
@@ -197,8 +199,9 @@ namespace Trinity
          *
          * @return true if containers have a common element, false otherwise.
         */
-        template<class Iterator1, class Iterator2>
-        inline bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+        template <std::input_iterator Iterator1, std::sentinel_for<Iterator1> Sentinel1,
+                  std::input_iterator Iterator2, std::sentinel_for<Iterator2> Sentinel2>
+        inline constexpr bool Intersects(Iterator1 first1, Sentinel1 last1, Iterator2 first2, Sentinel2 last2)
         {
             while (first1 != last1 && first2 != last2)
             {
@@ -226,8 +229,10 @@ namespace Trinity
          *
          * @return true if containers have a common element, false otherwise.
         */
-        template<class Iterator1, class Iterator2, class Predicate>
-        inline bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2, Predicate&& equalPred)
+        template <std::input_iterator Iterator1, std::sentinel_for<Iterator1> Sentinel1,
+                  std::input_iterator Iterator2, std::sentinel_for<Iterator2> Sentinel2,
+                  invocable_r<bool, std::iter_reference_t<Iterator1>, std::iter_reference_t<Iterator2>> Predicate>
+        inline constexpr bool Intersects(Iterator1 first1, Sentinel1 last1, Iterator2 first2, Sentinel2 last2, Predicate&& equalPred)
         {
             while (first1 != last1 && first2 != last2)
             {
@@ -235,7 +240,7 @@ namespace Trinity
                     ++first1;
                 else if (*first2 < *first1)
                     ++first2;
-                else if (!equalPred(*first1, *first2))
+                else if (!std::invoke(std::forward<Predicate>(equalPred), *first1, *first2))
                     ++first1, ++first2;
                 else
                     return true;
@@ -275,8 +280,8 @@ namespace Trinity
             }
         }
 
-        template <typename Container, typename Predicate>
-        void EraseIf(Container& c, Predicate p)
+        template <std::ranges::forward_range Container, invocable_r<bool, std::ranges::range_reference_t<Container>> Predicate>
+        inline void EraseIf(Container& c, Predicate p) requires requires { c.erase(c.begin(), c.end()); }
         {
             if constexpr (std::is_move_assignable_v<decltype(*c.begin())>)
                 Impl::EraseIfMoveAssignable(c, std::ref(p));
@@ -291,7 +296,7 @@ namespace Trinity
          * This exists as separate overload instead of one function with default argument to allow using
          * with vectors of non-default-constructible classes
          */
-        template<typename T>
+        template <typename T>
         inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i)
         {
             if (i >= vec.size())
@@ -306,7 +311,7 @@ namespace Trinity
          *
          * This overload allows specifying what value to pad vector with during .resize
          */
-        template<typename T>
+        template <typename T>
         inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i, T const& resizeDefault)
         {
             if (i >= vec.size())
