@@ -205,7 +205,7 @@ class spell_warl_bilescourge_bombers : public SpellScript
         return ValidateSpellInfo({ SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER });
     }
 
-    void HandleLaunch(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetCaster()->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -215,7 +215,7 @@ class spell_warl_bilescourge_bombers : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warl_bilescourge_bombers::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
+        OnEffectHit += SpellEffectFn(spell_warl_bilescourge_bombers::HandleHit, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
     }
 };
 
