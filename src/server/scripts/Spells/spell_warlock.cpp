@@ -1442,7 +1442,7 @@ class spell_warl_summon_sayaad : public SpellScript
 // 422054 - Shadow Invocation
 class spell_warl_shadow_invocation : public AuraScript
 {
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
