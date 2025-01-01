@@ -222,9 +222,9 @@ class spell_warl_bilescourge_bombers : public SpellScript
 // 15141 - Bilescourge Bombers
 struct at_warl_bilescourge_bombers : AreaTriggerAI
 {
-    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) { }
+    static constexpr Milliseconds TICK_PERIOD = 500ms;
 
-    static constexpr uint32 TICK_PERIOD = 500; // in ms
+    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) { }
 
     void OnUpdate(uint32 diff) override
     {
@@ -236,9 +236,9 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
         if (!caster)
             return;
 
-        _tickTimer += diff;
+        _tickTimer -= Milliseconds(diff);
 
-        while (_tickTimer >= TICK_PERIOD && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD))
+        while (_tickTimer <= 0ms && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD.count()))
         {
             AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
             if (!targetAt)
@@ -248,13 +248,13 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
 
             caster->CastSpell(targetAt->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
 
-            _tickTimer -= TICK_PERIOD;
+            _tickTimer += TICK_PERIOD;
             _ticksDone++;
         }
     }
 
 private:
-    uint32 _tickTimer;
+    Milliseconds _tickTimer;
     uint32 _ticksDone;
 };
 
