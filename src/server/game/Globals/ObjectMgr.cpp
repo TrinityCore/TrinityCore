@@ -16,6 +16,7 @@
  */
 
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
 #include "Chat.h"
