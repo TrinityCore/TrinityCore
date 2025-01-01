@@ -278,6 +278,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsTapListNotClearedOnEvade() const { return m_dontClearTapListOnEvade; }
         void SetDontClearTapListOnEvade(bool dontClear);
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
+        bool CanBeMultiTapped() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CAN_BE_MULTITAPPED); }
+        void SetCanBeMultiTapped(bool apply) { return _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_3_CAN_BE_MULTITAPPED, apply); }
         Loot* GetLootForPlayer(Player const* player) const override;
         bool IsFullyLooted() const;
         bool IsSkinnedBy(Player const* player) const;
