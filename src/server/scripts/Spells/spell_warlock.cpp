@@ -215,7 +215,7 @@ class spell_warl_bilescourge_bombers : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_warl_bilescourge_bombers::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
+        OnEffectHit += SpellEffectFn(spell_warl_bilescourge_bombers::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
     }
 };
 
@@ -233,6 +233,19 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
         caster->CastSpell(dest, SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
     }
 
+    void OnCreate(Spell const* /*creatingSpell*/)
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
+        if (!targetAt)
+            return;
+
+        _missileDest = targetAt->GetPosition();
+    }
+
     void OnUpdate(uint32 diff) override
     {
         Unit* caster = at->GetCaster();
@@ -243,16 +256,6 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
 
         while (_tickTimer <= 0 && _ticksDone < MAX_TICKS)
         {
-            // gotta do it like this, areatrigger is not yet valid in OnCreate
-            if (_ticksDone == 0)
-            {
-                AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
-                if (!targetAt)
-                    return;
-
-                _missileDest = targetAt->GetPosition();
-            }
-
             CastMissile(caster, _missileDest);
 
             _tickTimer += _tickRate;
