@@ -236,9 +236,9 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
         if (!caster)
             return;
 
-        _tickTimer -= diff;
+        _tickTimer += diff;
 
-        while (_tickTimer <= 0 && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD))
+        while (_tickTimer >= TICK_PERIOD && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD))
         {
             AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
             if (!targetAt)
@@ -248,7 +248,7 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
 
             caster->CastSpell(targetAt->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
 
-            _tickTimer += TICK_PERIOD;
+            _tickTimer -= TICK_PERIOD;
             _ticksDone++;
         }
     }
