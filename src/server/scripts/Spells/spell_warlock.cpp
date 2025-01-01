@@ -233,7 +233,7 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
         caster->CastSpell(dest, SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
     }
 
-    void OnCreate(Spell const* /*creatingSpell*/)
+    void OnCreate(Spell const* /*creatingSpell*/) override
     {
         Unit* caster = at->GetCaster();
         if (!caster)
