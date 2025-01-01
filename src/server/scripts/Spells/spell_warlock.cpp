@@ -222,40 +222,62 @@ class spell_warl_bilescourge_bombers : public SpellScript
 // 15141 - Bilescourge Bombers
 struct at_warl_bilescourge_bombers : AreaTriggerAI
 {
-    static constexpr Milliseconds TICK_PERIOD = 500ms;
+    static constexpr uint8 MAX_TICKS = 12;
 
-    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) { }
+    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickRate(areatrigger->GetTotalDuration() / MAX_TICKS), _tickTimer(_tickRate), _ticksDone(0) { }
+
+    // we might wanna move this into some helper struct to reuse for Shadow Invocation talent
+    void CastMissile(Unit* caster, Position dest)
+    {
+        at->SendPlayOrphanSpellVisual(at->GetPosition(), dest, SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+        caster->CastSpell(dest, SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
+    }
 
     void OnUpdate(uint32 diff) override
     {
-        SpellInfo const* atSpell = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_BILESCOURGE_BOMBERS, DIFFICULTY_NONE);
-        if (!atSpell)
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        _tickTimer -= diff;
+
+        while (_tickTimer <= 0 && _ticksDone < MAX_TICKS)
+        {
+            // gotta do it like this, areatrigger is not yet valid in OnCreate
+            if (_ticksDone == 0)
+            {
+                AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
+                if (!targetAt)
+                    return;
+
+                _missileDest = targetAt->GetPosition();
+            }
+
+            CastMissile(caster, _missileDest);
+
+            _tickTimer += _tickRate;
+            _ticksDone++;
+        }
+    }
+
+    void OnRemove() override
+    {
+        // make sure to always have 12 bombers, sometimes at despawns a few ms before last tick should happen
+        if (_ticksDone >= MAX_TICKS)
             return;
 
         Unit* caster = at->GetCaster();
         if (!caster)
             return;
 
-        _tickTimer -= Milliseconds(diff);
-
-        while (_tickTimer <= 0ms && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD.count()))
-        {
-            AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
-            if (!targetAt)
-                continue;
-
-            at->SendPlayOrphanSpellVisual(at->GetPosition(), targetAt->GetPosition(), SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
-
-            caster->CastSpell(targetAt->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
-
-            _tickTimer += TICK_PERIOD;
-            _ticksDone++;
-        }
+        CastMissile(caster, _missileDest);
     }
 
 private:
-    Milliseconds _tickTimer;
-    uint32 _ticksDone;
+    int32 _tickRate;
+    int32 _tickTimer;
+    uint8 _ticksDone;
+    Position _missileDest;
 };
 
 // 111400 - Burning Rush
