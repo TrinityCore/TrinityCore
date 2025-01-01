@@ -44,6 +44,9 @@ enum WarlockSpells
     SPELL_WARLOCK_AGONY                             = 980,
     SPELL_WARLOCK_BACKDRAFT                         = 196406,
     SPELL_WARLOCK_BACKDRAFT_PROC                    = 117828,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS               = 267211,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE       = 267212,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER   = 282248,
     SPELL_WARLOCK_CONFLAGRATE_DEBUFF                = 265931,
     SPELL_WARLOCK_CONFLAGRATE_ENERGIZE              = 245330,
     SPELL_WARLOCK_CORRUPTION_DAMAGE                 = 146739,
@@ -93,10 +96,7 @@ enum WarlockSpells
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE      = 31117,
     SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931,
     SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE             = 453035,
-    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034,
-    SPELL_WARLOCK_BILESCOURGE_BOMBERS               = 267211,
-    SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE       = 267212,
-    SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER   = 282248
+    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034
 };
 
 enum MiscSpells
@@ -195,6 +195,61 @@ private:
     {
         BeforeHit += BeforeSpellHitFn(spell_warl_banish::HandleBanish);
     }
+};
+
+// 267211 - Bilescourge Bombers
+class spell_warl_bilescourge_bombers : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER });
+    }
+
+    void HandleLaunch(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster()->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_warl_bilescourge_bombers::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
+    }
+};
+
+// 15141 - Bilescourge Bombers
+struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
+{
+    areatrigger_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD) {}
+
+    static constexpr Milliseconds TICK_PERIOD = 500ms;
+
+    void OnUpdate(uint32 diff) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        _tickTimer -= Milliseconds(diff);
+
+        while (_tickTimer <= 0s)
+        {
+            if (AreaTrigger* targetAreaTrigger = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS))
+            {
+                at->SendPlayOrphanSpellVisual(Position(at->GetStationaryX(), at->GetStationaryY(), at->GetStationaryZ()),
+                    Position(targetAreaTrigger->GetStationaryX(), targetAreaTrigger->GetStationaryY(), targetAreaTrigger->GetStationaryZ()), SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+
+                caster->CastSpell(targetAreaTrigger->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
+            }
+
+            _tickTimer += TICK_PERIOD;
+        }
+    }
+
+private:
+    Milliseconds _tickTimer;
 };
 
 // 111400 - Burning Rush
@@ -1499,66 +1554,13 @@ class spell_warl_volatile_agony : public SpellScript
     }
 };
 
-// Bilescourge Bombers - 267211
-class spell_warl_bilescourge_bombers : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER });
-    }
-
-    void HandleLaunch(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetCaster()->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-            });
-    }
-
-    void Register() override
-    {
-        OnEffectLaunch += SpellEffectFn(spell_warl_bilescourge_bombers::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
-    }
-};
-
-// Bilescourge Bombers - 15141
-struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
-{
-    areatrigger_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD) {}
-
-    static constexpr Milliseconds TICK_PERIOD = 500ms;
-
-    void OnUpdate(uint32 diff) override
-    {
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
-        _tickTimer -= Milliseconds(diff);
-
-        while (_tickTimer <= 0s)
-        {
-            if (AreaTrigger* targetAreaTrigger = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS))
-            {
-                at->SendPlayOrphanSpellVisual(Position(at->GetStationaryX(), at->GetStationaryY(), at->GetStationaryZ()),
-                    Position(targetAreaTrigger->GetStationaryX(), targetAreaTrigger->GetStationaryY(), targetAreaTrigger->GetStationaryZ()), SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
-
-                caster->CastSpell(targetAreaTrigger->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
-            }
-
-            _tickTimer += TICK_PERIOD;
-        }
-    }
-
-private:
-    Milliseconds _tickTimer;
-};
-
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_absolute_corruption);
     RegisterSpellScript(spell_warl_backdraft);
     RegisterSpellScript(spell_warl_banish);
+    RegisterSpellScript(spell_warl_bilescourge_bombers);
+    RegisterAreaTriggerAI(areatrigger_warl_bilescourge_bombers);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_cataclysm);
     RegisterSpellScript(spell_warl_chaos_bolt);
@@ -1604,6 +1606,4 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_vile_taint);
     RegisterSpellScript(spell_warl_volatile_agony);
-    RegisterSpellScript(spell_warl_bilescourge_bombers);
-    RegisterAreaTriggerAI(areatrigger_warl_bilescourge_bombers);
 }
