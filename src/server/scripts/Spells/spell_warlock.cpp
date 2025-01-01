@@ -236,12 +236,12 @@ struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
 
         while (_tickTimer <= 0s)
         {
-            if (AreaTrigger* targetAreaTrigger = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS))
+            if (AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS))
             {
-                at->SendPlayOrphanSpellVisual(Position(at->GetStationaryX(), at->GetStationaryY(), at->GetStationaryZ()),
-                    Position(targetAreaTrigger->GetStationaryX(), targetAreaTrigger->GetStationaryY(), targetAreaTrigger->GetStationaryZ()), SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+                at->SendPlayOrphanSpellVisual(at->GetPosition(),
+                    targetAt->GetPosition(), SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
 
-                caster->CastSpell(targetAreaTrigger->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
+                caster->CastSpell(targetAt->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
             }
 
             _tickTimer += TICK_PERIOD;
