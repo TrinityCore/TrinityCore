@@ -629,7 +629,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId: 0);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId : 0);
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 

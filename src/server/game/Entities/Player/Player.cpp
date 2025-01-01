@@ -19594,8 +19594,11 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
 
             uint32 questID = fields[0].GetUInt32();
             Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+            if (!quest)
+                continue;
+
             auto itr = m_QuestStatus.find(questID);
-            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE && quest)
+            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)
             {
                 QuestStatusData& questStatusData = itr->second;
                 uint8 storageIndex = fields[1].GetUInt8();
@@ -19632,8 +19635,11 @@ void Player::_LoadQuestStatusObjectiveSpawnTrackings(PreparedQueryResult result)
 
             uint32 questID = fields[0].GetUInt32();
             Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+            if (!quest)
+                continue;
+
             auto itr = m_QuestStatus.find(questID);
-            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE && quest)
+            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)
             {
                 QuestStatusData& questStatusData = itr->second;
                 uint8 storageIndex = fields[1].GetUInt8();
