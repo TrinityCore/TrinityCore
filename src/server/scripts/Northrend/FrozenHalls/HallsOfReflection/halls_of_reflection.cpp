@@ -2829,28 +2829,6 @@ class spell_hor_gunship_cannon_fire : public SpellScriptLoader
         }
 };
 
-// 70698 - Quel'Delar's Will
-class spell_hor_quel_delars_will : public SpellScript
-{
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
-    }
-
-    void HandleReagent(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-
-        // dummy spell consumes reagent, don't ignore it
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_REAGENT_COST);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_hor_quel_delars_will::HandleReagent, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-    }
-};
-
 void AddSC_halls_of_reflection()
 {
     new at_hor_intro_start();
@@ -2877,5 +2855,4 @@ void AddSC_halls_of_reflection()
     new spell_hor_start_halls_of_reflection_quest_ae();
     new spell_hor_evasion();
     new spell_hor_gunship_cannon_fire();
-    RegisterSpellScript(spell_hor_quel_delars_will);
 }
