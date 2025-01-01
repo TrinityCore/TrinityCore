@@ -5553,7 +5553,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
     {
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
-            triggerCaster->CastSpell(target, triggerSpellId, this);
+            triggerCaster->CastSpell(target, triggerSpellId, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST),
+                .TriggeringAura = this
+            });
             TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell {} Trigger {}", GetId(), triggeredSpellInfo->Id);
         }
     }
@@ -5575,6 +5578,7 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
             CastSpellExtraArgs args(this);
+            args.SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), GetAmount());
             triggerCaster->CastSpell(target, triggerSpellId, args);
@@ -6131,7 +6135,9 @@ void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEve
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId, GetBase()->GetCastDifficulty()))
     {
         TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandleProcTriggerSpellAuraProc: Triggering spell {} from aura {} proc", triggeredSpellInfo->Id, GetId());
-        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo->Id, CastSpellExtraArgs(this).SetTriggeringSpell(eventInfo.GetProcSpell()));
+        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo->Id, CastSpellExtraArgs(this)
+            .SetTriggeringSpell(eventInfo.GetProcSpell())
+            .SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST)));
     }
     else if (triggerSpellId && GetAuraType() != SPELL_AURA_DUMMY)
         TC_LOG_ERROR("spells.aura.effect.nospell","AuraEffect::HandleProcTriggerSpellAuraProc: Spell {} has non-existent spell {} in EffectTriggered[{}] and is therefore not triggered.", GetId(), triggerSpellId, GetEffIndex());
@@ -6154,6 +6160,7 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId, GetBase()->GetCastDifficulty()))
     {
         CastSpellExtraArgs args(this);
+        args.SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
         args.SetTriggeringSpell(eventInfo.GetProcSpell());
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetAmount());
         triggerCaster->CastSpell(triggerTarget, triggerSpellId, args);

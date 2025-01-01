@@ -464,12 +464,15 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEven
 m_procCooldown(TimePoint::min()),
 m_lastProcAttemptTime(GameTime::Now() - Seconds(10)), m_lastProcSuccessTime(GameTime::Now() - Seconds(120)), m_scriptRef(this, NoopAuraDeleter())
 {
-    for (SpellPowerEntry const* power : m_spellInfo->PowerCosts)
-        if (power && (power->ManaPerSecond != 0 || power->PowerPctPerSecond > 0.0f))
-            m_periodicCosts.push_back(power);
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES))
+    {
+        for (SpellPowerEntry const* power : m_spellInfo->PowerCosts)
+            if (power && (power->ManaPerSecond != 0 || power->PowerPctPerSecond > 0.0f))
+                m_periodicCosts.push_back(power);
 
-    if (!m_periodicCosts.empty())
-        m_timeCla = 1 * IN_MILLISECONDS;
+        if (!m_periodicCosts.empty())
+            m_timeCla = 1 * IN_MILLISECONDS;
+    }
 
     m_maxDuration = CalcMaxDuration(createInfo.Caster);
     m_duration = m_maxDuration;
