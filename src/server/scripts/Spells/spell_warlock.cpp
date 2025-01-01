@@ -219,19 +219,30 @@ class spell_warl_bilescourge_bombers : public SpellScript
     }
 };
 
+class BilescourgeBombersEvent : public BasicEvent
+{
+public:
+    explicit BilescourgeBombersEvent(Unit* caster, Position srcPos, Position destPos) : _caster(caster), _srcPos(srcPos), _destPos(destPos) { }
+
+    bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+    {
+        _caster->SendPlayOrphanSpellVisual(_srcPos, _destPos, SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+        _caster->CastSpell(_destPos, SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
+        return true;
+    }
+
+private:
+    Unit* _caster;
+    Position _srcPos;
+    Position _destPos;
+};
+
 // 15141 - Bilescourge Bombers
 struct at_warl_bilescourge_bombers : AreaTriggerAI
 {
     static constexpr uint8 MAX_TICKS = 12;
 
-    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickRate(areatrigger->GetTotalDuration() / MAX_TICKS), _tickTimer(_tickRate), _ticksDone(0) { }
-
-    // we might wanna move this into some helper struct to reuse for Shadow Invocation talent
-    void CastMissile(Unit* caster, Position dest)
-    {
-        at->SendPlayOrphanSpellVisual(at->GetPosition(), dest, SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
-        caster->CastSpell(dest, SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
-    }
+    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
@@ -243,44 +254,11 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
         if (!targetAt)
             return;
 
-        _missileDest = targetAt->GetPosition();
+        int32 tickRate = at->GetTotalDuration() / MAX_TICKS;
+
+        for (uint8 i = 1; i <= 12; i++)
+            caster->m_Events.AddEventAtOffset(new BilescourgeBombersEvent(caster, at->GetPosition(), targetAt->GetPosition()), Milliseconds(tickRate * i));
     }
-
-    void OnUpdate(uint32 diff) override
-    {
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
-        _tickTimer -= diff;
-
-        while (_tickTimer <= 0 && _ticksDone < MAX_TICKS)
-        {
-            CastMissile(caster, _missileDest);
-
-            _tickTimer += _tickRate;
-            _ticksDone++;
-        }
-    }
-
-    void OnRemove() override
-    {
-        // make sure to always have 12 bombers, sometimes at despawns a few ms before last tick should happen
-        if (_ticksDone >= MAX_TICKS)
-            return;
-
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
-        CastMissile(caster, _missileDest);
-    }
-
-private:
-    int32 _tickRate;
-    int32 _tickTimer;
-    uint8 _ticksDone;
-    Position _missileDest;
 };
 
 // 111400 - Burning Rush
