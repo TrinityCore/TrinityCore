@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "Creature.h"
 #include "GameObject.h"
@@ -43,6 +44,9 @@ enum WarlockSpells
     SPELL_WARLOCK_AGONY                             = 980,
     SPELL_WARLOCK_BACKDRAFT                         = 196406,
     SPELL_WARLOCK_BACKDRAFT_PROC                    = 117828,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS               = 267211,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE       = 267212,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER   = 282248,
     SPELL_WARLOCK_CONFLAGRATE_DEBUFF                = 265931,
     SPELL_WARLOCK_CONFLAGRATE_ENERGIZE              = 245330,
     SPELL_WARLOCK_CORRUPTION_DAMAGE                 = 146739,
@@ -99,6 +103,11 @@ enum MiscSpells
 {
     SPELL_GEN_REPLENISHMENT                         = 57669,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
+};
+
+enum WarlockSpellVisuals
+{
+    SPELL_VISUAL_WARLOCK_BILESCOURGE_BOMBERS_CRASH  = 75806
 };
 
 // 146739 - Corruption
@@ -185,6 +194,70 @@ private:
     void Register() override
     {
         BeforeHit += BeforeSpellHitFn(spell_warl_banish::HandleBanish);
+    }
+};
+
+// 267211 - Bilescourge Bombers
+class spell_warl_bilescourge_bombers : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster()->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warl_bilescourge_bombers::HandleHit, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
+    }
+};
+
+class BilescourgeBombersEvent : public BasicEvent
+{
+public:
+    explicit BilescourgeBombersEvent(Unit* caster, Position srcPos, Position destPos) : _caster(caster), _srcPos(srcPos), _destPos(destPos) { }
+
+    bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+    {
+        _caster->SendPlayOrphanSpellVisual(_srcPos, _destPos, SPELL_VISUAL_WARLOCK_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+        _caster->CastSpell(_destPos, SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
+        return true;
+    }
+
+private:
+    Unit* _caster;
+    Position _srcPos;
+    Position _destPos;
+};
+
+// 15141 - Bilescourge Bombers
+struct at_warl_bilescourge_bombers : AreaTriggerAI
+{
+    static constexpr uint8 MAX_TICKS = 12;
+
+    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
+        if (!targetAt)
+            return;
+
+        int32 tickRate = at->GetTotalDuration() / MAX_TICKS;
+
+        for (uint8 i = 1; i <= 12; i++)
+            caster->m_Events.AddEventAtOffset(new BilescourgeBombersEvent(caster, at->GetPosition(), targetAt->GetPosition()), Milliseconds(tickRate * i));
     }
 };
 
@@ -1495,6 +1568,8 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_absolute_corruption);
     RegisterSpellScript(spell_warl_backdraft);
     RegisterSpellScript(spell_warl_banish);
+    RegisterSpellScript(spell_warl_bilescourge_bombers);
+    RegisterAreaTriggerAI(at_warl_bilescourge_bombers);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_cataclysm);
     RegisterSpellScript(spell_warl_chaos_bolt);
