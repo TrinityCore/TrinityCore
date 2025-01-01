@@ -222,9 +222,9 @@ class spell_warl_bilescourge_bombers : public SpellScript
 // 15141 - Bilescourge Bombers
 struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
 {
-    areatrigger_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD) {}
+    areatrigger_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) {}
 
-    static constexpr Milliseconds TICK_PERIOD = 500ms;
+    static constexpr uint32 TICK_PERIOD = 500; // in ms
 
     void OnUpdate(uint32 diff) override
     {
@@ -232,9 +232,13 @@ struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
         if (!caster)
             return;
 
-        _tickTimer -= Milliseconds(diff);
+        _tickTimer -= diff;
 
-        while (_tickTimer <= 0s)
+        SpellInfo const* atSpell = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_BILESCOURGE_BOMBERS, DIFFICULTY_NONE);
+        if (!atSpell)
+            return;
+
+        while (_tickTimer <= 0 && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD))
         {
             if (AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS))
             {
@@ -245,11 +249,13 @@ struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
             }
 
             _tickTimer += TICK_PERIOD;
+            _ticksDone++;
         }
     }
 
 private:
-    Milliseconds _tickTimer;
+    uint32 _tickTimer;
+    uint32 _ticksDone;
 };
 
 // 111400 - Burning Rush
