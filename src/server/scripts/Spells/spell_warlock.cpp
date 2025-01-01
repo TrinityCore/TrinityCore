@@ -105,9 +105,9 @@ enum MiscSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
 };
 
-enum WarlockVisuals
+enum WarlockSpellVisuals
 {
-    SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH = 75806
+    SPELL_VISUAL_WARLOCK_BILESCOURGE_BOMBERS_CRASH = 75806
 };
 
 // 146739 - Corruption
@@ -226,7 +226,7 @@ public:
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
-        _caster->SendPlayOrphanSpellVisual(_srcPos, _destPos, SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+        _caster->SendPlayOrphanSpellVisual(_srcPos, _destPos, SPELL_VISUAL_WARLOCK_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
         _caster->CastSpell(_destPos, SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
         return true;
     }
