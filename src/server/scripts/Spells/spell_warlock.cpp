@@ -220,9 +220,9 @@ class spell_warl_bilescourge_bombers : public SpellScript
 };
 
 // 15141 - Bilescourge Bombers
-struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
+struct at_warl_bilescourge_bombers : AreaTriggerAI
 {
-    areatrigger_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) {}
+    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) {}
 
     static constexpr uint32 TICK_PERIOD = 500; // in ms
 
@@ -1566,7 +1566,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_backdraft);
     RegisterSpellScript(spell_warl_banish);
     RegisterSpellScript(spell_warl_bilescourge_bombers);
-    RegisterAreaTriggerAI(areatrigger_warl_bilescourge_bombers);
+    RegisterAreaTriggerAI(at_warl_bilescourge_bombers);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_cataclysm);
     RegisterSpellScript(spell_warl_chaos_bolt);
