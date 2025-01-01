@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "Creature.h"
 #include "GameObject.h"
@@ -92,7 +93,10 @@ enum WarlockSpells
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE      = 31117,
     SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931,
     SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE             = 453035,
-    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034
+    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS               = 267211,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE       = 267212,
+    SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER   = 282248
 };
 
 enum MiscSpells
@@ -1490,6 +1494,78 @@ class spell_warl_volatile_agony : public SpellScript
     }
 };
 
+// Bilescourge Bombers - 267211
+class spell_warl_bilescourge_bombers : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER });
+    }
+
+    void HandleLaunch(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster()->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_warl_bilescourge_bombers::HandleLaunch, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
+    }
+};
+
+// Bilescourge Bombers - 15141
+struct areatrigger_warl_bilescourge_bombers : AreaTriggerAI
+{
+    areatrigger_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD) {}
+
+    static constexpr Milliseconds TICK_PERIOD = Milliseconds(500);
+
+    void OnUpdate(uint32 diff) override
+    {
+        _tickTimer -= Milliseconds(diff);
+
+        while (_tickTimer <= 0s)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                if (AreaTrigger* targetAreaTrigger = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS))
+                {
+                    /*
+                    * KNOWN ISSUE: The spell visual for Bilescourge Bombers is not working as expected.
+                    * The visual ID (673054720) might be incorrect, or the `SendPlayOrphanSpellVisual` method
+                    * might not be implemented or functioning correctly.
+                    *
+                    * Example of a spell visual packet (SMSG_PLAY_ORPHAN_SPELL_VISUAL) for reference:
+                    * ServerToClient: SMSG_PLAY_ORPHAN_SPELL_VISUAL (0x4D0038) Length: 57 ConnIdx: 1 Time: 01/01/2025 12:00:34.134 Number: 10668
+                    *   SourceLocation: X: -8757.073 Y: 656.87024 Z: 105.092514
+                    *   SourceOrientation: X: 0 Y: 0 Z: 0
+                    *   TargetLocation: X: -8759.188 Y: 656.11005 Z: 104.93936
+                    *   Target: Full: 0x0
+                    *   SpellVisualID: 673054720
+                    *   TravelSpeed: 0
+                    *   LaunchDelay: 0
+                    *   MinDuration: 0
+                    *   SpeedAsTime: False
+                    *
+                    * Uncomment the following line to send a spell visual effect from the source to the target AreaTrigger:
+                    * at->SendPlayOrphanSpellVisual(Position(at->GetStationaryX(), at->GetStationaryY(), at->GetStationaryZ()),
+                    *     Position(targetAreaTrigger->GetStationaryX(), targetAreaTrigger->GetStationaryY(), targetAreaTrigger->GetStationaryZ()), 673054720, 0.0f);
+                    */
+                    caster->CastSpell(targetAreaTrigger->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
+                }
+            }
+
+            _tickTimer += TICK_PERIOD;
+        }
+    }
+
+private:
+    Milliseconds _tickTimer;
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_absolute_corruption);
@@ -1540,4 +1616,6 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_vile_taint);
     RegisterSpellScript(spell_warl_volatile_agony);
+    RegisterSpellScript(spell_warl_bilescourge_bombers);
+    RegisterAreaTriggerAI(areatrigger_warl_bilescourge_bombers);
 }
