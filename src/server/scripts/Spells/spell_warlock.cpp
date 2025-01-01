@@ -240,13 +240,13 @@ struct at_warl_bilescourge_bombers : AreaTriggerAI
 
         while (_tickTimer <= 0 && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD))
         {
-            if (AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS))
-            {
-                at->SendPlayOrphanSpellVisual(at->GetPosition(),
-                    targetAt->GetPosition(), SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+            AreaTrigger* targetAt = caster->GetAreaTrigger(SPELL_WARLOCK_BILESCOURGE_BOMBERS);
+            if (!targetAt)
+                continue;
 
-                caster->CastSpell(targetAt->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
-            }
+            at->SendPlayOrphanSpellVisual(at->GetPosition(), targetAt->GetPosition(), SPELL_WARLOCK_VISUAL_BILESCOURGE_BOMBERS_CRASH, 0.5f, true);
+
+            caster->CastSpell(targetAt->GetPosition(), SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE);
 
             _tickTimer += TICK_PERIOD;
             _ticksDone++;
