@@ -222,21 +222,21 @@ class spell_warl_bilescourge_bombers : public SpellScript
 // 15141 - Bilescourge Bombers
 struct at_warl_bilescourge_bombers : AreaTriggerAI
 {
-    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) {}
+    at_warl_bilescourge_bombers(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _tickTimer(TICK_PERIOD), _ticksDone(0) { }
 
     static constexpr uint32 TICK_PERIOD = 500; // in ms
 
     void OnUpdate(uint32 diff) override
     {
+        SpellInfo const* atSpell = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_BILESCOURGE_BOMBERS, DIFFICULTY_NONE);
+        if (!atSpell)
+            return;
+
         Unit* caster = at->GetCaster();
         if (!caster)
             return;
 
         _tickTimer -= diff;
-
-        SpellInfo const* atSpell = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_BILESCOURGE_BOMBERS, DIFFICULTY_NONE);
-        if (!atSpell)
-            return;
 
         while (_tickTimer <= 0 && _ticksDone <= (atSpell->GetMaxDuration() / TICK_PERIOD))
         {
