@@ -52,8 +52,10 @@ class spell_into_the_mists_scene_jf : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        GetHitUnit()->CancelMountAura();
-        GetHitUnit()->CastSpell(nullptr, Spells::CancelBlackout, CastSpellExtraArgsInit{
+        Unit* hitUnit = GetHitUnit();
+
+        hitUnit->CancelMountAura();
+        hitUnit->CastSpell(nullptr, Spells::CancelBlackout, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .OriginalCastId = GetSpell()->m_castId
         });
@@ -108,8 +110,10 @@ class spell_the_mission_scene_jf : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        GetHitUnit()->CancelMountAura();
-        GetHitUnit()->CastSpell(nullptr, Spells::CancelBlackout, CastSpellExtraArgsInit{
+        Unit* hitUnit = GetHitUnit();
+
+        hitUnit->CancelMountAura();
+        hitUnit->CastSpell(nullptr, Spells::CancelBlackout, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .OriginalCastId = GetSpell()->m_castId
         });

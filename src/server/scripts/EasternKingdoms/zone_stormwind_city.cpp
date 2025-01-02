@@ -593,8 +593,10 @@ class spell_teleport_prep_alliance : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        GetHitUnit()->CancelMountAura();
-        GetHitUnit()->CastSpell(nullptr, Spells::TeleportTimer, CastSpellExtraArgsInit{
+        Unit* hitUnit = GetHitUnit();
+
+        hitUnit->CancelMountAura();
+        hitUnit->CastSpell(nullptr, Spells::TeleportTimer, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .OriginalCastId = GetSpell()->m_castId
         });
@@ -618,8 +620,10 @@ class spell_teleport_timer_alliance : public AuraScript
 
     void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        GetTarget()->CancelTravelShapeshiftForm();
-        GetTarget()->CastSpell(nullptr, Spells::TheMissionTeleportPlayer, CastSpellExtraArgsInit{
+        Unit* target = GetTarget();
+
+        target->CancelTravelShapeshiftForm();
+        target->CastSpell(nullptr, Spells::TheMissionTeleportPlayer, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
