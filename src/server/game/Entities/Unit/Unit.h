@@ -402,11 +402,11 @@ class DispelInfo
 
 struct CleanDamage
 {
-    CleanDamage(uint32 mitigated, uint32 absorbed, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome) :
-    absorbed_damage(absorbed), mitigated_damage(mitigated), attackType(_attackType), hitOutCome(_hitOutCome) { }
+    CleanDamage(uint32 original, uint32 absorbed, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome) :
+        original_damage(original), absorbed_damage(absorbed), attackType(_attackType), hitOutCome(_hitOutCome) { }
 
     uint32 absorbed_damage;
-    uint32 mitigated_damage;
+    uint32 original_damage;
 
     WeaponAttackType attackType;
     MeleeHitOutcome hitOutCome;
@@ -543,7 +543,6 @@ struct CalcDamageInfo
     WeaponAttackType AttackType; //
     ProcFlagsInit ProcAttacker;
     ProcFlagsInit ProcVictim;
-    uint32 CleanDamage;          // Used only for rage calculation
     MeleeHitOutcome HitOutCome;  /// @todo remove this field (need use TargetState)
 };
 
@@ -566,7 +565,6 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 blocked;
     uint32 HitInfo;
     // Used for help
-    uint32 cleanDamage;
     bool   fullBlock;
     uint32 preHitHealth;
 };
@@ -936,6 +934,8 @@ class TC_GAME_API Unit : public WorldObject
         void DoMeleeAttackIfReady();
         void AttackerStateUpdate(Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
+        static uint32 CalcMeleeAttackRageGain(Unit const* attacker, WeaponAttackType attType);
+        static uint32 CalcDamageTakenRageGain(Unit const* victim, uint32 damage);
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss);
         void HandleProcExtraAttackFor(Unit* victim, uint32 count);
@@ -1748,7 +1748,7 @@ class TC_GAME_API Unit : public WorldObject
 
         float GetHoverOffset() const { return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? *m_unitData->HoverHeight : 0.0f; }
 
-        int32 RewardRage(uint32 baseRage);
+        int32 RewardRage(uint32 baseRage, bool asAttacker);
 
         virtual float GetFollowAngle() const { return static_cast<float>(M_PI/2); }
 
