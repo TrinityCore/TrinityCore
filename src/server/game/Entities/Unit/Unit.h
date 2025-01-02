@@ -403,7 +403,7 @@ class DispelInfo
 struct CleanDamage
 {
     CleanDamage(uint32 original, uint32 absorbed, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome) :
-        original_damage(original), absorbed_damage(absorbed), attackType(_attackType), hitOutCome(_hitOutCome) { }
+        absorbed_damage(absorbed), original_damage(original), attackType(_attackType), hitOutCome(_hitOutCome) { }
 
     uint32 absorbed_damage;
     uint32 original_damage;
