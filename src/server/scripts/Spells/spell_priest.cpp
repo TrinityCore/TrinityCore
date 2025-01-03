@@ -47,6 +47,7 @@ enum PriestSpells
     SPELL_PRIEST_ANSWERED_PRAYERS                   = 394289,
     SPELL_PRIEST_APOTHEOSIS                         = 200183,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
+    SPELL_PRIEST_ASSURED_SAFETY                     = 440766,
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_EFFECT                   = 194384,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
@@ -380,6 +381,40 @@ class spell_pri_aq_3p_bonus : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_aq_3p_bonus::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 17 - Power Word: Shield
+class spell_pri_assured_safety : public spell_pri_prayer_of_mending_SpellScriptBase
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        if (!GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY))
+            return false;
+
+        return true;
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        AuraEffect const* effect = caster->GetAuraEffect(SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0);
+        if (!effect)
+            return;
+
+        CastPrayerOfMendingAura(caster, target, caster, effect->GetAmount());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_assured_safety::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -2362,7 +2397,7 @@ public:
         return true;
     }
 
-    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualSender, uint8 stack, bool firstCast) const
+    void CastPrayerOfMendingAura(Unit* caster, Unit* target, Unit* visualSender, uint8 stack, bool firstCast = false) const
     {
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
@@ -2509,7 +2544,7 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     void HandleJump(SpellEffIndex /*effIndex*/) const
     {
         if (Unit* origCaster = GetOriginalCaster())
-            CastPrayerOfMendingAura(origCaster, GetHitUnit(), GetCaster(), GetEffectValue(), false);
+            CastPrayerOfMendingAura(origCaster, GetHitUnit(), GetCaster(), GetEffectValue());
     }
 
     void Register() override
@@ -3575,6 +3610,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_abyssal_reverie);
     RegisterSpellScript(spell_pri_answered_prayers);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
+    RegisterSpellScript(spell_pri_assured_safety);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_effect);
     RegisterSpellScript(spell_pri_atonement_effect_aura);
