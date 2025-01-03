@@ -2291,7 +2291,7 @@ void Player::GiveLevel(uint8 level)
     packet.PowerDelta[6] = 0;
 
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-        packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
+        packet.StatDelta[i] = info.stats[i] - GetCreateStat(Stats(i));
 
     packet.NumNewTalents = DB2Manager::GetNumTalentsAtLevel(level, Classes(GetClass())) - DB2Manager::GetNumTalentsAtLevel(oldLevel, Classes(GetClass()));
     packet.NumNewPvpTalentSlots = sDB2Manager.GetPvpTalentNumSlotsAtLevel(level, Classes(GetClass())) - sDB2Manager.GetPvpTalentNumSlotsAtLevel(oldLevel, Classes(GetClass()));

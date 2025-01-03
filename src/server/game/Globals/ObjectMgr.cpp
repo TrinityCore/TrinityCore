@@ -4265,7 +4265,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                     PlayerLevelInfo& levelInfo = playerInfo->levelInfo[current_level - 1];
                     for (uint8 i = 0; i < MAX_STATS; ++i)
-                        levelInfo.stats[i] = fields[i + 2].GetUInt16() + raceStatModifiers[race].StatModifier[i];
+                        levelInfo.stats[i] = fields[i + 2].GetInt32() + raceStatModifiers[race].StatModifier[i];
                 }
             }
 

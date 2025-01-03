@@ -280,12 +280,6 @@ constexpr uint32 SummonWeaponsSpells[] =
     SPELL_SUMMON_WEAPONE, SPELL_SUMMON_WEAPONF, SPELL_SUMMON_WEAPONG
 };
 
-constexpr uint32 RemoveWeaponsSpells[] =
-{
-    SPELL_REMOVE_WEAPONA, SPELL_REMOVE_WEAPONB, SPELL_REMOVE_WEAPONC, SPELL_REMOVE_WEAPOND,
-    SPELL_REMOVE_WEAPONE, SPELL_REMOVE_WEAPONF, SPELL_REMOVE_WEAPONG
-};
-
 constexpr uint32 GravityLapseSpells[] =
 {
     SPELL_GRAVITY_LAPSE_TELE_FRONT,
@@ -1383,27 +1377,6 @@ class spell_kaelthas_summon_weapons : public SpellScript
     }
 };
 
-// 39497 - Remove Enchanted Weapons
-class spell_kaelthas_remove_weapons : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(RemoveWeaponsSpells);
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetHitPlayer())
-            for (uint32 spells : RemoveWeaponsSpells)
-                player->CastSpell(player, spells, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_REAGENT_COST);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_kaelthas_remove_weapons::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_boss_kaelthas()
 {
     RegisterTheEyeCreatureAI(boss_kaelthas);
@@ -1417,5 +1390,4 @@ void AddSC_boss_kaelthas()
     RegisterSpellScript(spell_kael_gravity_lapse);
     RegisterSpellScript(spell_kaelthas_flame_strike);
     RegisterSpellScript(spell_kaelthas_summon_weapons);
-    RegisterSpellScript(spell_kaelthas_remove_weapons);
 }

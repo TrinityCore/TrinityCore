@@ -205,23 +205,6 @@ class spell_brewfest_exhausted_ram : public AuraScript
     }
 };
 
-// 43714 - Brewfest - Relay Race - Intro - Force - Player to throw- DND
-class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScript
-{
-    void HandleForceCast(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        // All this spells trigger a spell that requires reagents; if the
-        // triggered spell is cast as "triggered", reagents are not consumed
-        GetHitUnit()->CastSpell(nullptr, GetEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_REAGENT_COST);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_intro_force_player_to_throw::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-    }
-};
-
 // 43755 - Brewfest - Daily - Relay Race - Player - Increase Mount Duration - DND
 class spell_brewfest_relay_race_turn_in : public SpellScript
 {
@@ -634,7 +617,6 @@ void AddSC_event_brewfest()
     RegisterSpellScript(spell_brewfest_ram_fatigue);
     RegisterSpellScript(spell_brewfest_apple_trap);
     RegisterSpellScript(spell_brewfest_exhausted_ram);
-    RegisterSpellScript(spell_brewfest_relay_race_intro_force_player_to_throw);
     RegisterSpellScript(spell_brewfest_relay_race_turn_in);
     RegisterSpellScript(spell_brewfest_dismount_ram);
     RegisterSpellScript(spell_brewfest_barker_bunny);
