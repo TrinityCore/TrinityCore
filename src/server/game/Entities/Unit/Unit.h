@@ -361,6 +361,20 @@ enum UnitTypeMask
     UNIT_MASK_ACCESSORY             = 0x00000200
 };
 
+struct PriorityRules
+{
+    int32_t weight;
+    std::function<bool(Unit*)> condition;
+};
+
+enum class PriorityRulesType
+{
+    // priority is a) injured b) player c) grouped with invoker.
+    SmartHealing                    = 0
+};
+
+static inline std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
+
 struct DiminishingReturn
 {
     DiminishingReturn() : stack(0), hitTime(0), hitCount(DIMINISHING_LEVEL_1) { }
@@ -1840,6 +1854,11 @@ class TC_GAME_API Unit : public WorldObject
         void SetVignette(uint32 vignetteId);
 
         std::string GetDebugInfo() const override;
+
+        std::vector<PriorityRules> GetPriorityRules(PriorityRulesType type) const;
+
+        // default rule is smart healing, which prefers injured > players > grouped.
+        void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::optional<std::vector<PriorityRules>> priorityRules = std::nullopt) const;
 
         UF::UpdateField<UF::UnitData, int32(WowCS::EntityFragment::CGObject), TYPEID_UNIT> m_unitData;
 

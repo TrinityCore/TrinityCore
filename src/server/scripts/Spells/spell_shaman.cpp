@@ -215,14 +215,14 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
         return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_GUIDANCE });
     }
 
-    static void ResizeTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        Trinity::SelectRandomInjuredTargets(targets, 3, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, 3);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal::ResizeTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -469,9 +469,9 @@ class spell_sha_downpour : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        Trinity::SelectRandomInjuredTargets(targets, 6, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, 6);
     }
 
     void CountEffectivelyHealedTarget()
@@ -481,7 +481,7 @@ class spell_sha_downpour : public SpellScript
             ++_healedTargets;
     }
 
-    void HandleCooldown()
+    void HandleCooldown() const
     {
         SpellHistory::Duration cooldown = Milliseconds(GetSpellInfo()->RecoveryTime) + Seconds(GetEffectInfo(EFFECT_1).CalcValue() * _healedTargets);
         GetCaster()->GetSpellHistory()->StartCooldown(GetSpellInfo(), 0, GetSpell(), false, cooldown);
@@ -899,28 +899,28 @@ class spell_sha_healing_rain : public SpellScript
 // 73921 - Healing Rain
 class spell_sha_healing_rain_target_limit : public SpellScript
 {
-    void SelectTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        Trinity::SelectRandomInjuredTargets(targets, 6, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, 6);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_target_limit::SelectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_target_limit::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
 // 52042 - Healing Stream Totem
 class spell_sha_healing_stream_totem_heal : public SpellScript
 {
-    void SelectTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_totem_heal::SelectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_totem_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 

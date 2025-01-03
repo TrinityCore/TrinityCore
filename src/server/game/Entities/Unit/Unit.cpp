@@ -14214,3 +14214,60 @@ DeclinedName::DeclinedName(UF::DeclinedNames const& uf)
     for (std::size_t i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         name[i] = uf.Name[i];
 }
+
+std::vector<PriorityRules> Unit::GetPriorityRules(PriorityRulesType type) const
+{
+    switch (type)
+    {
+        case PriorityRulesType::SmartHealing:
+        {
+            return CreatePriorityRules
+            ({
+                { 1, [this](Unit* target) { return target->IsInRaidWith(this); }},
+                { 2, [](Unit* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
+                { 4, [](Unit* target) { return !target->IsFullHealth(); }}
+            });
+        }
+
+        default:
+            return {};
+    }
+}
+
+void Unit::SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::optional<std::vector<PriorityRules>> priorityRules) const
+{
+    if (targets.size() <= maxTargets)
+        return;
+
+    const auto& rules = priorityRules.value_or(GetPriorityRules(PriorityRulesType::SmartHealing));
+
+    std::vector<std::pair<WorldObject*, int32_t>> prioritizedTargets;
+    prioritizedTargets.reserve(targets.size());
+
+    for (WorldObject* target : targets)
+    {
+        Unit* unit = target ? target->ToUnit() : nullptr;
+        if (!unit)
+            continue;
+
+        int32_t totalPriority = 0;
+
+        for (const auto& rule : rules)
+            if (rule.condition(unit))
+                totalPriority += rule.weight;
+
+        prioritizedTargets.emplace_back(target, totalPriority);
+    }
+
+    // the higher the value, the higher the priority is.
+    std::stable_sort(prioritizedTargets.begin(), prioritizedTargets.end(), [](const auto& left, const auto& right)
+    {
+        return left.second > right.second;
+    });
+
+    std::list<WorldObject*> chosenTargets;
+    for (size_t i = 0; i < maxTargets && i < prioritizedTargets.size(); ++i)
+        chosenTargets.push_back(prioritizedTargets[i].first);
+
+    targets = std::move(chosenTargets);
+}
