@@ -384,40 +384,6 @@ class spell_pri_aq_3p_bonus : public AuraScript
     }
 };
 
-// 17 - Power Word: Shield
-class spell_pri_assured_safety : public spell_pri_prayer_of_mending_SpellScriptBase
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellEffect({ { SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0 } });
-    }
-
-    bool Load() override
-    {
-        if (!GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY))
-            return false;
-
-        return true;
-    }
-
-    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        AuraEffect const* effect = caster->GetAuraEffect(SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0);
-        if (!effect)
-            return;
-
-        CastPrayerOfMendingAura(caster, target, caster, effect->GetAmount());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_assured_safety::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-    }
-};
-
 // 81749 - Atonement
 class spell_pri_atonement : public AuraScript
 {
@@ -2675,6 +2641,40 @@ class spell_pri_holy_10_1_class_set_4pc_aura : public AuraScript
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_pri_holy_10_1_class_set_4pc_aura::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 17 - Power Word: Shield
+class spell_pri_assured_safety : public spell_pri_prayer_of_mending_SpellScriptBase
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        if (!GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY))
+            return false;
+
+        return true;
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        AuraEffect const* effect = caster->GetAuraEffect(SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0);
+        if (!effect)
+            return;
+
+        CastPrayerOfMendingAura(caster, target, caster, effect->GetAmount());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_assured_safety::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
