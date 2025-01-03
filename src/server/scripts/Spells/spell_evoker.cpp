@@ -33,6 +33,7 @@
 
 enum EvokerSpells
 {
+    SPELL_EVOKER_ANCIENT_FLAME                  = 375583,
     SPELL_EVOKER_BLAST_FURNACE                  = 375510,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DK      = 381732,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DH      = 381741,
@@ -70,6 +71,30 @@ enum EvokerSpellLabels
 enum EvokerSpellVisuals
 {
     SPELL_VISUAL_KIT_EVOKER_VERDANT_EMBRACE_JUMP    = 152557,
+};
+
+// Called by 361469 - Living Flame (Red)
+class spell_evo_ancient_flame : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_ANCIENT_FLAME });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_ANCIENT_FLAME);
+    }
+
+    void HandleAncientFlame() const
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_EVOKER_ANCIENT_FLAME);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_ancient_flame::HandleAncientFlame);
+    }
 };
 
 // 362969 - Azure Strike (blue)
@@ -427,6 +452,7 @@ class spell_evo_verdant_embrace_trigger_heal : public SpellScript
 
 void AddSC_evoker_spell_scripts()
 {
+    RegisterSpellScript(spell_evo_ancient_flame);
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
     RegisterSpellScript(spell_evo_charged_blast);
