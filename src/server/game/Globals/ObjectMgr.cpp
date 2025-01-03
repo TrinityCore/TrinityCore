@@ -6848,19 +6848,19 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
     uint32 MapId = location.GetMapId();
 
     // search for zone associated closest graveyard
-    uint32 zoneId = sTerrainMgr.GetZoneId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
+    uint32 areaId = sTerrainMgr.GetAreaId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
 
-    if (!zoneId)
+    if (!areaId)
     {
         if (z > -500)
         {
-            TC_LOG_ERROR("misc", "ZoneId not found for map {} coords ({}, {}, {})", MapId, x, y, z);
+            TC_LOG_ERROR("misc", "AreaId not found for map {} coords ({}, {}, {})", MapId, x, y, z);
             return GetDefaultGraveyard(team);
         }
     }
 
-    WorldSafeLocsEntry const* graveyard = GetClosestGraveyardInZone(location, team, conditionObject, zoneId);
-    AreaTableEntry const* zoneEntry = sAreaTableStore.AssertEntry(zoneId);
+    WorldSafeLocsEntry const* graveyard = GetClosestGraveyardInZone(location, team, conditionObject, areaId);
+    AreaTableEntry const* zoneEntry = sAreaTableStore.AssertEntry(areaId);
     AreaTableEntry const* parentEntry = sAreaTableStore.LookupEntry(zoneEntry->ParentAreaID);
 
     while (!graveyard && parentEntry)
