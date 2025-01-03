@@ -2992,7 +2992,7 @@ class spell_pri_spirit_of_redemption : public AuraScript
 // 8092 - Mind Blast
 class spell_pri_shadow_covenant : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_COVENANT, SPELL_PRIEST_SHADOW_COVENANT_EFFECT });
     }
