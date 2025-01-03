@@ -1327,11 +1327,11 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilit
     if (!victim || damage == 0)
         return 0;
 
-    float multiplier = static_cast<float>(damage) / victim->GetMaxHealth();
+    double multiplier = static_cast<double>(damage) / victim->GetMaxHealth();
 
     // This formula is based on sampling multiple sniff data at multiple level ranges
     // There has never been any leak and the only info we have is that the amount is based on max HP and damage taken and that there is a hidden constant
-    return uint32(std::round(400 * multiplier));
+    return uint32(std::ceil(400 * multiplier));
 }
 
 /// @todo for melee need create structure as in
