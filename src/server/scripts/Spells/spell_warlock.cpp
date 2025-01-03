@@ -1175,6 +1175,22 @@ class spell_warl_shadow_bolt : public SpellScript
     }
 };
 
+// 422054 - Shadow Invocation
+class spell_warl_shadow_invocation : public AuraScript
+{
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        caster->m_Events.AddEventAtOffset(new BilescourgeBombersEvent(caster, caster->GetPosition(), target->GetPosition()), 500ms);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_shadow_invocation::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+    }
+};
+
 // 452999 - Siphon Life
 class spell_warl_siphon_life : public AuraScript
 {
@@ -1439,22 +1455,6 @@ class spell_warl_summon_sayaad : public SpellScript
     }
 };
 
-// 422054 - Shadow Invocation
-class spell_warl_shadow_invocation : public AuraScript
-{
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetActionTarget();
-        caster->m_Events.AddEventAtOffset(new BilescourgeBombersEvent(caster, caster->GetPosition(), target->GetPosition()), 500ms);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_warl_shadow_invocation::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
-    }
-};
-
 // 37377 - Shadowflame
 // 39437 - Shadowflame Hellfire and RoF
 template <uint32 Trigger>
@@ -1617,6 +1617,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_warl_seed_of_corruption_dummy, spell_warl_seed_of_corruption_dummy_aura);
     RegisterSpellScript(spell_warl_seed_of_corruption_generic);
     RegisterSpellScript(spell_warl_shadow_bolt);
+    RegisterSpellScript(spell_warl_shadow_invocation);
     RegisterSpellScript(spell_warl_siphon_life);
     RegisterSpellScript(spell_warl_soul_swap);
     RegisterSpellScript(spell_warl_soul_swap_dot_marker);
@@ -1626,7 +1627,6 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_strengthen_pact_incubus);
     RegisterSpellScript(spell_warl_strengthen_pact_succubus);
     RegisterSpellScript(spell_warl_summon_sayaad);
-    RegisterSpellScript(spell_warl_shadow_invocation);
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>, "spell_warl_t4_2p_bonus_shadow");
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
