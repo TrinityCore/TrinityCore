@@ -1189,7 +1189,11 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
             uint32 effectIndex = fields[3].GetUInt8();
             if (effectIndex < MAX_SPELL_EFFECTS)
             {
-                casterGuid.SetRawValue(fields[0].GetBinary());
+                std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+                if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                    continue;
+
+                casterGuid.SetRawValue(rawGuidBytes);
                 if (casterGuid.IsEmpty())
                     casterGuid = GetGUID();
 
@@ -1211,7 +1215,11 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
         {
             Field* fields = auraResult->Fetch();
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
-            casterGuid.SetRawValue(fields[0].GetBinary());
+            std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+            if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                continue;
+
+            casterGuid.SetRawValue(rawGuidBytes);
             if (casterGuid.IsEmpty())
                 casterGuid = GetGUID();
 

@@ -185,14 +185,8 @@ bool Group::Create(Player* leader)
         stmt->setUInt8(index++, uint8(m_lootMethod));
         stmt->setUInt64(index++, m_looterGuid.GetCounter());
         stmt->setUInt8(index++, uint8(m_lootThreshold));
-        stmt->setBinary(index++, m_targetIcons[0].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[1].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[2].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[3].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[4].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[5].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[6].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[7].GetRawValue());
+        for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
+            stmt->setBinary(index++, m_targetIcons[i].GetRawValue());
         stmt->setUInt16(index++, m_groupFlags);
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
@@ -232,7 +226,8 @@ void Group::LoadGroupFromDB(Field* fields)
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
-        m_targetIcons[i].SetRawValue(fields[4 + i].GetBinary());
+        if (std::span<uint8 const> rawGuidBytes = fields[4 + i].GetBinaryView(); rawGuidBytes.size() == ObjectGuid::BytesSize)
+            m_targetIcons[i].SetRawValue(rawGuidBytes);
 
     m_groupFlags  = GroupFlags(fields[12].GetUInt16());
     if (m_groupFlags & GROUP_FLAG_RAID)

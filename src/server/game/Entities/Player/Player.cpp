@@ -18733,8 +18733,17 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
             uint32 effectIndex = fields[4].GetUInt8();
             if (effectIndex < MAX_SPELL_EFFECTS)
             {
-                casterGuid.SetRawValue(fields[0].GetBinary());
-                itemGuid.SetRawValue(fields[1].GetBinary());
+                std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+                if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                    continue;
+
+                casterGuid.SetRawValue(rawGuidBytes);
+
+                rawGuidBytes = fields[1].GetBinaryView();
+                if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                    continue;
+
+                itemGuid.SetRawValue(rawGuidBytes);
                 AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
                 AuraLoadEffectInfo& info = effectInfo[key];
                 info.Amounts[effectIndex] = fields[5].GetInt32();
@@ -18753,8 +18762,17 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
         do
         {
             Field* fields = auraResult->Fetch();
-            casterGuid.SetRawValue(fields[0].GetBinary());
-            itemGuid.SetRawValue(fields[1].GetBinary());
+            std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+            if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                continue;
+
+            casterGuid.SetRawValue(rawGuidBytes);
+
+            rawGuidBytes = fields[1].GetBinaryView();
+            if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                continue;
+
+            itemGuid.SetRawValue(rawGuidBytes);
             AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
             uint32 recalculateMask = fields[4].GetUInt32();
             Difficulty difficulty = Difficulty(fields[5].GetUInt8());
