@@ -167,8 +167,6 @@ enum PriestSpells
     SPELL_PRIEST_SANCTUARY                          = 231682,
     SPELL_PRIEST_SANCTUARY_ABSORB                   = 208771,
     SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
-    SPELL_PRIEST_SHADOW_COVENANT                    = 314867,
-    SPELL_PRIEST_SHADOW_COVENANT_EFFECT             = 322105,
     SPELL_PRIEST_RHAPSODY_PROC                      = 390636,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
@@ -2970,33 +2968,31 @@ class spell_pri_spirit_of_redemption : public AuraScript
     }
 };
 
-// 8092 - Mind Blast
+// 314867 - Shadow Covenant
 class spell_pri_shadow_covenant : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_COVENANT, SPELL_PRIEST_SHADOW_COVENANT_EFFECT });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
-    bool Load() override
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        if (!GetCaster()->HasAura(SPELL_PRIEST_SHADOW_COVENANT))
-            return false;
+        // remove explicit target (will be readded later)
+        Trinity::Containers::Lists::RemoveUnique(targets, GetExplTargetWorldObject());
 
-        return true;
-    }
+        // we must remove one since explicit target is always added.
+        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) - 1);
 
-    void TriggerShadowCovenant() const
-    {
-        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_COVENANT_EFFECT, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+
+        if (Unit* explicitTarget = GetExplTargetUnit())
+            targets.push_front(explicitTarget);
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_pri_shadow_covenant::TriggerShadowCovenant);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_shadow_covenant::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
