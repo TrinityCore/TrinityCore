@@ -7115,6 +7115,8 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool per
         // Store graveyard condition if team is set
         if (team != 0)
         {
+            using namespace std::string_view_literals;
+
             WorldDatabasePreparedStatement* conditionStmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CONDITION);
             conditionStmt->setUInt32(0, CONDITION_SOURCE_TYPE_GRAVEYARD); // SourceTypeOrReferenceId
             conditionStmt->setUInt32(1, zoneId); // SourceGroup
@@ -7129,8 +7131,8 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool per
             conditionStmt->setUInt8(10, 0); // NegativeCondition
             conditionStmt->setUInt32(11, 0); // ErrorType
             conditionStmt->setUInt32(12, 0); // ErrorTextId
-            conditionStmt->setString(13, ""); // ScriptName
-            conditionStmt->setString(14, ""); // Comment
+            conditionStmt->setString(13, ""sv); // ScriptName
+            conditionStmt->setString(14, ""sv); // Comment
 
             WorldDatabase.Execute(conditionStmt);
 
