@@ -1178,7 +1178,7 @@ class spell_warl_shadow_bolt : public SpellScript
 // 422054 - Shadow Invocation
 class spell_warl_shadow_invocation : public AuraScript
 {
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
@@ -1187,7 +1187,7 @@ class spell_warl_shadow_invocation : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_warl_shadow_invocation::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+        OnProc += AuraProcFn(spell_warl_shadow_invocation::HandleProc);
     }
 };
 
