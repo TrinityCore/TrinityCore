@@ -1321,6 +1321,9 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilit
     return uint32(rage * 10);
 }
 
+// The minimum amount a damaging hit should award
+constexpr uint32 MIN_RAGE_AMOUNT = 10;
+
 // Calculates the amount of rage gained from taking damage
 /*static*/ uint32 Unit::CalcDamageTakenRageGain(Unit const* victim, uint32 damage)
 {
@@ -1331,7 +1334,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilit
 
     // This formula is based on sampling multiple sniff data at multiple level ranges
     // There has never been any leak and the only info we have is that the amount is based on max HP and damage taken and that there is a hidden constant
-    return uint32(std::ceil(400 * multiplier));
+    return uint32(std::max<uint32>(MIN_RAGE_AMOUNT, std::ceil(400 * multiplier)));
 }
 
 /// @todo for melee need create structure as in
