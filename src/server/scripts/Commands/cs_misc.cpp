@@ -1982,10 +1982,12 @@ public:
             target->GetSession()->m_muteTime = 0;
         }
 
+        using namespace std::string_view_literals;
+
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);
-        stmt->setString(1, "");
-        stmt->setString(2, "");
+        stmt->setString(1, ""sv);
+        stmt->setString(2, ""sv);
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
 
