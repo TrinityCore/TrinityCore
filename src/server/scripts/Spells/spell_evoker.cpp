@@ -57,6 +57,7 @@ enum EvokerSpells
     SPELL_EVOKER_PERMEATING_CHILL_TALENT        = 370897,
     SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
     SPELL_EVOKER_SCOURING_FLAME                 = 378438,
+    SPELL_EVOKER_SNAPFIRE                       = 370818,
     SPELL_EVOKER_SOAR_RACIAL                    = 369536,
     SPELL_EVOKER_VERDANT_EMBRACE_HEAL           = 361195,
     SPELL_EVOKER_VERDANT_EMBRACE_JUMP           = 373514
@@ -371,6 +372,51 @@ class spell_evo_scouring_flame : public SpellScript
     }
 };
 
+// Called by 368847 - Firestorm (Red)
+class spell_evo_snapfire : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_SNAPFIRE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_SNAPFIRE);
+    }
+
+    void HandleSnapfire() const
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_EVOKER_SNAPFIRE);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_snapfire::HandleSnapfire);
+    }
+};
+
+// Called by 369374 - Firestorm (Red)
+class spell_evo_snapfire_bonus_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_SNAPFIRE })
+            && ValidateSpellEffect({ { SPELL_EVOKER_SNAPFIRE, EFFECT_1 } });
+    }
+
+    void CalculateDamageBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (AuraEffect* snapfire = GetCaster()->GetAuraEffect(SPELL_EVOKER_SNAPFIRE, EFFECT_1))
+            AddPct(pctMod, snapfire->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_evo_snapfire_bonus_damage::CalculateDamageBonus);
+    }
+};
+
 // 360995 - Verdant Embrace (Green)
 class spell_evo_verdant_embrace : public SpellScript
 {
@@ -437,6 +483,8 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_permeating_chill);
     RegisterSpellScript(spell_evo_pyre);
     RegisterSpellScript(spell_evo_scouring_flame);
+    RegisterSpellScript(spell_evo_snapfire);
+    RegisterSpellScript(spell_evo_snapfire_bonus_damage);
     RegisterSpellScript(spell_evo_verdant_embrace);
     RegisterSpellScript(spell_evo_verdant_embrace_trigger_heal);
 }
