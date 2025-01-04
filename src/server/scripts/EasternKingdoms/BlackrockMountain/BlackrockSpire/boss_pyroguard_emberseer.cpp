@@ -273,7 +273,6 @@ struct boss_pyroguard_emberseer : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -344,8 +343,6 @@ struct npc_blackhand_incarcerator : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:

@@ -21,6 +21,7 @@
 #include "AreaTriggerAI.h"
 #include "ChatCommand.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -90,7 +91,7 @@ struct is_script_database_bound<BattlefieldScript>
     : std::true_type { };
 
 template<>
-struct is_script_database_bound<BattlegroundScript>
+struct is_script_database_bound<BattlegroundMapScript>
     : std::true_type { };
 
 template<>
@@ -382,7 +383,7 @@ public:
 
 /// This hook is responsible for swapping Creature, GameObject and AreaTrigger AI's
 template<typename ObjectType, typename ScriptType, typename Base>
-class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
+class CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks
     : public ScriptRegistrySwapHookBase
 {
     template<typename W>
@@ -484,6 +485,24 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
             "The AI should be null here!");
     }
 
+    // Hook which is called before a conversation is swapped
+    static void UnloadResetScript(Conversation* conversation)
+    {
+        // Remove deletable events only,
+        // otherwise it causes crashes with non-deletable spell events.
+        conversation->m_Events.KillAllEvents(false);
+
+        conversation->AI()->OnRemove();
+    }
+
+    static void UnloadDestroyScript(Conversation* conversation)
+    {
+        conversation->AI_Destroy();
+
+        ASSERT(!conversation->AI(),
+            "The AI should be null here!");
+    }
+
     // Hook which is called after a creature was swapped
     static void LoadInitializeScript(Creature* creature)
     {
@@ -543,6 +562,20 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
         at->AI()->OnCreate(nullptr);
     }
 
+    // Hook which is called after a conversation was swapped
+    static void LoadInitializeScript(Conversation* conversation)
+    {
+        ASSERT(!conversation->AI(),
+            "The AI should be null here!");
+
+        conversation->AI_Initialize();
+    }
+
+    static void LoadResetScript(Conversation* conversation)
+    {
+        conversation->AI()->OnCreate(nullptr);
+    }
+
     static Creature* GetEntityFromMap(std::common_type<Creature>, Map* map, ObjectGuid const& guid)
     {
         return map->GetCreature(guid);
@@ -556,6 +589,11 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
     static AreaTrigger* GetEntityFromMap(std::common_type<AreaTrigger>, Map* map, ObjectGuid const& guid)
     {
         return map->GetAreaTrigger(guid);
+    }
+
+    static Conversation* GetEntityFromMap(std::common_type<Conversation>, Map* map, ObjectGuid const& guid)
+    {
+        return map->GetConversation(guid);
     }
 
     static auto VisitObjectsToSwapOnMap(std::unordered_set<uint32> const& idsToRemove)
@@ -731,33 +769,36 @@ private:
 // This hook is responsible for swapping CreatureAI's
 template<typename Base>
 class ScriptRegistrySwapHooks<CreatureScript, Base>
-    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
+    : public CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks<
         Creature, CreatureScript, Base
       > { };
 
 // This hook is responsible for swapping GameObjectAI's
 template<typename Base>
 class ScriptRegistrySwapHooks<GameObjectScript, Base>
-    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
+    : public CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks<
         GameObject, GameObjectScript, Base
       > { };
 
 // This hook is responsible for swapping AreaTriggerAI's
 template<typename Base>
 class ScriptRegistrySwapHooks<AreaTriggerEntityScript, Base>
-    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
+    : public CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks<
     AreaTrigger, AreaTriggerEntityScript, Base
     > { };
+
+// This hook is responsible for swapping ConversationAI's
+template<typename Base>
+class ScriptRegistrySwapHooks<ConversationScript, Base>
+    : public CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks<
+    Conversation, ConversationScript, Base
+    > {
+};
 
 /// This hook is responsible for swapping BattlefieldScripts
 template<typename Base>
 class ScriptRegistrySwapHooks<BattlefieldScript, Base>
         : public UnsupportedScriptRegistrySwapHooks<Base> { };
-
-/// This hook is responsible for swapping BattlegroundScript's
-template<typename Base>
-class ScriptRegistrySwapHooks<BattlegroundScript, Base>
-    : public UnsupportedScriptRegistrySwapHooks<Base> { };
 
 /// This hook is responsible for swapping OutdoorPvP's
 template<typename Base>
@@ -804,6 +845,35 @@ class ScriptRegistrySwapHooks<InstanceMapScript, Base>
 {
 public:
     ScriptRegistrySwapHooks()  : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
+/// This hook is responsible for swapping BattlegroundMapScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<BattlegroundMapScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
 
     void BeforeReleaseContext(std::string const& context) final override
     {
@@ -931,7 +1001,7 @@ class SpecializedScriptRegistry<ScriptType, true>
     friend class ScriptRegistrySwapHooks;
 
     template<typename, typename, typename>
-    friend class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks;
+    friend class CreatureGameObjectAreaTriggerConversationScriptRegistrySwapHooks;
 
 public:
     SpecializedScriptRegistry() { }
@@ -1623,6 +1693,14 @@ InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
     return tmpscript->GetInstanceScript(map);
 }
 
+BattlegroundScript* ScriptMgr::CreateBattlegroundData(BattlegroundMap* map)
+{
+    ASSERT(map);
+
+    GET_SCRIPT_RET(BattlegroundMapScript, map->GetScriptId(), tmpscript, NULL);
+    return tmpscript->GetBattlegroundScript(map);
+}
+
 bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
 {
     ASSERT(player);
@@ -1720,17 +1798,23 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger, b
     return entered ? tmpscript->OnTrigger(player, trigger) : tmpscript->OnExit(player, trigger);
 }
 
+bool ScriptMgr::CanCreateConversationAI(uint32 scriptId) const
+{
+    return !!ScriptRegistry<ConversationScript>::Instance()->GetScriptById(scriptId);
+}
+
+ConversationAI* ScriptMgr::GetConversationAI(Conversation* conversation)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT_RET(ConversationScript, conversation->GetScriptId(), tmpscript, nullptr);
+    return tmpscript->GetAI(conversation);
+}
+
 Battlefield* ScriptMgr::CreateBattlefield(uint32 scriptId, Map* map)
 {
     GET_SCRIPT_RET(BattlefieldScript, scriptId, tmpscript, nullptr);
     return tmpscript->GetBattlefield(map);
-}
-
-Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
-{
-    /// @todo Implement script-side battlegrounds.
-    ABORT();
-    return nullptr;
 }
 
 OutdoorPvP* ScriptMgr::CreateOutdoorPvP(uint32 scriptId, Map* map)
@@ -2254,40 +2338,6 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
     FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage, spellInfo);
 }
 
-// Conversation
-void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
-{
-    ASSERT(conversation);
-
-    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnConversationCreate(conversation, creator);
-}
-
-void ScriptMgr::OnConversationStart(Conversation* conversation)
-{
-    ASSERT(conversation);
-
-    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnConversationStart(conversation);
-}
-
-void ScriptMgr::OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender)
-{
-    ASSERT(conversation);
-    ASSERT(sender);
-
-    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnConversationLineStarted(conversation, lineId, sender);
-}
-
-void ScriptMgr::OnConversationUpdate(Conversation* conversation, uint32 diff)
-{
-    ASSERT(conversation);
-
-    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnConversationUpdate(conversation, diff);
-}
-
 // Scene
 void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
@@ -2582,6 +2632,11 @@ BattlegroundMapScript::BattlegroundMapScript(char const* name, uint32 mapId)
 
 BattlegroundMapScript::~BattlegroundMapScript() = default;
 
+BattlegroundScript* BattlegroundMapScript::GetBattlegroundScript(BattlegroundMap* /*map*/) const
+{
+    return nullptr;
+}
+
 ItemScript::ItemScript(char const* name)
     : ScriptObject(name)
 {
@@ -2701,14 +2756,6 @@ BattlefieldScript::BattlefieldScript(char const* name)
 }
 
 BattlefieldScript::~BattlefieldScript() = default;
-
-BattlegroundScript::BattlegroundScript(char const* name)
-    : ScriptObject(name)
-{
-    ScriptRegistry<BattlegroundScript>::Instance()->AddScript(this);
-}
-
-BattlegroundScript::~BattlegroundScript() = default;
 
 OutdoorPvPScript::OutdoorPvPScript(char const* name)
     : ScriptObject(name)
@@ -3150,20 +3197,9 @@ ConversationScript::ConversationScript(char const* name)
 
 ConversationScript::~ConversationScript() = default;
 
-void ConversationScript::OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/)
+ConversationAI* ConversationScript::GetAI(Conversation* /*conversation*/) const
 {
-}
-
-void ConversationScript::OnConversationStart(Conversation* /*conversation*/ )
-{
-}
-
-void ConversationScript::OnConversationLineStarted(Conversation* /*conversation*/, uint32 /*lineId*/, Player* /*sender*/)
-{
-}
-
-void ConversationScript::OnConversationUpdate(Conversation* /*conversation*/, uint32 /*diff*/)
-{
+    return nullptr;
 }
 
 SceneScript::SceneScript(char const* name)
@@ -3247,7 +3283,6 @@ template class TC_GAME_API ScriptRegistry<CreatureScript>;
 template class TC_GAME_API ScriptRegistry<GameObjectScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerScript>;
 template class TC_GAME_API ScriptRegistry<BattlefieldScript>;
-template class TC_GAME_API ScriptRegistry<BattlegroundScript>;
 template class TC_GAME_API ScriptRegistry<OutdoorPvPScript>;
 template class TC_GAME_API ScriptRegistry<CommandScript>;
 template class TC_GAME_API ScriptRegistry<WeatherScript>;

@@ -36,7 +36,6 @@ EndScriptData */
 enum Spells
 {
     SPELL_SPOUT             = 37433,
-    SPELL_SPOUT_ANIM        = 42835,
     SPELL_SPOUT_BREATH      = 37431,
     SPELL_KNOCKBACK         = 19813,
     SPELL_GEYSER            = 37478,
@@ -140,6 +139,7 @@ struct boss_the_lurker_below : public BossAI
         me->SetVisible(false); // we start invis under water, submerged
         me->SetUninteractible(true);
         me->SetImmuneToPC(true);
+        me->SetCanMelee(true);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -175,6 +175,7 @@ struct boss_the_lurker_below : public BossAI
                 if (Submerged)
                 {
                     me->SetVisible(true);
+                    me->SetCanMelee(true);
                     Submerged = false;
                     WaitTimer2 = 500;
                 }
@@ -213,6 +214,7 @@ struct boss_the_lurker_below : public BossAI
             if (PhaseTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
+                me->SetCanMelee(false);
                 DoCast(me, SPELL_SUBMERGE);
                 PhaseTimer = 60000; // 60secs submerged
                 Submerged = true;
@@ -224,7 +226,8 @@ struct boss_the_lurker_below : public BossAI
             {
                 Talk(EMOTE_SPOUT);
                 me->SetReactState(REACT_PASSIVE);
-                me->GetMotionMaster()->MoveRotate(0, 20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
+                DoCast(me, SPELL_SPOUT_BREATH, true);
+                me->GetMotionMaster()->MoveRotate(0, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT, 20s, float(M_PI) / 7.0f);
                 SpoutTimer = 45000;
                 WhirlTimer = 20000; // whirl directly after spout
                 RotTimer = 20000;
@@ -261,16 +264,10 @@ struct boss_the_lurker_below : public BossAI
 
             if (RotTimer)
             {
-                instance->instance->DoOnPlayers([&](Player* player)
-                {
-                    if (player->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, player) && me->IsWithinDist(player, SPOUT_DIST) && !player->IsInWater())
-                        DoCast(player, SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
-                });
-
                 if (SpoutAnimTimer <= diff)
                 {
-                    DoCast(me, SPELL_SPOUT_ANIM, true);
-                    SpoutAnimTimer = 1000;
+                    DoCast(me, SPELL_SPOUT, true);
+                    SpoutAnimTimer = 200;
                 } else SpoutAnimTimer -= diff;
 
                 if (RotTimer <= diff)
@@ -311,9 +308,6 @@ struct boss_the_lurker_below : public BossAI
 
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
-
         }
         else // submerged
         {
@@ -324,6 +318,7 @@ struct boss_the_lurker_below : public BossAI
                 me->RemoveAllAuras();
                 me->SetImmuneToPC(false);
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                me->SetCanMelee(true);
                 DoCast(me, SPELL_EMERGE, true);
                 Spawned = false;
                 SpoutTimer = 3000; // directly cast Spout after emerging!
@@ -344,7 +339,7 @@ struct boss_the_lurker_below : public BossAI
 
             if (!Spawned)
             {
-                me->ReplaceAllUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true, true);
                 // spawn adds
                 for (uint8 i = 0; i < 9; ++i)
                     me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN);

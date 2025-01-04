@@ -95,6 +95,9 @@ class TC_GAME_API ThreatManager
         // called from Creature::Update (only creatures can have their own threat list)
         // should not be called from anywhere else
         void Update(uint32 tdiff);
+        // called from Creature::AtEngage
+        // should not be called from anywhere else
+        void ResetUpdateTimer();
 
         // never nullptr
         Unit* GetOwner() const { return _owner; }
@@ -165,7 +168,7 @@ class TC_GAME_API ThreatManager
         // what it says on the tin - call AddThreat on everything that's threatened by us with the specified params
         void ForwardThreatForAssistingMe(Unit* assistant, float baseAmount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false);
         // delete all ThreatReferences with victim == owner
-        void RemoveMeFromThreatLists();
+        void RemoveMeFromThreatLists(bool (*unitFilter)(Unit const* otherUnit));
         // re-calculates the temporary threat modifier from auras on myself
         void UpdateMyTempModifiers();
         // re-calculate SPELL_AURA_MOD_THREAT modifiers
@@ -197,6 +200,7 @@ class TC_GAME_API ThreatManager
         void PurgeThreatListRef(ObjectGuid const& guid);
 
         bool _needClientUpdate;
+        bool _needThreatClearUpdate;
         uint32 _updateTimer;
         std::unique_ptr<Heap> _sortedThreatList;
         std::unordered_map<ObjectGuid, ThreatReference*> _myThreatListEntries;

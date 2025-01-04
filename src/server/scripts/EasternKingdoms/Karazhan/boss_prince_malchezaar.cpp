@@ -550,8 +550,6 @@ public:
                     EnfeebleResetTimer = 9000;
                 } else EnfeebleTimer -= diff;
             }
-
-            DoMeleeAttackIfReady();
         }
 
         void Cleanup(Creature* infernal, InfernalPoint *point)

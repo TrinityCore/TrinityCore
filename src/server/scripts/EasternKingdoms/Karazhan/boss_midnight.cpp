@@ -219,10 +219,7 @@ public:
             if (!UpdateVictim() && _phase != PHASE_NONE)
                 return;
 
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            scheduler.Update(diff);
         }
 
         void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -370,10 +367,7 @@ public:
             if (!UpdateVictim() || _phase == PHASE_MOUNTED)
                 return;
 
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            scheduler.Update(diff);
         }
 
         private:

@@ -37,18 +37,6 @@ enum class AreaTriggerFlag : uint32
 
 DEFINE_ENUM_FLAG(AreaTriggerFlag);
 
-enum class AreaTriggerShapeType : uint8
-{
-    Sphere                         = 0,
-    Box                            = 1,
-    Unk                            = 2,
-    Polygon                        = 3,
-    Cylinder                       = 4,
-    Disk                           = 5,
-    BoundedPlane                   = 6,
-    Max
-};
-
 enum AreaTriggerActionTypes
 {
     AREATRIGGER_ACTION_CAST        = 0,
@@ -76,10 +64,10 @@ enum class AreaTriggerCreatePropertiesFlag : uint32
     HasAttached                    = 0x00004,
     HasFaceMovementDir             = 0x00008,
     HasFollowsTerrain              = 0x00010, // NYI
-    Unk1                           = 0x00020,
+    AlwaysExterior                 = 0x00020,
     HasTargetRollPitchYaw          = 0x00040, // NYI
     HasAnimId                      = 0x00080, // DEPRECATED
-    Unk3                           = 0x00100,
+    VisualAnimIsDecay              = 0x00100,
     HasAnimKitId                   = 0x00200, // DEPRECATED
     HasCircularMovement            = 0x00400, // DEPRECATED
     Unk5                           = 0x00800,
@@ -221,6 +209,8 @@ public:
 
     AreaTriggerId Id;
     EnumFlag<AreaTriggerFlag> Flags;
+    uint32 ActionSetId;
+    EnumFlag<AreaTriggerActionSetFlag> ActionSetFlags;
     std::vector<AreaTriggerAction> Actions;
 };
 
@@ -246,6 +236,8 @@ public:
 
     uint32 DecalPropertiesId;
 
+    Optional<int32> SpellForVisuals;
+
     uint32 TimeToTarget;
     uint32 TimeToTargetScale;
 
@@ -265,7 +257,6 @@ struct AreaTriggerSpawn : SpawnData
     AreaTriggerSpawn() : SpawnData(SPAWN_TYPE_AREATRIGGER) { }
 
     AreaTriggerCreatePropertiesId Id;
-    Optional<int32> SpellForVisuals;
 };
 
 #endif

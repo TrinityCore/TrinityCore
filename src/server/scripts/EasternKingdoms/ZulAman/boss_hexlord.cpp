@@ -93,8 +93,6 @@ class boss_hexlord_malacrass : public CreatureScript
                     }
                 }
                 */
-
-                DoMeleeAttackIfReady();
             }
         };
 

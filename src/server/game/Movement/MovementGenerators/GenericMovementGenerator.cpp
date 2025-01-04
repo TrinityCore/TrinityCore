@@ -18,20 +18,29 @@
 #include "GenericMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "MovementDefines.h"
 #include "MoveSpline.h"
+#include "MovementDefines.h"
 #include "ObjectAccessor.h"
 #include "Unit.h"
 
 GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id,
-    uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/)
-    : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0),
-    _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid)
+    GenericMovementGeneratorArgs&& args)
+    : _splineInit(std::move(initializer)), _type(type), _pointId(id), _durationTracksSpline(true), _arrivalSpellId(0)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
+    if (args.ArrivalSpellId)
+        _arrivalSpellId = *args.ArrivalSpellId;
+    if (args.ArrivalSpellTarget)
+        _arrivalSpellTargetGuid = *args.ArrivalSpellTarget;
+    if (args.Duration)
+    {
+        _duration.emplace(*args.Duration);
+        _durationTracksSpline = false;
+    }
+    ScriptResult = std::move(args.ScriptResult);
 }
 
 void GenericMovementGenerator::Initialize(Unit* owner)
@@ -48,7 +57,9 @@ void GenericMovementGenerator::Initialize(Unit* owner)
 
     Movement::MoveSplineInit init(owner);
     _splineInit(init);
-    _duration.Reset(init.Launch());
+    int32 duration = init.Launch();
+    if (_durationTracksSpline)
+        _duration.emplace(duration);
 }
 
 void GenericMovementGenerator::Reset(Unit* owner)
@@ -62,10 +73,10 @@ bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     // Cyclic splines never expire, so update the duration only if it's not cyclic
-    if (!owner->movespline->isCyclic())
-        _duration.Update(diff);
+    if (_duration)
+        _duration->Update(diff);
 
-    if (_duration.Passed() || owner->movespline->Finalized())
+    if ((_duration && _duration->Passed()) || owner->movespline->Finalized())
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
         return false;
@@ -90,6 +101,8 @@ void GenericMovementGenerator::MovementInform(Unit* owner)
 {
     if (_arrivalSpellId)
         owner->CastSpell(ObjectAccessor::GetUnit(*owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+
+    SetScriptResult(MovementStopReason::Finished);
 
     if (Creature* creature = owner->ToCreature())
     {

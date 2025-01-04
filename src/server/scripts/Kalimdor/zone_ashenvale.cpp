@@ -323,7 +323,6 @@ public:
                     }
                     return;
                 }
-                DoMeleeAttackIfReady();
             }
 
     private:

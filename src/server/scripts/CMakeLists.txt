@@ -173,8 +173,8 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
 
     set_target_properties(${SCRIPT_MODULE_PROJECT_NAME}
       PROPERTIES
-        FOLDER
-          "scripts")
+        COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+        FOLDER "scripts")
 
     if(UNIX)
       install(TARGETS ${SCRIPT_MODULE_PROJECT_NAME}
@@ -220,13 +220,13 @@ target_include_directories(scripts
 
 set_target_properties(scripts
   PROPERTIES
-    FOLDER
-      "scripts")
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "server")
 
 # Generate precompiled header
 if(USE_SCRIPTPCH)
-  list(APPEND ALL_SCRIPT_PROJECTS scripts ${DYNAMIC_SCRIPT_MODULE_PROJECTS})
-  add_cxx_pch("${ALL_SCRIPT_PROJECTS}" ${PRIVATE_PCH_HEADER})
+  add_cxx_pch("scripts" ${PRIVATE_PCH_HEADER} ${DYNAMIC_SCRIPT_MODULE_PROJECTS})
+  reuse_cxx_pch("${DYNAMIC_SCRIPT_MODULE_PROJECTS}" scripts)
 endif()
 
 # Remove all shared libraries in the installl directory which

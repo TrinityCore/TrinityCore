@@ -69,6 +69,13 @@ void WorldPackets::Taxi::ActivateTaxi::Read()
     _worldPacket >> FlyingMountID;
 }
 
+WorldPacket const* WorldPackets::Taxi::NewTaxiPath::Write()
+{
+    _worldPacket << int32(TaxiNodesID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Taxi::ActivateTaxiReply::Write()
 {
     _worldPacket.WriteBits(Reply, 4);

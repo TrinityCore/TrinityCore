@@ -212,6 +212,7 @@ struct boss_lady_vashj : public BossAI
         _Reset();
 
         me->SetCorpseDelay(1000*60*60);
+        me->SetCanMelee(true);
     }
 
     // Called when a tainted elemental dies
@@ -380,6 +381,7 @@ struct boss_lady_vashj : public BossAI
                 {
                     // Phase 2 begins when Vashj hits 70%. She will run to the middle of her platform and surround herself in a shield making her invulerable.
                     Phase = 2;
+                    me->SetCanMelee(false);
 
                     me->GetMotionMaster()->Clear();
                     DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
@@ -412,9 +414,6 @@ struct boss_lady_vashj : public BossAI
 
                 } else SummonSporebatTimer -= diff;
             }
-
-            // Melee attack
-            DoMeleeAttackIfReady();
 
             // CheckTimer - used to check if somebody is in melee range
             if (CheckTimer <= diff)
@@ -516,6 +515,8 @@ struct boss_lady_vashj : public BossAI
                     me->SetHealth(me->CountPctFromMaxHealth(50));
 
                     me->RemoveAurasDueToSpell(SPELL_MAGIC_BARRIER);
+
+                    me->SetCanMelee(true);
 
                     Talk(SAY_PHASE3);
 
@@ -682,7 +683,6 @@ struct npc_toxic_sporebat : public ScriptedAI
     {
         Initialize();
         instance = creature->GetInstanceScript();
-        EnterEvadeMode();
     }
 
     void Initialize()

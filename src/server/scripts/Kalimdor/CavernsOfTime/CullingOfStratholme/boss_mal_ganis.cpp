@@ -167,8 +167,6 @@ class boss_mal_ganis : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void KilledUnit(Unit* victim) override

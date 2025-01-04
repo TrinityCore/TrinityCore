@@ -104,6 +104,7 @@ private:
     {
         int32 SuffixPriority;
         int32 AppearanceModPriority;
+        int32 DisenchantLootPriority;
         int32 ScalingStatDistributionPriority;
         int32 AzeriteTierUnlockSetPriority;
         int32 RequiredLevelCurvePriority;
@@ -210,10 +211,10 @@ class TC_GAME_API Item : public Object
         void RemoveItemFlag(ItemFieldFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags); }
         void ReplaceAllItemFlags(ItemFieldFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags); }
 
-        bool HasItemFlag2(ItemFieldFlags2 flag) const { return (*m_itemData->DynamicFlags2 & flag) != 0; }
-        void SetItemFlag2(ItemFieldFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
-        void RemoveItemFlag2(ItemFieldFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
-        void ReplaceAllItemFlags2(ItemFieldFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
+        bool HasItemZoneFlag(ItemZoneFlags flag) const { return (*m_itemData->ZoneFlags & flag) != 0; }
+        void SetItemZoneFlag(ItemZoneFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
+        void RemoveItemZoneFlag(ItemZoneFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
+        void ReplaceAllItemZoneFlags(ItemZoneFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
 
         bool IsSoulBound() const { return HasItemFlag(ITEM_FIELD_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return GetTemplate()->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT); }
@@ -309,6 +310,7 @@ class TC_GAME_API Item : public Object
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
         void SetCreatePlayedTime(uint32 createPlayedTime) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::CreatePlayedTime), createPlayedTime); }
+        void SetCreateTime(int64 createTime) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::CreateTime), createTime); }
 
         // spell charges (signed but stored as unsigned)
         int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return m_itemData->SpellCharges[index]; }
@@ -348,10 +350,11 @@ class TC_GAME_API Item : public Object
         ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }
         uint32 GetScalingContentTuningId() const { return _bonusData.ContentTuningId; }
-        ItemDisenchantLootEntry const* GetDisenchantLoot(Player const* owner) const;
-        static ItemDisenchantLootEntry const* GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
+        Optional<uint32> GetDisenchantLootId() const;
+        Optional<uint16> GetDisenchantSkillRequired() const;
+        static ItemDisenchantLootEntry const* GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);
-        Trinity::IteratorPair<ItemEffectEntry const* const*> GetEffects() const { return { std::make_pair(&_bonusData.Effects[0], &_bonusData.Effects[0] + _bonusData.EffectCount) }; }
+        Trinity::IteratorPair<ItemEffectEntry const* const*> GetEffects() const { return { std::make_pair(_bonusData.Effects.data(), _bonusData.Effects.data() + _bonusData.EffectCount) }; }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);
@@ -363,9 +366,8 @@ class TC_GAME_API Item : public Object
         uint64 GetPaidMoney() const { return m_paidMoney; }
         uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
 
-        void UpdatePlayedTime(Player* owner);
-        uint32 GetPlayedTime();
-        bool IsRefundExpired();
+        uint32 GetPlayedTime() const;
+        bool IsRefundExpired() const;
 
         // Soulbound trade system
         void SetSoulboundTradeable(GuidSet const& allowedLooters);
@@ -375,9 +377,9 @@ class TC_GAME_API Item : public Object
         void BuildUpdate(UpdateDataMapType&) override;
 
     protected:
-        UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const final;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -446,7 +448,7 @@ class TC_GAME_API Item : public Object
 
         std::string GetDebugInfo() const override;
 
-        UF::UpdateField<UF::ItemData, 0, TYPEID_ITEM> m_itemData;
+        UF::UpdateField<UF::ItemData, uint32(WowCS::EntityFragment::CGObject), TYPEID_ITEM> m_itemData;
 
     protected:
         BonusData _bonusData;
@@ -458,7 +460,6 @@ class TC_GAME_API Item : public Object
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
-        time_t m_lastPlayedTimeUpdate;
         ObjectGuid m_refundRecipient;
         uint64 m_paidMoney;
         uint32 m_paidExtendedCost;

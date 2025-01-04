@@ -96,8 +96,6 @@ class boss_daakara : public CreatureScript
                     }
                 }
                 */
-
-                DoMeleeAttackIfReady();
             }
         };
 

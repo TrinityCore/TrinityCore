@@ -17,6 +17,7 @@
 
 #include "CreatureAIImpl.h"
 #include "ScriptMgr.h"
+#include "CharmInfo.h"
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
 #include "G3DPosition.hpp"
@@ -70,6 +71,11 @@ enum UnworthyInitiatePhase
     PHASE_EQUIPING,
     PHASE_TO_ATTACK,
     PHASE_ATTACKING,
+};
+
+enum UnworthyInitiateData
+{
+    DATA_PRISONER_GUID = 0
 };
 
 uint32 acherus_soul_prison[12] =
@@ -190,7 +196,7 @@ public:
                 {
                     if (Creature* anchor = me->FindNearestCreature(29521, 30))
                     {
-                        anchor->AI()->SetGUID(me->GetGUID());
+                        anchor->AI()->SetGUID(me->GetGUID(), DATA_PRISONER_GUID);
                         anchor->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
                         anchorGUID = anchor->GetGUID();
                     }
@@ -282,8 +288,6 @@ public:
                         break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
                 break;
             default:
                 break;
@@ -313,8 +317,11 @@ public:
 
         ObjectGuid prisonerGUID;
 
-        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
+            if (id != DATA_PRISONER_GUID)
+                return;
+
             prisonerGUID = guid;
         }
 
@@ -338,7 +345,7 @@ class go_acherus_soul_prison : public GameObjectScript
             {
                 if (Creature* anchor = me->FindNearestCreature(29521, 15))
                 {
-                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID();
+                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID(DATA_PRISONER_GUID);
                     if (!prisonerGUID.IsEmpty())
                         if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
                             ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
@@ -1069,31 +1076,22 @@ struct npc_scarlet_ghoul : public ScriptedAI
                 Player* plrOwner = owner->ToPlayer();
                 if (plrOwner && plrOwner->IsInCombat())
                 {
-                    if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
-                        AttackStart(plrOwner->getAttackerForHelper());
+                    Unit* newTarget = plrOwner->getAttackerForHelper();
+                    if (newTarget && newTarget->GetEntry() == NPC_GHOSTS)
+                        AttackStart(newTarget);
                     else
                         FindMinions(owner);
                 }
             }
         }
 
-        if (!UpdateVictim() || !me->GetVictim())
+        if (!UpdateVictim())
             return;
+    }
 
-        //ScriptedAI::UpdateAI(diff);
-        //Check if we have a current target
-        if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
-        {
-            if (me->isAttackReady())
-            {
-                //If we are within range melee the target
-                if (me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    me->AttackerStateUpdate(me->GetVictim());
-                    me->resetAttackTimer();
-                }
-            }
-        }
+    bool CanAIAttack(Unit const* target) const override
+    {
+        return target->GetEntry() == NPC_GHOSTS;
     }
 };
 
@@ -1259,8 +1257,6 @@ struct npc_hearthglen_crusader : public ScriptedAI
 
         if (!me->IsWithinCombatRange(me->GetVictim(), _minimumRange))
             DoSpellAttackIfReady(me->m_spells[0]);
-        else
-            DoMeleeAttackIfReady();
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override

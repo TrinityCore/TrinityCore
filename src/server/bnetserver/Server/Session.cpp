@@ -76,7 +76,7 @@ void Battlenet::Session::GameAccountInfo::LoadResult(Field const* fields)
 
 Battlenet::Session::Session(boost::asio::ip::tcp::socket&& socket) : BattlenetSocket(std::move(socket), SslContext::instance()),
     _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
-    _os(), _build(0), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
+    _os(), _build(0), _clientInfo(), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
 {
     _headerLengthBuffer.Resize(2);
 }
@@ -219,7 +219,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
         return ERROR_BAD_PROGRAM;
     }
 
-    if (logonRequest->platform() != "Win" && logonRequest->platform() != "Wn64" && logonRequest->platform() != "Mc64")
+    if (!ClientBuild::Platform::IsValid(logonRequest->platform()))
     {
         TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] {} attempted to log in from an unsupported platform (using {})!", GetClientInfo(), logonRequest->platform());
         return ERROR_BAD_PLATFORM;
@@ -241,7 +241,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
             return 0min;
 
         rapidjson::Document doc;
-        doc.Parse(logonRequest->device_id());
+        doc.Parse(logonRequest->device_id().c_str(), logonRequest->device_id().length());
         if (doc.HasParseError())
             return 0min;
 
@@ -260,7 +260,8 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
 
     challenge::v1::ChallengeExternalRequest externalChallenge;
     externalChallenge.set_payload_type("web_auth_url");
-    externalChallenge.set_payload(Trinity::StringFormat("https://{}:{}/bnetserver/login/", sLoginService.GetHostnameForClient(GetRemoteIpAddress()), sLoginService.GetPort()));
+    externalChallenge.set_payload(Trinity::StringFormat("http{}://{}:{}/bnetserver/login/", !SslContext::UsesDevWildcardCertificate() ? "s" : "",
+        sLoginService.GetHostnameForClient(GetRemoteIpAddress()), sLoginService.GetPort()));
     Service<challenge::v1::ChallengeListener>(this).OnExternalChallenge(&externalChallenge);
     return ERROR_OK;
 }
@@ -556,15 +557,9 @@ uint32 Battlenet::Session::HandleProcessClientRequest(game_utilities::v1::Client
     return (this->*itr->second)(params, response);
 }
 
-static Variant const* GetParam(std::unordered_map<std::string, Variant const*> const& params, char const* paramName)
-{
-    auto itr = params.find(paramName);
-    return itr != params.end() ? itr->second : nullptr;
-}
-
 uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* identity = GetParam(params, "Param_Identity"))
+    if (Variant const* identity = Trinity::Containers::MapGetValuePtr(params, "Param_Identity"))
     {
         ::JSON::RealmList::RealmListTicketIdentity data;
         std::size_t jsonStart = identity->blob_value().find(':');
@@ -585,7 +580,7 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
         return ERROR_GAME_ACCOUNT_SUSPENDED;
 
     bool clientInfoOk = false;
-    if (Variant const* clientInfo = GetParam(params, "Param_ClientInfo"))
+    if (Variant const* clientInfo = Trinity::Containers::MapGetValuePtr(params, "Param_ClientInfo"))
     {
         ::JSON::RealmList::RealmListTicketClientInformation data;
         std::size_t jsonStart = clientInfo->blob_value().find(':');
@@ -596,6 +591,8 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
                 clientInfoOk = true;
                 memcpy(_clientSecret.data(), data.info().secret().data(), _clientSecret.size());
             }
+
+            _clientInfo = { .Platform = data.info().platformtype(), .Arch = data.info().clientarch(), .Type = data.info().type() };
         }
     }
 
@@ -619,12 +616,12 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
 
 uint32 Battlenet::Session::GetLastCharPlayed(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* subRegion = GetParam(params, "Command_LastCharPlayedRequest_v1"))
+    if (Variant const* subRegion = Trinity::Containers::MapGetValuePtr(params, "Command_LastCharPlayedRequest_v1"))
     {
         auto lastPlayerChar = _gameAccountInfo->LastPlayedCharacters.find(subRegion->string_value());
         if (lastPlayerChar != _gameAccountInfo->LastPlayedCharacters.end())
         {
-            std::vector<uint8> compressed = sRealmList->GetRealmEntryJSON(lastPlayerChar->second.RealmId, _build);
+            std::vector<uint8> compressed = sRealmList->GetRealmEntryJSON(lastPlayerChar->second.RealmId, _build, _gameAccountInfo->SecurityLevel);
 
             if (compressed.empty())
                 return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
@@ -658,10 +655,10 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
         return ERROR_USER_SERVER_BAD_WOW_ACCOUNT;
 
     std::string subRegionId;
-    if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1"))
+    if (Variant const* subRegion = Trinity::Containers::MapGetValuePtr(params, "Command_RealmListRequest_v1"))
         subRegionId = subRegion->string_value();
 
-    std::vector<uint8> compressed = sRealmList->GetRealmList(_build, subRegionId);
+    std::vector<uint8> compressed = sRealmList->GetRealmList(_build, _gameAccountInfo->SecurityLevel, subRegionId);
 
     if (compressed.empty())
         return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
@@ -695,9 +692,9 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
 
 uint32 Battlenet::Session::JoinRealm(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* realmAddress = GetParam(params, "Param_RealmAddress"))
-        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
-            _os, _timezoneOffset, _gameAccountInfo->Name, response);
+    if (Variant const* realmAddress = Trinity::Containers::MapGetValuePtr(params, "Param_RealmAddress"))
+        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, _clientInfo, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
+            _os, _timezoneOffset, _gameAccountInfo->Name, _gameAccountInfo->SecurityLevel, response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
 }

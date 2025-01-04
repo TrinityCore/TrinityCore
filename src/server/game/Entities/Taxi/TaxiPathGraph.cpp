@@ -33,13 +33,21 @@ struct EdgeCost
     uint32 Distance;
     uint32 EvaluateDistance(Player const* player) const
     {
-        TaxiNodeFlags requireFlag = (player->GetTeam() == ALLIANCE) ? TaxiNodeFlags::ShowOnAllianceMap : TaxiNodeFlags::ShowOnHordeMap;
-        if (!To->GetFlags().HasFlag(requireFlag))
+        bool isVisibleForFaction = [&]
+        {
+            switch (player->GetTeam())
+            {
+                case HORDE: return To->GetFlags().HasFlag(TaxiNodeFlags::ShowOnHordeMap);
+                case ALLIANCE: return To->GetFlags().HasFlag(TaxiNodeFlags::ShowOnAllianceMap);
+                default: break;
+            }
+            return false;
+        }();
+        if (!isVisibleForFaction)
             return std::numeric_limits<uint16>::max();
 
-        if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
-            if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
-                return std::numeric_limits<uint16>::max();
+        if (!ConditionMgr::IsPlayerMeetingCondition(player, To->ConditionID))
+            return std::numeric_limits<uint16>::max();
 
         return Distance;
     }
@@ -55,7 +63,7 @@ Graph m_graph;
 std::vector<TaxiNodesEntry const*> m_nodesByVertex;
 std::unordered_map<uint32, vertex_descriptor> m_verticesByNode;
 
-void GetTaxiMapPosition(DBCPosition3D const& position, int32 mapId, DBCPosition2D* uiMapPosition, int32* uiMapId)
+void GetTaxiMapPosition(DBCPosition3D const& position, int32 mapId, DBCPosition2D* uiMapPosition, uint32* uiMapId)
 {
     if (!DB2Manager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_ADVENTURE, false, uiMapId, uiMapPosition))
         DB2Manager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, uiMapId, uiMapPosition);
@@ -101,7 +109,7 @@ void AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, TaxiNodesEntry co
             if (nodes[i - 1]->Flags & TAXI_PATH_NODE_FLAG_TELEPORT)
                 continue;
 
-            int32 uiMap1, uiMap2;
+            uint32 uiMap1, uiMap2;
             DBCPosition2D pos1, pos2;
 
             GetTaxiMapPosition(nodes[i - 1]->Loc, nodes[i - 1]->ContinentID, &pos1, &uiMap1);

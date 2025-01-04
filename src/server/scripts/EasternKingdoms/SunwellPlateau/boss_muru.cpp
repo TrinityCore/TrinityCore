@@ -198,10 +198,7 @@ struct boss_entropius : public BossAI
         if (!UpdateVictim())
             return;
 
-        scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        scheduler.Update(diff);
     }
 
     void DoResetPortals()
@@ -444,10 +441,7 @@ struct npc_void_sentinel : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:

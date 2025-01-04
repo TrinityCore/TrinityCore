@@ -22,17 +22,16 @@
 #include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
+#include "BattlePetMgr.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
-#include "BattlePetMgr.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -45,6 +44,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -55,7 +55,7 @@
 #include "PlayerDump.h"
 #include "QueryHolder.h"
 #include "QueryPackets.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
@@ -392,7 +392,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = static_cast<EnumCharactersQueryHolder const&>(holder).IsDeletedCharacters();
-    charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
+    charEnum.ClassDisableMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     if (!charEnum.IsDeletedCharacters)
         _legitCharacters.clear();
@@ -416,7 +416,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
         {
             charEnum.Characters.emplace_back(result->Fetch());
 
-            WorldPackets::Character::EnumCharactersResult::CharacterInfo& charInfo = charEnum.Characters.back();
+            WorldPackets::Character::EnumCharactersResult::CharacterInfoBasic& charInfo = charEnum.Characters.back().Basic;
 
             if (std::vector<UF::ChrCustomizationChoice>* customizationsForChar = Trinity::Containers::MapGetValuePtr(customizations, charInfo.Guid.GetCounter()))
                 charInfo.Customizations = std::move(*customizationsForChar);
@@ -458,8 +458,8 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
     {
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
-        raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
-        raceUnlock.HasAchievement = requirement.second.AchievementId != 0
+        raceUnlock.HasUnlockedLicense = GetAccountExpansion() >= requirement.second.Expansion;
+        raceUnlock.HasUnlockedAchievement = requirement.second.AchievementId != 0
             && (sWorld->getBoolConfig(CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT)
                 /* || HasAccountAchievement(requirement.second.AchievementId)*/);
         charEnum.RaceUnlockData.push_back(raceUnlock);
@@ -762,6 +762,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         return;
     }
 
+    if (charCreate.CreateInfo->TimerunningSeasonID)
+    {
+        SendCharCreate(CHAR_CREATE_TIMERUNNING);
+        return;
+    }
+
     std::shared_ptr<WorldPackets::Character::CharacterCreateInfo> createInfo = charCreate.CreateInfo;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     stmt->setString(0, charCreate.CreateInfo->Name);
@@ -961,15 +967,15 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
             stmt->setUInt32(0, createInfo->CharCount);
             stmt->setUInt32(1, GetAccountId());
-            stmt->setUInt32(2, realm.Id.Realm);
+            stmt->setUInt32(2, sRealmList->GetCurrentRealmId().Realm);
             trans->Append(stmt);
 
-            LoginDatabase.CommitTransaction(trans);
-
-            AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(characterTransaction)).AfterComplete([this, newChar = std::move(newChar)](bool success)
+            AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(characterTransaction)).AfterComplete([this, newChar = std::move(newChar), trans](bool success)
             {
                 if (success)
                 {
+                    LoginDatabase.CommitTransaction(trans);
+
                     TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Create Character: {} {}", GetAccountId(), GetRemoteAddress(), newChar->GetName(), newChar->GetGUID().ToString());
                     sScriptMgr->OnPlayerCreate(newChar.get());
                     sCharacterCache->AddCharacterCacheEntry(newChar->GetGUID(), GetAccountId(), newChar->GetName(), newChar->GetNativeGender(), newChar->GetRace(), newChar->GetClass(), newChar->GetLevel(), false);
@@ -1050,7 +1056,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
     {
         std::string dump;
         if (PlayerDumpWriter().GetDump(charDelete.Guid.GetCounter(), dump))
-            sLog->OutCharDump(dump.c_str(), accountId, charDelete.Guid.GetCounter(), name.c_str());
+            sLog->OutCharDump(dump, accountId, charDelete.Guid.GetCounter(), name);
     }
 
     sCalendarMgr->RemoveAllPlayerEventsAndInvites(charDelete.Guid);
@@ -1199,6 +1205,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         pCurrChar->SetGuildRank(0);
         pCurrChar->SetGuildLevel(0);
     }
+
+    SendAuctionFavoriteList();
 
     pCurrChar->GetSession()->GetBattlePetMgr()->SendJournalLockStatus();
 
@@ -1465,16 +1473,25 @@ void WorldSession::SendFeatureSystemStatus()
     features.ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
     features.CfgRealmID = 2;
     features.CfgRealmRecID = 0;
-    features.TokenPollTimeSeconds = 300;
+    features.CommercePricePollTimeSeconds = 300;
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
+
+    // Enable guilds only.
+    // This is required to restore old guild channel behavior for GMs.
+    // The new club streams do not support sending messages through the guild channel when you are not in a guild.
+    features.CommunitiesEnabled = true;
+    features.BnetGroupsEnabled = false;
+    features.CharacterCommunitiesEnabled = false;
+    features.ClubPresenceAllowSubscribeAll = true;
+    features.ClubPresenceUnsubscribeDelay = 60000;
 
     features.EuropaTicketSystemStatus.emplace();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
     features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
     features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
-    features.TutorialsEnabled = true;
+    features.TutorialEnabled = true;
     features.NPETutorialsEnabled = true;
     /// END OF DUMMY VALUES
 
@@ -1485,9 +1502,9 @@ void WorldSession::SendFeatureSystemStatus()
 
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
-    features.IsMuted = !CanSpeak();
+    features.IsChatMuted = !CanSpeak();
 
-    features.TextToSpeechFeatureEnabled = false;
+    features.SpeakForMeAllowed = false;
 
     SendPacket(features.Write());
 }
@@ -1541,11 +1558,6 @@ void WorldSession::HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWat
 void WorldSession::HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet)
 {
     _player->GetReputationMgr().SetInactive(packet.Index, packet.State);
-}
-
-void WorldSession::HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& /*requestForcedReactions*/)
-{
-    _player->GetReputationMgr().SendForceReactions();
 }
 
 void WorldSession::HandleCheckCharacterNameAvailability(WorldPackets::Character::CheckCharacterNameAvailability& checkCharacterNameAvailability)
@@ -1738,7 +1750,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations = MakeChrCustomizationChoiceRange(packet.Customizations);
     if (packet.CustomizedChrModelID)
     {
-        ConditionalChrModelEntry const* conditionalChrModel = sConditionalChrModelStore.LookupEntry(packet.CustomizedChrModelID);
+        ConditionalChrModelEntry const* conditionalChrModel = DB2Manager::GetConditionalChrModel(packet.CustomizedChrModelID);
         if (!conditionalChrModel)
             return;
 
@@ -1746,9 +1758,8 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
             if (!MeetsChrCustomizationReq(req, Races(packet.CustomizedRace), Classes(_player->GetClass()), false, customizations))
                 return;
 
-        if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(conditionalChrModel->PlayerConditionID))
-            if (!ConditionMgr::IsPlayerMeetingCondition(_player, condition))
-                return;
+        if (!ConditionMgr::IsPlayerMeetingCondition(_player, conditionalChrModel->PlayerConditionID))
+            return;
     }
 
     if (!ValidateAppearance(Races(_player->GetRace()), Classes(_player->GetClass()), Gender(packet.NewSex), customizations))
@@ -1994,9 +2005,8 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
             if (!illusion->ItemVisual || !illusion->GetFlags().HasFlag(SpellItemEnchantmentFlags::AllowTransmog))
                 return false;
 
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogUseConditionID))
-                if (!sConditionMgr->IsPlayerMeetingCondition(_player, condition))
-                    return false;
+            if (!ConditionMgr::IsPlayerMeetingCondition(_player, illusion->TransmogUseConditionID))
+                return false;
 
             if (illusion->ScalingClassRestricted > 0 && uint8(illusion->ScalingClassRestricted) != _player->GetClass())
                 return false;
@@ -2265,7 +2275,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         trans->Append(stmt);
 
         // Race specific languages
-        if (factionChangeInfo->RaceID != RACE_ORC && factionChangeInfo->RaceID != RACE_HUMAN && factionChangeInfo->RaceID != RACE_MAGHAR_ORC)
+        std::array<uint8, 4> const racesWithoutSpecificLanguages = { RACE_ORC, RACE_HUMAN, RACE_MAGHAR_ORC, RACE_KUL_TIRAN };
+        if (std::find(racesWithoutSpecificLanguages.begin(), racesWithoutSpecificLanguages.end(), factionChangeInfo->RaceID) == racesWithoutSpecificLanguages.end())
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
             stmt->setUInt64(0, lowGuid);
@@ -2281,6 +2292,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     stmt->setUInt16(1, 759);
                     break;
                 case RACE_GNOME:
+                case RACE_MECHAGNOME:
                     stmt->setUInt16(1, 313);
                     break;
                 case RACE_NIGHTELF:
@@ -2297,6 +2309,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     stmt->setUInt16(1, 115);
                     break;
                 case RACE_TROLL:
+                case RACE_ZANDALARI_TROLL:
                     stmt->setUInt16(1, 315);
                     break;
                 case RACE_BLOODELF:
@@ -2308,6 +2321,22 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     break;
                 case RACE_NIGHTBORNE:
                     stmt->setUInt16(1, 2464);
+                    break;
+                case RACE_VULPERA:
+                    stmt->setUInt16(1, 2776);
+                    break;
+                case RACE_PANDAREN_NEUTRAL:
+                case RACE_PANDAREN_ALLIANCE:
+                case RACE_PANDAREN_HORDE:
+                    stmt->setUInt16(1, 905);
+                    break;
+                case RACE_DRACTHYR_ALLIANCE:
+                case RACE_DRACTHYR_HORDE:
+                    stmt->setUInt16(1, 138);
+                    break;
+                case RACE_EARTHEN_DWARF_HORDE:
+                case RACE_EARTHEN_DWARF_ALLIANCE:
+                    stmt->setUInt16(1, 140);
                     break;
                 default:
                     TC_LOG_ERROR("entities.player", "Could not find language data for race ({}).", factionChangeInfo->RaceID);
@@ -2350,7 +2379,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             {
                 // Reset guild
                 if (Guild* guild = sGuildMgr->GetGuildById(characterInfo->GuildId))
-                    guild->DeleteMember(trans, factionChangeInfo->Guid, false, false, true);
+                    guild->DeleteMember(trans, factionChangeInfo->Guid, false, false);
 
                 Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
             }
@@ -2468,14 +2497,14 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             // Disable all old-faction specific quests
             {
                 ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
-                for (auto const& questTemplatePair : questTemplates)
+                for (auto const& [questId, quest] : questTemplates)
                 {
                     Trinity::RaceMask<uint64> newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
-                    if (questTemplatePair.second.GetAllowableRaces().RawValue != uint64(-1) && (questTemplatePair.second.GetAllowableRaces() & newRaceMask).IsEmpty())
+                    if (quest->GetAllowableRaces().RawValue != uint64(-1) && (quest->GetAllowableRaces() & newRaceMask).IsEmpty())
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST);
                         stmt->setUInt64(0, lowGuid);
-                        stmt->setUInt32(1, questTemplatePair.first);
+                        stmt->setUInt32(1, questId);
                         trans->Append(stmt);
                     }
                 }
@@ -2797,7 +2826,7 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
         loginStmt->setUInt32(0, GetBattlenetAccountId());
         LoginDatabase.Execute(loginStmt);
 
-        sCharacterCache->UpdateCharacterInfoDeleted(undeleteInfo->CharacterGuid, false, &undeleteInfo->Name);
+        sCharacterCache->UpdateCharacterInfoDeleted(undeleteInfo->CharacterGuid, false, undeleteInfo->Name);
 
         SendUndeleteCharacterResponse(CHARACTER_UNDELETE_RESULT_OK, undeleteInfo.get());
     }));

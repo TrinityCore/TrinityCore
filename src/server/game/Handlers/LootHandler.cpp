@@ -18,7 +18,6 @@
 #include "WorldSession.h"
 #include "CellImpl.h"
 #include "Common.h"
-#include "Containers.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "DB2Stores.h"
@@ -31,11 +30,13 @@
 #include "Loot.h"
 #include "LootItemStorage.h"
 #include "LootPackets.h"
+#include "MapUtils.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 class AELootCreatureCheck
 {
@@ -232,9 +233,13 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 
     GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Looting);
 
+    bool const aeLootEnabled = sWorld->getBoolConfig(CONFIG_ENABLE_AE_LOOT);
     std::vector<Creature*> corpses;
-    Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
-    Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+    if (aeLootEnabled)
+    {
+        Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
+        Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+    }
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
@@ -436,12 +441,18 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
 
         if (req.LootListID >= loot->items.size())
         {
+            _player->SendLootError(req.Object, loot->GetOwnerGUID(), LOOT_ERROR_MASTER_OTHER);
             TC_LOG_DEBUG("loot", "MasterLootItem: Player {} might be using a hack! (slot {}, size {})",
                 GetPlayer()->GetName(), req.LootListID, loot->items.size());
             return;
         }
 
         LootItem& item = loot->items[req.LootListID];
+        if (item.type != LootItemType::Item)
+        {
+            _player->SendLootError(req.Object, loot->GetOwnerGUID(), LOOT_ERROR_MASTER_OTHER);
+            return;
+        }
 
         ItemPosCountVec dest;
         InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);

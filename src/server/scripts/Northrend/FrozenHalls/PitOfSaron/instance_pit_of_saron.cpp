@@ -20,7 +20,6 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "pit_of_saron.h"
-#include "Player.h"
 #include "TemporarySummon.h"
 
 // positions for Martin Victus (37591) and Gorkun Ironskull (37592)
@@ -56,27 +55,12 @@ class instance_pit_of_saron : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(Doors);
                 LoadDungeonEncounterData(encounters);
-                _teamInInstance = 0;
                 _cavernActive = 0;
                 _shardsHit = 0;
             }
 
-            void OnPlayerEnter(Player* player) override
-            {
-                if (!_teamInInstance)
-                    _teamInInstance = player->GetTeam();
-            }
-
             void OnCreatureCreate(Creature* creature) override
             {
-                if (!_teamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            _teamInInstance = player->GetTeam();
-                }
-
                 switch (creature->GetEntry())
                 {
                     case NPC_GARFROST:
@@ -117,39 +101,39 @@ class instance_pit_of_saron : public InstanceMapScript
                 switch (entry)
                 {
                     case NPC_SYLVANAS_PART1:
-                        return _teamInInstance == ALLIANCE ? NPC_JAINA_PART1 : NPC_SYLVANAS_PART1;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_JAINA_PART1 : NPC_SYLVANAS_PART1;
                     case NPC_SYLVANAS_PART2:
-                        return _teamInInstance == ALLIANCE ? NPC_JAINA_PART2 : NPC_SYLVANAS_PART2;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_JAINA_PART2 : NPC_SYLVANAS_PART2;
                     case NPC_KILARA:
-                        return _teamInInstance == ALLIANCE ? NPC_ELANDRA : NPC_KILARA;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_ELANDRA : NPC_KILARA;
                     case NPC_KORALEN:
-                        return _teamInInstance == ALLIANCE ? NPC_KORLAEN : NPC_KORALEN;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_KORLAEN : NPC_KORALEN;
                     case NPC_CHAMPION_1_HORDE:
-                        return _teamInInstance == ALLIANCE ? NPC_CHAMPION_1_ALLIANCE : NPC_CHAMPION_1_HORDE;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_CHAMPION_1_ALLIANCE : NPC_CHAMPION_1_HORDE;
                     case NPC_CHAMPION_2_HORDE:
-                        return _teamInInstance == ALLIANCE ? NPC_CHAMPION_2_ALLIANCE : NPC_CHAMPION_2_HORDE;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_CHAMPION_2_ALLIANCE : NPC_CHAMPION_2_HORDE;
                     case NPC_CHAMPION_3_HORDE:
-                        return _teamInInstance == ALLIANCE ? NPC_CHAMPION_2_ALLIANCE : NPC_CHAMPION_3_HORDE;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_CHAMPION_2_ALLIANCE : NPC_CHAMPION_3_HORDE;
                     case NPC_HORDE_SLAVE_1:
-                        return _teamInInstance == ALLIANCE ? NPC_ALLIANCE_SLAVE_1 : NPC_HORDE_SLAVE_1;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_ALLIANCE_SLAVE_1 : NPC_HORDE_SLAVE_1;
                     case NPC_HORDE_SLAVE_2:
-                        return _teamInInstance == ALLIANCE ? NPC_ALLIANCE_SLAVE_2 : NPC_HORDE_SLAVE_2;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_ALLIANCE_SLAVE_2 : NPC_HORDE_SLAVE_2;
                     case NPC_HORDE_SLAVE_3:
-                        return _teamInInstance == ALLIANCE ? NPC_ALLIANCE_SLAVE_3 : NPC_HORDE_SLAVE_3;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_ALLIANCE_SLAVE_3 : NPC_HORDE_SLAVE_3;
                     case NPC_HORDE_SLAVE_4:
-                        return _teamInInstance == ALLIANCE ? NPC_ALLIANCE_SLAVE_4 : NPC_HORDE_SLAVE_4;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_ALLIANCE_SLAVE_4 : NPC_HORDE_SLAVE_4;
                     case NPC_FREED_SLAVE_1_HORDE:
-                        return _teamInInstance == ALLIANCE ? NPC_FREED_SLAVE_1_ALLIANCE : NPC_FREED_SLAVE_1_HORDE;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_FREED_SLAVE_1_ALLIANCE : NPC_FREED_SLAVE_1_HORDE;
                     case NPC_FREED_SLAVE_2_HORDE:
-                        return _teamInInstance == ALLIANCE ? NPC_FREED_SLAVE_2_ALLIANCE : NPC_FREED_SLAVE_2_HORDE;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_FREED_SLAVE_2_ALLIANCE : NPC_FREED_SLAVE_2_HORDE;
                     case NPC_FREED_SLAVE_3_HORDE:
-                        return _teamInInstance == ALLIANCE ? NPC_FREED_SLAVE_3_ALLIANCE : NPC_FREED_SLAVE_3_HORDE;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_FREED_SLAVE_3_ALLIANCE : NPC_FREED_SLAVE_3_HORDE;
                     case NPC_RESCUED_SLAVE_HORDE:
-                        return _teamInInstance == ALLIANCE ? NPC_RESCUED_SLAVE_ALLIANCE : NPC_RESCUED_SLAVE_HORDE;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_RESCUED_SLAVE_ALLIANCE : NPC_RESCUED_SLAVE_HORDE;
                     case NPC_GORKUN_IRONSKULL_1:
-                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_1 : NPC_GORKUN_IRONSKULL_1;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_MARTIN_VICTUS_1 : NPC_GORKUN_IRONSKULL_1;
                     case NPC_GORKUN_IRONSKULL_2:
-                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_2 : NPC_GORKUN_IRONSKULL_2;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_MARTIN_VICTUS_2 : NPC_GORKUN_IRONSKULL_2;
                     default:
                         return entry;
                 }
@@ -167,7 +151,7 @@ class instance_pit_of_saron : public InstanceMapScript
                         {
                             if (instance->GetCreature(_garfrostGUID))
                             {
-                                if (_teamInInstance == ALLIANCE)
+                                if (instance->GetTeamInInstance() == ALLIANCE)
                                 {
                                     if (TempSummon* summon = instance->SummonCreature(NPC_MARTIN_VICTUS_1, SlaveLeaderPos))
                                         summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
@@ -185,7 +169,7 @@ class instance_pit_of_saron : public InstanceMapScript
                         {
                             if (instance->GetCreature(_tyrannusGUID))
                             {
-                                if (_teamInInstance == ALLIANCE)
+                                if (instance->GetTeamInInstance() == ALLIANCE)
                                 {
                                     if (TempSummon * summon = instance->SummonCreature(NPC_JAINA_PART2, EventLeaderPos2))
                                         summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
@@ -210,7 +194,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_TEAM_IN_INSTANCE:
-                        return _teamInInstance;
+                        return instance->GetTeamInInstance();
                     case DATA_ICE_SHARDS_HIT:
                         return _shardsHit;
                     case DATA_CAVERN_ACTIVE:
@@ -294,7 +278,6 @@ class instance_pit_of_saron : public InstanceMapScript
             ObjectGuid _jainaOrSylvanas2GUID;
             GuidVector _cavernstriggersVector;
 
-            uint32 _teamInInstance;
             uint8 _shardsHit;
             uint8 _cavernActive;
         };

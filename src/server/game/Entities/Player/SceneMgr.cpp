@@ -63,7 +63,8 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     playScene.SceneInstanceID      = sceneInstanceID;
     playScene.SceneScriptPackageID = sceneTemplate->ScenePackageId;
     playScene.Location             = *position;
-    playScene.TransportGUID        = GetPlayer()->GetTransGUID();
+    if (!GetPlayer()->GetVehicle()) // skip vehicles passed as transport here until further research
+        playScene.TransportGUID    = GetPlayer()->GetTransGUID();
     playScene.Encrypted            = sceneTemplate->Encrypted;
     playScene.Write();
 

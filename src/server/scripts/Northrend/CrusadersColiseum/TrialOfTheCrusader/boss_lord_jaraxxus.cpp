@@ -114,7 +114,6 @@ struct boss_jaraxxus : public BossAI
 
     void Reset() override
     {
-        me->SetCombatPulseDelay(0);
         me->ResetLootMode();
         events.Reset();
         summons.DespawnAll();
@@ -281,8 +280,6 @@ struct boss_jaraxxus : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -363,10 +360,7 @@ struct npc_fel_infernal : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -456,8 +450,6 @@ struct npc_mistress_of_pain : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

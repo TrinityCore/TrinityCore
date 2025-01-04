@@ -610,8 +610,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
@@ -693,8 +691,6 @@ struct npc_watch_commander_leonus : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:

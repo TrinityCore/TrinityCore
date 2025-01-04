@@ -17,7 +17,7 @@
 
 #include "SecretMgr.h"
 #include "AES.h"
-#include "Argon2.h"
+#include "Argon2Hash.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
 #include "DatabaseEnv.h"
@@ -200,7 +200,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
                     Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(totpSecret, newSecret->ToByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
 
                 LoginDatabasePreparedStatement* updateStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-                updateStmt->setBinary(0, totpSecret);
+                updateStmt->setBinary(0, std::move(totpSecret));
                 updateStmt->setUInt32(1, id);
                 trans->Append(updateStmt);
             } while (result->NextRow());

@@ -20,9 +20,50 @@
 
 #include "DB2Meta.h"
 
-struct AchievementMeta
+struct AccountStoreCategoryMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_STRING, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
+    };
+
+    static constexpr DB2Meta Instance{ 6220124, 1, 6, 6, 0xE78C9607, Fields, 2 };
+};
+
+struct AccountStoreItemMeta
 {
     static constexpr DB2MetaField Fields[17] =
+    {
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 6197817, 2, 17, 17, 0x818F4DA6, Fields, 3 };
+};
+
+struct AchievementMeta
+{
+    static constexpr DB2MetaField Fields[19] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -30,7 +71,7 @@ struct AchievementMeta
         { FT_INT, 1, false },
         { FT_SHORT, 1, true },
         { FT_BYTE, 1, true },
-        { FT_SHORT, 1, true },
+        { FT_INT, 1, true },
         { FT_SHORT, 1, true },
         { FT_BYTE, 1, true },
         { FT_BYTE, 1, true },
@@ -41,9 +82,11 @@ struct AchievementMeta
         { FT_INT, 1, false },
         { FT_SHORT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1260179, 3, 17, 17, 0xFA2C0B62, Fields, 11 };
+    static constexpr DB2Meta Instance{ 1260179, 3, 19, 19, 0x31925D4B, Fields, 11 };
 };
 
 struct Achievement_CategoryMeta
@@ -56,7 +99,7 @@ struct Achievement_CategoryMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1324299, 1, 4, 4, 0xC3562871, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1324299, 1, 4, 4, 0x67B2B4BD, Fields, 3 };
 };
 
 struct ActionBarGroupMeta
@@ -66,7 +109,7 @@ struct ActionBarGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4572795, -1, 1, 1, 0xE490BC05, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4572795, -1, 1, 1, 0xBBBE80CE, Fields, -1 };
 };
 
 struct ActionBarGroupEntryMeta
@@ -80,12 +123,12 @@ struct ActionBarGroupEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4572797, -1, 5, 4, 0x40E3832D, Fields, 4 };
+    static constexpr DB2Meta Instance{ 4572797, -1, 5, 4, 0xF28AF796, Fields, 4 };
 };
 
 struct AdventureJournalMeta
 {
-    static constexpr DB2MetaField Fields[22] =
+    static constexpr DB2MetaField Fields[20] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -102,8 +145,6 @@ struct AdventureJournalMeta
         { FT_SHORT, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
-        { FT_INT, 1, false },
         { FT_SHORT, 1, false },
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
@@ -111,7 +152,21 @@ struct AdventureJournalMeta
         { FT_BYTE, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1115949, -1, 22, 22, 0xC165B3AF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1115949, -1, 20, 20, 0x88BFAFA8, Fields, -1 };
+};
+
+struct AdventureJournalItemMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5599873, -1, 5, 4, 0x2A065EC6, Fields, 4 };
 };
 
 struct AdventureMapPOIMeta
@@ -132,7 +187,7 @@ struct AdventureMapPOIMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267070, -1, 12, 12, 0x347D1163, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267070, -1, 12, 12, 0x8672E9D5, Fields, -1 };
 };
 
 struct AlliedRaceMeta
@@ -149,7 +204,7 @@ struct AlliedRaceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1710672, -1, 8, 8, 0xA21C7C29, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1710672, -1, 8, 8, 0x979EBCE5, Fields, -1 };
 };
 
 struct AltMinimapMeta
@@ -162,7 +217,7 @@ struct AltMinimapMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5156218, 0, 4, 4, 0x459AD0B9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5156218, 0, 4, 4, 0xDDEF5F2D, Fields, -1 };
 };
 
 struct AltMinimapFiledataMeta
@@ -175,7 +230,7 @@ struct AltMinimapFiledataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5156219, -1, 4, 4, 0xCDDE9476, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5156219, -1, 4, 4, 0xBF516172, Fields, -1 };
 };
 
 struct AltMinimapWMOMeta
@@ -186,7 +241,7 @@ struct AltMinimapWMOMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5156220, -1, 2, 2, 0xEF863B4E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5156220, -1, 2, 2, 0xC6594274, Fields, -1 };
 };
 
 struct AnimKitMeta
@@ -198,7 +253,7 @@ struct AnimKitMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1304323, -1, 3, 3, 0x6287EB21, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1304323, -1, 3, 3, 0xDA4C91AF, Fields, -1 };
 };
 
 struct AnimKitBoneSetMeta
@@ -212,7 +267,7 @@ struct AnimKitBoneSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1375433, -1, 5, 5, 0x570E50A4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375433, -1, 5, 5, 0x43E7736F, Fields, -1 };
 };
 
 struct AnimKitBoneSetAliasMeta
@@ -223,7 +278,7 @@ struct AnimKitBoneSetAliasMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1266937, -1, 2, 2, 0x8DA67A60, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266937, -1, 2, 2, 0x19A6986C, Fields, -1 };
 };
 
 struct AnimKitConfigMeta
@@ -233,7 +288,7 @@ struct AnimKitConfigMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1300872, -1, 1, 1, 0x4BB04814, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1300872, -1, 1, 1, 0x140718EF, Fields, -1 };
 };
 
 struct AnimKitConfigBoneSetMeta
@@ -245,7 +300,7 @@ struct AnimKitConfigBoneSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1300873, -1, 3, 2, 0x2D94E68E, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1300873, -1, 3, 2, 0x482E3ED3, Fields, 2 };
 };
 
 struct AnimKitPriorityMeta
@@ -255,7 +310,7 @@ struct AnimKitPriorityMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1266540, -1, 1, 1, 0x9CF0DCAA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266540, -1, 1, 1, 0xCCF889D8, Fields, -1 };
 };
 
 struct AnimKitReplacementMeta
@@ -269,7 +324,7 @@ struct AnimKitReplacementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1559807, 0, 5, 4, 0xCC7EFF2A, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1559807, 0, 5, 4, 0xD9A65034, Fields, 4 };
 };
 
 struct AnimKitSegmentMeta
@@ -278,7 +333,7 @@ struct AnimKitSegmentMeta
     {
         { FT_SHORT, 1, false },
         { FT_BYTE, 1, false },
-        { FT_SHORT, 1, false },
+        { FT_SHORT, 1, true },
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
         { FT_BYTE, 1, false },
@@ -297,7 +352,7 @@ struct AnimKitSegmentMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1304324, -1, 19, 19, 0xC72DE963, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1304324, -1, 19, 19, 0xA6C970CA, Fields, 0 };
 };
 
 struct AnimReplacementMeta
@@ -311,7 +366,7 @@ struct AnimReplacementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1301100, 0, 5, 4, 0x1A7DFDFA, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1301100, 0, 5, 4, 0x61B149CC, Fields, 4 };
 };
 
 struct AnimReplacementSetMeta
@@ -321,7 +376,7 @@ struct AnimReplacementSetMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1284817, -1, 1, 1, 0x54CC07B7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1284817, -1, 1, 1, 0x7C047695, Fields, -1 };
 };
 
 struct AnimaCableMeta
@@ -365,7 +420,7 @@ struct AnimaCableMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3286805, -1, 35, 35, 0x1F19EFC8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3286805, -1, 35, 35, 0xC7843A94, Fields, -1 };
 };
 
 struct AnimaCylinderMeta
@@ -381,7 +436,7 @@ struct AnimaCylinderMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3286804, -1, 7, 7, 0xA8314AE6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3286804, -1, 7, 7, 0x351564A7, Fields, -1 };
 };
 
 struct AnimaMaterialMeta
@@ -421,7 +476,7 @@ struct AnimaMaterialMeta
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 3153990, -1, 31, 31, 0xEA8F56B4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3153990, -1, 31, 31, 0xEE2975D2, Fields, -1 };
 };
 
 struct AnimationDataMeta
@@ -430,11 +485,11 @@ struct AnimationDataMeta
     {
         { FT_SHORT, 1, false },
         { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
+        { FT_SHORT, 1, true },
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1375431, -1, 4, 4, 0xE4D647E7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375431, -1, 4, 4, 0x18A959FC, Fields, -1 };
 };
 
 struct AreaConditionalDataMeta
@@ -448,7 +503,7 @@ struct AreaConditionalDataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2123730, 1, 5, 4, 0xE7DA5527, Fields, 4 };
+    static constexpr DB2Meta Instance{ 2123730, 1, 5, 4, 0xFFC38678, Fields, 4 };
 };
 
 struct AreaFarClipOverrideMeta
@@ -461,7 +516,7 @@ struct AreaFarClipOverrideMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1537162, -1, 4, 4, 0xA9F91574, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1537162, -1, 4, 4, 0x56BEE3FC, Fields, -1 };
 };
 
 struct AreaGroupMemberMeta
@@ -472,7 +527,7 @@ struct AreaGroupMemberMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1093406, -1, 2, 1, 0x93C93492, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1093406, -1, 2, 1, 0x6746D145, Fields, 1 };
 };
 
 struct AreaPOIMeta
@@ -502,7 +557,7 @@ struct AreaPOIMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1000630, 2, 21, 21, 0x605253EC, Fields, 12 };
+    static constexpr DB2Meta Instance{ 1000630, 2, 21, 21, 0x5F5EE2EF, Fields, 12 };
 };
 
 struct AreaPOIStateMeta
@@ -516,7 +571,19 @@ struct AreaPOIStateMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1000631, -1, 5, 4, 0xC236B11E, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1000631, -1, 5, 4, 0x60943110, Fields, 4 };
+};
+
+struct AreaPOIUiWidgetSetMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
+    };
+
+    static constexpr DB2Meta Instance{ 5634691, -1, 3, 3, 0xCE229645, Fields, -1 };
 };
 
 struct AreaTableMeta
@@ -548,7 +615,7 @@ struct AreaTableMeta
         { FT_SHORT, 4, false },
     };
 
-    static constexpr DB2Meta Instance{ 1353545, -1, 23, 23, 0xCD6850F0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1353545, -1, 23, 23, 0x9864CADF, Fields, -1 };
 };
 
 struct AreaTriggerMeta
@@ -572,7 +639,7 @@ struct AreaTriggerMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1354401, 1, 15, 15, 0x755974EC, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1354401, 1, 15, 15, 0xC9EC1745, Fields, 2 };
 };
 
 struct AreaTriggerActionSetMeta
@@ -582,7 +649,7 @@ struct AreaTriggerActionSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1352378, -1, 1, 1, 0x3CC972C6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1352378, -1, 1, 1, 0x6D5EB3BD, Fields, -1 };
 };
 
 struct AreaTriggerBoundedPlaneMeta
@@ -592,7 +659,7 @@ struct AreaTriggerBoundedPlaneMeta
         { FT_FLOAT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 4266572, -1, 1, 1, 0xAFEA6110, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4266572, -1, 1, 1, 0x6BD39F3C, Fields, -1 };
 };
 
 struct AreaTriggerBoxMeta
@@ -602,7 +669,7 @@ struct AreaTriggerBoxMeta
         { FT_FLOAT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 1332554, -1, 1, 1, 0x0D4BC031, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1332554, -1, 1, 1, 0xC934FE5D, Fields, -1 };
 };
 
 struct AreaTriggerCreatePropertiesMeta
@@ -614,7 +681,7 @@ struct AreaTriggerCreatePropertiesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1937227, -1, 3, 3, 0x95719F5A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1937227, -1, 3, 3, 0xAEDFD657, Fields, -1 };
 };
 
 struct AreaTriggerCylinderMeta
@@ -626,7 +693,7 @@ struct AreaTriggerCylinderMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121943, -1, 3, 3, 0xAF2720AC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121943, -1, 3, 3, 0xC54F3688, Fields, -1 };
 };
 
 struct AreaTriggerDiskMeta
@@ -639,7 +706,7 @@ struct AreaTriggerDiskMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4223661, -1, 4, 4, 0x5C424FAE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4223661, -1, 4, 4, 0xC7E0D346, Fields, -1 };
 };
 
 struct AreaTriggerSphereMeta
@@ -649,7 +716,7 @@ struct AreaTriggerSphereMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1315630, -1, 1, 1, 0xAE82194A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1315630, -1, 1, 1, 0xB851EBF6, Fields, -1 };
 };
 
 struct ArenaTrackedItemMeta
@@ -661,7 +728,7 @@ struct ArenaTrackedItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5226140, -1, 3, 3, 0x953C54A9, Fields, 1 };
+    static constexpr DB2Meta Instance{ 5226140, -1, 3, 3, 0xFB956EB0, Fields, 1 };
 };
 
 struct ArmorLocationMeta
@@ -675,7 +742,7 @@ struct ArmorLocationMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1284818, -1, 5, 5, 0x6FA608FB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1284818, -1, 5, 5, 0xFB67352F, Fields, -1 };
 };
 
 struct ArtifactMeta
@@ -695,7 +762,7 @@ struct ArtifactMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1007934, 1, 11, 11, 0x7F55AC46, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1007934, 1, 11, 11, 0x8194B69D, Fields, -1 };
 };
 
 struct ArtifactAppearanceMeta
@@ -720,7 +787,7 @@ struct ArtifactAppearanceMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1116407, 1, 16, 16, 0x5D77042E, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1116407, 1, 16, 16, 0x4E8E48F3, Fields, 2 };
 };
 
 struct ArtifactAppearanceSetMeta
@@ -738,7 +805,7 @@ struct ArtifactAppearanceSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1116408, 2, 9, 8, 0xE8D3AE79, Fields, 8 };
+    static constexpr DB2Meta Instance{ 1116408, 2, 9, 8, 0xAA95B5A7, Fields, 8 };
 };
 
 struct ArtifactCategoryMeta
@@ -749,7 +816,7 @@ struct ArtifactCategoryMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1376210, -1, 2, 2, 0xAA92CE1F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1376210, -1, 2, 2, 0xEE30ED65, Fields, -1 };
 };
 
 struct ArtifactItemToTransmogMeta
@@ -761,7 +828,7 @@ struct ArtifactItemToTransmogMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2029780, -1, 3, 3, 0xEB962C15, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2029780, -1, 3, 3, 0x847F68D6, Fields, 0 };
 };
 
 struct ArtifactPowerMeta
@@ -777,7 +844,7 @@ struct ArtifactPowerMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1007937, 1, 7, 7, 0x421879C5, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1007937, 1, 7, 7, 0xEAA59D67, Fields, 2 };
 };
 
 struct ArtifactPowerLinkMeta
@@ -788,7 +855,7 @@ struct ArtifactPowerLinkMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1133731, -1, 2, 2, 0xD2E6E484, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1133731, -1, 2, 2, 0x6929FE1C, Fields, -1 };
 };
 
 struct ArtifactPowerPickerMeta
@@ -798,7 +865,7 @@ struct ArtifactPowerPickerMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1597467, -1, 1, 1, 0xAA18FF1B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1597467, -1, 1, 1, 0x39566E31, Fields, -1 };
 };
 
 struct ArtifactPowerRankMeta
@@ -812,7 +879,7 @@ struct ArtifactPowerRankMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1261405, -1, 5, 4, 0xD1061B77, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1261405, -1, 5, 4, 0x39F69979, Fields, 4 };
 };
 
 struct ArtifactQuestXPMeta
@@ -822,7 +889,7 @@ struct ArtifactQuestXPMeta
         { FT_INT, 10, false },
     };
 
-    static constexpr DB2Meta Instance{ 1036203, -1, 1, 1, 0xBFB6413C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1036203, -1, 1, 1, 0x01D6219A, Fields, -1 };
 };
 
 struct ArtifactTierMeta
@@ -836,7 +903,7 @@ struct ArtifactTierMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1600114, -1, 5, 5, 0x91AD7570, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1600114, -1, 5, 5, 0xA9FC62B2, Fields, -1 };
 };
 
 struct ArtifactUnlockMeta
@@ -850,7 +917,7 @@ struct ArtifactUnlockMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1094540, -1, 5, 4, 0xAED3BBEA, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1094540, -1, 5, 4, 0xA71AB31F, Fields, 4 };
 };
 
 struct AuctionHouseMeta
@@ -863,7 +930,7 @@ struct AuctionHouseMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1237439, -1, 4, 4, 0x8925F061, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237439, -1, 4, 4, 0x9D007DB2, Fields, -1 };
 };
 
 struct AuctionHouseCategoryMeta
@@ -882,7 +949,7 @@ struct AuctionHouseCategoryMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 4366440, 2, 10, 10, 0x4945050B, Fields, 7 };
+    static constexpr DB2Meta Instance{ 4366440, 2, 10, 10, 0xCF37C344, Fields, 7 };
 };
 
 struct AzeriteEmpoweredItemMeta
@@ -894,7 +961,7 @@ struct AzeriteEmpoweredItemMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1846046, -1, 3, 3, 0xA33729C4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1846046, -1, 3, 3, 0x48AC4E05, Fields, -1 };
 };
 
 struct AzeriteEssenceMeta
@@ -906,7 +973,7 @@ struct AzeriteEssenceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2829665, -1, 3, 3, 0x78739DBC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2829665, -1, 3, 3, 0xCCE26295, Fields, -1 };
 };
 
 struct AzeriteEssencePowerMeta
@@ -923,7 +990,7 @@ struct AzeriteEssencePowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2829666, -1, 8, 8, 0x054DFF02, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2829666, -1, 8, 8, 0x2EB43EDD, Fields, -1 };
 };
 
 struct AzeriteItemMeta
@@ -933,7 +1000,7 @@ struct AzeriteItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1846048, -1, 1, 1, 0x358673DD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1846048, -1, 1, 1, 0x3923C31A, Fields, -1 };
 };
 
 struct AzeriteItemMilestonePowerMeta
@@ -946,7 +1013,7 @@ struct AzeriteItemMilestonePowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1915395, -1, 4, 4, 0x82DD9DC4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1915395, -1, 4, 4, 0x4B01B39E, Fields, -1 };
 };
 
 struct AzeriteKnowledgeMultiplierMeta
@@ -956,7 +1023,7 @@ struct AzeriteKnowledgeMultiplierMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3148050, -1, 1, 1, 0x9DCCF58B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3148050, -1, 1, 1, 0x47546927, Fields, -1 };
 };
 
 struct AzeriteLevelInfoMeta
@@ -968,7 +1035,7 @@ struct AzeriteLevelInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3147968, -1, 3, 3, 0xFB87ABE1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3147968, -1, 3, 3, 0x22722A9A, Fields, -1 };
 };
 
 struct AzeritePowerMeta
@@ -981,7 +1048,7 @@ struct AzeritePowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1846044, -1, 4, 4, 0x20D09908, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1846044, -1, 4, 4, 0xEC6B5E70, Fields, -1 };
 };
 
 struct AzeritePowerSetMemberMeta
@@ -995,7 +1062,7 @@ struct AzeritePowerSetMemberMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1846040, -1, 5, 5, 0xDD075CEB, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1846040, -1, 5, 5, 0x91D7F535, Fields, 0 };
 };
 
 struct AzeriteTierUnlockMeta
@@ -1008,7 +1075,7 @@ struct AzeriteTierUnlockMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1846043, -1, 4, 3, 0x63D128C5, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1846043, -1, 4, 3, 0xFE36FA5C, Fields, 3 };
 };
 
 struct AzeriteTierUnlockSetMeta
@@ -1018,7 +1085,7 @@ struct AzeriteTierUnlockSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2446322, -1, 1, 1, 0x0E377BCA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2446322, -1, 1, 1, 0x65273FFD, Fields, -1 };
 };
 
 struct AzeriteUnlockMappingMeta
@@ -1032,7 +1099,7 @@ struct AzeriteUnlockMappingMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2564314, -1, 5, 4, 0x22A21AA1, Fields, 4 };
+    static constexpr DB2Meta Instance{ 2564314, -1, 5, 4, 0xD052621C, Fields, 4 };
 };
 
 struct BankBagSlotPricesMeta
@@ -1042,7 +1109,20 @@ struct BankBagSlotPricesMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1284819, -1, 1, 1, 0x972171FF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1284819, -1, 1, 1, 0xDBCA3459, Fields, -1 };
+};
+
+struct BankTabMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_LONG, 1, false },
+        { FT_BYTE, 1, false },
+        { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5242411, -1, 4, 4, 0xD47B62CA, Fields, -1 };
 };
 
 struct BannedAddonsMeta
@@ -1054,7 +1134,7 @@ struct BannedAddonsMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1373459, -1, 3, 3, 0x3BE3470D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1373459, -1, 3, 3, 0xC7F734D9, Fields, -1 };
 };
 
 struct BarberShopStyleMeta
@@ -1070,7 +1150,7 @@ struct BarberShopStyleMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1237437, -1, 7, 7, 0xD7B2816B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237437, -1, 7, 7, 0xD86F8C4D, Fields, -1 };
 };
 
 struct BarrageEffectMeta
@@ -1091,7 +1171,7 @@ struct BarrageEffectMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2499852, -1, 12, 12, 0x26B3A638, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2499852, -1, 12, 12, 0x0FE8427F, Fields, -1 };
 };
 
 struct BattlePetAbilityMeta
@@ -1107,7 +1187,7 @@ struct BattlePetAbilityMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 841610, -1, 7, 7, 0xA35F647F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 841610, -1, 7, 7, 0xAAD491D2, Fields, -1 };
 };
 
 struct BattlePetAbilityEffectMeta
@@ -1123,7 +1203,7 @@ struct BattlePetAbilityEffectMeta
         { FT_SHORT, 6, true },
     };
 
-    static constexpr DB2Meta Instance{ 801575, 0, 7, 7, 0x6E6DF628, Fields, 1 };
+    static constexpr DB2Meta Instance{ 801575, 0, 7, 7, 0x221D1FE6, Fields, 1 };
 };
 
 struct BattlePetAbilityStateMeta
@@ -1135,7 +1215,7 @@ struct BattlePetAbilityStateMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801576, -1, 3, 2, 0xAAB55D53, Fields, 2 };
+    static constexpr DB2Meta Instance{ 801576, -1, 3, 2, 0x3381AC8D, Fields, 2 };
 };
 
 struct BattlePetAbilityTurnMeta
@@ -1146,11 +1226,11 @@ struct BattlePetAbilityTurnMeta
         { FT_SHORT, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
-        { FT_BYTE, 1, true },
+        { FT_BYTE, 1, false },
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 801577, 0, 6, 6, 0x4BFF1620, Fields, 1 };
+    static constexpr DB2Meta Instance{ 801577, 0, 6, 6, 0x20C3BE16, Fields, 1 };
 };
 
 struct BattlePetBreedQualityMeta
@@ -1162,7 +1242,7 @@ struct BattlePetBreedQualityMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 801578, -1, 3, 3, 0x13065D19, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801578, -1, 3, 3, 0xF3E3FDFC, Fields, -1 };
 };
 
 struct BattlePetBreedStateMeta
@@ -1174,7 +1254,7 @@ struct BattlePetBreedStateMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801579, -1, 3, 2, 0xF449E0D3, Fields, 2 };
+    static constexpr DB2Meta Instance{ 801579, -1, 3, 2, 0x030182F5, Fields, 2 };
 };
 
 struct BattlePetDisplayOverrideMeta
@@ -1187,7 +1267,7 @@ struct BattlePetDisplayOverrideMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1802988, -1, 4, 3, 0x9FADCDB4, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1802988, -1, 4, 3, 0xFC2D3715, Fields, 3 };
 };
 
 struct BattlePetEffectPropertiesMeta
@@ -1199,7 +1279,7 @@ struct BattlePetEffectPropertiesMeta
         { FT_BYTE, 6, false },
     };
 
-    static constexpr DB2Meta Instance{ 801580, -1, 3, 3, 0x830F4FD2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801580, -1, 3, 3, 0xED4FBC95, Fields, -1 };
 };
 
 struct BattlePetNPCTeamMemberMeta
@@ -1209,7 +1289,7 @@ struct BattlePetNPCTeamMemberMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 841648, -1, 1, 1, 0xB0DD8F60, Fields, -1 };
+    static constexpr DB2Meta Instance{ 841648, -1, 1, 1, 0x782EE721, Fields, -1 };
 };
 
 struct BattlePetSpeciesMeta
@@ -1230,7 +1310,7 @@ struct BattlePetSpeciesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 841622, 2, 12, 12, 0x7E3C11F2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 841622, 2, 12, 12, 0x589BE282, Fields, -1 };
 };
 
 struct BattlePetSpeciesStateMeta
@@ -1242,7 +1322,7 @@ struct BattlePetSpeciesStateMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801581, -1, 3, 2, 0x3D1D7C9D, Fields, 2 };
+    static constexpr DB2Meta Instance{ 801581, -1, 3, 2, 0x2ABE26A5, Fields, 2 };
 };
 
 struct BattlePetSpeciesXAbilityMeta
@@ -1255,18 +1335,7 @@ struct BattlePetSpeciesXAbilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801582, -1, 4, 3, 0x98E73E87, Fields, 3 };
-};
-
-struct BattlePetSpeciesXCovenantMeta
-{
-    static constexpr DB2MetaField Fields[2] =
-    {
-        { FT_SHORT, 1, false },
-        { FT_INT, 1, true },
-    };
-
-    static constexpr DB2Meta Instance{ 3669304, -1, 2, 1, 0xD9C25504, Fields, 1 };
+    static constexpr DB2Meta Instance{ 801582, -1, 4, 3, 0x69104208, Fields, 3 };
 };
 
 struct BattlePetStateMeta
@@ -1278,7 +1347,7 @@ struct BattlePetStateMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 801583, -1, 3, 3, 0x59238591, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801583, -1, 3, 3, 0x489B22AD, Fields, -1 };
 };
 
 struct BattlePetVisualMeta
@@ -1294,12 +1363,12 @@ struct BattlePetVisualMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 801584, -1, 7, 7, 0x55227F53, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801584, -1, 7, 7, 0x257B890E, Fields, -1 };
 };
 
 struct BattlemasterListMeta
 {
-    static constexpr DB2MetaField Fields[17] =
+    static constexpr DB2MetaField Fields[16] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -1317,10 +1386,37 @@ struct BattlemasterListMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
-        { FT_SHORT, 16, true },
     };
 
-    static constexpr DB2Meta Instance{ 1360265, -1, 17, 17, 0x145B6F18, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1360265, -1, 16, 16, 0x0063AE4C, Fields, -1 };
+};
+
+struct BattlemasterListXMapMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5916746, -1, 2, 1, 0x449D9C1C, Fields, 1 };
+};
+
+struct BattlepayCurrencyMeta
+{
+    static constexpr DB2MetaField Fields[8] =
+    {
+        { FT_STRING_NOT_LOCALIZED, 1, true },
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5549327, 4, 8, 8, 0x38F48A2E, Fields, -1 };
 };
 
 struct BeamEffectMeta
@@ -1339,25 +1435,7 @@ struct BeamEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1525607, -1, 10, 10, 0xF1E61217, Fields, -1 };
-};
-
-struct BeckonTriggerMeta
-{
-    static constexpr DB2MetaField Fields[9] =
-    {
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-    };
-
-    static constexpr DB2Meta Instance{ 3491563, -1, 9, 8, 0x7DF24A7B, Fields, 8 };
+    static constexpr DB2Meta Instance{ 1525607, -1, 10, 10, 0xC4C53E61, Fields, -1 };
 };
 
 struct BoneWindModifierModelMeta
@@ -1368,7 +1446,7 @@ struct BoneWindModifierModelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1467254, -1, 2, 2, 0x1487387B, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1467254, -1, 2, 2, 0xF84A16EF, Fields, 0 };
 };
 
 struct BoneWindModifiersMeta
@@ -1379,7 +1457,7 @@ struct BoneWindModifiersMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1416756, -1, 2, 2, 0x9FEA042E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1416756, -1, 2, 2, 0x2CD1770E, Fields, -1 };
 };
 
 struct BonusRollMeta
@@ -1392,7 +1470,7 @@ struct BonusRollMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1983274, -1, 4, 4, 0xDEC02884, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1983274, -1, 4, 4, 0x567FCB5C, Fields, -1 };
 };
 
 struct BountyMeta
@@ -1406,7 +1484,7 @@ struct BountyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1367866, -1, 5, 4, 0xD23ECB64, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1367866, -1, 5, 4, 0xEF863306, Fields, 4 };
 };
 
 struct BountySetMeta
@@ -1417,7 +1495,7 @@ struct BountySetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1367865, -1, 2, 2, 0x501CD5A6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1367865, -1, 2, 2, 0x487670F7, Fields, -1 };
 };
 
 struct BroadcastTextMeta
@@ -1430,7 +1508,7 @@ struct BroadcastTextMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_SHORT, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_SHORT, 1, false },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 2, false },
@@ -1438,7 +1516,7 @@ struct BroadcastTextMeta
         { FT_SHORT, 3, false },
     };
 
-    static constexpr DB2Meta Instance{ 841604, 2, 12, 12, 0x9FB1FE4B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 841604, 2, 12, 12, 0x2EC89623, Fields, -1 };
 };
 
 struct BroadcastTextDurationMeta
@@ -1450,17 +1528,17 @@ struct BroadcastTextDurationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2166900, -1, 3, 3, 0xFFDF8DBB, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2166900, -1, 3, 2, 0x9CBEE39C, Fields, 2 };
 };
 
 struct CameraEffectMeta
 {
     static constexpr DB2MetaField Fields[1] =
     {
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1117695, -1, 1, 1, 0x8E37DA6F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1117695, -1, 1, 1, 0x1B09C75D, Fields, -1 };
 };
 
 struct CameraEffectEntryMeta
@@ -1477,15 +1555,15 @@ struct CameraEffectEntryMeta
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, true },
         { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1117696, -1, 16, 15, 0x10047B37, Fields, 15 };
+    static constexpr DB2Meta Instance{ 1117696, -1, 16, 15, 0x00CFA83A, Fields, 15 };
 };
 
 struct CameraModeMeta
@@ -1494,7 +1572,7 @@ struct CameraModeMeta
     {
         { FT_FLOAT, 3, true },
         { FT_FLOAT, 3, true },
-        { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
@@ -1506,7 +1584,7 @@ struct CameraModeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343308, -1, 12, 12, 0x5F08423B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343308, -1, 12, 12, 0x2AD4ECDE, Fields, -1 };
 };
 
 struct CampaignMeta
@@ -1528,7 +1606,7 @@ struct CampaignMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2031607, -1, 13, 13, 0x49228B74, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2031607, -1, 13, 13, 0x4D8139BB, Fields, -1 };
 };
 
 struct CampaignXConditionMeta
@@ -1542,7 +1620,7 @@ struct CampaignXConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2031611, -1, 5, 4, 0x3B0D3F8C, Fields, 4 };
+    static constexpr DB2Meta Instance{ 2031611, -1, 5, 4, 0x7A8A4E75, Fields, 4 };
 };
 
 struct CampaignXQuestLineMeta
@@ -1554,7 +1632,7 @@ struct CampaignXQuestLineMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 2036722, -1, 3, 3, 0x10BF2FCD, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2036722, -1, 3, 3, 0x703CADAB, Fields, 0 };
 };
 
 struct CastableRaidBuffsMeta
@@ -1565,7 +1643,7 @@ struct CastableRaidBuffsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1283018, -1, 2, 1, 0xBEB03EF2, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1283018, -1, 2, 1, 0x63E1AEB7, Fields, 1 };
 };
 
 struct CelestialBodyMeta
@@ -1588,7 +1666,7 @@ struct CelestialBodyMeta
         { FT_FLOAT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1592470, -1, 14, 14, 0x3F9BA1DD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1592470, -1, 14, 14, 0x7C85C5E0, Fields, -1 };
 };
 
 struct Cfg_CategoriesMeta
@@ -1603,7 +1681,7 @@ struct Cfg_CategoriesMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1068162, -1, 6, 6, 0x37159FFC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1068162, -1, 6, 6, 0x5ED75B84, Fields, -1 };
 };
 
 struct Cfg_ConfigsMeta
@@ -1616,7 +1694,7 @@ struct Cfg_ConfigsMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1080949, -1, 4, 4, 0xF7B1322B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1080949, -1, 4, 4, 0xE7594137, Fields, -1 };
 };
 
 struct Cfg_RegionsMeta
@@ -1630,23 +1708,21 @@ struct Cfg_RegionsMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1082876, -1, 5, 5, 0xFC93C56C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1082876, -1, 5, 5, 0x8CDAAC27, Fields, -1 };
 };
 
 struct ChallengeModeItemBonusOverrideMeta
 {
-    static constexpr DB2MetaField Fields[7] =
+    static constexpr DB2MetaField Fields[5] =
     {
         { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2965645, -1, 7, 6, 0xB5EA51A7, Fields, 6 };
+    static constexpr DB2Meta Instance{ 2965645, -1, 5, 4, 0x095B5B95, Fields, 4 };
 };
 
 struct CharBaseInfoMeta
@@ -1658,7 +1734,7 @@ struct CharBaseInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343386, -1, 3, 3, 0x862C2392, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343386, -1, 3, 3, 0xCBCCA287, Fields, -1 };
 };
 
 struct CharBaseSectionMeta
@@ -1670,7 +1746,7 @@ struct CharBaseSectionMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1375798, -1, 3, 3, 0xC0783DC4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375798, -1, 3, 3, 0xCCB98D5E, Fields, -1 };
 };
 
 struct CharComponentTextureLayoutsMeta
@@ -1681,7 +1757,7 @@ struct CharComponentTextureLayoutsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1360262, -1, 2, 2, 0x7F7D8978, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1360262, -1, 2, 2, 0x0B9AF134, Fields, -1 };
 };
 
 struct CharComponentTextureSectionsMeta
@@ -1697,7 +1773,7 @@ struct CharComponentTextureSectionsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1360263, -1, 7, 7, 0x5F538036, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1360263, -1, 7, 7, 0x2173BA71, Fields, 0 };
 };
 
 struct CharHairGeosetsMeta
@@ -1717,7 +1793,7 @@ struct CharHairGeosetsMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1256914, -1, 11, 11, 0x69E34903, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1256914, -1, 11, 11, 0x41E34B0F, Fields, 0 };
 };
 
 struct CharSectionConditionMeta
@@ -1732,7 +1808,7 @@ struct CharSectionConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2388725, -1, 6, 5, 0x5E6E8D02, Fields, 5 };
+    static constexpr DB2Meta Instance{ 2388725, -1, 6, 5, 0x0EC8D97C, Fields, 5 };
 };
 
 struct CharShipmentMeta
@@ -1750,7 +1826,7 @@ struct CharShipmentMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 972425, -1, 9, 9, 0x604F76F0, Fields, 0 };
+    static constexpr DB2Meta Instance{ 972425, -1, 9, 9, 0x91BEA68A, Fields, 0 };
 };
 
 struct CharShipmentContainerMeta
@@ -1775,7 +1851,7 @@ struct CharShipmentContainerMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 972405, -1, 16, 16, 0xBE1415EF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 972405, -1, 16, 16, 0xC3E07E9C, Fields, -1 };
 };
 
 struct CharStartKitMeta
@@ -1800,23 +1876,7 @@ struct CharStartKitMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055696, -1, 16, 15, 0x00B44453, Fields, 15 };
-};
-
-struct CharStartOutfitMeta
-{
-    static constexpr DB2MetaField Fields[7] =
-    {
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_INT, 24, true },
-        { FT_INT, 1, true },
-    };
-
-    static constexpr DB2Meta Instance{ 1237591, -1, 7, 6, 0x3CF88584, Fields, 6 };
+    static constexpr DB2Meta Instance{ 3055696, -1, 16, 15, 0x53D4BFF2, Fields, 15 };
 };
 
 struct CharTitlesMeta
@@ -1829,21 +1889,7 @@ struct CharTitlesMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1349054, -1, 4, 4, 0xD7398A05, Fields, -1 };
-};
-
-struct CharacterFaceBoneSetMeta
-{
-    static constexpr DB2MetaField Fields[5] =
-    {
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-    };
-
-    static constexpr DB2Meta Instance{ 1028733, -1, 5, 4, 0xD21C8EC2, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1349054, -1, 4, 4, 0x1EEF17FF, Fields, -1 };
 };
 
 struct CharacterFacialHairStylesMeta
@@ -1856,7 +1902,7 @@ struct CharacterFacialHairStylesMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1369752, -1, 4, 4, 0x4ED873D6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1369752, -1, 4, 4, 0xEC412D3B, Fields, -1 };
 };
 
 struct CharacterLoadoutMeta
@@ -1866,10 +1912,10 @@ struct CharacterLoadoutMeta
         { FT_LONG, 1, true },
         { FT_BYTE, 1, true },
         { FT_INT, 1, true },
-        { FT_BYTE, 1, true },
+        { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1344281, -1, 4, 4, 0xEF41DC0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1344281, -1, 4, 4, 0xBC929075, Fields, -1 };
 };
 
 struct CharacterLoadoutItemMeta
@@ -1880,7 +1926,7 @@ struct CharacterLoadoutItemMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1302846, -1, 2, 2, 0x24843CD8, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1302846, -1, 2, 2, 0x0C7A1862, Fields, 0 };
 };
 
 struct CharacterLoadoutPetMeta
@@ -1893,12 +1939,12 @@ struct CharacterLoadoutPetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3724843, -1, 4, 3, 0x0E32BEB6, Fields, 3 };
+    static constexpr DB2Meta Instance{ 3724843, -1, 4, 3, 0xB4B8349E, Fields, 3 };
 };
 
 struct CharacterServiceInfoMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[13] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -1912,9 +1958,10 @@ struct CharacterServiceInfoMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1815417, -1, 12, 12, 0x7C1EF738, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1815417, -1, 13, 13, 0xD31E4776, Fields, -1 };
 };
 
 struct ChatChannelsMeta
@@ -1928,7 +1975,7 @@ struct ChatChannelsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1345278, -1, 5, 5, 0x905CF2AE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1345278, -1, 5, 5, 0xD5E402DC, Fields, -1 };
 };
 
 struct ChatProfanityMeta
@@ -1939,7 +1986,7 @@ struct ChatProfanityMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1117084, -1, 2, 2, 0xF05E7E22, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1117084, -1, 2, 2, 0x7EACA150, Fields, -1 };
 };
 
 struct ChrClassRaceSexMeta
@@ -1954,7 +2001,7 @@ struct ChrClassRaceSexMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1306188, -1, 6, 6, 0xCE5A498A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1306188, -1, 6, 6, 0xA2F2B211, Fields, -1 };
 };
 
 struct ChrClassTitleMeta
@@ -1966,7 +2013,7 @@ struct ChrClassTitleMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267497, -1, 3, 3, 0x7F14E4E9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267497, -1, 3, 3, 0x9771B69D, Fields, -1 };
 };
 
 struct ChrClassUIChrModelInfoMeta
@@ -1979,7 +2026,7 @@ struct ChrClassUIChrModelInfoMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3754770, -1, 4, 4, 0xC4043CA4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3754770, -1, 4, 4, 0xCE0676C0, Fields, -1 };
 };
 
 struct ChrClassUIDisplayMeta
@@ -1991,7 +2038,7 @@ struct ChrClassUIDisplayMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1316515, -1, 3, 3, 0x89E07C1C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1316515, -1, 3, 3, 0xE6877A46, Fields, -1 };
 };
 
 struct ChrClassVillainMeta
@@ -2003,7 +2050,7 @@ struct ChrClassVillainMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1267498, -1, 3, 3, 0x24AF0FFD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267498, -1, 3, 3, 0x449C6890, Fields, -1 };
 };
 
 struct ChrClassesMeta
@@ -2040,7 +2087,7 @@ struct ChrClassesMeta
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_BYTE, 1, true },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
@@ -2051,7 +2098,7 @@ struct ChrClassesMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1361031, 10, 39, 39, 0xA9224C3E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1361031, 10, 39, 39, 0xB3938245, Fields, -1 };
 };
 
 struct ChrClassesXPowerTypesMeta
@@ -2062,7 +2109,7 @@ struct ChrClassesXPowerTypesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121420, -1, 2, 1, 0x71C99BFD, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1121420, -1, 2, 1, 0xD625E75C, Fields, 1 };
 };
 
 struct ChrCreateClassAnimTargetMeta
@@ -2078,7 +2125,7 @@ struct ChrCreateClassAnimTargetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3671168, -1, 7, 6, 0x3AC1561C, Fields, 6 };
+    static constexpr DB2Meta Instance{ 3671168, -1, 7, 6, 0x951CEB58, Fields, 6 };
 };
 
 struct ChrCreateClassAnimTargetInfoMeta
@@ -2091,7 +2138,7 @@ struct ChrCreateClassAnimTargetInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3671169, 0, 4, 3, 0x9CC6607E, Fields, 3 };
+    static constexpr DB2Meta Instance{ 3671169, 0, 4, 3, 0xD5A84E5B, Fields, 3 };
 };
 
 struct ChrCustClientChoiceConversionMeta
@@ -2103,7 +2150,7 @@ struct ChrCustClientChoiceConversionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3590348, -1, 3, 2, 0xF1AE177C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3590348, -1, 3, 2, 0x48271419, Fields, 2 };
 };
 
 struct ChrCustGeoComponentLinkMeta
@@ -2113,7 +2160,7 @@ struct ChrCustGeoComponentLinkMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5387095, -1, 1, 1, 0xB7E1E35F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5387095, -1, 1, 1, 0x892316B4, Fields, -1 };
 };
 
 struct ChrCustItemGeoModifyMeta
@@ -2125,7 +2172,7 @@ struct ChrCustItemGeoModifyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3952714, -1, 3, 3, 0x09A78C46, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3952714, -1, 3, 3, 0xFE865CC3, Fields, -1 };
 };
 
 struct ChrCustomizationMeta
@@ -2141,7 +2188,7 @@ struct ChrCustomizationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1611874, -1, 7, 6, 0x3E81F9D4, Fields, 6 };
+    static constexpr DB2Meta Instance{ 1611874, -1, 7, 6, 0xB5F3C6B5, Fields, 6 };
 };
 
 struct ChrCustomizationBoneSetMeta
@@ -2152,7 +2199,7 @@ struct ChrCustomizationBoneSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3460181, -1, 2, 2, 0xF45B8890, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3460181, -1, 2, 2, 0xCC2CFF6E, Fields, -1 };
 };
 
 struct ChrCustomizationCategoryMeta
@@ -2169,7 +2216,7 @@ struct ChrCustomizationCategoryMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3526439, -1, 8, 8, 0x885434EF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3526439, -1, 8, 8, 0x1605B68A, Fields, -1 };
 };
 
 struct ChrCustomizationChoiceMeta
@@ -2189,7 +2236,7 @@ struct ChrCustomizationChoiceMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 3450554, 1, 11, 11, 0xAA548AE1, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3450554, 1, 11, 11, 0x9559C358, Fields, 2 };
 };
 
 struct ChrCustomizationCondModelMeta
@@ -2200,7 +2247,7 @@ struct ChrCustomizationCondModelMeta
         { FT_INT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 3460182, -1, 2, 2, 0x90F7861A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3460182, -1, 2, 2, 0x601A4522, Fields, -1 };
 };
 
 struct ChrCustomizationConversionMeta
@@ -2217,7 +2264,7 @@ struct ChrCustomizationConversionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3463337, -1, 8, 8, 0x685C2AB5, Fields, 4 };
+    static constexpr DB2Meta Instance{ 3463337, -1, 8, 8, 0xA31CB58D, Fields, 4 };
 };
 
 struct ChrCustomizationDisplayInfoMeta
@@ -2231,7 +2278,7 @@ struct ChrCustomizationDisplayInfoMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3593032, -1, 5, 5, 0x5C04D385, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3593032, -1, 5, 5, 0xB24CE54F, Fields, -1 };
 };
 
 struct ChrCustomizationElementMeta
@@ -2253,7 +2300,7 @@ struct ChrCustomizationElementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3512765, -1, 13, 13, 0x79DFED35, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3512765, -1, 13, 13, 0x6483C37E, Fields, -1 };
 };
 
 struct ChrCustomizationGeosetMeta
@@ -2265,7 +2312,7 @@ struct ChrCustomizationGeosetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3456171, -1, 3, 3, 0x9D95412A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3456171, -1, 3, 3, 0x44C80DEB, Fields, -1 };
 };
 
 struct ChrCustomizationGlyphPetMeta
@@ -2280,7 +2327,7 @@ struct ChrCustomizationGlyphPetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5347591, -1, 6, 6, 0xD58B0F29, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5347591, -1, 6, 6, 0xE9159047, Fields, -1 };
 };
 
 struct ChrCustomizationMaterialMeta
@@ -2291,7 +2338,7 @@ struct ChrCustomizationMaterialMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3459652, -1, 2, 2, 0x68D0798C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3459652, -1, 2, 2, 0xBE9767E9, Fields, -1 };
 };
 
 struct ChrCustomizationOptionMeta
@@ -2313,7 +2360,7 @@ struct ChrCustomizationOptionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3384247, 1, 13, 13, 0x77A321D5, Fields, 4 };
+    static constexpr DB2Meta Instance{ 3384247, 1, 13, 13, 0x1EB3451E, Fields, 4 };
 };
 
 struct ChrCustomizationReqMeta
@@ -2330,7 +2377,7 @@ struct ChrCustomizationReqMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3450453, -1, 8, 8, 0x1BF53EBE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3450453, -1, 8, 8, 0x618D5A55, Fields, -1 };
 };
 
 struct ChrCustomizationReqChoiceMeta
@@ -2341,7 +2388,7 @@ struct ChrCustomizationReqChoiceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3580359, -1, 2, 1, 0x52D624D9, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3580359, -1, 2, 1, 0xF925BC6F, Fields, 1 };
 };
 
 struct ChrCustomizationSkinnedModelMeta
@@ -2355,7 +2402,7 @@ struct ChrCustomizationSkinnedModelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3460183, -1, 5, 5, 0xB02FB5F3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3460183, -1, 5, 5, 0xE447963A, Fields, -1 };
 };
 
 struct ChrCustomizationVisReqMeta
@@ -2366,7 +2413,7 @@ struct ChrCustomizationVisReqMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4724136, -1, 2, 2, 0xF5C3ABD9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4724136, -1, 2, 2, 0x52C27B83, Fields, -1 };
 };
 
 struct ChrCustomizationVoiceMeta
@@ -2376,7 +2423,7 @@ struct ChrCustomizationVoiceMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4672833, -1, 1, 1, 0x647E0FF4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4672833, -1, 1, 1, 0x03684BD2, Fields, -1 };
 };
 
 struct ChrModelMeta
@@ -2402,7 +2449,7 @@ struct ChrModelMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3384313, 2, 17, 17, 0x79F06E99, Fields, 4 };
+    static constexpr DB2Meta Instance{ 3384313, 2, 17, 17, 0x03FAB755, Fields, 4 };
 };
 
 struct ChrModelMaterialMeta
@@ -2418,7 +2465,7 @@ struct ChrModelMaterialMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3566562, 0, 7, 7, 0xB4AB9DAB, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3566562, 0, 7, 7, 0x22469480, Fields, 1 };
 };
 
 struct ChrModelTextureLayerMeta
@@ -2436,7 +2483,7 @@ struct ChrModelTextureLayerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3548976, -1, 9, 8, 0x0CE385AF, Fields, 8 };
+    static constexpr DB2Meta Instance{ 3548976, -1, 9, 8, 0xD0583FB4, Fields, 8 };
 };
 
 struct ChrRaceRacialAbilityMeta
@@ -2451,7 +2498,7 @@ struct ChrRaceRacialAbilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3507821, -1, 6, 5, 0xB6115535, Fields, 5 };
+    static constexpr DB2Meta Instance{ 3507821, -1, 6, 5, 0x0FC0F0D5, Fields, 5 };
 };
 
 struct ChrRaceXChrModelMeta
@@ -2464,7 +2511,7 @@ struct ChrRaceXChrModelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3490304, -1, 4, 4, 0xE0B5AE0D, Fields, 0 };
+    static constexpr DB2Meta Instance{ 3490304, -1, 4, 4, 0x6D1E51C9, Fields, 0 };
 };
 
 struct ChrRacesMeta
@@ -2525,7 +2572,7 @@ struct ChrRacesMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1305311, -1, 52, 52, 0xCD316971, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1305311, -1, 52, 52, 0xFBB0AF72, Fields, -1 };
 };
 
 struct ChrRacesCreateScreenIconMeta
@@ -2538,7 +2585,7 @@ struct ChrRacesCreateScreenIconMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4566929, 0, 4, 4, 0x892075D2, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4566929, 0, 4, 4, 0x24C83D97, Fields, 1 };
 };
 
 struct ChrRacesPingMeta
@@ -2551,7 +2598,7 @@ struct ChrRacesPingMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5320971, -1, 4, 4, 0xEEFB570B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5320971, -1, 4, 4, 0x4A9D37A3, Fields, -1 };
 };
 
 struct ChrSelectBackgroundCDIMeta
@@ -2563,7 +2610,7 @@ struct ChrSelectBackgroundCDIMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4195187, -1, 3, 3, 0x5C22B87C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4195187, -1, 3, 3, 0xECF7F0D1, Fields, -1 };
 };
 
 struct ChrSpecializationMeta
@@ -2585,7 +2632,7 @@ struct ChrSpecializationMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343390, 3, 13, 13, 0x1F1A9A8F, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1343390, 3, 13, 13, 0xE5FCCC5B, Fields, 4 };
 };
 
 struct ChrUpgradeBucketMeta
@@ -2597,7 +2644,7 @@ struct ChrUpgradeBucketMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 984529, 0, 3, 2, 0x5DD8D93F, Fields, 2 };
+    static constexpr DB2Meta Instance{ 984529, 0, 3, 2, 0x0FFDE299, Fields, 2 };
 };
 
 struct ChrUpgradeBucketSpellMeta
@@ -2608,7 +2655,7 @@ struct ChrUpgradeBucketSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 984528, -1, 2, 1, 0xD5209FCF, Fields, 1 };
+    static constexpr DB2Meta Instance{ 984528, -1, 2, 1, 0x666AF1D3, Fields, 1 };
 };
 
 struct ChrUpgradeTierMeta
@@ -2621,7 +2668,7 @@ struct ChrUpgradeTierMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 984530, 1, 4, 4, 0xC4B6C048, Fields, -1 };
+    static constexpr DB2Meta Instance{ 984530, 1, 4, 4, 0xA0CEF7CA, Fields, -1 };
 };
 
 struct CinematicCameraMeta
@@ -2635,7 +2682,7 @@ struct CinematicCameraMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1294214, -1, 5, 5, 0x4B3DF171, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1294214, -1, 5, 5, 0x8BFD752B, Fields, -1 };
 };
 
 struct CinematicSequencesMeta
@@ -2646,7 +2693,7 @@ struct CinematicSequencesMeta
         { FT_SHORT, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 1134583, -1, 2, 2, 0x32B8FB41, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134583, -1, 2, 2, 0x07D874FF, Fields, -1 };
 };
 
 struct ClientSceneEffectMeta
@@ -2656,7 +2703,21 @@ struct ClientSceneEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1939843, -1, 1, 1, 0x8C4BEE67, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1939843, -1, 1, 1, 0xF3B2D340, Fields, -1 };
+};
+
+struct ClientSettingsMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_STRING_NOT_LOCALIZED, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5874295, 1, 5, 5, 0x0ACED075, Fields, -1 };
 };
 
 struct CloakDampeningMeta
@@ -2672,7 +2733,7 @@ struct CloakDampeningMeta
         { FT_FLOAT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1465903, -1, 7, 7, 0x1C66DB37, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1465903, -1, 7, 7, 0x4D53C04B, Fields, -1 };
 };
 
 struct CloneEffectMeta
@@ -2689,7 +2750,7 @@ struct CloneEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2175218, -1, 8, 8, 0xC045A5E8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2175218, -1, 8, 8, 0x65C255A4, Fields, -1 };
 };
 
 struct CollectableSourceEncounterMeta
@@ -2700,7 +2761,7 @@ struct CollectableSourceEncounterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5152111, 0, 2, 1, 0x4FE04777, Fields, 1 };
+    static constexpr DB2Meta Instance{ 5152111, 0, 2, 1, 0xFC4F6701, Fields, 1 };
 };
 
 struct CollectableSourceEncounterSparseMeta
@@ -2712,7 +2773,7 @@ struct CollectableSourceEncounterSparseMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5152908, -1, 3, 2, 0x2283C289, Fields, 2 };
+    static constexpr DB2Meta Instance{ 5152908, -1, 3, 2, 0xC7F0206A, Fields, 2 };
 };
 
 struct CollectableSourceInfoMeta
@@ -2725,7 +2786,7 @@ struct CollectableSourceInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5152112, 1, 4, 4, 0xF20F935A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5152112, 1, 4, 4, 0x2EFCC218, Fields, -1 };
 };
 
 struct CollectableSourceQuestMeta
@@ -2735,7 +2796,7 @@ struct CollectableSourceQuestMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5205183, -1, 1, 1, 0xED2B4E47, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5205183, -1, 1, 1, 0x49EA6C2C, Fields, -1 };
 };
 
 struct CollectableSourceQuestSparseMeta
@@ -2749,7 +2810,7 @@ struct CollectableSourceQuestSparseMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5205600, -1, 5, 4, 0xF3A48090, Fields, 4 };
+    static constexpr DB2Meta Instance{ 5205600, -1, 5, 4, 0x434EEF8A, Fields, 4 };
 };
 
 struct CollectableSourceVendorMeta
@@ -2761,7 +2822,7 @@ struct CollectableSourceVendorMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5163410, 0, 3, 2, 0x79CFD6DF, Fields, 2 };
+    static constexpr DB2Meta Instance{ 5163410, 0, 3, 2, 0xB6FB0394, Fields, 2 };
 };
 
 struct CollectableSourceVendorSparseMeta
@@ -2777,7 +2838,7 @@ struct CollectableSourceVendorSparseMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5159897, -1, 7, 6, 0xD0863376, Fields, 6 };
+    static constexpr DB2Meta Instance{ 5159897, -1, 7, 6, 0x1EC1925C, Fields, 6 };
 };
 
 struct CombatConditionMeta
@@ -2797,7 +2858,7 @@ struct CombatConditionMeta
         { FT_BYTE, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1120958, -1, 11, 11, 0x5CA63D01, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1120958, -1, 11, 11, 0xE4823C69, Fields, -1 };
 };
 
 struct CommentatorIndirectSpellMeta
@@ -2809,7 +2870,7 @@ struct CommentatorIndirectSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3067644, -1, 3, 2, 0x415C0D91, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3067644, -1, 3, 2, 0x2DD1B7F8, Fields, 2 };
 };
 
 struct CommentatorStartLocationMeta
@@ -2820,7 +2881,7 @@ struct CommentatorStartLocationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1664251, -1, 2, 2, 0x36EDE137, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1664251, -1, 2, 2, 0x8EA27BA8, Fields, -1 };
 };
 
 struct CommentatorTrackedCooldownMeta
@@ -2835,7 +2896,7 @@ struct CommentatorTrackedCooldownMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1661584, -1, 6, 5, 0x43CD7801, Fields, 5 };
+    static constexpr DB2Meta Instance{ 1661584, -1, 6, 5, 0xCF118CBC, Fields, 5 };
 };
 
 struct CommunityIconMeta
@@ -2846,7 +2907,7 @@ struct CommunityIconMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2098645, -1, 2, 2, 0xAD2830F3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2098645, -1, 2, 2, 0x7737DBB7, Fields, -1 };
 };
 
 struct ComponentModelFileDataMeta
@@ -2859,7 +2920,7 @@ struct ComponentModelFileDataMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1349053, -1, 4, 4, 0x34E0ADCF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1349053, -1, 4, 4, 0x070B9B9A, Fields, -1 };
 };
 
 struct ComponentTextureFileDataMeta
@@ -2871,22 +2932,22 @@ struct ComponentTextureFileDataMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1278239, -1, 3, 3, 0x2DD855B4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1278239, -1, 3, 3, 0x6B7CDBEA, Fields, -1 };
 };
 
 struct ConditionalChrModelMeta
 {
     static constexpr DB2MetaField Fields[6] =
     {
-        { FT_INT, 1, true },
         { FT_INT, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5211412, 1, 6, 6, 0x4467B29C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5211412, 0, 6, 6, 0x8236CAE9, Fields, 1 };
 };
 
 struct ConditionalContentTuningMeta
@@ -2899,7 +2960,20 @@ struct ConditionalContentTuningMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3501965, -1, 4, 3, 0x8DF8B6EC, Fields, 3 };
+    static constexpr DB2Meta Instance{ 3501965, -1, 4, 3, 0x15616FBC, Fields, 3 };
+};
+
+struct ConditionalCreatureModelDataMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_SHORT, 1, false },
+        { FT_SHORT, 1, false },
+        { FT_INT, 1, false },
+        { FT_INT, 4, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5525474, -1, 4, 4, 0xC974B48B, Fields, -1 };
 };
 
 struct ConditionalItemAppearanceMeta
@@ -2914,7 +2988,7 @@ struct ConditionalItemAppearanceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5345180, -1, 6, 5, 0x46A8294C, Fields, 5 };
+    static constexpr DB2Meta Instance{ 5345180, -1, 6, 5, 0x5303936C, Fields, 5 };
 };
 
 struct ConfigurationWarningMeta
@@ -2925,13 +2999,32 @@ struct ConfigurationWarningMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1709409, -1, 2, 2, 0x6E7F031C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1709409, -1, 2, 2, 0xE476B573, Fields, -1 };
+};
+
+struct ContentPushMeta
+{
+    static constexpr DB2MetaField Fields[9] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, false },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5742435, -1, 9, 9, 0xE12AA1EF, Fields, -1 };
 };
 
 struct ContentRestrictionRuleMeta
 {
-    static constexpr DB2MetaField Fields[8] =
+    static constexpr DB2MetaField Fields[9] =
     {
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -2942,7 +3035,7 @@ struct ContentRestrictionRuleMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4668112, -1, 8, 7, 0x5A5B939C, Fields, 7 };
+    static constexpr DB2Meta Instance{ 4668112, -1, 9, 8, 0xC10A8C25, Fields, 8 };
 };
 
 struct ContentRestrictionRuleSetMeta
@@ -2954,13 +3047,16 @@ struct ContentRestrictionRuleSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4281307, 0, 3, 3, 0x7AA89A89, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4281307, 0, 3, 3, 0xFE3B102A, Fields, -1 };
 };
 
 struct ContentTuningMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[15] =
     {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -2975,7 +3071,7 @@ struct ContentTuningMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1962930, -1, 12, 12, 0x3E5D4B74, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1962930, 0, 15, 15, 0x7B58533B, Fields, -1 };
 };
 
 struct ContentTuningXExpectedMeta
@@ -2988,7 +3084,7 @@ struct ContentTuningXExpectedMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2976765, -1, 4, 3, 0x886CD205, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2976765, -1, 4, 3, 0x897A4313, Fields, 3 };
 };
 
 struct ContentTuningXLabelMeta
@@ -2999,7 +3095,7 @@ struct ContentTuningXLabelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4659576, -1, 2, 1, 0x62982D18, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4659576, -1, 2, 1, 0xCFAAE43E, Fields, 1 };
 };
 
 struct ContributionMeta
@@ -3014,7 +3110,7 @@ struct ContributionMeta
         { FT_INT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1587153, -1, 6, 6, 0xB773D94B, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1587153, -1, 6, 6, 0x2310FD57, Fields, 2 };
 };
 
 struct ContributionStyleMeta
@@ -3030,7 +3126,7 @@ struct ContributionStyleMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2143633, -1, 7, 7, 0x001E87C8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2143633, -1, 7, 7, 0x88C22204, Fields, -1 };
 };
 
 struct ContributionStyleContainerMeta
@@ -3040,7 +3136,7 @@ struct ContributionStyleContainerMeta
         { FT_INT, 5, true },
     };
 
-    static constexpr DB2Meta Instance{ 2143634, -1, 1, 1, 0xBCE21C5E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2143634, -1, 1, 1, 0x8879F685, Fields, -1 };
 };
 
 struct ConversationLineMeta
@@ -3058,7 +3154,7 @@ struct ConversationLineMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1260801, -1, 9, 9, 0xD199D7B9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1260801, -1, 9, 9, 0xAA1E7988, Fields, -1 };
 };
 
 struct CorruptionEffectsMeta
@@ -3071,7 +3167,7 @@ struct CorruptionEffectsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3220711, -1, 4, 4, 0xCD3D02D2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3220711, -1, 4, 4, 0xFD8BA257, Fields, -1 };
 };
 
 struct CovenantMeta
@@ -3090,12 +3186,12 @@ struct CovenantMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3384973, -1, 10, 10, 0x1918652F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3384973, -1, 10, 10, 0xB8563783, Fields, -1 };
 };
 
 struct CraftingDataMeta
 {
-    static constexpr DB2MetaField Fields[15] =
+    static constexpr DB2MetaField Fields[16] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -3112,9 +3208,10 @@ struct CraftingDataMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4545611, 0, 15, 15, 0xAC3DA43D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4545611, 0, 16, 16, 0xC21C854F, Fields, -1 };
 };
 
 struct CraftingDataEnchantQualityMeta
@@ -3127,7 +3224,7 @@ struct CraftingDataEnchantQualityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4659601, -1, 4, 3, 0x31677DFD, Fields, 3 };
+    static constexpr DB2Meta Instance{ 4659601, -1, 4, 3, 0x39F2F30B, Fields, 3 };
 };
 
 struct CraftingDataItemQualityMeta
@@ -3138,21 +3235,23 @@ struct CraftingDataItemQualityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4545612, -1, 2, 1, 0x25756325, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4545612, -1, 2, 1, 0xDE11A051, Fields, 1 };
 };
 
 struct CraftingDifficultyMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4373536, -1, 5, 5, 0xA38AD18A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4373536, -1, 7, 7, 0x7744A1A6, Fields, -1 };
 };
 
 struct CraftingDifficultyQualityMeta
@@ -3167,7 +3266,7 @@ struct CraftingDifficultyQualityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4373537, 0, 6, 5, 0xC1A830DE, Fields, 5 };
+    static constexpr DB2Meta Instance{ 4373537, 0, 6, 5, 0xE2C031D4, Fields, 5 };
 };
 
 struct CraftingOrderMeta
@@ -3179,7 +3278,7 @@ struct CraftingOrderMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4529122, -1, 3, 3, 0xB84EEC7E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4529122, -1, 3, 3, 0x05F8699D, Fields, -1 };
 };
 
 struct CraftingOrderHouseMeta
@@ -3190,7 +3289,19 @@ struct CraftingOrderHouseMeta
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 4688652, -1, 2, 2, 0xAC451DAB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4688652, -1, 2, 2, 0x807F433C, Fields, -1 };
+};
+
+struct CraftingOrderXLabelMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5875491, 0, 3, 3, 0x4AA53C3A, Fields, 1 };
 };
 
 struct CraftingQualityMeta
@@ -3200,7 +3311,7 @@ struct CraftingQualityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4373538, -1, 1, 1, 0xE97DD64C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4373538, -1, 1, 1, 0xD0952E97, Fields, -1 };
 };
 
 struct CraftingReagentEffectMeta
@@ -3212,7 +3323,7 @@ struct CraftingReagentEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4541803, -1, 3, 2, 0xC85861E7, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4541803, -1, 3, 2, 0x70597398, Fields, 2 };
 };
 
 struct CraftingReagentQualityMeta
@@ -3227,7 +3338,7 @@ struct CraftingReagentQualityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4382197, 0, 6, 5, 0xCE4DB0CC, Fields, 5 };
+    static constexpr DB2Meta Instance{ 4382197, 0, 6, 5, 0x7E46ED08, Fields, 5 };
 };
 
 struct CraftingReagentRequirementMeta
@@ -3238,7 +3349,7 @@ struct CraftingReagentRequirementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5049814, -1, 2, 1, 0x3F971F7F, Fields, 1 };
+    static constexpr DB2Meta Instance{ 5049814, -1, 2, 1, 0x0BE9179D, Fields, 1 };
 };
 
 struct CreatureMeta
@@ -3258,7 +3369,7 @@ struct CreatureMeta
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 841631, -1, 11, 11, 0x8246E41C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 841631, -1, 11, 11, 0x0F1A4E20, Fields, -1 };
 };
 
 struct CreatureDifficultyMeta
@@ -3273,7 +3384,7 @@ struct CreatureDifficultyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 879282, -1, 6, 5, 0xCDB617FB, Fields, 5 };
+    static constexpr DB2Meta Instance{ 879282, -1, 6, 5, 0xFC42F936, Fields, 5 };
 };
 
 struct CreatureDifficultyTreasureMeta
@@ -3285,7 +3396,7 @@ struct CreatureDifficultyTreasureMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4044373, -1, 3, 2, 0x69361BEA, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4044373, -1, 3, 2, 0x75E963A9, Fields, 2 };
 };
 
 struct CreatureDispXUiCameraMeta
@@ -3296,12 +3407,12 @@ struct CreatureDispXUiCameraMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1146692, -1, 2, 2, 0xA8582ED5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1146692, -1, 2, 2, 0xA5E810E7, Fields, -1 };
 };
 
 struct CreatureDisplayInfoMeta
 {
-    static constexpr DB2MetaField Fields[25] =
+    static constexpr DB2MetaField Fields[28] =
     {
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
@@ -3317,7 +3428,7 @@ struct CreatureDisplayInfoMeta
         { FT_INT, 1, true },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
@@ -3327,10 +3438,13 @@ struct CreatureDisplayInfoMeta
         { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, true },
+        { FT_SHORT, 1, false },
+        { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
         { FT_INT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1108759, 0, 25, 25, 0x357FF9CD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1108759, 0, 28, 28, 0x19189406, Fields, -1 };
 };
 
 struct CreatureDisplayInfoCondMeta
@@ -3347,7 +3461,7 @@ struct CreatureDisplayInfoCondMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1332686, 1, 8, 7, 0x5EAC4BFD, Fields, 7 };
+    static constexpr DB2Meta Instance{ 1332686, 1, 8, 7, 0x4A85E6DE, Fields, 7 };
 };
 
 struct CreatureDisplayInfoCondXChoiceMeta
@@ -3358,7 +3472,7 @@ struct CreatureDisplayInfoCondXChoiceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3670439, -1, 2, 2, 0x3B360250, Fields, 0 };
+    static constexpr DB2Meta Instance{ 3670439, -1, 2, 2, 0x8AB1D7E8, Fields, 0 };
 };
 
 struct CreatureDisplayInfoEvtMeta
@@ -3371,7 +3485,7 @@ struct CreatureDisplayInfoEvtMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1586882, -1, 4, 3, 0xFD7C9FA8, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1586882, -1, 4, 3, 0xF2A5FCAA, Fields, 3 };
 };
 
 struct CreatureDisplayInfoExtraMeta
@@ -3387,7 +3501,7 @@ struct CreatureDisplayInfoExtraMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1264997, 0, 7, 7, 0x8FCCFF0C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1264997, 0, 7, 7, 0x1685A9BC, Fields, -1 };
 };
 
 struct CreatureDisplayInfoGeosetDataMeta
@@ -3399,7 +3513,7 @@ struct CreatureDisplayInfoGeosetDataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1720141, -1, 3, 2, 0x6A7C8343, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1720141, -1, 3, 2, 0x5E539080, Fields, 2 };
 };
 
 struct CreatureDisplayInfoOptionMeta
@@ -3411,7 +3525,7 @@ struct CreatureDisplayInfoOptionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3692043, -1, 3, 2, 0xDBD77820, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3692043, -1, 3, 2, 0x2F331C33, Fields, 2 };
 };
 
 struct CreatureDisplayInfoTrnMeta
@@ -3426,7 +3540,18 @@ struct CreatureDisplayInfoTrnMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1146698, -1, 6, 5, 0x7B61A667, Fields, 5 };
+    static constexpr DB2Meta Instance{ 1146698, -1, 6, 5, 0xD3A7F438, Fields, 5 };
+};
+
+struct CreatureDisplayXUIModelSceneMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5551196, -1, 2, 2, 0x50CD0BBB, Fields, -1 };
 };
 
 struct CreatureFamilyMeta
@@ -3444,7 +3569,18 @@ struct CreatureFamilyMeta
         { FT_SHORT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1351351, -1, 9, 9, 0x78019FD1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1351351, -1, 9, 9, 0x126721A8, Fields, -1 };
+};
+
+struct CreatureFamilyXUIModelSceneMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5551197, -1, 2, 2, 0xE06E122D, Fields, -1 };
 };
 
 struct CreatureImmunitiesMeta
@@ -3458,11 +3594,11 @@ struct CreatureImmunitiesMeta
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_INT, 2, true },
-        { FT_INT, 10, false },
+        { FT_INT, 11, false },
         { FT_INT, 20, false },
     };
 
-    static constexpr DB2Meta Instance{ 1131322, -1, 9, 9, 0x1B605529, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1131322, -1, 9, 9, 0x3CE6BCF7, Fields, -1 };
 };
 
 struct CreatureLabelMeta
@@ -3473,15 +3609,15 @@ struct CreatureLabelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055733, -1, 2, 1, 0xF7C12CAC, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3055733, -1, 2, 1, 0x25B2B438, Fields, 1 };
 };
 
 struct CreatureModelDataMeta
 {
-    static constexpr DB2MetaField Fields[33] =
+    static constexpr DB2MetaField Fields[34] =
     {
         { FT_FLOAT, 6, true },
-        { FT_INT, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
@@ -3512,10 +3648,11 @@ struct CreatureModelDataMeta
         { FT_FLOAT, 1, true },
         { FT_BYTE, 1, true },
         { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
         { FT_FLOAT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1365368, -1, 33, 33, 0xCD28D54B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1365368, -1, 34, 34, 0x6148D238, Fields, -1 };
 };
 
 struct CreatureMovementInfoMeta
@@ -3525,7 +3662,7 @@ struct CreatureMovementInfoMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1125666, -1, 1, 1, 0x4A558056, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1125666, -1, 1, 1, 0x30A3C9CA, Fields, -1 };
 };
 
 struct CreatureSoundDataMeta
@@ -3573,7 +3710,7 @@ struct CreatureSoundDataMeta
         { FT_INT, 4, false },
     };
 
-    static constexpr DB2Meta Instance{ 1344466, 0, 39, 39, 0x6EF96ED7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1344466, 0, 39, 39, 0x2AFA921B, Fields, -1 };
 };
 
 struct CreatureSoundFidgetMeta
@@ -3585,7 +3722,7 @@ struct CreatureSoundFidgetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4178576, -1, 3, 2, 0xECFBE76A, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4178576, -1, 3, 2, 0x9BDF9BD7, Fields, 2 };
 };
 
 struct CreatureTypeMeta
@@ -3596,7 +3733,7 @@ struct CreatureTypeMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1131315, -1, 2, 2, 0xBDB743EB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1131315, -1, 2, 2, 0xFE55D4D2, Fields, -1 };
 };
 
 struct CreatureXContributionMeta
@@ -3607,21 +3744,22 @@ struct CreatureXContributionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1587158, -1, 2, 1, 0x08F0A453, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1587158, -1, 2, 1, 0x29D9C37F, Fields, 1 };
 };
 
 struct CreatureXDisplayInfoMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[6] =
     {
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_BYTE, 1, false },
+        { FT_SHORT, 1, false },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1864302, -1, 5, 4, 0xF5C33B70, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1864302, -1, 6, 5, 0x2EA19FCF, Fields, 5 };
 };
 
 struct CreatureXUiWidgetSetMeta
@@ -3633,7 +3771,7 @@ struct CreatureXUiWidgetSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055738, -1, 3, 3, 0xD5F78F74, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3055738, -1, 3, 3, 0x8D874E99, Fields, -1 };
 };
 
 struct CriteriaMeta
@@ -3653,7 +3791,7 @@ struct CriteriaMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1263817, -1, 11, 11, 0x2C87F5ED, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1263817, -1, 11, 11, 0x531EB93F, Fields, -1 };
 };
 
 struct CriteriaTreeMeta
@@ -3669,7 +3807,7 @@ struct CriteriaTreeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1263818, -1, 7, 7, 0xFDD54C23, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1263818, -1, 7, 7, 0xFF97AE12, Fields, -1 };
 };
 
 struct CriteriaTreeXEffectMeta
@@ -3680,19 +3818,20 @@ struct CriteriaTreeXEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1345969, -1, 2, 1, 0xD09A14A8, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1345969, -1, 2, 1, 0xA95C5FCA, Fields, 1 };
 };
 
 struct CurrencyCategoryMeta
 {
-    static constexpr DB2MetaField Fields[3] =
+    static constexpr DB2MetaField Fields[4] =
     {
         { FT_STRING, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1125667, -1, 3, 3, 0xDEE5E915, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1125667, -1, 4, 4, 0x72B9AF57, Fields, -1 };
 };
 
 struct CurrencyContainerMeta
@@ -3709,12 +3848,12 @@ struct CurrencyContainerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1934603, -1, 8, 7, 0xBF622379, Fields, 7 };
+    static constexpr DB2Meta Instance{ 1934603, -1, 8, 7, 0xA5E771CA, Fields, 7 };
 };
 
 struct CurrencyTypesMeta
 {
-    static constexpr DB2MetaField Fields[17] =
+    static constexpr DB2MetaField Fields[18] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -3732,10 +3871,11 @@ struct CurrencyTypesMeta
         { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
+        { FT_FLOAT, 1, true },
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1095531, -1, 17, 17, 0x2085AB84, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1095531, -1, 18, 18, 0x4042BF2D, Fields, -1 };
 };
 
 struct CurveMeta
@@ -3747,7 +3887,7 @@ struct CurveMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 892585, 0, 3, 3, 0x58B43CA3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 892585, 0, 3, 3, 0x48AE7F4A, Fields, -1 };
 };
 
 struct CurvePointMeta
@@ -3761,7 +3901,7 @@ struct CurvePointMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 892586, 2, 5, 5, 0x861A11A0, Fields, 3 };
+    static constexpr DB2Meta Instance{ 892586, 2, 5, 5, 0x8DB83C21, Fields, 3 };
 };
 
 struct DeathThudLookupsMeta
@@ -3774,7 +3914,7 @@ struct DeathThudLookupsMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1279415, -1, 4, 4, 0xEA2448BE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1279415, -1, 4, 4, 0xDDC6DB32, Fields, -1 };
 };
 
 struct DecalPropertiesMeta
@@ -3808,7 +3948,7 @@ struct DecalPropertiesMeta
         { FT_FLOAT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1278176, -1, 25, 25, 0x1E49EE02, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1278176, -1, 25, 25, 0x6F09046F, Fields, -1 };
 };
 
 struct DeclinedWordMeta
@@ -3819,7 +3959,7 @@ struct DeclinedWordMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1279100, 1, 2, 2, 0xD648129D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1279100, 1, 2, 2, 0x104E18EF, Fields, -1 };
 };
 
 struct DeclinedWordCasesMeta
@@ -3831,7 +3971,28 @@ struct DeclinedWordCasesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1279099, -1, 3, 2, 0x626BC51A, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1279099, -1, 3, 2, 0x24277AA1, Fields, 2 };
+};
+
+struct DelvesSeasonMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5920079, -1, 1, 1, 0xDB8CA312, Fields, -1 };
+};
+
+struct DelvesSeasonXSpellMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5920080, -1, 2, 1, 0x13DB27BC, Fields, 1 };
 };
 
 struct DestructibleModelDataMeta
@@ -3862,7 +4023,7 @@ struct DestructibleModelDataMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1122116, -1, 22, 22, 0x7BC9B1D9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1122116, -1, 22, 22, 0x781EE932, Fields, -1 };
 };
 
 struct DeviceBlacklistMeta
@@ -3873,12 +4034,12 @@ struct DeviceBlacklistMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 922722, -1, 2, 2, 0x1458ACA1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 922722, -1, 2, 2, 0x29FEDBB1, Fields, -1 };
 };
 
 struct DifficultyMeta
 {
-    static constexpr DB2MetaField Fields[13] =
+    static constexpr DB2MetaField Fields[14] =
     {
         { FT_STRING, 1, true },
         { FT_BYTE, 1, false },
@@ -3893,14 +4054,15 @@ struct DifficultyMeta
         { FT_INT, 1, false },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1352127, -1, 13, 13, 0xD3044EE8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1352127, -1, 14, 14, 0x017A4F91, Fields, -1 };
 };
 
 struct DisplaySeasonMeta
 {
-    static constexpr DB2MetaField Fields[6] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_STRING, 1, true },
         { FT_INT, 1, false },
@@ -3908,9 +4070,10 @@ struct DisplaySeasonMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4279827, 1, 6, 6, 0x307B0C4C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4279827, 1, 7, 7, 0x95C01F30, Fields, -1 };
 };
 
 struct DissolveEffectMeta
@@ -3940,7 +4103,7 @@ struct DissolveEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1304325, -1, 21, 21, 0xE41A3D3D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1304325, -1, 21, 21, 0x1E2060A7, Fields, -1 };
 };
 
 struct DriverBlacklistMeta
@@ -3956,7 +4119,7 @@ struct DriverBlacklistMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 922720, -1, 7, 7, 0x3FDF91BC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 922720, -1, 7, 7, 0x5A336370, Fields, -1 };
 };
 
 struct DungeonEncounterMeta
@@ -3975,7 +4138,7 @@ struct DungeonEncounterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1347279, 1, 10, 10, 0x970800CA, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1347279, 1, 10, 10, 0x7B6AC42A, Fields, 2 };
 };
 
 struct DurabilityCostsMeta
@@ -3986,7 +4149,7 @@ struct DurabilityCostsMeta
         { FT_SHORT, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 1283019, -1, 2, 2, 0x3DBDFDD1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1283019, -1, 2, 2, 0x917714A1, Fields, -1 };
 };
 
 struct DurabilityQualityMeta
@@ -3996,7 +4159,7 @@ struct DurabilityQualityMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1130268, -1, 1, 1, 0xD4F6FFC8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1130268, -1, 1, 1, 0x08763C54, Fields, -1 };
 };
 
 struct EdgeGlowEffectMeta
@@ -4018,7 +4181,7 @@ struct EdgeGlowEffectMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1387381, -1, 13, 13, 0x1589CA63, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1387381, -1, 13, 13, 0x9B3C5463, Fields, -1 };
 };
 
 struct EmotesMeta
@@ -4027,16 +4190,16 @@ struct EmotesMeta
     {
         { FT_LONG, 1, true },
         { FT_STRING_NOT_LOCALIZED, 1, true },
+        { FT_SHORT, 1, true },
         { FT_INT, 1, true },
-        { FT_INT, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343602, -1, 9, 9, 0xC2B2FDD1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343602, -1, 9, 9, 0x590311E0, Fields, -1 };
 };
 
 struct EmotesTextMeta
@@ -4047,7 +4210,7 @@ struct EmotesTextMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1347273, -1, 2, 2, 0x8C749D28, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1347273, -1, 2, 2, 0xCCDBFBAF, Fields, -1 };
 };
 
 struct EmotesTextDataMeta
@@ -4059,7 +4222,7 @@ struct EmotesTextDataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1283024, -1, 3, 2, 0x3E78FC97, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1283024, -1, 3, 2, 0x4BF58EA9, Fields, 2 };
 };
 
 struct EmotesTextSoundMeta
@@ -4073,7 +4236,7 @@ struct EmotesTextSoundMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1286524, -1, 5, 4, 0xF058B2EF, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1286524, -1, 5, 4, 0x4244D600, Fields, 4 };
 };
 
 struct EnvironmentalDamageMeta
@@ -4084,7 +4247,7 @@ struct EnvironmentalDamageMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1278398, -1, 2, 2, 0x0D289832, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1278398, -1, 2, 2, 0x4B8F9058, Fields, -1 };
 };
 
 struct ExhaustionMeta
@@ -4100,7 +4263,7 @@ struct ExhaustionMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343313, -1, 7, 7, 0x115BE21D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343313, -1, 7, 7, 0xB6456916, Fields, -1 };
 };
 
 struct ExpectedStatMeta
@@ -4120,7 +4283,7 @@ struct ExpectedStatMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1937326, -1, 11, 10, 0xD0570787, Fields, 10 };
+    static constexpr DB2Meta Instance{ 1937326, -1, 11, 10, 0xFD4F2D39, Fields, 10 };
 };
 
 struct ExpectedStatModMeta
@@ -4138,7 +4301,7 @@ struct ExpectedStatModMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1969773, -1, 9, 9, 0x462D65F2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1969773, -1, 9, 9, 0x8C41CCCE, Fields, -1 };
 };
 
 struct ExtraAbilityInfoMeta
@@ -4153,7 +4316,7 @@ struct ExtraAbilityInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3527889, -1, 6, 6, 0x006F6DEF, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3527889, -1, 6, 6, 0x54A151A3, Fields, 1 };
 };
 
 struct FactionMeta
@@ -4179,7 +4342,7 @@ struct FactionMeta
         { FT_BYTE, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1361972, -1, 17, 17, 0xBE1F09D5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1361972, -1, 17, 17, 0xCD0F0C19, Fields, -1 };
 };
 
 struct FactionGroupMeta
@@ -4193,7 +4356,7 @@ struct FactionGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343595, -1, 5, 5, 0x5CCF4BE3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343595, -1, 5, 5, 0x8BC1F2F3, Fields, -1 };
 };
 
 struct FactionTemplateMeta
@@ -4201,7 +4364,7 @@ struct FactionTemplateMeta
     static constexpr DB2MetaField Fields[7] =
     {
         { FT_SHORT, 1, false },
-        { FT_SHORT, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
@@ -4209,7 +4372,7 @@ struct FactionTemplateMeta
         { FT_SHORT, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 1361579, -1, 7, 7, 0x207C5E80, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1361579, -1, 7, 7, 0x47624A42, Fields, -1 };
 };
 
 struct FlightCapabilityMeta
@@ -4243,7 +4406,7 @@ struct FlightCapabilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4501047, -1, 25, 25, 0x521F9F83, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4501047, -1, 25, 25, 0x5CF8CAA8, Fields, -1 };
 };
 
 struct FlightCapabilityXGlideEventMeta
@@ -4254,7 +4417,7 @@ struct FlightCapabilityXGlideEventMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4644249, -1, 2, 1, 0x002DF52F, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4644249, -1, 2, 1, 0x78D22F93, Fields, 1 };
 };
 
 struct FootprintTexturesMeta
@@ -4266,7 +4429,7 @@ struct FootprintTexturesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1308056, -1, 3, 3, 0x6E56D772, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1308056, -1, 3, 3, 0xA762B817, Fields, -1 };
 };
 
 struct FootstepTerrainLookupMeta
@@ -4279,7 +4442,7 @@ struct FootstepTerrainLookupMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267647, -1, 4, 4, 0xC8B9FDAC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267647, -1, 4, 4, 0x747D783F, Fields, -1 };
 };
 
 struct FriendshipRepReactionMeta
@@ -4287,12 +4450,12 @@ struct FriendshipRepReactionMeta
     static constexpr DB2MetaField Fields[4] =
     {
         { FT_STRING, 1, true },
-        { FT_INT, 1, false },
-        { FT_SHORT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1237638, -1, 4, 4, 0xA1157C1F, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1237638, -1, 4, 4, 0x1BC0DC59, Fields, 1 };
 };
 
 struct FriendshipReputationMeta
@@ -4308,7 +4471,7 @@ struct FriendshipReputationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1237639, 3, 7, 7, 0xDCF9508F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237639, 3, 7, 7, 0x3D52E27A, Fields, -1 };
 };
 
 struct FullScreenEffectMeta
@@ -4345,7 +4508,7 @@ struct FullScreenEffectMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1348282, -1, 28, 28, 0x6D545850, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1348282, -1, 28, 28, 0xC0799EA5, Fields, -1 };
 };
 
 struct GMSurveyAnswersMeta
@@ -4357,7 +4520,7 @@ struct GMSurveyAnswersMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1283025, -1, 3, 2, 0x8C4F9BE3, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1283025, -1, 3, 2, 0xA8167E67, Fields, 2 };
 };
 
 struct GMSurveyCurrentSurveyMeta
@@ -4367,7 +4530,7 @@ struct GMSurveyCurrentSurveyMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1278177, -1, 1, 1, 0x29F86C92, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1278177, -1, 1, 1, 0x42C33040, Fields, -1 };
 };
 
 struct GMSurveyQuestionsMeta
@@ -4377,7 +4540,7 @@ struct GMSurveyQuestionsMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1278178, -1, 1, 1, 0x10770511, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1278178, -1, 1, 1, 0xA07C5F5C, Fields, -1 };
 };
 
 struct GMSurveySurveysMeta
@@ -4387,7 +4550,7 @@ struct GMSurveySurveysMeta
         { FT_BYTE, 15, false },
     };
 
-    static constexpr DB2Meta Instance{ 1283020, -1, 1, 1, 0x808736D1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1283020, -1, 1, 1, 0x986268B3, Fields, -1 };
 };
 
 struct GameClockDebugMeta
@@ -4397,14 +4560,14 @@ struct GameClockDebugMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2922072, -1, 1, 1, 0xD30981EC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2922072, -1, 1, 1, 0x0305FD3B, Fields, -1 };
 };
 
 struct GameModeMeta
 {
     static constexpr DB2MetaField Fields[6] =
     {
-        { FT_STRING, 1, true },
+        { FT_STRING_NOT_LOCALIZED, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -4412,7 +4575,7 @@ struct GameModeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5008306, -1, 6, 6, 0x45EE0D98, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5008306, -1, 6, 6, 0x02DC84DD, Fields, -1 };
 };
 
 struct GameObjectAnimGroupMemberMeta
@@ -4425,7 +4588,7 @@ struct GameObjectAnimGroupMemberMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 3565753, -1, 4, 4, 0x375C3387, Fields, 0 };
+    static constexpr DB2Meta Instance{ 3565753, -1, 4, 4, 0xD36FC187, Fields, 0 };
 };
 
 struct GameObjectArtKitMeta
@@ -4436,7 +4599,7 @@ struct GameObjectArtKitMeta
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 1266737, -1, 2, 2, 0x520690EF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266737, -1, 2, 2, 0xF1996F13, Fields, -1 };
 };
 
 struct GameObjectDiffAnimMapMeta
@@ -4449,12 +4612,27 @@ struct GameObjectDiffAnimMapMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1302847, -1, 4, 3, 0x7403DFA2, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1302847, -1, 4, 3, 0x41A0ED3A, Fields, 3 };
+};
+
+struct GameObjectDisplayConditionMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5634246, 0, 6, 5, 0x52044F17, Fields, 5 };
 };
 
 struct GameObjectDisplayInfoMeta
 {
-    static constexpr DB2MetaField Fields[8] =
+    static constexpr DB2MetaField Fields[9] =
     {
         { FT_FLOAT, 6, true },
         { FT_INT, 1, true },
@@ -4464,9 +4642,10 @@ struct GameObjectDisplayInfoMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1266277, -1, 8, 8, 0x7F774625, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266277, -1, 9, 9, 0xD85414D1, Fields, -1 };
 };
 
 struct GameObjectDisplayInfoXSoundKitMeta
@@ -4478,7 +4657,7 @@ struct GameObjectDisplayInfoXSoundKitMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1345272, -1, 3, 2, 0x16B43E1B, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1345272, -1, 3, 2, 0x70E1497B, Fields, 2 };
 };
 
 struct GameObjectLabelMeta
@@ -4489,12 +4668,12 @@ struct GameObjectLabelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4621877, -1, 2, 1, 0xDC099311, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4621877, -1, 2, 1, 0xE55A8C65, Fields, 1 };
 };
 
 struct GameObjectsMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[13] =
     {
         { FT_STRING, 1, true },
         { FT_FLOAT, 3, true },
@@ -4507,10 +4686,11 @@ struct GameObjectsMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_SHORT, 1, false },
         { FT_INT, 8, true },
     };
 
-    static constexpr DB2Meta Instance{ 841620, 3, 12, 12, 0xE1536F72, Fields, 4 };
+    static constexpr DB2Meta Instance{ 841620, 3, 13, 13, 0xD2E7A9E4, Fields, 4 };
 };
 
 struct GameParameterMeta
@@ -4524,7 +4704,7 @@ struct GameParameterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3405438, -1, 5, 5, 0xE2A34B99, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3405438, -1, 5, 5, 0x7E79D13A, Fields, -1 };
 };
 
 struct GameTipsMeta
@@ -4538,7 +4718,7 @@ struct GameTipsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1368021, -1, 5, 5, 0x3D7E744D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1368021, -1, 5, 5, 0xA180E707, Fields, -1 };
 };
 
 struct GarrAbilityMeta
@@ -4554,7 +4734,7 @@ struct GarrAbilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 966238, -1, 7, 7, 0x895C6CBD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 966238, -1, 7, 7, 0x33E93215, Fields, -1 };
 };
 
 struct GarrAbilityCategoryMeta
@@ -4564,7 +4744,7 @@ struct GarrAbilityCategoryMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1020248, -1, 1, 1, 0xB0DD8F60, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1020248, -1, 1, 1, 0x782EE721, Fields, -1 };
 };
 
 struct GarrAbilityEffectMeta
@@ -4585,7 +4765,7 @@ struct GarrAbilityEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 966241, 0, 12, 12, 0x42A6AC5E, Fields, 1 };
+    static constexpr DB2Meta Instance{ 966241, 0, 12, 12, 0xDBE1C842, Fields, 1 };
 };
 
 struct GarrAutoCombatantMeta
@@ -4603,7 +4783,7 @@ struct GarrAutoCombatantMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3305399, -1, 9, 9, 0xC6049FC4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3305399, -1, 9, 9, 0x6ADAF487, Fields, -1 };
 };
 
 struct GarrAutoSpellMeta
@@ -4619,7 +4799,7 @@ struct GarrAutoSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3305400, -1, 7, 7, 0x4229E5FF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3305400, -1, 7, 7, 0x8067D16A, Fields, -1 };
 };
 
 struct GarrAutoSpellEffectMeta
@@ -4636,7 +4816,7 @@ struct GarrAutoSpellEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3307335, 0, 8, 8, 0x71E3FAFA, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3307335, 0, 8, 8, 0xACEA7666, Fields, 1 };
 };
 
 struct GarrBuildingMeta
@@ -4669,7 +4849,7 @@ struct GarrBuildingMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 929747, -1, 24, 24, 0x76E04D94, Fields, -1 };
+    static constexpr DB2Meta Instance{ 929747, -1, 24, 24, 0xF2559D7C, Fields, -1 };
 };
 
 struct GarrBuildingDoodadSetMeta
@@ -4683,7 +4863,7 @@ struct GarrBuildingDoodadSetMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 943937, -1, 5, 5, 0x398E9742, Fields, -1 };
+    static constexpr DB2Meta Instance{ 943937, -1, 5, 5, 0x8D671E1C, Fields, -1 };
 };
 
 struct GarrBuildingPlotInstMeta
@@ -4697,7 +4877,7 @@ struct GarrBuildingPlotInstMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 983298, 1, 5, 5, 0xDEF48812, Fields, 2 };
+    static constexpr DB2Meta Instance{ 983298, 1, 5, 5, 0x772B63F1, Fields, 2 };
 };
 
 struct GarrClassSpecMeta
@@ -4713,7 +4893,7 @@ struct GarrClassSpecMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 981570, -1, 7, 7, 0x0872F30A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 981570, -1, 7, 7, 0x9B74983E, Fields, -1 };
 };
 
 struct GarrClassSpecPlayerCondMeta
@@ -4728,7 +4908,7 @@ struct GarrClassSpecPlayerCondMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1380674, -1, 6, 6, 0x1F048C5D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1380674, -1, 6, 6, 0x5EB2C2BE, Fields, -1 };
 };
 
 struct GarrEncounterMeta
@@ -4745,7 +4925,7 @@ struct GarrEncounterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 975304, -1, 8, 8, 0x00F63E78, Fields, -1 };
+    static constexpr DB2Meta Instance{ 975304, -1, 8, 8, 0x90365AF7, Fields, -1 };
 };
 
 struct GarrEncounterSetXEncounterMeta
@@ -4757,7 +4937,7 @@ struct GarrEncounterSetXEncounterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1354772, 0, 3, 2, 0x0C38FD7C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1354772, 0, 3, 2, 0x8A61976C, Fields, 2 };
 };
 
 struct GarrEncounterXMechanicMeta
@@ -4769,7 +4949,7 @@ struct GarrEncounterXMechanicMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 967961, -1, 3, 2, 0x4727DED7, Fields, 2 };
+    static constexpr DB2Meta Instance{ 967961, -1, 3, 2, 0x4EBD3495, Fields, 2 };
 };
 
 struct GarrFollItemSetMemberMeta
@@ -4782,7 +4962,7 @@ struct GarrFollItemSetMemberMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 981569, -1, 4, 3, 0x01FD0F5B, Fields, 3 };
+    static constexpr DB2Meta Instance{ 981569, -1, 4, 3, 0xE01C9167, Fields, 3 };
 };
 
 struct GarrFollSupportSpellMeta
@@ -4795,7 +4975,7 @@ struct GarrFollSupportSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1345970, -1, 4, 3, 0xDCED652F, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1345970, -1, 4, 3, 0x52B363F4, Fields, 3 };
 };
 
 struct GarrFollowerMeta
@@ -4813,7 +4993,7 @@ struct GarrFollowerMeta
         { FT_BYTE, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, false },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
@@ -4837,7 +5017,7 @@ struct GarrFollowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 949906, -1, 33, 33, 0x2F65E7B8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 949906, -1, 33, 33, 0x32307958, Fields, -1 };
 };
 
 struct GarrFollowerLevelXPMeta
@@ -4850,14 +5030,14 @@ struct GarrFollowerLevelXPMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 970979, -1, 4, 4, 0xC6D9156C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 970979, -1, 4, 4, 0x83953EF8, Fields, -1 };
 };
 
 struct GarrFollowerQualityMeta
 {
     static constexpr DB2MetaField Fields[7] =
     {
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_BYTE, 1, true },
         { FT_BYTE, 1, false },
@@ -4866,7 +5046,7 @@ struct GarrFollowerQualityMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1027793, -1, 7, 7, 0x12E3D869, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1027793, -1, 7, 7, 0x5DE27929, Fields, -1 };
 };
 
 struct GarrFollowerSetXFollowerMeta
@@ -4877,7 +5057,7 @@ struct GarrFollowerSetXFollowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1361029, -1, 2, 1, 0x0E5F4858, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1361029, -1, 2, 1, 0x078F8ACE, Fields, 1 };
 };
 
 struct GarrFollowerTypeMeta
@@ -4893,7 +5073,7 @@ struct GarrFollowerTypeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1118784, -1, 7, 7, 0x90DE9D04, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1118784, -1, 7, 7, 0x0DF04685, Fields, -1 };
 };
 
 struct GarrFollowerUICreatureMeta
@@ -4908,7 +5088,7 @@ struct GarrFollowerUICreatureMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1412636, -1, 6, 5, 0x48A9C93E, Fields, 5 };
+    static constexpr DB2Meta Instance{ 1412636, -1, 6, 5, 0x3B69F3A8, Fields, 5 };
 };
 
 struct GarrFollowerXAbilityMeta
@@ -4921,7 +5101,7 @@ struct GarrFollowerXAbilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 968468, -1, 4, 3, 0xDC1338B5, Fields, 3 };
+    static constexpr DB2Meta Instance{ 968468, -1, 4, 3, 0x11D80996, Fields, 3 };
 };
 
 struct GarrItemLevelUpgradeDataMeta
@@ -4934,7 +5114,7 @@ struct GarrItemLevelUpgradeDataMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1572314, -1, 4, 4, 0xFF309F3E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1572314, -1, 4, 4, 0x89799C9B, Fields, -1 };
 };
 
 struct GarrMechanicMeta
@@ -4946,7 +5126,7 @@ struct GarrMechanicMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 967963, -1, 3, 3, 0xEC754F2F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 967963, -1, 3, 3, 0x3BF3FDD5, Fields, -1 };
 };
 
 struct GarrMechanicSetXMechanicMeta
@@ -4958,7 +5138,7 @@ struct GarrMechanicSetXMechanicMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1391531, 0, 3, 2, 0xD2D3C4ED, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1391531, 0, 3, 2, 0xE598BF8A, Fields, 2 };
 };
 
 struct GarrMechanicTypeMeta
@@ -4971,7 +5151,7 @@ struct GarrMechanicTypeMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 967964, -1, 4, 4, 0xF88C0C01, Fields, -1 };
+    static constexpr DB2Meta Instance{ 967964, -1, 4, 4, 0x2005D512, Fields, -1 };
 };
 
 struct GarrMissionMeta
@@ -5011,14 +5191,14 @@ struct GarrMissionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 967962, -1, 31, 31, 0xCA0E980C, Fields, 16 };
+    static constexpr DB2Meta Instance{ 967962, -1, 31, 31, 0x954C4831, Fields, 16 };
 };
 
 struct GarrMissionSetMeta
 {
     static constexpr DB2MetaField Fields[6] =
     {
-        { FT_INT, 1, true },
+        { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -5026,7 +5206,7 @@ struct GarrMissionSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055759, -1, 6, 6, 0x1858B6AD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3055759, -1, 6, 6, 0x80900D87, Fields, -1 };
 };
 
 struct GarrMissionTextureMeta
@@ -5037,7 +5217,7 @@ struct GarrMissionTextureMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1125220, -1, 2, 2, 0x17FF9F33, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1125220, -1, 2, 2, 0x3151B2BB, Fields, -1 };
 };
 
 struct GarrMissionTypeMeta
@@ -5049,7 +5229,7 @@ struct GarrMissionTypeMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 984174, -1, 3, 3, 0xEE85FBAD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 984174, -1, 3, 3, 0xC10BF76C, Fields, -1 };
 };
 
 struct GarrMissionXEncounterMeta
@@ -5063,7 +5243,7 @@ struct GarrMissionXEncounterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 967960, -1, 5, 4, 0x902619AC, Fields, 4 };
+    static constexpr DB2Meta Instance{ 967960, -1, 5, 4, 0x08428AE4, Fields, 4 };
 };
 
 struct GarrMissionXFollowerMeta
@@ -5076,7 +5256,7 @@ struct GarrMissionXFollowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1359096, -1, 4, 3, 0x5B84EFCD, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1359096, -1, 4, 3, 0x5FED477D, Fields, 3 };
 };
 
 struct GarrMssnBonusAbilityMeta
@@ -5090,7 +5270,7 @@ struct GarrMssnBonusAbilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1138458, -1, 5, 5, 0x607D4E83, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1138458, -1, 5, 5, 0xA15614BC, Fields, -1 };
 };
 
 struct GarrPlotMeta
@@ -5106,7 +5286,7 @@ struct GarrPlotMeta
         { FT_INT, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 937634, -1, 7, 7, 0x47067617, Fields, -1 };
+    static constexpr DB2Meta Instance{ 937634, -1, 7, 7, 0x3A27A44E, Fields, -1 };
 };
 
 struct GarrPlotBuildingMeta
@@ -5117,7 +5297,7 @@ struct GarrPlotBuildingMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 929743, -1, 2, 2, 0x9C6539B2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 929743, -1, 2, 2, 0xA5104F1A, Fields, -1 };
 };
 
 struct GarrPlotInstanceMeta
@@ -5128,7 +5308,7 @@ struct GarrPlotInstanceMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 929742, -1, 2, 2, 0xC5609120, Fields, -1 };
+    static constexpr DB2Meta Instance{ 929742, -1, 2, 2, 0x9403779B, Fields, -1 };
 };
 
 struct GarrPlotUICategoryMeta
@@ -5139,7 +5319,7 @@ struct GarrPlotUICategoryMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 937635, -1, 2, 2, 0xD6167CD7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 937635, -1, 2, 2, 0xB0A277C0, Fields, -1 };
 };
 
 struct GarrSiteLevelMeta
@@ -5157,7 +5337,7 @@ struct GarrSiteLevelMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 939295, -1, 9, 9, 0x41BF2E0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 939295, -1, 9, 9, 0xE7D632F8, Fields, -1 };
 };
 
 struct GarrSiteLevelPlotInstMeta
@@ -5170,7 +5350,7 @@ struct GarrSiteLevelPlotInstMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 940404, -1, 4, 4, 0x1CAD597B, Fields, 1 };
+    static constexpr DB2Meta Instance{ 940404, -1, 4, 4, 0x75F81A87, Fields, 1 };
 };
 
 struct GarrSpecializationMeta
@@ -5186,7 +5366,7 @@ struct GarrSpecializationMeta
         { FT_FLOAT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 937647, -1, 7, 7, 0x7983E7D9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 937647, -1, 7, 7, 0x0A0EBC1C, Fields, -1 };
 };
 
 struct GarrStringMeta
@@ -5196,7 +5376,7 @@ struct GarrStringMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1416758, -1, 1, 1, 0x9588F8C8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1416758, -1, 1, 1, 0x7D513539, Fields, -1 };
 };
 
 struct GarrTalTreeXGarrTalResearchMeta
@@ -5208,7 +5388,7 @@ struct GarrTalTreeXGarrTalResearchMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3195601, -1, 3, 3, 0xF00FA3EA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3195601, -1, 3, 3, 0x6D36F491, Fields, -1 };
 };
 
 struct GarrTalentMeta
@@ -5232,7 +5412,7 @@ struct GarrTalentMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1361032, 2, 15, 15, 0xEF4DB72A, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1361032, 2, 15, 15, 0x8FBDD72A, Fields, 3 };
 };
 
 struct GarrTalentCostMeta
@@ -5250,7 +5430,7 @@ struct GarrTalentCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3514438, 1, 9, 9, 0x8E3D05D3, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3514438, 1, 9, 9, 0x8C81B978, Fields, 2 };
 };
 
 struct GarrTalentMapPOIMeta
@@ -5261,7 +5441,7 @@ struct GarrTalentMapPOIMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3534056, -1, 2, 2, 0x75F07445, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3534056, -1, 2, 2, 0xFFBBEE1A, Fields, -1 };
 };
 
 struct GarrTalentRankMeta
@@ -5288,7 +5468,7 @@ struct GarrTalentRankMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3069763, 0, 18, 17, 0x1D54CA3C, Fields, 17 };
+    static constexpr DB2Meta Instance{ 3069763, 0, 18, 17, 0xF7D6BB03, Fields, 17 };
 };
 
 struct GarrTalentRankGroupEntryMeta
@@ -5299,7 +5479,7 @@ struct GarrTalentRankGroupEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4382239, -1, 2, 1, 0xE2F5D419, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4382239, -1, 2, 1, 0xAEED1BF9, Fields, 1 };
 };
 
 struct GarrTalentRankGroupResearchModMeta
@@ -5312,7 +5492,7 @@ struct GarrTalentRankGroupResearchModMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4389481, -1, 4, 3, 0x14AF829F, Fields, 3 };
+    static constexpr DB2Meta Instance{ 4389481, -1, 4, 3, 0x06CF9782, Fields, 3 };
 };
 
 struct GarrTalentResearchMeta
@@ -5329,7 +5509,7 @@ struct GarrTalentResearchMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3195518, -1, 8, 8, 0x8A171D9D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3195518, -1, 8, 8, 0x00586BA9, Fields, -1 };
 };
 
 struct GarrTalentSocketPropertiesMeta
@@ -5340,7 +5520,7 @@ struct GarrTalentSocketPropertiesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3612617, -1, 2, 2, 0xDA437EE1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3612617, -1, 2, 2, 0x96AA4BFB, Fields, -1 };
 };
 
 struct GarrTalentTreeMeta
@@ -5361,7 +5541,7 @@ struct GarrTalentTreeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1361030, -1, 12, 12, 0xC148F18E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1361030, -1, 12, 12, 0xCD2EF0B5, Fields, -1 };
 };
 
 struct GarrTypeMeta
@@ -5379,7 +5559,7 @@ struct GarrTypeMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1333161, 0, 9, 9, 0x6C12C0C5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1333161, 0, 9, 9, 0x06733C36, Fields, -1 };
 };
 
 struct GarrUiAnimClassInfoMeta
@@ -5394,7 +5574,7 @@ struct GarrUiAnimClassInfoMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 976037, -1, 6, 6, 0x3D333DD8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 976037, -1, 6, 6, 0xBE9C8287, Fields, -1 };
 };
 
 struct GarrUiAnimRaceInfoMeta
@@ -5416,7 +5596,7 @@ struct GarrUiAnimRaceInfoMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 976035, -1, 13, 13, 0x225F0657, Fields, -1 };
+    static constexpr DB2Meta Instance{ 976035, -1, 13, 13, 0x18D01391, Fields, -1 };
 };
 
 struct GemPropertiesMeta
@@ -5427,12 +5607,12 @@ struct GemPropertiesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343604, -1, 2, 2, 0x61DF3B70, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343604, -1, 2, 2, 0x86487AD2, Fields, -1 };
 };
 
 struct GlideEventMeta
 {
-    static constexpr DB2MetaField Fields[11] =
+    static constexpr DB2MetaField Fields[12] =
     {
         { FT_FLOAT, 1, true },
         { FT_INT, 1, true },
@@ -5445,9 +5625,10 @@ struct GlideEventMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4644012, -1, 11, 11, 0xAF8D7840, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4644012, -1, 12, 12, 0x205E317B, Fields, -1 };
 };
 
 struct GlideEventBlendTimesMeta
@@ -5459,7 +5640,7 @@ struct GlideEventBlendTimesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4682325, -1, 3, 2, 0xD91C3032, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4682325, -1, 3, 2, 0x8A7326E7, Fields, 2 };
 };
 
 struct GlobalColorMeta
@@ -5470,7 +5651,7 @@ struct GlobalColorMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4328468, -1, 2, 2, 0x70FE4450, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4328468, -1, 2, 2, 0x760E0516, Fields, -1 };
 };
 
 struct GlobalCurveMeta
@@ -5481,7 +5662,7 @@ struct GlobalCurveMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3752002, -1, 2, 2, 0x7EA5C3BF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3752002, -1, 2, 2, 0xBED3B583, Fields, -1 };
 };
 
 struct GlobalGameContentTuningMeta
@@ -5492,7 +5673,7 @@ struct GlobalGameContentTuningMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3756368, -1, 2, 2, 0xC5E2173D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3756368, -1, 2, 2, 0xD96DE315, Fields, -1 };
 };
 
 struct GlobalPlayerConditionMeta
@@ -5504,7 +5685,7 @@ struct GlobalPlayerConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4082838, -1, 3, 2, 0x30F25618, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4082838, -1, 3, 2, 0x6C3B89B7, Fields, 2 };
 };
 
 struct GlobalPlayerConditionSetMeta
@@ -5515,7 +5696,7 @@ struct GlobalPlayerConditionSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4082839, 0, 2, 2, 0xD111129C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4082839, 0, 2, 2, 0xF00A7AB4, Fields, -1 };
 };
 
 struct GlobalStringsMeta
@@ -5527,7 +5708,7 @@ struct GlobalStringsMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1394440, -1, 3, 3, 0x9D50610A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1394440, -1, 3, 3, 0x62707826, Fields, -1 };
 };
 
 struct GlyphBindableSpellMeta
@@ -5538,7 +5719,7 @@ struct GlyphBindableSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1270147, -1, 2, 1, 0x7F8BAF7B, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1270147, -1, 2, 1, 0x8AB55EA9, Fields, 1 };
 };
 
 struct GlyphExclusiveCategoryMeta
@@ -5548,7 +5729,7 @@ struct GlyphExclusiveCategoryMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 948546, -1, 1, 1, 0x283BBF49, Fields, -1 };
+    static constexpr DB2Meta Instance{ 948546, -1, 1, 1, 0xEB3B0B94, Fields, -1 };
 };
 
 struct GlyphPropertiesMeta
@@ -5561,7 +5742,7 @@ struct GlyphPropertiesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1345274, -1, 4, 4, 0x8242C866, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1345274, -1, 4, 4, 0x2601475B, Fields, -1 };
 };
 
 struct GlyphRequiredSpecMeta
@@ -5572,7 +5753,7 @@ struct GlyphRequiredSpecMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 948496, -1, 2, 1, 0xCC301712, Fields, 1 };
+    static constexpr DB2Meta Instance{ 948496, -1, 2, 1, 0x7FA14D85, Fields, 1 };
 };
 
 struct GossipNPCOptionMeta
@@ -5582,7 +5763,7 @@ struct GossipNPCOptionMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
-        { FT_INT, 1, true },
+        { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -5596,7 +5777,7 @@ struct GossipNPCOptionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4278503, -1, 15, 15, 0x9170AADA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4278503, -1, 15, 15, 0xFA46016E, Fields, -1 };
 };
 
 struct GossipNPCOptionDisplayInfoMeta
@@ -5608,7 +5789,32 @@ struct GossipNPCOptionDisplayInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4335720, -1, 3, 3, 0x8B9BF10F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4335720, -1, 3, 3, 0xFEE7A6C4, Fields, -1 };
+};
+
+struct GossipOptionXUIWidgetSetMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5746391, -1, 3, 2, 0x0C61CF7D, Fields, 2 };
+};
+
+struct GossipUIDisplayInfoConditionMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_STRING, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5902977, 1, 4, 3, 0xD287A02A, Fields, 3 };
 };
 
 struct GossipXGarrTalentTreesMeta
@@ -5619,20 +5825,21 @@ struct GossipXGarrTalentTreesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4407361, -1, 2, 1, 0x9BE63EB3, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4407361, -1, 2, 1, 0x1A30C99B, Fields, 1 };
 };
 
 struct GossipXUIDisplayInfoMeta
 {
-    static constexpr DB2MetaField Fields[4] =
+    static constexpr DB2MetaField Fields[5] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
+        { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3622253, -1, 4, 4, 0x30595578, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3622253, 2, 5, 5, 0x4B452272, Fields, -1 };
 };
 
 struct GradientEffectMeta
@@ -5659,7 +5866,7 @@ struct GradientEffectMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2433582, -1, 18, 18, 0xA5B6854E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2433582, -1, 18, 18, 0xAFB2AC4C, Fields, -1 };
 };
 
 struct GroundEffectDoodadMeta
@@ -5677,7 +5884,7 @@ struct GroundEffectDoodadMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1308057, -1, 9, 9, 0xF592B773, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1308057, -1, 9, 9, 0xD8C42C51, Fields, -1 };
 };
 
 struct GroundEffectTextureMeta
@@ -5691,12 +5898,12 @@ struct GroundEffectTextureMeta
         { FT_BYTE, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1308499, -1, 5, 5, 0x3DEC72D8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1308499, -1, 5, 5, 0xD93D5678, Fields, -1 };
 };
 
 struct GroupFinderActivityMeta
 {
-    static constexpr DB2MetaField Fields[15] =
+    static constexpr DB2MetaField Fields[19] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -5713,9 +5920,13 @@ struct GroupFinderActivityMeta
         { FT_BYTE, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 974813, -1, 15, 15, 0x2646188E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 974813, -1, 19, 19, 0x1EE9C586, Fields, -1 };
 };
 
 struct GroupFinderActivityGrpMeta
@@ -5726,7 +5937,7 @@ struct GroupFinderActivityGrpMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 974814, -1, 2, 2, 0x89256FF7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 974814, -1, 2, 2, 0xB3F025D8, Fields, -1 };
 };
 
 struct GroupFinderActivityXPvpBracketMeta
@@ -5737,7 +5948,7 @@ struct GroupFinderActivityXPvpBracketMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4206623, -1, 2, 2, 0x8BBA3BDB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4206623, -1, 2, 2, 0x0E3530F0, Fields, -1 };
 };
 
 struct GroupFinderCategoryMeta
@@ -5750,7 +5961,7 @@ struct GroupFinderCategoryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 974812, -1, 4, 4, 0x257D1287, Fields, -1 };
+    static constexpr DB2Meta Instance{ 974812, -1, 4, 4, 0x039D6BF9, Fields, -1 };
 };
 
 struct GuildColorBackgroundMeta
@@ -5762,7 +5973,7 @@ struct GuildColorBackgroundMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1286526, -1, 3, 3, 0x1364EF78, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1286526, -1, 3, 3, 0x1C82913E, Fields, -1 };
 };
 
 struct GuildColorBorderMeta
@@ -5774,7 +5985,7 @@ struct GuildColorBorderMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1286527, -1, 3, 3, 0x1364EF78, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1286527, -1, 3, 3, 0x1C82913E, Fields, -1 };
 };
 
 struct GuildColorEmblemMeta
@@ -5786,7 +5997,7 @@ struct GuildColorEmblemMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1286525, -1, 3, 3, 0x1364EF78, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1286525, -1, 3, 3, 0x1C82913E, Fields, -1 };
 };
 
 struct GuildEmblemMeta
@@ -5797,7 +6008,7 @@ struct GuildEmblemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2734754, -1, 2, 2, 0xFA4DFEEA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2734754, -1, 2, 2, 0x2532676C, Fields, -1 };
 };
 
 struct GuildPerkSpellsMeta
@@ -5807,7 +6018,7 @@ struct GuildPerkSpellsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1135238, -1, 1, 1, 0x465F6F2A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1135238, -1, 1, 1, 0xC933095D, Fields, -1 };
 };
 
 struct GuildShirtBackgroundMeta
@@ -5820,7 +6031,7 @@ struct GuildShirtBackgroundMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2921008, -1, 4, 3, 0xF7862CB0, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2921008, -1, 4, 3, 0x1DC85F62, Fields, 3 };
 };
 
 struct GuildShirtBorderMeta
@@ -5834,7 +6045,7 @@ struct GuildShirtBorderMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2921475, -1, 5, 4, 0x67FA04AE, Fields, 4 };
+    static constexpr DB2Meta Instance{ 2921475, -1, 5, 4, 0x5363EE75, Fields, 4 };
 };
 
 struct GuildTabardBackgroundMeta
@@ -5847,7 +6058,7 @@ struct GuildTabardBackgroundMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2909769, -1, 4, 3, 0xB5B6CD95, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2909769, -1, 4, 3, 0xFA17E913, Fields, 3 };
 };
 
 struct GuildTabardBorderMeta
@@ -5861,7 +6072,7 @@ struct GuildTabardBorderMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2920485, -1, 5, 4, 0x6C616EAA, Fields, 4 };
+    static constexpr DB2Meta Instance{ 2920485, -1, 5, 4, 0x4A8DDE7F, Fields, 4 };
 };
 
 struct GuildTabardEmblemMeta
@@ -5874,7 +6085,7 @@ struct GuildTabardEmblemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2910470, -1, 4, 3, 0xB8CF8F15, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2910470, -1, 4, 3, 0x9A3366EF, Fields, 3 };
 };
 
 struct HeirloomMeta
@@ -5893,7 +6104,7 @@ struct HeirloomMeta
         { FT_SHORT, 6, false },
     };
 
-    static constexpr DB2Meta Instance{ 1097696, 1, 10, 10, 0xFD204E4C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1097696, 1, 10, 10, 0x2F8299AE, Fields, -1 };
 };
 
 struct HelmetAnimScalingMeta
@@ -5905,7 +6116,7 @@ struct HelmetAnimScalingMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1348283, -1, 3, 2, 0x2152D6E4, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1348283, -1, 3, 2, 0xFF7E3A8A, Fields, 2 };
 };
 
 struct HelmetGeosetDataMeta
@@ -5914,12 +6125,12 @@ struct HelmetGeosetDataMeta
     {
         { FT_INT, 1, true },
         { FT_BYTE, 1, true },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2821752, -1, 5, 4, 0x78C6B857, Fields, 4 };
+    static constexpr DB2Meta Instance{ 2821752, -1, 5, 4, 0x103B3B37, Fields, 4 };
 };
 
 struct HighlightColorMeta
@@ -5933,7 +6144,7 @@ struct HighlightColorMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 996358, -1, 5, 5, 0x5F6F32BA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 996358, -1, 5, 5, 0x6A5296CF, Fields, -1 };
 };
 
 struct HolidayDescriptionsMeta
@@ -5943,7 +6154,7 @@ struct HolidayDescriptionsMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 996360, -1, 1, 1, 0xD981411C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 996360, -1, 1, 1, 0xA7B94A81, Fields, -1 };
 };
 
 struct HolidayNamesMeta
@@ -5953,7 +6164,7 @@ struct HolidayNamesMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 996359, -1, 1, 1, 0x31516347, Fields, -1 };
+    static constexpr DB2Meta Instance{ 996359, -1, 1, 1, 0xD76CBBD2, Fields, -1 };
 };
 
 struct HolidaysMeta
@@ -5973,7 +6184,7 @@ struct HolidaysMeta
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 996357, -1, 11, 11, 0xDEC453C4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 996357, -1, 11, 11, 0xDB91019C, Fields, -1 };
 };
 
 struct HotfixesMeta
@@ -5986,7 +6197,7 @@ struct HotfixesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1995523, -1, 4, 4, 0xC02BA201, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1995523, -1, 4, 4, 0xA2CB2E77, Fields, -1 };
 };
 
 struct ImportPriceArmorMeta
@@ -5999,7 +6210,7 @@ struct ImportPriceArmorMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121229, -1, 4, 4, 0x7979D30F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121229, -1, 4, 4, 0xC9501AE7, Fields, -1 };
 };
 
 struct ImportPriceQualityMeta
@@ -6009,7 +6220,7 @@ struct ImportPriceQualityMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121228, -1, 1, 1, 0xD4F6FFC8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121228, -1, 1, 1, 0x08763C54, Fields, -1 };
 };
 
 struct ImportPriceShieldMeta
@@ -6019,7 +6230,7 @@ struct ImportPriceShieldMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121227, -1, 1, 1, 0xD4F6FFC8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121227, -1, 1, 1, 0x08763C54, Fields, -1 };
 };
 
 struct ImportPriceWeaponMeta
@@ -6029,7 +6240,7 @@ struct ImportPriceWeaponMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121230, -1, 1, 1, 0xD4F6FFC8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121230, -1, 1, 1, 0x08763C54, Fields, -1 };
 };
 
 struct InvasionClientDataMeta
@@ -6048,7 +6259,7 @@ struct InvasionClientDataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1336651, 2, 10, 9, 0xC66039FC, Fields, 9 };
+    static constexpr DB2Meta Instance{ 1336651, 2, 10, 9, 0x2B0F31F8, Fields, 9 };
 };
 
 struct ItemMeta
@@ -6068,21 +6279,21 @@ struct ItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 841626, -1, 11, 11, 0xBCC9BC83, Fields, -1 };
+    static constexpr DB2Meta Instance{ 841626, -1, 11, 11, 0xD43146DA, Fields, -1 };
 };
 
 struct ItemAppearanceMeta
 {
     static constexpr DB2MetaField Fields[5] =
     {
-        { FT_INT, 1, true },
+        { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 982462, -1, 5, 5, 0x33C9038E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 982462, -1, 5, 5, 0x481C4281, Fields, -1 };
 };
 
 struct ItemAppearanceXUiCameraMeta
@@ -6093,7 +6304,7 @@ struct ItemAppearanceXUiCameraMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1248126, -1, 2, 2, 0xD239EB9B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1248126, -1, 2, 2, 0x055C50AD, Fields, -1 };
 };
 
 struct ItemArmorQualityMeta
@@ -6103,7 +6314,7 @@ struct ItemArmorQualityMeta
         { FT_FLOAT, 7, true },
     };
 
-    static constexpr DB2Meta Instance{ 1283021, -1, 1, 1, 0x5DAB3131, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1283021, -1, 1, 1, 0x2935AA9D, Fields, -1 };
 };
 
 struct ItemArmorShieldMeta
@@ -6114,7 +6325,7 @@ struct ItemArmorShieldMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1277741, -1, 2, 2, 0x4E03E769, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1277741, -1, 2, 2, 0x7E6C94F9, Fields, -1 };
 };
 
 struct ItemArmorTotalMeta
@@ -6128,7 +6339,7 @@ struct ItemArmorTotalMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1283022, -1, 5, 5, 0xC1DD3156, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1283022, -1, 5, 5, 0xEB155D51, Fields, -1 };
 };
 
 struct ItemBagFamilyMeta
@@ -6138,7 +6349,7 @@ struct ItemBagFamilyMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1278179, -1, 1, 1, 0xB0DD8F60, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1278179, -1, 1, 1, 0x782EE721, Fields, -1 };
 };
 
 struct ItemBonusMeta
@@ -6151,7 +6362,7 @@ struct ItemBonusMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 959070, -1, 4, 4, 0x7864A3E0, Fields, 1 };
+    static constexpr DB2Meta Instance{ 959070, -1, 4, 4, 0x79CD4525, Fields, 1 };
 };
 
 struct ItemBonusListMeta
@@ -6162,7 +6373,7 @@ struct ItemBonusListMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1805807, 0, 2, 2, 0x31228AEF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1805807, 0, 2, 2, 0x22A28539, Fields, -1 };
 };
 
 struct ItemBonusListGroupMeta
@@ -6176,7 +6387,7 @@ struct ItemBonusListGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3755382, -1, 5, 5, 0xF169B927, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3755382, -1, 5, 5, 0xFBF090DA, Fields, -1 };
 };
 
 struct ItemBonusListGroupEntryMeta
@@ -6194,7 +6405,7 @@ struct ItemBonusListGroupEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3025306, 0, 9, 9, 0x17163D82, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3025306, 0, 9, 9, 0x24840319, Fields, 1 };
 };
 
 struct ItemBonusListLevelDeltaMeta
@@ -6205,7 +6416,7 @@ struct ItemBonusListLevelDeltaMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1320358, 1, 2, 2, 0xC6EA2151, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1320358, 1, 2, 2, 0x52DF470F, Fields, -1 };
 };
 
 struct ItemBonusListWarforgeLevelDeltaMeta
@@ -6216,7 +6427,7 @@ struct ItemBonusListWarforgeLevelDeltaMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 2924997, 1, 2, 2, 0xC6EA2151, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2924997, 1, 2, 2, 0x52DF470F, Fields, -1 };
 };
 
 struct ItemBonusSeasonMeta
@@ -6227,7 +6438,7 @@ struct ItemBonusSeasonMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5155639, 0, 2, 2, 0x7F150202, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5155639, 0, 2, 2, 0xB838B9A8, Fields, -1 };
 };
 
 struct ItemBonusSeasonBonusListGroupMeta
@@ -6240,7 +6451,7 @@ struct ItemBonusSeasonBonusListGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5155640, 0, 4, 4, 0x284E8A83, Fields, 3 };
+    static constexpr DB2Meta Instance{ 5155640, 0, 4, 4, 0x3245391D, Fields, 3 };
 };
 
 struct ItemBonusSeasonUpgradeCostMeta
@@ -6257,7 +6468,7 @@ struct ItemBonusSeasonUpgradeCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5155641, 1, 8, 8, 0x76231EF7, Fields, 5 };
+    static constexpr DB2Meta Instance{ 5155641, 1, 8, 8, 0x8A24592F, Fields, 5 };
 };
 
 struct ItemBonusSequenceSpellMeta
@@ -6268,7 +6479,7 @@ struct ItemBonusSequenceSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3026822, -1, 2, 1, 0x2AA71F9B, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3026822, -1, 2, 1, 0x70713473, Fields, 1 };
 };
 
 struct ItemBonusTreeMeta
@@ -6279,7 +6490,7 @@ struct ItemBonusTreeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055768, -1, 2, 2, 0xBC8C367C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3055768, -1, 2, 2, 0xDD92E4D6, Fields, -1 };
 };
 
 struct ItemBonusTreeGroupEntryMeta
@@ -6290,7 +6501,7 @@ struct ItemBonusTreeGroupEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4407505, -1, 2, 2, 0xF3BB739B, Fields, 0 };
+    static constexpr DB2Meta Instance{ 4407505, -1, 2, 2, 0x4549B315, Fields, 0 };
 };
 
 struct ItemBonusTreeNodeMeta
@@ -6308,7 +6519,7 @@ struct ItemBonusTreeNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 987134, -1, 9, 8, 0xF5BD96C0, Fields, 8 };
+    static constexpr DB2Meta Instance{ 987134, -1, 9, 8, 0x6304AE19, Fields, 8 };
 };
 
 struct ItemChildEquipmentMeta
@@ -6320,7 +6531,7 @@ struct ItemChildEquipmentMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1247926, -1, 3, 3, 0xE726DCEE, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1247926, -1, 3, 3, 0x2B57F9DE, Fields, 0 };
 };
 
 struct ItemClassMeta
@@ -6333,7 +6544,7 @@ struct ItemClassMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1140189, -1, 4, 4, 0xC21C5BEA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1140189, -1, 4, 4, 0xA2EB4A48, Fields, -1 };
 };
 
 struct ItemConditionMeta
@@ -6343,7 +6554,7 @@ struct ItemConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5128111, -1, 1, 1, 0xC2F7FE6F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5128111, -1, 1, 1, 0x5D03D2C4, Fields, -1 };
 };
 
 struct ItemContextPickerEntryMeta
@@ -6359,7 +6570,7 @@ struct ItemContextPickerEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1405665, -1, 7, 6, 0x3C496406, Fields, 6 };
+    static constexpr DB2Meta Instance{ 1405665, -1, 7, 6, 0x18546FD3, Fields, 6 };
 };
 
 struct ItemConversionMeta
@@ -6373,7 +6584,7 @@ struct ItemConversionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4337196, -1, 5, 5, 0xAD670E90, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4337196, -1, 5, 5, 0xB01EC8EF, Fields, -1 };
 };
 
 struct ItemConversionEntryMeta
@@ -6384,7 +6595,7 @@ struct ItemConversionEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4337197, -1, 2, 1, 0xFDC43755, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4337197, -1, 2, 1, 0x0FE5EF55, Fields, 1 };
 };
 
 struct ItemCurrencyCostMeta
@@ -6394,7 +6605,7 @@ struct ItemCurrencyCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801670, -1, 1, 1, 0xE55A34CC, Fields, 0 };
+    static constexpr DB2Meta Instance{ 801670, -1, 1, 1, 0x8950022B, Fields, 0 };
 };
 
 struct ItemCurrencyValueMeta
@@ -6406,7 +6617,7 @@ struct ItemCurrencyValueMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3755770, -1, 3, 2, 0x664B8E34, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3755770, -1, 3, 2, 0x30FB7CF7, Fields, 2 };
 };
 
 struct ItemDamageAmmoMeta
@@ -6417,7 +6628,7 @@ struct ItemDamageAmmoMeta
         { FT_FLOAT, 7, true },
     };
 
-    static constexpr DB2Meta Instance{ 1277740, -1, 2, 2, 0xBD540229, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1277740, -1, 2, 2, 0x56F30531, Fields, -1 };
 };
 
 struct ItemDamageOneHandMeta
@@ -6428,7 +6639,7 @@ struct ItemDamageOneHandMeta
         { FT_FLOAT, 7, true },
     };
 
-    static constexpr DB2Meta Instance{ 1277743, -1, 2, 2, 0xBD540229, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1277743, -1, 2, 2, 0x56F30531, Fields, -1 };
 };
 
 struct ItemDamageOneHandCasterMeta
@@ -6439,7 +6650,7 @@ struct ItemDamageOneHandCasterMeta
         { FT_FLOAT, 7, true },
     };
 
-    static constexpr DB2Meta Instance{ 1277739, -1, 2, 2, 0xBD540229, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1277739, -1, 2, 2, 0x56F30531, Fields, -1 };
 };
 
 struct ItemDamageTwoHandMeta
@@ -6450,7 +6661,7 @@ struct ItemDamageTwoHandMeta
         { FT_FLOAT, 7, true },
     };
 
-    static constexpr DB2Meta Instance{ 1277738, -1, 2, 2, 0xBD540229, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1277738, -1, 2, 2, 0x56F30531, Fields, -1 };
 };
 
 struct ItemDamageTwoHandCasterMeta
@@ -6461,7 +6672,7 @@ struct ItemDamageTwoHandCasterMeta
         { FT_FLOAT, 7, true },
     };
 
-    static constexpr DB2Meta Instance{ 1277742, -1, 2, 2, 0xBD540229, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1277742, -1, 2, 2, 0x56F30531, Fields, -1 };
 };
 
 struct ItemDisenchantLootMeta
@@ -6477,7 +6688,7 @@ struct ItemDisenchantLootMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134087, -1, 7, 6, 0xB1D813A9, Fields, 6 };
+    static constexpr DB2Meta Instance{ 1134087, -1, 7, 6, 0x5845A4AA, Fields, 6 };
 };
 
 struct ItemDisplayInfoMeta
@@ -6502,7 +6713,7 @@ struct ItemDisplayInfoMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1266429, -1, 16, 16, 0xD922B51F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266429, -1, 16, 16, 0x45C2F619, Fields, -1 };
 };
 
 struct ItemDisplayInfoMaterialResMeta
@@ -6514,7 +6725,7 @@ struct ItemDisplayInfoMaterialResMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1280614, -1, 3, 2, 0x83420BDB, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1280614, -1, 3, 2, 0xAA462C0E, Fields, 2 };
 };
 
 struct ItemDisplayInfoModelMatResMeta
@@ -6527,7 +6738,7 @@ struct ItemDisplayInfoModelMatResMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4050937, -1, 4, 3, 0x9601DF6B, Fields, 3 };
+    static constexpr DB2Meta Instance{ 4050937, -1, 4, 3, 0x52510D63, Fields, 3 };
 };
 
 struct ItemEffectMeta
@@ -6544,7 +6755,7 @@ struct ItemEffectMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 969941, -1, 8, 8, 0xF9253409, Fields, -1 };
+    static constexpr DB2Meta Instance{ 969941, -1, 8, 8, 0x2CEB026E, Fields, -1 };
 };
 
 struct ItemExtendedCostMeta
@@ -6563,19 +6774,7 @@ struct ItemExtendedCostMeta
         { FT_INT, 5, false },
     };
 
-    static constexpr DB2Meta Instance{ 801681, -1, 10, 10, 0xF4D91D1F, Fields, -1 };
-};
-
-struct ItemFallbackVisualMeta
-{
-    static constexpr DB2MetaField Fields[3] =
-    {
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-    };
-
-    static constexpr DB2Meta Instance{ 2358574, -1, 3, 3, 0xB0198BA2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801681, -1, 10, 10, 0xD2894EC8, Fields, -1 };
 };
 
 struct ItemFixupMeta
@@ -6585,7 +6784,7 @@ struct ItemFixupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5152256, -1, 1, 1, 0x31DF97E4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5152256, -1, 1, 1, 0xB98F95BF, Fields, -1 };
 };
 
 struct ItemFixupActionMeta
@@ -6596,21 +6795,23 @@ struct ItemFixupActionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5475699, -1, 2, 1, 0x3B964A51, Fields, 1 };
+    static constexpr DB2Meta Instance{ 5475699, -1, 2, 1, 0x2F54E0F0, Fields, 1 };
 };
 
 struct ItemGroupIlvlScalingEntryMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5015219, -1, 5, 4, 0x38E9D642, Fields, 4 };
+    static constexpr DB2Meta Instance{ 5015219, -1, 7, 6, 0x149B741B, Fields, 6 };
 };
 
 struct ItemGroupSoundsMeta
@@ -6620,7 +6821,7 @@ struct ItemGroupSoundsMeta
         { FT_INT, 4, false },
     };
 
-    static constexpr DB2Meta Instance{ 1283023, -1, 1, 1, 0xBFD29A96, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1283023, -1, 1, 1, 0xA7CEF530, Fields, -1 };
 };
 
 struct ItemLevelSelectorMeta
@@ -6632,7 +6833,7 @@ struct ItemLevelSelectorMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1588911, -1, 3, 3, 0x25BC6A6B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1588911, -1, 3, 3, 0xAEACAB9F, Fields, -1 };
 };
 
 struct ItemLevelSelectorQualityMeta
@@ -6644,7 +6845,7 @@ struct ItemLevelSelectorQualityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1624937, -1, 3, 2, 0xBAF7EC29, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1624937, -1, 3, 2, 0x3016B2C0, Fields, 2 };
 };
 
 struct ItemLevelSelectorQualitySetMeta
@@ -6655,7 +6856,7 @@ struct ItemLevelSelectorQualitySetMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1624933, -1, 2, 2, 0x4080CC90, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1624933, -1, 2, 2, 0x6EF696F8, Fields, -1 };
 };
 
 struct ItemLimitCategoryMeta
@@ -6667,7 +6868,7 @@ struct ItemLimitCategoryMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1237440, -1, 3, 3, 0x403BC7B2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237440, -1, 3, 3, 0x22467A2D, Fields, -1 };
 };
 
 struct ItemLimitCategoryConditionMeta
@@ -6679,7 +6880,7 @@ struct ItemLimitCategoryConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1378590, -1, 3, 2, 0x9E37B423, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1378590, -1, 3, 2, 0x8DC9459D, Fields, 2 };
 };
 
 struct ItemLogicalCostMeta
@@ -6692,7 +6893,7 @@ struct ItemLogicalCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4677533, -1, 4, 3, 0xDB1BC742, Fields, 3 };
+    static constexpr DB2Meta Instance{ 4677533, -1, 4, 3, 0x8BFEFC5C, Fields, 3 };
 };
 
 struct ItemLogicalCostGroupMeta
@@ -6702,12 +6903,12 @@ struct ItemLogicalCostGroupMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 4677534, 0, 1, 1, 0x6657BD0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4677534, 0, 1, 1, 0xF2103A31, Fields, -1 };
 };
 
 struct ItemModifiedAppearanceMeta
 {
-    static constexpr DB2MetaField Fields[6] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -6715,9 +6916,10 @@ struct ItemModifiedAppearanceMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 982457, 0, 6, 6, 0x0120090C, Fields, 1 };
+    static constexpr DB2Meta Instance{ 982457, 0, 7, 7, 0x03A6C979, Fields, 1 };
 };
 
 struct ItemModifiedAppearanceExtraMeta
@@ -6731,7 +6933,7 @@ struct ItemModifiedAppearanceExtraMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1278399, -1, 5, 5, 0x08968F49, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1278399, -1, 5, 5, 0x5F7C0B7F, Fields, -1 };
 };
 
 struct ItemNameDescriptionMeta
@@ -6742,7 +6944,7 @@ struct ItemNameDescriptionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1332559, -1, 2, 2, 0xB60E60BD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1332559, -1, 2, 2, 0xB616608D, Fields, -1 };
 };
 
 struct ItemNameSlotOverrideMeta
@@ -6754,7 +6956,7 @@ struct ItemNameSlotOverrideMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3723474, -1, 3, 2, 0xCF0119FB, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3723474, -1, 3, 2, 0x6D223985, Fields, 2 };
 };
 
 struct ItemPetFoodMeta
@@ -6764,7 +6966,7 @@ struct ItemPetFoodMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1302240, -1, 1, 1, 0x332FA55B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1302240, -1, 1, 1, 0xDAD218A6, Fields, -1 };
 };
 
 struct ItemPriceBaseMeta
@@ -6776,7 +6978,7 @@ struct ItemPriceBaseMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121231, -1, 3, 3, 0xAA32653C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121231, -1, 3, 3, 0x9AD504F0, Fields, -1 };
 };
 
 struct ItemRangedDisplayInfoMeta
@@ -6789,7 +6991,7 @@ struct ItemRangedDisplayInfoMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1270315, -1, 4, 4, 0x08C2EB5B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1270315, -1, 4, 4, 0x16D5D0A7, Fields, -1 };
 };
 
 struct ItemRecraftMeta
@@ -6803,7 +7005,21 @@ struct ItemRecraftMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5150118, 0, 5, 4, 0xE00E7F34, Fields, 4 };
+    static constexpr DB2Meta Instance{ 5150118, 0, 5, 4, 0xD7F3331F, Fields, 4 };
+};
+
+struct ItemReforgeMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_SHORT, 1, false },
+        { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
+        { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
+    };
+
+    static constexpr DB2Meta Instance{ 5633983, -1, 5, 5, 0xE3284DDC, Fields, -1 };
 };
 
 struct ItemSalvageMeta
@@ -6815,7 +7031,7 @@ struct ItemSalvageMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4548446, -1, 3, 3, 0x362127B8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4548446, -1, 3, 3, 0x83141ADC, Fields, -1 };
 };
 
 struct ItemSalvageLootMeta
@@ -6827,7 +7043,7 @@ struct ItemSalvageLootMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4549058, -1, 3, 3, 0x96554070, Fields, 0 };
+    static constexpr DB2Meta Instance{ 4549058, -1, 3, 3, 0xD8C41341, Fields, 0 };
 };
 
 struct ItemSearchNameMeta
@@ -6846,10 +7062,10 @@ struct ItemSearchNameMeta
         { FT_SHORT, 1, false },
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
-        { FT_INT, 4, true },
+        { FT_INT, 5, true },
     };
 
-    static constexpr DB2Meta Instance{ 1273408, -1, 13, 13, 0xBCDBBEFB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1273408, -1, 13, 13, 0x40C3317A, Fields, -1 };
 };
 
 struct ItemSetMeta
@@ -6863,7 +7079,7 @@ struct ItemSetMeta
         { FT_INT, 17, false },
     };
 
-    static constexpr DB2Meta Instance{ 1343609, -1, 5, 5, 0x4F7008BF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343609, -1, 5, 5, 0xEEB090F4, Fields, -1 };
 };
 
 struct ItemSetSpellMeta
@@ -6876,7 +7092,7 @@ struct ItemSetSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1314689, -1, 4, 3, 0xBF92BB46, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1314689, -1, 4, 3, 0xCDEF234D, Fields, 3 };
 };
 
 struct ItemSparseMeta
@@ -6900,6 +7116,7 @@ struct ItemSparseMeta
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 10, true },
         { FT_INT, 10, true },
+        { FT_INT, 10, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -6909,7 +7126,7 @@ struct ItemSparseMeta
         { FT_INT, 1, false },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
-        { FT_INT, 4, true },
+        { FT_INT, 5, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
@@ -6940,7 +7157,6 @@ struct ItemSparseMeta
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
-        { FT_BYTE, 10, true },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
@@ -6949,7 +7165,7 @@ struct ItemSparseMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1572924, -1, 64, 64, 0xB07DD994, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1572924, -1, 64, 64, 0x35E390AC, Fields, -1 };
 };
 
 struct ItemSpecMeta
@@ -6964,7 +7180,7 @@ struct ItemSpecMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1135120, -1, 6, 6, 0x72013ECD, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1135120, -1, 6, 6, 0x83F3D113, Fields, 2 };
 };
 
 struct ItemSpecOverrideMeta
@@ -6975,7 +7191,7 @@ struct ItemSpecOverrideMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134576, -1, 2, 1, 0xD621A05B, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1134576, -1, 2, 1, 0xB292998C, Fields, 1 };
 };
 
 struct ItemSubClassMeta
@@ -6995,7 +7211,7 @@ struct ItemSubClassMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1261604, 2, 11, 11, 0xC096A1B1, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1261604, 2, 11, 11, 0x1E67DB87, Fields, 3 };
 };
 
 struct ItemSubClassMaskMeta
@@ -7007,7 +7223,7 @@ struct ItemSubClassMaskMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1302852, -1, 3, 3, 0x42DC1188, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1302852, -1, 3, 3, 0xD1A996F3, Fields, -1 };
 };
 
 struct ItemVisualsMeta
@@ -7019,7 +7235,7 @@ struct ItemVisualsMeta
         { FT_INT, 5, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343605, -1, 3, 3, 0xC5D076A1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343605, -1, 3, 3, 0x4D7EF22C, Fields, -1 };
 };
 
 struct ItemVisualsXEffectMeta
@@ -7034,7 +7250,7 @@ struct ItemVisualsXEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3043873, -1, 6, 5, 0xE011E7C1, Fields, 5 };
+    static constexpr DB2Meta Instance{ 3043873, -1, 6, 5, 0x62F4C094, Fields, 5 };
 };
 
 struct ItemXBonusTreeMeta
@@ -7045,7 +7261,7 @@ struct ItemXBonusTreeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 987133, -1, 2, 1, 0xB088DCDC, Fields, 1 };
+    static constexpr DB2Meta Instance{ 987133, -1, 2, 1, 0x5A99E55B, Fields, 1 };
 };
 
 struct ItemXItemEffectMeta
@@ -7056,7 +7272,7 @@ struct ItemXItemEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3177687, -1, 2, 1, 0x96428A69, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3177687, -1, 2, 1, 0x96F083AD, Fields, 1 };
 };
 
 struct JournalEncounterMeta
@@ -7077,7 +7293,7 @@ struct JournalEncounterMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1240336, 3, 12, 12, 0x37948505, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1240336, 3, 12, 12, 0xB88D11CC, Fields, -1 };
 };
 
 struct JournalEncounterCreatureMeta
@@ -7094,12 +7310,12 @@ struct JournalEncounterCreatureMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1301155, 2, 8, 8, 0x8D6F8786, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1301155, 2, 8, 8, 0x81A3C769, Fields, 3 };
 };
 
 struct JournalEncounterItemMeta
 {
-    static constexpr DB2MetaField Fields[6] =
+    static constexpr DB2MetaField Fields[8] =
     {
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
@@ -7107,9 +7323,11 @@ struct JournalEncounterItemMeta
         { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1344467, 0, 6, 6, 0xDAC92896, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1344467, 0, 8, 8, 0xD95559FA, Fields, 1 };
 };
 
 struct JournalEncounterSectionMeta
@@ -7133,7 +7351,7 @@ struct JournalEncounterSectionMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134413, -1, 15, 15, 0xF617A4B5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134413, -1, 15, 15, 0xCB88312B, Fields, -1 };
 };
 
 struct JournalEncounterXDifficultyMeta
@@ -7144,7 +7362,7 @@ struct JournalEncounterXDifficultyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121901, -1, 2, 1, 0xF103C808, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1121901, -1, 2, 1, 0x1E14364D, Fields, 1 };
 };
 
 struct JournalEncounterXMapLocMeta
@@ -7158,7 +7376,7 @@ struct JournalEncounterXMapLocMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1722928, -1, 5, 4, 0xF9E973F0, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1722928, -1, 5, 4, 0x330EE16F, Fields, 4 };
 };
 
 struct JournalInstanceMeta
@@ -7176,7 +7394,7 @@ struct JournalInstanceMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1237438, -1, 9, 9, 0xE213FF3B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237438, -1, 9, 9, 0x811ABB6A, Fields, -1 };
 };
 
 struct JournalInstanceEntranceMeta
@@ -7190,7 +7408,7 @@ struct JournalInstanceEntranceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5228481, -1, 5, 4, 0x3FD6C4DC, Fields, 4 };
+    static constexpr DB2Meta Instance{ 5228481, -1, 5, 4, 0xC6E4ECB2, Fields, 4 };
 };
 
 struct JournalInstanceQueueLocMeta
@@ -7205,7 +7423,7 @@ struct JournalInstanceQueueLocMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5228217, -1, 6, 5, 0xF0EB0976, Fields, 5 };
+    static constexpr DB2Meta Instance{ 5228217, -1, 6, 5, 0x7005598D, Fields, 5 };
 };
 
 struct JournalItemXDifficultyMeta
@@ -7216,7 +7434,7 @@ struct JournalItemXDifficultyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1277744, -1, 2, 1, 0x19DEDAA3, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1277744, -1, 2, 1, 0x6F46EEA2, Fields, 1 };
 };
 
 struct JournalSectionXDifficultyMeta
@@ -7227,18 +7445,19 @@ struct JournalSectionXDifficultyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121900, -1, 2, 1, 0x13D3283F, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1121900, -1, 2, 1, 0x6CF791BA, Fields, 1 };
 };
 
 struct JournalTierMeta
 {
-    static constexpr DB2MetaField Fields[2] =
+    static constexpr DB2MetaField Fields[3] =
     {
         { FT_STRING, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1349056, -1, 2, 2, 0x10E4DFC1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1349056, -1, 3, 3, 0xF4AFE752, Fields, -1 };
 };
 
 struct JournalTierXInstanceMeta
@@ -7251,7 +7470,7 @@ struct JournalTierXInstanceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1285009, -1, 4, 4, 0x1351FB2E, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1285009, -1, 4, 4, 0xBFCBF1F0, Fields, 0 };
 };
 
 struct KeychainMeta
@@ -7261,7 +7480,7 @@ struct KeychainMeta
         { FT_BYTE, 32, false },
     };
 
-    static constexpr DB2Meta Instance{ 801693, -1, 1, 1, 0x683DDBCE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801693, -1, 1, 1, 0x019E306C, Fields, -1 };
 };
 
 struct KeystoneAffixMeta
@@ -7274,7 +7493,7 @@ struct KeystoneAffixMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1344761, 2, 4, 4, 0x6645021B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1344761, 2, 4, 4, 0x166FC575, Fields, -1 };
 };
 
 struct LFGDungeonGroupMeta
@@ -7287,12 +7506,12 @@ struct LFGDungeonGroupMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1135058, -1, 4, 4, 0xFCCAFEFD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1135058, -1, 4, 4, 0x920DFF98, Fields, -1 };
 };
 
 struct LFGDungeonsMeta
 {
-    static constexpr DB2MetaField Fields[29] =
+    static constexpr DB2MetaField Fields[33] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -7318,14 +7537,18 @@ struct LFGDungeonsMeta
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
+        { FT_BYTE, 1, false },
+        { FT_BYTE, 1, false },
+        { FT_BYTE, 1, false },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
+        { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1361033, -1, 29, 29, 0x5314B0A9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1361033, -1, 33, 33, 0x8CB09088, Fields, -1 };
 };
 
 struct LFGRoleRequirementMeta
@@ -7337,7 +7560,7 @@ struct LFGRoleRequirementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 982805, -1, 3, 2, 0x6112092C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 982805, -1, 3, 2, 0x8D26EA6B, Fields, 2 };
 };
 
 struct LabelXContentRestrictRuleSetMeta
@@ -7349,7 +7572,7 @@ struct LabelXContentRestrictRuleSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4281309, -1, 3, 2, 0x4F3F4F82, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4281309, -1, 3, 2, 0x7829CA93, Fields, 2 };
 };
 
 struct LanguageWordsMeta
@@ -7360,7 +7583,7 @@ struct LanguageWordsMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 984702, -1, 2, 2, 0x9CFC1981, Fields, -1 };
+    static constexpr DB2Meta Instance{ 984702, -1, 2, 2, 0x1865582A, Fields, -1 };
 };
 
 struct LanguagesMeta
@@ -7375,7 +7598,7 @@ struct LanguagesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1135325, 1, 6, 6, 0xE026BB06, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1135325, 1, 6, 6, 0x5D934E12, Fields, -1 };
 };
 
 struct LfgDungeonsGroupingMapMeta
@@ -7387,7 +7610,7 @@ struct LfgDungeonsGroupingMapMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1339818, -1, 3, 2, 0x3538AE33, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1339818, -1, 3, 2, 0x105EA15A, Fields, 2 };
 };
 
 struct LightMeta
@@ -7401,7 +7624,7 @@ struct LightMeta
         { FT_SHORT, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 1375579, -1, 5, 5, 0xAD1B2253, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375579, -1, 5, 5, 0x5F16BC84, Fields, -1 };
 };
 
 struct LightDataMeta
@@ -7456,13 +7679,14 @@ struct LightDataMeta
         { FT_FLOAT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1375580, -1, 46, 46, 0x1D523CA5, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1375580, -1, 46, 46, 0xB5052D20, Fields, 0 };
 };
 
 struct LightParamsMeta
 {
-    static constexpr DB2MetaField Fields[11] =
+    static constexpr DB2MetaField Fields[16] =
     {
+        { FT_FLOAT, 3, true },
         { FT_FLOAT, 3, true },
         { FT_BYTE, 1, false },
         { FT_SHORT, 1, false },
@@ -7474,9 +7698,37 @@ struct LightParamsMeta
         { FT_FLOAT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1334669, -1, 11, 11, 0x9C29BEEF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1334669, -1, 16, 16, 0x96239779, Fields, -1 };
+};
+
+struct LightParamsLightShaftMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5350588, -1, 3, 2, 0xFBB113FA, Fields, 2 };
+};
+
+struct LightShaftMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5350589, -1, 3, 3, 0xC22F4FD9, Fields, -1 };
 };
 
 struct LightSkyboxMeta
@@ -7489,7 +7741,7 @@ struct LightSkyboxMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1308501, -1, 4, 4, 0xF2269F12, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1308501, -1, 4, 4, 0x407FEBCF, Fields, -1 };
 };
 
 struct LightWorldShadowMeta
@@ -7501,7 +7753,7 @@ struct LightWorldShadowMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4680119, -1, 3, 2, 0x59642561, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4680119, -1, 3, 2, 0xA909CB00, Fields, 2 };
 };
 
 struct LightningMeta
@@ -7544,7 +7796,7 @@ struct LightningMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2003383, -1, 34, 34, 0x09AF7B51, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2003383, -1, 34, 34, 0x645F11FD, Fields, -1 };
 };
 
 struct LiquidMaterialMeta
@@ -7555,7 +7807,7 @@ struct LiquidMaterialMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1132538, -1, 2, 2, 0x2CFFEA40, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1132538, -1, 2, 2, 0x01033D2A, Fields, -1 };
 };
 
 struct LiquidObjectMeta
@@ -7569,7 +7821,7 @@ struct LiquidObjectMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1308058, -1, 5, 5, 0x6CAEB8A1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1308058, -1, 5, 5, 0xCB0D39E8, Fields, -1 };
 };
 
 struct LiquidTypeMeta
@@ -7599,7 +7851,7 @@ struct LiquidTypeMeta
         { FT_FLOAT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1371380, -1, 21, 21, 0xAFFFC9E0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1371380, -1, 21, 21, 0x95DB15B6, Fields, -1 };
 };
 
 struct LiquidTypeXTextureMeta
@@ -7612,7 +7864,7 @@ struct LiquidTypeXTextureMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2261065, -1, 4, 3, 0x5CC7EE1B, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2261065, -1, 4, 3, 0x7BEECC7F, Fields, 3 };
 };
 
 struct LivingWorldObjectTemplateMeta
@@ -7622,20 +7874,7 @@ struct LivingWorldObjectTemplateMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4276965, -1, 1, 1, 0x74706E81, Fields, -1 };
-};
-
-struct LivingWorldObjectTemplateModelMeta
-{
-    static constexpr DB2MetaField Fields[4] =
-    {
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-    };
-
-    static constexpr DB2Meta Instance{ 4276966, -1, 4, 3, 0xA5D81C93, Fields, 3 };
+    static constexpr DB2Meta Instance{ 4276965, -1, 1, 1, 0xC3D5DF0A, Fields, -1 };
 };
 
 struct LoadingScreenSkinMeta
@@ -7645,7 +7884,7 @@ struct LoadingScreenSkinMeta
         { FT_INT, 10, true },
     };
 
-    static constexpr DB2Meta Instance{ 2478235, -1, 1, 1, 0xE6C0E75D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2478235, -1, 1, 1, 0x7FF1EF86, Fields, -1 };
 };
 
 struct LoadingScreenTaxiSplinesMeta
@@ -7659,7 +7898,7 @@ struct LoadingScreenTaxiSplinesMeta
         { FT_FLOAT, 10, true },
     };
 
-    static constexpr DB2Meta Instance{ 1302239, -1, 5, 5, 0xD9F03CBC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1302239, -1, 5, 5, 0x7B0D052E, Fields, -1 };
 };
 
 struct LoadingScreensMeta
@@ -7678,7 +7917,7 @@ struct LoadingScreensMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1266541, -1, 10, 10, 0x112726F1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266541, -1, 10, 10, 0xF6E51D7F, Fields, -1 };
 };
 
 struct LocaleMeta
@@ -7692,7 +7931,7 @@ struct LocaleMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 801706, -1, 5, 5, 0x751D8F5F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801706, -1, 5, 5, 0x95961A74, Fields, -1 };
 };
 
 struct LocationMeta
@@ -7703,7 +7942,7 @@ struct LocationMeta
         { FT_FLOAT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 801707, -1, 2, 2, 0xB0561808, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801707, -1, 2, 2, 0xD18A3880, Fields, -1 };
 };
 
 struct LockMeta
@@ -7717,7 +7956,7 @@ struct LockMeta
         { FT_BYTE, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 1343608, -1, 5, 5, 0xD359BBE0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343608, -1, 5, 5, 0xFCC491D2, Fields, -1 };
 };
 
 struct LockTypeMeta
@@ -7732,7 +7971,7 @@ struct LockTypeMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1284823, -1, 6, 6, 0x62421B4C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1284823, -1, 6, 6, 0xAF114F71, Fields, -1 };
 };
 
 struct LookAtControllerMeta
@@ -7759,7 +7998,7 @@ struct LookAtControllerMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1098785, -1, 18, 18, 0x01B2684C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1098785, -1, 18, 18, 0x92FF222C, Fields, -1 };
 };
 
 struct LoreTextMeta
@@ -7771,7 +8010,7 @@ struct LoreTextMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3311370, -1, 3, 3, 0x886CC0CF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3311370, -1, 3, 3, 0xF6908A5C, Fields, -1 };
 };
 
 struct LoreTextPublicMeta
@@ -7786,7 +8025,7 @@ struct LoreTextPublicMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3479846, 0, 6, 5, 0x54EE4E73, Fields, 5 };
+    static constexpr DB2Meta Instance{ 3479846, 0, 6, 5, 0x35AA0D60, Fields, 5 };
 };
 
 struct MCRSlotXMCRCategoryMeta
@@ -7798,7 +8037,7 @@ struct MCRSlotXMCRCategoryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3390955, -1, 3, 2, 0x39F35458, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3390955, -1, 3, 2, 0x9CFFA4CF, Fields, 2 };
 };
 
 struct MailTemplateMeta
@@ -7808,7 +8047,7 @@ struct MailTemplateMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1240344, -1, 1, 1, 0x7C454945, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1240344, -1, 1, 1, 0xB436C1C8, Fields, -1 };
 };
 
 struct ManagedWorldStateMeta
@@ -7827,7 +8066,7 @@ struct ManagedWorldStateMeta
         { FT_INT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1587159, -1, 10, 10, 0xE239E53B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1587159, -1, 10, 10, 0xA4E9EA9F, Fields, -1 };
 };
 
 struct ManagedWorldStateBuffMeta
@@ -7840,7 +8079,7 @@ struct ManagedWorldStateBuffMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1587155, -1, 4, 3, 0xBA39FD6A, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1587155, -1, 4, 3, 0xB8C3D344, Fields, 3 };
 };
 
 struct ManagedWorldStateInputMeta
@@ -7852,7 +8091,7 @@ struct ManagedWorldStateInputMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1587151, -1, 3, 3, 0x271DEDDF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1587151, -1, 3, 3, 0x16683306, Fields, -1 };
 };
 
 struct ManifestInterfaceActionIconMeta
@@ -7862,7 +8101,7 @@ struct ManifestInterfaceActionIconMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1375803, 0, 1, 1, 0x6657BD0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375803, 0, 1, 1, 0xF2103A31, Fields, -1 };
 };
 
 struct ManifestInterfaceDataMeta
@@ -7873,7 +8112,7 @@ struct ManifestInterfaceDataMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1375801, -1, 2, 2, 0x13274651, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375801, -1, 2, 2, 0x618AD009, Fields, -1 };
 };
 
 struct ManifestInterfaceItemIconMeta
@@ -7883,7 +8122,7 @@ struct ManifestInterfaceItemIconMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1375804, 0, 1, 1, 0x6657BD0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375804, 0, 1, 1, 0xF2103A31, Fields, -1 };
 };
 
 struct ManifestInterfaceTOCDataMeta
@@ -7893,22 +8132,12 @@ struct ManifestInterfaceTOCDataMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1267335, -1, 1, 1, 0x1FBF8808, Fields, -1 };
-};
-
-struct ManifestMP3Meta
-{
-    static constexpr DB2MetaField Fields[1] =
-    {
-        { FT_INT, 1, false },
-    };
-
-    static constexpr DB2Meta Instance{ 1375802, 0, 1, 1, 0x6657BD0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267335, -1, 1, 1, 0x4AB64495, Fields, -1 };
 };
 
 struct MapMeta
 {
-    static constexpr DB2MetaField Fields[24] =
+    static constexpr DB2MetaField Fields[25] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },
         { FT_STRING, 1, true },
@@ -7933,10 +8162,11 @@ struct MapMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 1349477, -1, 24, 24, 0x15542FE8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1349477, -1, 25, 25, 0xE0196C63, Fields, -1 };
 };
 
 struct MapCelestialBodyMeta
@@ -7948,7 +8178,7 @@ struct MapCelestialBodyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1597466, -1, 3, 2, 0x3B420F88, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1597466, -1, 3, 2, 0xA320FA08, Fields, 2 };
 };
 
 struct MapChallengeModeMeta
@@ -7964,15 +8194,18 @@ struct MapChallengeModeMeta
         { FT_SHORT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 801709, 1, 7, 7, 0xAAA9EAD7, Fields, 2 };
+    static constexpr DB2Meta Instance{ 801709, 1, 7, 7, 0xC31A3CC1, Fields, 2 };
 };
 
 struct MapDifficultyMeta
 {
-    static constexpr DB2MetaField Fields[10] =
+    static constexpr DB2MetaField Fields[12] =
     {
         { FT_STRING, 1, true },
+        { FT_INT, 1, false },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
         { FT_INT, 1, true },
         { FT_BYTE, 1, false },
         { FT_INT, 1, true },
@@ -7980,10 +8213,21 @@ struct MapDifficultyMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 1367868, 1, 12, 11, 0xCF621FA3, Fields, 11 };
+};
+
+struct MapDifficultyRedirectMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1367868, -1, 10, 9, 0x43E2A417, Fields, 9 };
+    static constexpr DB2Meta Instance{ 4913557, -1, 3, 2, 0xD5D43631, Fields, 2 };
 };
 
 struct MapDifficultyXConditionMeta
@@ -7996,7 +8240,7 @@ struct MapDifficultyXConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1375435, -1, 4, 3, 0x08E872DB, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1375435, -1, 4, 3, 0xD514B4CA, Fields, 3 };
 };
 
 struct MapLoadingScreenMeta
@@ -8010,12 +8254,12 @@ struct MapLoadingScreenMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1719707, -1, 5, 4, 0x2769A380, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1719707, -1, 5, 4, 0xB7151FA7, Fields, 4 };
 };
 
 struct MapRenderScaleMeta
 {
-    static constexpr DB2MetaField Fields[8] =
+    static constexpr DB2MetaField Fields[9] =
     {
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
@@ -8025,9 +8269,10 @@ struct MapRenderScaleMeta
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4633656, -1, 8, 8, 0x1D8358EA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4633656, -1, 9, 9, 0x7A7EA4FD, Fields, -1 };
 };
 
 struct MarketingPromotionsXLocaleMeta
@@ -8043,20 +8288,20 @@ struct MarketingPromotionsXLocaleMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801710, -1, 7, 7, 0x71B7DCCF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801710, -1, 7, 7, 0xA76A6607, Fields, -1 };
 };
 
 struct MaterialMeta
 {
     static constexpr DB2MetaField Fields[4] =
     {
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1294217, -1, 4, 4, 0x3D758F88, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1294217, -1, 4, 4, 0xBE3E0E4C, Fields, -1 };
 };
 
 struct MawPowerMeta
@@ -8068,7 +8313,7 @@ struct MawPowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2991315, 0, 3, 3, 0xE03BF02A, Fields, 1 };
+    static constexpr DB2Meta Instance{ 2991315, 0, 3, 3, 0xE768E837, Fields, 1 };
 };
 
 struct MawPowerRarityMeta
@@ -8079,7 +8324,7 @@ struct MawPowerRarityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2997952, -1, 2, 2, 0x7B5245E6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2997952, -1, 2, 2, 0x3DFF7866, Fields, -1 };
 };
 
 struct MinorTalentMeta
@@ -8091,7 +8336,7 @@ struct MinorTalentMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1347274, -1, 3, 2, 0x5ACB3BD8, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1347274, -1, 3, 2, 0x6EF747EB, Fields, 2 };
 };
 
 struct MissileTargetingMeta
@@ -8112,7 +8357,7 @@ struct MissileTargetingMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1710117, -1, 12, 12, 0x057C9AA8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1710117, -1, 12, 12, 0x9492D27D, Fields, -1 };
 };
 
 struct ModelAnimCloakDampeningMeta
@@ -8124,7 +8369,7 @@ struct ModelAnimCloakDampeningMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1465904, -1, 3, 2, 0x070144A6, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1465904, -1, 3, 2, 0xF2AE9C79, Fields, 2 };
 };
 
 struct ModelFileDataMeta
@@ -8138,7 +8383,7 @@ struct ModelFileDataMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1337833, 1, 5, 5, 0x825A2247, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1337833, 1, 5, 5, 0x1045BE38, Fields, 4 };
 };
 
 struct ModelRibbonQualityMeta
@@ -8149,7 +8394,44 @@ struct ModelRibbonQualityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1399953, -1, 2, 1, 0x682023A4, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1399953, -1, 2, 1, 0x6444FDE5, Fields, 1 };
+};
+
+struct ModelSoundAnimEntryMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5393274, -1, 2, 2, 0x324E0B06, Fields, 0 };
+};
+
+struct ModelSoundSettingsMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5682517, -1, 2, 1, 0xDB67A4DC, Fields, 1 };
+};
+
+struct ModelSoundTagEntryMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5393277, -1, 6, 6, 0x2DAEAE9D, Fields, 5 };
 };
 
 struct ModifiedCraftingCategoryMeta
@@ -8163,7 +8445,7 @@ struct ModifiedCraftingCategoryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3386486, -1, 5, 5, 0xB8B17FD4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3386486, -1, 5, 5, 0xA552864D, Fields, -1 };
 };
 
 struct ModifiedCraftingItemMeta
@@ -8175,7 +8457,7 @@ struct ModifiedCraftingItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4530643, 0, 3, 3, 0x16C3DB39, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4530643, 0, 3, 3, 0xAEFCC238, Fields, -1 };
 };
 
 struct ModifiedCraftingReagentItemMeta
@@ -8190,7 +8472,7 @@ struct ModifiedCraftingReagentItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3386487, -1, 6, 6, 0x705BAAB0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3386487, -1, 6, 6, 0x03563096, Fields, -1 };
 };
 
 struct ModifiedCraftingReagentSlotMeta
@@ -8205,7 +8487,7 @@ struct ModifiedCraftingReagentSlotMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 3386488, 1, 6, 6, 0x24D8DB66, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3386488, 1, 6, 6, 0x61863510, Fields, -1 };
 };
 
 struct ModifiedCraftingSpellSlotMeta
@@ -8220,7 +8502,7 @@ struct ModifiedCraftingSpellSlotMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3390956, -1, 6, 6, 0x87027844, Fields, 0 };
+    static constexpr DB2Meta Instance{ 3390956, -1, 6, 6, 0x00739B08, Fields, 0 };
 };
 
 struct ModifierTreeMeta
@@ -8236,7 +8518,7 @@ struct ModifierTreeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1267645, -1, 7, 7, 0xD99C74EF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267645, -1, 7, 7, 0xF13BB1D8, Fields, -1 };
 };
 
 struct MountMeta
@@ -8258,7 +8540,7 @@ struct MountMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 921760, 3, 13, 13, 0x9A3BFE1E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 921760, 3, 13, 13, 0xE4B71B79, Fields, -1 };
 };
 
 struct MountCapabilityMeta
@@ -8276,7 +8558,7 @@ struct MountCapabilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1114709, -1, 9, 9, 0xF662BA9A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1114709, -1, 9, 9, 0x791A3C76, Fields, -1 };
 };
 
 struct MountEquipmentMeta
@@ -8289,7 +8571,7 @@ struct MountEquipmentMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2923510, -1, 4, 3, 0x2B5121CB, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2923510, -1, 4, 3, 0x04BEE573, Fields, 3 };
 };
 
 struct MountTypeMeta
@@ -8300,7 +8582,7 @@ struct MountTypeMeta
         { FT_INT, 24, true },
     };
 
-    static constexpr DB2Meta Instance{ 1114674, -1, 2, 2, 0x017C8C9F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1114674, -1, 2, 2, 0xD7BB0C67, Fields, -1 };
 };
 
 struct MountTypeXCapabilityMeta
@@ -8312,19 +8594,20 @@ struct MountTypeXCapabilityMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1114715, -1, 3, 3, 0xF438693D, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1114715, -1, 3, 3, 0x218BBE7F, Fields, 0 };
 };
 
 struct MountXDisplayMeta
 {
-    static constexpr DB2MetaField Fields[3] =
+    static constexpr DB2MetaField Fields[4] =
     {
         { FT_INT, 1, true },
         { FT_INT, 1, false },
+        { FT_SHORT, 1, false },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1576117, -1, 3, 2, 0xC9D09486, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1576117, -1, 4, 3, 0xC05B05EF, Fields, 3 };
 };
 
 struct MountXSpellVisualKitPickerMeta
@@ -8338,7 +8621,7 @@ struct MountXSpellVisualKitPickerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3989477, -1, 5, 4, 0xD9F7D5F2, Fields, 4 };
+    static constexpr DB2Meta Instance{ 3989477, -1, 5, 4, 0x519C3E97, Fields, 4 };
 };
 
 struct MovieMeta
@@ -8352,7 +8635,7 @@ struct MovieMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1332556, -1, 5, 5, 0x6C52E628, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1332556, -1, 5, 5, 0x2C44DB9A, Fields, -1 };
 };
 
 struct MovieFileDataMeta
@@ -8362,7 +8645,7 @@ struct MovieFileDataMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1301154, -1, 1, 1, 0x1A7EB62A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1301154, -1, 1, 1, 0xA80F88DE, Fields, -1 };
 };
 
 struct MovieVariationMeta
@@ -8374,7 +8657,7 @@ struct MovieVariationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1339819, -1, 3, 2, 0xC0C6C93B, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1339819, -1, 3, 2, 0xB5C17F58, Fields, 2 };
 };
 
 struct MultiStatePropertiesMeta
@@ -8394,7 +8677,7 @@ struct MultiStatePropertiesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1965592, -1, 11, 10, 0xBE0AE1EA, Fields, 10 };
+    static constexpr DB2Meta Instance{ 1965592, -1, 11, 10, 0x63E1D6FB, Fields, 10 };
 };
 
 struct MultiTransitionPropertiesMeta
@@ -8408,7 +8691,7 @@ struct MultiTransitionPropertiesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1965589, -1, 5, 5, 0x20221E9D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1965589, -1, 5, 5, 0xA20DA38D, Fields, -1 };
 };
 
 struct MusicOverrideMeta
@@ -8420,20 +8703,21 @@ struct MusicOverrideMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 5161908, -1, 3, 3, 0xEE5D12BD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5161908, -1, 3, 3, 0xD33F9337, Fields, -1 };
 };
 
 struct MythicPlusSeasonMeta
 {
-    static constexpr DB2MetaField Fields[4] =
+    static constexpr DB2MetaField Fields[5] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2400282, 0, 4, 4, 0x0FE9B9A8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2400282, 0, 5, 5, 0xDC94262F, Fields, -1 };
 };
 
 struct MythicPlusSeasonRewardLevelsMeta
@@ -8447,7 +8731,7 @@ struct MythicPlusSeasonRewardLevelsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2123783, -1, 5, 5, 0xA1A30565, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2123783, -1, 5, 5, 0xA256317C, Fields, 0 };
 };
 
 struct MythicPlusSeasonTrackedAffixMeta
@@ -8461,7 +8745,7 @@ struct MythicPlusSeasonTrackedAffixMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4067473, 0, 5, 4, 0x885D0924, Fields, 4 };
+    static constexpr DB2Meta Instance{ 4067473, 0, 5, 4, 0xEFDAF463, Fields, 4 };
 };
 
 struct MythicPlusSeasonTrackedMapMeta
@@ -8472,7 +8756,95 @@ struct MythicPlusSeasonTrackedMapMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4521365, -1, 2, 1, 0x5B26E537, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4521365, -1, 2, 1, 0x03958F0D, Fields, 1 };
+};
+
+struct NPCCraftingOrderCustomerMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5875492, -1, 6, 6, 0x4A3AC30B, Fields, -1 };
+};
+
+struct NPCCraftingOrderCustomerXLabelMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5875493, 0, 3, 3, 0xA5267D1B, Fields, 1 };
+};
+
+struct NPCCraftingOrderSetMeta
+{
+    static constexpr DB2MetaField Fields[11] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5875494, -1, 11, 11, 0xF05BCCBD, Fields, -1 };
+};
+
+struct NPCCraftingOrderSetXCraftOrderMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5875495, 0, 6, 6, 0x8CB4AEB8, Fields, 1 };
+};
+
+struct NPCCraftingOrderSetXCustomerMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5875496, 0, 4, 4, 0x3464F1DD, Fields, 2 };
+};
+
+struct NPCCraftingOrderSetXTreasureMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5912882, -1, 4, 3, 0xCC093D65, Fields, 3 };
 };
 
 struct NPCModelItemSlotDisplayInfoMeta
@@ -8484,7 +8856,7 @@ struct NPCModelItemSlotDisplayInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1340661, -1, 3, 2, 0x6345189C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1340661, -1, 3, 2, 0xC2057F5B, Fields, 2 };
 };
 
 struct NPCSoundsMeta
@@ -8494,7 +8866,7 @@ struct NPCSoundsMeta
         { FT_INT, 4, false },
     };
 
-    static constexpr DB2Meta Instance{ 1282621, -1, 1, 1, 0x775B157B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1282621, -1, 1, 1, 0x020BE1ED, Fields, -1 };
 };
 
 struct NameGenMeta
@@ -8506,7 +8878,7 @@ struct NameGenMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1122117, -1, 3, 3, 0xE43165A8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1122117, -1, 3, 3, 0x4AA46133, Fields, -1 };
 };
 
 struct NamesProfanityMeta
@@ -8517,7 +8889,7 @@ struct NamesProfanityMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1117086, -1, 2, 2, 0xA3B1057A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1117086, -1, 2, 2, 0xF227E638, Fields, -1 };
 };
 
 struct NamesReservedMeta
@@ -8527,7 +8899,7 @@ struct NamesReservedMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1117085, -1, 1, 1, 0xA90C78EA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1117085, -1, 1, 1, 0x2B2D5D97, Fields, -1 };
 };
 
 struct NamesReservedLocaleMeta
@@ -8538,7 +8910,7 @@ struct NamesReservedLocaleMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1117087, -1, 2, 2, 0x4FC995DF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1117087, -1, 2, 2, 0x7B9823D4, Fields, -1 };
 };
 
 struct NumTalentsAtLevelMeta
@@ -8550,7 +8922,7 @@ struct NumTalentsAtLevelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1953326, -1, 3, 3, 0xC31BC15A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1953326, -1, 3, 3, 0x9E707863, Fields, -1 };
 };
 
 struct ObjectEffectMeta
@@ -8567,7 +8939,7 @@ struct ObjectEffectMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1090577, -1, 8, 8, 0xB551B7D3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1090577, -1, 8, 8, 0x3471C362, Fields, -1 };
 };
 
 struct ObjectEffectModifierMeta
@@ -8580,7 +8952,7 @@ struct ObjectEffectModifierMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1090575, -1, 4, 4, 0xBCDA92E8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1090575, -1, 4, 4, 0x764AE63A, Fields, -1 };
 };
 
 struct ObjectEffectPackageElemMeta
@@ -8592,7 +8964,7 @@ struct ObjectEffectPackageElemMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1090578, -1, 3, 3, 0x4136FE8E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1090578, -1, 3, 3, 0x8AF314FA, Fields, -1 };
 };
 
 struct OccluderMeta
@@ -8609,7 +8981,7 @@ struct OccluderMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 2066958, -1, 8, 8, 0xD8AAC5E9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2066958, -1, 8, 8, 0x70EC3040, Fields, -1 };
 };
 
 struct OccluderCurtainMeta
@@ -8624,7 +8996,7 @@ struct OccluderCurtainMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3850529, -1, 6, 6, 0x4F3781D9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3850529, -1, 6, 6, 0xEA29F303, Fields, -1 };
 };
 
 struct OccluderLocationMeta
@@ -8636,7 +9008,7 @@ struct OccluderLocationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2115224, -1, 3, 3, 0xD83C5AA5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2115224, -1, 3, 3, 0xE56AD56A, Fields, -1 };
 };
 
 struct OccluderNodeMeta
@@ -8648,7 +9020,7 @@ struct OccluderNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2066959, -1, 3, 3, 0x37234837, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2066959, -1, 3, 3, 0xC1037415, Fields, -1 };
 };
 
 struct OutlineEffectMeta
@@ -8663,7 +9035,7 @@ struct OutlineEffectMeta
         { FT_INT, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1279739, -1, 6, 6, 0xB94FB0E3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1279739, -1, 6, 6, 0xD720BC0B, Fields, -1 };
 };
 
 struct OverrideSpellDataMeta
@@ -8675,7 +9047,7 @@ struct OverrideSpellDataMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1002186, -1, 3, 3, 0xDC04AC20, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1002186, -1, 3, 3, 0x96FFF958, Fields, -1 };
 };
 
 struct PVPBracketTypesMeta
@@ -8686,7 +9058,7 @@ struct PVPBracketTypesMeta
         { FT_INT, 4, false },
     };
 
-    static constexpr DB2Meta Instance{ 1394275, -1, 2, 2, 0xF8C41353, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1394275, -1, 2, 2, 0xA3A33123, Fields, -1 };
 };
 
 struct PVPDifficultyMeta
@@ -8699,7 +9071,7 @@ struct PVPDifficultyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1339820, -1, 4, 3, 0x6CAB5565, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1339820, -1, 4, 3, 0x583BCBE4, Fields, 3 };
 };
 
 struct PVPItemMeta
@@ -8710,7 +9082,7 @@ struct PVPItemMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 972287, -1, 2, 2, 0x95A06BE9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 972287, -1, 2, 2, 0xF812933C, Fields, -1 };
 };
 
 struct PVPScoreboardCellInfoMeta
@@ -8722,7 +9094,7 @@ struct PVPScoreboardCellInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2992916, -1, 3, 3, 0xC8E134F3, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2992916, -1, 3, 3, 0xC7E06276, Fields, 0 };
 };
 
 struct PVPScoreboardColumnHeaderMeta
@@ -8735,7 +9107,7 @@ struct PVPScoreboardColumnHeaderMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2992917, -1, 4, 4, 0x10110777, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2992917, -1, 4, 4, 0xEA59FC11, Fields, -1 };
 };
 
 struct PVPScoreboardLayoutMeta
@@ -8747,7 +9119,7 @@ struct PVPScoreboardLayoutMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2992918, -1, 3, 3, 0x57EBF225, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2992918, -1, 3, 3, 0xB7570DFC, Fields, 0 };
 };
 
 struct PVPStatMeta
@@ -8759,7 +9131,7 @@ struct PVPStatMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2992919, 1, 3, 3, 0x33F25E0C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 2992919, 1, 3, 3, 0x5FE7D861, Fields, 2 };
 };
 
 struct PageTextMaterialMeta
@@ -8769,7 +9141,7 @@ struct PageTextMaterialMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1271600, -1, 1, 1, 0xA0F05238, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1271600, -1, 1, 1, 0x728678A5, Fields, -1 };
 };
 
 struct PaperDollItemFrameMeta
@@ -8781,7 +9153,7 @@ struct PaperDollItemFrameMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1252503, -1, 3, 3, 0xA5067654, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1252503, -1, 3, 3, 0xD45CB1FC, Fields, -1 };
 };
 
 struct ParagonReputationMeta
@@ -8793,7 +9165,7 @@ struct ParagonReputationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1581183, -1, 3, 3, 0xA78A1B30, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1581183, -1, 3, 3, 0xD4AF2D4F, Fields, -1 };
 };
 
 struct ParticleColorMeta
@@ -8805,7 +9177,7 @@ struct ParticleColorMeta
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 1284820, -1, 3, 3, 0xBD3FBADC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1284820, -1, 3, 3, 0xD58506F1, Fields, -1 };
 };
 
 struct ParticulateMeta
@@ -8816,7 +9188,7 @@ struct ParticulateMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3396285, -1, 2, 2, 0x2203AD67, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3396285, -1, 2, 2, 0x458CF691, Fields, -1 };
 };
 
 struct ParticulateSoundMeta
@@ -8830,7 +9202,7 @@ struct ParticulateSoundMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2053913, -1, 5, 5, 0x01C167D7, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2053913, -1, 5, 5, 0x2EE2C1E4, Fields, 0 };
 };
 
 struct PathMeta
@@ -8846,7 +9218,7 @@ struct PathMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 801732, -1, 7, 7, 0xAB4D8ED6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801732, -1, 7, 7, 0xBB621A50, Fields, -1 };
 };
 
 struct PathEdgeMeta
@@ -8857,7 +9229,7 @@ struct PathEdgeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2428705, -1, 2, 1, 0x3FAF3C23, Fields, 1 };
+    static constexpr DB2Meta Instance{ 2428705, -1, 2, 1, 0x9A2EF543, Fields, 1 };
 };
 
 struct PathNodeMeta
@@ -8869,7 +9241,7 @@ struct PathNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801733, -1, 3, 3, 0x37234837, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801733, -1, 3, 3, 0xC1037415, Fields, -1 };
 };
 
 struct PathNodePropertyMeta
@@ -8882,7 +9254,7 @@ struct PathNodePropertyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801734, -1, 4, 4, 0xEC27351D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801734, -1, 4, 4, 0x4C0E1D44, Fields, -1 };
 };
 
 struct PathPropertyMeta
@@ -8894,7 +9266,7 @@ struct PathPropertyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801735, -1, 3, 3, 0x635DCADD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801735, -1, 3, 3, 0x27A2BE5C, Fields, -1 };
 };
 
 struct PerksActivityMeta
@@ -8910,7 +9282,20 @@ struct PerksActivityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4519766, 2, 7, 7, 0x4FF9AFB2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4519766, 2, 7, 7, 0x5361589F, Fields, -1 };
+};
+
+struct PerksActivityConditionMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5524226, 0, 4, 3, 0x2E9DF173, Fields, 3 };
 };
 
 struct PerksActivityTagMeta
@@ -8921,7 +9306,7 @@ struct PerksActivityTagMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 4694317, 1, 2, 2, 0x0FBA68B8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4694317, 1, 2, 2, 0xEBA8ED0E, Fields, -1 };
 };
 
 struct PerksActivityThresholdMeta
@@ -8935,7 +9320,7 @@ struct PerksActivityThresholdMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4519767, 0, 5, 4, 0xF25916E9, Fields, 4 };
+    static constexpr DB2Meta Instance{ 4519767, 0, 5, 4, 0x7995A0C8, Fields, 4 };
 };
 
 struct PerksActivityThresholdGroupMeta
@@ -8947,7 +9332,7 @@ struct PerksActivityThresholdGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4519768, 1, 3, 3, 0x780A31D9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4519768, 1, 3, 3, 0x377370DC, Fields, -1 };
 };
 
 struct PerksActivityXHolidaysMeta
@@ -8958,7 +9343,7 @@ struct PerksActivityXHolidaysMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5330797, -1, 2, 1, 0x9B7FB7C6, Fields, 1 };
+    static constexpr DB2Meta Instance{ 5330797, -1, 2, 1, 0x3663AC24, Fields, 1 };
 };
 
 struct PerksActivityXIntervalMeta
@@ -8970,7 +9355,7 @@ struct PerksActivityXIntervalMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4519781, 0, 3, 2, 0xA0A40503, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4519781, 0, 3, 2, 0x2E6128D2, Fields, 2 };
 };
 
 struct PerksActivityXTagMeta
@@ -8982,7 +9367,7 @@ struct PerksActivityXTagMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4694318, 0, 3, 2, 0x5254EC49, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4694318, 0, 3, 2, 0xFFB58E04, Fields, 2 };
 };
 
 struct PerksUIThemeMeta
@@ -8994,7 +9379,7 @@ struct PerksUIThemeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5389878, 0, 3, 3, 0x10119030, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5389878, 0, 3, 3, 0x3FC4E853, Fields, -1 };
 };
 
 struct PerksVendorCategoryMeta
@@ -9007,7 +9392,7 @@ struct PerksVendorCategoryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4281310, 1, 4, 4, 0x94980739, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4281310, 1, 4, 4, 0x00ECA515, Fields, -1 };
 };
 
 struct PerksVendorItemMeta
@@ -9025,7 +9410,7 @@ struct PerksVendorItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4281311, 0, 9, 9, 0x80A50418, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4281311, 0, 9, 9, 0x7709D03B, Fields, -1 };
 };
 
 struct PerksVendorItemUIGroupMeta
@@ -9037,19 +9422,20 @@ struct PerksVendorItemUIGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5386256, 1, 3, 3, 0x3C22481A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5386256, 1, 3, 3, 0xF67D8F83, Fields, -1 };
 };
 
 struct PerksVendorItemUIInfoMeta
 {
-    static constexpr DB2MetaField Fields[3] =
+    static constexpr DB2MetaField Fields[4] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4281312, 0, 3, 3, 0x6D14E9E7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4281312, 0, 4, 4, 0x75DC10F3, Fields, -1 };
 };
 
 struct PerksVendorItemXIntervalMeta
@@ -9060,7 +9446,7 @@ struct PerksVendorItemXIntervalMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4872513, -1, 2, 2, 0xD8D92220, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4872513, -1, 2, 2, 0xF901FDA4, Fields, -1 };
 };
 
 struct PhaseMeta
@@ -9070,7 +9456,7 @@ struct PhaseMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1348558, -1, 1, 1, 0x3CC972C6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1348558, -1, 1, 1, 0x6D5EB3BD, Fields, -1 };
 };
 
 struct PhaseShiftZoneSoundsMeta
@@ -9092,7 +9478,7 @@ struct PhaseShiftZoneSoundsMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267336, -1, 13, 13, 0x846C026E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267336, -1, 13, 13, 0x3DC135AF, Fields, -1 };
 };
 
 struct PhaseXPhaseGroupMeta
@@ -9103,7 +9489,7 @@ struct PhaseXPhaseGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 987581, -1, 2, 1, 0xEC8D5E98, Fields, 1 };
+    static constexpr DB2Meta Instance{ 987581, -1, 2, 1, 0xF3FF427F, Fields, 1 };
 };
 
 struct PingTypeMeta
@@ -9117,15 +9503,34 @@ struct PingTypeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5152358, -1, 5, 5, 0x0CE5C49B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5152358, -1, 5, 5, 0xE7C4153F, Fields, -1 };
+};
+
+struct PlayerCompanionInfoMeta
+{
+    static constexpr DB2MetaField Fields[8] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5922429, -1, 8, 8, 0x4EF4C3DB, Fields, -1 };
 };
 
 struct PlayerConditionMeta
 {
-    static constexpr DB2MetaField Fields[84] =
+    static constexpr DB2MetaField Fields[86] =
     {
         { FT_LONG, 1, true },
         { FT_STRING, 1, true },
+        { FT_SHORT, 1, false },
+        { FT_SHORT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -9210,7 +9615,80 @@ struct PlayerConditionMeta
         { FT_SHORT, 4, false },
     };
 
-    static constexpr DB2Meta Instance{ 1045411, -1, 84, 84, 0xEE0F1EDC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1045411, -1, 86, 86, 0x395C1D28, Fields, -1 };
+};
+
+struct PlayerDataElementAccountMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5715394, 0, 3, 3, 0x7F54ED49, Fields, -1 };
+};
+
+struct PlayerDataElementCharacterMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5715395, 0, 3, 3, 0x7F54ED49, Fields, -1 };
+};
+
+struct PlayerDataFlagAccountMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5426706, -1, 2, 2, 0x23ECE2B1, Fields, -1 };
+};
+
+struct PlayerDataFlagCharacterMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5426708, -1, 2, 2, 0x23ECE2B1, Fields, -1 };
+};
+
+struct PlayerInteractionInfoMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5346849, 0, 4, 4, 0xD40A8C49, Fields, -1 };
+};
+
+struct PointLightConditionMapMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5735564, -1, 5, 5, 0x57294411, Fields, 0 };
 };
 
 struct PositionerMeta
@@ -9223,7 +9701,7 @@ struct PositionerMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1251523, -1, 4, 4, 0xCBBBBD15, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1251523, -1, 4, 4, 0xE0D4FD55, Fields, -1 };
 };
 
 struct PositionerStateMeta
@@ -9240,7 +9718,7 @@ struct PositionerStateMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1251506, -1, 8, 8, 0x0276AAB6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1251506, -1, 8, 8, 0x9CDFBF30, Fields, -1 };
 };
 
 struct PositionerStateEntryMeta
@@ -9260,7 +9738,7 @@ struct PositionerStateEntryMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1251533, -1, 11, 11, 0x10BB0190, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1251533, -1, 11, 11, 0x855AA6BC, Fields, -1 };
 };
 
 struct PowerDisplayMeta
@@ -9268,13 +9746,13 @@ struct PowerDisplayMeta
     static constexpr DB2MetaField Fields[5] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },
-        { FT_BYTE, 1, false },
+        { FT_BYTE, 1, true },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1332557, -1, 5, 5, 0xE9B4E78C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1332557, -1, 5, 5, 0x613FAAFD, Fields, -1 };
 };
 
 struct PowerTypeMeta
@@ -9293,10 +9771,10 @@ struct PowerTypeMeta
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1266022, 2, 13, 13, 0xE8AC7EEC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266022, 2, 13, 13, 0x14BBEEA1, Fields, -1 };
 };
 
 struct PrestigeLevelInfoMeta
@@ -9310,7 +9788,7 @@ struct PrestigeLevelInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1275869, -1, 5, 5, 0xB4AE6313, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1275869, -1, 5, 5, 0x6582638F, Fields, -1 };
 };
 
 struct ProfTraitPathNodeMeta
@@ -9324,7 +9802,7 @@ struct ProfTraitPathNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4542069, 0, 5, 5, 0x93D92E33, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4542069, 0, 5, 5, 0x8622E546, Fields, -1 };
 };
 
 struct ProfTraitPerkNodeMeta
@@ -9337,7 +9815,7 @@ struct ProfTraitPerkNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4542084, 0, 4, 4, 0x53D97158, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4542084, 0, 4, 4, 0x741F7E26, Fields, -1 };
 };
 
 struct ProfTraitTreeMeta
@@ -9348,7 +9826,7 @@ struct ProfTraitTreeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4542085, 0, 2, 2, 0x55614ED1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4542085, 0, 2, 2, 0xD2C4C5BD, Fields, -1 };
 };
 
 struct ProfTraitTreeHighlightMeta
@@ -9360,12 +9838,12 @@ struct ProfTraitTreeHighlightMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4999865, -1, 3, 2, 0xCC9F815F, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4999865, -1, 3, 2, 0x884E0222, Fields, 2 };
 };
 
 struct ProfessionMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[11] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -9376,12 +9854,11 @@ struct ProfessionMeta
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_INT, 1, true },
-        { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4508544, 0, 12, 12, 0x2E97F732, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4508544, 0, 11, 11, 0x86FE926D, Fields, -1 };
 };
 
 struct ProfessionEffectMeta
@@ -9393,7 +9870,7 @@ struct ProfessionEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4505297, -1, 3, 3, 0xB42F4258, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4505297, -1, 3, 3, 0x04C16FA9, Fields, -1 };
 };
 
 struct ProfessionEffectTypeMeta
@@ -9404,7 +9881,21 @@ struct ProfessionEffectTypeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4556715, -1, 2, 1, 0xFE8414F9, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4556715, -1, 2, 1, 0x39C33588, Fields, 1 };
+};
+
+struct ProfessionExpansionMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5662322, 0, 5, 4, 0x285BD241, Fields, 4 };
 };
 
 struct ProfessionPropPointsMeta
@@ -9419,7 +9910,7 @@ struct ProfessionPropPointsMeta
         { FT_INT, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 4452078, -1, 6, 6, 0xE2DEF177, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4452078, -1, 6, 6, 0x4B324AE9, Fields, -1 };
 };
 
 struct ProfessionRatingMeta
@@ -9434,7 +9925,7 @@ struct ProfessionRatingMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4623413, 2, 6, 5, 0x78F181BD, Fields, 5 };
+    static constexpr DB2Meta Instance{ 4623413, 2, 6, 5, 0x0C8C8309, Fields, 5 };
 };
 
 struct ProfessionTraitMeta
@@ -9445,7 +9936,7 @@ struct ProfessionTraitMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4505298, 0, 2, 2, 0xFB4B3FF8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4505298, 0, 2, 2, 0x306455FE, Fields, -1 };
 };
 
 struct ProfessionTraitXEffectMeta
@@ -9458,7 +9949,7 @@ struct ProfessionTraitXEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4505494, 0, 4, 4, 0x86D1D9C8, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4505494, 0, 4, 4, 0x97A0A286, Fields, 1 };
 };
 
 struct ProfessionTraitXLabelMeta
@@ -9470,7 +9961,7 @@ struct ProfessionTraitXLabelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4505299, 0, 3, 3, 0x3234BADF, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4505299, 0, 3, 3, 0x584FA44E, Fields, 1 };
 };
 
 struct ProfessionXRatingMeta
@@ -9482,7 +9973,7 @@ struct ProfessionXRatingMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4868299, -1, 3, 3, 0x72DDE591, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4868299, -1, 3, 3, 0xBB253F69, Fields, -1 };
 };
 
 struct PvpBrawlMeta
@@ -9498,7 +9989,7 @@ struct PvpBrawlMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1585723, 3, 7, 7, 0x8D15C420, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1585723, 3, 7, 7, 0x62524271, Fields, -1 };
 };
 
 struct PvpRatingMeta
@@ -9511,7 +10002,7 @@ struct PvpRatingMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4699082, -1, 4, 4, 0xF3D01273, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4699082, -1, 4, 4, 0x8B89647A, Fields, -1 };
 };
 
 struct PvpScalingEffectMeta
@@ -9523,7 +10014,7 @@ struct PvpScalingEffectMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1591100, -1, 3, 3, 0x63F0BE5D, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1591100, -1, 3, 3, 0x295E05C1, Fields, 1 };
 };
 
 struct PvpScalingEffectTypeMeta
@@ -9533,7 +10024,7 @@ struct PvpScalingEffectTypeMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1591098, -1, 1, 1, 0xB21E02AE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1591098, -1, 1, 1, 0x21188F13, Fields, -1 };
 };
 
 struct PvpSeasonMeta
@@ -9545,7 +10036,7 @@ struct PvpSeasonMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2966426, -1, 3, 3, 0x8623DD7F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2966426, -1, 3, 3, 0xC2D9E52E, Fields, -1 };
 };
 
 struct PvpSeasonRewardLevelsMeta
@@ -9558,7 +10049,7 @@ struct PvpSeasonRewardLevelsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2470695, -1, 4, 3, 0x8BAE9DBE, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2470695, -1, 4, 3, 0x4C592860, Fields, 3 };
 };
 
 struct PvpTalentMeta
@@ -9577,7 +10068,7 @@ struct PvpTalentMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1302853, 1, 10, 10, 0xEC6943FA, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1302853, 1, 10, 10, 0xBE69BB5A, Fields, 2 };
 };
 
 struct PvpTalentCategoryMeta
@@ -9587,7 +10078,7 @@ struct PvpTalentCategoryMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1891534, -1, 1, 1, 0x93410D30, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1891534, -1, 1, 1, 0xECB2C5C2, Fields, -1 };
 };
 
 struct PvpTalentSlotUnlockMeta
@@ -9600,7 +10091,7 @@ struct PvpTalentSlotUnlockMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1950197, -1, 4, 4, 0xA08CCB66, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1950197, -1, 4, 4, 0x9685CBCC, Fields, -1 };
 };
 
 struct PvpTierMeta
@@ -9618,7 +10109,19 @@ struct PvpTierMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2066871, 1, 9, 9, 0x80FD72F9, Fields, 6 };
+    static constexpr DB2Meta Instance{ 2066871, 1, 9, 9, 0xABE9CCC8, Fields, 6 };
+};
+
+struct QuestDrivenScenarioMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5917361, -1, 3, 3, 0x408DD33F, Fields, -1 };
 };
 
 struct QuestFactionRewardMeta
@@ -9628,7 +10131,7 @@ struct QuestFactionRewardMeta
         { FT_SHORT, 10, true },
     };
 
-    static constexpr DB2Meta Instance{ 1282622, -1, 1, 1, 0xE6DC889F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1282622, -1, 1, 1, 0x221FFDAA, Fields, -1 };
 };
 
 struct QuestFeedbackEffectMeta
@@ -9645,7 +10148,18 @@ struct QuestFeedbackEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343388, -1, 8, 8, 0x4FF1C55A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343388, -1, 8, 8, 0xA23F6D50, Fields, -1 };
+};
+
+struct QuestHubMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5905413, -1, 2, 2, 0x0DCCAAF0, Fields, -1 };
 };
 
 struct QuestInfoMeta
@@ -9658,7 +10172,7 @@ struct QuestInfoMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1120960, -1, 4, 4, 0x8CE69EF5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1120960, -1, 4, 4, 0xE505C927, Fields, -1 };
 };
 
 struct QuestLabelMeta
@@ -9669,21 +10183,23 @@ struct QuestLabelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5202058, -1, 2, 1, 0x1E62975A, Fields, 1 };
+    static constexpr DB2Meta Instance{ 5202058, -1, 2, 1, 0x357F8064, Fields, 1 };
 };
 
 struct QuestLineMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 973430, -1, 5, 5, 0xA360A782, Fields, -1 };
+    static constexpr DB2Meta Instance{ 973430, -1, 7, 7, 0x27C5AD69, Fields, -1 };
 };
 
 struct QuestLineXQuestMeta
@@ -9696,7 +10212,7 @@ struct QuestLineXQuestMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 973441, -1, 4, 4, 0xABFF78E8, Fields, 0 };
+    static constexpr DB2Meta Instance{ 973441, -1, 4, 4, 0xDC11F6CD, Fields, 0 };
 };
 
 struct QuestMoneyRewardMeta
@@ -9706,7 +10222,7 @@ struct QuestMoneyRewardMeta
         { FT_INT, 10, false },
     };
 
-    static constexpr DB2Meta Instance{ 1139047, -1, 1, 1, 0xBFB6413C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1139047, -1, 1, 1, 0x01D6219A, Fields, -1 };
 };
 
 struct QuestObjectiveMeta
@@ -9723,7 +10239,7 @@ struct QuestObjectiveMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1251960, -1, 8, 7, 0x6F7AE236, Fields, 7 };
+    static constexpr DB2Meta Instance{ 1251960, -1, 8, 7, 0x0262E5DB, Fields, 7 };
 };
 
 struct QuestPOIBlobMeta
@@ -9742,7 +10258,7 @@ struct QuestPOIBlobMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1251882, 0, 10, 10, 0x714523FD, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1251882, 0, 10, 10, 0xFDC814CF, Fields, 1 };
 };
 
 struct QuestPOIPointMeta
@@ -9756,7 +10272,7 @@ struct QuestPOIPointMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1251883, 0, 5, 4, 0x38867756, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1251883, 0, 5, 4, 0x5CBBEFE7, Fields, 4 };
 };
 
 struct QuestPackageItemMeta
@@ -9769,18 +10285,19 @@ struct QuestPackageItemMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 801743, -1, 4, 4, 0xA2C252CF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801743, -1, 4, 4, 0xD54BB6BA, Fields, -1 };
 };
 
 struct QuestSortMeta
 {
-    static constexpr DB2MetaField Fields[2] =
+    static constexpr DB2MetaField Fields[3] =
     {
         { FT_STRING, 1, true },
         { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134585, -1, 2, 2, 0x1DDCABD9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134585, -1, 3, 3, 0x9B92BE63, Fields, -1 };
 };
 
 struct QuestV2Meta
@@ -9791,7 +10308,7 @@ struct QuestV2Meta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139443, -1, 2, 2, 0xB2004732, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1139443, -1, 2, 2, 0x255073D5, Fields, -1 };
 };
 
 struct QuestV2CliTaskMeta
@@ -9824,7 +10341,7 @@ struct QuestV2CliTaskMeta
         { FT_INT, 3, false },
     };
 
-    static constexpr DB2Meta Instance{ 1028735, -1, 24, 24, 0x3F80A435, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1028735, -1, 24, 24, 0xC8D602DB, Fields, -1 };
 };
 
 struct QuestXGroupActivityMeta
@@ -9835,7 +10352,7 @@ struct QuestXGroupActivityMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1573634, -1, 2, 2, 0x6642C715, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1573634, -1, 2, 2, 0xD85CBF41, Fields, -1 };
 };
 
 struct QuestXPMeta
@@ -9845,7 +10362,7 @@ struct QuestXPMeta
         { FT_SHORT, 10, false },
     };
 
-    static constexpr DB2Meta Instance{ 1139378, -1, 1, 1, 0xCC84B93E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1139378, -1, 1, 1, 0x05F1DB7A, Fields, -1 };
 };
 
 struct QuestXUIQuestDetailsThemeMeta
@@ -9856,18 +10373,19 @@ struct QuestXUIQuestDetailsThemeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3448517, -1, 2, 2, 0x1AE2FA16, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3448517, -1, 2, 2, 0x8960239C, Fields, -1 };
 };
 
 struct QuestXUiWidgetSetMeta
 {
-    static constexpr DB2MetaField Fields[2] =
+    static constexpr DB2MetaField Fields[3] =
     {
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 3923421, -1, 2, 2, 0x2B4CA6A1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3923421, -1, 3, 3, 0x1DE0A282, Fields, -1 };
 };
 
 struct RTPCMeta
@@ -9882,7 +10400,7 @@ struct RTPCMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3405439, 0, 6, 6, 0x32115955, Fields, 5 };
+    static constexpr DB2Meta Instance{ 3405439, 0, 6, 6, 0xD4FC9423, Fields, 5 };
 };
 
 struct RTPCDataMeta
@@ -9896,7 +10414,7 @@ struct RTPCDataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3405440, -1, 5, 5, 0xFB37E702, Fields, 0 };
+    static constexpr DB2Meta Instance{ 3405440, -1, 5, 5, 0xBC0E9DE3, Fields, 0 };
 };
 
 struct RafActivityMeta
@@ -9907,7 +10425,7 @@ struct RafActivityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3081207, -1, 2, 2, 0x64C41FC9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3081207, -1, 2, 2, 0x99D8A8BB, Fields, -1 };
 };
 
 struct RandPropPointsMeta
@@ -9926,7 +10444,7 @@ struct RandPropPointsMeta
         { FT_INT, 5, false },
     };
 
-    static constexpr DB2Meta Instance{ 1310245, -1, 10, 10, 0xC35A699D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310245, -1, 10, 10, 0x4FD22743, Fields, -1 };
 };
 
 struct RecipeProgressionGroupEntryMeta
@@ -9941,7 +10459,7 @@ struct RecipeProgressionGroupEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3671785, -1, 6, 6, 0x5481052D, Fields, 0 };
+    static constexpr DB2Meta Instance{ 3671785, -1, 6, 6, 0xC55E122F, Fields, 0 };
 };
 
 struct RelicSlotTierRequirementMeta
@@ -9953,7 +10471,7 @@ struct RelicSlotTierRequirementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1716803, -1, 3, 3, 0xB83E9EBE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1716803, -1, 3, 3, 0xA6DB0949, Fields, -1 };
 };
 
 struct RelicTalentMeta
@@ -9967,7 +10485,7 @@ struct RelicTalentMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1671256, -1, 5, 5, 0xE2CB2DDC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1671256, -1, 5, 5, 0x56CB54B7, Fields, -1 };
 };
 
 struct RenownRewardsMeta
@@ -9994,7 +10512,24 @@ struct RenownRewardsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3743117, -1, 18, 18, 0xB1FF79CA, Fields, 3 };
+    static constexpr DB2Meta Instance{ 3743117, -1, 18, 18, 0xBB3B0072, Fields, 3 };
+};
+
+struct RenownRewardsPlunderstormMeta
+{
+    static constexpr DB2MetaField Fields[8] =
+    {
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5662591, -1, 8, 8, 0x30F69B43, Fields, 2 };
 };
 
 struct ResearchBranchMeta
@@ -10009,7 +10544,7 @@ struct ResearchBranchMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1133729, -1, 6, 6, 0xAD4D7AD8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1133729, -1, 6, 6, 0x6BB8E374, Fields, -1 };
 };
 
 struct ResearchFieldMeta
@@ -10020,7 +10555,7 @@ struct ResearchFieldMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1133711, -1, 2, 2, 0x3767B1BF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1133711, -1, 2, 2, 0xADCB0A04, Fields, -1 };
 };
 
 struct ResearchProjectMeta
@@ -10037,7 +10572,7 @@ struct ResearchProjectMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1134090, -1, 8, 8, 0x97798A9D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134090, -1, 8, 8, 0x0D364DBB, Fields, -1 };
 };
 
 struct ResearchSiteMeta
@@ -10050,7 +10585,7 @@ struct ResearchSiteMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1134091, -1, 4, 4, 0x7906CEDE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134091, -1, 4, 4, 0xBD957EAB, Fields, -1 };
 };
 
 struct ResistancesMeta
@@ -10062,7 +10597,7 @@ struct ResistancesMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1135072, -1, 3, 3, 0xCE78DB9B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1135072, -1, 3, 3, 0xF7AC4E26, Fields, -1 };
 };
 
 struct RewardPackMeta
@@ -10077,7 +10612,7 @@ struct RewardPackMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1307156, -1, 6, 6, 0x214B9595, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1307156, -1, 6, 6, 0x5FABA92D, Fields, -1 };
 };
 
 struct RewardPackXCurrencyTypeMeta
@@ -10089,7 +10624,7 @@ struct RewardPackXCurrencyTypeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1307153, -1, 3, 2, 0x5692D477, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1307153, -1, 3, 2, 0x160ED195, Fields, 2 };
 };
 
 struct RewardPackXItemMeta
@@ -10101,7 +10636,7 @@ struct RewardPackXItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1307155, -1, 3, 2, 0x219E3F5D, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1307155, -1, 3, 2, 0x8BE182DE, Fields, 2 };
 };
 
 struct RibbonQualityMeta
@@ -10115,7 +10650,7 @@ struct RibbonQualityMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1398908, -1, 5, 5, 0x8B3DD1B3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1398908, -1, 5, 5, 0xA3E01F13, Fields, -1 };
 };
 
 struct RopeEffectMeta
@@ -10133,7 +10668,7 @@ struct RopeEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3256786, -1, 9, 9, 0xC049D78F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3256786, -1, 9, 9, 0xCDF3F1B5, Fields, -1 };
 };
 
 struct RuneforgeLegendaryAbilityMeta
@@ -10153,7 +10688,7 @@ struct RuneforgeLegendaryAbilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3500241, 1, 11, 11, 0x35605374, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3500241, 1, 11, 11, 0x49ACF9E3, Fields, -1 };
 };
 
 struct SDReplacementModelMeta
@@ -10163,7 +10698,7 @@ struct SDReplacementModelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1712172, -1, 1, 1, 0x9415B157, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1712172, -1, 1, 1, 0xA051D530, Fields, -1 };
 };
 
 struct SSAOSettingsMeta
@@ -10179,7 +10714,7 @@ struct SSAOSettingsMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2056369, -1, 7, 7, 0xE18F5D96, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2056369, -1, 7, 7, 0xAC8B8862, Fields, -1 };
 };
 
 struct ScenarioMeta
@@ -10193,7 +10728,7 @@ struct ScenarioMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1139062, -1, 5, 5, 0x6CEEC7F6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1139062, -1, 5, 5, 0x1D56A4D5, Fields, -1 };
 };
 
 struct ScenarioEventEntryMeta
@@ -10204,15 +10739,16 @@ struct ScenarioEventEntryMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1141065, -1, 2, 2, 0x8643ED17, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1141065, -1, 2, 2, 0xC6F833BF, Fields, -1 };
 };
 
 struct ScenarioStepMeta
 {
-    static constexpr DB2MetaField Fields[11] =
+    static constexpr DB2MetaField Fields[12] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
+        { FT_INT, 1, false },
         { FT_SHORT, 1, false },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -10224,7 +10760,7 @@ struct ScenarioStepMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1132761, -1, 11, 11, 0x12DAED63, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1132761, 2, 12, 12, 0x00430C03, Fields, 3 };
 };
 
 struct SceneScriptMeta
@@ -10236,7 +10772,7 @@ struct SceneScriptMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801754, -1, 3, 3, 0xF24D5AEA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801754, -1, 3, 3, 0x48BF6E91, Fields, -1 };
 };
 
 struct SceneScriptGlobalTextMeta
@@ -10247,7 +10783,7 @@ struct SceneScriptGlobalTextMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1758036, -1, 2, 2, 0x8239EFCD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1758036, -1, 2, 2, 0x4A2C4981, Fields, -1 };
 };
 
 struct SceneScriptPackageMeta
@@ -10258,7 +10794,7 @@ struct SceneScriptPackageMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801755, -1, 2, 2, 0x5642AF7C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 801755, -1, 2, 2, 0x571B942C, Fields, -1 };
 };
 
 struct SceneScriptPackageMemberMeta
@@ -10271,7 +10807,7 @@ struct SceneScriptPackageMemberMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 801756, -1, 4, 4, 0xD2EA425C, Fields, 0 };
+    static constexpr DB2Meta Instance{ 801756, -1, 4, 4, 0x0A4D9E92, Fields, 0 };
 };
 
 struct SceneScriptTextMeta
@@ -10282,7 +10818,7 @@ struct SceneScriptTextMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1758037, -1, 2, 2, 0x8239EFCD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1758037, -1, 2, 2, 0x4A2C4981, Fields, -1 };
 };
 
 struct ScheduledIntervalMeta
@@ -10296,7 +10832,7 @@ struct ScheduledIntervalMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1327082, -1, 5, 5, 0xBD3FEB04, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1327082, -1, 5, 5, 0xEA2984EC, Fields, -1 };
 };
 
 struct ScreenEffectMeta
@@ -10317,7 +10853,7 @@ struct ScreenEffectMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1302849, -1, 12, 12, 0x49CD4814, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1302849, -1, 12, 12, 0x8FAECE44, Fields, -1 };
 };
 
 struct ScreenEffectTypeMeta
@@ -10327,17 +10863,18 @@ struct ScreenEffectTypeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3063174, -1, 1, 1, 0x807C06A3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3063174, -1, 1, 1, 0x5F754E48, Fields, -1 };
 };
 
 struct ScreenLocationMeta
 {
-    static constexpr DB2MetaField Fields[1] =
+    static constexpr DB2MetaField Fields[2] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },
+        { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1279416, -1, 1, 1, 0x8730B3B5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1279416, -1, 2, 2, 0xB5DB4956, Fields, -1 };
 };
 
 struct SeamlessSiteMeta
@@ -10347,7 +10884,7 @@ struct SeamlessSiteMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1328719, -1, 1, 1, 0x60B3CFFF, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1328719, -1, 1, 1, 0x5F662944, Fields, 0 };
 };
 
 struct ServerMessagesMeta
@@ -10357,7 +10894,7 @@ struct ServerMessagesMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1301141, -1, 1, 1, 0xBF527CAF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1301141, -1, 1, 1, 0x022C43AA, Fields, -1 };
 };
 
 struct ShadowyEffectMeta
@@ -10379,7 +10916,7 @@ struct ShadowyEffectMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1239844, -1, 13, 13, 0x65EF6B87, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1239844, -1, 13, 13, 0xCDD57428, Fields, -1 };
 };
 
 struct SharedStringMeta
@@ -10391,7 +10928,7 @@ struct SharedStringMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 4620073, 1, 3, 3, 0x31B665AF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4620073, 1, 3, 3, 0x02A60C13, Fields, -1 };
 };
 
 struct SiegeablePropertiesMeta
@@ -10404,7 +10941,7 @@ struct SiegeablePropertiesMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1954391, -1, 4, 4, 0xD237D615, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1954391, -1, 4, 4, 0x444C6957, Fields, -1 };
 };
 
 struct SkillLineMeta
@@ -10422,13 +10959,13 @@ struct SkillLineMeta
         { FT_BYTE, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
-        { FT_SHORT, 1, false },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1240935, 5, 15, 15, 0xF0D60375, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1240935, 5, 15, 15, 0x6763217C, Fields, -1 };
 };
 
 struct SkillLineAbilityMeta
@@ -10444,7 +10981,7 @@ struct SkillLineAbilityMeta
         { FT_SHORT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
-        { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
         { FT_SHORT, 1, true },
         { FT_SHORT, 1, true },
         { FT_INT, 1, true },
@@ -10454,7 +10991,7 @@ struct SkillLineAbilityMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1266278, 3, 17, 17, 0x1D9E00B1, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1266278, 3, 17, 17, 0xC070825E, Fields, 4 };
 };
 
 struct SkillLineXTraitTreeMeta
@@ -10466,7 +11003,7 @@ struct SkillLineXTraitTreeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4505477, -1, 3, 3, 0xB2E9968F, Fields, 0 };
+    static constexpr DB2Meta Instance{ 4505477, -1, 3, 3, 0x853B88D6, Fields, 0 };
 };
 
 struct SkillRaceClassInfoMeta
@@ -10476,13 +11013,13 @@ struct SkillRaceClassInfoMeta
         { FT_LONG, 1, true },
         { FT_SHORT, 1, true },
         { FT_INT, 1, true },
-        { FT_SHORT, 1, false },
-        { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, true },
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1240406, -1, 7, 7, 0x0271228C, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1240406, -1, 7, 7, 0x7BCD9960, Fields, 1 };
 };
 
 struct SkySceneXPlayerConditionMeta
@@ -10493,7 +11030,7 @@ struct SkySceneXPlayerConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3581893, -1, 2, 1, 0x62B60407, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3581893, -1, 2, 1, 0xB57B5277, Fields, 1 };
 };
 
 struct SoulbindMeta
@@ -10508,7 +11045,7 @@ struct SoulbindMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3488583, -1, 6, 6, 0x9031600B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3488583, -1, 6, 6, 0xB8BEC833, Fields, -1 };
 };
 
 struct SoulbindConduitMeta
@@ -10521,7 +11058,7 @@ struct SoulbindConduitMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3594380, -1, 4, 4, 0xD87C19D7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3594380, -1, 4, 4, 0x775CCBED, Fields, -1 };
 };
 
 struct SoulbindConduitEnhancedSocketMeta
@@ -10532,7 +11069,7 @@ struct SoulbindConduitEnhancedSocketMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4069554, -1, 2, 2, 0xC5F12335, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4069554, -1, 2, 2, 0xFDA1BD8F, Fields, -1 };
 };
 
 struct SoulbindConduitItemMeta
@@ -10543,7 +11080,7 @@ struct SoulbindConduitItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3604984, -1, 2, 2, 0x0378426E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3604984, -1, 2, 2, 0xEDC6BB40, Fields, -1 };
 };
 
 struct SoulbindConduitRankMeta
@@ -10556,7 +11093,7 @@ struct SoulbindConduitRankMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3620681, -1, 4, 3, 0x197CCA07, Fields, 3 };
+    static constexpr DB2Meta Instance{ 3620681, -1, 4, 3, 0xA4866506, Fields, 3 };
 };
 
 struct SoulbindConduitRankPropertiesMeta
@@ -10565,10 +11102,10 @@ struct SoulbindConduitRankPropertiesMeta
     {
         { FT_INT, 1, true },
         { FT_INT, 1, true },
-        { FT_INT, 1, true },
+        { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3858895, -1, 3, 3, 0x17D85084, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3858895, -1, 3, 3, 0x6EFBF7C9, Fields, -1 };
 };
 
 struct SoulbindUIDisplayInfoMeta
@@ -10585,7 +11122,7 @@ struct SoulbindUIDisplayInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3490472, -1, 8, 8, 0xCED83DDB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3490472, -1, 8, 8, 0x943C338F, Fields, -1 };
 };
 
 struct SoundAmbienceMeta
@@ -10601,7 +11138,7 @@ struct SoundAmbienceMeta
         { FT_INT, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1310628, -1, 7, 7, 0xCB856968, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310628, -1, 7, 7, 0x6E25D515, Fields, -1 };
 };
 
 struct SoundAmbienceFlavorMeta
@@ -10613,7 +11150,7 @@ struct SoundAmbienceFlavorMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1267065, -1, 3, 2, 0x36D1007C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1267065, -1, 3, 2, 0x34C96927, Fields, 2 };
 };
 
 struct SoundBusMeta
@@ -10621,7 +11158,7 @@ struct SoundBusMeta
     static constexpr DB2MetaField Fields[8] =
     {
         { FT_INT, 1, false },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 1, false },
         { FT_BYTE, 1, false },
         { FT_FLOAT, 1, true },
@@ -10630,7 +11167,7 @@ struct SoundBusMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1310246, 0, 8, 7, 0x7854CF39, Fields, 7 };
+    static constexpr DB2Meta Instance{ 1310246, 0, 8, 7, 0xA591AA63, Fields, 7 };
 };
 
 struct SoundBusOverrideMeta
@@ -10646,18 +11183,19 @@ struct SoundBusOverrideMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1598732, 0, 7, 7, 0xF5BD8202, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1598732, 0, 7, 7, 0x969A673E, Fields, 1 };
 };
 
 struct SoundEmitterPillPointsMeta
 {
-    static constexpr DB2MetaField Fields[2] =
+    static constexpr DB2MetaField Fields[3] =
     {
         { FT_FLOAT, 3, true },
         { FT_SHORT, 1, false },
+        { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1092317, -1, 2, 2, 0xFB1F432A, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1092317, -1, 3, 3, 0xC7C71E97, Fields, 1 };
 };
 
 struct SoundEmittersMeta
@@ -10678,7 +11216,7 @@ struct SoundEmittersMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1092316, 3, 12, 11, 0xDCEA9A09, Fields, 11 };
+    static constexpr DB2Meta Instance{ 1092316, 3, 12, 11, 0xB09CDD89, Fields, 11 };
 };
 
 struct SoundEnvelopeMeta
@@ -10694,7 +11232,7 @@ struct SoundEnvelopeMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1693131, -1, 7, 7, 0x7C68FF4A, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1693131, -1, 7, 7, 0xFA91357A, Fields, 0 };
 };
 
 struct SoundFilterMeta
@@ -10704,7 +11242,7 @@ struct SoundFilterMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1271601, -1, 1, 1, 0xB21E02AE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1271601, -1, 1, 1, 0x21188F13, Fields, -1 };
 };
 
 struct SoundFilterElemMeta
@@ -10716,7 +11254,7 @@ struct SoundFilterElemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1267066, -1, 3, 2, 0xA934E155, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1267066, -1, 3, 2, 0x7F024953, Fields, 2 };
 };
 
 struct SoundKitMeta
@@ -10741,7 +11279,7 @@ struct SoundKitMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1237434, -1, 16, 16, 0x170F2CC3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237434, -1, 16, 16, 0xA7FB0451, Fields, -1 };
 };
 
 struct SoundKitAdvancedMeta
@@ -10806,7 +11344,7 @@ struct SoundKitAdvancedMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1237436, -1, 56, 56, 0x864490D3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237436, -1, 56, 56, 0x3EE0D3A8, Fields, -1 };
 };
 
 struct SoundKitChildMeta
@@ -10817,20 +11355,21 @@ struct SoundKitChildMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1307289, -1, 2, 2, 0x102526D8, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1307289, -1, 2, 2, 0x2927CB50, Fields, 1 };
 };
 
 struct SoundKitEntryMeta
 {
-    static constexpr DB2MetaField Fields[4] =
+    static constexpr DB2MetaField Fields[5] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_BYTE, 1, false },
         { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1237435, -1, 4, 4, 0x962B1DCC, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1237435, -1, 5, 5, 0x8F82FF7D, Fields, 0 };
 };
 
 struct SoundKitFallbackMeta
@@ -10841,7 +11380,7 @@ struct SoundKitFallbackMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1307288, -1, 2, 2, 0x006A5AA3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1307288, -1, 2, 2, 0x6EE7A367, Fields, -1 };
 };
 
 struct SoundMixGroupMeta
@@ -10855,7 +11394,7 @@ struct SoundMixGroupMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4618887, -1, 5, 5, 0x25A56C20, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4618887, -1, 5, 5, 0x06BC7A80, Fields, -1 };
 };
 
 struct SoundOverrideMeta
@@ -10869,7 +11408,7 @@ struct SoundOverrideMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1266542, -1, 5, 5, 0x61F508F8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266542, -1, 5, 5, 0x72095100, Fields, -1 };
 };
 
 struct SoundParameterMeta
@@ -10883,7 +11422,7 @@ struct SoundParameterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3405441, -1, 5, 5, 0xA84DAECD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3405441, -1, 5, 5, 0x04E58352, Fields, -1 };
 };
 
 struct SoundProviderPreferencesMeta
@@ -10915,7 +11454,7 @@ struct SoundProviderPreferencesMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1279417, -1, 23, 23, 0x06599A4D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1279417, -1, 23, 23, 0x8FF22D98, Fields, -1 };
 };
 
 struct SoundWaterfallEmitterMeta
@@ -10926,7 +11465,7 @@ struct SoundWaterfallEmitterMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4756178, -1, 2, 2, 0xF82CAB0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4756178, -1, 2, 2, 0xA0FC976E, Fields, -1 };
 };
 
 struct SourceInfoMeta
@@ -10939,7 +11478,7 @@ struct SourceInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1313612, -1, 4, 3, 0xF32B81DC, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1313612, -1, 4, 3, 0xBE3A7BF3, Fields, 3 };
 };
 
 struct SpamMessagesMeta
@@ -10949,7 +11488,7 @@ struct SpamMessagesMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1117088, -1, 1, 1, 0xEF771036, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1117088, -1, 1, 1, 0x5F2CCE2B, Fields, -1 };
 };
 
 struct SpecSetMemberMeta
@@ -10960,7 +11499,7 @@ struct SpecSetMemberMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2057624, -1, 2, 1, 0x48C154DC, Fields, 1 };
+    static constexpr DB2Meta Instance{ 2057624, -1, 2, 1, 0x504CA82E, Fields, 1 };
 };
 
 struct SpecializationSpellsMeta
@@ -10975,7 +11514,7 @@ struct SpecializationSpellsMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1240335, 1, 6, 6, 0xA524AD21, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1240335, 1, 6, 6, 0xFA4367B5, Fields, 2 };
 };
 
 struct SpecializationSpellsDisplayMeta
@@ -10986,7 +11525,7 @@ struct SpecializationSpellsDisplayMeta
         { FT_INT, 6, false },
     };
 
-    static constexpr DB2Meta Instance{ 2067238, -1, 2, 2, 0x2E79E9B0, Fields, 0 };
+    static constexpr DB2Meta Instance{ 2067238, -1, 2, 2, 0x60F7EE9A, Fields, 0 };
 };
 
 struct SpellMeta
@@ -10998,7 +11537,7 @@ struct SpellMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140089, -1, 3, 3, 0xE2395468, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1140089, -1, 3, 3, 0xE3D134FB, Fields, -1 };
 };
 
 struct SpellActionBarPrefMeta
@@ -11009,7 +11548,7 @@ struct SpellActionBarPrefMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1019373, -1, 2, 2, 0x5CB6468B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1019373, -1, 2, 2, 0x45039384, Fields, -1 };
 };
 
 struct SpellActivationOverlayMeta
@@ -11028,7 +11567,7 @@ struct SpellActivationOverlayMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1261603, -1, 10, 10, 0x67CA82D4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1261603, -1, 10, 10, 0xD958FCA4, Fields, -1 };
 };
 
 struct SpellAuraOptionsMeta
@@ -11045,7 +11584,7 @@ struct SpellAuraOptionsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139952, -1, 8, 7, 0x584EB0C9, Fields, 7 };
+    static constexpr DB2Meta Instance{ 1139952, -1, 8, 7, 0xEE8F35C1, Fields, 7 };
 };
 
 struct SpellAuraRestrictionsMeta
@@ -11068,7 +11607,7 @@ struct SpellAuraRestrictionsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 981566, -1, 14, 13, 0x78912DD7, Fields, 13 };
+    static constexpr DB2Meta Instance{ 981566, -1, 14, 13, 0xC480D0A3, Fields, 13 };
 };
 
 struct SpellAuraVisXChrSpecMeta
@@ -11079,7 +11618,7 @@ struct SpellAuraVisXChrSpecMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1280615, -1, 2, 1, 0x6402EE2B, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1280615, -1, 2, 1, 0x893DE38B, Fields, 1 };
 };
 
 struct SpellAuraVisibilityMeta
@@ -11092,7 +11631,7 @@ struct SpellAuraVisibilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1280616, 0, 4, 3, 0x398764D3, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1280616, 0, 4, 3, 0xAA4D3429, Fields, 3 };
 };
 
 struct SpellCastTimesMeta
@@ -11103,7 +11642,7 @@ struct SpellCastTimesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134089, -1, 2, 2, 0x3EC041D4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134089, -1, 2, 2, 0x75B6BD3A, Fields, -1 };
 };
 
 struct SpellCastingRequirementsMeta
@@ -11119,7 +11658,7 @@ struct SpellCastingRequirementsMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1002166, -1, 7, 7, 0x76B9E4FB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1002166, -1, 7, 7, 0xEB5F42A0, Fields, -1 };
 };
 
 struct SpellCategoriesMeta
@@ -11137,7 +11676,7 @@ struct SpellCategoriesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139939, -1, 9, 8, 0xE1D0C5AC, Fields, 8 };
+    static constexpr DB2Meta Instance{ 1139939, -1, 9, 8, 0x56C7533E, Fields, 8 };
 };
 
 struct SpellCategoryMeta
@@ -11152,12 +11691,12 @@ struct SpellCategoryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1280619, -1, 6, 6, 0xF7647E24, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1280619, -1, 6, 6, 0x1691EA31, Fields, -1 };
 };
 
 struct SpellChainEffectsMeta
 {
-    static constexpr DB2MetaField Fields[60] =
+    static constexpr DB2MetaField Fields[61] =
     {
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
@@ -11213,6 +11752,7 @@ struct SpellChainEffectsMeta
         { FT_INT, 1, false },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
         { FT_SHORT, 11, false },
         { FT_FLOAT, 3, true },
         { FT_FLOAT, 3, true },
@@ -11221,7 +11761,7 @@ struct SpellChainEffectsMeta
         { FT_INT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343310, -1, 60, 60, 0x5DA65BBA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343310, -1, 61, 61, 0x4B046A55, Fields, -1 };
 };
 
 struct SpellClassOptionsMeta
@@ -11234,7 +11774,7 @@ struct SpellClassOptionsMeta
         { FT_INT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 979663, -1, 4, 4, 0x427E17F9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 979663, -1, 4, 4, 0xDFE6B427, Fields, -1 };
 };
 
 struct SpellClutterAreaEffectCountsMeta
@@ -11246,7 +11786,7 @@ struct SpellClutterAreaEffectCountsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2428696, -1, 3, 3, 0x362D8889, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2428696, -1, 3, 3, 0x37611746, Fields, -1 };
 };
 
 struct SpellClutterFrameRatesMeta
@@ -11258,7 +11798,7 @@ struct SpellClutterFrameRatesMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2428707, -1, 3, 3, 0x722797C7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2428707, -1, 3, 3, 0x826C7494, Fields, -1 };
 };
 
 struct SpellClutterImpactModelCountsMeta
@@ -11270,7 +11810,7 @@ struct SpellClutterImpactModelCountsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2428708, -1, 3, 3, 0x362D8889, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2428708, -1, 3, 3, 0x37611746, Fields, -1 };
 };
 
 struct SpellClutterKitDistancesMeta
@@ -11282,7 +11822,7 @@ struct SpellClutterKitDistancesMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2428697, -1, 3, 3, 0x38C53911, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2428697, -1, 3, 3, 0xC00F1458, Fields, -1 };
 };
 
 struct SpellClutterMissileDistMeta
@@ -11294,7 +11834,7 @@ struct SpellClutterMissileDistMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2428733, -1, 3, 3, 0x38C53911, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2428733, -1, 3, 3, 0xC00F1458, Fields, -1 };
 };
 
 struct SpellClutterWeaponTrailDistMeta
@@ -11306,7 +11846,7 @@ struct SpellClutterWeaponTrailDistMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2428698, -1, 3, 3, 0x38C53911, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2428698, -1, 3, 3, 0xC00F1458, Fields, -1 };
 };
 
 struct SpellCooldownsMeta
@@ -11321,7 +11861,7 @@ struct SpellCooldownsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139924, -1, 6, 5, 0x254654DD, Fields, 5 };
+    static constexpr DB2Meta Instance{ 1139924, -1, 6, 5, 0x1CD8296C, Fields, 5 };
 };
 
 struct SpellDescriptionVariablesMeta
@@ -11331,7 +11871,7 @@ struct SpellDescriptionVariablesMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140004, -1, 1, 1, 0x3846B8C4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1140004, -1, 1, 1, 0x33868CFD, Fields, -1 };
 };
 
 struct SpellDispelTypeMeta
@@ -11344,7 +11884,7 @@ struct SpellDispelTypeMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1137829, -1, 4, 4, 0xD31E57F3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1137829, -1, 4, 4, 0x47AA7AEB, Fields, -1 };
 };
 
 struct SpellDurationMeta
@@ -11355,7 +11895,7 @@ struct SpellDurationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1137828, -1, 2, 2, 0xC1591711, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1137828, -1, 2, 2, 0xC25E0667, Fields, -1 };
 };
 
 struct SpellEffectMeta
@@ -11393,7 +11933,7 @@ struct SpellEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140088, -1, 29, 28, 0x0ADBA46F, Fields, 28 };
+    static constexpr DB2Meta Instance{ 1140088, -1, 29, 28, 0xE745F803, Fields, 28 };
 };
 
 struct SpellEffectAutoDescriptionMeta
@@ -11411,7 +11951,7 @@ struct SpellEffectAutoDescriptionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1888495, -1, 9, 9, 0x6DCEA74D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1888495, -1, 9, 9, 0xA42E28EC, Fields, -1 };
 };
 
 struct SpellEffectEmissionMeta
@@ -11424,7 +11964,7 @@ struct SpellEffectEmissionMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1310248, -1, 4, 4, 0x55D6415D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310248, -1, 4, 4, 0x164F4941, Fields, -1 };
 };
 
 struct SpellEmpowerMeta
@@ -11436,7 +11976,7 @@ struct SpellEmpowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4507381, 0, 3, 3, 0x7F1952AF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4507381, 0, 3, 3, 0x87C43ED2, Fields, -1 };
 };
 
 struct SpellEmpowerStageMeta
@@ -11448,7 +11988,7 @@ struct SpellEmpowerStageMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4871072, -1, 3, 2, 0x6A138C60, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4871072, -1, 3, 2, 0x69BA286D, Fields, 2 };
 };
 
 struct SpellEquippedItemsMeta
@@ -11461,7 +12001,7 @@ struct SpellEquippedItemsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140011, -1, 4, 4, 0x9E98F8F8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1140011, -1, 4, 4, 0xEB6AC546, Fields, -1 };
 };
 
 struct SpellFlyoutMeta
@@ -11476,7 +12016,7 @@ struct SpellFlyoutMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1146819, -1, 6, 6, 0x0F34BE71, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1146819, -1, 6, 6, 0x380879DE, Fields, -1 };
 };
 
 struct SpellFlyoutItemMeta
@@ -11488,7 +12028,7 @@ struct SpellFlyoutItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134085, -1, 3, 2, 0x5977DEAC, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1134085, -1, 3, 2, 0xCBAF7BE8, Fields, 2 };
 };
 
 struct SpellFocusObjectMeta
@@ -11498,7 +12038,7 @@ struct SpellFocusObjectMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1280620, -1, 1, 1, 0xB0DD8F60, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1280620, -1, 1, 1, 0x782EE721, Fields, -1 };
 };
 
 struct SpellInterruptsMeta
@@ -11512,7 +12052,7 @@ struct SpellInterruptsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139906, -1, 5, 4, 0x15BFA3E0, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1139906, -1, 5, 4, 0x9C916E46, Fields, 4 };
 };
 
 struct SpellItemEnchantmentMeta
@@ -11523,6 +12063,7 @@ struct SpellItemEnchantmentMeta
         { FT_STRING, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 3, false },
+        { FT_INT, 1, true },
         { FT_FLOAT, 3, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -11530,7 +12071,6 @@ struct SpellItemEnchantmentMeta
         { FT_INT, 1, false },
         { FT_INT, 1, false },
         { FT_SHORT, 3, true },
-        { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
@@ -11544,7 +12084,7 @@ struct SpellItemEnchantmentMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1362771, -1, 23, 23, 0xF7D222D6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1362771, -1, 23, 23, 0xD5D2C264, Fields, -1 };
 };
 
 struct SpellItemEnchantmentConditionMeta
@@ -11559,7 +12099,7 @@ struct SpellItemEnchantmentConditionMeta
         { FT_BYTE, 5, false },
     };
 
-    static constexpr DB2Meta Instance{ 1121834, -1, 6, 6, 0xC1340327, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121834, -1, 6, 6, 0x8A436D37, Fields, -1 };
 };
 
 struct SpellKeyboundOverrideMeta
@@ -11572,7 +12112,7 @@ struct SpellKeyboundOverrideMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1127327, -1, 4, 4, 0x3E33E322, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1127327, -1, 4, 4, 0xFA067CB2, Fields, -1 };
 };
 
 struct SpellLabelMeta
@@ -11583,7 +12123,7 @@ struct SpellLabelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1347275, -1, 2, 1, 0x8FB85089, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1347275, -1, 2, 1, 0x2B9F0138, Fields, 1 };
 };
 
 struct SpellLearnSpellMeta
@@ -11595,7 +12135,7 @@ struct SpellLearnSpellMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1001907, -1, 3, 3, 0x33C8C506, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1001907, -1, 3, 3, 0x6B9C3AC9, Fields, 0 };
 };
 
 struct SpellLevelsMeta
@@ -11610,7 +12150,7 @@ struct SpellLevelsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140079, -1, 6, 5, 0x734BBB2C, Fields, 5 };
+    static constexpr DB2Meta Instance{ 1140079, -1, 6, 5, 0xCB43D67C, Fields, 5 };
 };
 
 struct SpellMechanicMeta
@@ -11620,26 +12160,16 @@ struct SpellMechanicMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1014438, -1, 1, 1, 0x4E0C4A43, Fields, -1 };
-};
-
-struct SpellMemorizeCostMeta
-{
-    static constexpr DB2MetaField Fields[2] =
-    {
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-    };
-
-    static constexpr DB2Meta Instance{ 3549053, -1, 2, 1, 0x6F1A6B5A, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1014438, -1, 1, 1, 0x636442CA, Fields, -1 };
 };
 
 struct SpellMiscMeta
 {
-    static constexpr DB2MetaField Fields[16] =
+    static constexpr DB2MetaField Fields[17] =
     {
-        { FT_INT, 15, true },
+        { FT_INT, 16, true },
         { FT_BYTE, 1, false },
+        { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
@@ -11656,7 +12186,7 @@ struct SpellMiscMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1003144, -1, 16, 15, 0x22C4626A, Fields, 15 };
+    static constexpr DB2Meta Instance{ 1003144, -1, 17, 16, 0xB2E0F1E4, Fields, 16 };
 };
 
 struct SpellMissileMeta
@@ -11680,7 +12210,7 @@ struct SpellMissileMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 897956, -1, 15, 15, 0x8BE6A845, Fields, -1 };
+    static constexpr DB2Meta Instance{ 897956, -1, 15, 15, 0xEA25F580, Fields, -1 };
 };
 
 struct SpellMissileMotionMeta
@@ -11693,7 +12223,7 @@ struct SpellMissileMotionMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 897955, -1, 4, 4, 0x65CEAA0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 897955, -1, 4, 4, 0x0200AB02, Fields, -1 };
 };
 
 struct SpellNameMeta
@@ -11703,7 +12233,7 @@ struct SpellNameMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1990283, -1, 1, 1, 0xB0DD8F60, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1990283, -1, 1, 1, 0x782EE721, Fields, -1 };
 };
 
 struct SpellOverrideNameMeta
@@ -11715,7 +12245,7 @@ struct SpellOverrideNameMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2618823, -1, 3, 3, 0xC38F6613, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2618823, -1, 3, 3, 0x8A85E5EA, Fields, -1 };
 };
 
 struct SpellPowerMeta
@@ -11739,7 +12269,7 @@ struct SpellPowerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 982806, 0, 15, 14, 0xE5EED97C, Fields, 14 };
+    static constexpr DB2Meta Instance{ 982806, 0, 15, 14, 0x61AD223F, Fields, 14 };
 };
 
 struct SpellPowerDifficultyMeta
@@ -11750,7 +12280,7 @@ struct SpellPowerDifficultyMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 982804, -1, 2, 2, 0x831780E9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 982804, -1, 2, 2, 0x95EE63B1, Fields, -1 };
 };
 
 struct SpellProceduralEffectMeta
@@ -11761,7 +12291,7 @@ struct SpellProceduralEffectMeta
         { FT_FLOAT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140477, -1, 2, 2, 0x860F778C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1140477, -1, 2, 2, 0x28692171, Fields, -1 };
 };
 
 struct SpellProcsPerMinuteMeta
@@ -11772,7 +12302,7 @@ struct SpellProcsPerMinuteMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1133526, -1, 2, 2, 0x8398D285, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1133526, -1, 2, 2, 0x93C5F6BB, Fields, -1 };
 };
 
 struct SpellProcsPerMinuteModMeta
@@ -11785,7 +12315,7 @@ struct SpellProcsPerMinuteModMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1133525, -1, 4, 3, 0x2C6FC571, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1133525, -1, 4, 3, 0x6FFD8DA7, Fields, 3 };
 };
 
 struct SpellRadiusMeta
@@ -11798,7 +12328,7 @@ struct SpellRadiusMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134584, -1, 4, 4, 0x84246EAE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134584, -1, 4, 4, 0xF9A913EE, Fields, -1 };
 };
 
 struct SpellRangeMeta
@@ -11812,7 +12342,7 @@ struct SpellRangeMeta
         { FT_FLOAT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1146820, -1, 5, 5, 0x1A9D89B3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1146820, -1, 5, 5, 0xF2B48795, Fields, -1 };
 };
 
 struct SpellReagentsMeta
@@ -11826,7 +12356,7 @@ struct SpellReagentsMeta
         { FT_BYTE, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 841946, -1, 5, 5, 0xB40074F0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 841946, -1, 5, 5, 0xFF40D202, Fields, -1 };
 };
 
 struct SpellReagentsCurrencyMeta
@@ -11838,7 +12368,7 @@ struct SpellReagentsCurrencyMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1135239, -1, 3, 3, 0xA7C3638C, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1135239, -1, 3, 3, 0xF02FA4EB, Fields, 0 };
 };
 
 struct SpellReplacementMeta
@@ -11849,7 +12379,7 @@ struct SpellReplacementMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4674394, -1, 2, 2, 0x88FB6F2C, Fields, 0 };
+    static constexpr DB2Meta Instance{ 4674394, -1, 2, 2, 0x516D34E6, Fields, 0 };
 };
 
 struct SpellScalingMeta
@@ -11862,7 +12392,7 @@ struct SpellScalingMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139940, -1, 4, 4, 0xDF5A7562, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1139940, -1, 4, 4, 0xA285F9EA, Fields, -1 };
 };
 
 struct SpellScriptMeta
@@ -11876,7 +12406,7 @@ struct SpellScriptMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055899, -1, 5, 5, 0x7E8B242D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3055899, -1, 5, 5, 0xD699825C, Fields, -1 };
 };
 
 struct SpellScriptTextMeta
@@ -11890,7 +12420,7 @@ struct SpellScriptTextMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055901, 1, 5, 4, 0x035224C6, Fields, 4 };
+    static constexpr DB2Meta Instance{ 3055901, 1, 5, 4, 0x9BF410C7, Fields, 4 };
 };
 
 struct SpellShapeshiftMeta
@@ -11903,7 +12433,7 @@ struct SpellShapeshiftMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139929, -1, 4, 4, 0xCBF64431, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1139929, -1, 4, 4, 0xE9111399, Fields, -1 };
 };
 
 struct SpellShapeshiftFormMeta
@@ -11922,7 +12452,7 @@ struct SpellShapeshiftFormMeta
         { FT_INT, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 1280618, -1, 10, 10, 0x887ACBCE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1280618, -1, 10, 10, 0xE12B5B32, Fields, -1 };
 };
 
 struct SpellSpecialUnitEffectMeta
@@ -11933,7 +12463,7 @@ struct SpellSpecialUnitEffectMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1268903, -1, 2, 2, 0x7739B9C5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1268903, -1, 2, 2, 0xDA6DFF4B, Fields, -1 };
 };
 
 struct SpellTargetRestrictionsMeta
@@ -11950,7 +12480,7 @@ struct SpellTargetRestrictionsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1139993, -1, 8, 7, 0xAC82CF4B, Fields, 7 };
+    static constexpr DB2Meta Instance{ 1139993, -1, 8, 7, 0x6CBAAD1E, Fields, 7 };
 };
 
 struct SpellTotemsMeta
@@ -11962,7 +12492,7 @@ struct SpellTotemsMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1002162, -1, 3, 3, 0x230DD39D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1002162, -1, 3, 3, 0x03B23619, Fields, -1 };
 };
 
 struct SpellVisualMeta
@@ -11987,19 +12517,19 @@ struct SpellVisualMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 897952, -1, 16, 16, 0x536575A0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 897952, -1, 16, 16, 0xFB411669, Fields, -1 };
 };
 
 struct SpellVisualAnimMeta
 {
     static constexpr DB2MetaField Fields[3] =
     {
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1140479, -1, 3, 3, 0x0D10BE24, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1140479, -1, 3, 3, 0xEE416568, Fields, -1 };
 };
 
 struct SpellVisualColorEffectMeta
@@ -12019,12 +12549,12 @@ struct SpellVisualColorEffectMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1094006, -1, 11, 11, 0x3D80C011, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1094006, -1, 11, 11, 0x49955168, Fields, -1 };
 };
 
 struct SpellVisualEffectNameMeta
 {
-    static constexpr DB2MetaField Fields[15] =
+    static constexpr DB2MetaField Fields[16] =
     {
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
@@ -12041,9 +12571,10 @@ struct SpellVisualEffectNameMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, true },
+        { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 897948, -1, 15, 15, 0xD10DE7C6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 897948, -1, 16, 16, 0x14F15AE6, Fields, -1 };
 };
 
 struct SpellVisualEventMeta
@@ -12063,21 +12594,21 @@ struct SpellVisualEventMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1685317, -1, 11, 10, 0xC9A05AD5, Fields, 10 };
+    static constexpr DB2Meta Instance{ 1685317, -1, 11, 10, 0xB872A39E, Fields, 10 };
 };
 
 struct SpellVisualKitMeta
 {
     static constexpr DB2MetaField Fields[5] =
     {
-        { FT_BYTE, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 897949, -1, 5, 5, 0xA2B96B8A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 897949, -1, 5, 5, 0x0B92E9E2, Fields, -1 };
 };
 
 struct SpellVisualKitAreaModelMeta
@@ -12092,7 +12623,7 @@ struct SpellVisualKitAreaModelMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 897951, -1, 6, 6, 0xFBA6277D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 897951, -1, 6, 6, 0x0B45E5D4, Fields, -1 };
 };
 
 struct SpellVisualKitEffectMeta
@@ -12104,12 +12635,12 @@ struct SpellVisualKitEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140480, -1, 3, 2, 0x5D2E222A, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1140480, -1, 3, 2, 0xE3206CA2, Fields, 2 };
 };
 
 struct SpellVisualKitModelAttachMeta
 {
-    static constexpr DB2MetaField Fields[22] =
+    static constexpr DB2MetaField Fields[23] =
     {
         { FT_FLOAT, 3, true },
         { FT_FLOAT, 3, true },
@@ -12124,18 +12655,19 @@ struct SpellVisualKitModelAttachMeta
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, false },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 897953, -1, 22, 21, 0x58DE8C95, Fields, 21 };
+    static constexpr DB2Meta Instance{ 897953, -1, 23, 22, 0x57620444, Fields, 22 };
 };
 
 struct SpellVisualKitPickerMeta
@@ -12146,7 +12678,7 @@ struct SpellVisualKitPickerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3989478, -1, 2, 2, 0xE7A454BF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3989478, -1, 2, 2, 0x2F0CF749, Fields, -1 };
 };
 
 struct SpellVisualKitPickerEntryMeta
@@ -12158,12 +12690,12 @@ struct SpellVisualKitPickerEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3989479, -1, 3, 2, 0x6C80416B, Fields, 2 };
+    static constexpr DB2Meta Instance{ 3989479, -1, 3, 2, 0x74A4E4CF, Fields, 2 };
 };
 
 struct SpellVisualMissileMeta
 {
-    static constexpr DB2MetaField Fields[18] =
+    static constexpr DB2MetaField Fields[19] =
     {
         { FT_FLOAT, 3, true },
         { FT_FLOAT, 3, true },
@@ -12180,12 +12712,13 @@ struct SpellVisualMissileMeta
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
         { FT_INT, 1, false },
-        { FT_BYTE, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_SHORT, 1, false },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 897954, 2, 18, 17, 0x11D06D97, Fields, 17 };
+    static constexpr DB2Meta Instance{ 897954, 2, 19, 18, 0x98490368, Fields, 18 };
 };
 
 struct SpellVisualScreenEffectMeta
@@ -12196,7 +12729,7 @@ struct SpellVisualScreenEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3607312, -1, 2, 2, 0xDBF829D1, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3607312, -1, 2, 2, 0x2724A46D, Fields, -1 };
 };
 
 struct SpellXDescriptionVariablesMeta
@@ -12207,7 +12740,7 @@ struct SpellXDescriptionVariablesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1724949, -1, 2, 2, 0x9A9D6850, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1724949, -1, 2, 2, 0x23F4E51E, Fields, -1 };
 };
 
 struct SpellXSpellVisualMeta
@@ -12229,7 +12762,21 @@ struct SpellXSpellVisualMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1101657, 0, 13, 12, 0x049D96D6, Fields, 12 };
+    static constexpr DB2Meta Instance{ 1101657, 0, 13, 12, 0x6B6594B0, Fields, 12 };
+};
+
+struct SpotLightConditionMapMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5735565, -1, 5, 5, 0x04E3CAA3, Fields, 0 };
 };
 
 struct StartupFilesMeta
@@ -12241,7 +12788,7 @@ struct StartupFilesMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1604265, -1, 3, 3, 0x0DB4CD60, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1604265, -1, 3, 3, 0x3E639C9F, Fields, -1 };
 };
 
 struct Startup_StringsMeta
@@ -12252,7 +12799,7 @@ struct Startup_StringsMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1375805, -1, 2, 2, 0xD81204F9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1375805, -1, 2, 2, 0xD758674F, Fields, -1 };
 };
 
 struct StationeryMeta
@@ -12264,7 +12811,7 @@ struct StationeryMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140758, -1, 3, 3, 0xC47D5B55, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1140758, -1, 3, 3, 0xF075ED96, Fields, -1 };
 };
 
 struct SummonPropertiesMeta
@@ -12278,7 +12825,7 @@ struct SummonPropertiesMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1345276, -1, 5, 5, 0x927C6DBA, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1345276, -1, 5, 5, 0xA4CA5ECF, Fields, -1 };
 };
 
 struct TactKeyMeta
@@ -12288,7 +12835,7 @@ struct TactKeyMeta
         { FT_BYTE, 16, false },
     };
 
-    static constexpr DB2Meta Instance{ 1302850, -1, 1, 1, 0xD3F61A9E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1302850, -1, 1, 1, 0xCBA490FC, Fields, -1 };
 };
 
 struct TactKeyLookupMeta
@@ -12298,7 +12845,7 @@ struct TactKeyLookupMeta
         { FT_BYTE, 8, false },
     };
 
-    static constexpr DB2Meta Instance{ 1302851, -1, 1, 1, 0xB9312C4E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1302851, -1, 1, 1, 0x4983962C, Fields, -1 };
 };
 
 struct TalentMeta
@@ -12316,7 +12863,7 @@ struct TalentMeta
         { FT_BYTE, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1369062, -1, 9, 9, 0x75423537, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1369062, -1, 9, 9, 0x6CBC2884, Fields, -1 };
 };
 
 struct TaxiNodesMeta
@@ -12340,7 +12887,7 @@ struct TaxiNodesMeta
         { FT_INT, 2, true },
     };
 
-    static constexpr DB2Meta Instance{ 1068100, 4, 15, 15, 0x5EE95BA9, Fields, 5 };
+    static constexpr DB2Meta Instance{ 1068100, 4, 15, 15, 0xE7B597F0, Fields, 5 };
 };
 
 struct TaxiPathMeta
@@ -12353,7 +12900,7 @@ struct TaxiPathMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1067802, 0, 4, 4, 0x9B67699C, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1067802, 0, 4, 4, 0xA303DE51, Fields, 1 };
 };
 
 struct TaxiPathNodeMeta
@@ -12371,7 +12918,7 @@ struct TaxiPathNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1000437, 1, 9, 9, 0xF1BEC205, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1000437, 1, 9, 9, 0xB70D1EE0, Fields, 2 };
 };
 
 struct TerrainColorGradingRampMeta
@@ -12384,7 +12931,7 @@ struct TerrainColorGradingRampMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3501705, -1, 4, 4, 0x02B6E85D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3501705, -1, 4, 4, 0xA22946B5, Fields, -1 };
 };
 
 struct TerrainMaterialMeta
@@ -12396,7 +12943,7 @@ struct TerrainMaterialMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1307290, -1, 3, 3, 0x499A04BC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1307290, -1, 3, 3, 0xE1D9583A, Fields, -1 };
 };
 
 struct TerrainTypeMeta
@@ -12410,7 +12957,7 @@ struct TerrainTypeMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1310249, -1, 5, 5, 0xD533642E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310249, -1, 5, 5, 0xEC0D143D, Fields, -1 };
 };
 
 struct TerrainTypeSoundsMeta
@@ -12420,7 +12967,7 @@ struct TerrainTypeSoundsMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1284822, -1, 1, 1, 0x5462668A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1284822, -1, 1, 1, 0xB99F5777, Fields, -1 };
 };
 
 struct TextureBlendSetMeta
@@ -12440,7 +12987,7 @@ struct TextureBlendSetMeta
         { FT_FLOAT, 4, true },
     };
 
-    static constexpr DB2Meta Instance{ 1328721, -1, 11, 11, 0x420979A8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1328721, -1, 11, 11, 0x4A955778, Fields, -1 };
 };
 
 struct TextureFileDataMeta
@@ -12452,7 +12999,7 @@ struct TextureFileDataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 982459, 0, 3, 3, 0x1C9A021C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 982459, 0, 3, 3, 0x50299C02, Fields, 2 };
 };
 
 struct TierTransitionMeta
@@ -12460,12 +13007,12 @@ struct TierTransitionMeta
     static constexpr DB2MetaField Fields[4] =
     {
         { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3076928, -1, 4, 4, 0xE71F230A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3076928, -1, 4, 4, 0x2591A17F, Fields, -1 };
 };
 
 struct TotemCategoryMeta
@@ -12477,7 +13024,7 @@ struct TotemCategoryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1134586, -1, 3, 3, 0x81755C9C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1134586, -1, 3, 3, 0x86C8149C, Fields, -1 };
 };
 
 struct ToyMeta
@@ -12491,7 +13038,7 @@ struct ToyMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 988200, 1, 5, 5, 0xED0030EE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 988200, 1, 5, 5, 0xC55DB9B0, Fields, -1 };
 };
 
 struct TradeSkillCategoryMeta
@@ -12503,10 +13050,10 @@ struct TradeSkillCategoryMeta
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, false },
         { FT_SHORT, 1, true },
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1301101, -1, 6, 6, 0x3C05077F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1301101, -1, 6, 6, 0x7F2B6CD0, Fields, -1 };
 };
 
 struct TradeSkillItemMeta
@@ -12516,12 +13063,12 @@ struct TradeSkillItemMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1329070, -1, 1, 1, 0xD6BD8871, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1329070, -1, 1, 1, 0x05D8D675, Fields, -1 };
 };
 
 struct TraitCondMeta
 {
-    static constexpr DB2MetaField Fields[15] =
+    static constexpr DB2MetaField Fields[17] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -12538,9 +13085,23 @@ struct TraitCondMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4543085, 0, 15, 15, 0x91F4174C, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4543085, 0, 17, 17, 0xBFDD1994, Fields, 2 };
+};
+
+struct TraitCondAccountElementMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_LONG, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5890759, 1, 3, 3, 0xD753B438, Fields, 2 };
 };
 
 struct TraitCostMeta
@@ -12553,7 +13114,7 @@ struct TraitCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420295, 1, 4, 4, 0xCECF8496, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4420295, 1, 4, 4, 0x35853DF0, Fields, -1 };
 };
 
 struct TraitCurrencyMeta
@@ -12567,7 +13128,7 @@ struct TraitCurrencyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4524216, 0, 5, 5, 0x5BF919EC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4524216, 0, 5, 5, 0x59214AB9, Fields, -1 };
 };
 
 struct TraitCurrencySourceMeta
@@ -12585,7 +13146,7 @@ struct TraitCurrencySourceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4539393, 1, 9, 9, 0xD42C05FC, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4539393, 1, 9, 9, 0x3FE6D68D, Fields, 2 };
 };
 
 struct TraitDefinitionMeta
@@ -12602,7 +13163,7 @@ struct TraitDefinitionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420327, 3, 8, 8, 0x05675F68, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4420327, 3, 8, 8, 0x060A9F4C, Fields, -1 };
 };
 
 struct TraitDefinitionEffectPointsMeta
@@ -12616,7 +13177,7 @@ struct TraitDefinitionEffectPointsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4536895, 0, 5, 5, 0x5C22E1DB, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4536895, 0, 5, 5, 0x01AE39C2, Fields, 1 };
 };
 
 struct TraitEdgeMeta
@@ -12630,12 +13191,12 @@ struct TraitEdgeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420308, 0, 5, 5, 0x32F9DD9A, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4420308, 0, 5, 5, 0xD4EA9447, Fields, 2 };
 };
 
 struct TraitNodeMeta
 {
-    static constexpr DB2MetaField Fields[6] =
+    static constexpr DB2MetaField Fields[7] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -12643,22 +13204,24 @@ struct TraitNodeMeta
         { FT_INT, 1, true },
         { FT_BYTE, 1, false },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420297, 0, 6, 6, 0x839579A1, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420297, 0, 7, 7, 0xA01A518A, Fields, 1 };
 };
 
 struct TraitNodeEntryMeta
 {
-    static constexpr DB2MetaField Fields[4] =
+    static constexpr DB2MetaField Fields[5] =
     {
         { FT_INT, 1, false },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420298, 0, 4, 4, 0x81B195E8, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4420298, 0, 5, 5, 0x733B015D, Fields, -1 };
 };
 
 struct TraitNodeEntryXTraitCondMeta
@@ -12670,7 +13233,7 @@ struct TraitNodeEntryXTraitCondMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4543088, 0, 3, 3, 0x53ACC501, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4543088, 0, 3, 3, 0x59B38176, Fields, 2 };
 };
 
 struct TraitNodeEntryXTraitCostMeta
@@ -12682,7 +13245,7 @@ struct TraitNodeEntryXTraitCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420299, 0, 3, 3, 0x4178D9E2, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420299, 0, 3, 3, 0xE87DE277, Fields, 1 };
 };
 
 struct TraitNodeGroupMeta
@@ -12694,7 +13257,7 @@ struct TraitNodeGroupMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420300, 0, 3, 3, 0xF4E2E579, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420300, 0, 3, 3, 0xECA626BE, Fields, 1 };
 };
 
 struct TraitNodeGroupXTraitCondMeta
@@ -12706,7 +13269,7 @@ struct TraitNodeGroupXTraitCondMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4543090, 0, 3, 3, 0x28117816, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4543090, 0, 3, 3, 0x3F06B639, Fields, 2 };
 };
 
 struct TraitNodeGroupXTraitCostMeta
@@ -12718,7 +13281,7 @@ struct TraitNodeGroupXTraitCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420301, 0, 3, 3, 0x97B85B29, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420301, 0, 3, 3, 0xFD4B937C, Fields, 1 };
 };
 
 struct TraitNodeGroupXTraitNodeMeta
@@ -12731,7 +13294,7 @@ struct TraitNodeGroupXTraitNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420302, 0, 4, 4, 0xD91D6CFE, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420302, 0, 4, 4, 0xB9288EB8, Fields, 1 };
 };
 
 struct TraitNodeXTraitCondMeta
@@ -12743,7 +13306,7 @@ struct TraitNodeXTraitCondMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4543092, 0, 3, 3, 0xFEFA16A7, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4543092, 0, 3, 3, 0xE2160AA8, Fields, 2 };
 };
 
 struct TraitNodeXTraitCostMeta
@@ -12755,7 +13318,7 @@ struct TraitNodeXTraitCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420303, 0, 3, 3, 0x883FDE7A, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420303, 0, 3, 3, 0x4D8C0D05, Fields, 1 };
 };
 
 struct TraitNodeXTraitNodeEntryMeta
@@ -12768,7 +13331,21 @@ struct TraitNodeXTraitNodeEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420304, 0, 4, 4, 0xCED10275, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420304, 0, 4, 4, 0x802ED455, Fields, 1 };
+};
+
+struct TraitSubTreeMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_STRING, 1, true },
+        { FT_STRING, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5534447, 2, 5, 5, 0x716FF6FB, Fields, 4 };
 };
 
 struct TraitSystemMeta
@@ -12780,7 +13357,7 @@ struct TraitSystemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4635649, 0, 3, 3, 0xD92E8FE4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4635649, 0, 3, 3, 0x46225291, Fields, -1 };
 };
 
 struct TraitTreeMeta
@@ -12797,7 +13374,7 @@ struct TraitTreeMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420305, 0, 8, 8, 0xCA7B3D57, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420305, 0, 8, 8, 0xE0C67577, Fields, 1 };
 };
 
 struct TraitTreeLoadoutMeta
@@ -12809,7 +13386,7 @@ struct TraitTreeLoadoutMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4669507, 0, 3, 3, 0xDE3BFB35, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4669507, 0, 3, 3, 0x963A2972, Fields, 1 };
 };
 
 struct TraitTreeLoadoutEntryMeta
@@ -12824,7 +13401,7 @@ struct TraitTreeLoadoutEntryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4669509, 0, 6, 6, 0x3B3D126A, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4669509, 0, 6, 6, 0xF17F8192, Fields, 1 };
 };
 
 struct TraitTreeXTraitCostMeta
@@ -12836,7 +13413,7 @@ struct TraitTreeXTraitCostMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4420306, 0, 3, 3, 0x823738BA, Fields, 1 };
+    static constexpr DB2Meta Instance{ 4420306, 0, 3, 3, 0x19EEFE95, Fields, 1 };
 };
 
 struct TraitTreeXTraitCurrencyMeta
@@ -12849,7 +13426,7 @@ struct TraitTreeXTraitCurrencyMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4524218, 0, 4, 4, 0x298B67E6, Fields, 2 };
+    static constexpr DB2Meta Instance{ 4524218, 0, 4, 4, 0xE093CD62, Fields, 2 };
 };
 
 struct TransformMatrixMeta
@@ -12863,7 +13440,7 @@ struct TransformMatrixMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1338702, -1, 5, 5, 0x92BCCC4C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1338702, -1, 5, 5, 0x45999148, Fields, -1 };
 };
 
 struct TransmogDefaultLevelMeta
@@ -12874,7 +13451,7 @@ struct TransmogDefaultLevelMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2399695, -1, 2, 2, 0x95FD2CA2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2399695, -1, 2, 2, 0xF003EFFC, Fields, -1 };
 };
 
 struct TransmogHolidayMeta
@@ -12884,7 +13461,7 @@ struct TransmogHolidayMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1589454, -1, 1, 1, 0xE3B900BB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1589454, -1, 1, 1, 0x2E75ADD0, Fields, -1 };
 };
 
 struct TransmogIllusionMeta
@@ -12898,7 +13475,7 @@ struct TransmogIllusionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3580450, 0, 5, 5, 0x3DDD0672, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3580450, 0, 5, 5, 0xDCE032AF, Fields, -1 };
 };
 
 struct TransmogSetMeta
@@ -12908,19 +13485,19 @@ struct TransmogSetMeta
         { FT_STRING, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
-        { FT_INT, 1, false },
         { FT_INT, 1, true },
-        { FT_INT, 1, false },
         { FT_INT, 1, true },
-        { FT_SHORT, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
         { FT_INT, 1, true },
-        { FT_SHORT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1376213, 1, 13, 13, 0x5B0E178F, Fields, 7 };
+    static constexpr DB2Meta Instance{ 1376213, 1, 13, 13, 0xC6875C71, Fields, 7 };
 };
 
 struct TransmogSetGroupMeta
@@ -12930,7 +13507,7 @@ struct TransmogSetGroupMeta
         { FT_STRING, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1576116, -1, 1, 1, 0xE59553DF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1576116, -1, 1, 1, 0xEDA13DE2, Fields, -1 };
 };
 
 struct TransmogSetItemMeta
@@ -12942,7 +13519,7 @@ struct TransmogSetItemMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1376212, -1, 3, 3, 0x7273E272, Fields, 0 };
+    static constexpr DB2Meta Instance{ 1376212, -1, 3, 3, 0xE6EFF061, Fields, 0 };
 };
 
 struct TransportAnimationMeta
@@ -12955,7 +13532,7 @@ struct TransportAnimationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140686, -1, 4, 3, 0x5C89E4E6, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1140686, -1, 4, 3, 0xE622B105, Fields, 3 };
 };
 
 struct TransportPhysicsMeta
@@ -12974,7 +13551,7 @@ struct TransportPhysicsMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1121973, -1, 10, 10, 0x3BE86156, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1121973, -1, 10, 10, 0xE05919AE, Fields, -1 };
 };
 
 struct TransportRotationMeta
@@ -12986,7 +13563,7 @@ struct TransportRotationMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1140687, -1, 3, 2, 0xC1124B6A, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1140687, -1, 3, 2, 0xD92B0C43, Fields, 2 };
 };
 
 struct TrophyMeta
@@ -12999,7 +13576,7 @@ struct TrophyMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 975024, -1, 4, 4, 0x72D11E6D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 975024, -1, 4, 4, 0xA17123C5, Fields, -1 };
 };
 
 struct UIArrowCalloutMeta
@@ -13017,7 +13594,21 @@ struct UIArrowCalloutMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5011999, 2, 9, 9, 0xC42C586B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5011999, 2, 9, 9, 0x11F1EB32, Fields, -1 };
+};
+
+struct UIButtonMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 6237799, -1, 5, 5, 0x88A0B057, Fields, -1 };
 };
 
 struct UIChromieTimeExpansionInfoMeta
@@ -13039,7 +13630,24 @@ struct UIChromieTimeExpansionInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3488582, -1, 13, 13, 0x7C1717CE, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3488582, -1, 13, 13, 0x3425F0FF, Fields, -1 };
+};
+
+struct UICinematicIntroInfoMeta
+{
+    static constexpr DB2MetaField Fields[8] =
+    {
+        { FT_STRING, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 6155772, -1, 8, 8, 0x44820FD5, Fields, -1 };
 };
 
 struct UICovenantAbilityMeta
@@ -13052,7 +13660,7 @@ struct UICovenantAbilityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3502042, -1, 4, 4, 0x11D03E08, Fields, 0 };
+    static constexpr DB2Meta Instance{ 3502042, -1, 4, 4, 0x6809E08F, Fields, 0 };
 };
 
 struct UICovenantPreviewMeta
@@ -13077,7 +13685,7 @@ struct UICovenantPreviewMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3502043, 2, 16, 16, 0xDBB74257, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3502043, 2, 16, 16, 0x97798781, Fields, -1 };
 };
 
 struct UIDeadlyDebuffMeta
@@ -13094,7 +13702,7 @@ struct UIDeadlyDebuffMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4579858, 1, 8, 8, 0xFE4E561B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4579858, 1, 8, 8, 0x3FCA960D, Fields, -1 };
 };
 
 struct UIDungeonScoreRarityMeta
@@ -13115,12 +13723,12 @@ struct UIDungeonScoreRarityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4065278, 0, 12, 12, 0xC8D50D38, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4065278, 0, 12, 12, 0x6242874E, Fields, -1 };
 };
 
 struct UIEventToastMeta
 {
-    static constexpr DB2MetaField Fields[21] =
+    static constexpr DB2MetaField Fields[22] =
     {
         { FT_STRING, 1, true },
         { FT_STRING, 1, true },
@@ -13143,9 +13751,10 @@ struct UIEventToastMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3946498, 6, 21, 21, 0x1B94BDE2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3946498, 6, 22, 22, 0xEF224D81, Fields, -1 };
 };
 
 struct UIExpansionDisplayInfoMeta
@@ -13160,7 +13769,7 @@ struct UIExpansionDisplayInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1729547, 0, 6, 6, 0x64FFA4B9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1729547, 0, 6, 6, 0x4C41293C, Fields, -1 };
 };
 
 struct UIExpansionDisplayInfoIconMeta
@@ -13172,7 +13781,7 @@ struct UIExpansionDisplayInfoIconMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1729546, -1, 3, 3, 0xB5FB76BF, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1729546, -1, 3, 3, 0x54B6542E, Fields, -1 };
 };
 
 struct UIGenericWidgetDisplayMeta
@@ -13191,7 +13800,22 @@ struct UIGenericWidgetDisplayMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4861207, 3, 10, 10, 0x15320583, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4861207, 3, 10, 10, 0x712E00ED, Fields, -1 };
+};
+
+struct UIMapPinInfoMeta
+{
+    static constexpr DB2MetaField Fields[6] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 6237800, -1, 6, 6, 0xE8E5C344, Fields, -1 };
 };
 
 struct UIModifiedInstanceMeta
@@ -13208,7 +13832,7 @@ struct UIModifiedInstanceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4530951, -1, 8, 8, 0x1948D0B5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4530951, -1, 8, 8, 0x41E631A7, Fields, -1 };
 };
 
 struct UIScriptedAnimationEffectMeta
@@ -13243,7 +13867,7 @@ struct UIScriptedAnimationEffectMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3556601, -1, 26, 26, 0xD9F17C48, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3556601, -1, 26, 26, 0x016692F7, Fields, -1 };
 };
 
 struct UISplashScreenMeta
@@ -13267,7 +13891,20 @@ struct UISplashScreenMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2960122, -1, 15, 15, 0x5C67BB80, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2960122, -1, 15, 15, 0x258B0032, Fields, -1 };
+};
+
+struct UiCamFbackTalkingHeadChrRaceMeta
+{
+    static constexpr DB2MetaField Fields[4] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 3055924, -1, 4, 3, 0x86B8A1FD, Fields, 3 };
 };
 
 struct UiCamFbackTransmogChrRaceMeta
@@ -13281,7 +13918,7 @@ struct UiCamFbackTransmogChrRaceMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1261406, -1, 5, 5, 0x7C47244B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1261406, -1, 5, 5, 0x73A05FC7, Fields, -1 };
 };
 
 struct UiCamFbackTransmogWeaponMeta
@@ -13294,7 +13931,7 @@ struct UiCamFbackTransmogWeaponMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1261407, -1, 4, 4, 0xB6F384A3, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1261407, -1, 4, 4, 0xBDAFC2E9, Fields, -1 };
 };
 
 struct UiCameraMeta
@@ -13312,7 +13949,7 @@ struct UiCameraMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1120287, -1, 9, 9, 0x2F44A4B5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1120287, -1, 9, 9, 0x2FD2C951, Fields, -1 };
 };
 
 struct UiCameraTypeMeta
@@ -13324,7 +13961,7 @@ struct UiCameraTypeMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1120288, -1, 3, 3, 0xB158BEC0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1120288, -1, 3, 3, 0xF315BDCB, Fields, -1 };
 };
 
 struct UiCanvasMeta
@@ -13335,7 +13972,7 @@ struct UiCanvasMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1989363, -1, 2, 2, 0xB4407510, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1989363, -1, 2, 2, 0x9CA2CFB4, Fields, -1 };
 };
 
 struct UiCovenantDisplayInfoMeta
@@ -13357,7 +13994,7 @@ struct UiCovenantDisplayInfoMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3509132, -1, 13, 13, 0xFB57169A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3509132, -1, 13, 13, 0xAB70272F, Fields, -1 };
 };
 
 struct UiItemInteractionMeta
@@ -13383,12 +14020,12 @@ struct UiItemInteractionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3182424, -1, 17, 17, 0x4F85D70D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3182424, -1, 17, 17, 0x83EEB315, Fields, -1 };
 };
 
 struct UiMapMeta
 {
-    static constexpr DB2MetaField Fields[14] =
+    static constexpr DB2MetaField Fields[16] =
     {
         { FT_STRING, 1, true },
         { FT_INT, 1, false },
@@ -13404,9 +14041,11 @@ struct UiMapMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957206, 1, 14, 14, 0x69A8C369, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1957206, 1, 16, 16, 0x77AEDBE6, Fields, 2 };
 };
 
 struct UiMapArtMeta
@@ -13418,7 +14057,7 @@ struct UiMapArtMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957202, -1, 3, 3, 0xED57CAFB, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1957202, -1, 3, 3, 0x3AE7D144, Fields, -1 };
 };
 
 struct UiMapArtStyleLayerMeta
@@ -13436,7 +14075,7 @@ struct UiMapArtStyleLayerMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957208, -1, 9, 8, 0x7D2E349A, Fields, 8 };
+    static constexpr DB2Meta Instance{ 1957208, -1, 9, 8, 0x3F597F5A, Fields, 8 };
 };
 
 struct UiMapArtTileMeta
@@ -13450,7 +14089,7 @@ struct UiMapArtTileMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957210, -1, 5, 4, 0xB262E4E9, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1957210, -1, 5, 4, 0x2DA5B77B, Fields, 4 };
 };
 
 struct UiMapAssignmentMeta
@@ -13469,7 +14108,7 @@ struct UiMapAssignmentMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957219, 3, 10, 10, 0xFA228778, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1957219, 3, 10, 10, 0xF9899D73, Fields, 4 };
 };
 
 struct UiMapFogOfWarMeta
@@ -13482,7 +14121,7 @@ struct UiMapFogOfWarMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2006972, 0, 4, 4, 0x437EAE73, Fields, 1 };
+    static constexpr DB2Meta Instance{ 2006972, 0, 4, 4, 0xC42F6D05, Fields, 1 };
 };
 
 struct UiMapFogOfWarVisualizationMeta
@@ -13494,7 +14133,17 @@ struct UiMapFogOfWarVisualizationMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2006973, -1, 3, 3, 0x6337502A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2006973, -1, 3, 3, 0xD0E714A2, Fields, -1 };
+};
+
+struct UiMapGroupMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 6033745, -1, 1, 1, 0x6D5EB3BD, Fields, -1 };
 };
 
 struct UiMapGroupMemberMeta
@@ -13508,7 +14157,7 @@ struct UiMapGroupMemberMeta
         { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957204, -1, 5, 5, 0xBD83EBDC, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1957204, -1, 5, 5, 0x0FF75B01, Fields, 1 };
 };
 
 struct UiMapLinkMeta
@@ -13527,7 +14176,7 @@ struct UiMapLinkMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2030690, 2, 10, 10, 0x11F6CF6C, Fields, 3 };
+    static constexpr DB2Meta Instance{ 2030690, 2, 10, 10, 0x712A46E6, Fields, 3 };
 };
 
 struct UiMapXMapArtMeta
@@ -13539,7 +14188,7 @@ struct UiMapXMapArtMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957217, -1, 3, 2, 0x517CED19, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1957217, -1, 3, 2, 0xEAE7DA2A, Fields, 2 };
 };
 
 struct UiModelSceneMeta
@@ -13552,7 +14201,7 @@ struct UiModelSceneMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1548215, 0, 4, 4, 0xD6CFDD08, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1548215, 0, 4, 4, 0x7A47260D, Fields, -1 };
 };
 
 struct UiModelSceneActorMeta
@@ -13571,7 +14220,7 @@ struct UiModelSceneActorMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1548214, 2, 10, 10, 0x6B7EE2AC, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1548214, 2, 10, 10, 0xB506AAFE, Fields, 3 };
 };
 
 struct UiModelSceneActorDisplayMeta
@@ -13587,7 +14236,7 @@ struct UiModelSceneActorDisplayMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1548216, -1, 7, 7, 0xF4A979A2, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1548216, -1, 7, 7, 0x7BD2B582, Fields, -1 };
 };
 
 struct UiModelSceneCameraMeta
@@ -13612,13 +14261,14 @@ struct UiModelSceneCameraMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1548213, 3, 16, 16, 0x1C131B80, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1548213, 3, 16, 16, 0xCA931A83, Fields, 4 };
 };
 
 struct UiPartyPoseMeta
 {
-    static constexpr DB2MetaField Fields[10] =
+    static constexpr DB2MetaField Fields[12] =
     {
+        { FT_STRING, 1, true },
         { FT_STRING, 1, true },
         { FT_INT, 1, false },
         { FT_INT, 1, true },
@@ -13629,9 +14279,10 @@ struct UiPartyPoseMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1993323, 1, 10, 9, 0xF02E09B6, Fields, 9 };
+    static constexpr DB2Meta Instance{ 1993323, 2, 12, 11, 0x1AE713AB, Fields, 11 };
 };
 
 struct UiQuestDetailsThemeMeta
@@ -13644,7 +14295,7 @@ struct UiQuestDetailsThemeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3448518, -1, 4, 4, 0xAF517528, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3448518, -1, 4, 4, 0xE7D161DC, Fields, -1 };
 };
 
 struct UiTextureAtlasMeta
@@ -13658,7 +14309,7 @@ struct UiTextureAtlasMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 897470, 0, 5, 5, 0x84691E24, Fields, -1 };
+    static constexpr DB2Meta Instance{ 897470, 0, 5, 5, 0xEF905486, Fields, -1 };
 };
 
 struct UiTextureAtlasElementMeta
@@ -13669,7 +14320,7 @@ struct UiTextureAtlasElementMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1989276, 1, 2, 2, 0x402AB955, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1989276, 1, 2, 2, 0x7CCBD18F, Fields, -1 };
 };
 
 struct UiTextureAtlasElementSliceDataMeta
@@ -13685,16 +14336,18 @@ struct UiTextureAtlasElementSliceDataMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 5319042, 0, 7, 7, 0x105CAB2E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5319042, 0, 7, 7, 0x32F4C664, Fields, -1 };
 };
 
 struct UiTextureAtlasMemberMeta
 {
-    static constexpr DB2MetaField Fields[12] =
+    static constexpr DB2MetaField Fields[14] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },
         { FT_INT, 1, false },
         { FT_SHORT, 1, false },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
         { FT_SHORT, 1, true },
         { FT_SHORT, 1, true },
         { FT_SHORT, 1, true },
@@ -13706,7 +14359,7 @@ struct UiTextureAtlasMemberMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 897532, 1, 12, 12, 0x2BD64311, Fields, 7 };
+    static constexpr DB2Meta Instance{ 897532, 1, 14, 14, 0x75E12F73, Fields, 9 };
 };
 
 struct UiTextureKitMeta
@@ -13716,7 +14369,7 @@ struct UiTextureKitMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 939159, -1, 1, 1, 0x5B96D427, Fields, -1 };
+    static constexpr DB2Meta Instance{ 939159, -1, 1, 1, 0x4740638A, Fields, -1 };
 };
 
 struct UiWeeklyRewardMeta
@@ -13729,7 +14382,7 @@ struct UiWeeklyRewardMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4737221, 0, 4, 4, 0x03D3F36F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4737221, 0, 4, 4, 0x0AF4CDD1, Fields, -1 };
 };
 
 struct UiWidgetMeta
@@ -13747,7 +14400,7 @@ struct UiWidgetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1983278, 1, 9, 9, 0xD38CBB29, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1983278, 1, 9, 9, 0x0B3EABFD, Fields, -1 };
 };
 
 struct UiWidgetConstantSourceMeta
@@ -13759,7 +14412,7 @@ struct UiWidgetConstantSourceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1983639, -1, 3, 2, 0x4960D0A0, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1983639, -1, 3, 2, 0x689BD038, Fields, 2 };
 };
 
 struct UiWidgetDataSourceMeta
@@ -13772,7 +14425,7 @@ struct UiWidgetDataSourceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1983640, -1, 4, 3, 0xF2B11731, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1983640, -1, 4, 3, 0xC3560ADB, Fields, 3 };
 };
 
 struct UiWidgetMapMeta
@@ -13783,7 +14436,7 @@ struct UiWidgetMapMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2322531, -1, 2, 1, 0xF9ADC09E, Fields, 1 };
+    static constexpr DB2Meta Instance{ 2322531, -1, 2, 1, 0xF88A11E0, Fields, 1 };
 };
 
 struct UiWidgetSetMeta
@@ -13794,7 +14447,7 @@ struct UiWidgetSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3055925, -1, 2, 2, 0x271866B0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3055925, -1, 2, 2, 0x53EBAF4D, Fields, -1 };
 };
 
 struct UiWidgetStringSourceMeta
@@ -13806,7 +14459,7 @@ struct UiWidgetStringSourceMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1983641, -1, 3, 2, 0xA23E18E8, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1983641, -1, 3, 2, 0x0E572854, Fields, 2 };
 };
 
 struct UiWidgetVisTypeDataReqMeta
@@ -13821,7 +14474,7 @@ struct UiWidgetVisTypeDataReqMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2740907, 1, 6, 5, 0x5FB9338F, Fields, 5 };
+    static constexpr DB2Meta Instance{ 2740907, 1, 6, 5, 0x7E725F61, Fields, 5 };
 };
 
 struct UiWidgetVisualizationMeta
@@ -13840,7 +14493,7 @@ struct UiWidgetVisualizationMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1983276, -1, 10, 10, 0xC3CDAA95, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1983276, -1, 10, 10, 0x4FB2B780, Fields, -1 };
 };
 
 struct UiWidgetXWidgetSetMeta
@@ -13851,7 +14504,7 @@ struct UiWidgetXWidgetSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3386363, -1, 2, 1, 0x7704E8C2, Fields, 1 };
+    static constexpr DB2Meta Instance{ 3386363, -1, 2, 1, 0xA7D2352A, Fields, 1 };
 };
 
 struct UnitBloodMeta
@@ -13866,7 +14519,7 @@ struct UnitBloodMeta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1284821, -1, 6, 6, 0x0FF08208, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1284821, -1, 6, 6, 0x3BE373BC, Fields, -1 };
 };
 
 struct UnitBloodLevelsMeta
@@ -13876,20 +14529,20 @@ struct UnitBloodLevelsMeta
         { FT_BYTE, 3, false },
     };
 
-    static constexpr DB2Meta Instance{ 1268904, -1, 1, 1, 0xCF406CD7, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1268904, -1, 1, 1, 0x13B47815, Fields, -1 };
 };
 
 struct UnitConditionMeta
 {
     static constexpr DB2MetaField Fields[4] =
     {
-        { FT_BYTE, 1, false },
+        { FT_INT, 1, true },
         { FT_BYTE, 8, false },
-        { FT_BYTE, 8, true },
+        { FT_BYTE, 8, false },
         { FT_INT, 8, true },
     };
 
-    static constexpr DB2Meta Instance{ 1120959, -1, 4, 4, 0x383D75FD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1120959, -1, 4, 4, 0x215FAF83, Fields, -1 };
 };
 
 struct UnitPowerBarMeta
@@ -13914,7 +14567,7 @@ struct UnitPowerBarMeta
         { FT_INT, 6, true },
     };
 
-    static constexpr DB2Meta Instance{ 1237753, -1, 16, 16, 0xE815439F, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1237753, -1, 16, 16, 0x9840FB71, Fields, -1 };
 };
 
 struct VehicleMeta
@@ -13941,7 +14594,7 @@ struct VehicleMeta
         { FT_SHORT, 3, false },
     };
 
-    static constexpr DB2Meta Instance{ 1368621, -1, 18, 18, 0xC064602E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1368621, -1, 18, 18, 0xEF5C7D41, Fields, -1 };
 };
 
 struct VehiclePOITypeMeta
@@ -13955,7 +14608,7 @@ struct VehiclePOITypeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3311405, -1, 5, 5, 0xC5DB21A0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3311405, -1, 5, 5, 0x55F18A29, Fields, -1 };
 };
 
 struct VehicleSeatMeta
@@ -13967,19 +14620,6 @@ struct VehicleSeatMeta
         { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
-        { FT_BYTE, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
         { FT_INT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
@@ -13988,9 +14628,22 @@ struct VehicleSeatMeta
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
         { FT_FLOAT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
+        { FT_SHORT, 1, true },
         { FT_SHORT, 1, true },
         { FT_BYTE, 1, true },
         { FT_SHORT, 1, true },
@@ -14025,7 +14678,7 @@ struct VehicleSeatMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1345447, -1, 61, 61, 0x8FE8854B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1345447, -1, 61, 61, 0x53C25193, Fields, -1 };
 };
 
 struct VehicleUIIndSeatMeta
@@ -14038,7 +14691,7 @@ struct VehicleUIIndSeatMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1279741, -1, 4, 3, 0xB64B1BD8, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1279741, -1, 4, 3, 0x1A05C81D, Fields, 3 };
 };
 
 struct VehicleUIIndicatorMeta
@@ -14048,12 +14701,12 @@ struct VehicleUIIndicatorMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1279740, -1, 1, 1, 0xB127675D, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1279740, -1, 1, 1, 0x13526596, Fields, -1 };
 };
 
 struct VignetteMeta
 {
-    static constexpr DB2MetaField Fields[10] =
+    static constexpr DB2MetaField Fields[12] =
     {
         { FT_STRING, 1, true },
         { FT_INT, 1, false },
@@ -14065,9 +14718,23 @@ struct VignetteMeta
         { FT_BYTE, 1, true },
         { FT_INT, 1, true },
         { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 892861, -1, 10, 10, 0xEC171292, Fields, -1 };
+    static constexpr DB2Meta Instance{ 892861, -1, 12, 12, 0x1A5A691B, Fields, -1 };
+};
+
+struct VignetteUiWidgetSetMeta
+{
+    static constexpr DB2MetaField Fields[3] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_BYTE, 1, false },
+    };
+
+    static constexpr DB2Meta Instance{ 5634692, -1, 3, 3, 0x371E3280, Fields, -1 };
 };
 
 struct VirtualAttachmentMeta
@@ -14078,7 +14745,7 @@ struct VirtualAttachmentMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1634482, -1, 2, 2, 0x96EE7037, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1634482, -1, 2, 2, 0xECAB5C57, Fields, -1 };
 };
 
 struct VirtualAttachmentCustomizationMeta
@@ -14090,7 +14757,7 @@ struct VirtualAttachmentCustomizationMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1634480, -1, 3, 3, 0xE7753F5C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1634480, -1, 3, 3, 0xD7602227, Fields, -1 };
 };
 
 struct VocalUISoundsMeta
@@ -14103,7 +14770,7 @@ struct VocalUISoundsMeta
         { FT_INT, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267067, -1, 4, 4, 0x38987A6C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267067, -1, 4, 4, 0xA68C221C, Fields, -1 };
 };
 
 struct VoiceOverPriorityMeta
@@ -14115,7 +14782,7 @@ struct VoiceOverPriorityMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4211372, -1, 3, 3, 0xA54084F0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4211372, -1, 3, 3, 0x11177BA9, Fields, -1 };
 };
 
 struct VolumeFogConditionMeta
@@ -14128,7 +14795,7 @@ struct VolumeFogConditionMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3587230, -1, 4, 3, 0xA8C126ED, Fields, 3 };
+    static constexpr DB2Meta Instance{ 3587230, -1, 4, 3, 0x00F4D6A5, Fields, 3 };
 };
 
 struct WMOAreaTableMeta
@@ -14152,7 +14819,7 @@ struct WMOAreaTableMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1355528, 1, 15, 15, 0xCD7AF6E0, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1355528, 1, 15, 15, 0x58247DE7, Fields, 2 };
 };
 
 struct WMOMinimapTextureMeta
@@ -14166,7 +14833,66 @@ struct WMOMinimapTextureMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1323241, -1, 5, 4, 0x2A1E430A, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1323241, -1, 5, 4, 0x01230A50, Fields, 4 };
+};
+
+struct WarbandSceneMeta
+{
+    static constexpr DB2MetaField Fields[5] =
+    {
+        { FT_FLOAT, 3, true },
+        { FT_FLOAT, 3, true },
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5736126, -1, 5, 5, 0x820B84A9, Fields, 2 };
+};
+
+struct WarbandSceneAnimationMeta
+{
+    static constexpr DB2MetaField Fields[8] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_BYTE, 1, false },
+        { FT_BYTE, 1, false },
+        { FT_INT, 2, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5754555, -1, 8, 8, 0xFE782BEF, Fields, -1 };
+};
+
+struct WarbandScenePlacementMeta
+{
+    static constexpr DB2MetaField Fields[8] =
+    {
+        { FT_FLOAT, 3, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_FLOAT, 1, true },
+        { FT_INT, 1, false },
+        { FT_INT, 1, false },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5736130, 1, 8, 7, 0x92B0F0A8, Fields, 7 };
+};
+
+struct WarbandScenePlcmntAnimOverrideMeta
+{
+    static constexpr DB2MetaField Fields[2] =
+    {
+        { FT_INT, 1, true },
+        { FT_INT, 1, true },
+    };
+
+    static constexpr DB2Meta Instance{ 5756286, -1, 2, 2, 0xDC611338, Fields, -1 };
 };
 
 struct WaterfallDataMeta
@@ -14194,7 +14920,7 @@ struct WaterfallDataMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2565222, -1, 19, 19, 0x2169A76A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2565222, -1, 19, 19, 0xA04B6E29, Fields, -1 };
 };
 
 struct WaypointEdgeMeta
@@ -14208,7 +14934,7 @@ struct WaypointEdgeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2565258, -1, 5, 5, 0x0E663F8B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2565258, -1, 5, 5, 0xA411A334, Fields, -1 };
 };
 
 struct WaypointNodeMeta
@@ -14223,7 +14949,7 @@ struct WaypointNodeMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2565265, -1, 6, 6, 0xCE16D4A6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2565265, -1, 6, 6, 0x3B97E4DE, Fields, -1 };
 };
 
 struct WaypointSafeLocsMeta
@@ -14234,7 +14960,7 @@ struct WaypointSafeLocsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 2820850, -1, 2, 2, 0xEB35FD5C, Fields, -1 };
+    static constexpr DB2Meta Instance{ 2820850, -1, 2, 2, 0xCB4F0BC3, Fields, -1 };
 };
 
 struct WbAccessControlListMeta
@@ -14248,7 +14974,7 @@ struct WbAccessControlListMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 879634, -1, 5, 5, 0xF9DAF847, Fields, -1 };
+    static constexpr DB2Meta Instance{ 879634, -1, 5, 5, 0x814E6C18, Fields, -1 };
 };
 
 struct WeaponImpactSoundsMeta
@@ -14264,7 +14990,7 @@ struct WeaponImpactSoundsMeta
         { FT_INT, 11, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267648, -1, 7, 7, 0xCC11734B, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267648, -1, 7, 7, 0x21DD049D, Fields, -1 };
 };
 
 struct WeaponSwingSounds2Meta
@@ -14276,7 +15002,7 @@ struct WeaponSwingSounds2Meta
         { FT_INT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267068, -1, 3, 3, 0x7F3FBC0A, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267068, -1, 3, 3, 0x8CC18B68, Fields, -1 };
 };
 
 struct WeaponTrailMeta
@@ -14294,7 +15020,7 @@ struct WeaponTrailMeta
         { FT_FLOAT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 982461, -1, 9, 9, 0xCD83E5F9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 982461, -1, 9, 9, 0x334DF54B, Fields, -1 };
 };
 
 struct WeaponTrailModelDefMeta
@@ -14306,7 +15032,7 @@ struct WeaponTrailModelDefMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1239843, -1, 3, 2, 0xC737CAD2, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1239843, -1, 3, 2, 0x0E7C9A0C, Fields, 2 };
 };
 
 struct WeaponTrailParamMeta
@@ -14325,7 +15051,7 @@ struct WeaponTrailParamMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1239842, -1, 10, 9, 0xDC6EF9B4, Fields, 9 };
+    static constexpr DB2Meta Instance{ 1239842, -1, 10, 9, 0xD0867913, Fields, 9 };
 };
 
 struct WeatherMeta
@@ -14357,7 +15083,7 @@ struct WeatherMeta
         { FT_FLOAT, 3, true },
     };
 
-    static constexpr DB2Meta Instance{ 1343311, -1, 23, 23, 0x354627A5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343311, -1, 23, 23, 0x62855DFC, Fields, -1 };
 };
 
 struct WeatherXParticulateMeta
@@ -14368,7 +15094,7 @@ struct WeatherXParticulateMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1965591, -1, 2, 1, 0xD6E739FE, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1965591, -1, 2, 1, 0x568F5BC4, Fields, 1 };
 };
 
 struct WeeklyRewardChestActivityTierMeta
@@ -14380,7 +15106,7 @@ struct WeeklyRewardChestActivityTierMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 5390446, 0, 3, 3, 0x4265F6DC, Fields, -1 };
+    static constexpr DB2Meta Instance{ 5390446, 0, 3, 3, 0x93CE3FB3, Fields, -1 };
 };
 
 struct WeeklyRewardChestThresholdMeta
@@ -14392,7 +15118,7 @@ struct WeeklyRewardChestThresholdMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 3580962, -1, 3, 3, 0xBEF159C4, Fields, -1 };
+    static constexpr DB2Meta Instance{ 3580962, -1, 3, 3, 0xD70784C5, Fields, -1 };
 };
 
 struct WindSettingsMeta
@@ -14411,7 +15137,7 @@ struct WindSettingsMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 943871, -1, 10, 10, 0xE359B6F6, Fields, -1 };
+    static constexpr DB2Meta Instance{ 943871, -1, 10, 10, 0x5DE91550, Fields, -1 };
 };
 
 struct WorldBossLockoutMeta
@@ -14422,7 +15148,7 @@ struct WorldBossLockoutMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 975279, -1, 2, 2, 0x245D9086, Fields, -1 };
+    static constexpr DB2Meta Instance{ 975279, -1, 2, 2, 0xED46F0AE, Fields, -1 };
 };
 
 struct WorldChunkSoundsMeta
@@ -14438,7 +15164,7 @@ struct WorldChunkSoundsMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1267069, -1, 7, 7, 0x589C31E5, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1267069, -1, 7, 7, 0x01DC06CF, Fields, -1 };
 };
 
 struct WorldEffectMeta
@@ -14453,7 +15179,7 @@ struct WorldEffectMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1343312, -1, 6, 6, 0x79117AA9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1343312, -1, 6, 6, 0x2134DDFE, Fields, -1 };
 };
 
 struct WorldElapsedTimerMeta
@@ -14465,7 +15191,7 @@ struct WorldElapsedTimerMeta
         { FT_BYTE, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1135240, -1, 3, 3, 0x30FF7138, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1135240, -1, 3, 3, 0x057E7307, Fields, -1 };
 };
 
 struct WorldLayerMapSetMeta
@@ -14478,7 +15204,7 @@ struct WorldLayerMapSetMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4550228, 2, 4, 4, 0x64C69433, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4550228, 2, 4, 4, 0x416E01AD, Fields, -1 };
 };
 
 struct WorldMapOverlayMeta
@@ -14500,7 +15226,7 @@ struct WorldMapOverlayMeta
         { FT_INT, 4, false },
     };
 
-    static constexpr DB2Meta Instance{ 1134579, 0, 13, 13, 0x00F18FC5, Fields, 1 };
+    static constexpr DB2Meta Instance{ 1134579, 0, 13, 13, 0x4CFAAE44, Fields, 1 };
 };
 
 struct WorldMapOverlayTileMeta
@@ -14514,7 +15240,7 @@ struct WorldMapOverlayTileMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1957212, -1, 5, 4, 0x341D6DB6, Fields, 4 };
+    static constexpr DB2Meta Instance{ 1957212, -1, 5, 4, 0x2C843422, Fields, 4 };
 };
 
 struct WorldShadowMeta
@@ -14527,7 +15253,7 @@ struct WorldShadowMeta
         { FT_FLOAT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 4680120, -1, 4, 4, 0x11BC9DDD, Fields, -1 };
+    static constexpr DB2Meta Instance{ 4680120, -1, 4, 4, 0xFAF1FC05, Fields, -1 };
 };
 
 struct WorldStateExpressionMeta
@@ -14537,7 +15263,7 @@ struct WorldStateExpressionMeta
         { FT_STRING_NOT_LOCALIZED, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1332558, -1, 1, 1, 0x6695F131, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1332558, -1, 1, 1, 0xCA33F540, Fields, -1 };
 };
 
 struct WorldStateZoneSoundsMeta
@@ -14555,7 +15281,7 @@ struct WorldStateZoneSoundsMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1266941, -1, 9, 9, 0x52C5ECE9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1266941, -1, 9, 9, 0xBF9A8A42, Fields, -1 };
 };
 
 struct World_PVP_AreaMeta
@@ -14571,7 +15297,7 @@ struct World_PVP_AreaMeta
         { FT_SHORT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1310255, -1, 7, 7, 0xDB4FFDE0, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310255, -1, 7, 7, 0x06AB7E95, Fields, -1 };
 };
 
 struct ZoneIntroMusicTableMeta
@@ -14584,7 +15310,7 @@ struct ZoneIntroMusicTableMeta
         { FT_SHORT, 1, false },
     };
 
-    static constexpr DB2Meta Instance{ 1310251, -1, 4, 4, 0xBEB0D6B9, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310251, -1, 4, 4, 0xE1F93744, Fields, -1 };
 };
 
 struct ZoneLightMeta
@@ -14601,7 +15327,7 @@ struct ZoneLightMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1310253, -1, 8, 8, 0xF6796C55, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310253, -1, 8, 8, 0x94CE95E0, Fields, -1 };
 };
 
 struct ZoneLightPointMeta
@@ -14613,7 +15339,7 @@ struct ZoneLightPointMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1310256, -1, 3, 2, 0x99D8C676, Fields, 2 };
+    static constexpr DB2Meta Instance{ 1310256, -1, 3, 2, 0xDE2377FB, Fields, 2 };
 };
 
 struct ZoneMusicMeta
@@ -14626,7 +15352,7 @@ struct ZoneMusicMeta
         { FT_INT, 2, false },
     };
 
-    static constexpr DB2Meta Instance{ 1310254, -1, 4, 4, 0x7894E43E, Fields, -1 };
+    static constexpr DB2Meta Instance{ 1310254, -1, 4, 4, 0x72572D05, Fields, -1 };
 };
 
 struct ZoneStoryMeta
@@ -14639,7 +15365,7 @@ struct ZoneStoryMeta
         { FT_INT, 1, true },
     };
 
-    static constexpr DB2Meta Instance{ 1797864, -1, 4, 3, 0x4C6C5CD7, Fields, 3 };
+    static constexpr DB2Meta Instance{ 1797864, -1, 4, 3, 0x3D386FF2, Fields, 3 };
 };
 
 #endif // DB2Metadata_h__

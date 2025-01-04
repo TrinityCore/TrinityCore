@@ -287,6 +287,7 @@ public:
                 if (Vanish_Timer <= diff)
                 {
                     DoCast(me, SPELL_VANISH);
+                    me->SetCanMelee(false);
                     InVanish = true;
                     Vanish_Timer = 30000;
                     Wait_Timer = 5000;
@@ -316,11 +317,9 @@ public:
                         target->CastSpell(target, SPELL_GARROTE, true);
 
                     InVanish = false;
+                    me->SetCanMelee(true);
                 } else Wait_Timer -= diff;
             }
-
-            if (!InVanish)
-                DoMeleeAttackIfReady();
         }
     };
 };
@@ -371,8 +370,6 @@ struct boss_moroes_guestAI : public ScriptedAI
     {
         if (instance->GetBossState(DATA_MOROES) != IN_PROGRESS)
             EnterEvadeMode();
-
-        DoMeleeAttackIfReady();
     }
 };
 

@@ -19,11 +19,10 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
-#include "World.h"
 #include "WorldSession.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
@@ -61,18 +60,19 @@ void WorldPackets::Party::PartyInviteClient::Read()
 
 WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 {
-    _worldPacket.WriteBit(CanAccept);
-    _worldPacket.WriteBit(MightCRZYou);
-    _worldPacket.WriteBit(IsXRealm);
-    _worldPacket.WriteBit(MustBeBNetFriend);
-    _worldPacket.WriteBit(AllowMultipleRoles);
-    _worldPacket.WriteBit(QuestSessionActive);
-    _worldPacket.WriteBits(InviterName.length(), 6);
+    _worldPacket << Bits<1>(CanAccept);
+    _worldPacket << Bits<1>(IsXRealm);
+    _worldPacket << Bits<1>(IsXNativeRealm);
+    _worldPacket << Bits<1>(ShouldSquelch);
+    _worldPacket << Bits<1>(AllowMultipleRoles);
+    _worldPacket << Bits<1>(QuestSessionActive);
+    _worldPacket << BitsSize<6>(InviterName);
+    _worldPacket << Bits<1>(IsCrossFaction);
 
     _worldPacket << InviterRealm;
     _worldPacket << InviterGUID;
     _worldPacket << InviterBNetAccountId;
-    _worldPacket << uint16(Unk1);
+    _worldPacket << uint16(InviterCfgRealmID);
     _worldPacket << uint8(ProposedRoles);
     _worldPacket << uint32(LfgSlots.size());
     _worldPacket << uint32(LfgCompletedMask);
@@ -95,7 +95,8 @@ void WorldPackets::Party::PartyInvite::Initialize(Player const* inviter, int32 p
 
     ProposedRoles = proposedRoles;
 
-    InviterRealm = Auth::VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
+    if (std::shared_ptr<Realm const> realm = sRealmList->GetRealm(*inviter->m_playerData->VirtualPlayerRealm))
+        InviterRealm = Auth::VirtualRealmInfo(realm->Id.GetAddress(), true, false, realm->Name, realm->NormalizedName);
 }
 
 void WorldPackets::Party::PartyInviteResponse::Read()
@@ -174,9 +175,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberAuraSta
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::CTROptions const& ctrOptions)
 {
-    data << uint32(ctrOptions.ContentTuningConditionMask);
-    data << int32(ctrOptions.Unused901);
-    data << uint32(ctrOptions.ExpansionLevelMask);
+    data << uint32(ctrOptions.ConditionalFlags);
+    data << int32(ctrOptions.FactionGroup);
+    data << uint32(ctrOptions.ChromieTimeExpansionMask);
 
     return data;
 }
@@ -508,6 +509,7 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << uint32(SequenceNum);
     _worldPacket << LeaderGUID;
     _worldPacket << uint8(LeaderFactionGroup);
+    _worldPacket << int32(PingRestriction);
     _worldPacket << uint32(PlayerList.size());
     _worldPacket.WriteBit(LfgInfos.has_value());
     _worldPacket.WriteBit(LootSettings.has_value());
@@ -631,8 +633,12 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     MemberStats.SpecID = AsUnderlyingType(player->GetPrimarySpecialization());
     MemberStats.PartyType[0] = player->m_playerData->PartyType[0];
     MemberStats.PartyType[1] = player->m_playerData->PartyType[1];
-    MemberStats.WmoGroupID = 0;
-    MemberStats.WmoDoodadPlacementID = 0;
+
+    if (WmoLocation const* wmoLocation = player->GetCurrentWmo())
+    {
+        MemberStats.WmoGroupID = wmoLocation->GroupId;
+        MemberStats.WmoDoodadPlacementID = wmoLocation->UniqueId;
+    }
 
     // Vehicle
     if (::Vehicle const* vehicle = player->GetVehicle())
@@ -703,6 +709,10 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
             MemberStats.PetStats->Auras.push_back(aura);
         }
     }
+
+    MemberStats.ChromieTime.ConditionalFlags = player->m_playerData->CtrOptions->ConditionalFlags;
+    MemberStats.ChromieTime.FactionGroup = player->m_playerData->CtrOptions->FactionGroup;
+    MemberStats.ChromieTime.ChromieTimeExpansionMask = player->m_playerData->CtrOptions->ChromieTimeExpansionMask;
 }
 
 WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
@@ -731,9 +741,9 @@ WorldPacket const* WorldPackets::Party::BroadcastSummonResponse::Write()
 
 void WorldPackets::Party::SetRestrictPingsToAssistants::Read()
 {
-    bool hasPartyIndex = _worldPacket.ReadBit();
-    RestrictPingsToAssistants = _worldPacket.ReadBit();
-    if (hasPartyIndex)
+    _worldPacket >> OptionalInit(PartyIndex);
+    _worldPacket >> As<int32>(RestrictTo);
+    if (PartyIndex)
         _worldPacket >> PartyIndex.emplace();
 }
 
@@ -741,8 +751,16 @@ void WorldPackets::Party::SendPingUnit::Read()
 {
     _worldPacket >> SenderGUID;
     _worldPacket >> TargetGUID;
-    Type = _worldPacket.read<PingSubjectType, uint8>();
+    _worldPacket >> As<uint8>(Type);
     _worldPacket >> PinFrameID;
+    _worldPacket >> PingDuration;
+    _worldPacket >> OptionalInit(CreatureID);
+    _worldPacket >> OptionalInit(SpellOverrideNameID);
+    if (CreatureID)
+        _worldPacket >> *CreatureID;
+
+    if (SpellOverrideNameID)
+        _worldPacket >> *SpellOverrideNameID;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
@@ -751,6 +769,16 @@ WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
     _worldPacket << TargetGUID;
     _worldPacket << uint8(Type);
     _worldPacket << uint32(PinFrameID);
+    _worldPacket << PingDuration;
+    _worldPacket << OptionalInit(CreatureID);
+    _worldPacket << OptionalInit(SpellOverrideNameID);
+    _worldPacket.FlushBits();
+
+    if (CreatureID)
+        _worldPacket << uint32(*CreatureID);
+
+    if (SpellOverrideNameID)
+        _worldPacket << uint32(*SpellOverrideNameID);
 
     return &_worldPacket;
 }
@@ -760,8 +788,10 @@ void WorldPackets::Party::SendPingWorldPoint::Read()
     _worldPacket >> SenderGUID;
     _worldPacket >> MapID;
     _worldPacket >> Point;
-    Type = _worldPacket.read<PingSubjectType, uint8>();
+    _worldPacket >> As<int32>(Type);
     _worldPacket >> PinFrameID;
+    _worldPacket >> Transport;
+    _worldPacket >> PingDuration;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()
@@ -770,7 +800,9 @@ WorldPacket const* WorldPackets::Party::ReceivePingWorldPoint::Write()
     _worldPacket << MapID;
     _worldPacket << Point;
     _worldPacket << uint8(Type);
-    _worldPacket << PinFrameID;
+    _worldPacket << uint32(PinFrameID);
+    _worldPacket << Transport;
+    _worldPacket << PingDuration;
 
     return &_worldPacket;
 }

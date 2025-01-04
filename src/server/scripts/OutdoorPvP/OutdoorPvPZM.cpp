@@ -119,7 +119,7 @@ void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, uint32 zone)
         if (m_Graveyard->GetGraveyardState() & ZM_GRAVEYARD_A)
             player->CastSpell(player, ZM_CAPTURE_BUFF, true);
     }
-    else
+    else if (player->GetTeam() == HORDE)
     {
         if (m_Graveyard->GetGraveyardState() & ZM_GRAVEYARD_H)
             player->CastSpell(player, ZM_CAPTURE_BUFF, true);
@@ -140,7 +140,6 @@ void OutdoorPvPZM::HandlePlayerLeaveZone(Player* player, uint32 zone)
 OutdoorPvPZM::OutdoorPvPZM(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_ZM;
-    m_Graveyard = nullptr;
     m_AllianceTowersControlled = 0;
     m_HordeTowersControlled = 0;
 
@@ -178,7 +177,7 @@ bool OutdoorPvPZM::SetupOutdoorPvP()
     for (uint8 i = 0; i < OutdoorPvPZMBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPZMBuffZones[i]);
 
-    m_Graveyard = new OPvPCapturePointZM_Graveyard(this);
+    m_Graveyard = std::make_unique<OPvPCapturePointZM_Graveyard>(this);
 
     return true;
 }

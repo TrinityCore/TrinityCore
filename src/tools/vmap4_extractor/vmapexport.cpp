@@ -30,6 +30,7 @@
 #include "wmo.h"
 #include <algorithm>
 #include <CascLib.h>
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <list>
@@ -39,12 +40,6 @@
 #include <vector>
 #include <cstdio>
 #include <cerrno>
-#include <sys/stat.h>
-
-#ifdef _WIN32
-    #include <direct.h>
-    #define mkdir _mkdir
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -127,7 +122,7 @@ bool OpenCascStorage(int locale)
 
         return true;
     }
-    catch (boost::filesystem::filesystem_error const& error)
+    catch (std::exception const& error)
     {
         printf("error opening casc storage : %s\n", error.what());
         return false;
@@ -156,7 +151,7 @@ uint32 GetInstalledLocalesMask()
 
         return storage->GetInstalledLocalesMask();
     }
-    catch (boost::filesystem::filesystem_error const& error)
+    catch (std::exception const& error)
     {
         printf("Unable to determine installed locales mask: %s\n", error.what());
     }
@@ -164,11 +159,14 @@ uint32 GetInstalledLocalesMask()
     return 0;
 }
 
+uint32 uniqueObjectIdGenerator = std::numeric_limits<uint32>::max() - 1;
 std::map<std::pair<uint32, uint16>, uint32> uniqueObjectIds;
 
-uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId)
+uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId, bool isWmo)
 {
-    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), uniqueObjectIds.size() + 1).first->second;
+    // WMO client ids must be preserved, they are used in DB2 files
+    uint32 newId = isWmo ? clientId : uniqueObjectIdGenerator--;
+    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), newId).first->second;
 }
 
 // Local testing functions
@@ -187,12 +185,11 @@ bool ExtractSingleWmo(std::string& fname)
     // Copy files from archive
     std::string originalName = fname;
 
-    char szLocalFile[1024];
     char* plain_name = GetPlainName(&fname[0]);
     NormalizeFileName(plain_name, strlen(plain_name));
-    sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
+    std::string szLocalFile = Trinity::StringFormat("{}/{}", szWorkDirWmo, plain_name);
 
-    if (FileExists(szLocalFile))
+    if (FileExists(szLocalFile.c_str()))
         return true;
 
     int p = 0;
@@ -213,10 +210,10 @@ bool ExtractSingleWmo(std::string& fname)
         printf("Couldn't open RootWmo!!!\n");
         return true;
     }
-    FILE *output = fopen(szLocalFile,"wb");
+    FILE *output = fopen(szLocalFile.c_str(),"wb");
     if(!output)
     {
-        printf("couldn't open %s for writing!\n", szLocalFile);
+        printf("couldn't open %s for writing!\n", szLocalFile.c_str());
         return false;
     }
     froot.ConvertToVMAPRootWmo(output);
@@ -225,19 +222,29 @@ bool ExtractSingleWmo(std::string& fname)
     int Wmo_nVertices = 0;
     uint32 groupCount = 0;
     //printf("root has %d groups\n", froot->nGroups);
+    std::vector<WMOGroup> groups;
+    groups.reserve(froot.groupFileDataIDs.size());
     for (std::size_t i = 0; i < froot.groupFileDataIDs.size(); ++i)
     {
         std::string s = Trinity::StringFormat("FILE{:08X}.xxx", froot.groupFileDataIDs[i]);
-        WMOGroup fgroup(s);
+        WMOGroup& fgroup = groups.emplace_back(s);
         if (!fgroup.open(&froot))
         {
             printf("Could not open all Group file for: %s\n", plain_name);
             file_ok = false;
             break;
         }
+    }
 
+    for (WMOGroup& fgroup : groups)
+    {
         if (fgroup.ShouldSkip(&froot))
             continue;
+
+        if (fgroup.mogpFlags2 & 0x80
+            && fgroup.parentOrFirstChildSplitGroupIndex >= 0
+            && size_t(fgroup.parentOrFirstChildSplitGroupIndex) < groups.size())
+            fgroup.groupWMOID = groups[fgroup.parentOrFirstChildSplitGroupIndex].groupWMOID;
 
         Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
         ++groupCount;
@@ -262,7 +269,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     // Delete the extracted file in the case of an error
     if (!file_ok)
-        remove(szLocalFile);
+        remove(szLocalFile.c_str());
     return true;
 }
 
@@ -427,7 +434,7 @@ static bool RetardCheck()
             if (itr->path().extension() == ".MPQ")
             {
                 printf("MPQ files found in Data directory!\n");
-                printf("This tool works only with World of Warcraft: Battle for Azeroth\n");
+                printf("This tool works only with World of Warcraft: Dragonflight\n");
                 printf("\n");
                 printf("To extract maps for Wrath of the Lich King, rebuild tools using 3.3.5 branch!\n");
                 printf("\n");
@@ -463,12 +470,10 @@ int main(int argc, char ** argv)
         return 1;
 
     // some simple check if working dir is dirty
-    else
+    boost::filesystem::path sdir_bin = boost::filesystem::path(szWorkDirWmo) / "dir_bin";
     {
-        std::string sdir = std::string(szWorkDirWmo) + "/dir";
-        std::string sdir_bin = std::string(szWorkDirWmo) + "/dir_bin";
-        struct stat status;
-        if (!stat(sdir.c_str(), &status) || !stat(sdir_bin.c_str(), &status))
+        boost::system::error_code ec;
+        if (boost::filesystem::exists(sdir_bin, ec) && !boost::filesystem::is_empty(sdir_bin, ec))
         {
             printf("Your output directory seems to be polluted, please use an empty directory!\n");
             printf("<press return to exit>");
@@ -480,12 +485,7 @@ int main(int argc, char ** argv)
     printf("Extract %s. Beginning work ....\n", VMAP::VMAP_MAGIC);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
-    if (mkdir(szWorkDirWmo
-#if defined(__linux__) || defined(__APPLE__) || defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-                    , 0711
-#endif
-                    ))
-            success = (errno == EEXIST);
+    success = boost::filesystem::create_directories(sdir_bin) || boost::filesystem::is_directory(sdir_bin);
 
     uint32 installedLocalesMask = GetInstalledLocalesMask();
     int32 FirstLocale = -1;
@@ -604,3 +604,9 @@ int main(int argc, char ** argv)
     printf("Extract %s. Work complete. No errors.\n", VMAP::VMAP_MAGIC);
     return 0;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

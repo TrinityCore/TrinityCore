@@ -19,7 +19,9 @@
 #define TRINITY_DATABASE_FIELD_H
 
 #include "Define.h"
+#include "Duration.h"
 #include <array>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -41,6 +43,7 @@ enum class DatabaseFieldTypes : uint8
     Double,
     Decimal,
     Date,
+    Time,
     Binary
 };
 
@@ -110,10 +113,12 @@ class TC_DATABASE_API Field
         int64 GetInt64() const;
         float GetFloat() const;
         double GetDouble() const;
+        SystemTimePoint GetDate() const;
         char const* GetCString() const;
         std::string GetString() const;
         std::string_view GetStringView() const;
         std::vector<uint8> GetBinary() const;
+        std::span<uint8 const> GetBinaryView() const;
         template <size_t S>
         std::array<uint8, S> GetBinary() const
         {

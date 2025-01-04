@@ -60,14 +60,25 @@ MovementGeneratorType IdleMovementGenerator::GetMovementGeneratorType() const
     return IDLE_MOTION_TYPE;
 }
 
+MovementGenerator* IdleMovementFactory::Create(Unit* /*object*/) const
+{
+    static IdleMovementGenerator instance;
+    return &instance;
+}
+
 //----------------------------------------------------//
 
-RotateMovementGenerator::RotateMovementGenerator(uint32 id, uint32 time, RotateDirection direction) : _id(id), _duration(time), _maxDuration(time), _direction(direction)
+RotateMovementGenerator::RotateMovementGenerator(uint32 id, RotateDirection direction, Optional<Milliseconds> duration,
+    Optional<float> turnSpeed, Optional<float> totalTurnAngle,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult) : _id(id), _duration(duration),
+    _turnSpeed(turnSpeed), _totalTurnAngle(totalTurnAngle),
+    _direction(direction), _diffSinceLastUpdate(0)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROTATING;
+    ScriptResult = std::move(scriptResult);
 }
 
 void RotateMovementGenerator::Initialize(Unit* owner)
@@ -95,23 +106,34 @@ void RotateMovementGenerator::Reset(Unit* owner)
 
 bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
 {
-    if (!owner)
-        return false;
+    _diffSinceLastUpdate += diff;
 
-    float angle = owner->GetOrientation();
-    angle += (float(diff) * static_cast<float>(M_PI * 2) / _maxDuration) * (_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f);
-    angle = std::clamp(angle, 0.0f, static_cast<float>(M_PI * 2));
+    float currentAngle = owner->GetOrientation();
+    float angleDelta = _turnSpeed.value_or(owner->GetSpeed(MOVE_TURN_RATE)) * (float(_diffSinceLastUpdate) / float(IN_MILLISECONDS));
 
-    Movement::MoveSplineInit init(owner);
-    init.MoveTo(PositionToVector3(*owner), false);
-    if (!owner->GetTransGUID().IsEmpty())
-        init.DisableTransportPathTransformations();
-    init.SetFacing(angle);
-    init.Launch();
+    if (_duration)
+        _duration->Update(diff);
 
-    if (_duration > diff)
-        _duration -= diff;
-    else
+    if (_totalTurnAngle)
+        _totalTurnAngle = *_totalTurnAngle - angleDelta;
+
+    bool expired = (_duration && _duration->Passed()) || (_totalTurnAngle && _totalTurnAngle < 0.0f);
+
+    if (angleDelta >= MIN_ANGLE_DELTA_FOR_FACING_UPDATE || expired)
+    {
+        float newAngle = Position::NormalizeOrientation(currentAngle + angleDelta * (_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f));
+
+        Movement::MoveSplineInit init(owner);
+        init.MoveTo(PositionToVector3(owner->GetPosition()), false);
+        if (!owner->GetTransGUID().IsEmpty())
+            init.DisableTransportPathTransformations();
+        init.SetFacing(newAngle);
+        init.Launch();
+
+        _diffSinceLastUpdate = 0;
+    }
+
+    if (expired)
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
         return false;
@@ -129,8 +151,12 @@ void RotateMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool moveme
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
 
-    if (movementInform && owner->GetTypeId() == TYPEID_UNIT)
-        owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, _id);
+    if (movementInform)
+    {
+        SetScriptResult(MovementStopReason::Finished);
+        if (owner->IsCreature())
+            owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, _id);
+    }
 }
 
 MovementGeneratorType RotateMovementGenerator::GetMovementGeneratorType() const

@@ -245,7 +245,6 @@ struct boss_general_husam : public BossAI
                     break;
             }
         }
-        DoMeleeAttackIfReady();
     }
 
 private:

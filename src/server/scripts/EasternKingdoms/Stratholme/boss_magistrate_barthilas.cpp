@@ -127,8 +127,6 @@ public:
                 DoCastVictim(SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 20000;
             } else MightyBlow_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

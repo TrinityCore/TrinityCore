@@ -215,7 +215,6 @@ struct boss_northrend_beastsAI : public BossAI
         events.SetPhase(PHASE_EVENT);
         summons.DespawnAll();
         me->SetReactState(REACT_PASSIVE);
-        me->SetCombatPulseDelay(0);
         HandleInitialMovement();
     }
 
@@ -248,7 +247,6 @@ struct boss_northrend_beastsAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         ScheduleTasks();
         HandleInstanceProgress();
@@ -320,8 +318,6 @@ struct boss_northrend_beastsAI : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -358,10 +354,7 @@ struct boss_gormok : public boss_northrend_beastsAI
                 me->SetReactState(REACT_AGGRESSIVE);
                 // Npc that should keep raid in combat while boss change
                 if (Creature* combatStalker = me->SummonCreature(NPC_BEASTS_COMBAT_STALKER, CombatStalkerPosition))
-                {
                     DoZoneInCombat(combatStalker);
-                    combatStalker->SetCombatPulseDelay(5);
-                }
                 DoZoneInCombat();
                 events.SetPhase(PHASE_COMBAT);
                 DoCastSelf(SPELL_TANKING_GORMOK, true);
@@ -443,6 +436,7 @@ struct npc_snobold_vassal : public ScriptedAI
                 break;
             case ACTION_ACTIVE_SNOBOLD:
                 _mountedOnPlayer = true;
+                me->SetCanMelee(true);
                 break;
             default:
                 break;
@@ -468,6 +462,7 @@ struct npc_snobold_vassal : public ScriptedAI
         if (gormok && gormok->IsAlive())
         {
             me->AttackStop();
+            me->SetCanMelee(false);
             _targetGUID.Clear();
             _mountedOnPlayer = false;
             _events.CancelEvent(EVENT_BATTER);
@@ -490,6 +485,7 @@ struct npc_snobold_vassal : public ScriptedAI
             _events.CancelEvent(EVENT_CHECK_MOUNT);
             _events.CancelEvent(EVENT_FIRE_BOMB);
             me->AttackStop();
+            me->SetCanMelee(true);
             SetCombatMovement(true);
             _gormokDead = true;
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
@@ -550,10 +546,6 @@ struct npc_snobold_vassal : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        // do melee attack only if is in player back or if gormok is dead.
-        if (_mountedOnPlayer || _gormokDead)
-            DoMeleeAttackIfReady();
     }
 
 private:
@@ -668,6 +660,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
     {
         Initialize();
         boss_northrend_beastsAI::Reset();
+        me->SetCanMelee(true);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -759,6 +752,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
 
         me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         me->SetUninteractible(true);
+        me->SetCanMelee(false);
         me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetCollisionHeight());
     }
 
@@ -781,6 +775,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         {
             me->SetControlled(true, UNIT_STATE_ROOT);
             me->SetDisplayId(modelStationary);
+            me->SetCanMelee(false);
             DoCastSelf(SPELL_GROUND_VISUAL_1, true);
             events.SetPhase(PHASE_STATIONARY);
         }
@@ -789,6 +784,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             if (Unit* target = me->GetVictim())
                 me->GetMotionMaster()->MoveChase(target);
             me->SetDisplayId(modelMobile);
+            me->SetCanMelee(true);
             events.SetPhase(PHASE_MOBILE);
         }
         wasMobile = !wasMobile;
@@ -804,6 +800,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                 {
                     instance->DoCloseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                     me->SetImmuneToPC(false);
+                    me->SetCanMelee(true);
                     events.SetPhase(PHASE_MOBILE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat();
@@ -867,9 +864,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                 return;
         }
 
-        if (events.IsInPhase(PHASE_MOBILE))
-            DoMeleeAttackIfReady();
-        else
+        if (!events.IsInPhase(PHASE_MOBILE))
             DoCastVictim(spitSpell);
     }
 
@@ -1213,7 +1208,7 @@ class spell_jormungars_slime_pool : public AuraScript
     {
         PreventDefaultAction();
 
-        int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
+        float const radius = ((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 2.f / 3.f;
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_RADIUS_MOD, radius);
         GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, args);

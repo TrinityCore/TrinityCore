@@ -98,8 +98,6 @@ struct npc_argent_valiant : public ScriptedAI
             DoCastVictim(SPELL_SHIELD_BREAKER);
             uiShieldBreakerTimer = 10000;
         } else uiShieldBreakerTimer -= uiDiff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

@@ -43,10 +43,7 @@ int32 AggressorAI::Permissible(Creature const* creature)
 
 void AggressorAI::UpdateAI(uint32 /*diff*/)
 {
-    if (!UpdateVictim())
-        return;
-
-    DoMeleeAttackIfReady();
+    UpdateVictim();
 }
 
 /////////////////
@@ -107,8 +104,6 @@ void CombatAI::UpdateAI(uint32 diff)
         if (AISpellInfoType const* info = GetAISpellInfo(spellId, me->GetMap()->GetDifficultyID()))
             _events.ScheduleEvent(spellId, info->cooldown, info->cooldown * 2);
     }
-    else
-        DoMeleeAttackIfReady();
 }
 
 void CombatAI::SpellInterrupted(uint32 spellId, uint32 unTimeMs)
@@ -202,6 +197,7 @@ TurretAI::TurretAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, s
     _minimumRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
     creature->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
     creature->m_SightDistance = creature->m_CombatDistance;
+    creature->SetCanMelee(false);
 }
 
 bool TurretAI::CanAIAttack(Unit const* who) const
@@ -235,6 +231,7 @@ VehicleAI::VehicleAI(Creature* creature, uint32 scriptId) : CreatureAI(creature,
     LoadConditions();
     _dismiss = false;
     _dismissTimer = VEHICLE_DISMISS_TIME;
+    me->SetCanMelee(false);
 }
 
 // NOTE: VehicleAI::UpdateAI runs even while the vehicle is mounted

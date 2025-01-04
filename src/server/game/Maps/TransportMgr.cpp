@@ -16,12 +16,12 @@
  */
 
 #include "TransportMgr.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -406,14 +406,14 @@ static void InitializeLeg(TransportPathLeg* leg, std::vector<TransportPathEvent>
                 if ((*eventPointItr)->ArrivalEventID)
                 {
                     TransportPathEvent& event = outEvents->emplace_back();
-                    event.Timestamp = totalTime + splineTime + leg->Duration;
+                    event.Timestamp = totalTime + splineTime + leg->Duration + delaySum;
                     event.EventId = (*eventPointItr)->ArrivalEventID;
                 }
 
                 if ((*eventPointItr)->DepartureEventID)
                 {
                     TransportPathEvent& event = outEvents->emplace_back();
-                    event.Timestamp = totalTime + splineTime + leg->Duration + (pausePointItr == eventPointItr ? (*eventPointItr)->Delay * IN_MILLISECONDS : 0);
+                    event.Timestamp = totalTime + splineTime + leg->Duration + delaySum + (pausePointItr == eventPointItr ? (*eventPointItr)->Delay * IN_MILLISECONDS : 0);
                     event.EventId = (*eventPointItr)->DepartureEventID;
                 }
             }
@@ -452,14 +452,14 @@ static void InitializeLeg(TransportPathLeg* leg, std::vector<TransportPathEvent>
         if ((*eventPointItr)->ArrivalEventID)
         {
             TransportPathEvent& event = outEvents->emplace_back();
-            event.Timestamp = totalTime + splineTime + leg->Duration;
+            event.Timestamp = totalTime + splineTime + leg->Duration + delaySum;
             event.EventId = (*eventPointItr)->ArrivalEventID;
         }
 
         if ((*eventPointItr)->DepartureEventID)
         {
             TransportPathEvent& event = outEvents->emplace_back();
-            event.Timestamp = totalTime + splineTime + leg->Duration;
+            event.Timestamp = totalTime + splineTime + leg->Duration + delaySum;
             event.EventId = (*eventPointItr)->DepartureEventID;
         }
     }

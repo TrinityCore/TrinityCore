@@ -8,9 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+include(CheckSymbolExists)
+
 if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
   # We need to generate the jemalloc_def.h header based on platform-specific settings
-  CHECK_SYMBOL_EXISTS(MADV_FREE "sys/mman.h" HAVE_MADV_FREE)
+  check_symbol_exists(MADV_FREE "sys/mman.h" HAVE_MADV_FREE)
   
   if (PLATFORM EQUAL 32)
     set(JEM_SIZEDEF 2)
@@ -28,7 +30,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     set(JEM_MADFREE_DEF "#undef")
   endif()
 
-  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+  if(TRINITY_SYSTEM_PROCESSOR MATCHES "arm")
     set(JEM_CPU_SPINWAIT "")
     set(JEM_HAVE_CPU_SPINWAIT 0)
   else()
@@ -89,11 +91,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
       ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
   target_compile_definitions(jemalloc
-    PUBLIC
-      -DNO_BUFFERPOOL
     PRIVATE
-      -D_GNU_SOURCE
-      -D_REENTRAN)
+      _GNU_SOURCE
+      _REENTRAN)
 
   target_link_libraries(jemalloc
     PRIVATE

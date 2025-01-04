@@ -238,7 +238,7 @@ elseif (MSVC)
   set(_OPENSSL_MSI_INSTALL_GUIDS "")
 
   if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
+    if(TRINITY_SYSTEM_PROCESSOR STREQUAL "arm64")
       set(_arch "Win64-ARM")
       set(_OPENSSL_MSI_INSTALL_GUIDS "99C28AFA-6419-40B1-B88D-32B810BB4234")
     else()
@@ -284,7 +284,6 @@ endif ()
 
 if(HOMEBREW_PREFIX)
   list(APPEND _OPENSSL_ROOT_HINTS
-    "${HOMEBREW_PREFIX}/opt/openssl@1.1"
     "${HOMEBREW_PREFIX}/opt/openssl@3")
 endif()
 
@@ -331,7 +330,7 @@ if(WIN32 AND NOT CYGWIN)
     # Since OpenSSL 1.1, lib names are like libcrypto32MTd.lib and libssl32MTd.lib
     if( "${CMAKE_SIZEOF_VOID_P}" STREQUAL "8" )
       set(_OPENSSL_MSVC_ARCH_SUFFIX "64")
-      if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
+      if(TRINITY_SYSTEM_PROCESSOR STREQUAL "arm64")
         set(_OPENSSL_MSVC_ARCH_DIRECTORY "arm64")
       else()
         set(_OPENSSL_MSVC_ARCH_DIRECTORY "x64")

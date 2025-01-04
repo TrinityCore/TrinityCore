@@ -88,8 +88,6 @@ struct boss_venoxis : public BossAI
                 return;
         }
     */
-
-        DoMeleeAttackIfReady();
     }
 };
 

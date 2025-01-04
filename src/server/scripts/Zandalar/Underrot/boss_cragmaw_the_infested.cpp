@@ -198,8 +198,6 @@ struct boss_cragmaw_the_infested : public BossAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     ObjectGuid _fetidMaggotGuid;
@@ -244,8 +242,6 @@ struct npc_cragmaw_blood_tick : public ScriptedAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;

@@ -35,6 +35,11 @@ struct Loot;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
 
+namespace Vignettes
+{
+struct VignetteData;
+}
+
 // enum for GAMEOBJECT_TYPE_NEW_FLAG
 // values taken from world state
 enum class FlagState : uint8
@@ -131,7 +136,7 @@ union GameObjectValue
     struct
     {
         uint32 Health;
-        uint32 MaxHealth;
+        ::DestructibleHitpoint const* DestructibleHitpoint;
     } Building;
     //42 GAMEOBJECT_TYPE_CAPTURE_POINT
     struct
@@ -164,8 +169,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ~GameObject();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -201,7 +206,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
 
         bool IsTransport() const;
-        bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
@@ -217,6 +221,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         // overwrite WorldObject function for proper name localization
         std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
+
+        bool HasLabel(int32 gameobjectLabel) const;
+        std::span<int32 const> GetLabels() const;
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
@@ -284,11 +291,12 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
         std::vector<uint32> const* GetPauseTimes() const;
+        Optional<float> GetPathProgressForClient() const { return m_transportPathProgress; }
         void SetPathProgressForClient(float progress);
 
         void EnableCollision(bool enable);
 
-        void Use(Unit* user);
+        void Use(Unit* user, bool ignoreCastInProgress = false);
 
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
@@ -333,6 +341,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
+        bool HasConditionalInteraction() const;
+        bool CanActivateForPlayer(Player const* target) const;
         bool ActivateToQuest(Player const* target) const;
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = nullptr);
                                                             // 0 = use `gameobject`.`spawntimesecs`
@@ -372,9 +382,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
+        void InheritStringIds(GameObject const* parent);
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
-        std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
+        std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
 
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return m_gameObjectData->DisplayID; }
@@ -419,6 +430,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetWorldEffectID() const { return _worldEffectID; }
         void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
 
+        Vignettes::VignetteData const* GetVignette() const { return m_vignette.get(); }
+        void SetVignette(uint32 vignetteId);
+
         void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
         void AssaultCapturePoint(Player* player);
         void UpdateCapturePoint();
@@ -440,7 +454,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const;
 
-        UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
+        UF::UpdateField<UF::GameObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_GAMEOBJECT> m_gameObjectData;
+
+        TeamId GetControllingTeam() const;
 
     protected:
         void CreateModel();
@@ -473,7 +489,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectData const* m_goData;
         std::unique_ptr<GameObjectTypeBase> m_goTypeImpl;
         GameObjectValue m_goValue; // TODO: replace with m_goTypeImpl
-        std::array<std::string_view, 3> m_stringIds;
+        std::array<std::string const*, 3> m_stringIds;
         Optional<std::string> m_scriptStringId;
 
         int64 m_packedRotation;
@@ -501,6 +517,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool m_respawnCompatibilityMode;
         uint16 _animKitId;
         uint32 _worldEffectID;
+        Optional<float> m_transportPathProgress;
+
+        std::unique_ptr<Vignettes::VignetteData> m_vignette;
 
         struct PerPlayerState
         {

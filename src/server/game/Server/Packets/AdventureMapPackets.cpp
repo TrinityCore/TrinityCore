@@ -21,6 +21,20 @@ namespace WorldPackets
 {
 namespace AdventureMap
 {
+void CheckIsAdventureMapPoiValid::Read()
+{
+    _worldPacket >> AdventureMapPoiID;
+}
+
+WorldPacket const* PlayerIsAdventureMapPoiValid::Write()
+{
+    _worldPacket << AdventureMapPoiID;
+    _worldPacket.WriteBit(IsVisible);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 void AdventureMapStartQuest::Read()
 {
     _worldPacket >> QuestID;

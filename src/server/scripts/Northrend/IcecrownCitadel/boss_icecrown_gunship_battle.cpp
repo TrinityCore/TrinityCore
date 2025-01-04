@@ -1076,12 +1076,13 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
             }
         }
 
-        if (me->IsWithinMeleeRange(me->GetVictim()))
-            DoMeleeAttackIfReady();
-        else if (me->isAttackReady())
+        if (!me->IsWithinMeleeRange(me->GetVictim()))
         {
-            DoCastVictim(SPELL_RENDING_THROW);
-            me->resetAttackTimer();
+            if (me->isAttackReady())
+            {
+                DoCastVictim(SPELL_RENDING_THROW);
+                me->resetAttackTimer();
+            }
         }
     }
 
@@ -1336,12 +1337,13 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
             }
         }
 
-        if (me->IsWithinMeleeRange(me->GetVictim()))
-            DoMeleeAttackIfReady();
-        else if (me->isAttackReady())
+        if (!me->IsWithinMeleeRange(me->GetVictim()))
         {
-            DoCastVictim(SPELL_RENDING_THROW);
-            me->resetAttackTimer();
+            if (me->isAttackReady())
+            {
+                DoCastVictim(SPELL_RENDING_THROW);
+                me->resetAttackTimer();
+            }
         }
     }
 
@@ -1484,8 +1486,6 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
 
         if (!HasAttackablePlayerNearby())
             TriggerBurningPitch();
-
-        DoMeleeAttackIfReady();
     }
 
     bool CanAIAttack(Unit const* target) const override
@@ -1563,8 +1563,6 @@ struct npc_gunship_boarding_leader : public npc_gunship_boarding_addAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1843,7 +1841,7 @@ class spell_igb_periodic_trigger_with_power_cost : public AuraScript
     void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_COST);
     }
 
     void Register() override
@@ -1890,7 +1888,7 @@ class spell_igb_incinerating_blast : public SpellScript
         GetCaster()->SetPower(POWER_ENERGY, 0);
     }
 
-    void CalculateDamage(Unit const* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
         flatMod += _energyLeft * _energyLeft * 8;
     }

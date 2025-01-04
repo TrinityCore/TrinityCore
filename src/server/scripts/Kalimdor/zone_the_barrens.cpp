@@ -119,8 +119,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
 
         void ReceiveEmote(Player* /*player*/, uint32 emote) override
@@ -458,10 +456,7 @@ public:
         void UpdateEscortAI(uint32 Diff) override
         {
             if (UpdateVictim())
-            {
-                DoMeleeAttackIfReady();
                 return;
-            }
 
             if (!IsPostEvent)
                 return;

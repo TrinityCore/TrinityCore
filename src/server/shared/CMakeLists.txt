@@ -20,8 +20,6 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_SHARED)
-
 add_library(shared
   ${PRIVATE_SOURCES}
 )
@@ -48,9 +46,10 @@ target_link_libraries(shared
     zlib)
 
 set_target_properties(shared
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_SHARED
+    FOLDER "server")
 
 if(BUILD_SHARED_LIBS)
   if(UNIX)

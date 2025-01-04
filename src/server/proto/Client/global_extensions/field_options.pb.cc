@@ -67,6 +67,9 @@ const ::google::protobuf::EnumDescriptor* EntityIdRestriction_Kind_descriptor_ =
 const ::google::protobuf::Descriptor* MessageFieldRestriction_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MessageFieldRestriction_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SDKFieldOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SDKFieldOptions_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* LogOption_descriptor_ = NULL;
 
 }  // namespace
@@ -242,6 +245,21 @@ void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MessageFieldRestriction));
+  SDKFieldOptions_descriptor_ = file->message_type(9);
+  static const int SDKFieldOptions_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKFieldOptions, deprecated_32_bit_),
+  };
+  SDKFieldOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SDKFieldOptions_descriptor_,
+      SDKFieldOptions::default_instance_,
+      SDKFieldOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKFieldOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKFieldOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SDKFieldOptions));
   LogOption_descriptor_ = file->enum_type(0);
 }
 
@@ -273,6 +291,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     EntityIdRestriction_descriptor_, &EntityIdRestriction::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MessageFieldRestriction_descriptor_, &MessageFieldRestriction::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SDKFieldOptions_descriptor_, &SDKFieldOptions::default_instance());
 }
 
 }  // namespace
@@ -298,6 +318,8 @@ void protobuf_ShutdownFile_global_5fextensions_2ffield_5foptions_2eproto() {
   delete EntityIdRestriction_reflection_;
   delete MessageFieldRestriction::default_instance_;
   delete MessageFieldRestriction_reflection_;
+  delete SDKFieldOptions::default_instance_;
+  delete SDKFieldOptions_reflection_;
 }
 
 void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
@@ -353,13 +375,16 @@ void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
     "Kind\022\007\n\003ANY\020\000\022\013\n\007ACCOUNT\020\001\022\020\n\014GAME_ACCOU"
     "NT\020\002\022\033\n\027ACCOUNT_OR_GAME_ACCOUNT\020\003\022\013\n\007SER"
     "VICE\020\004\022\013\n\007CHANNEL\020\005\")\n\027MessageFieldRestr"
-    "iction\022\016\n\006needed\030\001 \001(\010* \n\tLogOption\022\n\n\006H"
-    "IDDEN\020\001\022\007\n\003HEX\020\002:U\n\rfield_options\022\035.goog"
-    "le.protobuf.FieldOptions\030\220\277\005 \001(\0132\035.bgs.p"
-    "rotocol.BGSFieldOptions:N\n\005valid\022\035.googl"
-    "e.protobuf.FieldOptions\030\221\277\005 \001(\0132\036.bgs.pr"
-    "otocol.FieldRestrictionB#\n\014bgs.protocolB"
-    "\021FieldOptionsProtoH\002", 2020);
+    "iction\022\016\n\006needed\030\001 \001(\010\",\n\017SDKFieldOption"
+    "s\022\031\n\021deprecated_32_bit\030\004 \001(\010* \n\tLogOptio"
+    "n\022\n\n\006HIDDEN\020\001\022\007\n\003HEX\020\002:U\n\rfield_options\022"
+    "\035.google.protobuf.FieldOptions\030\220\277\005 \001(\0132\035"
+    ".bgs.protocol.BGSFieldOptions:N\n\005valid\022\035"
+    ".google.protobuf.FieldOptions\030\221\277\005 \001(\0132\036."
+    "bgs.protocol.FieldRestriction:Y\n\021sdk_fie"
+    "ld_options\022\035.google.protobuf.FieldOption"
+    "s\030\222\277\005 \001(\0132\035.bgs.protocol.SDKFieldOptions"
+    "B#\n\014bgs.protocolB\021FieldOptionsProtoH\002", 2157);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/field_options.proto", &protobuf_RegisterTypes);
   BGSFieldOptions::default_instance_ = new BGSFieldOptions();
@@ -373,6 +398,7 @@ void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
   StringFieldRestriction::default_instance_ = new StringFieldRestriction();
   EntityIdRestriction::default_instance_ = new EntityIdRestriction();
   MessageFieldRestriction::default_instance_ = new MessageFieldRestriction();
+  SDKFieldOptions::default_instance_ = new SDKFieldOptions();
   ::google::protobuf::internal::ExtensionSet::RegisterMessageExtension(
     &::google::protobuf::FieldOptions::default_instance(),
     90000, 11, false, false,
@@ -381,6 +407,10 @@ void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
     &::google::protobuf::FieldOptions::default_instance(),
     90001, 11, false, false,
     &::bgs::protocol::FieldRestriction::default_instance());
+  ::google::protobuf::internal::ExtensionSet::RegisterMessageExtension(
+    &::google::protobuf::FieldOptions::default_instance(),
+    90002, 11, false, false,
+    &::bgs::protocol::SDKFieldOptions::default_instance());
   BGSFieldOptions::default_instance_->InitAsDefaultInstance();
   FieldRestriction::default_instance_->InitAsDefaultInstance();
   RepeatedFieldRestriction::default_instance_->InitAsDefaultInstance();
@@ -390,6 +420,7 @@ void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
   StringFieldRestriction::default_instance_->InitAsDefaultInstance();
   EntityIdRestriction::default_instance_->InitAsDefaultInstance();
   MessageFieldRestriction::default_instance_->InitAsDefaultInstance();
+  SDKFieldOptions::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_global_5fextensions_2ffield_5foptions_2eproto);
 }
 
@@ -1229,12 +1260,87 @@ void MessageFieldRestriction::Swap(MessageFieldRestriction* other) {
   return metadata;
 }
 
+// ===================================================================
+
+#ifndef _MSC_VER
+const int SDKFieldOptions::kDeprecated32BitFieldNumber;
+#endif  // !_MSC_VER
+
+SDKFieldOptions::SDKFieldOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.SDKFieldOptions)
+}
+
+void SDKFieldOptions::InitAsDefaultInstance() {
+}
+
+SDKFieldOptions::SDKFieldOptions(const SDKFieldOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.SDKFieldOptions)
+}
+
+void SDKFieldOptions::SharedCtor() {
+  _cached_size_ = 0;
+  deprecated_32_bit_ = false;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SDKFieldOptions::~SDKFieldOptions() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.SDKFieldOptions)
+  SharedDtor();
+}
+
+void SDKFieldOptions::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void SDKFieldOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SDKFieldOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SDKFieldOptions_descriptor_;
+}
+
+const SDKFieldOptions& SDKFieldOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
+  return *default_instance_;
+}
+
+SDKFieldOptions* SDKFieldOptions::default_instance_ = NULL;
+
+SDKFieldOptions* SDKFieldOptions::New() const {
+  return new SDKFieldOptions;
+}
+
+void SDKFieldOptions::Swap(SDKFieldOptions* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata SDKFieldOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SDKFieldOptions_descriptor_;
+  metadata.reflection = SDKFieldOptions_reflection_;
+  return metadata;
+}
+
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::BGSFieldOptions >, 11, false >
   field_options(kFieldOptionsFieldNumber, ::bgs::protocol::BGSFieldOptions::default_instance());
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::FieldRestriction >, 11, false >
   valid(kValidFieldNumber, ::bgs::protocol::FieldRestriction::default_instance());
+::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
+    ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::SDKFieldOptions >, 11, false >
+  sdk_field_options(kSdkFieldOptionsFieldNumber, ::bgs::protocol::SDKFieldOptions::default_instance());
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol

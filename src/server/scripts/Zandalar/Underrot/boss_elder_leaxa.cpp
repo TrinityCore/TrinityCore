@@ -133,8 +133,6 @@ struct boss_elder_leaxa : public BossAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -183,8 +181,6 @@ struct npc_blood_effigy : public ScriptedAI
             default:
                 break;
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;

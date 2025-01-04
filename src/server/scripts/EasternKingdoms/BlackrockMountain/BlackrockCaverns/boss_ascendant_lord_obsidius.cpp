@@ -95,8 +95,6 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

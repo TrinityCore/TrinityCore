@@ -25,7 +25,10 @@ WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
     _worldPacket << int32(PreviousArenaSeason);
     _worldPacket << int32(ConquestWeeklyProgressCurrencyID);
     _worldPacket << int32(PvpSeasonID);
+    _worldPacket << int32(Unknown1027_1);
     _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
+    _worldPacket.WriteBit(CurrentArenaSeasonUsesTeams);
+    _worldPacket.WriteBit(PreviousArenaSeasonUsesTeams);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -211,7 +214,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusQueued::Write()
     _worldPacket << Hdr;
     _worldPacket << uint32(AverageWaitTime);
     _worldPacket << uint32(WaitTime);
-    _worldPacket << int32(Unused920);
+    _worldPacket << int32(SpecSelected);
     _worldPacket.WriteBit(AsGroup);
     _worldPacket.WriteBit(EligibleForMatchmaking);
     _worldPacket.WriteBit(SuspendedQueue);
@@ -327,8 +330,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RatedPvpInf
     data << int32(bracketInfo.Ranking);
     data << int32(bracketInfo.SeasonPlayed);
     data << int32(bracketInfo.SeasonWon);
-    data << int32(bracketInfo.Unused1);
-    data << int32(bracketInfo.Unused2);
+    data << int32(bracketInfo.SeasonFactionPlayed);
+    data << int32(bracketInfo.SeasonFactionWon);
     data << int32(bracketInfo.WeeklyPlayed);
     data << int32(bracketInfo.WeeklyWon);
     data << int32(bracketInfo.RoundsSeasonPlayed);
@@ -339,9 +342,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RatedPvpInf
     data << int32(bracketInfo.LastWeeksBestRating);
     data << int32(bracketInfo.BestSeasonRating);
     data << int32(bracketInfo.PvpTierID);
-    data << int32(bracketInfo.Unused3);
-    data << int32(bracketInfo.Unused4);
-    data << int32(bracketInfo.Rank);
+    data << int32(bracketInfo.SeasonPvpTier);
+    data << int32(bracketInfo.BestWeeklyPvpTier);
+    data << int32(bracketInfo.BestSeasonPvpTierEnum);
     data.WriteBit(bracketInfo.Disqualified);
     data.FlushBits();
 

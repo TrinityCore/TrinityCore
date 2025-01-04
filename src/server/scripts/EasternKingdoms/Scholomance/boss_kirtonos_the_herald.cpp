@@ -252,8 +252,6 @@ class boss_kirtonos_the_herald : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

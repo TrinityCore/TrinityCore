@@ -864,7 +864,6 @@ public:
                      }
                 }
             }
-            DoMeleeAttackIfReady();
             //Time runs over!
             for (uint8 i = 0; i < ActiveTimers; ++i)
                 if (!TimerIsDeactivated[i])
@@ -998,8 +997,6 @@ public:
                         AddThreat(ref->GetVictim(), 1.0f, pPortal);
                 FelfirePortalTimer = 20000;
             } else FelfirePortalTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1361,7 +1358,6 @@ public:
                         DoCastVictim(SPELL_SR_MOONFIRE, false);
                         uiTimer[1] = urand(2000, 4000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
                 case CLASS_HUNTER:
                     if (uiTimer[1] <= diff)
@@ -1381,7 +1377,6 @@ public:
                             DoCastVictim(SPELL_SR_MULTI_SHOT, false);
                             uiTimer[0] = urand(6000, 8000);
                         }
-                        DoMeleeAttackIfReady();
                     }
                     break;
                 case CLASS_MAGE:
@@ -1390,7 +1385,6 @@ public:
                         DoCastVictim(SPELL_SR_FIREBALL, false);
                         uiTimer[1] = urand(2000, 4000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
                 case CLASS_WARLOCK:
                     if (uiTimer[1] <= diff)
@@ -1403,7 +1397,6 @@ public:
                         DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_SR_CURSE_OF_AGONY, true);
                         uiTimer[2] = urand(2000, 4000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
                 case CLASS_WARRIOR:
                     if (uiTimer[1] <= diff)
@@ -1411,7 +1404,6 @@ public:
                         DoCastVictim(SPELL_SR_WHIRLWIND, false);
                         uiTimer[1] = urand(9000, 11000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
                 case CLASS_PALADIN:
                     if (uiTimer[1] <= diff)
@@ -1424,7 +1416,6 @@ public:
                         DoCastVictim(SPELL_SR_HOLY_SHOCK, false);
                         uiTimer[2] = urand(2000, 4000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
                 case CLASS_PRIEST:
                     if (uiTimer[1] <= diff)
@@ -1437,7 +1428,6 @@ public:
                         DoCast(me, SPELL_SR_RENEW, false);
                         uiTimer[2] = urand(6000, 8000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
                 case CLASS_SHAMAN:
                     if (uiTimer[1] <= diff)
@@ -1445,7 +1435,6 @@ public:
                         DoCastVictim(SPELL_SR_EARTH_SHOCK, false);
                         uiTimer[1] = urand(4000, 6000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
                 case CLASS_ROGUE:
                     if (uiTimer[1] <= diff)
@@ -1453,7 +1442,6 @@ public:
                         DoCastVictim(SPELL_SR_HEMORRHAGE, true);
                         uiTimer[1] = urand(4000, 6000);
                     }
-                    DoMeleeAttackIfReady();
                     break;
             }
             TC_LOG_DEBUG("scripts", "Sinister-Timer");

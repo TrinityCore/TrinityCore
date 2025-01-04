@@ -141,6 +141,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
         {
             Loot* loot = new Loot(player->GetMap(), item->GetGUID(), LOOT_ITEM, nullptr);
             item->m_loot.reset(loot);
+            item->m_lootGenerated = true;
             loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
             loot->FillLoot(item->GetEntry(), LootTemplates_Item, player, true, loot->gold != 0);
 
@@ -390,6 +391,39 @@ void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannellin
         return;
 
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
+}
+
+void WorldSession::HandleSetEmpowerMinHoldStagePercent(WorldPackets::Spells::SetEmpowerMinHoldStagePercent const& setEmpowerMinHoldStagePercent)
+{
+    _player->SetEmpowerMinHoldStagePercent(setEmpowerMinHoldStagePercent.MinHoldStagePercent);
+}
+
+void WorldSession::HandleSpellEmpowerRelease(WorldPackets::Spells::SpellEmpowerRelease const& spellEmpowerRelease)
+{
+    // ignore for remote control state (for player case)
+    Unit* mover = _player->GetUnitBeingMoved();
+    if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    Spell* spell = mover->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+    if (!spell || spell->GetSpellInfo()->Id != uint32(spellEmpowerRelease.SpellID) || !spell->IsEmpowerSpell())
+        return;
+
+    spell->SetEmpowerReleasedByClient(true);
+}
+
+void WorldSession::HandleSpellEmpowerRestart(WorldPackets::Spells::SpellEmpowerRestart const& spellEmpowerRestart)
+{
+    // ignore for remote control state (for player case)
+    Unit* mover = _player->GetUnitBeingMoved();
+    if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    Spell* spell = mover->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+    if (!spell || spell->GetSpellInfo()->Id != uint32(spellEmpowerRestart.SpellID) || !spell->IsEmpowerSpell())
+        return;
+
+    spell->SetEmpowerReleasedByClient(false);
 }
 
 void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)

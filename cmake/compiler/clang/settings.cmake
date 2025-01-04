@@ -1,10 +1,5 @@
 include(CheckCXXSourceCompiles)
 
-# Set build-directive (used in core to tell which buildtype we used)
-target_compile_definitions(trinity-compile-option-interface
-  INTERFACE
-    -D_BUILD_DIRECTIVE="$<CONFIG>")
-
 set(CLANG_EXPECTED_VERSION 11.0.0)
 if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   # apple doesnt like to do the sane thing which would be to use the same version numbering as regular clang
@@ -40,7 +35,7 @@ if (NOT CLANG_HAVE_PROPER_CHARCONV)
   message(STATUS "Clang: Detected from_chars bug for 64-bit integers, workaround enabled")
   target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -DTRINITY_NEED_CHARCONV_WORKAROUND)
+    TRINITY_NEED_CHARCONV_WORKAROUND)
 endif()
 
 if(WITH_WARNINGS)
@@ -53,7 +48,8 @@ if(WITH_WARNINGS)
       -Winit-self
       -Wfatal-errors
       -Wno-mismatched-tags
-      -Woverloaded-virtual)
+      -Woverloaded-virtual
+      -Wno-missing-field-initializers) # this warning is useless when combined with structure members that have default initializers
 
   message(STATUS "Clang: All warnings enabled")
 endif()
@@ -140,11 +136,12 @@ endif()
 
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
-# -Wno-deprecated-copy needed to suppress a warning in g3d
+# -Wno-undefined-inline needed for a compile time optimization hack with fmt
 target_compile_options(trinity-compile-option-interface
   INTERFACE
     -Wno-narrowing
-    -Wno-deprecated-register)
+    -Wno-deprecated-register
+    -Wno-undefined-inline)
 
 if(BUILD_SHARED_LIBS)
   # -fPIC is needed to allow static linking in shared libs.

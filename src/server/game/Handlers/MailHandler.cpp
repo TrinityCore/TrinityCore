@@ -117,7 +117,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
     }
 
     TC_LOG_INFO("network", "Player {} is sending mail to {} ({}) with subject {} and body {} "
-        "includes {} items, {} copper and " SI64FMTD  " COD copper with StationeryID = {}",
+        "includes {} items, {} copper and {} COD copper with StationeryID = {}",
         GetPlayerInfo(), sendMail.Info.Target, receiverGuid.ToString(), sendMail.Info.Subject,
         sendMail.Info.Body, sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID);
 
@@ -547,7 +547,7 @@ void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& takeMo
 
     // save money and mail to prevent cheating
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    player->SaveGoldToDB(trans);
+    player->SaveInventoryAndGoldToDB(trans);
     player->_SaveMail(trans);
     CharacterDatabase.CommitTransaction(trans);
 }

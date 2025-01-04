@@ -185,10 +185,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            _scheduler.Update(diff);
         }
 
     private:
@@ -303,10 +300,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            _scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
+            _scheduler.Update(diff);
         }
 
     private:

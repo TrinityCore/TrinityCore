@@ -55,7 +55,7 @@ class TC_GAME_API UnitAI
         virtual ~UnitAI() { }
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
-        virtual void AttackStart(Unit* /*target*/);
+        virtual void AttackStart(Unit* victim);
         virtual void UpdateAI(uint32 diff) = 0;
 
         virtual void InitializeAI();
@@ -69,11 +69,11 @@ class TC_GAME_API UnitAI
         virtual void OnCharmed(bool isNew);
 
         // Pass parameters between AI
-        virtual void DoAction(int32 /*param*/) { }
-        virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
-        virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
-        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/ = 0) { }
-        virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
+        virtual void DoAction([[maybe_unused]] int32 param) { }
+        virtual uint32 GetData([[maybe_unused]] uint32 id) const { return 0; }
+        virtual void SetData([[maybe_unused]] uint32 id, [[maybe_unused]] uint32 value) { }
+        virtual void SetGUID([[maybe_unused]] ObjectGuid const& guid, [[maybe_unused]] int32 id) { }
+        virtual ObjectGuid GetGUID([[maybe_unused]] int32 id) const { return ObjectGuid::Empty; }
 
         // Select the best target (in <targetType> order) from the threat list that fulfill the following:
         // - Not among the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat order,
@@ -160,7 +160,6 @@ class TC_GAME_API UnitAI
         SpellCastResult DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
         SpellCastResult DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { return DoCast(nullptr, spellId, args); }
 
-        void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spellId);
 
         static std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> AISpellInfo;

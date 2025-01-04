@@ -198,8 +198,6 @@ struct boss_heigan : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:

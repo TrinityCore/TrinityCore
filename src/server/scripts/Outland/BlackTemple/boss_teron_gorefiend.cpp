@@ -187,8 +187,6 @@ struct boss_teron_gorefiend : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -272,10 +270,7 @@ struct npc_shadowy_construct : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
     void SelectNewTarget()

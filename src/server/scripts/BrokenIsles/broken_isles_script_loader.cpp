@@ -17,6 +17,10 @@
 
 // This is where scripts' loading functions should be declared:
 
+// Maw of Souls
+void AddSC_boss_ymiron_the_fallen_king();
+void AddSC_instance_maw_of_souls();
+
 // Trial of Valor
 void AddSC_boss_guarm();
 void AddSC_instance_trial_of_valor();
@@ -29,6 +33,10 @@ void AddSC_zone_mardum();
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
 {
+    // Maw of Souls
+    AddSC_boss_ymiron_the_fallen_king();
+    AddSC_instance_maw_of_souls();
+
     // Trial of Valor
     AddSC_boss_guarm();
     AddSC_instance_trial_of_valor();

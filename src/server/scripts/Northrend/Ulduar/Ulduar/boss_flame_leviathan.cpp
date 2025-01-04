@@ -226,6 +226,7 @@ class boss_flame_leviathan : public CreatureScript
             boss_flame_leviathanAI(Creature* creature) : BossAI(creature, DATA_FLAME_LEVIATHAN)
             {
                 Initialize();
+                me->SetCanMelee(false); // DoSpellAttackIfReady
             }
 
             void Initialize()
@@ -947,14 +948,6 @@ class npc_colossus : public CreatureScript
                 if (me->GetHomePosition().IsInDist(&Center, 50.f))
                     instance->SetData(DATA_COLOSSUS, instance->GetData(DATA_COLOSSUS)+1);
             }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1189,8 +1182,6 @@ class npc_freya_ward_summon : public CreatureScript
                 }
                 else
                     lashTimer -= diff;
-
-                DoMeleeAttackIfReady();
             }
         };
 

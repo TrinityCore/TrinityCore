@@ -114,11 +114,15 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 
     bool const mutualChase = IsMutualChase(owner, target);
     float const hitboxSum = owner->GetCombatReach() + target->GetCombatReach();
-    float const minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
-    float const minTarget = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
-    float const maxRange = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
-    float const maxTarget = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
+    float minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
+    float minTarget = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
+    float maxRange = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
+    float maxTarget = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
     Optional<ChaseAngle> angle = mutualChase ? Optional<ChaseAngle>() : _angle;
+
+    if (Creature* cOwner = owner->ToCreature())
+        if (cOwner->IsIgnoringChaseRange())
+            minRange = minTarget = maxRange = maxTarget = 0.0f;
 
     // periodically check if we're already in the expected range...
     _rangeCheckTimer.Update(diff);

@@ -121,8 +121,6 @@ class boss_marwyn : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

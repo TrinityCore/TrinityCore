@@ -16,6 +16,7 @@
  */
 
 #include "Pet.h"
+#include "CharmInfo.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -287,7 +288,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     {
         case SUMMON_PET:
             petlevel = owner->GetLevel();
-            SetClass(CLASS_MAGE);
             ReplaceAllUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet dismiss, cancel)
             break;
         case HUNTER_PET:
@@ -441,7 +441,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             owner->DisablePetControlsOnMount(REACT_PASSIVE, COMMAND_FOLLOW);
 
         // must be after SetMinion (owner guid check)
-        LoadTemplateImmunities();
+        LoadTemplateImmunities(0);
         m_loading = false;
     });
 
@@ -917,7 +917,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     }
 
     // Power
-    SetPowerType(powerType);
+    SetPowerType(powerType, true, true);
 
     // Damage
     SetBonusDamage(0);
@@ -1189,7 +1189,11 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
             uint32 effectIndex = fields[3].GetUInt8();
             if (effectIndex < MAX_SPELL_EFFECTS)
             {
-                casterGuid.SetRawValue(fields[0].GetBinary());
+                std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+                if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                    continue;
+
+                casterGuid.SetRawValue(rawGuidBytes);
                 if (casterGuid.IsEmpty())
                     casterGuid = GetGUID();
 
@@ -1211,7 +1215,11 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
         {
             Field* fields = auraResult->Fetch();
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
-            casterGuid.SetRawValue(fields[0].GetBinary());
+            std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+            if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                continue;
+
+            casterGuid.SetRawValue(rawGuidBytes);
             if (casterGuid.IsEmpty())
                 casterGuid = GetGUID();
 
@@ -1388,10 +1396,12 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
 
     if (active == ACT_DECIDE)                               // active was not used before, so we save it's autocast/passive state here
     {
-        if (spellInfo->IsAutocastable())
-            newspell.active = ACT_DISABLED;
-        else
+        if (!spellInfo->IsAutocastable())
             newspell.active = ACT_PASSIVE;
+        else if (spellInfo->IsAutocastEnabledByDefault())
+            newspell.active = ACT_ENABLED;
+        else
+            newspell.active = ACT_DISABLED;
     }
     else
         newspell.active = active;

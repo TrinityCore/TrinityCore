@@ -139,6 +139,10 @@ TC_GAME_API std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
 TC_GAME_API std::string GetRolesString(uint8 roles);
 TC_GAME_API std::string GetStateString(LfgState state);
 
+// allow implicit enum to int conversions for formatting
+inline int32 format_as(LfgUpdateType e) { return e; }
+inline uint8 format_as(LfgState e) { return e; }
+
 } // namespace lfg
 
 #endif

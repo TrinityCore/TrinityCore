@@ -275,19 +275,10 @@ struct boss_valithria_dreamwalker : public ScriptedAI
         _done = false;
     }
 
-    void InitializeAI() override
-    {
-        if (CreatureData const* data = me->GetCreatureData())
-            if (data->curhealth)
-                _spawnHealth = data->curhealth;
-
-        ScriptedAI::InitializeAI();
-    }
-
     void Reset() override
     {
         _events.Reset();
-        me->SetHealth(_spawnHealth);
+        me->SetSpawnHealth();
         me->SetReactState(REACT_PASSIVE);
         me->LoadCreaturesAddon();
         // immune to percent heals
@@ -731,8 +722,6 @@ struct npc_risen_archmage : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -782,8 +771,6 @@ struct npc_blazing_skeleton : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -838,8 +825,6 @@ struct npc_suppresser : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -854,14 +839,6 @@ struct npc_blistering_zombie : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         DoCastSelf(SPELL_ACID_BURST, true);
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -905,8 +882,6 @@ struct npc_gluttonous_abomination : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

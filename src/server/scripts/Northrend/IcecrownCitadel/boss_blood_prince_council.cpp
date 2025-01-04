@@ -170,7 +170,8 @@ enum Misc
     SUMMON_PRINCES_GROUP        = 1,
     DATA_INTRO                  = 2,
     DATA_INTRO_DONE             = 3,
-    DATA_PRINCE_EVADE           = 4
+    DATA_PRINCE_EVADE           = 4,
+    DATA_CHASE_TARGET_GUID      = 5,
 };
 
 class StandUpEvent : public BasicEvent
@@ -271,7 +272,6 @@ struct boss_blood_council_controller : public BossAI
             return;
         }
 
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         DoZoneInCombat();
         instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, IN_PROGRESS);
@@ -442,7 +442,6 @@ struct BloodPrincesBossAI : public BossAI
     {
         events.Reset();
         summons.DespawnAll();
-        me->SetCombatPulseDelay(0);
 
         me->SetImmuneToPC(false);
         _isEmpowered = false;
@@ -452,7 +451,6 @@ struct BloodPrincesBossAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
             DoZoneInCombat(controller);
@@ -611,7 +609,10 @@ protected:
 
 struct boss_prince_keleseth_icc : public BloodPrincesBossAI
 {
-    boss_prince_keleseth_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH) { }
+    boss_prince_keleseth_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH)
+    {
+        me->SetCanMelee(false);
+    }
 
     void ScheduleEvents() override
     {
@@ -671,8 +672,6 @@ struct boss_prince_keleseth_icc : public BloodPrincesBossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        // does not melee
     }
 };
 
@@ -700,7 +699,7 @@ struct boss_prince_taldaram_icc : public BloodPrincesBossAI
             Talk(EMOTE_TALDARAM_FLAME, target);
 
         if (target)
-            summon->AI()->SetGUID(target->GetGUID());
+            summon->AI()->SetGUID(target->GetGUID(), DATA_CHASE_TARGET_GUID);
     }
 
     void UpdateAI(uint32 diff) override
@@ -745,8 +744,6 @@ struct boss_prince_taldaram_icc : public BloodPrincesBossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -841,8 +838,6 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -936,8 +931,11 @@ struct npc_ball_of_flame : public ScriptedAI
         }
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_CHASE_TARGET_GUID)
+            return;
+
         _chaseGUID = guid;
     }
 
@@ -1288,7 +1286,7 @@ class spell_blood_council_shadow_prison : public AuraScript
 // 72999 - Shadow Prison
 class spell_blood_council_shadow_prison_damage : public SpellScript
 {
-    void CalculateDamage(Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
     {
         if (Aura const* aur = victim->GetAura(GetSpellInfo()->Id))
             if (AuraEffect const* eff = aur->GetEffect(EFFECT_1))

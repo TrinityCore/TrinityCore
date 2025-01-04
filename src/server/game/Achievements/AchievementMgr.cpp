@@ -17,11 +17,10 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
-#include "DB2HotfixGenerator.h"
-#include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
-#include "Containers.h"
+#include "DB2HotfixGenerator.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -32,10 +31,11 @@
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
-#include "StringConvert.h"
 #include "ScriptMgr.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -61,8 +61,8 @@ AchievementMgr::~AchievementMgr() { }
 void AchievementMgr::CheckAllAchievementCriteria(Player* referencePlayer)
 {
     // suppress sending packets
-    for (uint32 i = 0; i < uint32(CriteriaType::Count); ++i)
-        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer);
+    for (CriteriaType criteriaType : CriteriaMgr::GetRetroactivelyUpdateableCriteriaTypes())
+        UpdateCriteria(criteriaType, 0, 0, 0, nullptr, referencePlayer);
 }
 
 bool AchievementMgr::HasAchieved(uint32 achievementId) const
@@ -384,7 +384,7 @@ void PlayerAchievementMgr::SendAllData(Player const* /*receiver*/) const
         if (!(achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT))
         {
             earned.Owner = _owner->GetGUID();
-            earned.VirtualRealmAddress = earned.NativeRealmAddress = GetVirtualRealmAddress();
+            earned.VirtualRealmAddress = earned.NativeRealmAddress = _owner->m_playerData->VirtualPlayerRealm;
         }
     }
 
@@ -443,7 +443,7 @@ void PlayerAchievementMgr::SendAchievementInfo(Player* receiver, uint32 /*achiev
         if (!(achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT))
         {
             earned.Owner = _owner->GetGUID();
-            earned.VirtualRealmAddress = earned.NativeRealmAddress = GetVirtualRealmAddress();
+            earned.VirtualRealmAddress = earned.NativeRealmAddress = _owner->m_playerData->VirtualPlayerRealm;
         }
     }
 
@@ -495,8 +495,8 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
         _achievementPoints += achievement->Points;
 
-    UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
-    UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
+    referencePlayer->UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr);
+    referencePlayer->UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr);
 
     sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
 
@@ -512,9 +512,20 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     //! Since no common attributes were found, (not even in titleRewardFlags field)
     //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
     //! condition fields to the condition system.
-    if (uint32 titleId = reward->TitleId[achievement->ID == 1793 ? _owner->GetNativeGender() : (_owner->GetTeam() == ALLIANCE ? 0 : 1)])
-        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
-            _owner->SetTitle(titleEntry);
+    int32 titleId = [&]
+    {
+        if (achievement->ID == 1793)
+            return reward->TitleId[_owner->GetNativeGender()];
+        switch (_owner->GetTeam())
+        {
+            case ALLIANCE: return reward->TitleId[0];
+            case HORDE: return reward->TitleId[1];
+            default: break;
+        }
+        return 0u;
+    }();
+    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+        _owner->SetTitle(titleEntry);
 
     // mail
     if (reward->SenderCreatureId)
@@ -653,12 +664,14 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         WorldPackets::Achievement::AchievementEarned achievementEarned;
         achievementEarned.Sender = _owner->GetGUID();
         achievementEarned.Earner = _owner->GetGUID();
-        achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = GetVirtualRealmAddress();
+        achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = _owner->m_playerData->VirtualPlayerRealm;
         achievementEarned.AchievementID = achievement->ID;
         achievementEarned.Time = *GameTime::GetUtcWowTime();
         achievementEarned.Time += receiver->GetSession()->GetTimezoneOffset();
         receiver->SendDirectMessage(achievementEarned.Write());
     };
+
+    achievementEarnedBuilder(_owner);
 
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
     {
@@ -666,8 +679,6 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         Trinity::MessageDistDeliverer notifier(_owner, achievementEarnedBuilder, dist);
         Cell::VisitWorldObjects(_owner, notifier, dist);
     }
-    else
-        achievementEarnedBuilder(_owner);
 }
 
 void PlayerAchievementMgr::SendPacket(WorldPacket const* data) const
@@ -691,7 +702,7 @@ void GuildAchievementMgr::Reset()
     ObjectGuid guid = _owner->GetGUID();
     for (std::pair<uint32 const, CompletedAchievementData> const& completedAchievement : _completedAchievements)
     {
-        auto packetBuilder = [&](Player const* receiver)
+        _owner->BroadcastWorker([&](Player const* receiver)
         {
             WorldPackets::Achievement::GuildAchievementDeleted guildAchievementDeleted;
             guildAchievementDeleted.AchievementID = completedAchievement.first;
@@ -699,8 +710,7 @@ void GuildAchievementMgr::Reset()
             guildAchievementDeleted.TimeDeleted = *GameTime::GetUtcWowTime();
             guildAchievementDeleted.TimeDeleted += receiver->GetSession()->GetTimezoneOffset();
             receiver->SendDirectMessage(guildAchievementDeleted.Write());
-        };
-        _owner->BroadcastWorker(packetBuilder);
+        });
     }
 
     _achievementPoints = 0;
@@ -1009,7 +1019,7 @@ void GuildAchievementMgr::SendAchievementEarned(AchievementEntry const* achievem
         sWorld->SendGlobalMessage(serverFirstAchievement.Write());
     }
 
-    auto guildAchievementEarnedBuilder = [&](Player const* receiver)
+    _owner->BroadcastWorker([&](Player const* receiver)
     {
         WorldPackets::Achievement::GuildAchievementEarned guildAchievementEarned;
         guildAchievementEarned.AchievementID = achievement->ID;
@@ -1017,8 +1027,7 @@ void GuildAchievementMgr::SendAchievementEarned(AchievementEntry const* achievem
         guildAchievementEarned.TimeEarned = *GameTime::GetUtcWowTime();
         guildAchievementEarned.TimeEarned += receiver->GetSession()->GetTimezoneOffset();
         receiver->SendDirectMessage(guildAchievementEarned.Write());
-    };
-    _owner->BroadcastWorker(guildAchievementEarnedBuilder);
+    });
 }
 
 void GuildAchievementMgr::SendPacket(WorldPacket const* data) const

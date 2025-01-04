@@ -64,7 +64,7 @@ bool ItemTemplate::HasSignature() const
         GetClass() != ITEM_CLASS_CONSUMABLE &&
         GetClass() != ITEM_CLASS_QUEST &&
         !HasFlag(ITEM_FLAG_NO_CREATOR) &&
-        GetId() != 6948; /*Hearthstone*/
+        GetId() != ITEM_HEARTHSTONE;
 }
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const

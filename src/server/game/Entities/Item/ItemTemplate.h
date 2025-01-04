@@ -109,6 +109,9 @@ enum ItemSpelltriggerType
     ITEM_SPELLTRIGGER_ON_PICKUP         = 5,
     ITEM_SPELLTRIGGER_ON_LEARN          = 6,                  // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
     ITEM_SPELLTRIGGER_ON_LOOTED         = 7,
+    ITEM_SPELLTRIGGER_TEACH_MOUNT       = 8,
+    ITEM_SPELLTRIGGER_ON_PICKUP_FORCED  = 9,
+    ITEM_SPELLTRIGGER_ON_LOOTED_FORCED  = 10,
 };
 
 enum ItemBondingType
@@ -118,9 +121,12 @@ enum ItemBondingType
     BIND_ON_EQUIP                               = 2,
     BIND_ON_USE                                 = 3,
     BIND_QUEST                                  = 4,
+    BIND_UNUSED_1                               = 5,
+    BIND_UNUSED_2                               = 6,
+    BIND_WOW_ACCOUNT                            = 7,
+    BIND_BNET_ACCOUNT                           = 8,
+    BIND_BNET_ACCOUNT_UNTIL_EQUIPPED            = 9,
 };
-
-#define MAX_BIND_TYPE                             5
 
 /* /// @todo: Requiring actual cases in which using (an) item isn't allowed while shapeshifted. Else, this flag would need an implementation.
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */
@@ -164,12 +170,12 @@ enum ItemFieldFlags : uint32
 
 DEFINE_ENUM_FLAG(ItemFieldFlags);
 
-enum ItemFieldFlags2 : uint32
+enum ItemZoneFlags : uint32
 {
     ITEM_FIELD_FLAG2_EQUIPPED   = 0x1
 };
 
-DEFINE_ENUM_FLAG(ItemFieldFlags2);
+DEFINE_ENUM_FLAG(ItemZoneFlags);
 
 enum ItemFlags : uint32
 {
@@ -414,6 +420,20 @@ enum InventoryType : uint8
 };
 
 #define MAX_INVTYPE                               35
+
+constexpr std::array<InventoryType, 10> InventoryTypesEquipable =
+{
+    INVTYPE_WEAPON,
+    INVTYPE_SHIELD,
+    INVTYPE_RANGED,
+    INVTYPE_2HWEAPON,
+    INVTYPE_WEAPONMAINHAND,
+    INVTYPE_WEAPONOFFHAND,
+    INVTYPE_HOLDABLE,
+    INVTYPE_THROWN,
+    INVTYPE_RANGEDRIGHT,
+    INVTYPE_PROFESSION_TOOL
+};
 
 enum ItemClass : uint8
 {
@@ -763,6 +783,27 @@ enum ItemLevelConstants : uint32
 {
     MIN_ITEM_LEVEL = 1,
     MAX_ITEM_LEVEL = 1300
+};
+
+enum ItemIdConstants
+{
+    ITEM_HEARTHSTONE                             = 6948,    // Hearthstone
+    ITEM_GARRISON_HEARTHSTONE                    = 110560,  // Garrison Hearthstone
+    ITEM_DALARAN_HEARTHSTONE                     = 140192,  // Dalaran Hearthstone
+    ITEM_FLIGHT_MASTER_WHISTLE                   = 141605,  // Flight Master Whistle
+
+    ITEM_RED_RIBBONED_WRAPPING_PAPER             = 5042,    // Red Ribboned Wrapping Paper
+    ITEM_RED_RIBBONED_GIFT                       = 5043,    // Red Ribboned Gift
+    ITEM_BLUE_RIBBONED_WRAPPING_PAPER            = 5048,    // Blue Ribboned Wrapping Paper
+    ITEM_BLUE_RIBBONED_GIFT                      = 5044,    // Blue Ribboned Gift
+    ITEM_BLUE_RIBBONED_HOLIDAY_WRAPPING_PAPER    = 17303,   // Blue Ribboned Wrapping Paper
+    ITEM_BLUE_RIBBONED_HOLIDAY_GIFT              = 17302,   // Blue Ribboned Holiday Gift
+    ITEM_GREEN_RIBBONED_WRAPPING_PAPER           = 17304,   // Green Ribboned Wrapping Paper
+    ITEM_GREEN_RIBBONED_HOLIDAY_GIFT             = 17305,   // Green Ribboned Holiday Gift
+    ITEM_PURPLE_RIBBONED_WRAPPING_PAPER          = 17307,   // Purple Ribboned Wrapping Paper
+    ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT            = 17308,   // Purple Ribboned Holiday Gift
+    ITEM_EMPTY_WRAPPER                           = 21830,   // Empty Wrapper
+    ITEM_WRAPPED_GIFT                            = 21831,   // Wrappered Gift
 };
 
 class Player;

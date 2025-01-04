@@ -25,10 +25,12 @@
 #include <functional>
 #include <list>
 #include <set>
+#include <span>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 enum TypeID
 {
@@ -66,7 +68,9 @@ enum TypeMask
     TYPEMASK_AREATRIGGER            = 0x0800,
     TYPEMASK_SCENEOBJECT            = 0x1000,
     TYPEMASK_CONVERSATION           = 0x2000,
-    TYPEMASK_SEER                   = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
+
+    TYPEMASK_SEER                   = TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_DYNAMICOBJECT,
+    TYPEMASK_WORLDOBJECT            = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_AREATRIGGER | TYPEMASK_SCENEOBJECT | TYPEMASK_CONVERSATION
 };
 
 enum class HighGuid
@@ -260,8 +264,6 @@ public:
     static ObjectGuid CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 arg3, uint8 arg4, uint64 counter);
 };
 
-#pragma pack(push, 1)
-
 class TC_GAME_API ObjectGuid
 {
     friend class ObjectGuidFactory;
@@ -270,16 +272,19 @@ class TC_GAME_API ObjectGuid
 
     public:
         static ObjectGuid const Empty;
+        static ObjectGuid const ToStringFailed;
         static ObjectGuid const FromStringFailed;
         static ObjectGuid const TradeItem;
+
+        static constexpr std::size_t BytesSize = 16;
 
         using LowType = uint64;
 
         ObjectGuid() = default;
 
         uint64 GetRawValue(std::size_t i) const { return _data[i]; }
-        std::vector<uint8> GetRawValue() const;
-        void SetRawValue(std::vector<uint8> const& guid);
+        std::array<uint8, 16> GetRawValue() const;
+        void SetRawValue(std::span<uint8 const> rawBytes);
         void SetRawValue(uint64 high, uint64 low) { _data[0] = low; _data[1] = high; }
         void Clear() { _data = { }; }
 
@@ -347,11 +352,11 @@ class TC_GAME_API ObjectGuid
             return std::strong_ordering::equal;
         }
 
-        static char const* GetTypeName(HighGuid high);
-        char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
+        static std::string_view GetTypeName(HighGuid high);
+        std::string_view GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
         std::string ToString() const;
         std::string ToHexString() const;
-        static ObjectGuid FromString(std::string const& guidString);
+        static ObjectGuid FromString(std::string_view guidString);
         std::size_t GetHash() const;
 
         template<HighGuid type> static std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Null, ObjectGuid> Create() { return ObjectGuidFactory::CreateNull(); }
@@ -376,16 +381,12 @@ class TC_GAME_API ObjectGuid
         template<HighGuid type> static std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::LMMLobby, ObjectGuid> Create(uint32 arg2, uint8 arg3, uint8 arg4, ObjectGuid::LowType counter) { return ObjectGuidFactory::CreateLMMLobby(0, arg2, arg3, arg4, counter); }
 
     protected:
-        ObjectGuid(uint64 high, uint64 low)
+        ObjectGuid(uint64 high, uint64 low) : _data({{ low, high }})
         {
-            _data[0] = low;
-            _data[1] = high;
         }
 
         std::array<uint64, 2> _data = { };
 };
-
-#pragma pack(pop)
 
 // Some Shared defines
 using GuidSet = std::set<ObjectGuid>;
@@ -424,6 +425,35 @@ namespace std
             return key.GetHash();
         }
     };
+}
+
+namespace fmt
+{
+inline namespace v10
+{
+template <typename T, typename Char, typename Enable>
+struct formatter;
+
+template <>
+struct formatter<ObjectGuid, char, void>
+{
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx) -> decltype(ctx.begin())
+    {
+        auto begin = ctx.begin(), end = ctx.end();
+        if (begin == end)
+            return begin;
+
+        if (*begin != '}')
+            throw std::invalid_argument("invalid type specifier");
+
+        return begin;
+    }
+
+    template <typename FormatContext>
+    auto format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out());
+};
+}
 }
 
 namespace Trinity

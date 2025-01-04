@@ -310,8 +310,6 @@ struct boss_noth : public BossAI
                 me->GetMotionMaster()->MoveChase(me->EnsureVictim());
                 justBlinked = false;
             }
-            else
-                DoMeleeAttackIfReady();
         }
     }
 

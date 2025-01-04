@@ -179,7 +179,8 @@ enum Misc
     DATA_MATERIAL_DAMAGE_TAKEN   = 2,
     DATA_STACKS_DISPELLED        = 3,
     DATA_FIGHT_PHASE             = 4,
-    DATA_SPAWNED_FLAMES          = 5
+    DATA_SPAWNED_FLAMES          = 5,
+    DATA_ROOT_GUID               = 6,
 };
 
 enum OrbCarrierSeats
@@ -374,8 +375,6 @@ class boss_halion : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void SetData(uint32 index, uint32 value) override
@@ -545,8 +544,6 @@ class boss_twilight_halion : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -1114,7 +1111,7 @@ class npc_meteor_strike : public CreatureScript
                 {
                     Position pos = me->GetNearPosition(5.0f, frand(-static_cast<float>(M_PI / 6.0f), static_cast<float>(M_PI / 6.0f)));
                     if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25s))
-                        flame->AI()->SetGUID(me->GetGUID());
+                        flame->AI()->SetGUID(me->GetGUID(), DATA_ROOT_GUID);
                 }
             }
 
@@ -1143,8 +1140,11 @@ class npc_meteor_strike_flame : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
+                if (id != DATA_ROOT_GUID)
+                    return;
+
                 _rootOwnerGuid = guid;
                 _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, Milliseconds(800));
             }
@@ -1174,7 +1174,7 @@ class npc_meteor_strike_flame : public CreatureScript
 
                 Position pos = me->GetNearPosition(5.0f, frand(-static_cast<float>(M_PI / 6.0f), static_cast<float>(M_PI / 6.0f)));
                 if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25s))
-                    flame->AI()->SetGUID(_rootOwnerGuid);
+                    flame->AI()->SetGUID(_rootOwnerGuid, DATA_ROOT_GUID);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -1510,7 +1510,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
                     return;
 
                 uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-                int32 radius = caster->GetObjectScale() * M_PI * 10000 / 3;
+                float radius = caster->GetObjectScale() * M_PI / 3;
 
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
@@ -1650,7 +1650,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
             {
                 GetTarget()->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED, nullptr);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*handle*/)
@@ -1661,7 +1661,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
 
                 target->RemoveAurasDueToSpell(_beforeHitSpellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 if (InstanceScript* instance = target->GetInstanceScript())
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED, nullptr);
             }
 
             void Register() override

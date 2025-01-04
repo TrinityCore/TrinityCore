@@ -86,7 +86,6 @@ struct boss_mother_smolderweb : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 };
 

@@ -25,6 +25,7 @@
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "WorldPacket.h"
 #include <bitset>
 #include <vector>
@@ -105,16 +106,19 @@ enum class QuestPushReason : uint8
     RaceToRecipient                 = 29,   // "%s's attempt to share quest "%s" failed. You are the wrong race for that quest."
     LowFaction                      = 30,   // "%s's reputation is too low for that quest."
     LowFactionToRecipient           = 31,   // "%s's attempt to share quest "%s" failed. Your reputation is too low for that quest."
-    Expansion                       = 32,   // "%s doesn't own the required expansion for that quest."
-    ExpansionToRecipient            = 33,   // "%s's attempt to share quest "%s" failed. You do not own the required expansion for that quest."
-    NotGarrisonOwner                = 34,   // "%s must own a garrison to accept that quest."
-    NotGarrisonOwnerToRecipient     = 35,   // "%s's attempt to share quest "%s" failed. You must own a garrison to accept that quest."
-    WrongCovenant                   = 36,   // "%s is in the wrong covenant for that quest."
-    WrongCovenantToRecipient        = 37,   // "%s's attempt to share quest "%s" failed. You are in the wrong covenant for that quest."
-    NewPlayerExperience             = 38,   // "%s must complete Exile's Reach to accept that quest."
-    NewPlayerExperienceToRecipient  = 39,   // "%s's attempt to share quest "%s" failed. You must complete Exile's Reach to accept that quest."
-    WrongFaction                    = 40,   // "%s is the wrong faction for that quest."
-    WrongFactionToRecipient         = 41    // "%s's attempt to share quest "%s" failed. You are the wrong faction for that quest."
+    HighFaction                     = 32,   // "%s's reputation is too high for that quest."
+    HighFactionToRecipient          = 33,   // "%s's attempt to share quest "%s" failed. Your reputation is too high for that quest."
+    Expansion                       = 34,   // "%s doesn't own the required expansion for that quest."
+    ExpansionToRecipient            = 35,   // "%s's attempt to share quest "%s" failed. You do not own the required expansion for that quest."
+    NotGarrisonOwner                = 36,   // "%s must own a garrison to accept that quest."
+    NotGarrisonOwnerToRecipient     = 37,   // "%s's attempt to share quest "%s" failed. You must own a garrison to accept that quest."
+    WrongCovenant                   = 38,   // "%s is in the wrong covenant for that quest."
+    WrongCovenantToRecipient        = 39,   // "%s's attempt to share quest "%s" failed. You are in the wrong covenant for that quest."
+    NewPlayerExperience             = 40,   // "%s must complete Exile's Reach to accept that quest."
+    NewPlayerExperienceToRecipient  = 41,   // "%s's attempt to share quest "%s" failed. You must complete Exile's Reach to accept that quest."
+    WrongFaction                    = 42,   // "%s is the wrong faction for that quest."
+    WrongFactionToRecipient         = 43,   // "%s's attempt to share quest "%s" failed. You are the wrong faction for that quest."
+    CrossFactionRestricted          = 44,   // "Quests can't be shared in cross-faction groups."
 };
 
 enum QuestTradeSkill
@@ -150,39 +154,53 @@ enum QuestStatus : uint8
 
 enum class QuestGiverStatus : uint64
 {
-    None                                = 0x000000000,
-    Future                              = 0x000000002,
-    Trivial                             = 0x000000004,
-    TrivialRepeatableTurnin             = 0x000000008,
-    TrivialDailyQuest                   = 0x000000010,
-    Reward                              = 0x000000020,
-    JourneyReward                       = 0x000000040,
-    CovenantCallingReward               = 0x000000080,
-    RepeatableTurnin                    = 0x000000100,
-    DailyQuest                          = 0x000000200,
-    Quest                               = 0x000000400,
-    RewardCompleteNoPOI                 = 0x000000800,
-    RewardCompletePOI                   = 0x000001000,
-    LegendaryQuest                      = 0x000002000,
-    LegendaryRewardCompleteNoPOI        = 0x000004000,
-    LegendaryRewardCompletePOI          = 0x000008000,
-    JourneyQuest                        = 0x000010000,
-    JourneyRewardCompleteNoPOI          = 0x000020000,
-    JourneyRewardCompletePOI            = 0x000040000,
-    CovenantCallingQuest                = 0x000080000,
-    CovenantCallingRewardCompleteNoPOI  = 0x000100000,
-    CovenantCallingRewardCompletePOI    = 0x000200000,
-    TrivialLegendaryQuest               = 0x000400000,
-    FutureLegendaryQuest                = 0x000800000,
-    LegendaryReward                     = 0x001000000,
-    ImportantQuest                      = 0x002000000,
-    ImportantReward                     = 0x004000000,
-    TrivialImportantQuest               = 0x008000000,
-    FutureImportantQuest                = 0x010000000,
-    ImportantQuestRewardCompleteNoPOI   = 0x020000000,
-    ImportantQuestRewardCompletePOI     = 0x040000000,
-    TrivialJourneyQuest                 = 0x080000000,
-    FutureJourneyQuest                  = 0x100000000,
+    None                                = 0x000000000000,
+    Future                              = 0x000000000002,
+    FutureJourneyQuest                  = 0x000000000004,
+    FutureLegendaryQuest                = 0x000000000008,
+    FutureImportantQuest                = 0x000000000010,
+    TrivialRepeatableTurnin             = 0x000000000020,
+    Trivial                             = 0x000000000040,
+    TrivialDailyQuest                   = 0x000000000080,
+    TrivialRepeatableQuest              = 0x000000000100,
+    TrivialMetaQuest                    = 0x000000000200,
+    TrivialJourneyQuest                 = 0x000000000400,
+    TrivialLegendaryQuest               = 0x000000000800,
+    TrivialImportantQuest               = 0x000000001000,
+    Reward                              = 0x000000002000,
+    RepeatableReward                    = 0x000000004000,
+    MetaReward                          = 0x000000008000,
+    JourneyReward                       = 0x000000010000,
+    CovenantCallingReward               = 0x000000020000,
+    LegendaryReward                     = 0x000000040000,
+    ImportantReward                     = 0x000000080000,
+    RepeatableTurnin                    = 0x000000100000,
+    QuestAccountCompleted               = 0x000000200000,
+    Quest                               = 0x000000400000,
+    DailyQuest                          = 0x000000800000,
+    RepeatableQuest                     = 0x000001000000,
+    MetaQuest                           = 0x000002000000,
+    CovenantCallingQuest                = 0x000004000000,
+    JourneyQuestAccountCompleted        = 0x000008000000,
+    JourneyQuest                        = 0x000010000000,
+    LegendaryQuestAccountCompleted      = 0x000020000000,
+    LegendaryQuest                      = 0x000040000000,
+    ImportantQuestAccountCompleted      = 0x000080000000,
+    ImportantQuest                      = 0x000100000000,
+    RewardCompleteNoPOI                 = 0x000200000000,
+    RewardCompletePOI                   = 0x000400000000,
+    RepeatableRewardCompleteNoPOI       = 0x000800000000,
+    RepeatableRewardCompletePOI         = 0x001000000000,
+    MetaQuestRewardCompleteNoPOI        = 0x002000000000,
+    MetaQuestRewardCompletePOI          = 0x004000000000,
+    CovenantCallingRewardCompleteNoPOI  = 0x008000000000,
+    CovenantCallingRewardCompletePOI    = 0x010000000000,
+    JourneyRewardCompleteNoPOI          = 0x020000000000,
+    JourneyRewardCompletePOI            = 0x040000000000,
+    LegendaryRewardCompleteNoPOI        = 0x080000000000,
+    LegendaryRewardCompletePOI          = 0x100000000000,
+    ImportantQuestRewardCompleteNoPOI   = 0x200000000000,
+    ImportantQuestRewardCompletePOI     = 0x400000000000,
 };
 
 DEFINE_ENUM_FLAG(QuestGiverStatus);
@@ -288,6 +306,8 @@ enum QuestFlagsEx2 : uint32
     QUEST_FLAGS_EX2_IGNORE_SOULBOUND_ITEMS              = 0x00200000,
     QUEST_FLAGS_EX2_DONT_DEFER_START_EFFECTS            = 0x00400000,
     QUEST_FLAGS_EX2_HIDE_REQUIRED_ITEMS_PRE_TURN_IN     = 0x00800000,
+
+    QUEST_FLAGS_EX2_ABANDON_ON_DISABLE                  = 0x04000000,
 };
 
 enum QuestSpecialFlags
@@ -349,6 +369,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_INCREASE_REPUTATION     = 18,   // requires the player to gain X reputation with a faction
     QUEST_OBJECTIVE_AREA_TRIGGER_ENTER      = 19,
     QUEST_OBJECTIVE_AREA_TRIGGER_EXIT       = 20,
+    QUEST_OBJECTIVE_KILL_WITH_LABEL         = 21,
 
     MAX_QUEST_OBJECTIVE_TYPE
 };
@@ -383,6 +404,13 @@ enum class QuestCompleteSpellType : uint32
     Unlock          = 6,
     Companion       = 7,
     Max
+};
+
+enum class QuestRewardContextFlags : int32
+{
+    None                    = 0x0,
+    FirstCompletionBonus    = 0x1,
+    RepeatCompletionBonus   = 0x2
 };
 
 struct QuestGreeting
@@ -466,6 +494,7 @@ struct QuestObjective
             case QUEST_OBJECTIVE_HAVE_CURRENCY:
             case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
             case QUEST_OBJECTIVE_INCREASE_REPUTATION:
+            case QUEST_OBJECTIVE_KILL_WITH_LABEL:
                 return true;
             default:
                 break;
@@ -554,6 +583,7 @@ class TC_GAME_API Quest
         void LoadConditionalConditionalRequestItemsText(Field* fields);
         void LoadConditionalConditionalOfferRewardText(Field* fields);
         void LoadConditionalConditionalQuestCompletionLog(Field* fields);
+        void LoadTreasurePickers(Field* fields);
 
         uint32 XPValue(Player const* player) const;
         static uint32 XPValue(Player const* player, uint32 contentTuningId, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
@@ -562,6 +592,7 @@ class TC_GAME_API Quest
         uint32 GetMaxMoneyReward() const;
         Optional<QuestTagType> GetQuestTag() const;
         bool IsImportant() const;
+        bool IsMeta() const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
         bool HasFlagEx(QuestFlagsEx flag) const { return (_flagsEx & uint32(flag)) != 0; }
@@ -660,7 +691,7 @@ class TC_GAME_API Quest
         uint32 GetRewardSkillId() const { return _rewardSkillId; }
         uint32 GetRewardSkillPoints() const { return _rewardSkillPoints; }
         uint32 GetRewardReputationMask() const { return _rewardReputationMask; }
-        int32 GetTreasurePickerId() const { return _treasurePickerID; }
+        std::vector<int32> const& GetTreasurePickerId() const { return _treasurePickerID; }
         int32 GetExpansion() const { return _expansion; }
         int32 GetManagedWorldStateId() const { return _managedWorldStateID; }
         int32 GetQuestSessionBonus() const { return _questSessionBonus; }
@@ -679,6 +710,7 @@ class TC_GAME_API Quest
         bool IsPushedToPartyOnAccept() const { return HasSpecialFlag(QUEST_SPECIAL_FLAGS_AUTO_PUSH_TO_PARTY); }
         uint32 CalculateHonorGain(uint8 level) const;
         bool CanIncreaseRewardedQuestCounters() const;
+        bool IsResetByScheduler() const { return _resetByScheduler; }
 
         // multiple values
         std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
@@ -716,6 +748,8 @@ class TC_GAME_API Quest
 
         // Helpers
         static uint32 RoundXPValue(uint32 xp);
+
+        Trinity::unique_weak_ptr<Quest> GetWeakPtr() const { return _weakRef; }
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
@@ -769,7 +803,7 @@ class TC_GAME_API Quest
         uint32 _areaGroupID = 0;
         int64 _limitTime = 0;
         Trinity::RaceMask<uint64> _allowableRaces;
-        int32 _treasurePickerID = 0;
+        std::vector<int32> _treasurePickerID;
         int32 _expansion = 0;
         int32 _managedWorldStateID = 0;
         int32 _questSessionBonus = 0;
@@ -782,6 +816,7 @@ class TC_GAME_API Quest
         std::string _portraitTurnInText;
         std::string _portraitTurnInName;
         std::string _questCompletionLog;
+        bool _resetByScheduler;
 
         // quest_description_conditional
         std::vector<QuestConditionalText> _conditionalQuestDescription;
@@ -826,6 +861,8 @@ class TC_GAME_API Quest
         uint32 _specialFlags = 0; // custom flags, not sniffed/WDB
         std::bitset<MAX_QUEST_OBJECTIVE_TYPE> _usedQuestObjectiveTypes;
         uint32 _scriptId = 0;
+
+        Trinity::unique_weak_ptr<Quest> _weakRef;
 };
 
 struct QuestStatusData

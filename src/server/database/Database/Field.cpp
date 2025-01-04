@@ -18,7 +18,6 @@
 #include "Field.h"
 #include "Errors.h"
 #include "FieldValueConverter.h"
-#include "Log.h"
 #include <cstring>
 
 Field::Field() : _value(nullptr), _length(0), _meta(nullptr)
@@ -107,6 +106,14 @@ double Field::GetDouble() const
     return _meta->Converter->GetDouble(_value, _length, _meta);
 }
 
+SystemTimePoint Field::GetDate() const
+{
+    if (!_value)
+        return SystemTimePoint::min();
+
+    return _meta->Converter->GetDate(_value, _length, _meta);
+}
+
 char const* Field::GetCString() const
 {
     if (!_value)
@@ -117,26 +124,20 @@ char const* Field::GetCString() const
 
 std::string Field::GetString() const
 {
-    if (!_value)
-        return "";
+    std::string result;
+    if (char const* string = GetCString())
+        result.assign(string, _length);
 
-    char const* string = GetCString();
-    if (!string)
-        return "";
-
-    return std::string(string, _length);
+    return result;
 }
 
 std::string_view Field::GetStringView() const
 {
-    if (!_value)
-        return {};
+    std::string_view result;
+    if (char const* const string = GetCString())
+        result = { string, _length };
 
-    char const* const string = GetCString();
-    if (!string)
-        return {};
-
-    return { string, _length };
+    return result;
 }
 
 std::vector<uint8> Field::GetBinary() const
@@ -148,6 +149,11 @@ std::vector<uint8> Field::GetBinary() const
     result.resize(_length);
     memcpy(result.data(), _value, _length);
     return result;
+}
+
+std::span<uint8 const> Field::GetBinaryView() const
+{
+    return { reinterpret_cast<uint8 const*>(_value), _length };
 }
 
 void Field::GetBinarySizeChecked(uint8* buf, size_t length) const

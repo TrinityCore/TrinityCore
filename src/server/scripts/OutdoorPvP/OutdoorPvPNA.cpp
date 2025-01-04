@@ -39,7 +39,6 @@ uint32 const FlightPathEndNodes[FLIGHT_NODES_NUM] = { 104, 106, 108, 110 };
 OutdoorPvPNA::OutdoorPvPNA(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_NA;
-    m_obj = nullptr;
     ControlZoneHandlers[182210] = std::make_unique<NAControlZoneHandler>(this);
 }
 
@@ -62,7 +61,7 @@ void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
         player->KilledMonsterCredit(NA_CREDIT_MARKER); // 0 guid, btw it isn't even used in killedmonster function :S
         if (player->GetTeam() == ALLIANCE)
             player->CastSpell(player, NA_KILL_TOKEN_ALLIANCE, true);
-        else
+        else if (player->GetTeam() == HORDE)
             player->CastSpell(player, NA_KILL_TOKEN_HORDE, true);
     }
 }
@@ -220,7 +219,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
     RegisterZone(NA_BUFF_ZONE);
 
     // halaa
-    m_obj = new OPvPCapturePointNA(this);
+    m_obj = std::make_unique<OPvPCapturePointNA>(this);
 
     return true;
 }

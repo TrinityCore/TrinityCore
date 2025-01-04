@@ -33,7 +33,6 @@ enum PetEntry
 
     // Death Knight pets
     PET_GHOUL           = 26125,
-    PET_ABOMINATION     = 106848,
 
     // Shaman pet
     PET_SPIRIT_WOLF     = 29264
@@ -68,6 +67,12 @@ class TC_GAME_API TempSummon : public Creature
         Optional<uint32> GetDisplayIdVisibleToSummoner() const { return m_displayIdVisibleToSummoner; }
         bool CanFollowOwner() const { return m_canFollowOwner; }
         void SetCanFollowOwner(bool can) { m_canFollowOwner = can; }
+
+        bool IsDismissedOnFlyingMount() const { return !HasFlag(CREATURE_STATIC_FLAG_5_DONT_DISMISS_ON_FLYING_MOUNT); }
+        void SetDontDismissOnFlyingMount(bool dontDismissOnFlyingMount) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_DONT_DISMISS_ON_FLYING_MOUNT, dontDismissOnFlyingMount); }
+
+        bool IsAutoResummoned() const { return !HasFlag(CREATURE_STATIC_FLAG_6_DO_NOT_AUTO_RESUMMON); }
+        void SetDontAutoResummon(bool dontAutoResummon) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_6_DO_NOT_AUTO_RESUMMON, dontAutoResummon); }
 
         SummonPropertiesEntry const* const m_Properties;
 
@@ -109,7 +114,6 @@ class TC_GAME_API Minion : public TempSummon
 
         // Death Knight pets
         bool IsPetGhoul() const { return GetEntry() == PET_GHOUL; } // Ghoul may be guardian or pet
-        bool IsPetAbomination() const { return GetEntry() == PET_ABOMINATION; } // Sludge Belcher dk talent
 
         // Shaman pet
         bool IsSpiritWolf() const { return GetEntry() == PET_SPIRIT_WOLF; } // Spirit wolf from feral spirits

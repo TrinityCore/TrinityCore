@@ -219,8 +219,6 @@ public:
                 DoCastVictim(SPELL_ARCANE_BLAST);
                 ArcaneBlast_Timer = 2500 + rand32() % 5000;
             } else ArcaneBlast_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -954,7 +952,7 @@ public:
 
         void IsSummonedBy(WorldObject* summoner) override
         {
-            if (summoner->isType(TYPEMASK_PLAYER))
+            if (summoner->IsPlayer())
                 playerGuid = summoner->GetGUID();
         }
 

@@ -27,7 +27,7 @@ enum TotemType
     TOTEM_STATUE     = 2 // copied straight from MaNGOS, may need more implementation to work
 };
 
-class TC_GAME_API Totem : public Minion
+class TC_GAME_API Totem final : public Minion
 {
     public:
         Totem(SummonPropertiesEntry const* properties, Unit* owner);

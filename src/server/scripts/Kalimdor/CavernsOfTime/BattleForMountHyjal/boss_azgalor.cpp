@@ -172,8 +172,6 @@ public:
                 enraged = true;
                 EnrageTimer = 600000;
             } else EnrageTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -262,8 +260,6 @@ public:
                 DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CRIPPLE);
                 CrippleTimer = 25000 + rand32() % 5000;
             } else CrippleTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 

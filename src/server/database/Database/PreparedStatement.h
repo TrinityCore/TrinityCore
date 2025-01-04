@@ -20,7 +20,8 @@
 
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
-#include <array>
+#include "Duration.h"
+#include <span>
 #include <string>
 #include <variant>
 #include <vector>
@@ -43,6 +44,7 @@ struct PreparedStatementData
         double,
         std::string,
         std::vector<uint8>,
+        SystemTimePoint,
         std::nullptr_t
     > data;
 
@@ -54,6 +56,7 @@ struct PreparedStatementData
     static std::string ToString(int8 value);
     static std::string ToString(std::string const& value);
     static std::string ToString(std::vector<uint8> const& value);
+    static std::string ToString(SystemTimePoint value);
     static std::string ToString(std::nullptr_t);
 };
 
@@ -66,27 +69,23 @@ class TC_DATABASE_API PreparedStatementBase
         explicit PreparedStatementBase(uint32 index, uint8 capacity);
         virtual ~PreparedStatementBase();
 
-        void setNull(const uint8 index);
-        void setBool(const uint8 index, const bool value);
-        void setUInt8(const uint8 index, const uint8 value);
-        void setUInt16(const uint8 index, const uint16 value);
-        void setUInt32(const uint8 index, const uint32 value);
-        void setUInt64(const uint8 index, const uint64 value);
-        void setInt8(const uint8 index, const int8 value);
-        void setInt16(const uint8 index, const int16 value);
-        void setInt32(const uint8 index, const int32 value);
-        void setInt64(const uint8 index, const int64 value);
-        void setFloat(const uint8 index, const float value);
-        void setDouble(const uint8 index, const double value);
-        void setString(const uint8 index, const std::string& value);
-        void setStringView(const uint8 index, const std::string_view value);
-        void setBinary(const uint8 index, const std::vector<uint8>& value);
-        template <size_t Size>
-        void setBinary(const uint8 index, std::array<uint8, Size> const& value)
-        {
-            std::vector<uint8> vec(value.begin(), value.end());
-            setBinary(index, vec);
-        }
+        void setNull(uint8 index);
+        void setBool(uint8 index, bool value);
+        void setUInt8(uint8 index, uint8 value);
+        void setUInt16(uint8 index, uint16 value);
+        void setUInt32(uint8 index, uint32 value);
+        void setUInt64(uint8 index, uint64 value);
+        void setInt8(uint8 index, int8 value);
+        void setInt16(uint8 index, int16 value);
+        void setInt32(uint8 index, int32 value);
+        void setInt64(uint8 index, int64 value);
+        void setFloat(uint8 index, float value);
+        void setDouble(uint8 index, double value);
+        void setDate(uint8 index, SystemTimePoint value);
+        void setString(uint8 index, std::string&& value);
+        void setString(uint8 index, std::string_view value);
+        void setBinary(uint8 index, std::vector<uint8>&& value);
+        void setBinary(uint8 index, std::span<uint8 const> value);
 
         uint32 GetIndex() const { return m_index; }
         std::vector<PreparedStatementData> const& GetParameters() const { return statement_data; }

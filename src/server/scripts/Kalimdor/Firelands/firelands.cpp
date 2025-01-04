@@ -143,8 +143,6 @@ struct npc_firelands_flame_archon : public ScriptedAI
             return;
 
         scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -212,8 +210,6 @@ struct npc_firelands_molten_flamefather : public ScriptedAI
             return;
 
         scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -223,7 +219,10 @@ private:
 // http://www.wowhead.com/npc=54144/magmakin
 struct npc_firelands_magmakin : public ScriptedAI
 {
-    npc_firelands_magmakin(Creature* creature) : ScriptedAI(creature) { }
+    npc_firelands_magmakin(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void IsSummonedBy(WorldObject* /*summoner*/) override
     {

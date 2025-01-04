@@ -146,8 +146,8 @@ struct boss_onyxia : public BossAI
     {
         Initialize();
 
-        if (!IsCombatMovementAllowed())
-            SetCombatMovement(true);
+        SetCombatMovement(true);
+        me->SetCanMelee(true);
 
         _Reset();
         me->SetReactState(REACT_AGGRESSIVE);
@@ -329,6 +329,7 @@ struct boss_onyxia : public BossAI
                     Phase = PHASE_BREATH;
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
+                    me->SetCanMelee(false);
                     me->GetMotionMaster()->MovePoint(10, Phase2Location);
                     return;
                 }
@@ -379,7 +380,6 @@ struct boss_onyxia : public BossAI
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
             }
-            DoMeleeAttackIfReady();
         }
         else
         {
@@ -390,6 +390,7 @@ struct boss_onyxia : public BossAI
                 Talk(SAY_PHASE_3_TRANS);
                 SetCombatMovement(true);
                 IsMoving = false;
+                me->SetCanMelee(true);
                 Position const pos = me->GetHomePosition();
                 me->GetMotionMaster()->MovePoint(9, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 12.0f);
                 events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30s);

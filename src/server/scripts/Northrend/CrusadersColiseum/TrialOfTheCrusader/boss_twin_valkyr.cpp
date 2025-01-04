@@ -276,7 +276,6 @@ struct boss_twin_baseAI : public BossAI
 
         Talk(SAY_AGGRO);
         DoCast(me, SurgeSpellId);
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
 
         events.ScheduleEvent(EVENT_TWIN_SPIKE, 20s);
@@ -358,8 +357,6 @@ struct boss_twin_baseAI : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     protected:

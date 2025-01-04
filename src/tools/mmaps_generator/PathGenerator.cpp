@@ -79,7 +79,7 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
     }
 
     dirFiles.clear();
-    if (getDirContents(dirFiles, "vmaps", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         printf("'vmaps' directory is empty or does not exist\n");
         return false;
@@ -458,3 +458,9 @@ int main(int argc, char** argv)
         printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
     return 0;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

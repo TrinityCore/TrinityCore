@@ -39,15 +39,15 @@ namespace Movement
     class Spline;
 }
 
-class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
+class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
     public:
         AreaTrigger();
         ~AreaTrigger();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -76,6 +76,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool IsCustom() const { return _areaTriggerTemplate->Id.IsCustom; }
         bool IsServerSide() const { return _areaTriggerTemplate->Flags.HasFlag(AreaTriggerFlag::IsServerSide); }
         bool IsStaticSpawn() const { return _spawnId != 0; }
+        bool HasActionSetFlag(AreaTriggerActionSetFlag flag) const { return _areaTriggerTemplate->ActionSetFlags.HasFlag(flag); }
 
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 
@@ -84,6 +85,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
+        void PlaySpellVisual(uint32 spellVisualId) const;
 
     private:
         bool Create(AreaTriggerCreatePropertiesId areaTriggerCreatePropertiesId, Map* map, Position const& pos, int32 duration, AreaTriggerSpawn const* spawnData = nullptr, Unit* caster = nullptr, Unit* target = nullptr, SpellCastVisual spellVisual = { 0, 0 }, SpellInfo const* spellInfo = nullptr, Spell* spell = nullptr, AuraEffect const* aurEff = nullptr);
@@ -164,7 +166,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         void UpdateShape();
 
-        UF::UpdateField<UF::AreaTriggerData, 0, TYPEID_AREATRIGGER> m_areaTriggerData;
+        UF::UpdateField<UF::AreaTriggerData, int32(WowCS::EntityFragment::CGObject), TYPEID_AREATRIGGER> m_areaTriggerData;
 
     protected:
         void _UpdateDuration(int32 newDuration);
@@ -189,7 +191,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void SearchUnitInCylinder(std::vector<Unit*>& targetList);
         void SearchUnitInDisk(std::vector<Unit*>& targetList);
         void SearchUnitInBoundedPlane(std::vector<Unit*>& targetList);
-        bool CheckIsInPolygon2D(Position const* pos) const;
         void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
 
         void DoActions(Unit* unit);

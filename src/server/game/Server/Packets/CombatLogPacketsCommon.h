@@ -30,9 +30,9 @@ namespace WorldPackets
     {
         struct SpellLogPowerData
         {
-            SpellLogPowerData(int32 powerType, int32 amount, int32 cost) : PowerType(powerType), Amount(amount), Cost(cost) { }
+            SpellLogPowerData(int8 powerType, int32 amount, int32 cost) : PowerType(powerType), Amount(amount), Cost(cost) { }
 
-            int32 PowerType = 0;
+            int8 PowerType = 0;
             int32 Amount = 0;
             int32 Cost = 0;
         };
@@ -43,6 +43,8 @@ namespace WorldPackets
             int32 AttackPower = 0;
             int32 SpellPower = 0;
             int32 Armor = 0;
+            int32 Unknown_1105_1 = 0;
+            int32 Unknown_1105_2 = 0;
             std::vector<SpellLogPowerData> PowerData;
 
             void Initialize(Unit const* unit);
@@ -91,10 +93,10 @@ namespace WorldPackets
 
         struct SpellSupportInfo
         {
-            ObjectGuid CasterGUID;
-            int32 SpellID = 0;
-            int32 Amount = 0;
-            float Percentage = 0.0f;
+            ObjectGuid Supporter;
+            int32 SupportSpellID = 0;
+            int32 AmountRaw = 0;
+            float AmountPortion = 0.0f;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogData);

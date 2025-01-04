@@ -273,8 +273,6 @@ struct boss_urom : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override

@@ -91,8 +91,6 @@ class boss_zanzil : public CreatureScript
                     }
                 }
                 */
-
-                DoMeleeAttackIfReady();
             }
         };
 

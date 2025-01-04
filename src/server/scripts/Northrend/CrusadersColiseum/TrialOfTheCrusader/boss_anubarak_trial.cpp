@@ -190,6 +190,7 @@ struct boss_anubarak_trial : public BossAI
         Initialize();
         me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         me->SetUninteractible(false);
+        me->SetCanMelee(true);
         // clean up spawned Frost Spheres
         std::list<Creature*> FrostSphereList;
         me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
@@ -335,6 +336,7 @@ struct boss_anubarak_trial : public BossAI
                         DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                         me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->SetUninteractible(true);
+                        me->SetCanMelee(false);
                         Talk(EMOTE_BURROWER);
                         events.SetPhase(PHASE_SUBMERGED);
                         events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2s, 0, PHASE_SUBMERGED);
@@ -372,6 +374,7 @@ struct boss_anubarak_trial : public BossAI
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->SetUninteractible(false);
+                    me->SetCanMelee(true);
                     DoCast(me, SPELL_EMERGE_ANUBARAK);
                     Talk(EMOTE_EMERGE);
                     events.SetPhase(PHASE_MELEE);
@@ -422,9 +425,6 @@ struct boss_anubarak_trial : public BossAI
             Talk(EMOTE_LEECHING_SWARM);
             Talk(SAY_LEECHING_SWARM);
         }
-
-        if (events.IsInPhase(PHASE_MELEE))
-            DoMeleeAttackIfReady();
     }
 
     private:
@@ -493,8 +493,6 @@ struct npc_swarm_scarab : public ScriptedAI
         }
         else
             _determinationTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     private:
@@ -575,8 +573,6 @@ struct npc_nerubian_burrower : public ScriptedAI
         }
         else
             _submergeTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     private:

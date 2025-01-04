@@ -195,8 +195,6 @@ public:
 
                 Impale_Timer = 7500 + rand32() % 5000;
             } else Impale_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };

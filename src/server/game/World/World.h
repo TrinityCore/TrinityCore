@@ -42,7 +42,6 @@ class Player;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
-struct Realm;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -197,6 +196,8 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE,
     CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT,
     CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS,
+    CONFIG_ENABLE_AE_LOOT,
+    CONFIG_LOAD_LOCALES,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -519,7 +520,6 @@ enum Rates
     RATE_AUCTION_DEPOSIT,
     RATE_AUCTION_CUT,
     RATE_HONOR,
-    RATE_TALENT,
     RATE_CORPSE_DECAY_LOOTED,
     RATE_INSTANCE_RESET_TIME,
     RATE_DURABILITY_LOSS_ON_DEATH,
@@ -647,7 +647,7 @@ class TC_GAME_API World
             return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5;
         }
 
-        void SetInitialWorldSettings();
+        bool SetInitialWorldSettings();
         void LoadConfigSettings(bool reload = false);
 
         void SendWorldText(uint32 string_id, ...);
@@ -922,8 +922,6 @@ class TC_GAME_API World
 
     friend class debug_commandscript;
 };
-
-TC_GAME_API extern Realm realm;
 
 TC_GAME_API uint32 GetVirtualRealmAddress();
 

@@ -253,8 +253,6 @@ struct boss_temple_guardian_anhuur : public BossAI
                 }
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

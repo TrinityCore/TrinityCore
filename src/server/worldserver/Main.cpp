@@ -37,6 +37,7 @@
 #include "IpNetwork.h"
 #include "Locales.h"
 #include "MapManager.h"
+#include "Memory.h"
 #include "Metric.h"
 #include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
@@ -78,11 +79,12 @@ namespace fs = boost::filesystem;
     #define _TRINITY_CORE_CONFIG_DIR "worldserver.conf.d"
 #endif
 
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
-char serviceName[] = "worldserver";
-char serviceLongName[] = "TrinityCore world service";
-char serviceDescription[] = "TrinityCore World of Warcraft emulator world service";
+#include <tchar.h>
+TCHAR serviceName[] = _T("worldserver");
+TCHAR serviceLongName[] = _T("TrinityCore world service");
+TCHAR serviceDescription[] = _T("TrinityCore World of Warcraft emulator world service");
 /*
  * -1 - not in service mode
  *  0 - stopped
@@ -103,7 +105,7 @@ public:
 
     static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
     {
-        freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
+        freezeDetector->_timer.expires_after(5s);
         freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr(freezeDetector)](boost::system::error_code const& error) mutable
         {
             Handler(std::move(freezeDetectorRef), error);
@@ -124,13 +126,13 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
-void ClearOnlineAccounts();
-void ShutdownCLIThread(std::thread* cliThread);
-bool LoadRealmInfo();
+void ClearOnlineAccounts(uint32 realmId);
+struct ShutdownTCSoapThread { void operator()(std::thread* thread) const; };
+struct ShutdownCLIThread { void operator()(std::thread* cliThread) const; };
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
 
 /// Launch the Trinity server
-extern int main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
 
@@ -147,21 +149,24 @@ extern int main(int argc, char** argv)
     if (vm.count("help") || vm.count("version"))
         return 0;
 
+    uint32 dummy = 0;
+
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    std::shared_ptr<void> protobufHandle(nullptr, [](void*) { google::protobuf::ShutdownProtobufLibrary(); });
+    auto protobufHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { google::protobuf::ShutdownProtobufLibrary(); }>(&dummy);
 
 #ifdef _WIN32
+    Trinity::Service::Init(serviceLongName, serviceName, serviceDescription, &main, &m_ServiceStatus);
     if (winServiceAction == "install")
-        return WinServiceInstall() ? 0 : 1;
+        return Trinity::Service::Install();
     if (winServiceAction == "uninstall")
-        return WinServiceUninstall() ? 0 : 1;
+        return Trinity::Service::Uninstall();
     if (winServiceAction == "run")
-        return WinServiceRun() ? 0 : 1;
+        return Trinity::Service::Run();
 
     Optional<UINT> newTimerResolution;
     boost::system::error_code dllError;
-    std::shared_ptr<boost::dll::shared_library> winmm(new boost::dll::shared_library("winmm.dll", dllError, boost::dll::load_mode::search_system_folders), [&](boost::dll::shared_library* lib)
+    auto winmm = Trinity::make_unique_ptr_with_deleter(new boost::dll::shared_library("winmm.dll", dllError, boost::dll::load_mode::search_system_folders), [&](boost::dll::shared_library* lib)
     {
         try
         {
@@ -247,7 +252,7 @@ extern int main(int argc, char** argv)
 
     OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
 
-    std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
+    auto opensslHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { OpenSSLCrypto::threadsCleanup(); }>(&dummy);
 
     // Seed the OpenSSL's PRNG here.
     // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
@@ -279,12 +284,12 @@ extern int main(int argc, char** argv)
     if (numThreads < 1)
         numThreads = 1;
 
-    std::shared_ptr<Trinity::ThreadPool> threadPool = std::make_shared<Trinity::ThreadPool>(numThreads);
+    std::unique_ptr<Trinity::ThreadPool> threadPool = std::make_unique<Trinity::ThreadPool>(numThreads);
 
     for (int i = 0; i < numThreads; ++i)
         threadPool->PostWork([ioContext]() { ioContext->run(); });
 
-    std::shared_ptr<void> ioContextStopHandle(nullptr, [ioContext](void*) { ioContext->stop(); });
+    auto ioContextStopHandle = Trinity::make_unique_ptr_with_deleter<&Trinity::Asio::IoContext::stop>(ioContext.get());
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -293,23 +298,40 @@ extern int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
-    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+    auto dbHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { StopDB(); }>(&dummy);
 
     if (vm.count("update-databases-only"))
         return 0;
 
     Trinity::Net::ScanLocalNetworks();
 
-    // Set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
-    std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
+    auto sRealmListHandle = Trinity::make_unique_ptr_with_deleter<&RealmList::Close>(sRealmList);
 
-    LoadRealmInfo();
+    ///- Get the realm Id from the configuration file
+    uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0);
+    if (!realmId)
+    {
+        TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
+        return 1;
+    }
 
-    sMetric->Initialize(realm.Name, *ioContext, []()
+    sRealmList->SetCurrentRealmId(realmId);
+
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realmId);
+
+    ///- Clean the database before starting
+    ClearOnlineAccounts(realmId);
+
+    std::shared_ptr<Realm const> realm = sRealmList->GetCurrentRealm();
+    if (!realm)
+        return 1;
+
+    // Set server offline (not connectable)
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", Trinity::Legacy::REALM_FLAG_OFFLINE, realmId);
+
+    sMetric->Initialize(realm->Name, *ioContext, []()
     {
         TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
         TC_METRIC_VALUE("db_queue_login", uint64(LoginDatabase.QueueSize()));
@@ -317,35 +339,37 @@ extern int main(int argc, char** argv)
         TC_METRIC_VALUE("db_queue_world", uint64(WorldDatabase.QueueSize()));
     });
 
+    realm = nullptr;
+
     TC_METRIC_EVENT("events", "Worldserver started", "");
 
-    std::shared_ptr<void> sMetricHandle(nullptr, [](void*)
+    auto sMetricHandle = Trinity::make_unique_ptr_with_deleter(sMetric, [](Metric* metric)
     {
         TC_METRIC_EVENT("events", "Worldserver shutdown", "");
-        sMetric->Unload();
+        metric->Unload();
     });
 
+    auto scriptReloadMgrHandle = Trinity::make_unique_ptr_with_deleter<&ScriptReloadMgr::Unload>(sScriptReloadMgr);
+
     sScriptMgr->SetScriptLoader(AddScripts);
-    std::shared_ptr<void> sScriptMgrHandle(nullptr, [](void*)
-    {
-        sScriptMgr->Unload();
-        sScriptReloadMgr->Unload();
-    });
+    auto sScriptMgrHandle = Trinity::make_unique_ptr_with_deleter<&ScriptMgr::Unload>(sScriptMgr);
 
     // Initialize the World
     sSecretMgr->Initialize(SECRET_OWNER_WORLDSERVER);
-    sWorld->SetInitialWorldSettings();
+    if (!sWorld->SetInitialWorldSettings())
+        return 1;
 
-    std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
-    {
-        // unload battleground templates before different singletons destroyed
-        sBattlegroundMgr->DeleteAllBattlegrounds();
+    auto instanceLockMgrHandle = Trinity::make_unique_ptr_with_deleter<&InstanceLockMgr::Unload>(&sInstanceLockMgr);
 
-        sOutdoorPvPMgr->Die();                    // unload it before MapManager
-        sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
-        sTerrainMgr.UnloadAll();
-        sInstanceLockMgr.Unload();
-    });
+    auto terrainMgrHandle = Trinity::make_unique_ptr_with_deleter<&TerrainMgr::UnloadAll>(&sTerrainMgr);
+
+    auto outdoorPvpMgrHandle = Trinity::make_unique_ptr_with_deleter<&OutdoorPvPMgr::Die>(sOutdoorPvPMgr);
+
+    // unload all grids (including locked in memory)
+    auto mapManagementHandle = Trinity::make_unique_ptr_with_deleter<&MapManager::UnloadAll>(sMapMgr);
+
+    // unload battleground templates before different singletons destroyed
+    auto battlegroundMgrHandle = Trinity::make_unique_ptr_with_deleter<&BattlegroundMgr::DeleteAllBattlegrounds>(sBattlegroundMgr);
 
     // Start the Remote Access port (acceptor) if enabled
     std::unique_ptr<AsyncAcceptor> raAcceptor;
@@ -353,15 +377,13 @@ extern int main(int argc, char** argv)
         raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
 
     // Start soap serving thread if enabled
-    std::shared_ptr<std::thread> soapThread;
+    std::unique_ptr<std::thread, ShutdownTCSoapThread> soapThread;
     if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
-        soapThread.reset(new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))),
-            [](std::thread* thr)
-        {
-            thr->join();
-            delete thr;
-        });
+        if (std::thread* soap = CreateSoapThread(sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))))
+            soapThread.reset(soap);
+        else
+            return -1;
     }
 
     // Launch the worldserver listener socket
@@ -385,21 +407,19 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
+    auto sWorldSocketMgrHandle = Trinity::make_unique_ptr_with_deleter(&sWorldSocketMgr, [realmId](WorldSocketMgr* mgr)
     {
         sWorld->KickAll();                                       // save and kick all players
         sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call
 
-        sWorldSocketMgr.StopNetwork();
+        mgr->StopNetwork();
 
         ///- Clean database before leaving
-        ClearOnlineAccounts();
+        ClearOnlineAccounts(realmId);
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-    realm.PopulationLevel = 0.0f;
-    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", Trinity::Legacy::REALM_FLAG_OFFLINE, realmId);
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
     std::shared_ptr<FreezeDetector> freezeDetector;
@@ -415,14 +435,14 @@ extern int main(int argc, char** argv)
     TC_LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     // Launch CliRunnable thread
-    std::shared_ptr<std::thread> cliThread;
+    std::unique_ptr<std::thread, ShutdownCLIThread> cliThread;
 #ifdef _WIN32
     if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else
     if (sConfigMgr->GetBoolDefault("Console.Enable", true))
 #endif
     {
-        cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
+        cliThread.reset(new std::thread(CliThread));
     }
 
     WorldUpdateLoop();
@@ -440,7 +460,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", Trinity::Legacy::REALM_FLAG_OFFLINE, realmId);
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
@@ -451,7 +471,13 @@ extern int main(int argc, char** argv)
     return World::GetExitCode();
 }
 
-void ShutdownCLIThread(std::thread* cliThread)
+void ShutdownTCSoapThread::operator()(std::thread* thread) const
+{
+    thread->join();
+    delete thread;
+}
+
+void ShutdownCLIThread::operator()(std::thread* cliThread) const
 {
     if (cliThread != nullptr)
     {
@@ -598,7 +624,7 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 }
             }
 
-            freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
+            freezeDetector->_timer.expires_after(1s);
             freezeDetector->_timer.async_wait([freezeDetectorRef = std::move(freezeDetectorRef)](boost::system::error_code const& error) mutable
             {
                 Handler(std::move(freezeDetectorRef), error);
@@ -624,17 +650,6 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
     return acceptor;
 }
 
-bool LoadRealmInfo()
-{
-    if (Realm const* realmListRealm = sRealmList->GetRealm(realm.Id))
-    {
-        realm = *realmListRealm;
-        return true;
-    }
-
-    return false;
-}
-
 /// Initialize connection to the databases
 bool StartDB()
 {
@@ -651,19 +666,6 @@ bool StartDB()
     if (!loader.Load())
         return false;
 
-    ///- Get the realm Id from the configuration file
-    realm.Id.Realm = sConfigMgr->GetIntDefault("RealmID", 0);
-    if (!realm.Id.Realm)
-    {
-        TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
-        return false;
-    }
-
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realm.Id.Realm);
-
-    ///- Clean the database before starting
-    ClearOnlineAccounts();
-
     ///- Insert version info into DB
     WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
@@ -675,18 +677,19 @@ bool StartDB()
 
 void StopDB()
 {
-    CharacterDatabase.Close();
+    HotfixDatabase.Close();
     WorldDatabase.Close();
+    CharacterDatabase.Close();
     LoginDatabase.Close();
 
     MySQL::Library_End();
 }
 
 /// Clear 'online' status for all accounts with characters in this realm
-void ClearOnlineAccounts()
+void ClearOnlineAccounts(uint32 realmId)
 {
     // Reset online status for all accounts with characters on the current realm
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realmId);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
@@ -694,7 +697,6 @@ void ClearOnlineAccounts()
     // Battleground instance ids reset at server restart
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
 }
-
 /// @}
 
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, [[maybe_unused]] std::string& winServiceAction)
@@ -739,3 +741,9 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
 
     return vm;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

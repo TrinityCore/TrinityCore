@@ -229,8 +229,6 @@ struct boss_rotface : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -271,8 +269,6 @@ struct npc_little_ooze : public ScriptedAI
             DoCastVictim(SPELL_STICKY_OOZE);
             events.ScheduleEvent(EVENT_STICKY_OOZE, 15s);
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -328,9 +324,6 @@ struct npc_big_ooze : public ScriptedAI
                     break;
             }
         }
-
-        if (me->IsVisible())
-            DoMeleeAttackIfReady();
     }
 
 private:
@@ -403,8 +396,6 @@ struct npc_precious_icc : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -695,6 +686,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public AuraScript
 
         target->RemoveAllAuras();
         target->SetVisible(false);
+        target->ToCreature()->SetCanMelee(false);
         target->ToCreature()->DespawnOrUnsummon(60s);
     }
 

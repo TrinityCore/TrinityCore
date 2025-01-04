@@ -167,8 +167,6 @@ struct boss_loken : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override

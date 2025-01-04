@@ -114,8 +114,6 @@ struct npc_beryl_sorcerer : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 private:
     EventMap _events;
@@ -638,8 +636,6 @@ struct npc_hidden_cultist : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     bool OnGossipHello(Player* player) override
@@ -1083,8 +1079,6 @@ struct npc_thassarian : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -1227,7 +1221,6 @@ struct npc_counselor_talbot : public ScriptedAI
                 }
             }
         }
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -1267,7 +1260,9 @@ enum BloodsporeRuination
     NPC_BLOODMAGE_LAURITH   = 25381,
     SAY_BLOODMAGE_LAURITH   = 0,
     EVENT_TALK              = 1,
-    EVENT_RESET_ORIENTATION
+    EVENT_RESET_ORIENTATION,
+
+    DATA_FACING_PLAYER_GUID = 0
 };
 
 // 45997 - Bloodspore Ruination
@@ -1277,7 +1272,7 @@ class spell_q11719_bloodspore_ruination_45997 : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* laurith = caster->FindNearestCreature(NPC_BLOODMAGE_LAURITH, 100.0f))
-                laurith->AI()->SetGUID(caster->GetGUID());
+                laurith->AI()->SetGUID(caster->GetGUID(), DATA_FACING_PLAYER_GUID);
     }
 
     void Register() override
@@ -1296,8 +1291,11 @@ struct npc_bloodmage_laurith : public ScriptedAI
         _playerGUID.Clear();
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_FACING_PLAYER_GUID)
+            return;
+
         if (!_playerGUID.IsEmpty())
             return;
 
@@ -1312,10 +1310,7 @@ struct npc_bloodmage_laurith : public ScriptedAI
     void UpdateAI(uint32 diff) override
     {
         if (UpdateVictim())
-        {
-            DoMeleeAttackIfReady();
             return;
-        }
 
         _events.Update(diff);
 

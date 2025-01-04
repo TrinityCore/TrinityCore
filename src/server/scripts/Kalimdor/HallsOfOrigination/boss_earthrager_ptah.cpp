@@ -112,6 +112,7 @@ struct boss_earthrager_ptah : public BossAI
 
     void Reset() override
     {
+        me->SetCanMelee(true);
         _summonDeaths = 0;
         _hasDispersed = false;
         Cleanup();
@@ -130,6 +131,7 @@ struct boss_earthrager_ptah : public BossAI
             _hasDispersed = true;
 
             me->AttackStop();
+            me->SetCanMelee(false);
             DoCast(me, SPELL_SANDSTORM);
             me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
             events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6s, 0, PHASE_DISPERSE);
@@ -165,6 +167,7 @@ struct boss_earthrager_ptah : public BossAI
             {
                 me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
                 me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
+                me->SetCanMelee(true);
                 events.SetPhase(PHASE_NORMAL);
                 events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 12s, 0, PHASE_NORMAL);
                 events.ScheduleEvent(EVENT_FLAME_BOLT, 15s, 0, PHASE_NORMAL);
@@ -234,9 +237,6 @@ struct boss_earthrager_ptah : public BossAI
                     break;
             }
         }
-
-        if (events.GetPhaseMask() & PHASE_MASK_NORMAL) // Do not melee in the disperse phase
-            DoMeleeAttackIfReady();
     }
 
 protected:
