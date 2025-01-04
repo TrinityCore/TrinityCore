@@ -516,6 +516,7 @@ class TC_GAME_API SpellInfo
 
         bool IsAffectedBySpellMods() const;
         bool IsAffectedBySpellMod(SpellModifier const* mod) const;
+        bool IsUpdatingTemporaryAuraValuesBySpellMod() const;
 
         bool CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const;
         bool CanDispelAura(SpellInfo const* auraSpellInfo) const;
