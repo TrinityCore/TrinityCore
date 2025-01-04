@@ -100,7 +100,7 @@ class spell_evo_azure_essence_burst : public SpellScript
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_evo_ruby_essence_burst::HandleEssenceBurst);
+        AfterCast += SpellCastFn(spell_evo_azure_essence_burst::HandleEssenceBurst);
     }
 };
 
