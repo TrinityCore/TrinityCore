@@ -48,6 +48,7 @@ enum EvokerSpells
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
     SPELL_EVOKER_ENERGIZING_FLAME               = 400006,
+    SPELL_EVOKER_ESSENCE_BURST                  = 359618,
     SPELL_EVOKER_FIRE_BREATH_DAMAGE             = 357209,
     SPELL_EVOKER_GLIDE_KNOCKBACK                = 358736,
     SPELL_EVOKER_HOVER                          = 358267,
@@ -56,6 +57,7 @@ enum EvokerSpells
     SPELL_EVOKER_LIVING_FLAME_HEAL              = 361509,
     SPELL_EVOKER_PERMEATING_CHILL_TALENT        = 370897,
     SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
+    SPELL_EVOKER_RUBY_ESSENCE_BURST             = 376872,
     SPELL_EVOKER_SCOURING_FLAME                 = 378438,
     SPELL_EVOKER_SOAR_RACIAL                    = 369536,
     SPELL_EVOKER_VERDANT_EMBRACE_HEAL           = 361195,
@@ -344,6 +346,35 @@ class spell_evo_pyre : public SpellScript
     }
 };
 
+// Called by 361469 - Living Flame (Red)
+class spell_evo_ruby_essence_burst : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_RUBY_ESSENCE_BURST, SPELL_EVOKER_ESSENCE_BURST });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_RUBY_ESSENCE_BURST);
+    }
+
+    void HandleEssenceBurst() const
+    {
+        AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_EVOKER_RUBY_ESSENCE_BURST, EFFECT_0);
+        if (aurEff && roll_chance_i(aurEff->GetAmount()))
+            GetCaster()->CastSpell(GetCaster(), SPELL_EVOKER_ESSENCE_BURST, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_ruby_essence_burst::HandleEssenceBurst);
+    }
+};
+
 // 357209 Fire Breath (Red)
 class spell_evo_scouring_flame : public SpellScript
 {
@@ -436,6 +467,7 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_living_flame);
     RegisterSpellScript(spell_evo_permeating_chill);
     RegisterSpellScript(spell_evo_pyre);
+    RegisterSpellScript(spell_evo_ruby_essence_burst);
     RegisterSpellScript(spell_evo_scouring_flame);
     RegisterSpellScript(spell_evo_verdant_embrace);
     RegisterSpellScript(spell_evo_verdant_embrace_trigger_heal);
