@@ -535,7 +535,7 @@ class spell_dh_demonic : public SpellScript
 
         if (Aura* aura = GetCaster()->GetAura(SPELL_DH_METAMORPHOSIS_TRANSFORM))
             aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
-        else if (Aura* aura = GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_TRANSFORM, GetCaster()))
+        else if (GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_TRANSFORM, GetCaster()))
         {
             SpellCastTargets targets;
             targets.SetUnitTarget(GetCaster());
@@ -557,7 +557,7 @@ class spell_dh_demonic : public SpellScript
 
         if (Aura* aura = GetCaster()->GetAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM))
             aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
-        else if (Aura* aura = GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM, GetCaster()))
+        else if (GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM, GetCaster()))
         {
             SpellCastTargets targets;
             targets.SetUnitTarget(GetCaster());
