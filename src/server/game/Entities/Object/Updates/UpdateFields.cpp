@@ -932,15 +932,16 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(this, owner, receiver));
     data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, owner, receiver));
     data << uint32(ViewerDependentValue<NpcFlags2Tag>::GetValue(this, owner, receiver));
-    data << uint32(StateSpellVisualID);
-    data << uint32(StateAnimID);
-    data << uint32(StateAnimKitID);
-    data << uint32(StateWorldEffectIDs->size());
+    data << uint32(ViewerDependentValue<StateSpellVisualIDTag>::GetValue(this, owner, receiver));
+    data << uint32(ViewerDependentValue<StateAnimIDTag>::GetValue(this, owner, receiver));
+    data << uint32(ViewerDependentValue<StateAnimKitIDTag>::GetValue(this, owner, receiver));
+    std::vector stateWorldEffects = ViewerDependentValue<StateWorldEffectIDsTag>::GetValue(this, owner, receiver);
+    data << uint32(stateWorldEffects.size());
     data << uint32(StateWorldEffectsQuestObjectiveID);
     data << int32(SpellOverrideNameID);
-    for (uint32 i = 0; i < StateWorldEffectIDs->size(); ++i)
+    for (uint32 i = 0; i < stateWorldEffects.size(); ++i)
     {
-        data << uint32((*StateWorldEffectIDs)[i]);
+        data << uint32((stateWorldEffects)[i]);
     }
     data << Charm;
     data << Summon;
@@ -1176,10 +1177,11 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[2])
         {
-            data.WriteBits(StateWorldEffectIDs->size(), 32);
-            for (uint32 i = 0; i < StateWorldEffectIDs->size(); ++i)
+            std::vector stateWorldEffects = ViewerDependentValue<StateWorldEffectIDsTag>::GetValue(this, owner, receiver);
+            data.WriteBits(stateWorldEffects.size(), 32);
+            for (uint32 i = 0; i < stateWorldEffects.size(); ++i)
             {
-                data << uint32((*StateWorldEffectIDs)[i]);
+                data << uint32((stateWorldEffects)[i]);
             }
         }
     }
@@ -1255,15 +1257,15 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[9])
         {
-            data << uint32(StateSpellVisualID);
+            data << uint32(ViewerDependentValue<StateSpellVisualIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[10])
         {
-            data << uint32(StateAnimID);
+            data << uint32(ViewerDependentValue<StateAnimIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[11])
         {
-            data << uint32(StateAnimKitID);
+            data << uint32(ViewerDependentValue<StateAnimKitIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[12])
         {
@@ -6438,14 +6440,15 @@ void GameObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fie
 {
     data << int32(DisplayID);
     data << uint32(SpellVisualID);
-    data << uint32(StateSpellVisualID);
-    data << uint32(SpawnTrackingStateAnimID);
-    data << uint32(SpawnTrackingStateAnimKitID);
-    data << uint32(StateWorldEffectIDs->size());
+    data << uint32(ViewerDependentValue<StateSpellVisualIDTag>::GetValue(this, owner, receiver));
+    data << uint32(ViewerDependentValue<StateAnimIDTag>::GetValue(this, owner, receiver));
+    data << uint32(ViewerDependentValue<StateAnimKitIDTag>::GetValue(this, owner, receiver));
+    std::vector stateWorldEffects = ViewerDependentValue<StateWorldEffectIDsTag>::GetValue(this, owner, receiver);
+    data << uint32(stateWorldEffects.size());
     data << uint32(StateWorldEffectsQuestObjectiveID);
-    for (uint32 i = 0; i < StateWorldEffectIDs->size(); ++i)
+    for (uint32 i = 0; i < stateWorldEffects.size(); ++i)
     {
-        data << uint32((*StateWorldEffectIDs)[i]);
+        data << uint32((stateWorldEffects)[i]);
     }
     data << CreatedBy;
     data << GuildGUID;
@@ -6490,10 +6493,11 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
     {
         if (changesMask[1])
         {
-            data.WriteBits(StateWorldEffectIDs->size(), 32);
-            for (uint32 i = 0; i < StateWorldEffectIDs->size(); ++i)
+            std::vector stateWorldEffects = ViewerDependentValue<StateWorldEffectIDsTag>::GetValue(this, owner, receiver);
+            data.WriteBits(stateWorldEffects.size(), 32);
+            for (uint32 i = 0; i < stateWorldEffects.size(); ++i)
             {
-                data << uint32((*StateWorldEffectIDs)[i]);
+                data << uint32((stateWorldEffects)[i]);
             }
         }
     }
@@ -6548,15 +6552,15 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[6])
         {
-            data << uint32(StateSpellVisualID);
+            data << uint32(ViewerDependentValue<StateSpellVisualIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[7])
         {
-            data << uint32(SpawnTrackingStateAnimID);
+            data << uint32(ViewerDependentValue<StateAnimIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[8])
         {
-            data << uint32(SpawnTrackingStateAnimKitID);
+            data << uint32(ViewerDependentValue<StateAnimKitIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[9])
         {

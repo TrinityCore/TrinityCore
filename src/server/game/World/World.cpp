@@ -2190,6 +2190,18 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Player Choices...");
     sObjectMgr->LoadPlayerChoices();
 
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Templates...");
+    sObjectMgr->LoadSpawnTrackingTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Quest Objectives...");
+    sObjectMgr->LoadSpawnTrackingQuestObjectives();
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Spawns...");
+    sObjectMgr->LoadSpawnTrackings();
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Spawn States...");
+    sObjectMgr->LoadSpawnTrackingStates();
+
     if (m_bool_configs[CONFIG_LOAD_LOCALES])
     {
         TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
@@ -3908,7 +3920,7 @@ void World::SetPersistentWorldVariable(PersistentWorldVariable const& var, int32
     m_worldVariables[var.Id] = value;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_VARIABLE);
-    stmt->setStringView(0, var.Id);
+    stmt->setString(0, var.Id);
     stmt->setInt32(1, value);
     CharacterDatabase.Execute(stmt);
 }

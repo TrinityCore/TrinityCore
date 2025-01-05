@@ -3880,6 +3880,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Maelstrom Weapon
+    ApplySpellFix({ 187881 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Add Lava Burst to spells that benefit from it
+            spellEffectInfo->SpellClassMask[1] |= 0x1000;
+        });
+    });
+
     // Gathering Storms
     ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
     {

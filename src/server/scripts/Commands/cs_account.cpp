@@ -449,8 +449,10 @@ public:
         }
         else
         {
+            using namespace std::string_view_literals;
+
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-            stmt->setString(0, "00");
+            stmt->setString(0, "00"sv);
             stmt->setUInt32(1, handler->GetSession()->GetAccountId());
             LoginDatabase.Execute(stmt);
             handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
@@ -902,7 +904,7 @@ public:
             Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(*decoded, *masterKey);
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-        stmt->setBinary(0, *decoded);
+        stmt->setBinary(0, std::move(*decoded));
         stmt->setUInt32(1, targetAccountId);
         LoginDatabase.Execute(stmt);
         handler->PSendSysMessage(LANG_2FA_SECRET_SET_COMPLETE, accountName.c_str());
