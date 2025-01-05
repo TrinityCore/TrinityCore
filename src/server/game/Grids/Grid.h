@@ -39,8 +39,8 @@ template<class A, class T, class O> class GridLoader;
 template
 <
 class ACTIVE_OBJECT,
-class WORLD_OBJECT_TYPES,
-class GRID_OBJECT_TYPES
+class WORLD_OBJECT_CONTAINER,
+class GRID_OBJECT_CONTAINER
 >
 class Grid
 {
@@ -85,14 +85,14 @@ class Grid
 
         // Visit grid objects
         template<class T>
-        void Visit(TypeContainerVisitor<T, TypeMapContainer<GRID_OBJECT_TYPES> > &visitor)
+        void Visit(TypeContainerVisitor<T, GRID_OBJECT_CONTAINER> &visitor)
         {
             visitor.Visit(i_container);
         }
 
         // Visit world objects
         template<class T>
-        void Visit(TypeContainerVisitor<T, TypeMapContainer<WORLD_OBJECT_TYPES> > &visitor)
+        void Visit(TypeContainerVisitor<T, WORLD_OBJECT_CONTAINER> &visitor)
         {
             visitor.Visit(i_objects);
         }
@@ -134,8 +134,8 @@ class Grid
         }*/
     private:
 
-        TypeMapContainer<GRID_OBJECT_TYPES> i_container;
-        TypeMapContainer<WORLD_OBJECT_TYPES> i_objects;
+        GRID_OBJECT_CONTAINER i_container;
+        WORLD_OBJECT_CONTAINER i_objects;
         //typedef std::set<void*> ActiveGridObjects;
         //ActiveGridObjects m_activeGridObjects;
 };
