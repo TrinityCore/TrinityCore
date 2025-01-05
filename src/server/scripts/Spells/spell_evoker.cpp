@@ -150,7 +150,7 @@ class spell_evo_causality : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_EVOKER_CAUSALITY });
+        return ValidateSpellEffect({ { SPELL_EVOKER_CAUSALITY, EFFECT_1 } });
     }
 
     bool Load() override
@@ -158,7 +158,7 @@ class spell_evo_causality : public SpellScript
         return GetCaster()->HasAura(SPELL_EVOKER_CAUSALITY);
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/) const
     {
         if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_1))
         {
@@ -179,7 +179,7 @@ class spell_evo_causality : public SpellScript
 
 class spell_evo_causality_aura : public AuraScript
 {
-    void OnTick(AuraEffect const* /*aurEff*/)
+    void OnTick(AuraEffect const* /*aurEff*/) const
     {
         if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_0))
         {
