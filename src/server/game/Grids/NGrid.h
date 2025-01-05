@@ -63,13 +63,13 @@ template
 <
 uint32 N,
 class ACTIVE_OBJECT,
-class WORLD_OBJECT_TYPES,
-class GRID_OBJECT_TYPES
+class WORLD_OBJECT_CONTAINER,
+class GRID_OBJECT_CONTAINER
 >
 class NGrid
 {
     public:
-        typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> GridType;
+        typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_CONTAINER, GRID_OBJECT_CONTAINER> GridType;
         NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true) :
             i_gridId(id), i_GridInfo(GridInfo(expiry, unload)), i_x(x), i_y(y),
             i_cellstate(GRID_STATE_INVALID), i_GridObjectDataLoaded(false)
@@ -93,7 +93,7 @@ class NGrid
         int32 getX() const { return i_x; }
         int32 getY() const { return i_y; }
 
-        void link(GridRefManager<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> >* pTo)
+        void link(GridRefManager<NGrid>* pTo)
         {
             i_Reference.link(pTo, this);
         }
@@ -173,7 +173,7 @@ class NGrid
     private:
         uint32 i_gridId;
         GridInfo i_GridInfo;
-        GridReference<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> > i_Reference;
+        GridReference<NGrid> i_Reference;
         int32 i_x;
         int32 i_y;
         grid_state_t i_cellstate;

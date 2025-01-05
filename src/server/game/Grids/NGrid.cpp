@@ -29,8 +29,8 @@ GridInfo::GridInfo(time_t expiry, bool unload /*= true */) : i_timer(expiry), vi
 {
 }
 
-template class Grid<Player, AllWorldObjectTypes, AllGridObjectTypes>;
-template class NGrid<MAX_NUMBER_OF_CELLS, Player, AllWorldObjectTypes, AllGridObjectTypes>;
+template class Grid<Player, WorldTypeMapContainer, GridTypeMapContainer>;
+template class NGrid<MAX_NUMBER_OF_CELLS, Player, WorldTypeMapContainer, GridTypeMapContainer>;
 
 template class TC_GAME_API TypeMapContainer<AllGridObjectTypes>;
 template class TC_GAME_API TypeMapContainer<AllWorldObjectTypes>;
