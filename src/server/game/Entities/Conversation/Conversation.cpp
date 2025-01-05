@@ -50,7 +50,7 @@ void Conversation::AddToWorld()
     ///- Register the Conversation for guid lookup and for caster
     if (!IsInWorld())
     {
-        GetMap()->GetObjectsStore().Insert<Conversation>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<Conversation>(this);
         WorldObject::AddToWorld();
     }
 }
@@ -63,7 +63,7 @@ void Conversation::RemoveFromWorld()
         _ai->OnRemove();
 
         WorldObject::RemoveFromWorld();
-        GetMap()->GetObjectsStore().Remove<Conversation>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<Conversation>(this);
     }
 }
 

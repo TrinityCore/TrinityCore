@@ -30,7 +30,7 @@
 */
 
 #include "Define.h"
-#include "TypeContainer.h"
+#include "Errors.h"
 #include "TypeContainerVisitor.h"
 
 // forward declaration
@@ -57,7 +57,7 @@ class Grid
          */
         template<class SPECIFIC_OBJECT> void AddWorldObject(SPECIFIC_OBJECT *obj)
         {
-            i_objects.template insert<SPECIFIC_OBJECT>(obj);
+            i_objects.template Insert<SPECIFIC_OBJECT>(obj);
             ASSERT(obj->IsInGrid());
         }
 
@@ -103,14 +103,14 @@ class Grid
         template<class T>
         uint32 GetWorldObjectCountInGrid() const
         {
-            return uint32(i_objects.template Count<T>());
+            return uint32(i_objects.template Size<T>());
         }
 
         /** Inserts a container type object into the grid.
          */
         template<class SPECIFIC_OBJECT> void AddGridObject(SPECIFIC_OBJECT *obj)
         {
-            i_container.template insert<SPECIFIC_OBJECT>(obj);
+            i_container.template Insert<SPECIFIC_OBJECT>(obj);
             ASSERT(obj->IsInGrid());
         }
 
@@ -139,4 +139,5 @@ class Grid
         //typedef std::set<void*> ActiveGridObjects;
         //ActiveGridObjects m_activeGridObjects;
 };
+
 #endif
