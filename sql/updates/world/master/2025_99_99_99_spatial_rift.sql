@@ -8,4 +8,4 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `A
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id` = 11983;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreaTriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES 
-(11983, 0, 16670, 0, 0, 0, 0, 0, 0, 0, -1, 0, 256948, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 'at_gen_spatial_rift', 58238); -- SpellForVisuals: 256948
+(11983, 0, 16670, 0, 0, 0, 0, 0, 0, 0, -1, 0, 256948, 0, 8000, 0, 3, 3, 0, 0, 0, 0, 0, 0, 'at_gen_spatial_rift', 58238); -- SpellForVisuals: 256948
