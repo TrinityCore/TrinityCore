@@ -5540,9 +5540,7 @@ struct at_gen_spatial_rift : AreaTriggerAI
 
     void OnInitialize() override
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
-        if (!spellInfo)
-            return;
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
 
         float range = spellInfo->GetMaxRange();
         float speed = 18.0f;
