@@ -4098,6 +4098,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
@@ -14881,6 +14885,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     QuestStatusData& questStatusData = questStatusItr->second;
     QuestStatus oldStatus = questStatusData.Status;
 
+    SendForceSpawnTrackingUpdate(quest_id);
+
     // check for repeatable quests status reset
     SetQuestSlot(log_slot, quest_id);
     questStatusData.Slot = log_slot;
@@ -14975,6 +14981,8 @@ void Player::CompleteQuest(uint32 quest_id)
 {
     if (quest_id)
     {
+        SendForceSpawnTrackingUpdate(quest_id);
+
         SetQuestStatus(quest_id, QUEST_STATUS_COMPLETE);
 
         if (QuestStatusData const* questStatus = Trinity::Containers::MapGetValuePtr(m_QuestStatus, quest_id))
@@ -16769,6 +16777,33 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
     bool updatePhaseShift = false;
     bool updateZoneAuras = false;
 
+    bool anyObjectiveChangedSpawnTrackingState = false;
+    bool isObjectiveTypeForSpawnTracking = [&]() -> bool
+    {
+        if (objectiveType == QUEST_OBJECTIVE_MONSTER ||
+            objectiveType == QUEST_OBJECTIVE_GAMEOBJECT ||
+            objectiveType == QUEST_OBJECTIVE_TALKTO ||
+            objectiveType == QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC)
+            return true;
+
+        return false;
+    }();
+
+    SpawnMetadata const* data = nullptr;
+    if (isObjectiveTypeForSpawnTracking)
+    {
+        if (victimGuid.IsGameObject())
+        {
+            if (GameObject* gameObject = ObjectAccessor::GetGameObject(*this, victimGuid))
+                data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, gameObject->GetSpawnId());
+        }
+        else if (victimGuid.IsCreatureOrVehicle())
+        {
+            if (Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, victimGuid))
+                data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_CREATURE, creature->GetSpawnId());
+        }
+    }
+
     for (QuestObjectiveStatusMap::value_type const& objectiveItr : Trinity::Containers::MapEqualRange(m_questObjectiveStatus, { objectiveType, objectId }))
     {
         uint32 questId = objectiveItr.second.QuestStatusItr->first;
@@ -16879,6 +16914,41 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
             }
         }
 
+        if (data && data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        {
+            if (objective->ID == data->spawnTrackingQuestObjectiveId)
+            {
+                // Store spawn tracking to return correct state in Player::GetSpawnTrackingStateByObjective
+                QuestStatusData& questStatus = objectiveItr.second.QuestStatusItr->second;
+                questStatus.SpawnTrackingList.insert(std::make_pair(objective->StorageIndex, data->spawnTrackingData->SpawnTrackingId));
+
+                // Send QuestPOIUpdateResponse for every spawn linked to same SpawnTrackingId
+                for (auto const& [spawnTrackingId, data] : sObjectMgr->GetSpawnMetadataForSpawnTracking(data->spawnTrackingData->SpawnTrackingId))
+                {
+                    SpawnData const* spawnData = data->ToSpawnData();
+                    if (!spawnData)
+                        continue;
+
+                    WorldPackets::Quest::QuestPOIUpdateResponse response;
+
+                    WorldPackets::Quest::SpawnTrackingResponseInfo responseInfo;
+                    responseInfo.SpawnTrackingID = data->spawnTrackingData->SpawnTrackingId;
+                    responseInfo.ObjectID = spawnData->id;
+                    responseInfo.PhaseID = spawnData->phaseId;
+                    responseInfo.PhaseGroupID = spawnData->phaseGroup;
+                    responseInfo.PhaseUseFlags = spawnData->phaseUseFlags;
+
+                    SpawnTrackingState state = GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, objective->ID);
+                    responseInfo.Visible = data->spawnTrackingStates[AsUnderlyingType(state)].Visible;
+
+                    response.SpawnTrackingResponses.push_back(std::move(responseInfo));
+                    SendDirectMessage(response.Write());
+                }
+
+                anyObjectiveChangedSpawnTrackingState = true;
+            }
+        }
+
         if (objectiveWasComplete != objectiveIsNowComplete)
             anyObjectiveChangedCompletionState = true;
 
@@ -16911,7 +16981,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
             break;
     }
 
-    if (anyObjectiveChangedCompletionState)
+    if (anyObjectiveChangedCompletionState || anyObjectiveChangedSpawnTrackingState)
         UpdateVisibleObjectInteractions(true, false, false, true);
 
     if (updatePhaseShift)
@@ -17270,6 +17340,8 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
         moneyReward = uint32(GetQuestMoneyReward(quest) + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
+    SendForceSpawnTrackingUpdate(questId);
+
     if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
         return;
 
@@ -17469,6 +17541,52 @@ bool Player::HasPvPForcingQuest() const
     }
 
     return false;
+}
+
+void Player::SendForceSpawnTrackingUpdate(uint32 questId) const
+{
+    if (questId)
+    {
+        WorldPackets::Quest::ForceSpawnTrackingUpdate data;
+        data.QuestID = questId;
+        SendDirectMessage(data.Write());
+    }
+}
+
+QuestObjective const* Player::GetActiveQuestObjectiveForForSpawnTracking(uint32 spawnTrackingId) const
+{
+    if (std::vector<QuestObjective const*> const* questObjectiveList = sObjectMgr->GetSpawnTrackingQuestObjectiveList(spawnTrackingId))
+        for (QuestObjective const* questObjective : *questObjectiveList)
+            if (FindQuestSlot(questObjective->QuestID) < MAX_QUEST_LOG_SIZE)
+                return questObjective;
+
+    return nullptr;
+}
+
+SpawnTrackingState Player::GetSpawnTrackingStateByObjective(uint32 spawnTrackingId, uint32 questObjectiveId) const
+{
+    if (spawnTrackingId && questObjectiveId && sObjectMgr->IsQuestObjectiveForSpawnTracking(spawnTrackingId, questObjectiveId))
+    {
+        if (QuestObjective const* questObjective = sObjectMgr->GetQuestObjective(questObjectiveId))
+        {
+            if (IsQuestRewarded(questObjective->QuestID) || IsQuestObjectiveComplete(questObjective->QuestID, questObjective->ID))
+                return SpawnTrackingState::Complete;
+            else if (GetQuestStatus(questObjective->QuestID) != QUEST_STATUS_NONE)
+            {
+                auto itr = m_QuestStatus.find(questObjective->QuestID);
+                if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)
+                {
+                    auto itr2 = itr->second.SpawnTrackingList.find(std::make_pair(questObjective->StorageIndex, spawnTrackingId));
+                    if (itr2 != itr->second.SpawnTrackingList.end())
+                        return SpawnTrackingState::Complete;
+                }
+
+                return SpawnTrackingState::Active;
+            }
+        }
+    }
+
+    return SpawnTrackingState::None;
 }
 
 /*********************************************************/
@@ -18374,6 +18492,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
     _LoadQuestStatusObjectives(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES));
+    _LoadQuestStatusObjectiveSpawnTrackings(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_SPAWN_TRACKING));
     _LoadQuestStatusRewarded(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_REW));
     _LoadDailyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS));
     _LoadWeeklyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS));
@@ -19485,7 +19604,7 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
 {
 
     ////                                                       0        1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data WHERE guid = '{}'", GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data FROM character_queststatus_objectives WHERE guid = '{}'", GetGUIDLow());
 
     if (result)
     {
@@ -19495,8 +19614,11 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
 
             uint32 questID = fields[0].GetUInt32();
             Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+            if (!quest)
+                continue;
+
             auto itr = m_QuestStatus.find(questID);
-            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE && quest)
+            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)
             {
                 QuestStatusData& questStatusData = itr->second;
                 uint8 storageIndex = fields[1].GetUInt8();
@@ -19516,6 +19638,47 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
                 TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatusObjectives: Player {} ({}) does not have quest {} but has objective data for it.", GetName(), GetGUID().ToString(), questID);
         }
         while (result->NextRow());
+    }
+}
+
+void Player::_LoadQuestStatusObjectiveSpawnTrackings(PreparedQueryResult result)
+{
+
+    ////                                                     0        1        2
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, spawnTrackingId FROM character_queststatus_objectives_spawn_tracking WHERE guid = '{}'", GetGUIDLow());
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 questID = fields[0].GetUInt32();
+            Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+            if (!quest)
+                continue;
+
+            auto itr = m_QuestStatus.find(questID);
+            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)
+            {
+                QuestStatusData& questStatusData = itr->second;
+                uint8 storageIndex = fields[1].GetUInt8();
+                auto objectiveItr = std::find_if(quest->Objectives.begin(), quest->Objectives.end(), [=](QuestObjective const& objective) { return uint8(objective.StorageIndex) == storageIndex; });
+                if (objectiveItr != quest->Objectives.end())
+                {
+                    uint32 spawnTrackingId = fields[2].GetUInt32();
+
+                    if (sObjectMgr->IsQuestObjectiveForSpawnTracking(spawnTrackingId, objectiveItr->ID))
+                        questStatusData.SpawnTrackingList.insert(std::make_pair(storageIndex, spawnTrackingId));
+                    else
+                        TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatusObjectiveSpawnTrackings: Player '{}' ({}) has objective {} (quest {}) with unrelated spawn tracking {}.", GetName(), GetGUID().ToString(), objectiveItr->ID, questID, spawnTrackingId);
+                }
+                else
+                    TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatusObjectiveSpawnTrackings: Player '{}' ({}) has quest {} out of range objective index {}.", GetName(), GetGUID().ToString(), questID, storageIndex);
+            }
+            else
+                TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatusObjectiveSpawnTrackings: Player {} ({}) does not have quest {} but has objective spawn trackings for it.", GetName(), GetGUID().ToString(), questID);
+        } while (result->NextRow());
     }
 }
 
@@ -21008,6 +21171,22 @@ void Player::_SaveQuestStatus(CharacterDatabaseTransaction trans)
                     stmt->setInt32(3, count);
                     trans->Append(stmt);
                 }
+
+                // Save spawn trackings
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING_BY_QUEST);
+                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt32(1, saveItr->first);
+                trans->Append(stmt);
+
+                for (auto [questObjectiveStorageIndex, spawnTrackingId] : qData.SpawnTrackingList)
+                {
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING);
+                    stmt->setUInt64(0, GetGUID().GetCounter());
+                    stmt->setUInt32(1, statusItr->first);
+                    stmt->setUInt8(2, questObjectiveStorageIndex);
+                    stmt->setUInt32(3, spawnTrackingId);
+                    trans->Append(stmt);
+                }
             }
         }
         else
@@ -21019,6 +21198,11 @@ void Player::_SaveQuestStatus(CharacterDatabaseTransaction trans)
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt32(1, saveItr->first);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING_BY_QUEST);
             stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt32(1, saveItr->first);
             trans->Append(stmt);
@@ -23066,7 +23250,6 @@ void Player::InitDisplayIds()
     }
 
     SetDisplayId(model->DisplayID, true);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
 }
 
 inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
@@ -25479,7 +25662,16 @@ void Player::UpdateVisibleObjectInteractions(bool allUnits, bool onlySpellClicks
                 UF::ObjectData::Base objMask;
                 UF::GameObjectData::Base goMask;
 
-                if (m_questObjectiveStatus.contains({ QUEST_OBJECTIVE_GAMEOBJECT, int32(gameObject->GetEntry()) }) || gameObject->GetGOInfo()->GetConditionID1())
+                SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, gameObject->GetSpawnId());
+                if (data && data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+                {
+                    objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+                    goMask.MarkChanged(&UF::GameObjectData::StateWorldEffectIDs);
+                    goMask.MarkChanged(&UF::GameObjectData::StateSpellVisualID);
+                    goMask.MarkChanged(&UF::GameObjectData::SpawnTrackingStateAnimID);
+                    goMask.MarkChanged(&UF::GameObjectData::SpawnTrackingStateAnimKitID);
+                }
+                else if (m_questObjectiveStatus.contains({ QUEST_OBJECTIVE_GAMEOBJECT, int32(gameObject->GetEntry()) }) || gameObject->GetGOInfo()->GetConditionID1())
                     objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
                 else
                 {
@@ -25516,6 +25708,16 @@ void Player::UpdateVisibleObjectInteractions(bool allUnits, bool onlySpellClicks
                     unitMask.MarkChanged(&UF::UnitData::NpcFlags);
                 if (creature->m_unitData->NpcFlags2)
                     unitMask.MarkChanged(&UF::UnitData::NpcFlags2);
+
+                SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_CREATURE, creature->GetSpawnId());
+                if (data && data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+                {
+                    objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+                    unitMask.MarkChanged(&UF::UnitData::StateWorldEffectIDs);
+                    unitMask.MarkChanged(&UF::UnitData::StateSpellVisualID);
+                    unitMask.MarkChanged(&UF::UnitData::StateAnimID);
+                    unitMask.MarkChanged(&UF::UnitData::StateAnimKitID);
+                }
 
                 if (objMask.GetChangesMask().IsAnySet() || unitMask.GetChangesMask().IsAnySet())
                     creature->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);

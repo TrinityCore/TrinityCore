@@ -2940,6 +2940,25 @@ SpawnData const* ObjectMgr::GetSpawnData(SpawnObjectType type, ObjectGuid::LowTy
 
 void ObjectMgr::OnDeleteSpawnData(SpawnData const* data)
 {
+    if (data->spawnTrackingData)
+    {
+        SpawnTrackingTemplateData const* spawnTrackingData = GetSpawnTrackingData(data->spawnTrackingData->SpawnTrackingId);
+        ASSERT(spawnTrackingData, "Creature data for (%u," UI64FMTD ") is being deleted and has invalid spawn tracking id %u!", uint32(data->type), data->spawnId, data->spawnTrackingData->SpawnTrackingId);
+
+        auto pair = _spawnTrackingMapStore.equal_range(data->spawnTrackingData->SpawnTrackingId);
+        bool erased = false;
+        for (auto it = pair.first; it != pair.second; ++it)
+        {
+            if (it->second != data)
+                continue;
+            _spawnTrackingMapStore.erase(it);
+            erased = true;
+        }
+
+        if (!erased)
+            ABORT_MSG("Spawn data (%u," UI64FMTD ") being removed is member of spawn tracking %u, but not actually listed in the lookup table for that spawn tracking!", uint32(data->type), data->spawnId, data->spawnTrackingData->SpawnTrackingId);
+    }
+
     auto templateIt = _spawnGroupDataStore.find(data->spawnGroupData->groupId);
     ASSERT(templateIt != _spawnGroupDataStore.end(), "Creature data for (%u," UI64FMTD ") is being deleted and has invalid spawn group index %u!", uint32(data->type), data->spawnId, data->spawnGroupData->groupId);
     if (templateIt->second.flags & SPAWNGROUP_FLAG_SYSTEM) // system groups don't store their members in the map
@@ -11643,6 +11662,353 @@ void ObjectMgr::LoadUiMapQuests()
 std::vector<uint32> const* ObjectMgr::GetUiMapQuestsList(uint32 uiMapId) const
 {
     return Trinity::Containers::MapGetValuePtr(_uiMapQuestsStore, uiMapId);
+}
+
+void ObjectMgr::LoadSpawnTrackingTemplates()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _spawnTrackingDataStore.clear();
+
+    //                                               0                1      2        3           4
+    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, MapId, PhaseId, PhaseGroup, PhaseUseFlags FROM spawn_tracking_template");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 spawn tracking templates. DB table `spawn_tracking_template` is empty!");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 spawnTrackingId = fields[0].GetUInt32();
+        uint32 mapId = fields[1].GetUInt32();
+
+        if (!sMapStore.HasRecord(mapId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_template` references non-existing map {}, skipped", mapId);
+            continue;
+        }
+
+        SpawnTrackingTemplateData& data = _spawnTrackingDataStore[spawnTrackingId];
+        data.SpawnTrackingId = spawnTrackingId;
+        data.MapId = mapId;
+        data.PhaseId = fields[2].GetUInt32();
+        data.PhaseGroup = fields[3].GetUInt32();
+        data.PhaseUseFlags = fields[4].GetUInt8();
+
+        if (data.PhaseGroup && data.PhaseId)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_template` has spawn tracking (Id: {}) with `PhaseId` and `PhaseGroup` set, `PhaseGroup` set to 0", data.SpawnTrackingId);
+            data.PhaseGroup = 0;
+        }
+
+        if (data.PhaseId)
+        {
+            if (!sPhaseStore.HasRecord(data.PhaseId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_template` has spawn tracking (Id: {}) referencing non-existing `PhaseId` {}, set to 0", data.SpawnTrackingId, data.PhaseId);
+                data.PhaseId = 0;
+            }
+        }
+
+        if (data.PhaseGroup)
+        {
+            if (!sDB2Manager.GetPhasesForGroup(data.PhaseGroup))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_template` has spawn tracking (Id: {}) referencing non-existing `PhaseGroup` {}, set to 0", data.SpawnTrackingId, data.PhaseGroup);
+                data.PhaseGroup = 0;
+            }
+        }
+
+        if (data.PhaseUseFlags & ~PHASE_USE_FLAGS_ALL)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_template` has spawn tracking (Id: {}) referencing unknown `PhaseUseFlags`, removed unknown value.", data.SpawnTrackingId);
+            data.PhaseUseFlags &= PHASE_USE_FLAGS_ALL;
+        }
+
+        if (data.PhaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && data.PhaseUseFlags & PHASE_USE_FLAGS_INVERSE)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_template` has spawn tracking (Id: {}) with `PhaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
+                " removing PHASE_USE_FLAGS_INVERSE.", data.SpawnTrackingId);
+            data.PhaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
+        }
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">>  Loaded {} spawn tracking templates in {} ms", _spawnTrackingDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+SpawnTrackingTemplateData const* ObjectMgr::GetSpawnTrackingData(uint32 spawnTrackingId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_spawnTrackingDataStore, spawnTrackingId);
+}
+
+bool ObjectMgr::IsQuestObjectiveForSpawnTracking(uint32 spawnTrackingId, uint32 questObjectiveId) const
+{
+    auto itr = _spawnTrackingQuestObjectiveStore.find(spawnTrackingId);
+    if (itr != _spawnTrackingQuestObjectiveStore.end())
+    {
+        std::vector<QuestObjective const*> const* questObjectiveList = &itr->second;
+        if (std::ranges::find(*questObjectiveList, questObjectiveId, &QuestObjective::ID) != (*questObjectiveList).end())
+            return true;
+    }
+    return false;
+}
+
+void ObjectMgr::LoadSpawnTrackingQuestObjectives()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _spawnTrackingQuestObjectiveStore.clear();
+
+    //                                               0                1
+    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, QuestObjectiveId FROM spawn_tracking_quest_objective");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 spawn tracking quest objectives. DB table `spawn_tracking_quest_objective` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 spawnTrackingId = fields[0].GetUInt32();
+        uint32 objectiveId = fields[1].GetUInt32();
+
+        if (!GetSpawnTrackingData(spawnTrackingId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_quest_objective` has quest objective {} assigned to spawn tracking {}, but spawn tracking does not exist!", objectiveId, spawnTrackingId);
+            continue;
+        }
+
+        QuestObjective const* questObjective = GetQuestObjective(objectiveId);
+        if (!questObjective)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_quest_objective` has quest objective {} assigned to spawn tracking {}, but quest objective does not exist!", objectiveId, spawnTrackingId);
+            continue;
+        }
+
+        _spawnTrackingQuestObjectiveStore[spawnTrackingId].push_back(questObjective);
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">>  Loaded {} spawn tracking quest objectives in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadSpawnTrackings()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _spawnTrackingMapStore.clear();
+
+    //                                               0                1          2        3
+    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, SpawnType, SpawnId, QuestObjectiveId FROM spawn_tracking");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 spawn tracking members. DB table `spawn_tracking` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 spawnTrackingId = fields[0].GetUInt32();
+        SpawnObjectType spawnType = SpawnObjectType(fields[1].GetUInt8());
+        ObjectGuid::LowType spawnId = fields[2].GetUInt64();
+        uint32 objectiveId = fields[3].GetUInt32();
+
+        if (!SpawnData::TypeIsValid(spawnType))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn data with invalid type {} listed for spawn tracking {}. Skipped.", uint32(spawnType), spawnTrackingId);
+            continue;
+        }
+        else if (spawnType == SPAWN_TYPE_AREATRIGGER)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has areatrigger spawn ({}) listed for spawn tracking {}. Skipped.", uint32(spawnType), spawnTrackingId);
+            continue;
+        }
+
+        SpawnMetadata const* data = GetSpawnMetadata(spawnType, spawnId);
+        if (!data)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn ({},{}) not found, but is listed as a member of spawn tracking {}!", uint32(spawnType), spawnId, spawnTrackingId);
+            continue;
+        }
+        else if (data->spawnTrackingData)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn ({},{}) is listed as a member of spawn tracking {}, but is already a member of spawn tracking {}. Skipped.",
+                uint32(spawnType), spawnId, spawnTrackingId, data->spawnTrackingData->SpawnTrackingId);
+            continue;
+        }
+
+        SpawnTrackingTemplateData const* spawnTrackingTemplateData = GetSpawnTrackingData(spawnTrackingId);
+        if (!spawnTrackingTemplateData)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking does not exist!", spawnTrackingId, uint32(spawnType), spawnId);
+            continue;
+        }
+
+        if (!IsQuestObjectiveForSpawnTracking(spawnTrackingId, objectiveId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking is not linked to quest objective {}. Skipped.", spawnTrackingId, uint32(spawnType), spawnId, objectiveId);
+            continue;
+        }
+
+        if (spawnTrackingTemplateData->MapId != data->mapId)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} (map {}) assigned to spawn ({},{}), but spawn has map {} - spawn NOT added to spawn tracking!",
+                spawnTrackingId, spawnTrackingTemplateData->MapId, uint32(spawnType), spawnId, data->mapId);
+            continue;
+        }
+
+        SpawnData const* spawnData = data->ToSpawnData();
+        if (spawnTrackingTemplateData->PhaseId != spawnData->phaseId || spawnTrackingTemplateData->PhaseGroup != spawnData->phaseGroup || spawnTrackingTemplateData->PhaseUseFlags != spawnData->phaseUseFlags)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} with phase info (PhaseId: {}, PhaseGroup: {}, PhaseUseFlags: {}), ",
+                "but spawn ({},{}) has different phase info (PhaseId: {}, PhaseGroup: {}, PhaseUseFlags: {}) - spawn NOT added to spawn tracking!",
+                spawnTrackingId, spawnTrackingTemplateData->PhaseId, spawnTrackingTemplateData->PhaseGroup, spawnTrackingTemplateData->PhaseUseFlags,
+                uint32(spawnType), spawnId, spawnData->phaseId, spawnData->phaseGroup, spawnData->phaseUseFlags);
+            continue;
+        }
+
+        const_cast<SpawnMetadata*>(data)->spawnTrackingData = spawnTrackingTemplateData;
+        const_cast<SpawnMetadata*>(data)->spawnTrackingQuestObjectiveId = objectiveId;
+        _spawnTrackingMapStore.emplace(spawnTrackingId, data);
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} spawn tracking members in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadSpawnTrackingStates()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0          1        2      3        4                   5            6               7
+    QueryResult result = WorldDatabase.Query("SELECT SpawnType, SpawnId, State, Visible, StateSpellVisualId, StateAnimId, StateAnimKitId, StateWorldEffects FROM spawn_tracking_state");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 spawn tracking states. DB table `spawn_tracking_state` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        SpawnObjectType spawnType = SpawnObjectType(fields[0].GetUInt8());
+        ObjectGuid::LowType spawnId = fields[1].GetUInt64();
+        SpawnTrackingState state = SpawnTrackingState(fields[2].GetUInt8());
+
+        if (!SpawnData::TypeIsValid(spawnType))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` has spawn data with invalid type {}. Skipped.", uint32(spawnType));
+            continue;
+        }
+        else if (spawnType == SPAWN_TYPE_AREATRIGGER)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` has areatrigger spawn ({}). Skipped.", uint32(spawnType));
+            continue;
+        }
+
+        SpawnMetadata const* data = GetSpawnMetadata(spawnType, spawnId);
+        if (!data)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` has spawn ({},{}) not found!", uint32(spawnType), spawnId);
+            continue;
+        }
+        else if (!data->spawnTrackingData)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` has spawn ({},{}) with spawn tracking states, but is not part of a spawn tracking. Skipped.", uint32(spawnType), spawnId);
+            continue;
+        }
+
+        if (state >= SpawnTrackingState::Max)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` has spawn ({},{}) with invalid state type {}. Skipped.", uint32(spawnType), spawnId, uint8(state));
+            continue;
+        }
+
+        SpawnTrackingStateData& spawnTrackingStateData = const_cast<SpawnMetadata*>(data)->spawnTrackingStates[AsUnderlyingType(state)];
+        spawnTrackingStateData.Visible = fields[3].GetBool();
+
+        if (!fields[4].IsNull())
+        {
+            spawnTrackingStateData.StateSpellVisualId = fields[4].GetUInt32();
+            if (!sSpellVisualStore.HasRecord(*spawnTrackingStateData.StateSpellVisualId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateSpellVisualId {} for spawn ({},{}), set to none.",
+                    *spawnTrackingStateData.StateSpellVisualId, uint32(spawnType), spawnId);
+                spawnTrackingStateData.StateSpellVisualId.reset();
+            }
+        }
+
+        if (!fields[5].IsNull())
+        {
+            spawnTrackingStateData.StateAnimId = fields[5].GetUInt16();
+            if (*spawnTrackingStateData.StateAnimId != sDB2Manager.GetEmptyAnimStateID() && !sAnimationDataStore.HasRecord(*spawnTrackingStateData.StateAnimId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimId {} for spawn ({},{}), set to none.",
+                    *spawnTrackingStateData.StateAnimId, uint32(spawnType), spawnId);
+                spawnTrackingStateData.StateAnimId.reset();
+            }
+        }
+
+        if (!fields[6].IsNull())
+        {
+            spawnTrackingStateData.StateAnimKitId = fields[6].GetUInt16();
+            if (!sAnimKitStore.HasRecord(*spawnTrackingStateData.StateAnimKitId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimKitId {} for spawn ({},{}), set to none.",
+                    *spawnTrackingStateData.StateAnimKitId, uint32(spawnType), spawnId);
+                spawnTrackingStateData.StateAnimKitId.reset();
+            }
+        }
+
+        if (!fields[7].IsNull())
+        {
+            std::vector<uint32> worldEffectList;
+            for (std::string_view worldEffectsStr : Trinity::Tokenize(fields[7].GetStringView(), ',', false))
+            {
+                Optional<uint32> worldEffectId = Trinity::StringTo<uint32>(worldEffectsStr);
+                if (!worldEffectId)
+                    continue;
+
+                if (!sWorldEffectStore.HasRecord(*worldEffectId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimKitId {} for spawn ({},{}). Skipped.",
+                        *worldEffectId, uint32(spawnType), spawnId);
+                    continue;
+                }
+
+                worldEffectList.push_back(*worldEffectId);
+            }
+
+            if (!worldEffectList.empty())
+                spawnTrackingStateData.StateWorldEffects = std::move(worldEffectList);
+        }
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} spawn tracking states in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadJumpChargeParams()
