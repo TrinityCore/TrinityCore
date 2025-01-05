@@ -311,7 +311,7 @@ class spell_pri_answered_prayers : public AuraScript
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo) const
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         Milliseconds extraDuration = 0ms;
         if (AuraEffect const* durationEffect = GetEffect(EFFECT_1))
@@ -361,7 +361,7 @@ class spell_pri_aq_3p_bonus : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_ORACULAR_HEAL });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
         Unit* caster = eventInfo.GetActor();
@@ -595,7 +595,7 @@ class spell_pri_atonement_effect_aura : public AuraScript
     }
 
     template<void(spell_pri_atonement::*func)(ObjectGuid const&)>
-    void RegisterHelper()
+    void RegisterHelper() const
     {
         if (Unit* caster = GetCaster())
             if (Aura* atonement = caster->GetAura(SPELL_PRIEST_ATONEMENT))
@@ -675,7 +675,7 @@ class spell_pri_blaze_of_light : public AuraScript
         });
     }
 
-    void HandleProc(ProcEventInfo& eventInfo) const
+    void HandleProc(ProcEventInfo const& eventInfo) const
     {
         Unit* procTarget = eventInfo.GetProcTarget();
         if (!procTarget)
@@ -1160,7 +1160,7 @@ class spell_pri_empowered_renew : public AuraScript
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura(SPELL_AURA_PERIODIC_HEAL);
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo) const
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo) const
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
@@ -1287,7 +1287,7 @@ class spell_pri_focused_mending : public SpellScript
 // 390615 - From Darkness Comes Light (Talent)
 class spell_pri_from_darkness_comes_light : public AuraScript
 {
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/) const
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA, aurEff);
     }
@@ -1314,13 +1314,13 @@ class spell_pri_guardian_spirit : public AuraScript
         return true;
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+    static void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
     {
         // Set absorbtion amount to unlimited
         amount = -1;
     }
 
-    void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+    void Absorb(AuraEffect* /*aurEff*/, DamageInfo const& dmgInfo, uint32 & absorbAmount)
     {
         Unit* target = GetTarget();
         if (dmgInfo.GetDamage() < target->GetHealth())
@@ -1355,7 +1355,7 @@ class spell_pri_heavens_wrath : public AuraScript
         return !(eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE || eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL);
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         if (!caster)
@@ -1416,12 +1416,12 @@ class spell_pri_holy_mending : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_HOLY_MENDING_HEAL });
     }
 
-    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
     {
         return procInfo.GetProcTarget()->HasAura(SPELL_PRIEST_RENEW, procInfo.GetActor()->GetGUID());
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    static void HandleProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_HOLY_MENDING_HEAL, CastSpellExtraArgs(aurEff));
     }
@@ -1456,7 +1456,7 @@ class spell_pri_holy_words : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo) const
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo const& eventInfo) const
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
         if (!spellInfo)
@@ -1587,7 +1587,7 @@ class spell_pri_item_t6_trinket : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_BLESSING, SPELL_PRIEST_DIVINE_WRATH });
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
         Unit* caster = eventInfo.GetActor();
@@ -1813,7 +1813,7 @@ class spell_pri_painful_punishment : public AuraScript
         });
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
@@ -2299,12 +2299,12 @@ class spell_pri_divine_aegis : public AuraScript
         return ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_AEGIS_ABSORB, EFFECT_0 } });
     }
 
-    bool CheckProc(ProcEventInfo const& eventInfo) const
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetHealInfo() != nullptr;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         if (!caster)
@@ -2522,12 +2522,12 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
 // 193063 - Protective Light (Aura)
 class spell_pri_protective_light : public AuraScript
 {
-    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo) const
+    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
     {
         return eventInfo.GetProcTarget() == GetCaster();
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/) const
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_PROTECTIVE_LIGHT_AURA, aurEff);
     }
@@ -3057,12 +3057,12 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
         GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_SHADOW_MEND_DAMAGE, args);
     }
 
-    static bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetDamageInfo() != nullptr;
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo)
     {
         int32 newAmount = aurEff->GetAmount() - eventInfo.GetDamageInfo()->GetDamage();
 
@@ -3138,7 +3138,7 @@ class spell_pri_surge_of_light : public AuraScript
         });
     }
 
-    static bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SMITE)
             return true;
@@ -3170,7 +3170,7 @@ class spell_pri_t3_4p_bonus : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_ARMOR_OF_FAITH });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
         eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_ARMOR_OF_FAITH, aurEff);
@@ -3190,7 +3190,7 @@ class spell_pri_t5_heal_2p_bonus : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_ITEM_EFFICIENCY });
     }
 
-    static bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         if (HealInfo* healInfo = eventInfo.GetHealInfo())
             if (Unit* healTarget = healInfo->GetTarget())
@@ -3201,7 +3201,7 @@ class spell_pri_t5_heal_2p_bonus : public AuraScript
         return false;
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_ITEM_EFFICIENCY, aurEff);
@@ -3222,7 +3222,7 @@ class spell_pri_t10_heal_2p_bonus : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_BLESSED_HEALING });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
 
@@ -3258,7 +3258,7 @@ class spell_pri_trail_of_light : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo const& eventInfo)
     {
         if (_healQueue.empty() || _healQueue.back() != eventInfo.GetActionTarget()->GetGUID())
             _healQueue.push(eventInfo.GetActionTarget()->GetGUID());
@@ -3272,7 +3272,7 @@ class spell_pri_trail_of_light : public AuraScript
         return false;
     }
 
-    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo) const
     {
         Unit* caster = GetTarget();
         Unit* oldTarget = ObjectAccessor::GetUnit(*caster, _healQueue.front());
@@ -3319,13 +3319,13 @@ class spell_pri_train_of_thought : public AuraScript
         });
     }
 
-    bool CheckEffect0(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    static bool CheckEffect0(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         // Renew & Flash Heal
         return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x840 });
     }
 
-    bool CheckEffect1(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    static bool CheckEffect1(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         // Smite
         return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x80 });
@@ -3354,7 +3354,7 @@ class spell_pri_train_of_thought : public AuraScript
 // 265259 - Twist of Fate (Discipline)
 class spell_pri_twist_of_fate : public AuraScript
 {
-    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount();
     }
@@ -3426,13 +3426,13 @@ class spell_pri_vampiric_embrace : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL });
     }
 
-    static bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         // Not proc from Mind Sear
         return !(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x80000);
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -3477,7 +3477,7 @@ class spell_pri_vampiric_touch : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SIN_AND_PUNISHMENT, SPELL_PRIEST_SHADOW_WORD_PAIN });
     }
 
-    void HandleDispel(DispelInfo* dispelInfo) const
+    void HandleDispel(DispelInfo const* dispelInfo) const
     {
         if (Unit* caster = GetCaster())
             caster->CastSpell(dispelInfo->GetDispeller(), SPELL_PRIEST_SIN_AND_PUNISHMENT, true);
