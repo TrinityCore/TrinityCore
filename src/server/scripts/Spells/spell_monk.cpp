@@ -348,6 +348,31 @@ class spell_monk_roll_aura : public AuraScript
     }
 };
 
+// 115175 - Soothing Mist
+// Called by Enveloping Mist - 124682, Zen Pulse - 124081 and Vivify - 116670
+class spell_monk_soothing_mist : public SpellScript
+{
+    PrepareSpellScript(spell_monk_soothing_mist);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_SOOTHING_MIST });
+    }
+
+    void OnPrecast() override
+    {
+        if (GetCaster()->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && GetCaster()->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONK_SOOTHING_MIST)
+        {
+            constexpr TriggerCastFlags TriggerFlags = TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_CAST_IN_PROGRESS;
+            GetSpell()->SetTriggerCastFlags(TriggerFlags);
+        }
+    }
+
+    void Register() override
+    {
+    }
+};
+
 // Utility for stagger scripts
 Aura* FindExistingStaggerEffect(Unit* unit)
 {
@@ -591,6 +616,7 @@ void AddSC_monk_spell_scripts()
     RegisterSpellScript(spell_monk_rising_sun_kick);
     RegisterSpellScript(spell_monk_roll);
     RegisterSpellScript(spell_monk_roll_aura);
+    RegisterSpellScript(spell_monk_soothing_mist);
     RegisterSpellScript(spell_monk_stagger);
     RegisterSpellScript(spell_monk_stagger_damage_aura);
     RegisterSpellScript(spell_monk_stagger_debuff_aura);

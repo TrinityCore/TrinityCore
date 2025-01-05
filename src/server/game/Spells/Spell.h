@@ -683,6 +683,8 @@ class TC_GAME_API Spell
 
         SpellInfo const* GetTriggeredByAuraSpell() const { return m_triggeredByAuraSpell; }
 
+        void SetTriggerCastFlags(TriggerCastFlags flags) { _triggeredCastFlags = flags; }
+
         int32 GetTimer() const { return m_timer; }
 
         int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
