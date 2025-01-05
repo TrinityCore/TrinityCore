@@ -177,7 +177,7 @@ class spell_evo_emerald_blossom_heal : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster()));
         Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
