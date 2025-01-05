@@ -70,7 +70,7 @@ void AreaTrigger::AddToWorld()
         if (m_zoneScript)
             m_zoneScript->OnAreaTriggerCreate(this);
 
-        GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<AreaTrigger>(this);
         if (_spawnId)
             GetMap()->GetAreaTriggerBySpawnIdStore().insert(std::make_pair(_spawnId, this));
 
@@ -100,7 +100,7 @@ void AreaTrigger::RemoveFromWorld()
 
         if (IsStaticSpawn())
             Trinity::Containers::MultimapErasePair(GetMap()->GetAreaTriggerBySpawnIdStore(), _spawnId, this);
-        GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<AreaTrigger>(this);
     }
 }
 

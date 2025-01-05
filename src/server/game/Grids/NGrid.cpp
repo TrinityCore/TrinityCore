@@ -32,5 +32,5 @@ GridInfo::GridInfo(time_t expiry, bool unload /*= true */) : i_timer(expiry), vi
 template class Grid<Player, WorldTypeMapContainer, GridTypeMapContainer>;
 template class NGrid<MAX_NUMBER_OF_CELLS, Player, WorldTypeMapContainer, GridTypeMapContainer>;
 
-template class TC_GAME_API TypeMapContainer<AllGridObjectTypes>;
-template class TC_GAME_API TypeMapContainer<AllWorldObjectTypes>;
+template struct TC_GAME_API TypeListContainer<GridRefManagerContainer, GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, SceneObject, Conversation>;
+template struct TC_GAME_API TypeListContainer<GridRefManagerContainer, Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/>;

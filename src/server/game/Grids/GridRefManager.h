@@ -27,4 +27,30 @@ template<class OBJECT>
 class GridRefManager : public RefManager<GridReference<OBJECT>>
 {
 };
+
+template <typename ObjectType>
+struct GridRefManagerContainer
+{
+    using Container = GridRefManager<ObjectType>;
+    using ValueType = ObjectType*;
+
+    static bool Insert(Container& container, ValueType object)
+    {
+        object->AddToGrid(container);
+        return true;
+    }
+
+    static bool Remove(Container& /*container*/, ValueType object)
+    {
+        object->RemoveFromGrid();
+        return true;
+    }
+
+    static std::size_t Size(Container const& container)
+    {
+        return container.getSize();
+    }
+};
+
+
 #endif
