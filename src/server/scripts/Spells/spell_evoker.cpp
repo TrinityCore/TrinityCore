@@ -354,7 +354,7 @@ class spell_evo_ruby_embers : public SpellScript
         return ValidateSpellInfo({ SPELL_EVOKER_RUBY_EMBERS });
     }
 
-    void PreventPeriodic(WorldObject*& target)
+    void PreventPeriodic(WorldObject*& target) const
     {
         if (!GetCaster()->HasAura(SPELL_EVOKER_RUBY_EMBERS))
             target = nullptr;
