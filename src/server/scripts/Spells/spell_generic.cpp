@@ -22,6 +22,7 @@
  * Scriptnames of files in this file should be prefixed with "spell_gen_"
  */
 
+#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
@@ -40,6 +41,7 @@
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
+#include "PathGenerator.h"
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -5496,6 +5498,66 @@ class spell_gen_saddlechute : public AuraScript
     }
 };
 
+enum SpatialRiftSpells
+{
+    SPELL_SPATIAL_RIFT_TELEPORT     = 257034,
+    SPELL_SPATIAL_RIFT_AREATRIGGER  = 256948
+};
+
+// 257040 - Spatial Rift
+class spell_gen_spatial_rift : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SPATIAL_RIFT_TELEPORT, SPELL_SPATIAL_RIFT_AREATRIGGER });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        AreaTrigger* at = caster->GetAreaTrigger(SPELL_SPATIAL_RIFT_AREATRIGGER);
+        if (!at)
+            return;
+
+        caster->CastSpell(at->GetPosition(), SPELL_SPATIAL_RIFT_TELEPORT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+            });
+
+        at->SetDuration(0);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_spatial_rift::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+struct at_gen_spatial_rift : AreaTriggerAI
+{
+    at_gen_spatial_rift(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void OnInitialize() override
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
+
+        float range = spellInfo->GetMaxRange();
+        float speed = 18.0f;
+
+        Position destPos = at->GetPosition();
+        at->MovePositionToFirstCollision(destPos, range, 0.0f);
+
+        PathGenerator path(at);
+        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), true);
+
+        G3D::Vector3 const& endPoint = path.GetPath().back();
+        at->InitSplines(path.GetPath(), static_cast<uint32>(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) / speed * IN_MILLISECONDS));
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5679,4 +5741,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_bg_defending_cart_aura, spell_bg_defending_cart_aura_AuraScript);
     RegisterSpellScript(spell_gen_comfortable_riders_barding);
     RegisterSpellScript(spell_gen_saddlechute);
+    RegisterSpellScript(spell_gen_spatial_rift);
+    RegisterAreaTriggerAI(at_gen_spatial_rift);
 }
