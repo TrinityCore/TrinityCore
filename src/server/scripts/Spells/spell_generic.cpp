@@ -5554,7 +5554,7 @@ struct at_gen_spatial_rift : AreaTriggerAI
         path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), true);
 
         G3D::Vector3 const& endPoint = path.GetPath().back();
-        at->InitSplines(path.GetPath(), static_cast<uint32>(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) / speed * IN_MILLISECONDS));
+        at->InitSplines(path.GetPath(), static_cast<uint32>(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) / speed * 1000));
     }
 };
 
