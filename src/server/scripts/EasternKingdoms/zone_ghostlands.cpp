@@ -36,10 +36,10 @@ enum ToGhostlandsData
     CONVO_SANCTUM_OF_THE_MOON           = 6467,
     CONVO_SANCTUM_OF_THE_MOON_FOLLOWUP  = 6634,
     CONVO_ANDILIEN_ESTATE               = 6469,
-    CONVO_ANDILIEN_ESTATE_FOLLOWUP      = 6471,
+    CONVO_ANDILIEN_ESTATE_FOLLOWUP      = 6479,
     CONVO_DAWNSPAIR_SPIRE               = 6470,
     CONVO_DAWNSPAIR_SPIRE_UP            = 6637,
-    CONVO_DAWNSPAIR_SPIRE_FOLLOWUP      = 6479,
+    CONVO_DAWNSPAIR_SPIRE_FOLLOWUP      = 6471,
 
     CONVO_ACTOR_HIGH_ELF_RANGER         = 61831
 };
@@ -106,7 +106,7 @@ public:
             if (!player)
                 return;
 
-            Conversation::CreateConversation(CONVO_DAWNSPAIR_SPIRE_FOLLOWUP, player, *player, player->GetGUID(), nullptr, true);
+            Conversation::CreateConversation(CONVO_ANDILIEN_ESTATE_FOLLOWUP, player, *player, player->GetGUID(), nullptr, true);
         }, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
 };
@@ -152,14 +152,14 @@ public:
             if (!player)
                 return;
 
-            Conversation::CreateConversation(CONVO_ANDILIEN_ESTATE_FOLLOWUP, player, *player, player->GetGUID(), nullptr, true);
+            Conversation::CreateConversation(CONVO_DAWNSPAIR_SPIRE_FOLLOWUP, player, *player, player->GetGUID(), nullptr, true);
         }, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
 };
 
 constexpr Position AlleriaOpenRift = { 7832.54f, -7913.34f, 308.2204f };
 
-// 6479 - Conversation
+// 6471 - Conversation
 class conversation_dawnspair_spire_followup_to_ghostlands : public ConversationAI
 {
 public:
@@ -222,6 +222,7 @@ void AddSC_ghostlands()
     RegisterConversationAI(conversation_sanctum_of_the_moon_to_ghostlands);
     RegisterConversationAI(conversation_andilien_estate_to_ghostlands);
     RegisterConversationAI(conversation_dawnspair_spire_to_ghostlands);
+    RegisterConversationAI(conversation_dawnspair_spire_followup_to_ghostlands);
 
     // Areatrigger Template
     new GenericAreaTriggerEntityScript<at_ghostlands_conversation_to_ghostlands<QUEST_TO_GHOSTLANDS, CONVO_SANCTUM_OF_THE_MOON>>("at_ghostlands_sanctum_of_the_moon_conversation");

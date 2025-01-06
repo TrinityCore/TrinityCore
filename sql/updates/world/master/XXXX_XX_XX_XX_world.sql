@@ -113,7 +113,7 @@ INSERT INTO `quest_objectives_completion_effect` (`ObjectiveID`, `GameEventID`, 
 -- SpellArea
 DELETE FROM `spell_area` WHERE `spell` = 258930 AND `area` = 3433;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES
-(258930, 3433, 49787, 0, 0, 0, 2, 3, 74, 11); -- Summon Alleria
+(258930, 3433, 49787, 48962, 0, 0, 2, 3, 74, 11); -- Summon Alleria
 
 -- Spellclick
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 130877;
@@ -135,11 +135,11 @@ INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `Verif
 (6471, 15129, 0, 58238),
 (6636, 15124, 5126, 58238);
 
-UPDATE `conversation_template` SET `ScriptName` = 'conversation_high_elf_ranger_to_ghostlands' WHERE `Id` IN (6468, 6467, 6634, 6469, 6470, 6471, 6637);
+UPDATE `conversation_template` SET `ScriptName` = 'conversation_high_elf_ranger_to_ghostlands' WHERE `Id` IN (6468, 6467, 6634, 6479, 6469, 6470, 6471, 6637);
 UPDATE `conversation_template` SET `ScriptName` = 'conversation_sanctum_of_the_moon_to_ghostlands' WHERE `Id` = 6478;
 UPDATE `conversation_template` SET `ScriptName` = 'conversation_andilien_estate_to_ghostlands' WHERE `Id` = 6635;
 UPDATE `conversation_template` SET `ScriptName` = 'conversation_dawnspair_spire_to_ghostlands' WHERE `Id` = 6636;
-UPDATE `conversation_template` SET `ScriptName` = 'conversation_dawnspair_spire_followup_to_ghostlands' WHERE `Id` = 6479;
+UPDATE `conversation_template` SET `ScriptName` = 'conversation_dawnspair_spire_followup_to_ghostlands' WHERE `Id` = 6471;
 
 DELETE FROM `conversation_actors` WHERE (`ConversationId`=6468 AND `Idx`=0) OR (`Idx`=0 AND `ConversationId` IN (6634,6467,6478)) OR (`Idx`=1 AND `ConversationId`=6478) OR (`ConversationId`=6469 AND `Idx`=0) OR (`ConversationId`=6479 AND `Idx`=0) OR (`ConversationId`=6635 AND `Idx` IN (1,0)) OR (`ConversationId`=6470 AND `Idx`=0) OR (`ConversationId`=6637 AND `Idx`=0) OR (`Idx`=0 AND `ConversationId` IN (6636,6471));
 INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `NoActorObject`, `ActivePlayerObject`, `VerifiedBuild`) VALUES
