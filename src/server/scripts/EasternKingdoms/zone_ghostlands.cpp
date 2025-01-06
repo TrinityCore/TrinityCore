@@ -62,56 +62,27 @@ public:
 };
 
 // 6478 - Conversation
-class conversation_sanctum_of_the_moon_to_ghostlands : public ConversationAI
-{
-public:
-    using ConversationAI::ConversationAI;
-
-    void OnStart() override
-    {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
-        conversation->m_Events.AddEvent([conversation = conversation]()
-        {
-            Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-            if (!privateObjectOwner)
-                return;
-
-            Player* player = privateObjectOwner->ToPlayer();
-            if (!player)
-                return;
-
-            Conversation::CreateConversation(CONVO_SANCTUM_OF_THE_MOON_FOLLOWUP, player, *player, player->GetGUID(), nullptr, true);
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
-    }
-};
-
 // 6635 - Conversation
-class conversation_andilien_estate_to_ghostlands : public ConversationAI
+template<uint32 ConversationId>
+class conversation_ghostlands_start_convo_on_end : public ConversationAI
 {
 public:
     using ConversationAI::ConversationAI;
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
         conversation->m_Events.AddEvent([conversation = conversation]()
         {
-            Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-            if (!privateObjectOwner)
-                return;
-
-            Player* player = privateObjectOwner->ToPlayer();
+            Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
             if (!player)
                 return;
 
-            Conversation::CreateConversation(CONVO_ANDILIEN_ESTATE_FOLLOWUP, player, *player, player->GetGUID(), nullptr, true);
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+            Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID(), nullptr, true);
+        }, conversation->GetLastLineEndTime(conversation->GetPrivateObjectOwnerLocale()));
     }
 };
 
-constexpr Position AlleriaMoveToBook = { 7835.05f, -7913.11f, 308.2204f };
+constexpr Position ToGhostlandsAlleriaMoveToBook = { 7835.05f, -7913.11f, 308.2204f };
 
 // 6636 - Conversation
 class conversation_dawnspair_spire_to_ghostlands : public ConversationAI
@@ -121,7 +92,7 @@ public:
 
     enum DawnspairSpireConvoData
     {
-        POINT_ALLERIA_MOVE_TO_BOOK  = 1
+        POINT_ALLERIA_MOVE_TO_BOOK = 1
     };
 
     void OnCreate(Unit* creator) override
@@ -135,29 +106,23 @@ public:
             return;
 
         alleriaClone->SetWalk(true);
-        alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_MOVE_TO_BOOK, AlleriaMoveToBook);
+        alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_MOVE_TO_BOOK, ToGhostlandsAlleriaMoveToBook);
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
         conversation->m_Events.AddEvent([conversation = conversation]()
         {
-            Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-            if (!privateObjectOwner)
-                return;
-
-            Player* player = privateObjectOwner->ToPlayer();
+            Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
             if (!player)
                 return;
 
             Conversation::CreateConversation(CONVO_DAWNSPAIR_SPIRE_FOLLOWUP, player, *player, player->GetGUID(), nullptr, true);
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+        }, conversation->GetLastLineEndTime(conversation->GetPrivateObjectOwnerLocale()));
     }
 };
 
-constexpr Position AlleriaOpenRift = { 7832.54f, -7913.34f, 308.2204f };
+constexpr Position ToGhostlandsAlleriaOpenRift = { 7832.54f, -7913.34f, 308.2204f };
 
 // 6471 - Conversation
 class conversation_dawnspair_spire_followup_to_ghostlands : public ConversationAI
@@ -167,7 +132,7 @@ public:
 
     enum DawnspairSpireFollowupConvoData
     {
-        POINT_ALLERIA_OPEN_PORTAL   = 2
+        POINT_ALLERIA_OPEN_PORTAL = 2
     };
 
     void OnCreate(Unit* creator) override
@@ -182,17 +147,15 @@ public:
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
         conversation->m_Events.AddEvent([conversation = conversation]()
         {
             Creature* alleriaClone = conversation->GetActorCreature(0);
             if (!alleriaClone)
                 return;
 
-            alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_OPEN_PORTAL, AlleriaOpenRift);
+            alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_OPEN_PORTAL, ToGhostlandsAlleriaOpenRift);
 
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+        }, conversation->GetLastLineEndTime(conversation->GetPrivateObjectOwnerLocale()));
     }
 };
 
@@ -203,7 +166,7 @@ public:
 template<uint32 QuestId, uint32 ConversationId>
 struct at_ghostlands_conversation_to_ghostlands : AreaTriggerAI
 {
-    at_ghostlands_conversation_to_ghostlands(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    at_ghostlands_conversation_to_ghostlands(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -219,10 +182,12 @@ void AddSC_ghostlands()
 {
     // Conversation
     RegisterConversationAI(conversation_high_elf_ranger_to_ghostlands);
-    RegisterConversationAI(conversation_sanctum_of_the_moon_to_ghostlands);
-    RegisterConversationAI(conversation_andilien_estate_to_ghostlands);
     RegisterConversationAI(conversation_dawnspair_spire_to_ghostlands);
     RegisterConversationAI(conversation_dawnspair_spire_followup_to_ghostlands);
+
+    // Conversation Template
+    new GenericConversationScript<conversation_ghostlands_start_convo_on_end<CONVO_SANCTUM_OF_THE_MOON_FOLLOWUP>>("conversation_sanctum_of_the_moon_to_ghostlands");
+    new GenericConversationScript<conversation_ghostlands_start_convo_on_end<CONVO_ANDILIEN_ESTATE_FOLLOWUP>>("conversation_andilien_estate_to_ghostlands");
 
     // Areatrigger Template
     new GenericAreaTriggerEntityScript<at_ghostlands_conversation_to_ghostlands<QUEST_TO_GHOSTLANDS, CONVO_SANCTUM_OF_THE_MOON>>("at_ghostlands_sanctum_of_the_moon_conversation");
