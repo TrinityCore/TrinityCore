@@ -101,7 +101,7 @@ struct boss_leymor : public BossAI
         if (instance->GetData(DATA_LEYMOR_INTRO_DONE))
             return;
 
-        me->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+        me->SetImmuneToAll(true);
         DoCastSelf(SPELL_STASIS);
     }
 
@@ -112,7 +112,7 @@ struct boss_leymor : public BossAI
             scheduler.Schedule(1s, [this](TaskContext /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_STASIS);
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                me->SetImmuneToAll(false);
                 DoCastSelf(SPELL_ARCANE_ERUPTION);
                 Talk(SAY_ANNOUNCE_AWAKEN);
             });

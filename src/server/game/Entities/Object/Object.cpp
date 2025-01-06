@@ -70,11 +70,13 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
     MAX_VISIBILITY_DISTANCE
 };
 
-Object::Object() : m_values(this), m_scriptRef(this, NoopObjectDeleter())
+Object::Object() : m_scriptRef(this, NoopObjectDeleter())
 {
     m_objectTypeId      = TYPEID_OBJECT;
     m_objectType        = TYPEMASK_OBJECT;
     m_updateFlag.Clear();
+
+    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false);
 
     m_inWorld           = false;
     m_isNewObject       = false;
@@ -178,9 +180,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     BuildMovementUpdate(&buf, flags, target);
 
+    UF::UpdateFieldFlag fieldFlags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = buf.wpos();
     buf << uint32(0);
-    BuildValuesCreate(&buf, target);
+    buf << uint8(fieldFlags);
+    BuildEntityFragments(&buf, m_entityFragments.GetIds());
+    buf << uint8(1);  // IndirectFragmentActive: CGObject
+    BuildValuesCreate(&buf, fieldFlags, target);
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
@@ -204,9 +210,19 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* tar
 {
     ByteBuffer& buf = PrepareValuesUpdateBuffer(data);
 
+    EnumFlag<UF::UpdateFieldFlag> fieldFlags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = buf.wpos();
     buf << uint32(0);
-    BuildValuesUpdate(&buf, target);
+    buf << uint8(fieldFlags.HasFlag(UF::UpdateFieldFlag::Owner));
+    buf << uint8(m_entityFragments.IdsChanged);
+    if (m_entityFragments.IdsChanged)
+    {
+        buf << uint8(WowCS::EntityFragmentSerializationType::Full);
+        BuildEntityFragments(&buf, m_entityFragments.GetIds());
+    }
+    buf << uint8(m_entityFragments.ContentsChangedMask);
+
+    BuildValuesUpdate(&buf, fieldFlags, target);
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
@@ -218,10 +234,24 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 
     std::size_t sizePos = buf.wpos();
     buf << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buf, flags);
     BuildValuesUpdateWithFlag(&buf, flags, target);
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
+}
+
+void Object::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments)
+{
+    data->append(fragments.data(), fragments.size());
+    *data << WorldPackets::As<uint8>(WowCS::EntityFragment::End);
+}
+
+void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags)
+{
+    *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
+    *data << uint8(false);                                  // m_entityFragments.IdsChanged
+    *data << uint8(WowCS::CGObjectUpdateMask);
 }
 
 void Object::BuildDestroyUpdateBlock(UpdateData* data) const
@@ -264,12 +294,13 @@ void Object::SendOutOfRangeForPlayer(Player* target) const
     target->SendDirectMessage(&packet);
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const
+void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const
 {
     std::vector<uint32> const* PauseTimes = nullptr;
     if (GameObject const* go = ToGameObject())
         PauseTimes = go->GetPauseTimes();
 
+    data->WriteBit(IsWorldObject()); // HasPositionFragment
     data->WriteBit(flags.NoBirthAnim);
     data->WriteBit(flags.EnablePortals);
     data->WriteBit(flags.PlayHoverAnim);
@@ -466,24 +497,78 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
         *data << areaTrigger->GetRollPitchYaw().PositionXYZStream();
 
+        switch (shape.Type)
+        {
+            case AreaTriggerShapeType::Sphere:
+                *data << int8(0);
+                *data << float(shape.SphereDatas.Radius);
+                *data << float(shape.SphereDatas.RadiusTarget);
+                break;
+            case AreaTriggerShapeType::Box:
+                *data << int8(1);
+                *data << float(shape.BoxDatas.Extents[0]);
+                *data << float(shape.BoxDatas.Extents[1]);
+                *data << float(shape.BoxDatas.Extents[2]);
+                *data << float(shape.BoxDatas.ExtentsTarget[0]);
+                *data << float(shape.BoxDatas.ExtentsTarget[1]);
+                *data << float(shape.BoxDatas.ExtentsTarget[2]);
+                break;
+            case AreaTriggerShapeType::Polygon:
+                *data << int8(3);
+                *data << int32(shape.PolygonVertices.size());
+                *data << int32(shape.PolygonVerticesTarget.size());
+                *data << float(shape.PolygonDatas.Height);
+                *data << float(shape.PolygonDatas.HeightTarget);
+
+                for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVertices)
+                    *data << vertice;
+
+                for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVerticesTarget)
+                    *data << vertice;
+                break;
+            case AreaTriggerShapeType::Cylinder:
+                *data << int8(4);
+                *data << float(shape.CylinderDatas.Radius);
+                *data << float(shape.CylinderDatas.RadiusTarget);
+                *data << float(shape.CylinderDatas.Height);
+                *data << float(shape.CylinderDatas.HeightTarget);
+                *data << float(shape.CylinderDatas.LocationZOffset);
+                *data << float(shape.CylinderDatas.LocationZOffsetTarget);
+                break;
+            case AreaTriggerShapeType::Disk:
+                *data << int8(7);
+                *data << float(shape.DiskDatas.InnerRadius);
+                *data << float(shape.DiskDatas.InnerRadiusTarget);
+                *data << float(shape.DiskDatas.OuterRadius);
+                *data << float(shape.DiskDatas.OuterRadiusTarget);
+                *data << float(shape.DiskDatas.Height);
+                *data << float(shape.DiskDatas.HeightTarget);
+                *data << float(shape.DiskDatas.LocationZOffset);
+                *data << float(shape.DiskDatas.LocationZOffsetTarget);
+                break;
+            case AreaTriggerShapeType::BoundedPlane:
+                *data << int8(8);
+                *data << float(shape.BoundedPlaneDatas.Extents[0]);
+                *data << float(shape.BoundedPlaneDatas.Extents[1]);
+                *data << float(shape.BoundedPlaneDatas.ExtentsTarget[0]);
+                *data << float(shape.BoundedPlaneDatas.ExtentsTarget[1]);
+                break;
+            default:
+                break;
+        }
+
         bool hasAbsoluteOrientation = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAbsoluteOrientation);
         bool hasDynamicShape        = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasDynamicShape);
         bool hasAttached            = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached);
         bool hasFaceMovementDir     = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir);
         bool hasFollowsTerrain      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain);
-        bool hasUnk1                = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::Unk1);
+        bool hasAlwaysExterior      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::AlwaysExterior);
         bool hasUnknown1025         = false;
         bool hasTargetRollPitchYaw  = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasTargetRollPitchYaw);
         bool hasScaleCurveID        = createProperties && createProperties->ScaleCurveId != 0;
         bool hasMorphCurveID        = createProperties && createProperties->MorphCurveId != 0;
         bool hasFacingCurveID       = createProperties && createProperties->FacingCurveId != 0;
         bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
-        bool hasAreaTriggerSphere   = shape.IsSphere();
-        bool hasAreaTriggerBox      = shape.IsBox();
-        bool hasAreaTriggerPolygon  = shape.IsPolygon();
-        bool hasAreaTriggerCylinder = shape.IsCylinder();
-        bool hasDisk                = shape.IsDisk();
-        bool hasBoundedPlane        = shape.IsBoundedPlane();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
         bool hasOrbit               = areaTrigger->HasOrbit();
         bool hasMovementScript      = false;
@@ -494,7 +579,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasAttached);
         data->WriteBit(hasFaceMovementDir);
         data->WriteBit(hasFollowsTerrain);
-        data->WriteBit(hasUnk1);
+        data->WriteBit(hasAlwaysExterior);
         data->WriteBit(hasUnknown1025);
         data->WriteBit(hasTargetRollPitchYaw);
         data->WriteBit(hasScaleCurveID);
@@ -502,12 +587,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasFacingCurveID);
         data->WriteBit(hasMoveCurveID);
         data->WriteBit(hasPositionalSoundKitID);
-        data->WriteBit(hasAreaTriggerSphere);
-        data->WriteBit(hasAreaTriggerBox);
-        data->WriteBit(hasAreaTriggerPolygon);
-        data->WriteBit(hasAreaTriggerCylinder);
-        data->WriteBit(hasDisk);
-        data->WriteBit(hasBoundedPlane);
         data->WriteBit(hasAreaTriggerSpline);
         data->WriteBit(hasOrbit);
         data->WriteBit(hasMovementScript);
@@ -540,66 +619,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         if (hasPositionalSoundKitID)
             *data << uint32(0);
 
-        if (hasAreaTriggerSphere)
-        {
-            *data << float(shape.SphereDatas.Radius);
-            *data << float(shape.SphereDatas.RadiusTarget);
-        }
-
-        if (hasAreaTriggerBox)
-        {
-            *data << float(shape.BoxDatas.Extents[0]);
-            *data << float(shape.BoxDatas.Extents[1]);
-            *data << float(shape.BoxDatas.Extents[2]);
-            *data << float(shape.BoxDatas.ExtentsTarget[0]);
-            *data << float(shape.BoxDatas.ExtentsTarget[1]);
-            *data << float(shape.BoxDatas.ExtentsTarget[2]);
-        }
-
-        if (hasAreaTriggerPolygon)
-        {
-            *data << int32(shape.PolygonVertices.size());
-            *data << int32(shape.PolygonVerticesTarget.size());
-            *data << float(shape.PolygonDatas.Height);
-            *data << float(shape.PolygonDatas.HeightTarget);
-
-            for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVertices)
-                *data << vertice;
-
-            for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVerticesTarget)
-                *data << vertice;
-        }
-
-        if (hasAreaTriggerCylinder)
-        {
-            *data << float(shape.CylinderDatas.Radius);
-            *data << float(shape.CylinderDatas.RadiusTarget);
-            *data << float(shape.CylinderDatas.Height);
-            *data << float(shape.CylinderDatas.HeightTarget);
-            *data << float(shape.CylinderDatas.LocationZOffset);
-            *data << float(shape.CylinderDatas.LocationZOffsetTarget);
-        }
-
-        if (hasDisk)
-        {
-            *data << float(shape.DiskDatas.InnerRadius);
-            *data << float(shape.DiskDatas.InnerRadiusTarget);
-            *data << float(shape.DiskDatas.OuterRadius);
-            *data << float(shape.DiskDatas.OuterRadiusTarget);
-            *data << float(shape.DiskDatas.Height);
-            *data << float(shape.DiskDatas.HeightTarget);
-            *data << float(shape.DiskDatas.LocationZOffset);
-            *data << float(shape.DiskDatas.LocationZOffsetTarget);
-        }
-
-        if (hasBoundedPlane)
-        {
-            *data << float(shape.BoundedPlaneDatas.Extents[0]);
-            *data << float(shape.BoundedPlaneDatas.Extents[1]);
-            *data << float(shape.BoundedPlaneDatas.ExtentsTarget[0]);
-            *data << float(shape.BoundedPlaneDatas.ExtentsTarget[1]);
-        }
-
         //if (hasMovementScript)
         //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
 
@@ -609,17 +628,32 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.GameObject)
     {
-        bool bit8 = false;
-        uint32 Int1 = 0;
-
         GameObject const* gameObject = ToGameObject();
+        Transport const* transport = gameObject->ToTransport();
+
+        bool bit8 = false;
 
         *data << uint32(gameObject->GetWorldEffectID());
 
         data->WriteBit(bit8);
+        data->WriteBit(transport != nullptr);
+        data->WriteBit(gameObject->GetPathProgressForClient().has_value());
         data->FlushBits();
+        if (transport)
+        {
+            *data << uint32(transport->GetTransportPeriod());
+            *data << uint32(transport->GetTimer());
+            data->WriteBit(transport->IsStopRequested());
+            data->WriteBit(transport->IsStopped());
+            data->WriteBit(false);
+            data->FlushBits();
+        }
+
         if (bit8)
-            *data << uint32(Int1);
+            *data << uint32(0);
+
+        if (gameObject->GetPathProgressForClient())
+            *data << float(*gameObject->GetPathProgressForClient());
     }
 
     if (flags.SmoothPhasing)
@@ -791,11 +825,7 @@ UF::UpdateFieldFlag Object::GetUpdateFieldFlagsFor(Player const* /*target*/) con
 
 void Object::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag /*flags*/, Player const* /*target*/) const
 {
-    std::size_t sizePos = data->wpos();
     *data << uint32(0);
-    *data << uint32(0);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void Object::AddToObjectUpdateIfNeeded()
@@ -807,6 +837,8 @@ void Object::AddToObjectUpdateIfNeeded()
 void Object::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Object::m_objectData);
+    m_entityFragments.IdsChanged = false;
+    m_entityFragments.ContentsChangedMask = WowCS::CGObjectActiveMask;
 
     if (m_objectUpdated)
     {
@@ -818,15 +850,7 @@ void Object::ClearUpdateMask(bool remove)
 
 void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) const
 {
-    UpdateDataMapType::iterator iter = data_map.find(player);
-
-    if (iter == data_map.end())
-    {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.emplace(player, UpdateData(player->GetMapId()));
-        ASSERT(p.second);
-        iter = p.first;
-    }
-
+    UpdateDataMapType::iterator iter = data_map.try_emplace(player, player->GetMapId()).first;
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
@@ -1557,6 +1581,12 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
     if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj->GetTypeId(), obj->GetEntry(), this))
         return false;
 
+    // Spawn tracking
+    if (Player const* player = ToPlayer())
+        if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
+            if (!spawnTrackingStateData->Visible)
+                return false;
+
     bool corpseVisibility = false;
     if (distanceCheck)
     {
@@ -1871,12 +1901,12 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             case SUMMON_CATEGORY_PUPPET:
                 mask = UNIT_MASK_PUPPET;
                 break;
+            case SUMMON_CATEGORY_POSSESSED_VEHICLE:
             case SUMMON_CATEGORY_VEHICLE:
                 mask = UNIT_MASK_MINION;
                 break;
             case SUMMON_CATEGORY_WILD:
             case SUMMON_CATEGORY_ALLY:
-            case SUMMON_CATEGORY_UNK:
             {
                 switch (SummonTitle(properties->Title))
                 {

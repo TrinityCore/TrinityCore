@@ -76,7 +76,7 @@ private:
 
     void UpdateRealms();
     static void UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
-        boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr,
+        std::vector<boost::asio::ip::address>&& addresses,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, RealmPopulationState population);
     void FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTypes accountSecurityLevel, JSON::RealmList::RealmEntry* realmEntry) const;
 

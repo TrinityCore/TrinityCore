@@ -23,6 +23,7 @@
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Loot.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Random.h"
@@ -271,6 +272,8 @@ bool LootStoreItem::Roll(bool rate) const
 
             return roll_chance_f(chance * qualityModifier);
         }
+        case Type::TrackingQuest:
+            return roll_chance_f(chance);
         default:
             break;
     }
@@ -359,6 +362,45 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
             if (maxcount < mincount)                        // wrong max count
             {
                 TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: MaxCount ({}) less that MinCount ({}) - skipped",
+                    store.GetName(), entry, type, itemid, int32(maxcount), mincount);
+                return false;
+            }
+            break;
+        }
+        case Type::TrackingQuest:
+        {
+            Quest const* quest = sObjectMgr->GetQuestTemplate(itemid);
+            if (!quest)
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: quest does not exist - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (!quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: quest is not a tracking flag - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (chance == 0 && groupid == 0)                // Zero chance is allowed for grouped entries only
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: equal-chanced grouped entry, but group not defined - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (chance != 0 && chance < 0.0001f)            // loot with low chance
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: low chance ({}) - skipped",
+                    store.GetName(), entry, type, itemid, chance);
+                return false;
+            }
+
+            if (mincount != 1 || maxcount)                  // wrong count
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: tracking quest has count other than 1 (MinCount {} MaxCount {}) - skipped",
                     store.GetName(), entry, type, itemid, int32(maxcount), mincount);
                 return false;
             }
@@ -579,6 +621,10 @@ void LootTemplate::CopyConditions(LootItem* li) const
                 if (li->type != LootItemType::Currency)
                     continue;
                 break;
+            case LootStoreItem::Type::TrackingQuest:
+                if (li->type != LootItemType::TrackingQuest)
+                    continue;
+                break;
             default:
                 break;
         }
@@ -619,6 +665,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         {
             case LootStoreItem::Type::Item:
             case LootStoreItem::Type::Currency:
+            case LootStoreItem::Type::TrackingQuest:
                 // Plain entries (not a reference, not grouped)
                 // Chance is already checked, just add
                 if (!personalLooter || LootItem::AllowedForPlayer(personalLooter, *item, true))
@@ -709,7 +756,7 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
 
                     auto newEnd = std::remove_if(lootersForItem.begin(), lootersForItem.end(), [&](Player const* looter)
                     {
-                        return std::ranges::find(gotLoot, looter) != gotLoot.end();
+                        return advstd::ranges::contains(gotLoot, looter);
                     });
 
                     if (lootersForItem.begin() == newEnd)
@@ -729,6 +776,7 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
                 break;
             }
             case LootStoreItem::Type::Currency:
+            case LootStoreItem::Type::TrackingQuest:
             {
                 // Plain entries (not a reference, not grouped)
                 // Chance is already checked, just add
@@ -786,6 +834,7 @@ bool LootTemplate::HasDropForPlayer(Player const* player, uint8 groupId, bool st
         {
             case LootStoreItem::Type::Item:
             case LootStoreItem::Type::Currency:
+            case LootStoreItem::Type::TrackingQuest:
                 if (LootItem::AllowedForPlayer(player, *lootStoreItem, strictUsabilityCheck))
                     return true;                                    // active quest drop found
                 break;

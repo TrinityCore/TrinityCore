@@ -108,6 +108,15 @@ namespace Trinity
         void Visit(CreatureMapType &);
     };
 
+    struct TC_GAME_API CreatureAggroGracePeriodExpiredNotifier
+    {
+        Creature& i_creature;
+        CreatureAggroGracePeriodExpiredNotifier(Creature& c) : i_creature(c) { }
+        template<class T> void Visit(GridRefManager<T>&) { }
+        void Visit(CreatureMapType&);
+        void Visit(PlayerMapType&);
+    };
+
     struct GridUpdater
     {
         GridType &i_grid;
@@ -1435,8 +1444,38 @@ namespace Trinity
                 if (i_args.StringId && !u->HasStringId(*i_args.StringId))
                     return false;
 
-                if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)
-                    return false;
+                if (i_args.IsAlive.has_value())
+                {
+                    switch (*i_args.IsAlive)
+                    {
+                        case FindCreatureAliveState::Alive:
+                        {
+                            if (!u->IsAlive())
+                                return false;
+                            break;
+                        }
+                        case FindCreatureAliveState::Dead:
+                        {
+                            if (u->IsAlive())
+                                return false;
+                            break;
+                        }
+                        case FindCreatureAliveState::EffectivelyAlive:
+                        {
+                            if (!u->IsAlive() || u->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH))
+                                return false;
+                            break;
+                        }
+                        case FindCreatureAliveState::EffectivelyDead:
+                        {
+                            if (u->IsAlive() && !u->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH))
+                                return false;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
 
                 if (i_args.IsSummon.has_value() && u->IsSummon() != i_args.IsSummon)
                     return false;

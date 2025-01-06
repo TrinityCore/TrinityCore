@@ -16,15 +16,15 @@
  */
 
 #include "SpellMgr.h"
+#include "BattlePetMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
-#include "BattlePetMgr.h"
 #include "Chat.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "LanguageMgr.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -34,10 +34,10 @@
 #include "SpellInfo.h"
 #include "StringConvert.h"
 #include <G3D/g3dmath.h>
-#include <boost/multi_index_container.hpp>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
+#include <boost/multi_index_container.hpp>
 
 namespace
 {
@@ -3880,6 +3880,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Maelstrom Weapon
+    ApplySpellFix({ 187881 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Add Lava Burst to spells that benefit from it
+            spellEffectInfo->SpellClassMask[1] |= 0x1000;
+        });
+    });
+
     // Gathering Storms
     ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
     {
@@ -4017,6 +4027,16 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 38469 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
+    });
+
+    // Death and Decay (target increase)
+    ApplySpellFix({ 188290 }, [](SpellInfo* spellInfo)
+    {
+        // Change SpellClassMask to exclude 49020 and only keep its triggered spells
+        ApplySpellEffectFix(spellInfo, EFFECT_3, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->SpellClassMask.Set(0x80, 0, 0, 0x8000);
+        });
     });
 
     // Chrono Shift (enemy slow part)
@@ -5049,6 +5069,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx4 |= SPELL_ATTR4_AURA_IS_BUFF;
     });
 
+    // TODO: temporary, remove with dragonriding
+    ApplySpellFix({ 404468 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
+    });
+
+    // Collective Anguish channel hack (triggered by another channel)
+    ApplySpellFix({ 391057, 393831 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
+    });
+
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
@@ -5203,6 +5235,25 @@ void SpellMgr::LoadSpellInfoImmunities()
         const_cast<SpellInfo&>(spellInfo)._LoadImmunityInfo();
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo immunity infos in {} ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadSpellInfoTargetCaps()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // Eye Beam
+    ApplySpellFix({ 198030 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 198013, EFFECT_4, {}, {});
+    });
+
+    // Volatile Agony
+    ApplySpellFix({ 453035 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, 453034, EFFECT_1, {}, {});
+    });
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadPetFamilySpellsStore()

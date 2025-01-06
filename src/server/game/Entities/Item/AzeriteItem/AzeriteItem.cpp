@@ -32,6 +32,8 @@ AzeriteItem::AzeriteItem() : Item()
     m_objectType |= TYPEMASK_AZERITE_ITEM;
     m_objectTypeId = TYPEID_AZERITE_ITEM;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_AzeriteItem, false);
+
     SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::DEBUGknowledgeWeek), -1);
 }
 
@@ -389,18 +391,15 @@ void AzeriteItem::SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId)
         .ModifyValue(&UF::SelectedAzeriteEssences::AzeriteEssenceID, slot), azeriteEssenceId);
 }
 
-void AzeriteItem::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void AzeriteItem::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
     m_azeriteItemData->WriteCreate(*data, flags, this, target);
 }
 
-void AzeriteItem::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void AzeriteItem::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -451,6 +450,7 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

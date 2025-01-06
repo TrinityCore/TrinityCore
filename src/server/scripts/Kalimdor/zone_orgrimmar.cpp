@@ -17,63 +17,72 @@
 
 #include "Define.h"
 #include "ScriptMgr.h"
-#include "SpellAuraDefines.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellDefines.h"
 #include "SpellScript.h"
 #include "Unit.h"
 
-namespace Orgrimmar
+namespace Scripts::Kalimdor::Orgrimmar
 {
-    namespace Spells
-    {
-        static constexpr uint32 MOPHordeIntroMoviePlay = 130409;
-        static constexpr uint32 FadeToBlack            = 130411;
-    }
+namespace Spells
+{
+    // The Art of War
+    static constexpr uint32 MOPHordeIntroMoviePlay = 130409;
+    static constexpr uint32 FadeToBlack            = 130411;
 }
 
 // 130412 - Art of War Movie Aura
-class spell_art_of_war_movie_aura : public AuraScript
+class spell_art_of_war_movie_aura : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
-            Orgrimmar::Spells::MOPHordeIntroMoviePlay,
-            Orgrimmar::Spells::FadeToBlack
+            Spells::FadeToBlack
         });
     }
 
-    void HandleAfterEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->CastSpell(GetTarget(), Orgrimmar::Spells::FadeToBlack, CastSpellExtraArgsInit{
+        GetHitUnit()->CastSpell(nullptr, Spells::FadeToBlack, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
+            .OriginalCastId = GetSpell()->m_castId
         });
     }
 
-    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void Register() override
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        OnEffectHitTarget += SpellEffectFn(spell_art_of_war_movie_aura::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
 
-        caster->CastSpell(GetTarget(), Orgrimmar::Spells::MOPHordeIntroMoviePlay, CastSpellExtraArgsInit{
+// 130412 - Art of War Movie Aura
+class spell_art_of_war_movie_aura_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::MOPHordeIntroMoviePlay
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->CastSpell(nullptr, Spells::MOPHordeIntroMoviePlay, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_art_of_war_movie_aura::HandleAfterEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_art_of_war_movie_aura::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_art_of_war_movie_aura_aura::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
+}
 
 void AddSC_orgrimmar()
 {
-    RegisterSpellScript(spell_art_of_war_movie_aura);
+    using namespace Scripts::Kalimdor::Orgrimmar;
+
+    // Spells
+    RegisterSpellAndAuraScriptPair(spell_art_of_war_movie_aura, spell_art_of_war_movie_aura_aura);
 }

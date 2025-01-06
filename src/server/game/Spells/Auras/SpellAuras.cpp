@@ -15,14 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
+#include "SpellAuras.h"
 #include "CellImpl.h"
+#include "Common.h"
 #include "Containers.h"
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "ListUtils.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
@@ -462,12 +464,15 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEven
 m_procCooldown(TimePoint::min()),
 m_lastProcAttemptTime(GameTime::Now() - Seconds(10)), m_lastProcSuccessTime(GameTime::Now() - Seconds(120)), m_scriptRef(this, NoopAuraDeleter())
 {
-    for (SpellPowerEntry const* power : m_spellInfo->PowerCosts)
-        if (power && (power->ManaPerSecond != 0 || power->PowerPctPerSecond > 0.0f))
-            m_periodicCosts.push_back(power);
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES))
+    {
+        for (SpellPowerEntry const* power : m_spellInfo->PowerCosts)
+            if (power && (power->ManaPerSecond != 0 || power->PowerPctPerSecond > 0.0f))
+                m_periodicCosts.push_back(power);
 
-    if (!m_periodicCosts.empty())
-        m_timeCla = 1 * IN_MILLISECONDS;
+        if (!m_periodicCosts.empty())
+            m_timeCla = 1 * IN_MILLISECONDS;
+    }
 
     m_maxDuration = CalcMaxDuration(createInfo.Caster);
     m_duration = m_maxDuration;
@@ -1069,7 +1074,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
         if (!m_spellInfo->StackAmount)
             stackAmount = 1;
         else
-            stackAmount = m_spellInfo->StackAmount;
+            stackAmount = maxStackAmount;
     }
     // we're out of stacks, remove
     else if (stackAmount <= 0)
