@@ -23,9 +23,6 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "DB2Stores.h"
-#include "Item.h"
-#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Spell.h"
@@ -329,10 +326,12 @@ class spell_rog_deadly_poison : public SpellScript
         return ValidateSpellInfo({ SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE });
     }
 
-    void HandleInstantDamage(SpellEffIndex /*effIndex*/)
+    void HandleInstantDamage(SpellEffIndex /*effIndex*/) const
     {
-        if (GetHitUnit()->HasAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE, CastSpellExtraArgsInit{
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (target->HasAura(GetSpellInfo()->Id, caster->GetGUID()))
+            caster->CastSpell(target, SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
             });
     }
