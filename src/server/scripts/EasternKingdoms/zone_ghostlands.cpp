@@ -208,7 +208,7 @@ struct at_ghostlands_conversation_to_ghostlands : AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         Player* player = unit->ToPlayer();
-        if (!player || player->GetQuestStatus(QuestId != QUEST_STATUS_COMPLETE))
+        if (!player || player->GetQuestStatus(QuestId) != QUEST_STATUS_INCOMPLETE)
             return;
 
         Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID(), nullptr, true);
