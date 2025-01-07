@@ -1158,8 +1158,14 @@ public:
         Optional<std::string_view> const& bonusListIdString, Optional<uint8> itemContextArg)
     {
         uint32 itemId = 0;
+        std::vector<int32> bonusListIDs;
+        ItemContext itemContext = ItemContext::NONE;
         if (Hyperlink<::item> const* itemLinkData = std::get_if<Hyperlink<::item>>(&itemArg))
+        {
             itemId = (*itemLinkData)->Item->GetId();
+            bonusListIDs = (*itemLinkData)->ItemBonusListIDs;
+            itemContext = static_cast<ItemContext>((*itemLinkData)->Context);
+        }
         else if (uint32 const* itemIdPtr = std::get_if<uint32>(&itemArg))
             itemId = *itemIdPtr;
         else if (std::string_view const* itemNameText = std::get_if<std::string_view>(&itemArg))
@@ -1192,15 +1198,12 @@ public:
         if (count == 0)
             count = 1;
 
-        std::vector<int32> bonusListIDs;
-
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonusListIdString)
             for (std::string_view token : Trinity::Tokenize(*bonusListIdString, ';', false))
                 if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
                     bonusListIDs.push_back(*bonusListId);
 
-        ItemContext itemContext = ItemContext::NONE;
         if (itemContextArg)
         {
             itemContext = ItemContext(*itemContextArg);
@@ -1208,6 +1211,9 @@ public:
             {
                 std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemId, itemContext);
                 bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
+                std::ranges::sort(bonusListIDs);
+                std::ranges::borrowed_subrange_t<std::vector<int>&> removed = std::ranges::unique(bonusListIDs);
+                bonusListIDs.erase(removed.begin(), removed.end());
             }
         }
 
