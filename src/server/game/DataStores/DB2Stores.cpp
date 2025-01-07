@@ -17,8 +17,8 @@
 
 #include "DB2Stores.h"
 #include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2LoadInfo.h"
+#include "DatabaseEnv.h"
 #include "Hash.h"
 #include "ItemTemplate.h"
 #include "IteratorPair.h"
@@ -29,18 +29,13 @@
 #include "Timer.h"
 #include "Util.h"
 #include "World.h"
-#include <boost/filesystem/directory.hpp>
-#include <boost/filesystem/operations.hpp>
 #include <array>
 #include <bitset>
+#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <numeric>
 #include <cctype>
 #include <cmath>
-
-// temporary hack until includes are sorted out (don't want to pull in Windows.h)
-#ifdef GetClassName
-#undef GetClassName
-#endif
 
 DB2Storage<AchievementEntry>                    sAchievementStore("Achievement.db2", &AchievementLoadInfo::Instance);
 DB2Storage<Achievement_CategoryEntry>           sAchievementCategoryStore("Achievement_Category.db2", &AchievementCategoryLoadInfo::Instance);
@@ -2112,7 +2107,7 @@ ChrClassUIDisplayEntry const* DB2Manager::GetUiDisplayForClass(Classes unitClass
     return _uiDisplayByClass[unitClass];
 }
 
-char const* DB2Manager::GetClassName(uint8 class_, LocaleConstant locale /*= DEFAULT_LOCALE*/)
+char const* DB2Manager::GetChrClassName(uint8 class_, LocaleConstant locale /*= DEFAULT_LOCALE*/)
 {
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
     if (!classEntry)
