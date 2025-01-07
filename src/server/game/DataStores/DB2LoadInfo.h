@@ -23,6 +23,7 @@
 
 #include "DB2DatabaseLoader.h"
 #include "DB2Metadata.h"
+#include "HotfixDatabase.h"
 
 struct AchievementLoadInfo
 {
