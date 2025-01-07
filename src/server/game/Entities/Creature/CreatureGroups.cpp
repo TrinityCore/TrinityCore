@@ -16,12 +16,12 @@
  */
 
 #include "CreatureGroups.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
 #include "ObjectMgr.h"

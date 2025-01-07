@@ -26,13 +26,8 @@
 #include <map>
 #include <set>
 #include <span>
-#include <vector>
 #include <unordered_set>
-
- // temporary hack until includes are sorted out (don't want to pull in Windows.h)
-#ifdef GetClassName
-#undef GetClassName
-#endif
+#include <vector>
 
 class DB2HotfixGeneratorBase;
 
@@ -108,6 +103,7 @@ TC_GAME_API extern DB2Storage<EmotesEntry>                          sEmotesStore
 TC_GAME_API extern DB2Storage<EmotesTextEntry>                      sEmotesTextStore;
 TC_GAME_API extern DB2Storage<FactionEntry>                         sFactionStore;
 TC_GAME_API extern DB2Storage<FactionTemplateEntry>                 sFactionTemplateStore;
+TC_GAME_API extern DB2Storage<FlightCapabilityEntry>                sFlightCapabilityStore;
 TC_GAME_API extern DB2Storage<FriendshipRepReactionEntry>           sFriendshipRepReactionStore;
 TC_GAME_API extern DB2Storage<FriendshipReputationEntry>            sFriendshipReputationStore;
 TC_GAME_API extern DB2Storage<GameObjectArtKitEntry>                sGameObjectArtKitStore;
@@ -193,6 +189,7 @@ TC_GAME_API extern DB2Storage<MawPowerEntry>                        sMawPowerSto
 TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
 TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
+TC_GAME_API extern DB2Storage<MountEquipmentEntry>                  sMountEquipmentStore;
 TC_GAME_API extern DB2Storage<MovieEntry>                           sMovieStore;
 TC_GAME_API extern DB2Storage<MythicPlusSeasonEntry>                sMythicPlusSeasonStore;
 TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
@@ -449,10 +446,10 @@ public:
     std::vector<AzeritePowerSetMemberEntry const*> const* GetAzeritePowers(uint32 itemId) const;
     uint32 GetRequiredAzeriteLevelForAzeritePowerTier(uint32 azeriteUnlockSetId, ItemContext context, uint32 tier) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
-    int32 const* GetBroadcastTextDuration(int32 broadcastTextId, LocaleConstant locale = DEFAULT_LOCALE) const;
+    int32 const* GetBroadcastTextDuration(uint32 broadcastTextId, LocaleConstant locale = DEFAULT_LOCALE) const;
     static CharBaseInfoEntry const* GetCharBaseInfo(Races race, Classes class_);
     ChrClassUIDisplayEntry const* GetUiDisplayForClass(Classes unitClass) const;
-    static char const* GetClassName(uint8 class_, LocaleConstant locale = DEFAULT_LOCALE);
+    static char const* GetChrClassName(uint8 class_, LocaleConstant locale = DEFAULT_LOCALE);
     uint32 GetPowerIndexByClass(Powers power, uint32 classId) const;
     std::vector<ChrCustomizationChoiceEntry const*> const* GetCustomiztionChoices(uint32 chrCustomizationOptionId) const;
     std::vector<ChrCustomizationOptionEntry const*> const* GetCustomiztionOptions(uint8 race, uint8 gender) const;
@@ -466,6 +463,7 @@ public:
     Optional<ContentTuningLevels> GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag, bool forItem = false) const;
     bool HasContentTuningLabel(uint32 contentTuningId, int32 label) const;
     static char const* GetCreatureFamilyPetName(uint32 petfamily, LocaleConstant locale);
+    std::span<int32 const> GetCreatureLabels(uint32 creatureDifficultyId) const;
     CurrencyContainerEntry const* GetCurrencyContainerForCurrencyQuantity(uint32 currencyId, int32 quantity) const;
     std::pair<float, float> GetCurveXAxisRange(uint32 curveId) const;
     float GetCurveValueAt(uint32 curveId, float x) const;
@@ -474,6 +472,7 @@ public:
     float EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass, int32 mythicPlusMilestoneSeason) const;
     std::vector<uint32> const* GetFactionTeamList(uint32 faction) const;
     FriendshipRepReactionSet const* GetFriendshipRepReactions(uint32 friendshipRepID) const;
+    std::span<int32 const> GetGameObjectLabels(uint32 gameobjectId) const;
     uint32 GetGlobalCurveId(GlobalCurve globalCurveType) const;
     std::vector<uint32> const* GetGlyphBindableSpells(uint32 glyphPropertiesId) const;
     std::vector<ChrSpecialization> const* GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const;
@@ -537,7 +536,7 @@ public:
     std::vector<TransmogSetEntry const*> const* GetTransmogSetsForItemModifiedAppearance(uint32 itemModifiedAppearanceId) const;
     std::vector<TransmogSetItemEntry const*> const* GetTransmogSetItems(uint32 transmogSetId) const;
     static bool GetUiMapPosition(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system, bool local,
-        int32* uiMapId = nullptr, DBCPosition2D* newPos = nullptr);
+        uint32* uiMapId = nullptr, DBCPosition2D* newPos = nullptr);
     bool Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     bool IsUiMapPhase(uint32 phaseId) const;

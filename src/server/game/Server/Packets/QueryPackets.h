@@ -20,10 +20,12 @@
 
 #include "Packet.h"
 #include "AuthenticationPackets.h"
+#include "ItemPacketsCommon.h"
 #include "NPCHandler.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 #include "Position.h"
+#include "QuestDef.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
@@ -124,16 +126,16 @@ namespace WorldPackets
             uint8 Sex = GENDER_NONE;
             uint8 ClassID = CLASS_NONE;
             uint8 Level = 0;
-            uint8 Unused915 = 0;
+            uint8 PvpFaction = 0;
             int32 TimerunningSeasonID = 0;
             DeclinedName DeclinedNames;
         };
 
-        struct NameCacheUnused920
+        struct GuildGuidLookupData
         {
-            uint32 Unused1 = 0;
-            ObjectGuid Unused2;
-            std::string_view Unused3;
+            uint32 VirtualRealmAddress = 0;
+            ObjectGuid Guid;
+            std::string_view Name;
         };
 
         struct NameCacheLookupResult
@@ -141,7 +143,7 @@ namespace WorldPackets
             ObjectGuid Player;
             uint8 Result = 0; // 0 - full packet, != 0 - only guid
             Optional<PlayerGuidLookupData> Data;
-            Optional<NameCacheUnused920> Unused920;
+            Optional<GuildGuidLookupData> GuildData;
         };
 
         class QueryPlayerNamesResponse final : public ServerPacket
@@ -434,6 +436,61 @@ namespace WorldPackets
             uint32 VirtualRealmAddress = 0;
             uint8 LookupState = 0;
             WorldPackets::Auth::VirtualRealmNameInfo NameInfo;
+        };
+
+        class QueryTreasurePicker final : public ClientPacket
+        {
+        public:
+            QueryTreasurePicker(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_TREASURE_PICKER, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID = 0;
+            uint32 TreasurePickerID = 0;
+        };
+
+        struct TreasurePickItem
+        {
+            Item::ItemInstance Item;
+            uint32 Quantity = 0;
+            Optional<QuestRewardContextFlags> ContextFlags;
+        };
+
+        struct TreasurePickCurrency
+        {
+            uint32 CurrencyID = 0;
+            uint32 Quantity = 0;
+            Optional<QuestRewardContextFlags> ContextFlags;
+        };
+
+        struct TreasurePickerBonus
+        {
+            std::vector<TreasurePickItem> Items;
+            std::vector<TreasurePickCurrency> Currencies;
+            uint64 Money = 0;
+            uint8 Context = 0;
+        };
+
+        struct TreasurePickerPick
+        {
+            std::vector<TreasurePickItem> Items;
+            std::vector<TreasurePickCurrency> Currencies;
+            std::vector<TreasurePickerBonus> Bonuses;
+            uint64 Money = 0;
+            int32 Flags = 0;
+            bool IsChoice = false;
+        };
+
+        class TreasurePickerResponse final : public ServerPacket
+        {
+        public:
+            TreasurePickerResponse() : ServerPacket(SMSG_TREASURE_PICKER_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            uint32 TreasurePickerID = 0;
+            TreasurePickerPick Pick;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupData const& lookupData);

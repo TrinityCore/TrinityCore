@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _BIH_H
-#define _BIH_H
+#ifndef TRINITYCORE_BOUNDING_INTERVAL_HIERARCHY_H
+#define TRINITYCORE_BOUNDING_INTERVAL_HIERARCHY_H
 
 #include "Define.h"
 #include "advstd.h"
@@ -51,13 +51,12 @@ class TC_COMMON_API BIH
             objects.clear();
             bounds = G3D::AABox::empty();
             // create space for the first node
-            tree.push_back(3u << 30u); // dummy leaf
-            tree.insert(tree.end(), 2, 0);
+            tree = { 3u << 30u, 0u, 0u }; // dummy leaf
         }
     public:
         BIH() { init_empty(); }
         template <class BoundsFunc, class PrimArray>
-        void build(PrimArray const& primitives, BoundsFunc& getBounds, uint32 leafSize = 3, bool printStats = false)
+        void build(PrimArray const& primitives, BoundsFunc const& getBounds, uint32 leafSize = 3, bool printStats = false)
         {
             if (primitives.size() == 0)
             {
@@ -69,9 +68,10 @@ class TC_COMMON_API BIH
             dat.maxPrims = leafSize;
             dat.numPrims = uint32(primitives.size());
             dat.indices = new uint32[dat.numPrims];
-            dat.primBound = new G3D::AABox[dat.numPrims];
+            dat.primBound = static_cast<G3D::AABox*>(::operator new[](dat.numPrims * sizeof(G3D::AABox)));
+            std::uninitialized_fill_n(dat.primBound, dat.numPrims, G3D::AABox::empty());
             getBounds(primitives[0], bounds);
-            for (uint32 i=0; i<dat.numPrims; ++i)
+            for (uint32 i = 0; i < dat.numPrims; ++i)
             {
                 dat.indices[i] = i;
                 getBounds(primitives[i], dat.primBound[i]);
@@ -84,10 +84,8 @@ class TC_COMMON_API BIH
                 stats.printStats();
 
             objects.resize(dat.numPrims);
-            for (uint32 i=0; i<dat.numPrims; ++i)
-                objects[i] = dat.indices[i];
-            //nObjects = dat.numPrims;
-            tree = tempTree;
+            std::ranges::copy_n(dat.indices, dat.numPrims, objects.begin());
+            tree = tempTree;    // copy instead of move to allocate exactly tempTree.size() elements and avoid shrink_to_fit
             delete[] dat.primBound;
             delete[] dat.indices;
         }
@@ -95,18 +93,18 @@ class TC_COMMON_API BIH
         G3D::AABox const& bound() const { return bounds; }
 
         template<typename RayCallback>
-        void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst = false) const
+        void intersectRay(G3D::Ray const& r, RayCallback& intersectCallback, float& maxDist, bool stopAtFirst = false) const
         {
             float intervalMin = -1.f;
             float intervalMax = -1.f;
             G3D::Vector3 const& org = r.origin();
             G3D::Vector3 const& dir = r.direction();
             G3D::Vector3 const& invDir = r.invDirection();
-            for (int i=0; i<3; ++i)
+            for (int i = 0; i < 3; ++i)
             {
                 if (G3D::fuzzyNe(dir[i], 0.0f))
                 {
-                    float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
+                    float t1 = (bounds.low()[i] - org[i]) * invDir[i];
                     float t2 = (bounds.high()[i] - org[i]) * invDir[i];
                     if (t1 > t2)
                         std::swap(t1, t2);
@@ -132,7 +130,7 @@ class TC_COMMON_API BIH
             uint32 offsetBack3[3];
             // compute custom offsets from direction sign bit
 
-            for (int i=0; i<3; ++i)
+            for (int i = 0; i < 3; ++i)
             {
                 offsetFront[i] = advstd::bit_cast<uint32>(dir[i]) >> 31;
                 offsetBack[i] = offsetFront[i] ^ 1;
@@ -148,7 +146,8 @@ class TC_COMMON_API BIH
             int stackPos = 0;
             int node = 0;
 
-            while (true) {
+            while (true)
+            {
                 while (true)
                 {
                     uint32 tn = tree[node];
@@ -168,13 +167,15 @@ class TC_COMMON_API BIH
                             int back = offset + offsetBack3[axis];
                             node = back;
                             // ray passes through far node only
-                            if (tf < intervalMin) {
+                            if (tf < intervalMin)
+                            {
                                 intervalMin = (tb >= intervalMin) ? tb : intervalMin;
                                 continue;
                             }
                             node = offset + offsetFront3[axis]; // front
                             // ray passes through near node only
-                            if (tb > intervalMax) {
+                            if (tb > intervalMax)
+                            {
                                 intervalMax = (tf <= intervalMax) ? tf : intervalMax;
                                 continue;
                             }
@@ -192,7 +193,8 @@ class TC_COMMON_API BIH
                         {
                             // leaf - test some objects
                             int n = tree[node + 1];
-                            while (n > 0) {
+                            while (n > 0)
+                            {
                                 bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirst);
                                 if (stopAtFirst && hit) return;
                                 --n;
@@ -203,7 +205,7 @@ class TC_COMMON_API BIH
                     }
                     else
                     {
-                        if (axis>2)
+                        if (axis > 2)
                             return; // should not happen
                         float tf = (advstd::bit_cast<float>(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                         float tb = (advstd::bit_cast<float>(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
@@ -233,7 +235,7 @@ class TC_COMMON_API BIH
         }
 
         template<typename IsectCallback>
-        void intersectPoint(const G3D::Vector3 &p, IsectCallback& intersectCallback) const
+        void intersectPoint(G3D::Vector3 const& p, IsectCallback& intersectCallback) const
         {
             if (!bounds.contains(p))
                 return;
@@ -242,7 +244,8 @@ class TC_COMMON_API BIH
             int stackPos = 0;
             int node = 0;
 
-            while (true) {
+            while (true)
+            {
                 while (true)
                 {
                     uint32 tn = tree[node];
@@ -262,12 +265,14 @@ class TC_COMMON_API BIH
                             int right = offset + 3;
                             node = right;
                             // point is in right node only
-                            if (tl < p[axis]) {
+                            if (tl < p[axis])
+                            {
                                 continue;
                             }
                             node = offset; // left
                             // point is in left node only
-                            if (tr > p[axis]) {
+                            if (tr > p[axis])
+                            {
                                 continue;
                             }
                             // point is in both nodes
@@ -280,7 +285,8 @@ class TC_COMMON_API BIH
                         {
                             // leaf - test some objects
                             int n = tree[node + 1];
-                            while (n > 0) {
+                            while (n > 0)
+                            {
                                 intersectCallback(p, objects[offset]); // !!!
                                 --n;
                                 ++offset;
@@ -290,7 +296,7 @@ class TC_COMMON_API BIH
                     }
                     else // BVH2 node (empty space cut off left and right)
                     {
-                        if (axis>2)
+                        if (axis > 2)
                             return; // should not happen
                         float tl = advstd::bit_cast<float>(tree[node + 1]);
                         float tr = advstd::bit_cast<float>(tree[node + 2]);
@@ -320,8 +326,8 @@ class TC_COMMON_API BIH
 
         struct buildData
         {
-            uint32 *indices;
-            G3D::AABox *primBound;
+            uint32* indices;
+            G3D::AABox* primBound;
             uint32 numPrims;
             int maxPrims;
         };
@@ -347,30 +353,30 @@ class TC_COMMON_API BIH
                 int numBVH2;
 
             public:
-            BuildStats():
+            BuildStats() :
                 numNodes(0), numLeaves(0), sumObjects(0), minObjects(0x0FFFFFFF),
                 maxObjects(0xFFFFFFFF), sumDepth(0), minDepth(0x0FFFFFFF),
                 maxDepth(0xFFFFFFFF), numBVH2(0)
             {
-                for (int i=0; i<6; ++i) numLeavesN[i] = 0;
+                for (int i = 0; i < 6; ++i) numLeavesN[i] = 0;
             }
 
             void updateInner() { numNodes++; }
             void updateBVH2() { numBVH2++; }
             void updateLeaf(int depth, int n);
-            void printStats();
+            void printStats() const;
         };
 
-        void buildHierarchy(std::vector<uint32> &tempTree, buildData &dat, BuildStats &stats);
+        void buildHierarchy(std::vector<uint32>& tempTree, buildData& dat, BuildStats& stats) const;
 
-        void createNode(std::vector<uint32> &tempTree, int nodeIndex, uint32 left, uint32 right) const
+        static void createNode(std::vector<uint32>& tempTree, int nodeIndex, uint32 left, uint32 right)
         {
             // write leaf node
             tempTree[nodeIndex + 0] = (3 << 30) | left;
             tempTree[nodeIndex + 1] = right - left + 1;
         }
 
-        void subdivide(int left, int right, std::vector<uint32> &tempTree, buildData &dat, AABound &gridBox, AABound &nodeBox, int nodeIndex, int depth, BuildStats &stats);
+        static void subdivide(int left, int right, std::vector<uint32>& tempTree, buildData& dat, AABound& gridBox, AABound& nodeBox, int nodeIndex, int depth, BuildStats& stats);
 };
 
-#endif // _BIH_H
+#endif // TRINITYCORE_BOUNDING_INTERVAL_HIERARCHY_H

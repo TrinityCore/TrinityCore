@@ -64,10 +64,10 @@ enum class AreaTriggerCreatePropertiesFlag : uint32
     HasAttached                    = 0x00004,
     HasFaceMovementDir             = 0x00008,
     HasFollowsTerrain              = 0x00010, // NYI
-    Unk1                           = 0x00020,
+    AlwaysExterior                 = 0x00020,
     HasTargetRollPitchYaw          = 0x00040, // NYI
     HasAnimId                      = 0x00080, // DEPRECATED
-    Unk3                           = 0x00100,
+    VisualAnimIsDecay              = 0x00100,
     HasAnimKitId                   = 0x00200, // DEPRECATED
     HasCircularMovement            = 0x00400, // DEPRECATED
     Unk5                           = 0x00800,

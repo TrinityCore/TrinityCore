@@ -151,6 +151,27 @@ inline bool isExtendedLatinCharacter(wchar_t wchar)
     return false;
 }
 
+inline bool isLatin1Character(wchar_t wchar)
+{
+    if (isBasicLatinCharacter(wchar))
+        return true;
+    if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+        return true;
+    if (wchar >= 0x00D8 && wchar <= 0x00DD)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER Y WITH ACUTE
+        return true;
+    if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
+        return true;
+    if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+        return true;
+    if (wchar >= 0x00F8 && wchar <= 0x00FD)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER Y WITH ACUTE
+        return true;
+    if (wchar == 0x00FF)                                     // LATIN SMALL LETTER Y WITH DIAERESIS
+        return true;
+    if (wchar == 0x0178)                                     // LATIN CAPITAL LETTER Y WITH DIAERESIS
+        return true;
+    return false;
+}
+
 inline bool isCyrillicCharacter(wchar_t wchar)
 {
     if (wchar >= 0x0410 && wchar <= 0x044F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC SMALL LETTER YA
