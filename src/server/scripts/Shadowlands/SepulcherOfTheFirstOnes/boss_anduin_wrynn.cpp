@@ -2957,7 +2957,7 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
             splinePoints.push_back(PositionToVector3(at->GetPosition()));
 
             float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 2 / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
-            at->InitSplines(std::move(splinePoints), timeToTarget);
+            at->InitSplines(splinePoints, timeToTarget);
         }
     }
 
@@ -3021,7 +3021,7 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
         splinePoints.push_back(PositionToVector3(destPos));
 
         float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) / EMPOWERED_WICKED_STAR_SPEED * 1000;
-        at->InitSplines(std::move(splinePoints), timeToTarget);
+        at->InitSplines(splinePoints, timeToTarget);
     }
 
     void OnInitialize() override
