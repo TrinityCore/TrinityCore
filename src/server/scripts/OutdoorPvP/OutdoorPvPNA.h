@@ -190,9 +190,9 @@ class OutdoorPvPNA : public OutdoorPvP
         void SendRemoveWorldStates(Player* player) override;
         void HandleKillImpl(Player* player, Unit* killed) override;
         void SendMapWorldStates(int32 neutral, int32 progressHorde, int32 progressAlliance, int32 capturedHorde, int32 captureAlliance);
-        OPvPCapturePointNA* GetCapturePoint() const { return m_obj; }
+        OPvPCapturePointNA* GetCapturePoint() const { return m_obj.get(); }
     private:
-        OPvPCapturePointNA* m_obj;
+        std::unique_ptr<OPvPCapturePointNA> m_obj;
 };
 
 #endif

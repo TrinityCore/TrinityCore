@@ -37,12 +37,10 @@ jobs:
         
     - name: Configure CMake
       env:
-        CFLAGS: -Werror
-        CXXFLAGS: -Werror
         CMAKE_BUILD_TYPE: Debug
       run: >
         cmake -GNinja -B ${{ steps.strings.outputs.build-output-dir }}
-        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DBUILD_TESTING=1
+        -DWITH_WARNINGS=1 -DWITH_WARNINGS_AS_ERRORS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DBUILD_TESTING=1
         -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG"
         -DCMAKE_INSTALL_PREFIX=check_install
         -S ${{ github.workspace }}

@@ -670,7 +670,6 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 price -= CalculatePct(price, priceMod);
 
             item.MuID = slot + 1; // client expects counting to start at 1
-            item.Durability = itemTemplate->MaxDurability;
             item.ExtendedCostID = vendorItem->ExtendedCost;
             item.Type = vendorItem->Type;
             item.Quantity = leftInStock;

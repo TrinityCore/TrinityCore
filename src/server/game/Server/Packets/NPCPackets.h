@@ -120,7 +120,7 @@ namespace WorldPackets
             int32 FriendshipFactionID = 0;
             ObjectGuid GossipGUID;
             std::vector<ClientGossipText> GossipText;
-            Optional<int32> TextID;             // in classic variants this still holds npc_text id
+            Optional<int32> RandomTextID;             // in classic variants this still holds npc_text id
             Optional<int32> BroadcastTextID;
             int32 GossipID = 0;
             int32 LfgDungeonsID = 0;
@@ -168,7 +168,6 @@ namespace WorldPackets
             WorldPackets::Item::ItemInstance Item;
             int32 Quantity                  = -1;
             uint64 Price                    = 0;
-            int32 Durability                = 0;
             int32 StackCount                = 0;
             int32 ExtendedCostID            = 0;
             int32 PlayerConditionFailed     = 0;
@@ -184,7 +183,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Reason = 0;
+            int32 Reason = 0;
             std::vector<VendorItem> Items;
             ObjectGuid Vendor;
         };

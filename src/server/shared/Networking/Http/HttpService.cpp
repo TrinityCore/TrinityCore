@@ -142,7 +142,7 @@ void SessionService::InitAndStoreSessionState(std::shared_ptr<SessionState> stat
 void SessionService::Start(Asio::IoContext& ioContext)
 {
     _inactiveSessionsKillTimer = std::make_unique<Asio::DeadlineTimer>(ioContext);
-    _inactiveSessionsKillTimer->expires_from_now(boost::posix_time::minutes(1));
+    _inactiveSessionsKillTimer->expires_after(1min);
     _inactiveSessionsKillTimer->async_wait([this](boost::system::error_code const& err)
     {
         if (err)
@@ -255,7 +255,7 @@ void SessionService::KillInactiveSessions()
         }
     }
 
-    _inactiveSessionsKillTimer->expires_from_now(boost::posix_time::minutes(1));
+    _inactiveSessionsKillTimer->expires_after(1min);
     _inactiveSessionsKillTimer->async_wait([this](boost::system::error_code const& err)
     {
         if (err)

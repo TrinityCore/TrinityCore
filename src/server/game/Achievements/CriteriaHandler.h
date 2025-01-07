@@ -22,6 +22,7 @@
 #include "DBCEnums.h"
 #include "Duration.h"
 #include "ObjectGuid.h"
+#include <span>
 #include <unordered_map>
 #include <vector>
 #include <ctime>
@@ -284,6 +285,7 @@ public:
 protected:
     virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const = 0;
 
+    void UpdateCriteria(Criteria const* criteria, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
     CriteriaProgress* GetCriteriaProgress(Criteria const* entry);
     void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);
     void RemoveCriteriaProgress(Criteria const* criteria);
@@ -394,6 +396,8 @@ public:
     CriteriaTree const* GetCriteriaTree(uint32 criteriaTreeId) const;
     Criteria const* GetCriteria(uint32 criteriaId) const;
     ModifierTreeNode const* GetModifierTree(uint32 modifierTreeId) const;
+
+    static std::span<CriteriaType const> GetRetroactivelyUpdateableCriteriaTypes();
 
 private:
     std::unordered_map<uint32, CriteriaDataSet> _criteriaDataMap;
