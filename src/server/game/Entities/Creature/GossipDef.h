@@ -231,11 +231,13 @@ class InteractionData
             SourceGuid.Clear();
             TrainerId = 0;
             PlayerChoiceId = 0;
+            IsLaunchedByQuest = false;
         }
 
         ObjectGuid SourceGuid;
         uint32 TrainerId = 0;
         uint32 PlayerChoiceId = 0;
+        bool IsLaunchedByQuest = false;
 };
 
 class TC_GAME_API PlayerMenu

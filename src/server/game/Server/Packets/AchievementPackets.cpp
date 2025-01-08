@@ -34,16 +34,16 @@ ByteBuffer& operator<<(ByteBuffer& data, CriteriaProgress const& criteria)
     data << uint32(criteria.Id);
     data << uint64(criteria.Quantity);
     data << criteria.Player;
-    data << uint32(criteria.Unused_10_1_5);
     data << uint32(criteria.Flags);
+    data << uint32(criteria.StateFlags);
     data << criteria.Date;
     data << criteria.TimeFromStart;
     data << criteria.TimeFromCreate;
-    data.WriteBit(criteria.RafAcceptanceID.has_value());
+    data.WriteBit(criteria.DynamicID.has_value());
     data.FlushBits();
 
-    if (criteria.RafAcceptanceID)
-        data << uint64(*criteria.RafAcceptanceID);
+    if (criteria.DynamicID)
+        data << uint64(*criteria.DynamicID);
 
     return data;
 }
@@ -91,16 +91,16 @@ WorldPacket const* CriteriaUpdate::Write()
     _worldPacket << uint32(CriteriaID);
     _worldPacket << uint64(Quantity);
     _worldPacket << PlayerGUID;
-    _worldPacket << uint32(Unused_10_1_5);
     _worldPacket << uint32(Flags);
+    _worldPacket << uint32(StateFlags);
     _worldPacket << CurrentTime;
     _worldPacket << ElapsedTime;
     _worldPacket << CreationTime;
-    _worldPacket.WriteBit(RafAcceptanceID.has_value());
+    _worldPacket.WriteBit(DynamicID.has_value());
     _worldPacket.FlushBits();
 
-    if (RafAcceptanceID)
-        _worldPacket << uint64(*RafAcceptanceID);
+    if (DynamicID)
+        _worldPacket << uint64(*DynamicID);
 
     return &_worldPacket;
 }
@@ -164,8 +164,8 @@ WorldPacket const* GuildCriteriaUpdate::Write()
         _worldPacket << int64(progress.DateUpdated.GetPackedTime());
         _worldPacket << uint64(progress.Quantity);
         _worldPacket << progress.PlayerGUID;
-        _worldPacket << int32(progress.Unused_10_1_5);
         _worldPacket << int32(progress.Flags);
+        _worldPacket << int32(progress.StateFlags);
     }
 
     return &_worldPacket;

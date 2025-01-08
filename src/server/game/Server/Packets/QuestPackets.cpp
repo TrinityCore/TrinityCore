@@ -194,8 +194,8 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << BitsSize<10>(Info.PortraitTurnInText);
         _worldPacket << BitsSize<8>(Info.PortraitTurnInName);
         _worldPacket << BitsSize<11>(Info.QuestCompletionLog);
-        _worldPacket << Bits<1>(Info.ReadyForTranslation);
         _worldPacket << Bits<1>(Info.ResetByScheduler);
+        _worldPacket << Bits<1>(Info.ReadyForTranslation);
         _worldPacket.FlushBits();
 
         for (QuestObjective const& questObjective : Info.Objectives)
@@ -865,6 +865,7 @@ WorldPacket const* UiMapQuestLinesResponse::Write()
     _worldPacket << int32(UiMapID);
     _worldPacket << uint32(QuestLineXQuestIDs.size());
     _worldPacket << uint32(QuestIDs.size());
+    _worldPacket << uint32(QuestLineIDs.size());
 
     for (uint32 const& questLineQuestID : QuestLineXQuestIDs)
         _worldPacket << uint32(questLineQuestID);
@@ -872,11 +873,60 @@ WorldPacket const* UiMapQuestLinesResponse::Write()
     for (uint32 const& questID : QuestIDs)
         _worldPacket << uint32(questID);
 
+    for (uint32 const& questLineID : QuestLineIDs)
+        _worldPacket << uint32(questLineID);
+
     return &_worldPacket;
 }
 
 void UiMapQuestLinesRequest::Read()
 {
     _worldPacket >> UiMapID;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Quest::SpawnTrackingRequestInfo& spawnTrackingRequestInfo)
+{
+    data >> spawnTrackingRequestInfo.ObjectTypeMask;
+    data >> spawnTrackingRequestInfo.ObjectID;
+    data >> spawnTrackingRequestInfo.SpawnTrackingID;
+    return data;
+}
+
+void SpawnTrackingUpdate::Read()
+{
+    SpawnTrackingRequests.resize(_worldPacket.read<uint32>());
+    for (SpawnTrackingRequestInfo& spawnTrackingRequestInfo : SpawnTrackingRequests)
+        _worldPacket >> spawnTrackingRequestInfo;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SpawnTrackingResponseInfo const& spawnTrackingResponseInfo)
+{
+    data << uint32(spawnTrackingResponseInfo.SpawnTrackingID);
+    data << int32(spawnTrackingResponseInfo.ObjectID);
+    data << int32(spawnTrackingResponseInfo.PhaseID);
+    data << int32(spawnTrackingResponseInfo.PhaseGroupID);
+    data << int32(spawnTrackingResponseInfo.PhaseUseFlags);
+
+    data << Bits<1>(spawnTrackingResponseInfo.Visible);
+    data.FlushBits();
+
+    return data;
+}
+
+WorldPacket const* QuestPOIUpdateResponse::Write()
+{
+    _worldPacket << uint32(SpawnTrackingResponses.size());
+
+    for (SpawnTrackingResponseInfo const& spawnTrackingResponseInfo : SpawnTrackingResponses)
+        _worldPacket << spawnTrackingResponseInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* ForceSpawnTrackingUpdate::Write()
+{
+    _worldPacket << int32(QuestID);
+
+    return &_worldPacket;
 }
 }

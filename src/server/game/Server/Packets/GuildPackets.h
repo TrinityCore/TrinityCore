@@ -197,7 +197,7 @@ namespace WorldPackets
             void Read() override;
 
             std::string Name;
-            Optional<int32> Unused910;
+            Optional<int32> ArenaTeam;
         };
 
         class GuildInvite final : public ServerPacket
@@ -679,9 +679,9 @@ namespace WorldPackets
         struct GuildRewardItem
         {
             uint32 ItemID = 0;
-            uint32 Unk4 = 0;
+            uint32 AchievementLogic = 0;
             std::vector<uint32> AchievementsRequired;
-            Trinity::RaceMask<uint64> RaceMask = { 0 };
+            Trinity::RaceMask<uint64> RaceMask = { };
             int32 MinGuildLevel = 0;
             int32 MinGuildRep = 0;
             uint64 Cost = 0;

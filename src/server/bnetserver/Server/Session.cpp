@@ -76,7 +76,7 @@ void Battlenet::Session::GameAccountInfo::LoadResult(Field const* fields)
 
 Battlenet::Session::Session(boost::asio::ip::tcp::socket&& socket) : BattlenetSocket(std::move(socket), SslContext::instance()),
     _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
-    _os(), _build(0), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
+    _os(), _build(0), _clientInfo(), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
 {
     _headerLengthBuffer.Resize(2);
 }
@@ -241,7 +241,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
             return 0min;
 
         rapidjson::Document doc;
-        doc.Parse(logonRequest->device_id());
+        doc.Parse(logonRequest->device_id().c_str(), logonRequest->device_id().length());
         if (doc.HasParseError())
             return 0min;
 

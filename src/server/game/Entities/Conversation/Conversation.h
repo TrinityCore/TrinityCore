@@ -22,6 +22,7 @@
 #include "GridObject.h"
 #include "Hash.h"
 
+class ConversationAI;
 class Unit;
 class SpellInfo;
 enum class ConversationActorType : uint32;
@@ -33,8 +34,8 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
         ~Conversation();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -85,9 +86,13 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
         Unit* GetActorUnit(uint32 actorIdx) const;
         Creature* GetActorCreature(uint32 actorIdx) const;
 
+        void AI_Initialize();
+        void AI_Destroy();
+
+        ConversationAI* AI() { return _ai.get(); }
         uint32 GetScriptId() const;
 
-        UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
+        UF::UpdateField<UF::ConversationData, int32(WowCS::EntityFragment::CGObject), TYPEID_CONVERSATION> m_conversationData;
 
     private:
         Position _stationaryPosition;
@@ -97,6 +102,8 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
 
         std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
         std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
+
+        std::unique_ptr<ConversationAI> _ai;
 };
 
 #endif // TRINITYCORE_CONVERSATION_H
