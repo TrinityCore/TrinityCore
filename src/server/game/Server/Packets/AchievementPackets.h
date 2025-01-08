@@ -42,12 +42,12 @@ namespace WorldPackets
             uint32 Id = 0;
             uint64 Quantity = 0;
             ObjectGuid Player;
-            uint32 Unused_10_1_5 = 0;
+            uint32 StateFlags = 0;
             uint32 Flags = 0;
             WowTime Date;
             Duration<Seconds> TimeFromStart;
             Duration<Seconds> TimeFromCreate;
-            Optional<uint64> RafAcceptanceID;
+            Optional<uint64> DynamicID;
         };
 
         struct AllAchievements
@@ -97,12 +97,12 @@ namespace WorldPackets
             uint32 CriteriaID = 0;
             uint64 Quantity = 0;
             ObjectGuid PlayerGUID;
-            uint32 Unused_10_1_5 = 0;
+            uint32 StateFlags = 0;
             uint32 Flags = 0;
             WowTime CurrentTime;
             Duration<Seconds> ElapsedTime;
             Timestamp<> CreationTime;
-            Optional<uint64> RafAcceptanceID;
+            Optional<uint64> DynamicID;
         };
 
         class AccountCriteriaUpdate final : public ServerPacket
@@ -173,8 +173,8 @@ namespace WorldPackets
             WowTime DateUpdated;
             uint64 Quantity = 0;
             ObjectGuid PlayerGUID;
-            int32 Unused_10_1_5 = 0;
             int32 Flags = 0;
+            int32 StateFlags = 0;
         };
 
         class GuildCriteriaUpdate final : public ServerPacket

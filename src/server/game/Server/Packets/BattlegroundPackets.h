@@ -45,8 +45,8 @@ namespace WorldPackets
             int32 ConquestWeeklyProgressCurrencyID = 0;
             int32 Unknown1027_1 = 0;
             bool WeeklyRewardChestsEnabled = false;
-            bool Unknown1027_2 = false;
-            bool Unknown1027_3 = false;
+            bool CurrentArenaSeasonUsesTeams = false;
+            bool PreviousArenaSeasonUsesTeams = false;
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket
@@ -227,7 +227,7 @@ namespace WorldPackets
             bool SuspendedQueue = false;
             bool EligibleForMatchmaking = false;
             uint32 WaitTime = 0;
-            int32 Unused920 = 0;
+            int32 SpecSelected = 0;
         };
 
         class BattlefieldStatusFailed final : public ServerPacket
@@ -454,8 +454,8 @@ namespace WorldPackets
                 int32 Ranking = 0;
                 int32 SeasonPlayed = 0;
                 int32 SeasonWon = 0;
-                int32 Unused1 = 0;
-                int32 Unused2 = 0;
+                int32 SeasonFactionPlayed = 0;
+                int32 SeasonFactionWon = 0;
                 int32 WeeklyPlayed = 0;
                 int32 WeeklyWon = 0;
                 int32 RoundsSeasonPlayed = 0;
@@ -466,9 +466,9 @@ namespace WorldPackets
                 int32 LastWeeksBestRating = 0;
                 int32 BestSeasonRating = 0;
                 int32 PvpTierID = 0;
-                int32 Unused3 = 0;
-                int32 Unused4 = 0;
-                int32 Rank = 0;
+                int32 SeasonPvpTier = 0;
+                int32 BestWeeklyPvpTier = 0;
+                int32 BestSeasonPvpTierEnum = 0;
                 bool Disqualified = false;
             } Bracket[9];
         };

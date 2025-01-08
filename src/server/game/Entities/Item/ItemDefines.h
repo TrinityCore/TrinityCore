@@ -153,6 +153,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK                  = 127,// Items must be moved out of the Warband Bank to be deleted.
     EQUIP_ERR_BANK_NOT_ACCESSIBLE                          = 128,// This character does not have access to this bank.
     EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM                      = 129,// You can't trade an item from the Warband bank.
+    EQUIP_ERR_ACCOUNT_MONEY_LOCKED                         = 130,// You cannot withdraw or deposit gold from the warband bank currently; please try again later.
 };
 
 // EnumUtils: DESCRIBE THIS
