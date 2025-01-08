@@ -106,8 +106,7 @@ public:
         if (!alleriaClone)
             return;
 
-        alleriaClone->SetWalk(true);
-        alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_MOVE_TO_BOOK, ToGhostlandsAlleriaMoveToBook);
+        alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_MOVE_TO_BOOK, ToGhostlandsAlleriaMoveToBook, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
     }
 
     void OnStart() override
@@ -154,7 +153,7 @@ public:
             if (!alleriaClone)
                 return;
 
-            alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_OPEN_PORTAL, ToGhostlandsAlleriaOpenRift);
+            alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_OPEN_PORTAL, ToGhostlandsAlleriaOpenRift, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
 
         }, conversation->GetLastLineEndTime(conversation->GetPrivateObjectOwnerLocale()));
     }
