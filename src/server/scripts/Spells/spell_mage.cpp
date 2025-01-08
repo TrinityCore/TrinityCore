@@ -1459,7 +1459,7 @@ class spell_mage_tempest_barrier : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_TEMPEST_BARRIER_ABSORB });
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/) const
+    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
