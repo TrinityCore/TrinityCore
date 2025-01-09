@@ -18,6 +18,8 @@
 #ifndef TRINITY_SPELLAURAS_H
 #define TRINITY_SPELLAURAS_H
 
+#include "DBStorageIterator.h"
+#include "IteratorPair.h"
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "UniqueTrackablePtr.h"
@@ -308,7 +310,19 @@ class TC_GAME_API Aura
 
         std::vector<AuraScript*> m_loadedScripts;
 
-        AuraEffectVector const& GetAuraEffects() const { return _effects; }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect*>> GetAuraEffects()
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator(_effects.data(), _effects.size()),
+                DBStorageIterator(_effects.data(), _effects.size(), _effects.size()));
+        }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect const*>> GetAuraEffects() const
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size()),
+                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size(), _effects.size()));
+        }
+        std::size_t GetAuraEffectCount() const { return _effects.size(); }
 
         virtual std::string GetDebugInfo() const;
 
