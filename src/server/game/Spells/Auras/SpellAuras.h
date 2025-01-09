@@ -86,6 +86,7 @@ class TC_GAME_API AuraApplication
 
         uint32 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNewEffects);
+        void AddEffectToApplyEffectMask(SpellEffIndex spellEffectIndex);
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const { return _removeMode; }
