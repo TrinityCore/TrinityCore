@@ -134,12 +134,6 @@ struct boss_doomwalker_anniversary : public WorldBossAI
                     events.ScheduleEvent(EVENT_OVERRUN, 25s, 40s);
                     break;
                 }
-                case EVENT_OVERRUN_DAMAGE:
-                {
-                    DoCastSelf(SPELL_OVERRUN_DAMAGE);
-                    events.ScheduleEvent(EVENT_OVERRUN_DAMAGE, 300ms);
-                    break;
-                }
                 case EVENT_EARTHQUAKE:
                 {
                     Talk(SAY_EARTHQUAKE);
