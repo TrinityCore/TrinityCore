@@ -679,7 +679,7 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
 
         for (AuraApplication const* aurApp : pet->GetVisibleAuras())
         {
-            PartyMemberAuraStates aura = MemberStats.PetStats->Auras.emplace_back();
+            PartyMemberAuraStates& aura = MemberStats.PetStats->Auras.emplace_back();
 
             aura.SpellID = aurApp->GetBase()->GetId();
             aura.ActiveFlags = aurApp->GetEffectMask();

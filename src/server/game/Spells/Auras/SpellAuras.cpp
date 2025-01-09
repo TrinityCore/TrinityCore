@@ -2518,30 +2518,31 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 
 void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster)
 {
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD) && !GetUnitOwner()->IsAlive())
+    Unit* unitOwner = GetUnitOwner();
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD) && !unitOwner->IsAlive())
         return;
 
     Unit* ref = caster;
     if (!ref)
-        ref = GetUnitOwner();
+        ref = unitOwner;
 
     // add non area aura targets
     // static applications go through spell system first, so we assume they meet conditions
-    for (auto const& targetPair : _staticApplications)
+    for (auto const& [targetGuid, effectMask] : _staticApplications)
     {
-        Unit* target = ObjectAccessor::GetUnit(*GetUnitOwner(), targetPair.first);
-        if (!target && targetPair.first == GetUnitOwner()->GetGUID())
-            target = GetUnitOwner();
+        Unit* target = ObjectAccessor::GetUnit(*unitOwner, targetGuid);
+        if (!target && targetGuid == unitOwner->GetGUID())
+            target = unitOwner;
 
         if (target)
-            targets.emplace(target, targetPair.second);
+            targets.emplace(target, effectMask);
     }
 
     // skip area update if owner is not in world!
-    if (!GetUnitOwner()->IsInWorld())
+    if (!unitOwner->IsInWorld())
         return;
 
-    if (GetUnitOwner()->HasAuraState(AURA_STATE_BANISHED, GetSpellInfo(), caster))
+    if (unitOwner->HasAuraState(AURA_STATE_BANISHED, GetSpellInfo(), caster))
         return;
 
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
@@ -2553,7 +2554,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA))
             continue;
 
-        std::vector<WorldObject*> units;
+        std::vector<Unit*> units;
         ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
 
         float radius = spellEffectInfo.CalcRadius(ref);
@@ -2577,28 +2578,28 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                 extraSearchRadius = radius > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
                 break;
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
-                if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
-                    units.push_back(GetUnitOwner());
+                if (!condList || sConditionMgr->IsObjectMeetToConditions(unitOwner, ref, *condList))
+                    units.push_back(unitOwner);
                 [[fallthrough]];
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             {
-                if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
-                    if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
+                if (Unit* owner = unitOwner->GetCharmerOrOwner())
+                    if (unitOwner->IsWithinDistInMap(owner, radius))
                         if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, ref, *condList))
                             units.push_back(owner);
                 break;
             }
             case SPELL_EFFECT_APPLY_AURA_ON_PET:
             {
-                if (Unit* pet = ObjectAccessor::GetUnit(*GetUnitOwner(), GetUnitOwner()->GetPetGUID()))
+                if (Unit* pet = ObjectAccessor::GetUnit(*unitOwner, unitOwner->GetPetGUID()))
                     if (!condList || sConditionMgr->IsObjectMeetToConditions(pet, ref, *condList))
                         units.push_back(pet);
                 break;
             }
             case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
             {
-                if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
-                    units.push_back(GetUnitOwner());
+                if (!condList || sConditionMgr->IsObjectMeetToConditions(unitOwner, ref, *condList))
+                    units.push_back(unitOwner);
 
                 selectionType = TARGET_CHECK_SUMMONED;
                 break;
@@ -2611,18 +2612,18 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         {
             if (uint32 containerTypeMask = Spell::GetSearcherTypeMask(m_spellInfo, spellEffectInfo, TARGET_OBJECT_TYPE_UNIT, condList))
             {
-                Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), ref, GetUnitOwner(), m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
-                Trinity::WorldObjectListSearcher searcher(GetUnitOwner(), units, check, containerTypeMask);
+                Trinity::WorldObjectSpellAreaTargetCheck check(radius, unitOwner, ref, unitOwner, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
+                Trinity::UnitListSearcher searcher(unitOwner, units, check);
                 searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
-                Spell::SearchTargets(searcher, containerTypeMask, GetUnitOwner(), GetUnitOwner(), radius + extraSearchRadius);
+                Spell::SearchTargets(searcher, containerTypeMask, unitOwner, unitOwner, radius + extraSearchRadius);
 
                 // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-                Trinity::Containers::EraseIf(units, [this](WorldObject const* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); });
+                Trinity::Containers::EraseIf(units, [unitOwner](Unit const* unit) { return !unit->IsSelfOrInSameMap(unitOwner); });
             }
         }
 
-        for (WorldObject* unit : units)
-            targets[static_cast<Unit*>(unit)] |= 1 << spellEffectInfo.EffectIndex;
+        for (Unit* unit : units)
+            targets[unit] |= 1 << spellEffectInfo.EffectIndex;
     }
 }
 
@@ -2670,12 +2671,12 @@ DynObjAura::DynObjAura(AuraCreateInfo const& createInfo)
     : Aura(createInfo)
 {
     LoadScripts();
-    ASSERT(GetDynobjOwner());
-    ASSERT(GetDynobjOwner()->IsInWorld());
+    DynamicObject* dynObjOwner = GetDynobjOwner();
+    ASSERT(dynObjOwner);
     ASSERT(createInfo.Caster);
-    ASSERT(GetDynobjOwner()->GetMap() == createInfo.Caster->GetMap());
+    ASSERT(dynObjOwner->IsInMap(createInfo.Caster));
     _InitEffects(createInfo._auraEffectMask, createInfo.Caster, createInfo.BaseAmount);
-    GetDynobjOwner()->SetAura(this);
+    dynObjOwner->SetAura(this);
 }
 
 void DynObjAura::Remove(AuraRemoveMode removeMode)
@@ -2687,8 +2688,9 @@ void DynObjAura::Remove(AuraRemoveMode removeMode)
 
 void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* /*caster*/)
 {
-    Unit* dynObjOwnerCaster = GetDynobjOwner()->GetCaster();
-    float radius = GetDynobjOwner()->GetRadius();
+    DynamicObject* dynObjOwner = GetDynobjOwner();
+    Unit* dynObjOwnerCaster = dynObjOwner->GetCaster();
+    float radius = dynObjOwner->GetRadius();
 
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
@@ -2703,12 +2705,12 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
         std::vector<Unit*> units;
         ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
 
-        Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
-        Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetDynobjOwner(), units, check);
-        Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
+        Trinity::WorldObjectSpellAreaTargetCheck check(radius, dynObjOwner, dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::UnitListSearcher searcher(dynObjOwner, units, check);
+        Cell::VisitAllObjects(dynObjOwner, searcher, radius);
 
         // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-        units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetDynobjOwner()); }), units.end());
+        Trinity::Containers::EraseIf(units, [dynObjOwner](Unit const* unit) { return !unit->IsSelfOrInSameMap(dynObjOwner); });
 
         for (Unit* unit : units)
             targets[unit] |= 1 << spellEffectInfo.EffectIndex;
