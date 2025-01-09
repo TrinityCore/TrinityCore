@@ -3284,9 +3284,8 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                                 int32 origDuration = hitInfo.AuraDuration;
                                 hitInfo.AuraDuration = 0;
                                 for (AuraEffect const* auraEff : hitInfo.HitAura->GetAuraEffects())
-                                    if (auraEff)
-                                        if (int32 period = auraEff->GetPeriod())  // period is hastened by UNIT_MOD_CAST_SPEED
-                                            hitInfo.AuraDuration = std::max(std::max(origDuration / period, 1) * period, hitInfo.AuraDuration);
+                                    if (int32 period = auraEff->GetPeriod())  // period is hastened by UNIT_MOD_CAST_SPEED
+                                        hitInfo.AuraDuration = std::max(std::max(origDuration / period, 1) * period, hitInfo.AuraDuration);
 
                                 // if there is no periodic effect
                                 if (!hitInfo.AuraDuration)
