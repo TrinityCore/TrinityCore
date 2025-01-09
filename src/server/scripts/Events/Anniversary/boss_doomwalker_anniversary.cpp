@@ -110,7 +110,7 @@ struct boss_doomwalker_anniversary : public WorldBossAI
                 overrunTarget->DespawnOrUnsummon();
         }
     }
-    
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
