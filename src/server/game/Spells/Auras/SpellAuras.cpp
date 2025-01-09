@@ -207,14 +207,14 @@ void AuraApplication::UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNew
     }
 
     // update real effects only if they were applied already
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (std::size_t i = 0; i < GetBase()->GetAuraEffectCount(); ++i)
         if (HasEffect(i) && (removeEffMask & (1 << i)))
             _HandleEffect(i, false);
 
     _effectsToApply = newEffMask;
 
     if (canHandleNewEffects)
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (std::size_t i = 0; i < GetBase()->GetAuraEffectCount(); ++i)
             if (addEffMask & (1 << i))
                 _HandleEffect(i, true);
 }
@@ -514,6 +514,9 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount)
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
         if (effMask & (1 << spellEffectInfo.EffectIndex))
             _effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount ? baseAmount + spellEffectInfo.EffectIndex : nullptr, caster);
+
+    while (!_effects.back())
+        _effects.pop_back();
 }
 
 Aura::~Aura()
@@ -941,9 +944,8 @@ void Aura::RefreshDuration(bool withMods)
         m_timeCla = 1 * IN_MILLISECONDS;
 
     // also reset periodic counters
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (AuraEffect* aurEff = GetEffect(i))
-            aurEff->ResetTicks();
+    for (AuraEffect* aurEff : GetAuraEffects())
+        aurEff->ResetTicks();
 }
 
 void Aura::RefreshTimers(bool resetPeriodicTimer)
@@ -963,9 +965,8 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
     RefreshDuration();
 
     Unit* caster = GetCaster();
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (AuraEffect* aurEff = GetEffect(i))
-            aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
+    for (AuraEffect* aurEff : GetAuraEffects())
+        aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -1887,10 +1888,10 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
 
     // At least one effect has to pass checks to proc aura
     uint32 procEffectMask = aurApp->GetEffectMask();
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (procEffectMask & (1u << i))
-            if ((procEntry->DisableEffectsMask & (1u << i)) || !GetEffect(i)->CheckEffectProc(aurApp, eventInfo))
-                procEffectMask &= ~(1u << i);
+    for (AuraEffect const* aurEff : GetAuraEffects())
+        if (procEffectMask & (1u << aurEff->GetEffIndex()))
+            if ((procEntry->DisableEffectsMask & (1u << aurEff->GetEffIndex())) || !aurEff->CheckEffectProc(aurApp, eventInfo))
+                procEffectMask &= ~(1u << aurEff->GetEffIndex());
 
     if (!procEffectMask)
         return 0;
@@ -1993,7 +1994,7 @@ void Aura::TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, Pr
         bool prevented = CallScriptProcHandlers(aurApp, eventInfo);
         if (!prevented)
         {
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (std::size_t i = 0; i < GetAuraEffectCount(); ++i)
             {
                 if (!(procEffectMask & (1 << i)))
                     continue;
