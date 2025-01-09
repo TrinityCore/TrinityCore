@@ -151,7 +151,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     };
 
     if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)
-        || std::find_if(GetBase()->GetAuraEffects().begin(), GetBase()->GetAuraEffects().end(), std::cref(effectNeedsAmount)) != GetBase()->GetAuraEffects().end())
+        || std::ranges::any_of(GetBase()->GetAuraEffects(), effectNeedsAmount))
         _flags |= AFLAG_SCALABLE;
 }
 
@@ -210,6 +210,16 @@ void AuraApplication::UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNew
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (addEffMask & (1 << i))
                 _HandleEffect(i, true);
+}
+
+void AuraApplication::AddEffectToApplyEffectMask(SpellEffIndex spellEffectIndex)
+{
+    if (_effectsToApply & (1 << spellEffectIndex))
+        return;
+
+    _effectsToApply |= 1 << spellEffectIndex;
+    if (Aura::EffectTypeNeedsSendingAmount(GetBase()->GetEffect(spellEffectIndex)->GetAuraType()))
+        _flags |= AFLAG_SCALABLE;
 }
 
 void AuraApplication::SetNeedClientUpdate()
