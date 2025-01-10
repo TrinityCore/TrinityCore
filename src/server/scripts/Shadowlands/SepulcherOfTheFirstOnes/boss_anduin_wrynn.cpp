@@ -2922,23 +2922,12 @@ class spell_anduin_wrynn_wicked_star_selector_AuraScript : public AuraScript
     }
 };
 
+// 365017 - Wicked Star CreatePropertiesId: 24322
+// 365017 - Wicked Star CreatePropertiesId: 24740
 // 365017 - Wicked Star CreatePropertiesId: 24741
 struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 {
     at_anduin_wrynn_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    static constexpr float GetWickedStarSpeed(Difficulty difficulty)
-    {
-        // in yards per second
-        switch (difficulty)
-        {
-            case DIFFICULTY_HEROIC_RAID:
-            case DIFFICULTY_MYTHIC_RAID:
-                return 18.0f;
-            default: // LFR + Normal
-                return 15.0f;
-        }
-    }
 
     void OnInitialize() override
     {
@@ -2951,13 +2940,10 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 
             std::vector<G3D::Vector3> splinePoints;
             splinePoints.push_back(PositionToVector3(at->GetPosition()));
-            splinePoints.push_back(PositionToVector3(at->GetPosition()));
             splinePoints.push_back(PositionToVector3(destPos));
             splinePoints.push_back(PositionToVector3(at->GetPosition()));
-            splinePoints.push_back(PositionToVector3(at->GetPosition()));
 
-            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 2 / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
-            at->InitSplines(splinePoints, timeToTarget);
+            at->InitSplines(splinePoints);
         }
     }
 
@@ -2972,9 +2958,9 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
             return;
 
         if (caster->IsValidAttackTarget(unit))
-            caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         else if (caster->IsValidAssistTarget(unit))
-            caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void OnDestinationReached() override
@@ -3002,8 +2988,6 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
 {
     at_anduin_wrynn_empowered_wicked_star(AreaTrigger* areatrigger) : at_anduin_wrynn_wicked_star(areatrigger) { }
 
-    static float constexpr EMPOWERED_WICKED_STAR_SPEED = 14.0f; // in yards per second
-
     void HandleMovement(float angle) const
     {
         Unit* caster = at->GetCaster();
@@ -3016,12 +3000,9 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
 
         std::vector<G3D::Vector3> splinePoints;
         splinePoints.push_back(PositionToVector3(at));
-        splinePoints.push_back(PositionToVector3(at));
-        splinePoints.push_back(PositionToVector3(destPos));
         splinePoints.push_back(PositionToVector3(destPos));
 
-        float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) / EMPOWERED_WICKED_STAR_SPEED * 1000;
-        at->InitSplines(splinePoints, timeToTarget);
+        at->InitSplines(splinePoints);
     }
 
     void OnInitialize() override
