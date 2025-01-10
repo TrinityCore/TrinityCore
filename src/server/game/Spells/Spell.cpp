@@ -7797,7 +7797,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                     if (requiredLevel < m_spellInfo->BaseLevel)
                         return SPELL_FAILED_LOWLEVEL;
                 }
-                if ((m_CastItem || effectInfo->IsEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC))
+                if ((m_CastItem || spellEffectInfo.IsEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC))
                     && m_spellInfo->MaxLevel > 0 && targetItem->GetItemLevel(targetItem->GetOwner()) > m_spellInfo->MaxLevel)
                     return SPELL_FAILED_HIGHLEVEL;
 
