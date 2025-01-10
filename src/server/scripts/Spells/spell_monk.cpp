@@ -352,7 +352,7 @@ class spell_monk_roll_aura : public AuraScript
 // 389579 - Save Them All
 class spell_monk_save_them_all : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_MONK_SAVE_THEM_ALL_HEAL_BONUS })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
