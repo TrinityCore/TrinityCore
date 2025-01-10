@@ -1,9 +1,9 @@
-SET @CGUID := 11200000;
-SET @OGUID := 11200000;
+SET @CGUID := 6001072;
+SET @OGUID := 6000630;
 
-SET @ATID := 100000;
-SET @ATCP := 100000;
-SET @ATIDSPAWN := 100000;
+SET @ATID := 100;
+SET @ATCP := 91;
+SET @ATIDSPAWN := 104;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` = @CGUID+0;
@@ -100,7 +100,7 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 -- Summoned data
 DELETE FROM `creature_summoned_data` WHERE `CreatureID` = 130919;
 INSERT INTO `creature_summoned_data` (`CreatureID`, `CreatureIDVisibleToSummoner`, `GroundMountDisplayID`, `FlyingMountDisplayID`, `DespawnOnQuestsRemoved`) VALUES
-(130919, 126302, 81648, 81648, NULL);
+(130919, 126302, 81648, 81648, '49787');
 
 -- Objective completion effect
 DELETE FROM `quest_objectives_completion_effect` WHERE `ObjectiveID` IN (295331, 295332, 295333, 295347);

@@ -102,7 +102,7 @@ public:
         if (!highElfRanger)
             return;
 
-        TempSummon* alleriaClone = highElfRanger->SummonPersonalClone(highElfRanger->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        TempSummon* alleriaClone = highElfRanger->SummonPersonalClone(highElfRanger->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer()); // despawn on map change, quest remove, logout
         if (!alleriaClone)
             return;
 
@@ -159,10 +159,10 @@ public:
     }
 };
 
-// XX - Ghostlands - Sanctum of the Moon
-// XX - Ghostlands - Andilien Estate
-// XX - Ghostlands - Dawnspair Spire
-// XX - Ghostlands - Dawnspair Spire second floor
+// 100 - Ghostlands - Sanctum of the Moon
+// 101 - Ghostlands - Andilien Estate
+// 102 - Ghostlands - Dawnspair Spire
+// 103 - Ghostlands - Dawnspair Spire second floor
 template<uint32 QuestId, uint32 ConversationId>
 struct at_ghostlands_conversation_to_ghostlands : AreaTriggerAI
 {
