@@ -83,13 +83,14 @@ public:
     }
 };
 
-constexpr Position ToGhostlandsAlleriaMoveToBook = { 7835.05f, -7913.11f, 308.2204f };
 
 // 6636 - Conversation
 class conversation_dawnspair_spire_to_ghostlands : public ConversationAI
 {
 public:
     using ConversationAI::ConversationAI;
+
+    static constexpr Position AlleriaMoveToBookPosition = { 7835.05f, -7913.11f, 308.2204f };
 
     enum DawnspairSpireConvoData
     {
@@ -106,7 +107,7 @@ public:
         if (!alleriaClone)
             return;
 
-        alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_MOVE_TO_BOOK, ToGhostlandsAlleriaMoveToBook, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
+        alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_MOVE_TO_BOOK, AlleriaMoveToBookPosition, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
     }
 
     void OnStart() override
@@ -122,13 +123,13 @@ public:
     }
 };
 
-constexpr Position ToGhostlandsAlleriaOpenRift = { 7832.54f, -7913.34f, 308.2204f };
-
 // 6471 - Conversation
 class conversation_dawnspair_spire_followup_to_ghostlands : public ConversationAI
 {
 public:
     using ConversationAI::ConversationAI;
+
+    static constexpr Position AlleriaOpenRiftPosition = { 7832.54f, -7913.34f, 308.2204f };
 
     enum DawnspairSpireFollowupConvoData
     {
@@ -153,7 +154,7 @@ public:
             if (!alleriaClone)
                 return;
 
-            alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_OPEN_PORTAL, ToGhostlandsAlleriaOpenRift, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
+            alleriaClone->GetMotionMaster()->MovePoint(POINT_ALLERIA_OPEN_PORTAL, AlleriaOpenRiftPosition, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
 
         }, conversation->GetLastLineEndTime(conversation->GetPrivateObjectOwnerLocale()));
     }
