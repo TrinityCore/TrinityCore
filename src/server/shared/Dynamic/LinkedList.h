@@ -37,7 +37,7 @@ class LinkedListElement
 
         bool hasNext() const  { return (iNext && iNext->iNext != nullptr); }
         bool hasPrev() const  { return (iPrev && iPrev->iPrev != nullptr); }
-        bool isInList() const { return (iNext != nullptr && iPrev != nullptr); }
+        bool isInList() const { return (iNext != nullptr || iPrev != nullptr); }
 
         LinkedListElement      * next()       { return hasNext() ? iNext : nullptr; }
         LinkedListElement const* next() const { return hasNext() ? iNext : nullptr; }
@@ -54,8 +54,11 @@ class LinkedListElement
             if (!isInList())
                 return;
 
-            iNext->iPrev = iPrev;
-            iPrev->iNext = iNext;
+            if (iNext)
+                iNext->iPrev = iPrev;
+            if (iPrev)
+                iPrev->iNext = iNext;
+            
             iNext = nullptr;
             iPrev = nullptr;
         }
