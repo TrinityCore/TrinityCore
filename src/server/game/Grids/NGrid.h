@@ -22,6 +22,7 @@
  */
 
 #include "Grid.h"
+#include "GridRefManager.h"
 #include "GridReference.h"
 #include "Timer.h"
 
@@ -132,8 +133,16 @@ class NGrid
         */
 
         // Visit all Grids (cells) in NGrid (grid)
-        template<class T, class TT>
-        void VisitAllGrids(TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        template<class VISITOR>
+        void VisitAllGrids(TypeContainerVisitor<VISITOR, WORLD_OBJECT_CONTAINER>& visitor)
+        {
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    GetGridType(x, y).Visit(visitor);
+        }
+
+        template<class VISITOR>
+        void VisitAllGrids(TypeContainerVisitor<VISITOR, GRID_OBJECT_CONTAINER>& visitor)
         {
             for (uint32 x = 0; x < N; ++x)
                 for (uint32 y = 0; y < N; ++y)
@@ -141,8 +150,14 @@ class NGrid
         }
 
         // Visit a single Grid (cell) in NGrid (grid)
-        template<class T, class TT>
-        void VisitGrid(const uint32 x, const uint32 y, TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        template<class VISITOR>
+        void VisitGrid(uint32 x, uint32 y, TypeContainerVisitor<VISITOR, WORLD_OBJECT_CONTAINER>& visitor)
+        {
+            GetGridType(x, y).Visit(visitor);
+        }
+
+        template<class VISITOR>
+        void VisitGrid(uint32 x, uint32 y, TypeContainerVisitor<VISITOR, GRID_OBJECT_CONTAINER>& visitor)
         {
             GetGridType(x, y).Visit(visitor);
         }

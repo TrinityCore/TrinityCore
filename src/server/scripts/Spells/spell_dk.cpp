@@ -21,9 +21,9 @@
  * Scriptnames of files in this file should be prefixed with "spell_dk_".
  */
 
+#include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
-#include "ScriptMgr.h"
 #include "Containers.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -54,12 +54,13 @@ enum DeathKnightSpells
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DARK_SIMULACRUM_BUFF               = 77616,
     SPELL_DK_DARK_SIMULACRUM_SPELLPOWER_BUFF    = 94984,
-    SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS   = 188290,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
+    SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS   = 188290,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_GRIP_DUMMY                   = 243912,
     SPELL_DK_DEATH_GRIP_JUMP                    = 49575,
     SPELL_DK_DEATH_GRIP_TAUNT                   = 51399,
+    SPELL_DK_DEATH_STRIKE_ENABLER               = 89832, // Server Side
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_FESTERING_WOUND                    = 194310,
@@ -71,8 +72,10 @@ enum DeathKnightSpells
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
     SPELL_DK_GOREFIENDS_GRASP                   = 108199,
-    SPELL_DK_HEARTBREAKER_TALENT                = 221536,
     SPELL_DK_HEARTBREAKER_ENERGIZE              = 210738,
+    SPELL_DK_HEARTBREAKER_TALENT                = 221536,
+    SPELL_DK_ICE_PRISON_ROOT                    = 454787,
+    SPELL_DK_ICE_PRISON_TALENT                  = 454786,
     SPELL_DK_KILLING_MACHINE_PROC               = 51124,
     SPELL_DK_MARK_OF_BLOOD_HEAL                 = 206945,
     SPELL_DK_NECROSIS_EFFECT                    = 216974,
@@ -81,8 +84,8 @@ enum DeathKnightSpells
     SPELL_DK_PILLAR_OF_FROST                    = 51271,
     SPELL_DK_RAISE_DEAD_SUMMON                  = 52150,
     SPELL_DK_REAPER_OF_SOULS_PROC               = 469172,
-    SPELL_DK_RUNIC_CORRUPTION                   = 51460,
     SPELL_DK_RECENTLY_USED_DEATH_STRIKE         = 180612,
+    SPELL_DK_RUNIC_CORRUPTION                   = 51460,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_RUNIC_RETURN                       = 61258,
     SPELL_DK_SLUDGE_BELCHER                     = 207313,
@@ -90,9 +93,8 @@ enum DeathKnightSpells
     SPELL_DK_SMOTHERING_OFFENSE                 = 435005,
     SPELL_DK_SOUL_REAPER                        = 343294,
     SPELL_DK_SOUL_REAPER_DAMAGE                 = 343295,
-    SPELL_DK_SUBDUING_GRASP_TALENT              = 454822,
     SPELL_DK_SUBDUING_GRASP_DEBUFF              = 454824,
-    SPELL_DK_DEATH_STRIKE_ENABLER               = 89832, // Server Side
+    SPELL_DK_SUBDUING_GRASP_TALENT              = 454822,
     SPELL_DK_TIGHTENING_GRASP                   = 206970,
     //SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375, // dropped in BfA
     SPELL_DK_UNHOLY                             = 137007,
@@ -821,6 +823,34 @@ class spell_dk_howling_blast : public SpellScript
     }
 };
 
+// Called by 45524 - Chains of Ice
+// 454786 - Ice Prison
+class spell_dk_ice_prison : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_ICE_PRISON_TALENT, SPELL_DK_ICE_PRISON_ROOT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DK_ICE_PRISON_TALENT);
+    }
+
+    void HandleOnHit() const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_ICE_PRISON_ROOT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_dk_ice_prison::HandleOnHit);
+    }
+};
+
 // 194878 - Icy Talons
 class spell_dk_icy_talons : public AuraScript
 {
@@ -1311,6 +1341,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterSpellScript(spell_dk_heartbreaker);
     RegisterSpellScript(spell_dk_howling_blast);
+    RegisterSpellScript(spell_dk_ice_prison);
     RegisterSpellScript(spell_dk_icy_talons);
     RegisterSpellScript(spell_dk_icy_talons_buff);
     RegisterSpellScript(spell_dk_mark_of_blood);
