@@ -83,7 +83,6 @@ public:
     }
 };
 
-
 // 6636 - Conversation
 class conversation_dawnspair_spire_to_ghostlands : public ConversationAI
 {
