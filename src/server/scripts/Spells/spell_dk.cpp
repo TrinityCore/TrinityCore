@@ -288,7 +288,7 @@ class spell_dk_howling_blast : public SpellScript
     // According to tooltip: (($m2+$M2)/2)+($AP*0.44) and (0.5*((($m2+$M2)/2)+($AP*0.44))) for non-primary targets
     void CalculateDamage(SpellEffectInfo const& /*effectInfo*/, Unit* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
     {
-        damage += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.4f;
+        damage += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.44f;
         if (victim != GetExplTargetUnit())
             damage *= 0.5f;
     }
