@@ -333,12 +333,11 @@ class spell_dk_brittle : public AuraScript
         return ValidateSpellInfo({ SPELL_DK_BRITTLE_DEBUFF });
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_BRITTLE_DEBUFF, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-            });
+        GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_DK_BRITTLE_DEBUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
     }
 
     void Register() override
