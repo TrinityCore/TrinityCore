@@ -7299,6 +7299,8 @@ SpellCastResult Spell::CheckPower() const
             SpellCastResult failReason = CheckRuneCost();
             if (failReason != SPELL_CAST_OK)
                 return failReason;
+
+            continue;
         }
 
         // Check power amount
