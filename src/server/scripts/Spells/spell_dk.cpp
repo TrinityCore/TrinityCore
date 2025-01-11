@@ -281,6 +281,23 @@ class spell_dk_blood_plague: public AuraScript
         DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_dk_blood_plague::CalculateDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
+
+// 49184 - Howling Blast
+class spell_dk_howling_blast : public SpellScript
+{
+    // According to tooltip: (($m2+$M2)/2)+($AP*0.44) and (0.5*((($m2+$M2)/2)+($AP*0.44))) for non-primary targets
+    void CalculateDamage(SpellEffectInfo const& /*effectInfo*/, Unit* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+    {
+        damage += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.4f;
+        if (victim != GetExplTargetUnit())
+            damage *= 0.5f;
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dk_howling_blast::CalculateDamage);
+    }
+};
 }
 
 void AddSC_deathknight_spell_scripts()
@@ -291,6 +308,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
     RegisterSpellScript(spell_dk_death_coil);
     RegisterSpellScript(spell_dk_frost_fever);
+    RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_icy_touch);
     RegisterSpellScript(spell_dk_runic_empowerment);
 }
