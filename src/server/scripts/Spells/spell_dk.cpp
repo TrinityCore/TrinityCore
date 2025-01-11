@@ -50,6 +50,7 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
     SPELL_DK_BONE_SHIELD                        = 195181,
     SPELL_DK_BREATH_OF_SINDRAGOSA               = 152279,
+    SPELL_DK_BRITTLE_DEBUFF                     = 374557,
     SPELL_DK_CLEAVING_STRIKES                   = 316916,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DARK_SIMULACRUM_BUFF               = 77616,
@@ -321,6 +322,27 @@ class spell_dk_blood_boil : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_dk_blood_boil::HandleEffect);
+    }
+};
+
+// 374504 - Brittle
+class spell_dk_brittle : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BRITTLE_DEBUFF });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    {
+        GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_DK_BRITTLE_DEBUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_brittle::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1324,6 +1346,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_army_transform);
     RegisterSpellScript(spell_dk_blinding_sleet);
     RegisterSpellScript(spell_dk_blood_boil);
+    RegisterSpellScript(spell_dk_brittle);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
