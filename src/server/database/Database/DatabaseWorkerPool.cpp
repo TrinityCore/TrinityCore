@@ -65,7 +65,7 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
 {
     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
 
-#if defined(LIBMARIADB) && MARIADB_PACKAGE_VERSION_ID >= 30200
+#if defined(MARIADB_VERSION_ID) && MARIADB_VERSION_ID >= 30200
     WPFatal(mysql_get_client_version() >= MIN_MARIADB_CLIENT_VERSION, "TrinityCore does not support MariaDB versions below " MIN_MARIADB_CLIENT_VERSION_STRING " (found %s id %lu, need id >= %u), please update your MariaDB client library", mysql_get_client_info(), mysql_get_client_version(), MIN_MARIADB_CLIENT_VERSION);
     WPFatal(mysql_get_client_version() == MARIADB_PACKAGE_VERSION_ID, "Used MariaDB library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.", mysql_get_client_info(), mysql_get_client_version(), MARIADB_PACKAGE_VERSION_ID);
 #else
