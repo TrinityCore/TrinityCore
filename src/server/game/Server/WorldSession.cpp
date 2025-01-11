@@ -810,7 +810,7 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     WorldPackets::Auth::ConnectTo connectTo;
     connectTo.Key = _instanceConnectKey.Raw;
     connectTo.Serial = serial;
-    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_INSTANCE);
+    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     if (instanceAddress.is_v4())
     {
         memcpy(connectTo.Payload.Where.Address.V4.data(), instanceAddress.to_v4().to_bytes().data(), 4);
