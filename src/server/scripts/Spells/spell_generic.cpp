@@ -5536,23 +5536,19 @@ class spell_gen_spatial_rift : public SpellScript
 
 struct at_gen_spatial_rift : AreaTriggerAI
 {
-    at_gen_spatial_rift(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnInitialize() override
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
 
-        float range = spellInfo->GetMaxRange();
-        float speed = 18.0f;
-
         Position destPos = at->GetPosition();
-        at->MovePositionToFirstCollision(destPos, range, 0.0f);
+        at->MovePositionToFirstCollision(destPos, spellInfo->GetMaxRange(), 0.0f);
 
         PathGenerator path(at);
         path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), true);
 
-        G3D::Vector3 const& endPoint = path.GetPath().back();
-        at->InitSplines(path.GetPath(), static_cast<uint32>(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) / speed * 1000));
+        at->InitSplines(path.GetPath());
     }
 };
 
