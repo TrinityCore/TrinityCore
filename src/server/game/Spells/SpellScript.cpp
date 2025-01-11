@@ -118,7 +118,7 @@ uint32 SpellScriptBase::EffectHook::GetAffectedEffectsMask(SpellInfo const* spel
     uint32 mask = 0;
     if (_effIndex == EFFECT_ALL || _effIndex == EFFECT_FIRST_FOUND)
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < spellInfo->GetEffects().size(); ++i)
         {
             if (_effIndex == EFFECT_FIRST_FOUND && mask)
                 return mask;
