@@ -22,8 +22,9 @@
  * Scriptnames of files in this file should be prefixed with "spell_gen_"
  */
 
-#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
@@ -5512,7 +5513,7 @@ class spell_gen_spatial_rift : public SpellScript
         return ValidateSpellInfo({ SPELL_SPATIAL_RIFT_TELEPORT, SPELL_SPATIAL_RIFT_AREATRIGGER });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
 
@@ -5523,7 +5524,7 @@ class spell_gen_spatial_rift : public SpellScript
         caster->CastSpell(at->GetPosition(), SPELL_SPATIAL_RIFT_TELEPORT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
-            });
+        });
 
         at->SetDuration(0);
     }
@@ -5541,6 +5542,8 @@ struct at_gen_spatial_rift : AreaTriggerAI
     void OnInitialize() override
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
 
         Position destPos = at->GetPosition();
         at->MovePositionToFirstCollision(destPos, spellInfo->GetMaxRange(), 0.0f);
