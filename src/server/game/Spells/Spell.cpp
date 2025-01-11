@@ -5425,35 +5425,34 @@ void Spell::TakePower()
             return;
     }
 
+    bool hit = true;
+    if (unitCaster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISCOUNT_POWER_ON_MISS))
+        {
+            ObjectGuid targetGUID = m_targets.GetUnitTargetGUID();
+            if (!targetGUID.IsEmpty())
+                hit = std::ranges::any_of(m_UniqueTargetInfo, [&](TargetInfo const& targetInfo) { return targetInfo.TargetGUID == targetGUID && targetInfo.MissCondition == SPELL_MISS_NONE; });
+
+            if (m_spendComboPoints)
+                m_spentComboPoints = 0;
+        }
+    }
+
+    bool hasTakenRunePower = false;
     for (SpellPowerCost& cost : m_powerCost)
     {
-        Powers powerType = Powers(cost.Power);
-        bool hit = true;
-        if (unitCaster->GetTypeId() == TYPEID_PLAYER)
+        if (!hit)
         {
-            if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISCOUNT_POWER_ON_MISS))
-            {
-                ObjectGuid targetGUID = m_targets.GetUnitTargetGUID();
-                if (!targetGUID.IsEmpty())
-                {
-                    auto ihit = std::find_if(std::begin(m_UniqueTargetInfo), std::end(m_UniqueTargetInfo), [&](TargetInfo const& targetInfo) { return targetInfo.TargetGUID == targetGUID && targetInfo.MissCondition != SPELL_MISS_NONE; });
-                    if (ihit != std::end(m_UniqueTargetInfo))
-                    {
-                        hit = false;
-                        //lower spell cost on fail (by talent aura)
-                        if (Player* modOwner = unitCaster->GetSpellModOwner())
-                            modOwner->ApplySpellMod(m_spellInfo, SpellModOp::PowerCostOnMiss, cost.Amount);
-
-                        if (m_spendComboPoints)
-                            m_spentComboPoints = 0;
-                    }
-                }
-            }
+            //lower spell cost on fail (by talent aura)
+            if (Player* modOwner = unitCaster->GetSpellModOwner())
+                modOwner->ApplySpellMod(m_spellInfo, SpellModOp::PowerCostOnMiss, cost.Amount);
         }
 
-        if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
+        if ((cost.Power == POWER_RUNE_BLOOD || cost.Power == POWER_RUNE_FROST || cost.Power == POWER_RUNE_UNHOLY) && !hasTakenRunePower)
         {
             TakeRunePower(hit);
+            hasTakenRunePower = true;
             continue;
         }
 
@@ -5461,19 +5460,13 @@ void Spell::TakePower()
             continue;
 
         // health as power used
-        if (powerType == POWER_HEALTH)
+        if (cost.Power == POWER_HEALTH)
         {
             unitCaster->ModifyHealth(-cost.Amount);
             continue;
         }
 
-        if (powerType >= MAX_POWERS)
-        {
-            TC_LOG_ERROR("spells", "Spell::TakePower: Unknown power type '{}'", powerType);
-            continue;
-        }
-
-        unitCaster->ModifyPower(powerType, -cost.Amount);
+        unitCaster->ModifyPower(cost.Power, -cost.Amount);
     }
 
     if (m_spendComboPoints && m_spentComboPoints)
