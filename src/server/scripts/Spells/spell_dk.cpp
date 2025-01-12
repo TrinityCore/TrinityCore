@@ -96,14 +96,10 @@ enum DeathKnightSpells
     SPELL_DK_SOUL_REAPER_DAMAGE                 = 343295,
     SPELL_DK_SUBDUING_GRASP_DEBUFF              = 454824,
     SPELL_DK_SUBDUING_GRASP_TALENT              = 454822,
-    SPELL_DK_TIGHTENING_GRASP                   = 206970,
-    //SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375, // dropped in BfA
     SPELL_DK_UNHOLY                             = 137007,
     SPELL_DK_UNHOLY_GROUND_HASTE                = 374271,
     SPELL_DK_UNHOLY_GROUND_TALENT               = 374265,
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
-    SPELL_DK_VOLATILE_SHIELDING                 = 207188,
-    SPELL_DK_VOLATILE_SHIELDING_DAMAGE          = 207194
 };
 
 enum Misc
@@ -151,7 +147,7 @@ public:
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE, SPELL_DK_VOLATILE_SHIELDING })
+        return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_DK_ANTI_MAGIC_BARRIER, EFFECT_2 } });
     }
 
@@ -178,29 +174,15 @@ public:
     {
         absorbedAmount += absorbAmount;
 
-        if (!GetTarget()->HasAura(SPELL_DK_VOLATILE_SHIELDING))
-        {
-            CastSpellExtraArgs args(aurEff);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
-            GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
-        }
-    }
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (AuraEffect const* volatileShielding = GetTarget()->GetAuraEffect(SPELL_DK_VOLATILE_SHIELDING, EFFECT_1))
-        {
-            CastSpellExtraArgs args(volatileShielding);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbedAmount, volatileShielding->GetAmount()));
-            GetTarget()->CastSpell(nullptr, SPELL_DK_VOLATILE_SHIELDING_DAMAGE, args);
-        }
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
+        GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
     }
 
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell::Trigger, EFFECT_0);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_anti_magic_shell::HandleEffectRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 
 private:
@@ -1086,15 +1068,12 @@ class spell_dk_raise_dead : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_RAISE_DEAD_SUMMON, SPELL_DK_SLUDGE_BELCHER, SPELL_DK_SLUDGE_BELCHER_SUMMON });
+        return ValidateSpellInfo({ SPELL_DK_RAISE_DEAD_SUMMON });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         uint32 spellId = SPELL_DK_RAISE_DEAD_SUMMON;
-        if (GetCaster()->HasAura(SPELL_DK_SLUDGE_BELCHER))
-            spellId = SPELL_DK_SLUDGE_BELCHER_SUMMON;
-
         GetCaster()->CastSpell(nullptr, spellId, true);
     }
 
