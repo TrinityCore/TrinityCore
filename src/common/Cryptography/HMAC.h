@@ -136,5 +136,6 @@ namespace Trinity::Crypto
 {
     using HMAC_SHA1 = Trinity::Impl::GenericHMAC<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
     using HMAC_SHA256 = Trinity::Impl::GenericHMAC<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
+    using HMAC_SHA512 = Trinity::Impl::GenericHMAC<EVP_sha512, Constants::SHA512_DIGEST_LENGTH_BYTES>;
 }
 #endif

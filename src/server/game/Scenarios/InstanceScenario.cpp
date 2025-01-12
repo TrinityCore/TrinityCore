@@ -16,11 +16,11 @@
  */
 
 #include "InstanceScenario.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScenarioMgr.h"

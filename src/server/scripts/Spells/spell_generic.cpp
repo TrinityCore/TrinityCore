@@ -23,6 +23,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
@@ -34,11 +36,13 @@
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
+#include "PathGenerator.h"
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -1013,7 +1017,7 @@ private:
 // 64208 - Consumption
 class spell_gen_consumption : public SpellScript
 {
-    void CalculateDamage(Unit const* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
         if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(GetCaster()->m_unitData->CreatedBySpell, GetCastDifficulty()))
             damage = createdBySpell->GetEffect(EFFECT_1).CalcValue();
@@ -5287,7 +5291,7 @@ class spell_gen_major_healing_cooldown_modifier : public SpellScript
         });
     }
 
-    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         AddPct(pctMod, MajorPlayerHealingCooldownHelpers::GetBonusMultiplier(GetCaster(), GetSpellInfo()->Id));
     }
@@ -5377,6 +5381,178 @@ public:
 
 private:
     uint64 _health;
+};
+
+// 128648 - Defending Cart Aura
+class spell_bg_defending_cart_aura final : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        if (targets.empty())
+            return;
+
+        if (GameObject const* controlZone = GetControlZone())
+        {
+            targets.remove_if([&](WorldObject* obj)
+            {
+                if (Player const* player = obj->ToPlayer())
+                    return GetTeamIdForTeam(player->GetBGTeam()) != controlZone->GetControllingTeam();
+
+                return true;
+            });
+        }
+    }
+
+    GameObject const* GetControlZone() const
+    {
+        if (Unit const* caster = GetCaster())
+        {
+            Unit::AuraEffectList const& auraEffects = caster->GetAuraEffectsByType(SPELL_AURA_ACT_AS_CONTROL_ZONE);
+            for (AuraEffect const* auraEffect : auraEffects)
+                if (GameObject const* gameobject = caster->GetGameObject(auraEffect->GetSpellInfo()->Id))
+                    return gameobject;
+        }
+
+        return nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bg_defending_cart_aura::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+    }
+};
+
+// 128648 - Defending Cart Aura
+class spell_bg_defending_cart_aura_AuraScript final : public AuraScript
+{
+    void OnPeriodic(AuraEffect const* /*aurEff*/) const
+    {
+        Unit const* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (GameObject const* controlZone = GetControlZone())
+            if (!controlZone->GetInsidePlayers()->contains(GetTarget()->GetGUID()))
+                GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Id, caster->GetGUID());
+    }
+
+    GameObject const* GetControlZone() const
+    {
+        if (Unit const* caster = GetCaster())
+        {
+            Unit::AuraEffectList const& auraEffects = caster->GetAuraEffectsByType(SPELL_AURA_ACT_AS_CONTROL_ZONE);
+            for (AuraEffect const* auraEffect : auraEffects)
+                if (GameObject const* gameobject = caster->GetGameObject(auraEffect->GetSpellInfo()->Id))
+                    return gameobject;
+        }
+
+        return nullptr;
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bg_defending_cart_aura_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 296837 - Comfortable Rider's Barding
+class spell_gen_comfortable_riders_barding : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DAZED });
+    }
+
+    template <bool apply>
+    void HandleEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->ApplySpellImmune(GetId(), IMMUNITY_ID, SPELL_DAZED, apply);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_comfortable_riders_barding::HandleEffect<true>, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectApplyFn(spell_gen_comfortable_riders_barding::HandleEffect<false>, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 297091 - Parachute
+class spell_gen_saddlechute : public AuraScript
+{
+    static constexpr uint32 SPELL_PARACHUTE = 297092;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PARACHUTE });
+    }
+
+    void TriggerParachute(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        if (target->IsFlying() || target->IsFalling())
+            target->CastSpell(target, SPELL_PARACHUTE, TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectApplyFn(spell_gen_saddlechute::TriggerParachute, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum SpatialRiftSpells
+{
+    SPELL_SPATIAL_RIFT_TELEPORT     = 257034,
+    SPELL_SPATIAL_RIFT_AREATRIGGER  = 256948
+};
+
+// 257040 - Spatial Rift
+class spell_gen_spatial_rift : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SPATIAL_RIFT_TELEPORT, SPELL_SPATIAL_RIFT_AREATRIGGER });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        AreaTrigger* at = caster->GetAreaTrigger(SPELL_SPATIAL_RIFT_AREATRIGGER);
+        if (!at)
+            return;
+
+        caster->CastSpell(at->GetPosition(), SPELL_SPATIAL_RIFT_TELEPORT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        at->SetDuration(0);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_spatial_rift::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+struct at_gen_spatial_rift : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
+
+        Position destPos = at->GetPosition();
+        at->MovePositionToFirstCollision(destPos, spellInfo->GetMaxRange(), 0.0f);
+
+        PathGenerator path(at);
+        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), true);
+
+        at->InitSplines(path.GetPath());
+    }
 };
 
 void AddSC_generic_spell_scripts()
@@ -5559,4 +5735,9 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_1", 1);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
+    RegisterSpellAndAuraScriptPair(spell_bg_defending_cart_aura, spell_bg_defending_cart_aura_AuraScript);
+    RegisterSpellScript(spell_gen_comfortable_riders_barding);
+    RegisterSpellScript(spell_gen_saddlechute);
+    RegisterSpellScript(spell_gen_spatial_rift);
+    RegisterAreaTriggerAI(at_gen_spatial_rift);
 }

@@ -19,6 +19,7 @@
 #include "MoveSpline.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
+#include "PacketUtilities.h"
 #include "Unit.h"
 #include "Util.h"
 
@@ -306,7 +307,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBits(movementSpline.Points.size(), 16);
     data.WriteBit(movementSpline.VehicleExitVoluntary);
-    data.WriteBit(movementSpline.Interpolate);
+    data.WriteBit(movementSpline.TaxiSmoothing);
     data.WriteBits(movementSpline.PackedDeltas.size(), 16);
     data.WriteBit(movementSpline.SplineFilter.has_value());
     data.WriteBit(movementSpline.SpellEffectExtraData.has_value());
@@ -357,7 +358,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonster
 {
     data << movementMonsterSpline.ID;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
-    data.WriteBits(movementMonsterSpline.StopDistanceTolerance, 3);
+    data.WriteBits(movementMonsterSpline.StopSplineStyle, 3);
 
     data << movementMonsterSpline.Move;
 
@@ -372,7 +373,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
     if (!moveSpline.isCyclic())                                                 // Destination
         dest = moveSpline.FinalDestination();
     else
-        dest = G3D::Vector3::zero();
+    {
+        ::Movement::MoveSpline::MySpline const& spline = moveSpline._Spline();
+        if (spline.getPointCount() <= 1)
+            dest = G3D::Vector3::zero();
+        else
+            dest = spline.getPoint(spline.last() - 1);
+    }
 
     data << dest.x << dest.y << dest.z;
 
@@ -511,7 +518,7 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
 
     data << uint32(movementForce.TransportID);
     data << float(movementForce.Magnitude);
-    data << int32(movementForce.Unused910);
+    data << int32(movementForce.MovementForceID);
     data.WriteBits(AsUnderlyingType(movementForce.Type), 2);
     data.FlushBits();
 }
@@ -626,6 +633,23 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateSpeed::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::SetAdvFlyingSpeed::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << float(Speed);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::SetAdvFlyingSpeedRange::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << float(SpeedMin);
+    _worldPacket << float(SpeedMax);
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveSplineSetFlag::Write()
 {
     _worldPacket << MoverGUID;
@@ -734,7 +758,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
     data >> movementForce.Direction;
     data >> movementForce.TransportID;
     data >> movementForce.Magnitude;
-    data >> movementForce.Unused910;
+    data >> movementForce.MovementForceID;
     movementForce.Type = MovementForceType(data.ReadBits(2));
 
     return data;
@@ -813,6 +837,13 @@ void WorldPackets::Movement::MovementSpeedAck::Read()
 {
     _worldPacket >> Ack;
     _worldPacket >> Speed;
+}
+
+void WorldPackets::Movement::MovementSpeedRangeAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> SpeedMin;
+    _worldPacket >> SpeedMax;
 }
 
 void WorldPackets::Movement::SetActiveMover::Read()
@@ -945,7 +976,7 @@ void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
     _worldPacket >> Data;
     _worldPacket >> Height;
     _worldPacket >> MountDisplayID;
-    Reason = _worldPacket.read<UpdateCollisionHeightReason, uint8>();
+    _worldPacket >> As<uint8>(Reason);
 }
 
 void WorldPackets::Movement::MoveTimeSkipped::Read()
@@ -1020,7 +1051,7 @@ WorldPacket const* WorldPackets::Movement::ResumeToken::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompoundState::MoveStateChange const& stateChange)
 {
-    data << uint16(stateChange.MessageID);
+    data << uint32(stateChange.MessageID);
     data << uint32(stateChange.SequenceIndex);
     data.WriteBit(stateChange.Speed.has_value());
     data.WriteBit(stateChange.SpeedRange.has_value());
