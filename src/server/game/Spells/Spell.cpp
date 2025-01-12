@@ -4910,10 +4910,7 @@ void Spell::SendSpellGo()
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_COST))
     {
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but it's being sent according to sniffs
-
-        // Only send rune cooldowns when there has been a change
-        if (m_runesState != m_caster->ToPlayer()->GetRunesState())
-            castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
+        castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
     }
 
     if (m_targets.HasTraj())
