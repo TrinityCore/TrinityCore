@@ -79,7 +79,7 @@ enum DeathKnightSpells
     SPELL_DK_ICE_PRISON_TALENT                  = 454786,
     SPELL_DK_KILLING_MACHINE_PROC               = 51124,
     SPELL_DK_MARK_OF_BLOOD_HEAL                 = 206945,
-    //SPELL_DK_NECROSIS_EFFECT                    = 216974, // dropped in BfA
+    SPELL_DK_NECROSIS_EFFECT                    = 216974,
     SPELL_DK_OBLITERATION                       = 281238,
     SPELL_DK_OBLITERATION_RUNE_ENERGIZE         = 281327,
     SPELL_DK_PILLAR_OF_FROST                    = 51271,
@@ -913,6 +913,26 @@ class spell_dk_mark_of_blood : public AuraScript
     }
 };
 
+// 207346 - Necrosis
+class spell_dk_necrosis : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_NECROSIS_EFFECT });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_NECROSIS_EFFECT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_necrosis::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 207256 - Obliteration
 class spell_dk_obliteration : public AuraScript
 {
@@ -1327,6 +1347,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_icy_talons);
     RegisterSpellScript(spell_dk_icy_talons_buff);
     RegisterSpellScript(spell_dk_mark_of_blood);
+    RegisterSpellScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_obliteration);
     RegisterSpellScript(spell_dk_permafrost);
     RegisterSpellScript(spell_dk_pet_geist_transform);
