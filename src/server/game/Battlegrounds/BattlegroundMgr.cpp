@@ -19,13 +19,14 @@
 #include "Arena.h"
 #include "BattlegroundPackets.h"
 #include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SharedDefines.h"
@@ -342,10 +343,10 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
         return nullptr;
     }
 
-    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketById(bg_template->BattlemasterEntry->MapID[0], bracketId);
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketById(bg_template->MapIDs.front(), bracketId);
     if (!bracketEntry)
     {
-        TC_LOG_ERROR("bg.battleground", "Battleground: CreateNewBattleground: bg bracket entry not found for map {} bracket id {}", bg_template->BattlemasterEntry->MapID[0], bracketId);
+        TC_LOG_ERROR("bg.battleground", "Battleground: CreateNewBattleground: bg bracket entry not found for map {} bracket id {}", bg_template->MapIDs.front(), bracketId);
         return nullptr;
     }
 
@@ -380,6 +381,11 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         return;
     }
 
+    std::unordered_map<BattlegroundTypeId, std::vector<int32>> mapsByBattleground;
+    for (BattlemasterListXMapEntry const* battlemasterListXMap : sBattlemasterListXMapStore)
+        if (sBattlemasterListStore.HasRecord(battlemasterListXMap->BattlemasterListID) && sMapStore.HasRecord(battlemasterListXMap->MapID))
+            mapsByBattleground[BattlegroundTypeId(battlemasterListXMap->BattlemasterListID)].push_back(battlemasterListXMap->MapID);
+
     uint32 count = 0;
 
     do
@@ -406,6 +412,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         bgTemplate.Weight            = fields[4].GetUInt8();
         bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetString());
         bgTemplate.BattlemasterEntry = bl;
+        bgTemplate.MapIDs            = std::move(mapsByBattleground[bgTypeId]);
 
         if (bgTemplate.Id != BATTLEGROUND_AA && !IsRandomBattleground(bgTemplate.Id))
         {
@@ -434,8 +441,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             }
         }
 
-        if (bgTemplate.BattlemasterEntry->MapID[1] == -1) // in this case we have only one mapId
-            _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->MapID[0]] = &_battlegroundTemplates[bgTypeId];
+        if (bgTemplate.MapIDs.size() == 1)
+            _battlegroundMapTemplates[bgTemplate.MapIDs.front()] = &_battlegroundTemplates[bgTypeId];
 
         ++count;
     }
@@ -469,7 +476,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 
         WorldSafeLocsEntry const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
         TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc.ToString(), bgTypeId);
-        player->TeleportTo(pos->Loc);
+        player->TeleportTo({ .Location = pos->Loc, .TransportGuid = pos->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*pos->TransportSpawnId) : ObjectGuid::Empty });
     }
     else
         TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Instance {} (bgType {}) not found while trying to teleport player {}", instanceId, bgTypeId, player->GetName());
@@ -681,15 +688,12 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
         std::vector<BattlegroundTypeId> ids;
-        ids.reserve(16);
+        ids.reserve(bgTemplate->MapIDs.size());
         std::vector<double> weights;
-        weights.reserve(16);
+        weights.reserve(bgTemplate->MapIDs.size());
         double totalWeight = 0.0;
-        for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
+        for (int32 mapId : bgTemplate->MapIDs)
         {
-            if (mapId == -1)
-                break;
-
             if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
             {
                 ids.push_back(bg->Id);

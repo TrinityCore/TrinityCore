@@ -284,7 +284,6 @@ endif ()
 
 if(HOMEBREW_PREFIX)
   list(APPEND _OPENSSL_ROOT_HINTS
-    "${HOMEBREW_PREFIX}/opt/openssl@1.1"
     "${HOMEBREW_PREFIX}/opt/openssl@3")
 endif()
 

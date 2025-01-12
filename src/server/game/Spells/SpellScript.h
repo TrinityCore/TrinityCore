@@ -572,6 +572,11 @@ public:
         {
             return _safeWrapper(spellScript, targets, _callImpl);
         }
+
+        bool HasSameTargetFunctionAs(ObjectAreaTargetSelectHandler const& other) const
+        {
+            return _callImpl.Member == other._callImpl.Member || _callImpl.Static == other._callImpl.Static;
+        }
     private:
         SpellObjectAreaTargetSelectFnType _callImpl;
         SafeWrapperType _safeWrapper;
@@ -624,6 +629,11 @@ public:
         void Call(SpellScript* spellScript, WorldObject*& target) const
         {
             return _safeWrapper(spellScript, target, _callImpl);
+        }
+
+        bool HasSameTargetFunctionAs(ObjectTargetSelectHandler const& other) const
+        {
+            return _callImpl.Member == other._callImpl.Member || _callImpl.Static == other._callImpl.Static;
         }
     private:
         SpellObjectTargetSelectFnType _callImpl;
@@ -688,11 +698,11 @@ public:
     public:
         union DamageAndHealingCalcFnType
         {
-            void(SpellScript::* Member)(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
-            void(*Static)(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+            void(SpellScript::* Member)(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
+            void(*Static)(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
         };
 
-        using SafeWrapperType = void(*)(SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl);
+        using SafeWrapperType = void(*)(SpellScript* spellScript, SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl);
 
         template<typename ScriptFunc>
         explicit DamageAndHealingCalcHandler(ScriptFunc handler)
@@ -704,31 +714,31 @@ public:
 
             if constexpr (!std::is_void_v<ScriptClass>)
             {
-                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, Unit*, int32&, int32&, float&>,
-                    "DamageAndHealingCalcHandler signature must be \"void CalcDamage(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass, SpellEffectInfo const&, Unit*, int32&, int32&, float&>,
+                    "DamageAndHealingCalcHandler signature must be \"void CalcDamage(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
 
                 _callImpl = { .Member = reinterpret_cast<decltype(DamageAndHealingCalcFnType::Member)>(handler) };
-                _safeWrapper = [](SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl) -> void
+                _safeWrapper = [](SpellScript* spellScript, SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl) -> void
                 {
-                    return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(victim, damageOrHealing, flatMod, pctMod);
+                    return (static_cast<ScriptClass*>(spellScript)->*reinterpret_cast<ScriptFunc>(callImpl.Member))(spellEffectInfo, victim, damageOrHealing, flatMod, pctMod);
                 };
             }
             else
             {
-                static_assert(std::is_invocable_r_v<void, ScriptFunc, Unit*, int32&, int32&, float&>,
-                    "DamageAndHealingCalcHandler signature must be \"static void CalcDamage(Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, SpellEffectInfo const&, Unit*, int32&, int32&, float&>,
+                    "DamageAndHealingCalcHandler signature must be \"static void CalcDamage(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)\"");
 
                 _callImpl = { .Static = reinterpret_cast<decltype(DamageAndHealingCalcFnType::Static)>(handler) };
-                _safeWrapper = [](SpellScript* /*spellScript*/, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl) -> void
+                _safeWrapper = [](SpellScript* /*spellScript*/, SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod, DamageAndHealingCalcFnType callImpl) -> void
                 {
-                    return reinterpret_cast<ScriptFunc>(callImpl.Static)(victim, damageOrHealing, flatMod, pctMod);
+                    return reinterpret_cast<ScriptFunc>(callImpl.Static)(spellEffectInfo, victim, damageOrHealing, flatMod, pctMod);
                 };
             }
         }
 
-        void Call(SpellScript* spellScript, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod) const
+        void Call(SpellScript* spellScript, SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod) const
         {
-            return _safeWrapper(spellScript, victim, damageOrHealing, flatMod, pctMod, _callImpl);
+            return _safeWrapper(spellScript, spellEffectInfo, victim, damageOrHealing, flatMod, pctMod, _callImpl);
         }
     private:
         DamageAndHealingCalcFnType _callImpl;

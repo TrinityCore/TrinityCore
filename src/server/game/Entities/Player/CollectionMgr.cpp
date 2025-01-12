@@ -237,7 +237,11 @@ void CollectionMgr::LoadHeirlooms()
 void CollectionMgr::AddHeirloom(uint32 itemId, uint32 flags)
 {
     if (UpdateAccountHeirlooms(itemId, flags))
+    {
+        _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnHeirloom, itemId);
+        _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyHeirloom, 1);
         _owner->GetPlayer()->AddHeirloom(itemId, flags);
+    }
 }
 
 void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
@@ -758,6 +762,8 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         owner->RemoveConditionalTransmog(itemModifiedAppearance->ID);
         _temporaryAppearances.erase(temporaryAppearance);
     }
+
+    _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyTransmog, 1);
 
     if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
     {

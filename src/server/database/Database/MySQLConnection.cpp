@@ -23,6 +23,7 @@
 #include "MySQLPreparedStatement.h"
 #include "PreparedStatement.h"
 #include "QueryResult.h"
+#include "StringConvert.h"
 #include "Timer.h"
 #include "Transaction.h"
 #include "Util.h"
@@ -47,6 +48,12 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
         ssl.assign(tokens[5]);
 }
 
+struct MySQLConnection::WorkerThread
+{
+    std::thread ThreadHandle;
+    boost::asio::executor_work_guard<Trinity::Asio::IoContext::Executor> WorkGuard;
+};
+
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) :
 m_reconnecting(false),
 m_prepareError(false),
@@ -66,7 +73,8 @@ void MySQLConnection::Close()
     // Stop the worker thread before the statements are cleared
     if (m_workerThread)
     {
-        m_workerThread->join();
+        m_workerThread->WorkGuard.reset();
+        m_workerThread->ThreadHandle.join();
         m_workerThread.reset();
     }
 
@@ -89,42 +97,40 @@ uint32 MySQLConnection::Open()
         return CR_UNKNOWN_ERROR;
     }
 
-    int port;
-    char const* unix_socket;
+    int port = 0;
+    char const* unix_socket = nullptr;
     //unsigned int timeout = 10;
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8mb4");
     //mysql_options(mysqlInit, MYSQL_OPT_READ_TIMEOUT, (char const*)&timeout);
-    #ifdef _WIN32
-    if (m_connectionInfo.host == ".")                                           // named pipe use option (Windows)
+    if (m_connectionInfo.host != ".")
     {
+        port = Trinity::StringTo<int32>(m_connectionInfo.port_or_socket).value_or(0);
+    }
+    else                                                                        // named pipe/unix socket option
+    {
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
-        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
-        port = 0;
-        unix_socket = nullptr;
-    }
-    else                                                    // generic case
-    {
-        port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = nullptr;
-    }
-    #else
-    if (m_connectionInfo.host == ".")                                           // socket use option (Unix/Linux)
-    {
-        unsigned int opt = MYSQL_PROTOCOL_SOCKET;
-        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
+#else
         m_connectionInfo.host = "localhost";
-        port = 0;
         unix_socket = m_connectionInfo.port_or_socket.c_str();
-    }
-    else                                                    // generic case
-    {
-        port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = nullptr;
-    }
-    #endif
+        unsigned int opt = MYSQL_PROTOCOL_SOCKET;
+#endif
+        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
 
-    if (m_connectionInfo.ssl != "")
+#if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
+        /*
+          ensure connections over named pipes work for users authenticating with caching_sha2_password
+
+          If the mysql server is restarted, and you connect it using named pipe, the connection will fail and it will continue to fail until you connect it using tcp.
+          Source: https://bugs.mysql.com/bug.php?id=106852
+        */
+        MySQLBool geterverPublicKey = MySQLBool(1);
+        mysql_options(mysqlInit, MYSQL_OPT_GET_SERVER_PUBLIC_KEY, (char const*)&geterverPublicKey);
+#endif
+    }
+
+    if (!m_connectionInfo.ssl.empty())
     {
 #if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
         mysql_ssl_mode opt_use_ssl = SSL_MODE_DISABLED;
@@ -444,18 +450,18 @@ uint32 MySQLConnection::GetLastError()
 
 void MySQLConnection::StartWorkerThread(Trinity::Asio::IoContext* context)
 {
-    m_workerThread = std::make_unique<std::thread>([context]
-    {
-        boost::asio::executor_work_guard executorWorkGuard = boost::asio::make_work_guard(context->get_executor());
+    boost::asio::executor_work_guard executorWorkGuard = boost::asio::make_work_guard(context->get_executor()); // construct guard before thread starts running
 
-        context->run();
+    m_workerThread = std::make_unique<WorkerThread>(WorkerThread{
+        .ThreadHandle = std::thread([context] { context->run(); }),
+        .WorkGuard = std::move(executorWorkGuard)
     });
 }
 
 std::thread::id MySQLConnection::GetWorkerThreadId() const
 {
     if (m_workerThread)
-        return m_workerThread->get_id();
+        return m_workerThread->ThreadHandle.get_id();
 
     return {};
 }

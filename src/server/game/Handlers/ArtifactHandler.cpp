@@ -55,11 +55,11 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifactPowerEntry)
         return;
 
-    if (artifactPowerEntry->Tier > currentArtifactTier)
+    if (uint32(artifactPowerEntry->Tier) > currentArtifactTier)
         return;
 
     uint32 maxRank = artifactPowerEntry->MaxPurchasableRank;
-    if (artifactPowerEntry->Tier < currentArtifactTier)
+    if (uint32(artifactPowerEntry->Tier) < currentArtifactTier)
     {
         if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FINAL)
             maxRank = 1;
@@ -152,6 +152,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         artifact->InitArtifactPowers(artifact->GetTemplate()->GetArtifactID(), uint8(i));
 
     artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
+    _player->UpdateCriteria(CriteriaType::AnyArtifactPowerRankPurchased, totalPurchasedArtifactPower);
 }
 
 void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance)

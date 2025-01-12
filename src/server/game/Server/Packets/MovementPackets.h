@@ -122,7 +122,7 @@ namespace WorldPackets
             std::vector<TaggedPosition<Position::XYZ>> Points;   // Spline path
             uint8 Mode                  = 0;    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
             bool VehicleExitVoluntary   = false;
-            bool Interpolate            = false;
+            bool TaxiSmoothing          = false;
             ObjectGuid TransportGUID;
             int8 VehicleSeat            = -1;
             std::vector<TaggedPosition<Position::PackedXYZ>> PackedDeltas;
@@ -140,7 +140,7 @@ namespace WorldPackets
         {
             uint32 ID = 0;
             bool CrzTeleport = false;
-            uint8 StopDistanceTolerance = 0;    // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
+            uint8 StopSplineStyle = 0;    // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
             MovementSpline Move;
         };
 
@@ -210,6 +210,31 @@ namespace WorldPackets
 
             MovementInfo* Status = nullptr;
             float Speed = 1.0f;
+        };
+
+        class SetAdvFlyingSpeed final : public ServerPacket
+        {
+        public:
+            explicit SetAdvFlyingSpeed(OpcodeServer opcode) : ServerPacket(opcode, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            float Speed = 1.0f;
+        };
+
+        class SetAdvFlyingSpeedRange final : public ServerPacket
+        {
+        public:
+            explicit SetAdvFlyingSpeedRange(OpcodeServer opcode) : ServerPacket(opcode, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            float SpeedMin = 1.0f;
+            float SpeedMax = 1.0f;
         };
 
         class MoveSplineSetFlag final : public ServerPacket
@@ -283,6 +308,7 @@ namespace WorldPackets
             uint32 Reason = 0;
             TeleportLocation Loc;
             TaggedPosition<Position::XYZ> MovementOffset;    // Adjusts all pending movement events by this offset
+            int32 Counter = 0;
         };
 
         class WorldPortResponse final : public ClientPacket
@@ -435,6 +461,18 @@ namespace WorldPackets
 
             MovementAck Ack;
             float Speed = 0.0f;
+        };
+
+        class MovementSpeedRangeAck final : public ClientPacket
+        {
+        public:
+            MovementSpeedRangeAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            float SpeedMin = 1.0f;
+            float SpeedMax = 1.0f;
         };
 
         class SetActiveMover final : public ClientPacket
@@ -679,7 +717,7 @@ namespace WorldPackets
             {
                 MoveStateChange(OpcodeServer messageId, uint32 sequenceIndex) : MessageID(messageId), SequenceIndex(sequenceIndex) { }
 
-                uint16 MessageID = 0;
+                uint32 MessageID = 0;
                 uint32 SequenceIndex = 0;
                 Optional<float> Speed;
                 Optional<MoveSetCompoundState::SpeedRange> SpeedRange;

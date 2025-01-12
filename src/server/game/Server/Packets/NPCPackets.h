@@ -34,7 +34,6 @@ namespace WorldPackets
 {
     namespace NPC
     {
-        // CMSG_BANKER_ACTIVATE
         // CMSG_BINDER_ACTIVATE
         // CMSG_BINDER_CONFIRM
         // CMSG_GOSSIP_HELLO
@@ -68,6 +67,7 @@ namespace WorldPackets
             GossipOptionRewardType Type = GossipOptionRewardType(0);
             int32 ID = 0;
             int32 Quantity = 0;
+            int8 ItemContext = 0;
         };
 
         struct TreasureLootList
@@ -90,17 +90,21 @@ namespace WorldPackets
             TreasureLootList Treasure;
             Optional<int32> SpellID;
             Optional<int32> OverrideIconID;
+            std::string FailureDescription;
         };
 
         struct ClientGossipText
         {
-            int32 QuestID       = 0;
+            int32 QuestID = 0;
             int32 ContentTuningID = 0;
-            int32 QuestType     = 0;
-            bool Repeatable     = false;
-            bool Important      = false;
+            int32 QuestType = 0;
+            int32 Unused1102 = 0;
+            bool Repeatable = false;
+            bool ResetByScheduler = false;
+            bool Important = false;
+            bool Meta = false;
             std::string QuestTitle;
-            int32 QuestFlags[2] = { };
+            std::array<int32, 3> QuestFlags = { };
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText);
@@ -116,9 +120,10 @@ namespace WorldPackets
             int32 FriendshipFactionID = 0;
             ObjectGuid GossipGUID;
             std::vector<ClientGossipText> GossipText;
-            Optional<int32> TextID;             // in classic variants this still holds npc_text id
+            Optional<int32> RandomTextID;             // in classic variants this still holds npc_text id
             Optional<int32> BroadcastTextID;
             int32 GossipID = 0;
+            int32 LfgDungeonsID = 0;
         };
 
         class GossipSelectOption final : public ClientPacket
@@ -163,7 +168,6 @@ namespace WorldPackets
             WorldPackets::Item::ItemInstance Item;
             int32 Quantity                  = -1;
             uint64 Price                    = 0;
-            int32 Durability                = 0;
             int32 StackCount                = 0;
             int32 ExtendedCostID            = 0;
             int32 PlayerConditionFailed     = 0;
@@ -179,7 +183,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Reason = 0;
+            int32 Reason = 0;
             std::vector<VendorItem> Items;
             ObjectGuid Vendor;
         };

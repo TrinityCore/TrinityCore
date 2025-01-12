@@ -19,6 +19,7 @@
 #define Trinity_game_Position_h__
 
 #include "Define.h"
+#include <span>
 #include <string>
 #include <cmath>
 
@@ -26,7 +27,16 @@ class ByteBuffer;
 
 struct TC_GAME_API Position
 {
-    constexpr Position(float x = 0, float y = 0, float z = 0, float o = 0)
+    constexpr Position()
+        : m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y)
+        : m_positionX(x), m_positionY(y), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y, float z)
+        : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y, float z, float o)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientationConstexprWrapper(o)) { }
 
     // streamer tags
@@ -138,16 +148,18 @@ public:
     float GetRelativeAngle(Position const* pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
 
     constexpr bool IsInDist2d(float x, float y, float dist) const { return GetExactDist2dSq(x, y) < dist * dist; }
+    constexpr bool IsInDist2d(Position const& pos, float dist) const { return GetExactDist2dSq(pos) < dist * dist; }
     constexpr bool IsInDist2d(Position const* pos, float dist) const { return GetExactDist2dSq(pos) < dist * dist; }
 
     constexpr bool IsInDist(float x, float y, float z, float dist) const { return GetExactDistSq(x, y, z) < dist * dist; }
     constexpr bool IsInDist(Position const& pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
     constexpr bool IsInDist(Position const* pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
 
-    bool IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const;
+    bool IsWithinBox(Position const& boxOrigin, float length, float width, float height) const;
 
-    // dist2d < radius && abs(dz) < height
-    bool IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const;
+    bool IsWithinVerticalCylinder(Position const& cylinderOrigin, float radius, float height, bool isDoubleVertical = false) const;
+
+    bool IsInPolygon2D(Position const& polygonOrigin, std::span<Position const> vertices) const;
 
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
     bool HasInLine(Position const* pos, float objSize, float width) const;
@@ -178,16 +190,18 @@ private:
 class TC_GAME_API WorldLocation : public Position
 {
 public:
-    constexpr explicit WorldLocation(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
-        : Position(x, y, z, o), m_mapId(mapId) { }
+    constexpr WorldLocation() : m_mapId(MAPID_INVALID) { }
 
-    constexpr WorldLocation(uint32 mapId, Position const& position)
-        : Position(position), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y) : Position(x, y), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y, float z) : Position(x, y, z), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y, float z, float o) : Position(x, y, z, o), m_mapId(mapId) { }
+
+    constexpr WorldLocation(uint32 mapId, Position const& position) : Position(position), m_mapId(mapId) { }
 
     constexpr void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
     constexpr void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
     constexpr void WorldRelocate(uint32 mapId, Position const& pos) { m_mapId = mapId; Relocate(pos); }
-    constexpr void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
+    constexpr void WorldRelocate(uint32 mapId, float x, float y, float z, float o)
     {
         m_mapId = mapId;
         Relocate(x, y, z, o);
@@ -216,7 +230,10 @@ TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Posi
 template<class Tag>
 struct TaggedPosition
 {
-    constexpr TaggedPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
+    constexpr TaggedPosition() { }
+    constexpr TaggedPosition(float x, float y) : Pos(x, y) { }
+    constexpr TaggedPosition(float x, float y, float z) : Pos(x, y, z) { }
+    constexpr TaggedPosition(float x, float y, float z, float o) : Pos(x, y, z, o) { }
     constexpr TaggedPosition(Position const& pos) : Pos(pos) { }
 
     constexpr TaggedPosition& operator=(Position const& pos)

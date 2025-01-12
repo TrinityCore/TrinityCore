@@ -108,6 +108,15 @@ namespace Trinity
         void Visit(CreatureMapType &);
     };
 
+    struct TC_GAME_API CreatureAggroGracePeriodExpiredNotifier
+    {
+        Creature& i_creature;
+        CreatureAggroGracePeriodExpiredNotifier(Creature& c) : i_creature(c) { }
+        template<class T> void Visit(GridRefManager<T>&) { }
+        void Visit(CreatureMapType&);
+        void Visit(PlayerMapType&);
+    };
+
     struct GridUpdater
     {
         GridType &i_grid;
@@ -1010,7 +1019,7 @@ namespace Trinity
                 if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
-                if (!u->IsInMap(i_obj) || !u->InSamePhase(i_obj) || !u->IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius))
+                if (!u->IsInMap(i_obj) || !u->InSamePhase(i_obj) || !u->IsWithinVerticalCylinder(*i_obj, searchRadius, searchRadius, true))
                     return false;
 
                 if (!i_funit->IsFriendlyTo(u))
@@ -1059,7 +1068,7 @@ namespace Trinity
                 if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
-                return u->IsInMap(_source) && u->InSamePhase(_source) && u->IsWithinDoubleVerticalCylinder(_source, searchRadius, searchRadius);
+                return u->IsInMap(_source) && u->InSamePhase(_source) && u->IsWithinVerticalCylinder(*_source, searchRadius, searchRadius, true);
             }
 
         private:
@@ -1075,20 +1084,24 @@ namespace Trinity
     class AnyUnitInObjectRangeCheck
     {
         public:
-            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range, bool check3D = true) : i_obj(obj), i_range(range), i_check3D(check3D) { }
+            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range, bool check3D = true, bool reqAlive = true) : i_obj(obj), i_range(range), i_check3D(check3D), i_reqAlive(reqAlive) { }
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDist(u, i_range, i_check3D))
-                    return true;
+                if (i_reqAlive && !u->IsAlive())
+                    return false;
 
-                return false;
+                if (!i_obj->IsWithinDist(u, i_range, i_check3D))
+                    return false;
+
+                return true;
             }
 
         private:
             WorldObject const* i_obj;
             float i_range;
             bool i_check3D;
+            bool i_reqAlive;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
@@ -1155,7 +1168,7 @@ namespace Trinity
                 if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
-                return u->IsInMap(i_obj) && u->InSamePhase(i_obj) && u->IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius);
+                return u->IsInMap(i_obj) && u->InSamePhase(i_obj) && u->IsWithinVerticalCylinder(*i_obj, searchRadius, searchRadius, true);
             }
 
         private:
@@ -1431,8 +1444,38 @@ namespace Trinity
                 if (i_args.StringId && !u->HasStringId(*i_args.StringId))
                     return false;
 
-                if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)
-                    return false;
+                if (i_args.IsAlive.has_value())
+                {
+                    switch (*i_args.IsAlive)
+                    {
+                        case FindCreatureAliveState::Alive:
+                        {
+                            if (!u->IsAlive())
+                                return false;
+                            break;
+                        }
+                        case FindCreatureAliveState::Dead:
+                        {
+                            if (u->IsAlive())
+                                return false;
+                            break;
+                        }
+                        case FindCreatureAliveState::EffectivelyAlive:
+                        {
+                            if (!u->IsAlive() || u->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH))
+                                return false;
+                            break;
+                        }
+                        case FindCreatureAliveState::EffectivelyDead:
+                        {
+                            if (u->IsAlive() && !u->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH))
+                                return false;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
 
                 if (i_args.IsSummon.has_value() && u->IsSummon() != i_args.IsSummon)
                     return false;

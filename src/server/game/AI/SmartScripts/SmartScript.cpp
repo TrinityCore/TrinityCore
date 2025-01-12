@@ -575,27 +575,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
-        case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
-        {
-            for (WorldObject* target : targets)
-            {
-                // Special handling for vehicles
-                if (IsUnit(target))
-                    if (Vehicle* vehicle = target->ToUnit()->GetVehicleKit())
-                        for (std::pair<int8 const, VehicleSeat>& seat : vehicle->Seats)
-                            if (Player* player = ObjectAccessor::GetPlayer(*target, seat.second.Passenger.Guid))
-                                player->AreaExploredOrEventHappens(e.action.quest.quest);
-
-                if (IsPlayer(target))
-                {
-                    target->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
-
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: Player {} credited quest {}",
-                        target->GetGUID().ToString(), e.action.quest.quest);
-                }
-            }
-            break;
-        }
         case SMART_ACTION_CAST:
         {
             if (targets.empty())
@@ -867,27 +846,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 CreatureTextMgr::SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
             }
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_FLEE_FOR_ASSIST: Creature {} DoFleeToGetAssistance", me->GetGUID().ToString());
-            break;
-        }
-        case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
-        {
-            if (!unit)
-                break;
-
-            // If invoker was pet or charm
-            Player* playerCharmed = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-            if (playerCharmed && GetBaseObject())
-            {
-                playerCharmed->GroupEventHappens(e.action.quest.quest, GetBaseObject());
-                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: Player {}, group credit for quest {}",
-                    unit->GetGUID().ToString(), e.action.quest.quest);
-            }
-
-            // Special handling for vehicles
-            if (Vehicle* vehicle = unit->GetVehicleKit())
-                for (std::pair<int8 const, VehicleSeat>& seat : vehicle->Seats)
-                    if (Player* passenger = ObjectAccessor::GetPlayer(*unit, seat.second.Passenger.Guid))
-                        passenger->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
         }
         case SMART_ACTION_COMBAT_STOP:
@@ -1403,10 +1361,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SET_DISABLE_GRAVITY:
         {
-            if (!IsSmart())
-                break;
-
-            ENSURE_AI(SmartAI, me->AI())->SetDisableGravity(e.action.setDisableGravity.disable != 0);
+            for (WorldObject* target : targets)
+                if (IsCreature(target))
+                    target->ToCreature()->SetFloating(e.action.setDisableGravity.disable != 0);
             break;
         }
         case SMART_ACTION_SET_RUN:
@@ -1895,21 +1852,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
         {
             for (WorldObject* target : targets)
-                if (IsUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     switch (e.action.setunitByte.type)
                     {
                         case 0:
-                            target->ToUnit()->SetStandState(UnitStandStateType(e.action.setunitByte.byte1));
+                            unitTarget->SetStandState(UnitStandStateType(e.action.setunitByte.byte1));
                             break;
                         case 1:
                             // pet talent points
                             break;
                         case 2:
-                            target->ToUnit()->SetVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
+                            unitTarget->SetVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
+                            unitTarget->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
                             break;
                     }
                 }
@@ -1918,21 +1875,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
         {
             for (WorldObject* target : targets)
-                if (IsUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     switch (e.action.setunitByte.type)
                     {
                         case 0:
-                            target->ToUnit()->SetStandState(UNIT_STAND_STATE_STAND);
+                            unitTarget->SetStandState(UNIT_STAND_STATE_STAND);
                             break;
                         case 1:
                             // pet talent points
                             break;
                         case 2:
-                            target->ToUnit()->RemoveVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
+                            unitTarget->RemoveVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(AnimTier::Ground);
+                            unitTarget->SetAnimTier(AnimTier::Ground);
                             break;
                     }
                 }
@@ -1973,11 +1930,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 float gravity = e.action.jump.UseDefaultGravity ? Movement::gravity : e.action.jump.Gravity;
                 me->GetMotionMaster()->MoveJumpWithGravity(pos, float(e.action.jump.SpeedXY), gravity, e.action.jump.PointId,
-                    false, nullptr, nullptr, std::move(actionResultSetter));
+                    {}, false, nullptr, nullptr, std::move(actionResultSetter));
             }
             else
                 me->GetMotionMaster()->MoveJump(pos, float(e.action.jump.SpeedXY), float(e.action.jump.SpeedZ), e.action.jump.PointId,
-                    false, nullptr, nullptr, std::move(actionResultSetter));
+                    {}, false, nullptr, nullptr, std::move(actionResultSetter));
 
             mTimedActionWaitEvent = std::move(waitEvent);
             break;
@@ -2097,7 +2054,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
                 if (IsCreature(target))
-                    target->ToCreature()->SetControlled(e.action.setRoot.root != 0, UNIT_STATE_ROOT);
+                    target->ToCreature()->SetSessile(e.action.setRoot.root != 0);
             break;
         }
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
@@ -2637,6 +2594,49 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_COMPLETE_QUEST:
+        {
+            uint32 questId = e.action.quest.quest;
+            Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+            if (!quest)
+                break;
+
+            for (WorldObject* target : targets)
+            {
+                Player* player = Object::ToPlayer(target);
+                if (!player)
+                    continue;
+
+                QuestStatus questStatus = player->GetQuestStatus(questId);
+                if (questStatus == QUEST_STATUS_REWARDED)
+                    continue;
+
+                if (quest->HasFlag(QUEST_FLAGS_COMPLETION_EVENT) || quest->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER))
+                {
+                    if (questStatus == QUEST_STATUS_INCOMPLETE)
+                        player->AreaExploredOrEventHappens(questId);
+                }
+                else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT)) // Check if the quest is used as a serverside flag
+                    player->CompleteQuest(questId);
+            }
+
+            break;
+        }
+        case SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO:
+        {
+            if (!me)
+                break;
+
+            for (WorldObject* target : targets)
+            {
+                Player* player = Object::ToPlayer(target);
+                if (!player)
+                    continue;
+
+                player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
@@ -2966,7 +2966,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             Creature* target = ref->FindNearestCreatureWithOptions(float(e.target.unitClosest.dist ? e.target.unitClosest.dist : 100), {
                 .CreatureId = e.target.unitClosest.entry,
                 .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>(),
-                .IsAlive = !e.target.unitClosest.dead
+                .IsAlive = (FindCreatureAliveState)e.target.unitClosest.findCreatureAliveState
             });
 
             if (target)
@@ -3249,17 +3249,19 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_DEATH:
         case SMART_EVENT_EVADE:
         case SMART_EVENT_REACHED_HOME:
+        case SMART_EVENT_RESET:
         case SMART_EVENT_CORPSE_REMOVED:
         case SMART_EVENT_AI_INIT:
         case SMART_EVENT_TRANSPORT_ADDPLAYER:
         case SMART_EVENT_TRANSPORT_REMOVE_PLAYER:
+        case SMART_EVENT_AREATRIGGER_ENTER:
         case SMART_EVENT_JUST_SUMMONED:
-        case SMART_EVENT_RESET:
         case SMART_EVENT_JUST_CREATED:
         case SMART_EVENT_FOLLOW_COMPLETED:
         case SMART_EVENT_ON_SPELLCLICK:
         case SMART_EVENT_ON_DESPAWN:
         case SMART_EVENT_SEND_EVENT_TRIGGER:
+        case SMART_EVENT_AREATRIGGER_EXIT:
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
             break;
         case SMART_EVENT_GOSSIP_HELLO:
@@ -3464,13 +3466,6 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_TRANSPORT_ADDCREATURE:
         {
             if (e.event.transportAddCreature.creature && var0 != e.event.transportAddCreature.creature)
-                return;
-            ProcessAction(e, unit, var0);
-            break;
-        }
-        case SMART_EVENT_AREATRIGGER_ONTRIGGER:
-        {
-            if (e.event.areatrigger.id && var0 != e.event.areatrigger.id)
                 return;
             ProcessAction(e, unit, var0);
             break;

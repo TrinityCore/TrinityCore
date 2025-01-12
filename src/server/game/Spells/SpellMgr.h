@@ -231,9 +231,13 @@ DEFINE_ENUM_FLAG(ProcFlags);
 enum ProcFlags2 : int32
 {
     PROC_FLAG_2_NONE                            = 0x00000000,
-    PROC_FLAG_2_TARGET_DIES                     = 0x00000001,
-    PROC_FLAG_2_KNOCKBACK                       = 0x00000002,
-    PROC_FLAG_2_CAST_SUCCESSFUL                 = 0x00000004
+    PROC_FLAG_2_TARGET_DIES                     = 0x00000001,    // 32 Kill or assist in killing target (not restricted to killing blow)
+    PROC_FLAG_2_KNOCKBACK                       = 0x00000002,    // 33 Knockback
+    PROC_FLAG_2_CAST_SUCCESSFUL                 = 0x00000004,    // 34 Cast Successful
+
+    PROC_FLAG_2_SUCCESSFUL_DISPEL               = 0x00000010,    // 36 Successful dispel
+
+    PROC_FLAG_2_DO_EMOTE                        = 0x00000040     // 38 Do Emote
 };
 
 DEFINE_ENUM_FLAG(ProcFlags2);
@@ -590,6 +594,7 @@ typedef std::unordered_map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;
 
 struct SpellLearnSpellNode
 {
+    uint32 SourceSpell;
     uint32 Spell;
     uint32 OverridesSpell;
     bool Active;                    // show in spellbook or not
@@ -617,6 +622,8 @@ struct CreatureImmunities
 
 typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
 typedef std::pair<SpellLearnSpellMap::const_iterator, SpellLearnSpellMap::const_iterator> SpellLearnSpellMapBounds;
+
+typedef std::multimap<uint32, SpellLearnSpellNode const*> SpellLearnedBySpellMap;
 
 typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::const_iterator> SkillLineAbilityMapBounds;
@@ -725,6 +732,7 @@ class TC_GAME_API SpellMgr
         SpellLearnSpellMapBounds GetSpellLearnSpellMapBounds(uint32 spell_id) const;
         bool IsSpellLearnSpell(uint32 spell_id) const;
         bool IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const;
+        Trinity::IteratorPair<SpellLearnedBySpellMap::const_iterator> GetSpellLearnedBySpellMapBounds(uint32 learnedSpellId) const;
 
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const;
@@ -819,6 +827,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoSpellSpecificAndAuraState();
         void LoadSpellInfoDiminishing();
         void LoadSpellInfoImmunities();
+        void LoadSpellInfoTargetCaps();
         void LoadSpellTotemModel();
 
     private:
@@ -828,6 +837,7 @@ class TC_GAME_API SpellMgr
         SpellRequiredMap           mSpellReq;
         SpellLearnSkillMap         mSpellLearnSkills;
         SpellLearnSpellMap         mSpellLearnSpells;
+        SpellLearnedBySpellMap     mSpellLearnedBySpells;
         SpellTargetPositionMap     mSpellTargetPositions;
         SpellSpellGroupMap         mSpellSpellGroup;
         SpellGroupSpellMap         mSpellGroupSpell;

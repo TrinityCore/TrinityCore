@@ -20,7 +20,7 @@
 #include "Errors.h"
 #include "Hash.h"
 #include "Log.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "Util.h"
 #include "World.h"
 #include <charconv>
@@ -85,15 +85,18 @@ namespace
             std::array<char, 20> buf;
             auto [end, err] = std::to_chars(buf.data(), buf.data() + buf.size(), component, Base);
 
-            ASSERT_NODEBUGINFO(err == std::errc(), "Failed to convert guid part to string");
+            ASSERT(err == std::errc(), "Failed to convert guid part to string");
 
             if constexpr (Width != 0)
             {
-                if (std::distance(buf.data(), end) < Width)
-                    std::fill_n(ctx.out(), Width - std::distance(buf.data(), end), '0');
+                if (std::ptrdiff_t written =  std::distance(buf.data(), end); written < Width)
+                    std::fill_n(ctx.out(), Width - written, '0');
             }
 
-            return std::transform(buf.data(), end, ctx.out(), charToUpper);
+            if constexpr (Base > 10)
+                return std::transform(buf.data(), end, ctx.out(), charToUpper);
+            else
+                return std::copy(buf.data(), end, ctx.out());
         }
 
         static fmt::appender AppendComponent(fmt::format_context& ctx, std::string_view component)
@@ -794,17 +797,17 @@ std::size_t ObjectGuid::GetHash() const
     return hashVal;
 }
 
-std::vector<uint8> ObjectGuid::GetRawValue() const
+std::array<uint8, 16> ObjectGuid::GetRawValue() const
 {
-    std::vector<uint8> raw(16);
-    memcpy(raw.data(), this, sizeof(*this));
+    std::array<uint8, 16> raw;
+    memcpy(raw.data(), _data.data(), BytesSize);
     return raw;
 }
 
-void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
+void ObjectGuid::SetRawValue(std::span<uint8 const> rawBytes)
 {
-    ASSERT(guid.size() == sizeof(*this));
-    memcpy(this, guid.data(), sizeof(*this));
+    ASSERT(rawBytes.size() == BytesSize, SZFMTD " == " SZFMTD, rawBytes.size(), BytesSize);
+    memcpy(_data.data(), rawBytes.data(), BytesSize);
 }
 
 static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
@@ -812,7 +815,7 @@ static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
     if (realmId)
         return realmId;
 
-    return realm.Id.Realm;
+    return sRealmList->GetCurrentRealmId().Realm;
 }
 
 ObjectGuid ObjectGuidFactory::CreateNull()

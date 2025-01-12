@@ -37,6 +37,7 @@
 #include "Trainer.h"
 #include "VehicleDefines.h"
 #include "UniqueTrackablePtr.h"
+#include <atomic>
 #include <iterator>
 #include <map>
 #include <unordered_map>
@@ -464,6 +465,12 @@ struct AreaTriggerStruct
     float  target_Orientation;
 };
 
+struct AreaTriggerPolygon
+{
+    std::vector<Position> Vertices;
+    Optional<float> Height;
+};
+
 struct AccessRequirement
 {
     uint8  levelMin;
@@ -514,6 +521,9 @@ typedef std::unordered_map<uint32, std::vector<uint32>> GameObjectQuestItemMap;
 typedef std::unordered_map<uint32, SpawnGroupTemplateData> SpawnGroupDataContainer;
 typedef std::multimap<uint32, SpawnMetadata const*> SpawnGroupLinkContainer;
 typedef std::unordered_map<uint16, std::vector<InstanceSpawnGroupInfo>> InstanceSpawnGroupContainer;
+typedef std::unordered_map<uint32, SpawnTrackingTemplateData> SpawnTrackingTemplateContainer;
+typedef std::multimap<uint32, SpawnMetadata const*> SpawnTrackingLinkContainer;
+typedef std::unordered_map<uint32 /*spawnTrackingId*/, std::vector<QuestObjective const*>> SpawnTrackingQuestObjectiveContainer;
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData>> TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
@@ -523,6 +533,8 @@ typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleC
 typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
 typedef std::unordered_map<uint32, QuestRequestItemsLocale> QuestRequestItemsLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> UiMapQuestLinesMap;
+typedef std::unordered_map<uint32, std::vector<uint32>> UiMapQuestsMap;
 typedef std::unordered_map<uint32, VehicleSeatAddon> VehicleSeatAddonContainer;
 
 struct GossipMenuItemsLocale
@@ -631,7 +643,7 @@ typedef std::vector<PlayerCreateInfoItem> PlayerCreateInfoItems;
 
 struct PlayerLevelInfo
 {
-    uint16 stats[MAX_STATS] = { };
+    int32 stats[MAX_STATS] = { };
 };
 
 typedef std::vector<uint32> PlayerCreateInfoSpells;
@@ -772,6 +784,7 @@ struct GossipMenus
 struct GossipMenuAddon
 {
     int32 FriendshipFactionID;
+    int32 LfgDungeonsID;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
@@ -835,6 +848,7 @@ struct WorldSafeLocsEntry
 {
     uint32 ID = 0;
     WorldLocation Loc;
+    Optional<ObjectGuid::LowType> TransportSpawnId = {};
 };
 
 struct GraveyardData
@@ -1196,6 +1210,8 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        AreaTriggerPolygon const* GetAreaTriggerPolygon(uint32 areaTriggerId) const;
+
         bool IsTavernAreaTrigger(uint32 Trigger_ID) const
         {
             return _tavernAreaTriggerStore.find(Trigger_ID) != _tavernAreaTriggerStore.end();
@@ -1271,6 +1287,9 @@ class TC_GAME_API ObjectMgr
         }
 
         QuestPOIData const* GetQuestPOIData(int32 questId);
+
+        std::vector<uint32> const* GetUiMapQuestLinesList(uint32 uiMapId) const;
+        std::vector<uint32> const* GetUiMapQuestsList(uint32 uiMapId) const;
 
         VehicleTemplate const* GetVehicleTemplate(Vehicle* veh) const;
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
@@ -1359,6 +1378,7 @@ class TC_GAME_API ObjectMgr
         void LoadNPCText();
 
         void LoadAreaTriggerTeleports();
+        void LoadAreaTriggerPolygons();
         void LoadAccessRequirements();
         void LoadQuestAreaTriggers();
         void LoadQuestGreetings();
@@ -1408,6 +1428,14 @@ class TC_GAME_API ObjectMgr
         void LoadPlayerChoices();
         void LoadPlayerChoicesLocale();
 
+        void LoadUiMapQuestLines();
+        void LoadUiMapQuests();
+
+        void LoadSpawnTrackingTemplates();
+        void LoadSpawnTrackingQuestObjectives();
+        void LoadSpawnTrackings();
+        void LoadSpawnTrackingStates();
+
         void LoadJumpChargeParams();
         void LoadPhaseNames();
 
@@ -1450,6 +1478,11 @@ class TC_GAME_API ObjectMgr
         Trinity::IteratorPair<SpawnGroupLinkContainer::const_iterator> GetSpawnMetadataForGroup(uint32 groupId) const { return Trinity::Containers::MapEqualRange(_spawnGroupMapStore, groupId); }
         std::vector<uint32> const* GetSpawnGroupsForMap(uint32 mapId) const { auto it = _spawnGroupsByMap.find(mapId); return it != _spawnGroupsByMap.end() ? &it->second : nullptr; }
         std::vector<InstanceSpawnGroupInfo> const* GetInstanceSpawnGroupsForMap(uint32 mapId) const { auto it = _instanceSpawnGroupStore.find(mapId); return it != _instanceSpawnGroupStore.end() ? &it->second : nullptr; }
+
+        SpawnTrackingTemplateData const* GetSpawnTrackingData(uint32 spawnTrackingId) const;
+        Trinity::IteratorPair<SpawnTrackingLinkContainer::const_iterator> GetSpawnMetadataForSpawnTracking(uint32 spawnTrackingId) const { return Trinity::Containers::MapEqualRange(_spawnTrackingMapStore, spawnTrackingId); }
+        std::vector<QuestObjective const*> const* GetSpawnTrackingQuestObjectiveList(uint32 spawnTrackingId) const { auto it = _spawnTrackingQuestObjectiveStore.find(spawnTrackingId); return it != _spawnTrackingQuestObjectiveStore.end() ? &it->second : nullptr; }
+        bool IsQuestObjectiveForSpawnTracking(uint32 spawnTrackingId, uint32 questObjectiveId) const;
 
         MailLevelReward const* GetMailLevelReward(uint8 level, uint8 race) const
         {
@@ -1792,6 +1825,7 @@ class TC_GAME_API ObjectMgr
         QuestGreetingLocaleContainer _questGreetingLocaleStore;
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
+        std::unordered_map<uint32, AreaTriggerPolygon> _areaTriggerPolygons;
         AccessRequirementContainer _accessRequirementStore;
         std::unordered_map<uint32, WorldSafeLocsEntry> _worldSafeLocs;
 
@@ -1917,6 +1951,9 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<uint32, std::vector<uint32>> _spawnGroupsByMap;
         SpawnGroupLinkContainer _spawnGroupMapStore;
         InstanceSpawnGroupContainer _instanceSpawnGroupStore;
+        SpawnTrackingTemplateContainer _spawnTrackingDataStore;
+        SpawnTrackingLinkContainer _spawnTrackingMapStore;
+        SpawnTrackingQuestObjectiveContainer _spawnTrackingQuestObjectiveStore;
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
         std::unordered_map<int32 /*choiceId*/, PlayerChoice> _playerChoices;
@@ -1943,6 +1980,9 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
+
+        UiMapQuestLinesMap _uiMapQuestLinesStore;
+        UiMapQuestsMap _uiMapQuestsStore;
 
         std::unordered_map<int32, JumpChargeParams> _jumpChargeParams;
 

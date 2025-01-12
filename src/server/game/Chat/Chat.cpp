@@ -29,7 +29,7 @@
 #include "ObjectMgr.h"
 #include "Optional.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -95,7 +95,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     if (target)
         target_sec = target->GetSecurity();
     else if (target_account)
-        target_sec = AccountMgr::GetSecurity(target_account, realm.Id.Realm);
+        target_sec = AccountMgr::GetSecurity(target_account, sRealmList->GetCurrentRealmId().Realm);
     else
         return true;                                        // caller must report error for (target == nullptr && target_account == 0)
 

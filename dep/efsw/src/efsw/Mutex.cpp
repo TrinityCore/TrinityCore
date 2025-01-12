@@ -3,24 +3,18 @@
 
 namespace efsw {
 
-Mutex::Mutex() :
-	mMutexImpl( new Platform::MutexImpl() )
-{
-}
+Mutex::Mutex() : mMutexImpl( new Platform::MutexImpl() ) {}
 
-Mutex::~Mutex()
-{
+Mutex::~Mutex() {
 	efSAFE_DELETE( mMutexImpl );
 }
 
-void Mutex::lock()
-{
+void Mutex::lock() {
 	mMutexImpl->lock();
 }
 
-void Mutex::unlock()
-{
+void Mutex::unlock() {
 	mMutexImpl->unlock();
 }
 
-}
+} // namespace efsw

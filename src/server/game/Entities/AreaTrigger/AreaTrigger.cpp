@@ -27,6 +27,7 @@
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -53,6 +54,8 @@ AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _spawnId(0), _aurE
 
     m_updateFlag.Stationary = true;
     m_updateFlag.AreaTrigger = true;
+
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_AreaTrigger, false);
 }
 
 AreaTrigger::~AreaTrigger()
@@ -67,7 +70,7 @@ void AreaTrigger::AddToWorld()
         if (m_zoneScript)
             m_zoneScript->OnAreaTriggerCreate(this);
 
-        GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<AreaTrigger>(this);
         if (_spawnId)
             GetMap()->GetAreaTriggerBySpawnIdStore().insert(std::make_pair(_spawnId, this));
 
@@ -97,11 +100,19 @@ void AreaTrigger::RemoveFromWorld()
 
         if (IsStaticSpawn())
             Trinity::Containers::MultimapErasePair(GetMap()->GetAreaTriggerBySpawnIdStore(), _spawnId, this);
-        GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<AreaTrigger>(this);
     }
 }
 
-bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreatePropertiesId, Map* map, Position const& pos, int32 duration, AreaTriggerSpawn const* spawnData /* nullptr */, Unit* caster /*= nullptr*/, Unit* target /*= nullptr*/, SpellCastVisual spellVisual /*= { 0, 0 }*/, SpellInfo const* spellInfo /*= nullptr*/, Spell* spell /*= nullptr*/, AuraEffect const* aurEff /*= nullptr*/)
+void AreaTrigger::PlaySpellVisual(uint32 spellVisualId) const
+{
+    WorldPackets::AreaTrigger::AreaTriggerPlaySpellVisual packet;
+    packet.AreaTriggerGUID = GetGUID();
+    packet.SpellVisualID = spellVisualId;
+    SendMessageToSet(packet.Write(), false);
+}
+
+bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreatePropertiesId, Map* map, Position const& pos, int32 duration, AreaTriggerSpawn const* spawnData /*= nullptr*/, Unit* caster /*= nullptr*/, Unit* target /*= nullptr*/, SpellCastVisual spellVisual /*= { 0, 0 }*/, SpellInfo const* spellInfo /*= nullptr*/, Spell* spell /*= nullptr*/, AuraEffect const* aurEff /*= nullptr*/)
 {
     _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
     _aurEff = aurEff;
@@ -143,8 +154,18 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::CreatingEffectGUID), spell->m_castId);
     if (spellInfo && !IsStaticSpawn())
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellID), spellInfo->Id);
-    if (spellInfo)
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellForVisuals), spellInfo->Id);
+
+    SpellInfo const* spellForVisuals = spellInfo;
+    if (GetCreateProperties()->SpellForVisuals)
+    {
+        spellForVisuals = sSpellMgr->GetSpellInfo(*GetCreateProperties()->SpellForVisuals, DIFFICULTY_NONE);
+
+        if (spellForVisuals)
+            spellVisual.SpellXSpellVisualID = spellForVisuals->GetSpellXSpellVisualId();
+    }
+    if (spellForVisuals)
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellForVisuals), spellForVisuals->Id);
+
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::SpellXSpellVisualID), spellVisual.SpellXSpellVisualID);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::ScriptVisualID), spellVisual.ScriptVisualID);
     if (!IsStaticSpawn())
@@ -175,8 +196,8 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID), GetCreateProperties()->AnimId);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimKitID), GetCreateProperties()->AnimKitId);
-    if (GetCreateProperties() && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::Unk3))
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::Field_C), true);
+    if (GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::VisualAnimIsDecay))
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::IsDecay), true);
 
     if (caster)
         PhasingHandler::InheritPhaseShift(this, caster);
@@ -186,15 +207,13 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             PhasingHandler::InitDbPhaseShift(GetPhaseShift(), spawnData->phaseUseFlags, spawnData->phaseId, spawnData->phaseGroup);
     }
 
-    if (target && GetCreateProperties() && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
+    if (target && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
         m_movementInfo.transport.guid = target->GetGUID();
 
     if (!IsStaticSpawn())
         UpdatePositionData();
 
     UpdateShape();
-
-    uint32 timeToTarget = GetCreateProperties()->TimeToTarget != 0 ? GetCreateProperties()->TimeToTarget : *m_areaTriggerData->Duration;
 
     if (GetCreateProperties()->OrbitInfo)
     {
@@ -204,11 +223,11 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         else
             orbit.Center = pos;
 
-        InitOrbit(orbit, timeToTarget);
+        InitOrbit(orbit, GetCreateProperties()->Speed);
     }
     else if (GetCreateProperties()->HasSplines())
     {
-        InitSplineOffsets(GetCreateProperties()->SplinePoints, timeToTarget);
+        InitSplineOffsets(GetCreateProperties()->SplinePoints);
     }
 
     // movement on transport of areatriggers on unit is handled by themself
@@ -282,17 +301,7 @@ bool AreaTrigger::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool /*addTo
     if (!createProperties)
         return false;
 
-    SpellInfo const* spellInfo = nullptr;
-    SpellCastVisual spellVisual;
-    if (spawnData->SpellForVisuals)
-    {
-        spellInfo = sSpellMgr->GetSpellInfo(*spawnData->SpellForVisuals, DIFFICULTY_NONE);
-
-        if (spellInfo)
-            spellVisual.SpellXSpellVisualID = spellInfo->GetSpellXSpellVisualId();
-    }
-
-    return Create(spawnData->Id, map, spawnData->spawnPoint, -1, spawnData, nullptr, nullptr, spellVisual, spellInfo);
+    return Create(spawnData->Id, map, spawnData->spawnPoint, -1, spawnData);
 }
 
 void AreaTrigger::Update(uint32 diff)
@@ -618,13 +627,55 @@ void AreaTrigger::UpdateTargetList()
 
     if (GetTemplate())
     {
-        if (ConditionContainer const* conditions = sConditionMgr->GetConditionsForAreaTrigger(GetTemplate()->Id.Id, GetTemplate()->Id.IsCustom))
+        ConditionContainer const* conditions = sConditionMgr->GetConditionsForAreaTrigger(GetTemplate()->Id.Id, GetTemplate()->Id.IsCustom);
+        Trinity::Containers::EraseIf(targetList, [this, conditions](Unit const* target)
         {
-            Trinity::Containers::EraseIf(targetList, [conditions](Unit const* target)
+            if (GetCasterGuid() == target->GetGUID())
             {
+                if (HasActionSetFlag(AreaTriggerActionSetFlag::NotTriggeredbyCaster))
+                    return true;
+            }
+            else
+            {
+                if (HasActionSetFlag(AreaTriggerActionSetFlag::OnlyTriggeredByCaster))
+                    return true;
+
+                if (HasActionSetFlag(AreaTriggerActionSetFlag::CreatorsPartyOnly))
+                {
+                    Unit* caster = GetCaster();
+                    if (!caster)
+                        return true;
+
+                    if (!caster->IsInRaidWith(target))
+                        return true;
+                }
+            }
+
+            if (Player const* player = target->ToPlayer())
+            {
+                switch (player->getDeathState())
+                {
+                    case DEAD:
+                        if (!HasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileGhost))
+                            return true;
+                        break;
+                    case CORPSE:
+                        if (!HasActionSetFlag(AreaTriggerActionSetFlag::AllowWhileDead))
+                            return true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (!HasActionSetFlag(AreaTriggerActionSetFlag::CanAffectUninteractible) && target->IsUninteractible())
+                return true;
+
+            if (conditions)
                 return !sConditionMgr->IsObjectMeetToConditions(target, *conditions);
-            });
-        }
+
+            return false;
+        });
     }
 
     HandleUnitEnterExit(targetList);
@@ -632,7 +683,7 @@ void AreaTrigger::UpdateTargetList()
 
 void AreaTrigger::SearchUnits(std::vector<Unit*>& targetList, float radius, bool check3D)
 {
-    Trinity::AnyUnitInObjectRangeCheck check(this, radius, check3D);
+    Trinity::AnyUnitInObjectRangeCheck check(this, radius, check3D, false);
     if (IsStaticSpawn())
     {
         Trinity::PlayerListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
@@ -697,7 +748,7 @@ void AreaTrigger::SearchUnitInPolygon(std::vector<Unit*>& targetList)
     {
         return unit->GetPositionZ() < minZ
             || unit->GetPositionZ() > maxZ
-            || !CheckIsInPolygon2D(unit);
+            || !unit->IsInPolygon2D(*this, _polygonVertices);
     });
 }
 
@@ -795,6 +846,9 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_ENTERED, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
             player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_ENTER, GetEntry(), 1);
+
+            if (GetTemplate()->ActionSetId)
+                player->UpdateCriteria(CriteriaType::EnterAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
         }
 
         DoActions(unit);
@@ -812,6 +866,9 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
                     ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_LEFT, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
                 player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+
+                if (GetTemplate()->ActionSetId)
+                    player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
             }
 
             UndoActions(leavingUnit);
@@ -822,7 +879,7 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumUnitsInside), _insideUnits.size());
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumPlayersInside),
-        std::count_if(_insideUnits.begin(), _insideUnits.end(), [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
+        std::ranges::count_if(_insideUnits, [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
 }
 
 AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
@@ -909,75 +966,6 @@ void AreaTrigger::UpdatePolygonVertices()
     }
 
     _verticesUpdatePreviousOrientation = newOrientation;
-}
-
-bool AreaTrigger::CheckIsInPolygon2D(Position const* pos) const
-{
-    float testX = pos->GetPositionX();
-    float testY = pos->GetPositionY();
-
-    //this method uses the ray tracing algorithm to determine if the point is in the polygon
-    bool locatedInPolygon = false;
-
-    for (std::size_t vertex = 0; vertex < _polygonVertices.size(); ++vertex)
-    {
-        std::size_t nextVertex;
-
-        //repeat loop for all sets of points
-        if (vertex == (_polygonVertices.size() - 1))
-        {
-            //if i is the last vertex, let j be the first vertex
-            nextVertex = 0;
-        }
-        else
-        {
-            //for all-else, let j=(i+1)th vertex
-            nextVertex = vertex + 1;
-        }
-
-        float vertX_i = GetPositionX() + _polygonVertices[vertex].GetPositionX();
-        float vertY_i = GetPositionY() + _polygonVertices[vertex].GetPositionY();
-        float vertX_j = GetPositionX() + _polygonVertices[nextVertex].GetPositionX();
-        float vertY_j = GetPositionY() + _polygonVertices[nextVertex].GetPositionY();
-
-        // following statement checks if testPoint.Y is below Y-coord of i-th vertex
-        bool belowLowY = vertY_i > testY;
-        // following statement checks if testPoint.Y is below Y-coord of i+1-th vertex
-        bool belowHighY = vertY_j > testY;
-
-        /* following statement is true if testPoint.Y satisfies either (only one is possible)
-        -->(i).Y < testPoint.Y < (i+1).Y        OR
-        -->(i).Y > testPoint.Y > (i+1).Y
-
-        (Note)
-        Both of the conditions indicate that a point is located within the edges of the Y-th coordinate
-        of the (i)-th and the (i+1)- th vertices of the polygon. If neither of the above
-        conditions is satisfied, then it is assured that a semi-infinite horizontal line draw
-        to the right from the testpoint will NOT cross the line that connects vertices i and i+1
-        of the polygon
-        */
-        bool withinYsEdges = belowLowY != belowHighY;
-
-        if (withinYsEdges)
-        {
-            // this is the slope of the line that connects vertices i and i+1 of the polygon
-            float slopeOfLine = (vertX_j - vertX_i) / (vertY_j - vertY_i);
-
-            // this looks up the x-coord of a point lying on the above line, given its y-coord
-            float pointOnLine = (slopeOfLine* (testY - vertY_i)) + vertX_i;
-
-            //checks to see if x-coord of testPoint is smaller than the point on the line with the same y-coord
-            bool isLeftToLine = testX < pointOnLine;
-
-            if (isLeftToLine)
-            {
-                //this statement changes true to false (and vice-versa)
-                locatedInPolygon = !locatedInPolygon;
-            }//end if (isLeftToLine)
-        }//end if (withinYsEdges
-    }
-
-    return locatedInPolygon;
 }
 
 bool AreaTrigger::HasOverridePosition() const
@@ -1076,7 +1064,7 @@ void AreaTrigger::UndoActions(Unit* unit)
                 unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget)
+void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -1096,26 +1084,26 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32
         rotatedPoints.emplace_back(x, y, z);
     }
 
-    InitSplines(std::move(rotatedPoints), timeToTarget);
+    InitSplines(rotatedPoints, overrideSpeed);
 }
 
-void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget)
+void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed)
 {
     if (splinePoints.size() < 2)
         return;
 
     _movementTime = 0;
 
-    _spline = std::make_unique<::Movement::Spline<int32>>();
-    _spline->init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeLinear);
-    _spline->initLengths();
+    std::unique_ptr<Movement::Spline<int32>> spline = std::make_unique<::Movement::Spline<int32>>();
+    spline->init_spline(splinePoints.data(), splinePoints.size(), ::Movement::SplineBase::ModeLinear);
+    spline->initLengths();
 
-    // should be sent in object create packets only
-    DoWithSuppressingObjectUpdates([&]()
-    {
-        SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
-        const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
-    });
+    float speed = overrideSpeed.value_or(GetCreateProperties()->Speed);
+    if (speed <= 0.0f)
+        speed = 1.0f;
+
+    uint32 timeToTarget = spline->length() / speed * float(IN_MILLISECONDS);
+    SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
 
     if (IsInWorld())
     {
@@ -1131,65 +1119,69 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
         reshape.AreaTriggerSpline.emplace();
         reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
         reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
-        for (G3D::Vector3 const& vec : splinePoints)
+        for (G3D::Vector3 const& vec : spline->getPoints())
             reshape.AreaTriggerSpline->Points.emplace_back(vec.x, vec.y, vec.z);
 
         SendMessageToSet(reshape.Write(), true);
     }
 
     _reachedDestination = false;
+    _movement = std::move(spline);
 }
 
 bool AreaTrigger::HasSplines() const
 {
-    return bool(_spline);
+    return std::holds_alternative<std::unique_ptr<::Movement::Spline<int32>>>(_movement);
 }
 
-void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarget)
+void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed)
 {
     // Circular movement requires either a center position or an attached unit
     ASSERT(orbit.Center.has_value() || orbit.PathTarget.has_value());
 
-    // should be sent in object create packets only
-    DoWithSuppressingObjectUpdates([&]()
-    {
-        SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
-        const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
-    });
+    float speed = overrideSpeed.value_or(GetCreateProperties()->Speed);
+    if (speed <= 0.0f)
+        speed = 1.0f;
 
+    uint32 timeToTarget = static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) * static_cast<float>(IN_MILLISECONDS) / speed);
+
+    SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OrbitPathTarget), orbit.PathTarget.value_or(ObjectGuid::Empty));
 
-    _orbitInfo = orbit;
+    std::unique_ptr<AreaTriggerOrbitInfo> movementOrbit = std::make_unique<AreaTriggerOrbitInfo>();
 
-    _orbitInfo->TimeToTarget = timeToTarget;
-    _orbitInfo->ElapsedTimeForMovement = 0;
+    movementOrbit->TimeToTarget = timeToTarget;
+    movementOrbit->ElapsedTimeForMovement = 0;
 
     if (IsInWorld())
     {
         WorldPackets::AreaTrigger::AreaTriggerRePath reshape;
         reshape.TriggerGUID = GetGUID();
-        reshape.AreaTriggerOrbit = _orbitInfo;
+        reshape.AreaTriggerOrbit = *movementOrbit;
 
         SendMessageToSet(reshape.Write(), true);
     }
+
+    _movement = std::move(movementOrbit);
 }
 
 bool AreaTrigger::HasOrbit() const
 {
-    return _orbitInfo.has_value();
+    return std::holds_alternative<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
 }
 
 Position const* AreaTrigger::GetOrbitCenterPosition() const
 {
-    if (!_orbitInfo)
+    if (!HasOrbit())
         return nullptr;
 
-    if (_orbitInfo->PathTarget)
-        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_orbitInfo->PathTarget))
+    AreaTriggerOrbitInfo const& orbit = *std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
+    if (orbit.PathTarget)
+        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *orbit.PathTarget))
             return center;
 
-    if (_orbitInfo->Center)
-        return &_orbitInfo->Center->Pos;
+    if (orbit.Center)
+        return &orbit.Center->Pos;
 
     return nullptr;
 }
@@ -1201,7 +1193,7 @@ Position AreaTrigger::CalculateOrbitPosition() const
         return GetPosition();
 
     AreaTriggerCreateProperties const* createProperties = GetCreateProperties();
-    AreaTriggerOrbitInfo const& cmi = *_orbitInfo;
+    AreaTriggerOrbitInfo const& cmi = GetOrbit();
 
     // AreaTrigger make exactly "Duration / TimeToTarget" loops during his life time
     float pathProgress = float(cmi.ElapsedTimeForMovement) / float(cmi.TimeToTarget);
@@ -1246,10 +1238,11 @@ Position AreaTrigger::CalculateOrbitPosition() const
 
 void AreaTrigger::UpdateOrbitPosition(uint32 /*diff*/)
 {
-    if (_orbitInfo->StartDelay > GetElapsedTimeForMovement())
+    AreaTriggerOrbitInfo& orbit = *std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
+    if (orbit.StartDelay > GetElapsedTimeForMovement())
         return;
 
-    _orbitInfo->ElapsedTimeForMovement = GetElapsedTimeForMovement() - _orbitInfo->StartDelay;
+    orbit.ElapsedTimeForMovement = GetElapsedTimeForMovement() - orbit.StartDelay;
 
     Position pos = CalculateOrbitPosition();
 
@@ -1266,12 +1259,14 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
 
     _movementTime += diff;
 
+    Movement::Spline<int32>& spline = *std::get<std::unique_ptr<::Movement::Spline<int32>>>(_movement);
+
     if (_movementTime >= GetTimeToTarget())
     {
         _reachedDestination = true;
-        _lastSplineIndex = int32(_spline->last());
+        _lastSplineIndex = int32(spline.last());
 
-        G3D::Vector3 lastSplinePosition = _spline->getPoint(_lastSplineIndex);
+        G3D::Vector3 lastSplinePosition = spline.getPoint(_lastSplineIndex);
         GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());
 #ifdef TRINITY_DEBUG
         DebugVisualizePosition();
@@ -1300,12 +1295,12 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
             currentTimePercent = progress;
     }
 
-    int lastPositionIndex = 0;
+    int32 lastPositionIndex = 0;
     float percentFromLastPoint = 0;
-    _spline->computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
+    spline.computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
 
     G3D::Vector3 currentPosition;
-    _spline->evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
+    spline.evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
 
     float orientation = GetStationaryO();
     if (createProperties && createProperties->FacingCurveId)
@@ -1314,7 +1309,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     if (GetCreateProperties() && !GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAbsoluteOrientation) && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir))
     {
         G3D::Vector3 derivative;
-        _spline->evaluate_derivative(lastPositionIndex, percentFromLastPoint, derivative);
+        spline.evaluate_derivative(lastPositionIndex, percentFromLastPoint, derivative);
         if (derivative.x != 0.0f || derivative.y != 0.0f)
             orientation += std::atan2(derivative.y, derivative.x);
     }
@@ -1389,22 +1384,14 @@ bool AreaTrigger::IsNeverVisibleFor(WorldObject const* seer, bool allowServersid
     return false;
 }
 
-void AreaTrigger::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void AreaTrigger::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_areaTriggerData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void AreaTrigger::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void AreaTrigger::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -1412,13 +1399,12 @@ void AreaTrigger::BuildValuesUpdate(ByteBuffer* data, Player const* target) cons
 
     if (m_values.HasChanged(TYPEID_AREATRIGGER))
         m_areaTriggerData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void AreaTrigger::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::AreaTriggerData::Mask const& requestedAreaTriggerMask, Player const* target) const
 {
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -1429,6 +1415,7 @@ void AreaTrigger::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

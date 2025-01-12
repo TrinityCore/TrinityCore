@@ -65,7 +65,7 @@ struct GameObjectTemplate
             uint32 GiganticAOI;                             // 9 Gigantic AOI, enum { false, true, }; Default: false
             uint32 InfiniteAOI;                             // 10 Infinite AOI, enum { false, true, }; Default: false
             uint32 NotLOSBlocking;                          // 11 Not LOS Blocking, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 12 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 12 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Collisionupdatedelayafteropen;           // 13 Collision update delay(ms) after open, int, Min value: 0, Max value: 2147483647, Default value: 0
         } door;
         // 1 GAMEOBJECT_TYPE_BUTTON
@@ -81,7 +81,7 @@ struct GameObjectTemplate
             uint32 closeTextID;                             // 7 closeTextID, References: BroadcastText, NoValue = 0
             uint32 requireLOS;                              // 8 require LOS, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 9 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 10 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 10 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } button;
         // 2 GAMEOBJECT_TYPE_QUESTGIVER
         struct
@@ -98,7 +98,7 @@ struct GameObjectTemplate
             uint32 GiganticAOI;                             // 9 Gigantic AOI, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 10 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 NeverUsableWhileMounted;                 // 11 Never Usable While Mounted, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 12 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 12 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } questgiver;
         // 3 GAMEOBJECT_TYPE_CHEST
         struct
@@ -112,7 +112,7 @@ struct GameObjectTemplate
             uint32 triggeredEvent;                          // 6 triggeredEvent, References: GameEvents, NoValue = 0
             uint32 linkedTrap;                              // 7 linkedTrap, References: GameObjects, NoValue = 0
             uint32 questID;                                 // 8 questID, References: QuestV2, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 requireLOS;                              // 10 require LOS, enum { false, true, }; Default: false
             uint32 leaveLoot;                               // 11 leaveLoot, enum { false, true, }; Default: false
             uint32 notInCombat;                             // 12 notInCombat, enum { false, true, }; Default: false
@@ -121,9 +121,9 @@ struct GameObjectTemplate
             uint32 usegrouplootrules;                       // 15 use group loot rules, enum { false, true, }; Default: false
             uint32 floatingTooltip;                         // 16 floatingTooltip, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 17 conditionID1, References: PlayerCondition, NoValue = 0
-            int32 Unused;                                   // 18 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 xpLevel;                                  // 18 xpLevel, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 xpDifficulty;                            // 19 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, 5, }; Default: No Exp
-            uint32 Unused2;                                 // 20 Unused, int, Min value: 0, Max value: 123, Default value: 0
+            uint32 Unused;                                  // 20 Unused, int, Min value: 0, Max value: 123, Default value: 0
             uint32 GroupXP;                                 // 21 Group XP, enum { false, true, }; Default: false
             uint32 DamageImmuneOK;                          // 22 Damage Immune OK, enum { false, true, }; Default: false
             uint32 trivialSkillLow;                         // 23 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0
@@ -142,7 +142,7 @@ struct GameObjectTemplate
         // 4 GAMEOBJECT_TYPE_BINDER
         struct
         {
-            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } binder;
         // 5 GAMEOBJECT_TYPE_GENERIC
         struct
@@ -156,7 +156,7 @@ struct GameObjectTemplate
             uint32 conditionID1;                            // 6 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 LargeAOI;                                // 7 Large AOI, enum { false, true, }; Default: false
             uint32 UseGarrisonOwnerGuildColors;             // 8 Use Garrison Owner Guild Colors, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } generic;
         // 6 GAMEOBJECT_TYPE_TRAP
         struct
@@ -182,7 +182,7 @@ struct GameObjectTemplate
             uint32 requireLOS;                              // 18 require LOS, enum { false, true, }; Default: false
             uint32 TriggerCondition;                        // 19 Trigger Condition, References: PlayerCondition, NoValue = 0
             uint32 Checkallunits;                           // 20 Check all units (spawned traps only check players), enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 21 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 21 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } trap;
         // 7 GAMEOBJECT_TYPE_CHAIR
         struct
@@ -192,7 +192,7 @@ struct GameObjectTemplate
             uint32 onlyCreatorUse;                          // 2 onlyCreatorUse, enum { false, true, }; Default: false
             uint32 triggeredEvent;                          // 3 triggeredEvent, References: GameEvents, NoValue = 0
             uint32 conditionID1;                            // 4 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } chair;
         // 8 GAMEOBJECT_TYPE_SPELL_FOCUS
         struct
@@ -206,7 +206,7 @@ struct GameObjectTemplate
             uint32 floatingTooltip;                         // 6 floatingTooltip, enum { false, true, }; Default: false
             uint32 floatOnWater;                            // 7 floatOnWater, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 8 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 gossipID;                                // 10 gossipID, References: Gossip, NoValue = 0
             uint32 spellFocusType2;                         // 11 spellFocusType 2, References: SpellFocusObject, NoValue = 0
             uint32 spellFocusType3;                         // 12 spellFocusType 3, References: SpellFocusObject, NoValue = 0
@@ -224,7 +224,7 @@ struct GameObjectTemplate
             uint32 allowMounted;                            // 3 allowMounted, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 4 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 NeverUsableWhileMounted;                 // 5 Never Usable While Mounted, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 6 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 6 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } text;
         // 10 GAMEOBJECT_TYPE_GOOBER
         struct
@@ -262,7 +262,7 @@ struct GameObjectTemplate
             uint32 SyncAnimationtoObjectLifetime;           // 30 Sync Animation to Object Lifetime (global track only), enum { false, true, }; Default: false
             uint32 NoFuzzyHit;                              // 31 No Fuzzy Hit, enum { false, true, }; Default: false
             uint32 LargeAOI;                                // 32 Large AOI, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 33 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 33 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } goober;
         // 11 GAMEOBJECT_TYPE_TRANSPORT
         struct
@@ -291,7 +291,7 @@ struct GameObjectTemplate
             uint32 Reached10thfloor;                        // 21 Reached 10th floor, References: GameEvents, NoValue = 0
             uint32 onlychargeheightcheck;                   // 22 only charge height check. (yards), int, Min value: 0, Max value: 65535, Default value: 0
             uint32 onlychargetimecheck;                     // 23 only charge time check, int, Min value: 0, Max value: 65535, Default value: 0
-            uint32 InteractRadiusOverride;                  // 24 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 24 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } transport;
         // 12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
@@ -304,7 +304,7 @@ struct GameObjectTemplate
             uint32 autoClose;                               // 5 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 openTextID;                              // 6 openTextID, References: BroadcastText, NoValue = 0
             uint32 closeTextID;                             // 7 closeTextID, References: BroadcastText, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 8 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 8 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } areaDamage;
         // 13 GAMEOBJECT_TYPE_CAMERA
         struct
@@ -314,7 +314,7 @@ struct GameObjectTemplate
             uint32 eventID;                                 // 2 eventID, References: GameEvents, NoValue = 0
             uint32 openTextID;                              // 3 openTextID, References: BroadcastText, NoValue = 0
             uint32 conditionID1;                            // 4 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } camera;
         // 14 GAMEOBJECT_TYPE_MAP_OBJECT
         struct
@@ -334,19 +334,19 @@ struct GameObjectTemplate
             uint32 allowstopping;                           // 8 allow stopping, enum { false, true, }; Default: false
             uint32 InitStopped;                             // 9 Init Stopped, enum { false, true, }; Default: false
             uint32 TrueInfiniteAOI;                         // 10 True Infinite AOI (programmer only!), enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 11 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 11 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Allowareaexplorationwhileonthistransport;// 12 Allow area exploration while on this transport, enum { false, true, }; Default: false
         } moTransport;
         // 16 GAMEOBJECT_TYPE_DUEL_ARBITER
         struct
         {
-            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Willthisduelgountilaplayerdies;          // 1 Will this duel go until a player dies?, enum { false, true, }; Default: false
         } duelFlag;
         // 17 GAMEOBJECT_TYPE_FISHINGNODE
         struct
         {
-            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } fishingNode;
         // 18 GAMEOBJECT_TYPE_RITUAL
         struct
@@ -360,14 +360,14 @@ struct GameObjectTemplate
             uint32 castersGrouped;                          // 6 castersGrouped, enum { false, true, }; Default: true
             uint32 ritualNoTargetCheck;                     // 7 ritualNoTargetCheck, enum { false, true, }; Default: true
             uint32 conditionID1;                            // 8 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Allowunfriendlycrossfactionpartymemberstocollaborateonaritual;// 10 Allow unfriendly cross faction party members to collaborate on a ritual, enum { false, true, }; Default: false
         } ritual;
         // 19 GAMEOBJECT_TYPE_MAILBOX
         struct
         {
             uint32 conditionID1;                            // 0 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } mailbox;
         // 20 GAMEOBJECT_TYPE_DO_NOT_USE
         struct
@@ -379,7 +379,7 @@ struct GameObjectTemplate
             uint32 creatureID;                              // 0 creatureID, References: Creature, NoValue = 0
             uint32 charges;                                 // 1 charges, int, Min value: 0, Max value: 65535, Default value: 1
             uint32 Preferonlyifinlineofsight;               // 2 Prefer only if in line of sight (expensive), enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } guardPost;
         // 22 GAMEOBJECT_TYPE_SPELLCASTER
         struct
@@ -392,7 +392,7 @@ struct GameObjectTemplate
             uint32 conditionID1;                            // 5 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 playerCast;                              // 6 playerCast, enum { false, true, }; Default: false
             uint32 NeverUsableWhileMounted;                 // 7 Never Usable While Mounted, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 8 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 8 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } spellCaster;
         // 23 GAMEOBJECT_TYPE_MEETINGSTONE
         struct
@@ -400,7 +400,7 @@ struct GameObjectTemplate
             uint32 Unused;                                  // 0 Unused, int, Min value: 0, Max value: 65535, Default value: 1
             uint32 Unused2;                                 // 1 Unused, int, Min value: 1, Max value: 65535, Default value: 60
             uint32 areaID;                                  // 2 areaID, References: AreaTable, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Preventmeetingstonefromtargetinganunfriendlypartymemberoutsideofinstances;// 4 Prevent meeting stone from targeting an unfriendly party member outside of instances, enum { false, true, }; Default: false
         } meetingStone;
         // 24 GAMEOBJECT_TYPE_FLAGSTAND
@@ -419,7 +419,7 @@ struct GameObjectTemplate
             uint32 GiganticAOI;                             // 10 Gigantic AOI, enum { false, true, }; Default: false
             uint32 InfiniteAOI;                             // 11 Infinite AOI, enum { false, true, }; Default: false
             uint32 cooldown;                                // 12 cooldown, int, Min value: 0, Max value: 2147483647, Default value: 3000
-            uint32 InteractRadiusOverride;                  // 13 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 13 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } flagStand;
         // 25 GAMEOBJECT_TYPE_FISHINGHOLE
         struct
@@ -429,7 +429,7 @@ struct GameObjectTemplate
             uint32 minRestock;                              // 2 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 maxRestock;                              // 3 maxRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 open;                                    // 4 open, References: Lock_, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } fishingHole;
         // 26 GAMEOBJECT_TYPE_FLAGDROP
         struct
@@ -444,7 +444,7 @@ struct GameObjectTemplate
             uint32 GiganticAOI;                             // 7 Gigantic AOI, enum { false, true, }; Default: false
             uint32 InfiniteAOI;                             // 8 Infinite AOI, enum { false, true, }; Default: false
             uint32 cooldown;                                // 9 cooldown, int, Min value: 0, Max value: 2147483647, Default value: 3000
-            uint32 InteractRadiusOverride;                  // 10 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 10 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } flagDrop;
         // 27 GAMEOBJECT_TYPE_MINI_GAME
         struct
@@ -485,7 +485,7 @@ struct GameObjectTemplate
             uint32 UncontestedTime;                         // 25 Uncontested Time, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 FrequentHeartbeat;                       // 26 Frequent Heartbeat, enum { false, true, }; Default: false
             uint32 EnablingWorldStateExpression;            // 27 Enabling World State Expression, References: WorldStateExpression, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 28 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 28 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } controlZone;
         // 30 GAMEOBJECT_TYPE_AURA_GENERATOR
         struct
@@ -497,7 +497,7 @@ struct GameObjectTemplate
             uint32 auraID2;                                 // 4 auraID2, References: Spell, NoValue = 0
             uint32 conditionID2;                            // 5 conditionID2, References: PlayerCondition, NoValue = 0
             uint32 serverOnly;                              // 6 serverOnly, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 7 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 7 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } auraGenerator;
         // 31 GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY
         struct
@@ -513,7 +513,7 @@ struct GameObjectTemplate
             uint32 LargeAOI;                                // 8 Large AOI, enum { false, true, }; Default: false
             uint32 GiganticAOI;                             // 9 Gigantic AOI, enum { false, true, }; Default: false
             uint32 Legacy;                                  // 10 Legacy, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 11 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 11 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } dungeonDifficulty;
         // 32 GAMEOBJECT_TYPE_BARBER_CHAIR
         struct
@@ -521,7 +521,7 @@ struct GameObjectTemplate
             uint32 chairheight;                             // 0 chairheight, int, Min value: 0, Max value: 2, Default value: 1
             int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
             uint32 SitAnimKit;                              // 2 Sit Anim Kit, References: AnimKit, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 CustomizationScope;                      // 4 Customization Scope, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Preventteleportingtheplayeroutofthebarbershopchair;// 5 Prevent teleporting the player out of the barbershop chair, enum { false, true, }; Default: false
         } barberChair;
@@ -555,13 +555,13 @@ struct GameObjectTemplate
             int32 Thexoffsetofthedestructiblenameplateifitisenabled;// 24 The x offset (in hundredths) of the destructible nameplate, if it is enabled, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             int32 Theyoffsetofthedestructiblenameplateifitisenabled;// 25 The y offset (in hundredths) of the destructible nameplate, if it is enabled, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             int32 Thezoffsetofthedestructiblenameplateifitisenabled;// 26 The z offset (in hundredths) of the destructible nameplate, if it is enabled, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 InteractRadiusOverride;                  // 27 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 27 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } destructibleBuilding;
         // 34 GAMEOBJECT_TYPE_GUILD_BANK
         struct
         {
             uint32 conditionID1;                            // 0 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } guildbank;
         // 35 GAMEOBJECT_TYPE_TRAPDOOR
         struct
@@ -574,7 +574,7 @@ struct GameObjectTemplate
             uint32 GiganticAOI;                             // 5 Gigantic AOI, enum { false, true, }; Default: false
             uint32 InfiniteAOI;                             // 6 Infinite AOI, enum { false, true, }; Default: false
             uint32 DoorisOpaque;                            // 7 Door is Opaque (Disable portal on close), enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 8 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 8 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } trapdoor;
         // 36 GAMEOBJECT_TYPE_NEW_FLAG
         struct
@@ -593,27 +593,27 @@ struct GameObjectTemplate
             uint32 worldState1;                             // 11 worldState1, References: WorldState, NoValue = 0
             uint32 ReturnonDefenderInteract;                // 12 Return on Defender Interact, enum { false, true, }; Default: false
             uint32 SpawnVignette;                           // 13 Spawn Vignette, References: vignette, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 14 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 14 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } newflag;
         // 37 GAMEOBJECT_TYPE_NEW_FLAG_DROP
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
             uint32 SpawnVignette;                           // 1 Spawn Vignette, References: vignette, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } newflagdrop;
         // 38 GAMEOBJECT_TYPE_GARRISON_BUILDING
         struct
         {
             int32 SpawnMap;                                 // 0 Spawn Map, References: Map, NoValue = -1
-            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } garrisonBuilding;
         // 39 GAMEOBJECT_TYPE_GARRISON_PLOT
         struct
         {
             uint32 PlotInstance;                            // 0 Plot Instance, References: GarrPlotInstance, NoValue = 0
             int32 SpawnMap;                                 // 1 Spawn Map, References: Map, NoValue = -1
-            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } garrisonPlot;
         // 40 GAMEOBJECT_TYPE_CLIENT_CREATURE
         struct
@@ -653,7 +653,7 @@ struct GameObjectTemplate
             uint32 SpellVisual4;                            // 20 Spell Visual 4, References: SpellVisual, NoValue = 0
             uint32 SpellVisual5;                            // 21 Spell Visual 5, References: SpellVisual, NoValue = 0
             uint32 SpawnVignette;                           // 22 Spawn Vignette, References: vignette, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 23 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 23 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } capturePoint;
         // 43 GAMEOBJECT_TYPE_PHASEABLE_MO
         struct
@@ -662,14 +662,14 @@ struct GameObjectTemplate
             int32 AreaNameSet;                              // 1 Area Name Set (Index), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 DoodadSetA;                              // 2 Doodad Set A, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 DoodadSetB;                              // 3 Doodad Set B, int, Min value: 0, Max value: 2147483647, Default value: 0
-            uint32 InteractRadiusOverride;                  // 4 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 4 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } phaseableMO;
         // 44 GAMEOBJECT_TYPE_GARRISON_MONUMENT
         struct
         {
             uint32 TrophyTypeID;                            // 0 Trophy Type ID, References: TrophyType, NoValue = 0
             uint32 TrophyInstanceID;                        // 1 Trophy Instance ID, References: TrophyInstance, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } garrisonMonument;
         // 45 GAMEOBJECT_TYPE_GARRISON_SHIPMENT
         struct
@@ -677,13 +677,13 @@ struct GameObjectTemplate
             uint32 ShipmentContainer;                       // 0 Shipment Container, References: CharShipmentContainer, NoValue = 0
             uint32 GiganticAOI;                             // 1 Gigantic AOI, enum { false, true, }; Default: false
             uint32 LargeAOI;                                // 2 Large AOI, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } garrisonShipment;
         // 46 GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE
         struct
         {
             uint32 TrophyInstanceID;                        // 0 Trophy Instance ID, References: TrophyInstance, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 1 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } garrisonMonumentPlaque;
         // 47 GAMEOBJECT_TYPE_ITEM_FORGE
         struct
@@ -694,7 +694,7 @@ struct GameObjectTemplate
             uint32 CameraMode;                              // 3 Camera Mode, References: CameraMode, NoValue = 0
             uint32 FadeRegionRadius;                        // 4 Fade Region Radius, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 ForgeType;                               // 5 Forge Type, enum { Artifact Forge, Relic Forge, Heart Forge, Soulbind Forge, Anima Reservoir, }; Default: Relic Forge
-            uint32 InteractRadiusOverride;                  // 6 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 6 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 GarrTalentTreeID;                        // 7 GarrTalentTree ID, References: GarrTalentTree, NoValue = 0
         } itemForge;
         // 48 GAMEOBJECT_TYPE_UI_LINK
@@ -705,13 +705,13 @@ struct GameObjectTemplate
             uint32 GiganticAOI;                             // 2 Gigantic AOI, enum { false, true, }; Default: false
             uint32 spellFocusType;                          // 3 spellFocusType, References: SpellFocusObject, NoValue = 0
             uint32 radius;                                  // 4 radius, int, Min value: 0, Max value: 50, Default value: 10
-            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 ItemInteractionID;                       // 6 Item Interaction ID, References: UiItemInteraction, NoValue = 0
         } UILink;
         // 49 GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE
         struct
         {
-            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 0 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } KeystoneReceptacle;
         // 50 GAMEOBJECT_TYPE_GATHERING_NODE
         struct
@@ -740,7 +740,7 @@ struct GameObjectTemplate
             uint32 PlayOpenAnimationonOpening;              // 21 Play Open Animation on Opening, enum { false, true, }; Default: false
             uint32 turnpersonallootsecurityoff;             // 22 turn personal loot security off, enum { false, true, }; Default: false
             uint32 ClearObjectVignetteonOpening;            // 23 Clear Object Vignette on Opening, enum { false, true, }; Default: false
-            uint32 InteractRadiusOverride;                  // 24 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 24 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Overrideminimaptrackingicon;             // 25 Override minimap tracking icon, References: UiTextureAtlasMember, NoValue = 0
         } gatheringNode;
         // 51 GAMEOBJECT_TYPE_CHALLENGE_MODE_REWARD
@@ -750,7 +750,7 @@ struct GameObjectTemplate
             uint32 WhenAvailable;                           // 1 When Available, References: GameObjectDisplayInfo, NoValue = 0
             uint32 open;                                    // 2 open, References: Lock_, NoValue = 0
             uint32 openTextID;                              // 3 openTextID, References: BroadcastText, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 4 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 4 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } challengeModeReward;
         // 52 GAMEOBJECT_TYPE_MULTI
         struct
@@ -772,7 +772,7 @@ struct GameObjectTemplate
             uint32 DoodadSetC;                              // 3 Doodad Set C, int, Min value: 0, Max value: 2147483647, Default value: 0
             int32 SpawnMap;                                 // 4 Spawn Map, References: Map, NoValue = -1
             int32 AreaNameSet;                              // 5 Area Name Set (Index), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 InteractRadiusOverride;                  // 6 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 6 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } siegeableMO;
         // 55 GAMEOBJECT_TYPE_PVP_REWARD
         struct
@@ -781,7 +781,7 @@ struct GameObjectTemplate
             uint32 WhenAvailable;                           // 1 When Available, References: GameObjectDisplayInfo, NoValue = 0
             uint32 open;                                    // 2 open, References: Lock_, NoValue = 0
             uint32 openTextID;                              // 3 openTextID, References: BroadcastText, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 4 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 4 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } pvpReward;
         // 56 GAMEOBJECT_TYPE_PLAYER_CHOICE_CHEST
         struct
@@ -793,7 +793,7 @@ struct GameObjectTemplate
             uint32 MawPowerFilter;                          // 4 Maw Power Filter, References: MawPowerFilter, NoValue = 0
             uint32 Script;                                  // 5 Script, References: SpellScript, NoValue = 0
             uint32 SpellVisual1;                            // 6 Spell Visual 1, References: SpellVisual, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 7 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 7 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Dontupdateplayerinteractability;         // 8 Don't update player interactability, enum { false, true, }; Default: false
         } playerChoiceChest;
         // 57 GAMEOBJECT_TYPE_LEGENDARY_FORGE
@@ -801,21 +801,21 @@ struct GameObjectTemplate
         {
             uint32 PlayerChoice;                            // 0 Player Choice, References: PlayerChoice, NoValue = 0
             uint32 CustomItemBonusFilter;                   // 1 Custom Item Bonus Filter, References: CustomItemBonusFilter, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } legendaryForge;
         // 58 GAMEOBJECT_TYPE_GARR_TALENT_TREE
         struct
         {
             uint32 UiMapID;                                 // 0 Ui Map ID, References: UiMap, NoValue = 0
             uint32 GarrTalentTreeID;                        // 1 GarrTalentTree ID, References: GarrTalentTree, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
         } garrTalentTree;
         // 59 GAMEOBJECT_TYPE_WEEKLY_REWARD_CHEST
         struct
         {
             uint32 WhenAvailable;                           // 0 When Available, References: GameObjectDisplayInfo, NoValue = 0
             uint32 open;                                    // 1 open, References: Lock_, NoValue = 0
-            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 ExpansionLevel;                          // 3 Expansion Level, int, Min value: 0, Max value: 2147483647, Default value: 0
         } weeklyRewardChest;
         // 60 GAMEOBJECT_TYPE_CLIENT_MODEL

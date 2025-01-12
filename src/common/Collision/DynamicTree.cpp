@@ -29,8 +29,6 @@
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
 
-using VMAP::ModelInstance;
-
 namespace {
 
 int CHECK_TREE_PERIOD = 200;
@@ -47,7 +45,7 @@ template<> struct PositionTrait< GameObjectModel> {
 
 template<> struct BoundsTrait< GameObjectModel> {
     static void getBounds(GameObjectModel const& g, G3D::AABox& out) { out = g.getBounds();}
-    static void getBounds2(GameObjectModel const* g, G3D::AABox& out) { out = g->getBounds();}
+    void operator()(GameObjectModel const* g, G3D::AABox& out) const { getBounds(*g, out); }
 };
 
 /*
@@ -143,7 +141,25 @@ struct DynamicTreeIntersectionCallback
 
     bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
     {
-        _didHit = obj.intersectRay(r, distance, true, _phaseShift, VMAP::ModelIgnoreFlags::Nothing);
+        _didHit = obj.IntersectRay(r, distance, true, _phaseShift, VMAP::ModelIgnoreFlags::Nothing);
+        return _didHit;
+    }
+
+    bool didHit() const { return _didHit; }
+
+private:
+    bool _didHit;
+    PhaseShift const& _phaseShift;
+};
+
+struct DynamicTreeLosCallback
+{
+    DynamicTreeLosCallback(PhaseShift const& phaseShift) : _didHit(false), _phaseShift(phaseShift) { }
+
+    bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
+    {
+        if (!obj.IsLosBlockingDisabled())
+            _didHit = obj.IntersectRay(r, distance, true, _phaseShift, VMAP::ModelIgnoreFlags::Nothing);
         return _didHit;
     }
 
@@ -229,7 +245,7 @@ bool DynamicMapTree::isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 
         return true;
 
     G3D::Ray r(startPos, (endPos - startPos) / maxDist);
-    DynamicTreeIntersectionCallback callback(phaseShift);
+    DynamicTreeLosCallback callback(phaseShift);
     impl->intersectRay(r, callback, maxDist, endPos);
 
     return !callback.didHit();

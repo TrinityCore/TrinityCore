@@ -53,7 +53,6 @@ namespace WorldPackets
             uint32 AreaID           = 0;
             uint32 Level            = 0;
             uint32 ClassID          = CLASS_NONE;
-            bool Mobile             = false;
         };
 
         class ContactList final : public ServerPacket
@@ -85,7 +84,6 @@ namespace WorldPackets
             uint32 Level               = 0;
             uint32 AreaID              = 0;
             uint8 FriendResult         = 0; ///< @see enum FriendsResult
-            bool Mobile                = false;
         };
 
         struct QualifiedGUID

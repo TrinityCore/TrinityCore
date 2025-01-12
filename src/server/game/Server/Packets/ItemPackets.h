@@ -343,25 +343,26 @@ namespace WorldPackets
             uint8 Slot                      = 0;
             int32 SlotInBag                 = 0;
             ItemInstance Item;
-            int32 QuestLogItemID            = 0; // Item ID used for updating quest progress
+            int32 ProxyItemID               = 0; // Item ID used for updating quest progress
                                                  // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
-            int32 DungeonEncounterID        = 0;
+            int32 QuantityInQuestLog        = 0;
+            int32 EncounterID               = 0;
             int32 BattlePetSpeciesID        = 0;
             int32 BattlePetBreedID          = 0;
-            uint32 BattlePetBreedQuality    = 0;
+            uint8 BattlePetBreedQuality     = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             std::vector<UiEventToast> Toasts;
             Optional<Crafting::CraftingData> CraftingData;
             Optional<uint32> FirstCraftOperationID;
             bool Pushed                     = false;
-            DisplayType DisplayText         = DISPLAY_TYPE_HIDDEN;
+            DisplayType ChatNotifyType      = DISPLAY_TYPE_HIDDEN;
             bool Created                    = false;
-            bool Unused_1017                = false;
+            bool FakeQuestItem              = false;
             bool IsBonusRoll                = false;
-            bool IsEncounterLoot            = false;
+            bool IsPersonalLoot             = false;
         };
 
         class ReadItem final : public ClientPacket
@@ -488,6 +489,14 @@ namespace WorldPackets
             ObjectGuid Item;
         };
 
+        class SortAccountBankBags final : public ClientPacket
+        {
+        public:
+            explicit SortAccountBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_ACCOUNT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class SortBags final : public ClientPacket
         {
         public:
@@ -545,7 +554,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 BagIndex = 0;
+            uint8 BagIndex = 0;
             BagSlotFlags FlagToChange = { };
             bool On = false;
         };
@@ -557,7 +566,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 BagIndex = 0;
+            uint8 BagIndex = 0;
             BagSlotFlags FlagToChange = { };
             bool On = false;
         };
@@ -590,6 +599,36 @@ namespace WorldPackets
             void Read() override;
 
             bool Disable = false;
+        };
+
+        class AddItemPassive final : public ServerPacket
+        {
+        public:
+            AddItemPassive() : ServerPacket(SMSG_ADD_ITEM_PASSIVE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+        };
+
+        class RemoveItemPassive final : public ServerPacket
+        {
+        public:
+            RemoveItemPassive() : ServerPacket(SMSG_REMOVE_ITEM_PASSIVE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+        };
+
+        class SendItemPassives final : public ServerPacket
+        {
+        public:
+            SendItemPassives() : ServerPacket(SMSG_SEND_ITEM_PASSIVES, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<int32> SpellID;
         };
     }
 }

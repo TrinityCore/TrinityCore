@@ -18,9 +18,10 @@
 #ifndef LootPackets_h__
 #define LootPackets_h__
 
-#include "Packet.h"
-#include "ObjectGuid.h"
 #include "ItemPacketsCommon.h"
+#include "LootItemType.h"
+#include "ObjectGuid.h"
+#include "Packet.h"
 
 enum class LootRollIneligibilityReason : uint32;
 
@@ -40,7 +41,7 @@ namespace WorldPackets
 
         struct LootItemData
         {
-            uint8 Type              = 0;
+            ::LootItemType Type     = LootItemType::Item;
             uint8 UIType            = 0;
             uint32 Quantity         = 0;
             uint8 LootItemType      = 0;
@@ -75,6 +76,7 @@ namespace WorldPackets
             std::vector<LootCurrency> Currencies;
             bool Acquired        = false;
             bool AELooting       = false;
+            bool SuppressError   = false; // Hides error from UI
         };
 
         struct LootRequest

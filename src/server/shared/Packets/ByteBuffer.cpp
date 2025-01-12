@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "Util.h"
 #include <utf8.h>
+#include <algorithm>
 #include <sstream>
 #include <cmath>
 
@@ -29,24 +30,18 @@ ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(Ini
 }
 
 ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size, size_t valueSize)
+    : ByteBufferException(Trinity::StringFormat("Attempted to get value with size: {} in ByteBuffer (pos: {} size: {})", valueSize, pos, size))
 {
-    std::ostringstream ss;
-
-    ss << "Attempted to get value with size: "
-       << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
-       << ")";
-
-    message().assign(ss.str());
 }
 
-ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, std::string_view value)
+    : ByteBufferException(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value))
 {
-    message().assign(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value));
 }
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
-    value = read<float>();
+    read(&value, 1);
     if (!std::isfinite(value))
         throw ByteBufferInvalidValueException("float", "infinity");
     return *this;
@@ -54,40 +49,45 @@ ByteBuffer& ByteBuffer::operator>>(float& value)
 
 ByteBuffer& ByteBuffer::operator>>(double& value)
 {
-    value = read<double>();
+    read(&value, 1);
     if (!std::isfinite(value))
         throw ByteBufferInvalidValueException("double", "infinity");
     return *this;
 }
 
-std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
+std::string_view ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
 {
-    std::string value;
-    while (rpos() < size())                         // prevent crash at wrong string format in packet
-    {
-        char c = read<char>();
-        if (c == 0)
-            break;
-        value += c;
-    }
+    if (_rpos >= size())
+        throw ByteBufferPositionException(_rpos, 1, size());
+
+    ResetBitPos();
+
+    char const* begin = reinterpret_cast<char const*>(_storage.data()) + _rpos;
+    char const* end = reinterpret_cast<char const*>(_storage.data()) + size();
+    char const* stringEnd = std::ranges::find(begin, end, '\0');
+    if (stringEnd == end)
+        throw ByteBufferPositionException(size(), 1, size());
+
+    std::string_view value(begin, stringEnd);
+    _rpos += value.length() + 1;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value.c_str());
+        throw ByteBufferInvalidValueException("string", value);
     return value;
 }
 
-std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
+std::string_view ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
 {
     if (_rpos + length > size())
         throw ByteBufferPositionException(_rpos, length, size());
 
     ResetBitPos();
     if (!length)
-        return std::string();
+        return {};
 
-    std::string value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
+    std::string_view value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
     _rpos += length;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value.c_str());
+        throw ByteBufferInvalidValueException("string", value);
     return value;
 }
 
@@ -95,7 +95,7 @@ void ByteBuffer::append(uint8 const* src, size_t cnt)
 {
     ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
-    ASSERT(size() < 10000000);
+    ASSERT((size() + cnt) < 100000000);
 
     FlushBits();
 
@@ -152,7 +152,7 @@ void ByteBuffer::print_storage() const
     o << "STORAGE_SIZE: " << size();
     for (uint32 i = 0; i < size(); ++i)
         o << read<uint8>(i) << " - ";
-    o << " ";
+    o << ' ';
 
     TC_LOG_TRACE("network", "{}", o.str());
 }
@@ -170,7 +170,7 @@ void ByteBuffer::textlike() const
         snprintf(buf, 2, "%c", read<uint8>(i));
         o << buf;
     }
-    o << " ";
+    o << ' ';
     TC_LOG_TRACE("network", "{}", o.str());
 }
 
@@ -187,7 +187,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[4];
-        snprintf(buf, 4, "%2X", read<uint8>(i));
+        snprintf(buf, 4, "%02X", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";
@@ -195,13 +195,13 @@ void ByteBuffer::hexlike() const
         }
         else if (i == (k * 16))
         {
-            o << "\n";
+            o << '\n';
             ++k;
             ++j;
         }
 
         o << buf;
     }
-    o << " ";
+    o << ' ';
     TC_LOG_TRACE("network", "{}", o.str());
 }

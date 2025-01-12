@@ -52,6 +52,7 @@ struct BattlegroundTemplate
     uint8 Weight;
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
+    std::vector<int32> MapIDs;
 
     bool IsArena() const;
     uint16 GetMinPlayersPerTeam() const;

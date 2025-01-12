@@ -41,6 +41,7 @@
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
 #    PVP SETTINGS
+#    LOAD SETTINGS
 #
 ###################################################################################################
 
@@ -166,15 +167,9 @@ MaxPingTime = 30
 WorldServerPort = 8085
 
 #
-#    InstanceServerPort
-#        Description: TCP port to for second world connection.
-#        Default:     8086
-
-InstanceServerPort = 8086
-
-#
 #    BindIP
 #        Description: Bind world server to IP/hostname.
+#                     Using IPv6 address (such as "::") will enable both IPv4 and IPv6 connections
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)
 
 BindIP = "0.0.0.0"
@@ -708,7 +703,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     9 - (Expansion 9)
+#        Default:     10 - (Expansion 10)
+#                     9 - (Expansion 9)
 #                     8 - (Expansion 8)
 #                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
@@ -719,7 +715,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 9
+Expansion = 10
 
 #
 #    MinPlayerName
@@ -782,7 +778,7 @@ CharacterCreating.Disabled = 0
 #
 #    CharacterCreating.Disabled.RaceMask
 #        Description: Mask of races which cannot be created by players.
-#        Example:     1536 - (1024 + 512, Blood Elf and Draenei races are disabled)
+#        Example:     1536 - (512 + 1024, Blood Elf and Draenei races are disabled)
 #        Default:     0    - (Enabled, All races are allowed)
 #                     1    - (Disabled, Human)
 #                     2    - (Disabled, Orc)
@@ -799,6 +795,10 @@ CharacterCreating.Disabled = 0
 #                     4096 - (Disabled, Vulpera)
 #                     8192 - (Disabled, Maghar Orc)
 #                     16384 - (Disabled, Mechagnome)
+#                     32768 - (Disabled, Dracthyr Horde)
+#                     65536 - (Disabled, Dracthyr Alliance)
+#                     131072 - (Disabled, Earthen Horde)
+#                     262144 - (Disabled, Earthen Alliance)
 #                     2097152 - (Disabled, Worgen)
 #                     8388608 - (Disabled, Pandaren Neutral)
 #                     16777216 - (Disabled, Pandaren Alliance)
@@ -829,6 +829,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     512  - (Disabled, Monk)
 #                     1024 - (Disabled, Druid)
 #                     2048 - (Disabled, Demon Hunter)
+#                     4096 - (Disabled, Evoker)
 
 CharacterCreating.Disabled.ClassMask = 0
 
@@ -897,9 +898,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     70
+#        Default:     80
 
-MaxPlayerLevel = 70
+MaxPlayerLevel = 80
 
 #
 #    MinDualSpecLevel
@@ -936,9 +937,9 @@ StartDemonHunterPlayerLevel = 8
 #    StartEvokerPlayerLevel
 #        Description: Staring level for evokers after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     58
+#        Default:     10
 
-StartEvokerPlayerLevel = 58
+StartEvokerPlayerLevel = 10
 
 #
 #    StartAlliedRacePlayerLevel
@@ -2570,13 +2571,6 @@ Rate.Auction.Cut     = 1
 #        Default:     1
 
 Rate.Honor = 1
-
-#
-#    Rate.Talent
-#        Description: Talent point rate.
-#        Default:     1
-
-Rate.Talent = 1
 
 #
 #    Rate.Reputation.Gain
@@ -4391,7 +4385,6 @@ Metric.OverallStatusInterval = 1
 ###################################################################################################
 # PVP SETTINGS
 #
-#
 #    Pvp.FactionBalance.LevelCheckDiff
 #        Description: The amount of levels below the maximum level that accounts people for faction balance.
 #                     That is, if max level is 60 and this has a value of 5, all players that are level 55 and above (including) will be included in the check
@@ -4421,6 +4414,21 @@ Pvp.FactionBalance.Pct10 = 0.7
 #        Default:     0.8
 
 Pvp.FactionBalance.Pct20 = 0.8
+
+#
+###################################################################################################
+
+###################################################################################################
+# LOAD SETTINGS
+#
+# These settings control content loading
+#
+#    Load.Locales
+#        Description: Toggles the loading of Locales.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Load.Locales = 1
 
 #
 ###################################################################################################

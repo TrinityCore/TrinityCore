@@ -83,7 +83,7 @@ class LinkedListElement
         LinkedListElement& operator=(LinkedListElement&&) = delete;
 
     protected:
-        ~LinkedListElement()
+        virtual ~LinkedListElement()
         {
             delink();
         }

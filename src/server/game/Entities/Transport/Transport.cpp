@@ -92,6 +92,7 @@ Transport::Transport() : GameObject(),
     m_updateFlag.ServerTime = true;
     m_updateFlag.Stationary = true;
     m_updateFlag.Rotation = true;
+    m_updateFlag.GameObject = true;
 }
 
 Transport::~Transport()
@@ -140,7 +141,6 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, float x, float
     }
 
     _pathProgress = !goinfo->moTransport.allowstopping ? getMSTime() /*might be called before world update loop begins, don't use GameTime*/ % tInfo->TotalPathTime : 0;
-    SetPathProgressForClient(float(_pathProgress) / float(tInfo->TotalPathTime));
     SetObjectScale(goinfo->size);
     SetPeriod(tInfo->TotalPathTime);
     SetEntry(goinfo->entry);
@@ -148,7 +148,6 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, float x, float
     SetGoState(!goinfo->moTransport.allowstopping ? GO_STATE_READY : GO_STATE_ACTIVE);
     SetGoType(GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT);
     SetGoAnimProgress(255);
-    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpawnTrackingStateAnimID), sDB2Manager.GetEmptyAnimStateID());
     SetName(goinfo->name);
     SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
     SetParentRotation(QuaternionData());
@@ -202,8 +201,6 @@ void Transport::Update(uint32 diff)
         // reset cycle
         _eventsToTrigger->set();
     }
-
-    SetPathProgressForClient(float(_pathProgress) / float(GetTransportPeriod()));
 
     uint32 timer = _pathProgress % GetTransportPeriod();
 
@@ -423,12 +420,12 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
             case SUMMON_CATEGORY_PUPPET:
                 mask = UNIT_MASK_PUPPET;
                 break;
+            case SUMMON_CATEGORY_POSSESSED_VEHICLE:
             case SUMMON_CATEGORY_VEHICLE:
                 mask = UNIT_MASK_MINION;
                 break;
             case SUMMON_CATEGORY_WILD:
             case SUMMON_CATEGORY_ALLY:
-            case SUMMON_CATEGORY_UNK:
             {
                 switch (SummonTitle(properties->Title))
                 {
@@ -612,7 +609,7 @@ bool Transport::TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, flo
     if (oldMapId != newMapId)
     {
         UnloadStaticPassengers();
-        TeleportPassengersAndHideTransport(newMapId, x, y, z, o);
+        TeleportPassengersAndHideTransport(newMapId);
         return true;
     }
     else
@@ -641,7 +638,7 @@ bool Transport::TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, flo
     }
 }
 
-void Transport::TeleportPassengersAndHideTransport(uint32 newMapid, float x, float y, float z, float o)
+void Transport::TeleportPassengersAndHideTransport(uint32 newMapid)
 {
     if (newMapid == GetMapId())
     {
@@ -684,12 +681,11 @@ void Transport::TeleportPassengersAndHideTransport(uint32 newMapid, float x, flo
     {
         float destX, destY, destZ, destO;
         obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
-        TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
 
         switch (obj->GetTypeId())
         {
             case TYPEID_PLAYER:
-                if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
+                if (!obj->ToPlayer()->TeleportTo({ .Location = WorldLocation(newMapid, destX, destY, destZ, destO), .TransportGuid = GetTransportGUID() }, TELE_TO_NOT_LEAVE_TRANSPORT))
                     RemovePassenger(obj);
                 break;
             case TYPEID_DYNAMICOBJECT:

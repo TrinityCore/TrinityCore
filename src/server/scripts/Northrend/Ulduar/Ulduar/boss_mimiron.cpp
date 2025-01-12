@@ -451,7 +451,7 @@ class boss_mimiron : public CreatureScript
                 DoCastAOE(SPELL_DESPAWN_ASSAULT_BOTS);
                 me->ExitVehicle();
                 // ExitVehicle() offset position is not implemented, so we make up for that with MoveJump()...
-                me->GetMotionMaster()->MoveJump(me->GetPositionX() + (10.f * std::cos(me->GetOrientation())), me->GetPositionY() + (10.f * std::sin(me->GetOrientation())), me->GetPositionZ(), me->GetOrientation(), 10.f, 5.f);
+                me->GetMotionMaster()->MoveJump(me->GetPositionX() + (10.f * std::cos(me->GetOrientation())), me->GetPositionY() + (10.f * std::sin(me->GetOrientation())), me->GetPositionZ(), 10.f, 5.f);
                 events.ScheduleEvent(EVENT_OUTTRO_1, 7s);
             }
 

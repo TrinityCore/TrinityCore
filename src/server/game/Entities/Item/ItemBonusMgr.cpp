@@ -35,7 +35,7 @@ using ItemLevelSelectorQualities = std::set<ItemLevelSelectorQualityEntry const*
 std::unordered_multimap<int32 /*azeriteUnlockMappingSetId*/, AzeriteUnlockMappingEntry const*> _azeriteUnlockMappings;
 std::unordered_multimap<uint32 /*itemBonusTreeId*/, ChallengeModeItemBonusOverrideEntry const*> _challengeModeItemBonusOverrides;
 std::unordered_map<uint32 /*itemBonusListId*/, std::vector<ItemBonusEntry const*>> _itemBonusLists;
-std::unordered_multimap<int32, ItemBonusListGroupEntryEntry const*> _itemBonusListGroupEntries;
+std::unordered_multimap<uint32, ItemBonusListGroupEntryEntry const*> _itemBonusListGroupEntries;
 std::unordered_map<int16 /*itemLevelDelta*/, uint32 /*itemBonusListId*/> _itemLevelDeltaToBonusListContainer;
 std::unordered_map<uint32 /*itemLevelSelectorQualitySetId*/, ItemLevelSelectorQualities> _itemLevelQualitySelectorQualities;
 std::unordered_map<uint32 /*itemBonusTreeId*/, std::set<ItemBonusTreeNodeEntry const*>> _itemBonusTrees;
@@ -93,7 +93,7 @@ ItemContext GetContextForPlayer(MapDifficultyEntry const* mapDifficulty, Player 
 
     if (mapDifficulty->ItemContextPickerID)
     {
-        uint32 contentTuningId = sDB2Manager.GetRedirectedContentTuningId(mapDifficulty->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask);
+        uint32 contentTuningId = sDB2Manager.GetRedirectedContentTuningId(mapDifficulty->ContentTuningID, player->m_playerData->CtrOptions->ConditionalFlags);
 
         ItemContextPickerEntryEntry const* selectedPickerEntry = nullptr;
         for (ItemContextPickerEntryEntry const* itemContextPickerEntry : sItemContextPickerEntryStore)
@@ -189,80 +189,36 @@ bool CanApplyBonusTreeToItem(ItemTemplate const* itemTemplate, uint32 itemBonusT
 
 uint32 GetBonusTreeIdOverride(uint32 itemBonusTreeId, ItemBonusGenerationParams const& params)
 {
-    // TODO: configure seasons globally
-    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(0))
+    std::vector<int32> passedTimeEvents; // sorted by date TODO: configure globally
+
+    if (!passedTimeEvents.empty())
     {
         int32 selectedLevel = -1;
-        int32 selectedMilestoneSeason = -1;
+        std::ptrdiff_t selectedMilestoneSeason = -1;
         ChallengeModeItemBonusOverrideEntry const* selectedItemBonusOverride = nullptr;
         for (auto& [_, itemBonusOverride] : Trinity::Containers::MapEqualRange(_challengeModeItemBonusOverrides, itemBonusTreeId))
         {
-            if (itemBonusOverride->Type != 0)
+            if (params.MythicPlusKeystoneLevel && itemBonusOverride->Value > *params.MythicPlusKeystoneLevel)
                 continue;
 
-            if (itemBonusOverride->Value > params.MythicPlusKeystoneLevel.value_or(-1))
+            if (params.PvpTier && itemBonusOverride->Value > *params.PvpTier)
                 continue;
 
-            if (itemBonusOverride->MythicPlusSeasonID)
+            if (itemBonusOverride->RequiredTimeEventPassed)
             {
-                MythicPlusSeasonEntry const* overrideSeason = sMythicPlusSeasonStore.LookupEntry(itemBonusOverride->MythicPlusSeasonID);
-                if (!overrideSeason)
-                    continue;
+                auto itr = std::ranges::find(passedTimeEvents, itemBonusOverride->RequiredTimeEventPassed);
+                if (itr == passedTimeEvents.end())
+                    continue;       // season not started yet
 
-                if (mythicPlusSeason->MilestoneSeason < overrideSeason->MilestoneSeason)
-                    continue;
+                std::ptrdiff_t overrideMilestoneSeason = std::ranges::distance(passedTimeEvents.begin(), itr);
+                if (selectedMilestoneSeason > overrideMilestoneSeason)
+                    continue;       // older season that what was selected
 
-                if (selectedMilestoneSeason > overrideSeason->MilestoneSeason)
-                    continue;
-
-                if (selectedMilestoneSeason == overrideSeason->MilestoneSeason)
+                if (selectedMilestoneSeason == overrideMilestoneSeason)
                     if (selectedLevel > itemBonusOverride->Value)
-                        continue;
+                        continue;   // lower level in current season than what was already found
 
-                selectedMilestoneSeason = overrideSeason->MilestoneSeason;
-            }
-            else if (selectedLevel > itemBonusOverride->Value)
-                continue;
-
-            selectedLevel = itemBonusOverride->Value;
-            selectedItemBonusOverride = itemBonusOverride;
-        }
-
-        if (selectedItemBonusOverride && selectedItemBonusOverride->DstItemBonusTreeID)
-            itemBonusTreeId = selectedItemBonusOverride->DstItemBonusTreeID;
-    }
-
-    // TODO: configure seasons globally
-    if (PvpSeasonEntry const* pvpSeason = sPvpSeasonStore.LookupEntry(0))
-    {
-        int32 selectedLevel = -1;
-        int32 selectedMilestoneSeason = -1;
-        ChallengeModeItemBonusOverrideEntry const* selectedItemBonusOverride = nullptr;
-        for (auto& [_, itemBonusOverride] : Trinity::Containers::MapEqualRange(_challengeModeItemBonusOverrides, itemBonusTreeId))
-        {
-            if (itemBonusOverride->Type != 1)
-                continue;
-
-            if (itemBonusOverride->Value > params.PvpTier.value_or(-1))
-                continue;
-
-            if (itemBonusOverride->PvPSeasonID)
-            {
-                PvpSeasonEntry const* overrideSeason = sPvpSeasonStore.LookupEntry(itemBonusOverride->PvPSeasonID);
-                if (!overrideSeason)
-                    continue;
-
-                if (pvpSeason->MilestoneSeason < overrideSeason->MilestoneSeason)
-                    continue;
-
-                if (selectedMilestoneSeason > overrideSeason->MilestoneSeason)
-                    continue;
-
-                if (selectedMilestoneSeason == overrideSeason->MilestoneSeason)
-                    if (selectedLevel > itemBonusOverride->Value)
-                        continue;
-
-                selectedMilestoneSeason = overrideSeason->MilestoneSeason;
+                selectedMilestoneSeason = overrideMilestoneSeason;
             }
             else if (selectedLevel > itemBonusOverride->Value)
                 continue;

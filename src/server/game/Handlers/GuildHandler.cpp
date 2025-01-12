@@ -260,15 +260,12 @@ void WorldSession::HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTa
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->SendBankList(this, packet.Tab, true /*packet.FullUpdate*/);
-                                                          // HACK: client doesn't query entire tab content if it had received SMSG_GUILD_BANK_LIST in this session
-                                                          // but we broadcast bank updates to entire guild when *ANYONE* changes anything, incorrectly initializing clients
-                                                          // tab content with only data for that change
+            guild->SendBankList(this, packet.Tab, packet.FullUpdate);
 }
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [{}]: [{}], money: " UI64FMTD,
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [{}]: [{}], money: {}",
         GetPlayerInfo(), packet.Banker.ToString(), packet.Money);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -279,7 +276,7 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDep
 
 void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [{}]: [{}], money: " UI64FMTD,
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [{}]: [{}], money: {}",
         GetPlayerInfo(), packet.Banker.ToString(), packet.Money);
 
     if (packet.Money && GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))

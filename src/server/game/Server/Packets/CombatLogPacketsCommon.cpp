@@ -17,6 +17,7 @@
 
 #include "CombatLogPacketsCommon.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "Map.h"
 #include "Player.h"
 #include "Spell.h"
@@ -48,13 +49,13 @@ void SpellCastLogData::Initialize(Spell const* spell)
         bool primaryPowerAdded = false;
         for (SpellPowerCost const& cost : spell->GetPowerCost())
         {
-            PowerData.emplace_back(int32(cost.Power), unitCaster->GetPower(Powers(cost.Power)), int32(cost.Amount));
+            PowerData.emplace_back(int8(cost.Power), unitCaster->GetPower(Powers(cost.Power)), int32(cost.Amount));
             if (cost.Power == primaryPowerType)
                 primaryPowerAdded = true;
         }
 
         if (!primaryPowerAdded)
-            PowerData.insert(PowerData.begin(), SpellLogPowerData(int32(primaryPowerType), unitCaster->GetPower(primaryPowerType), 0));
+            PowerData.emplace(PowerData.begin(), int8(primaryPowerType), unitCaster->GetPower(primaryPowerType), 0);
     }
 }
 
@@ -74,11 +75,14 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = target->GetAverageItemLevel();
     TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creatureDifficulty->ContentTuningID))
+    {
+        ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
+        TargetContentTuningID = contentTuning->ID;
+    }
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
     return true;
 }
 
@@ -92,11 +96,14 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = attacker->GetAverageItemLevel();
     TargetItemLevel = 0;
-    ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creatureDifficulty->ContentTuningID))
+    {
+        ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
+        TargetContentTuningID = contentTuning->ID;
+    }
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
     return true;
 }
 
@@ -153,12 +160,14 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogDat
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
     data << int32(spellCastLogData.Armor);
-    data.WriteBits(spellCastLogData.PowerData.size(), 9);
+    data << int32(spellCastLogData.Unknown_1105_1);
+    data << int32(spellCastLogData.Unknown_1105_2);
+    data << BitsSize<9>(spellCastLogData.PowerData);
     data.FlushBits();
 
-    for (WorldPackets::Spells::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
+    for (SpellLogPowerData const& powerData : spellCastLogData.PowerData)
     {
-        data << int32(powerData.PowerType);
+        data << int8(powerData.PowerType);
         data << int32(powerData.Amount);
         data << int32(powerData.Cost);
     }
@@ -202,10 +211,10 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellSupportInfo const& supportInfo)
 {
-    data << supportInfo.CasterGUID;
-    data << int32(supportInfo.SpellID);
-    data << int32(supportInfo.Amount);
-    data << float(supportInfo.Percentage);
+    data << supportInfo.Supporter;
+    data << int32(supportInfo.SupportSpellID);
+    data << int32(supportInfo.AmountRaw);
+    data << float(supportInfo.AmountPortion);
 
     return data;
 }
