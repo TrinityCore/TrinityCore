@@ -4826,8 +4826,11 @@ void Spell::SendSpellGo()
         && (HasPowerTypeCost(POWER_RUNE_BLOOD) || HasPowerTypeCost(POWER_RUNE_FROST) || HasPowerTypeCost(POWER_RUNE_UNHOLY))
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_COST))
     {
-        castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
-        castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
+        castFlags |= CAST_FLAG_NO_GCD; // not needed, but it's being sent according to sniffs
+
+        // Only send rune cooldowns when there has been a change
+        if (m_runesState != m_caster->ToPlayer()->GetRunesState())
+            castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
     }
 
     if (m_targets.HasTraj())
@@ -5534,6 +5537,12 @@ void Spell::TakeRunePower(bool didHit)
     if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
+    Player* player = m_caster->ToPlayer();
+    m_runesState = player->GetRunesState();                 // store previous state
+
+    if (!didHit)
+        return;
+
     int32 totalRuneCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
     {
         return totalCost + ((cost.Power == POWER_RUNE_BLOOD || cost.Power == POWER_RUNE_FROST || cost.Power == POWER_RUNE_UNHOLY) ? cost.Amount : 0);
@@ -5543,8 +5552,6 @@ void Spell::TakeRunePower(bool didHit)
     if (!totalRuneCost)
         return;
 
-    Player* player = m_caster->ToPlayer();
-    m_runesState = player->GetRunesState();                 // store previous state
     player->ClearLastUsedRuneMask();
 
     std::array<int32, AsUnderlyingType(RuneType::Max)> runeCost = { };        // blood, frost, unholy, death
@@ -5569,7 +5576,7 @@ void Spell::TakeRunePower(bool didHit)
         RuneType rune = player->GetCurrentRune(i);
         if (!player->GetRuneCooldown(i) && runeCost[AsUnderlyingType(rune)] > 0)
         {
-            player->SetRuneCooldown(i, didHit ? RUNE_BASE_COOLDOWN : RUNE_MISS_COOLDOWN);
+            player->SetRuneCooldown(i, RUNE_BASE_COOLDOWN);
             player->SetLastUsedRune(rune);
             player->SetLastUsedRuneIndex(i);
             --runeCost[AsUnderlyingType(rune)];
@@ -5586,14 +5593,11 @@ void Spell::TakeRunePower(bool didHit)
             RuneType rune = player->GetCurrentRune(i);
             if (G3D::fuzzyEq(player->GetRuneCooldown(i), 0.0f) && rune == RuneType::Death)
             {
-                player->SetRuneCooldown(i, didHit ? RUNE_BASE_COOLDOWN : RUNE_MISS_COOLDOWN);
+                player->SetRuneCooldown(i, RUNE_BASE_COOLDOWN);
                 player->SetLastUsedRune(rune);
                 player->SetLastUsedRuneIndex(i);
                 runeCost[AsUnderlyingType(rune)]--;
-
-                // keep Death Rune type if missed
-                if (didHit)
-                    player->RestoreBaseRune(i);
+                player->RestoreBaseRune(i);
 
                 if (runeCost[AsUnderlyingType(RuneType::Death)] == 0)
                     break;

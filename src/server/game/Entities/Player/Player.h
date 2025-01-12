@@ -393,7 +393,6 @@ struct Areas
 constexpr uint8 MAX_RUNES = 6;
 
 constexpr float RUNE_BASE_COOLDOWN = 1.0f;
-constexpr float RUNE_MISS_COOLDOWN = 0.15f; // cooldown applied on runes when the spell misses
 
 enum class RuneType : uint8
 {
