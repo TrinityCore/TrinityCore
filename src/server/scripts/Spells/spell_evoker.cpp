@@ -227,19 +227,20 @@ class spell_evo_fire_breath_damage : public SpellScript
 // 369372 - Firestorm (Red)
 struct at_evo_firestorm : AreaTriggerAI
 {
-    at_evo_firestorm(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        if (Unit* caster = at->GetCaster())
-            caster->CastSpell(at->GetPosition(), SPELL_EVOKER_FIRESTORM_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-
-        _scheduler.Schedule(1500ms, [this](TaskContext task)
+        _scheduler.Schedule(0ms, [this](TaskContext task)
         {
+            std::chrono::duration<float> period = 2s; // 2s, affected by haste
             if (Unit* caster = at->GetCaster())
+            {
+                period *= *caster->m_unitData->ModCastingSpeed;
                 caster->CastSpell(at->GetPosition(), SPELL_EVOKER_FIRESTORM_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
 
-            task.Repeat(1500ms);
+            task.Repeat(duration_cast<Milliseconds>(period));
         });
     }
 
