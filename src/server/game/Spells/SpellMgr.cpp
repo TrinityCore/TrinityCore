@@ -5081,16 +5081,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
-    // Earthquake EFFECT_1 breaks persistent aura from EFFECT_0, but this breaks the visuals from boss for earthquake
-    ApplySpellFix({ 326405 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->ApplyAuraName = SPELL_AURA_DUMMY;
-            spellEffectInfo->Effect = SPELL_EFFECT_DUMMY;
-        });
-    });
-
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
