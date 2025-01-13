@@ -1494,6 +1494,10 @@ void Spell::EffectPersistentAA()
     if (!unitCaster)
         return;
 
+    // Caster not in world, might be spell triggered from aura removal
+    if (!unitCaster->IsInWorld())
+        return;
+
     // only handle at last effect
     for (size_t i = effectInfo->EffectIndex + 1; i < m_spellInfo->GetEffects().size(); ++i)
         if (m_spellInfo->GetEffect(SpellEffIndex(i)).IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
@@ -1501,11 +1505,13 @@ void Spell::EffectPersistentAA()
 
     ASSERT(!_dynObjAura);
 
-    float radius = effectInfo->CalcRadius(unitCaster);
-
-    // Caster not in world, might be spell triggered from aura removal
-    if (!unitCaster->IsInWorld())
-        return;
+    float radius = 0.0f;
+    for (size_t i = 0; i <= effectInfo->EffectIndex; ++i)
+    {
+        SpellEffectInfo const& spellEffectInfo = m_spellInfo->GetEffect(SpellEffIndex(i));
+        if (spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
+            radius = std::max(radius, spellEffectInfo.CalcRadius(unitCaster));
+    }
 
     DynamicObject* dynObj = new DynamicObject(false);
     if (!dynObj->CreateDynamicObject(unitCaster->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), unitCaster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_AREA_SPELL, m_SpellVisual))
