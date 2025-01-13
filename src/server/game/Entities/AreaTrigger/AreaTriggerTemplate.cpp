@@ -16,7 +16,6 @@
  */
 
 #include "AreaTriggerTemplate.h"
-#include <G3D/Vector3.h>
 #include <algorithm>
 #include <cstring>
 #include <cmath>
@@ -73,37 +72,10 @@ float AreaTriggerShapeInfo::GetMaxSearchRadius() const
     return 0.0f;
 }
 
-AreaTriggerTemplate::AreaTriggerTemplate() : Flags(AreaTriggerFlag::None), ActionSetFlags(AreaTriggerActionSetFlag::None)
-{
-    Id = { 0, false };
-    ActionSetId = 0;
-}
-
+AreaTriggerTemplate::AreaTriggerTemplate() = default;
 AreaTriggerTemplate::~AreaTriggerTemplate() = default;
 
-AreaTriggerCreateProperties::AreaTriggerCreateProperties() : Flags(AreaTriggerCreatePropertiesFlag::None)
-{
-    Id = { 0, false };
-    Template = nullptr;
-
-    MoveCurveId = 0;
-    ScaleCurveId = 0;
-    MorphCurveId = 0;
-    FacingCurveId = 0;
-
-    AnimId = 0;
-    AnimKitId = 0;
-
-    DecalPropertiesId = 0;
-
-    TimeToTarget = 0;
-    TimeToTargetScale = 0;
-
-    ExtraScale.emplace();
-
-    ScriptId = 0;
-}
-
+AreaTriggerCreateProperties::AreaTriggerCreateProperties() = default;
 AreaTriggerCreateProperties::~AreaTriggerCreateProperties() = default;
 
 bool AreaTriggerCreateProperties::HasSplines() const

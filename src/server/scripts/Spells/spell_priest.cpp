@@ -1035,7 +1035,7 @@ class spell_pri_divine_star_shadow : public SpellScript
 // 122121 - Divine Star (Shadow)
 struct areatrigger_pri_divine_star : AreaTriggerAI
 {
-    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _maxTravelDistance(0.0f) { }
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnInitialize() override
     {
@@ -1053,18 +1053,15 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         _casterCurrentPosition = caster->GetPosition();
 
         // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
-        _maxTravelDistance = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
+        float maxTravelDistance = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
 
         Position destPos = _casterCurrentPosition;
-        at->MovePositionToFirstCollision(destPos, _maxTravelDistance, 0.0f);
+        at->MovePositionToFirstCollision(destPos, maxTravelDistance, 0.0f);
 
         PathGenerator firstPath(at);
         firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
-        G3D::Vector3 const& endPoint = firstPath.GetPath().back();
-
-        // Note: it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints)ms to run 1 yard.
-        at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / _maxTravelDistance));
+        at->InitSplines(firstPath.GetPath());
     }
 
     void OnUpdate(uint32 diff) override
@@ -1089,7 +1086,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         if (!caster)
             return;
 
-        if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) != _affectedUnits.end())
+        if (advstd::ranges::contains(_affectedUnits, unit->GetGUID()))
             return;
 
         constexpr TriggerCastFlags TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS;
@@ -1133,11 +1130,9 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
             Movement::PointsArray returnSplinePoints;
 
             returnSplinePoints.push_back(PositionToVector3(at));
-            returnSplinePoints.push_back(PositionToVector3(at));
-            returnSplinePoints.push_back(PositionToVector3(caster));
             returnSplinePoints.push_back(PositionToVector3(caster));
 
-            at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / _maxTravelDistance * 1000));
+            at->InitSplines(returnSplinePoints);
 
             task.Repeat(250ms);
         });
@@ -1147,7 +1142,6 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
-    float _maxTravelDistance;
 };
 
 // 391339 - Empowered Renew
