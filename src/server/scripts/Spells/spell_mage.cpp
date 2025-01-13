@@ -1459,15 +1459,16 @@ class spell_mage_tempest_barrier : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_TEMPEST_BARRIER_ABSORB });
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
-        int32 amount = CalculatePct(target->GetMaxHealth(), GetEffectInfo(EFFECT_0).CalcValue(target));
-        target->CastSpell(target, SPELL_MAGE_TEMPEST_BARRIER_ABSORB,
-            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
-            .SetTriggeringAura(aurEff)
-            .AddSpellBP0(amount));
+        int32 amount = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
+        target->CastSpell(target, SPELL_MAGE_TEMPEST_BARRIER_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
     }
 
     void Register() override
