@@ -56,6 +56,7 @@ enum EvokerSpells
     SPELL_EVOKER_LIVING_FLAME_HEAL              = 361509,
     SPELL_EVOKER_PERMEATING_CHILL_TALENT        = 370897,
     SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
+    SPELL_EVOKER_RUBY_EMBERS                    = 365937,
     SPELL_EVOKER_SCOURING_FLAME                 = 378438,
     SPELL_EVOKER_SNAPFIRE                       = 370818,
     SPELL_EVOKER_SOAR_RACIAL                    = 369536,
@@ -269,7 +270,7 @@ class spell_evo_living_flame : public SpellScript
     {
         Unit* caster = GetCaster();
         Unit* hitUnit = GetHitUnit();
-        if (caster->IsFriendlyTo(hitUnit))
+        if (caster->IsValidAssistTarget(hitUnit))
             caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_HEAL, true);
         else
             caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_DAMAGE, true);
@@ -278,7 +279,7 @@ class spell_evo_living_flame : public SpellScript
     void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (caster->IsFriendlyTo(GetHitUnit()))
+        if (caster->IsValidAssistTarget(GetHitUnit()))
             return;
 
         if (AuraEffect* auraEffect = caster->GetAuraEffect(SPELL_EVOKER_ENERGIZING_FLAME, EFFECT_0))
@@ -342,6 +343,35 @@ class spell_evo_pyre : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_evo_pyre::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 361500 Living Flame (Red)
+// 361509 Living Flame (Red)
+class spell_evo_ruby_embers : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_RUBY_EMBERS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_APPLY_AURA)
+            && spellInfo->GetEffect(EFFECT_1).ApplyAuraPeriod != 0;
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_EVOKER_RUBY_EMBERS);
+    }
+
+    static void PreventPeriodic(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_evo_ruby_embers::PreventPeriodic, EFFECT_1,
+            m_scriptSpellId == SPELL_EVOKER_LIVING_FLAME_DAMAGE ? TARGET_UNIT_TARGET_ENEMY : TARGET_UNIT_TARGET_ALLY);
     }
 };
 
@@ -482,6 +512,7 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_living_flame);
     RegisterSpellScript(spell_evo_permeating_chill);
     RegisterSpellScript(spell_evo_pyre);
+    RegisterSpellScript(spell_evo_ruby_embers);
     RegisterSpellScript(spell_evo_scouring_flame);
     RegisterSpellScript(spell_evo_snapfire);
     RegisterSpellScript(spell_evo_snapfire_bonus_damage);

@@ -50,11 +50,6 @@
 #include "World.h"
 #include "WorldSession.h"
 
-// temporary hack until includes are sorted out (don't want to pull in Windows.h)
-#ifdef GetClassName
-#undef GetClassName
-#endif
-
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -1158,8 +1153,14 @@ public:
         Optional<std::string_view> const& bonusListIdString, Optional<uint8> itemContextArg)
     {
         uint32 itemId = 0;
+        std::vector<int32> bonusListIDs;
+        ItemContext itemContext = ItemContext::NONE;
         if (Hyperlink<::item> const* itemLinkData = std::get_if<Hyperlink<::item>>(&itemArg))
+        {
             itemId = (*itemLinkData)->Item->GetId();
+            bonusListIDs = (*itemLinkData)->ItemBonusListIDs;
+            itemContext = static_cast<ItemContext>((*itemLinkData)->Context);
+        }
         else if (uint32 const* itemIdPtr = std::get_if<uint32>(&itemArg))
             itemId = *itemIdPtr;
         else if (std::string_view const* itemNameText = std::get_if<std::string_view>(&itemArg))
@@ -1192,15 +1193,12 @@ public:
         if (count == 0)
             count = 1;
 
-        std::vector<int32> bonusListIDs;
-
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonusListIdString)
             for (std::string_view token : Trinity::Tokenize(*bonusListIdString, ';', false))
                 if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
                     bonusListIDs.push_back(*bonusListId);
 
-        ItemContext itemContext = ItemContext::NONE;
         if (itemContextArg)
         {
             itemContext = ItemContext(*itemContextArg);
@@ -1208,6 +1206,8 @@ public:
             {
                 std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemId, itemContext);
                 bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
+                std::ranges::sort(bonusListIDs);
+                bonusListIDs.erase(std::unique(bonusListIDs.begin(), bonusListIDs.end()), bonusListIDs.end());
             }
         }
 
@@ -1761,7 +1761,7 @@ public:
 
         // Output XI. LANG_PINFO_CHR_RACE
         raceStr  = DB2Manager::GetChrRaceName(raceid, locale);
-        classStr = DB2Manager::GetClassName(classid, locale);
+        classStr = DB2Manager::GetChrClassName(classid, locale);
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetTrinityString(LANG_CHARACTER_GENDER_MALE) : handler->GetTrinityString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE

@@ -168,8 +168,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
     //                                                                        0   1         2              3                    4
     if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, IsCustom, AreaTriggerId, IsAreatriggerCustom, Flags, "
-    //   5            6             7             8              9       10         11                 12               13            14
-        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, TimeToTarget, TimeToTargetScale, "
+    //   5            6             7             8              9       10         11                 12               13                 14
+        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, TimeToTargetScale, Speed, "
     //   15     16          17          18          19          20          21          22          23          24
         "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, ScriptName FROM `areatrigger_create_properties`"))
     {
@@ -233,10 +233,10 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 }
             }
 
-            createProperties.TimeToTarget          = fields[13].GetUInt32();
-            createProperties.TimeToTargetScale     = fields[14].GetUInt32();
+            createProperties.TimeToTargetScale     = fields[13].GetUInt32();
+            createProperties.Speed                 = fields[14].GetFloat();
 
-            createProperties.Shape.Type = static_cast<AreaTriggerShapeType>(shape);
+            createProperties.Shape.Type = shape;
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 createProperties.Shape.DefaultDatas.Data[i] = fields[16 + i].GetFloat();
 
@@ -361,7 +361,7 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
                 continue;
             }
 
-            if (createProperties->TimeToTarget || createProperties->TimeToTargetScale || createProperties->FacingCurveId || createProperties->MoveCurveId)
+            if (createProperties->TimeToTargetScale)
             {
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with time to target values",
                     createPropertiesId.Id, uint32(createPropertiesId.IsCustom));

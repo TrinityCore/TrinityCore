@@ -20,6 +20,7 @@
 
 #include "Conversation.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -138,6 +139,11 @@ public:
 
                 if (!gameObject->MeetsInteractCondition(receiver))
                     dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+
+                if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, gameObject->GetSpawnId()))
+                    if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId) != SpawnTrackingState::Active)
+                            dynFlags &= ~GO_DYNFLAG_LO_ACTIVATE;
             }
 
             dynamicFlags = dynFlags;
@@ -194,6 +200,78 @@ public:
         }
 
         return displayId;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::StateWorldEffectIDsTag>
+{
+public:
+    using value_type = UF::UnitData::StateWorldEffectIDsTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type stateWorldEffects = unitData->StateWorldEffectIDs;
+
+        if (unit->IsCreature())
+            if (SpawnTrackingStateData const* spawnTrackingStateData = unit->GetSpawnTrackingStateDataForPlayer(receiver))
+                stateWorldEffects = spawnTrackingStateData->StateWorldEffects;
+
+        return stateWorldEffects;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::StateSpellVisualIDTag>
+{
+public:
+    using value_type = UF::UnitData::StateSpellVisualIDTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type stateSpellVisual = unitData->StateSpellVisualID;
+
+        if (unit->IsCreature())
+            if (SpawnTrackingStateData const* spawnTrackingStateData = unit->GetSpawnTrackingStateDataForPlayer(receiver))
+                stateSpellVisual = spawnTrackingStateData->StateSpellVisualId.value_or(0);
+
+        return stateSpellVisual;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::StateAnimIDTag>
+{
+public:
+    using value_type = UF::UnitData::StateAnimIDTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* /*unitData*/, Unit const* unit, Player const* receiver)
+    {
+        value_type stateAnimId = sDB2Manager.GetEmptyAnimStateID();
+
+        if (unit->IsCreature())
+            if (SpawnTrackingStateData const* spawnTrackingStateData = unit->GetSpawnTrackingStateDataForPlayer(receiver))
+                stateAnimId = spawnTrackingStateData->StateAnimId.value_or(stateAnimId);
+
+        return stateAnimId;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::StateAnimKitIDTag>
+{
+public:
+    using value_type = UF::UnitData::StateAnimKitIDTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type stateAnimKitId = unitData->StateAnimKitID;
+
+        if (unit->IsCreature())
+            if (SpawnTrackingStateData const* spawnTrackingStateData = unit->GetSpawnTrackingStateDataForPlayer(receiver))
+                stateAnimKitId = spawnTrackingStateData->StateAnimKitId.value_or(0);
+
+        return stateAnimKitId;
     }
 };
 
@@ -377,6 +455,74 @@ public:
                 npcFlag = 0;
         }
         return npcFlag;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::GameObjectData::StateWorldEffectIDsTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateWorldEffectIDsTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    {
+        value_type stateWorldEffects = gameObjectData->StateWorldEffectIDs;
+
+        if (SpawnTrackingStateData const* spawnTrackingStateData = gameObject->GetSpawnTrackingStateDataForPlayer(receiver))
+            stateWorldEffects = spawnTrackingStateData->StateWorldEffects;
+
+        return stateWorldEffects;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::GameObjectData::StateSpellVisualIDTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateSpellVisualIDTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    {
+        value_type stateSpellVisual = gameObjectData->StateSpellVisualID;
+
+        if (SpawnTrackingStateData const* spawnTrackingStateData = gameObject->GetSpawnTrackingStateDataForPlayer(receiver))
+            stateSpellVisual = spawnTrackingStateData->StateSpellVisualId.value_or(0);
+
+        return stateSpellVisual;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::GameObjectData::StateAnimIDTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateAnimIDTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, GameObject const* gameObject, Player const* receiver)
+    {
+        value_type stateAnimId = sDB2Manager.GetEmptyAnimStateID();
+
+        if (SpawnTrackingStateData const* spawnTrackingStateData = gameObject->GetSpawnTrackingStateDataForPlayer(receiver))
+            stateAnimId = spawnTrackingStateData->StateAnimId.value_or(stateAnimId);
+
+        return stateAnimId;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::GameObjectData::StateAnimKitIDTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateAnimKitIDTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    {
+        value_type stateAnimKitId = gameObjectData->SpawnTrackingStateAnimKitID;
+
+        if (SpawnTrackingStateData const* spawnTrackingStateData = gameObject->GetSpawnTrackingStateDataForPlayer(receiver))
+            stateAnimKitId = spawnTrackingStateData->StateAnimKitId.value_or(0);
+
+        return stateAnimKitId;
     }
 };
 
