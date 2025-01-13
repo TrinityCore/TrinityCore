@@ -87,6 +87,7 @@ enum MageSpells
     SPELL_MAGE_SLOW                              = 31589,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_SUPERNOVA                         = 157980,
+    SPELL_MAGE_TEMPEST_BARRIER_ABSORB            = 382290,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_PET_NETHERWINDS_FATIGUED               = 160455,
     SPELL_MAGE_ICE_LANCE_TRIGGER                 = 228598,
@@ -1450,6 +1451,32 @@ class spell_mage_supernova : public SpellScript
     }
 };
 
+// 382289 - Tempest Barrier
+class spell_mage_tempest_barrier : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_TEMPEST_BARRIER_ABSORB });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        int32 amount = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
+        target->CastSpell(target, SPELL_MAGE_TEMPEST_BARRIER_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_tempest_barrier::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 210824 - Touch of the Magi (Aura)
 class spell_mage_touch_of_the_magi_aura : public AuraScript
 {
@@ -1557,6 +1584,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_supernova);
+    RegisterSpellScript(spell_mage_tempest_barrier);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }
