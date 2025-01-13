@@ -269,7 +269,7 @@ class spell_evo_living_flame : public SpellScript
     {
         Unit* caster = GetCaster();
         Unit* hitUnit = GetHitUnit();
-        if (caster->IsFriendlyTo(hitUnit))
+        if (caster->IsValidAssistTarget(hitUnit))
             caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_HEAL, true);
         else
             caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_DAMAGE, true);
@@ -278,7 +278,7 @@ class spell_evo_living_flame : public SpellScript
     void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (caster->IsFriendlyTo(GetHitUnit()))
+        if (caster->IsValidAssistTarget(GetHitUnit()))
             return;
 
         if (AuraEffect* auraEffect = caster->GetAuraEffect(SPELL_EVOKER_ENERGIZING_FLAME, EFFECT_0))
@@ -349,23 +349,28 @@ class spell_evo_pyre : public SpellScript
 // 361509 Living Flame (Red)
 class spell_evo_ruby_embers : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_EVOKER_RUBY_EMBERS });
+        return ValidateSpellInfo({ SPELL_EVOKER_RUBY_EMBERS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_APPLY_AURA)
+            && spellInfo->GetEffect(EFFECT_1).ApplyAuraPeriod != 0;
     }
 
-    void PreventPeriodic(WorldObject*& target) const
+    bool Load() override
     {
-        if (!GetCaster()->HasAura(SPELL_EVOKER_RUBY_EMBERS))
-            target = nullptr;
+        return !GetCaster()->HasAura(SPELL_EVOKER_RUBY_EMBERS);
+    }
+
+    static void PreventPeriodic(WorldObject*& target)
+    {
+        target = nullptr;
     }
 
     void Register() override
     {
-        if (m_scriptSpellId == SPELL_EVOKER_LIVING_FLAME_DAMAGE)
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_evo_ruby_embers::PreventPeriodic, EFFECT_1, TARGET_UNIT_TARGET_ENEMY);
-        else
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_evo_ruby_embers::PreventPeriodic, EFFECT_1, TARGET_UNIT_TARGET_ALLY);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_evo_ruby_embers::PreventPeriodic, EFFECT_1,
+            m_scriptSpellId == SPELL_EVOKER_LIVING_FLAME_DAMAGE ? TARGET_UNIT_TARGET_ENEMY : TARGET_UNIT_TARGET_ALLY);
     }
 };
 
