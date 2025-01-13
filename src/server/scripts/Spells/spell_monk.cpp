@@ -37,6 +37,7 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
+    SPELL_MONK_JADE_WALK                                = 450552,
     SPELL_MONK_MORTAL_WOUNDS                            = 115804,
     SPELL_MONK_POWER_STRIKE_PROC                        = 129914,
     SPELL_MONK_POWER_STRIKE_ENERGIZE                    = 121283,
@@ -119,6 +120,32 @@ class spell_monk_crackling_jade_lightning_knockback_proc_aura : public AuraScrip
     {
         DoCheckProc += AuraCheckProcFn(spell_monk_crackling_jade_lightning_knockback_proc_aura::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_monk_crackling_jade_lightning_knockback_proc_aura::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 450553 - Jade Walk
+class spell_monk_jade_walk : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_JADE_WALK });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+        if (!target->IsInCombat())
+            target->CastSpell(target, SPELL_MONK_JADE_WALK, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        else
+            target->RemoveAurasDueToSpell(SPELL_MONK_JADE_WALK);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_jade_walk::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -640,6 +667,7 @@ void AddSC_monk_spell_scripts()
 {
     RegisterSpellScript(spell_monk_crackling_jade_lightning);
     RegisterSpellScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
+    RegisterSpellScript(spell_monk_jade_walk);
     RegisterSpellScript(spell_monk_life_cocoon);
     RegisterSpellScript(spell_monk_open_palm_strikes);
     RegisterSpellScript(spell_monk_power_strike_periodic);
