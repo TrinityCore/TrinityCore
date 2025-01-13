@@ -29,6 +29,7 @@
 #include "Timer.h"
 #include "Util.h"
 #include "World.h"
+#include <algorithm>
 #include <array>
 #include <bitset>
 #include <boost/filesystem/directory.hpp>
@@ -1030,6 +1031,15 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         return 0;
     }
 
+    TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
+
+    return availableDb2Locales.to_ulong();
+}
+
+void DB2Manager::IndexLoadedStores()
+{
+    uint32 oldMSTime = getMSTime();
+
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
 
@@ -1060,10 +1070,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower : sAzeriteItemMilestonePowerStore)
         _azeriteItemMilestonePowers.push_back(azeriteItemMilestonePower);
 
-    std::sort(_azeriteItemMilestonePowers.begin(), _azeriteItemMilestonePowers.end(), [](AzeriteItemMilestonePowerEntry const* a1, AzeriteItemMilestonePowerEntry const* a2)
-    {
-        return a1->RequiredLevel < a2->RequiredLevel;
-    });
+    std::ranges::sort(_azeriteItemMilestonePowers, {}, &AzeriteItemMilestonePowerEntry::RequiredLevel);
 
     {
         uint32 azeriteEssenceSlot = 0;
@@ -1120,8 +1127,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         for (ChrClassesXPowerTypesEntry const* power : sChrClassesXPowerTypesStore)
             powers.insert(power);
 
-        for (std::size_t i = 0; i < _powersByClass.size(); ++i)
-            _powersByClass[i].fill(MAX_POWERS);
+        for (std::array<uint32, MAX_POWERS>& powersForClass : _powersByClass)
+            powersForClass.fill(MAX_POWERS);
 
         for (ChrClassesXPowerTypesEntry const* power : powers)
         {
@@ -1271,10 +1278,10 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
         for (auto& [curveId, curvePoints] : unsortedPoints)
         {
-            std::sort(curvePoints.begin(), curvePoints.end(), [](CurvePointEntry const* point1, CurvePointEntry const* point2) { return point1->OrderIndex < point2->OrderIndex; });
+            std::ranges::sort(curvePoints, {}, &CurvePointEntry::OrderIndex);
             std::vector<DBCPosition2D>& points = _curvePoints[curveId];
             points.resize(curvePoints.size());
-            std::transform(curvePoints.begin(), curvePoints.end(), points.begin(), [](CurvePointEntry const* point) { return point->Pos; });
+            std::ranges::transform(curvePoints, points.begin(), &CurvePointEntry::Pos);
         }
     }
 
@@ -1355,10 +1362,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (MapDifficultyXConditionEntry const* mapDifficultyCondition : sMapDifficultyXConditionStore)
         mapDifficultyConditions.push_back(mapDifficultyCondition);
 
-    std::sort(mapDifficultyConditions.begin(), mapDifficultyConditions.end(), [](MapDifficultyXConditionEntry const* left, MapDifficultyXConditionEntry const* right)
-    {
-        return left->OrderIndex < right->OrderIndex;
-    });
+    std::ranges::sort(mapDifficultyConditions, {}, &MapDifficultyXConditionEntry::OrderIndex);
 
     for (MapDifficultyXConditionEntry const* mapDifficultyCondition : mapDifficultyConditions)
         if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mapDifficultyCondition->PlayerConditionID))
@@ -1549,8 +1553,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     std::vector<uint32> pathLength;
     pathLength.resize(pathCount);                           // 0 and some other indexes not used
     for (TaxiPathNodeEntry const* entry : sTaxiPathNodeStore)
-        if (pathLength[entry->PathID] < entry->NodeIndex + 1u)
-            pathLength[entry->PathID] = entry->NodeIndex + 1u;
+        pathLength[entry->PathID] = std::max(pathLength[entry->PathID], entry->NodeIndex + 1u);
 
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
@@ -1709,9 +1712,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (PVPStatEntry const* pvpStat : sPVPStatStore)
         _pvpStatIdsByMap[pvpStat->MapID].insert(pvpStat->ID);
 
-    TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
-
-    return availableDb2Locales.to_ulong();
+    TC_LOG_INFO("server.loading", ">> Indexed DB2 data stores in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 DB2StorageBase const* DB2Manager::GetStorage(uint32 type) const
