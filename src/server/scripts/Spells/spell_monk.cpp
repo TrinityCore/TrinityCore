@@ -171,26 +171,6 @@ class spell_monk_open_palm_strikes : public AuraScript
     }
 };
 
-// 115078 - Paralysis
-class spell_monk_paralysis : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_MONK_PRESSURE_POINTS });
-    }
-
-    void PreventDispel(WorldObject*& target) const
-    {
-        if (!GetCaster()->HasAura(SPELL_MONK_PRESSURE_POINTS))
-            target = nullptr;
-    }
-
-    void Register() override
-    {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_monk_paralysis::PreventDispel, EFFECT_2, TARGET_UNIT_TARGET_ENEMY);
-    }
-};
-
 // 121817 - Power Strike
 class spell_monk_power_strike_periodic : public AuraScript
 {
@@ -226,6 +206,32 @@ class spell_monk_power_strike_proc : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_monk_power_strike_proc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 115078 - Paralysis
+class spell_monk_pressure_points : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_PRESSURE_POINTS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && spellInfo->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_DISPEL);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_MONK_PRESSURE_POINTS);
+    }
+
+    static void PreventDispel(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_monk_pressure_points::PreventDispel, EFFECT_2, TARGET_UNIT_TARGET_ENEMY);
     }
 };
 
@@ -636,9 +642,9 @@ void AddSC_monk_spell_scripts()
     RegisterSpellScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
     RegisterSpellScript(spell_monk_life_cocoon);
     RegisterSpellScript(spell_monk_open_palm_strikes);
-    RegisterSpellScript(spell_monk_paralysis);
     RegisterSpellScript(spell_monk_power_strike_periodic);
     RegisterSpellScript(spell_monk_power_strike_proc);
+    RegisterSpellScript(spell_monk_pressure_points);
     RegisterSpellScript(spell_monk_provoke);
     RegisterSpellScript(spell_monk_rising_sun_kick);
     RegisterSpellScript(spell_monk_roll);
