@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_evo_".
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Player.h"
@@ -30,6 +32,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 
 enum EvokerSpells
 {
@@ -48,6 +51,7 @@ enum EvokerSpells
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
     SPELL_EVOKER_ENERGIZING_FLAME               = 400006,
+    SPELL_EVOKER_FIRESTORM_DAMAGE               = 369374,
     SPELL_EVOKER_FIRE_BREATH_DAMAGE             = 357209,
     SPELL_EVOKER_GLIDE_KNOCKBACK                = 358736,
     SPELL_EVOKER_HOVER                          = 358267,
@@ -218,6 +222,35 @@ class spell_evo_fire_breath_damage : public SpellScript
         CalcDamage += SpellCalcDamageFn(spell_evo_fire_breath_damage::AddBonusUpfrontDamage);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_fire_breath_damage::RemoveUnusedEffect, EFFECT_2, TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY);
     }
+};
+
+// 369372 - Firestorm (Red)
+struct at_evo_firestorm : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(0ms, [this](TaskContext task)
+        {
+            std::chrono::duration<float> period = 2s; // 2s, affected by haste
+            if (Unit* caster = at->GetCaster())
+            {
+                period *= *caster->m_unitData->ModCastingSpeed;
+                caster->CastSpell(at->GetPosition(), SPELL_EVOKER_FIRESTORM_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+
+            task.Repeat(duration_cast<Milliseconds>(period));
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 358733 - Glide (Racial)
@@ -460,6 +493,7 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
     RegisterSpellScript(spell_evo_charged_blast);
+    RegisterAreaTriggerAI(at_evo_firestorm);
     RegisterSpellScript(spell_evo_fire_breath);
     RegisterSpellScript(spell_evo_fire_breath_damage);
     RegisterSpellScript(spell_evo_glide);
