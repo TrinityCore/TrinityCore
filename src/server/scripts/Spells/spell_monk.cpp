@@ -358,13 +358,12 @@ class spell_monk_save_them_all : public AuraScript
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
-    bool CheckProc(ProcEventInfo const& eventInfo)
+    bool CheckProc(ProcEventInfo const& eventInfo) const
     {
-        Unit* target = eventInfo.GetProcTarget();
-        return target && target->HealthBelowPct(GetEffectInfo(EFFECT_2).CalcValue(target));
+        return eventInfo.GetActionTarget()->HealthBelowPct(GetEffectInfo(EFFECT_2).CalcValue(eventInfo.GetActor()));
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_MONK_SAVE_THEM_ALL_HEAL_BONUS, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
