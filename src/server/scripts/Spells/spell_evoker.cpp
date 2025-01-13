@@ -62,6 +62,7 @@ enum EvokerSpells
     SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
     SPELL_EVOKER_RUBY_EMBERS                    = 365937,
     SPELL_EVOKER_SCOURING_FLAME                 = 378438,
+    SPELL_EVOKER_SNAPFIRE                       = 370818,
     SPELL_EVOKER_SOAR_RACIAL                    = 369536,
     SPELL_EVOKER_VERDANT_EMBRACE_HEAL           = 361195,
     SPELL_EVOKER_VERDANT_EMBRACE_JUMP           = 373514
@@ -229,15 +230,33 @@ struct at_evo_firestorm : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
-    void OnCreate(Spell const* /*creatingSpell*/) override
+    struct extra_create_data
     {
+        float SnapshotDamageMultipliers = 1.0f;
+    };
+
+    static extra_create_data& GetOrCreateExtraData(Spell* firestorm)
+    {
+        if (firestorm->m_customArg.type() != typeid(extra_create_data))
+            return firestorm->m_customArg.emplace<extra_create_data>();
+
+        return *std::any_cast<extra_create_data>(&firestorm->m_customArg);
+    }
+
+    void OnCreate(Spell const* creatingSpell) override
+    {
+        _damageSpellCustomArg = creatingSpell->m_customArg;
+
         _scheduler.Schedule(0ms, [this](TaskContext task)
         {
             std::chrono::duration<float> period = 2s; // 2s, affected by haste
             if (Unit* caster = at->GetCaster())
             {
                 period *= *caster->m_unitData->ModCastingSpeed;
-                caster->CastSpell(at->GetPosition(), SPELL_EVOKER_FIRESTORM_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_EVOKER_FIRESTORM_DAMAGE, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .CustomArg = _damageSpellCustomArg
+                });
             }
 
             task.Repeat(duration_cast<Milliseconds>(period));
@@ -251,6 +270,7 @@ struct at_evo_firestorm : AreaTriggerAI
 
 private:
     TaskScheduler _scheduler;
+    std::any _damageSpellCustomArg;
 };
 
 // 358733 - Glide (Racial)
@@ -434,6 +454,44 @@ class spell_evo_scouring_flame : public SpellScript
     }
 };
 
+// Called by 368847 - Firestorm (Red)
+class spell_evo_snapfire : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_EVOKER_SNAPFIRE, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_SNAPFIRE);
+    }
+
+    void OnPrecast() override
+    {
+        if (AuraEffect const* snapfire = GetCaster()->GetAuraEffect(SPELL_EVOKER_SNAPFIRE, EFFECT_1))
+            if (GetSpell()->m_appliedMods.contains(snapfire->GetBase()))
+                AddPct(at_evo_firestorm::GetOrCreateExtraData(GetSpell()).SnapshotDamageMultipliers, snapfire->GetAmount());
+    }
+
+    void Register() override { }
+};
+
+// Called by 369374 - Firestorm (Red)
+class spell_evo_snapfire_bonus_damage : public SpellScript
+{
+    void CalculateDamageBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (at_evo_firestorm::extra_create_data const* bonus = std::any_cast<at_evo_firestorm::extra_create_data>(&GetSpell()->m_customArg))
+            pctMod *= bonus->SnapshotDamageMultipliers;
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_evo_snapfire_bonus_damage::CalculateDamageBonus);
+    }
+};
+
 // 360995 - Verdant Embrace (Green)
 class spell_evo_verdant_embrace : public SpellScript
 {
@@ -502,6 +560,8 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_pyre);
     RegisterSpellScript(spell_evo_ruby_embers);
     RegisterSpellScript(spell_evo_scouring_flame);
+    RegisterSpellScript(spell_evo_snapfire);
+    RegisterSpellScript(spell_evo_snapfire_bonus_damage);
     RegisterSpellScript(spell_evo_verdant_embrace);
     RegisterSpellScript(spell_evo_verdant_embrace_trigger_heal);
 }
