@@ -1,6 +1,7 @@
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_evo_snapfire';
-INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(369374, 'spell_evo_snapfire');
+DELETE FROM `spell_script_names` WHERE `ScriptName`IN ('spell_evo_snapfire', 'spell_evo_snapfire_bonus_damage');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(368847, 'spell_evo_snapfire'),
+(369374, 'spell_evo_snapfire_bonus_damage');
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (370783,370818);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
