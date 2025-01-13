@@ -13888,13 +13888,8 @@ int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEf
 bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications /*= false*/)
 {
     for (AuraEffect const* aurEff : aura->GetAuraEffects())
-    {
-        if (!aurEff)
-            continue;
-
         if (!IsHighestExclusiveAuraEffect(aura->GetSpellInfo(), aurEff->GetAuraType(), aurEff->GetAmount(), aura->GetEffectMask(), removeOtherAuraApplications))
             return false;
-    }
 
     return true;
 }

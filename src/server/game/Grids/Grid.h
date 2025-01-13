@@ -30,7 +30,7 @@
 */
 
 #include "Define.h"
-#include "TypeContainer.h"
+#include "Errors.h"
 #include "TypeContainerVisitor.h"
 
 // forward declaration
@@ -39,8 +39,8 @@ template<class A, class T, class O> class GridLoader;
 template
 <
 class ACTIVE_OBJECT,
-class WORLD_OBJECT_TYPES,
-class GRID_OBJECT_TYPES
+class WORLD_OBJECT_CONTAINER,
+class GRID_OBJECT_CONTAINER
 >
 class Grid
 {
@@ -57,7 +57,7 @@ class Grid
          */
         template<class SPECIFIC_OBJECT> void AddWorldObject(SPECIFIC_OBJECT *obj)
         {
-            i_objects.template insert<SPECIFIC_OBJECT>(obj);
+            i_objects.template Insert<SPECIFIC_OBJECT>(obj);
             ASSERT(obj->IsInGrid());
         }
 
@@ -85,14 +85,14 @@ class Grid
 
         // Visit grid objects
         template<class T>
-        void Visit(TypeContainerVisitor<T, TypeMapContainer<GRID_OBJECT_TYPES> > &visitor)
+        void Visit(TypeContainerVisitor<T, GRID_OBJECT_CONTAINER> &visitor)
         {
             visitor.Visit(i_container);
         }
 
         // Visit world objects
         template<class T>
-        void Visit(TypeContainerVisitor<T, TypeMapContainer<WORLD_OBJECT_TYPES> > &visitor)
+        void Visit(TypeContainerVisitor<T, WORLD_OBJECT_CONTAINER> &visitor)
         {
             visitor.Visit(i_objects);
         }
@@ -103,14 +103,14 @@ class Grid
         template<class T>
         uint32 GetWorldObjectCountInGrid() const
         {
-            return uint32(i_objects.template Count<T>());
+            return uint32(i_objects.template Size<T>());
         }
 
         /** Inserts a container type object into the grid.
          */
         template<class SPECIFIC_OBJECT> void AddGridObject(SPECIFIC_OBJECT *obj)
         {
-            i_container.template insert<SPECIFIC_OBJECT>(obj);
+            i_container.template Insert<SPECIFIC_OBJECT>(obj);
             ASSERT(obj->IsInGrid());
         }
 
@@ -134,9 +134,10 @@ class Grid
         }*/
     private:
 
-        TypeMapContainer<GRID_OBJECT_TYPES> i_container;
-        TypeMapContainer<WORLD_OBJECT_TYPES> i_objects;
+        GRID_OBJECT_CONTAINER i_container;
+        WORLD_OBJECT_CONTAINER i_objects;
         //typedef std::set<void*> ActiveGridObjects;
         //ActiveGridObjects m_activeGridObjects;
 };
+
 #endif
