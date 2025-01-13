@@ -152,15 +152,15 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         float GetMaxSearchRadius() const;
         Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
         Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
-        void InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget);
-        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, uint32 timeToTarget);
+        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {});
+        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {});
         bool HasSplines() const;
-        ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
+        ::Movement::Spline<int32> const& GetSpline() const { return *std::get<std::unique_ptr<::Movement::Spline<int32>>>(_movement); }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
-        void InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarget);
+        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {});
         bool HasOrbit() const;
-        Optional<AreaTriggerOrbitInfo> const& GetOrbit() const { return _orbitInfo; }
+        AreaTriggerOrbitInfo const& GetOrbit() const { return *std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement); }
 
         bool HasOverridePosition() const;
 
@@ -223,13 +223,11 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         Position _rollPitchYaw;
         Position _targetRollPitchYaw;
         std::vector<Position> _polygonVertices;
-        std::unique_ptr<::Movement::Spline<int32>> _spline;
+        std::variant<std::monostate, std::unique_ptr<::Movement::Spline<int32>>, std::unique_ptr<AreaTriggerOrbitInfo>> _movement;
 
         bool _reachedDestination;
         int32 _lastSplineIndex;
         uint32 _movementTime;
-
-        Optional<AreaTriggerOrbitInfo> _orbitInfo;
 
         AreaTriggerCreateProperties const* _areaTriggerCreateProperties;
         AreaTriggerTemplate const* _areaTriggerTemplate;
