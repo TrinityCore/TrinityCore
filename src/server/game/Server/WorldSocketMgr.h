@@ -39,7 +39,7 @@ public:
     static WorldSocketMgr& Instance();
 
     /// Start network, listen at address:port .
-    bool StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, uint16 instancePort, int networkThreads);
+    bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount) override;
 
     /// Stops all network threads, It will wait for all running threads .
     void StopNetwork() override;
@@ -54,13 +54,6 @@ protected:
     NetworkThread<WorldSocket>* CreateThreads() const override;
 
 private:
-    // private, must not be called directly
-    bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount) override
-    {
-        return BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount);
-    }
-
-    AsyncAcceptor* _instanceAcceptor;
     int32 _socketSystemSendBufferSize;
     int32 _socketApplicationSendBufferSize;
     bool _tcpNoDelay;
