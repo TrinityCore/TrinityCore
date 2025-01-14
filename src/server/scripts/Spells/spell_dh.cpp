@@ -1183,17 +1183,14 @@ class spell_dh_student_of_suffering : public SpellScript
         return GetCaster()->HasAura(SPELL_DH_STUDENT_OF_SUFFERING_TALENT);
     }
 
-    void HandleStudentOfSuffering()
+    void HandleStudentOfSuffering() const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_DH_STUDENT_OF_SUFFERING_AURA, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_STUDENT_OF_SUFFERING_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_dh_student_of_suffering::HandleStudentOfSuffering);
+        AfterCast += SpellCastFn(spell_dh_student_of_suffering::HandleStudentOfSuffering);
     }
 };
 
