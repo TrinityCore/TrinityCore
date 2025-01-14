@@ -188,6 +188,8 @@ enum DemonHunterSpells
     SPELL_DH_SPIRIT_BOMB_DAMAGE                    = 218677,
     SPELL_DH_SPIRIT_BOMB_HEAL                      = 227255,
     SPELL_DH_SPIRIT_BOMB_VISUAL                    = 218678,
+    SPELL_DH_STUDENT_OF_SUFFERING_TALENT           = 452412,
+    SPELL_DH_STUDENT_OF_SUFFERING_AURA             = 453239,
     SPELL_DH_TACTICAL_RETREAT_ENERGIZE             = 389890,
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
     SPELL_DH_THROW_GLAIVE                          = 185123,
@@ -1168,6 +1170,30 @@ struct areatrigger_dh_sigil_of_chains : AreaTriggerAI
     }
 };
 
+// Called by 204598 - Sigil of Flame
+class spell_dh_student_of_suffering : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_STUDENT_OF_SUFFERING_TALENT, SPELL_DH_STUDENT_OF_SUFFERING_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_STUDENT_OF_SUFFERING_TALENT);
+    }
+
+    void HandleStudentOfSuffering() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_STUDENT_OF_SUFFERING_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_student_of_suffering::HandleStudentOfSuffering);
+    }
+};
+
 // Called by 198793 - Vengeful Retreat
 class spell_dh_tactical_retreat : public SpellScript
 {
@@ -1241,6 +1267,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_sigil_of_chains);
+    RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
 
