@@ -823,18 +823,17 @@ class spell_dh_inner_demon : public AuraScript
         return GetUnitOwner()->HasAura(SPELL_DH_INNER_DEMON_TALENT); // This spell has a proc, but is just a copypaste from spell 390145 (also don't have a 5s cooldown)
     }
 
-    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* target = GetTarget();
         target->CastSpell(target, SPELL_DH_INNER_DEMON_BUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
         });
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_dh_inner_demon::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_inner_demon::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -842,7 +841,7 @@ class spell_dh_inner_demon : public AuraScript
 // ID - 26749
 struct at_dh_inner_demon : AreaTriggerAI
 {
-    at_dh_inner_demon(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnInitialize() override
     {
@@ -854,13 +853,12 @@ struct at_dh_inner_demon : AreaTriggerAI
         if (!caster)
             return;
 
-        Position destPos = caster->GetPosition();
+        Position destPos = at->GetFirstCollisionPosition(spellInfo->GetEffect(EFFECT_0).CalcValue(caster) + at->GetMaxSearchRadius(), at->GetRelativeAngle(caster));
         PathGenerator path(at);
 
         path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
-        G3D::Vector3 const& endPoint = path.GetPath().back();
-        at->InitSplines(path.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(at->GetDuration() / spellInfo->GetEffect(EFFECT_0).CalcValue(caster)));
+        at->InitSplines(path.GetPath());
     }
 
     void OnRemove() override
