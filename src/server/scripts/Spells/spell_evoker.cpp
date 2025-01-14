@@ -51,6 +51,7 @@ enum EvokerSpells
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_SHAMAN  = 381756,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
+    SPELL_EVOKER_EMERALD_BLOSSOM_HEAL           = 355916,
     SPELL_EVOKER_ENERGIZING_FLAME               = 400006,
     SPELL_EVOKER_ESSENCE_BURST                  = 359618,
     SPELL_EVOKER_FIRESTORM_DAMAGE               = 369374,
@@ -159,6 +160,39 @@ class spell_evo_charged_blast : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_evo_charged_blast::CheckProc);
+    }
+};
+
+// 355913 - Emerald Blossom (Green)
+// ID - 23318
+struct at_evo_emerald_blossom : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnRemove() override
+    {
+        if (Unit* caster = at->GetCaster())
+            caster->CastSpell(at->GetPosition(), SPELL_EVOKER_EMERALD_BLOSSOM_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+};
+
+// 355916 - Emerald Blossom (Green)
+class spell_evo_emerald_blossom_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster()));
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_emerald_blossom_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -588,6 +622,8 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
     RegisterSpellScript(spell_evo_charged_blast);
+    RegisterAreaTriggerAI(at_evo_emerald_blossom);
+    RegisterSpellScript(spell_evo_emerald_blossom_heal);
     RegisterSpellScriptWithArgs(spell_evo_essence_burst_trigger, "spell_evo_azure_essence_burst", SPELL_EVOKER_AZURE_ESSENCE_BURST);
     RegisterSpellScriptWithArgs(spell_evo_essence_burst_trigger, "spell_evo_ruby_essence_burst", SPELL_EVOKER_RUBY_ESSENCE_BURST);
     RegisterAreaTriggerAI(at_evo_firestorm);
