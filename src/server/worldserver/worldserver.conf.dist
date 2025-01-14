@@ -167,13 +167,6 @@ MaxPingTime = 30
 WorldServerPort = 8085
 
 #
-#    InstanceServerPort
-#        Description: TCP port to for second world connection.
-#        Default:     8086
-
-InstanceServerPort = 8086
-
-#
 #    BindIP
 #        Description: Bind world server to IP/hostname.
 #                     Using IPv6 address (such as "::") will enable both IPv4 and IPv6 connections

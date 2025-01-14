@@ -1881,6 +1881,19 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
     return false;
 }
 
+bool SpellInfo::IsUpdatingTemporaryAuraValuesBySpellMod() const
+{
+    switch (Id)
+    {
+        case 384669:    // Overflowing Maelstrom
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
 {
     // Dispels other auras on immunity, check if this spell makes the unit immune to aura

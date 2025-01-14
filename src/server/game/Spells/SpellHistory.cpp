@@ -254,6 +254,9 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Sp
     if (ConsumeCharge(spellInfo->ChargeCategoryId))
         return;
 
+    if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_IGNORE_SPELL_COOLDOWN, spellInfo))
+        return;
+
     if (Player* player = _owner->ToPlayer())
     {
         // potions start cooldown until exiting combat
