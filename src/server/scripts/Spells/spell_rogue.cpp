@@ -23,9 +23,6 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "DB2Stores.h"
-#include "Item.h"
-#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Spell.h"
@@ -58,6 +55,7 @@ enum RogueSpells
     SPELL_ROGUE_CRIPPLING_POISON_DEBUFF             = 3409,
     SPELL_ROGUE_DEADLY_POISON                       = 2823,
     SPELL_ROGUE_DEADLY_POISON_DEBUFF                = 2818,
+    SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE        = 113780,
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
     SPELL_ROGUE_IMPROVED_GARROTE_AFTER_STEALTH      = 392401,
@@ -323,84 +321,25 @@ class spell_rog_cheat_death : public AuraScript
 // 2818 - Deadly Poison
 class spell_rog_deadly_poison : public SpellScript
 {
-    bool Load() override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        // at this point CastItem must already be initialized
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+        return ValidateSpellInfo({ SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE });
     }
 
-    void HandleBeforeHit(SpellMissInfo missInfo)
+    void HandleInstantDamage(SpellEffIndex /*effIndex*/) const
     {
-        if (missInfo != SPELL_MISS_NONE)
-            return;
-
-        if (Unit* target = GetHitUnit())
-            // Deadly Poison
-            if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x10000, 0x80000, 0), GetCaster()->GetGUID()))
-                _stackAmount = aurEff->GetBase()->GetStackAmount();
-    }
-
-    void HandleAfterHit()
-    {
-        if (_stackAmount < 5)
-            return;
-
-        Player* player = GetCaster()->ToPlayer();
-
-        if (Unit* target = GetHitUnit())
-        {
-
-            Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-
-            if (item == GetCastItem())
-                item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (!item)
-                return;
-
-            // item combat enchantments
-            for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
-            {
-                SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
-                if (!enchant)
-                    continue;
-
-                for (uint8 s = 0; s < 3; ++s)
-                {
-                    if (enchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
-                        continue;
-
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->EffectArg[s], DIFFICULTY_NONE);
-                    if (!spellInfo)
-                    {
-                        TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant {}, player (Name: {}, {}) cast unknown spell {}", enchant->ID, player->GetName(), player->GetGUID().ToString(), enchant->EffectArg[s]);
-                        continue;
-                    }
-
-                    // Proc only rogue poisons
-                    if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || spellInfo->Dispel != DISPEL_POISON)
-                        continue;
-
-                    // Do not reproc deadly
-                    if (spellInfo->SpellFamilyFlags & flag128(0x10000))
-                        continue;
-
-                    if (spellInfo->IsPositive())
-                        player->CastSpell(player, enchant->EffectArg[s], item);
-                    else
-                        player->CastSpell(target, enchant->EffectArg[s], item);
-                }
-            }
-        }
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (target->HasAura(GetSpellInfo()->Id, caster->GetGUID()))
+            caster->CastSpell(target, SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
     }
 
     void Register() override
     {
-        BeforeHit += BeforeSpellHitFn(spell_rog_deadly_poison::HandleBeforeHit);
-        AfterHit += SpellHitFn(spell_rog_deadly_poison::HandleAfterHit);
+        OnEffectLaunchTarget += SpellEffectFn(spell_rog_deadly_poison::HandleInstantDamage, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
-
-    uint8 _stackAmount = 0;
 };
 
 // 32645 - Envenom

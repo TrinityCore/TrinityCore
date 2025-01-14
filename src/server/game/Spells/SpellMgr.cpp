@@ -3880,6 +3880,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Maelstrom Weapon
+    ApplySpellFix({ 187881 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Add Lava Burst to spells that benefit from it
+            spellEffectInfo->SpellClassMask[1] |= 0x1000;
+        });
+    });
+
     // Gathering Storms
     ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
     {
@@ -5063,6 +5073,15 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 404468 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
+    });
+
+    // Sigil of Flame
+    ApplySpellFix({ 204598 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
+        });
     });
 
     // Collective Anguish channel hack (triggered by another channel)

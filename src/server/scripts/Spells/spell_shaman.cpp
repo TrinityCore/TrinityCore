@@ -100,7 +100,13 @@ enum ShamanSpells
     SPELL_SHAMAN_LIGHTNING_BOLT_OVERLOAD_ENERGIZE = 214816,
     SPELL_SHAMAN_LIQUID_MAGMA_HIT               = 192231,
     SPELL_SHAMAN_MAELSTROM_CONTROLLER           = 343725,
+    SPELL_SHAMAN_MAELSTROM_WEAPON_MOD_AURA      = 187881,
+    SPELL_SHAMAN_MAELSTROM_WEAPON_VISIBLE_AURA  = 344179,
+    SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY       = 187890,
+    SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY_HEALS = 412692,
     SPELL_SHAMAN_MASTERY_ELEMENTAL_OVERLOAD     = 168534,
+    SPELL_SHAMAN_OVERFLOWING_MAELSTROM_AURA     = 384669,
+    SPELL_SHAMAN_OVERFLOWING_MAELSTROM_TALENT   = 384149,
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
@@ -112,7 +118,10 @@ enum ShamanSpells
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
     SPELL_SHAMAN_STORMKEEPER                    = 191634,
     SPELL_SHAMAN_STORMSTRIKE                    = 17364,
+    SPELL_SHAMAN_STORMWEAVER_PVP_TALENT         = 410673,
+    SPELL_SHAMAN_STORMWEAVER_PVP_TALENT_BUFF    = 410681,
     SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF   = 394651,
+    SPELL_SHAMAN_THORIMS_INVOCATION             = 384444,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
@@ -1308,6 +1317,165 @@ class spell_sha_liquid_magma_totem : public SpellScript
     }
 };
 
+struct spell_sha_maelstrom_weapon_base
+{
+    static bool Validate()
+    {
+        return SpellScriptBase::ValidateSpellInfo
+        ({
+            SPELL_SHAMAN_MAELSTROM_WEAPON_VISIBLE_AURA,
+            SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY,
+            SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY_HEALS,
+            SPELL_SHAMAN_OVERFLOWING_MAELSTROM_TALENT,
+            SPELL_SHAMAN_OVERFLOWING_MAELSTROM_AURA,
+            SPELL_SHAMAN_STORMWEAVER_PVP_TALENT_BUFF
+        }) && SpellScriptBase::ValidateSpellEffect
+        ({
+            { SPELL_SHAMAN_MAELSTROM_WEAPON_MOD_AURA, EFFECT_1 },
+            { SPELL_SHAMAN_STORMWEAVER_PVP_TALENT, EFFECT_0 }
+        });
+    }
+
+    static void GenerateMaelstromWeapon(Unit* shaman, int32 stacks)
+    {
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        while (--stacks >= 0)
+        {
+            uint32 totalStacks = shaman->GetAuraCount(SPELL_SHAMAN_MAELSTROM_WEAPON_VISIBLE_AURA);
+            if (totalStacks >= 4)
+            {
+                // cast action bar overlays
+                if (!shaman->HasAura(SPELL_SHAMAN_STORMWEAVER_PVP_TALENT))
+                    shaman->CastSpell(shaman, SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY_HEALS, args);
+
+                shaman->CastSpell(shaman, SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY, args);
+            }
+
+            shaman->CastSpell(shaman, SPELL_SHAMAN_MAELSTROM_WEAPON_MOD_AURA, args);
+            shaman->CastSpell(shaman, SPELL_SHAMAN_MAELSTROM_WEAPON_VISIBLE_AURA, args);
+            if (totalStacks >= 5 && shaman->HasAura(SPELL_SHAMAN_OVERFLOWING_MAELSTROM_TALENT))
+                shaman->CastSpell(shaman, SPELL_SHAMAN_OVERFLOWING_MAELSTROM_AURA, args);
+        }
+    }
+
+    static void ConsumeMaelstromWeapon(Unit* shaman, Aura* maelstromWeaponVisibleAura, int32 stacks, Spell const* consumingSpell = nullptr)
+    {
+        if (AuraEffect const* stormweaver = shaman->GetAuraEffect(SPELL_SHAMAN_STORMWEAVER_PVP_TALENT, EFFECT_0))
+        {
+            shaman->RemoveAurasDueToSpell(SPELL_SHAMAN_STORMWEAVER_PVP_TALENT_BUFF);    // remove to ensure new buff has exactly "consumedStacks" stacks
+            if (Aura const* maelstromSpellMod = shaman->GetAura(SPELL_SHAMAN_MAELSTROM_WEAPON_MOD_AURA))
+                shaman->CastSpell(shaman, SPELL_SHAMAN_STORMWEAVER_PVP_TALENT_BUFF, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .TriggeringSpell = consumingSpell,
+                    .SpellValueOverrides = {
+                        { SPELLVALUE_BASE_POINT0, maelstromSpellMod->GetEffect(EFFECT_0)->GetAmount() },
+                        // this is indeed very silly but it is how it behaves on official servers
+                        // it ignores how many stacks were actually consumed and calculates benefit from max stacks (Thorim's Invocation can consume less stacks than entire aura)
+                        { SPELLVALUE_BASE_POINT1, CalculatePct(maelstromSpellMod->GetEffect(EFFECT_1)->GetAmount(), stormweaver->GetAmount()) },
+                        { SPELLVALUE_AURA_STACK, std::min<int32>(stacks, maelstromWeaponVisibleAura->GetStackAmount()) }
+                    }
+                });
+        }
+
+        if (maelstromWeaponVisibleAura->ModStackAmount(-stacks))
+            return;
+
+        // not removed
+        uint8 newStacks = maelstromWeaponVisibleAura->GetStackAmount();
+
+        if (Aura* overflowingMaelstrom = shaman->GetAura(SPELL_SHAMAN_OVERFLOWING_MAELSTROM_AURA))
+        {
+            if (newStacks > 5)
+                overflowingMaelstrom->SetStackAmount(newStacks - 5);
+            else
+                overflowingMaelstrom->Remove();
+        }
+
+        if (Aura* maelstromSpellMod = shaman->GetAura(SPELL_SHAMAN_MAELSTROM_WEAPON_MOD_AURA))
+        {
+            if (newStacks > 0)
+                maelstromSpellMod->SetStackAmount(std::min<uint8>(newStacks, 5));
+            else
+                maelstromSpellMod->Remove();
+        }
+
+        if (newStacks < 5)
+        {
+            shaman->RemoveAurasDueToSpell(SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY);
+            shaman->RemoveAurasDueToSpell(SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY_HEALS);
+        }
+    }
+};
+
+// 187880 - Maelstrom Weapon
+class spell_sha_maelstrom_weapon : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return spell_sha_maelstrom_weapon_base::Validate();
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*procEvent*/) const
+    {
+        spell_sha_maelstrom_weapon_base::GenerateMaelstromWeapon(GetTarget(), 1);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_maelstrom_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 344179 - Maelstrom Weapon
+class spell_sha_maelstrom_weapon_proc : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return spell_sha_maelstrom_weapon_base::Validate();
+    }
+
+    bool CheckProc(ProcEventInfo const& procEvent) const
+    {
+        Spell const* procSpell = procEvent.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        Aura* maelstromSpellMod = GetTarget()->GetAura(SPELL_SHAMAN_MAELSTROM_WEAPON_MOD_AURA);
+        if (!maelstromSpellMod)
+            return false;
+
+        return procSpell->m_appliedMods.contains(maelstromSpellMod);
+    }
+
+    void RemoveMaelstromAuras(ProcEventInfo const& procEvent) const
+    {
+        Unit* shaman = GetTarget();
+        int32 stacksToConsume = 5;
+        if (shaman->HasAura(SPELL_SHAMAN_OVERFLOWING_MAELSTROM_TALENT))
+            stacksToConsume = 10;
+
+        spell_sha_maelstrom_weapon_base::ConsumeMaelstromWeapon(shaman, GetAura(), stacksToConsume, procEvent.GetProcSpell());
+    }
+
+    void ExpireMaelstromAuras(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* shaman = GetTarget();
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+        shaman->RemoveAurasDueToSpell(SPELL_SHAMAN_OVERFLOWING_MAELSTROM_AURA, ObjectGuid::Empty, 0, removeMode);
+        shaman->RemoveAurasDueToSpell(SPELL_SHAMAN_MAELSTROM_WEAPON_MOD_AURA, ObjectGuid::Empty, 0, removeMode);
+        shaman->RemoveAurasDueToSpell(SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY, ObjectGuid::Empty, 0, removeMode);
+        shaman->RemoveAurasDueToSpell(SPELL_SHAMAN_MAELSTROM_WEAPON_OVERLAY_HEALS, ObjectGuid::Empty, 0, removeMode);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_maelstrom_weapon_proc::CheckProc);
+        OnProc += AuraProcFn(spell_sha_maelstrom_weapon_proc::RemoveMaelstromAuras);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sha_maelstrom_weapon_proc::ExpireMaelstromAuras, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 168534 - Mastery: Elemental Overload (passive)
 class spell_sha_mastery_elemental_overload : public AuraScript
 {
@@ -1526,6 +1694,123 @@ class spell_sha_spirit_wolf : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_sha_spirit_wolf::OnApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_sha_spirit_wolf::OnRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 187881 - Maelstrom Weapon
+class spell_sha_stormweaver : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_STORMWEAVER_PVP_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_SHAMAN_STORMWEAVER_PVP_TALENT);
+    }
+
+    static void PreventAffectingHealingSpells(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_sha_stormweaver::PreventAffectingHealingSpells, EFFECT_2, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_sha_stormweaver::PreventAffectingHealingSpells, EFFECT_4, TARGET_UNIT_CASTER);
+    }
+};
+
+// 384444 - Thorim's Invocation
+class spell_sha_thorims_invocation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_BOLT, SPELL_SHAMAN_CHAIN_LIGHTNING });
+    }
+
+    void Register() override
+    {
+    }
+
+public:
+    uint32 SpellIdToTrigger = SPELL_SHAMAN_LIGHTNING_BOLT;
+};
+
+// 188196 - Lightning Bolt
+// 188443 - Chain Lightning
+// 452201 - Tempest
+class spell_sha_thorims_invocation_primer : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_THORIMS_INVOCATION, SPELL_SHAMAN_LIGHTNING_BOLT, SPELL_SHAMAN_CHAIN_LIGHTNING })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).IsEffect(SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+    void UpdateThorimsInvocationSpell() const
+    {
+        if (Aura const* thorimsInvocation = GetCaster()->GetAura(SPELL_SHAMAN_THORIMS_INVOCATION))
+            if (spell_sha_thorims_invocation* spellIdHolder = thorimsInvocation->GetScript<spell_sha_thorims_invocation>())
+                spellIdHolder->SpellIdToTrigger = GetUnitTargetCountForEffect(EFFECT_0) > 1 ? SPELL_SHAMAN_CHAIN_LIGHTNING : SPELL_SHAMAN_LIGHTNING_BOLT;
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_sha_thorims_invocation_primer::UpdateThorimsInvocationSpell);
+    }
+};
+
+// 115357 - Windstrike (MH)
+class spell_sha_thorims_invocation_trigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_SHAMAN_THORIMS_INVOCATION, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_SHAMAN_THORIMS_INVOCATION);
+    }
+
+    void TriggerLightningSpell(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        AuraEffect const* thorimsInvocation = caster->GetAuraEffect(SPELL_SHAMAN_THORIMS_INVOCATION, EFFECT_0);
+        if (!thorimsInvocation)
+            return;
+
+        spell_sha_thorims_invocation const* spellIdHolder = thorimsInvocation->GetBase()->GetScript<spell_sha_thorims_invocation>();
+        if (!spellIdHolder)
+            return;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellIdHolder->SpellIdToTrigger, GetCastDifficulty());
+        TriggerCastFlags triggerFlags = TRIGGERED_NONE;
+        Unit::GetCastSpellInfoContext overrideContext;
+        spellInfo = caster->GetCastSpellInfo(spellInfo, triggerFlags, &overrideContext);
+
+        // Remove Overflowing Maelstrom spellmod early to make next cast behave as if it consumed only 5 or less maelstrom stacks
+        // this works because consuming "up to 5 stacks" will always cause Maelstrom Weapon stacks to drop to 5 or lower
+        // which means Overflowing Maelstrom needs removing anyway
+        caster->RemoveAurasDueToSpell(SPELL_SHAMAN_OVERFLOWING_MAELSTROM_AURA);
+
+        caster->CastSpell(GetHitUnit(), spellInfo->Id, CastSpellExtraArgsInit{
+            .TriggerFlags = triggerFlags | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        // Manually remove stacks - Maelstrom Weapon aura cannot proc from procs and free Lightning Bolt/Chain Lightning procs from Arc Discharge (455096) shoulnd't consume it
+        if (Aura* maelstromWeaponVisibleAura = caster->GetAura(SPELL_SHAMAN_MAELSTROM_WEAPON_VISIBLE_AURA))
+            spell_sha_maelstrom_weapon_base::ConsumeMaelstromWeapon(caster, maelstromWeaponVisibleAura, thorimsInvocation->GetAmount());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_thorims_invocation_trigger::TriggerLightningSpell, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1997,12 +2282,15 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_lightning_bolt);
     RegisterSpellScript(spell_sha_lightning_bolt_overload);
     RegisterSpellScript(spell_sha_liquid_magma_totem);
+    RegisterSpellScript(spell_sha_maelstrom_weapon);
+    RegisterSpellScript(spell_sha_maelstrom_weapon_proc);
     RegisterSpellScript(spell_sha_mastery_elemental_overload);
     RegisterSpellScript(spell_sha_mastery_elemental_overload_proc);
     RegisterSpellScript(spell_sha_natures_guardian);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
     RegisterSpellScript(spell_sha_restorative_mists);
     RegisterSpellScript(spell_sha_spirit_wolf);
+    RegisterSpellScript(spell_sha_stormweaver);
     RegisterSpellScript(spell_sha_tidal_waves);
     RegisterSpellScript(spell_sha_t3_6p_bonus);
     RegisterSpellScript(spell_sha_t3_8p_bonus);
@@ -2010,6 +2298,9 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_t9_elemental_4p_bonus);
     RegisterSpellScript(spell_sha_t10_elemental_4p_bonus);
     RegisterSpellScript(spell_sha_t10_restoration_4p_bonus);
+    RegisterSpellScript(spell_sha_thorims_invocation);
+    RegisterSpellScript(spell_sha_thorims_invocation_primer);
+    RegisterSpellScript(spell_sha_thorims_invocation_trigger);
     RegisterSpellScript(spell_sha_unlimited_power);
     RegisterSpellScript(spell_sha_undulation_passive);
     RegisterSpellScript(spell_sha_windfury_weapon);

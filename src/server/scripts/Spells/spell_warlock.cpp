@@ -1175,6 +1175,22 @@ class spell_warl_shadow_bolt : public SpellScript
     }
 };
 
+// 422054 - Shadow Invocation
+class spell_warl_shadow_invocation : public AuraScript
+{
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        caster->m_Events.AddEventAtOffset(new BilescourgeBombersEvent(caster, caster->GetPosition(), target->GetPosition()), 500ms);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_warl_shadow_invocation::HandleProc);
+    }
+};
+
 // 452999 - Siphon Life
 class spell_warl_siphon_life : public AuraScript
 {
@@ -1601,6 +1617,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_warl_seed_of_corruption_dummy, spell_warl_seed_of_corruption_dummy_aura);
     RegisterSpellScript(spell_warl_seed_of_corruption_generic);
     RegisterSpellScript(spell_warl_shadow_bolt);
+    RegisterSpellScript(spell_warl_shadow_invocation);
     RegisterSpellScript(spell_warl_siphon_life);
     RegisterSpellScript(spell_warl_soul_swap);
     RegisterSpellScript(spell_warl_soul_swap_dot_marker);
