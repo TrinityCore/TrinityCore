@@ -173,8 +173,8 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT         = 204834,
     SPELL_DH_SIGIL_OF_CHAINS_VISUAL                = 208673,
     SPELL_DH_SIGIL_OF_FLAME_AOE                    = 204598,
-    SPELL_DH_SIGIL_OF_FLAME_DAMAGE                 = 204598,
     SPELL_DH_SIGIL_OF_FLAME_FLAME_CRASH            = 228973,
+    SPELL_DH_SIGIL_OF_FLAME_VISUAL                 = 208710,
     SPELL_DH_SIGIL_OF_MISERY                       = 207685,
     SPELL_DH_SIGIL_OF_MISERY_AOE                   = 207685,
     SPELL_DH_SIGIL_OF_SILENCE                      = 204490,
@@ -1117,10 +1117,11 @@ class spell_dh_soul_furnace_conduit : public AuraScript
     }
 };
 
+// 202138 - Sigil of Chains
 // 204596 - Sigil of Flame
 // 207684 - Sigil of Misery
 // 202137 - Sigil of Silence
-template<uint32 TriggerSpellId>
+template<uint32 TriggerSpellId, uint32 TriggerSpellId2 = 0>
 struct areatrigger_dh_generic_sigil : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
@@ -1128,7 +1129,11 @@ struct areatrigger_dh_generic_sigil : AreaTriggerAI
     void OnRemove() override
     {
         if (Unit* caster = at->GetCaster())
+        {
             caster->CastSpell(at->GetPosition(), TriggerSpellId);
+            if constexpr (TriggerSpellId2 != 0)
+                caster->CastSpell(at->GetPosition(), TriggerSpellId2);
+        }
     }
 };
 
@@ -1152,21 +1157,6 @@ class spell_dh_sigil_of_chains : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_sigil_of_chains::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 202138 - Sigil of Chains
-struct areatrigger_dh_sigil_of_chains : AreaTriggerAI
-{
-    areatrigger_dh_sigil_of_chains(AreaTrigger* at) : AreaTriggerAI(at) { }
-
-    void OnRemove() override
-    {
-        if (Unit* caster = at->GetCaster())
-        {
-            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_VISUAL);
-            caster->CastSpell(at->GetPosition(), SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT);
-        }
     }
 };
 
@@ -1272,10 +1262,10 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
+    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>>("areatrigger_dh_sigil_of_chains");
+    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>>("areatrigger_dh_sigil_of_flame");
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>>("areatrigger_dh_sigil_of_silence");
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>>("areatrigger_dh_sigil_of_misery");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE>>("areatrigger_dh_sigil_of_flame");
-    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
 
     // Havoc
 
