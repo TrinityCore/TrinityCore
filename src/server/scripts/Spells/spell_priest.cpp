@@ -2989,7 +2989,9 @@ class spell_pri_spirit_of_redemption : public AuraScript
     }
 };
 
-// 8092 - Mind Blast
+// 34433 - Shadowfiend
+// 123040 - Mindbender (Discipline)
+// 451235 - Voidwrath
 class spell_pri_shadow_covenant : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2999,13 +3001,10 @@ class spell_pri_shadow_covenant : public SpellScript
 
     bool Load() override
     {
-        if (!GetCaster()->HasAura(SPELL_PRIEST_SHADOW_COVENANT))
-            return false;
-
-        return true;
+        return GetCaster()->HasAura(SPELL_PRIEST_SHADOW_COVENANT);
     }
 
-    void HandleTriggerAfterCast() const
+    void HandleAfterCast() const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_COVENANT_EFFECT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -3015,7 +3014,7 @@ class spell_pri_shadow_covenant : public SpellScript
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_pri_shadow_covenant::HandleTriggerAfterCast);
+        AfterCast += SpellCastFn(spell_pri_shadow_covenant::HandleAfterCast);
     }
 };
 
