@@ -36,6 +36,7 @@
 
 enum EvokerSpells
 {
+    SPELL_EVOKER_AZURE_ESSENCE_BURST            = 375721,
     SPELL_EVOKER_BLAST_FURNACE                  = 375510,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DK      = 381732,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_DH      = 381741,
@@ -51,6 +52,7 @@ enum EvokerSpells
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
     SPELL_EVOKER_ENERGIZING_FLAME               = 400006,
+    SPELL_EVOKER_ESSENCE_BURST                  = 359618,
     SPELL_EVOKER_FIRESTORM_DAMAGE               = 369374,
     SPELL_EVOKER_FIRE_BREATH_DAMAGE             = 357209,
     SPELL_EVOKER_GLIDE_KNOCKBACK                = 358736,
@@ -61,6 +63,7 @@ enum EvokerSpells
     SPELL_EVOKER_PERMEATING_CHILL_TALENT        = 370897,
     SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
     SPELL_EVOKER_RUBY_EMBERS                    = 365937,
+    SPELL_EVOKER_RUBY_ESSENCE_BURST             = 376872,
     SPELL_EVOKER_SCOURING_FLAME                 = 378438,
     SPELL_EVOKER_SNAPFIRE                       = 370818,
     SPELL_EVOKER_SOAR_RACIAL                    = 369536,
@@ -157,6 +160,40 @@ class spell_evo_charged_blast : public AuraScript
     {
         DoCheckProc += AuraCheckProcFn(spell_evo_charged_blast::CheckProc);
     }
+};
+
+// Called by 362969 - Azure Strike
+// Called by 361469 - Living Flame (Red)
+class spell_evo_essence_burst_trigger : public SpellScript
+{
+public:
+    explicit spell_evo_essence_burst_trigger(uint32 talentAuraId) : _talentAuraId(talentAuraId) { }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _talentAuraId, SPELL_EVOKER_ESSENCE_BURST });
+    }
+
+    bool Load() override
+    {
+        AuraEffect const* aurEff = GetCaster()->GetAuraEffect(_talentAuraId, EFFECT_0);
+        return aurEff && roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleEssenceBurst() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_EVOKER_ESSENCE_BURST, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_essence_burst_trigger::HandleEssenceBurst);
+    }
+
+    uint32 _talentAuraId;
 };
 
 // 357208 Fire Breath (Red)
@@ -551,6 +588,8 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
     RegisterSpellScript(spell_evo_charged_blast);
+    RegisterSpellScriptWithArgs(spell_evo_essence_burst_trigger, "spell_evo_azure_essence_burst", SPELL_EVOKER_AZURE_ESSENCE_BURST);
+    RegisterSpellScriptWithArgs(spell_evo_essence_burst_trigger, "spell_evo_ruby_essence_burst", SPELL_EVOKER_RUBY_ESSENCE_BURST);
     RegisterAreaTriggerAI(at_evo_firestorm);
     RegisterSpellScript(spell_evo_fire_breath);
     RegisterSpellScript(spell_evo_fire_breath_damage);
