@@ -623,7 +623,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
 
         if (hasOrbit)
-            *data << *areaTrigger->GetOrbit();
+            *data << areaTrigger->GetOrbit();
     }
 
     if (flags.GameObject)
@@ -1578,7 +1578,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
         if (smoothPhasing->IsBeingReplacedForSeer(GetGUID()))
             return false;
 
-    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj->GetTypeId(), obj->GetEntry(), this))
+    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj, this))
         return false;
 
     // Spawn tracking
