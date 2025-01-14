@@ -47,6 +47,7 @@ enum PriestSpells
     SPELL_PRIEST_ANSWERED_PRAYERS                   = 394289,
     SPELL_PRIEST_APOTHEOSIS                         = 200183,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
+    SPELL_PRIEST_ASSURED_SAFETY                     = 440766,
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_EFFECT                   = 194384,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
@@ -2352,7 +2353,6 @@ public:
     bool Load() override
     {
         _spellInfoHeal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
-        _healEffectDummy = &_spellInfoHeal->GetEffect(EFFECT_0);
         return true;
     }
 
@@ -2363,7 +2363,8 @@ public:
         args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
 
         // Note: this line's purpose is to show the correct amount in Points field in SMSG_AURA_UPDATE.
-        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
+        SpellEffectInfo const* healEffectDummy = &_spellInfoHeal->GetEffect(EFFECT_0);
+        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, healEffectDummy->CalcValue(caster), HEAL, *healEffectDummy);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
 
         // Note: Focused Mending talent.
@@ -2377,7 +2378,6 @@ public:
 
 protected:
     SpellInfo const* _spellInfoHeal = nullptr;
-    SpellEffectInfo const* _healEffectDummy = nullptr;
 };
 
 // 33076 - Prayer of Mending (Dummy)
@@ -2634,6 +2634,32 @@ class spell_pri_holy_10_1_class_set_4pc_aura : public AuraScript
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_pri_holy_10_1_class_set_4pc_aura::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 17 - Power Word: Shield
+class spell_pri_assured_safety : public spell_pri_prayer_of_mending_SpellScriptBase
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY);
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        if (AuraEffect const* effect = caster->GetAuraEffect(SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0))
+            CastPrayerOfMendingAura(caster, GetHitUnit(), caster, effect->GetAmount(), false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_assured_safety::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -3569,6 +3595,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_abyssal_reverie);
     RegisterSpellScript(spell_pri_answered_prayers);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
+    RegisterSpellScript(spell_pri_assured_safety);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_effect);
     RegisterSpellScript(spell_pri_atonement_effect_aura);
