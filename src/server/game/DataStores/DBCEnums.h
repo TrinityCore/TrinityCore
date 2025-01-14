@@ -2290,14 +2290,17 @@ DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 enum class TaxiNodeFlags : int32
 {
-    ShowOnAllianceMap           = 0x00000001,
-    ShowOnHordeMap              = 0x00000002,
-    ShowOnMapBorder             = 0x00000004,
-    ShowIfClientPassesCondition = 0x00000008,
-    UsePlayerFavoriteMount      = 0x00000010,
-    EndPointPnly                = 0x00000020,
-    IgnoreForFindNearest        = 0x00000040,
-    DoNotShowInWorldMapUI       = 0x00000080,
+    ShowOnAllianceMap                           = 0x00000001,
+    ShowOnHordeMap                              = 0x00000002,
+    ShowOnMapBorder                             = 0x00000004,
+    ShowIfClientPassesCondition                 = 0x00000008,
+    UsePlayerFavoriteMount                      = 0x00000010,
+    EndPointOnly                                = 0x00000020,
+    IgnoreForFindNearest                        = 0x00000040,
+    DoNotShowInWorldMapUI                       = 0x00000080,
+    ShowNpcMinimapAtlasIfClientPassesCondition  = 0x00000100,
+    MapLayerTransition                          = 0x00000200,
+    NotAccountWide                              = 0x00000400
 };
 
 DEFINE_ENUM_FLAG(TaxiNodeFlags);
