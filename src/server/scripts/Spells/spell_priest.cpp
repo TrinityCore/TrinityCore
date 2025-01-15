@@ -168,6 +168,8 @@ enum PriestSpells
     SPELL_PRIEST_SANCTUARY                          = 231682,
     SPELL_PRIEST_SANCTUARY_ABSORB                   = 208771,
     SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
+    SPELL_PRIEST_SHADOW_COVENANT                    = 314867,
+    SPELL_PRIEST_SHADOW_COVENANT_EFFECT             = 322105,
     SPELL_PRIEST_RHAPSODY_PROC                      = 390636,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
@@ -2987,31 +2989,32 @@ class spell_pri_spirit_of_redemption : public AuraScript
     }
 };
 
-// 314867 - Shadow Covenant
+// 34433 - Shadowfiend
+// 123040 - Mindbender (Discipline)
+// 451235 - Voidwrath
 class spell_pri_shadow_covenant : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_COVENANT, SPELL_PRIEST_SHADOW_COVENANT_EFFECT });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets) const
+    bool Load() override
     {
-        // remove explicit target (will be readded later)
-        Trinity::Containers::Lists::RemoveUnique(targets, GetExplTargetWorldObject());
+        return GetCaster()->HasAura(SPELL_PRIEST_SHADOW_COVENANT);
+    }
 
-        // we must remove one since explicit target is always added.
-        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) - 1);
-
-        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
-
-        if (Unit* explicitTarget = GetExplTargetUnit())
-            targets.push_front(explicitTarget);
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_COVENANT_EFFECT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_shadow_covenant::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+        AfterCast += SpellCastFn(spell_pri_shadow_covenant::HandleAfterCast);
     }
 };
 
