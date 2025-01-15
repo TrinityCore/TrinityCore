@@ -32,8 +32,10 @@ class CreatureGroup;
 class Quest;
 class Player;
 class SpellInfo;
+class SummonInfo;
 class WorldSession;
 struct Loot;
+struct SummonInfoArgs;
 
 enum MovementGeneratorType : uint8;
 
@@ -463,6 +465,13 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void InitializeInteractSpellId();
         void SetInteractSpellId(int32 interactSpellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::InteractSpellID), interactSpellId); }
 
+        // Initializes the summon API for this creature which marks it as summon and will be treated accordingly
+        void InitializeSummonInfo(SummonInfoArgs const& args);
+        // Returns a pointer to the SummonInfo API, nullptr if the creature is not a summon
+        SummonInfo* GetSummonInfo() const;
+
+        bool IsSummon() const override;
+
     protected:
         void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
@@ -579,6 +588,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 _gossipMenuId;
         Optional<uint32> _trainerId;
         float _sparringHealthPct;
+
+        // The Summon API which controls the behavior of summons
+        std::unique_ptr<SummonInfo> _summonInfo;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent
