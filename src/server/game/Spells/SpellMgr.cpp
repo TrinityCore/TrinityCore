@@ -5262,6 +5262,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(8, 0, 453034, EFFECT_1, {}, {});
     });
 
+    // Essence Break
+    ApplySpellFix({ 258860 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_1, {}, {});
+    });
+
     // Inner Demon
     ApplySpellFix({ 390137 }, [](SpellInfo* spellInfo)
     {
