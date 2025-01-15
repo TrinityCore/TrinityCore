@@ -17,7 +17,6 @@
 
 #include "Conversation.h"
 #include "ConditionMgr.h"
-#include "Containers.h"
 #include "ConversationAI.h"
 #include "ConversationDataStore.h"
 #include "Creature.h"
@@ -26,10 +25,10 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "UpdateData.h"
 #include "WorldSession.h"
 
@@ -53,7 +52,7 @@ void Conversation::AddToWorld()
     ///- Register the Conversation for guid lookup and for caster
     if (!IsInWorld())
     {
-        GetMap()->GetObjectsStore().Insert<Conversation>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<Conversation>(this);
         WorldObject::AddToWorld();
     }
 }
@@ -66,7 +65,7 @@ void Conversation::RemoveFromWorld()
         _ai->OnRemove();
 
         WorldObject::RemoveFromWorld();
-        GetMap()->GetObjectsStore().Remove<Conversation>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<Conversation>(this);
     }
 }
 
