@@ -1958,6 +1958,9 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return nullptr;
     }
 
+    // Initialize the SummonInfo API which marks the creature as Summon
+    summon->InitializeSummonInfo();
+
     TransportBase* transport = summoner ? summoner->GetTransport() : nullptr;
     if (transport)
     {
