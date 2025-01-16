@@ -60,6 +60,8 @@ enum DemonHunterSpells
     SPELL_DH_CHAOS_STRIKE_ENERGIZE                 = 193840,
     SPELL_DH_CHAOS_STRIKE_MH                       = 222031,
     SPELL_DH_CHAOS_STRIKE_OH                       = 199547,
+    SPELL_DH_CHAOS_THEORY_TALENT                   = 389687,
+    SPELL_DH_CHAOS_THEORY_CRIT                     = 390195,
     SPELL_DH_CHAOTIC_TRANSFORMATION                = 388112,
     SPELL_DH_CHARRED_WARBLADES_HEAL                = 213011,
     SPELL_DH_COLLECTIVE_ANGUISH                    = 390152,
@@ -278,6 +280,65 @@ class spell_dh_chaos_strike : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// Called by 188499 - Blade Dance and 210152 - Death Sweep
+class spell_dh_chaos_theory : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        if (!ValidateSpellInfo({ SPELL_DH_CHAOS_THEORY_CRIT })
+            || !ValidateSpellEffect({ { SPELL_DH_CHAOS_THEORY_TALENT, EFFECT_1 } }))
+            return false;
+
+        SpellInfo const* chaosTheory = sSpellMgr->AssertSpellInfo(SPELL_DH_CHAOS_THEORY_TALENT, DIFFICULTY_NONE);
+        return chaosTheory->GetEffect(EFFECT_0).CalcValue() < chaosTheory->GetEffect(EFFECT_1).CalcValue();
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_CHAOS_THEORY_TALENT);
+    }
+
+    void ChaosTheory() const
+    {
+        Unit* caster = GetCaster();
+        Aura const* chaosTheory = caster->GetAura(SPELL_DH_CHAOS_THEORY_TALENT);
+        if (!chaosTheory)
+            return;
+
+        AuraEffect const* min = chaosTheory->GetEffect(EFFECT_0);
+        AuraEffect const* max = chaosTheory->GetEffect(EFFECT_1);
+        if (!min || !max)
+            return;
+
+        int32 critChance = irand(min->GetAmount(), max->GetAmount());
+        caster->CastSpell(caster, SPELL_DH_CHAOS_THEORY_CRIT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, critChance } }
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_chaos_theory::ChaosTheory);
+    }
+};
+
+// 390195 - Chaos Theory
+class spell_dh_chaos_theory_drop_charge : public AuraScript
+{
+    void Prepare(ProcEventInfo const& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        // delayed charge drop - this aura must be removed after Chaos Strike does damage and after it procs power refund
+        GetAura()->DropChargeDelayed(500);
+    }
+
+    void Register() override
+    {
+        DoPrepareProc += AuraProcFn(spell_dh_chaos_theory_drop_charge::Prepare);
     }
 };
 
@@ -1354,6 +1415,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_calcified_spikes);
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
     RegisterSpellScript(spell_dh_chaos_strike);
+    RegisterSpellScript(spell_dh_chaos_theory);
+    RegisterSpellScript(spell_dh_chaos_theory_drop_charge);
     RegisterSpellScript(spell_dh_chaotic_transformation);
     RegisterSpellScript(spell_dh_charred_warblades);
     RegisterSpellScript(spell_dh_collective_anguish);
