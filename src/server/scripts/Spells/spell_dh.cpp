@@ -326,6 +326,22 @@ class spell_dh_chaos_theory : public SpellScript
     }
 };
 
+// 390195 - Chaos Theory
+class spell_dh_chaos_theory_drop_charge : public AuraScript
+{
+    void Prepare(ProcEventInfo const& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        // delayed charge drop - this aura must be removed after Chaos Strike does damage and after it procs power refund
+        GetAura()->DropChargeDelayed(500);
+    }
+
+    void Register() override
+    {
+        DoPrepareProc += AuraProcFn(spell_dh_chaos_theory_drop_charge::Prepare);
+    }
+};
+
 // Called by 191427 - Metamorphosis
 class spell_dh_chaotic_transformation : public SpellScript
 {
@@ -1400,6 +1416,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
     RegisterSpellScript(spell_dh_chaos_strike);
     RegisterSpellScript(spell_dh_chaos_theory);
+    RegisterSpellScript(spell_dh_chaos_theory_drop_charge);
     RegisterSpellScript(spell_dh_chaotic_transformation);
     RegisterSpellScript(spell_dh_charred_warblades);
     RegisterSpellScript(spell_dh_collective_anguish);
