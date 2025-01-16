@@ -898,11 +898,7 @@ class spell_dru_flourish : public SpellScript
             if (!effect)
                 return true;
 
-            Aura* aura = effect->GetBase();
-            if (!aura)
-                return true;
-
-            AddOrUpdateRegisteredAuras(unitTarget, aura);
+            AddOrUpdateRegisteredAuras(unitTarget, effect->GetBase());
 
             return false;
         });
