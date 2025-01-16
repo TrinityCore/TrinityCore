@@ -227,7 +227,7 @@ class spell_dh_army_unto_oneself : public SpellScript
         return GetCaster()->HasAura(SPELL_DH_ARMY_UNTO_ONESELF);
     }
 
-    void BladeWard() const
+    void ApplyBladeWard() const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_DH_BLADE_WARD, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -237,7 +237,7 @@ class spell_dh_army_unto_oneself : public SpellScript
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_dh_army_unto_oneself::BladeWard);
+        AfterCast += SpellCastFn(spell_dh_army_unto_oneself::ApplyBladeWard);
     }
 };
 
