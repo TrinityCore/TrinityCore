@@ -890,17 +890,7 @@ class spell_dru_flourish : public SpellScript
     {
         targets.remove_if([&](WorldObject const* target)
         {
-            Unit const* unitTarget = target->ToUnit();
-            if (!unitTarget)
-                return true;
-
-            AuraEffect const* effect = unitTarget->GetAuraEffect(AuraType::SPELL_AURA_PERIODIC_HEAL, SpellFamilyNames::SPELLFAMILY_DRUID, flag128{ 0x0, 0x0, 0x0, 0x0 }, GetCaster()->GetGUID());
-            if (!effect)
-                return true;
-
-            AddOrUpdateRegisteredAuras(unitTarget, effect->GetBase());
-
-            return false;
+            return !IsTargetValidForFlourish(target);
         });
     }
 
@@ -909,15 +899,20 @@ class spell_dru_flourish : public SpellScript
         if (_targetAndAuras.empty())
             return;
 
-        Milliseconds const extraDuration = Seconds(GetEffectValue());
+        Unit const* target = GetHitUnit();
+        if (!target)
+            return;
 
-        for (const auto& [GUID, auraList] : _targetAndAuras)
+        auto const it = _targetAndAuras.find(target->GetGUID());
+        if (it == _targetAndAuras.end())
+            return;
+
+        Milliseconds const extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
+
+        for (Aura* aura : it->second)
         {
-            for (Aura* aura : auraList)
-            {
-                aura->SetDuration(aura->GetDuration() + extraDuration.count());
-                aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
-            }
+            aura->SetDuration(aura->GetDuration() + extraDuration.count());
+            aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
         }
     }
 
@@ -928,13 +923,23 @@ class spell_dru_flourish : public SpellScript
     }
 
 private:
-    void AddOrUpdateRegisteredAuras(Unit const* unitTarget, Aura* aura)
+    bool IsTargetValidForFlourish(WorldObject const* target)
     {
-        auto const it = _targetAndAuras.find(unitTarget->GetGUID());
-        if (it != _targetAndAuras.end())
-            it->second.push_back(aura);
-        else
-            _targetAndAuras[unitTarget->GetGUID()] = { aura };
+        Unit const* unitTarget = target->ToUnit();
+        if (!unitTarget)
+            return false;
+
+        AuraEffect const* effect = unitTarget->GetAuraEffect(AuraType::SPELL_AURA_PERIODIC_HEAL, SpellFamilyNames::SPELLFAMILY_DRUID, flag128{ 0x0, 0x0, 0x0, 0x0 }, GetCaster()->GetGUID());
+        if (!effect)
+            return false;
+
+        RegisterAffectedAurasForTarget(unitTarget->GetGUID(), effect->GetBase());
+        return true;
+    }
+
+    void RegisterAffectedAurasForTarget(ObjectGuid const& guid, Aura* aura)
+    {
+        _targetAndAuras[guid].push_back(aura);
     }
 
     std::unordered_map<ObjectGuid, std::list<Aura*>> _targetAndAuras;
