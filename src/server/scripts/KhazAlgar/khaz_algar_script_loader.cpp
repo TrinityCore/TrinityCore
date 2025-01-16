@@ -23,6 +23,10 @@ void AddSC_zone_isle_of_dorn();
 void AddSC_instance_nerubar_palace();
 void AddSC_boss_ulgrax_the_devourer();
 
+// The Stonevault
+void AddSC_instance_the_stonevault();
+void AddSC_boss_edna();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKhazAlgarScripts()
@@ -33,4 +37,8 @@ void AddKhazAlgarScripts()
     // Nerub'ar Palace
     AddSC_instance_nerubar_palace();
     AddSC_boss_ulgrax_the_devourer();
+
+    // The Stonevault
+    AddSC_instance_the_stonevault();
+    AddSC_boss_edna();
 }
