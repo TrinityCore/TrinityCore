@@ -355,6 +355,11 @@ void Creature::AddToWorld()
         if (IsVehicle())
             GetVehicleKit()->Install();
 
+        // If the creature has been summoned, register it for the summoner
+        if (IsSummon())
+            if (Unit* summoner = GetSummonInfo()->GetUnitSummoner())
+                summoner->RegisterSummon(GetSummonInfo());
+
         if (GetZoneScript())
             GetZoneScript()->OnCreatureCreate(this);
     }
@@ -364,6 +369,11 @@ void Creature::RemoveFromWorld()
 {
     if (IsInWorld())
     {
+        // If the creature about to despawn, unregister it for the summoner
+        if (IsSummon())
+            if (Unit* summoner = GetSummonInfo()->GetUnitSummoner())
+                summoner->UnregisterSummon(GetSummonInfo());
+
         if (GetZoneScript())
             GetZoneScript()->OnCreatureRemove(this);
 
@@ -3609,10 +3619,10 @@ void Creature::InitializeInteractSpellId()
         SetInteractSpellId(0);
 }
 
-void Creature::InitializeSummonInfo()
+void Creature::InitializeSummonInfo(SummonInfoArgs const& args)
 {
     ASSERT(_summonInfo == nullptr, "SummonInfo has already been initialized and must not be allocated again!");
-    _summonInfo = std::make_unique<SummonInfo>(this);
+    _summonInfo = std::make_unique<SummonInfo>(this, args);
 }
 
 SummonInfo* Creature::GetSummonInfo() const

@@ -79,6 +79,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "StringConvert.h"
+#include "SummonInfo.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"
@@ -9143,6 +9144,17 @@ uint32 Unit::GetCreatureTypeMask() const
     return (creatureType >= 1) ? (1 << (creatureType - 1)) : 0;
 }
 
+void Unit::RegisterSummon(SummonInfo* summon)
+{
+    if (std::find(_activeSummons.begin(), _activeSummons.end(), summon) != _activeSummons.end())
+        _activeSummons.push_back(summon);
+}
+
+void Unit::UnregisterSummon(SummonInfo* summon)
+{
+    std::erase_if(_activeSummons, [summon](SummonInfo const* activeSummon) { return activeSummon == summon; });
+}
+
 void Unit::SetShapeshiftForm(ShapeshiftForm form)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ShapeshiftForm), form);
@@ -9922,6 +9934,9 @@ void Unit::RemoveFromWorld()
                 ABORT();
             }
         }
+
+        // Clear all active summon references. If we are about to switch map instances, we want to make sure that we leave all summons behind so we won't do threadunsafe operations
+        _activeSummons.clear();
 
         WorldObject::RemoveFromWorld();
         m_duringRemoveFromWorld = false;

@@ -35,6 +35,7 @@ class SpellInfo;
 class SummonInfo;
 class WorldSession;
 struct Loot;
+struct SummonInfoArgs;
 
 enum MovementGeneratorType : uint8;
 
@@ -465,7 +466,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetInteractSpellId(int32 interactSpellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::InteractSpellID), interactSpellId); }
 
         // Initializes the summon API for this creature which marks it as summon and will be treated accordingly
-        void InitializeSummonInfo();
+        void InitializeSummonInfo(SummonInfoArgs const& args);
         // Returns a pointer to the SummonInfo API, nullptr if the creature is not a summon
         SummonInfo* GetSummonInfo() const;
 

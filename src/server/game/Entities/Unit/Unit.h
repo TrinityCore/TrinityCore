@@ -87,6 +87,7 @@ class SpellCastTargets;
 class SpellEffectInfo;
 class SpellHistory;
 class SpellInfo;
+class SummonInfo;
 class Totem;
 class Transport;
 class TransportBase;
@@ -1467,6 +1468,12 @@ class TC_GAME_API Unit : public WorldObject
 
         std::array<ObjectGuid, MAX_SUMMON_SLOT> m_SummonSlot;
         std::array<ObjectGuid, MAX_GAMEOBJECT_SLOT> m_ObjectSlot;
+
+        std::vector<SummonInfo*> _activeSummons;
+        // Registers the SummonInfo API of a summoned creature to allow accessing it to allow safe accessing
+        void RegisterSummon(SummonInfo* summon);
+        // Unregisters the SummonInfo API of a summoned creature so it can no longer be accessed
+        void UnregisterSummon(SummonInfo* summon);
 
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(*m_unitData->ShapeshiftForm); }
         void SetShapeshiftForm(ShapeshiftForm form);

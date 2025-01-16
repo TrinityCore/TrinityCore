@@ -47,6 +47,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "StringConvert.h"
+#include "SummonInfoArgs.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"
@@ -1958,8 +1959,17 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return nullptr;
     }
 
+    // Store special settings which have been extracted from spell effects/scripts
+    SummonInfoArgs args;
+    if (summoner)
+        args.SummonerGUID = summoner->GetGUID();
+    if (properties)
+        args.SummonPropertiesID = properties->ID;
+    if (duration > 0ms)
+        args.Duration = duration;
+
     // Initialize the SummonInfo API which marks the creature as Summon
-    summon->InitializeSummonInfo();
+    summon->InitializeSummonInfo(args);
 
     TransportBase* transport = summoner ? summoner->GetTransport() : nullptr;
     if (transport)
