@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Containers.h"
+#include "Conversation.h"
 #include "Creature.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -49,6 +50,7 @@ enum EdnaSpells
     SPELL_VOLATILE_EXPLOSION       = 424913,
     SPELL_SEISMIC_SMASH            = 424888,
     SPELL_STONE_SHIELD             = 424893,
+    SPELL_EDNA_DEFEATED            = 464827,
 
     SPELL_ANCHOR_HERE              = 45313
 };
@@ -79,6 +81,8 @@ enum EdnaMisc
 {
     POINT_EDNA         = 0,
     POINT_START_COMBAT = 1,
+
+    CONVERSATION_INTRO = 25768,
 
     NPC_VOLATILE_SPIKE = 223237
 };
@@ -137,6 +141,7 @@ struct boss_edna : public BossAI
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         Talk(SAY_DEATH);
+        DoCast(SPELL_EDNA_DEFEATED);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -154,6 +159,7 @@ struct boss_edna : public BossAI
         if (actionId != ACTION_START_EDNA_INTRO)
             return;
 
+        Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty);
         scheduler.Schedule(3s, [this](TaskContext /*context*/)
         {
             me->RemoveAurasDueToSpell(SPELL_SKARDEN_SPAWN_PERIODIC);
@@ -509,6 +515,5 @@ void AddSC_boss_edna()
     RegisterSpellScript(spell_edna_refracting_beam_selector);
     RegisterSpellScript(spell_edna_refracting_beam_instakill);
     RegisterSpellScript(spell_edna_earth_shatterer);
-    
     RegisterAreaTriggerAI(at_edna_volatile_spike);
 }

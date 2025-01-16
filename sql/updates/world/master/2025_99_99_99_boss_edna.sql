@@ -66,3 +66,20 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (210108, 7, 0, 'Intruder terminated.', 14, 0, 100, 0, 0, 247881, 262602, 0, 'E.D.N.A.'),
 (210108, 8, 0, 'All intruders terminated.', 14, 0, 100, 0, 0, 247889, 262610, 0, 'E.D.N.A.'),
 (210108, 9, 0, 'All systems... shutting down...', 14, 0, 100, 0, 0, 247890, 262611, 0, 'E.D.N.A.');
+
+-- Conversations
+DELETE FROM `conversation_actors` WHERE (`Idx`=0 AND `ConversationId` IN (25769,25768));
+INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `NoActorObject`, `ActivePlayerObject`, `VerifiedBuild`) VALUES
+(25769, 99466, 0, 224736, 119519, 0, 0, 58630),
+(25768, 99466, 0, 224736, 119519, 0, 0, 58630);
+
+DELETE FROM `conversation_line_template` WHERE `Id` IN (70041, 70040, 70039);
+INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `ChatType`, `VerifiedBuild`) VALUES
+(70041, 1218, 0, 0, 0, 58630),
+(70040, 1218, 0, 0, 0, 58630),
+(70039, 1218, 0, 0, 0, 58630);
+
+DELETE FROM `conversation_template` WHERE `Id` IN (25814, 25775, 25773, 25772, 25771, 25770, 25769, 25768, 25767, 26511);
+INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `VerifiedBuild`) VALUES
+(25769, 70041, 0, 58630),
+(25768, 70039, 0, 58630);
