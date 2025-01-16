@@ -899,11 +899,7 @@ class spell_dru_flourish : public SpellScript
         if (_targetAndAuras.empty())
             return;
 
-        Unit const* target = GetHitUnit();
-        if (!target)
-            return;
-
-        auto const it = _targetAndAuras.find(target->GetGUID());
+        auto const it = _targetAndAuras.find(GetHitUnit()->GetGUID());
         if (it == _targetAndAuras.end())
             return;
 
