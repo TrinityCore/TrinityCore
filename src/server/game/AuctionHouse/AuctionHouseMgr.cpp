@@ -15,22 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
-#include "AuctionHousePackets.h"
 #include "AccountMgr.h"
+#include "AuctionHouseBot.h"
+#include "AuctionHousePackets.h"
 #include "Bag.h"
 #include "BattlePetMgr.h"
-#include "DB2Stores.h"
 #include "CharacterCache.h"
 #include "CollectionMgr.h"
 #include "Common.h"
-#include "Containers.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -39,8 +39,8 @@
 #include "WorldSession.h"
 #include "WowTime.h"
 #include <boost/dynamic_bitset.hpp>
+#include <fmt/ranges.h>
 #include <numeric>
-#include <sstream>
 #include <vector>
 
 enum eAuctionHouse
@@ -464,25 +464,8 @@ std::string AuctionHouseMgr::BuildCommodityAuctionMailSubject(AuctionMailType ty
 std::string AuctionHouseMgr::BuildAuctionMailSubject(uint32 itemId, AuctionMailType type, uint32 auctionId, uint32 itemCount, uint32 battlePetSpeciesId,
     ItemContext context, std::vector<int32> const& bonusListIds)
 {
-    std::ostringstream strm;
-    strm
-        << itemId << ':'
-        << "0:" // OLD: itemRandomPropertiesId
-        << AsUnderlyingType(type) << ':'
-        << auctionId << ':'
-        << itemCount << ':'
-        << battlePetSpeciesId << ':'
-        << "0:"
-        << "0:"
-        << "0:"
-        << "0:"
-        << uint32(context) << ':'
-        << bonusListIds.size();
-
-    for (int32 bonusListId : bonusListIds)
-        strm << ':' << bonusListId;
-
-    return strm.str();
+    return Trinity::StringFormat("{}:0:{}:{}:{}:{}:0:0:0:0:{}:{}:{}",
+        itemId, AsUnderlyingType(type), auctionId, itemCount, battlePetSpeciesId, context, bonusListIds.size(), fmt::join(bonusListIds, ":"));
 }
 
 std::string AuctionHouseMgr::BuildAuctionWonMailBody(ObjectGuid guid, uint64 bid, uint64 buyout)

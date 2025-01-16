@@ -161,10 +161,10 @@ std::strong_ordering operator<=>(WowTime const& left, WowTime const& right)
     if (std::strong_ordering cmp = compareFieldIfSet(&WowTime::_weekDay); advstd::is_neq(cmp))
         return cmp;
 
-    if (std::strong_ordering cmp = compareFieldIfSet(&WowTime::_year); advstd::is_neq(cmp))
+    if (std::strong_ordering cmp = compareFieldIfSet(&WowTime::_hour); advstd::is_neq(cmp))
         return cmp;
 
-    if (std::strong_ordering cmp = compareFieldIfSet(&WowTime::_hour); advstd::is_neq(cmp))
+    if (std::strong_ordering cmp = compareFieldIfSet(&WowTime::_minute); advstd::is_neq(cmp))
         return cmp;
 
     return std::strong_ordering::equal;
