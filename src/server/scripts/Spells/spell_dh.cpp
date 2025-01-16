@@ -288,11 +288,11 @@ class spell_dh_chaos_theory : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        if (!ValidateSpellInfo({ SPELL_DH_CHAOS_THEORY_TALENT, SPELL_DH_CHAOS_THEORY_CRIT })
+        if (!ValidateSpellInfo({ SPELL_DH_CHAOS_THEORY_CRIT })
             || !ValidateSpellEffect({ { SPELL_DH_CHAOS_THEORY_TALENT, EFFECT_1 } }))
             return false;
 
-        SpellInfo const* chaosTheory = sSpellMgr->GetSpellInfo(SPELL_DH_CHAOS_THEORY_TALENT, DIFFICULTY_NONE);
+        SpellInfo const* chaosTheory = sSpellMgr->AssertSpellInfo(SPELL_DH_CHAOS_THEORY_TALENT, DIFFICULTY_NONE);
         return chaosTheory->GetEffect(EFFECT_0).CalcValue() < chaosTheory->GetEffect(EFFECT_1).CalcValue();
     }
 
@@ -305,8 +305,15 @@ class spell_dh_chaos_theory : public SpellScript
     {
         Unit* caster = GetCaster();
         Aura const* chaosTheory = caster->GetAura(SPELL_DH_CHAOS_THEORY_TALENT);
+        if (!chaosTheory)
+            return;
 
-        int32 critChance = irand(chaosTheory->GetEffect(EFFECT_0)->GetAmount(), chaosTheory->GetEffect(EFFECT_1)->GetAmount());
+        AuraEffect const* min = chaosTheory->GetEffect(EFFECT_0);
+        AuraEffect const* max = chaosTheory->GetEffect(EFFECT_1);
+        if (!min || !max)
+            return;
+
+        int32 critChance = irand(min->GetAmount(), max->GetAmount());
         caster->CastSpell(caster, SPELL_DH_CHAOS_THEORY_CRIT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, critChance } }
