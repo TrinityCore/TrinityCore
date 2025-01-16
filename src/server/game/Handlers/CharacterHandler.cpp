@@ -22,17 +22,16 @@
 #include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
+#include "BattlePetMgr.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
-#include "BattlePetMgr.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -45,6 +44,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -132,6 +132,10 @@ bool LoginQueryHolder::Initialize()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA_PROGRESS, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_SPAWN_TRACKING, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_DAILY);
     stmt->setUInt64(0, lowGuid);
@@ -1309,6 +1313,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
             pCurrChar->CastSpell(pCurrChar, 8326, true); // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
 
         pCurrChar->SetWaterWalking(true);
+
+        int32 const delay = pCurrChar->CalculateCorpseReclaimDelay(true);
+        if (delay > 0)
+            pCurrChar->SendCorpseReclaimDelay(delay);
     }
 
     pCurrChar->ContinueTaxiFlight();

@@ -18,13 +18,12 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "AzeriteItem.h"
-#include "Battleground.h"
 #include "BattlePetMgr.h"
+#include "Battleground.h"
 #include "CollectionMgr.h"
-#include "Containers.h"
 #include "Creature.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
@@ -37,6 +36,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
@@ -2290,9 +2290,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuest: // 110
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(reqValue))
-                if (!(referencePlayer->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))))
-                    return false;
+            if (!referencePlayer->IsQuestCompletedBitSet(reqValue))
+                return false;
             break;
         case ModifierTreeType::PlayerIsReadyToTurnInQuest: // 111
             if (referencePlayer->GetQuestStatus(reqValue) != QUEST_STATUS_COMPLETE)

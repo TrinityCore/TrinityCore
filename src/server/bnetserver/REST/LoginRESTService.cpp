@@ -600,7 +600,7 @@ void LoginRESTService::MigrateLegacyPasswordHashes() const
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LOGON);
         stmt->setInt8(0, AsUnderlyingType(SrpVersion::v1));
         stmt->setBinary(1, salt);
-        stmt->setBinary(2, verifier);
+        stmt->setBinary(2, std::move(verifier));
         stmt->setUInt32(3, id);
         tx->Append(stmt);
 

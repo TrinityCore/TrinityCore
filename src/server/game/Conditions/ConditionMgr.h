@@ -326,7 +326,7 @@ class TC_GAME_API ConditionMgr
 
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
         bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
-        bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const;
+        bool IsObjectMeetingVisibilityByObjectIdConditions(WorldObject const* obj, WorldObject const* seer) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, uint32 conditionId);
