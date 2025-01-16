@@ -900,7 +900,7 @@ class spell_dru_flourish : public SpellScript
         if (it == _targetAndAuras.end())
             return;
 
-        Milliseconds const extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
+        Milliseconds const extraDuration = Seconds(GetEffectValue());
 
         for (Aura* aura : it->second)
         {
