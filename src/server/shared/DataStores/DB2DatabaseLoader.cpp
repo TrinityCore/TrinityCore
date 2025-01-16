@@ -188,7 +188,7 @@ void DB2DatabaseLoader::LoadStrings(bool custom, LocaleConstant locale, uint32 r
 {
     HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + HOTFIX_LOCALE_STMT_OFFSET));
     stmt->setBool(0, !custom);
-    stmt->setString(1, localeNames[locale]);
+    stmt->setString(1, std::string_view(localeNames[locale]));
     PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)
         return;

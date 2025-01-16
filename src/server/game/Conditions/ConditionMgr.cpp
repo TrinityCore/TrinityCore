@@ -927,6 +927,7 @@ uint32 Condition::GetMaxAvailableConditionTargets() const
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NPC_VENDOR:
         case CONDITION_SOURCE_TYPE_SPELL_PROC:
+        case CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY:
             return 2;
         default:
             return 1;
@@ -1256,13 +1257,13 @@ bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint3
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const
+bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(WorldObject const* obj, WorldObject const* seer) const
 {
-    auto itr = ConditionStore[CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY].find({ objectType, int32(entry), 0 });
+    auto itr = ConditionStore[CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY].find({ uint32(obj->GetTypeId()), int32(obj->GetEntry()), 0 });
     if (itr != ConditionStore[CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY].end())
     {
-        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {} entry {}", objectType, entry);
-        return IsObjectMeetToConditions(seer, *itr->second);
+        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {} entry {} guid {}", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().ToString());
+        return IsObjectMeetToConditions(seer, obj, *itr->second);
     }
     return true;
 }

@@ -3268,6 +3268,7 @@ void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
     ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
     WorldObject::ProcessPositionDataChanged(data);
     ProcessTerrainStatusUpdate(oldLiquidStatus, data.liquidInfo);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CurrentAreaID), data.areaId);
 }
 
 void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData)
@@ -8132,6 +8133,18 @@ void Unit::Dismount()
     }
 }
 
+void Unit::CancelMountAura(bool force)
+{
+    if (!HasAuraType(SPELL_AURA_MOUNTED))
+        return;
+
+    RemoveAurasByType(SPELL_AURA_MOUNTED, [force](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return force || (!spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive());
+    });
+}
+
 MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 {
     if (!mountType)
@@ -8233,6 +8246,11 @@ void Unit::UpdateMountCapability()
 {
     if (IsLoading())
         return;
+
+    if (SpellShapeshiftFormEntry const* spellShapeshiftForm = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm()))
+        if (uint32 mountType = spellShapeshiftForm->MountTypeID)
+            if (!GetMountCapability(mountType))
+                CancelTravelShapeshiftForm(AURA_REMOVE_BY_INTERRUPT);
 
     AuraEffectVector mounts = CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_MOUNTED));
     for (AuraEffect* aurEff : mounts)
@@ -9232,6 +9250,38 @@ uint32 Unit::GetCreatureTypeMask() const
 void Unit::SetShapeshiftForm(ShapeshiftForm form)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ShapeshiftForm), form);
+}
+
+void Unit::CancelShapeshiftForm(bool onlyTravelShapeshiftForm /*= false*/, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool force /*= false*/)
+{
+    ShapeshiftForm form = GetShapeshiftForm();
+    if (form == FORM_NONE)
+        return;
+
+    bool isTravelShapeshiftForm = [form]()
+    {
+        if (SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form))
+        {
+            if (shapeInfo->MountTypeID)
+                return true;
+
+            if (shapeInfo->ID == FORM_TRAVEL_FORM || shapeInfo->ID == FORM_AQUATIC_FORM)
+                return true;
+        }
+
+        return false;
+    }();
+
+    if (onlyTravelShapeshiftForm && !isTravelShapeshiftForm)
+        return;
+
+    AuraEffectVector shapeshifts = CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT));
+    for (AuraEffect* aurEff : shapeshifts)
+    {
+        SpellInfo const* spellInfo = aurEff->GetBase()->GetSpellInfo();
+        if (force || (!spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive()))
+            aurEff->GetBase()->Remove(removeMode);
+    }
 }
 
 bool Unit::IsInFeralForm() const
@@ -13838,13 +13888,8 @@ int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEf
 bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications /*= false*/)
 {
     for (AuraEffect const* aurEff : aura->GetAuraEffects())
-    {
-        if (!aurEff)
-            continue;
-
         if (!IsHighestExclusiveAuraEffect(aura->GetSpellInfo(), aurEff->GetAuraType(), aurEff->GetAmount(), aura->GetEffectMask(), removeOtherAuraApplications))
             return false;
-    }
 
     return true;
 }
@@ -14038,9 +14083,9 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastF
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount(), GetMap()->GetDifficultyID()))
                 {
                     if (auraEffect->GetSpellInfo()->HasAttribute(SPELL_ATTR8_IGNORE_SPELLCAST_OVERRIDE_COST))
-                        triggerFlag |= TRIGGERED_IGNORE_POWER_AND_REAGENT_COST;
+                        triggerFlag |= TRIGGERED_IGNORE_POWER_COST;
                     else
-                        triggerFlag &= ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST;
+                        triggerFlag &= ~TRIGGERED_IGNORE_POWER_COST;
 
                     if (auraEffect->GetSpellInfo()->HasAttribute(SPELL_ATTR11_IGNORE_SPELLCAST_OVERRIDE_SHAPESHIFT_REQUIREMENTS))
                         triggerFlag |= TRIGGERED_IGNORE_SHAPESHIFT;
