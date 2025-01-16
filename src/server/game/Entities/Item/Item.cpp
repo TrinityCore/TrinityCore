@@ -23,9 +23,8 @@
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GameTables.h"
 #include "GameTime.h"
 #include "ItemBonusMgr.h"
@@ -36,6 +35,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -637,6 +637,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 
             if (m_itemData->Gems.size())
             {
+                using namespace std::string_view_literals;
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 uint32 i = 0;
@@ -657,7 +659,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                     else
                     {
                         stmt->setUInt32(1 + i * gemFields, 0);
-                        stmt->setString(2 + i * gemFields, "");
+                        stmt->setString(2 + i * gemFields, ""sv);
                         stmt->setUInt8(3 + i * gemFields, 0);
                         stmt->setUInt32(4 + i * gemFields, 0);
                     }
@@ -666,7 +668,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                 for (; i < MAX_GEM_SOCKETS; ++i)
                 {
                     stmt->setUInt32(1 + i * gemFields, 0);
-                    stmt->setString(2 + i * gemFields, "");
+                    stmt->setString(2 + i * gemFields, ""sv);
                     stmt->setUInt8(3 + i * gemFields, 0);
                     stmt->setUInt32(4 + i * gemFields, 0);
                 }
