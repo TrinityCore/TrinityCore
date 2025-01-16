@@ -896,9 +896,6 @@ class spell_dru_flourish : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
     {
-        if (_targetAndAuras.empty())
-            return;
-
         auto const it = _targetAndAuras.find(GetHitUnit()->GetGUID());
         if (it == _targetAndAuras.end())
             return;
