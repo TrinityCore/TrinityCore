@@ -902,33 +902,25 @@ struct at_dh_inner_demon : AreaTriggerAI
 // 388118 - Know Your Enemy
 class spell_dh_know_your_enemy : public AuraScript
 {
-    bool Load() override
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
     {
-        return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
+        {
+            float critChanceDone = GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK);
+            amount = CalculatePct(critChanceDone, amountHolder->GetAmount());
+        }
     }
 
-    bool Validate(SpellInfo const* spellInfo) override
+    void UpdatePeriodic(AuraEffect const* aurEff) const
     {
-        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) || !spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS))
-            return false;
-
-        return true;
-    }
-
-    void UpdatePeriodic(AuraEffect* aurEff)
-    {
-        AuraEffect* bonus = GetAura()->GetEffect(EFFECT_0);
-        if (!bonus)
-            return;
-
-        float critChanceDone = GetCaster()->SpellCritChanceDone(nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
-        int32 amount = CalculatePct(critChanceDone, aurEff->GetAmount());
-        bonus->ChangeAmount(amount);
+        if (AuraEffect* bonus = GetEffect(EFFECT_0))
+            bonus->RecalculateAmount(aurEff);
     }
 
     void Register() override
     {
-        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dh_know_your_enemy::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_know_your_enemy::CalcAmount, EFFECT_0, SPELL_AURA_MOD_CRIT_DAMAGE_BONUS);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_know_your_enemy::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
