@@ -886,30 +886,62 @@ private:
 // 197721 - Flourish
 class spell_dru_flourish : public SpellScript
 {
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        std::list<AuraEffect*> effectList = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
-
-        for (AuraEffect* aurEff : effectList)
+        targets.remove_if([&](WorldObject const* target)
         {
-            // Note: exclude any aura that doesn't belong to caster or is not affected by Flourish.
-            if (aurEff->GetCasterGUID() != caster->GetGUID() || aurEff->IsAffectingSpell(GetSpellInfo()))
-                continue;
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return true;
 
-            Milliseconds extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
+            AuraEffect const* effect = unitTarget->GetAuraEffect(AuraType::SPELL_AURA_PERIODIC_HEAL, SpellFamilyNames::SPELLFAMILY_DRUID, flag128{ 0x0, 0x0, 0x0, 0x0 }, GetCaster()->GetGUID());
+            if (!effect)
+                return true;
 
-            aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + extraDuration.count());
-            aurEff->GetBase()->SetMaxDuration(aurEff->GetBase()->GetMaxDuration() + extraDuration.count());
+            Aura* aura = effect->GetBase();
+            if (!aura)
+                return true;
+
+            AddOrUpdateRegisteredAuras(unitTarget, aura);
+
+            return false;
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
+    {
+        if (_targetAndAuras.empty())
+            return;
+
+        Milliseconds const extraDuration = Seconds(GetEffectInfo(EFFECT_0).CalcValue());
+
+        for (const auto& [GUID, auraList] : _targetAndAuras)
+        {
+            for (Aura* aura : auraList)
+            {
+                aura->SetDuration(aura->GetDuration() + extraDuration.count());
+                aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
+            }
         }
     }
 
     void Register() override
     {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_flourish::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_dru_flourish::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
+
+private:
+    void AddOrUpdateRegisteredAuras(Unit const* unitTarget, Aura* aura)
+    {
+        auto const it = _targetAndAuras.find(unitTarget->GetGUID());
+        if (it != _targetAndAuras.end())
+            it->second.push_back(aura);
+        else
+            _targetAndAuras[unitTarget->GetGUID()] = { aura };
+    }
+
+    std::unordered_map<ObjectGuid, std::list<Aura*>> _targetAndAuras;
 };
 
 // 37336 - Druid Forms Trinket
