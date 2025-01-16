@@ -3611,6 +3611,7 @@ void Creature::InitializeInteractSpellId()
 
 void Creature::InitializeSummonInfo()
 {
+    ASSERT(_summonInfo == nullptr, "SummonInfo has already been initialized and must not be allocated again!");
     _summonInfo = std::make_unique<SummonInfo>(this);
 }
 

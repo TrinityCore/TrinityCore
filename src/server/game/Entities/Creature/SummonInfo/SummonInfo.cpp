@@ -20,3 +20,8 @@
 SummonInfo::SummonInfo(Creature* summonedCreature) : _summonedCreature(summonedCreature)
 {
 }
+
+Creature* SummonInfo::GetSummonedCreature() const
+{
+    return _summonedCreature;
+}

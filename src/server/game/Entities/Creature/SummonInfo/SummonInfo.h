@@ -32,6 +32,9 @@ public:
 
     SummonInfo(Creature* summonedCreature);
 
+    // Returns the creature that is tied to this SummonInfo instance
+    Creature* GetSummonedCreature() const;
+
 private:
     Creature* _summonedCreature;
 };
