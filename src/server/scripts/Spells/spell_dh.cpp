@@ -48,7 +48,9 @@ enum DemonHunterSpells
     SPELL_DH_ANNIHILATION                          = 201427,
     SPELL_DH_ANNIHILATION_MH                       = 227518,
     SPELL_DH_ANNIHILATION_OH                       = 201428,
+    SPELL_DH_ARMY_UNTO_ONESELF                     = 442714,
     SPELL_DH_AWAKEN_THE_DEMON_WITHIN_CD            = 207128,
+    SPELL_DH_BLADE_WARD                            = 442715,
     SPELL_DH_BLUR                                  = 212800,
     SPELL_DH_BLUR_TRIGGER                          = 198589,
     SPELL_DH_BURNING_ALIVE                         = 207739,
@@ -210,6 +212,33 @@ enum DemonHunterSpellCategories
 {
     SPELL_CATEGORY_DH_EYE_BEAM      = 1582,
     SPELL_CATEGORY_DH_BLADE_DANCE   = 1640
+};
+
+// Called by 232893 - Felblade
+class spell_dh_army_unto_oneself : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_ARMY_UNTO_ONESELF, SPELL_DH_BLADE_WARD });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_ARMY_UNTO_ONESELF);
+    }
+
+    void ApplyBladeWard() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_BLADE_WARD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_army_unto_oneself::ApplyBladeWard);
+    }
 };
 
 // Called by 203819 - Demon Spikes
@@ -1412,6 +1441,7 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
 
 void AddSC_demon_hunter_spell_scripts()
 {
+    RegisterSpellScript(spell_dh_army_unto_oneself);
     RegisterSpellScript(spell_dh_calcified_spikes);
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
     RegisterSpellScript(spell_dh_chaos_strike);
