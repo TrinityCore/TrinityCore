@@ -1052,12 +1052,16 @@ struct at_dh_glaive_tempest : AreaTriggerAI
         if (Unit* caster = at->GetCaster())
             caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)));
 
-        _scheduler.Schedule(200ms, 250ms, [this](TaskContext task)
+        _scheduler.Schedule(0ms, [this](TaskContext task)
         {
+            std::chrono::duration<float> period = 500ms; // 500ms, affected by haste
             if (Unit* caster = at->GetCaster())
-                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)));
-
-            task.Repeat(200ms, 250ms);
+            {
+                period *= *caster->m_unitData->ModHaste;
+                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+            task.Repeat(duration_cast<Milliseconds>(period));
         });
     }
 
