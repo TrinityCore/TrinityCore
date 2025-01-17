@@ -1089,16 +1089,23 @@ class spell_dh_monster_rising : public AuraScript
         return ValidateSpellInfo({ SPELL_DH_MONSTER_RISING_AGILITY, SPELL_DH_METAMORPHOSIS_TRANSFORM, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM });
     }
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* aurEff) const
     {
         Unit* target = GetTarget();
+        AuraApplication* statBuff = target->GetAuraApplication(SPELL_DH_MONSTER_RISING_AGILITY);
+
         if (target->HasAura(SPELL_DH_METAMORPHOSIS_TRANSFORM) || target->HasAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM))
-            target->RemoveAurasDueToSpell(SPELL_DH_MONSTER_RISING_AGILITY);
-        else
+        {
+            if (statBuff)
+                target->RemoveAura(statBuff);
+        }
+        else if (!statBuff)
+        {
             target->CastSpell(target, SPELL_DH_MONSTER_RISING_AGILITY, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
-        });
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        }
     }
 
     void Register() override
