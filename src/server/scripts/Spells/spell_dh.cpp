@@ -904,6 +904,36 @@ class spell_dh_furious_gaze : public AuraScript
     }
 };
 
+// 342817 - Glaive Tempest
+// ID - 21832
+struct at_dh_glaive_tempest : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(0ms, [this](TaskContext task)
+        {
+            std::chrono::duration<float> period = 500ms; // 500ms, affected by haste
+            if (Unit* caster = at->GetCaster())
+            {
+                period *= *caster->m_unitData->ModHaste;
+                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+            task.Repeat(duration_cast<Milliseconds>(period));
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // Called by 162264 - Metamorphosis
 class spell_dh_inner_demon : public AuraScript
 {
@@ -1412,39 +1442,6 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
     }
 };
 
-// 342817 - Glaive Tempest
-// ID - 21832
-struct at_dh_glaive_tempest : AreaTriggerAI
-{
-    at_dh_glaive_tempest(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnCreate(Spell const* /*creatingSpell*/) override
-    {
-        if (Unit* caster = at->GetCaster())
-            caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)));
-
-        _scheduler.Schedule(0ms, [this](TaskContext task)
-        {
-            std::chrono::duration<float> period = 500ms; // 500ms, affected by haste
-            if (Unit* caster = at->GetCaster())
-            {
-                period *= *caster->m_unitData->ModHaste;
-                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-            }
-            task.Repeat(duration_cast<Milliseconds>(period));
-        });
-    }
-
-    void OnUpdate(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-    }
-
-private:
-    TaskScheduler _scheduler;
-};
-
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_calcified_spikes);
@@ -1470,6 +1467,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_fiery_brand);
     RegisterSpellScript(spell_dh_furious_gaze);
+    RegisterAreaTriggerAI(at_dh_glaive_tempest);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
     RegisterSpellScript(spell_dh_know_your_enemy);
@@ -1486,7 +1484,6 @@ void AddSC_demon_hunter_spell_scripts()
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>>("areatrigger_dh_sigil_of_flame");
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>>("areatrigger_dh_sigil_of_silence");
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>>("areatrigger_dh_sigil_of_misery");
-    RegisterAreaTriggerAI(at_dh_glaive_tempest);
 
     // Havoc
 
