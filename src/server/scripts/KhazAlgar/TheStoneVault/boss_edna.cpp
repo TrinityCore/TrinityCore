@@ -274,7 +274,11 @@ struct npc_skardyn_invader : public ScriptedAI
 
         _scheduler.Schedule(2400ms, [this](TaskContext /*context*/)
         {
-            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
+            TempSummon* summon = me->ToTempSummon();
+            if (!summon)
+                return;
+
+            if (Unit* summoner = summon->GetSummonerUnit())
             {
                 me->GetMotionMaster()->MovePoint(POINT_EDNA, summoner->GetPosition());
                 summoner->CastSpell(me, SPELL_REFRACTING_BEAM_INTRO, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
