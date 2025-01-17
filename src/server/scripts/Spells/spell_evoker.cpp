@@ -179,7 +179,7 @@ class spell_evo_causality_disintegrate : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_evo_causality_aura::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_evo_causality_disintegrate::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
