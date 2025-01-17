@@ -1,8 +1,10 @@
+/*
 SET @CGUID := 123456789;
 
 DELETE FROM `creature` WHERE `guid` = @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 167749, 1, 1519, 10523, '0', 0, 0, 0, 0, -8457.6806640625, -4500.56982421875, 8.886342048645019531, 2.302304744720458984, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 57689); -- Doomwalker (Area: Wizard's Sanctum - Difficulty: 0) CreateObject1
+*/
 
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=328, `StaticFlags1`=0x20000100, `VerifiedBuild`=57689 WHERE (`Entry`=18665 AND `DifficultyID`=0); -- 18665 (Overrun Target) - Sessile, Floating
 UPDATE `creature_template` SET `unit_flags`=0x2000300, `unit_flags3`=0x40080000 WHERE `entry`=18665; -- Overrun Target
@@ -35,9 +37,14 @@ INSERT INTO `serverside_spell` (`Id`, `DifficultyID`, `CategoryId`, `Dispel`, `M
 (32634, 0, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 101, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0, 'Overrun Target Spawn', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0),
 (32635, 0, 0, 0, 0, 256, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 101, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, -1, 0, 0, 0, 'Overrun Target Spawn Effect', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0);
 
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_doomwalker_earthquake';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_doomwalker_overrun';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_doomwalker_overrun_damage';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(32637, 'spell_doomwalker_overrun');
+(32686, 'spell_doomwalker_earthquake'),
+(326405, 'spell_doomwalker_earthquake'),
+(32636, 'spell_doomwalker_overrun'),
+(32637, 'spell_doomwalker_overrun_damage');
 
 -- Waypoints
 SET @ENTRY := 167749;
@@ -127,7 +134,9 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 76, -8452.853, -4505.946, 9.04792, NULL, 0),
 (@PATH, 77, -8475.513, -4480.762, 10.5876, NULL, 0);
 
+/*
 UPDATE `creature` SET `position_x`= -8502.323, `position_y`= -4474.172, `position_z`= 11.24166, `orientation`= 0, `wander_distance`= 0, `MovementType`= 2 WHERE `guid`= @CGUID+0;
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+0;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+0, @PATH, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, ''); -- 167749 (Doomwalker)
+*/

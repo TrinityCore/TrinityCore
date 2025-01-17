@@ -15,15 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreatureAI.h"
-#include "CreatureAIImpl.h"
-#include "Containers.h"
-#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuras.h"
-#include "ThreatManager.h"
 
 enum DoomwalkerSpells
 {
@@ -66,11 +60,11 @@ enum DoomwalkerMisc
 // 167749 - Doomwalker
 struct boss_doomwalker_anniversary : public WorldBossAI
 {
-    boss_doomwalker_anniversary(Creature* creature) : WorldBossAI(creature) { }
+    using WorldBossAI::WorldBossAI;
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
-        WorldBossAI::_JustDied();
+        WorldBossAI::JustDied(killer);
         Talk(SAY_DEATH);
     }
 
@@ -91,7 +85,7 @@ struct boss_doomwalker_anniversary : public WorldBossAI
         events.ScheduleEvent(EVENT_CRUSH_ARMOR, 10s, 25s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo*/) override
     {
         if (me->HealthBelowPctDamaged(20, damage))
         {
@@ -100,10 +94,11 @@ struct boss_doomwalker_anniversary : public WorldBossAI
         }
     }
 
-    void MovementInform(uint32 /*type*/, uint32 id) override
+    void MovementInform(uint32 type, uint32 id) override
     {
-        if (id == POINT_OVERRUN)
+        if (type == POINT_MOTION_TYPE && id == POINT_OVERRUN)
         {
+            me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveAurasDueToSpell(SPELL_OVERRUN);
 
             if (Creature* overrunTarget = me->FindNearestCreature(NPC_OVERRUN_TARGET, 50.0f))
@@ -128,7 +123,7 @@ struct boss_doomwalker_anniversary : public WorldBossAI
                 case EVENT_OVERRUN:
                 {
                     DoCastSelf(SPELL_SUMMON_OVERRUN_TARGET);
-                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
                     Talk(SAY_OVERRUN);
                     DoCastSelf(SPELL_OVERRUN);
                     events.ScheduleEvent(EVENT_OVERRUN, 25s, 40s);
@@ -164,26 +159,7 @@ struct boss_doomwalker_anniversary : public WorldBossAI
     }
 };
 
-// 32637 - Overrun
-class spell_doomwalker_overrun : public SpellScript
-{
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Creature* creatureCaster = GetCaster()->ToCreature())
-        {
-            if (Creature* overrunTarget = creatureCaster->FindNearestCreature(NPC_OVERRUN_TARGET, 500.0f))
-                creatureCaster->GetMotionMaster()->MovePoint(0, overrunTarget->GetPosition(), true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceRun);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_doomwalker_overrun::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_boss_doomwalker_anniversary()
 {
     RegisterCreatureAI(boss_doomwalker_anniversary);
-    RegisterSpellScript(spell_doomwalker_overrun);
 }
