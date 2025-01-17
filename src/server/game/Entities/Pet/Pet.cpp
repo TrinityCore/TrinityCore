@@ -35,6 +35,8 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "SummonInfo.h"
+#include "SummonInfoArgs.h"
 #include "Unit.h"
 #include "Util.h"
 #include "World.h"
@@ -73,6 +75,11 @@ void Pet::AddToWorld()
         ///- Register the pet for guid lookup
         GetMap()->GetObjectsStore().Insert<Pet>(this);
         Unit::AddToWorld();
+
+        // SummonInfo should always be initialized for pets. Make sure that we will not go any further if this is no longer the case.
+        if (Unit* summoner = ASSERT_NOTNULL(GetSummonInfo())->GetUnitSummoner())
+            summoner->RegisterSummon(GetSummonInfo());
+
         AIM_Initialize();
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
             zoneScript->OnCreatureCreate(this);
@@ -95,6 +102,10 @@ void Pet::RemoveFromWorld()
     ///- Remove the pet from the accessor
     if (IsInWorld())
     {
+        // SummonInfo should always be initialized for pets. Make sure that we will not go any further if this is no longer the case.
+        if (Unit* summoner = ASSERT_NOTNULL(GetSummonInfo())->GetUnitSummoner())
+            summoner->UnregisterSummon(GetSummonInfo());
+
         ///- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
         GetMap()->GetObjectsStore().Remove<Pet>(this);
@@ -271,7 +282,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             return false;
         }
 
+        InitializeSummonInfo({ .SummonerGUID = owner->GetGUID() });
         map->AddToMap(ToCreature());
+
         return true;
     }
 
@@ -369,6 +382,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         petStable->SetCurrentActivePetIndex(newPetIndex);
     }
+
+    InitializeSummonInfo({ .SummonerGUID = owner->GetGUID() });
 
     owner->SetMinion(this, true);
 

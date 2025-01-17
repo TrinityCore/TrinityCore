@@ -37,7 +37,7 @@ public:
     SummonInfo& operator=(SummonInfo const& right) = delete;
     SummonInfo& operator=(SummonInfo&& right) = delete;
 
-    SummonInfo(Creature* summonedCreature, SummonInfoArgs const& args);
+    explicit SummonInfo(Creature* summonedCreature, SummonInfoArgs const& args);
 
     // Returns the creature that is tied to this SummonInfo instance
     Creature* GetSummonedCreature() const;

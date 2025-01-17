@@ -116,6 +116,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "SummonInfoArgs.h"
 #include "StringConvert.h"
 #include "TalentGroupInfo.h"
 #include "TalentPackets.h"
@@ -27392,6 +27393,8 @@ Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float 
     pet->SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
 
     map->AddToMap(pet->ToCreature());
+
+    pet->InitializeSummonInfo({ .SummonerGUID = GetGUID() });
 
     ASSERT(!petStable.CurrentPetIndex);
     petStable.SetCurrentUnslottedPetIndex(petStable.UnslottedPets.size());

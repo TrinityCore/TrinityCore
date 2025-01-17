@@ -80,6 +80,7 @@
 #include "SpellPackets.h"
 #include "StringConvert.h"
 #include "SummonInfo.h"
+#include "SummonInfoArgs.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"
@@ -9146,13 +9147,19 @@ uint32 Unit::GetCreatureTypeMask() const
 
 void Unit::RegisterSummon(SummonInfo* summon)
 {
-    if (std::find(_activeSummons.begin(), _activeSummons.end(), summon) != _activeSummons.end())
+    if (!summon)
+        return;
+
+    if (!advstd::ranges::contains(_activeSummons, summon))
         _activeSummons.push_back(summon);
 }
 
 void Unit::UnregisterSummon(SummonInfo* summon)
 {
-    std::erase_if(_activeSummons, [summon](SummonInfo const* activeSummon) { return activeSummon == summon; });
+    if (!summon)
+        return;
+
+    std::erase(_activeSummons, summon);
 }
 
 void Unit::SetShapeshiftForm(ShapeshiftForm form)
@@ -10755,6 +10762,8 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
         return nullptr;
     }
 
+    pet->InitializeSummonInfo({ .SummonerGUID = GetGUID() });
+
     uint8 level = creatureTarget->GetLevelForTarget(this) + 5 < GetLevel() ? (GetLevel() - 5) : creatureTarget->GetLevelForTarget(this);
 
     if (!InitTamedPet(pet, level, spell_id))
@@ -10782,6 +10791,8 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
         delete pet;
         return nullptr;
     }
+
+    pet->InitializeSummonInfo({ .SummonerGUID = GetGUID() });
 
     return pet;
 }

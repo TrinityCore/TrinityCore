@@ -25,7 +25,7 @@
 
 struct SummonPropertiesEntry;
 
-struct TC_GAME_API SummonInfoArgs
+struct SummonInfoArgs
 {
     Optional<ObjectGuid> SummonerGUID;
     Optional<uint32> SummonPropertiesID;
