@@ -754,7 +754,7 @@ class spell_dh_feast_of_souls : public SpellScript
         return GetCaster()->HasAura(SPELL_DH_FEAST_OF_SOULS);
     }
 
-    void HandleHeal()
+    void HandleHeal() const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_DH_FEAST_OF_SOULS_PERIODIC_HEAL, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
