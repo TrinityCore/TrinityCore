@@ -3880,6 +3880,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Maelstrom Weapon
+    ApplySpellFix({ 187881 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Add Lava Burst to spells that benefit from it
+            spellEffectInfo->SpellClassMask[1] |= 0x1000;
+        });
+    });
+
     // Gathering Storms
     ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
     {
@@ -5065,6 +5075,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
     });
 
+    // Sigil of Flame
+    ApplySpellFix({ 204598 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
+        });
+    });
+
     // Collective Anguish channel hack (triggered by another channel)
     ApplySpellFix({ 391057, 393831 }, [](SpellInfo* spellInfo)
     {
@@ -5241,6 +5260,24 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 453035 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(8, 0, 453034, EFFECT_1, {}, {});
+    });
+
+    // Essence Break
+    ApplySpellFix({ 258860 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_1, {}, {});
+    });
+
+    // Fel Barrage
+    ApplySpellFix({ 258926 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_1, {}, {});
+    });
+
+    // Inner Demon
+    ApplySpellFix({ 390137 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 389693, EFFECT_1, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
