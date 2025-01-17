@@ -143,10 +143,38 @@ class spell_evo_blessing_of_the_bronze : public SpellScript
     }
 };
 
-std::vector<uint32> empoweredSpells{ SPELL_EVOKER_ETERNITY_SURGE, SPELL_EVOKER_FIRE_BREATH };
+static constexpr std::array<uint32, 2> empoweredSpells{ SPELL_EVOKER_ETERNITY_SURGE, SPELL_EVOKER_FIRE_BREATH };
 
-// Called by 357212 - Pyre (Red) and 356995 - Disintegrate (Blue)
-class spell_evo_causality : public SpellScript
+// Called by 356995 - Disintegrate (Blue)
+class spell_evo_causality_disintegrate : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_EVOKER_CAUSALITY, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_CAUSALITY);
+    }
+
+    void OnTick(AuraEffect const* /*aurEff*/) const
+    {
+        if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_0))
+        {
+            for (uint32 spell : empoweredSpells)
+                GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_evo_causality_aura::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// Called by 357212 - Pyre (Red)
+class spell_evo_causality_pyre : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -163,38 +191,13 @@ class spell_evo_causality : public SpellScript
         if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_1))
         {
             for (uint32 spell : empoweredSpells)
-            {
-                if (GetCaster()->HasSpell(spell))
-                    GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount()));
-            }
+                GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount()));
         }
     }
 
     void Register() override
     {
-        if (m_scriptSpellId == SPELL_EVOKER_PYRE_DAMAGE)
-            OnEffectHitTarget += SpellEffectFn(spell_evo_causality::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-class spell_evo_causality_aura : public AuraScript
-{
-    void OnTick(AuraEffect const* /*aurEff*/) const
-    {
-        if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_0))
-        {
-            for (uint32 spell : empoweredSpells)
-            {
-                if (GetCaster()->HasSpell(spell))
-                    GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount()));
-            }
-        }
-    }
-
-    void Register() override
-    {
-        if (m_scriptSpellId == SPELL_EVOKER_DISINTEGRATE)
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_evo_causality_aura::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_evo_causality_pyre::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -488,7 +491,8 @@ void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
-    RegisterSpellAndAuraScriptPair(spell_evo_causality, spell_evo_causality_aura);
+    RegisterSpellScript(spell_evo_causality_disintegrate);
+    RegisterSpellScript(spell_evo_causality_pyre);
     RegisterSpellScript(spell_evo_charged_blast);
     RegisterSpellScript(spell_evo_fire_breath);
     RegisterSpellScript(spell_evo_fire_breath_damage);
