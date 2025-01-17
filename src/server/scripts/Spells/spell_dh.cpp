@@ -1459,7 +1459,7 @@ class spell_dh_unhindered_assault : public AuraScript
         return ValidateSpellInfo({ SPELL_DH_FELBLADE });
     }
 
-    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
     {
         GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_DH_FELBLADE, true);
     }
