@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "the_stonevault.h"
