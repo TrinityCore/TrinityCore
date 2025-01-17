@@ -883,4 +883,50 @@ void UiMapQuestLinesRequest::Read()
 {
     _worldPacket >> UiMapID;
 }
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Quest::SpawnTrackingRequestInfo& spawnTrackingRequestInfo)
+{
+    data >> spawnTrackingRequestInfo.ObjectTypeMask;
+    data >> spawnTrackingRequestInfo.ObjectID;
+    data >> spawnTrackingRequestInfo.SpawnTrackingID;
+    return data;
+}
+
+void SpawnTrackingUpdate::Read()
+{
+    SpawnTrackingRequests.resize(_worldPacket.read<uint32>());
+    for (SpawnTrackingRequestInfo& spawnTrackingRequestInfo : SpawnTrackingRequests)
+        _worldPacket >> spawnTrackingRequestInfo;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SpawnTrackingResponseInfo const& spawnTrackingResponseInfo)
+{
+    data << uint32(spawnTrackingResponseInfo.SpawnTrackingID);
+    data << int32(spawnTrackingResponseInfo.ObjectID);
+    data << int32(spawnTrackingResponseInfo.PhaseID);
+    data << int32(spawnTrackingResponseInfo.PhaseGroupID);
+    data << int32(spawnTrackingResponseInfo.PhaseUseFlags);
+
+    data << Bits<1>(spawnTrackingResponseInfo.Visible);
+    data.FlushBits();
+
+    return data;
+}
+
+WorldPacket const* QuestPOIUpdateResponse::Write()
+{
+    _worldPacket << uint32(SpawnTrackingResponses.size());
+
+    for (SpawnTrackingResponseInfo const& spawnTrackingResponseInfo : SpawnTrackingResponses)
+        _worldPacket << spawnTrackingResponseInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* ForceSpawnTrackingUpdate::Write()
+{
+    _worldPacket << int32(QuestID);
+
+    return &_worldPacket;
+}
 }

@@ -54,7 +54,9 @@ enum PrinceTaldaramMisc
 {
     DATA_EMBRACE_DMG                        = 20000,
     H_DATA_EMBRACE_DMG                      = 40000,
-    SUMMON_GROUP_CONTROLLERS                = 1
+    SUMMON_GROUP_CONTROLLERS                = 1,
+
+    DATA_FLAME_SPHERE_TARGET_GUID           = 0,
 };
 
 enum PrinceTaldaramYells
@@ -123,7 +125,7 @@ struct boss_prince_taldaram : public BossAI
             case NPC_FLAME_SPHERE_1:
             case NPC_FLAME_SPHERE_2:
             case NPC_FLAME_SPHERE_3:
-                summon->AI()->SetGUID(_flameSphereTargetGUID);
+                summon->AI()->SetGUID(_flameSphereTargetGUID, DATA_FLAME_SPHERE_TARGET_GUID);
                 break;
             case NPC_JEDOGA_CONTROLLER:
                 summon->CastSpell(me, SPELL_BEAM_VISUAL);
@@ -307,8 +309,11 @@ struct npc_prince_taldaram_flame_sphere : public ScriptedAI
         _events.ScheduleEvent(EVENT_DESPAWN, 13s);
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_FLAME_SPHERE_TARGET_GUID)
+            return;
+
         _flameSphereTargetGUID = guid;
     }
 

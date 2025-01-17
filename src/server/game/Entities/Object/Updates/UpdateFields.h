@@ -262,6 +262,7 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<220>
 {
     UpdateField<bool, 0, 1> Field_314;
     UpdateField<std::vector<uint32>, 0, 2> StateWorldEffectIDs;
+    struct StateWorldEffectIDsTag : ViewerDependentValueTag<std::vector<uint32>> {};
     DynamicUpdateField<UF::PassiveSpellHistory, 0, 3> PassiveSpells;
     DynamicUpdateField<int32, 0, 4> WorldEffects;
     DynamicUpdateField<ObjectGuid, 0, 5> ChannelObjects;
@@ -272,8 +273,11 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<220>
     UpdateField<uint32, 0, 8> NpcFlags2;
     struct NpcFlags2Tag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 9> StateSpellVisualID;
+    struct StateSpellVisualIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 10> StateAnimID;
+    struct StateAnimIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 11> StateAnimKitID;
+    struct StateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 12> StateWorldEffectsQuestObjectiveID;
     UpdateField<int32, 0, 13> SpellOverrideNameID;
     UpdateField<ObjectGuid, 0, 14> Charm;
@@ -1192,13 +1196,17 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
 struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<25>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
+    struct StateWorldEffectIDsTag : ViewerDependentValueTag<std::vector<uint32>> {};
     DynamicUpdateField<int32, 0, 2> EnableDoodadSets;
     DynamicUpdateField<int32, 0, 3> WorldEffects;
     UpdateField<int32, 0, 4> DisplayID;
     UpdateField<uint32, 0, 5> SpellVisualID;
     UpdateField<uint32, 0, 6> StateSpellVisualID;
+    struct StateSpellVisualIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 7> SpawnTrackingStateAnimID;
+    struct StateAnimIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 8> SpawnTrackingStateAnimKitID;
+    struct StateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 9> StateWorldEffectsQuestObjectiveID;
     UpdateField<ObjectGuid, 0, 10> CreatedBy;
     UpdateField<ObjectGuid, 0, 11> GuildGUID;
