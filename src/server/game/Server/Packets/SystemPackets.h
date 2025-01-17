@@ -49,6 +49,7 @@ namespace WorldPackets
         {
             int32 Rule = 0;
             int32 Value = 0;
+            float ValueF = 0.0f;
         };
 
         class FeatureSystemStatus final : public ServerPacket
@@ -170,15 +171,15 @@ namespace WorldPackets
             bool IsPlayerContentTrackingEnabled      = false;
             bool SellAllJunkEnabled                  = false;
             bool GroupFinderEnabled                  = true;  // classic only
-            bool LfdEnabled                          = true;  // classic only
-            bool LfrEnabled                          = true;  // classic only
             bool IsPremadeGroupEnabled               = true;  // classic only
-            bool PremadeGroupsEnabled                = true;
+            bool UseActivePlayerDataQuestCompleted   = false; ///< Uses ActivePlayerData::QuestCompleted (legacy) to store completed quest bits instead of ActivePlayerData::BitVectors[9]
             bool GuildEventsEditsEnabled             = true;
             bool GuildTradeSkillsEnabled             = true;
-            bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
-            bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
+            bool BNSendWhisperUseV2Services          = true;  ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
+            bool BNSendGameDataUseV2Services         = true;  ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool IsAccountCurrencyTransferEnabled    = false;
+            bool LobbyMatchmakerQueueFromMainlineEnabled = false;
+            bool CanSendLobbyMatchmakerPartyCustomizations = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;

@@ -24,8 +24,8 @@
 #include "CellImpl.h"
 #include "Containers.h"
 #include "CreatureAISelector.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "G3DPosition.hpp"
 #include "GameEventSender.h"
 #include "GameObjectAI.h"
@@ -42,6 +42,7 @@
 #include "LootMgr.h"
 #include "Map.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -49,10 +50,10 @@
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "QueryPackets.h"
-#include "Util.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "Transport.h"
+#include "Util.h"
 #include "Vignette.h"
 #include "World.h"
 #include <G3D/Box.h>
@@ -934,7 +935,7 @@ void GameObject::AddToWorld()
         if (m_zoneScript)
             m_zoneScript->OnGameObjectCreate(this);
 
-        GetMap()->GetObjectsStore().Insert<GameObject>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<GameObject>(this);
         if (m_spawnId)
             GetMap()->GetGameObjectBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
 
@@ -974,7 +975,7 @@ void GameObject::RemoveFromWorld()
 
         if (m_spawnId)
             Trinity::Containers::MultimapErasePair(GetMap()->GetGameObjectBySpawnIdStore(), m_spawnId, this);
-        GetMap()->GetObjectsStore().Remove<GameObject>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<GameObject>(this);
     }
 }
 
@@ -1081,8 +1082,6 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     m_prevGoState = goState;
     SetGoState(goState);
     SetGoArtKit(artKit);
-
-    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpawnTrackingStateAnimID), sDB2Manager.GetEmptyAnimStateID());
 
     switch (goInfo->type)
     {
@@ -1968,6 +1967,8 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
     PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
 
+    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId : 0);
+
     if (data->spawntimesecs >= 0)
     {
         m_spawnedByDefault = true;
@@ -2106,17 +2107,6 @@ bool GameObject::IsTransport() const
         return false;
 
     return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT;
-}
-
-// is Dynamic transport = non-stop Transport
-bool GameObject::IsDynTransport() const
-{
-    // If something is marked as a transport, don't transmit an out of range packet for it.
-    GameObjectTemplate const* gInfo = GetGOInfo();
-    if (!gInfo)
-        return false;
-
-    return gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_TRANSPORT;
 }
 
 bool GameObject::IsDestructibleBuilding() const
@@ -3591,6 +3581,23 @@ void GameObject::SetScriptStringId(std::string id)
         m_scriptStringId.reset();
         m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
+}
+
+SpawnTrackingStateData const* GameObject::GetSpawnTrackingStateDataForPlayer(Player const* player) const
+{
+    if (!player)
+        return nullptr;
+
+    if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, GetSpawnId()))
+    {
+        if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        {
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId);
+            return &data->spawnTrackingStates[AsUnderlyingType(state)];
+        }
+    }
+
+    return nullptr;
 }
 
 // overwrite WorldObject function for proper name localization

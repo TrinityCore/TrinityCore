@@ -39,9 +39,10 @@ struct TC_GAME_API LootStoreItem
 {
     enum class Type : int8
     {
-        Item        = 0,
-        Reference   = 1,
-        Currency    = 2,
+        Item            = 0,
+        Reference       = 1,
+        Currency        = 2,
+        TrackingQuest   = 3,
     };
 
     uint32 itemid;                                         // id of the item

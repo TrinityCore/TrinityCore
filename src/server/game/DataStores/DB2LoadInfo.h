@@ -23,6 +23,7 @@
 
 #include "DB2DatabaseLoader.h"
 #include "DB2Metadata.h"
+#include "HotfixDatabase.h"
 
 struct AchievementLoadInfo
 {
@@ -771,7 +772,7 @@ struct BroadcastTextLoadInfo
         { true, FT_INT, "LanguageID" },
         { true, FT_INT, "ConditionID" },
         { false, FT_SHORT, "EmotesID" },
-        { false, FT_BYTE, "Flags" },
+        { false, FT_SHORT, "Flags" },
         { false, FT_INT, "ChatBubbleDurationMs" },
         { true, FT_INT, "VoiceOverPriorityID" },
         { false, FT_INT, "SoundKitID1" },
@@ -3549,7 +3550,7 @@ struct LanguagesLoadInfo
 
 struct LfgDungeonsLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[32] =
+    static constexpr DB2FieldMeta Fields[35] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -3576,6 +3577,9 @@ struct LfgDungeonsLoadInfo
         { false, FT_BYTE, "MinCountTank" },
         { false, FT_BYTE, "MinCountHealer" },
         { false, FT_BYTE, "MinCountDamage" },
+        { false, FT_BYTE, "MaxPremadeCountTank" },
+        { false, FT_BYTE, "MaxPremadeCountHealer" },
+        { false, FT_BYTE, "MaxPremadeCountDamage" },
         { false, FT_SHORT, "BonusReputationAmount" },
         { false, FT_SHORT, "MentorItemLevel" },
         { false, FT_BYTE, "MentorCharLevel" },
@@ -3585,7 +3589,7 @@ struct LfgDungeonsLoadInfo
         { true, FT_INT, "Flags2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 32, &LFGDungeonsMeta::Instance, HOTFIX_SEL_LFG_DUNGEONS };
+    static constexpr DB2LoadInfo Instance{ Fields, 35, &LFGDungeonsMeta::Instance, HOTFIX_SEL_LFG_DUNGEONS };
 };
 
 struct LightLoadInfo
@@ -3807,8 +3811,8 @@ struct MapDifficultyLoadInfo
 {
     static constexpr DB2FieldMeta Fields[12] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Message" },
+        { false, FT_INT, "ID" },
         { true, FT_INT, "DifficultyID" },
         { true, FT_INT, "LockID" },
         { false, FT_BYTE, "ResetInterval" },
@@ -4142,11 +4146,13 @@ struct PhaseXPhaseGroupLoadInfo
 
 struct PlayerConditionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[160] =
+    static constexpr DB2FieldMeta Fields[162] =
     {
         { false, FT_INT, "ID" },
         { true, FT_LONG, "RaceMask" },
         { false, FT_STRING, "FailureDescription" },
+        { false, FT_SHORT, "MinLevel" },
+        { false, FT_SHORT, "MaxLevel" },
         { true, FT_INT, "ClassMask" },
         { false, FT_INT, "SkillLogic" },
         { true, FT_INT, "LanguageID" },
@@ -4306,7 +4312,7 @@ struct PlayerConditionLoadInfo
         { false, FT_SHORT, "TraitNodeEntryMaxRank4" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 160, &PlayerConditionMeta::Instance, HOTFIX_SEL_PLAYER_CONDITION };
+    static constexpr DB2LoadInfo Instance{ Fields, 162, &PlayerConditionMeta::Instance, HOTFIX_SEL_PLAYER_CONDITION };
 };
 
 struct PowerDisplayLoadInfo
@@ -6636,7 +6642,7 @@ struct VehicleSeatLoadInfo
 
 struct VignetteLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[11] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
@@ -6649,9 +6655,11 @@ struct VignetteLoadInfo
         { true, FT_BYTE, "VignetteType" },
         { true, FT_INT, "RewardQuestID" },
         { true, FT_INT, "UiWidgetSetID" },
+        { true, FT_INT, "UiMapPinInfoID" },
+        { true, FT_BYTE, "ObjectiveType" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 11, &VignetteMeta::Instance, HOTFIX_SEL_VIGNETTE };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &VignetteMeta::Instance, HOTFIX_SEL_VIGNETTE };
 };
 
 struct WmoAreaTableLoadInfo

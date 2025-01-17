@@ -927,6 +927,7 @@ uint32 Condition::GetMaxAvailableConditionTargets() const
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NPC_VENDOR:
         case CONDITION_SOURCE_TYPE_SPELL_PROC:
+        case CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY:
             return 2;
         default:
             return 1;
@@ -1256,13 +1257,13 @@ bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint3
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const
+bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(WorldObject const* obj, WorldObject const* seer) const
 {
-    auto itr = ConditionStore[CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY].find({ objectType, int32(entry), 0 });
+    auto itr = ConditionStore[CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY].find({ uint32(obj->GetTypeId()), int32(obj->GetEntry()), 0 });
     if (itr != ConditionStore[CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY].end())
     {
-        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {} entry {}", objectType, entry);
-        return IsObjectMeetToConditions(seer, *itr->second);
+        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {} entry {} guid {}", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().ToString());
+        return IsObjectMeetToConditions(seer, obj, *itr->second);
     }
     return true;
 }
@@ -3004,8 +3005,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         std::array<bool, std::tuple_size_v<decltype(condition->PrevQuestID)>> results;
         results.fill(true);
         for (std::size_t i = 0; i < condition->PrevQuestID.size(); ++i)
-            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
-                results[i] = (player->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))) != 0;
+            results[i] = player->IsQuestCompletedBitSet(condition->PrevQuestID[i]);
 
         if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
             return false;

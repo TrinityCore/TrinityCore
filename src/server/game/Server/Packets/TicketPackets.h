@@ -74,6 +74,8 @@ namespace WorldPackets
                 int32 WaitTimeOverrideMinutes = 0;
                 std::string Url;
                 std::string WaitTimeOverrideMessage;
+                std::string Title;
+                std::string Description;
             };
 
             GMTicketCaseStatus() : ServerPacket(SMSG_GM_TICKET_CASE_STATUS, 12) { }

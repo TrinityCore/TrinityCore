@@ -174,20 +174,20 @@ class TC_GAME_API SmartAI : public CreatureAI
         void OnCharmed(bool isNew) override;
 
         // Used in scripts to share variables
-        void DoAction(int32 param = 0) override;
+        void DoAction(int32 param) override;
 
         // Used in scripts to share variables
-        uint32 GetData(uint32 id = 0) const override;
+        uint32 GetData(uint32 id) const override;
 
         // Used in scripts to share variables
         void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }
         void SetData(uint32 id, uint32 value, Unit* invoker);
 
         // Used in scripts to share variables
-        void SetGUID(ObjectGuid const& guid, int32 id = 0) override;
+        void SetGUID(ObjectGuid const& guid, int32 id) override;
 
         // Used in scripts to share variables
-        ObjectGuid GetGUID(int32 id = 0) const override;
+        ObjectGuid GetGUID(int32 id) const override;
 
         // Makes the creature run/walk
         void SetRun(bool run = true);

@@ -1168,50 +1168,53 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply, AuraEffect const* trigg
 
     // reapply some passive spells after add/remove related spellmods
     // Warning: it is a dead loop if 2 auras each other amount-shouldn't happen
-    std::bitset<MAX_SPELL_EFFECTS> recalculateEffectMask;
+    Optional<SpellEffIndex> recalculateEffectIndex;
     switch (SpellModOp(GetMiscValue()))
     {
         case SpellModOp::Points:
-            recalculateEffectMask.set();
             break;
         case SpellModOp::PointsIndex0:
-            recalculateEffectMask.set(EFFECT_0);
+            recalculateEffectIndex = EFFECT_0;
             break;
         case SpellModOp::PointsIndex1:
-            recalculateEffectMask.set(EFFECT_1);
+            recalculateEffectIndex = EFFECT_1;
             break;
         case SpellModOp::PointsIndex2:
-            recalculateEffectMask.set(EFFECT_2);
+            recalculateEffectIndex = EFFECT_2;
             break;
         case SpellModOp::PointsIndex3:
-            recalculateEffectMask.set(EFFECT_3);
+            recalculateEffectIndex = EFFECT_3;
             break;
         case SpellModOp::PointsIndex4:
-            recalculateEffectMask.set(EFFECT_4);
+            recalculateEffectIndex = EFFECT_4;
             break;
         default:
-            break;
+            return;
     }
 
-    if (recalculateEffectMask.any())
-    {
-        if (!triggeredBy)
-            triggeredBy = this;
+    if (!triggeredBy)
+        triggeredBy = this;
 
-        ObjectGuid guid = target->GetGUID();
-        Unit::AuraApplicationMap& auras = target->GetAppliedAuras();
-        for (auto iter = auras.begin(); iter != auras.end(); ++iter)
+    ObjectGuid guid = target->GetGUID();
+    for (auto& [_, aurApp] : target->GetAppliedAuras())
+    {
+        Aura* aura = aurApp->GetBase();
+        // only passive and permament auras-active auras should have amount set on spellcast and not be affected
+        // if aura is cast by others, it will not be affected
+        if ((!aura->IsPassive() && !aura->IsPermanent() && !GetSpellInfo()->IsUpdatingTemporaryAuraValuesBySpellMod())
+            || aura->GetCasterGUID() != guid || !aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
+            continue;
+
+        if (recalculateEffectIndex)
         {
-            Aura* aura = iter->second->GetBase();
-            // only passive and permament auras-active auras should have amount set on spellcast and not be affected
-            // if aura is cast by others, it will not be affected
-            if ((aura->IsPassive() || aura->IsPermanent()) && aura->GetCasterGUID() == guid && aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
-                for (size_t i = 0; i < recalculateEffectMask.size(); ++i)
-                    if (recalculateEffectMask[i])
-                        if (AuraEffect* aurEff = aura->GetEffect(i))
-                            if (aurEff != triggeredBy)
-                                aurEff->RecalculateAmount(triggeredBy);
+            if (AuraEffect* aurEff = aura->GetEffect(*recalculateEffectIndex))
+                if (aurEff != triggeredBy)
+                    aurEff->RecalculateAmount(triggeredBy);
         }
+        else
+            for (AuraEffect* aurEff : aura->GetAuraEffects())
+                if (aurEff != triggeredBy)
+                    aurEff->RecalculateAmount(triggeredBy);
     }
 }
 
@@ -5553,7 +5556,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
     {
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
-            triggerCaster->CastSpell(target, triggerSpellId, this);
+            triggerCaster->CastSpell(target, triggerSpellId, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST),
+                .TriggeringAura = this
+            });
             TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell {} Trigger {}", GetId(), triggeredSpellInfo->Id);
         }
     }
@@ -5575,7 +5581,8 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
             CastSpellExtraArgs args(this);
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            args.SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
+            for (std::size_t i = 0; i < triggeredSpellInfo->GetEffects().size(); ++i)
                 args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), GetAmount());
             triggerCaster->CastSpell(target, triggerSpellId, args);
             TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell {} Trigger {}", GetId(), triggeredSpellInfo->Id);
@@ -5644,7 +5651,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
             // Add melee damage bonuses (also check for negative)
             if (caster)
-                damage = caster->MeleeDamageBonusDone(target, damage, attackType, DOT, GetSpellInfo(), GetSpellEffectInfo().Mechanic, GetSpellInfo()->GetSchoolMask(), nullptr, this);
+                damage = caster->MeleeDamageBonusDone(target, damage, attackType, DOT, GetSpellInfo(), &GetSpellEffectInfo(), GetSpellEffectInfo().Mechanic, GetSpellInfo()->GetSchoolMask(), nullptr, this);
 
             damage = target->MeleeDamageBonusTaken(caster, damage, attackType, DOT, GetSpellInfo());
             break;
@@ -6131,7 +6138,9 @@ void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEve
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId, GetBase()->GetCastDifficulty()))
     {
         TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandleProcTriggerSpellAuraProc: Triggering spell {} from aura {} proc", triggeredSpellInfo->Id, GetId());
-        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo->Id, CastSpellExtraArgs(this).SetTriggeringSpell(eventInfo.GetProcSpell()));
+        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo->Id, CastSpellExtraArgs(this)
+            .SetTriggeringSpell(eventInfo.GetProcSpell())
+            .SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST)));
     }
     else if (triggerSpellId && GetAuraType() != SPELL_AURA_DUMMY)
         TC_LOG_ERROR("spells.aura.effect.nospell","AuraEffect::HandleProcTriggerSpellAuraProc: Spell {} has non-existent spell {} in EffectTriggered[{}] and is therefore not triggered.", GetId(), triggerSpellId, GetEffIndex());
@@ -6154,6 +6163,7 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId, GetBase()->GetCastDifficulty()))
     {
         CastSpellExtraArgs args(this);
+        args.SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
         args.SetTriggeringSpell(eventInfo.GetProcSpell());
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetAmount());
         triggerCaster->CastSpell(triggerTarget, triggerSpellId, args);

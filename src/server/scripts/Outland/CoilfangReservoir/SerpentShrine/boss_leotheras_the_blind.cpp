@@ -102,7 +102,7 @@ struct npc_inner_demon : public ScriptedAI
             victimGUID = guid;
     }
 
-    ObjectGuid GetGUID(int32 id/* = 0 */) const override
+    ObjectGuid GetGUID(int32 id) const override
     {
         if (id == INNER_DEMON_VICTIM)
             return victimGUID;

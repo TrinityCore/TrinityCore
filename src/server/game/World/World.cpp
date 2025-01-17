@@ -72,6 +72,7 @@
 #include "MMapFactory.h"
 #include "Map.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
@@ -695,12 +696,6 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_AUCTION_CUT]                       = sConfigMgr->GetFloatDefault("Rate.Auction.Cut", 1.0f);
     rate_values[RATE_HONOR]                             = sConfigMgr->GetFloatDefault("Rate.Honor", 1.0f);
     rate_values[RATE_INSTANCE_RESET_TIME]               = sConfigMgr->GetFloatDefault("Rate.InstanceResetTime", 1.0f);
-    rate_values[RATE_TALENT]                            = sConfigMgr->GetFloatDefault("Rate.Talent", 1.0f);
-    if (rate_values[RATE_TALENT] < 0.0f)
-    {
-        TC_LOG_ERROR("server.loading", "Rate.Talent ({}) must be > 0. Using 1 instead.", rate_values[RATE_TALENT]);
-        rate_values[RATE_TALENT] = 1.0f;
-    }
     rate_values[RATE_MOVESPEED] = sConfigMgr->GetFloatDefault("Rate.MoveSpeed", 1.0f);
     if (rate_values[RATE_MOVESPEED] < 0)
     {
@@ -847,16 +842,9 @@ void World::LoadConfigSettings(bool reload)
         uint32 val = sConfigMgr->GetIntDefault("WorldServerPort", 8085);
         if (val != m_int_configs[CONFIG_PORT_WORLD])
             TC_LOG_ERROR("server.loading", "WorldServerPort option can't be changed at worldserver.conf reload, using current value ({}).", m_int_configs[CONFIG_PORT_WORLD]);
-
-        val = sConfigMgr->GetIntDefault("InstanceServerPort", 8086);
-        if (val != m_int_configs[CONFIG_PORT_INSTANCE])
-            TC_LOG_ERROR("server.loading", "InstanceServerPort option can't be changed at worldserver.conf reload, using current value ({}).", m_int_configs[CONFIG_PORT_INSTANCE]);
     }
     else
-    {
         m_int_configs[CONFIG_PORT_WORLD] = sConfigMgr->GetIntDefault("WorldServerPort", 8085);
-        m_int_configs[CONFIG_PORT_INSTANCE] = sConfigMgr->GetIntDefault("InstanceServerPort", 8086);
-    }
 
     // Config values are in "milliseconds" but we handle SocketTimeOut only as "seconds" so divide by 1000
     m_int_configs[CONFIG_SOCKET_TIMEOUTTIME] = sConfigMgr->GetIntDefault("SocketTimeOutTime", 900000) / 1000;
@@ -1797,6 +1785,13 @@ bool World::SetInitialWorldSettings()
 
     LoginDatabase.PExecute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, sRealmList->GetCurrentRealmId().Realm);      // One-time query
 
+    TC_LOG_INFO("server.loading", "Loading GameObject models...");
+    if (!LoadGameObjectModelList(m_dataPath))
+    {
+        TC_LOG_FATAL("server.loading", "Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
+        return false;
+    }
+
     TC_LOG_INFO("server.loading", "Initialize data stores...");
     ///- Load DB2s
     m_availableDbcLocaleMask = sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
@@ -1806,19 +1801,14 @@ bool World::SetInitialWorldSettings()
         return false;
     }
 
-    TC_LOG_INFO("server.loading", "Loading GameObject models...");
-    if (!LoadGameObjectModelList(m_dataPath))
-    {
-        TC_LOG_FATAL("server.loading", "Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
-        return false;
-    }
-
     TC_LOG_INFO("misc", "Loading hotfix blobs...");
     sDB2Manager.LoadHotfixBlob(m_availableDbcLocaleMask);
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData(m_availableDbcLocaleMask);
     TC_LOG_INFO("misc", "Loading hotfix optional data...");
     sDB2Manager.LoadHotfixOptionalData(m_availableDbcLocaleMask);
+    TC_LOG_INFO("misc", "Indexing loaded data stores...");
+    sDB2Manager.IndexLoadedStores();
     ///- Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
     ///- Load GameTables
@@ -1883,6 +1873,9 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo immunity infos...");
     sSpellMgr->LoadSpellInfoImmunities();
+
+    TC_LOG_INFO("server.loading", "Loading SpellInfo target caps...");
+    sSpellMgr->LoadSpellInfoTargetCaps();
 
     TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
     sSpellMgr->LoadPetFamilySpellsStore();
@@ -2191,6 +2184,18 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Player Choices...");
     sObjectMgr->LoadPlayerChoices();
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Templates...");
+    sObjectMgr->LoadSpawnTrackingTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Quest Objectives...");
+    sObjectMgr->LoadSpawnTrackingQuestObjectives();
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Spawns...");
+    sObjectMgr->LoadSpawnTrackings();
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Tracking Spawn States...");
+    sObjectMgr->LoadSpawnTrackingStates();
 
     if (m_bool_configs[CONFIG_LOAD_LOCALES])
     {
@@ -3910,7 +3915,7 @@ void World::SetPersistentWorldVariable(PersistentWorldVariable const& var, int32
     m_worldVariables[var.Id] = value;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_VARIABLE);
-    stmt->setStringView(0, var.Id);
+    stmt->setString(0, var.Id);
     stmt->setInt32(1, value);
     CharacterDatabase.Execute(stmt);
 }
