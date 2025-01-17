@@ -21,7 +21,7 @@
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include "Duration.h"
-#include <array>
+#include <span>
 #include <string>
 #include <variant>
 #include <vector>
@@ -82,15 +82,10 @@ class TC_DATABASE_API PreparedStatementBase
         void setFloat(uint8 index, float value);
         void setDouble(uint8 index, double value);
         void setDate(uint8 index, SystemTimePoint value);
-        void setString(uint8 index, std::string const& value);
-        void setStringView(uint8 index, std::string_view value);
-        void setBinary(uint8 index, std::vector<uint8> const& value);
-        template <size_t Size>
-        void setBinary(const uint8 index, std::array<uint8, Size> const& value)
-        {
-            std::vector<uint8> vec(value.begin(), value.end());
-            setBinary(index, vec);
-        }
+        void setString(uint8 index, std::string&& value);
+        void setString(uint8 index, std::string_view value);
+        void setBinary(uint8 index, std::vector<uint8>&& value);
+        void setBinary(uint8 index, std::span<uint8 const> value);
 
         uint32 GetIndex() const { return m_index; }
         std::vector<PreparedStatementData> const& GetParameters() const { return statement_data; }

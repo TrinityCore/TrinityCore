@@ -170,7 +170,8 @@ enum Misc
     SUMMON_PRINCES_GROUP        = 1,
     DATA_INTRO                  = 2,
     DATA_INTRO_DONE             = 3,
-    DATA_PRINCE_EVADE           = 4
+    DATA_PRINCE_EVADE           = 4,
+    DATA_CHASE_TARGET_GUID      = 5,
 };
 
 class StandUpEvent : public BasicEvent
@@ -698,7 +699,7 @@ struct boss_prince_taldaram_icc : public BloodPrincesBossAI
             Talk(EMOTE_TALDARAM_FLAME, target);
 
         if (target)
-            summon->AI()->SetGUID(target->GetGUID());
+            summon->AI()->SetGUID(target->GetGUID(), DATA_CHASE_TARGET_GUID);
     }
 
     void UpdateAI(uint32 diff) override
@@ -930,8 +931,11 @@ struct npc_ball_of_flame : public ScriptedAI
         }
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_CHASE_TARGET_GUID)
+            return;
+
         _chaseGUID = guid;
     }
 

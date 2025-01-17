@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "Creature.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -351,12 +352,12 @@ class spell_waycrest_manor_organ_missiles : public SpellScript
 // 267597 - Waycrest Manor - Waycrests Defeated (Alliance)
 // 7351 - Conversation
 // 7352 - Conversation
-class conversation_waycrest_manor_waycrests_defeated : public ConversationScript
+class conversation_waycrest_manor_waycrests_defeated : public ConversationAI
 {
 public:
-    conversation_waycrest_manor_waycrests_defeated() : ConversationScript("conversation_waycrest_manor_waycrests_defeated") { }
+    conversation_waycrest_manor_waycrests_defeated(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         if (Milliseconds const* gorakTulMoveStartTimeAlliance = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVERSATION_LINE_LUCILLE_WAYCREST))
             _events.ScheduleEvent(EVENT_GORAK_TUL_TRANSFORM, *gorakTulMoveStartTimeAlliance);
@@ -364,7 +365,7 @@ public:
             _events.ScheduleEvent(EVENT_GORAK_TUL_TRANSFORM, *gorakTulMoveStartTimeHorde + 3s);
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -442,5 +443,5 @@ void AddSC_waycrest_manor()
     // Lord and Lady Waycrest outro
     RegisterAreaTriggerAI(at_waycrest_manor_organ_missiles);
     RegisterSpellScript(spell_waycrest_manor_organ_missiles);
-    new conversation_waycrest_manor_waycrests_defeated();
+    RegisterConversationAI(conversation_waycrest_manor_waycrests_defeated);
 }

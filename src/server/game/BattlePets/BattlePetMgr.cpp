@@ -16,14 +16,15 @@
  */
 
 #include "BattlePetMgr.h"
-#include "DB2Stores.h"
 #include "Containers.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTables.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
