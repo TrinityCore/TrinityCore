@@ -1402,6 +1402,31 @@ LOCK TABLES `character_queststatus_objectives_criteria_progress` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_queststatus_objectives_spawn_tracking`
+--
+
+DROP TABLE IF EXISTS `character_queststatus_objectives_spawn_tracking`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_queststatus_objectives_spawn_tracking` (
+  `guid` bigint unsigned NOT NULL,
+  `quest` int unsigned NOT NULL,
+  `objective` tinyint unsigned NOT NULL DEFAULT '0',
+  `spawnTrackingId` int unsigned NOT NULL,
+  PRIMARY KEY (`guid`,`quest`,`objective`,`spawnTrackingId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_queststatus_objectives_spawn_tracking`
+--
+
+LOCK TABLES `character_queststatus_objectives_spawn_tracking` WRITE;
+/*!40000 ALTER TABLE `character_queststatus_objectives_spawn_tracking` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_queststatus_objectives_spawn_tracking` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_queststatus_rewarded`
 --
 
@@ -3753,7 +3778,8 @@ INSERT INTO `updates` VALUES
 ('2024_11_04_00_characters.sql','F7980E0CEE728FF866703693690F76F932E7C764','ARCHIVED','2024-11-04 17:14:03',0),
 ('2024_11_16_00_characters.sql','9D9D87FB8DEB99F074EB499A5BD230FD9C993669','ARCHIVED','2024-11-16 21:57:39',0),
 ('2024_12_13_00_characters.sql','4A00C51BA33639F5555AAE40EC672AE47126F7B6','ARCHIVED','2024-12-13 00:17:03',0),
-('2024_12_22_00_characters.sql','A2F24564430C5BCC96C279E843FA3548B1F831EE','ARCHIVED','2024-12-22 02:56:17',0);
+('2024_12_22_00_characters.sql','A2F24564430C5BCC96C279E843FA3548B1F831EE','ARCHIVED','2024-12-22 02:56:17',0),
+('2025_01_04_00_characters.sql','403E8B642A67765A04A0A4D5BC0752288208079C','RELEASED','2025-01-04 16:31:39',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

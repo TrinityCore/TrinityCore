@@ -797,17 +797,17 @@ std::size_t ObjectGuid::GetHash() const
     return hashVal;
 }
 
-std::vector<uint8> ObjectGuid::GetRawValue() const
+std::array<uint8, 16> ObjectGuid::GetRawValue() const
 {
-    std::vector<uint8> raw(16);
-    memcpy(raw.data(), this, sizeof(*this));
+    std::array<uint8, 16> raw;
+    memcpy(raw.data(), _data.data(), BytesSize);
     return raw;
 }
 
-void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
+void ObjectGuid::SetRawValue(std::span<uint8 const> rawBytes)
 {
-    ASSERT(guid.size() == sizeof(*this));
-    memcpy(this, guid.data(), sizeof(*this));
+    ASSERT(rawBytes.size() == BytesSize, SZFMTD " == " SZFMTD, rawBytes.size(), BytesSize);
+    memcpy(_data.data(), rawBytes.data(), BytesSize);
 }
 
 static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)

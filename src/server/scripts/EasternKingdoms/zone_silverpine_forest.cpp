@@ -3628,8 +3628,7 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
     }
 
     void IsSummonedBy(WorldObject* summoner) override
@@ -4298,8 +4297,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveFollow(summoner, 3.0f, float(M_PI / 2.0f));
 
-                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetImmuneToAll(false);
 
                         me->SetReactState(REACT_ASSIST);
                     }
@@ -4326,8 +4324,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
         _isSceneStarted = true;
 
-        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(false);
 
         me->SetReactState(REACT_PASSIVE);
 
@@ -4575,8 +4572,7 @@ struct npc_silverpine_forsaken_trooper_fenris_isle : public ScriptedAI
         if (!summoner->IsCreature())
             return;
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
 
@@ -4862,8 +4858,7 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
         if (Unit* unit = summoner->ToUnit())
             unit->EnterVehicle(me, SEAT_FENRIS_CAMERA);
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
     }
@@ -4982,8 +4977,7 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
     }
@@ -5121,8 +5115,7 @@ struct npc_silverpine_generic_actor_fenris_keep : public ScriptedAI
         if (Creature* fenrisStalker = me->FindNearestCreature(NPC_FENRIS_KEEP_STALKER, 50.0f, true))
             me->SetFacingToObject(fenrisStalker);
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
     }
