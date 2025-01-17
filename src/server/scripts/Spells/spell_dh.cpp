@@ -741,6 +741,33 @@ class spell_dh_eye_beam : public AuraScript
     }
 };
 
+// Called by 228477 - Soul Cleave
+class spell_dh_feast_of_souls : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FEAST_OF_SOULS, SPELL_DH_FEAST_OF_SOULS_PERIODIC_HEAL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_FEAST_OF_SOULS);
+    }
+
+    void HandleHeal() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_FEAST_OF_SOULS_PERIODIC_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_feast_of_souls::HandleHeal);
+    }
+};
+
 // 212084 - Fel Devastation
 class spell_dh_fel_devastation : public AuraScript
 {
@@ -1543,6 +1570,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
+    RegisterSpellScript(spell_dh_feast_of_souls);
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
     RegisterSpellScript(spell_dh_felblade);
