@@ -47,6 +47,7 @@ enum PriestSpells
     SPELL_PRIEST_ANSWERED_PRAYERS                   = 394289,
     SPELL_PRIEST_APOTHEOSIS                         = 200183,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
+    SPELL_PRIEST_ASSURED_SAFETY                     = 440766,
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_EFFECT                   = 194384,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
@@ -167,6 +168,8 @@ enum PriestSpells
     SPELL_PRIEST_SANCTUARY                          = 231682,
     SPELL_PRIEST_SANCTUARY_ABSORB                   = 208771,
     SPELL_PRIEST_SANCTUARY_AURA                     = 208772,
+    SPELL_PRIEST_SHADOW_COVENANT                    = 314867,
+    SPELL_PRIEST_SHADOW_COVENANT_EFFECT             = 322105,
     SPELL_PRIEST_RHAPSODY_PROC                      = 390636,
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
@@ -2352,7 +2355,6 @@ public:
     bool Load() override
     {
         _spellInfoHeal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
-        _healEffectDummy = &_spellInfoHeal->GetEffect(EFFECT_0);
         return true;
     }
 
@@ -2363,7 +2365,8 @@ public:
         args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
 
         // Note: this line's purpose is to show the correct amount in Points field in SMSG_AURA_UPDATE.
-        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
+        SpellEffectInfo const* healEffectDummy = &_spellInfoHeal->GetEffect(EFFECT_0);
+        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, healEffectDummy->CalcValue(caster), HEAL, *healEffectDummy);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
 
         // Note: Focused Mending talent.
@@ -2377,7 +2380,6 @@ public:
 
 protected:
     SpellInfo const* _spellInfoHeal = nullptr;
-    SpellEffectInfo const* _healEffectDummy = nullptr;
 };
 
 // 33076 - Prayer of Mending (Dummy)
@@ -2634,6 +2636,32 @@ class spell_pri_holy_10_1_class_set_4pc_aura : public AuraScript
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_pri_holy_10_1_class_set_4pc_aura::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 17 - Power Word: Shield
+class spell_pri_assured_safety : public spell_pri_prayer_of_mending_SpellScriptBase
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY);
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        if (AuraEffect const* effect = caster->GetAuraEffect(SPELL_PRIEST_ASSURED_SAFETY, EFFECT_0))
+            CastPrayerOfMendingAura(caster, GetHitUnit(), caster, effect->GetAmount(), false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_assured_safety::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -2961,31 +2989,32 @@ class spell_pri_spirit_of_redemption : public AuraScript
     }
 };
 
-// 314867 - Shadow Covenant
+// 34433 - Shadowfiend
+// 123040 - Mindbender (Discipline)
+// 451235 - Voidwrath
 class spell_pri_shadow_covenant : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_COVENANT, SPELL_PRIEST_SHADOW_COVENANT_EFFECT });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets) const
+    bool Load() override
     {
-        // remove explicit target (will be readded later)
-        Trinity::Containers::Lists::RemoveUnique(targets, GetExplTargetWorldObject());
+        return GetCaster()->HasAura(SPELL_PRIEST_SHADOW_COVENANT);
+    }
 
-        // we must remove one since explicit target is always added.
-        uint32 maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) - 1);
-
-        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
-
-        if (Unit* explicitTarget = GetExplTargetUnit())
-            targets.push_front(explicitTarget);
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_COVENANT_EFFECT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_shadow_covenant::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+        AfterCast += SpellCastFn(spell_pri_shadow_covenant::HandleAfterCast);
     }
 };
 
@@ -3569,6 +3598,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_abyssal_reverie);
     RegisterSpellScript(spell_pri_answered_prayers);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
+    RegisterSpellScript(spell_pri_assured_safety);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_effect);
     RegisterSpellScript(spell_pri_atonement_effect_aura);
