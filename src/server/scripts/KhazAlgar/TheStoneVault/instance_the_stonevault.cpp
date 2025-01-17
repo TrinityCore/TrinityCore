@@ -16,6 +16,7 @@
  */
 
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "the_stonevault.h"
