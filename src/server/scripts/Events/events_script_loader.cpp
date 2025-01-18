@@ -29,6 +29,8 @@ void AddSC_event_pilgrims_bounty();
 void AddSC_event_winter_veil();
 void AddSC_event_zalazane_fall();
 
+void AddSC_boss_lord_kazzak_anniversary();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddEventsScripts()
@@ -45,4 +47,5 @@ void AddEventsScripts()
     AddSC_event_pilgrims_bounty();
     AddSC_event_winter_veil();
     AddSC_event_zalazane_fall();
+    AddSC_boss_lord_kazzak_anniversary();
 }
