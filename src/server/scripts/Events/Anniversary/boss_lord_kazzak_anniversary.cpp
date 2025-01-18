@@ -187,7 +187,7 @@ class spell_lord_kazzak_mark_of_kazzak_periodic : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
         if (Unit* caster = GetCaster())
