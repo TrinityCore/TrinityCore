@@ -39,16 +39,23 @@ public:
 
     explicit SummonInfo(Creature* summonedCreature, SummonInfoArgs const& args);
 
-    // Initializes the default settings with the provided SummonInfoArgs
+    // Initializes the default settings with the provided SummonInfoArgs.
     void InitializeSummonSettings(SummonInfoArgs const& args);
-    // Returns the creature that is tied to this SummonInfo instance
+    // Returns the creature that is tied to this SummonInfo instance.
     Creature* GetSummonedCreature() const;
+    // Returns the Unit summoner, or nullptr if no summoner has been provided or if the summoner is not a Unit.
+    Unit* GetUnitSummoner() const;
+    // Returns the GameObject summoner, or nullptr if no summoner has been provided or if the summoner is not a GameObject.
+    GameObject* GetGameObjectSummoner() const;
+
     // Returns the remaining time until the summon expires. Nullopt when no duration was set which implies that the summon is permanent.
     Optional<Milliseconds> GetRemainingDuration() const;
-    // Returns the Unit summoner, or nullptr if no summoner has been provided or if the summoner is not a Unit
-    Unit* GetUnitSummoner() const;
-    // Returns the GameObject summoner, or nullptr if no summoner has been provided or if the summoner is not a GameObject
-    GameObject* GetGameObjectSummoner() const;
+    // Returns the health amount that will override the default max health calculation. Nullopt when no amount is provided.
+    Optional<uint64> GetMaxHealth() const;
+    // Returns the ID of the spell that has been used to summon the creature. Nullopt when the creature has not been summoned by a spell (scripted summons/ other APIs).
+    Optional<uint32> GetSummonSpellId() const;
+    // Returns the FactionTemplate ID of the summon that is overriding the default ID of the creature. Nullopt when the faction has not been overriden.
+    Optional<uint32> GetFactionId() const;
 
     // Returns true when the summon will despawn when the summoner logs out. This also includes despawning and teleporting between map instances.
     bool DespawnsOnSummonerLogout() const;
@@ -67,6 +74,9 @@ private:
     Creature* _summonedCreature;
     Optional<ObjectGuid> _summonerGUID;
     Optional<Milliseconds> _remainingDuration;  // NYI
+    Optional<uint64> _maxHealth;                // NYI
+    Optional<uint32> _summonSpellId;            // NYI
+    Optional<uint32> _factionId;                // NYI
     bool _despawnOnSummonerLogout;              // NYI
     bool _despawnOnSummonerDeath;               // NYI
     bool _despawnWhenExpired;                   // NYI

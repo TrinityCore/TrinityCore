@@ -30,18 +30,23 @@ SummonInfo::SummonInfo(Creature* summonedCreature, SummonInfoArgs const& args) :
 
 void SummonInfo::InitializeSummonSettings(SummonInfoArgs const& args)
 {
-    _remainingDuration = args.Duration;
     _summonerGUID = args.SummonerGUID;
+    _maxHealth = args.MaxHealth;
+    _remainingDuration = args.Duration;
+    _summonSpellId = args.SummonSpellId;
 
-    if (!args.SummonPropertiesID.has_value())
+    if (!args.SummonPropertiesId.has_value())
         return;
 
-    SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(*args.SummonPropertiesID);
+    SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(*args.SummonPropertiesId);
     if (!summonProperties)
     {
-        TC_LOG_ERROR("entities.unit", "Creature {} has been summoned with a non-existing SummonProperties.db2 entry (RecId: {}). Possible dirty DB2 data or missing hotfix entry.", _summonedCreature->GetGUID().ToString(), *args.SummonPropertiesID);
+        TC_LOG_ERROR("entities.unit", "Creature {} has been summoned with a non-existing SummonProperties.db2 entry (RecId: {}). Possible dirty DB2 data or missing hotfix entry.", _summonedCreature->GetGUID().ToString(), *args.SummonPropertiesId);
         return;
     }
+
+    if (summonProperties->Faction)
+        _factionId = summonProperties->Faction;
 
     _despawnOnSummonerLogout = summonProperties->GetFlags().HasFlag(SummonPropertiesFlags::DespawnOnSummonerLogout);
     _despawnOnSummonerDeath = summonProperties->GetFlags().HasFlag(SummonPropertiesFlags::DespawnOnSummonerDeath);
@@ -54,11 +59,6 @@ void SummonInfo::InitializeSummonSettings(SummonInfoArgs const& args)
 Creature* SummonInfo::GetSummonedCreature() const
 {
     return _summonedCreature;
-}
-
-Optional<Milliseconds> SummonInfo::GetRemainingDuration() const
-{
-    return _remainingDuration;
 }
 
 Unit* SummonInfo::GetUnitSummoner() const
@@ -75,6 +75,26 @@ GameObject* SummonInfo::GetGameObjectSummoner() const
         return nullptr;
 
     return ObjectAccessor::GetGameObject(*_summonedCreature, *_summonerGUID);
+}
+
+Optional<Milliseconds> SummonInfo::GetRemainingDuration() const
+{
+    return _remainingDuration;
+}
+
+Optional<uint64> SummonInfo::GetMaxHealth() const
+{
+    return _maxHealth;
+}
+
+Optional<uint32> SummonInfo::GetSummonSpellId() const
+{
+    return _summonSpellId;
+}
+
+Optional<uint32> SummonInfo::GetFactionId() const
+{
+    return _factionId;
 }
 
 bool SummonInfo::DespawnsOnSummonerLogout() const

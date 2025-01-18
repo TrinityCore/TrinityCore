@@ -1964,9 +1964,11 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (summoner)
         args.SummonerGUID = summoner->GetGUID();
     if (properties)
-        args.SummonPropertiesID = properties->ID;
+        args.SummonPropertiesId = properties->ID;
     if (duration > 0ms)
         args.Duration = duration;
+    if (spellId)
+        args.SummonSpellId = spellId;
 
     // Initialize the SummonInfo API which marks the creature as Summon
     summon->InitializeSummonInfo(args);

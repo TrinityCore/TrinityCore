@@ -25,13 +25,14 @@
 
 struct SummonPropertiesEntry;
 
-// Controls the behavior of a summoned creature and must be set with extreme care. If you want a blank summon that just exists as a permanent spawn, leave all fields untouched
+// Controls the behavior of a summoned creature and must be set with extreme care. If you want a blank summon that just exists as a permanent spawn, leave all fields untouched.
 struct SummonInfoArgs
 {
     Optional<ObjectGuid> SummonerGUID;
     Optional<uint64> MaxHealth;
     Optional<Milliseconds> Duration;
-    Optional<uint32> SummonPropertiesID;
+    Optional<uint32> SummonPropertiesId;
+    Optional<uint32> SummonSpellId;
 };
 
 #endif // _SummonInfoArgs_h__
