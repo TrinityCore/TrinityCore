@@ -1,6 +1,6 @@
 SET @CGUID := 123456789;
 
-DELETE FROM `creature` WHERE `guid` = @CGUID+0;
+DELETE FROM `creature` WHERE `guid`= @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 121818, 0, 41, 0, '0', '0', 0, 0, 1, -11781.095703125, -2378.037109375, -6.59761428833007812, 4.975621223449707031, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58238); -- Lord Kazzak (Area: 0 - Difficulty: 0) CreateObject1 (Auras: )
 
@@ -9,7 +9,7 @@ UPDATE `creature_template` SET `unit_flags2`=0x800, `ScriptName`='boss_lord_kazz
 
 DELETE FROM `creature_template_addon` WHERE `entry` = 121818;
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(121818, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, ''), -- 121818 (Lord Kazzak)
+(121818, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, ''); -- 121818 (Lord Kazzak)
 
 DELETE FROM `creature_text` WHERE `CreatureID`=121818;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
