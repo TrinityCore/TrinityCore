@@ -153,7 +153,7 @@ class spell_evo_blessing_of_the_bronze : public SpellScript
     }
 };
 
-static constexpr std::array<uint32, 2> empoweredSpells{ SPELL_EVOKER_ETERNITY_SURGE, SPELL_EVOKER_FIRE_BREATH };
+static constexpr std::array<uint32, 2> CausalityAffectedEmpowerSpells = { SPELL_EVOKER_ETERNITY_SURGE, SPELL_EVOKER_FIRE_BREATH };
 
 // Called by 356995 - Disintegrate (Blue)
 class spell_evo_causality_disintegrate : public AuraScript
@@ -170,11 +170,9 @@ class spell_evo_causality_disintegrate : public AuraScript
 
     void OnTick(AuraEffect const* /*aurEff*/) const
     {
-        if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_0))
-        {
-            for (uint32 spell : empoweredSpells)
+        if (AuraEffect const* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_0))
+            for (uint32 spell : CausalityAffectedEmpowerSpells)
                 GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount()));
-        }
     }
 
     void Register() override
@@ -186,6 +184,8 @@ class spell_evo_causality_disintegrate : public AuraScript
 // Called by 357212 - Pyre (Red)
 class spell_evo_causality_pyre : public SpellScript
 {
+    static constexpr int64 TargetLimit = 5;
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellEffect({ { SPELL_EVOKER_CAUSALITY, EFFECT_1 } });
@@ -196,33 +196,21 @@ class spell_evo_causality_pyre : public SpellScript
         return GetCaster()->HasAura(SPELL_EVOKER_CAUSALITY);
     }
 
-    void CountTargets(std::list<WorldObject*>& targets)
+    void HandleCooldown() const
     {
-        _targetsHit = targets.size();
-    }
+        AuraEffect const* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_1);
+        if (!causality)
+            return;
 
-    void HandleCooldown()
-    {
-        if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_1))
-        {
-            for (uint32 spell : empoweredSpells)
-            {
-                if (_targetsHit > _targetsCap)
-                    _targetsHit = _targetsCap;
-
-                GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount() * _targetsHit));
-            }
-        }
+        Milliseconds cooldownReduction = Milliseconds(std::min(GetUnitTargetCountForEffect(EFFECT_0), TargetLimit) * causality->GetAmount());
+        for (uint32 spell : CausalityAffectedEmpowerSpells)
+            GetCaster()->GetSpellHistory()->ModifyCooldown(spell, cooldownReduction);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_causality_pyre::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
         AfterCast += SpellCastFn(spell_evo_causality_pyre::HandleCooldown);
     }
-
-    size_t _targetsHit = 0;
-    uint8 _targetsCap = 5;
 };
 
 // 370455 - Charged Blast
