@@ -29,6 +29,9 @@ void AddSC_event_pilgrims_bounty();
 void AddSC_event_winter_veil();
 void AddSC_event_zalazane_fall();
 
+// Anniversary
+void AddSC_boss_doomwalker_anniversary();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddEventsScripts()
@@ -45,4 +48,7 @@ void AddEventsScripts()
     AddSC_event_pilgrims_bounty();
     AddSC_event_winter_veil();
     AddSC_event_zalazane_fall();
+
+    // Anniversary
+    AddSC_boss_doomwalker_anniversary();
 }
