@@ -33,6 +33,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 #include "Unit.h"
 
 enum DemonHunterSpells
@@ -48,7 +49,9 @@ enum DemonHunterSpells
     SPELL_DH_ANNIHILATION                          = 201427,
     SPELL_DH_ANNIHILATION_MH                       = 227518,
     SPELL_DH_ANNIHILATION_OH                       = 201428,
+    SPELL_DH_ARMY_UNTO_ONESELF                     = 442714,
     SPELL_DH_AWAKEN_THE_DEMON_WITHIN_CD            = 207128,
+    SPELL_DH_BLADE_WARD                            = 442715,
     SPELL_DH_BLUR                                  = 212800,
     SPELL_DH_BLUR_TRIGGER                          = 198589,
     SPELL_DH_BURNING_ALIVE                         = 207739,
@@ -124,6 +127,7 @@ enum DemonHunterSpells
     SPELL_DH_FURIOUS_GAZE                          = 343311,
     SPELL_DH_FURIOUS_GAZE_BUFF                     = 343312,
     SPELL_DH_FURIOUS_THROWS                        = 393029,
+    SPELL_DH_GLAIVE_TEMPEST                        = 342857,
     SPELL_DH_GLIDE                                 = 131347,
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
@@ -148,6 +152,7 @@ enum DemonHunterSpells
     SPELL_DH_METAMORPHOSIS_TRANSFORM               = 162264,
     SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM     = 187827,
     SPELL_DH_MOMENTUM                              = 208628,
+    SPELL_DH_MONSTER_RISING_AGILITY                = 452550,
     SPELL_DH_NEMESIS_ABERRATIONS                   = 208607,
     SPELL_DH_NEMESIS_BEASTS                        = 208608,
     SPELL_DH_NEMESIS_CRITTERS                      = 208609,
@@ -210,6 +215,33 @@ enum DemonHunterSpellCategories
 {
     SPELL_CATEGORY_DH_EYE_BEAM      = 1582,
     SPELL_CATEGORY_DH_BLADE_DANCE   = 1640
+};
+
+// Called by 232893 - Felblade
+class spell_dh_army_unto_oneself : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_ARMY_UNTO_ONESELF, SPELL_DH_BLADE_WARD });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_ARMY_UNTO_ONESELF);
+    }
+
+    void ApplyBladeWard() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_BLADE_WARD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_army_unto_oneself::ApplyBladeWard);
+    }
 };
 
 // Called by 203819 - Demon Spikes
@@ -709,6 +741,33 @@ class spell_dh_eye_beam : public AuraScript
     }
 };
 
+// Called by 228477 - Soul Cleave
+class spell_dh_feast_of_souls : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FEAST_OF_SOULS, SPELL_DH_FEAST_OF_SOULS_PERIODIC_HEAL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_FEAST_OF_SOULS);
+    }
+
+    void HandleHeal() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_FEAST_OF_SOULS_PERIODIC_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_feast_of_souls::HandleHeal);
+    }
+};
+
 // 212084 - Fel Devastation
 class spell_dh_fel_devastation : public AuraScript
 {
@@ -902,6 +961,36 @@ class spell_dh_furious_gaze : public AuraScript
     }
 };
 
+// 342817 - Glaive Tempest
+// ID - 21832
+struct at_dh_glaive_tempest : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(0ms, [this](TaskContext task)
+        {
+            std::chrono::duration<float> period = 500ms; // 500ms, affected by haste
+            if (Unit* caster = at->GetCaster())
+            {
+                period *= *caster->m_unitData->ModHaste;
+                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_DH_GLAIVE_TEMPEST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+            task.Repeat(duration_cast<Milliseconds>(period));
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // Called by 162264 - Metamorphosis
 class spell_dh_inner_demon : public AuraScript
 {
@@ -1016,6 +1105,39 @@ class spell_dh_last_resort : public AuraScript
     void Register() override
     {
         OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_dh_last_resort::HandleAbsorb, EFFECT_0);
+    }
+};
+
+// 452414 - Monster Rising
+class spell_dh_monster_rising : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_MONSTER_RISING_AGILITY, SPELL_DH_METAMORPHOSIS_TRANSFORM, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff) const
+    {
+        Unit* target = GetTarget();
+        AuraApplication* statBuff = target->GetAuraApplication(SPELL_DH_MONSTER_RISING_AGILITY);
+
+        if (target->HasAura(SPELL_DH_METAMORPHOSIS_TRANSFORM) || target->HasAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM))
+        {
+            if (statBuff)
+                target->RemoveAura(statBuff);
+        }
+        else if (!statBuff)
+        {
+            target->CastSpell(target, SPELL_DH_MONSTER_RISING_AGILITY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_monster_rising::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1390,6 +1512,25 @@ class spell_dh_tactical_retreat : public SpellScript
     }
 };
 
+// 444931 - Unhindered Assault
+class spell_dh_unhindered_assault : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FELBLADE });
+    }
+
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_DH_FELBLADE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_unhindered_assault::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 198813 - Vengeful Retreat
 class spell_dh_vengeful_retreat_damage : public SpellScript
 {
@@ -1412,6 +1553,7 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
 
 void AddSC_demon_hunter_spell_scripts()
 {
+    RegisterSpellScript(spell_dh_army_unto_oneself);
     RegisterSpellScript(spell_dh_calcified_spikes);
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
     RegisterSpellScript(spell_dh_chaos_strike);
@@ -1428,6 +1570,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
+    RegisterSpellScript(spell_dh_feast_of_souls);
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
     RegisterSpellScript(spell_dh_felblade);
@@ -1435,15 +1578,18 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_fiery_brand);
     RegisterSpellScript(spell_dh_furious_gaze);
+    RegisterAreaTriggerAI(at_dh_glaive_tempest);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
     RegisterSpellScript(spell_dh_know_your_enemy);
     RegisterSpellScript(spell_dh_last_resort);
+    RegisterSpellScript(spell_dh_monster_rising);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_tactical_retreat);
+    RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);

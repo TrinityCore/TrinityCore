@@ -1538,6 +1538,9 @@ void Spell::EffectPersistentAA()
     for (size_t i = 0; i < m_spellInfo->GetEffects().size(); ++i)
         if (m_spellInfo->GetEffect(SpellEffIndex(i)).IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
             _dynObjAura->_ApplyEffectForTargets(i);
+
+    if (m_spellInfo->IsChanneled())
+        unitCaster->AddChannelObject(dynObj->GetGUID());
 }
 
 void Spell::EffectEnergize()
