@@ -23,8 +23,8 @@
 #include "SummonInfoArgs.h"
 
 SummonInfo::SummonInfo(Creature* summonedCreature, SummonInfoArgs const& args) :
-    _summonedCreature(ASSERT_NOTNULL(summonedCreature)), _despawnOnSummonerLogout(false), _despawnOnSummonerDeath(false), _despawnWhenExpired(false),
-    _summonerGUID(args.SummonerGUID), _remainingDuration(args.Duration), _maxHealth(args.MaxHealth), _summonSpellId(args.SummonSpellId)
+    _summonedCreature(ASSERT_NOTNULL(summonedCreature)), _summonerGUID(args.SummonerGUID), _remainingDuration(args.Duration), _maxHealth(args.MaxHealth), _summonSpellId(args.SummonSpellId),
+    _despawnOnSummonerLogout(false), _despawnOnSummonerDeath(false), _despawnWhenExpired(false)
 {
     if (args.SummonPropertiesId.has_value())
         InitializeSummonProperties(*args.SummonPropertiesId);
