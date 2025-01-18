@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GridNotifiers.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
@@ -30,7 +31,7 @@ enum LordKazzakSpells
     SPELL_VOID_BOLT                = 243713,
     SPELL_THUNDERCLAP              = 243715,
     SPELL_SHADOW_BOLT_VOLLEY       = 243712,
-    SPELL_FRENZY                   = 156598 
+    SPELL_FRENZY                   = 156598
 };
 
 enum LordKazzakTexts
@@ -52,6 +53,11 @@ enum LordKazzakEvents
 struct boss_lord_kazzak_anniversary : public WorldBossAI
 {
     using WorldBossAI::WorldBossAI;
+
+    void JustAppeared() override
+    {
+        Talk(SAY_FRENZY);
+    }
 
     void JustDied(Unit* killer) override
     {
@@ -119,7 +125,7 @@ struct boss_lord_kazzak_anniversary : public WorldBossAI
                 }
                 case EVENT_SHADOW_BOLT_VOLLEY:
                 {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_SHADOW_BOLT_VOLLEY);
                     events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 1min + 50s, 1min + 55s);
                     break;
@@ -181,7 +187,7 @@ class spell_lord_kazzak_mark_of_kazzak_periodic : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
         if (Unit* caster = GetCaster())
