@@ -196,19 +196,33 @@ class spell_evo_causality_pyre : public SpellScript
         return GetCaster()->HasAura(SPELL_EVOKER_CAUSALITY);
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/) const
+    void CountTargets(std::list<WorldObject*>& targets)
+    {
+        _targetsHit = targets.size();
+    }
+
+    void HandleCooldown()
     {
         if (AuraEffect* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_1))
         {
             for (uint32 spell : empoweredSpells)
-                GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount()));
+            {
+                if (_targetsHit > _targetsCap)
+                    _targetsHit = _targetsCap;
+
+                GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount() * _targetsHit));
+            }
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_evo_causality_pyre::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_causality_pyre::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        AfterCast += SpellCastFn(spell_evo_causality_pyre::HandleCooldown);
     }
+
+    size_t _targetsHit = 0;
+    uint8 _targetsCap = 5;
 };
 
 // 370455 - Charged Blast
