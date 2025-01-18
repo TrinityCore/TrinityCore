@@ -23,8 +23,6 @@
 #include "Optional.h"
 #include "ObjectGuid.h"
 
-struct SummonPropertiesEntry;
-
 // Controls the behavior of a summoned creature and must be set with extreme care. If you want a blank summon that just exists as a permanent spawn, leave all fields untouched.
 struct SummonInfoArgs
 {

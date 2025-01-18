@@ -39,8 +39,8 @@ public:
 
     explicit SummonInfo(Creature* summonedCreature, SummonInfoArgs const& args);
 
-    // Initializes the default settings with the provided SummonInfoArgs.
-    void InitializeSummonSettings(SummonInfoArgs const& args);
+    // Initializes additional settings based on the provided SummonProperties ID.
+    void InitializeSummonProperties(uint32 summonPropertiesId);
     // Returns the creature that is tied to this SummonInfo instance.
     Creature* GetSummonedCreature() const;
     // Returns the Unit summoner, or nullptr if no summoner has been provided or if the summoner is not a Unit.

@@ -116,7 +116,6 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
-#include "SummonInfoArgs.h"
 #include "StringConvert.h"
 #include "TalentGroupInfo.h"
 #include "TalentPackets.h"

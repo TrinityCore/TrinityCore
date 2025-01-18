@@ -80,7 +80,6 @@
 #include "SpellPackets.h"
 #include "StringConvert.h"
 #include "SummonInfo.h"
-#include "SummonInfoArgs.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"

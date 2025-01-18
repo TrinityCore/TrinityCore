@@ -23,25 +23,19 @@
 #include "SummonInfoArgs.h"
 
 SummonInfo::SummonInfo(Creature* summonedCreature, SummonInfoArgs const& args) :
-    _summonedCreature(ASSERT_NOTNULL(summonedCreature)), _despawnOnSummonerLogout(false), _despawnOnSummonerDeath(false), _despawnWhenExpired(false)
+    _summonedCreature(ASSERT_NOTNULL(summonedCreature)), _despawnOnSummonerLogout(false), _despawnOnSummonerDeath(false), _despawnWhenExpired(false),
+    _summonerGUID(args.SummonerGUID), _remainingDuration(args.Duration), _maxHealth(args.MaxHealth), _summonSpellId(args.SummonSpellId)
 {
-    InitializeSummonSettings(args);
+    if (args.SummonPropertiesId.has_value())
+        InitializeSummonProperties(*args.SummonPropertiesId);
 }
 
-void SummonInfo::InitializeSummonSettings(SummonInfoArgs const& args)
+void SummonInfo::InitializeSummonProperties(uint32 summonPropertiesId)
 {
-    _summonerGUID = args.SummonerGUID;
-    _maxHealth = args.MaxHealth;
-    _remainingDuration = args.Duration;
-    _summonSpellId = args.SummonSpellId;
-
-    if (!args.SummonPropertiesId.has_value())
-        return;
-
-    SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(*args.SummonPropertiesId);
+    SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(summonPropertiesId);
     if (!summonProperties)
     {
-        TC_LOG_ERROR("entities.unit", "Creature {} has been summoned with a non-existing SummonProperties.db2 entry (RecId: {}). Possible dirty DB2 data or missing hotfix entry.", _summonedCreature->GetGUID().ToString(), *args.SummonPropertiesId);
+        TC_LOG_ERROR("entities.unit", "Creature {} has been summoned with a non-existing SummonProperties.db2 entry (RecId: {}). Possible dirty DB2 data or missing hotfix entry.", _summonedCreature->GetGUID().ToString(), summonPropertiesId);
         return;
     }
 
