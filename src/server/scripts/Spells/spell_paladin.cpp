@@ -861,7 +861,7 @@ class spell_pal_justicars_vengeance : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void HandleDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod)
+    void HandleDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (victim->HasAuraType(SPELL_AURA_MOD_STUN))
             AddPct(pctMod, GetEffectInfo(EFFECT_1).CalcValue(GetCaster()));
