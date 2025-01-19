@@ -87,7 +87,6 @@ namespace DeephaulRavine
         static constexpr uint8 CartSpawn = 3;
         static constexpr uint8 Lost = 4;
         static constexpr uint8 Win = 5;
-
     }
 
     namespace Events
