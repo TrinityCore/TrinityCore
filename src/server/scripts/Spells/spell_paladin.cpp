@@ -853,6 +853,30 @@ class spell_pal_judgment : public SpellScript
     }
 };
 
+// 215661 - Justicar's Vengeance
+class spell_pal_justicars_vengeance : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit()->HasAuraType(SPELL_AURA_MOD_STUN))
+        {
+            uint32 damage = GetHitDamage();
+            AddPct(damage, GetEffectInfo(EFFECT_1).CalcValue());
+            SetHitDamage(damage);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_justicars_vengeance::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 114165 - Holy Prism
 class spell_pal_holy_prism : public SpellScript
 {
@@ -1581,6 +1605,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_infusion_of_light);
     RegisterSpellScript(spell_pal_moment_of_glory);
     RegisterSpellScript(spell_pal_judgment);
+    RegisterSpellScript(spell_pal_justicars_vengeance);
     RegisterSpellScript(spell_pal_holy_prism);
     RegisterSpellScript(spell_pal_holy_prism_selector);
     RegisterSpellScript(spell_pal_holy_shock);
