@@ -275,6 +275,10 @@ enum TriggerCastFlags : uint32
     TRIGGERED_DONT_RESET_PERIODIC_TIMER             = 0x00020000,   //!< Will allow periodic aura timers to keep ticking (instead of resetting)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //!< Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
     TRIGGERED_FULL_MASK                             = 0x0007FFFF,   //!< Used when doing CastSpell with triggered == true
+    TRIGGERED_IS_TRIGGERED_MASK                     = TRIGGERED_FULL_MASK
+                                                        & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS
+                                                            | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_IGNORE_SHAPESHIFT
+                                                            | TRIGGERED_DONT_REPORT_CAST_ERROR), //!< Will be recognized by Spell::IsTriggered as triggered
 
     // debug flags (used with .cast triggered commands)
     TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //!< Will ignore equipped item requirements
