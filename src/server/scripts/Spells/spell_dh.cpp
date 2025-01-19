@@ -971,7 +971,7 @@ struct at_dh_glaive_tempest : AreaTriggerAI
     {
         _scheduler.Schedule(0ms, [this](TaskContext task)
         {
-            FloatMilliseconds period = 500s; // 500ms, affected by haste
+            FloatMilliseconds period = 500ms; // 500ms, affected by haste
             if (Unit* caster = at->GetCaster())
             {
                 period *= *caster->m_unitData->ModHaste;
