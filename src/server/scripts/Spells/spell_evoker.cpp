@@ -51,10 +51,14 @@ enum EvokerSpells
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_SHAMAN  = 381756,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
+    SPELL_EVOKER_CAUSALITY                      = 375777,
+    SPELL_EVOKER_DISINTEGRATE                   = 356995,
     SPELL_EVOKER_EMERALD_BLOSSOM_HEAL           = 355916,
     SPELL_EVOKER_ENERGIZING_FLAME               = 400006,
     SPELL_EVOKER_ESSENCE_BURST                  = 359618,
     SPELL_EVOKER_FIRESTORM_DAMAGE               = 369374,
+    SPELL_EVOKER_ETERNITY_SURGE                 = 359073,
+    SPELL_EVOKER_FIRE_BREATH                    = 357208,
     SPELL_EVOKER_FIRE_BREATH_DAMAGE             = 357209,
     SPELL_EVOKER_GLIDE_KNOCKBACK                = 358736,
     SPELL_EVOKER_HOVER                          = 358267,
@@ -146,6 +150,66 @@ class spell_evo_blessing_of_the_bronze : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_blessing_of_the_bronze::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+    }
+};
+
+static constexpr std::array<uint32, 2> CausalityAffectedEmpowerSpells = { SPELL_EVOKER_ETERNITY_SURGE, SPELL_EVOKER_FIRE_BREATH };
+
+// Called by 356995 - Disintegrate (Blue)
+class spell_evo_causality_disintegrate : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_EVOKER_CAUSALITY, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_CAUSALITY);
+    }
+
+    void OnTick(AuraEffect const* /*aurEff*/) const
+    {
+        if (AuraEffect const* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_0))
+            for (uint32 spell : CausalityAffectedEmpowerSpells)
+                GetCaster()->GetSpellHistory()->ModifyCooldown(spell, Milliseconds(causality->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_evo_causality_disintegrate::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// Called by 357212 - Pyre (Red)
+class spell_evo_causality_pyre : public SpellScript
+{
+    static constexpr int64 TargetLimit = 5;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_EVOKER_CAUSALITY, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_CAUSALITY);
+    }
+
+    void HandleCooldown() const
+    {
+        AuraEffect const* causality = GetCaster()->GetAuraEffect(SPELL_EVOKER_CAUSALITY, EFFECT_1);
+        if (!causality)
+            return;
+
+        Milliseconds cooldownReduction = Milliseconds(std::min(GetUnitTargetCountForEffect(EFFECT_0), TargetLimit) * causality->GetAmount());
+        for (uint32 spell : CausalityAffectedEmpowerSpells)
+            GetCaster()->GetSpellHistory()->ModifyCooldown(spell, cooldownReduction);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_causality_pyre::HandleCooldown);
     }
 };
 
@@ -621,6 +685,8 @@ void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
+    RegisterSpellScript(spell_evo_causality_disintegrate);
+    RegisterSpellScript(spell_evo_causality_pyre);
     RegisterSpellScript(spell_evo_charged_blast);
     RegisterAreaTriggerAI(at_evo_emerald_blossom);
     RegisterSpellScript(spell_evo_emerald_blossom_heal);
