@@ -341,9 +341,9 @@ class spell_pal_blinding_light : public SpellScript
         return ValidateSpellInfo({ SPELL_PALADIN_BLINDING_LIGHT_EFFECT });
     }
 
-    void HandleOnHit()
+    void HandleOnHit() const
     {
-        Unit* caster = GetHitUnit();
+        Unit* caster = GetCaster();
         caster->CastSpell(caster, SPELL_PALADIN_BLINDING_LIGHT_EFFECT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
