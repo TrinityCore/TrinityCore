@@ -861,19 +861,15 @@ class spell_pal_justicars_vengeance : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod)
     {
-        if (GetHitUnit()->HasAuraType(SPELL_AURA_MOD_STUN))
-        {
-            uint32 damage = GetHitDamage();
-            AddPct(damage, GetEffectInfo(EFFECT_1).CalcValue());
-            SetHitDamage(damage);
-        }
+        if (victim->HasAuraType(SPELL_AURA_MOD_STUN))
+            AddPct(pctMod, GetEffectInfo(EFFECT_1).CalcValue(GetCaster()));
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pal_justicars_vengeance::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_pal_justicars_vengeance::HandleDamage);
     }
 };
 
