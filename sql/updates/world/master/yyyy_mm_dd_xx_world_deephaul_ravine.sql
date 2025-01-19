@@ -82,10 +82,10 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 (33926, 0, 0, 56311);
 
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=1 AND `Id` BETWEEN @ATPROPERTIESID+0 AND @ATPROPERTIESID+3);
-INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `SpellForVisuals`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATPROPERTIESID+0, 1, 21077, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 296582, 'at_bg_deephaul_ravine_buff', 56311),
-(@ATPROPERTIESID+1, 1, 21076, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 296579, 'at_bg_deephaul_ravine_buff', 56311),
-(@ATPROPERTIESID+2, 1, 33926, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 425662, 'at_bg_deephaul_ravine_buff', 56311);
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `SpellForVisuals`, `ScriptName`, `VerifiedBuild`) VALUES
+(@ATPROPERTIESID+0, 1, 21077, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 296582, 'at_bg_deephaul_ravine_buff', 56311),
+(@ATPROPERTIESID+1, 1, 21076, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 296579, 'at_bg_deephaul_ravine_buff', 56311),
+(@ATPROPERTIESID+2, 1, 33926, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 425662, 'at_bg_deephaul_ravine_buff', 56311);
 
 DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @ATSPAWNID+0 AND @ATSPAWNID+7 AND `IsCustom` = 1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
