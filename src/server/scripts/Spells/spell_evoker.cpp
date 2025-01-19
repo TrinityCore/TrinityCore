@@ -384,7 +384,7 @@ struct at_evo_firestorm : AreaTriggerAI
 
         _scheduler.Schedule(0ms, [this](TaskContext task)
         {
-            std::chrono::duration<float> period = 2s; // 2s, affected by haste
+            FloatMilliseconds period = 2s; // 2s, affected by haste
             if (Unit* caster = at->GetCaster())
             {
                 period *= *caster->m_unitData->ModCastingSpeed;
