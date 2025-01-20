@@ -36,7 +36,6 @@ class WorldObject;
 struct Condition;
 struct SpellChainNode;
 struct SpellModifier;
-struct SpellTargetPosition;
 enum WeaponAttackType : uint8;
 
 enum SpellTargetSelectionCategories
