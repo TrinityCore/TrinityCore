@@ -1173,21 +1173,16 @@ void SpellMgr::LoadSpellTargetPositions()
         uint32 spellId = fields[0].GetUInt32();
         SpellEffIndex effIndex = SpellEffIndex(fields[1].GetUInt8());
 
-        SpellTargetPosition st;
+        SpellTargetPosition st(fields[2].GetUInt16(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
 
-        st.target_mapId       = fields[2].GetUInt16();
-        st.target_X           = fields[3].GetFloat();
-        st.target_Y           = fields[4].GetFloat();
-        st.target_Z           = fields[5].GetFloat();
-
-        MapEntry const* mapEntry = sMapStore.LookupEntry(st.target_mapId);
+        MapEntry const* mapEntry = sMapStore.LookupEntry(st.GetMapId());
         if (!mapEntry)
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: {}, EffectIndex: {}) is using a non-existant MapID (ID: {}).", spellId, uint32(effIndex), st.target_mapId);
+            TC_LOG_ERROR("sql.sql", "Spell (Id: {}, EffectIndex: {}) is using a non-existant MapID (ID: {}).", spellId, uint32(effIndex), st.GetMapId());
             continue;
         }
 
-        if (st.target_X == 0 && st.target_Y == 0 && st.target_Z == 0)
+        if (st.GetPositionX() == 0 && st.GetPositionY() == 0 && st.GetPositionZ() == 0)
         {
             TC_LOG_ERROR("sql.sql", "Spell (Id: {}, EffectIndex: {}): target coordinates not provided.", spellId, uint32(effIndex));
             continue;
@@ -1207,14 +1202,14 @@ void SpellMgr::LoadSpellTargetPositions()
         }
 
         if (!fields[6].IsNull())
-            st.target_Orientation = fields[6].GetFloat();
+            st.SetOrientation(fields[6].GetFloat());
         else
         {
-            // target facing is in degrees for 6484 & 9268... (blizz sucks)
+            // target facing is in degrees for 6484 & 9268...
             if (spellInfo->GetEffect(effIndex).PositionFacing > 2 * float(M_PI))
-                st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing * float(M_PI) / 180;
+                st.SetOrientation(spellInfo->GetEffect(effIndex).PositionFacing * float(M_PI) / 180);
             else
-                st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing;
+                st.SetOrientation(spellInfo->GetEffect(effIndex).PositionFacing);
         }
 
         auto hasTarget = [&](Targets target)
