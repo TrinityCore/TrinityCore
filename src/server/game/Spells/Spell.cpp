@@ -1057,16 +1057,6 @@ void Spell::SelectImplicitChannelTargets(SpellEffectInfo const& spellEffectInfo,
                     TC_LOG_DEBUG("spells", "SPELL: cannot find channel spell destination for spell ID {}, effect {}", m_spellInfo->Id, uint32(spellEffectInfo.EffectIndex));
             }
             break;
-        case TARGET_DEST_CHANNEL_CASTER:
-        {
-            SpellDestination dest(*channeledSpell->GetCaster());
-            if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
-                dest._position.SetOrientation(spellEffectInfo.PositionFacing);
-
-            CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
-            m_targets.SetDst(dest);
-            break;
-        }
         default:
             ABORT_MSG("Spell::SelectImplicitChannelTargets: received not implemented target type");
             break;
@@ -1579,6 +1569,25 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                     if (WorldObject const* summoner = casterSummon->GetSummoner())
                         dest = SpellDestination(*summoner);
             break;
+        case TARGET_DEST_NEARBY_DB:
+        {
+            Optional<std::pair<float, float>> radiusBounds = spellEffectInfo.CalcRadiusBounds(m_caster, targetIndex, this);
+            std::vector<SpellTargetPosition const*> positionsInRange;
+            for (auto const& [_, position] : sSpellMgr->GetSpellTargetPositions(m_spellInfo->Id, spellEffectInfo.EffectIndex))
+                if (m_caster->GetMapId() == position.GetMapId() && (!radiusBounds || (!m_caster->IsInDist(position, radiusBounds->first) && m_caster->IsInDist(position, radiusBounds->second))))
+                    positionsInRange.push_back(&position);
+
+            if (positionsInRange.empty())
+            {
+                TC_LOG_DEBUG("spells", "SPELL: unknown target coordinates for spell ID {}", m_spellInfo->Id);
+                SendCastResult(SPELL_FAILED_NO_VALID_TARGETS);
+                finish(SPELL_FAILED_NO_VALID_TARGETS);
+                return;
+            }
+
+            dest = Trinity::Containers::SelectRandomContainerElement(positionsInRange)->GetPosition();
+            break;
+        }
         default:
         {
             float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
@@ -1599,7 +1608,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                 case TARGET_DEST_CASTER_FRONT_RIGHT:
                 case TARGET_DEST_CASTER_BACK_RIGHT:
                 {
-                    constexpr float DefaultTotemDistance = 3.0f;
+                    static constexpr float DefaultTotemDistance = 3.0f;
                     if (!spellEffectInfo.HasRadius(targetIndex))
                         dist = DefaultTotemDistance;
                     break;

@@ -355,6 +355,11 @@ SpellTargetPosition const* SpellMgr::GetSpellTargetPosition(uint32 spell_id, Spe
     return nullptr;
 }
 
+Trinity::IteratorPair<SpellTargetPositionMap::const_iterator> SpellMgr::GetSpellTargetPositions(uint32 spell_id, SpellEffIndex effIndex) const
+{
+    return Trinity::Containers::MapEqualRange(mSpellTargetPositions, { spell_id, effIndex });
+}
+
 SpellSpellGroupMapBounds SpellMgr::GetSpellSpellGroupMapBounds(uint32 spell_id) const
 {
     spell_id = GetFirstSpellInChain(spell_id);
@@ -1156,15 +1161,14 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                               0   1            2      3          4          5          6
-    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
+    //                                               0   1            2           3      4          5          6          7
+    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, OrderIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
         return;
     }
 
-    uint32 count = 0;
     do
     {
         Field* fields = result->Fetch();
@@ -1172,7 +1176,7 @@ void SpellMgr::LoadSpellTargetPositions()
         uint32 spellId = fields[0].GetUInt32();
         SpellEffIndex effIndex = SpellEffIndex(fields[1].GetUInt8());
 
-        SpellTargetPosition st(fields[2].GetUInt16(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
+        SpellTargetPosition st(fields[3].GetUInt16(), fields[4].GetFloat(), fields[5].GetFloat(), fields[6].GetFloat());
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(st.GetMapId());
         if (!mapEntry)
@@ -1200,61 +1204,62 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        if (!fields[6].IsNull())
-            st.SetOrientation(fields[6].GetFloat());
+        SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(effIndex);
+        if (!fields[7].IsNull())
+            st.SetOrientation(fields[7].GetFloat());
         else
         {
             // target facing is in degrees for 6484 & 9268...
-            if (spellInfo->GetEffect(effIndex).PositionFacing > 2 * float(M_PI))
-                st.SetOrientation(spellInfo->GetEffect(effIndex).PositionFacing * float(M_PI) / 180);
+            if (spellEffectInfo.PositionFacing > 2 * float(M_PI))
+                st.SetOrientation(spellEffectInfo.PositionFacing * float(M_PI) / 180);
             else
-                st.SetOrientation(spellInfo->GetEffect(effIndex).PositionFacing);
+                st.SetOrientation(spellEffectInfo.PositionFacing);
         }
 
         auto hasTarget = [&](Targets target)
         {
-            SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(effIndex);
             return spellEffectInfo.TargetA.GetTarget() == target || spellEffectInfo.TargetB.GetTarget() == target;
         };
 
-        if (hasTarget(TARGET_DEST_DB) || hasTarget(TARGET_DEST_NEARBY_ENTRY_OR_DB))
+        if (!hasTarget(TARGET_DEST_NEARBY_DB))
         {
-            std::pair<uint32, SpellEffIndex> key = std::make_pair(spellId, effIndex);
-            mSpellTargetPositions[key] = st;
-            ++count;
+            if (!hasTarget(TARGET_DEST_DB) && !hasTarget(TARGET_DEST_NEARBY_ENTRY_OR_DB))
+            {
+                TC_LOG_ERROR("sql.sql", "Spell (Id: {}, effIndex: {}) listed in `spell_target_position` does not have a target TARGET_DEST_DB ({}) or TARGET_DEST_NEARBY_DB ({}) or TARGET_DEST_NEARBY_ENTRY_OR_DB ({}).",
+                    spellId, uint32(effIndex), TARGET_DEST_DB, TARGET_DEST_NEARBY_DB, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+                continue;
+            }
+            if (fields[2].GetInt32() != 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Spell (Id: {}, effIndex: {}) listed in `spell_target_position` does not have a target TARGET_DEST_NEARBY_DB ({}) but lists multiple points, only one is allowed.",
+                    spellId, uint32(effIndex), TARGET_DEST_NEARBY_DB);
+                continue;
+            }
         }
-        else
-        {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: {}, effIndex: {}) listed in `spell_target_position` does not have a target TARGET_DEST_DB (17).", spellId, uint32(effIndex));
-            continue;
-        }
+
+        mSpellTargetPositions.emplace(std::make_pair(spellId, effIndex), st);
 
     } while (result->NextRow());
 
     /*
     // Check all spells
-    for (uint32 i = 1; i < GetSpellInfoStoreSize(); ++i)
+    for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
-        SpellInfo const* spellInfo = GetSpellInfo(i);
-        if (!spellInfo)
+        if (spellInfo.Difficulty != DIFFICULTY_NONE)
             continue;
 
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (SpellEffectInfo const& effect : spellInfo.GetEffects())
         {
-            SpellEffectInfo const* effect = spellInfo->GetEffect(j);
-            if (!effect)
+            if (effect.TargetA.GetTarget() != TARGET_DEST_DB && effect.TargetB.GetTarget() != TARGET_DEST_DB)
                 continue;
 
-            if (effect->TargetA.GetTarget() != TARGET_DEST_DB && effect->TargetB.GetTarget() != TARGET_DEST_DB)
-                continue;
-
-            if (!GetSpellTargetPosition(i, SpellEffIndex(j)))
-                TC_LOG_DEBUG("spells", "Spell (Id: {}, EffectIndex: {}) does not have record in `spell_target_position`.", i, j);
+            if (!GetSpellTargetPosition(spellInfo.Id, effect.EffectIndex))
+                TC_LOG_DEBUG("spells", "Spell (Id: {}, EffectIndex: {}) does not have record in `spell_target_position`.", spellInfo.Id, effect.EffectIndex);
         }
     }
     */
 
-    TC_LOG_INFO("server.loading", ">> Loaded {} spell teleport coordinates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} spell teleport coordinates in {} ms", mSpellTargetPositions.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellGroups()

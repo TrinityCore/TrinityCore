@@ -409,7 +409,7 @@ typedef std::unordered_map<uint32, SpellThreatEntry> SpellThreatMap;
 // coordinates for spells (accessed using SpellMgr functions)
 using SpellTargetPosition = WorldLocation;
 
-typedef std::map<std::pair<uint32 /*spell_id*/, SpellEffIndex /*effIndex*/>, SpellTargetPosition> SpellTargetPositionMap;
+typedef std::multimap<std::pair<uint32 /*spell_id*/, SpellEffIndex /*effIndex*/>, SpellTargetPosition> SpellTargetPositionMap;
 
 // Enum with EffectRadiusIndex and their actual radius
 enum EffectRadiusIndex
@@ -729,6 +729,7 @@ class TC_GAME_API SpellMgr
 
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const;
+        Trinity::IteratorPair<SpellTargetPositionMap::const_iterator> GetSpellTargetPositions(uint32 spell_id, SpellEffIndex effIndex) const;
 
         // Spell Groups table
         SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const;
