@@ -20,8 +20,31 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "Hash.h"
 #include <unordered_map>
 #include <vector>
+
+namespace Trinity::DB
+{
+struct FieldLookupByAliasKey
+{
+    std::size_t HashValue;      ///< Cached hash value (first field to make opeartor== return early, minimizing number of string comparisons)
+    std::string_view Alias;
+
+    // implicit constructor from string literal for users of the query result
+    consteval FieldLookupByAliasKey(char const* alias) : HashValue(HashFnv1a(alias)), Alias(alias) { }
+
+    // runtime only constructor used internally to fill alias to index mapping
+    struct RuntimeInitTag { } static inline constexpr RuntimeInit = { };
+    FieldLookupByAliasKey(RuntimeInitTag, std::string_view alias) : HashValue(HashFnv1a(alias)), Alias(std::move(alias)) { }
+
+    friend bool operator==(FieldLookupByAliasKey const& left, FieldLookupByAliasKey const& right) = default;
+
+    struct Hash { constexpr std::size_t operator()(FieldLookupByAliasKey const& k) const { return k.HashValue; } };
+};
+
+using FieldAliasToIndexMap = std::unordered_map<FieldLookupByAliasKey, std::size_t, FieldLookupByAliasKey::Hash>;
+}
 
 class TC_DATABASE_API ResultSet
 {
@@ -35,13 +58,13 @@ class TC_DATABASE_API ResultSet
 
         Field* Fetch() const { return _currentRow; }
         Field const& operator[](std::size_t index) const;
-        Field const& operator[](std::string_view const& alias) const;
+        Field const& operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const;
 
         QueryResultFieldMetadata const& GetFieldMetadata(std::size_t index) const;
 
     protected:
         std::vector<QueryResultFieldMetadata> _fieldMetadata;
-        std::unordered_map<std::string_view, std::size_t> _fieldIndexByAlias;
+        Trinity::DB::FieldAliasToIndexMap _fieldIndexByAlias;
         uint64 _rowCount;
         Field* _currentRow;
         uint32 _fieldCount;
@@ -67,13 +90,13 @@ class TC_DATABASE_API PreparedResultSet
 
         Field* Fetch() const;
         Field const& operator[](std::size_t index) const;
-        Field const& operator[](std::string_view const& alias) const;
+        Field const& operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const;
 
         QueryResultFieldMetadata const& GetFieldMetadata(std::size_t index) const;
 
     protected:
         std::vector<QueryResultFieldMetadata> m_fieldMetadata;
-        std::unordered_map<std::string_view, std::size_t> m_fieldIndexByAlias;
+        Trinity::DB::FieldAliasToIndexMap m_fieldIndexByAlias;
         std::vector<Field> m_rows;
         uint64 m_rowCount;
         uint64 m_rowPosition;
