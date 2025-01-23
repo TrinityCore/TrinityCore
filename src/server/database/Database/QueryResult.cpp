@@ -405,7 +405,7 @@ _fields(fields)
     for (uint32 i = 0; i < _fieldCount; i++)
     {
         InitializeDatabaseFieldMetadata(&_fieldMetadata[i], &_fields[i], i, false);
-        bool success = _fieldIndexByAlias.try_emplace(_fieldMetadata[i].Alias, i).second;
+        bool success = _fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, _fieldMetadata[i].Alias }, i).second;
         ASSERT(success);
         _currentRow[i].SetMetadata(&_fieldMetadata[i]);
     }
@@ -463,7 +463,7 @@ m_metadataResult(result)
         rowSize += size;
 
         InitializeDatabaseFieldMetadata(&m_fieldMetadata[i], &field[i], i, true);
-        bool success = m_fieldIndexByAlias.try_emplace(m_fieldMetadata[i].Alias, i).second;
+        bool success = m_fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, m_fieldMetadata[i].Alias }, i).second;
         ASSERT(success);
 
         m_rBind[i].buffer_type = field[i].type;
@@ -637,7 +637,7 @@ Field const& ResultSet::operator[](std::size_t index) const
     return _currentRow[index];
 }
 
-Field const& ResultSet::operator[](std::string_view const& alias) const
+Field const& ResultSet::operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const
 {
     auto itr = _fieldIndexByAlias.find(alias);
     ASSERT(itr != _fieldIndexByAlias.end());
@@ -663,7 +663,7 @@ Field const& PreparedResultSet::operator[](std::size_t index) const
     return m_rows[std::size_t(m_rowPosition) * m_fieldCount + index];
 }
 
-Field const& PreparedResultSet::operator[](std::string_view const& alias) const
+Field const& PreparedResultSet::operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const
 {
     ASSERT(m_rowPosition < m_rowCount);
     auto itr = m_fieldIndexByAlias.find(alias);
