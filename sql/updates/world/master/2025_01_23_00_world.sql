@@ -1,5 +1,5 @@
 DELIMITER ;;
-CREATE PROCEDURE serverside_spell_2025_99_99_99() BEGIN
+CREATE PROCEDURE serverside_spell_2025_01_23_00() BEGIN
     IF NOT EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='serverside_spell' AND `column_name`='AttributesEx15') THEN
 
     ALTER TABLE `serverside_spell` 
@@ -9,6 +9,6 @@ CREATE PROCEDURE serverside_spell_2025_99_99_99() BEGIN
 END;;
 
 DELIMITER ;
-CALL serverside_spell_2025_99_99_99();
+CALL serverside_spell_2025_01_23_00();
 
-DROP PROCEDURE IF EXISTS serverside_spell_2025_99_99_99;
+DROP PROCEDURE IF EXISTS serverside_spell_2025_01_23_00;
