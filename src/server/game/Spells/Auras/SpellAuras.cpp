@@ -224,7 +224,7 @@ void AuraApplication::AddEffectToApplyEffectMask(SpellEffIndex spellEffectIndex)
 
 void AuraApplication::SetNeedClientUpdate()
 {
-    if (_needClientUpdate || GetRemoveMode() != AURA_REMOVE_NONE)
+    if (_needClientUpdate || GetSlot() >= MAX_AURAS || GetRemoveMode() != AURA_REMOVE_NONE)
         return;
 
     _needClientUpdate = true;
