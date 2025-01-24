@@ -1,4 +1,4 @@
-DELETE FROM `spell_script_names` WHERE `spell_id`=114698 AND `ScriptName`='spell_summon_amberleaf_troublemaker';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_summon_amberleaf_troublemaker';
 
 DELETE FROM `spell_target_position` WHERE `ID` IN (274343, 114698, 102207);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `OrderIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
