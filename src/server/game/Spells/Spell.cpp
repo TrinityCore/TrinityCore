@@ -3024,7 +3024,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                 if (effMask)
                     _spellHitTarget->_ApplyAura(aurApp, effMask);
 
-                if (aurApp->GetSlot() < MAX_AURAS && aurApp->IsNeedClientUpdate() && aurApp->GetRemoveMode() == AURA_REMOVE_NONE)
+                if (aurApp->IsNeedClientUpdate() && aurApp->GetRemoveMode() == AURA_REMOVE_NONE)
                 {
                     aurApp->ClientUpdate(false);
                     _spellHitTarget->RemoveVisibleAuraUpdate(aurApp);
