@@ -2547,6 +2547,10 @@ void SpellInfo::_LoadAuraState()
 {
     _auraState = [this]()->AuraStateType
     {
+        // Seals
+        if (GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
+            return AURA_STATE_MARKED;
+
         // Faerie Fire (Feral)
         if (GetCategory() == 1133)
             return AURA_STATE_FAERIE_FIRE;
