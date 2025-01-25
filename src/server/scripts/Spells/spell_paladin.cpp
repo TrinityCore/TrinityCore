@@ -22,7 +22,56 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellDefines.h"
+#include "SpellScript.h"
+#include "Unit.h"
+
+namespace Scripts::Spells::Paladin
+{
+    enum PaladinSpells
+    {
+        SPELL_PAL_SEAL_OF_RIGHTEOUSNESS_DAMAGE = 25742
+    };
+
+    // 20154 - Seal of Righteousness
+    class spell_pal_seal_of_righteousness : public AuraScript
+    {
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PAL_SEAL_OF_RIGHTEOUSNESS_DAMAGE });
+        }
+
+        bool CheckMeleeProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            if (!eventInfo.GetActionTarget() || !eventInfo.GetDamageInfo())
+                return false;
+
+            Unit* caster = eventInfo.GetActor();
+            WeaponAttackType attType = eventInfo.GetDamageInfo()->GetAttackType();
+
+            // Damage formula according to tooltip: ${$MWS*(0.011*$AP+0.022*$SPH)
+            _procBasePoints = static_cast<float>(caster->GetBaseAttackTime(attType)) / 1000.0f * (0.011f * caster->GetTotalAttackPowerValue(attType) + 0.022f * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY, true));
+
+            return _procBasePoints > 0;
+        }
+
+        void HandleMeleeProc(AuraEffect* aurEff, ProcEventInfo& eventInfo) const
+        {
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PAL_SEAL_OF_RIGHTEOUSNESS_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(_procBasePoints));
+        }
+
+        void Register() override
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_seal_of_righteousness::CheckMeleeProc, EFFECT_0, SPELL_AURA_DUMMY);
+            AfterEffectProc += AuraEffectProcFn(spell_pal_seal_of_righteousness::HandleMeleeProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    private:
+        int32 _procBasePoints = 0;
+    };
+}
 
 void AddSC_paladin_spell_scripts()
 {
+    using namespace Scripts::Spells::Paladin;
+    RegisterSpellScript(spell_pal_seal_of_righteousness);
 }
