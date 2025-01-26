@@ -68,6 +68,7 @@ enum MageSpells
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
+    SPELL_MAGE_HYPOTHERMIA                       = 41425,
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
@@ -924,23 +925,17 @@ class spell_mage_ice_block : public SpellScript
         return ValidateSpellInfo({ SPELL_MAGE_EVERWARM_SOCKS });
     }
 
-    void PreventStunWithEverwarmSocks(WorldObject*& target)
+    void HandleAfterHit()
     {
-        if (GetCaster()->HasAura(SPELL_MAGE_EVERWARM_SOCKS))
-            target = nullptr;
-    }
-
-    void PreventEverwarmSocks(WorldObject*& target)
-    {
-        if (!GetCaster()->HasAura(SPELL_MAGE_EVERWARM_SOCKS))
-            target = nullptr;
+        if (Unit* target = GetHitUnit())
+        {
+            target->CastSpell(target, 41425, true); // Cast Hypothermia
+        }
     }
 
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_mage_ice_block::PreventStunWithEverwarmSocks, EFFECT_0, TARGET_UNIT_CASTER);
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_mage_ice_block::PreventEverwarmSocks, EFFECT_5, TARGET_UNIT_CASTER);
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_mage_ice_block::PreventEverwarmSocks, EFFECT_6, TARGET_UNIT_CASTER);
+        AfterHit += SpellHitFn(spell_mage_ice_block::HandleAfterHit);
     }
 };
 
