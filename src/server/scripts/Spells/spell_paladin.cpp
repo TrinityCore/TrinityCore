@@ -53,7 +53,7 @@ namespace Scripts::Spells::Paladin
             WeaponAttackType attType = eventInfo.GetDamageInfo()->GetAttackType();
 
             // Damage formula according to tooltip: ${$MWS*(0.011*$AP+0.022*$SPH)
-            _procBasePoints = static_cast<float>(caster->GetBaseAttackTime(attType)) / 1000.0f * (0.011f * caster->GetTotalAttackPowerValue(attType) + 0.022f * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY, true));
+            _procBasePoints = std::round(static_cast<float>(caster->GetBaseAttackTime(attType)) / 1000.0f * (0.011f * caster->GetTotalAttackPowerValue(attType) + 0.022f * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY, true)));
 
             return _procBasePoints > 0;
         }
@@ -148,7 +148,7 @@ namespace Scripts::Spells::Paladin
             WeaponAttackType attType = eventInfo.GetDamageInfo()->GetAttackType();
 
             // Damage formula according to tooltip: ${$MWS*(0.005*$AP+0.01*$SPH)
-            _procBasePoints = static_cast<float>(caster->GetBaseAttackTime(attType)) / 1000.0f * (0.005f * caster->GetTotalAttackPowerValue(attType) + 0.01f * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY, true));
+            _procBasePoints = std::round(static_cast<float>(caster->GetBaseAttackTime(attType)) / 1000.0f * (0.005f * caster->GetTotalAttackPowerValue(attType) + 0.01f * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY, true)));
 
             return _procBasePoints > 0;
         }
