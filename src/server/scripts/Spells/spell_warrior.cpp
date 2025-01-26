@@ -94,7 +94,7 @@ class spell_warr_bloodthirst : public SpellScript
 
     void HandleHit()
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, TRIGGERED_FULL_MASK);
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, true);
     }
 
     void Register() override
