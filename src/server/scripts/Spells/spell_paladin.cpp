@@ -22,7 +22,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
 #include "SpellDefines.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Unit.h"
 
@@ -30,7 +32,8 @@ namespace Scripts::Spells::Paladin
 {
     enum PaladinSpells
     {
-        SPELL_PAL_SEAL_OF_RIGHTEOUSNESS_DAMAGE = 25742
+        SPELL_PAL_SEAL_OF_RIGHTEOUSNESS_DAMAGE  = 25742,
+        SPELL_PAL_JUDGEMENT_DAMAGE              = 54158
     };
 
     // 20154 - Seal of Righteousness
@@ -68,10 +71,67 @@ namespace Scripts::Spells::Paladin
     private:
         int32 _procBasePoints = 0;
     };
+
+    // 20271 - Judgement
+    class spell_pal_judgement : public SpellScript
+    {
+        bool Validate(SpellInfo const* /*spellInfo*/)
+        {
+            return ValidateSpellInfo({ SPELL_PAL_JUDGEMENT_DAMAGE });
+        }
+
+        void HandleJudgementEffect(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), getJudgementDamageSpellId(GetCaster()), CastSpellExtraArgsInit{ .TriggeringSpell = GetSpell()});
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pal_judgement::HandleJudgementEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+
+    private:
+        // Some of the Seals store their triggered Judgement spell within a dummy aura effect. We will identify them with this method
+        uint32 getJudgementDamageSpellId(Unit* caster)
+        {
+            // Some of the Seals store their triggered Judgement spell within their dummy aura effects at EffIndex EFFECT_2. Try to find them.
+            for (AuraEffect const* aurEff : caster->GetAuraEffectsByType(SPELL_AURA_DUMMY))
+            {
+                if (aurEff->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_PALADIN || aurEff->GetSpellInfo()->GetSpellSpecific() != SPELL_SPECIFIC_SEAL)
+                    continue;
+
+                // Seal of Righteousness and Seal of Truth store their Judgement damage spell in EFFECT_2
+                if (aurEff->GetEffIndex() != EFFECT_2 || !aurEff->GetSpellInfo()->SpellFamilyFlags.HasFlag(0, 0x800 | 0x20000000))
+                    continue;
+
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(aurEff->GetAmount(), DIFFICULTY_NONE))
+                    return spellInfo->Id;
+            }
+
+            // For the other seals, we just fall back to the default damage spell
+            return SPELL_PAL_JUDGEMENT_DAMAGE;
+        }
+    };
+
+    // 20187 - Judgement of Righteousness
+    class spell_pal_judgement_of_righteousness : public SpellScript
+    {
+        void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+        {
+            damage += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f;
+        }
+
+        void Register() override
+        {
+            CalcDamage += SpellCalcDamageFn(spell_pal_judgement_of_righteousness::CalculateDamage);
+        }
+    };
 }
 
 void AddSC_paladin_spell_scripts()
 {
     using namespace Scripts::Spells::Paladin;
+    RegisterSpellScript(spell_pal_judgement);
+    RegisterSpellScript(spell_pal_judgement_of_righteousness);
     RegisterSpellScript(spell_pal_seal_of_righteousness);
 }
