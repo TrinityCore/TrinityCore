@@ -208,6 +208,22 @@ namespace Scripts::Spells::Paladin
             AfterEffectProc += AuraEffectProcFn(spell_pal_seal_of_truth::HandleMeleeProc, EFFECT_0, SPELL_AURA_DUMMY);
         }
     };
+
+    // 31804 - Judgement of Truth
+    class spell_pal_judgement_of_truth : public SpellScript
+    {
+        void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/)
+        {
+            // Censure increases the damage of Judgement of Truth by 20% per stack
+            if (AuraEffect const* censureEffect = victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PALADIN, flag128(0x20000000), GetCaster()->GetGUID()))
+                AddPct(flatMod, 20.f * censureEffect->GetBase()->GetStackAmount());
+        }
+
+        void Register() override
+        {
+            CalcDamage += SpellCalcDamageFn(spell_pal_judgement_of_truth::CalculateDamage);
+        }
+    };
 }
 
 void AddSC_paladin_spell_scripts()
@@ -215,6 +231,7 @@ void AddSC_paladin_spell_scripts()
     using namespace Scripts::Spells::Paladin;
     RegisterSpellScript(spell_pal_judgement);
     RegisterSpellScript(spell_pal_judgement_of_righteousness);
+    RegisterSpellScript(spell_pal_judgement_of_truth);
     RegisterSpellScript(spell_pal_seal_of_justice);
     RegisterSpellScript(spell_pal_seal_of_righteousness);
     RegisterSpellScript(spell_pal_seal_of_truth);
