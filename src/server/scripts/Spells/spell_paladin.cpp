@@ -75,7 +75,7 @@ namespace Scripts::Spells::Paladin
     // 20271 - Judgement
     class spell_pal_judgement : public SpellScript
     {
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_PAL_JUDGEMENT_DAMAGE });
         }
@@ -126,6 +126,47 @@ namespace Scripts::Spells::Paladin
             CalcDamage += SpellCalcDamageFn(spell_pal_judgement_of_righteousness::CalculateDamage);
         }
     };
+
+    // 20164  - Seal of Justice
+    class spell_pal_seal_of_justice: public AuraScript
+    {
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        }
+
+        bool CheckMeleeProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            if (!eventInfo.GetActionTarget() || !eventInfo.GetDamageInfo())
+                return false;
+
+            // Only single target spells are allowed to trigger the proc
+            if (eventInfo.GetSpellInfo() && (eventInfo.GetSpellInfo()->IsAffectingArea() || eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT)))
+                return false;
+
+            Unit* caster = eventInfo.GetActor();
+            WeaponAttackType attType = eventInfo.GetDamageInfo()->GetAttackType();
+
+            // Damage formula according to tooltip: ${$MWS*(0.005*$AP+0.01*$SPH)
+            _procBasePoints = static_cast<float>(caster->GetBaseAttackTime(attType)) / 1000.0f * (0.005f * caster->GetTotalAttackPowerValue(attType) + 0.01f * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY, true));
+
+            return _procBasePoints > 0;
+        }
+
+        void HandleMeleeProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), GetEffectInfo(aurEff->GetEffIndex()).TriggerSpell, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT1, _procBasePoints));
+        }
+
+        void Register() override
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_seal_of_justice::CheckMeleeProc, EFFECT_0, SPELL_AURA_DUMMY);
+            OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_justice::HandleMeleeProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    private:
+        int32 _procBasePoints = 0;
+    };
 }
 
 void AddSC_paladin_spell_scripts()
@@ -133,5 +174,6 @@ void AddSC_paladin_spell_scripts()
     using namespace Scripts::Spells::Paladin;
     RegisterSpellScript(spell_pal_judgement);
     RegisterSpellScript(spell_pal_judgement_of_righteousness);
+    RegisterSpellScript(spell_pal_seal_of_justice);
     RegisterSpellScript(spell_pal_seal_of_righteousness);
 }
