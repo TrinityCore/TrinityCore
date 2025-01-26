@@ -272,33 +272,22 @@ class spell_rezan_boss_emote_at_target : public SpellScript
 // 257483 - Pile of Bones
 class spell_rezan_pile_of_bones_slow : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude) const
     {
-        return ValidateSpellInfo({ SPELL_PILE_OF_BONES_SLOW });
+        isPeriodic = true;
+        amplitude = GetDuration();
     }
 
-    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void OnUpdate(AuraEffect* /*aurEff*/)
     {
-        Unit* target = GetTarget();
-        if (GetStackAmount() == 3)
-        {
-            CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-            args.AddSpellMod(SPELLVALUE_AURA_STACK, 2);
-            args.SetTriggeringAura(aurEff);
-            target->CastSpell(target, SPELL_PILE_OF_BONES_SLOW, args);
-        }
-        else if (GetStackAmount() == 2)
-        {
-            target->CastSpell(target, SPELL_PILE_OF_BONES_SLOW, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringAura = aurEff
-            });
-        }
+        if (!ModStackAmount(-1))
+            RefreshDuration();
     }
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectApplyFn(spell_rezan_pile_of_bones_slow::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_rezan_pile_of_bones_slow::CalcPeriodic, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_rezan_pile_of_bones_slow::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
     }
 };
 
