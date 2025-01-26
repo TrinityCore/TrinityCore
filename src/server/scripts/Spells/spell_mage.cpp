@@ -929,7 +929,7 @@ class spell_mage_ice_block : public SpellScript
     {
         if (Unit* target = GetHitUnit())
         {
-            target->CastSpell(target, 41425, true); // Cast Hypothermia
+            target->CastSpell(target,SPELL_MAGE_HYPOTHERMIA, true);
         }
     }
 
