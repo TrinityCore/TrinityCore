@@ -113,7 +113,6 @@ struct boss_rezan : public BossAI
     {
         for (Position const& spawnPoint : PilesOfBonesPosition)
         {
-
             me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SPAWN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         }
@@ -289,10 +288,12 @@ class spell_rezan_pile_of_bones_slow : public AuraScript
             target->CastSpell(target, SPELL_PILE_OF_BONES_SLOW, args);
         }
         else if (GetStackAmount() == 2)
+        {
             target->CastSpell(target, SPELL_PILE_OF_BONES_SLOW, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
             });
+        }
     }
 
     void Register() override
@@ -304,7 +305,7 @@ class spell_rezan_pile_of_bones_slow : public AuraScript
 // 255371 - Terrifying Visage
 class spell_rezan_terrifying_visage : public SpellScript
 {
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         targets.remove_if([this](WorldObject* target) -> bool
         {
@@ -323,7 +324,7 @@ struct at_rezan_pile_of_bones_spawn_raptor : AreaTriggerAI
 {
     at_rezan_pile_of_bones_spawn_raptor(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    void OnUnitEnter(Unit* unit)
+    void OnUnitEnter(Unit* unit) override
     {
         InstanceScript* instance = at->GetInstanceScript();
         if (!instance)
@@ -351,7 +352,7 @@ struct at_rezan_pile_of_bones_slow : AreaTriggerAI
 {
     at_rezan_pile_of_bones_slow(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    void OnUnitEnter(Unit* unit)
+    void OnUnitEnter(Unit* unit) override
     {
         InstanceScript* instance = at->GetInstanceScript();
         if (!instance)
