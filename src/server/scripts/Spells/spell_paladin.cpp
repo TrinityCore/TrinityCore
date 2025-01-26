@@ -32,8 +32,10 @@ namespace Scripts::Spells::Paladin
 {
     enum PaladinSpells
     {
+        SPELL_PAL_CENSURE                       = 31803,
+        SPELL_PAL_JUDGEMENT_DAMAGE              = 54158,
         SPELL_PAL_SEAL_OF_RIGHTEOUSNESS_DAMAGE  = 25742,
-        SPELL_PAL_JUDGEMENT_DAMAGE              = 54158
+        SPELL_PAL_SEAL_OF_TRUTH_DAMAGE          = 42463
     };
 
     // 20154 - Seal of Righteousness
@@ -167,6 +169,45 @@ namespace Scripts::Spells::Paladin
     private:
         int32 _procBasePoints = 0;
     };
+
+    // 31801 - Seal of Truth
+    class spell_pal_seal_of_truth: public AuraScript
+    {
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PAL_CENSURE, SPELL_PAL_SEAL_OF_TRUTH_DAMAGE });
+        }
+
+        bool CheckMeleeProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            if (!eventInfo.GetActionTarget())
+                return false;
+
+            // Only single target spells are allowed to trigger the proc
+            if (eventInfo.GetSpellInfo() && (eventInfo.GetSpellInfo()->IsAffectingArea() || eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT)))
+                return false;
+
+            return true;
+        }
+
+        void HandleMeleeProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+        {
+            Unit* caster = eventInfo.GetActor();
+
+            // When Censure has reached its max stack amount, trigger an additional spell which will deal extra weapon damage
+            if (AuraEffect const* censureEffect = eventInfo.GetActionTarget()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PALADIN, flag128(0x20000000), caster->GetGUID()))
+                if (censureEffect->GetBase()->GetStackAmount() >= censureEffect->GetBase()->CalcMaxStackAmount())
+                    caster->CastSpell(eventInfo.GetActionTarget(), SPELL_PAL_SEAL_OF_TRUTH_DAMAGE, aurEff);
+
+            caster->CastSpell(eventInfo.GetActionTarget(), SPELL_PAL_CENSURE, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_seal_of_truth::CheckMeleeProc, EFFECT_0, SPELL_AURA_DUMMY);
+            AfterEffectProc += AuraEffectProcFn(spell_pal_seal_of_truth::HandleMeleeProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
 }
 
 void AddSC_paladin_spell_scripts()
@@ -176,4 +217,5 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_judgement_of_righteousness);
     RegisterSpellScript(spell_pal_seal_of_justice);
     RegisterSpellScript(spell_pal_seal_of_righteousness);
+    RegisterSpellScript(spell_pal_seal_of_truth);
 }
