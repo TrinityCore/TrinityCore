@@ -4,7 +4,7 @@ UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalin
 
 UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x800, `unit_flags3`=0x41080001, `AIName`='SmartAI' WHERE `entry`=223237; -- Volatile Spike Stalker
 UPDATE `creature_template` SET `ScriptName`='boss_edna' WHERE `entry`=210108; -- 210108 (E.D.N.A.)
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=224516; -- 224516 (Skardyn Invader)
+UPDATE `creature_template` SET `ScriptName`='npc_skardyn_invader' WHERE `entry`=224516; -- 224516 (Skardyn Invader)
 UPDATE `creature_template` SET `StringId`='edna_intro_trash' WHERE `entry`=210109; -- 210109 (Earth Infused Golem)
 
 DELETE FROM `creature_template_addon` WHERE `entry`=210108;
@@ -46,7 +46,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (223237, 0, 1, 2, '', 8, 0, 100, 0, 448207, 0, 0, 0, 0, '', 85, 424913, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Spike Stalker - On Spellhit \'Refracting Beam\' - Cast Self: Volatile Explosion'),
 (223237, 0, 2, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Spike Stalker - On Spellhit \'Refracting Beam\' - Despawn'),
 (223237, 0, 3, 4, '', 8, 0, 100, 0, 448220, 0, 0, 0, 0, '', 85, 424913, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Spike Stalker - On Spellhit \'Earth Shatterer\' - Cast Self: Volatile Explosion'),
-(223237, 0, 4, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Spike Stalker - On Spellhit \'Refracting Beam\' - Despawn');
+(223237, 0, 4, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Spike Stalker - On Spellhit \'Earth Shatterer\' - Despawn');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` = 424805;
