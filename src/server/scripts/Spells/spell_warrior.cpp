@@ -75,6 +75,8 @@ enum WarriorSpells
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
+    SPELL_WARRIOR_THUNDER_CLAP                      = 6343,
+    SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
 };
 
 enum WarriorMisc
@@ -90,14 +92,16 @@ class spell_warr_bloodthirst : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_BLOODTHIRST_HEAL });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleHit()
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, true);
+        Unit* caster = GetCaster();
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, args);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warr_bloodthirst::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+        AfterHit += SpellHitFn(spell_warr_bloodthirst::HandleHit);
     }
 };
 
@@ -580,7 +584,7 @@ class spell_warr_shockwave : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN })
+        return ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
@@ -818,6 +822,26 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
+// 6343 - Thunder Clap
+class spell_warr_thunder_clap : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_THUNDER_CLAP_SLOW });
+    }
+
+    void HandleAfterHit()
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_WARRIOR_THUNDER_CLAP_SLOW, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_warr_thunder_clap::HandleAfterHit);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_bloodthirst);
@@ -847,4 +871,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_thunder_clap);
 }
