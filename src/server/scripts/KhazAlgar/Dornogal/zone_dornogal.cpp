@@ -25,7 +25,7 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
-enum TheExpeditionWaitsData
+enum TheExpeditionAwaitsData
 {
     NPC_CHIEF_OFFICER_HAMMERFLANGE  = 236055,
     NPC_GREASMONKEY_SURVEYOR        = 234986,
