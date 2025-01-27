@@ -27362,7 +27362,7 @@ void Player::ResetTalentSpecialization()
 
     ResetPvpTalents();
 
-    RemoveSpecializationSpells();
+    RemoveAllSpecializationsSpells();
 
     ChrSpecializationEntry const* defaultSpec = ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()));
     SetPrimarySpecialization(defaultSpec->ID);
@@ -28512,7 +28512,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
     ApplyTraitConfig(m_activePlayerData->ActiveCombatTraitConfigID, false);
 
     // Remove spec specific spells
-    RemoveSpecializationSpells();
+    RemovePrimarySpecializationSpells();
 
     for (uint32 glyphId : GetGlyphs(GetActiveTalentGroup()))
         RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphId)->SpellID);
@@ -30318,7 +30318,7 @@ void Player::LearnSpecializationSpells()
     }
 }
 
-void Player::RemoveSpecializationSpells()
+void Player::RemovePrimarySpecializationSpells()
 {
     ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(GetClass(), AsUnderlyingType(GetPrimarySpecialization()));
     if (!specialization)
@@ -30338,6 +30338,30 @@ void Player::RemoveSpecializationSpells()
     for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
         if (uint32 mastery = specialization->MasterySpellID[j])
             RemoveAurasDueToSpell(mastery);
+}
+
+void Player::RemoveAllSpecializationsSpells()
+{
+    for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
+    {
+        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(GetClass(), i))
+        {
+            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
+            {
+                for (size_t j = 0; j < specSpells->size(); ++j)
+                {
+                    SpecializationSpellsEntry const* specSpell = (*specSpells)[j];
+                    RemoveSpell(specSpell->SpellID);
+                    if (specSpell->OverridesSpellID)
+                        RemoveOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);
+                }
+            }
+
+            for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
+                if (uint32 mastery = specialization->MasterySpellID[j])
+                    RemoveAurasDueToSpell(mastery);
+        }
+    }
 }
 
 void Player::AddSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod)

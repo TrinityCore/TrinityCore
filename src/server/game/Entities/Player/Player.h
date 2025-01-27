@@ -1904,7 +1904,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void LearnSpecializationSpells();
-        void RemoveSpecializationSpells();
+        void RemovePrimarySpecializationSpells();
+        void RemoveAllSpecializationsSpells();
         void AddSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
         void RemoveSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
         void SetSpellFavorite(uint32 spellId, bool favorite);
