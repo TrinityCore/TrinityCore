@@ -47,7 +47,7 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 25497 AND `SourceEntry` = 0);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUE
-(26, 25497, 0, 0, 0, 47, 0, 84719, 8, 0, 1, 'Apply Phase 25497 if Quest 84719 is not taken');
+(26, 25497, 0, 0, 0, 47, 0, 84719, 2|8|64, 0, 1, 'Apply Phase 25497 if Quest 84719 is not taken | complete | rewarded');
 
 -- Conversation
 DELETE FROM `conversation_template` WHERE `Id`=27051;
@@ -96,6 +96,10 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `Optio
 DELETE FROM `creature_queststarter` WHERE (`id`=232132 AND `quest`=84719);
 INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
 (232132, 84719, 58680); -- The Expedition Awaits offered by Dawn
+
+DELETE FROM `creature_questender` WHERE (`id`=230235 AND `quest`=84719);
+INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
+(230235, 84719, 58680); -- The Expedition Awaits ended by Skaggit
 
 -- Dawn smart ai
 SET @ENTRY := 232132;
