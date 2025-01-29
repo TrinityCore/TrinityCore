@@ -18,9 +18,6 @@
 #include "Containers.h"
 #include "Conversation.h"
 #include "ConversationAI.h"
-#include "CreatureAIImpl.h"
-#include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -40,17 +37,14 @@ public:
 
     void OnCreate(Unit* creator) override
     {
-        Creature* hammerflangeObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_CHIEF_OFFICER_HAMMERFLANGE, .IgnorePhases = true });
-        Creature* surveyorObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_GREASMONKEY_SURVEYOR, .IgnorePhases = true });
-        Creature* engineerObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_ZEPPELIN_ENGINEER, .IgnorePhases = true });
-        if (!hammerflangeObject || !surveyorObject || !engineerObject)
-            return;
+        if (Creature* hammerflangeObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_CHIEF_OFFICER_HAMMERFLANGE, .IgnorePhases = true }))
+            hammerflangeObject->SummonPersonalClone(hammerflangeObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
 
-        TempSummon* hammerflangeClone = hammerflangeObject->SummonPersonalClone(hammerflangeObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* surveyorClone = surveyorObject->SummonPersonalClone(surveyorObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* engineerClone = engineerObject->SummonPersonalClone(engineerObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!hammerflangeClone || !surveyorClone || !engineerClone)
-            return;
+        if (Creature* surveyorObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_GREASMONKEY_SURVEYOR, .IgnorePhases = true }))
+            surveyorObject->SummonPersonalClone(surveyorObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+
+        if (Creature* engineerObject = GetClosestCreatureWithOptions(creator, 15.0f, { .CreatureId = NPC_ZEPPELIN_ENGINEER, .IgnorePhases = true }))
+            engineerObject->SummonPersonalClone(engineerObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
 
         conversation->Start();
     }

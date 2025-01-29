@@ -16,6 +16,7 @@
  */
 
 // This is where scripts' loading functions should be declared:
+
 // Dornogal
 void AddSC_zone_dornogal();
 
