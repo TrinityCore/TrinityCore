@@ -24,7 +24,6 @@
 #include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"
-#include "IteratorPair.h"
 
 class SpellInfo;
 class Bag;
@@ -313,8 +312,8 @@ class TC_GAME_API Item : public Object
         void SetCreateTime(int64 createTime) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::CreateTime), createTime); }
 
         // spell charges (signed but stored as unsigned)
-        int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return m_itemData->SpellCharges[index]; }
-        void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value); }
+        int32 GetSpellCharges(ItemEffectEntry const* effect = nullptr) const;
+        void SetSpellCharges(ItemEffectEntry const* effect, int32 value);
 
         std::unique_ptr<Loot> m_loot;
         bool m_lootGenerated;
@@ -354,7 +353,7 @@ class TC_GAME_API Item : public Object
         Optional<uint16> GetDisenchantSkillRequired() const;
         static ItemDisenchantLootEntry const* GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);
-        Trinity::IteratorPair<ItemEffectEntry const* const*> GetEffects() const { return { std::make_pair(_bonusData.Effects.data(), _bonusData.Effects.data() + _bonusData.EffectCount) }; }
+        std::span<ItemEffectEntry const* const> GetEffects() const { return { _bonusData.Effects.data(), _bonusData.EffectCount }; }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);

@@ -40,7 +40,7 @@ inline auto MapGetValuePtr(M& map, typename M::key_type const& key)
 
     auto itr = map.find(key);
     if constexpr (std::is_pointer_v<mapped_type>)
-        return itr != map.end() ? std::to_address(itr->second) : nullptr;       // raw pointer
+        return itr != map.end() ? itr->second : nullptr;                        // raw pointer
     else if constexpr (requires(mapped_type const& p) { p.operator->(); })
     {
         // smart pointers

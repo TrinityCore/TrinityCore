@@ -1389,8 +1389,7 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
 
             // Costs Check
             std::vector<SpellPowerCost> const& costs = eventInfo.GetProcSpell()->GetPowerCost();
-            auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Amount > 0; });
-            if (m == costs.end())
+            if (std::ranges::none_of(costs, [](SpellPowerCost const& cost) { return cost.Amount > 0; }))
                 return false;
             break;
         }

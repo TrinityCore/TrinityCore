@@ -16,6 +16,10 @@
  */
 
 // This is where scripts' loading functions should be declared:
+
+// Dornogal
+void AddSC_zone_dornogal();
+
 // Zone Isle Of Dorn
 void AddSC_zone_isle_of_dorn();
 
@@ -31,6 +35,9 @@ void AddSC_boss_edna();
 // void Add${NameOfDirectory}Scripts()
 void AddKhazAlgarScripts()
 {
+    // Dornogal
+    AddSC_zone_dornogal();
+
     // Zone Isle of Dorn
     AddSC_zone_isle_of_dorn();
 

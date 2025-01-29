@@ -1846,12 +1846,11 @@ class spell_dru_t3_8p_bonus : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        std::vector<SpellPowerCost> const& costs = spell->GetPowerCost();
-        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
-        if (m == costs.end())
+        Optional<int32> manaCost = spell->GetPowerTypeCostAmount(POWER_MANA);
+        if (!manaCost)
             return;
 
-        int32 amount = CalculatePct(m->Amount, aurEff->GetAmount());
+        int32 amount = CalculatePct(*manaCost, aurEff->GetAmount());
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
         caster->CastSpell(nullptr, SPELL_DRUID_EXHILARATE, args);

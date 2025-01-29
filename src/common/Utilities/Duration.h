@@ -15,22 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _DURATION_H_
-#define _DURATION_H_
+#ifndef TRINITYCORE_DURATION_H
+#define TRINITYCORE_DURATION_H
 
 #include <chrono>
 
 /// Milliseconds shorthand typedef.
-typedef std::chrono::milliseconds Milliseconds;
+using Milliseconds = std::chrono::milliseconds;
+using FloatMilliseconds = std::chrono::duration<float, Milliseconds::period>;
 
 /// Seconds shorthand typedef.
-typedef std::chrono::seconds Seconds;
+using Seconds = std::chrono::seconds;
+using FloatSeconds = std::chrono::duration<float, Seconds::period>;
 
 /// Minutes shorthand typedef.
-typedef std::chrono::minutes Minutes;
+using Minutes = std::chrono::minutes;
+using FloatMinutes = std::chrono::duration<float, Minutes::period>;
 
 /// Hours shorthand typedef.
-typedef std::chrono::hours Hours;
+using Hours = std::chrono::hours;
+using FloatHours = std::chrono::duration<float, Hours::period>;
 
 /// time_point shorthand typedefs
 typedef std::chrono::steady_clock::time_point TimePoint;
@@ -39,9 +43,9 @@ typedef std::chrono::system_clock::time_point SystemTimePoint;
 /// Makes std::chrono_literals globally available.
 using namespace std::chrono_literals;
 
-constexpr std::chrono::hours operator""_days(unsigned long long days)
+constexpr std::chrono::days operator""_days(unsigned long long days)
 {
-    return std::chrono::hours(days * 24h);
+    return std::chrono::days(days);
 }
 
-#endif // _DURATION_H_
+#endif // TRINITYCORE_DURATION_H
