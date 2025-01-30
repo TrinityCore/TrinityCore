@@ -102,7 +102,7 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)
                 if (Creature* leader = formation->GetLeader())
                 {
                     uint8 currentWaypoint = leader->GetCurrentWaypointInfo().first;
-                    bool needsAngleUpdate = [=]()
+                    bool needsAngleUpdate = [&]()
                     {
                         if (_point1 <= _point2)
                             return _point1 <= currentWaypoint && currentWaypoint < _point2;
