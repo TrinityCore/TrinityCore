@@ -15,11 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "the_stonevault.h"
+
+BossBoundaryData const boundaries =
+{
+    { DATA_EDNA, new CircleBoundary({ 0.0f, 0.0f }, 58.0f)}
+};
 
 ObjectData const creatureData[] =
 {
@@ -33,9 +39,10 @@ ObjectData const creatureData[] =
 
 static DoorData const doorData[] =
 {
-    { GO_FOUNDRY_DOOR,   DATA_EDNA,  EncounterDoorBehavior::OpenWhenDone },
-    { GO_FOUNDRY_DOOR_2, DATA_EDNA,  EncounterDoorBehavior::OpenWhenDone },
-    { 0,                 0,          EncounterDoorBehavior::OpenWhenNotInProgress }
+    { GO_FOUNDRY_DOOR_ENTRANCE,             DATA_EDNA,  EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_FOUNDRY_DOOR_TOWARDS_SKARMORAK,    DATA_EDNA,  EncounterDoorBehavior::OpenWhenDone },
+    { GO_FOUNDRY_DOOR_TOWARDS_MACHINISTS,   DATA_EDNA,  EncounterDoorBehavior::OpenWhenDone },
+    { 0,                                    0,          EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 DungeonEncounterData const encounters[] =
@@ -45,6 +52,8 @@ DungeonEncounterData const encounters[] =
     { DATA_MASTER_MACHINISTS,   {{ 2883 }} },
     { DATA_VOID_SPEAKER_EIRICH, {{ 2888 }} }
 };
+
+constexpr uint8 EDNA_INTRO_REQUIRED_KILLS = 5;
 
 class instance_the_stonevault : public InstanceMapScript
 {
@@ -59,10 +68,11 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
+            LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
 
             _ednaIntroState = NOT_STARTED;
-            _ednaIntroNPCs = 0;
+            _ednaIntroNPCsKillCount = 0;
         }
 
         uint32 GetData(uint32 dataId) const override
@@ -89,14 +99,6 @@ public:
             }
         }
 
-        void OnCreatureCreate(Creature* creature) override
-        {
-            InstanceScript::OnCreatureCreate(creature);
-
-            if (creature->HasStringId("edna_intro_trash"))
-                _ednaIntroNPCs++;
-        }
-
         void OnUnitDeath(Unit* unit) override
         {
             Creature* creature = unit->ToCreature();
@@ -108,8 +110,8 @@ public:
                 if (_ednaIntroState != NOT_STARTED)
                     return;
 
-                _ednaIntroNPCs--;
-                if (_ednaIntroNPCs > 0)
+                _ednaIntroNPCsKillCount++;
+                if (_ednaIntroNPCsKillCount < EDNA_INTRO_REQUIRED_KILLS)
                     return;
 
                 _ednaIntroState = IN_PROGRESS;
@@ -124,7 +126,7 @@ public:
 
     private:
         uint8 _ednaIntroState;
-        uint8 _ednaIntroNPCs;
+        uint8 _ednaIntroNPCsKillCount;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

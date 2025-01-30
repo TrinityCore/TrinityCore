@@ -23,7 +23,7 @@
 #define TSVScriptName "instance_the_stonevault"
 #define DataHeader "TheStonevault"
 
-uint32 const EncounterCount = 4;
+constexpr uint32 EncounterCount = 4;
 
 enum TheStonevaultDataTypes
 {
@@ -51,8 +51,9 @@ enum TheStonevaultCreatureIds
 
 enum TheStonevaultGameObjectIds
 {
-    GO_FOUNDRY_DOOR          = 440235,
-    GO_FOUNDRY_DOOR_2        = 440239
+    GO_FOUNDRY_DOOR_ENTRANCE            = 440236,
+    GO_FOUNDRY_DOOR_TOWARDS_SKARMORAK   = 440235,
+    GO_FOUNDRY_DOOR_TOWARDS_MACHINISTS  = 440239
 };
 
 enum TheStonevaultSharedActions

@@ -21,7 +21,6 @@
 #include "Conversation.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -103,33 +102,36 @@ static constexpr Position SkardenSpawnPositions[4] =
 // 210108 - E.D.N.A.
 struct boss_edna : public BossAI
 {
-    boss_edna(Creature* creature) : BossAI(creature, DATA_EDNA) { }
+    boss_edna(Creature* creature) : BossAI(creature, DATA_EDNA), _refractingBeamCount(1), _seismicSmashCount(1), _volatileSpikeCount(1) { }
 
     void InitializeAI() override
     {
         if (instance->GetBossState(DATA_EDNA) != NOT_STARTED)
             me->Relocate(EdnaCombatPosition);
+    }
 
+    void Reset() override
+    {
+        BossAI::Reset();
+
+        _refractingBeamCount = 1;
+        _seismicSmashCount = 1;
+        _volatileSpikeCount = 1;
+    }
+
+    void JustAppeared() override
+    {
         if (instance->GetData(DATA_EDNA_INTRO_STATE) == DONE)
         {
             me->RemoveAurasDueToSpell(SPELL_SKARDEN_SPAWN_PERIODIC);
             me->SetImmuneToPC(false);
         }
-    }
 
-    void JustAppeared() override
-    {
         me->SetPowerType(POWER_ENERGY);
-        me->SetPower(POWER_ENERGY, 2);
+        me->SetPower(POWER_ENERGY, 4);
 
         if (IsMythic() || IsMythicPlus())
             DoCastSelf(SPELL_EDNA_START_ENERGY);
-    }
-
-    void Reset() override
-    {
-        events.Reset();
-        summons.DespawnAll();
     }
 
     void KilledUnit(Unit* victim) override
@@ -144,15 +146,16 @@ struct boss_edna : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
         Talk(SAY_DEATH);
         DoCast(SPELL_EDNA_DEFEATED);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
         Talk(SAY_WIPE);
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         summons.DespawnAll();
         _EnterEvadeMode();
         _DespawnAtEvade();
@@ -194,6 +197,8 @@ struct boss_edna : public BossAI
 
         Talk(SAY_AGGRO);
 
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
         if (IsMythic() || IsMythicPlus())
         {
             events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
@@ -229,14 +234,35 @@ struct boss_edna : public BossAI
             {
                 Talk(SAY_VOLATILE_SPIKE);
                 DoCast(SPELL_VOLATILE_SPIKE_SELECTOR);
-                events.Repeat(14600ms);
+
+                _volatileSpikeCount++;
+                if (IsMythic() || IsMythicPlus())
+                {
+                    if (_volatileSpikeCount % 2 == 0)
+                        events.Repeat(20s);
+                    else
+                        events.Repeat(28s);
+                }
+                else
+                    events.Repeat(14600ms);
                 break;
             }
             case EVENT_REFRACTING_BEAM:
             {
                 Talk(SAY_REFRACTING_BEAM);
                 DoCast(SPELL_REFRACTING_BEAM_SELECTOR);
-                events.Repeat(10900ms);
+
+                _refractingBeamCount++;
+                if (IsMythic() || IsMythicPlus())
+                {
+                    if (_refractingBeamCount % 2 == 0)
+                        events.Repeat(20s);
+                    else
+                        events.Repeat(28s);
+                }
+                else
+                    events.Repeat(10900ms);
+
                 break;
             }
             case EVENT_SEISMIC_SMASH:
@@ -244,23 +270,40 @@ struct boss_edna : public BossAI
                 Talk(SAY_SEISMIC_SMASH);
                 Talk(SAY_SEISMIC_SMASH_ALERT);
                 DoCastVictim(SPELL_SEISMIC_SMASH);
-                events.Repeat(20s);
+
+                _seismicSmashCount++;
+                if (IsMythic() || IsMythicPlus())
+                {
+                    if (_seismicSmashCount % 2 == 0)
+                        events.Repeat(20s);
+                    else
+                        events.Repeat(28s);
+                }
+                else
+                    events.Repeat(23100ms);
                 break;
             }
             case EVENT_CHECK_ENERGY:
             {
-                if (me->GetPower(POWER_ENERGY) == 95)
+                if (me->GetPower(POWER_ENERGY) >= 95)
                 {
                     Talk(SAY_EARTH_SHATTERER);
                     DoCast(SPELL_EARTH_SHATTERER);
+                    events.Repeat(4s);
                 }
-                events.Repeat(500ms);
+                else
+                    events.Repeat(500ms);
                 break;
             }
             default:
                 break;
         }
     }
+
+private:
+    uint16 _refractingBeamCount;
+    uint16 _seismicSmashCount;
+    uint16 _volatileSpikeCount;
 };
 
 // 224516 - Skardyn Invader
@@ -298,15 +341,12 @@ private:
 // 451705 - E.D.N.A. Energize
 class spell_edna_energize : public AuraScript
 {
-    static constexpr std::array<uint8, 23> EdnaEnergizeCycle = { 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3};
+    static constexpr std::array<uint8, 6> EdnaEnergizeCycle = { 2, 2, 2, 2, 3, 2 };
 
     void PeriodicTick(AuraEffect const* aurEff) const
     {
-        Unit* target = GetTarget();
-        uint8 cycle = aurEff->GetTickNumber() % EdnaEnergizeCycle.size();
-
-        if (target)
-            target->ModifyPower(POWER_ENERGY, EdnaEnergizeCycle[cycle]);
+        uint8 cycleIdx = aurEff->GetTickNumber() % EdnaEnergizeCycle.size();
+        GetTarget()->ModifyPower(POWER_ENERGY, EdnaEnergizeCycle[cycleIdx]);
     }
 
     void Register() override
@@ -326,8 +366,6 @@ class spell_edna_skarden_spawn_rp_periodic : public AuraScript
     void HandlePeriodic(AuraEffect const* aurEff) const
     {
         Unit* target = GetTarget();
-        if (!target)
-            return;
 
         target->CastSpell(target, SPELL_SKARDEN_SPAWN_RP, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -344,7 +382,7 @@ class spell_edna_skarden_spawn_rp_periodic : public AuraScript
 // 451728 - Skarden Spawn RP
 class spell_edna_skarden_spawn_rp : public SpellScript
 {
-    void SetDest(SpellDestination& dest) const
+    static void SetDest(SpellDestination& dest)
     {
         dest.Relocate(Trinity::Containers::SelectRandomContainerElement(SkardenSpawnPositions));
     }
@@ -369,8 +407,6 @@ class spell_edna_seismic_reverberation : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        if (!target)
-            return;
 
         target->CastSpell(target, SPELL_STONE_SHIELD, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -412,16 +448,26 @@ class spell_edna_refracting_beam_selector : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_REFRACTING_BEAM });
+        return ValidateSpellInfo({ SPELL_REFRACTING_BEAM })
+            && ValidateSpellEffect({ { SPELL_REFRACTING_BEAM_DAMAGE, EFFECT_3 } });
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_REFRACTING_BEAM, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell(),
-            .OriginalCastId = GetSpell()->m_castId
-        });
+        GetCaster()->m_Events.AddEvent([this, hitUnitGUID = GetHitUnit()->GetGUID()]()
+        {
+            Unit* hitUnit = ObjectAccessor::GetUnit(*GetCaster(), hitUnitGUID);
+            if (!hitUnit)
+                return;
+
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_REFRACTING_BEAM, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell(),
+                .OriginalCastId = GetSpell()->m_castId
+            });
+        }, _timeMultiplier * 500ms);
+
+        _timeMultiplier++;
     }
 
     void FilterTargets(std::list<WorldObject*>& targets) const
@@ -438,6 +484,9 @@ class spell_edna_refracting_beam_selector : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_edna_refracting_beam_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_edna_refracting_beam_selector::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
     }
+
+private:
+    uint8 _timeMultiplier = 0u;
 };
 
 // 424805 - Refracting Beam
@@ -445,13 +494,22 @@ class spell_edna_refracting_beam_instakill : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        uint8 maxTargets = 1;
+        static constexpr uint8 MAX_TARGETS = 1;
 
-        if (targets.size() > maxTargets)
+        if (targets.size() <= MAX_TARGETS)
+            return;
+
+        auto closestTargetItr = std::ranges::min_element(targets, [caster = GetCaster()](WorldObject const* left, WorldObject const* right)
         {
-            targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-            targets.resize(maxTargets);
-        }
+            return caster->GetDistance(left->GetPosition()) < caster->GetDistance(right->GetPosition());
+        });
+
+        if (closestTargetItr == targets.end())
+            return;
+
+        WorldObject* closestTarget = *closestTargetItr;
+        targets.clear();
+        targets.push_back(closestTarget);
     }
 
     void Register() override
@@ -475,14 +533,16 @@ class spell_edna_earth_shatterer : public SpellScript
         GetCreatureListWithEntryInGrid(volatileSpikes, caster, NPC_VOLATILE_SPIKE, 200.0f);
 
         for (Creature* spike : volatileSpikes)
+        {
             caster->CastSpell(spike, SPELL_EARTH_SHATTERER_MISSILE, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell(),
                 .OriginalCastId = GetSpell()->m_castId
             });
+        }
     }
 
-    void HandleEnergy() const
+    void HandleAfterCast() const
     {
         Unit* caster = GetCaster();
         caster->SetPower(caster->GetPowerType(), 0);
@@ -491,7 +551,7 @@ class spell_edna_earth_shatterer : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_edna_earth_shatterer::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-        OnCast += SpellCastFn(spell_edna_earth_shatterer::HandleEnergy);
+        AfterCast += SpellCastFn(spell_edna_earth_shatterer::HandleAfterCast);
     }
 };
 
@@ -506,8 +566,13 @@ struct at_edna_volatile_spike : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_VOLATILE_EXPLOSION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        at->GetCaster()->ToCreature()->DespawnOrUnsummon();
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_VOLATILE_EXPLOSION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        if (Creature* casterCreature = caster->ToCreature())
+            casterCreature->DespawnOrUnsummon();
     }
 };
 
