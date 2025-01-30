@@ -1242,6 +1242,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!me)
                 break;
 
+            targets.erase(std::remove_if(targets.begin(), targets.end(), [](const WorldObject* target)
+            {
+                return !target->IsUnit();
+            }), targets.end());
+
             if (targets.empty())
                 break;
 
