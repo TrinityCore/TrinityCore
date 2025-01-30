@@ -19,6 +19,7 @@
 #define SceneMgr_h__
 
 #include "Common.h"
+#include "Optional.h"
 #include "SceneDefines.h"
 #include <map>
 #include <memory>
