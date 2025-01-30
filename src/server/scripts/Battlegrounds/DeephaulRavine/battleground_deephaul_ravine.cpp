@@ -57,13 +57,11 @@ namespace DeephaulRavine
         static constexpr uint32 CrystalCapturedAlliance = 18375;
         static constexpr uint32 CrystalCapturedHorde = 18384;
 
-        static constexpr uint32 CrystalTaken = 1000000;
-        static constexpr uint32 CrystalTakenTutorial = 1000001;
-        static constexpr uint32 AllianceControlMineCart = 1000002;
-        static constexpr uint32 HordeControlMineCart = 1000003;
+        static constexpr uint32 AllianceControlMineCart = 60441; // copied from Silvershard Mines
+        static constexpr uint32 HordeControlMineCart = 60442; // copied from Silvershard Mines
 
-        static constexpr uint32 AllianceCaptureMineCart = 1000004;
-        static constexpr uint32 HordeCaptureMineCart = 1000005;
+        static constexpr uint32 AllianceCaptureMineCart = 59689; // copied from Silvershard Mines
+        static constexpr uint32 HordeCaptureMineCart = 59690; // copied from Silvershard Mines
     }
 
     namespace Creatures
@@ -389,8 +387,8 @@ struct battleground_deephaul_ravine : BattlegroundScript
         switch (newValue)
         {
             case FlagState::Taken:
-                battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::CrystalTaken, player->GetBGTeam() == HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
-                battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::CrystalTakenTutorial, CHAT_MSG_RAID_BOSS_EMOTE, player); // player should also be the sender
+                battleground->SendMessageToAll(LANG_BG_DR_CRYSTAL_TAKEN, player->GetBGTeam() == HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                battleground->SendMessageToAll(LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL, CHAT_MSG_RAID_BOSS_EMOTE, player); // player should also be the sender
                 battleground->PlaySoundToAll(player->GetBGTeam() == HORDE ? DeephaulRavine::Sounds::PvpFlagTakenHorde : DeephaulRavine::Sounds::PvpFlagTakenAlliance);
                 UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, player->GetBGTeam() == HORDE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, player->GetBGTeam() == ALLIANCE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);

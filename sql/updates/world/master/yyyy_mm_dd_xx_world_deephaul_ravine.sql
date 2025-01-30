@@ -7,6 +7,12 @@ SET @TRIGGER_ID_ALLIANCE := 30; -- Trigger ID for capture flag area trigger alli
 SET @TRIGGER_ID_HORDE := 31; -- Trigger ID for capture flag area trigger horde
 
 SET @SPAWNGROUP := 1000000;
+SET @TEXT_ID := 10056;
+
+DELETE FROM `trinity_string` WHERE `entry` BETWEEN @TEXT_ID+0 AND @TEXT_ID+5;
+INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+(@TEXT_ID+0, '$n has taken the crystal!'),
+(@TEXT_ID+1, '$n has taken the crystal! The crystal can be captured outside an Earthen cart building!');
 
 DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WORLD_SAFE_LOC+0 AND @WORLD_SAFE_LOC+5;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
