@@ -66,7 +66,7 @@ struct boss_lord_kazzak_anniversary : public WorldBossAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->IsPlayer())
             Talk(SAY_KILL, victim);
     }
 
