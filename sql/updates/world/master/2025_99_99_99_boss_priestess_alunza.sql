@@ -49,7 +49,7 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 (11867, 0, 16553, 0, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 60000, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 'at_priestess_alun_za_tainted_blood', 53989), -- Spell: 255559 (Tainted Blood)
 (12159, 0, 16860, 0, 4, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 1.5, 1.5, 0, 0, 0, 0, 0, 0, 'at_priestess_alun_za_corrupted_gold',53989); -- Spell: 258703 (Corrupted Gold)
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (255615, 255566, 255591, 255584, 258388, 255565, 258681, 255577, 255575, 259205, 259209, 255835, 255836);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (255615, 255566, 255591, 255584, 258388, 255565, 258681, 255577, 255575, 259205, 259209, 255835, 255836, 259032);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (255615, 'spell_priestess_alun_za_agitate'),
 (255566, 'spell_priestess_alun_za_bubble'),
@@ -63,4 +63,5 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (259209, 'spell_priestess_alun_za_spirit_of_gold'),
 (255565, 'spell_priestess_alun_za_tainted_blood'),
 (255835, 'spell_priestess_alun_za_tranfusion_heal_and_damage'),
-(255836, 'spell_priestess_alun_za_tranfusion_heal_and_damage');
+(255836, 'spell_priestess_alun_za_tranfusion_heal_and_damage'),
+(259032, 'spell_priestess_alun_za_corrupt');

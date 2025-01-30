@@ -572,7 +572,7 @@ class spell_priestess_alun_za_tranfusion : public SpellScript
 // 255836 - Transfusion
 class spell_priestess_alun_za_tranfusion_heal_and_damage : public SpellScript
 {
-    void HandleValue(SpellEffIndex /*effIndex*/) const
+    void HandleValue(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
             SetEffectValue(GetEffectValue() / 100);
@@ -596,6 +596,26 @@ class spell_priestess_alun_za_spirit_of_gold : public SpellScript
     void Register() override
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_priestess_alun_za_spirit_of_gold::SetDest, EFFECT_0, TARGET_DEST_DEST);
+    }
+};
+
+// 259032 - Corrupt
+class spell_priestess_alun_za_corrupt : public AuraScript
+{
+    void OnStackChange(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        if (GetStackAmount() == 8)
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_FATALLY_CORRUPTED, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_priestess_alun_za_corrupt::OnStackChange, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAPPLY);
     }
 };
 
@@ -659,6 +679,7 @@ void AddSC_boss_priestess_alun_za()
     RegisterSpellScript(spell_priestess_alun_za_tranfusion);
     RegisterSpellScript(spell_priestess_alun_za_tranfusion_heal_and_damage);
     RegisterSpellScript(spell_priestess_alun_za_spirit_of_gold);
+    RegisterSpellScript(spell_priestess_alun_za_corrupt);
 
     RegisterAreaTriggerAI(at_priestess_alun_za_tainted_blood);
     RegisterAreaTriggerAI(at_priestess_alun_za_corrupted_gold);
