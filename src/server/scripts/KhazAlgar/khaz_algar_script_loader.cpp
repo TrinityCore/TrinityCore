@@ -23,6 +23,10 @@ void AddSC_zone_dornogal();
 // Zone Isle Of Dorn
 void AddSC_zone_isle_of_dorn();
 
+// The Stonevault
+void AddSC_instance_the_stonevault();
+void AddSC_boss_edna();
+
 // Nerub'ar Palace
 void AddSC_instance_nerubar_palace();
 void AddSC_boss_ulgrax_the_devourer();
@@ -36,6 +40,10 @@ void AddKhazAlgarScripts()
 
     // Zone Isle of Dorn
     AddSC_zone_isle_of_dorn();
+
+    // The Stonevault
+    AddSC_instance_the_stonevault();
+    AddSC_boss_edna();
 
     // Nerub'ar Palace
     AddSC_instance_nerubar_palace();
