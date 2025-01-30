@@ -6304,7 +6304,14 @@ void AuraEffect::HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool
     if (apply)
         player->GetSceneMgr().PlayScene(GetMiscValue());
     else
+    {
+        if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+        {
+            if (Optional<uint32> sceneInstanceId = player->GetSceneMgr().GetInstanceIdBySceneId(GetMiscValue()))
+                player->GetSceneMgr().OnSceneComplete(*sceneInstanceId);
+        }
         player->GetSceneMgr().CancelSceneBySceneId(GetMiscValue());
+    }
 }
 
 void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const
