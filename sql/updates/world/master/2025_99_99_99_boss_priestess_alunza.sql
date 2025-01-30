@@ -5,6 +5,9 @@ UPDATE `creature_template` SET `unit_flags`=32832, `ScriptName`='boss_priestess_
 UPDATE `creature_template` SET `ScriptName`='npc_priestess_alun_za_corrupted_gold', `flags_extra`=0x20000000 WHERE `entry`=130738;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=128956;
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=502, `StaticFlags1`=0x10000000, `VerifiedBuild`=58773 WHERE (`Entry`=131009 AND `DifficultyID`=23); -- 131009 (Spirit of Gold) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=502, `VerifiedBuild`=58773 WHERE (`Entry`=130738 AND `DifficultyID`=23); -- 130738 (Corrupted Gold) - 
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=502, `VerifiedBuild`=58773 WHERE (`Entry`=128956 AND `DifficultyID`=23); -- 128956 (Blood-Tainted Cauldron of Gold) - CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=502, `StaticFlags1`=0x10000000, `VerifiedBuild`=58773 WHERE (`Entry`=122967 AND `DifficultyID`=0); -- 122967 (Priestess Alun'za) - CanSwim
 
 DELETE FROM `creature_model_info` WHERE `DisplayID` = 81527;
 INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES
