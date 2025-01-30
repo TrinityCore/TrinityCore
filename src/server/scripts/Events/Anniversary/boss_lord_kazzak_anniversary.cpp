@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 
@@ -52,16 +51,17 @@ enum LordKazzakEvents
 // 121818 - Lord Kazzak
 struct boss_lord_kazzak_anniversary : public WorldBossAI
 {
-    using WorldBossAI::WorldBossAI;
+    boss_lord_kazzak_anniversary(Creature* creature) : WorldBossAI(creature), _frenzyTriggered(false) { }
 
     void JustAppeared() override
     {
         Talk(SAY_FRENZY);
     }
 
-    void JustDied(Unit* killer) override
+    void Reset() override
     {
-        WorldBossAI::JustDied(killer);
+        WorldBossAI::Reset();
+        _frenzyTriggered = false;
     }
 
     void KilledUnit(Unit* victim) override
@@ -83,8 +83,9 @@ struct boss_lord_kazzak_anniversary : public WorldBossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo*/) override
     {
-        if (me->HealthBelowPctDamaged(30, damage))
+        if (!_frenzyTriggered && me->HealthBelowPctDamaged(30, damage))
         {
+            _frenzyTriggered = true;
             Talk(SAY_FRENZY);
             DoCastSelf(SPELL_FRENZY);
         }
@@ -138,6 +139,9 @@ struct boss_lord_kazzak_anniversary : public WorldBossAI
                 return;
         }
     }
+
+private:
+    bool _frenzyTriggered;
 };
 
 // 243737 - Mark of Kazzak
@@ -146,11 +150,6 @@ class spell_lord_kazzak_mark_of_kazzak_selector : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MARK_OF_KAZZAK_PERIODIC });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets) const
-    {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MARK_OF_KAZZAK_PERIODIC));
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
@@ -163,7 +162,6 @@ class spell_lord_kazzak_mark_of_kazzak_selector : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lord_kazzak_mark_of_kazzak_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_lord_kazzak_mark_of_kazzak_selector::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
@@ -179,10 +177,12 @@ class spell_lord_kazzak_mark_of_kazzak_periodic : public AuraScript
     void HandlePeriodic(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
+        {
             caster->CastSpell(GetTarget(), SPELL_MARK_OF_KAZZAK_DAMAGE, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
             });
+        }
     }
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
@@ -191,10 +191,13 @@ class spell_lord_kazzak_mark_of_kazzak_periodic : public AuraScript
             return;
 
         if (Unit* caster = GetCaster())
+        {
             caster->CastSpell(GetTarget(), SPELL_MARK_OF_KAZZAK_EXPLOSION, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringAura = aurEff
+                .TriggeringAura = aurEff,
+                .CustomArg = GetTarget()->GetGUID()
             });
+        }
     }
 
     void Register() override
@@ -204,10 +207,31 @@ class spell_lord_kazzak_mark_of_kazzak_periodic : public AuraScript
     }
 };
 
+// 243726 - Mark of Kazzak
+class spell_lord_kazzak_mark_of_kazzak_explosion : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        ObjectGuid const* explosionTargetGUID = std::any_cast<ObjectGuid>(&GetSpell()->m_customArg);
+        if (!explosionTargetGUID)
+            return;
+
+        targets.remove_if([explosionTargetGUID](WorldObject const* target) -> bool
+        {
+            return target->GetGUID() == *explosionTargetGUID;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lord_kazzak_mark_of_kazzak_explosion::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
 // 243715 - Thunderclap
 class spell_lord_kazzak_thunderclap : public SpellScript
 {
-    void ModAuraStack()
+    void HandleAfterHit() const
     {
         if (Aura* aura = GetHitAura())
             aura->SetStackAmount(static_cast<uint8>(GetSpellInfo()->StackAmount));
@@ -215,10 +239,11 @@ class spell_lord_kazzak_thunderclap : public SpellScript
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_lord_kazzak_thunderclap::ModAuraStack);
+        AfterHit += SpellHitFn(spell_lord_kazzak_thunderclap::HandleAfterHit);
     }
 };
 
+// 243715 - Thunderclap
 class spell_lord_kazzak_thunderclap_aura : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
@@ -237,5 +262,6 @@ void AddSC_boss_lord_kazzak_anniversary()
     RegisterCreatureAI(boss_lord_kazzak_anniversary);
     RegisterSpellScript(spell_lord_kazzak_mark_of_kazzak_selector);
     RegisterSpellScript(spell_lord_kazzak_mark_of_kazzak_periodic);
+    RegisterSpellScript(spell_lord_kazzak_mark_of_kazzak_explosion);
     RegisterSpellAndAuraScriptPair(spell_lord_kazzak_thunderclap, spell_lord_kazzak_thunderclap_aura);
 }
