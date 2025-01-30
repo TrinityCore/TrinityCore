@@ -428,7 +428,7 @@ class spell_priestess_alun_za_molten_gold : public AuraScript
         if (!target)
             return;
 
-        target->CastSpell(target, GetEffectInfo(EFFECT_0).CalcValue(), CastSpellExtraArgsInit{
+        target->CastSpell(target, aurEff->GetAmount(), CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff
         });
@@ -436,7 +436,7 @@ class spell_priestess_alun_za_molten_gold : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_priestess_alun_za_molten_gold::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_priestess_alun_za_molten_gold::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -452,8 +452,7 @@ class spell_priestess_alun_za_molten_gold_selector : public SpellScript
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_MOLTEN_GOLD_MISSILE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell(),
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -475,8 +474,7 @@ class spell_priestess_alun_za_bubble : public SpellScript
     {
         GetHitUnit()->CastSpell(*GetHitDest(), SPELL_TAINTED_BLOOD_MISSILE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell(),
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -501,20 +499,7 @@ class spell_priestess_alun_za_tainted_blood : public SpellScript
 };
 
 // 255577 - Transfusion
-class spell_priestess_alun_za_tranfusion_cast : public SpellScript
-{
-    void HandleEnergy(SpellEffIndex /*effIndex*/) const
-    {
-        GetCaster()->SetPower(POWER_ENERGY, 0);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_tranfusion_cast::HandleEnergy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-    }
-};
-
-class spell_priestess_alun_za_tranfusion_cast_aura : public AuraScript
+class spell_priestess_alun_za_tranfusion_cast : public AuraScript
 {
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
@@ -533,7 +518,7 @@ class spell_priestess_alun_za_tranfusion_cast_aura : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_priestess_alun_za_tranfusion_cast_aura::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_priestess_alun_za_tranfusion_cast::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -553,7 +538,6 @@ class spell_priestess_alun_za_tranfusion : public SpellScript
         CastSpellExtraArgs args;
         args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         args.SetTriggeringSpell(GetSpell());
-        args.SetOriginalCastId(GetSpell()->m_castId);
 
         if (target->HasAura(SPELL_TAINTED_BLOOD_DAMAGE))
             caster->CastSpell(target, SPELL_TRANSFUSION_DAMAGE, args);
@@ -673,7 +657,7 @@ void AddSC_boss_priestess_alun_za()
     RegisterSpellScript(spell_priestess_alun_za_molten_gold_selector);
     RegisterSpellScript(spell_priestess_alun_za_bubble);
     RegisterSpellScript(spell_priestess_alun_za_tainted_blood);
-    RegisterSpellAndAuraScriptPair(spell_priestess_alun_za_tranfusion_cast, spell_priestess_alun_za_tranfusion_cast_aura);
+    RegisterSpellScript(spell_priestess_alun_za_tranfusion_cast);
     RegisterSpellScript(spell_priestess_alun_za_tranfusion);
     RegisterSpellScript(spell_priestess_alun_za_tranfusion_heal_and_damage);
     RegisterSpellScript(spell_priestess_alun_za_spirit_of_gold);
