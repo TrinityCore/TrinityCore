@@ -1,5 +1,5 @@
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=122967;
-UPDATE `creature_template` SET `faction`=16, `speed_walk`=2, `speed_run`=1.428571462631225585, `BaseAttackTime`=769, `unit_flags3`=0x0`, ScriptName`='npc_priestess_alun_za_spirit_of_gold' WHERE `entry`=131009; -- Spirit of Gold
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=2, `speed_run`=1.428571462631225585, `BaseAttackTime`=769, `unit_flags3`=0x0, `ScriptName`='npc_priestess_alun_za_spirit_of_gold' WHERE `entry`=131009; -- Spirit of Gold
 UPDATE `creature_template` SET `unit_flags2`=67108864, `unit_flags3`=16777217 WHERE `entry`=130738; -- Corrupted Gold
 UPDATE `creature_template` SET `unit_flags`=32832, `ScriptName`='boss_priestess_alun_za' WHERE `entry`=122967;
 UPDATE `creature_template` SET `ScriptName`='npc_priestess_alun_za_corrupted_gold', `flags_extra`=0x20000000 WHERE `entry`=130738;

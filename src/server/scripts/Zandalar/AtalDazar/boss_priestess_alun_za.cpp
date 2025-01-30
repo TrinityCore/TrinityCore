@@ -573,8 +573,7 @@ class spell_priestess_alun_za_tranfusion_heal_and_damage : public SpellScript
 {
     void HandleValue(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            SetEffectValue(GetEffectValue() / 100);
+        SetEffectValue(GetEffectValue() / 100);
     }
 
     void Register() override
