@@ -171,7 +171,7 @@ void AuctionPosting::BuildAuctionItem(WorldPackets::AuctionHouse::AuctionItem* a
     {
         auctionItem->Item.emplace();
         auctionItem->Item->Initialize(Items[0]);
-        auctionItem->Charges = std::max({ Items[0]->GetSpellCharges(0), Items[0]->GetSpellCharges(1), Items[0]->GetSpellCharges(2), Items[0]->GetSpellCharges(3), Items[0]->GetSpellCharges(4) });
+        auctionItem->Charges = Items[0]->GetSpellCharges();
         for (uint8 i = 0; i < MAX_INSPECTED_ENCHANTMENT_SLOT; i++)
         {
             uint32 enchantId = Items[0]->GetEnchantmentId(EnchantmentSlot(i));
