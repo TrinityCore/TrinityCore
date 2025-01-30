@@ -23,6 +23,7 @@
 BossBoundaryData const boundaries =
 {
     { DATA_REZAN, new ZRangeBoundary(639.0f, 650.0f) }, // 647.65f
+    { DATA_PRIESTESS_ALUNZA, new ZRangeBoundary(736.80f, 747.90f) }
 };
 
 ObjectData const creatureData[] =
