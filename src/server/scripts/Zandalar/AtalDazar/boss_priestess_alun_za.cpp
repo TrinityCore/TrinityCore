@@ -347,7 +347,6 @@ struct npc_priestess_alun_za_spirit_of_gold : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(POINT_POOL, (*closestAt)->GetPosition());
                         _events.CancelEvent(EVENT_CHECK_TAINTED_BLOOD);
                     }
-                    
                     break;
                 }
                 default:
