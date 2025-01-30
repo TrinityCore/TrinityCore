@@ -34,6 +34,15 @@ ObjectData const creatureData[] =
     { 0,                     0                      }  // END
 };
 
+DoorData const doorData[] =
+{
+    { GO_VOLKAAN_DOOR_1, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_VOLKAAN_DOOR_2, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_VOLKAAN_DOOR_3, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_VOLKAAN_DOOR_4, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                 0,            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
+};
+
 DungeonEncounterData const encounters[] =
 {
     { DATA_PRIESTESS_ALUNZA, {{ 2084 }} },
@@ -53,7 +62,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }
