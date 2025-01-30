@@ -20,6 +20,7 @@
 // Atal'Dazar
 void AddSC_instance_atal_dazar();
 void AddSC_boss_rezan();
+void AddSC_boss_priestess_alun_za();
 
 // Underrot
 void AddSC_instance_underrot();
@@ -38,6 +39,7 @@ void AddZandalarScripts()
     // Atal'Dazar
     AddSC_instance_atal_dazar();
     AddSC_boss_rezan();
+    AddSC_boss_priestess_alun_za();
 
     // Underrot
     AddSC_instance_underrot();
