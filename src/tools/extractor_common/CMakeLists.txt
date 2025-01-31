@@ -12,23 +12,19 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
+add_library(extractor_common STATIC ${PRIVATE_SOURCES})
 
-add_executable(vmap4extractor ${PRIVATE_SOURCES})
-
-target_link_libraries(vmap4extractor
+target_link_libraries(extractor_common
   PRIVATE
     trinity-core-interface
   PUBLIC
-    extractor_common)
+    mpq
+    common)
 
-set_target_properties(vmap4extractor
-    PROPERTIES
-      FOLDER
-        "tools")
+target_include_directories(extractor_common
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(UNIX)
-  install(TARGETS vmap4extractor DESTINATION bin)
-elseif(WIN32)
-  install(TARGETS vmap4extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
-endif()
+set_target_properties(extractor_common
+  PROPERTIES
+    FOLDER "tools")

@@ -18,7 +18,7 @@
 #include "dbcfile.h"
 #include "Banner.h"
 #include "Locales.h"
-#include "mpq_libmpq04.h"
+#include "mpq_libmpq.h"
 #include "StringFormat.h"
 #include "Util.h"
 
@@ -37,8 +37,6 @@
 
 #include <G3D/Plane.h>
 #include <boost/filesystem.hpp>
-
-extern ArchiveSet gOpenArchives;
 
 typedef struct
 {
@@ -80,21 +78,7 @@ float CONF_float_to_int16_limit = 2048.0f;   // Max accuracy = val/65536
 float CONF_flat_height_delta_limit = 0.005f; // If max - min less this value - surface is flat
 float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - liquid surface is flat
 
-// List MPQ for extract from
-const char *CONF_mpq_list[]={
-    "common.MPQ",
-    "common-2.MPQ",
-    "lichking.MPQ",
-    "expansion.MPQ",
-    "patch.MPQ",
-    "patch-2.MPQ",
-    "patch-3.MPQ",
-    "patch-4.MPQ",
-    "patch-5.MPQ",
-};
-
-static char const* const langs[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
-#define LANG_COUNT 12
+static constexpr std::array<std::string_view, 12> MpqLocaleNames = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 
 void CreateDir(boost::filesystem::path const& path)
 {
@@ -174,7 +158,7 @@ void HandleArgs(int argc, char * arg[])
 uint32 ReadBuild(int locale)
 {
     // include build info file also
-    std::string filename = Trinity::StringFormat("component.wow-{}.txt", langs[locale]);
+    std::string filename = Trinity::StringFormat("component.wow-{}.txt", MpqLocaleNames[locale]);
     //printf("Read %s file... ", filename.c_str());
 
     MPQFile m(filename.c_str());
@@ -995,7 +979,7 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     for(ArchiveSet::iterator i = gOpenArchives.begin(); i != gOpenArchives.end();++i)
     {
         std::vector<std::string> files;
-        (*i)->GetFileListTo(files);
+        i->GetFileListTo(files);
         for (std::vector<std::string>::iterator iter = files.begin(); iter != files.end(); ++iter)
             if (iter->rfind(".dbc") == iter->length() - strlen(".dbc"))
                     dbcfiles.insert(*iter);
@@ -1006,14 +990,14 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     CreateDir(path);
     if(!basicLocale)
     {
-        path += langs[locale];
+        path += MpqLocaleNames[locale];
         path += "/";
         CreateDir(path);
     }
 
     // extract Build info file
     {
-        std::string mpq_name = std::string("component.wow-") + langs[locale] + ".txt";
+        std::string mpq_name = Trinity::StringFormat("component.wow-{}.txt", MpqLocaleNames[locale]);
         std::string filename = path + mpq_name;
 
         ExtractFile(mpq_name.c_str(), filename);
@@ -1064,7 +1048,7 @@ void ExtractCameraFiles(int locale, bool basicLocale)
     CreateDir(path);
     if (!basicLocale)
     {
-        path += langs[locale];
+        path += MpqLocaleNames[locale];
         path += "/";
         CreateDir(path);
     }
@@ -1085,42 +1069,6 @@ void ExtractCameraFiles(int locale, bool basicLocale)
     printf("Extracted %u camera files\n", count);
 }
 
-void LoadLocaleMPQFiles(int const locale)
-{
-    std::string fileName = Trinity::StringFormat("{}/Data/{}/locale-{}.MPQ", input_path, langs[locale], langs[locale]);
-
-    new MPQArchive(fileName.c_str());
-
-    for(int i = 1; i < 5; ++i)
-    {
-        std::string ext;
-        if (i > 1)
-            ext = Trinity::StringFormat("-{}", i);
-
-        fileName = Trinity::StringFormat("{}/Data/{}/patch-{}{}.MPQ", input_path, langs[locale], langs[locale], ext);
-        if (boost::filesystem::exists(fileName))
-            new MPQArchive(fileName.c_str());
-    }
-}
-
-void LoadCommonMPQFiles()
-{
-    std::string fileName;
-    int count = sizeof(CONF_mpq_list)/sizeof(char*);
-    for(int i = 0; i < count; ++i)
-    {
-        fileName = Trinity::StringFormat("{}/Data/{}", input_path, CONF_mpq_list[i]);
-        if (boost::filesystem::exists(fileName))
-            new MPQArchive(fileName.c_str());
-    }
-}
-
-inline void CloseMPQFiles()
-{
-    for(ArchiveSet::iterator j = gOpenArchives.begin(); j != gOpenArchives.end();++j) (*j)->close();
-        gOpenArchives.clear();
-}
-
 int main(int argc, char * arg[])
 {
     Trinity::VerifyOsVersion();
@@ -1134,38 +1082,35 @@ int main(int argc, char * arg[])
     int FirstLocale = -1;
     uint32 build = 0;
 
-    for (int i = 0; i < LANG_COUNT; i++)
+    for (std::size_t i = 0; i < MpqLocaleNames.size(); i++)
     {
-        std::string filename = Trinity::StringFormat("{}/Data/{}/locale-{}.MPQ", input_path, langs[i], langs[i]);
-        if (boost::filesystem::exists(filename))
+        //Open MPQs
+        if (!MPQ::OpenArchives(input_path, MpqLocaleNames[i]))
+            continue;
+
+        printf("Detected locale: " STRING_VIEW_FMT "\n", STRING_VIEW_FMT_ARG(MpqLocaleNames[i]));
+
+        if((CONF_extract & EXTRACT_DBC) == 0)
         {
-            printf("Detected locale: %s\n", langs[i]);
-
-            //Open MPQs
-            LoadLocaleMPQFiles(i);
-
-            if((CONF_extract & EXTRACT_DBC) == 0)
-            {
-                FirstLocale = i;
-                build = ReadBuild(FirstLocale);
-                printf("Detected client build: %u\n", build);
-                break;
-            }
-
-            //Extract DBC files
-            if(FirstLocale < 0)
-            {
-                FirstLocale = i;
-                build = ReadBuild(FirstLocale);
-                printf("Detected client build: %u\n", build);
-                ExtractDBCFiles(i, true);
-            }
-            else
-                ExtractDBCFiles(i, false);
-
-            //Close MPQs
-            CloseMPQFiles();
+            FirstLocale = i;
+            build = ReadBuild(FirstLocale);
+            printf("Detected client build: %u\n", build);
+            break;
         }
+
+        //Extract DBC files
+        if(FirstLocale < 0)
+        {
+            FirstLocale = i;
+            build = ReadBuild(FirstLocale);
+            printf("Detected client build: %u\n", build);
+            ExtractDBCFiles(i, true);
+        }
+        else
+            ExtractDBCFiles(i, false);
+
+        //Close MPQs
+        MPQ::CloseArchives();
     }
 
     if(FirstLocale < 0)
@@ -1176,30 +1121,28 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_CAMERA)
     {
-        printf("Using locale: %s\n", langs[FirstLocale]);
+        printf("Using locale: " STRING_VIEW_FMT "\n", STRING_VIEW_FMT_ARG(MpqLocaleNames[FirstLocale]));
 
         // Open MPQs
-        LoadLocaleMPQFiles(FirstLocale);
-        LoadCommonMPQFiles();
+        MPQ::OpenArchives(input_path, MpqLocaleNames[FirstLocale]);
 
         ExtractCameraFiles(FirstLocale, true);
         // Close MPQs
-        CloseMPQFiles();
+        MPQ::CloseArchives();
     }
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        printf("Using locale: %s\n", langs[FirstLocale]);
+        printf("Using locale: " STRING_VIEW_FMT "\n", STRING_VIEW_FMT_ARG(MpqLocaleNames[FirstLocale]));
 
         // Open MPQs
-        LoadLocaleMPQFiles(FirstLocale);
-        LoadCommonMPQFiles();
+        MPQ::OpenArchives(input_path, MpqLocaleNames[FirstLocale]);
 
         // Extract maps
         ExtractMapsFromMpq(build);
 
         // Close MPQs
-        CloseMPQFiles();
+        MPQ::CloseArchives();
     }
 
     return 0;

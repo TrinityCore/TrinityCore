@@ -24,32 +24,16 @@
 #include "Util.h"
 #include "wdtfile.h"
 #include "wmo.h"
-#include "mpq_libmpq04.h"
+#include "mpq_libmpq.h"
 #include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <fstream>
-#include <iostream>
 #include <list>
 #include <map>
 #include <unordered_map>
 #include <vector>
 #include <cstdio>
-#include <cerrno>
-#include <sys/stat.h>
-
-#ifdef _WIN32
-    #include <direct.h>
-    #define mkdir _mkdir
-#endif
-
-//------------------------------------------------------------------------------
-// Defines
-
-#define MPQ_BLOCK_SIZE 0x1000
 
 //-----------------------------------------------------------------------------
-
-extern ArchiveSet gOpenArchives;
 
 typedef struct
 {
@@ -66,6 +50,7 @@ bool preciseVectorData = false;
 std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
+static constexpr std::array<std::string_view, 12> MpqLocaleNames = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 
 char const* szWorkDirWmo = "./Buildings";
 
@@ -226,123 +211,6 @@ void ParsMapFiles()
     }
 }
 
-void getGamePath()
-{
-#ifdef _WIN32
-    strcpy(input_path,"Data\\");
-#else
-    strcpy(input_path,"Data/");
-#endif
-}
-
-bool scan_patches(char const* scanmatch, std::vector<std::string>& pArchiveNames)
-{
-    int i;
-    char path[512];
-
-    for (i = 1; i <= 99; i++)
-    {
-        if (i != 1)
-        {
-            sprintf(path, "%s-%d.MPQ", scanmatch, i);
-        }
-        else
-        {
-            sprintf(path, "%s.MPQ", scanmatch);
-        }
-#ifdef __linux__
-        if(FILE* h = fopen64(path, "rb"))
-#else
-        if(FILE* h = fopen(path, "rb"))
-#endif
-        {
-            fclose(h);
-            //matches.push_back(path);
-            pArchiveNames.push_back(path);
-        }
-    }
-
-    return(true);
-}
-
-bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
-{
-    if(!hasInputPathParam)
-        getGamePath();
-
-    printf("\nGame path: %s\n", input_path);
-
-    std::string in_path(input_path);
-    std::vector<std::string> locales, searchLocales;
-
-    searchLocales.push_back("enGB");
-    searchLocales.push_back("enUS");
-    searchLocales.push_back("deDE");
-    searchLocales.push_back("esES");
-    searchLocales.push_back("frFR");
-    searchLocales.push_back("koKR");
-    searchLocales.push_back("zhCN");
-    searchLocales.push_back("zhTW");
-    searchLocales.push_back("enCN");
-    searchLocales.push_back("enTW");
-    searchLocales.push_back("esMX");
-    searchLocales.push_back("ruRU");
-
-    for (std::vector<std::string>::iterator i = searchLocales.begin(); i != searchLocales.end(); ++i)
-    {
-        std::string localePath = in_path + *i;
-        // check if locale exists:
-        struct stat status;
-        if (stat(localePath.c_str(), &status))
-            continue;
-        if ((status.st_mode & S_IFDIR) == 0)
-            continue;
-        printf("Found locale '%s'\n", i->c_str());
-        locales.push_back(*i);
-    }
-    printf("\n");
-
-    // open locale expansion and common files
-    printf("Adding data files from locale directories.\n");
-    for (std::vector<std::string>::iterator i = locales.begin(); i != locales.end(); ++i)
-    {
-        pArchiveNames.push_back(in_path + *i + "/locale-" + *i + ".MPQ");
-        pArchiveNames.push_back(in_path + *i + "/expansion-locale-" + *i + ".MPQ");
-        pArchiveNames.push_back(in_path + *i + "/lichking-locale-" + *i + ".MPQ");
-    }
-
-    // open expansion and common files
-    pArchiveNames.push_back(input_path + std::string("common.MPQ"));
-    pArchiveNames.push_back(input_path + std::string("common-2.MPQ"));
-    pArchiveNames.push_back(input_path + std::string("expansion.MPQ"));
-    pArchiveNames.push_back(input_path + std::string("lichking.MPQ"));
-
-    // now, scan for the patch levels in the core dir
-    printf("Scanning patch levels from data directory.\n");
-    if (!scan_patches(Trinity::StringFormat("{}patch", input_path).c_str(), pArchiveNames))
-        return(false);
-
-    // now, scan for the patch levels in locale dirs
-    printf("Scanning patch levels from locale directories.\n");
-    bool foundOne = false;
-    for (std::string const& locale : locales)
-    {
-        printf("Locale: %s\n", locale.c_str());
-        if(scan_patches(Trinity::StringFormat("{}{}/patch-{}", input_path, locale, locale).c_str(), pArchiveNames))
-            foundOne = true;
-    }
-
-    printf("\n");
-
-    if(!foundOne)
-    {
-        printf("no locale found\n");
-        return false;
-    }
-
-    return true;
-}
-
 bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
@@ -423,12 +291,10 @@ int main(int argc, char ** argv)
         return 1;
 
     // some simple check if working dir is dirty
-    else
+    boost::filesystem::path sdir_bin = boost::filesystem::path(szWorkDirWmo) / "dir_bin";
     {
-        std::string sdir = std::string(szWorkDirWmo) + "/dir";
-        std::string sdir_bin = std::string(szWorkDirWmo) + "/dir_bin";
-        struct stat status;
-        if (!stat(sdir.c_str(), &status) || !stat(sdir_bin.c_str(), &status))
+        boost::system::error_code ec;
+        if (boost::filesystem::exists(sdir_bin, ec))
         {
             printf("Your output directory seems to be polluted, please use an empty directory!\n");
             printf("<press return to exit>");
@@ -440,24 +306,14 @@ int main(int argc, char ** argv)
     printf("Extract %s. Beginning work ....\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
-    if (mkdir(szWorkDirWmo
-#if defined(__linux__) || defined(__APPLE__) || defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-                    , 0711
-#endif
-                    ))
-            success = (errno == EEXIST);
+    success = boost::filesystem::create_directories(szWorkDirWmo) || boost::filesystem::is_directory(szWorkDirWmo);
 
-    // prepare archive name list
-    std::vector<std::string> archiveNames;
-    fillArchiveNameVector(archiveNames);
-    for (size_t i = 0; i < archiveNames.size(); ++i)
+    auto foundLocale = std::ranges::find_if(MpqLocaleNames, [](std::string_view localeName)
     {
-        MPQArchive *archive = new MPQArchive(archiveNames[i].c_str());
-        if (gOpenArchives.empty() || gOpenArchives.front() != archive)
-            delete archive;
-    }
+        return MPQ::OpenArchives(input_path, localeName);
+    });
 
-    if (gOpenArchives.empty())
+    if (foundLocale == MpqLocaleNames.end())
     {
         printf("FATAL ERROR: None MPQ archive found by path '%s'. Use -d option with proper path.\n", input_path);
         return 1;
