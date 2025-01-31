@@ -62,6 +62,8 @@ namespace DeephaulRavine
 
         static constexpr uint32 AllianceCaptureMineCart = 59689; // copied from Silvershard Mines
         static constexpr uint32 HordeCaptureMineCart = 59690; // copied from Silvershard Mines
+
+        static constexpr uint32 FlagDropped = 18361;
     }
 
     namespace Creatures
@@ -185,6 +187,8 @@ namespace DeephaulRavine
         static constexpr uint32 RuneOfFrequency = 422968;
 
         static constexpr uint32 CartExhaustion = 456466;
+
+        static constexpr uint32 RecentlyDroppedFlag = 50327;
     }
 
     namespace WorldStates
@@ -394,6 +398,11 @@ struct battleground_deephaul_ravine : BattlegroundScript
                 UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, player->GetBGTeam() == ALLIANCE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 break;
             case FlagState::Dropped:
+                if (player->GetBGTeam() == ALLIANCE)
+                    battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::FlagDropped, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                else
+                    battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::FlagDropped, CHAT_MSG_BG_SYSTEM_HORDE, player);
+                player->CastSpell(player, DeephaulRavine::Spells::RecentlyDroppedFlag, true);
                 UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 break;
