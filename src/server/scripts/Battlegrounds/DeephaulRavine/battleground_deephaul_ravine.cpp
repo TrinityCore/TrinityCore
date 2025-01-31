@@ -20,6 +20,7 @@
 #include "Battleground.h"
 #include "BattlegroundScript.h"
 #include "GameObject.h"
+#include "Language.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
