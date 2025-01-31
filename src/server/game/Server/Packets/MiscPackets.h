@@ -893,7 +893,7 @@ namespace WorldPackets
             int32 OverrideLightID = 0;
         };
 
-        class DisplayGameError final : public ServerPacket
+        class TC_GAME_API DisplayGameError final : public ServerPacket
         {
         public:
             DisplayGameError(GameError error) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1), Error(error) { }
