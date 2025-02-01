@@ -68,6 +68,7 @@ struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
 struct MountCapabilityEntry;
+struct SpellClickInfo;
 struct SpellValue;
 struct TeleportLocation;
 
@@ -1730,6 +1731,7 @@ class TC_GAME_API Unit : public WorldObject
         TransportBase* GetDirectTransport() const;
 
         void HandleSpellClick(Unit* clicker, int8 seatId = -1);
+        bool HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerCastFlags flags = TRIGGERED_NONE, SpellClickInfo const* spellClickInfo = nullptr);
         void EnterVehicle(Unit* base, int8 seatId = -1);
         virtual void ExitVehicle(Position const* exitPosition = nullptr);
         void ChangeSeat(int8 seatId, bool next = true);
