@@ -38,6 +38,7 @@ class BattlegroundMap;
 class BattlegroundScript;
 class Channel;
 class Conversation;
+class ConversationAI;
 class Creature;
 class CreatureAI;
 class DynamicObject;
@@ -911,17 +912,8 @@ class TC_GAME_API ConversationScript : public ScriptObject
 
         ~ConversationScript();
 
-        // Called when Conversation is created but not added to Map yet.
-        virtual void OnConversationCreate(Conversation* conversation, Unit* creator);
-
-        // Called when Conversation is started
-        virtual void OnConversationStart(Conversation* conversation);
-
-        // Called when player sends CMSG_CONVERSATION_LINE_STARTED with valid conversation guid
-        virtual void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender);
-
-        // Called for each update tick
-        virtual void OnConversationUpdate(Conversation* conversation, uint32 diff);
+        // Called when a ConversationAI object is needed for the conversation.
+        virtual ConversationAI* GetAI(Conversation* conversation) const;
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -1279,10 +1271,8 @@ class TC_GAME_API ScriptMgr
 
     public: /* ConversationScript */
 
-        void OnConversationCreate(Conversation* conversation, Unit* creator);
-        void OnConversationStart(Conversation* conversation);
-        void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender);
-        void OnConversationUpdate(Conversation* conversation, uint32 diff);
+        bool CanCreateConversationAI(uint32 scriptId) const;
+        ConversationAI* GetConversationAI(Conversation* conversation);
 
     public: /* SceneScript */
 
@@ -1404,6 +1394,15 @@ class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
         AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
 };
 #define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
+
+template <class AI>
+class GenericConversationScript : public ConversationScript
+{
+public:
+    GenericConversationScript(char const* name) : ConversationScript(name) {}
+    ConversationAI* GetAI(Conversation* conversation) const override { return new AI(conversation); }
+};
+#define RegisterConversationAI(ai_name) new GenericConversationScript<ai_name>(#ai_name)
 
 template<class Script>
 class GenericBattlegroundMapScript : public BattlegroundMapScript

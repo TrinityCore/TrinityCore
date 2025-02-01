@@ -147,40 +147,39 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemBonuses const& itemBonusInstanceDat
 
 ByteBuffer& operator>>(ByteBuffer& data, ItemBonuses& itemBonusInstanceData)
 {
-    uint32 bonusListIdSize;
-
     itemBonusInstanceData.Context = data.read<ItemContext>();
+    uint32 bonusListIdSize;
     data >> bonusListIdSize;
+    if (bonusListIdSize > 32)
+        throw PacketArrayMaxCapacityException(bonusListIdSize, 32);
 
-    for (uint32 i = 0u; i < bonusListIdSize; ++i)
-    {
-        uint32 bonusId;
-        data >> bonusId;
-        itemBonusInstanceData.BonusListIDs.push_back(bonusId);
-    }
+    itemBonusInstanceData.BonusListIDs.resize(bonusListIdSize);
+
+    for (int32& bonusListID : itemBonusInstanceData.BonusListIDs)
+        data >> bonusListID;
 
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, ItemMod const& itemMod)
 {
-    data << int32(itemMod.Value);
     data << uint8(itemMod.Type);
+    data << int32(itemMod.Value);
 
     return data;
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, ItemMod& itemMod)
 {
+    data >> As<uint8>(itemMod.Type);
     data >> itemMod.Value;
-    itemMod.Type = data.read<ItemModifier, uint8>();
 
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, ItemModList const& itemModList)
 {
-    data.WriteBits(itemModList.Values.size(), 6);
+    data << BitsSize<6>(itemModList.Values);
     data.FlushBits();
 
     for (ItemMod const& itemMod : itemModList.Values)
@@ -191,7 +190,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemModList const& itemModList)
 
 ByteBuffer& operator>>(ByteBuffer& data, ItemModList& itemModList)
 {
-    itemModList.Values.resize(data.ReadBits(6));
+    data >> BitsSize<6>(itemModList.Values);
     data.ResetBitPos();
 
     for (ItemMod& itemMod : itemModList.Values)

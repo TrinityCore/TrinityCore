@@ -16,13 +16,14 @@
  */
 
 #include "M2Stores.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "M2Structure.h"
+#include "MapUtils.h"
 #include "Timer.h"
-#include <boost/filesystem/path.hpp>
 #include <G3D/Vector4.h>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <fstream>
 
 typedef std::vector<FlyByCamera> FlyByCameraCollection;
@@ -191,8 +192,7 @@ TC_GAME_API void LoadM2Cameras(std::string const& dataPath)
             continue;
 
         // Get file size
-        m2file.seekg(0, std::ios::end);
-        std::streamoff fileSize = m2file.tellg();
+        std::streamoff fileSize = boost::filesystem::file_size(filename);
 
         // Reject if not at least the size of the header
         if (static_cast<uint32>(fileSize) < sizeof(M2Header) + 4)
@@ -203,7 +203,6 @@ TC_GAME_API void LoadM2Cameras(std::string const& dataPath)
         }
 
         // Read 4 bytes (signature)
-        m2file.seekg(0, std::ios::beg);
         char fileCheck[5];
         m2file.read(fileCheck, 4);
         fileCheck[4] = '\0';

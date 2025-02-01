@@ -1,0 +1,121 @@
+syntax = "proto2";
+
+import "api/client/v1/club_notification.proto";
+package bgs.protocol.club.v1.client;
+
+option optimize_for = CODE_SIZE;
+option cc_generic_services = false;
+
+service ClubListener {
+  option (.bgs.protocol.service_options) = {
+    descriptor_name: "bnet.protocol.club.v1.ClubListener"
+  };
+  option (.bgs.protocol.sdk_service_options) = {
+    inbound: true
+  };
+  rpc OnSubscribe(.bgs.protocol.club.v1.client.SubscribeNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 1
+    };
+  }
+  rpc OnUnsubscribe(.bgs.protocol.club.v1.client.UnsubscribeNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 2
+    };
+  }
+  rpc OnStateChanged(.bgs.protocol.club.v1.client.StateChangedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 3
+    };
+  }
+  rpc OnSettingsChanged(.bgs.protocol.club.v1.client.SettingsChangedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 4
+    };
+  }
+  rpc OnMemberAdded(.bgs.protocol.club.v1.client.MemberAddedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 30
+    };
+  }
+  rpc OnMemberRemoved(.bgs.protocol.club.v1.client.MemberRemovedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 31
+    };
+  }
+  rpc OnMemberStateChanged(.bgs.protocol.club.v1.client.MemberStateChangedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 32
+    };
+  }
+  rpc OnSubscriberStateChanged(.bgs.protocol.club.v1.client.SubscriberStateChangedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 33
+    };
+  }
+  rpc OnMemberRoleChanged(.bgs.protocol.club.v1.client.MemberRoleChangedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 34
+    };
+  }
+  rpc OnInvitationAdded(.bgs.protocol.club.v1.client.InvitationAddedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 50
+    };
+  }
+  rpc OnInvitationRemoved(.bgs.protocol.club.v1.client.InvitationRemovedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 51
+    };
+  }
+  rpc OnSuggestionAdded(.bgs.protocol.club.v1.client.SuggestionAddedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 70
+    };
+  }
+  rpc OnSuggestionRemoved(.bgs.protocol.club.v1.client.SuggestionRemovedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 71
+    };
+  }
+  rpc OnStreamAdded(.bgs.protocol.club.v1.client.StreamAddedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 100
+    };
+  }
+  rpc OnStreamRemoved(.bgs.protocol.club.v1.client.StreamRemovedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 101
+    };
+  }
+  rpc OnStreamStateChanged(.bgs.protocol.club.v1.client.StreamStateChangedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 102
+    };
+  }
+  rpc OnStreamMessageAdded(.bgs.protocol.club.v1.client.StreamMessageAddedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 150
+    };
+  }
+  rpc OnStreamMessageUpdated(.bgs.protocol.club.v1.client.StreamMessageUpdatedNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 152
+    };
+  }
+  rpc OnStreamTypingIndicator(.bgs.protocol.club.v1.client.StreamTypingIndicatorNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 153
+    };
+  }
+  rpc OnStreamUnreadIndicator(.bgs.protocol.club.v1.client.StreamUnreadIndicatorNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 154
+    };
+  }
+  rpc OnStreamAdvanceViewTime(.bgs.protocol.club.v1.client.StreamAdvanceViewTimeNotification) returns (.bgs.protocol.NO_RESPONSE) {
+    option (.bgs.protocol.method_options) = {
+      id: 155
+    };
+  }
+}

@@ -30,7 +30,7 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Quantity;
     _worldPacket >> Muid;
     _worldPacket >> Slot;
-    ItemType = _worldPacket.read<ItemVendorType, int32>();
+    _worldPacket >> As<int32>(ItemType);
     _worldPacket >> Item;
 }
 
@@ -48,7 +48,7 @@ WorldPacket const* WorldPackets::Item::BuyFailed::Write()
 {
     _worldPacket << VendorGUID;
     _worldPacket << uint32(Muid);
-    _worldPacket << uint8(Reason);
+    _worldPacket << int32(Reason);
 
     return &_worldPacket;
 }
@@ -251,27 +251,28 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << PlayerGUID;
     _worldPacket << uint8(Slot);
     _worldPacket << int32(SlotInBag);
-    _worldPacket << int32(QuestLogItemID);
+    _worldPacket << int32(ProxyItemID);
     _worldPacket << int32(Quantity);
     _worldPacket << int32(QuantityInInventory);
-    _worldPacket << int32(DungeonEncounterID);
+    _worldPacket << int32(QuantityInQuestLog);
+    _worldPacket << int32(EncounterID);
     _worldPacket << int32(BattlePetSpeciesID);
     _worldPacket << int32(BattlePetBreedID);
-    _worldPacket << uint32(BattlePetBreedQuality);
+    _worldPacket << uint8(BattlePetBreedQuality);
     _worldPacket << int32(BattlePetLevel);
     _worldPacket << ItemGUID;
     _worldPacket << uint32(Toasts.size());
     for (UiEventToast const& uiEventToast : Toasts)
         _worldPacket << uiEventToast;
 
-    _worldPacket.WriteBit(Pushed);
-    _worldPacket.WriteBit(Created);
-    _worldPacket.WriteBit(Unused_1017);
-    _worldPacket.WriteBits(DisplayText, 3);
-    _worldPacket.WriteBit(IsBonusRoll);
-    _worldPacket.WriteBit(IsEncounterLoot);
-    _worldPacket.WriteBit(CraftingData.has_value());
-    _worldPacket.WriteBit(FirstCraftOperationID.has_value());
+    _worldPacket << Bits<1>(Pushed);
+    _worldPacket << Bits<1>(Created);
+    _worldPacket << Bits<1>(FakeQuestItem);
+    _worldPacket << Bits<3>(ChatNotifyType);
+    _worldPacket << Bits<1>(IsBonusRoll);
+    _worldPacket << Bits<1>(IsPersonalLoot);
+    _worldPacket << OptionalInit(CraftingData);
+    _worldPacket << OptionalInit(FirstCraftOperationID);
     _worldPacket.FlushBits();
 
     _worldPacket << Item;
@@ -377,15 +378,15 @@ void WorldPackets::Item::RemoveNewItem::Read()
 void WorldPackets::Item::ChangeBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
-    FlagToChange = _worldPacket.read<BagSlotFlags, uint32>();
-    On = _worldPacket.ReadBit();
+    _worldPacket >> As<uint32>(FlagToChange);
+    _worldPacket >> Bits<1>(On);
 }
 
 void WorldPackets::Item::ChangeBankBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
-    FlagToChange = _worldPacket.read<BagSlotFlags, uint32>();
-    On = _worldPacket.ReadBit();
+    _worldPacket >> As<uint32>(FlagToChange);
+    _worldPacket >> Bits<1>(On);
 }
 
 void WorldPackets::Item::SetBackpackAutosortDisabled::Read()

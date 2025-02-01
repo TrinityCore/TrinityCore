@@ -82,14 +82,14 @@ class TC_PROTO_API EntityId : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required fixed64 high = 1;
+  // optional fixed64 high = 1;
   inline bool has_high() const;
   inline void clear_high();
   static const int kHighFieldNumber = 1;
   inline ::google::protobuf::uint64 high() const;
   inline void set_high(::google::protobuf::uint64 value);
 
-  // required fixed64 low = 2;
+  // optional fixed64 low = 2;
   inline bool has_low() const;
   inline void clear_low();
   static const int kLowFieldNumber = 2;
@@ -204,7 +204,7 @@ class TC_PROTO_API Identity : public ::google::protobuf::Message {
 
 // EntityId
 
-// required fixed64 high = 1;
+// optional fixed64 high = 1;
 inline bool EntityId::has_high() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -228,7 +228,7 @@ inline void EntityId::set_high(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.EntityId.high)
 }
 
-// required fixed64 low = 2;
+// optional fixed64 low = 2;
 inline bool EntityId::has_low() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }

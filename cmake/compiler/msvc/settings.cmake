@@ -28,17 +28,7 @@ target_compile_options(trinity-compile-option-interface
   INTERFACE
     /permissive-)
 
-if(PLATFORM EQUAL 64)
-  # This definition is necessary to work around a bug with Intellisense described
-  # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
-  # debugger functionality.
-  target_compile_definitions(trinity-compile-option-interface
-    INTERFACE
-      -D_WIN64)
-
-  message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
-
-else()
+if(PLATFORM EQUAL 32)
   # mark 32 bit executables large address aware so they can use > 2GB address space
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   message(STATUS "MSVC: Enabled large address awareness")
@@ -88,24 +78,24 @@ endif()
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
+    _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
 message(STATUS "MSVC: Overloaded standard names")
 
 # Ignore warnings about older, less secure functions
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_CRT_SECURE_NO_WARNINGS)
+    _CRT_SECURE_NO_WARNINGS)
 message(STATUS "MSVC: Disabled NON-SECURE warnings")
 
 # Ignore warnings about POSIX deprecation
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_CRT_NONSTDC_NO_WARNINGS)
+    _CRT_NONSTDC_NO_WARNINGS)
 
 # Force math constants like M_PI to be available
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_USE_MATH_DEFINES)
+    _USE_MATH_DEFINES)
 
 message(STATUS "MSVC: Disabled POSIX warnings")
 
@@ -157,8 +147,8 @@ target_compile_options(trinity-compile-option-interface
 if(ASAN)
   target_compile_definitions(trinity-compile-option-interface
     INTERFACE
-      -D_DISABLE_STRING_ANNOTATION
-      -D_DISABLE_VECTOR_ANNOTATION)
+      _DISABLE_STRING_ANNOTATION
+      _DISABLE_VECTOR_ANNOTATION)
 
   target_compile_options(trinity-compile-option-interface
     INTERFACE

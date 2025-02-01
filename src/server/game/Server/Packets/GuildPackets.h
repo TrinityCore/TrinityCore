@@ -136,16 +136,6 @@ namespace WorldPackets
             int32 GuildFlags = 0;
         };
 
-        class GuildRosterUpdate final : public ServerPacket
-        {
-        public:
-            GuildRosterUpdate() : ServerPacket(SMSG_GUILD_ROSTER_UPDATE, 4) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<GuildRosterMemberData> MemberData;
-        };
-
         class GuildUpdateMotdText final : public ClientPacket
         {
         public:
@@ -173,7 +163,9 @@ namespace WorldPackets
         public:
             AcceptGuildInvite(WorldPacket&& packet) : ClientPacket(CMSG_ACCEPT_GUILD_INVITE, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            ObjectGuid GuildGuid;
         };
 
         class GuildDeclineInvitation final : public ClientPacket
@@ -181,7 +173,10 @@ namespace WorldPackets
         public:
             GuildDeclineInvitation(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_DECLINE_INVITATION, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            ObjectGuid GuildGuid;
+            bool IsAuto = false;
         };
 
         class DeclineGuildInvites final : public ClientPacket
@@ -202,7 +197,7 @@ namespace WorldPackets
             void Read() override;
 
             std::string Name;
-            Optional<int32> Unused910;
+            Optional<int32> ArenaTeam;
         };
 
         class GuildInvite final : public ServerPacket
@@ -250,7 +245,6 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint32 VirtualRealmAddress = 0;
             std::string Name;
-            bool Mobile = false;
             bool LoggedOn = false;
         };
 
@@ -685,9 +679,9 @@ namespace WorldPackets
         struct GuildRewardItem
         {
             uint32 ItemID = 0;
-            uint32 Unk4 = 0;
+            uint32 AchievementLogic = 0;
             std::vector<uint32> AchievementsRequired;
-            Trinity::RaceMask<uint64> RaceMask = { 0 };
+            Trinity::RaceMask<uint64> RaceMask = { };
             int32 MinGuildLevel = 0;
             int32 MinGuildRep = 0;
             uint64 Cost = 0;

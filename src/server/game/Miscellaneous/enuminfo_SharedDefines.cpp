@@ -1053,7 +1053,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr6>::ToString(SpellAttr6 value)
         case SPELL_ATTR6_NOT_AN_ATTACK: return { "SPELL_ATTR6_NOT_AN_ATTACK", "Not an Attack", "" };
         case SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC: return { "SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC", "Can Assist Immune PC", "" };
         case SPELL_ATTR6_IGNORE_FOR_MOD_TIME_RATE: return { "SPELL_ATTR6_IGNORE_FOR_MOD_TIME_RATE", "Ignore For Mod Time Rate", "" };
-        case SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES: return { "SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES", "Do Not Consume Resources", "" };
+        case SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES: return { "SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES", "Do Not Consume Resources", "Requires power/reagents to cast but doesn't consume them" };
         case SPELL_ATTR6_FLOATING_COMBAT_TEXT_ON_CAST: return { "SPELL_ATTR6_FLOATING_COMBAT_TEXT_ON_CAST", "Floating Combat Text On Cast (client only)", "" };
         case SPELL_ATTR6_AURA_IS_WEAPON_PROC: return { "SPELL_ATTR6_AURA_IS_WEAPON_PROC", "Aura Is Weapon Proc", "" };
         case SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS: return { "SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS", "Do Not Chain To Crowd-Controlled Targets", "Implicit targeting (chaining and area targeting) will not impact crowd controlled targets" };
@@ -1462,11 +1462,11 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr9>::ToString(SpellAttr9 value)
         case SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS: return { "SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS", "Ignore Caster Healing Modifiers", "" };
         case SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED: return { "SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED", "(Programmer Only) Don't consume charge if item deleted", "" };
         case SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT: return { "SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT", "Item Passive On Client", "" };
-        case SPELL_ATTR9_UNK27: return { "SPELL_ATTR9_UNK27", "Unknown attribute 27@Attr9", "" };
-        case SPELL_ATTR9_UNK28: return { "SPELL_ATTR9_UNK28", "Unknown attribute 28@Attr9", "" };
-        case SPELL_ATTR9_UNK29: return { "SPELL_ATTR9_UNK29", "Unknown attribute 29@Attr9", "" };
-        case SPELL_ATTR9_UNK30: return { "SPELL_ATTR9_UNK30", "Unknown attribute 30@Attr9", "" };
-        case SPELL_ATTR9_UNK31: return { "SPELL_ATTR9_UNK31", "Unknown attribute 31@Attr9", "" };
+        case SPELL_ATTR9_FORCE_CORPSE_TARGET: return { "SPELL_ATTR9_FORCE_CORPSE_TARGET", "Force Corpse Target", "Causes the spell to continue executing effects on the target even if one of them kills it" };
+        case SPELL_ATTR9_CANNOT_KILL_TARGET: return { "SPELL_ATTR9_CANNOT_KILL_TARGET", "Cannot Kill Target", "" };
+        case SPELL_ATTR9_LOG_PASSIVE: return { "SPELL_ATTR9_LOG_PASSIVE", "Log Passive (client only)", "Allows passive auras to trigger aura applied/refreshed/removed combat log events" };
+        case SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS: return { "SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS", "No Movement Radius Bonus", "" };
+        case SPELL_ATTR9_CHANNEL_PERSISTS_ON_PET_FOLLOW: return { "SPELL_ATTR9_CHANNEL_PERSISTS_ON_PET_FOLLOW", "Channel Persists on Pet Follow", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -1506,11 +1506,11 @@ TC_API_EXPORT SpellAttr9 EnumUtils<SpellAttr9>::FromIndex(size_t index)
         case 24: return SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS;
         case 25: return SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED;
         case 26: return SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT;
-        case 27: return SPELL_ATTR9_UNK27;
-        case 28: return SPELL_ATTR9_UNK28;
-        case 29: return SPELL_ATTR9_UNK29;
-        case 30: return SPELL_ATTR9_UNK30;
-        case 31: return SPELL_ATTR9_UNK31;
+        case 27: return SPELL_ATTR9_FORCE_CORPSE_TARGET;
+        case 28: return SPELL_ATTR9_CANNOT_KILL_TARGET;
+        case 29: return SPELL_ATTR9_LOG_PASSIVE;
+        case 30: return SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS;
+        case 31: return SPELL_ATTR9_CHANNEL_PERSISTS_ON_PET_FOLLOW;
         default: throw std::out_of_range("index");
     }
 }
@@ -1547,11 +1547,11 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr9>::ToIndex(SpellAttr9 value)
         case SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS: return 24;
         case SPELL_ATTR9_DONT_CONSUME_CHARGE_IF_ITEM_DELETED: return 25;
         case SPELL_ATTR9_ITEM_PASSIVE_ON_CLIENT: return 26;
-        case SPELL_ATTR9_UNK27: return 27;
-        case SPELL_ATTR9_UNK28: return 28;
-        case SPELL_ATTR9_UNK29: return 29;
-        case SPELL_ATTR9_UNK30: return 30;
-        case SPELL_ATTR9_UNK31: return 31;
+        case SPELL_ATTR9_FORCE_CORPSE_TARGET: return 27;
+        case SPELL_ATTR9_CANNOT_KILL_TARGET: return 28;
+        case SPELL_ATTR9_LOG_PASSIVE: return 29;
+        case SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS: return 30;
+        case SPELL_ATTR9_CHANNEL_PERSISTS_ON_PET_FOLLOW: return 31;
         default: throw std::out_of_range("value");
     }
 }
@@ -2100,7 +2100,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr14>::ToString(SpellAttr14 value)
         case SPELL_ATTR14_UNK17: return { "SPELL_ATTR14_UNK17", "Unknown attribute 17@Attr14", "" };
         case SPELL_ATTR14_UNK18: return { "SPELL_ATTR14_UNK18", "Unknown attribute 18@Attr14", "" };
         case SPELL_ATTR14_UNK19: return { "SPELL_ATTR14_UNK19", "Unknown attribute 19@Attr14", "" };
-        case SPELL_ATTR14_UNK20: return { "SPELL_ATTR14_UNK20", "Unknown attribute 20@Attr14", "" };
+        case SPELL_ATTR14_AURA_IS_PRIVATE: return { "SPELL_ATTR14_AURA_IS_PRIVATE", "Aura is private", "Clientside attribue that prevents the aura from being accessed by addons (but is still visible in UI)" };
         case SPELL_ATTR14_UNK21: return { "SPELL_ATTR14_UNK21", "Unknown attribute 21@Attr14", "" };
         case SPELL_ATTR14_UNK22: return { "SPELL_ATTR14_UNK22", "Unknown attribute 22@Attr14", "" };
         case SPELL_ATTR14_UNK23: return { "SPELL_ATTR14_UNK23", "Unknown attribute 23@Attr14", "" };
@@ -2144,7 +2144,7 @@ TC_API_EXPORT SpellAttr14 EnumUtils<SpellAttr14>::FromIndex(size_t index)
         case 17: return SPELL_ATTR14_UNK17;
         case 18: return SPELL_ATTR14_UNK18;
         case 19: return SPELL_ATTR14_UNK19;
-        case 20: return SPELL_ATTR14_UNK20;
+        case 20: return SPELL_ATTR14_AURA_IS_PRIVATE;
         case 21: return SPELL_ATTR14_UNK21;
         case 22: return SPELL_ATTR14_UNK22;
         case 23: return SPELL_ATTR14_UNK23;
@@ -2185,7 +2185,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr14>::ToIndex(SpellAttr14 value)
         case SPELL_ATTR14_UNK17: return 17;
         case SPELL_ATTR14_UNK18: return 18;
         case SPELL_ATTR14_UNK19: return 19;
-        case SPELL_ATTR14_UNK20: return 20;
+        case SPELL_ATTR14_AURA_IS_PRIVATE: return 20;
         case SPELL_ATTR14_UNK21: return 21;
         case SPELL_ATTR14_UNK22: return 22;
         case SPELL_ATTR14_UNK23: return 23;
@@ -2197,6 +2197,135 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr14>::ToIndex(SpellAttr14 value)
         case SPELL_ATTR14_UNK29: return 29;
         case SPELL_ATTR14_UNK30: return 30;
         case SPELL_ATTR14_UNK31: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
+/*******************************************************************\
+|* data for enum 'SpellAttr15' in 'SharedDefines.h' auto-generated *|
+\*******************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SpellAttr15>::ToString(SpellAttr15 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR15_UNK0: return { "SPELL_ATTR15_UNK0", "Unknown attribute 0@Attr15", "" };
+        case SPELL_ATTR15_UNK1: return { "SPELL_ATTR15_UNK1", "Unknown attribute 1@Attr15", "" };
+        case SPELL_ATTR15_UNK2: return { "SPELL_ATTR15_UNK2", "Unknown attribute 2@Attr15", "" };
+        case SPELL_ATTR15_UNK3: return { "SPELL_ATTR15_UNK3", "Unknown attribute 3@Attr15", "" };
+        case SPELL_ATTR15_UNK4: return { "SPELL_ATTR15_UNK4", "Unknown attribute 4@Attr15", "" };
+        case SPELL_ATTR15_UNK5: return { "SPELL_ATTR15_UNK5", "Unknown attribute 5@Attr15", "" };
+        case SPELL_ATTR15_UNK6: return { "SPELL_ATTR15_UNK6", "Unknown attribute 6@Attr15", "" };
+        case SPELL_ATTR15_UNK7: return { "SPELL_ATTR15_UNK7", "Unknown attribute 7@Attr15", "" };
+        case SPELL_ATTR15_UNK8: return { "SPELL_ATTR15_UNK8", "Unknown attribute 8@Attr15", "" };
+        case SPELL_ATTR15_UNK9: return { "SPELL_ATTR15_UNK9", "Unknown attribute 9@Attr15", "" };
+        case SPELL_ATTR15_UNK10: return { "SPELL_ATTR15_UNK10", "Unknown attribute 10@Attr15", "" };
+        case SPELL_ATTR15_UNK11: return { "SPELL_ATTR15_UNK11", "Unknown attribute 11@Attr15", "" };
+        case SPELL_ATTR15_UNK12: return { "SPELL_ATTR15_UNK12", "Unknown attribute 12@Attr15", "" };
+        case SPELL_ATTR15_UNK13: return { "SPELL_ATTR15_UNK13", "Unknown attribute 13@Attr15", "" };
+        case SPELL_ATTR15_UNK14: return { "SPELL_ATTR15_UNK14", "Unknown attribute 14@Attr15", "" };
+        case SPELL_ATTR15_UNK15: return { "SPELL_ATTR15_UNK15", "Unknown attribute 15@Attr15", "" };
+        case SPELL_ATTR15_UNK16: return { "SPELL_ATTR15_UNK16", "Unknown attribute 16@Attr15", "" };
+        case SPELL_ATTR15_UNK17: return { "SPELL_ATTR15_UNK17", "Unknown attribute 17@Attr15", "" };
+        case SPELL_ATTR15_UNK18: return { "SPELL_ATTR15_UNK18", "Unknown attribute 18@Attr15", "" };
+        case SPELL_ATTR15_UNK19: return { "SPELL_ATTR15_UNK19", "Unknown attribute 19@Attr15", "" };
+        case SPELL_ATTR15_UNK20: return { "SPELL_ATTR15_UNK20", "Unknown attribute 20@Attr15", "" };
+        case SPELL_ATTR15_UNK21: return { "SPELL_ATTR15_UNK21", "Unknown attribute 21@Attr15", "" };
+        case SPELL_ATTR15_UNK22: return { "SPELL_ATTR15_UNK22", "Unknown attribute 22@Attr15", "" };
+        case SPELL_ATTR15_UNK23: return { "SPELL_ATTR15_UNK23", "Unknown attribute 23@Attr15", "" };
+        case SPELL_ATTR15_UNK24: return { "SPELL_ATTR15_UNK24", "Unknown attribute 24@Attr15", "" };
+        case SPELL_ATTR15_UNK25: return { "SPELL_ATTR15_UNK25", "Unknown attribute 25@Attr15", "" };
+        case SPELL_ATTR15_UNK26: return { "SPELL_ATTR15_UNK26", "Unknown attribute 26@Attr15", "" };
+        case SPELL_ATTR15_UNK27: return { "SPELL_ATTR15_UNK27", "Unknown attribute 27@Attr15", "" };
+        case SPELL_ATTR15_UNK28: return { "SPELL_ATTR15_UNK28", "Unknown attribute 28@Attr15", "" };
+        case SPELL_ATTR15_UNK29: return { "SPELL_ATTR15_UNK29", "Unknown attribute 29@Attr15", "" };
+        case SPELL_ATTR15_UNK30: return { "SPELL_ATTR15_UNK30", "Unknown attribute 30@Attr15", "" };
+        case SPELL_ATTR15_UNK31: return { "SPELL_ATTR15_UNK31", "Unknown attribute 31@Attr15", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr15>::Count() { return 32; }
+
+template <>
+TC_API_EXPORT SpellAttr15 EnumUtils<SpellAttr15>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return SPELL_ATTR15_UNK0;
+        case 1: return SPELL_ATTR15_UNK1;
+        case 2: return SPELL_ATTR15_UNK2;
+        case 3: return SPELL_ATTR15_UNK3;
+        case 4: return SPELL_ATTR15_UNK4;
+        case 5: return SPELL_ATTR15_UNK5;
+        case 6: return SPELL_ATTR15_UNK6;
+        case 7: return SPELL_ATTR15_UNK7;
+        case 8: return SPELL_ATTR15_UNK8;
+        case 9: return SPELL_ATTR15_UNK9;
+        case 10: return SPELL_ATTR15_UNK10;
+        case 11: return SPELL_ATTR15_UNK11;
+        case 12: return SPELL_ATTR15_UNK12;
+        case 13: return SPELL_ATTR15_UNK13;
+        case 14: return SPELL_ATTR15_UNK14;
+        case 15: return SPELL_ATTR15_UNK15;
+        case 16: return SPELL_ATTR15_UNK16;
+        case 17: return SPELL_ATTR15_UNK17;
+        case 18: return SPELL_ATTR15_UNK18;
+        case 19: return SPELL_ATTR15_UNK19;
+        case 20: return SPELL_ATTR15_UNK20;
+        case 21: return SPELL_ATTR15_UNK21;
+        case 22: return SPELL_ATTR15_UNK22;
+        case 23: return SPELL_ATTR15_UNK23;
+        case 24: return SPELL_ATTR15_UNK24;
+        case 25: return SPELL_ATTR15_UNK25;
+        case 26: return SPELL_ATTR15_UNK26;
+        case 27: return SPELL_ATTR15_UNK27;
+        case 28: return SPELL_ATTR15_UNK28;
+        case 29: return SPELL_ATTR15_UNK29;
+        case 30: return SPELL_ATTR15_UNK30;
+        case 31: return SPELL_ATTR15_UNK31;
+        default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr15>::ToIndex(SpellAttr15 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR15_UNK0: return 0;
+        case SPELL_ATTR15_UNK1: return 1;
+        case SPELL_ATTR15_UNK2: return 2;
+        case SPELL_ATTR15_UNK3: return 3;
+        case SPELL_ATTR15_UNK4: return 4;
+        case SPELL_ATTR15_UNK5: return 5;
+        case SPELL_ATTR15_UNK6: return 6;
+        case SPELL_ATTR15_UNK7: return 7;
+        case SPELL_ATTR15_UNK8: return 8;
+        case SPELL_ATTR15_UNK9: return 9;
+        case SPELL_ATTR15_UNK10: return 10;
+        case SPELL_ATTR15_UNK11: return 11;
+        case SPELL_ATTR15_UNK12: return 12;
+        case SPELL_ATTR15_UNK13: return 13;
+        case SPELL_ATTR15_UNK14: return 14;
+        case SPELL_ATTR15_UNK15: return 15;
+        case SPELL_ATTR15_UNK16: return 16;
+        case SPELL_ATTR15_UNK17: return 17;
+        case SPELL_ATTR15_UNK18: return 18;
+        case SPELL_ATTR15_UNK19: return 19;
+        case SPELL_ATTR15_UNK20: return 20;
+        case SPELL_ATTR15_UNK21: return 21;
+        case SPELL_ATTR15_UNK22: return 22;
+        case SPELL_ATTR15_UNK23: return 23;
+        case SPELL_ATTR15_UNK24: return 24;
+        case SPELL_ATTR15_UNK25: return 25;
+        case SPELL_ATTR15_UNK26: return 26;
+        case SPELL_ATTR15_UNK27: return 27;
+        case SPELL_ATTR15_UNK28: return 28;
+        case SPELL_ATTR15_UNK29: return 29;
+        case SPELL_ATTR15_UNK30: return 30;
+        case SPELL_ATTR15_UNK31: return 31;
         default: throw std::out_of_range("value");
     }
 }
@@ -2530,13 +2659,14 @@ TC_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult valu
         case SPELL_FAILED_CANT_FLY_HERE: return { "SPELL_FAILED_CANT_FLY_HERE", "SPELL_FAILED_CANT_FLY_HERE", "" };
         case SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT: return { "SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT", "SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT", "" };
         case SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN: return { "SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN", "SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN", "" };
+        case SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT: return { "SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT", "SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT", "" };
         case SPELL_FAILED_UNKNOWN: return { "SPELL_FAILED_UNKNOWN", "SPELL_FAILED_UNKNOWN", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 322; }
+TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 323; }
 
 template <>
 TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index)
@@ -2864,7 +2994,8 @@ TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index
         case 318: return SPELL_FAILED_CANT_FLY_HERE;
         case 319: return SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT;
         case 320: return SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN;
-        case 321: return SPELL_FAILED_UNKNOWN;
+        case 321: return SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT;
+        case 322: return SPELL_FAILED_UNKNOWN;
         default: throw std::out_of_range("index");
     }
 }
@@ -3195,7 +3326,8 @@ TC_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
         case SPELL_FAILED_CANT_FLY_HERE: return 318;
         case SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT: return 319;
         case SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN: return 320;
-        case SPELL_FAILED_UNKNOWN: return 321;
+        case SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT: return 321;
+        case SPELL_FAILED_UNKNOWN: return 322;
         default: throw std::out_of_range("value");
     }
 }
@@ -3233,12 +3365,13 @@ TC_API_EXPORT EnumText EnumUtils<AuraStateType>::ToString(AuraStateType value)
         case AURA_STATE_RAID_ENCOUNTER: return { "AURA_STATE_RAID_ENCOUNTER", "AURA_STATE_RAID_ENCOUNTER", "CcTt|" };
         case AURA_STATE_HEALTHY_75_PERCENT: return { "AURA_STATE_HEALTHY_75_PERCENT", "AURA_STATE_HEALTHY_75_PERCENT", "C   |" };
         case AURA_STATE_WOUND_HEALTH_35_80: return { "AURA_STATE_WOUND_HEALTH_35_80", "AURA_STATE_WOUND_HEALTH_35_80", "T |" };
+        case AURA_STATE_WOUNDED_50_PERCENT: return { "AURA_STATE_WOUNDED_50_PERCENT", "AURA_STATE_WOUNDED_50_PERCENT", "C T |" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<AuraStateType>::Count() { return 25; }
+TC_API_EXPORT size_t EnumUtils<AuraStateType>::Count() { return 26; }
 
 template <>
 TC_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
@@ -3270,6 +3403,7 @@ TC_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
         case 22: return AURA_STATE_RAID_ENCOUNTER;
         case 23: return AURA_STATE_HEALTHY_75_PERCENT;
         case 24: return AURA_STATE_WOUND_HEALTH_35_80;
+        case 25: return AURA_STATE_WOUNDED_50_PERCENT;
         default: throw std::out_of_range("index");
     }
 }
@@ -3304,6 +3438,7 @@ TC_API_EXPORT size_t EnumUtils<AuraStateType>::ToIndex(AuraStateType value)
         case AURA_STATE_RAID_ENCOUNTER: return 22;
         case AURA_STATE_HEALTHY_75_PERCENT: return 23;
         case AURA_STATE_WOUND_HEALTH_35_80: return 24;
+        case AURA_STATE_WOUNDED_50_PERCENT: return 25;
         default: throw std::out_of_range("value");
     }
 }

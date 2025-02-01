@@ -127,6 +127,29 @@ enum UnitMoveType : uint8
 
 #define MAX_MOVE_TYPE     9
 
+enum AdvFlyingRateTypeSingle : uint8
+{
+    ADV_FLYING_AIR_FRICTION             = 0,
+    ADV_FLYING_MAX_VEL                  = 1,
+    ADV_FLYING_LIFT_COEFFICIENT         = 2,
+    ADV_FLYING_DOUBLE_JUMP_VEL_MOD      = 3,
+    ADV_FLYING_GLIDE_START_MIN_HEIGHT   = 4,
+    ADV_FLYING_ADD_IMPULSE_MAX_SPEED    = 5,
+    ADV_FLYING_SURFACE_FRICTION         = 14,
+    ADV_FLYING_OVER_MAX_DECELERATION    = 15,
+    ADV_FLYING_LAUNCH_SPEED_COEFFICIENT = 16
+};
+
+enum AdvFlyingRateTypeRange : uint8
+{
+    ADV_FLYING_BANKING_RATE             = 6,
+    ADV_FLYING_PITCHING_RATE_DOWN       = 8,
+    ADV_FLYING_PITCHING_RATE_UP         = 10,
+    ADV_FLYING_TURN_VELOCITY_THRESHOLD  = 12
+};
+
+#define ADV_FLYING_MAX_SPEED_TYPE 17
+
 enum DamageEffectType : uint8
 {
     DIRECT_DAMAGE           = 0,                            // used for normal weapon damage (not for class abilities or spells)
@@ -224,7 +247,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_INFINITE_AOI                                     = 0x40000000,   // TITLE Infinite (AOI)
     UNIT_FLAG2_UNUSED_13                                        = 0x80000000,
 
-    UNIT_FLAG2_DISALLOWED                                       = (UNIT_FLAG2_FEIGN_DEATH | UNIT_FLAG2_IGNORE_REPUTATION | UNIT_FLAG2_COMPREHEND_LANG |
+    UNIT_FLAG2_DISALLOWED                                       = (/* UNIT_FLAG2_FEIGN_DEATH | */ UNIT_FLAG2_IGNORE_REPUTATION | UNIT_FLAG2_COMPREHEND_LANG |
                                                                    UNIT_FLAG2_MIRROR_IMAGE | UNIT_FLAG2_FORCE_MOVEMENT | UNIT_FLAG2_DISARM_OFFHAND |
                                                                    UNIT_FLAG2_DISABLE_PRED_STATS | UNIT_FLAG2_ALLOW_CHANGING_TALENTS | UNIT_FLAG2_DISARM_RANGED |
                                                                 /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION | UNIT_FLAG2_CANNOT_TURN |
@@ -279,7 +302,7 @@ enum UnitFlags3 : uint32
     UNIT_FLAG3_DISALLOWED                                   = (UNIT_FLAG3_UNK0 | /* UNIT_FLAG3_UNCONSCIOUS_ON_DEATH | */ /* UNIT_FLAG3_ALLOW_MOUNTED_COMBAT | */ UNIT_FLAG3_GARRISON_PET |
                                                                /* UNIT_FLAG3_UI_CAN_GET_POSITION | */ /* UNIT_FLAG3_AI_OBSTACLE | */ UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK | */
                                                                UNIT_FLAG3_IGNORE_COMBAT | UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK | UNIT_FLAG3_UNK10 | UNIT_FLAG3_UNK11 |
-                                                               UNIT_FLAG3_UNK12 | UNIT_FLAG3_FAKE_DEAD | /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
+                                                               UNIT_FLAG3_UNK12 | /* UNIT_FLAG3_FAKE_DEAD |*/ /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
                                                                /* UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD | */ UNIT_FLAG3_ALREADY_SKINNED | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS | */ /* UNIT_FLAG3_SUPPRESS_NPC_SOUNDS | */
                                                                UNIT_FLAG3_ALLOW_INTERACTION_WHILE_IN_COMBAT | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
                                                                /* UNIT_FLAG3_FORCE_HIDE_NAMEPLATE | */ UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
@@ -296,7 +319,7 @@ enum NPCFlags : uint32
     UNIT_NPC_FLAG_NONE                  = 0x00000000,
     UNIT_NPC_FLAG_GOSSIP                = 0x00000001,     // TITLE has gossip menu DESCRIPTION 100%
     UNIT_NPC_FLAG_QUESTGIVER            = 0x00000002,     // TITLE is quest giver DESCRIPTION 100%
-    UNIT_NPC_FLAG_UNK1                  = 0x00000004,
+    UNIT_NPC_FLAG_ACCOUNT_BANKER        = 0x00000004,     // TITLE is account banker
     UNIT_NPC_FLAG_UNK2                  = 0x00000008,
     UNIT_NPC_FLAG_TRAINER               = 0x00000010,     // TITLE is trainer DESCRIPTION 100%
     UNIT_NPC_FLAG_TRAINER_CLASS         = 0x00000020,     // TITLE is class trainer DESCRIPTION 100%
@@ -329,6 +352,9 @@ enum NPCFlags : uint32
 };
 
 DEFINE_ENUM_FLAG(NPCFlags);
+
+inline constexpr NPCFlags UNIT_NPC_FLAG_VENDOR_MASK = UNIT_NPC_FLAG_VENDOR | UNIT_NPC_FLAG_VENDOR_AMMO | UNIT_NPC_FLAG_VENDOR_FOOD
+                                                    | UNIT_NPC_FLAG_VENDOR_POISON | UNIT_NPC_FLAG_VENDOR_REAGENT;
 
 // EnumUtils: DESCRIBE THIS
 enum NPCFlags2 : uint32
@@ -445,6 +471,7 @@ enum MovementFlags3 : uint32
     MOVEMENTFLAG3_DISABLE_INERTIA   = 0x00000001,
     MOVEMENTFLAG3_CAN_ADV_FLY       = 0x00000002,
     MOVEMENTFLAG3_ADV_FLYING        = 0x00000004,
+    MOVEMENTFLAG3_CANT_SWIM         = 0x00002000,
 };
 
 enum HitInfo

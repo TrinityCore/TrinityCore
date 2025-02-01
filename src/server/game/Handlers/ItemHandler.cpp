@@ -670,7 +670,6 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 price -= CalculatePct(price, priceMod);
 
             item.MuID = slot + 1; // client expects counting to start at 1
-            item.Durability = itemTemplate->MaxDurability;
             item.ExtendedCostID = vendorItem->ExtendedCost;
             item.Type = vendorItem->Type;
             item.Quantity = leftInStock;
@@ -1218,6 +1217,13 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     }
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+}
+
+void WorldSession::HandleSortAccountBankBags(WorldPackets::Item::SortAccountBankBags& /*sortAccountBankBags*/)
+{
+    // TODO: Implement sorting
+    // Placeholder to prevent completely locking out bags clientside
+    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
 void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)

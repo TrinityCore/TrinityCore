@@ -47,7 +47,7 @@
 #include "QueryHolder.h"
 #include "Random.h"
 #include "RBAC.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "WardenWin.h"
@@ -106,7 +106,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 
 /// WorldSession constructor
 WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
-    std::string os, Minutes timezoneOffset, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+    std::string os, Minutes timezoneOffset, uint32 build, ClientBuild::VariantId clientBuildVariant, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -119,6 +119,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     m_accountExpansion(expansion),
     m_expansion(std::min<uint8>(expansion, sWorld->getIntConfig(CONFIG_EXPANSION))),
     _os(std::move(os)),
+    _clientBuild(build),
+    _clientBuildVariant(clientBuildVariant),
     _battlenetRequestToken(0),
     _logoutTime(0),
     m_inQueue(false),
@@ -210,7 +212,7 @@ std::string WorldSession::GetPlayerInfo() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
 {
-    if (packet->GetOpcode() < MIN_SMSG_OPCODE_NUMBER || packet->GetOpcode() > MAX_SMSG_OPCODE_NUMBER)
+    if (!opcodeTable.IsValid(static_cast<OpcodeServer>(packet->GetOpcode())))
     {
         char const* specialName = packet->GetOpcode() == UNKNOWN_OPCODE ? "UNKNOWN_OPCODE" : "INVALID_OPCODE";
         TC_LOG_ERROR("network.opcode", "Prevented sending of {} (0x{:04X}) to {}", specialName, packet->GetOpcode(), GetPlayerInfo());
@@ -797,7 +799,9 @@ void WorldSession::Handle_EarlyProccess(WorldPackets::Null& null)
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
     boost::system::error_code ignored_error;
-    boost::asio::ip::address instanceAddress = realm.GetAddressForClient(Trinity::Net::make_address(GetRemoteAddress(), ignored_error));
+    boost::asio::ip::address instanceAddress;
+    if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+        instanceAddress = currentRealm->GetAddressForClient(Trinity::Net::make_address(GetRemoteAddress(), ignored_error));
 
     _instanceConnectKey.Fields.AccountId = GetAccountId();
     _instanceConnectKey.Fields.ConnectionType = CONNECTION_TYPE_INSTANCE;
@@ -806,7 +810,7 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     WorldPackets::Auth::ConnectTo connectTo;
     connectTo.Key = _instanceConnectKey.Raw;
     connectTo.Serial = serial;
-    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_INSTANCE);
+    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     if (instanceAddress.is_v4())
     {
         memcpy(connectTo.Payload.Where.Address.V4.data(), instanceAddress.to_v4().to_bytes().data(), 4);
@@ -814,8 +818,23 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     }
     else
     {
-        memcpy(connectTo.Payload.Where.Address.V6.data(), instanceAddress.to_v6().to_bytes().data(), 16);
-        connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv6;
+        // client always uses v4 address for loopback and v4 mapped addresses
+        boost::asio::ip::address_v6 v6 = instanceAddress.to_v6();
+        if (v6.is_loopback())
+        {
+            memcpy(connectTo.Payload.Where.Address.V4.data(), boost::asio::ip::address_v4::loopback().to_bytes().data(), 4);
+            connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv4;
+        }
+        else if (v6.is_v4_mapped())
+        {
+            memcpy(connectTo.Payload.Where.Address.V4.data(), Trinity::Net::make_address_v4(Trinity::Net::v4_mapped, v6).to_bytes().data(), 4);
+            connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv4;
+        }
+        else
+        {
+            memcpy(connectTo.Payload.Where.Address.V6.data(), v6.to_bytes().data(), 16);
+            connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv6;
+        }
     }
     connectTo.Con = CONNECTION_TYPE_INSTANCE;
 
@@ -1020,9 +1039,9 @@ void WorldSession::LoadPermissions()
     uint8 secLevel = GetSecurity();
 
     TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: {}, Name: {}, realmId: {}, secLevel: {}]",
-        id, _accountName, realm.Id.Realm, secLevel);
+        id, _accountName, sRealmList->GetCurrentRealmId().Realm, secLevel);
 
-    _RBACData = new rbac::RBACData(id, _accountName, realm.Id.Realm, secLevel);
+    _RBACData = new rbac::RBACData(id, _accountName, sRealmList->GetCurrentRealmId().Realm, secLevel);
     _RBACData->LoadFromDB();
 }
 
@@ -1032,9 +1051,9 @@ QueryCallback WorldSession::LoadPermissionsAsync()
     uint8 secLevel = GetSecurity();
 
     TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: {}, Name: {}, realmId: {}, secLevel: {}]",
-        id, _accountName, realm.Id.Realm, secLevel);
+        id, _accountName, sRealmList->GetCurrentRealmId().Realm, secLevel);
 
-    _RBACData = new rbac::RBACData(id, _accountName, realm.Id.Realm, secLevel);
+    _RBACData = new rbac::RBACData(id, _accountName, sRealmList->GetCurrentRealmId().Realm, secLevel);
     return _RBACData->LoadFromDBAsync();
 }
 
@@ -1097,7 +1116,7 @@ public:
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PETS);
         stmt->setUInt32(0, battlenetAccountId);
-        stmt->setInt32(1, realm.Id.Realm);
+        stmt->setInt32(1, sRealmList->GetCurrentRealmId().Realm);
         ok = SetPreparedQuery(BATTLE_PETS, stmt) && ok;
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PET_SLOTS);
@@ -1226,7 +1245,7 @@ bool WorldSession::HasPermission(uint32 permission)
 
     bool hasPermission = _RBACData->HasPermission(permission);
     TC_LOG_DEBUG("rbac", "WorldSession::HasPermission [AccountId: {}, Name: {}, realmId: {}]",
-                   _RBACData->GetId(), _RBACData->GetName(), realm.Id.Realm);
+                   _RBACData->GetId(), _RBACData->GetName(), sRealmList->GetCurrentRealmId().Realm);
 
     return hasPermission;
 }
@@ -1234,7 +1253,7 @@ bool WorldSession::HasPermission(uint32 permission)
 void WorldSession::InvalidateRBACData()
 {
     TC_LOG_DEBUG("rbac", "WorldSession::Invalidaterbac::RBACData [AccountId: {}, Name: {}, realmId: {}]",
-                   _RBACData->GetId(), _RBACData->GetName(), realm.Id.Realm);
+                   _RBACData->GetId(), _RBACData->GetName(), sRealmList->GetCurrentRealmId().Realm);
     delete _RBACData;
     _RBACData = nullptr;
 }
@@ -1293,7 +1312,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     }
 }
 
-uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) const
+uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint32 opcode) const
 {
     uint32 maxPacketCounterAllowed;
     switch (opcode)

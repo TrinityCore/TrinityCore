@@ -35,6 +35,11 @@ class PointMovementGenerator : public MovementGenerator
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<float> closeEnoughDistance = {},
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+        PointMovementGenerator(PointMovementGenerator const&) = delete;
+        PointMovementGenerator(PointMovementGenerator&&) = delete;
+        PointMovementGenerator& operator=(PointMovementGenerator const&) = delete;
+        PointMovementGenerator& operator=(PointMovementGenerator&&) = delete;
+        ~PointMovementGenerator();
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 

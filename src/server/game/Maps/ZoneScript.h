@@ -23,6 +23,7 @@
 
 class AreaTrigger;
 class Creature;
+class CreatureGroup;
 class GameObject;
 class Player;
 class Unit;
@@ -41,8 +42,12 @@ enum class EncounterType : uint8
 class TC_GAME_API ControlZoneHandler
 {
 public:
-    explicit ControlZoneHandler() = default;
-    virtual ~ControlZoneHandler() = default;
+    explicit ControlZoneHandler();
+    ControlZoneHandler(ControlZoneHandler const& right);
+    ControlZoneHandler(ControlZoneHandler&& right) noexcept;
+    ControlZoneHandler& operator=(ControlZoneHandler const& right);
+    ControlZoneHandler& operator=(ControlZoneHandler&& right) noexcept;
+    virtual ~ControlZoneHandler();
 
     virtual void HandleCaptureEventHorde([[maybe_unused]] GameObject* controlZone) { }
     virtual void HandleCaptureEventAlliance([[maybe_unused]] GameObject* controlZone) { }
@@ -79,6 +84,9 @@ class TC_GAME_API ZoneScript
 
         virtual void OnUnitDeath([[maybe_unused]] Unit* unit) { }
 
+        // Triggers when the CreatureGroup no longer has any alive members (either last alive member dies or is removed from the group)
+        virtual void OnCreatureGroupDepleted([[maybe_unused]] CreatureGroup const* creatureGroup) { }
+
         //All-purpose data storage ObjectGuid
         virtual ObjectGuid GetGuidData(uint32 /*DataId*/) const { return ObjectGuid::Empty; }
         virtual void SetGuidData(uint32 /*DataId*/, ObjectGuid /*Value*/) { }
@@ -99,6 +107,11 @@ class TC_GAME_API ZoneScript
 
         virtual bool CanCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) { return false; }
         virtual void OnCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) { }
+
+        // This hook is used with GAMEOBJECT_TYPE_FLAGSTAND. Newer gameobjects use GAMEOBJECT_TYPE_NEW_FLAG and should use `OnFlagStateChange`
+        virtual void OnFlagTaken([[maybe_unused]] GameObject* flag, [[maybe_unused]] Player* player) { }
+        // This hook is used with GAMEOBJECT_TYPE_FLAGSTAND. Newer gameobjects use GAMEOBJECT_TYPE_NEW_FLAG and should use `OnFlagStateChange`. The GameObject doesn't exist anymore, but the ObjectGuid does
+        virtual void OnFlagDropped([[maybe_unused]] ObjectGuid const& flagGuid, [[maybe_unused]] Player* player) { }
 };
 
 #endif
