@@ -23,7 +23,7 @@
 constexpr char const* DataHeader = "Auchindoun";
 constexpr char const* AuchindounScriptName = "instance_auchindoun";
 
-constexpr uint32 const EncounterCount = 4;
+constexpr uint32 EncounterCount = 4;
 
 enum AuchindounDataTypes
 {

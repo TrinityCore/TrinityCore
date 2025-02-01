@@ -75,7 +75,7 @@ enum AuchindounMisc
     POINT_SOULS   = 5,
 
     // Spawngroups
-    SPAWNGROUP_TUULANI_IMPRISONED = 73
+    SPAWNGROUP_TUULANI_IMPRISONED = 1264
 };
 
 // 9973 - Areatrigger
@@ -86,9 +86,11 @@ public:
 
     bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        if (Creature* tuulani = player->GetInstanceScript()->GetCreature(DATA_SOULBINDER_TUULANI))
-            tuulani->AI()->DoAction(ACTION_TUULANI_INTRO);
-
+        if (InstanceScript* instance = player->GetInstanceScript())
+        {
+            if (Creature* tuulani = instance->GetCreature(DATA_SOULBINDER_TUULANI))
+                tuulani->AI()->DoAction(ACTION_TUULANI_INTRO);
+        }
         return true;
     }
 };
@@ -117,9 +119,11 @@ public:
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        if (Creature* tuulani = player->GetInstanceScript()->GetCreature(DATA_SOULBINDER_TUULANI))
-            tuulani->AI()->DoAction(ACTION_TUULANI_BREAK_BARRIER);
-
+        if (InstanceScript* instance = player->GetInstanceScript())
+        {
+            if (Creature* tuulani = instance->GetCreature(DATA_SOULBINDER_TUULANI))
+                tuulani->AI()->DoAction(ACTION_TUULANI_BREAK_BARRIER);
+        }
         return true;
     }
 };
@@ -134,9 +138,11 @@ public:
     {
         player->CastSpell(player, SPELL_GRIMRAIL_DEPOT_SELECTOR, true);
 
-        if (Creature* tuulani = player->GetInstanceScript()->GetCreature(DATA_SOULBINDER_TUULANI))
-            tuulani->DespawnOrUnsummon();
-
+        if (InstanceScript* instance = player->GetInstanceScript())
+        {
+            if (Creature* tuulani = instance->GetCreature(DATA_SOULBINDER_TUULANI))
+                tuulani->DespawnOrUnsummon();
+        }
         return true;
     }
 };
@@ -172,7 +178,7 @@ private:
 // 79248 - Soulbinder Tuulani
 struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
 {
-    npc_auchindoun_soulbinder_tuulani(Creature* creature) : ScriptedAI(creature) { }
+    npc_auchindoun_soulbinder_tuulani(Creature* creature) : ScriptedAI(creature), _isAtBarrier(false), _actionStarted(false) { }
 
     void DoAction(int32 action) override
     {
@@ -265,8 +271,8 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    bool _isAtBarrier = false;
-    bool _actionStarted = false;
+    bool _isAtBarrier;
+    bool _actionStarted;
 };
 
 // 155647 - NPC Reaction
@@ -285,7 +291,8 @@ struct at_auchindoun_npc_reaction : AreaTriggerAI
             if (!auchenaiDefender)
                 return;
 
-            auchenaiDefender->SetFacingToObject(at->GetCaster());
+            if (Unit* caster = at->GetCaster())
+                auchenaiDefender->SetFacingToObject(caster);
             auchenaiDefender->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
             task.Schedule(4s, [this, unitGUID](TaskContext /*task*/)
@@ -316,7 +323,7 @@ class spell_auchindoun_halo : public SpellScript
         return ValidateSpellInfo({ SPELL_HALO_HEAL });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/) const
     {
         if (!GetHitUnit()->IsCreature())
             return;
@@ -333,13 +340,13 @@ class spell_auchindoun_halo : public SpellScript
 // 178800 - Grimrail Depot
 class spell_auchindoun_grimrail_depot_scene_selector : public SpellScript
 {
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_GRIMRAIL_DEPOT_SCENE, true);
         // GetCaster()->CastSpell(GetHitUnit(), SPELL_INSTANCE_BOOTSTRAPPER, false);
     }
 
-    void HandleEvent(SpellEffIndex /*effIndex*/)
+    void HandleEvent(SpellEffIndex /*effIndex*/) const
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
             instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED, nullptr);
@@ -358,24 +365,21 @@ class scene_auchindoun_soulbinder_nyami : public SceneScript
 public:
     scene_auchindoun_soulbinder_nyami() : SceneScript("scene_auchindoun_soulbinder_nyami") { }
 
-    void HandleScene(Player* player)
+    static void HandleScene(Player* player)
     {
         player->ClearUnitState(UNIT_STATE_ROOT);
         player->CastSpell(player, SPELL_GRIMRAIL_DEPOT_TELEPORT, true);
         player->CastSpell(player, SPELL_GRIMRAIL_DEPOT_REMOVE_AURA, TRIGGERED_FULL_MASK);
         PhasingHandler::OnConditionChange(player);
 
-        if (Map* instance = player->GetMap())
-        {
-            if (!instance->IsSpawnGroupActive(SPAWNGROUP_TUULANI_IMPRISONED))
-                instance->SpawnGroupSpawn(SPAWNGROUP_TUULANI_IMPRISONED);
-        }
+        Map* map = player->GetMap();
+        if (!map->IsSpawnGroupActive(SPAWNGROUP_TUULANI_IMPRISONED))
+            map->SpawnGroupSpawn(SPAWNGROUP_TUULANI_IMPRISONED);
     }
 
     void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->AddUnitState(UNIT_STATE_ROOT);
-        PhasingHandler::OnConditionChange(player);
     }
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override

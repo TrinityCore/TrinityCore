@@ -19,7 +19,7 @@
 #include "ScriptMgr.h"
 #include "auchindoun.h"
 
-ObjectData const creatureData[] =
+constexpr ObjectData creatureData[] =
 {
     { BOSS_VIGILANT_KAATHAR,  DATA_VIGILANT_KAATHAR   },
     { BOSS_SOULBINDER_NYAMI,  DATA_SOULBINDER_NYAMI   },
@@ -29,13 +29,13 @@ ObjectData const creatureData[] =
     { 0,                      0                       }  // END
 };
 
-ObjectData const objectData[] =
+constexpr ObjectData objectData[] =
 {
     { GO_HOLY_BARRIER, DATA_HOLY_BARRIER },
     { 0,               0                 }  // END
 };
 
-DungeonEncounterData const encounters[] =
+constexpr DungeonEncounterData encounters[] =
 {
     { DATA_VIGILANT_KAATHAR, {{ 1678 }}  },
     { DATA_SOULBINDER_NYAMI, {{ 1685 }}  },
