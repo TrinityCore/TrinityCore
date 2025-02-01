@@ -113,15 +113,15 @@ struct boss_rezan : public BossAI
     {
         for (Position const& spawnPoint : PilesOfBonesPosition)
         {
-            me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SPAWN, true);
-            me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SLOW, true);
+            me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SPAWN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            me->CastSpell(spawnPoint, SPELL_PILE_OF_BONES_AT_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         }
     }
 
     void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
     {
         if (apply && who->ToPlayer())
-            DoCast(who, SPELL_DEVOUR, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            DoCast(who, SPELL_DEVOUR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -177,8 +177,8 @@ struct boss_rezan : public BossAI
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
-                    DoCast(target, SPELL_BOSS_EMOTE_AT_TARGET, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
-                    DoCast(target, SPELL_PURSUIT);
+                    DoCast(target, SPELL_BOSS_EMOTE_AT_TARGET, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                    DoCast(target, SPELL_PURSUIT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                 }
                 events.Repeat(35200ms);
                 break;
@@ -197,9 +197,12 @@ class spell_rezan_tail_selector : public SpellScript
         return ValidateSpellInfo({ SPELL_TAIL_DAMAGE });
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_TAIL_DAMAGE, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_TAIL_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
@@ -216,7 +219,7 @@ class spell_rezan_devour : public AuraScript
         return ValidateSpellInfo({ SPELL_RIDE_VEHICLE });
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (Unit* caster = GetCaster())
             caster->RemoveAura(SPELL_RIDE_VEHICLE);
@@ -236,10 +239,13 @@ class spell_rezan_pursuit : public AuraScript
         return ValidateSpellInfo({ SPELL_REVERSE_CAST_RIDE_VEHICLE });
     }
 
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void HandlePeriodic(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_REVERSE_CAST_RIDE_VEHICLE, true);
+            caster->CastSpell(GetTarget(), SPELL_REVERSE_CAST_RIDE_VEHICLE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
     }
 
     void Register() override
@@ -251,7 +257,7 @@ class spell_rezan_pursuit : public AuraScript
 // 255600 - Boss Emote Passed Points 0 @ Target
 class spell_rezan_boss_emote_at_target : public SpellScript
 {
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         if (Creature* casterCreature = GetCaster()->ToCreature())
             casterCreature->AI()->Talk(SAY_PURSUIT, GetHitUnit());
@@ -263,10 +269,32 @@ class spell_rezan_boss_emote_at_target : public SpellScript
     }
 };
 
+// 257483 - Pile of Bones
+class spell_rezan_pile_of_bones_slow : public AuraScript
+{
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude) const
+    {
+        isPeriodic = true;
+        amplitude = GetDuration();
+    }
+
+    void OnUpdate(AuraEffect* /*aurEff*/)
+    {
+        if (!ModStackAmount(-1))
+            RefreshDuration();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_rezan_pile_of_bones_slow::CalcPeriodic, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_rezan_pile_of_bones_slow::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+    }
+};
+
 // 255371 - Terrifying Visage
 class spell_rezan_terrifying_visage : public SpellScript
 {
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         targets.remove_if([this](WorldObject* target) -> bool
         {
@@ -285,7 +313,7 @@ struct at_rezan_pile_of_bones_spawn_raptor : AreaTriggerAI
 {
     at_rezan_pile_of_bones_spawn_raptor(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    void OnUnitEnter(Unit* unit)
+    void OnUnitEnter(Unit* unit) override
     {
         InstanceScript* instance = at->GetInstanceScript();
         if (!instance)
@@ -295,10 +323,13 @@ struct at_rezan_pile_of_bones_spawn_raptor : AreaTriggerAI
         if (!rezan || !rezan->IsInCombat())
             return;
 
-        if (!unit->IsPlayer() || (unit == rezan && !rezan->GetMap()->IsHeroicOrHigher()))
+        if (unit == rezan && !rezan->GetMap()->IsHeroicOrHigher())
             return;
 
-        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_TRIGGER_SPAWN, true);
+        if (!unit->IsPlayer() && unit != rezan)
+            return;
+
+        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_TRIGGER_SPAWN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         rezan->AI()->Talk(SAY_REANIMATED_RAPTOR_WARNING);
         rezan->AI()->Talk(SAY_REANIMATED_RAPTOR_SUMMONER, unit);
         at->Remove();
@@ -310,7 +341,7 @@ struct at_rezan_pile_of_bones_slow : AreaTriggerAI
 {
     at_rezan_pile_of_bones_slow(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    void OnUnitEnter(Unit* unit)
+    void OnUnitEnter(Unit* unit) override
     {
         InstanceScript* instance = at->GetInstanceScript();
         if (!instance)
@@ -323,7 +354,15 @@ struct at_rezan_pile_of_bones_slow : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        unit->CastSpell(unit, SPELL_PILE_OF_BONES_SLOW, true);
+        if (unit->GetMap()->IsHeroicOrHigher())
+        {
+            CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            args.AddSpellMod(SPELLVALUE_AURA_STACK, 3);
+            unit->CastSpell(unit, SPELL_PILE_OF_BONES_SLOW, args);
+        }
+        else
+            unit->CastSpell(unit, SPELL_PILE_OF_BONES_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
         at->Remove();
     }
 };
@@ -337,6 +376,7 @@ void AddSC_boss_rezan()
     RegisterSpellScript(spell_rezan_pursuit);
     RegisterSpellScript(spell_rezan_boss_emote_at_target);
     RegisterSpellScript(spell_rezan_terrifying_visage);
+    RegisterSpellScript(spell_rezan_pile_of_bones_slow);
 
     RegisterAreaTriggerAI(at_rezan_pile_of_bones_spawn_raptor);
     RegisterAreaTriggerAI(at_rezan_pile_of_bones_slow);

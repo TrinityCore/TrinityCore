@@ -38,7 +38,7 @@ namespace WorldPackets
             uint32 Id = 0;
             RideType Type = RideType::None;
             Timestamp<> Time;
-            bool Unknown925 = false;
+            bool IsCrossFaction = false;
         };
     }
 }

@@ -24,7 +24,6 @@
 #include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"
-#include "IteratorPair.h"
 
 class SpellInfo;
 class Bag;
@@ -211,10 +210,10 @@ class TC_GAME_API Item : public Object
         void RemoveItemFlag(ItemFieldFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags); }
         void ReplaceAllItemFlags(ItemFieldFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags); }
 
-        bool HasItemFlag2(ItemFieldFlags2 flag) const { return (*m_itemData->DynamicFlags2 & flag) != 0; }
-        void SetItemFlag2(ItemFieldFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
-        void RemoveItemFlag2(ItemFieldFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
-        void ReplaceAllItemFlags2(ItemFieldFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
+        bool HasItemZoneFlag(ItemZoneFlags flag) const { return (*m_itemData->ZoneFlags & flag) != 0; }
+        void SetItemZoneFlag(ItemZoneFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
+        void RemoveItemZoneFlag(ItemZoneFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
+        void ReplaceAllItemZoneFlags(ItemZoneFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
 
         bool IsSoulBound() const { return HasItemFlag(ITEM_FIELD_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return GetTemplate()->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT); }
@@ -313,8 +312,8 @@ class TC_GAME_API Item : public Object
         void SetCreateTime(int64 createTime) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::CreateTime), createTime); }
 
         // spell charges (signed but stored as unsigned)
-        int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return m_itemData->SpellCharges[index]; }
-        void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value); }
+        int32 GetSpellCharges(ItemEffectEntry const* effect = nullptr) const;
+        void SetSpellCharges(ItemEffectEntry const* effect, int32 value);
 
         std::unique_ptr<Loot> m_loot;
         bool m_lootGenerated;
@@ -354,7 +353,7 @@ class TC_GAME_API Item : public Object
         Optional<uint16> GetDisenchantSkillRequired() const;
         static ItemDisenchantLootEntry const* GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);
-        Trinity::IteratorPair<ItemEffectEntry const* const*> GetEffects() const { return { std::make_pair(_bonusData.Effects.data(), _bonusData.Effects.data() + _bonusData.EffectCount) }; }
+        std::span<ItemEffectEntry const* const> GetEffects() const { return { _bonusData.Effects.data(), _bonusData.EffectCount }; }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);
@@ -377,9 +376,9 @@ class TC_GAME_API Item : public Object
         void BuildUpdate(UpdateDataMapType&) override;
 
     protected:
-        UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const final;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -448,7 +447,7 @@ class TC_GAME_API Item : public Object
 
         std::string GetDebugInfo() const override;
 
-        UF::UpdateField<UF::ItemData, 0, TYPEID_ITEM> m_itemData;
+        UF::UpdateField<UF::ItemData, uint32(WowCS::EntityFragment::CGObject), TYPEID_ITEM> m_itemData;
 
     protected:
         BonusData _bonusData;

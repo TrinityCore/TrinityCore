@@ -65,9 +65,9 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint8 Status = 0;
             uint8 Moderator = 0;
-            Optional<ObjectGuid> Unused_801_1;
-            Optional<uint64> Unused_801_2;
-            Optional<uint64> Unused_801_3;
+            Optional<ObjectGuid> BnetAccountID;
+            Optional<uint64> RealmAddress;
+            Optional<uint64> CommunityID;
         };
 
         struct CalendarAddEventInfo

@@ -27,7 +27,16 @@ class ByteBuffer;
 
 struct TC_GAME_API Position
 {
-    constexpr Position(float x = 0, float y = 0, float z = 0, float o = 0)
+    constexpr Position()
+        : m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y)
+        : m_positionX(x), m_positionY(y), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y, float z)
+        : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(0.0f) { }
+
+    constexpr Position(float x, float y, float z, float o)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientationConstexprWrapper(o)) { }
 
     // streamer tags
@@ -181,16 +190,18 @@ private:
 class TC_GAME_API WorldLocation : public Position
 {
 public:
-    constexpr explicit WorldLocation(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
-        : Position(x, y, z, o), m_mapId(mapId) { }
+    constexpr WorldLocation() : m_mapId(MAPID_INVALID) { }
 
-    constexpr WorldLocation(uint32 mapId, Position const& position)
-        : Position(position), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y) : Position(x, y), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y, float z) : Position(x, y, z), m_mapId(mapId) { }
+    constexpr WorldLocation(uint32 mapId, float x, float y, float z, float o) : Position(x, y, z, o), m_mapId(mapId) { }
+
+    constexpr WorldLocation(uint32 mapId, Position const& position) : Position(position), m_mapId(mapId) { }
 
     constexpr void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
     constexpr void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
     constexpr void WorldRelocate(uint32 mapId, Position const& pos) { m_mapId = mapId; Relocate(pos); }
-    constexpr void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
+    constexpr void WorldRelocate(uint32 mapId, float x, float y, float z, float o)
     {
         m_mapId = mapId;
         Relocate(x, y, z, o);
@@ -219,7 +230,10 @@ TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Posi
 template<class Tag>
 struct TaggedPosition
 {
-    constexpr TaggedPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
+    constexpr TaggedPosition() { }
+    constexpr TaggedPosition(float x, float y) : Pos(x, y) { }
+    constexpr TaggedPosition(float x, float y, float z) : Pos(x, y, z) { }
+    constexpr TaggedPosition(float x, float y, float z, float o) : Pos(x, y, z, o) { }
     constexpr TaggedPosition(Position const& pos) : Pos(pos) { }
 
     constexpr TaggedPosition& operator=(Position const& pos)

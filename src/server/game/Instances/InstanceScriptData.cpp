@@ -49,7 +49,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::Load(char const* data
             }
         }
     */
-    if (_doc.Parse(data).HasParseError())
+    if (_doc.Parse(data, strlen(data)).HasParseError())
     {
         TC_LOG_ERROR("scripts.data.load", "JSON parser error {} at {} while loading data for instance {} [{}-{} | {}-{}]",
             rapidjson::GetParseError_En(_doc.GetParseError()), _doc.GetErrorOffset(),

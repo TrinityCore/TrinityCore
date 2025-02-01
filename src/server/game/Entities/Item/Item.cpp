@@ -23,9 +23,8 @@
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GameTables.h"
 #include "GameTime.h"
 #include "ItemBonusMgr.h"
@@ -36,6 +35,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -89,7 +89,7 @@ void AddItemsSetItem(Player* player, Item const* item)
         {
             uint32 maxLevel = sDB2Manager.GetCurveXAxisRange(item->GetBonus()->PlayerLevelToItemLevelCurveId).second;
 
-            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask, true))
+            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, player->m_playerData->CtrOptions->ConditionalFlags, true))
                 maxLevel = std::min<uint32>(maxLevel, contentTuning->MaxLevel);
 
             if (player->GetLevel() > maxLevel)
@@ -446,6 +446,8 @@ Item::Item()
     m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Item, false);
+
     m_slot = 0;
     uState = ITEM_NEW;
     uQueuePos = -1;
@@ -486,9 +488,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), itemProto->MaxDurability);
     SetDurability(itemProto->MaxDurability);
 
-    for (std::size_t i = 0; i < itemProto->Effects.size(); ++i)
-        if (itemProto->Effects[i]->LegacySlotIndex < 5)
-            SetSpellCharges(itemProto->Effects[i]->LegacySlotIndex, itemProto->Effects[i]->Charges);
+    for (ItemEffectEntry const* effect : GetEffects())
+        SetSpellCharges(effect, effect->Charges);
 
     SetExpiration(itemProto->GetDuration());
     SetCreatePlayedTime(0);
@@ -557,6 +558,43 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
+static uint32 FindSpellChargesSlot(BonusData const& bonusData, ItemEffectEntry const* effect)
+{
+    static constexpr uint32 MaxSpellChargesSlot = UF::size<decltype(UF::ItemData::SpellCharges)>();
+
+    if (!effect)
+    {
+        // return fist effect that has charges
+        for (uint32 i = 0; i < bonusData.EffectCount && i < MaxSpellChargesSlot; ++i)
+            if (bonusData.Effects[i] && bonusData.Effects[i]->Charges != 0)
+                return i;
+
+        return MaxSpellChargesSlot;
+    }
+
+    for (uint32 i = 0; i < bonusData.EffectCount && i < MaxSpellChargesSlot; ++i)
+        if (bonusData.Effects[i] == effect)
+            return i;
+
+    return MaxSpellChargesSlot;
+}
+
+int32 Item::GetSpellCharges(ItemEffectEntry const* effect /*= nullptr*/) const
+{
+    uint32 slot = FindSpellChargesSlot(_bonusData, effect);
+    if (slot < m_itemData->SpellCharges.size())
+        return m_itemData->SpellCharges[slot];
+
+    return 0;
+}
+
+void Item::SetSpellCharges(ItemEffectEntry const* effect, int32 value)
+{
+    uint32 slot = FindSpellChargesSlot(_bonusData, effect);
+    if (slot < m_itemData->SpellCharges.size())
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, slot), value);
+}
+
 void Item::SaveToDB(CharacterDatabaseTransaction trans)
 {
     bool isInTransaction = bool(trans);
@@ -579,7 +617,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 
             std::ostringstream ssSpells;
             for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount; ++i)
-                ssSpells << GetSpellCharges(i) << ' ';
+                ssSpells << m_itemData->SpellCharges[i] << ' ';
             stmt->setString(++index, ssSpells.str());
 
             stmt->setUInt32(++index, m_itemData->DynamicFlags);
@@ -635,6 +673,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 
             if (m_itemData->Gems.size())
             {
+                using namespace std::string_view_literals;
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 uint32 i = 0;
@@ -655,7 +695,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                     else
                     {
                         stmt->setUInt32(1 + i * gemFields, 0);
-                        stmt->setString(2 + i * gemFields, "");
+                        stmt->setString(2 + i * gemFields, ""sv);
                         stmt->setUInt8(3 + i * gemFields, 0);
                         stmt->setUInt32(4 + i * gemFields, 0);
                     }
@@ -664,7 +704,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                 for (; i < MAX_GEM_SOCKETS; ++i)
                 {
                     stmt->setUInt32(1 + i * gemFields, 0);
-                    stmt->setString(2 + i * gemFields, "");
+                    stmt->setString(2 + i * gemFields, ""sv);
                     stmt->setUInt8(3 + i * gemFields, 0);
                     stmt->setUInt32(4 + i * gemFields, 0);
                 }
@@ -923,7 +963,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     // load charges after bonuses, they can add more item effects
     std::vector<std::string_view> tokens = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount && i < tokens.size(); ++i)
-        SetSpellCharges(i, Trinity::StringTo<int32>(tokens[i]).value_or(0));
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, i), Trinity::StringTo<int32>(tokens[i]).value_or(0));
 
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[20].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[21].GetUInt32());
@@ -1704,22 +1744,14 @@ UF::UpdateFieldFlag Item::GetUpdateFieldFlagsFor(Player const* target) const
     return UF::UpdateFieldFlag::None;
 }
 
-void Item::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void Item::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void Item::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void Item::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -1727,8 +1759,6 @@ void Item::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 
     if (m_values.HasChanged(TYPEID_ITEM))
         m_itemData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void Item::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
@@ -1736,15 +1766,11 @@ void Item::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     valuesMask.Set(TYPEID_ITEM);
 
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(valuesMask.GetBlock(0));
 
     UF::ItemData::Mask mask;
     m_itemData->AppendAllowedFieldsMaskForFlag(mask, flags);
     m_itemData->WriteUpdate(*data, mask, true, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -1763,6 +1789,7 @@ void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

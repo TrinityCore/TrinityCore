@@ -1314,7 +1314,7 @@ class spell_dru_luxuriant_soil : public AuraScript
         if (targetList.empty())
             return;
 
-        rejuvCaster->CastSpell(Trinity::Containers::SelectRandomContainerElement(targetList), SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        rejuvCaster->CastSpell(Trinity::Containers::SelectRandomContainerElement(targetList), SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
@@ -1846,12 +1846,11 @@ class spell_dru_t3_8p_bonus : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        std::vector<SpellPowerCost> const& costs = spell->GetPowerCost();
-        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
-        if (m == costs.end())
+        Optional<int32> manaCost = spell->GetPowerTypeCostAmount(POWER_MANA);
+        if (!manaCost)
             return;
 
-        int32 amount = CalculatePct(m->Amount, aurEff->GetAmount());
+        int32 amount = CalculatePct(*manaCost, aurEff->GetAmount());
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
         caster->CastSpell(nullptr, SPELL_DRUID_EXHILARATE, args);

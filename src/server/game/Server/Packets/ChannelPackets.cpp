@@ -67,6 +67,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotifyJoined::Write()
     _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 11);
     _worldPacket << uint32(_ChannelFlags);
+    _worldPacket << uint8(Unknown1107);
     _worldPacket << int32(ChatChannelID);
     _worldPacket << uint64(InstanceID);
     _worldPacket << ChannelGUID;
@@ -114,7 +115,7 @@ WorldPacket const* WorldPackets::Channel::UserlistUpdate::Write()
     _worldPacket << UpdatedUserGUID;
     _worldPacket << uint8(UserFlags);
     _worldPacket << uint32(_ChannelFlags);
-    _worldPacket << uint32(ChannelID);
+    _worldPacket << int32(ChannelID);
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(ChannelName);

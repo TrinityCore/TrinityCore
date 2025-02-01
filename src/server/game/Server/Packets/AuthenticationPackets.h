@@ -69,7 +69,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::array<uint8, 16> Challenge = { };
+            std::array<uint8, 32> Challenge = { };
             std::array<uint32, 8> DosChallenge = { };
             uint8 DosZeroBits = 0;
         };
@@ -88,7 +88,7 @@ namespace WorldPackets
             uint32 RegionID = 0;
             uint32 BattlegroupID = 0;
             uint32 RealmID = 0;
-            std::array<uint8, 16> LocalChallenge;
+            std::array<uint8, 32> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
             uint64 DosResponse = 0;
             std::string RealmJoinTicket;
@@ -136,10 +136,12 @@ namespace WorldPackets
             {
                 struct GameTime
                 {
-                    uint32 BillingPlan = 0;
-                    uint32 TimeRemain = 0;
-                    uint32 Unknown735 = 0;
-                    bool InGameRoom = false;
+                    uint32 BillingType = 0;
+                    uint32 MinutesRemaining = 0;
+                    uint32 RealBillingType = 0;
+                    bool IsInIGR = false;
+                    bool IsPaidForByIGR = false;
+                    bool IsCAISEnabled = false;
                 };
 
                 struct NewBuild
@@ -267,7 +269,7 @@ namespace WorldPackets
 
             uint64 DosResponse = 0;
             uint64 Key = 0;
-            std::array<uint8, 16> LocalChallenge;
+            std::array<uint8, 32> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
 
         private:
@@ -300,14 +302,14 @@ namespace WorldPackets
             static bool InitializeEncryption();
             static void ShutdownEncryption();
 
-            EnterEncryptedMode(std::array<uint8, 16> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
+            EnterEncryptedMode(std::array<uint8, 32> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
                 EncryptionKey(encryptionKey), Enabled(enabled)
             {
             }
 
             WorldPacket const* Write() override;
 
-            std::array<uint8, 16> const& EncryptionKey;
+            std::array<uint8, 32> const& EncryptionKey;
             bool Enabled = false;
         };
     }

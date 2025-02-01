@@ -61,18 +61,18 @@ void WorldPackets::Party::PartyInviteClient::Read()
 WorldPacket const* WorldPackets::Party::PartyInvite::Write()
 {
     _worldPacket << Bits<1>(CanAccept);
-    _worldPacket << Bits<1>(MightCRZYou);
     _worldPacket << Bits<1>(IsXRealm);
-    _worldPacket << Bits<1>(MustBeBNetFriend);
+    _worldPacket << Bits<1>(IsXNativeRealm);
+    _worldPacket << Bits<1>(ShouldSquelch);
     _worldPacket << Bits<1>(AllowMultipleRoles);
     _worldPacket << Bits<1>(QuestSessionActive);
     _worldPacket << BitsSize<6>(InviterName);
-    _worldPacket << Bits<1>(Unused1102);
+    _worldPacket << Bits<1>(IsCrossFaction);
 
     _worldPacket << InviterRealm;
     _worldPacket << InviterGUID;
     _worldPacket << InviterBNetAccountId;
-    _worldPacket << uint16(Unk1);
+    _worldPacket << uint16(InviterCfgRealmID);
     _worldPacket << uint8(ProposedRoles);
     _worldPacket << uint32(LfgSlots.size());
     _worldPacket << uint32(LfgCompletedMask);
@@ -175,9 +175,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberAuraSta
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::CTROptions const& ctrOptions)
 {
-    data << uint32(ctrOptions.ContentTuningConditionMask);
-    data << int32(ctrOptions.Unused901);
-    data << uint32(ctrOptions.ExpansionLevelMask);
+    data << uint32(ctrOptions.ConditionalFlags);
+    data << int32(ctrOptions.FactionGroup);
+    data << uint32(ctrOptions.ChromieTimeExpansionMask);
 
     return data;
 }
@@ -648,25 +648,16 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     // Auras
     for (AuraApplication const* aurApp : player->GetVisibleAuras())
     {
-        WorldPackets::Party::PartyMemberAuraStates aura;
+        PartyMemberAuraStates& aura = MemberStats.Auras.emplace_back();
 
         aura.SpellID = aurApp->GetBase()->GetId();
         aura.ActiveFlags = aurApp->GetEffectMask();
         aura.Flags = aurApp->GetFlags();
 
         if (aurApp->GetFlags() & AFLAG_SCALABLE)
-        {
             for (AuraEffect const* aurEff : aurApp->GetBase()->GetAuraEffects())
-            {
-                if (!aurEff)
-                    continue;
-
                 if (aurApp->HasEffect(aurEff->GetEffIndex()))
                     aura.Points.push_back(float(aurEff->GetAmount()));
-            }
-        }
-
-        MemberStats.Auras.push_back(aura);
     }
 
     // Phases
@@ -688,27 +679,22 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
 
         for (AuraApplication const* aurApp : pet->GetVisibleAuras())
         {
-            WorldPackets::Party::PartyMemberAuraStates aura;
+            PartyMemberAuraStates& aura = MemberStats.PetStats->Auras.emplace_back();
 
             aura.SpellID = aurApp->GetBase()->GetId();
             aura.ActiveFlags = aurApp->GetEffectMask();
             aura.Flags = aurApp->GetFlags();
 
             if (aurApp->GetFlags() & AFLAG_SCALABLE)
-            {
                 for (AuraEffect const* aurEff : aurApp->GetBase()->GetAuraEffects())
-                {
-                    if (!aurEff)
-                        continue;
-
                     if (aurApp->HasEffect(aurEff->GetEffIndex()))
                         aura.Points.push_back(float(aurEff->GetAmount()));
-                }
-            }
-
-            MemberStats.PetStats->Auras.push_back(aura);
         }
     }
+
+    MemberStats.ChromieTime.ConditionalFlags = player->m_playerData->CtrOptions->ConditionalFlags;
+    MemberStats.ChromieTime.FactionGroup = player->m_playerData->CtrOptions->FactionGroup;
+    MemberStats.ChromieTime.ChromieTimeExpansionMask = player->m_playerData->CtrOptions->ChromieTimeExpansionMask;
 }
 
 WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
@@ -750,6 +736,13 @@ void WorldPackets::Party::SendPingUnit::Read()
     _worldPacket >> As<uint8>(Type);
     _worldPacket >> PinFrameID;
     _worldPacket >> PingDuration;
+    _worldPacket >> OptionalInit(CreatureID);
+    _worldPacket >> OptionalInit(SpellOverrideNameID);
+    if (CreatureID)
+        _worldPacket >> *CreatureID;
+
+    if (SpellOverrideNameID)
+        _worldPacket >> *SpellOverrideNameID;
 }
 
 WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
@@ -759,6 +752,15 @@ WorldPacket const* WorldPackets::Party::ReceivePingUnit::Write()
     _worldPacket << uint8(Type);
     _worldPacket << uint32(PinFrameID);
     _worldPacket << PingDuration;
+    _worldPacket << OptionalInit(CreatureID);
+    _worldPacket << OptionalInit(SpellOverrideNameID);
+    _worldPacket.FlushBits();
+
+    if (CreatureID)
+        _worldPacket << uint32(*CreatureID);
+
+    if (SpellOverrideNameID)
+        _worldPacket << uint32(*SpellOverrideNameID);
 
     return &_worldPacket;
 }
