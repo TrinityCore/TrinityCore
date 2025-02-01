@@ -3462,8 +3462,8 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
 
     uint32 count = 0;
 
-    //                                                  0             1              2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
+    //                                                  0             1              2          3           4             5              6
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer`, `RideSpellID` FROM `vehicle_template_accessory`");
 
     if (!result)
     {
@@ -3481,6 +3481,18 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
         bool   isMinion     = fields[3].GetBool();
         uint8  summonType   = fields[4].GetUInt8();
         uint32 summonTimer  = fields[5].GetUInt32();
+
+        Optional<uint32> rideSpellId;
+        if (!fields[6].IsNull())
+        {
+            rideSpellId = fields[6].GetUInt32();
+
+            if (!sSpellMgr->GetSpellInfo(*rideSpellId, DIFFICULTY_NONE))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `vehicle_template_accessory`: rideSpellId {} does not exist for entry {}.", *rideSpellId, entry);
+                continue;
+            }
+        }
 
         if (!GetCreatureTemplate(entry))
         {
@@ -3500,7 +3512,7 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
             continue;
         }
 
-        _vehicleTemplateAccessoryStore[entry].push_back(VehicleAccessory(accessory, seatId, isMinion, summonType, summonTimer));
+        _vehicleTemplateAccessoryStore[entry].push_back(VehicleAccessory(accessory, seatId, isMinion, summonType, summonTimer, rideSpellId));
 
         ++count;
     }
@@ -3552,8 +3564,8 @@ void ObjectMgr::LoadVehicleAccessories()
 
     uint32 count = 0;
 
-    //                                                  0             1             2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
+    //                                                  0             1             2          3           4             5              6
+    QueryResult result = WorldDatabase.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer`, `RideSpellID` FROM `vehicle_accessory`");
 
     if (!result)
     {
@@ -3572,13 +3584,25 @@ void ObjectMgr::LoadVehicleAccessories()
         uint8  uiSummonType = fields[4].GetUInt8();
         uint32 uiSummonTimer= fields[5].GetUInt32();
 
+        Optional<uint32> rideSpellId;
+        if (!fields[6].IsNull())
+        {
+            rideSpellId = fields[6].GetUInt32();
+
+            if (!sSpellMgr->GetSpellInfo(*rideSpellId, DIFFICULTY_NONE))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `vehicle_accessory`: rideSpellId {} does not exist for guid {}.", *rideSpellId, uiGUID);
+                continue;
+            }
+        }
+
         if (!GetCreatureTemplate(uiAccessory))
         {
             TC_LOG_ERROR("sql.sql", "Table `vehicle_accessory`: Accessory {} does not exist.", uiAccessory);
             continue;
         }
 
-        _vehicleAccessoryStore[uiGUID].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion, uiSummonType, uiSummonTimer));
+        _vehicleAccessoryStore[uiGUID].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion, uiSummonType, uiSummonTimer, rideSpellId));
 
         ++count;
     }
