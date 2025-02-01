@@ -12440,7 +12440,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
     if (!spellId)
     {
         TC_LOG_ERROR("sql.sql", "No valid spell specified for clickee {} and clicker {}!", target->GetGUID(), caster->GetGUID());
-        return;
+        return false;
     }
 
     SpellInfo const* spellEntry = sSpellMgr->AssertSpellInfo(spellId, caster->GetMap()->GetDifficultyID());
@@ -12465,7 +12465,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
                 TC_LOG_ERROR("sql.sql", "RideSpell {} specified in vehicle_accessory or vehicle_template_accessory is not a valid vehicle enter aura!", spellId);
             else
                 TC_LOG_ERROR("sql.sql", "Spell {} specified in npc_spellclick_spells is not a valid vehicle enter aura!", spellId);
-            return;
+            return false;
         }
 
         if (IsInMap(caster))
