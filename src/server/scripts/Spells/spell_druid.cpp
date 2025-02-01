@@ -922,12 +922,23 @@ private:
         if (!unitTarget)
             return false;
 
-        AuraEffect const* effect = unitTarget->GetAuraEffect(AuraType::SPELL_AURA_PERIODIC_HEAL, SpellFamilyNames::SPELLFAMILY_DRUID, flag128{ 0x0, 0x0, 0x0, 0x0 }, GetCaster()->GetGUID());
-        if (!effect)
-            return false;
+        bool hasValidAura = false;
 
-        RegisterAffectedAurasForTarget(unitTarget->GetGUID(), effect->GetBase());
-        return true;
+        for (AuraEffect const* auraEff : unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL))
+        {
+            Aura* aura = auraEff->GetBase();
+            if (!aura || aura->GetCasterGUID() != GetCaster()->GetGUID())
+                continue;
+
+            SpellInfo const* auraInfo = aura->GetSpellInfo();
+            if (!auraInfo || auraInfo->SpellFamilyName != SPELLFAMILY_DRUID)
+                continue;
+
+            RegisterAffectedAurasForTarget(unitTarget->GetGUID(), aura);
+            hasValidAura = true;
+        }
+
+        return hasValidAura;
     }
 
     void RegisterAffectedAurasForTarget(ObjectGuid const& guid, Aura* aura)
