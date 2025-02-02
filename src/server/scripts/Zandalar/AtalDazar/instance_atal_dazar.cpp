@@ -31,7 +31,6 @@ ObjectData const creatureData[] =
     { BOSS_VOLKAAL,          DATA_VOLKAAL           },
     { BOSS_REZAN,            DATA_REZAN             },
     { BOSS_YAZMA,            DATA_YAZMA             },
-    { NPC_REANIMATION_TOTEM, DATA_VOLKAAL_TOTEM     },
     { 0,                     0                      }  // END
 };
 

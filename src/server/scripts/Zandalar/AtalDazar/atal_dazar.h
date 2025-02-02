@@ -31,9 +31,7 @@ enum AtalDazarDataTypes
     DATA_PRIESTESS_ALUNZA = 0,
     DATA_VOLKAAL          = 1,
     DATA_REZAN            = 2,
-    DATA_YAZMA            = 3,
-
-    DATA_VOLKAAL_TOTEM
+    DATA_YAZMA            = 3
 };
 
 enum AtalDazarCreatureIds
@@ -42,10 +40,7 @@ enum AtalDazarCreatureIds
     BOSS_PRIESTESS_ALUNZA = 129614,
     BOSS_VOLKAAL          = 122965,
     BOSS_REZAN            = 122963,
-    BOSS_YAZMA            = 129412,
-
-    // Additional creatures
-    NPC_REANIMATION_TOTEM = 125977
+    BOSS_YAZMA            = 129412
 };
 
 enum AtalDazarGameObjectIds

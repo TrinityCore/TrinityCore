@@ -17,12 +17,15 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "CellImpl.h"
 #include "Creature.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "TempSummon.h"
 #include "atal_dazar.h"
 
 enum VolkaalSpells
@@ -78,7 +81,13 @@ struct boss_volkaal : public BossAI
 
     void JustAppeared() override
     {
-        me->SummonCreatureGroup(SUMMON_GROUP_VOLKAAL_TOTEMS);
+        std::list<TempSummon*> totems;
+        me->SummonCreatureGroup(SUMMON_GROUP_VOLKAAL_TOTEMS, &totems);
+        for (ObjectGuid summonGuid : summons)
+        {
+            if (Creature* totem = ObjectAccessor::GetCreature(*me, summonGuid))
+                summons.Summon(totem);
+        }
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -103,12 +112,13 @@ struct boss_volkaal : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-        std::list<Creature*> totems;
-        me->GetCreatureListWithEntryInGrid(totems, NPC_REANIMATION_TOTEM);
-        for (Creature* totem : totems)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, totem);
+        for (ObjectGuid summonGuid : summons)
+        {
+            if (Creature * totem = ObjectAccessor::GetCreature(*me, summonGuid))
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, totem, 2);
+        }
 
         Talk(SAY_AGGRO);
 
@@ -137,6 +147,21 @@ struct boss_volkaal : public BossAI
     {
         if (id == EVENT_JUMP)
             DoCastSelf(SPELL_TOXIC_LEAP_DAMAGE);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_TOTEMS_DIED)
+        {
+            for (ObjectGuid summonGuid : summons)
+            {
+                if (Creature* totem = ObjectAccessor::GetCreature(*me, summonGuid))
+                {
+                    totem->SetUnkillable(false);
+                    totem->KillSelf();
+                }
+            }
+        }
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -191,17 +216,8 @@ struct npc_volkaal_reanimation_totem : public ScriptedAI
             me->SetUnkillable(true);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        if (IsHeroicOrHigher())
-        {
-            if (me->GetHealth() <= damage)
-            {
-                DoCastSelf(SPELL_SOUL_ANCHOR);
-                DoCastSelf(SPELL_REANIMATE);
-            }
-        }
-
         InstanceScript* instance = me->GetInstanceScript();
         if (!instance)
             return;
@@ -210,16 +226,14 @@ struct npc_volkaal_reanimation_totem : public ScriptedAI
             volkaal->AI()->DoZoneInCombat();
     }
 
-    void DoAction(int32 action) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (action == ACTION_TOTEMS_DIED)
+        if (IsHeroicOrHigher())
         {
-            std::list<Creature*> totems;
-            me->GetCreatureListWithEntryInGrid(totems, me->GetEntry());
-            for (Creature* totem : totems)
+            if (me->GetHealth() <= damage)
             {
-                totem->SetUnkillable(false);
-                totem->KillSelf();
+                DoCastSelf(SPELL_SOUL_ANCHOR);
+                DoCastSelf(SPELL_REANIMATE);
             }
         }
     }
@@ -240,12 +254,11 @@ class spell_volkaal_lingering_nausea : public AuraScript
     void HandlePeriodic(AuraEffect const* aurEff) const
     {
         Unit* target = GetTarget();
-        if (!target)
-            return;
 
-        GetCaster()->CastSpell(target, aurEff->GetAmount(), CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(target, aurEff->GetAmount(), CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
         });
     }
 
@@ -305,9 +318,8 @@ class spell_volkaal_soul_anchor : public SpellScript
             if (!instance)
                 return;
 
-            if (Creature* totem = instance->GetCreature(DATA_VOLKAAL_TOTEM))
-                if (npc_volkaal_reanimation_totem* totemAI = CAST_AI(npc_volkaal_reanimation_totem, totem->GetAI()))
-                    totemAI->DoAction(ACTION_TOTEMS_DIED);
+            if (Creature* volkaal = instance->GetCreature(DATA_VOLKAAL))
+                volkaal->AI()->DoAction(ACTION_TOTEMS_DIED);
 
             Unit* caster = GetCaster();
             caster->RemoveAurasDueToSpell(SPELL_BAD_VOODOO);
@@ -349,6 +361,8 @@ class spell_volkaal_rapid_decay : public AuraScript
     void HandleToxicPool(AuraEffect const* aurEff) const
     {
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
         float range = 100.0f;
         Player* player = nullptr;
@@ -386,18 +400,6 @@ struct at_volkaal_rapid_decay : AreaTriggerAI
     void OnUnitExit(Unit* unit) override
     {
         unit->RemoveAurasDueToSpell(SPELL_TOXIC_POOL);
-    }
-
-    void OnRemove() override
-    {
-        for (ObjectGuid const& guid : at->GetInsideUnits())
-        {
-            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
-            if (!unit)
-                continue;
-
-            OnUnitExit(unit);
-        }
     }
 };
 
