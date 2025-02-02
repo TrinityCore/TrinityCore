@@ -25,7 +25,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "TempSummon.h"
+#include "TemporarySummon.h"
 #include "atal_dazar.h"
 
 enum VolkaalSpells
