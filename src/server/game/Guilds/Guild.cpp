@@ -581,7 +581,7 @@ void Guild::Member::ChangeRank(CharacterDatabaseTransaction trans, uint8 newRank
 
     // Update rank information in player's field, if he is online.
     if (Player* player = FindConnectedPlayer())
-        player->SetRank(newRank);
+        player->SetGuildRank(newRank);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_RANK);
     stmt->setUInt8 (0, newRank);
@@ -1398,17 +1398,17 @@ void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string
     _BroadcastEvent(GE_BANK_TAB_UPDATED, ObjectGuid::Empty, std::to_string(tabId), tab->GetName(), tab->GetIcon());
 }
 
-void Guild::HandleSetMemberNote(WorldSession* session, std::string_view name, std::string_view note, bool officer)
+void Guild::HandleSetMemberNote(WorldSession* session, std::string_view note, std::string_view name, bool isPublic)
 {
     // Player must have rights to set public/officer note
-    if (!_HasRankRight(session->GetPlayer(), officer ? GR_RIGHT_EOFFNOTE : GR_RIGHT_EPNOTE))
+    if (!_HasRankRight(session->GetPlayer(), isPublic ? GR_RIGHT_EPNOTE : GR_RIGHT_EOFFNOTE))
         SendCommandResult(session, GUILD_COMMAND_PUBLIC_NOTE, ERR_GUILD_PERMISSIONS);
     else if (Member* member = GetMember(name))
     {
-        if (officer)
-            member->SetOfficerNote(note);
-        else
+        if (isPublic)
             member->SetPublicNote(note);
+        else
+            member->SetOfficerNote(note);
 
         HandleRoster(session);
     }
@@ -1579,12 +1579,12 @@ void Guild::HandleRemoveMember(WorldSession* session, std::string_view name)
             else
             {
                 ObjectGuid guid = member->GetGUID();
+                _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUID().GetCounter(), guid.GetCounter());
+                _BroadcastEvent(GE_REMOVED, ObjectGuid::Empty, name, player->GetName());
 
                 // After call to DeleteMember pointer to member becomes invalid
                 CharacterDatabaseTransaction trans(nullptr);
                 DeleteMember(trans, guid, false, true);
-                _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUID().GetCounter(), guid.GetCounter());
-                _BroadcastEvent(GE_REMOVED, ObjectGuid::Empty, name, player->GetName());
             }
         }
     }
@@ -1676,7 +1676,7 @@ void Guild::HandleRemoveRank(WorldSession* session, uint8 rankId)
     stmt->setUInt8(1, rankId);
     CharacterDatabase.Execute(stmt);
     // Delete rank
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_LOWEST_RANK);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_RANK);
     stmt->setUInt32(0, m_id);
     stmt->setUInt8(1, rankId);
     CharacterDatabase.Execute(stmt);
@@ -2218,7 +2218,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
     {
         player->SetInGuild(m_id);
         player->SetGuildIdInvited(0);
-        player->SetRank(rankId);
+        player->SetGuildRank(rankId);
         member.SetStats(player);
         SendLoginInfo(player->GetSession());
         name = player->GetName();
@@ -2294,7 +2294,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
 
         // If player not online data in data field will be loaded from guild tabs no need to update it !!
         if (Player* newLeaderPlayer = newLeader->FindPlayer())
-            newLeaderPlayer->SetRank(GR_GUILDMASTER);
+            newLeaderPlayer->SetGuildRank(GR_GUILDMASTER);
 
         // If leader does not exist (at guild loading with deleted leader) do not send broadcasts
         if (oldLeader)
@@ -2312,7 +2312,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     if (player)
     {
         player->SetInGuild(0);
-        player->SetRank(0);
+        player->SetGuildRank(0);
     }
     else
         sCharacterCache->UpdateCharacterGuildId(guid, 0);

@@ -4218,7 +4218,7 @@ void Spell::SendSpellStart()
 
     //TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_START id={}", m_spellInfo->Id);
 
-    uint32 castFlags = CAST_FLAG_UNKNOWN_2;
+    uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
     uint32 schoolImmunityMask = 0;
     uint32 mechanicImmunityMask = 0;
     if (Unit* unitCaster = m_caster->ToUnit())

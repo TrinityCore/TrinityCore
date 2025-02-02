@@ -769,6 +769,10 @@ void Battleground::EndBattleground(uint32 winner)
             CharacterDatabase.Execute(stmt);
         }
 
+        // remove temporary currency bonus auras before rewarding player
+        player->RemoveAura(SPELL_HONORABLE_DEFENDER_25Y);
+        player->RemoveAura(SPELL_HONORABLE_DEFENDER_60Y);
+
         // Reward winner team
         if (team == winner)
         {
