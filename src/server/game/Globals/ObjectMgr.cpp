@@ -6734,8 +6734,8 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         if (!node || node->ContinentID != mapid || !isVisibleForFaction(node) || node->GetFlags().HasFlag(TaxiNodeFlags::IgnoreForFindNearest))
             continue;
 
-        uint32 field   = uint32((node->ID - 1) / 8);
-        uint32 submask = 1 << ((node->ID - 1) % 8);
+        uint32 field = uint32((node->ID - 1) / (sizeof(TaxiMask::value_type) * 8));
+        TaxiMask::value_type submask = TaxiMask::value_type(1 << ((node->ID - 1) % (sizeof(TaxiMask::value_type) * 8)));
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
