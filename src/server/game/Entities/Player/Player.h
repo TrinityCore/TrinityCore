@@ -44,6 +44,7 @@ struct CharTitlesEntry;
 struct ChatChannelsEntry;
 struct CreatureTemplate;
 struct FactionEntry;
+struct ItemExtendedCostEntry;
 struct ItemSetEffect;
 struct ItemTemplate;
 struct Loot;
@@ -2496,6 +2497,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         GuidSet m_refundableItems;
         void SendRefundInfo(Item* item);
         void RefundItem(Item* item);
+        void SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error) const;
 
         // know currencies are not removed at any point (0 displayed)
         void AddKnownCurrency(uint32 itemId);

@@ -525,7 +525,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     if (!group)
         return;
 
-    uint8  x;
+    uint8 x;
     recvData >> x;
 
     /** error handling **/
@@ -533,9 +533,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 
     // everything's fine, do it
     if (x == 0xFF)                                           // target icon request
-    {
         group->SendTargetIconList(this);
-    }
     else                                                    // target icon update
     {
         if (group->isRaidGroup() && !group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
