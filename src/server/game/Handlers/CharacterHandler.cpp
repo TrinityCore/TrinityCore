@@ -776,12 +776,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     {
         Field* fields = resultGuild->Fetch();
         pCurrChar->SetInGuild(fields[0].GetUInt32());
-        pCurrChar->SetRank(fields[1].GetUInt8());
+        pCurrChar->SetGuildRank(fields[1].GetUInt8());
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(0);
-        pCurrChar->SetRank(0);
+        pCurrChar->SetGuildRank(0);
     }
 
     if (pCurrChar->GetGuildId() != 0)

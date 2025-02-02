@@ -10041,7 +10041,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            stats.BaseHealth[i] = fields[2 + i].GetUInt16();
+            stats.BaseHealth[i] = fields[2 + i].GetUInt32();
 
             if (stats.BaseHealth[i] == 0)
             {
@@ -10057,8 +10057,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             }
         }
 
-        stats.BaseMana = fields[5].GetUInt16();
-        stats.BaseArmor = fields[6].GetUInt16();
+        stats.BaseMana = fields[5].GetUInt32();
+        stats.BaseArmor = fields[6].GetUInt32();
 
         stats.AttackPower = fields[7].GetUInt16();
         stats.RangedAttackPower = fields[8].GetUInt16();
