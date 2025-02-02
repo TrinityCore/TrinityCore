@@ -382,8 +382,7 @@ class spell_priestess_alun_za_energy_regen : public AuraScript
     void OnPeriodic(AuraEffect const* aurEff) const
     {
         Unit* target = GetTarget();
-        if (target)
-            target->ModifyPower(POWER_ENERGY, aurEff->GetAmount() / 10);
+        target->ModifyPower(POWER_ENERGY, aurEff->GetAmount() / 10);
     }
 
     void Register() override
@@ -425,9 +424,6 @@ class spell_priestess_alun_za_molten_gold : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        if (!target)
-            return;
-
         target->CastSpell(target, aurEff->GetAmount(), CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff
@@ -507,9 +503,6 @@ class spell_priestess_alun_za_tranfusion_cast : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        if (!target)
-            return;
-
         target->CastSpell(target, SPELL_ENERGY_REGEN, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff
@@ -640,7 +633,11 @@ struct at_priestess_alun_za_corrupted_gold : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_CORRUPTED_GOLD_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_CORRUPTED_GOLD_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 };
 
