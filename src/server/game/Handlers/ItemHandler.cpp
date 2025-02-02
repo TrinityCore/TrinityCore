@@ -549,28 +549,12 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
     else
         return;                                             // cheating
 
-    uint8 bag = NULL_BAG;                                   // init for case invalid bagGUID
-
-    // find bag slot by bag guid
-    if (bagguid == _player->GetGUID())
+    uint8 bag = NULL_BAG;
+    if (bagguid == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
         bag = INVENTORY_SLOT_BAG_0;
+    else if (Item* bagItem = _player->GetItemByGuid(bagguid))
+        bag = bagItem->GetSlot();
     else
-    {
-        for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-        {
-            if (Bag* pBag = _player->GetBagByPos(i))
-            {
-                if (bagguid == pBag->GetGUID())
-                {
-                    bag = i;
-                    break;
-                }
-            }
-        }
-    }
-
-    // bag not found, cheating?
-    if (bag == NULL_BAG)
         return;
 
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);

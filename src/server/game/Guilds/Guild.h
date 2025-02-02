@@ -313,8 +313,8 @@ class TC_GAME_API Guild
                 std::string GetPublicNote() const { return m_publicNote; }
                 std::string GetOfficerNote() const { return m_officerNote; }
                 uint8 GetClass() const { return m_class; }
-                uint8 GetLevel() const { return m_level; }
                 uint8 GetGender() const { return m_gender; }
+                uint8 GetLevel() const { return m_level; }
                 uint8 GetFlags() const { return m_flags; }
                 uint32 GetZoneId() const { return m_zoneId; }
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
@@ -501,7 +501,6 @@ class TC_GAME_API Guild
 
             private:
                 ObjectGuid::LowType m_guildId;
-
                 uint8  m_rankId;
                 std::string m_name;
                 uint32 m_rights;
@@ -655,7 +654,7 @@ class TC_GAME_API Guild
         void HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo);
         void HandleSetLeader(WorldSession* session, std::string_view name);
         void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string_view name, std::string_view icon);
-        void HandleSetMemberNote(WorldSession* session, std::string_view name, std::string_view note, bool officer);
+        void HandleSetMemberNote(WorldSession* session, std::string_view note, std::string_view name, bool isPublic);
         void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string_view name, uint32 rights, uint32 moneyPerDay, std::array<GuildBankRightsAndSlots, GUILD_BANK_MAX_TABS> const& rightsAndSlots);
         void HandleBuyBankTab(WorldSession* session, uint8 tabId);
         void HandleInviteMember(WorldSession* session, std::string_view name);
