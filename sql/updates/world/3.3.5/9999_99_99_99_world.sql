@@ -55,7 +55,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1242301,9,3,0,0,0,100,0,2500,2500,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Guard Roberts - On Script - Set Orientation Invoker"),
 (1242301,9,4,0,0,0,100,0,500,500,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Roberts - On Script - Say Line 0"),
 (1242301,9,5,0,0,0,100,0,4000,4000,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Roberts - On Script - Say Line 1"),
-(1242301,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12423,0,0,0,2,1,0,0,0,0,0,0,0,0,"Guard Roberts - On Script - Start Waypoint"),
+(1242301,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12423,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Roberts - On Script - Start Waypoint"),
 
 -- Mountaineer Dolf Script
 (12427,0,0,1,25,0,100,0,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Mountaineer Dolf - On Reset - Set Phase 1"),
@@ -82,7 +82,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1242701,9,3,0,0,0,100,0,3500,3500,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Mountaineer Dolf - On Script - Set Orientation Invoker"),
 (1242701,9,4,0,0,0,100,0,500,500,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Mountaineer Dolf - On Script - Say Line 0"),
 (1242701,9,5,0,0,0,100,0,4000,4000,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Mountaineer Dolf - On Script - Say Line 1"),
-(1242701,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12427,0,0,0,2,1,0,0,0,0,0,0,0,0,"Mountaineer Dolf - On Script - Start Waypoint"),
+(1242701,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12427,0,0,0,0,1,0,0,0,0,0,0,0,0,"Mountaineer Dolf - On Script - Start Waypoint"),
 
 -- Deathguard Kel Script
 (12428,0,0,1,25,0,100,0,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Deathguard Kel - On Reset - Set Phase 1"),
@@ -109,7 +109,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1242801,9,3,0,0,0,100,0,2500,2500,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Deathguard Kel - On Script - Set Orientation Invoker"),
 (1242801,9,4,0,0,0,100,0,500,500,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Deathguard Kel - On Script - Say Line 0"),
 (1242801,9,5,0,0,0,100,0,4000,4000,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Deathguard Kel - On Script - Say Line 1"),
-(1242801,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12428,0,0,0,2,1,0,0,0,0,0,0,0,0,"Deathguard Kel - On Script - Start Waypoint"),
+(1242801,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12428,0,0,0,0,1,0,0,0,0,0,0,0,0,"Deathguard Kel - On Script - Start Waypoint"),
 
 -- Sentinel Shaya Script
 (12429,0,0,1,25,0,100,0,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sentinel Shaya - On Reset - Set Phase 1"),
@@ -136,7 +136,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1242901,9,3,0,0,0,100,0,2500,2500,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Sentinel Shaya - On Script - Set Orientation Invoker"),
 (1242901,9,4,0,0,0,100,0,1000,1000,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sentinel Shaya - On Script - Say Line 0"),
 (1242901,9,5,0,0,0,100,0,4000,4000,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sentinel Shaya - On Script - Say Line 1"),
-(1242901,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12429,0,0,0,2,1,0,0,0,0,0,0,0,0,"Sentinel Shaya - On Script - Start Waypoint"),
+(1242901,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12429,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sentinel Shaya - On Script - Start Waypoint"),
 
 -- Grunt Kor'ja Script
 (12430,0,0,1,25,0,100,0,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Grunt Kor'ja - On Reset - Set Phase 1"),
@@ -163,7 +163,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1243001,9,3,0,0,0,100,0,2500,2500,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Grunt Kor'ja - On Script - Set Orientation Invoker"),
 (1243001,9,4,0,0,0,100,0,500,500,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Grunt Kor'ja - On Script - Say Line 0"),
 (1243001,9,5,0,0,0,100,0,4000,4000,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Grunt Kor'ja - On Script - Say Line 1"),
-(1243001,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12430,0,0,0,2,1,0,0,0,0,0,0,0,0,"Grunt Kor'ja - On Script - Start Waypoint");
+(1243001,9,6,0,0,0,100,0,2000,2000,0,0,0,53,1,12430,0,0,0,0,1,0,0,0,0,0,0,0,0,"Grunt Kor'ja - On Script - Start Waypoint");
 
 -- Remove old waypoints
 DELETE FROM `script_waypoint` WHERE `entry` IN (12423,12427,12428,12429,12430);
