@@ -2278,9 +2278,7 @@ bool GameObject::ActivateToQuest(Player const* target) const
     {
         case GAMEOBJECT_TYPE_QUESTGIVER:
         {
-            GameObject* go = const_cast<GameObject*>(this);
-            QuestGiverStatus questStatus = const_cast<Player*>(target)->GetQuestDialogStatus(go);
-            if (questStatus != QuestGiverStatus::None && questStatus != QuestGiverStatus::Future)
+            if ((target->GetQuestDialogStatus(this) & ~QuestGiverStatusFutureMask) != QuestGiverStatus::None)
                 return true;
             break;
         }
