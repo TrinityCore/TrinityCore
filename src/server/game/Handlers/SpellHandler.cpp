@@ -181,7 +181,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     // additional check, client outputs message on its own
     if (!player->IsAlive())
     {
-        player->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, nullptr, nullptr);
+        player->SendEquipError(EQUIP_ERR_PLAYER_DEAD, nullptr, nullptr);
         return;
     }
 
@@ -207,7 +207,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
     if (!proto->HasFlag(ITEM_FLAG_HAS_LOOT) && !item->IsWrapped())
     {
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, nullptr);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player {} {} tried to open item [{}, entry: {}] which is not openable!",
             player->GetName(), player->GetGUID().ToString(), item->GetGUID().ToString(), proto->ItemId);
         return;

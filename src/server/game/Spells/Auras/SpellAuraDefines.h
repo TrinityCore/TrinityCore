@@ -353,7 +353,7 @@ enum AuraType : uint32
     SPELL_AURA_X_RAY                                        = 273,
     SPELL_AURA_ABILITY_CONSUME_NO_AMMO                      = 274,
     SPELL_AURA_MOD_IGNORE_SHAPESHIFT                        = 275,
-    SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC                 = 276,  // NYI
+    SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC                 = 276,
     SPELL_AURA_MOD_MAX_AFFECTED_TARGETS                     = 277,
     SPELL_AURA_MOD_DISARM_RANGED                            = 278,
     SPELL_AURA_INITIALIZE_IMAGES                            = 279,

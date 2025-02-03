@@ -292,7 +292,7 @@ float Player::GetHealthBonusFromStamina()
     float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
 
-    return baseStam + (moreStam*10.0f);
+    return baseStam + (moreStam * 10.0f);
 }
 
 float Player::GetManaBonusFromIntellect()
@@ -1033,20 +1033,8 @@ void Player::UpdateRuneRegen(RuneType rune)
     if (rune >= NUM_RUNE_TYPES)
         return;
 
-    uint32 cooldown = 0;
-
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == rune)
-        {
-            cooldown = GetRuneBaseCooldown(i);
-            break;
-        }
-
-    if (cooldown <= 0)
-        return;
-
-    float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
-    SetFloatValue(PLAYER_RUNE_REGEN_1 + uint8(rune), regen);
+    if (uint32 cooldown = GetRuneTypeBaseCooldown(rune))
+        SetFloatValue(PLAYER_RUNE_REGEN_1 + uint8(rune), float(1 * IN_MILLISECONDS) / float(cooldown));
 }
 
 void Player::_ApplyAllStatBonuses()
