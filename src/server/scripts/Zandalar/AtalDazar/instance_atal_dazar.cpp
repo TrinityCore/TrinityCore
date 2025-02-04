@@ -23,9 +23,10 @@
 BossBoundaryData const boundaries =
 {
     { DATA_REZAN, new ZRangeBoundary(639.0f, 650.0f) }, // 647.65f
+    { DATA_VOLKAAL, new ZRangeBoundary(709.0f, 730.0f) },
 };
 
-ObjectData const creatureData[] =
+constexpr ObjectData creatureData[] =
 {
     { BOSS_PRIESTESS_ALUNZA, DATA_PRIESTESS_ALUNZA  },
     { BOSS_VOLKAAL,          DATA_VOLKAAL           },
@@ -34,16 +35,16 @@ ObjectData const creatureData[] =
     { 0,                     0                      }  // END
 };
 
-DoorData const doorData[] =
+constexpr DoorData doorData[] =
 {
-    { GO_VOLKAAN_DOOR_1, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { GO_VOLKAAN_DOOR_2, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { GO_VOLKAAN_DOOR_3, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { GO_VOLKAAN_DOOR_4, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_VOLKAAL_DOOR_1, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_VOLKAAL_DOOR_2, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_VOLKAAL_DOOR_3, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_VOLKAAL_DOOR_4, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
     { 0,                 0,            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+constexpr DungeonEncounterData encounters[] =
 {
     { DATA_PRIESTESS_ALUNZA, {{ 2084 }} },
     { DATA_VOLKAAL,          {{ 2085 }} },

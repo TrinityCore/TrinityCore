@@ -17,27 +17,24 @@ DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` = 16029);
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
 (16029, 0, 0, 53989);
 
-DELETE FROM `jump_charge_params` WHERE `id`=110;
-INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES
-(110, 50, 0, 19.2911, NULL, NULL, NULL);
-
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (250372, 250368, 250241, 250229, 259531, 250708);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (250372, 250368, 250241, 250229, 259531, 250708, 250258);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (250372, 'spell_volkaal_lingering_nausea'),
 (250368, 'spell_volkaal_noxious_stench'),
 (250241, 'spell_volkaal_rapid_decay'),
 (259531, 'spell_volkaal_reanimate'),
 (250229, 'spell_volkaal_soul_anchor'),
-(250708, 'spell_volkaal_toxic_leap_selector');
+(250708, 'spell_volkaal_toxic_leap_selector'),
+(250258, 'spell_volkaal_toxic_leap');
 
 DELETE FROM `creature_text` WHERE `CreatureID`=122965;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(122965, 0, 0, 'You?! I tear you apart!', 14, 0, 100, 0, 0, 97344, 140446, 0, 'Vol\'kaal'),
-(122965, 1, 0, 'You die with me!', 14, 0, 100, 0, 0, 97349, 140453, 0, 'Vol\'kaal'),
-(122965, 2, 0, 'Master gonna build me again...', 14, 0, 100, 0, 0, 97345, 140457, 0, 'Vol\'kaal'),
-(122965, 3, 0, 'You be in pieces.', 14, 0, 100, 0, 0, 97346, 140454, 0, 'Vol\'kaal'),
-(122965, 3, 1, 'Flesh for master!', 14, 0, 100, 0, 0, 97347, 140455, 0, 'Vol\'kaal'),
-(122965, 4, 0, 'Master take your parts. Make me stronger!', 14, 0, 100, 0, 0, 97348, 140456, 0, 'Vol\'kaal');
+(122965, 0, 0, 'You?! I tear you apart!', 14, 0, 100, 0, 0, 97344, 140446, 0, 'Vol\'kaal - Enter Combat'),
+(122965, 1, 0, 'You die with me!', 14, 0, 100, 0, 0, 97349, 140453, 0, 'Vol\'kaal - Decay'),
+(122965, 2, 0, 'Master gonna build me again...', 14, 0, 100, 0, 0, 97345, 140457, 0, 'Vol\'kaal - Death'),
+(122965, 3, 0, 'You be in pieces.', 14, 0, 100, 0, 0, 97346, 140454, 0, 'Vol\'kaal - Slay'),
+(122965, 3, 1, 'Flesh for master!', 14, 0, 100, 0, 0, 97347, 140455, 0, 'Vol\'kaal - Slay'),
+(122965, 4, 0, 'Master take your parts. Make me stronger!', 14, 0, 100, 0, 0, 97348, 140456, 0, 'Vol\'kaal - Evade');
 
 DELETE FROM `creature_summon_groups` WHERE `summonerId`=122965;
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`, `Comment`) VALUES

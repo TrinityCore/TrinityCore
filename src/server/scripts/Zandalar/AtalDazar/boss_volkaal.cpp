@@ -28,6 +28,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "atal_dazar.h"
+#include "MoveSpline.h"
 
 enum VolkaalSpells
 {
@@ -73,22 +74,19 @@ enum VolkaalTexts
 // 122965 - Vol'kaal
 struct boss_volkaal : public BossAI
 {
-    boss_volkaal(Creature* creature) : BossAI(creature, DATA_VOLKAAL) { }
+    boss_volkaal(Creature* creature) : BossAI(creature, DATA_VOLKAAL), _toxicLeapCount(1), _leaping(false) { }
+
+    void JustAppeared() override
+    {
+        me->SummonCreatureGroup(SUMMON_GROUP_VOLKAAL_TOTEMS);
+    }
 
     void Reset() override
     {
         _Reset();
-    }
 
-    void JustAppeared() override
-    {
-        std::list<TempSummon*> totems;
-        me->SummonCreatureGroup(SUMMON_GROUP_VOLKAAL_TOTEMS, &totems);
-        for (ObjectGuid summonGuid : summons)
-        {
-            if (Creature* totem = ObjectAccessor::GetCreature(*me, summonGuid))
-                summons.Summon(totem);
-        }
+        _toxicLeapCount = 1;
+        _leaping = false;
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -131,6 +129,7 @@ struct boss_volkaal : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
 
         Talk(SAY_DIED);
     }
@@ -147,7 +146,10 @@ struct boss_volkaal : public BossAI
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
         if (id == EVENT_JUMP)
+        {
             DoCastSelf(SPELL_TOXIC_LEAP_DAMAGE);
+            _leaping = false;
+        }
     }
 
     void DoAction(int32 action) override
@@ -165,28 +167,6 @@ struct boss_volkaal : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventId) override
-    {
-        switch (eventId)
-        {
-            case EVENT_TOXIC_LEAP:
-            {
-                DoCast(SPELL_TOXIC_LEAP_SELECTOR);
-                events.Repeat(6s);
-                break;
-            }
-            case EVENT_NOXIOUS_STENCH:
-            {
-                DoCast(SPELL_NOXIOUS_STENCH);
-                events.Repeat(19400ms);
-                events.RescheduleEvent(EVENT_TOXIC_LEAP, 8500ms);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
@@ -199,11 +179,42 @@ struct boss_volkaal : public BossAI
 
         while (uint32 eventId = events.ExecuteEvent())
         {
-            ExecuteEvent(eventId);
+            switch (eventId)
+            {
+                case EVENT_TOXIC_LEAP:
+                {
+                    _leaping = true;
+                    DoCast(SPELL_TOXIC_LEAP_SELECTOR);
+                    _toxicLeapCount++;
+                    if (_toxicLeapCount % 3 == 2)
+                        events.Repeat(8500ms);
+                    else
+                        events.Repeat(6s);
+                    break;
+                }
+                case EVENT_NOXIOUS_STENCH:
+                {
+                    if (!_leaping)
+                    {
+                        DoCast(SPELL_NOXIOUS_STENCH);
+                        events.Repeat(19400ms);
+                    }
+                    else
+                        events.Repeat(100ms);
+                    break;
+                }
+                default:
+                    break;
+            }
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
     }
+
+private:
+    uint32 _toxicLeapCount;
+    bool _leaping;
 };
 
 // 125977 - Reanimation Totem
@@ -229,9 +240,9 @@ struct npc_volkaal_reanimation_totem : public ScriptedAI
 
     void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (IsHeroicOrHigher())
+        if (me->GetHealth() <= damage)
         {
-            if (me->GetHealth() <= damage)
+            if (IsHeroicOrHigher())
             {
                 DoCastSelf(SPELL_SOUL_ANCHOR);
                 DoCastSelf(SPELL_REANIMATE);
@@ -294,17 +305,42 @@ class spell_volkaal_noxious_stench : public SpellScript
 // 250708 - Toxic Leap
 class spell_volkaal_toxic_leap_selector : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TOXIC_LEAP });
+    }
+
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell(),
-        });
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_TOXIC_LEAP);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_volkaal_toxic_leap_selector::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 250258 - Toxic Leap
+class spell_volkaal_toxic_leap : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TOXIC_LEAP });
+    }
+
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        float dist = GetCaster()->GetExactDist(GetHitDest());
+        float jumpGravity = 159500.0f / (dist * dist); // constant based on calculating avg of inverse from multiple leaps
+        GetCaster()->GetMotionMaster()->MoveJumpWithGravity(*GetHitDest(), 50, jumpGravity, EVENT_JUMP);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_volkaal_toxic_leap::HandleHit, EFFECT_1, SPELL_EFFECT_JUMP_CHARGE);
     }
 };
 
@@ -375,7 +411,8 @@ class spell_volkaal_rapid_decay : public AuraScript
         args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
         args.TriggeringAura = aurEff;
         caster->CastSpell(player->GetPosition(), SPELL_RAPID_DECAY_TARGET, args);
-        caster->CastSpell(caster, SPELL_RAPID_DECAY_RANDOM, args);
+        // not present in 11.0.7
+        //caster->CastSpell(caster, SPELL_RAPID_DECAY_RANDOM, args);
     }
 
     void Register() override
@@ -412,6 +449,7 @@ void AddSC_boss_volkaal()
     RegisterSpellScript(spell_volkaal_lingering_nausea);
     RegisterSpellScript(spell_volkaal_noxious_stench);
     RegisterSpellScript(spell_volkaal_toxic_leap_selector);
+    RegisterSpellScript(spell_volkaal_toxic_leap);
     RegisterSpellScript(spell_volkaal_soul_anchor);
     RegisterSpellScript(spell_volkaal_reanimate);
     RegisterSpellScript(spell_volkaal_rapid_decay);

@@ -45,10 +45,10 @@ enum AtalDazarCreatureIds
 
 enum AtalDazarGameObjectIds
 {
-    GO_VOLKAAN_DOOR_1     = 292399,
-    GO_VOLKAAN_DOOR_2     = 292400,
-    GO_VOLKAAN_DOOR_3     = 292401,
-    GO_VOLKAAN_DOOR_4     = 292402
+    GO_VOLKAAL_DOOR_1     = 292399,
+    GO_VOLKAAL_DOOR_2     = 292400,
+    GO_VOLKAAL_DOOR_3     = 292401,
+    GO_VOLKAAL_DOOR_4     = 292402
 };
 
 template <class AI, class T>
