@@ -2523,10 +2523,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     AI()->OnLootStateChanged(state, unit);
 
     // Start restock timer if the chest is partially looted or not looted at all
-    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED && m_restockTime == 0)
+    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED)
     {
         GameObjectTemplate const* goInfo = GetGOInfo();
-        if (goInfo->chest.chestRestockTime > 0)
+        if (goInfo->chest.chestRestockTime > 0 && m_restockTime == 0)
             m_restockTime = GameTime::GetGameTime() + goInfo->chest.chestRestockTime;
 
         // If world chests were opened, despawn them after 5 minutes
