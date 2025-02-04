@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -28,7 +29,6 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "atal_dazar.h"
-#include "MoveSpline.h"
 
 enum VolkaalSpells
 {
