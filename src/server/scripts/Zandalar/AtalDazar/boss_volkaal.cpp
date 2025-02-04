@@ -15,19 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "CellImpl.h"
 #include "Creature.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "TemporarySummon.h"
 #include "atal_dazar.h"
 
 enum VolkaalSpells
