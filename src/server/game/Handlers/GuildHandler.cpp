@@ -332,7 +332,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapIt
         // Player <-> Bank
         // Allow to work with inventory only
         if (!Player::IsInventoryPos(playerBag, playerSlotId) && !(playerBag == NULL_BAG && playerSlotId == NULL_SLOT))
-            GetPlayer()->SendEquipError(EQUIP_ERR_NONE, nullptr);
+            GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
         else
             guild->SwapItemsWithInventory(GetPlayer(), toChar != 0, packet.BankTab, packet.BankSlot, playerBag, playerSlotId, splitedAmount);
     }

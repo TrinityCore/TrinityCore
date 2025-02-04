@@ -931,6 +931,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetPowerType(Powers power, bool sendUpdate = true);
         void UpdateDisplayPower();
         uint32 GetPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_POWER1 + int32(power)); }
+        int32 GetMinPower(Powers /*power*/) const { return 0; }
         uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + int32(power)); }
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
@@ -1204,6 +1205,7 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
 
+        void SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin);
         void KnockbackFrom(float x, float y, float speedXY, float speedZ);
         void JumpTo(float speedXY, float speedZ, bool forward = true, Optional<Position> dest = {});
         void JumpTo(WorldObject* obj, float speedZ, bool withOrientation = false);

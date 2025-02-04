@@ -44,6 +44,7 @@ struct CharTitlesEntry;
 struct ChatChannelsEntry;
 struct CreatureTemplate;
 struct FactionEntry;
+struct ItemExtendedCostEntry;
 struct ItemSetEffect;
 struct ItemTemplate;
 struct Loot;
@@ -2179,7 +2180,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
         uint32 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
-        uint32 GetRuneBaseCooldown(uint8 index);
+        uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
+        uint32 GetRuneTypeBaseCooldown(RuneType runeType) const;
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         RuneType GetLastUsedRune() const { return m_runes->lastUsedRune; }
         void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
@@ -2496,6 +2498,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         GuidSet m_refundableItems;
         void SendRefundInfo(Item* item);
         void RefundItem(Item* item);
+        void SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error) const;
 
         // know currencies are not removed at any point (0 displayed)
         void AddKnownCurrency(uint32 itemId);
