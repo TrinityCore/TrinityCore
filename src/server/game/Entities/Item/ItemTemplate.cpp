@@ -139,6 +139,32 @@ uint32 ItemTemplate::GetSkill() const
     }
 }
 
+bool ItemTemplate::IsWeaponOfSubClass(ItemSubclassWeapon subClass) const
+{
+    if (Class != ITEM_CLASS_WEAPON)
+        return false;
+
+    return SubClass == subClass;
+}
+
+bool ItemTemplate::IsWeaponOfSubClass(std::initializer_list<ItemSubclassWeapon> subClasses) const
+{
+    if (Class != ITEM_CLASS_WEAPON)
+        return false;
+
+    for (auto const& subClass : subClasses)
+        if (IsWeaponOfSubClass(subClass))
+            return true;
+
+    return false;
+}
+
+bool ItemTemplate::CanBeDualWieldedWithTitansGrip() const
+{
+    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(46917); // Titan's Grip
+    return ((1 << SubClass) & spellInfo->EquippedItemSubClassMask) != 0;
+}
+
 void ItemTemplate::_LoadTotalAP()
 {
     int32 totalAP = 0;

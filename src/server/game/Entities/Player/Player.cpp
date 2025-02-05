@@ -11314,16 +11314,11 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             // equip two-hand weapon case (with possible unequip 2 items)
             if (type == INVTYPE_2HWEAPON)
             {
-                if (eslot == EQUIPMENT_SLOT_OFFHAND)
-                {
-                    if (!CanTitanGrip())
-                        return EQUIP_ERR_NOT_EQUIPPABLE;
-                }
-                else if (eslot != EQUIPMENT_SLOT_MAINHAND)
-                    return EQUIP_ERR_NOT_EQUIPPABLE;
-
                 if (!CanTitanGrip())
                 {
+                    if (eslot != EQUIPMENT_SLOT_MAINHAND)
+                        return EQUIP_ERR_NOT_EQUIPPABLE;
+
                     // offhand item must can be stored in inventory for offhand item and it also must be unequipped
                     Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
                     ItemPosCountVec off_dest;
@@ -11331,6 +11326,35 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                         CanUnequipItem(uint16(INVENTORY_SLOT_BAG_0) << 8 | EQUIPMENT_SLOT_OFFHAND, false) != EQUIP_ERR_OK ||
                         CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false) != EQUIP_ERR_OK))
                         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_INV_FULL;
+                }
+                else
+                {
+                    if (eslot != EQUIPMENT_SLOT_MAINHAND && eslot != EQUIPMENT_SLOT_OFFHAND)
+                        return EQUIP_ERR_NOT_EQUIPPABLE;
+
+                    if (eslot == EQUIPMENT_SLOT_MAINHAND)
+                    {
+                        if (Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                        {
+                            if (!offItem->GetTemplate()->CanBeDualWieldedWithTitansGrip() || !pProto->CanBeDualWieldedWithTitansGrip())
+                            {
+                                ItemPosCountVec off_dest;
+                                if (offItem && (!not_loading ||
+                                    CanUnequipItem(uint16(INVENTORY_SLOT_BAG_0) << 8 | EQUIPMENT_SLOT_OFFHAND, false) != EQUIP_ERR_OK ||
+                                    CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false) != EQUIP_ERR_OK))
+                                    return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_INV_FULL;
+                            }
+                        }
+                    }
+
+                    if (eslot == EQUIPMENT_SLOT_OFFHAND)
+                    {
+                        if (Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                        {
+                            if (!mainItem->GetTemplate()->CanBeDualWieldedWithTitansGrip() || !pProto->CanBeDualWieldedWithTitansGrip())
+                                return EQUIP_ERR_NOT_EQUIPPABLE;
+                        }
+                    }
                 }
             }
             dest = ((INVENTORY_SLOT_BAG_0 << 8) | eslot);
@@ -23547,9 +23571,14 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     if (!offItem)
         return;
 
-     // unequip offhand weapon if player doesn't have dual wield anymore
-     if (!CanDualWield() && (offItem->GetTemplate()->InventoryType == INVTYPE_WEAPONOFFHAND || offItem->GetTemplate()->InventoryType == INVTYPE_WEAPON))
-          force = true;
+    // unequip offhand weapon if player doesn't have dual wield anymore
+    if (!CanDualWield() && (offItem->GetTemplate()->InventoryType == INVTYPE_WEAPONOFFHAND || offItem->GetTemplate()->InventoryType == INVTYPE_WEAPON))
+        force = true;
+
+    // uneqip offhand weapon if it can not be dual wielded with titan's grip
+    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    if (mainItem && CanTitanGrip() && !mainItem->GetTemplate()->CanBeDualWieldedWithTitansGrip())
+        force = true;
 
     // need unequip offhand for 2h-weapon without TitanGrip (in any from hands)
     if (!force && (CanTitanGrip() || (offItem->GetTemplate()->InventoryType != INVTYPE_2HWEAPON && !IsTwoHandUsed())))

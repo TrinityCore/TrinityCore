@@ -704,6 +704,10 @@ struct TC_GAME_API ItemTemplate
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && HasFlag(ITEM_FLAG_CONJURED); }
     bool HasSignature() const;
 
+    bool IsWeaponOfSubClass(ItemSubclassWeapon subClass) const;
+    bool IsWeaponOfSubClass(std::initializer_list<ItemSubclassWeapon> subClasses) const;
+    bool CanBeDualWieldedWithTitansGrip() const;
+
     inline bool HasFlag(ItemFlags flag) const { return (Flags & flag) != 0; }
     inline bool HasFlag(ItemFlags2 flag) const { return (Flags2 & flag) != 0; }
     inline bool HasFlag(ItemFlagsCustom customFlag) const { return (FlagsCu & customFlag) != 0; }
