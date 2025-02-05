@@ -1475,6 +1475,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId = 5421;
             break;
         case FORM_BEAR_FORM:
+        case FORM_DIRE_BEAR_FORM:
             spellId = 1178;
             spellId2 = 21178;
             spellId3 = 106829;
@@ -1919,6 +1920,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_TRAVEL_FORM:
             case FORM_AQUATIC_FORM:
             case FORM_BEAR_FORM:
+            case FORM_DIRE_BEAR_FORM:
             case FORM_FLIGHT_FORM_EPIC:
             case FORM_FLIGHT_FORM:
             case FORM_MOONKIN_FORM:
@@ -1979,6 +1981,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         {
             // Nordrassil Harness - bonus
             case FORM_BEAR_FORM:
+            case FORM_DIRE_BEAR_FORM:
             case FORM_CAT_FORM:
                 if (AuraEffect* dummy = target->GetAuraEffect(37315, 0))
                     target->CastSpell(target, 37316, dummy);
