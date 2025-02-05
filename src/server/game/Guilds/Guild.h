@@ -677,7 +677,7 @@ class TC_GAME_API Guild
         void SendInfo(WorldSession* session) const;
         void SendEventLog(WorldSession* session) const;
         void SendBankLog(WorldSession* session, uint8 tabId) const;
-        void SendBankTabsInfo(WorldSession* session, bool showTabs = false) const;
+        void SendBankList(WorldSession* session = nullptr, uint8 tabId = 0, bool fullUpdate = false, SlotIds* slots = nullptr) const;
         void SendBankTabData(WorldSession* session, uint8 tabId, bool sendAllSlots) const;
         void SendBankTabText(WorldSession* session, uint8 tabId) const;
         void SendPermissions(WorldSession* session) const;
@@ -822,11 +822,8 @@ class TC_GAME_API Guild
         void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount);
         bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
 
-        void _SendBankContent(WorldSession* session, uint8 tabId, bool sendAllSlots) const;
-        void _SendBankMoneyUpdate(WorldSession* session) const;
         void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
         void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
-        void _SendBankList(WorldSession* session = nullptr, uint8 tabId = 0, bool sendFullSlots = false, SlotIds* slots = nullptr) const;
 
         void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, Optional<std::string_view> param1 = {}, Optional<std::string_view> param2 = {}, Optional<std::string_view> param3 = {}) const;
 };

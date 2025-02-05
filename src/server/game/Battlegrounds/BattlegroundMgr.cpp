@@ -189,7 +189,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
     // The following segment is read as uint64 in client but can be appended as their original type.
     *data << uint8(arenatype);
     TC_LOG_DEBUG("network", "BattlegroundMgr::BuildBattlegroundStatusPacket: arenatype = {} for bg instanceID {}, TypeID {}.", arenatype, bg->GetClientInstanceID(), bg->GetTypeID());
-    *data << uint8(bg->isArena() ? 0xE : 0x0);
+    *data << uint8(bg->GetBracketId());
     *data << uint32(bg->GetTypeID());
     *data << uint16(0x1F90);
     // End of uint64 segment, decomposed this way for simplicity

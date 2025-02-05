@@ -5394,13 +5394,13 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
     // do not allow spells to be cast in arenas
-    // - with greater than 10 min CD without SPELL_ATTR4_USABLE_IN_ARENA flag
-    // - with SPELL_ATTR4_NOT_USABLE_IN_ARENA flag
-    if (m_spellInfo->HasAttribute(SPELL_ATTR4_NOT_USABLE_IN_ARENA) ||
-        (m_spellInfo->GetRecoveryTime() > 10 * MINUTE * IN_MILLISECONDS && !m_spellInfo->HasAttribute(SPELL_ATTR4_USABLE_IN_ARENA)))
-        if (MapEntry const* mapEntry = sMapStore.LookupEntry(m_caster->GetMapId()))
-            if (mapEntry->IsBattleArena())
-                return SPELL_FAILED_NOT_IN_ARENA;
+    if (Player* player = m_caster->ToPlayer())
+        if (player->InArena())
+        {
+            SpellCastResult castResult = CheckArenaCastRules();
+            if (castResult != SPELL_CAST_OK)
+                return castResult;
+        }
 
     // zone check
     if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_caster->ToPlayer()->IsGameMaster())
@@ -6393,6 +6393,25 @@ bool Spell::CheckSpellCancelsConfuse(uint32* param1) const
 int32 Spell::CalculateDamage(SpellEffectInfo const& spellEffectInfo) const
 {
     return m_caster->CalculateSpellDamage(spellEffectInfo, m_spellValue->EffectBasePoints + spellEffectInfo.EffectIndex);
+}
+
+SpellCastResult Spell::CheckArenaCastRules() const
+{
+    // check USABLE attributes
+    // USABLE takes precedence over NOT_USABLE
+    if (m_spellInfo->HasAttribute(SPELL_ATTR4_USABLE_IN_ARENA))
+        return SPELL_CAST_OK;
+
+    // check NOT_USABLE attributes
+    if (m_spellInfo->AttributesEx4 & SPELL_ATTR4_NOT_USABLE_IN_ARENA)
+        return SPELL_FAILED_NOT_IN_ARENA;
+
+    // check cooldowns
+    uint32 spellCooldown = m_spellInfo->GetRecoveryTime();
+    if (spellCooldown > 10 * MINUTE * IN_MILLISECONDS) // not sure if still needed
+        return SPELL_FAILED_NOT_IN_ARENA;
+
+    return SPELL_CAST_OK;
 }
 
 SpellCastResult Spell::CheckMovement() const

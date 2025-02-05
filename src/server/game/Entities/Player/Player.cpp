@@ -6093,8 +6093,8 @@ void Player::SendActionButtons(uint32 state) const
     data << uint8(state);
     /*
         state can be 0, 1, 2
-        0 - Looks to be sent when initial action buttons get sent, however on Trinity we use 1 since 0 had some difficulties
-        1 - Used in any SMSG_ACTION_BUTTONS packet with button data on Trinity. Only used after spec swaps on retail.
+        0 - Sends initial action buttons, client does not validate if we have the spell or not
+        1 - Used used after spec swaps, client validates if a spell is known.
         2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
     */
     if (state != 2)
@@ -21515,10 +21515,12 @@ void Player::InitDisplayIds()
 
 inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
 {
+    uint32 stacks = count;
+    count = stacks * pProto->BuyCount;
     ItemPosCountVec vDest;
     uint16 uiDest = 0;
     InventoryResult msg = bStore ?
-        CanStoreNewItem(bag, slot, vDest, item, pProto->BuyCount * count) :
+        CanStoreNewItem(bag, slot, vDest, item, count) :
         CanEquipNewItem(slot, uiDest, item, false);
     if (msg != EQUIP_ERR_OK)
     {
@@ -21533,15 +21535,15 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
         ASSERT(iece);
         if (iece->HonorPoints)
-            ModifyHonorPoints(-int32(iece->HonorPoints * count));
+            ModifyHonorPoints(-int32(iece->HonorPoints * stacks));
 
         if (iece->ArenaPoints)
-            ModifyArenaPoints(-int32(iece->ArenaPoints * count));
+            ModifyArenaPoints(-int32(iece->ArenaPoints * stacks));
 
         for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i)
         {
             if (iece->ItemID[i])
-                DestroyItemCount(iece->ItemID[i], (iece->ItemCount[i] * count), true);
+                DestroyItemCount(iece->ItemID[i], iece->ItemCount[i] * stacks, true);
         }
     }
 
@@ -21550,15 +21552,16 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         EquipNewItem(uiDest, item, true);
     if (it)
     {
-        uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, pProto->BuyCount * count);
+        uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
         WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
         data << uint64(pVendor->GetGUID());
         data << uint32(vendorslot + 1);                   // numbered from 1 at client
         data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-        data << uint32(count);
+        data << uint32(stacks);
         SendDirectMessage(&data);
-        SendNewItem(it, pProto->BuyCount * count, true, false, false);
+
+        SendNewItem(it, count, true, false, false);
 
         if (!bStore)
             AutoUnequipOffhandIfNeed();
@@ -21577,7 +21580,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 }
 
 // Return true is the bought item has a max count to force refresh of window by caller
-bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot)
+bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint32 count, uint8 bag, uint8 slot)
 {
     // cheating attempt
     if (count < 1) count = 1;
@@ -21662,6 +21665,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
     if (crItem->ExtendedCost)
     {
+        uint32 stacks = count;
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
         if (!iece)
         {
@@ -21670,14 +21674,14 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         }
 
         // honor points price
-        if (GetHonorPoints() < (iece->HonorPoints * count))
+        if (GetHonorPoints() < (iece->HonorPoints * stacks))
         {
             SendEquipError(EQUIP_ERR_NOT_ENOUGH_HONOR_POINTS, nullptr, nullptr);
             return false;
         }
 
         // arena points price
-        if (GetArenaPoints() < (iece->ArenaPoints * count))
+        if (GetArenaPoints() < (iece->ArenaPoints * stacks))
         {
             SendEquipError(EQUIP_ERR_NOT_ENOUGH_ARENA_POINTS, nullptr, nullptr);
             return false;
@@ -21686,7 +21690,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         // item base price
         for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i)
         {
-            if (iece->ItemID[i] && !HasItemCount(iece->ItemID[i], (iece->ItemCount[i] * count)))
+            if (iece->ItemID[i] && !HasItemCount(iece->ItemID[i], (iece->ItemCount[i] * stacks)))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, nullptr, nullptr);
                 return false;
@@ -21706,11 +21710,11 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
     {
         uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
-        if ((uint32)count > maxCount)
+        if (uint32(count) > maxCount)
         {
             TC_LOG_ERROR("entities.player.cheat", "Player::BuyItemFromVendorSlot: Player '{}' ({}) tried to buy item (ItemID: {}, Count: {}), causing overflow",
-                GetName(), GetGUID().ToString(), pProto->ItemId, (uint32)count);
-            count = (uint8)maxCount;
+                GetName(), GetGUID().ToString(), pProto->ItemId, uint32(count));
+            count = uint32(maxCount);
         }
         price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
 

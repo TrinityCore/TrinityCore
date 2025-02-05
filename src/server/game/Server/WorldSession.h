@@ -583,9 +583,21 @@ class TC_GAME_API WorldSession
         void UpdateInstanceEnterTimes();
         //auction
         void SendAuctionHello(ObjectGuid guid, Unit const* unit);
-        void SendAuctionCommandResult(uint32 auctionItemId, AuctionAction command, AuctionError errorCode, InventoryResult bagResult = InventoryResult(0));
+
+        /**
+         * @fn  void WorldSession::SendAuctionCommandResult(uint32 auctionId, uint32 action, uint32 errorCode, uint32 bagError = 0);
+         *
+         * @brief   Notifies the client of the result of his last auction operation. It is called when the player bids, creates, or deletes an auction
+         *
+         * @param   auction         The relevant auction data
+         * @param   command         The action that was performed.
+         * @param   errorCode       The resulting error code.
+         * @param   bagResult       (Optional) InventoryResult.
+         */
+        void SendAuctionCommandResult(AuctionEntry const* auction, AuctionAction command, AuctionError errorCode, InventoryResult bagResult = InventoryResult(0));
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, ObjectGuid bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry* auction);
+        void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId);
