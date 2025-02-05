@@ -5327,7 +5327,11 @@ void AuraEffect::HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp,
 
     int32 effectAmount = GetAmount();
     uint32 triggerSpell = GetSpellEffectInfo().TriggerSpell;
-    float powerAmountPct = GetPctOf(target->GetPower(Powers(GetMiscValue())), target->GetMaxPower(Powers(GetMiscValue())));
+    int32 maxPower = target->GetMaxPower(Powers(GetMiscValue()));
+    if (!maxPower)
+        return;
+
+    float powerAmountPct = GetPctOf(target->GetPower(Powers(GetMiscValue())), maxPower);
 
     switch (AuraTriggerOnPowerChangeDirection(GetMiscValueB()))
     {
