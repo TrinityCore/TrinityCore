@@ -247,14 +247,38 @@ struct npc_priestess_alun_za_corrupted_gold : public ScriptedAI
 
     void JustAppeared() override
     {
+        SetBoundary(me->GetInstanceScript()->GetBossBoundary(DATA_PRIESTESS_ALUNZA));
+
         DoCastSelf(SPELL_CORRUPTED_GOLD);
 
         static constexpr float MAX_DISTANCE = 116.0f;
-        float randomAngle = frand(me->GetOrientation() - float(M_PI) / 2.0f, me->GetOrientation() + float(M_PI) / 2.0f);
+        float randomAngle = frand(me->GetOrientation() - float(M_PI) / 3.0f, me->GetOrientation() + float(M_PI) / 3.0f);
         Position despawnPos = me->GetPosition();
         me->MovePosition(despawnPos, MAX_DISTANCE, randomAngle);
 
         me->GetMotionMaster()->MovePoint(POINT_DESPAWN, despawnPos, true, {}, 2.0f);
+
+        // manually scheduling as regular timer is only scheduled on engaged unitsw
+        _scheduler.Schedule(2500ms, [this](TaskContext context)
+        {
+            CheckInRoom();
+            context.Repeat();
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    bool CheckInRoom() override
+    {
+        if (!IsInBoundary())
+        {
+            me->DespawnOrUnsummon();
+            return false;
+        }
+        return true;
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
