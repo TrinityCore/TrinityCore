@@ -15,24 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- // This is where scripts' loading functions should be declared:
-void AddSC_assault_on_the_dark_portal();
-void AddSC_draenor_shadowmoon_valley();
-void AddSC_garrison_generic();
+#ifndef TRINITYCORE_OBJECT_GUID_SEQUENCE_GENERATOR_H
+#define TRINITYCORE_OBJECT_GUID_SEQUENCE_GENERATOR_H
 
-// Auchindoun
-void AddSC_instance_auchindoun();
-void AddSC_auchindoun();
+#include "ObjectGuid.h"
+#include <atomic>
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
-void AddDraenorScripts()
+class ObjectGuidGenerator
 {
-    AddSC_assault_on_the_dark_portal();
-    AddSC_draenor_shadowmoon_valley();
-    AddSC_garrison_generic();
+public:
+    explicit ObjectGuidGenerator(HighGuid high, ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start), _high(high) { }
 
-    // Auchindoun
-    AddSC_instance_auchindoun();
-    AddSC_auchindoun();
-}
+    void Set(ObjectGuid::LowType val) { _nextGuid = val; }
+    ObjectGuid::LowType Generate();
+    ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
+
+private:
+    std::atomic<ObjectGuid::LowType> _nextGuid;
+    HighGuid _high;
+};
+
+#endif // TRINITYCORE_OBJECT_GUID_SEQUENCE_GENERATOR_H
