@@ -247,16 +247,22 @@ struct npc_priestess_alun_za_corrupted_gold : public ScriptedAI
     {
         DoCastSelf(SPELL_CORRUPTED_GOLD);
 
-        // TODO: orbs have collision but dont work properly so they are despawning when reach fixed position
+        static constexpr float MIN_DISTANCE = 25.0f;
         static constexpr float MAX_DISTANCE = 116.0f;
-        float randomAngle = frand(me->GetOrientation() - float(M_PI) / 2.0f, me->GetOrientation() + float(M_PI) / 2.0f);
-        float destX = me->GetPositionX() + MAX_DISTANCE * std::cos(randomAngle);
-        float destY = me->GetPositionY() + MAX_DISTANCE * std::sin(randomAngle);
-        float destZ = me->GetPositionZ();
-        Position pos(destX, destY, destZ);
+        static constexpr float RAYCAST_Z = 742.5f;
 
-        me->GetFirstCollisionPosition(MAX_DISTANCE, 0);
-        me->GetMotionMaster()->MovePoint(POINT_DESPAWN, pos, true, {}, 2.0f, {}, {});
+        float randomAngle = frand(me->GetOrientation() - float(M_PI) / 2.0f, me->GetOrientation() + float(M_PI) / 2.0f);
+        Position despawnPos;
+
+        do
+        {
+            despawnPos = Position(me->GetPositionX(), me->GetPositionY(), RAYCAST_Z);
+            me->MovePositionToFirstCollision(despawnPos, MAX_DISTANCE, randomAngle);
+
+            // in case we hit the nearest wall we try to get a different position
+            randomAngle += frand(float(M_PI) / 4, float(M_PI) / 2);
+        } while (me->GetDistance(despawnPos) < MIN_DISTANCE);
+        me->GetMotionMaster()->MovePoint(POINT_DESPAWN, despawnPos, true, {}, 2.0f);
     }
 
     void MovementInform(uint32 type, uint32 pointId) override

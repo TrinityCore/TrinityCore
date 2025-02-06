@@ -2,8 +2,8 @@ DELETE FROM `creature` WHERE `guid` IN(7000223, 7000240);
 
 DELETE FROM `creature_summon_groups` WHERE `summonerId`=122967;
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`, `Comment`) VALUES
-(122967, 0, 0, 128956, -1110.5, 2259.43, 741.76, 0.0932325, 8, 0, 'Priestess Alun''za - Group 0 - Blood-Tainted Cauldron of Gold'),
-(122967, 0, 0, 128956, -1110.55, 2325.28, 741.76, 0.0932325, 8, 0, 'Priestess Alun''za - Group 0 - Blood-Tainted Cauldron of Gold');
+(122967, 0, 0, 128956, -1110.5, 2259.43, 741.76, 5.762872, 8, 0, 'Priestess Alun''za - Group 0 - Blood-Tainted Cauldron of Gold'),
+(122967, 0, 0, 128956, -1110.55, 2325.28, 741.76, 0.0458011, 8, 0, 'Priestess Alun''za - Group 0 - Blood-Tainted Cauldron of Gold');
 
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=122967;
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=2, `speed_run`=1.428571462631225585, `BaseAttackTime`=769, `unit_flags3`=0x0, `ScriptName`='npc_priestess_alun_za_spirit_of_gold' WHERE `entry`=131009; -- Spirit of Gold
