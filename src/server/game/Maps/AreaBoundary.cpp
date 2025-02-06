@@ -17,7 +17,6 @@
 
 #include "AreaBoundary.h"
 #include "Unit.h"
-#include <vector>
 
 // ---== RECTANGLE ==---
 RectangleBoundary::RectangleBoundary(float southX, float northX, float eastY, float westY, bool isInverted) :

@@ -19,6 +19,7 @@
 #define TRINITY_AREA_BOUNDARY_H
 
 #include "Position.h"
+#include <vector>
 
 class TC_GAME_API AreaBoundary
 {
