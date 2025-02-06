@@ -99,21 +99,6 @@ constexpr Position RitualPosition[5] =
     { -1131.2916f, 2282.3438f, 743.99896f }
 };
 
-constexpr Position TaintedBloodPosition[11] =
-{
-    { -1084.0f, 2276.5f, 740.784f   },
-    { -1084.0f, 2292.5f, 740.784f   },
-    { -1096.0f, 2316.5f, 740.78394f },
-    { -1088.0f, 2268.5f, 740.784f   },
-    { -1100.0f, 2276.5f, 740.78406f },
-    { -1096.0f, 2268.5f, 740.784f   },
-    { -1080.0f, 2316.5f, 740.78394f },
-    { -1088.0f, 2284.5f, 740.784f   },
-    { -1088.0f, 2316.5f, 740.604f   },
-    { -1080.0f, 2300.5f, 740.603f   },
-    { -1100.0f, 2308.5f, 740.604f   }
-};
-
 constexpr Position CorruptedGoldSpawnPosition[2] =
 {
     { -1110.4965f, 2259.4306f, 741.8436f, 0.261799f },
@@ -125,7 +110,7 @@ constexpr Position SpiritOfGoldSpawnPosition = { -1119.8f, 2292.46f, 745.114f };
 // 122967 - Priestess Alun'za
 struct boss_priestess_alun_za : public BossAI
 {
-    boss_priestess_alun_za(Creature* creature) : BossAI(creature, DATA_PRIESTESS_ALUNZA) { }
+    boss_priestess_alun_za(Creature* creature) : BossAI(creature, DATA_PRIESTESS_ALUNZA), _spawnedTaintedBloodPools(0) { }
 
     void JustAppeared() override
     {
@@ -134,6 +119,13 @@ struct boss_priestess_alun_za : public BossAI
         me->SetPower(POWER_ENERGY, 0);
 
         me->SummonCreatureGroup(SUMMON_GROUP_CAULDRONS);
+    }
+
+    void Reset() override
+    {
+        BossAI::Reset();
+
+        _spawnedTaintedBloodPools = 0;
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -164,14 +156,14 @@ struct boss_priestess_alun_za : public BossAI
 
         DoCastSelf(SPELL_ENERGY_REGEN);
 
-        events.ScheduleEvent(EVENT_GILDED_CLAWS, 10500ms);
-        events.ScheduleEvent(EVENT_TAINTED_BLOOD, 2s, 4s);
-        events.ScheduleEvent(EVENT_MOLTEN_GOLD, 16500ms);
+        events.ScheduleEvent(EVENT_GILDED_CLAWS, 12600ms);
+        events.ScheduleEvent(EVENT_TAINTED_BLOOD, 2s);
+        events.ScheduleEvent(EVENT_MOLTEN_GOLD, 16600ms);
         events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
 
         if (IsHeroicOrHigher() || IsMythicPlus())
         {
-            events.ScheduleEvent(EVENT_SPIRIT_OF_GOLD, 9100ms);
+            events.ScheduleEvent(EVENT_SPIRIT_OF_GOLD, 9000ms);
             events.ScheduleEvent(EVENT_CORRUPTED_GOLD, 3s);
         }
     }
@@ -193,28 +185,34 @@ struct boss_priestess_alun_za : public BossAI
                 Talk(SAY_GILDED_CLAWS_WARNING, me);
                 Talk(SAY_GILDED_CLAWS);
                 DoCastSelf(SPELL_GILDED_CLAWS);
-                events.Repeat(33500ms);
+                events.Repeat(34s);
                 break;
             }
             case EVENT_TAINTED_BLOOD:
             {
                 DoCast(SPELL_TAINTED_BLOOD_SELECTOR);
-                events.Repeat(2s, 4s);
+                _spawnedTaintedBloodPools++;
+                if (_spawnedTaintedBloodPools < 5)
+                    events.Repeat(2s, 4s);
                 break;
             }
             case EVENT_MOLTEN_GOLD:
             {
                 DoCast(SPELL_AGITATE);
-                events.Repeat(16500ms);
+                events.Repeat(24s);
                 break;
             }
             case EVENT_CHECK_ENERGY:
             {
                 if (me->GetPower(POWER_ENERGY) >= 100)
                 {
-                    Talk(SAY_TRANSFUSION_WARNING);
+                    Talk(SAY_TRANSFUSION_WARNING, me);
                     Talk(SAY_TRANSFUSION);
                     DoCast(SPELL_TRANSFUSION);
+
+                    // make sure new pools spawn
+                    _spawnedTaintedBloodPools = 0;
+                    events.ScheduleEvent(EVENT_TAINTED_BLOOD, 11s);
                 }
                 events.Repeat(500ms);
                 break;
@@ -229,13 +227,16 @@ struct boss_priestess_alun_za : public BossAI
             case EVENT_SPIRIT_OF_GOLD:
             {
                 DoCast(SPELL_SPIRIT_OF_GOLD);
-                events.Repeat(35s);
+                events.Repeat(34s);
                 break;
             }
             default:
                 break;
         }
     }
+
+private:
+    uint8 _spawnedTaintedBloodPools;
 };
 
 // 130738 - Corrupted Gold
@@ -457,9 +458,28 @@ class spell_priestess_alun_za_molten_gold_selector : public SpellScript
     }
 };
 
+// 255592 - Tainted Blood
+class spell_priestess_alun_za_tainted_blood : public SpellScript
+{
+    static void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_priestess_alun_za_tainted_blood::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
 // 255566 - Bubble
 class spell_priestess_alun_za_bubble : public SpellScript
 {
+    static constexpr float DestMinX = -1097.241577f;
+    static constexpr float DestMaxX = -1070.074463f;
+    static constexpr float DestMinY = 2268.181396f;
+    static constexpr float DestMaxY = 2319.480957f;
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TAINTED_BLOOD_MISSILE });
@@ -467,7 +487,10 @@ class spell_priestess_alun_za_bubble : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-        GetHitUnit()->CastSpell(*GetHitDest(), SPELL_TAINTED_BLOOD_MISSILE, CastSpellExtraArgsInit{
+        Position destPos(frand(DestMinX, DestMaxX), frand(DestMinY, DestMaxY), GetCaster()->GetPositionZ());
+        GetCaster()->UpdateGroundPositionZ(destPos.GetPositionX(), destPos.GetPositionY(), destPos.m_positionZ);
+
+        GetHitUnit()->CastSpell(destPos, SPELL_TAINTED_BLOOD_MISSILE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -476,20 +499,6 @@ class spell_priestess_alun_za_bubble : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_bubble::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 255565 - Bubble
-class spell_priestess_alun_za_tainted_blood : public SpellScript
-{
-    static void SetDest(SpellDestination& dest)
-    {
-        dest.Relocate(Trinity::Containers::SelectRandomContainerElement(TaintedBloodPosition));
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_priestess_alun_za_tainted_blood::SetDest, EFFECT_0, TARGET_DEST_DEST);
     }
 };
 
@@ -549,17 +558,30 @@ class spell_priestess_alun_za_transfusion : public SpellScript
 };
 
 // 255835 - Transfusion
-// 255836 - Transfusion
-class spell_priestess_alun_za_transfusion_heal_and_damage : public SpellScript
+class spell_priestess_alun_za_transfusion_heal : public SpellScript
 {
-    void HandleValue(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         SetEffectValue(GetEffectValue() / 100);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_transfusion_heal_and_damage::HandleValue, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_transfusion_heal::HandleHitTarget, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+    }
+};
+
+// 255836 - Transfusion
+class spell_priestess_alun_za_transfusion_damage : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        SetEffectValue(GetEffectValue() / 100);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_transfusion_damage::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT);
     }
 };
 
@@ -666,11 +688,12 @@ void AddSC_boss_priestess_alun_za()
     RegisterSpellScript(spell_priestess_alun_za_agitate);
     RegisterSpellScript(spell_priestess_alun_za_molten_gold);
     RegisterSpellScript(spell_priestess_alun_za_molten_gold_selector);
-    RegisterSpellScript(spell_priestess_alun_za_bubble);
     RegisterSpellScript(spell_priestess_alun_za_tainted_blood);
+    RegisterSpellScript(spell_priestess_alun_za_bubble);
     RegisterSpellScript(spell_priestess_alun_za_transfusion_cast);
     RegisterSpellScript(spell_priestess_alun_za_transfusion);
-    RegisterSpellScript(spell_priestess_alun_za_transfusion_heal_and_damage);
+    RegisterSpellScript(spell_priestess_alun_za_transfusion_heal);
+    RegisterSpellScript(spell_priestess_alun_za_transfusion_damage);
     RegisterSpellScript(spell_priestess_alun_za_spirit_of_gold);
     RegisterSpellScript(spell_priestess_alun_za_corrupt);
 

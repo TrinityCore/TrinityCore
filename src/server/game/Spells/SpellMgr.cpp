@@ -4983,6 +4983,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Tainted Blood
+    ApplySpellFix({ 255592 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
     // ENDOF ATAL DAZAR SPELLS
     //
 
