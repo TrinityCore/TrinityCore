@@ -23,6 +23,7 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -248,21 +249,11 @@ struct npc_priestess_alun_za_corrupted_gold : public ScriptedAI
     {
         DoCastSelf(SPELL_CORRUPTED_GOLD);
 
-        static constexpr float MIN_DISTANCE = 25.0f;
         static constexpr float MAX_DISTANCE = 116.0f;
-        static constexpr float RAYCAST_Z = 742.5f;
-
         float randomAngle = frand(me->GetOrientation() - float(M_PI) / 2.0f, me->GetOrientation() + float(M_PI) / 2.0f);
-        Position despawnPos;
+        Position despawnPos = me->GetPosition();
+        me->MovePosition(despawnPos, MAX_DISTANCE, randomAngle);
 
-        do
-        {
-            despawnPos = Position(me->GetPositionX(), me->GetPositionY(), RAYCAST_Z);
-            me->MovePositionToFirstCollision(despawnPos, MAX_DISTANCE, randomAngle);
-
-            // in case we hit the nearest wall we try to get a different position
-            randomAngle += frand(float(M_PI) / 4, float(M_PI) / 2);
-        } while (me->GetDistance(despawnPos) < MIN_DISTANCE);
         me->GetMotionMaster()->MovePoint(POINT_DESPAWN, despawnPos, true, {}, 2.0f);
     }
 
@@ -314,8 +305,8 @@ struct npc_priestess_alun_za_spirit_of_gold : public ScriptedAI
         if (me->HasAura(SPELL_FATALLY_CORRUPTED))
             return;
 
-        AreaTrigger* closestAt = GetClosestTaintedBloodAreaTrigger();
-        if (closestAt && me->GetDistance(closestAt) <= 1.0f)
+        AreaTrigger* at = ObjectAccessor::GetAreaTrigger(*me, _targetAtGUID);
+        if (at && me->GetDistance(at) <= 1.0f)
             DoCastSelf(SPELL_CORRUPT);
 
         _events.ScheduleEvent(EVENT_CHECK_TAINTED_BLOOD, 1s);
@@ -341,11 +332,13 @@ struct npc_priestess_alun_za_spirit_of_gold : public ScriptedAI
 
                     if (AreaTrigger* at = GetClosestTaintedBloodAreaTrigger())
                     {
+                        _targetAtGUID = at->GetGUID();
                         me->SetReactState(REACT_PASSIVE);
                         me->GetMotionMaster()->MovePoint(POINT_POOL, at ->GetPosition());
                     }
                     else
                     {
+                        _targetAtGUID.Clear();
                         me->SetReactState(REACT_AGGRESSIVE);
                         _events.Repeat(500ms);
                     }
@@ -362,6 +355,7 @@ struct npc_priestess_alun_za_spirit_of_gold : public ScriptedAI
 
 private:
     EventMap _events;
+    ObjectGuid _targetAtGUID;
 };
 
 // 258388 - Ritual
