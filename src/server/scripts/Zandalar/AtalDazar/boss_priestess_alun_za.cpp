@@ -494,7 +494,7 @@ class spell_priestess_alun_za_tainted_blood : public SpellScript
 };
 
 // 255577 - Transfusion
-class spell_priestess_alun_za_tranfusion_cast : public AuraScript
+class spell_priestess_alun_za_transfusion_cast : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -515,12 +515,12 @@ class spell_priestess_alun_za_tranfusion_cast : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_priestess_alun_za_tranfusion_cast::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_priestess_alun_za_transfusion_cast::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-// 255575 - Tranfusion Damage
-class spell_priestess_alun_za_tranfusion : public SpellScript
+// 255575 - transfusion Damage
+class spell_priestess_alun_za_transfusion : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -544,13 +544,13 @@ class spell_priestess_alun_za_tranfusion : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_tranfusion::HandleTransfusion, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_transfusion::HandleTransfusion, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // 255835 - Transfusion
 // 255836 - Transfusion
-class spell_priestess_alun_za_tranfusion_heal_and_damage : public SpellScript
+class spell_priestess_alun_za_transfusion_heal_and_damage : public SpellScript
 {
     void HandleValue(SpellEffIndex /*effIndex*/)
     {
@@ -559,7 +559,7 @@ class spell_priestess_alun_za_tranfusion_heal_and_damage : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_tranfusion_heal_and_damage::HandleValue, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_transfusion_heal_and_damage::HandleValue, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
     }
 };
 
@@ -668,9 +668,9 @@ void AddSC_boss_priestess_alun_za()
     RegisterSpellScript(spell_priestess_alun_za_molten_gold_selector);
     RegisterSpellScript(spell_priestess_alun_za_bubble);
     RegisterSpellScript(spell_priestess_alun_za_tainted_blood);
-    RegisterSpellScript(spell_priestess_alun_za_tranfusion_cast);
-    RegisterSpellScript(spell_priestess_alun_za_tranfusion);
-    RegisterSpellScript(spell_priestess_alun_za_tranfusion_heal_and_damage);
+    RegisterSpellScript(spell_priestess_alun_za_transfusion_cast);
+    RegisterSpellScript(spell_priestess_alun_za_transfusion);
+    RegisterSpellScript(spell_priestess_alun_za_transfusion_heal_and_damage);
     RegisterSpellScript(spell_priestess_alun_za_spirit_of_gold);
     RegisterSpellScript(spell_priestess_alun_za_corrupt);
 
