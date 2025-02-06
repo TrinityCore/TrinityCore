@@ -23,7 +23,6 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -86,7 +85,9 @@ enum PriestessAlunzaMisc
     POINT_DESPAWN             = 0,
     POINT_POOL                = 1,
 
-    AREATRIGGER_TAINTED_BLOOD = 16553
+    AREATRIGGER_TAINTED_BLOOD = 16553,
+
+    SUMMON_GROUP_CAULDRONS      = 0,
 };
 
 constexpr Position RitualPosition[5] =
@@ -131,6 +132,8 @@ struct boss_priestess_alun_za : public BossAI
         DoCastSelf(SPELL_RITUAL);
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
+
+        me->SummonCreatureGroup(SUMMON_GROUP_CAULDRONS);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -233,24 +236,6 @@ struct boss_priestess_alun_za : public BossAI
                 break;
         }
     }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            ExecuteEvent(eventId);
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-        }
-    }
 };
 
 // 130738 - Corrupted Gold
@@ -263,12 +248,14 @@ struct npc_priestess_alun_za_corrupted_gold : public ScriptedAI
         DoCastSelf(SPELL_CORRUPTED_GOLD);
 
         // TODO: orbs have collision but dont work properly so they are despawning when reach fixed position
-        float dist = 116.0f;
+        static constexpr float MAX_DISTANCE = 116.0f;
         float randomAngle = frand(me->GetOrientation() - float(M_PI) / 2.0f, me->GetOrientation() + float(M_PI) / 2.0f);
-        float destX = me->GetPositionX() + dist * std::cos(randomAngle);
-        float destY = me->GetPositionY() + dist * std::sin(randomAngle);
+        float destX = me->GetPositionX() + MAX_DISTANCE * std::cos(randomAngle);
+        float destY = me->GetPositionY() + MAX_DISTANCE * std::sin(randomAngle);
         float destZ = me->GetPositionZ();
         Position pos(destX, destY, destZ);
+
+        me->GetFirstCollisionPosition(MAX_DISTANCE, 0);
         me->GetMotionMaster()->MovePoint(POINT_DESPAWN, pos, true, {}, 2.0f, {}, {});
     }
 
@@ -290,6 +277,17 @@ struct npc_priestess_alun_za_spirit_of_gold : public ScriptedAI
 {
     npc_priestess_alun_za_spirit_of_gold(Creature* creature) : ScriptedAI(creature) { }
 
+    AreaTrigger* GetClosestTaintedBloodAreaTrigger() const
+    {
+        static constexpr float SELECT_RANGE_TAINTED_BLOOD = 300.0f;
+
+        AreaTrigger* at = nullptr;
+        Trinity::NearestAreaTriggerEntryInObjectRangeCheck check(*me, AREATRIGGER_TAINTED_BLOOD, SELECT_RANGE_TAINTED_BLOOD);
+        Trinity::AreaTriggerLastSearcher<Trinity::NearestAreaTriggerEntryInObjectRangeCheck> checker(me, at, check);
+        Cell::VisitGridObjects(me, checker, SELECT_RANGE_TAINTED_BLOOD);
+        return at;
+    }
+
     void JustAppeared() override
     {
         DoCastSelf(SPELL_SPAWN);
@@ -303,11 +301,17 @@ struct npc_priestess_alun_za_spirit_of_gold : public ScriptedAI
         if (type != POINT_MOTION_TYPE)
             return;
 
-        if (pointId == POINT_POOL)
-        {
+        if (pointId != POINT_POOL)
+            return;
+
+        if (me->HasAura(SPELL_FATALLY_CORRUPTED))
+            return;
+
+        AreaTrigger* closestAt = GetClosestTaintedBloodAreaTrigger();
+        if (closestAt && me->GetDistance(closestAt) <= 1.0f)
             DoCastSelf(SPELL_CORRUPT);
-            _events.ScheduleEvent(EVENT_CHECK_TAINTED_BLOOD, 1s);
-        }
+
+        _events.ScheduleEvent(EVENT_CHECK_TAINTED_BLOOD, 1s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -325,27 +329,18 @@ struct npc_priestess_alun_za_spirit_of_gold : public ScriptedAI
             {
                 case EVENT_CHECK_TAINTED_BLOOD:
                 {
-                    // TODO: the npc should select the nearest at of tainted blood and go to his position, if not ats found should attack players atm is not working, just attacking
-                    std::vector<AreaTrigger*> atList = me->GetAreaTriggers(SPELL_TAINTED_BLOOD_AT);
+                    if (me->HasAura(SPELL_FATALLY_CORRUPTED))
+                        break;
 
-                    if (atList.empty())
+                    if (AreaTrigger* at = GetClosestTaintedBloodAreaTrigger())
                     {
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        _events.Repeat(500ms);
+                        me->SetReactState(REACT_PASSIVE);
+                        me->GetMotionMaster()->MovePoint(POINT_POOL, at ->GetPosition());
                     }
                     else
                     {
-                        auto closestAt = std::ranges::min_element(atList, [creature = me](AreaTrigger const* left, AreaTrigger const* right)
-                        {
-                            return creature->GetDistance(left->GetPosition()) < creature->GetDistance(right->GetPosition());
-                        });
-
-                        if (closestAt == atList.end())
-                            return;
-
-                        me->SetReactState(REACT_PASSIVE);
-                        me->GetMotionMaster()->MovePoint(POINT_POOL, (*closestAt)->GetPosition());
-                        _events.CancelEvent(EVENT_CHECK_TAINTED_BLOOD);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        _events.Repeat(500ms);
                     }
                     break;
                 }
@@ -381,8 +376,7 @@ class spell_priestess_alun_za_energy_regen : public AuraScript
 {
     void OnPeriodic(AuraEffect const* aurEff) const
     {
-        Unit* target = GetTarget();
-        target->ModifyPower(POWER_ENERGY, aurEff->GetAmount() / 10);
+        GetTarget()->ModifyPower(POWER_ENERGY, aurEff->GetAmount() / 10);
     }
 
     void Register() override
@@ -399,7 +393,6 @@ class spell_priestess_alun_za_agitate : public SpellScript
         GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell(),
-            .OriginalCastId = GetSpell()->m_castId
         });
     }
 
@@ -497,6 +490,11 @@ class spell_priestess_alun_za_tainted_blood : public SpellScript
 // 255577 - Transfusion
 class spell_priestess_alun_za_tranfusion_cast : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ENERGY_REGEN });
+    }
+
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
@@ -555,7 +553,7 @@ class spell_priestess_alun_za_tranfusion_heal_and_damage : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_tranfusion_heal_and_damage::HandleValue, EFFECT_0, SPELL_EFFECT_ANY);
+        OnEffectHitTarget += SpellEffectFn(spell_priestess_alun_za_tranfusion_heal_and_damage::HandleValue, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
     }
 };
 
@@ -585,6 +583,13 @@ class spell_priestess_alun_za_corrupt : public AuraScript
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
             });
+
+            Creature* creature = GetTarget()->ToCreature();
+            if (!creature)
+                return;
+
+            creature->SetReactState(REACT_AGGRESSIVE);
+            creature->AI()->DoZoneInCombat();
         }
     }
 
@@ -603,7 +608,10 @@ struct at_priestess_alun_za_tainted_blood : AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         if (unit->IsPlayer())
+        {
             unit->CastSpell(unit, SPELL_TAINTED_BLOOD_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            at->Remove();
+        }
         else if (unit->GetEntry() == NPC_SPIRIT_OF_GOLD && !unit->HasAura(SPELL_FATALLY_CORRUPTED))
         {
             _scheduler.Schedule(3s, [this](TaskContext /*task*/)
