@@ -150,6 +150,19 @@ class TC_GAME_API ZRangeBoundary : public AreaBoundary
         float const _minZ, _maxZ;
 };
 
+class TC_GAME_API PolygonBoundary : public AreaBoundary
+{
+public:
+    PolygonBoundary(Position origin, std::vector<Position>&& vertices, bool isInverted = false);
+
+protected:
+    bool IsWithinBoundaryArea(Position const* pos) const override;
+
+private:
+    Position _origin;
+    std::vector<Position> _vertices;
+};
+
 class TC_GAME_API BoundaryUnionBoundary : public AreaBoundary
 {
     public:

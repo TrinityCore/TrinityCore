@@ -90,6 +90,15 @@ bool ZRangeBoundary::IsWithinBoundaryArea(Position const* pos) const
     return (_minZ <= pos->GetPositionZ() && pos->GetPositionZ() <= _maxZ);
 }
 
+// ---== POLYGON ==---
+PolygonBoundary::PolygonBoundary(Position origin, std::vector<Position>&& vertices, bool isInverted /* = false*/) :
+    AreaBoundary(isInverted), _origin(origin), _vertices(std::move(vertices)) { }
+
+bool PolygonBoundary::IsWithinBoundaryArea(Position const* pos) const
+{
+    return pos->IsInPolygon2D(_origin, _vertices);
+}
+
 // ---== UNION OF 2 BOUNDARIES ==---
 BoundaryUnionBoundary::BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted) :
     AreaBoundary(isInverted), _b1(b1), _b2(b2)
