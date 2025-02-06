@@ -153,7 +153,7 @@ class TC_GAME_API ZRangeBoundary : public AreaBoundary
 class TC_GAME_API PolygonBoundary : public AreaBoundary
 {
 public:
-    PolygonBoundary(Position origin, std::vector<Position>&& vertices, bool isInverted = false);
+    PolygonBoundary(Position const& origin, std::vector<Position>&& vertices, bool isInverted = false);
 
 protected:
     bool IsWithinBoundaryArea(Position const* pos) const override;

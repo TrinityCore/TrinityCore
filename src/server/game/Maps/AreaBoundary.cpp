@@ -17,6 +17,7 @@
 
 #include "AreaBoundary.h"
 #include "Unit.h"
+#include <vector>
 
 // ---== RECTANGLE ==---
 RectangleBoundary::RectangleBoundary(float southX, float northX, float eastY, float westY, bool isInverted) :
@@ -91,7 +92,7 @@ bool ZRangeBoundary::IsWithinBoundaryArea(Position const* pos) const
 }
 
 // ---== POLYGON ==---
-PolygonBoundary::PolygonBoundary(Position origin, std::vector<Position>&& vertices, bool isInverted /* = false*/) :
+PolygonBoundary::PolygonBoundary(Position const& origin, std::vector<Position>&& vertices, bool isInverted /* = false*/) :
     AreaBoundary(isInverted), _origin(origin), _vertices(std::move(vertices)) { }
 
 bool PolygonBoundary::IsWithinBoundaryArea(Position const* pos) const
