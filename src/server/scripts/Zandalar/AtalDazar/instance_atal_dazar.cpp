@@ -51,7 +51,7 @@ BossBoundaryData const boundaries =
     )},
 };
 
-constexpr ObjectData const creatureData[] =
+constexpr ObjectData creatureData[] =
 {
     { BOSS_PRIESTESS_ALUNZA, DATA_PRIESTESS_ALUNZA  },
     { BOSS_VOLKAAL,          DATA_VOLKAAL           },
@@ -69,7 +69,7 @@ constexpr DoorData doorData[] =
     { 0,                 0,            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-constexpr DungeonEncounterData const encounters[] =
+constexpr DungeonEncounterData encounters[] =
 {
     { DATA_PRIESTESS_ALUNZA, {{ 2084 }} },
     { DATA_VOLKAAL,          {{ 2085 }} },
