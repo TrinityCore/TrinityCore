@@ -17257,7 +17257,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         {
             map = currentBg->GetBgMap();
 
-            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
+            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetBracketId(), currentBg->GetArenaType());
             AddBattlegroundQueueId(bgQueueTypeId);
 
             m_bgData.bgTypeID = currentBg->GetTypeID();
@@ -23225,10 +23225,8 @@ Battleground* Player::GetBattleground() const
 bool Player::InBattlegroundQueue(bool ignoreArena) const
 {
     for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-        if (m_bgBattlegroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_NONE && (!ignoreArena ||
-            (m_bgBattlegroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_2v2 &&
-            m_bgBattlegroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_3v3 &&
-            m_bgBattlegroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_5v5)))
+        if (m_bgBattlegroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_NONE
+            && (!ignoreArena || m_bgBattlegroundQueueID[i].bgQueueTypeId.BattlemasterListId != BATTLEGROUND_AA))
             return true;
     return false;
 }

@@ -462,7 +462,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     // BG Status packet
                     WorldPacket status;
-                    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
+                    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(m_TypeID, GetBracketId(), GetArenaType());
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
                     sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType(), player->GetBGTeam());
                     player->SendDirectMessage(&status);
@@ -719,7 +719,7 @@ void Battleground::EndBattleground(uint32 winner)
     WorldPacket pvpLogData;
     BuildPvPLogDataPacket(pvpLogData);
 
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetBracketId(), GetArenaType());
 
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
@@ -869,8 +869,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
 
     if (participant) // if the player was a match participant, remove auras, calc rating, update queue
     {
-        BattlegroundTypeId bgTypeId = GetTypeID();
-        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetBracketId(), GetArenaType());
         if (player)
         {
             player->ClearAfkReports();
@@ -878,7 +877,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             // if arena, remove the specific arena auras
             if (isArena())
             {
-                bgTypeId = BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
+                bgQueueTypeId.BattlemasterListId = BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
 
                 // unsummon current and summon old pet if there was one and there isn't a current pet
                 player->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT);
@@ -908,7 +907,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         {
             // a player has left the battleground, so there are free slots -> add to queue
             AddToBGFreeSlotQueue();
-            sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, GetBracketId());
+            sBattlegroundMgr->ScheduleQueueUpdate(0, bgQueueTypeId);
         }
         // Let others know
         WorldPacket data;
@@ -1731,7 +1730,7 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
         return;
 
     WorldPacket data;
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetBracketId(), GetArenaType());
 
     BlockMovement(player);
 
