@@ -22,7 +22,30 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "Unit.h"
+
+namespace Scripts::Spells::Shaman
+{
+    // 51505 - Lava Burst
+    class spell_sha_lava_burst : public SpellScript
+    {
+        void CalcCritChance(Unit const* victim, float& critChance)
+        {
+            // The crit chance against targets effected by the caster's Flame Shock spell is 100%
+            if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, flag128(0x10000000), GetCaster()->GetGUID()))
+                critChance = 100.0f;
+        }
+
+        void Register() override
+        {
+            OnCalcCritChance += SpellOnCalcCritChanceFn(spell_sha_lava_burst::CalcCritChance);
+        }
+    };
+}
 
 void AddSC_shaman_spell_scripts()
 {
+    using namespace Scripts::Spells::Shaman;
+    RegisterSpellScript(spell_sha_lava_burst);
 }
