@@ -322,6 +322,9 @@ namespace WorldPackets
 
         struct BattlegroundPlayerPosition
         {
+            BattlegroundPlayerPosition() { }
+            BattlegroundPlayerPosition(ObjectGuid const& guid, TaggedPosition<Position::XY> const& pos) : Guid(guid), Pos(pos) { }
+
             ObjectGuid Guid;
             TaggedPosition<Position::XY> Pos;
         };
