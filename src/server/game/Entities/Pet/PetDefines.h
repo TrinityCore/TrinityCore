@@ -75,10 +75,10 @@ enum ActionFeedback
     FEEDBACK_CANT_ATT_TARGET = 3
 };
 
-enum PetTalk
+enum PetAction : int32
 {
-    PET_TALK_SPECIAL_SPELL  = 0,
-    PET_TALK_ATTACK         = 1
+    PET_ACTION_SPECIAL_SPELL    = 0,
+    PET_ACTION_ATTACK           = 1
 };
 
 #define PET_FOLLOW_DIST  1.0f
