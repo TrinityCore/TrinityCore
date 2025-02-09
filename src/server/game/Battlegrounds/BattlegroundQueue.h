@@ -122,7 +122,7 @@ class TC_GAME_API BattlegroundQueue
         SelectionPool m_SelectionPools[PVP_TEAMS_COUNT];
         uint32 GetPlayersInQueue(TeamId id);
 
-        BattlegroundQueueTypeId const GetQueueId() const { return m_queueId; }
+        BattlegroundQueueTypeId GetQueueId() const { return m_queueId; }
     private:
 
         BattlegroundQueueTypeId m_queueId;
