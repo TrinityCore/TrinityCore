@@ -60,7 +60,7 @@ WorldPacket const* WorldPackets::Pet::PetActionSound::Write()
 
 WorldPacket const* WorldPackets::Pet::PetDismissSound::Write()
 {
-    _worldPacket << uint32(ModelId);
-    _worldPacket << Pos;
+    _worldPacket << int32(ModelId);
+    _worldPacket << ModelPosition;
     return &_worldPacket;
 }

@@ -111,13 +111,13 @@ namespace WorldPackets
         class PetDismissSound final : public ServerPacket
         {
         public:
-            PetDismissSound(uint32 modelId, Position pos)
-                : ServerPacket(SMSG_PET_DISMISS_SOUND, 4 + 12), ModelId(modelId), Pos(pos) { }
+            PetDismissSound(int32 modelId, Position modelPosition)
+                : ServerPacket(SMSG_PET_DISMISS_SOUND, 4 + 12), ModelId(modelId), ModelPosition(modelPosition) { }
 
             WorldPacket const* Write() override;
 
-            uint32 ModelId = 0;
-            TaggedPosition<Position::XYZ> Pos;
+            int32 ModelId = 0;
+            TaggedPosition<Position::XYZ> ModelPosition;
         };
     }
 }
