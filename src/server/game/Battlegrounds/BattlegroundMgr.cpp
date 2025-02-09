@@ -126,13 +126,8 @@ void BattlegroundMgr::Update(uint32 diff)
         std::vector<ScheduledQueueUpdate> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
 
-        for (uint8 i = 0; i < scheduled.size(); i++)
-        {
-            uint32 arenaMMRating = scheduled[i].ArenaMatchmakerRating;
-            BattlegroundQueueTypeId bgQueueTypeId = scheduled[i].QueueId;
-            BattlegroundBracketId bracket_id = scheduled[i].BracketId;
+        for (auto& [arenaMMRating, bgQueueTypeId, bracket_id] : scheduled)
             GetBattlegroundQueue(bgQueueTypeId).BattlegroundQueueUpdate(diff, bracket_id, arenaMMRating);
-        }
     }
 
     // if rating difference counts, maybe force-update queues
@@ -499,7 +494,7 @@ bool BattlegroundMgr::IsRandomBattleground(uint32 battlemasterListId)
 
 BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(uint16 battlemasterListId, BattlegroundQueueIdType type, bool rated, uint8 teamSize)
 {
-    return { battlemasterListId, AsUnderlyingType(type), rated, teamSize };
+    return { .BattlemasterListId = battlemasterListId, .Type = AsUnderlyingType(type), .Rated = rated, .TeamSize = teamSize };
 }
 
 void BattlegroundMgr::ToggleTesting()
@@ -687,23 +682,14 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
-        std::vector<BattlegroundTypeId> ids;
+        std::vector<BattlegroundTemplate const*> ids;
         ids.reserve(bgTemplate->MapIDs.size());
-        std::vector<double> weights;
-        weights.reserve(bgTemplate->MapIDs.size());
-        double totalWeight = 0.0;
         for (int32 mapId : bgTemplate->MapIDs)
-        {
             if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
-            {
-                ids.push_back(bg->Id);
-                weights.push_back(bg->Weight);
-                totalWeight += bg->Weight;
-            }
-        }
+                ids.push_back(bg);
 
-        if (totalWeight > 0.0)
-            return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, std::span(weights));
+        if (!ids.empty())
+            return (*Trinity::Containers::SelectRandomWeightedContainerElement(ids, [](BattlegroundTemplate const* bg) { return bg->Weight; }))->Id;
     }
 
     return BATTLEGROUND_TYPE_NONE;
