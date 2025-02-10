@@ -106,6 +106,7 @@ enum PaladinSpells
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE        = 408399,
     SPELL_PALADIN_T30_2P_HEARTFIRE_HEAL          = 408400,
+    SPELL_PALADIN_WAKE_OF_ASHES_STUN             = 255941,
     SPELL_PALADIN_ZEAL_AURA                      = 269571
 };
 
@@ -1534,6 +1535,31 @@ class spell_pal_t30_2p_protection_bonus_heal : public AuraScript
     }
 };
 
+// 255937 - Wake of Ashes
+class spell_pal_wake_of_ashes : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_WAKE_OF_ASHES_STUN });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* target = GetHitUnit();
+
+        if (target->GetCreatureType() == CREATURE_TYPE_DEMON || target->GetCreatureType() == CREATURE_TYPE_UNDEAD)
+            GetCaster()->CastSpell(target, SPELL_PALADIN_WAKE_OF_ASHES_STUN, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_wake_of_ashes::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 269569 - Zeal
 class spell_pal_zeal : public AuraScript
 {
@@ -1602,5 +1628,6 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_t8_2p_bonus);
     RegisterSpellScript(spell_pal_t30_2p_protection_bonus);
     RegisterSpellScript(spell_pal_t30_2p_protection_bonus_heal);
+    RegisterSpellScript(spell_pal_wake_of_ashes);
     RegisterSpellScript(spell_pal_zeal);
 }
