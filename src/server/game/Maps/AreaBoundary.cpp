@@ -20,20 +20,20 @@
 
 // ---== RECTANGLE ==---
 RectangleBoundary::RectangleBoundary(float southX, float northX, float eastY, float westY, bool isInverted) :
-    AreaBoundary(isInverted), _minX(southX), _maxX(northX), _minY(eastY), _maxY(westY) { }
+    AreaBoundary(isInverted), _minX(southX), _maxX(northX), _minY(eastY), _maxY(westY) {}
 
 bool RectangleBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
-    return pos->GetPositionX() >= _minX && pos->GetPositionX() <= _maxX
-        && pos->GetPositionY() >= _minY && pos->GetPositionY() <= _maxY;
+    return pos->GetPositionX() >= _minX && pos->GetPositionX() <= _maxX &&
+        pos->GetPositionY() >= _minY && pos->GetPositionY() <= _maxY;
 }
 
 // ---== CIRCLE ==---
-CircleBoundary::CircleBoundary(Position const& center, float radius, bool isInverted) :
-    AreaBoundary(isInverted), _center(center), _radiusSq(radius * radius) { }
+CircleBoundary::CircleBoundary(const Position& center, float radius, bool isInverted) :
+    AreaBoundary(isInverted), _center(center), _radiusSq(radius* radius) {}
 
-CircleBoundary::CircleBoundary(Position const& center, Position const& pointOnCircle, bool isInverted) :
-    AreaBoundary(isInverted), _center(center), _radiusSq(_center.GetExactDist2dSq(pointOnCircle)) { }
+CircleBoundary::CircleBoundary(const Position& center, const Position& pointOnCircle, bool isInverted) :
+    AreaBoundary(isInverted), _center(center), _radiusSq(_center.GetExactDist2dSq(pointOnCircle)) {}
 
 bool CircleBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
@@ -41,21 +41,22 @@ bool CircleBoundary::IsWithinBoundaryArea(Position const* pos) const
 }
 
 // ---== ELLIPSE ==---
-EllipseBoundary::EllipseBoundary(Position const& center, float radiusX, float radiusY, bool isInverted) :
-    AreaBoundary(isInverted), _center(center), _radiusYSq(radiusY * radiusY), _scaleXSq(_radiusYSq / (radiusX * radiusX)) { }
+EllipseBoundary::EllipseBoundary(const Position& center, float radiusX, float radiusY, bool isInverted) :
+    AreaBoundary(isInverted), _center(center), _radiusYSq(radiusY* radiusY), _scaleXSq(_radiusYSq / (radiusX * radiusX)) {}
 
 bool EllipseBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
     float offX = _center.GetPositionX() - pos->GetPositionX();
     float offY = _center.GetPositionY() - pos->GetPositionY();
+
     return (offX * offX) * _scaleXSq + (offY * offY) <= _radiusYSq;
 }
 
 // ---== TRIANGLE ==---
-TriangleBoundary::TriangleBoundary(Position const& pointA, Position const& pointB, Position const& pointC, bool isInverted) :
+TriangleBoundary::TriangleBoundary(const Position& pointA, const Position& pointB, const Position& pointC, bool isInverted) :
     AreaBoundary(isInverted), _a(pointA), _b(pointB), _c(pointC),
     _abx(_b.GetPositionX() - _a.GetPositionX()), _bcx(_c.GetPositionX() - _b.GetPositionX()), _cax(_a.GetPositionX() - _c.GetPositionX()),
-    _aby(_b.GetPositionY() - _a.GetPositionY()), _bcy(_c.GetPositionY() - _b.GetPositionY()), _cay(_a.GetPositionY() - _c.GetPositionY()) { }
+    _aby(_b.GetPositionY() - _a.GetPositionY()), _bcy(_c.GetPositionY() - _b.GetPositionY()), _cay(_a.GetPositionY() - _c.GetPositionY()) {}
 
 bool TriangleBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
@@ -69,11 +70,11 @@ bool TriangleBoundary::IsWithinBoundaryArea(Position const* pos) const
 }
 
 // ---== PARALLELOGRAM ==---
-ParallelogramBoundary::ParallelogramBoundary(Position const& cornerA, Position const& cornerB, Position const& cornerD, bool isInverted) :
+ParallelogramBoundary::ParallelogramBoundary(const Position& cornerA, const Position& cornerB, const Position& cornerD, bool isInverted) :
     AreaBoundary(isInverted), _a(cornerA), _b(cornerB), _d(cornerD),
     _c(_d.GetPositionX() + (_b.GetPositionX() - _a.GetPositionX()), _d.GetPositionY() + (_b.GetPositionY() - _a.GetPositionY())),
     _abx(_b.GetPositionX() - _a.GetPositionX()), _dax(_a.GetPositionX() - _d.GetPositionX()),
-    _aby(_b.GetPositionY() - _a.GetPositionY()), _day(_a.GetPositionY() - _d.GetPositionY()) { }
+    _aby(_b.GetPositionY() - _a.GetPositionY()), _day(_a.GetPositionY() - _d.GetPositionY()) {}
 
 bool ParallelogramBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
@@ -89,7 +90,7 @@ bool ParallelogramBoundary::IsWithinBoundaryArea(Position const* pos) const
 
 // ---== Z RANGE ==---
 ZRangeBoundary::ZRangeBoundary(float minZ, float maxZ, bool isInverted) :
-    AreaBoundary(isInverted), _minZ(minZ), _maxZ(maxZ) { }
+    AreaBoundary(isInverted), _minZ(minZ), _maxZ(maxZ) {}
 
 bool ZRangeBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
@@ -97,8 +98,8 @@ bool ZRangeBoundary::IsWithinBoundaryArea(Position const* pos) const
 }
 
 // ---== POLYGON ==---
-PolygonBoundary::PolygonBoundary(Position const& origin, std::vector<Position>&& vertices, bool isInverted /* = false*/) :
-    AreaBoundary(isInverted), _origin(origin), _vertices(std::move(vertices)) { }
+PolygonBoundary::PolygonBoundary(const Position& origin, std::vector<Position> vertices, bool isInverted) :
+    AreaBoundary(isInverted), _origin(origin), _vertices(std::move(vertices)) {}
 
 bool PolygonBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
@@ -106,16 +107,10 @@ bool PolygonBoundary::IsWithinBoundaryArea(Position const* pos) const
 }
 
 // ---== UNION OF 2 BOUNDARIES ==---
-BoundaryUnionBoundary::BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted) :
-    AreaBoundary(isInverted), _b1(b1), _b2(b2)
+BoundaryUnionBoundary::BoundaryUnionBoundary(std::unique_ptr<AreaBoundary> b1, std::unique_ptr<AreaBoundary> b2, bool isInverted) :
+    AreaBoundary(isInverted), _b1(std::move(b1)), _b2(std::move(b2))
 {
-    ASSERT(b1 && b2);
-}
-
-BoundaryUnionBoundary::~BoundaryUnionBoundary()
-{
-    delete _b1;
-    delete _b2;
+    assert(_b1 && _b2);
 }
 
 bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
@@ -124,16 +119,10 @@ bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
 }
 
 // ---== INTERSECTION OF 2 BOUNDARIES ==---
-BoundaryIntersectionBoundary::BoundaryIntersectionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted) :
-    AreaBoundary(isInverted), _b1(b1), _b2(b2)
+BoundaryIntersectionBoundary::BoundaryIntersectionBoundary(std::unique_ptr<AreaBoundary> b1, std::unique_ptr<AreaBoundary> b2, bool isInverted) :
+    AreaBoundary(isInverted), _b1(std::move(b1)), _b2(std::move(b2))
 {
-    ASSERT(b1 && b2);
-}
-
-BoundaryIntersectionBoundary::~BoundaryIntersectionBoundary()
-{
-    delete _b1;
-    delete _b2;
+    assert(_b1 && _b2);
 }
 
 bool BoundaryIntersectionBoundary::IsWithinBoundaryArea(Position const* pos) const
