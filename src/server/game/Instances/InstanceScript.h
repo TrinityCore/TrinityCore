@@ -100,7 +100,7 @@ struct DoorData
 struct BossBoundaryEntry
 {
     uint32 BossId;
-    AreaBoundary const* Boundary;
+    std::unique_ptr<AreaBoundary> Boundary;
 };
 
 struct TC_GAME_API BossBoundaryData
