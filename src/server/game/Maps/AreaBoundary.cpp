@@ -16,7 +16,6 @@
  */
 
 #include "AreaBoundary.h"
-#include "Errors.h"
 
 // ---== RECTANGLE ==---
 RectangleBoundary::RectangleBoundary(float southX, float northX, float eastY, float westY, bool isInverted) :
@@ -110,7 +109,7 @@ bool PolygonBoundary::IsWithinBoundaryArea(Position const* pos) const
 BoundaryUnionBoundary::BoundaryUnionBoundary(std::unique_ptr<AreaBoundary> b1, std::unique_ptr<AreaBoundary> b2, bool isInverted) :
     AreaBoundary(isInverted), _b1(std::move(b1)), _b2(std::move(b2))
 {
-    assert(_b1 && _b2);
+    ASSERT(_b1 && _b2);
 }
 
 bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
@@ -122,7 +121,7 @@ bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
 BoundaryIntersectionBoundary::BoundaryIntersectionBoundary(std::unique_ptr<AreaBoundary> b1, std::unique_ptr<AreaBoundary> b2, bool isInverted) :
     AreaBoundary(isInverted), _b1(std::move(b1)), _b2(std::move(b2))
 {
-    assert(_b1 && _b2);
+    ASSERT(_b1 && _b2);
 }
 
 bool BoundaryIntersectionBoundary::IsWithinBoundaryArea(Position const* pos) const

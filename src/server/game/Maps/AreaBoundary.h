@@ -24,90 +24,87 @@
 class TC_GAME_API AreaBoundary
 {
 public:
-    bool IsWithinBoundary(Position const* pos) const { return pos && (IsWithinBoundaryArea(pos) != _isInvertedBoundary); }
-    bool IsWithinBoundary(Position const& pos) const { return IsWithinBoundary(&pos); }
-
-    AreaBoundary(AreaBoundary const&) = delete;
-    AreaBoundary(AreaBoundary&&) = delete;
-    AreaBoundary& operator=(AreaBoundary const&) = delete;
-    AreaBoundary& operator=(AreaBoundary&&) = delete;
-
     virtual ~AreaBoundary() = default;
 
-protected:
-    explicit AreaBoundary(bool isInverted) : _isInvertedBoundary(isInverted) { }
+    [[nodiscard]] bool IsWithinBoundary(const Position& pos) const { return IsWithinBoundary(&pos); }
+    bool IsWithinBoundary(const Position* pos) const { return pos && (IsWithinBoundaryArea(pos) != _isInvertedBoundary); }
 
-    virtual bool IsWithinBoundaryArea(Position const* pos) const = 0;
+    AreaBoundary(const AreaBoundary&) = delete;
+    AreaBoundary(AreaBoundary&&) = delete;
+    AreaBoundary& operator=(const AreaBoundary&) = delete;
+    AreaBoundary& operator=(AreaBoundary&&) = delete;
+
+protected:
+    explicit AreaBoundary(bool isInverted) : _isInvertedBoundary(isInverted) {}
+    virtual bool IsWithinBoundaryArea(const Position* pos) const = 0;
 
 private:
-    bool const _isInvertedBoundary;
+    const bool _isInvertedBoundary;
 };
 
 class TC_GAME_API RectangleBoundary : public AreaBoundary
 {
 public:
-    // X axis is north/south, Y axis is east/west, larger values are northwest
     RectangleBoundary(float southX, float northX, float eastY, float westY, bool isInverted = false);
 
 protected:
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    float const _minX, _maxX, _minY, _maxY;
+    const float _minX, _maxX, _minY, _maxY;
 };
 
 class TC_GAME_API CircleBoundary : public AreaBoundary
 {
 public:
-    CircleBoundary(Position const& center, float radius, bool isInverted = false);
-    CircleBoundary(Position const& center, Position const& pointOnCircle, bool isInverted = false);
+    CircleBoundary(const Position& center, float radius, bool isInverted = false);
+    CircleBoundary(const Position& center, const Position& pointOnCircle, bool isInverted = false);
 
 protected:
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    Position const _center;
-    float const _radiusSq;
+    const Position _center;
+    const float _radiusSq;
 };
 
 class TC_GAME_API EllipseBoundary : public AreaBoundary
 {
 public:
-    EllipseBoundary(Position const& center, float radiusX, float radiusY, bool isInverted = false);
+    EllipseBoundary(const Position& center, float radiusX, float radiusY, bool isInverted = false);
 
 protected:
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    Position const _center;
-    float const _radiusYSq, _scaleXSq;
+    const Position _center;
+    const float _radiusYSq, _scaleXSq;
 };
 
 class TC_GAME_API TriangleBoundary : public AreaBoundary
 {
 public:
-    TriangleBoundary(Position const& pointA, Position const& pointB, Position const& pointC, bool isInverted = false);
+    TriangleBoundary(const Position& pointA, const Position& pointB, const Position& pointC, bool isInverted = false);
 
 protected:
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    Position const _a, _b, _c;
-    float const _abx, _bcx, _cax, _aby, _bcy, _cay;
+    const Position _a, _b, _c;
+    const float _abx, _bcx, _cax, _aby, _bcy, _cay;
 };
 
 class TC_GAME_API ParallelogramBoundary : public AreaBoundary
 {
 public:
-    // Note: AB must be orthogonal to AD
-    ParallelogramBoundary(Position const& cornerA, Position const& cornerB, Position const& cornerD, bool isInverted = false);
+    ParallelogramBoundary(const Position& cornerA, const Position& cornerB, const Position& cornerD, bool isInverted = false);
 
 protected:
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    Position const _a, _b, _d, _c;
-    float const _abx, _dax, _aby, _day;
+    const Position _a, _b, _d, _c;
+    const float _abx, _dax, _aby, _day;
 };
 
 class TC_GAME_API ZRangeBoundary : public AreaBoundary
@@ -116,19 +113,19 @@ public:
     ZRangeBoundary(float minZ, float maxZ, bool isInverted = false);
 
 protected:
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    float const _minZ, _maxZ;
+    const float _minZ, _maxZ;
 };
 
 class TC_GAME_API PolygonBoundary : public AreaBoundary
 {
 public:
-    PolygonBoundary(Position const& origin, std::vector<Position>&& vertices, bool isInverted = false);
+    PolygonBoundary(const Position& origin, std::vector<Position> vertices, bool isInverted = false);
 
 protected:
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
     Position _origin;
@@ -138,37 +135,27 @@ private:
 class TC_GAME_API BoundaryUnionBoundary : public AreaBoundary
 {
 public:
-    BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted = false);
-    BoundaryUnionBoundary(BoundaryUnionBoundary const&) = delete;
-    BoundaryUnionBoundary(BoundaryUnionBoundary&&) = delete;
-    BoundaryUnionBoundary& operator=(BoundaryUnionBoundary const&) = delete;
-    BoundaryUnionBoundary& operator=(BoundaryUnionBoundary&&) = delete;
+    BoundaryUnionBoundary(std::unique_ptr<AreaBoundary> b1, std::unique_ptr<AreaBoundary> b2, bool isInverted = false);
 
 protected:
-    virtual ~BoundaryUnionBoundary();
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    AreaBoundary const* const _b1;
-    AreaBoundary const* const _b2;
+    std::unique_ptr<AreaBoundary> _b1;
+    std::unique_ptr<AreaBoundary> _b2;
 };
 
 class TC_GAME_API BoundaryIntersectionBoundary : public AreaBoundary
 {
 public:
-    BoundaryIntersectionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted = false);
-    BoundaryIntersectionBoundary(BoundaryIntersectionBoundary const&) = delete;
-    BoundaryIntersectionBoundary(BoundaryIntersectionBoundary&&) = delete;
-    BoundaryIntersectionBoundary& operator=(BoundaryIntersectionBoundary const&) = delete;
-    BoundaryIntersectionBoundary& operator=(BoundaryIntersectionBoundary&&) = delete;
+    BoundaryIntersectionBoundary(std::unique_ptr<AreaBoundary> b1, std::unique_ptr<AreaBoundary> b2, bool isInverted = false);
 
 protected:
-    virtual ~BoundaryIntersectionBoundary();
-    bool IsWithinBoundaryArea(Position const* pos) const override;
+    bool IsWithinBoundaryArea(const Position* pos) const override;
 
 private:
-    AreaBoundary const* const _b1;
-    AreaBoundary const* const _b2;
+    std::unique_ptr<AreaBoundary> _b1;
+    std::unique_ptr<AreaBoundary> _b2;
 };
 
-#endif //TRINITY_AREA_BOUNDARY_H
+#endif // TRINITY_AREA_BOUNDARY_H
