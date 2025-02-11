@@ -234,12 +234,8 @@ void WorldSession::HandleArenaTeamLeaveOpcode(WorldPacket& recvData)
     }
 
     // Player cannot be removed during queues
-    for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+    if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
     {
-        BattlegroundQueueTypeId bgQueue = _player->GetBattlegroundQueueTypeId(i);
-        if (bgQueue.BattlemasterListId != BATTLEGROUND_AA || bgQueue.TeamSize != arenaTeam->GetType())
-            continue;
-
         GroupQueueInfo ginfo;
         BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
         if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
@@ -281,12 +277,8 @@ void WorldSession::HandleArenaTeamDisbandOpcode(WorldPacket& recvData)
             return;
 
         // Teams cannot be disbanded during queues
-        for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+        if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
         {
-            BattlegroundQueueTypeId bgQueue = _player->GetBattlegroundQueueTypeId(i);
-            if (bgQueue.BattlemasterListId != BATTLEGROUND_AA || bgQueue.TeamSize != arenaTeam->GetType())
-                continue;
-
             GroupQueueInfo ginfo;
             BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
             if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
@@ -344,12 +336,8 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket& recvData)
     }
 
     // Team cannot be removed during queues
-    for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+    if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
     {
-        BattlegroundQueueTypeId bgQueue = _player->GetBattlegroundQueueTypeId(i);
-        if (bgQueue.BattlemasterListId != BATTLEGROUND_AA || bgQueue.TeamSize != arenaTeam->GetType())
-            continue;
-
         GroupQueueInfo ginfo;
         BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
         if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))

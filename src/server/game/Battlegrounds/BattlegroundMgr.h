@@ -58,7 +58,6 @@ struct BattlegroundTemplate
     uint8 Weight;
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
-    std::vector<int32> MapIDs;
 
     bool IsArena() const;
 };
@@ -104,9 +103,8 @@ class TC_GAME_API BattlegroundMgr
         void SendToBattleground(Player* player, uint32 InstanceID, BattlegroundTypeId bgTypeId);
 
         /* Battleground queues */
-        bool IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId);
-        BattlegroundQueue& GetBattlegroundQueue(BattlegroundQueueTypeId bgQueueTypeId) { return m_BattlegroundQueues.emplace(bgQueueTypeId, bgQueueTypeId).first->second; }
-        void ScheduleQueueUpdate(uint32 arenaMatchmakerRating, BattlegroundQueueTypeId bgQueueTypeId);
+        BattlegroundQueue& GetBattlegroundQueue(BattlegroundQueueTypeId bgQueueTypeId) { return m_BattlegroundQueues[bgQueueTypeId]; }
+        void ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         uint32 GetPrematureFinishTime() const;
 
         void ToggleArenaTesting();
@@ -118,7 +116,9 @@ class TC_GAME_API BattlegroundMgr
         bool isArenaTesting() const { return m_ArenaTesting; }
         bool isTesting() const { return m_Testing; }
 
-        static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 bracketId, uint8 arenaType);
+        static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType);
+        static BattlegroundTypeId BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId);
+        static uint8 BGArenaType(BattlegroundQueueTypeId bgQueueTypeId);
 
         static HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId);
         static BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday);
@@ -146,17 +146,9 @@ class TC_GAME_API BattlegroundMgr
         typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
         BattlegroundDataContainer bgDataStore;
 
-        std::map<BattlegroundQueueTypeId, BattlegroundQueue> m_BattlegroundQueues;
+        BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES];
 
-        struct ScheduledQueueUpdate
-        {
-            uint32 ArenaMatchmakerRating;
-            BattlegroundQueueTypeId QueueId;
-
-            bool operator==(ScheduledQueueUpdate const& right) const = default;
-        };
-
-        std::vector<ScheduledQueueUpdate> m_QueueUpdateScheduler;
+        std::vector<uint64> m_QueueUpdateScheduler;
         uint32 m_NextRatedArenaUpdate;
         time_t m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;

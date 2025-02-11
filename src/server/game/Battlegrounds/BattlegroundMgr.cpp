@@ -113,17 +113,24 @@ void BattlegroundMgr::Update(uint32 diff)
     }
 
     // update events timer
-    for (std::pair<BattlegroundQueueTypeId const, BattlegroundQueue>& pair : m_BattlegroundQueues)
-        pair.second.UpdateEvents(diff);
+    for (int qtype = BATTLEGROUND_QUEUE_NONE; qtype < MAX_BATTLEGROUND_QUEUE_TYPES; ++qtype)
+        m_BattlegroundQueues[qtype].UpdateEvents(diff);
 
     // update scheduled queues
     if (!m_QueueUpdateScheduler.empty())
     {
-        std::vector<ScheduledQueueUpdate> scheduled;
+        std::vector<uint64> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
 
-        for (auto& [arenaMMRating, bgQueueTypeId] : scheduled)
-            GetBattlegroundQueue(bgQueueTypeId).BattlegroundQueueUpdate(diff, arenaMMRating > 0, arenaMMRating);
+        for (uint8 i = 0; i < scheduled.size(); i++)
+        {
+            uint32 arenaMMRating = scheduled[i] >> 32;
+            uint8 arenaType = scheduled[i] >> 24 & 255;
+            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(scheduled[i] >> 16 & 255);
+            BattlegroundTypeId bgTypeId = BattlegroundTypeId((scheduled[i] >> 8) & 255);
+            BattlegroundBracketId bracket_id = BattlegroundBracketId(scheduled[i] & 255);
+            m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating);
+        }
     }
 
     // if rating difference counts, maybe force-update queues
@@ -134,15 +141,11 @@ void BattlegroundMgr::Update(uint32 diff)
         {
             // forced update for rated arenas (scan all, but skipped non rated)
             TC_LOG_TRACE("bg.arena", "BattlegroundMgr: UPDATING ARENA QUEUES");
-            for (uint8 teamSize : { ARENA_TYPE_2v2, ARENA_TYPE_3v3, ARENA_TYPE_5v5 })
-            {
+            for (int qtype = BATTLEGROUND_QUEUE_2v2; qtype <= BATTLEGROUND_QUEUE_5v5; ++qtype)
                 for (int bracket = BG_BRACKET_ID_FIRST; bracket < MAX_BATTLEGROUND_BRACKETS; ++bracket)
-                {
-                    BattlegroundQueueTypeId ratedArenaQueueId = BGQueueTypeId(BATTLEGROUND_AA, bracket, teamSize);
-                    if (BattlegroundQueue* arenaQueue = Trinity::Containers::MapGetValuePtr(m_BattlegroundQueues, ratedArenaQueueId))
-                        arenaQueue->BattlegroundQueueUpdate(diff, true, 0);
-                }
-            }
+                    m_BattlegroundQueues[qtype].BattlegroundQueueUpdate(diff,
+                        BATTLEGROUND_AA, BattlegroundBracketId(bracket),
+                        BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId(qtype)), true, 0);
 
             m_NextRatedArenaUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER);
         }
@@ -485,7 +488,7 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
         AddBattleground(bg);
     }
 
-    bg->SetMapId(!bgTemplate->MapIDs.empty() ? bgTemplate->MapIDs.front() : -1);
+    bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
     bg->SetName(bgTemplate->BattlemasterEntry->Name[sWorld->GetDefaultDbcLocale()]);
     bg->SetArenaorBGType(bgTemplate->IsArena());
     bg->SetMinPlayersPerTeam(bgTemplate->MinPlayersPerTeam);
@@ -546,9 +549,6 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         bgTemplate.Weight            = fields[10].GetUInt8();
         bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[11].GetString());
         bgTemplate.BattlemasterEntry = bl;
-        for (int32 mapId : bl->MapID)
-            if (sMapStore.LookupEntry(mapId))
-                bgTemplate.MapIDs.push_back(mapId);
 
         if (bgTemplate.MaxPlayersPerTeam == 0 || bgTemplate.MinPlayersPerTeam > bgTemplate.MaxPlayersPerTeam)
         {
@@ -594,8 +594,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
 
         _battlegroundTemplates[bgTypeId] = bgTemplate;
 
-        if (bgTemplate.MapIDs.size() == 1)
-            _battlegroundMapTemplates[bgTemplate.MapIDs[0]] = &_battlegroundTemplates[bgTypeId];
+        if (bgTemplate.BattlemasterEntry->MapID[1] == -1) // in this case we have only one mapId
+            _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->MapID[0]] = &_battlegroundTemplates[bgTypeId];
 
         ++count;
     }
@@ -723,9 +723,86 @@ bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
             || bgTypeId == BATTLEGROUND_RL;
 }
 
-BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 bracketId, uint8 arenaType)
+BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType)
 {
-    return { .BattlemasterListId = uint16(bgTypeId), .BracketId = bracketId, .TeamSize = arenaType };
+    switch (bgTypeId)
+    {
+        case BATTLEGROUND_AB:
+            return BATTLEGROUND_QUEUE_AB;
+        case BATTLEGROUND_AV:
+            return BATTLEGROUND_QUEUE_AV;
+        case BATTLEGROUND_EY:
+            return BATTLEGROUND_QUEUE_EY;
+        case BATTLEGROUND_IC:
+            return BATTLEGROUND_QUEUE_IC;
+        case BATTLEGROUND_RB:
+            return BATTLEGROUND_QUEUE_RB;
+        case BATTLEGROUND_SA:
+            return BATTLEGROUND_QUEUE_SA;
+        case BATTLEGROUND_WS:
+            return BATTLEGROUND_QUEUE_WS;
+        case BATTLEGROUND_AA:
+        case BATTLEGROUND_BE:
+        case BATTLEGROUND_DS:
+        case BATTLEGROUND_NA:
+        case BATTLEGROUND_RL:
+        case BATTLEGROUND_RV:
+            switch (arenaType)
+            {
+                case ARENA_TYPE_2v2:
+                    return BATTLEGROUND_QUEUE_2v2;
+                case ARENA_TYPE_3v3:
+                    return BATTLEGROUND_QUEUE_3v3;
+                case ARENA_TYPE_5v5:
+                    return BATTLEGROUND_QUEUE_5v5;
+                default:
+                    return BATTLEGROUND_QUEUE_NONE;
+            }
+        default:
+            return BATTLEGROUND_QUEUE_NONE;
+    }
+}
+
+BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId)
+{
+    switch (bgQueueTypeId)
+    {
+        case BATTLEGROUND_QUEUE_WS:
+            return BATTLEGROUND_WS;
+        case BATTLEGROUND_QUEUE_AB:
+            return BATTLEGROUND_AB;
+        case BATTLEGROUND_QUEUE_AV:
+            return BATTLEGROUND_AV;
+        case BATTLEGROUND_QUEUE_EY:
+            return BATTLEGROUND_EY;
+        case BATTLEGROUND_QUEUE_SA:
+            return BATTLEGROUND_SA;
+        case BATTLEGROUND_QUEUE_IC:
+            return BATTLEGROUND_IC;
+        case BATTLEGROUND_QUEUE_RB:
+            return BATTLEGROUND_RB;
+        case BATTLEGROUND_QUEUE_2v2:
+        case BATTLEGROUND_QUEUE_3v3:
+        case BATTLEGROUND_QUEUE_5v5:
+            return BATTLEGROUND_AA;
+        default:
+            return BattlegroundTypeId(0);                   // used for unknown template (it exists and does nothing)
+    }
+}
+
+uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
+{
+    switch (bgQueueTypeId)
+    {
+        case BATTLEGROUND_QUEUE_2v2:
+            return ARENA_TYPE_2v2;
+        case BATTLEGROUND_QUEUE_3v3:
+            return ARENA_TYPE_3v3;
+        case BATTLEGROUND_QUEUE_5v5:
+            return ARENA_TYPE_5v5;
+        default:
+            return 0;
+    }
 }
 
 void BattlegroundMgr::ToggleTesting()
@@ -753,40 +830,11 @@ void BattlegroundMgr::SetHolidayActive(uint32 battlegroundId)
         bg->SetHoliday(true);
 }
 
-bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
-{
-    BattlegroundTemplate const* battlemasterList = GetBattlegroundTemplateByTypeId(BattlegroundTypeId(bgQueueTypeId.BattlemasterListId));
-    if (!battlemasterList)
-        return false;
-
-    switch (battlemasterList->BattlemasterEntry->InstanceType)
-    {
-        case MAP_BATTLEGROUND:
-            if (bgQueueTypeId.TeamSize)
-                return false;
-            break;
-        case MAP_ARENA:
-            if (!bgQueueTypeId.TeamSize)
-                return false;
-            break;
-        default:
-            break;
-    }
-
-    if (battlemasterList->MapIDs.empty())
-        return false;
-
-    if (!GetBattlegroundBracketById(battlemasterList->MapIDs[0], BattlegroundBracketId(bgQueueTypeId.BracketId)))
-        return false;
-
-    return true;
-}
-
-void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, BattlegroundQueueTypeId bgQueueTypeId)
+void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
 {
     //This method must be atomic, @todo add mutex
     //we will use only 1 number created of bgTypeId and bracket_id
-    ScheduledQueueUpdate scheduleId{ arenaMatchmakerRating, bgQueueTypeId };
+    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | ((uint64)arenaType << 24) | ((uint64)bgQueueTypeId << 16) | ((uint64)bgTypeId << 8) | (uint64)bracket_id;
     if (std::find(m_QueueUpdateScheduler.begin(), m_QueueUpdateScheduler.end(), scheduleId) == m_QueueUpdateScheduler.end())
         m_QueueUpdateScheduler.push_back(scheduleId);
 }
@@ -910,14 +958,23 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
-        std::vector<BattlegroundTemplate const*> ids;
-        ids.reserve(bgTemplate->MapIDs.size());
-        for (int32 mapId : bgTemplate->MapIDs)
-            if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
-                ids.push_back(bg);
+        std::vector<BattlegroundTypeId> ids;
+        ids.reserve(16);
+        std::vector<double> weights;
+        weights.reserve(16);
+        for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
+        {
+            if (mapId == -1)
+                break;
 
-        if (!ids.empty())
-            return (*Trinity::Containers::SelectRandomWeightedContainerElement(ids, [](BattlegroundTemplate const* bg) { return bg->Weight; }))->Id;
+            if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
+            {
+                ids.push_back(bg->Id);
+                weights.push_back(bg->Weight);
+            }
+        }
+
+        return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, weights);
     }
 
     return BATTLEGROUND_TYPE_NONE;

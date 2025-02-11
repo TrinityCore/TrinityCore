@@ -497,15 +497,6 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
-        BattlegroundPlayer const* GetBattlegroundPlayerData(ObjectGuid const& playerGuid) const
-        {
-            auto itr = m_Players.find(playerGuid);
-            if (itr == m_Players.end())
-                return nullptr;
-
-            return &itr->second;
-        }
-
         Trinity::unique_weak_ptr<Battleground> GetWeakPtr() const { return m_weakRef; }
         void SetWeakPtr(Trinity::unique_weak_ptr<Battleground> weakRef) { m_weakRef = std::move(weakRef); }
 

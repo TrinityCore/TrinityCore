@@ -326,12 +326,8 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
         {
             if (group && playerMember->GetGroup() && group->GetGUID() == playerMember->GetGroup()->GetGUID())
             {
-                for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+                if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, GetType()))
                 {
-                    BattlegroundQueueTypeId bgQueue = playerMember->GetBattlegroundQueueTypeId(i);
-                    if (bgQueue.BattlemasterListId != BATTLEGROUND_AA || bgQueue.TeamSize != GetType())
-                        continue;
-
                     GroupQueueInfo ginfo;
                     BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
                     if (queue.GetPlayerGroupInfoData(playerMember->GetGUID(), &ginfo))
@@ -339,7 +335,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
                         {
                             WorldPacket data;
                             playerMember->RemoveBattlegroundQueueId(bgQueue);
-                            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, nullptr, i, STATUS_NONE, 0, 0, 0, 0);
+                            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, nullptr, playerMember->GetBattlegroundQueueIndex(bgQueue), STATUS_NONE, 0, 0, 0, 0);
                             queue.RemovePlayer(playerMember->GetGUID(), true);
                             playerMember->GetSession()->SendPacket(&data);
                         }
@@ -605,20 +601,6 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
             break;
     }
     TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type {} for some arena team", type);
-    return 0xFF;
-}
-
-uint8 ArenaTeam::GetTypeBySlot(uint8 slot)
-{
-    switch (slot)
-    {
-        case 0: return ARENA_TEAM_2v2;
-        case 1: return ARENA_TEAM_3v3;
-        case 2: return ARENA_TEAM_5v5;
-        default:
-            break;
-    }
-    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team slot {} for some arena team", slot);
     return 0xFF;
 }
 
