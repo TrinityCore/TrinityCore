@@ -1708,7 +1708,7 @@ class TC_GAME_API Unit : public WorldObject
         void ClearComboPointHolders();
 
         ///----------Pet responses methods-----------------
-        void SendPetActionFeedback(uint8 msg) const;
+        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId) const;
         void SendPetActionSound(PetAction action) const;
         void SendPetDismissSound() const;
         void SendPetAIReaction(ObjectGuid guid) const;

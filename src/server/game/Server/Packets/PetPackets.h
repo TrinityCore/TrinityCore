@@ -19,6 +19,7 @@
 #define PetPackets_h__
 
 #include "Packet.h"
+#include "PetDefines.h"
 #include "Position.h"
 #include "ObjectGuid.h"
 
@@ -96,11 +97,21 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class PetActionFeedback final : public ServerPacket
+        {
+        public:
+            PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            ::PetActionFeedback Response = ::PetActionFeedback::None;
+        };
+
         class PetActionSound final : public ServerPacket
         {
         public:
-            PetActionSound(ObjectGuid unitGUID, int32 action)
-                : ServerPacket(SMSG_PET_ACTION_SOUND, 8 + 4), UnitGUID(unitGUID), Action(action) { }
+            PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 8 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -111,8 +122,7 @@ namespace WorldPackets
         class PetDismissSound final : public ServerPacket
         {
         public:
-            PetDismissSound(int32 modelId, Position modelPosition)
-                : ServerPacket(SMSG_PET_DISMISS_SOUND, 4 + 12), ModelId(modelId), ModelPosition(modelPosition) { }
+            PetDismissSound() : ServerPacket(SMSG_PET_DISMISS_SOUND, 4 + 12) { }
 
             WorldPacket const* Write() override;
 

@@ -51,10 +51,20 @@ WorldPacket const* WorldPackets::Pet::PetUnlearnedSpell::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Pet::PetActionFeedback::Write()
+{
+    _worldPacket << uint8(Response);
+    if (Response == ::PetActionFeedback::NoTarget || Response == ::PetActionFeedback::InvalidTarget)
+        _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Pet::PetActionSound::Write()
 {
     _worldPacket << UnitGUID;
     _worldPacket << int32(Action);
+
     return &_worldPacket;
 }
 
@@ -62,5 +72,6 @@ WorldPacket const* WorldPackets::Pet::PetDismissSound::Write()
 {
     _worldPacket << int32(ModelId);
     _worldPacket << ModelPosition;
+
     return &_worldPacket;
 }
