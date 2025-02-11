@@ -101,6 +101,7 @@ class VehicleJoinEvent;
 
 enum CharmType : uint8;
 enum class EncounterType : uint8;
+enum PetAction : int32;
 enum class PetActionFeedback : uint8;
 enum MovementGeneratorType : uint8;
 enum ProcFlagsHit : uint32;
@@ -1754,9 +1755,10 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyControlStatesIfNeeded();
 
         ///----------Pet responses methods-----------------
-        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId);
-        void SendPetTalk(uint32 pettalk);
-        void SendPetAIReaction(ObjectGuid guid);
+        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId) const;
+        void SendPetActionSound(PetAction action) const;
+        void SendPetDismissSound() const;
+        void SendPetAIReaction(ObjectGuid guid) const;
         ///----------End of Pet responses methods----------
 
         void PropagateSpeedChange();
