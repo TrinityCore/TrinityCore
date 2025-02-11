@@ -17,7 +17,6 @@
 
 #include "BattlegroundEY.h"
 #include "BattlegroundMgr.h"
-#include "BattlegroundPackets.h"
 #include "Creature.h"
 #include "DBCStores.h"
 #include "GameObject.h"
@@ -27,6 +26,7 @@
 #include "Player.h"
 #include "Random.h"
 #include "Util.h"
+#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here
@@ -36,9 +36,10 @@ uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
     160  // holiday
 };
 
-void BattlegroundEYScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
+void BattlegroundEYScore::BuildObjectivesBlock(WorldPacket& data)
 {
-    playerData.Stats = { FlagCaptures };
+    data << uint32(1); // Objectives Count
+    data << uint32(FlagCaptures);
 }
 
 BattlegroundEY::BattlegroundEY()

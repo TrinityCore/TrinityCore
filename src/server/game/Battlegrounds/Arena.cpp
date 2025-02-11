@@ -18,7 +18,6 @@
 #include "Arena.h"
 #include "ArenaScore.h"
 #include "ArenaTeamMgr.h"
-#include "BattlegroundPackets.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -26,20 +25,37 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
-void ArenaScore::AppendToPacket(WorldPackets::Battleground::PVPLogData_Player& playerData)
+void ArenaScore::AppendToPacket(WorldPacket& data)
 {
-    playerData.PlayerGUID = PlayerGuid;
+    data << uint64(PlayerGuid);
 
-    playerData.Kills = KillingBlows;
-    playerData.HonorOrFaction = TeamId;
-    playerData.DamageDone = DamageDone;
-    playerData.HealingDone = HealingDone;
+    data << uint32(KillingBlows);
+    data << uint8(TeamId);
+    data << uint32(DamageDone);
+    data << uint32(HealingDone);
 
-    BuildObjectivesBlock(playerData);
+    BuildObjectivesBlock(data);
 }
 
-void ArenaScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& /*playerData*/)
+void ArenaScore::BuildObjectivesBlock(WorldPacket& data)
 {
+    data << uint32(0); // Objectives Count
+}
+
+void ArenaTeamScore::BuildRatingInfoBlock(WorldPacket& data)
+{
+    uint32 ratingLost = std::abs(std::min(RatingChange, 0));
+    uint32 ratingWon = std::max(RatingChange, 0);
+
+    // should be old rating, new rating, and client will calculate rating change itself
+    data << uint32(ratingLost);
+    data << uint32(ratingWon);
+    data << uint32(MatchmakerRating);
+}
+
+void ArenaTeamScore::BuildTeamInfoBlock(WorldPacket& data)
+{
+    data << TeamName;
 }
 
 Arena::Arena()

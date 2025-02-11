@@ -16,7 +16,6 @@
  */
 
 #include "BattlegroundSA.h"
-#include "BattlegroundPackets.h"
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -27,11 +26,14 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "UpdateData.h"
+#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
-void BattlegroundSAScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
+void BattlegroundSAScore::BuildObjectivesBlock(WorldPacket& data)
 {
-    playerData.Stats = { DemolishersDestroyed, GatesDestroyed };
+    data << uint32(2); // Objectives Count
+    data << uint32(DemolishersDestroyed);
+    data << uint32(GatesDestroyed);
 }
 
 BattlegroundSA::BattlegroundSA()

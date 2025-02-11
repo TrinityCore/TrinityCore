@@ -16,7 +16,6 @@
  */
 
 #include "BattlegroundAV.h"
-#include "BattlegroundPackets.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DBCStores.h"
@@ -28,9 +27,14 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
-void BattlegroundAVScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
+void BattlegroundAVScore::BuildObjectivesBlock(WorldPacket& data)
 {
-    playerData.Stats = { GraveyardsAssaulted, GraveyardsDefended, TowersAssaulted, TowersDefended, MinesCaptured };
+    data << uint32(5); // Objectives Count
+    data << uint32(GraveyardsAssaulted);
+    data << uint32(GraveyardsDefended);
+    data << uint32(TowersAssaulted);
+    data << uint32(TowersDefended);
+    data << uint32(MinesCaptured);
 }
 
 BattlegroundAV::BattlegroundAV()
