@@ -632,7 +632,10 @@ class spell_pal_execution_sentence : public SpellScript
 
     void HandleVisual(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetCaster()->HasAura(SPELL_PALADIN_EXECUTIONERS_WILL) ? SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS : SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS,
+        uint32 visualSpellId = GetCaster()->HasAura(SPELL_PALADIN_EXECUTIONERS_WILL)
+            ? SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS
+            : SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS;
+        GetCaster()->CastSpell(GetHitUnit(), visualSpellId,
             CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
