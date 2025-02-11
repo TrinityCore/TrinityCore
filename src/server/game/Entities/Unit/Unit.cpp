@@ -57,6 +57,7 @@
 #include "PassiveAI.h"
 #include "PetAI.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "QuestDef.h"
@@ -10241,30 +10242,39 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
 }
 
 ///----------Pet responses methods-----------------
-void Unit::SendPetActionFeedback(uint8 msg)
+void Unit::SendPetActionFeedback(PetActionFeedback msg, uint32 spellId) const
 {
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_FEEDBACK, 1);
-    data << uint8(msg);
-    owner->ToPlayer()->SendDirectMessage(&data);
+    WorldPackets::Pet::PetActionFeedback petActionFeedback;
+    petActionFeedback.SpellID = spellId;
+    petActionFeedback.Response = msg;
+    owner->ToPlayer()->SendDirectMessage(petActionFeedback.Write());
 }
 
-void Unit::SendPetTalk(uint32 pettalk)
+void Unit::SendPetActionSound(PetAction action) const
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    WorldPackets::Pet::PetActionSound petActionSound;
+    petActionSound.UnitGUID = GetGUID();
+    petActionSound.Action = action;
+    SendMessageToSet(petActionSound.Write(), false);
+}
+
+void Unit::SendPetDismissSound() const
+{
+    CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+    if (!displayInfo)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    data << uint64(GetGUID());
-    data << uint32(pettalk);
-    owner->ToPlayer()->SendDirectMessage(&data);
+    WorldPackets::Pet::PetDismissSound petDismissSound;
+    petDismissSound.ModelId = displayInfo->ModelID;
+    petDismissSound.ModelPosition = GetPosition();
+    SendMessageToSet(petDismissSound.Write(), false);
 }
 
-void Unit::SendPetAIReaction(ObjectGuid guid)
+void Unit::SendPetAIReaction(ObjectGuid guid) const
 {
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
