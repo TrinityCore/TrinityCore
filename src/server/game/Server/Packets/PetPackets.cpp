@@ -196,6 +196,15 @@ WorldPacket const* WorldPackets::Pet::PetActionSound::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Pet::PetDismissSound::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << int32(CreatureDisplayInfoID);
+    _worldPacket << ModelPosition;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Pet::PetTameFailure::Write()
 {
     _worldPacket << uint8(Result);
