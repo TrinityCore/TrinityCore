@@ -617,12 +617,12 @@ class spell_pal_divine_storm : public SpellScript
 };
 
 // 343527 - Execution Sentence
-struct spell_pal_execution_sentence : public SpellScript
+class spell_pal_execution_sentence : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
+        return ValidateSpellInfo(
+        {
             SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE,
             SPELL_PALADIN_EXECUTIONERS_WILL,
             SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS,
@@ -647,10 +647,15 @@ struct spell_pal_execution_sentence : public SpellScript
 
 class spell_pal_execution_sentence_aura : public AuraScript
 {
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo) const
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        if (damageInfo)
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsAura();
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
             aurEff->ChangeAmount(aurEff->GetAmount() + CalculatePct(damageInfo->GetDamage(), GetEffect(EFFECT_1)->GetAmount()));
     }
 
@@ -661,9 +666,11 @@ class spell_pal_execution_sentence_aura : public AuraScript
             return;
 
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE, CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
-                .AddSpellMod(SPELLVALUE_BASE_POINT0, amount)
-                .SetTriggeringAura(aurEff));
+            caster->CastSpell(GetTarget(), SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff,
+                .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+            });
     }
 
     void Register() override
