@@ -98,7 +98,7 @@ enum SpellCastFlags : uint32
     CAST_FLAG_UNKNOWN_8             = 0x00000080,
     CAST_FLAG_UNKNOWN_9             = 0x00000100,
     CAST_FLAG_UNKNOWN_10            = 0x00000200,
-    CAST_FLAG_UNKNOWN_11            = 0x00000400,
+    CAST_FLAG_UNKNOWN_11            = 0x00000400,           // sorts missed targets before hit targets for chain visual
     CAST_FLAG_POWER_LEFT_SELF       = 0x00000800,
     CAST_FLAG_UNKNOWN_13            = 0x00001000,
     CAST_FLAG_UNKNOWN_14            = 0x00002000,

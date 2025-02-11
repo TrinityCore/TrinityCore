@@ -110,7 +110,7 @@ namespace Trinity
         inline auto SelectRandomContainerElement(C const& container) -> std::add_const_t<decltype(*std::ranges::begin(container))>&
         {
             auto it = std::ranges::begin(container);
-            std::ranges::advance(it, urand(0, uint32(std::ranges::size(container)) - 1));
+            std::ranges::advance(it, urand(0, uint32(std::ranges::distance(container)) - 1));
             return *it;
         }
 
@@ -142,7 +142,7 @@ namespace Trinity
         template <std::ranges::input_range C, invocable_r<double, std::ranges::range_reference_t<C>> Fn>
         inline auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::ranges::begin(container))
         {
-            std::size_t size = std::ranges::size(container);
+            std::size_t size = std::ranges::distance(container);
             std::size_t i = 0;
             double* weights = new double[size];
             double weightSum = 0.0;
@@ -154,7 +154,7 @@ namespace Trinity
             }
 
             auto it = std::ranges::begin(container);
-            std::ranges::advance(it, weightSum > 0.0 ? urandweighted(size, weights) : urand(0, uint32(std::ranges::size(container)) - 1));
+            std::ranges::advance(it, weightSum > 0.0 ? urandweighted(size, weights) : urand(0, uint32(size) - 1));
             delete[] weights;
             return it;
         }
@@ -251,7 +251,7 @@ namespace Trinity
         namespace Impl
         {
             template <typename Container, typename Predicate>
-            void EraseIfMoveAssignable(Container& c, Predicate p)
+            inline constexpr void EraseIfMoveAssignable(Container& c, Predicate& p)
             {
                 auto wpos = c.begin();
                 for (auto rpos = c.begin(), end = c.end(); rpos != end; ++rpos)
@@ -267,7 +267,7 @@ namespace Trinity
             }
 
             template <typename Container, typename Predicate>
-            void EraseIfNotMoveAssignable(Container& c, Predicate p)
+            inline constexpr void EraseIfNotMoveAssignable(Container& c, Predicate& p)
             {
                 for (auto it = c.begin(); it != c.end();)
                 {
@@ -280,12 +280,12 @@ namespace Trinity
         }
 
         template <std::ranges::forward_range Container, invocable_r<bool, std::ranges::range_reference_t<Container>> Predicate>
-        inline void EraseIf(Container& c, Predicate p) requires requires { c.erase(c.begin(), c.end()); }
+        inline constexpr void EraseIf(Container& c, Predicate p) requires requires { c.erase(c.begin(), c.end()); }
         {
             if constexpr (std::is_move_assignable_v<decltype(*c.begin())>)
-                Impl::EraseIfMoveAssignable(c, std::ref(p));
+                Impl::EraseIfMoveAssignable(c, p);
             else
-                Impl::EraseIfNotMoveAssignable(c, std::ref(p));
+                Impl::EraseIfNotMoveAssignable(c, p);
         }
 
         /**
@@ -296,7 +296,7 @@ namespace Trinity
          * with vectors of non-default-constructible classes
          */
         template <typename T>
-        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i)
+        inline constexpr decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i)
         {
             if (i >= vec.size())
                 vec.resize(i + 1);
@@ -311,7 +311,7 @@ namespace Trinity
          * This overload allows specifying what value to pad vector with during .resize
          */
         template <typename T>
-        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i, T const& resizeDefault)
+        inline constexpr decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i, T const& resizeDefault)
         {
             if (i >= vec.size())
                 vec.resize(i + 1, resizeDefault);
