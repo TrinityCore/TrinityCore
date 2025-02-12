@@ -1084,7 +1084,7 @@ void Spell::EffectApplyAura()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!_spellAura || !unitTarget)
+    if (!_spellAura || _spellAura->IsRemoved() || !unitTarget)
         return;
 
     // register target/effect on aura
