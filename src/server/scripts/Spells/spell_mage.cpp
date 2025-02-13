@@ -393,7 +393,7 @@ class spell_mage_imp_blizzard : public AuraScript
     {
         PreventDefaultAction();
         uint32 triggerSpellId = sSpellMgr->GetSpellWithRank(SPELL_MAGE_CHILLED, GetSpellInfo()->GetRank());
-        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), triggerSpellId, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), triggerSpellId, aurEff);
     }
 
     void Register() override
@@ -627,7 +627,7 @@ class spell_mage_gen_extra_effects : public AuraScript
     {
         Unit* caster = eventInfo.GetActor();
         // Prevent double proc for Arcane missiles
-        if (caster == eventInfo.GetProcTarget())
+        if (caster == eventInfo.GetActionTarget())
             return false;
 
         // Proc chance is unknown, we'll just use dummy aura amount
@@ -661,7 +661,7 @@ class spell_mage_glyph_of_polymorph : public AuraScript
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
         target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409)); // SW:D shall not be removed.
         target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
         target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
@@ -841,7 +841,8 @@ class spell_mage_ignite : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetDamageInfo() && eventInfo.GetProcTarget();
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        return damageInfo && damageInfo->GetDamage();
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -856,7 +857,7 @@ class spell_mage_ignite : public AuraScript
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, args);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IGNITE, args);
     }
 
     void Register() override
@@ -1061,7 +1062,7 @@ class spell_mage_missile_barrage_proc : public AuraScript
     {
         Unit* caster = eventInfo.GetActor();
         // Prevent double proc for Arcane missiles
-        if (caster == eventInfo.GetProcTarget())
+        if (caster == eventInfo.GetActionTarget())
             return false;
 
         // Proc chance is unknown, we'll just use dummy aura amount

@@ -357,7 +357,7 @@ class spell_hun_glyph_of_arcane_shot : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        if (Unit* procTarget = eventInfo.GetProcTarget())
+        if (Unit* procTarget = eventInfo.GetActionTarget())
         {
             Unit::AuraApplicationMap const& auras = procTarget->GetAppliedAuras();
             for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
@@ -381,13 +381,13 @@ class spell_hun_glyph_of_arcane_shot : public AuraScript
         if (!procSpell)
             return;
 
-        int32 mana = procSpell->CalcPowerCost(GetTarget(), procSpell->GetSchoolMask());
+        int32 mana = procSpell->CalcPowerCost(eventInfo.GetActor(), procSpell->GetSchoolMask());
         ApplyPct(mana, aurEff->GetAmount());
 
         // castspell refactor note: this is not triggered - is this intended?
         CastSpellExtraArgs args;
         args.AddSpellBP0(mana);
-        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT, args);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT, args);
     }
 
     void Register() override
@@ -410,7 +410,7 @@ class spell_hun_glyph_of_mend_pet : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetProcTarget()->CastSpell(nullptr, SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, aurEff);
+        eventInfo.GetActionTarget()->CastSpell(nullptr, SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, aurEff);
     }
 
     void Register() override
@@ -1240,7 +1240,7 @@ class spell_hun_thrill_of_the_hunt : public AuraScript
         // Explosive Shot
         if (spellInfo->SpellFamilyFlags[2] & 0x200)
         {
-            if (AuraEffect const* explosiveShot = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_AURA_PERIODIC_DUMMY, SPELLFAMILY_HUNTER, 0x00000000, 0x80000000, 0x00000000, caster->GetGUID()))
+            if (AuraEffect const* explosiveShot = eventInfo.GetActionTarget()->GetAuraEffect(SPELL_AURA_PERIODIC_DUMMY, SPELLFAMILY_HUNTER, 0x00000000, 0x80000000, 0x00000000, caster->GetGUID()))
             {
                 // due to Lock and Load SpellInfo::CalcPowerCost might return 0, so just calculate it manually
                 amount = CalculatePct(static_cast<int32>(CalculatePct(caster->GetCreateMana(), explosiveShot->GetSpellInfo()->ManaCostPercentage)), aurEff->GetAmount());

@@ -501,13 +501,12 @@ class TC_GAME_API HealInfo
 class TC_GAME_API ProcEventInfo
 {
     public:
-        ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask,
+        ProcEventInfo(Unit* actor, Unit* actionTarget, uint32 typeMask,
                       uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
         Unit* GetActor() { return _actor; }
         Unit* GetActionTarget() const { return _actionTarget; }
-        Unit* GetProcTarget() const { return _procTarget; }
 
         uint32 GetTypeMask() const { return _typeMask; }
         uint32 GetSpellTypeMask() const { return _spellTypeMask; }
@@ -525,7 +524,6 @@ class TC_GAME_API ProcEventInfo
     private:
         Unit* const _actor;
         Unit* const _actionTarget;
-        Unit* const _procTarget;
         uint32 _typeMask;
         uint32 _spellTypeMask;
         uint32 _spellPhaseMask;
