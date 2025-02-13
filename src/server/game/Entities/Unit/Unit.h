@@ -21,6 +21,7 @@
 #include "Object.h"
 #include "CombatManager.h"
 #include "SpellAuraDefines.h"
+#include "PetDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
@@ -1707,9 +1708,10 @@ class TC_GAME_API Unit : public WorldObject
         void ClearComboPointHolders();
 
         ///----------Pet responses methods-----------------
-        void SendPetActionFeedback(uint8 msg);
-        void SendPetTalk(uint32 pettalk);
-        void SendPetAIReaction(ObjectGuid guid);
+        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId) const;
+        void SendPetActionSound(PetAction action) const;
+        void SendPetDismissSound() const;
+        void SendPetAIReaction(ObjectGuid guid) const;
         ///----------End of Pet responses methods----------
 
         void PropagateSpeedChange();
@@ -1833,6 +1835,7 @@ class TC_GAME_API Unit : public WorldObject
         explicit Unit (bool isWorldObject);
 
         void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const override;
+        void DestroyForPlayer(Player* target, bool onDeath) const override;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();

@@ -637,41 +637,48 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     {
         if (VendorItem const* item = items->GetItem(slot))
         {
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item))
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item);
+            if (!itemTemplate)
+                continue;
+
+            uint32 leftInStock = !item->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(item);
+            if (!_player->IsGameMaster()) // ignore conditions if GM on
             {
-                if (!(itemTemplate->AllowableClass & _player->GetClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP && !_player->IsGameMaster())
+                // Respect allowed class
+                if (!(itemTemplate->AllowableClass & _player->GetClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
                     continue;
+
                 // Only display items in vendor lists for the team the
                 // player is on. If GM on, display all items.
-                if (!_player->IsGameMaster() && ((itemTemplate->HasFlag(ITEM_FLAG2_FACTION_HORDE) && _player->GetTeam() == ALLIANCE) || (itemTemplate->HasFlag(ITEM_FLAG2_FACTION_ALLIANCE) && _player->GetTeam() == HORDE)))
+                if ((itemTemplate->HasFlag(ITEM_FLAG2_FACTION_HORDE) && _player->GetTeam() == ALLIANCE) ||
+                    (itemTemplate->HasFlag(ITEM_FLAG2_FACTION_ALLIANCE) && _player->GetTeam() == HORDE))
                     continue;
 
                 // Items sold out are not displayed in list
-                uint32 leftInStock = !item->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(item);
-                if (!_player->IsGameMaster() && !leftInStock)
+                if (leftInStock == 0)
                     continue;
-
-                if (!sConditionMgr->IsObjectMeetingVendorItemConditions(vendor->GetEntry(), item->item, _player, vendor))
-                {
-                    TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry {} item {}", vendor->GetEntry(), item->item);
-                    continue;
-                }
-
-                // reputation discount
-                int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
-
-                data << uint32(slot + 1);       // client expects counting to start at 1
-                data << uint32(item->item);
-                data << uint32(itemTemplate->DisplayInfoID);
-                data << int32(leftInStock);
-                data << uint32(price);
-                data << uint32(itemTemplate->MaxDurability);
-                data << uint32(itemTemplate->BuyCount);
-                data << uint32(item->ExtendedCost);
-
-                if (++count >= MAX_VENDOR_ITEMS)
-                    break;
             }
+
+            if (!sConditionMgr->IsObjectMeetingVendorItemConditions(vendor->GetEntry(), item->item, _player, vendor))
+            {
+                TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry {} item {}", vendor->GetEntry(), item->item);
+                continue;
+            }
+
+            // reputation discount
+            int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+
+            data << uint32(slot + 1);       // client expects counting to start at 1
+            data << uint32(item->item);
+            data << uint32(itemTemplate->DisplayInfoID);
+            data << int32(leftInStock);
+            data << uint32(price);
+            data << uint32(itemTemplate->MaxDurability);
+            data << uint32(itemTemplate->BuyCount);
+            data << uint32(item->ExtendedCost);
+
+            if (++count >= MAX_VENDOR_ITEMS)
+                break;
         }
     }
 

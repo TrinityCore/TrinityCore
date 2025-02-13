@@ -3670,22 +3670,31 @@ enum DuelCompleteType : uint8
     DUEL_FLED        = 2
 };
 
-// handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time
-enum BattlegroundQueueTypeId
+struct BattlegroundQueueTypeId
 {
-    BATTLEGROUND_QUEUE_NONE     = 0,
-    BATTLEGROUND_QUEUE_AV       = 1,
-    BATTLEGROUND_QUEUE_WS       = 2,
-    BATTLEGROUND_QUEUE_AB       = 3,
-    BATTLEGROUND_QUEUE_EY       = 4,
-    BATTLEGROUND_QUEUE_SA       = 5,
-    BATTLEGROUND_QUEUE_IC       = 6,
-    BATTLEGROUND_QUEUE_RB       = 7,
-    BATTLEGROUND_QUEUE_2v2      = 8,
-    BATTLEGROUND_QUEUE_3v3      = 9,
-    BATTLEGROUND_QUEUE_5v5      = 10,
-    MAX_BATTLEGROUND_QUEUE_TYPES
+    uint16 BattlemasterListId;
+    uint8 BracketId;
+    uint8 TeamSize;
+
+    static constexpr BattlegroundQueueTypeId FromPacked(uint64 packedQueueId)
+    {
+        return { .BattlemasterListId = uint16((packedQueueId >> 16) & 0xFFFF), .BracketId = uint8((packedQueueId >> 8) & 0x7F), .TeamSize = uint8(packedQueueId & 0x7F) };
+    }
+
+    constexpr uint64 GetPacked() const
+    {
+        return (uint64(BattlemasterListId) << 16)
+            | (uint64(BracketId & 0xFF) << 8)
+            | (uint64(TeamSize & 0x3F))
+            | UI64LIT(0x1F90000000000000);
+    }
+
+    constexpr bool operator==(BattlegroundQueueTypeId const& right) const = default;
+
+    constexpr std::strong_ordering operator<=>(BattlegroundQueueTypeId const& right) const = default;
 };
+
+constexpr BattlegroundQueueTypeId BATTLEGROUND_QUEUE_NONE = { 0, 0, 0 };
 
 enum GroupJoinBattlegroundResult
 {
