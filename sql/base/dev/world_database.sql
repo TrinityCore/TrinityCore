@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.41, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.39-0ubuntu0.22.04.1
+-- Server version	8.0.41-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -155,8 +155,8 @@ CREATE TABLE `areatrigger_create_properties` (
   `AnimKitId` int NOT NULL DEFAULT '0',
   `DecalPropertiesId` int unsigned NOT NULL DEFAULT '0',
   `SpellForVisuals` int DEFAULT NULL,
-  `TimeToTarget` int unsigned NOT NULL DEFAULT '0',
   `TimeToTargetScale` int unsigned NOT NULL DEFAULT '0',
+  `Speed` float NOT NULL DEFAULT '1',
   `Shape` tinyint unsigned NOT NULL DEFAULT '0',
   `ShapeData0` float NOT NULL DEFAULT '0',
   `ShapeData1` float NOT NULL DEFAULT '0',
@@ -1968,6 +1968,7 @@ DROP TABLE IF EXISTS `gossip_menu_addon`;
 CREATE TABLE `gossip_menu_addon` (
   `MenuID` int unsigned NOT NULL DEFAULT '0',
   `FriendshipFactionID` int NOT NULL DEFAULT '0',
+  `LfgDungeonsID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`MenuID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3556,10 +3557,7 @@ CREATE TABLE `quest_template` (
   `AreaGroupID` int unsigned NOT NULL DEFAULT '0',
   `TimeAllowed` bigint NOT NULL DEFAULT '0',
   `AllowableRaces` bigint unsigned DEFAULT '0',
-  `TreasurePickerID` int NOT NULL DEFAULT '0',
   `Expansion` int NOT NULL DEFAULT '0',
-  `ManagedWorldStateID` int NOT NULL DEFAULT '0',
-  `QuestSessionBonus` int NOT NULL DEFAULT '0',
   `LogTitle` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `LogDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `QuestDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -3626,6 +3624,21 @@ CREATE TABLE `quest_template_locale` (
   `QuestCompletionLog` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`locale`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `quest_treasure_pickers`
+--
+
+DROP TABLE IF EXISTS `quest_treasure_pickers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `quest_treasure_pickers` (
+  `QuestID` int unsigned NOT NULL,
+  `TreasurePickerID` int NOT NULL,
+  `OrderIndex` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`QuestID`,`TreasurePickerID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3872,6 +3885,7 @@ CREATE TABLE `serverside_spell` (
   `AttributesEx12` int unsigned NOT NULL DEFAULT '0',
   `AttributesEx13` int unsigned NOT NULL DEFAULT '0',
   `AttributesEx14` int unsigned NOT NULL DEFAULT '0',
+  `AttributesEx15` int unsigned NOT NULL DEFAULT '0',
   `Stances` bigint unsigned NOT NULL DEFAULT '0',
   `StancesNot` bigint unsigned NOT NULL DEFAULT '0',
   `Targets` int unsigned NOT NULL DEFAULT '0',
@@ -4414,13 +4428,14 @@ DROP TABLE IF EXISTS `spell_target_position`;
 CREATE TABLE `spell_target_position` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `EffectIndex` tinyint unsigned NOT NULL DEFAULT '0',
+  `OrderIndex` int NOT NULL DEFAULT '0',
   `MapID` smallint unsigned NOT NULL DEFAULT '0',
   `PositionX` float NOT NULL DEFAULT '0',
   `PositionY` float NOT NULL DEFAULT '0',
   `PositionZ` float NOT NULL DEFAULT '0',
   `Orientation` float DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`,`EffectIndex`)
+  PRIMARY KEY (`ID`,`EffectIndex`,`OrderIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Spell System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4627,6 +4642,7 @@ CREATE TABLE `vehicle_accessory` (
   `description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `summontype` tinyint unsigned NOT NULL DEFAULT '6' COMMENT 'see enum TempSummonType',
   `summontimer` int unsigned NOT NULL DEFAULT '30000' COMMENT 'timer, only relevant for certain summontypes',
+  `RideSpellID` int DEFAULT NULL,
   PRIMARY KEY (`guid`,`seat_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4679,6 +4695,7 @@ CREATE TABLE `vehicle_template_accessory` (
   `description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `summontype` tinyint unsigned NOT NULL DEFAULT '6' COMMENT 'see enum TempSummonType',
   `summontimer` int unsigned NOT NULL DEFAULT '30000' COMMENT 'timer, only relevant for certain summontypes',
+  `RideSpellID` int DEFAULT NULL,
   PRIMARY KEY (`entry`,`seat_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4944,4 +4961,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-27 19:22:43
+-- Dump completed on 2025-02-13 16:46:02
