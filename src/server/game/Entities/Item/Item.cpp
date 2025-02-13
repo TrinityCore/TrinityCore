@@ -488,9 +488,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), itemProto->MaxDurability);
     SetDurability(itemProto->MaxDurability);
 
-    for (std::size_t i = 0; i < itemProto->Effects.size(); ++i)
-        if (itemProto->Effects[i]->LegacySlotIndex < 5)
-            SetSpellCharges(itemProto->Effects[i]->LegacySlotIndex, itemProto->Effects[i]->Charges);
+    for (ItemEffectEntry const* effect : GetEffects())
+        SetSpellCharges(effect, effect->Charges);
 
     SetExpiration(itemProto->GetDuration());
     SetCreatePlayedTime(0);
@@ -559,6 +558,43 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
+static uint32 FindSpellChargesSlot(BonusData const& bonusData, ItemEffectEntry const* effect)
+{
+    static constexpr uint32 MaxSpellChargesSlot = UF::size<decltype(UF::ItemData::SpellCharges)>();
+
+    if (!effect)
+    {
+        // return fist effect that has charges
+        for (uint32 i = 0; i < bonusData.EffectCount && i < MaxSpellChargesSlot; ++i)
+            if (bonusData.Effects[i] && bonusData.Effects[i]->Charges != 0)
+                return i;
+
+        return MaxSpellChargesSlot;
+    }
+
+    for (uint32 i = 0; i < bonusData.EffectCount && i < MaxSpellChargesSlot; ++i)
+        if (bonusData.Effects[i] == effect)
+            return i;
+
+    return MaxSpellChargesSlot;
+}
+
+int32 Item::GetSpellCharges(ItemEffectEntry const* effect /*= nullptr*/) const
+{
+    uint32 slot = FindSpellChargesSlot(_bonusData, effect);
+    if (slot < m_itemData->SpellCharges.size())
+        return m_itemData->SpellCharges[slot];
+
+    return 0;
+}
+
+void Item::SetSpellCharges(ItemEffectEntry const* effect, int32 value)
+{
+    uint32 slot = FindSpellChargesSlot(_bonusData, effect);
+    if (slot < m_itemData->SpellCharges.size())
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, slot), value);
+}
+
 void Item::SaveToDB(CharacterDatabaseTransaction trans)
 {
     bool isInTransaction = bool(trans);
@@ -581,7 +617,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 
             std::ostringstream ssSpells;
             for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount; ++i)
-                ssSpells << GetSpellCharges(i) << ' ';
+                ssSpells << m_itemData->SpellCharges[i] << ' ';
             stmt->setString(++index, ssSpells.str());
 
             stmt->setUInt32(++index, m_itemData->DynamicFlags);
@@ -927,7 +963,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     // load charges after bonuses, they can add more item effects
     std::vector<std::string_view> tokens = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount && i < tokens.size(); ++i)
-        SetSpellCharges(i, Trinity::StringTo<int32>(tokens[i]).value_or(0));
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, i), Trinity::StringTo<int32>(tokens[i]).value_or(0));
 
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[20].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[21].GetUInt32());

@@ -3494,12 +3494,12 @@ void Player::SetSpellFavorite(uint32 spellId, bool favorite)
 void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 {
     // remove cooldowns on spells that have < 10 min CD
-    GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
+    GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownEntry const& cooldownEntry)
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(cooldownEntry.SpellId, DIFFICULTY_NONE);
         SpellHistory::Duration cooldown = 0s;
         SpellHistory::Duration categoryCooldown = 0s;
-        SpellHistory::GetCooldownDurations(spellInfo, itr->second.ItemId, &cooldown, nullptr, &categoryCooldown);
+        SpellHistory::GetCooldownDurations(spellInfo, cooldownEntry.ItemId, &cooldown, nullptr, &categoryCooldown);
         return cooldown < 10min
             && categoryCooldown < 10min
             && !spellInfo->HasAttribute(SPELL_ATTR6_DO_NOT_RESET_COOLDOWN_IN_ARENA);
@@ -17355,7 +17355,7 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
             packet.LaunchGossip = quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE);
 
         if (questGiver->IsQuestGiver())
-            packet.LaunchQuest = (GetQuestDialogStatus(questGiver) & ~QuestGiverStatus::Future) != QuestGiverStatus::None;
+            packet.LaunchQuest = (GetQuestDialogStatus(questGiver) & ~QuestGiverStatusFutureMask) != QuestGiverStatus::None;
 
         if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
             if (Quest const* rewardQuest = GetNextQuest(questGiver, quest))
@@ -23470,7 +23470,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
 }
 
 // Return true is the bought item has a max count to force refresh of window by caller
-bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot)
+bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint32 count, uint8 bag, uint8 slot)
 {
     // cheating attempt
     if (count < 1) count = 1;
@@ -23640,11 +23640,11 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     {
         double buyPricePerItem = double(pProto->GetBuyPrice()) / pProto->GetBuyCount();
         uint64 maxCount = MAX_MONEY_AMOUNT / buyPricePerItem;
-        if ((uint64)count > maxCount)
+        if (uint64(count) > maxCount)
         {
             TC_LOG_ERROR("entities.player.cheat", "Player::BuyItemFromVendorSlot: Player '{}' ({}) tried to buy item (ItemID: {}, Count: {}), causing overflow",
-                GetName(), GetGUID().ToString(), pProto->GetId(), (uint32)count);
-            count = (uint8)maxCount;
+                GetName(), GetGUID().ToString(), pProto->GetId(), count);
+            count = uint32(maxCount);
         }
         price = uint64(buyPricePerItem * count); //it should not exceed MAX_MONEY_AMOUNT
 

@@ -1010,13 +1010,13 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Unit const* unit)
     SendPacket(auctionHelloResponse.Write());
 }
 
-void WorldSession::SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagError /*= 0*/)
+void WorldSession::SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagResult /*= 0*/)
 {
     WorldPackets::AuctionHouse::AuctionCommandResult auctionCommandResult;
     auctionCommandResult.AuctionID = auctionId;
     auctionCommandResult.Command = AsUnderlyingType(command);
     auctionCommandResult.ErrorCode = AsUnderlyingType(errorCode);
-    auctionCommandResult.BagResult = AsUnderlyingType(bagError);
+    auctionCommandResult.BagResult = AsUnderlyingType(bagResult);
     auctionCommandResult.DesiredDelay = uint32(delayForNextAction.count());
     SendPacket(auctionCommandResult.Write());
 }

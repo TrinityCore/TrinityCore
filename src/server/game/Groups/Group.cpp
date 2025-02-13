@@ -1194,6 +1194,8 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
 
 GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const
 {
+    errorGuid = ObjectGuid::Empty;
+
     // check if this group is LFG group
     if (isLFGGroup())
         return ERR_LFG_CANT_USE_BATTLEGROUND;
@@ -1230,15 +1232,13 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
         // offline member? don't let join
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
+        errorGuid = member->GetGUID();
         // rbac permissions
         if (!member->CanJoinToBattleground(bgOrTemplate))
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
-        {
-            errorGuid = member->GetGUID();
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
-        }
         // not in the same battleground level braket, don't let join
         PVPDifficultyEntry const* memberBracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bracketEntry->MapID, member->GetLevel());
         if (memberBracketEntry != bracketEntry)
@@ -1272,6 +1272,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
         if (isMercenary != (member->HasAura(SPELL_MERCENARY_CONTRACT_HORDE) || member->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE)))
             return ERR_BATTLEGROUND_JOIN_MERCENARY;
     }
+
+    errorGuid = ObjectGuid::Empty;
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
     if (bgOrTemplate->IsArena() && memberscount != MinPlayerCount)

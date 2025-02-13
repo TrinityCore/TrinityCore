@@ -1095,7 +1095,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
     _movementTime = 0;
 
     std::unique_ptr<Movement::Spline<int32>> spline = std::make_unique<::Movement::Spline<int32>>();
-    spline->init_spline(splinePoints.data(), splinePoints.size(), ::Movement::SplineBase::ModeLinear);
+    spline->init_spline(splinePoints.data(), splinePoints.size(), ::Movement::SplineBase::ModeLinear, GetStationaryO());
     spline->initLengths();
 
     float speed = overrideSpeed.value_or(GetCreateProperties()->Speed);
