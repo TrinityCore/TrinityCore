@@ -1672,7 +1672,7 @@ INSERT INTO `rbac_permissions` VALUES
 (44,'Receive global GM messages/texts'),
 (45,'Join channels without announce'),
 (46,'Change channel settings without being channel moderator'),
-(47,'Enables lower security than target check'),
+(47,'Can ignore non-strong lower security checks if it\'s disabled in config'),
 (48,'Enable IP, Last Login and EMail output in pinfo'),
 (49,'Forces to enter the email for confirmation on password change'),
 (50,'Allow user to check his own email with .account'),
@@ -2532,7 +2532,7 @@ INSERT INTO `updates` VALUES
 ('2024_08_30_00_auth.sql','BD76942F1C29AAA2450E051E7CA552672B5E331B','ARCHIVED','2024-08-30 19:24:30',0),
 ('2024_09_26_00_auth.sql','E37C3997FD7851EA360774AC568912846C448272','ARCHIVED','2024-09-26 18:27:26',0),
 ('2024_11_22_00_auth.sql','F2C1D1572A3968E9E9D778EF7DC82778DF3EF887','ARCHIVED','2024-11-22 23:18:14',0),
-('2025_02_14_00_auth.sql','1D8D53BED4F35511C1E31DCABE3B40B6B4698340','ARCHIVED','2025-02-14 17:20:00',0);
+('2025_02_14_00_auth.sql','4A30E92FF519BB41C520CDBF90019291217C26A2','RELEASED','2025-02-14 17:20:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
