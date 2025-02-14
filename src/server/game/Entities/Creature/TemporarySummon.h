@@ -161,13 +161,4 @@ class TC_GAME_API Puppet : public Minion
         void Update(uint32 time) override;
 };
 
-class TC_GAME_API ForcedUnsummonDelayEvent : public BasicEvent
-{
-public:
-    ForcedUnsummonDelayEvent(TempSummon& owner) : BasicEvent(), m_owner(owner) { }
-    bool Execute(uint64 e_time, uint32 p_time) override;
-
-private:
-    TempSummon& m_owner;
-};
 #endif

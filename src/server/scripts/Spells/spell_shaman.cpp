@@ -1012,11 +1012,9 @@ class spell_sha_item_mana_surge : public AuraScript
     {
         PreventDefaultAction();
 
-        std::vector<SpellPowerCost> const& costs = eventInfo.GetProcSpell()->GetPowerCost();
-        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
-        if (m != costs.end())
+        if (Optional<int32> manaCost = eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_MANA))
         {
-            int32 mana = CalculatePct(m->Amount, 35);
+            int32 mana = CalculatePct(*manaCost, 35);
             if (mana > 0)
             {
                 CastSpellExtraArgs args(aurEff);

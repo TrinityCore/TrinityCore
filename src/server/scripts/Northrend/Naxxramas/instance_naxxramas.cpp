@@ -49,14 +49,14 @@ BossBoundaryData const boundaries =
     { BOSS_PATCHWERK, new CircleBoundary(Position(3130.8576f, -3210.36f), Position(3085.37f, -3219.85f), true) }, // entrance slime circle blocker
     { BOSS_GROBBULUS, new CircleBoundary(Position(3204.0f, -3241.4f), 240.0f) },
     { BOSS_GROBBULUS, new RectangleBoundary(3295.0f, 3340.0f, -3254.2f, -3230.18f, true) }, // entrance door blocker
-    { BOSS_GLUTH, new CircleBoundary(Position(3293.0f, -3142.0f), 80.0) },
+    { BOSS_GLUTH, new CircleBoundary(Position(3293.0f, -3142.0f), 80.0f) },
     { BOSS_GLUTH, new ParallelogramBoundary(Position(3401.0f, -3149.0f), Position(3261.0f, -3028.0f), Position(3320.0f, -3267.0f)) },
     { BOSS_GLUTH, new ZRangeBoundary(285.0f, 310.0f) },
     { BOSS_THADDIUS, new ParallelogramBoundary(Position(3478.3f, -3070.0f), Position(3370.0f, -2961.5f), Position(3580.0f, -2961.5f)) },
 
     /* Frostwyrm Lair */
-    { BOSS_SAPPHIRON, new CircleBoundary(Position(3517.627f, -5255.5f), 110.0) },
-    { BOSS_KELTHUZAD, new CircleBoundary(Position(3716.0f, -5107.0f), 85.0) }
+    { BOSS_SAPPHIRON, new CircleBoundary(Position(3517.627f, -5255.5f), 110.0f) },
+    { BOSS_KELTHUZAD, new CircleBoundary(Position(3716.0f, -5107.0f), 85.0f) }
 };
 
 DoorData const doorData[] =

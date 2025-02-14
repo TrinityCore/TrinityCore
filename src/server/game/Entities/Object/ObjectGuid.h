@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ObjectGuid_h__
-#define ObjectGuid_h__
+#ifndef TRINITYCORE_OBJECT_GUID_H
+#define TRINITYCORE_OBJECT_GUID_H
 
 #include "Define.h"
 #include "EnumFlag.h"
@@ -394,23 +394,6 @@ using GuidList = std::list<ObjectGuid>;
 using GuidVector = std::vector<ObjectGuid>;
 using GuidUnorderedSet = std::unordered_set<ObjectGuid>;
 
-class TC_GAME_API ObjectGuidGenerator
-{
-public:
-    explicit ObjectGuidGenerator(HighGuid high, ObjectGuid::LowType start = UI64LIT(1)) : _high(high), _nextGuid(start) { }
-    ~ObjectGuidGenerator() = default;
-
-    void Set(ObjectGuid::LowType val) { _nextGuid = val; }
-    ObjectGuid::LowType Generate();
-    ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
-
-protected:
-    void HandleCounterOverflow();
-    void CheckGuidTrigger();
-    HighGuid _high;
-    ObjectGuid::LowType _nextGuid;
-};
-
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 
@@ -515,4 +498,4 @@ namespace Trinity
     }
 }
 
-#endif // ObjectGuid_h__
+#endif // TRINITYCORE_OBJECT_GUID_H
