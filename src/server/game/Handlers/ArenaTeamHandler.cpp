@@ -234,8 +234,12 @@ void WorldSession::HandleArenaTeamLeaveOpcode(WorldPacket& recvData)
     }
 
     // Player cannot be removed during queues
-    if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
+    for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
     {
+        BattlegroundQueueTypeId bgQueue = _player->GetBattlegroundQueueTypeId(i);
+        if (bgQueue.BattlemasterListId != BATTLEGROUND_AA || bgQueue.TeamSize != arenaTeam->GetType())
+            continue;
+
         GroupQueueInfo ginfo;
         BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
         if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
@@ -277,8 +281,12 @@ void WorldSession::HandleArenaTeamDisbandOpcode(WorldPacket& recvData)
             return;
 
         // Teams cannot be disbanded during queues
-        if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
+        for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
+            BattlegroundQueueTypeId bgQueue = _player->GetBattlegroundQueueTypeId(i);
+            if (bgQueue.BattlemasterListId != BATTLEGROUND_AA || bgQueue.TeamSize != arenaTeam->GetType())
+                continue;
+
             GroupQueueInfo ginfo;
             BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
             if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
@@ -336,8 +344,12 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket& recvData)
     }
 
     // Team cannot be removed during queues
-    if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
+    for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
     {
+        BattlegroundQueueTypeId bgQueue = _player->GetBattlegroundQueueTypeId(i);
+        if (bgQueue.BattlemasterListId != BATTLEGROUND_AA || bgQueue.TeamSize != arenaTeam->GetType())
+            continue;
+
         GroupQueueInfo ginfo;
         BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
         if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
@@ -403,7 +415,7 @@ void WorldSession::HandleArenaTeamLeaderOpcode(WorldPacket& recvData)
 
 void WorldSession::SendArenaTeamCommandResult(uint32 teamAction, const std::string& team, const std::string& player, uint32 errorId)
 {
-    WorldPacket data(SMSG_ARENA_TEAM_COMMAND_RESULT, 4+team.length()+1+player.length()+1+4);
+    WorldPacket data(SMSG_ARENA_TEAM_COMMAND_RESULT, 4 + team.length() + 1 + player.length() + 1 + 4);
     data << uint32(teamAction);
     data << team;
     data << player;
@@ -413,10 +425,10 @@ void WorldSession::SendArenaTeamCommandResult(uint32 teamAction, const std::stri
 
 void WorldSession::SendNotInArenaTeamPacket(uint8 type)
 {
-    WorldPacket data(SMSG_ARENA_ERROR, 4+1);                // 886 - You are not in a %uv%u arena team
-    uint32 unk = 0;
-    data << uint32(unk);                                    // unk(0)
-    if (!unk)
+    WorldPacket data(SMSG_ARENA_ERROR, 4+1);
+    uint32 error = 0;
+    data << uint32(error);                                  // 0 = ERR_ARENA_NO_TEAM_II, 1 = ERR_ARENA_EXPIRED_CAIS, 2 = ERR_LFG_CANT_USE_BATTLEGROUND
+    if (!error)
         data << uint8(type);                                // team type (2=2v2, 3=3v3, 5=5v5), can be used for custom types...
     SendPacket(&data);
 }

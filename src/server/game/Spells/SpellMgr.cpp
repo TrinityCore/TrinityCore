@@ -4912,6 +4912,52 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
     });
 
+    // Pilgrim's Bounty - Candied Sweet Potato
+    ApplySpellFix({ 65418 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65410;
+    });
+
+    // Pilgrim's Bounty - Spice Bread Stuffing
+    ApplySpellFix({ 65419 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65416;
+    });
+
+    // Pilgrim's Bounty - Cranberry Chutney
+    ApplySpellFix({ 65420 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65412;
+    });
+
+    // Pilgrim's Bounty - Pumpkin Pie
+    ApplySpellFix({ 65421 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65415;
+    });
+
+    // Pilgrim's Bounty - Slow-Roasted Turkey
+    ApplySpellFix({ 65422 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65414;
+    });
+
+    ApplySpellFix({
+        24869, // Bobbing Apple, Bread of the Dead, Winter Veil Cookie
+        61874, // Noblegarden Chocolate
+        71068, // Sweet Surprise
+        71071, // Very Berry Cream
+        71073, // Dark Desire
+        71074  // Buttermilk Delight
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_1).Effect          = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->_GetEffect(EFFECT_1).TargetA         = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+        spellInfo->_GetEffect(EFFECT_1).ApplyAuraName   = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+        spellInfo->_GetEffect(EFFECT_1).Amplitude       = 10 * IN_MILLISECONDS;
+        spellInfo->_GetEffect(EFFECT_1).TriggerSpell    = 24870;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
