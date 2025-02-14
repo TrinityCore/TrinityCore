@@ -327,6 +327,20 @@ class spell_pal_blade_of_vengeance : public SpellScript
     }
 };
 
+// 404358 - Blade of Justice
+class spell_pal_blade_of_vengeance_aoe_target_selector : public SpellScript
+{
+    void RemoveExplicitTarget(std::list<WorldObject*>& targets) const
+    {
+        targets.remove(GetExplTargetWorldObject());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_blade_of_vengeance_aoe_target_selector::RemoveExplicitTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
 // 1022 - Blessing of Protection
 // 204018 - Blessing of Spellwarding
 class spell_pal_blessing_of_protection : public SpellScript
@@ -1714,6 +1728,7 @@ void AddSC_paladin_spell_scripts()
     RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow);
     RegisterSpellScript(spell_pal_awakening);
     RegisterSpellScript(spell_pal_blade_of_vengeance);
+    RegisterSpellScript(spell_pal_blade_of_vengeance_aoe_target_selector);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_crusader_might);
