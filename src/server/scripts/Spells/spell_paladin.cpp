@@ -1520,14 +1520,14 @@ class spell_pal_steed_of_liberty : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_BLESSING_OF_FREEDOM });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
         Unit* target = GetTarget();
-        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        args.SetTriggeringAura(aurEff);
-        args.AddSpellMod(SPELLVALUE_DURATION, Milliseconds(aurEff->GetAmount()).count());
-
-        target->CastSpell(target, SPELL_PALADIN_BLESSING_OF_FREEDOM, args);
+        target->CastSpell(target, SPELL_PALADIN_BLESSING_OF_FREEDOM, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, aurEff->GetAmount() } }
+        });
     }
 
     void Register() override
