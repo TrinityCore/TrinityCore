@@ -127,14 +127,15 @@ if(BUILD_SHARED_LIBS)
   message(STATUS "MSVC: Enabled shared linking")
 endif()
 
-# Move some warnings that are enabled for other compilers from level 4 to level 3
+# Move some warnings that are enabled for other compilers from level 4 to level 3 and enable some warnings which are off by default
 target_compile_options(trinity-compile-option-interface
   INTERFACE
-    /w34100  # C4100 'identifier' : unreferenced formal parameter
+    /w15038  # C5038: data member 'member1' will be initialized after data member 'member2'
+    /w34100  # C4100: 'identifier' : unreferenced formal parameter
     /w34101  # C4101: 'identifier' : unreferenced local variable
     /w34189  # C4189: 'identifier' : local variable is initialized but not referenced
     /w34389  # C4389: 'equality-operator' : signed/unsigned mismatch
-	/w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
+    /w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function

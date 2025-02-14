@@ -391,9 +391,9 @@ class spell_dh_chaotic_transformation : public SpellScript
 
     void HandleCooldown() const
     {
-        GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
+        GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownEntry const& cooldown)
         {
-            uint32 category = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE)->CategoryId;
+            uint32 category = sSpellMgr->AssertSpellInfo(cooldown.SpellId, DIFFICULTY_NONE)->CategoryId;
             return category == SPELL_CATEGORY_DH_EYE_BEAM || category == SPELL_CATEGORY_DH_BLADE_DANCE;
         }, true);
     }
@@ -971,7 +971,7 @@ struct at_dh_glaive_tempest : AreaTriggerAI
     {
         _scheduler.Schedule(0ms, [this](TaskContext task)
         {
-            std::chrono::duration<float> period = 500ms; // 500ms, affected by haste
+            FloatMilliseconds period = 500ms; // 500ms, affected by haste
             if (Unit* caster = at->GetCaster())
             {
                 period *= *caster->m_unitData->ModHaste;

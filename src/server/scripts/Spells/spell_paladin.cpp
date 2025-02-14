@@ -67,9 +67,14 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
+    SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE      = 387113,
+    SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS  = 406919,
+    SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS   = 386579,
+    SPELL_PALADIN_EXECUTIONERS_WILL              = 406940,
     SPELL_PALADIN_EYE_FOR_AN_EYE_TRIGGERED       = 205202,
     SPELL_PALADIN_FINAL_STAND                    = 204077,
     SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
+    SPELL_PALADIN_FINAL_VERDICT                  = 383329,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS      = 86659,
     SPELL_PALADIN_HAMMER_OF_JUSTICE              = 853,
@@ -107,6 +112,7 @@ enum PaladinSpells
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE        = 408399,
     SPELL_PALADIN_T30_2P_HEARTFIRE_HEAL          = 408400,
+    SPELL_PALADIN_WAKE_OF_ASHES_STUN             = 255941,
     SPELL_PALADIN_ZEAL_AURA                      = 269571
 };
 
@@ -638,6 +644,73 @@ class spell_pal_divine_storm : public SpellScript
     }
 };
 
+// 343527 - Execution Sentence
+class spell_pal_execution_sentence : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE,
+            SPELL_PALADIN_EXECUTIONERS_WILL,
+            SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS,
+            SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS
+        });
+    }
+
+    void HandleVisual(SpellEffIndex /*effIndex*/) const
+    {
+        uint32 visualSpellId = GetCaster()->HasAura(SPELL_PALADIN_EXECUTIONERS_WILL)
+            ? SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS
+            : SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS;
+        GetCaster()->CastSpell(GetHitUnit(), visualSpellId,
+            CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_execution_sentence::HandleVisual, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_pal_execution_sentence_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsAura();
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
+            aurEff->ChangeAmount(aurEff->GetAmount() + CalculatePct(damageInfo->GetDamage(), GetEffect(EFFECT_1)->GetAmount()));
+    }
+
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        int32 amount = aurEff->GetAmount();
+        if (!amount || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff,
+                .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_execution_sentence_aura::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pal_execution_sentence_aura::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 205191 - Eye for an Eye
 class spell_pal_eye_for_an_eye : public AuraScript
 {
@@ -654,6 +727,32 @@ class spell_pal_eye_for_an_eye : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 383328 - Final Verdict
+class spell_pal_final_verdict : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_FINAL_VERDICT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        if (!roll_chance_i(GetEffectValue()))
+            return;
+
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_PALADIN_FINAL_VERDICT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_final_verdict::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1561,6 +1660,31 @@ class spell_pal_t30_2p_protection_bonus_heal : public AuraScript
     }
 };
 
+// 255937 - Wake of Ashes
+class spell_pal_wake_of_ashes : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_WAKE_OF_ASHES_STUN });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* target = GetHitUnit();
+
+        if (target->GetCreatureType() == CREATURE_TYPE_DEMON || target->GetCreatureType() == CREATURE_TYPE_UNDEAD)
+            GetCaster()->CastSpell(target, SPELL_PALADIN_WAKE_OF_ASHES_STUN, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_wake_of_ashes::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 269569 - Zeal
 class spell_pal_zeal : public AuraScript
 {
@@ -1600,7 +1724,9 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_steed);
     RegisterSpellScript(spell_pal_divine_storm);
+    RegisterSpellAndAuraScriptPair(spell_pal_execution_sentence, spell_pal_execution_sentence_aura);
     RegisterSpellScript(spell_pal_eye_for_an_eye);
+    RegisterSpellScript(spell_pal_final_verdict);
     RegisterSpellScript(spell_pal_fist_of_justice);
     RegisterSpellScript(spell_pal_glyph_of_holy_light);
     RegisterSpellScript(spell_pal_grand_crusader);
@@ -1630,5 +1756,6 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_t8_2p_bonus);
     RegisterSpellScript(spell_pal_t30_2p_protection_bonus);
     RegisterSpellScript(spell_pal_t30_2p_protection_bonus_heal);
+    RegisterSpellScript(spell_pal_wake_of_ashes);
     RegisterSpellScript(spell_pal_zeal);
 }
