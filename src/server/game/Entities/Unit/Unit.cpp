@@ -578,9 +578,9 @@ void Unit::AtEndOfEncounter(EncounterType type)
             break;
     }
 
-    GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
+    GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownEntry const& cooldown)
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(cooldown.SpellId, DIFFICULTY_NONE);
 
         return spellInfo->HasAttribute(SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END);
     }, true);
@@ -5677,6 +5677,7 @@ Powers Unit::CalculateDisplayPowerType() const
             displayPower = POWER_ENERGY;
             break;
         case FORM_BEAR_FORM:
+        case FORM_DIRE_BEAR_FORM:
             displayPower = POWER_RAGE;
             break;
         case FORM_TRAVEL_FORM:
@@ -7584,7 +7585,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
                 if (!immuneSpellInfo || !immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
                     continue;
 
-            if (immuneSpellInfo && !immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && caster && !caster->IsFriendlyTo(this))
+            if (!(immuneSpellInfo && immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS)) && caster && caster->IsFriendlyTo(this))
                 continue;
 
             if (spellInfo->CanPierceImmuneAura(immuneSpellInfo))
@@ -7758,7 +7759,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
                 if (!(immuneAuraApply->GetMiscValue() & spellInfo->GetSchoolMask()))               // Check school
                     continue;
 
-                if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || (caster && !IsFriendlyTo(caster))) // Harmful
+                if (immuneAuraApply->GetSpellInfo()->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || (caster && !IsFriendlyTo(caster))) // Harmful
                     return true;
             }
         }
@@ -9875,6 +9876,9 @@ void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
                 if (effect->GetAuraType() == SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT)
                 {
                     int32 maxPower = GetMaxPower(power);
+                    if (!maxPower)
+                        continue;
+
                     oldValueCheck = GetPctOf(oldVal, maxPower);
                     newValueCheck = GetPctOf(newVal, maxPower);
                 }
@@ -12320,6 +12324,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 case FORM_CAT_FORM:     useRandom = HasAura(210333); break; // Glyph of the Feral Chameleon
                 case FORM_TRAVEL_FORM:  useRandom = HasAura(344336); break; // Glyph of the Swift Chameleon
                 case FORM_AQUATIC_FORM: useRandom = HasAura(344338); break; // Glyph of the Aquatic Chameleon
+                case FORM_DIRE_BEAR_FORM:
                 case FORM_BEAR_FORM:    useRandom = HasAura(107059); break; // Glyph of the Ursol Chameleon
                 case FORM_FLIGHT_FORM_EPIC:
                 case FORM_FLIGHT_FORM:  useRandom = HasAura(344342); break; // Glyph of the Aerial Chameleon
@@ -12413,79 +12418,100 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
         if (!sConditionMgr->IsObjectMeetingSpellClickConditions(spellClickEntry, clickPair.second.spellId, clicker, this))
             continue;
 
-        Unit* caster = (clickPair.second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
-        Unit* target = (clickPair.second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
-        ObjectGuid origCasterGUID = (clickPair.second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
+        spellClickHandled = HandleSpellClick(clicker, seatId, clickPair.second.spellId, flags, &clickPair.second);
 
-        SpellInfo const* spellEntry = sSpellMgr->AssertSpellInfo(clickPair.second.spellId, caster->GetMap()->GetDifficultyID());
         // if (!spellEntry) should be checked at npc_spellclick load
-
-        SpellCastResult castResult = SPELL_FAILED_SUCCESS;
-        if (seatId > -1)
-        {
-            uint8 i = 0;
-            bool valid = false;
-            for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())
-            {
-                if (spellEffectInfo.ApplyAuraName == SPELL_AURA_CONTROL_VEHICLE)
-                {
-                    valid = true;
-                    break;
-                }
-                ++i;
-            }
-
-            if (!valid)
-            {
-                TC_LOG_ERROR("sql.sql", "Spell {} specified in npc_spellclick_spells is not a valid vehicle enter aura!", clickPair.second.spellId);
-                continue;
-            }
-
-            if (IsInMap(caster))
-            {
-                CastSpellExtraArgs args(flags);
-                args.OriginalCaster = origCasterGUID;
-                args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), seatId + 1);
-                castResult = caster->CastSpell(target, clickPair.second.spellId, args);
-            }
-            else    // This can happen during Player::_LoadAuras
-            {
-                int32 bp[MAX_SPELL_EFFECTS] = { };
-                for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())
-                    bp[spellEffectInfo.EffectIndex] = int32(spellEffectInfo.BasePoints);
-
-                bp[i] = seatId;
-
-                AuraCreateInfo createInfo(ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), spellEntry, GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, this);
-                createInfo
-                    .SetCaster(clicker)
-                    .SetBaseAmount(bp)
-                    .SetCasterGUID(origCasterGUID);
-
-                Aura::TryRefreshStackOrCreate(createInfo);
-            }
-        }
-        else
-        {
-            if (IsInMap(caster))
-                castResult = caster->CastSpell(target, spellEntry->Id, CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
-            else
-            {
-                AuraCreateInfo createInfo(ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), spellEntry, GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, this);
-                createInfo
-                    .SetCaster(clicker)
-                    .SetCasterGUID(origCasterGUID);
-
-                Aura::TryRefreshStackOrCreate(createInfo);
-            }
-        }
-
-        spellClickHandled = castResult == SPELL_FAILED_SUCCESS;
     }
 
     Creature* creature = ToCreature();
     if (creature && creature->IsAIEnabled())
         creature->AI()->OnSpellClick(clicker, spellClickHandled);
+}
+
+bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerCastFlags flags /*= TRIGGERED_NONE*/, SpellClickInfo const* spellClickInfo /*= nullptr*/)
+{
+    Unit* caster = clicker;
+    Unit* target = this;
+    ObjectGuid origCasterGUID = caster->GetGUID();
+    SpellCastResult castResult = SPELL_FAILED_SUCCESS;
+
+    if (spellClickInfo)
+    {
+        caster = (spellClickInfo->castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
+        target = (spellClickInfo->castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
+        origCasterGUID = (spellClickInfo->castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
+    }
+
+    if (!spellId)
+    {
+        TC_LOG_ERROR("sql.sql", "No valid spell specified for clickee {} and clicker {}!", target->GetGUID(), caster->GetGUID());
+        return false;
+    }
+
+    SpellInfo const* spellEntry = sSpellMgr->AssertSpellInfo(spellId, caster->GetMap()->GetDifficultyID());
+
+    uint8 effectIndex = 0;
+    bool hasControlVehicleAura = false;
+    for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())
+    {
+        if (spellEffectInfo.ApplyAuraName == SPELL_AURA_CONTROL_VEHICLE)
+        {
+            hasControlVehicleAura = true;
+            break;
+        }
+        ++effectIndex;
+    }
+
+    if (seatId > -1)
+    {
+        if (!hasControlVehicleAura)
+        {
+            if (!spellClickInfo)
+                TC_LOG_ERROR("sql.sql", "RideSpell {} specified in vehicle_accessory or vehicle_template_accessory is not a valid vehicle enter aura!", spellId);
+            else
+                TC_LOG_ERROR("sql.sql", "Spell {} specified in npc_spellclick_spells is not a valid vehicle enter aura!", spellId);
+            return false;
+        }
+
+        if (IsInMap(caster))
+        {
+            CastSpellExtraArgs args(flags);
+            args.OriginalCaster = origCasterGUID;
+            args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + effectIndex), seatId + 1);
+            castResult = caster->CastSpell(target, spellId, args);
+        }
+        else    // This can happen during Player::_LoadAuras
+        {
+            int32 bp[MAX_SPELL_EFFECTS] = { };
+            for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())
+                bp[spellEffectInfo.EffectIndex] = int32(spellEffectInfo.BasePoints);
+
+            bp[effectIndex] = seatId;
+
+            AuraCreateInfo createInfo(ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), spellEntry, GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, this);
+            createInfo
+                .SetCaster(clicker)
+                .SetBaseAmount(bp)
+                .SetCasterGUID(origCasterGUID);
+
+            Aura::TryRefreshStackOrCreate(createInfo);
+        }
+    }
+    else
+    {
+        if (IsInMap(caster))
+            castResult = caster->CastSpell(target, spellEntry->Id, CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
+        else
+        {
+            AuraCreateInfo createInfo(ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), spellEntry, GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, this);
+            createInfo
+                .SetCaster(clicker)
+                .SetCasterGUID(origCasterGUID);
+
+            Aura::TryRefreshStackOrCreate(createInfo);
+        }
+    }
+    return castResult == SPELL_FAILED_SUCCESS;
 }
 
 void Unit::EnterVehicle(Unit* base, int8 seatId /*= -1*/)

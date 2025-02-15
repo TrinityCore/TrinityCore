@@ -1211,7 +1211,11 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_ALLIANCE          = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE             = 10055,
 
-    // 10056-10066 - free
+    // Deephaul Ravine
+    LANG_BG_DR_CRYSTAL_TAKEN              = 10056,
+    LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL     = 10057,
+
+    // 10058-10066 - free
 
     // Use for custom patches               11000-11999
     LANG_AUTO_BROADCAST                   = 11000,
