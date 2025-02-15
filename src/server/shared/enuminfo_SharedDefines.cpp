@@ -537,7 +537,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr2>::ToString(SpellAttr2 value)
         case SPELL_ATTR2_UNK8: return { "SPELL_ATTR2_UNK8", "Unknown attribute 8@Attr2", "" };
         case SPELL_ATTR2_UNK9: return { "SPELL_ATTR2_UNK9", "Unknown attribute 9@Attr2", "" };
         case SPELL_ATTR2_UNK10: return { "SPELL_ATTR2_UNK10", "Unknown attribute 10@Attr2", "Related to taming?" };
-        case SPELL_ATTR2_HEALTH_FUNNEL: return { "SPELL_ATTR2_HEALTH_FUNNEL", "Health Funnel", "" };
+        case SPELL_ATTR2_NO_TARGET_PER_SECOND_COSTS: return { "SPELL_ATTR2_NO_TARGET_PER_SECOND_COSTS", "No Target Per-Second Costs", "" };
         case SPELL_ATTR2_UNK12: return { "SPELL_ATTR2_UNK12", "Unknown attribute 12@Attr2", "" };
         case SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA: return { "SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA", "Enchant persists when entering arena", "" };
         case SPELL_ATTR2_UNK14: return { "SPELL_ATTR2_UNK14", "Unknown attribute 14@Attr2", "" };
@@ -581,7 +581,7 @@ TC_API_EXPORT SpellAttr2 EnumUtils<SpellAttr2>::FromIndex(size_t index)
         case 8: return SPELL_ATTR2_UNK8;
         case 9: return SPELL_ATTR2_UNK9;
         case 10: return SPELL_ATTR2_UNK10;
-        case 11: return SPELL_ATTR2_HEALTH_FUNNEL;
+        case 11: return SPELL_ATTR2_NO_TARGET_PER_SECOND_COSTS;
         case 12: return SPELL_ATTR2_UNK12;
         case 13: return SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA;
         case 14: return SPELL_ATTR2_UNK14;
@@ -622,7 +622,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr2>::ToIndex(SpellAttr2 value)
         case SPELL_ATTR2_UNK8: return 8;
         case SPELL_ATTR2_UNK9: return 9;
         case SPELL_ATTR2_UNK10: return 10;
-        case SPELL_ATTR2_HEALTH_FUNNEL: return 11;
+        case SPELL_ATTR2_NO_TARGET_PER_SECOND_COSTS: return 11;
         case SPELL_ATTR2_UNK12: return 12;
         case SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA: return 13;
         case SPELL_ATTR2_UNK14: return 14;
