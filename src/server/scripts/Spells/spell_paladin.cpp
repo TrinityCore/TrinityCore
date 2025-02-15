@@ -1004,7 +1004,7 @@ class spell_pal_justicars_vengeance : public SpellScript
 
     void HandleDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
-        if (victim->HasAuraType(SPELL_AURA_MOD_STUN))
+        if (victim->HasUnitState(UNIT_STATE_STUNNED))
             AddPct(pctMod, GetEffectInfo(EFFECT_1).CalcValue(GetCaster()));
     }
 
