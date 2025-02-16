@@ -364,6 +364,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         uint32 GetId() const;
         bool Instanceable() const;
+        bool IsWorldMap() const;
         bool IsDungeon() const;
         bool IsNonRaidDungeon() const;
         bool IsRaid() const;
