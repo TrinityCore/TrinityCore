@@ -2531,7 +2531,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 
         // If world chests were opened, despawn them after 5 minutes
         if (goInfo->chest.chestRestockTime == 0 && GetMap()->IsWorldMap())
-            DespawnOrUnsummon(std::chrono::seconds(300));
+            DespawnOrUnsummon(5min);
     }
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
