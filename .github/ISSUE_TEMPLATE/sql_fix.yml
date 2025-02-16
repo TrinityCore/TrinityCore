@@ -39,7 +39,7 @@ body:
       description: |
         This field will be formatted automatically as SQL code block, no need to include \`\`\`sql
 
-        For large sql fixes please use https://github.com/gist then just paste the provided link in the following field.
+        For large sql fixes please use https://gist.github.com/ then just paste the provided link in the following field.
       placeholder: |
         --
       render: sql
