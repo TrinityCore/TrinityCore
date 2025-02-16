@@ -925,7 +925,7 @@ enum SpellAttr13 : uint32
     SPELL_ATTR13_UNK12                           = 0x00001000, // TITLE Unknown attribute 12@Attr13
     SPELL_ATTR13_UNK13                           = 0x00002000, // TITLE Unknown attribute 13@Attr13
     SPELL_ATTR13_UNK14                           = 0x00004000, // TITLE Unknown attribute 14@Attr13
-    SPELL_ATTR13_UNK15                           = 0x00008000, // TITLE Unknown attribute 15@Attr13
+    SPELL_ATTR13_DO_NOT_FAIL_IF_NO_TARGET                           = 0x00008000, // TITLE Do Not Fail if No Target
     SPELL_ATTR13_UNK16                           = 0x00010000, // TITLE Unknown attribute 16@Attr13
     SPELL_ATTR13_UNK17                           = 0x00020000, // TITLE Unknown attribute 17@Attr13
     SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT   = 0x00040000, // TITLE Do Not Enforce Shapeshift Requirements

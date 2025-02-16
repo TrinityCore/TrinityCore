@@ -2419,7 +2419,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
 
 SpellCastResult SpellInfo::CheckExplicitTarget(WorldObject const* caster, WorldObject const* target, Item const* itemTarget /*= nullptr*/) const
 {
-    uint32 neededTargets = GetExplicitTargetMask();
+    uint32 neededTargets = RequiredExplicitTargetMask;
     if (!target)
     {
         if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
@@ -4461,31 +4461,38 @@ void SpellInfo::_InitializeExplicitTargetMask()
 {
     bool srcSet = false;
     bool dstSet = false;
-    uint32 targetMask = Targets;
     // prepare target mask using effect target entries
     for (SpellEffectInfo const& effect : GetEffects())
     {
         if (!effect.IsEffect())
             continue;
 
+        uint32 targetMask = 0;
         targetMask |= effect.TargetA.GetExplicitTargetMask(srcSet, dstSet);
         targetMask |= effect.TargetB.GetExplicitTargetMask(srcSet, dstSet);
 
         // add explicit target flags based on spell effects which have EFFECT_IMPLICIT_TARGET_EXPLICIT and no valid target provided
-        if (effect.GetImplicitTargetType() != EFFECT_IMPLICIT_TARGET_EXPLICIT)
-            continue;
+        if (effect.GetImplicitTargetType() == EFFECT_IMPLICIT_TARGET_EXPLICIT)
+        {
 
-        // extend explicit target mask only if valid targets for effect could not be provided by target types
-        uint32 effectTargetMask = effect.GetMissingTargetMask(srcSet, dstSet, targetMask);
+            // extend explicit target mask only if valid targets for effect could not be provided by target types
+            uint32 effectTargetMask = effect.GetMissingTargetMask(srcSet, dstSet, targetMask);
 
-        // don't add explicit object/dest flags when spell has no max range
-        if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
-            effectTargetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_DEST_LOCATION);
+            // don't add explicit object/dest flags when spell has no max range
+            if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
+                effectTargetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_DEST_LOCATION);
 
-        targetMask |= effectTargetMask;
+            targetMask |= effectTargetMask;
+        }
+
+        ExplicitTargetMask |= targetMask;
+        if (!effect.EffectAttributes.HasFlag(SpellEffectAttributes::DontFailSpellOnTargetingFailure))
+            RequiredExplicitTargetMask |= targetMask;
     }
 
-    ExplicitTargetMask = targetMask;
+    ExplicitTargetMask |= Targets;
+    if (!HasAttribute(SPELL_ATTR13_DO_NOT_FAIL_IF_NO_TARGET))
+        RequiredExplicitTargetMask |= Targets;
 }
 
 inline bool _isPositiveTarget(SpellEffectInfo const& effect)

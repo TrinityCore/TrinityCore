@@ -422,6 +422,7 @@ class TC_GAME_API SpellInfo
         } Scaling;
 
         uint32 ExplicitTargetMask = 0;
+        uint32 RequiredExplicitTargetMask = 0;
         SpellChainNode const* ChainEntry = nullptr;
         struct
         {

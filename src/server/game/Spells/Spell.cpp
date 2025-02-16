@@ -1638,8 +1638,12 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
 
 void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, SpellTargetIndex targetIndex)
 {
-    ASSERT(m_targets.GetObjectTarget() && "Spell::SelectImplicitTargetDestTargets - no explicit object target available!");
+    ASSERT(m_targets.GetObjectTarget() || spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::DontFailSpellOnTargetingFailure),
+        "Spell::SelectImplicitTargetDestTargets - no explicit object target available!");
+
     WorldObject* target = m_targets.GetObjectTarget();
+    if (!target)
+        return;
 
     SpellDestination dest(*target);
 
@@ -1788,7 +1792,8 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffectInfo const& spellEffect
 
 void Spell::SelectImplicitTargetObjectTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType)
 {
-    ASSERT((m_targets.GetObjectTarget() || m_targets.GetItemTarget()) && "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
+    ASSERT(m_targets.GetObjectTarget() || m_targets.GetItemTarget() || spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::DontFailSpellOnTargetingFailure),
+        "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
 
     WorldObject* target = m_targets.GetObjectTarget();
 
@@ -7323,7 +7328,7 @@ bool Spell::CanAutoCast(Unit* target)
     if (result == SPELL_CAST_OK || result == SPELL_FAILED_UNIT_NOT_INFRONT)
     {
         // do not check targets for ground-targeted spells (we target them on top of the intended target anyway)
-        if (GetSpellInfo()->ExplicitTargetMask & TARGET_FLAG_DEST_LOCATION)
+        if (GetSpellInfo()->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
             return true;
         SelectSpellTargets();
         //check if among target units, our WANTED target is as well (->only self cast spells return false)
