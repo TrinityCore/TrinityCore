@@ -17,6 +17,7 @@
 
 #include "BattlegroundWS.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "Log.h"
@@ -71,11 +72,9 @@ BattlegroundWS::BattlegroundWS()
     _minutesElapsed = 0;
 }
 
-void BattlegroundWGScore::BuildObjectivesBlock(WorldPacket& data)
+void BattlegroundWGScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
 {
-    data << uint32(2); // Objectives Count
-    data << uint32(FlagCaptures);
-    data << uint32(FlagReturns);
+    playerData.Stats = { FlagCaptures, FlagReturns };
 }
 
 BattlegroundWS::~BattlegroundWS() { }
@@ -288,7 +287,7 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
     if (GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID(team)))
         obj->Delete();
     else
-        TC_LOG_ERROR("bg.battleground", "unknown dropped flag (%s)", GetDroppedFlagGUID(team).ToString().c_str());
+        TC_LOG_ERROR("bg.battleground", "unknown dropped flag ({})", GetDroppedFlagGUID(team).ToString());
 
     SetDroppedFlagGUID(ObjectGuid::Empty, GetTeamIndexByTeamId(team));
     _bothFlagsKept = false;

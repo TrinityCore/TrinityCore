@@ -266,6 +266,11 @@ namespace Movement
         args.path[1] = transform(dest);
     }
 
+    void MoveSplineInit::SetFall()
+    {
+        args.flags.EnableFalling();
+    }
+
     Vector3 TransportPathTransform::operator()(Vector3 input)
     {
         if (_transformForTransport)

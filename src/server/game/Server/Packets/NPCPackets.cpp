@@ -45,6 +45,17 @@ WorldPacket const* WorldPackets::NPC::TrainerList::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::NPC::GossipPOI::Write()
+{
+    _worldPacket << int32(Flags);
+    _worldPacket << Pos;
+    _worldPacket << int32(Icon);
+    _worldPacket << int32(Importance);
+    _worldPacket << Name;
+
+    return &_worldPacket;
+}
+
 void WorldPackets::NPC::TrainerBuySpell::Read()
 {
     _worldPacket >> TrainerGUID;

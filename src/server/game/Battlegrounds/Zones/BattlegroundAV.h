@@ -1597,13 +1597,13 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
-        uint32 GetAttr1() const final override { return GraveyardsAssaulted; }
-        uint32 GetAttr2() const final override { return GraveyardsDefended; }
-        uint32 GetAttr3() const final override { return TowersAssaulted; }
-        uint32 GetAttr4() const final override { return TowersDefended; }
-        uint32 GetAttr5() const final override { return MinesCaptured; }
+        uint32 GetAttr1() const override { return GraveyardsAssaulted; }
+        uint32 GetAttr2() const override { return GraveyardsDefended; }
+        uint32 GetAttr3() const override { return TowersAssaulted; }
+        uint32 GetAttr4() const override { return TowersDefended; }
+        uint32 GetAttr5() const override { return MinesCaptured; }
 
         uint32 GraveyardsAssaulted;
         uint32 GraveyardsDefended;

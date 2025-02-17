@@ -16,7 +16,7 @@
  */
 
 #include "AuthCodes.h"
-#include "RealmList.h"
+#include "ClientBuildInfo.h"
 
 namespace AuthHelper
 {
@@ -24,16 +24,16 @@ namespace AuthHelper
 
     bool IsPreBCAcceptedClientBuild(uint32 build)
     {
-        return build <= MAX_PRE_BC_CLIENT_BUILD && sRealmList->GetBuildInfo(build);
+        return build <= MAX_PRE_BC_CLIENT_BUILD && ClientBuild::GetBuildInfo(build);
     }
 
     bool IsPostBCAcceptedClientBuild(uint32 build)
     {
-        return build > MAX_PRE_BC_CLIENT_BUILD && sRealmList->GetBuildInfo(build);
+        return build > MAX_PRE_BC_CLIENT_BUILD && ClientBuild::GetBuildInfo(build);
     }
 
     bool IsAcceptedClientBuild(uint32 build)
     {
-        return sRealmList->GetBuildInfo(build) != nullptr;
+        return ClientBuild::GetBuildInfo(build) != nullptr;
     }
 }

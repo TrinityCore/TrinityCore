@@ -23,6 +23,7 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -710,7 +711,7 @@ class boss_gazakroth : public CreatureScript
                 if (firebolt_timer <= diff)
                 {
                     DoCastVictim(SPELL_FIREBOLT, false);
-                    firebolt_timer = 0.7 * IN_MILLISECONDS;
+                    firebolt_timer = 700;
                 }
                 else
                     firebolt_timer -= diff;

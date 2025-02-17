@@ -27,13 +27,13 @@ uint32 const EncounterCount             = 8;
 
 enum SCDataTypes
 {
-    DATA_DOCTORTHEOLENKRASTINOV         = 0,
-    DATA_INSTRUCTORMALICIA              = 1,
-    DATA_LADYILLUCIABAROV               = 2,
-    DATA_LORDALEXEIBAROV                = 3,
-    DATA_LOREKEEPERPOLKELT              = 4,
-    DATA_THERAVENIAN                    = 5,
-    DATA_DARKMASTERGANDLING             = 6,
+    DATA_DOCTOR_THEOLEN_KRASTINOV       = 0,
+    DATA_INSTRUCTOR_MALICIA             = 1,
+    DATA_LADY_ILLUCIA_BAROV             = 2,
+    DATA_LORD_ALEXEI_BAROV              = 3,
+    DATA_LOREKEEPER_POLKELT             = 4,
+    DATA_THE_RAVENIAN                   = 5,
+    DATA_DARKMASTER_GANDLING            = 6,
     DATA_KIRTONOS                       = 7
 };
 

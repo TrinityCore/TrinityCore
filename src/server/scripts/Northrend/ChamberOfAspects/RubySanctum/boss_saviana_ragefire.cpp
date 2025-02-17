@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ruby_sanctum.h"

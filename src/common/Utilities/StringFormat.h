@@ -18,22 +18,69 @@
 #ifndef TRINITYCORE_STRING_FORMAT_H
 #define TRINITYCORE_STRING_FORMAT_H
 
-#include "fmt/printf.h"
+#include "fmt/core.h"
 
 namespace Trinity
 {
+    template<typename... Args>
+    using FormatString = fmt::format_string<Args...>;
+
+    using FormatStringView = fmt::string_view;
+
+    using FormatArgs = fmt::format_args;
+
+    template<typename... Args>
+    constexpr auto MakeFormatArgs(Args&&... args) { return fmt::make_format_args(args...); }
+
     /// Default TC string format function.
-    template<typename Format, typename... Args>
-    inline std::string StringFormat(Format&& fmt, Args&&... args)
+    template<typename... Args>
+    inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
     {
         try
         {
-            return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
+            return fmt::format(fmt, std::forward<Args>(args)...);
         }
-        catch (const fmt::format_error& formatError)
+        catch (std::exception const& formatError)
         {
-            std::string error = "An error occurred formatting string \"" + std::string(fmt) + "\" : " + std::string(formatError.what());
-            return error;
+            return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    template<typename OutputIt, typename... Args>
+    inline OutputIt StringFormatTo(OutputIt out, FormatString<Args...> fmt, Args&&... args)
+    {
+        try
+        {
+            return fmt::format_to(out, fmt, std::forward<Args>(args)...);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    inline std::string StringVFormat(FormatStringView fmt, FormatArgs args)
+    {
+        try
+        {
+            return fmt::vformat(fmt, args);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    template<typename OutputIt>
+    inline OutputIt StringVFormatTo(OutputIt out, FormatStringView fmt, FormatArgs args)
+    {
+        try
+        {
+            return fmt::vformat_to(out, fmt, args);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
         }
     }
 
@@ -47,6 +94,17 @@ namespace Trinity
     inline bool IsFormatEmptyOrNull(std::string const& fmt)
     {
         return fmt.empty();
+    }
+
+    /// Returns true if the given std::string is empty.
+    inline constexpr bool IsFormatEmptyOrNull(std::string_view fmt)
+    {
+        return fmt.empty();
+    }
+
+    inline constexpr bool IsFormatEmptyOrNull(fmt::string_view fmt)
+    {
+        return fmt.size() == 0;
     }
 }
 

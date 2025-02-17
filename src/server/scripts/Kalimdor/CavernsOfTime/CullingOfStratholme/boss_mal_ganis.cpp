@@ -87,8 +87,9 @@ class boss_mal_ganis : public CreatureScript
                     _defeated = true;
 
                     // @todo hack most likely
-                    if (InstanceMap* map = instance->instance->ToInstanceMap())
-                        map->PermBindAllPlayers();
+                    if (instance->instance->IsHeroic())
+                        if (InstanceMap* map = instance->instance->ToInstanceMap())
+                            map->PermBindAllPlayers();
                 }
             }
 

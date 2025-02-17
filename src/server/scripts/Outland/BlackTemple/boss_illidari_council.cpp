@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "black_temple.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "PassiveAI.h"

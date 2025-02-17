@@ -31,6 +31,20 @@ else()
   message(STATUS "UNIX: Using default system linker")
 endif()
 
+if(APPLE)
+  find_program(HOMEBREW_EXECUTABLE brew)
+
+  if (HOMEBREW_EXECUTABLE)
+    # setup homebrew paths
+    message(STATUS "Homebrew found at ${HOMEBREW_EXECUTABLE}")
+    execute_process(COMMAND ${HOMEBREW_EXECUTABLE} config OUTPUT_VARIABLE HOMEBREW_STATUS_STR)
+    string(REGEX MATCH "HOMEBREW_PREFIX: ([^\n]*)" HOMEBREW_STATUS_STR ${HOMEBREW_STATUS_STR})
+    set(HOMEBREW_PREFIX ${CMAKE_MATCH_1})
+    message(STATUS "Homebrew installation found at ${HOMEBREW_PREFIX}")
+    set(CMAKE_PREFIX_PATH "${HOMEBREW_PREFIX}")
+  endif()
+endif()
+
 message(STATUS "UNIX: Detected compiler: ${CMAKE_C_COMPILER}")
 if(CMAKE_C_COMPILER MATCHES "gcc" OR CMAKE_C_COMPILER_ID STREQUAL "GNU")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)

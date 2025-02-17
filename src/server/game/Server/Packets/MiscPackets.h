@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Weather.h"
+#include "WowTime.h"
 #include <array>
 
 enum WeatherState : uint32;
@@ -125,7 +126,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             float NewSpeed = 0.0f;
-            uint32 GameTime = 0;
+            WowTime GameTime;
             int32 GameTimeHolidayOffset = 0;
         };
 

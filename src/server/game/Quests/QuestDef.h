@@ -22,6 +22,7 @@
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "SharedDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "WorldPacket.h"
 #include <vector>
 
@@ -332,6 +333,8 @@ class TC_GAME_API Quest
 
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player, bool sendHiddenRewards = false) const;
 
+        Trinity::unique_weak_ptr<Quest> GetWeakPtr() const { return _weakRef; }
+
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
@@ -408,6 +411,8 @@ class TC_GAME_API Quest
 
         // Helpers
         static uint32 RoundXPValue(uint32 xp);
+
+        Trinity::unique_weak_ptr<Quest> _weakRef;
 };
 
 struct QuestStatusData

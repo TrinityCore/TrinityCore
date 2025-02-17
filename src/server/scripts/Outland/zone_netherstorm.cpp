@@ -27,6 +27,7 @@ npc_commander_dawnforge
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

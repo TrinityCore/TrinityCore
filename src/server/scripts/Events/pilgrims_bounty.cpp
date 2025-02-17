@@ -33,36 +33,6 @@ enum PilgrimsBountyBuffFood
     SPELL_WELL_FED_SPIRIT_TRIGGER   = 65415
 };
 
-class spell_pilgrims_bounty_buff_food : public AuraScript
-{
-    PrepareAuraScript(spell_pilgrims_bounty_buff_food);
-private:
-    uint32 const _triggeredSpellId;
-
-public:
-    spell_pilgrims_bounty_buff_food(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId)
-    {
-        _handled = false;
-    }
-
-    void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
-    {
-        PreventDefaultAction();
-        if (_handled)
-            return;
-
-        _handled = true;
-        GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-
-    bool _handled;
-};
-
 enum FeastOnSpells
 {
     FEAST_ON_TURKEY                     = 61784,
@@ -449,11 +419,6 @@ private:
 
 void AddSC_event_pilgrims_bounty()
 {
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_slow_roasted_turkey", SPELL_WELL_FED_AP_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_cranberry_chutney", SPELL_WELL_FED_ZM_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_spice_bread_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
     RegisterSpellScript(spell_pilgrims_bounty_feast_on);
     RegisterSpellScriptWithArgs(spell_pilgrims_bounty_well_fed, "spell_pilgrims_bounty_well_fed_turkey", SPELL_WELL_FED_AP_TRIGGER);
     RegisterSpellScriptWithArgs(spell_pilgrims_bounty_well_fed, "spell_pilgrims_bounty_well_fed_cranberry", SPELL_WELL_FED_ZM_TRIGGER);

@@ -62,7 +62,11 @@ enum ZGCreatureIds
     NPC_OHGAN               = 14988, // Mandokir Event
     NPC_VILEBRANCH_SPEAKER  = 11391, // Mandokir Event
     NPC_CHAINED_SPIRT       = 15117, // Mandokir Event
-    NPC_HAKKAR              = 14834
+    NPC_HAKKAR              = 14834,
+    NPC_HAZZARAH            = 15083, // Brazier of madness
+    NPC_WUSHOOLAY           = 15085, // brazier of madness
+    NPC_RENATAKI            = 15084, // brazier of madness
+    NPC_GRILEK              = 15082  // brazier of madness
 };
 
 enum ZGGameObjectIds

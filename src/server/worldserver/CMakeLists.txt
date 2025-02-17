@@ -33,8 +33,9 @@ add_executable(worldserver
 )
 
 if(NOT WIN32)
-  set_target_properties(worldserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_CORE_CONFIG="${CONF_DIR}/worldserver.conf"
+  target_compile_definitions(worldserver PRIVATE
+    _TRINITY_CORE_CONFIG="${CONF_DIR}/worldserver.conf"
+    _TRINITY_CORE_CONFIG_DIR="${CONF_DIR}/worldserver.conf.d"
   )
 endif()
 

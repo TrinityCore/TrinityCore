@@ -1,0 +1,5 @@
+-- The reward text for quest "Priest Training" (9291) are missing line breaks and should have lower case "c" in class name.
+UPDATE `quest_offer_reward` SET `RewardText` = "It gives me great hope for our future that you come seeking my wisdom.  While I have my hands full here with our injured, I am not so busy that I cannot spare a moment to aid you in your first steps as a $c.  To walk in the Light is the highest of callings, and one that I am certain you are more than ready to undertake!$b$bSpeak with me again when you feel that you are ready to begin your training." WHERE ID=9291;
+
+-- The reward text for quest "Mage Training" (9290) are missing line breaks.
+UPDATE `quest_offer_reward` SET `RewardText` = "I am pleased that you have come seeking my knowledge. We have much to do if your magical skills are to be honed.$b$bFor over a hundred years I have taught the arcane, frost and fire magics, and I can feel them just as strongly on this world.  Would you like me to impart some of what I know to you?" WHERE ID=9290;

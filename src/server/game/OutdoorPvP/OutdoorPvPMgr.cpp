@@ -72,7 +72,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
         if (typeId >= MAX_OUTDOORPVP_TYPES)
         {
-            TC_LOG_ERROR("sql.sql", "Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.", typeId);
+            TC_LOG_ERROR("sql.sql", "Invalid OutdoorPvPTypes value {} in outdoorpvp_template; skipped.", typeId);
             continue;
         }
 
@@ -88,20 +88,20 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     {
         if (!m_OutdoorPvPDatas[i])
         {
-            TC_LOG_ERROR("sql.sql", "Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(i));
+            TC_LOG_ERROR("sql.sql", "Could not initialize OutdoorPvP object for type ID {}; no entry in database.", uint32(i));
             continue;
         }
 
         pvp = sScriptMgr->CreateOutdoorPvP(m_OutdoorPvPDatas[i]);
         if (!pvp)
         {
-            TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(i));
+            TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID {}; got NULL pointer from script.", uint32(i));
             continue;
         }
 
         if (!pvp->SetupOutdoorPvP())
         {
-            TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(i));
+            TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID {}; SetupOutdoorPvP failed.", uint32(i));
             delete pvp;
             continue;
         }
@@ -109,7 +109,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         m_OutdoorPvPSet.push_back(pvp);
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u outdoor PvP definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} outdoor PvP definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP* handle)
@@ -127,7 +127,7 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerEnterZone(player, zoneid);
-    TC_LOG_DEBUG("outdoorpvp", "Player %s entered outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
+    TC_LOG_DEBUG("outdoorpvp", "Player {} entered outdoorpvp id {}", player->GetGUID().ToString(), itr->second->GetTypeId());
 }
 
 void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
@@ -141,7 +141,7 @@ void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerLeaveZone(player, zoneid);
-    TC_LOG_DEBUG("outdoorpvp", "Player %s left outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
+    TC_LOG_DEBUG("outdoorpvp", "Player {} left outdoorpvp id {}", player->GetGUID().ToString(), itr->second->GetTypeId());
 }
 
 OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
@@ -238,6 +238,6 @@ std::string OutdoorPvPMgr::GetDefenseMessage(uint32 zoneId, uint32 id, LocaleCon
     if (BroadcastText const* bct = sObjectMgr->GetBroadcastText(id))
         return bct->GetText(locale);
 
-    TC_LOG_ERROR("outdoorpvp", "Can not find DefenseMessage (Zone: %u, Id: %u). BroadcastText (Id: %u) does not exist.", zoneId, id, id);
+    TC_LOG_ERROR("outdoorpvp", "Can not find DefenseMessage (Zone: {}, Id: {}). BroadcastText (Id: {}) does not exist.", zoneId, id, id);
     return "";
 }

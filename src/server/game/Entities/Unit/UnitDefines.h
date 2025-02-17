@@ -171,9 +171,9 @@ enum UnitFlags : uint32
                                        UNIT_FLAG_SILENCED | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
                                        UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
                                        UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
-                                       UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE),
+                                       UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE), // SKIP
 
-    UNIT_FLAG_ALLOWED               = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED)
+    UNIT_FLAG_ALLOWED               = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED)  // SKIP
 };
 
 DEFINE_ENUM_FLAG(UnitFlags);
@@ -222,9 +222,9 @@ enum UnitFlags2 : uint32
                                             /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_UNUSED_1 |
                                                UNIT_FLAG2_UNUSED_2 | UNIT_FLAG2_UNUSED_3 | UNIT_FLAG2_UNUSED_4 | UNIT_FLAG2_UNUSED_5 |
                                                UNIT_FLAG2_UNUSED_6 | UNIT_FLAG2_UNUSED_7 | UNIT_FLAG2_UNUSED_8 | UNIT_FLAG2_UNUSED_9 |
-                                               UNIT_FLAG2_UNUSED_10 | UNIT_FLAG2_UNUSED_11 | UNIT_FLAG2_UNUSED_12 | UNIT_FLAG2_UNUSED_13),
+                                               UNIT_FLAG2_UNUSED_10 | UNIT_FLAG2_UNUSED_11 | UNIT_FLAG2_UNUSED_12 | UNIT_FLAG2_UNUSED_13), // SKIP
 
-    UNIT_FLAG2_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG2_DISALLOWED)
+    UNIT_FLAG2_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG2_DISALLOWED) // SKIP
 };
 
 DEFINE_ENUM_FLAG(UnitFlags2);

@@ -4286,6 +4286,64 @@ class spell_item_eggnog : public SpellScript
     }
 };
 
+// Titanium Seal of Dalaran
+enum TitaniumSealOfDalaranTexts
+{
+    TEXT_TSOD_COIN_TOSS     = 32638,
+    TEXT_TSOD_FLIPPED_HEADS = 32663,
+    TEXT_TSOD_FLIPPED_TAILS = 32664
+};
+
+// 60458 - Toss Your Luck!
+class spell_item_titanium_seal_of_dalaran_toss : public SpellScript
+{
+    PrepareSpellScript(spell_item_titanium_seal_of_dalaran_toss);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_TSOD_COIN_TOSS);
+    }
+
+    void RelocateHeight(SpellDestination& dest)
+    {
+        dest.RelocateOffset({ 0.0f, 0.0f, 20.0f });
+    }
+
+    void TriggerEmote(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->TextEmote(TEXT_TSOD_COIN_TOSS, caster);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_item_titanium_seal_of_dalaran_toss::RelocateHeight, EFFECT_0, TARGET_DEST_CASTER);
+        OnEffectLaunch += SpellEffectFn(spell_item_titanium_seal_of_dalaran_toss::TriggerEmote, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
+};
+
+// 60476 - Toss Your Luck!
+class spell_item_titanium_seal_of_dalaran_catch : public SpellScript
+{
+    PrepareSpellScript(spell_item_titanium_seal_of_dalaran_catch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_TSOD_FLIPPED_HEADS) && sObjectMgr->GetBroadcastText(TEXT_TSOD_FLIPPED_TAILS);
+    }
+
+    void TriggerEmote(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->TextEmote(RAND(TEXT_TSOD_FLIPPED_HEADS, TEXT_TSOD_FLIPPED_TAILS), caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_titanium_seal_of_dalaran_catch::TriggerEmote, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4421,4 +4479,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_mad_alchemists_potion);
     RegisterSpellScript(spell_item_crazy_alchemists_potion);
     RegisterSpellScript(spell_item_eggnog);
+    RegisterSpellScript(spell_item_titanium_seal_of_dalaran_toss);
+    RegisterSpellScript(spell_item_titanium_seal_of_dalaran_catch);
 }

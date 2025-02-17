@@ -58,7 +58,7 @@ enum AuraEffectHandleModes
     AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK = (AURA_EFFECT_HANDLE_REAPPLY | AURA_EFFECT_HANDLE_REAL)
 };
 
-enum AuraRemoveMode
+enum AuraRemoveMode : uint8
 {
     AURA_REMOVE_NONE = 0,
     AURA_REMOVE_BY_DEFAULT = 1,       // scripted remove, remove by stack with aura with different ids and sc aura remove
@@ -353,7 +353,7 @@ enum AuraType : uint32
     SPELL_AURA_X_RAY                                        = 273,
     SPELL_AURA_ABILITY_CONSUME_NO_AMMO                      = 274,
     SPELL_AURA_MOD_IGNORE_SHAPESHIFT                        = 275,
-    SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC                 = 276,  // NYI
+    SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC                 = 276,
     SPELL_AURA_MOD_MAX_AFFECTED_TARGETS                     = 277,
     SPELL_AURA_MOD_DISARM_RANGED                            = 278,
     SPELL_AURA_INITIALIZE_IMAGES                            = 279,

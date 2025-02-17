@@ -17,12 +17,18 @@
 
 #include "Banner.h"
 #include "DBCFileLoader.h"
+#include "Locales.h"
 #include "MapBuilder.h"
 #include "PathCommon.h"
 #include "Timer.h"
 #include "Util.h"
 #include <boost/filesystem.hpp>
 #include <unordered_map>
+
+constexpr char Readme[] =
+{
+#include "Info/readme.txt"
+};
 
 using namespace MMAP;
 
@@ -253,6 +259,12 @@ bool handleArgs(int argc, char** argv,
         {
             allowDebug = true;
         }
+        else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?"))
+        {
+            printf("%s\n", Readme);
+            silent = true;
+            return false;
+        }
         else
         {
             int map = atoi(argv[i]);
@@ -297,6 +309,10 @@ std::unordered_map<uint32, uint8> LoadLiquid()
 
 int main(int argc, char** argv)
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     unsigned int threads = std::thread::hardware_concurrency();

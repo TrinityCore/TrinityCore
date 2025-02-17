@@ -48,7 +48,7 @@ private:
     TimeTracker i_timer;
     PeriodicTimer vis_Update;
 
-    uint16 i_unloadActiveLockCount : 16;                    // lock from active object spawn points (prevent clone loading)
+    uint16 i_unloadActiveLockCount;                         // lock from active object spawn points (prevent clone loading)
     bool   i_unloadExplicitLock    : 1;                     // explicit manual lock or config setting
     bool   i_unloadReferenceLock   : 1;                     // lock from instance map copy
 };

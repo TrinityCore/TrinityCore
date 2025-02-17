@@ -22,6 +22,11 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 
+namespace WorldPackets::Battleground
+{
+struct PVPLogData_Player;
+}
+
 class WorldPacket;
 
 enum ScoreType
@@ -92,8 +97,8 @@ struct BattlegroundScore
             }
         }
 
-        virtual void AppendToPacket(WorldPacket& data);
-        virtual void BuildObjectivesBlock(WorldPacket& /*data*/) = 0;
+        virtual void AppendToPacket(WorldPackets::Battleground::PVPLogData_Player& playerData);
+        virtual void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) = 0;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }

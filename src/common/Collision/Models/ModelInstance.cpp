@@ -63,40 +63,6 @@ namespace VMAP
         return hit;
     }
 
-    void ModelInstance::intersectPoint(const G3D::Vector3& p, AreaInfo &info) const
-    {
-        if (!iModel)
-        {
-#ifdef VMAP_DEBUG
-            std::cout << "<object not loaded>\n";
-#endif
-            return;
-        }
-
-        // M2 files don't contain area info, only WMO files
-        if (flags & MOD_M2)
-            return;
-        if (!iBound.contains(p))
-            return;
-        // child bounds are defined in object space:
-        Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
-        Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
-        float zDist;
-        if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
-        {
-            Vector3 modelGround = pModel + zDist * zDirModel;
-            // Transform back to world space. Note that:
-            // Mat * vec == vec * Mat.transpose()
-            // and for rotation matrices: Mat.inverse() == Mat.transpose()
-            float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
-            if (info.ground_Z < world_Z)
-            {
-                info.ground_Z = world_Z;
-                info.adtId = adtId;
-            }
-        }
-    }
-
     bool ModelInstance::GetLocationInfo(const G3D::Vector3& p, LocationInfo &info) const
     {
         if (!iModel)
@@ -116,7 +82,9 @@ namespace VMAP
         Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
         Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
         float zDist;
-        if (iModel->GetLocationInfo(pModel, zDirModel, zDist, info))
+
+        GroupLocationInfo groupInfo;
+        if (iModel->GetLocationInfo(pModel, zDirModel, zDist, groupInfo))
         {
             Vector3 modelGround = pModel + zDist * zDirModel;
             // Transform back to world space. Note that:
@@ -125,6 +93,8 @@ namespace VMAP
             float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
             if (info.ground_Z < world_Z) // hm...could it be handled automatically with zDist at intersection?
             {
+                info.rootId = groupInfo.rootId;
+                info.hitModel = groupInfo.hitModel;
                 info.ground_Z = world_Z;
                 info.hitInstance = this;
                 return true;
@@ -142,8 +112,7 @@ namespace VMAP
         if (info.hitModel->GetLiquidLevel(pModel, zDist))
         {
             // calculate world height (zDist in model coords):
-            // assume WMO not tilted (wouldn't make much sense anyway)
-            liqHeight = zDist * iScale + iPos.z;
+            liqHeight = (Vector3(pModel.x, pModel.y, zDist) * iInvRot * iScale + iPos).z;
             return true;
         }
         return false;

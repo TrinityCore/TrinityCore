@@ -106,10 +106,6 @@ public:
         {
             return record.offset == b.record.offset;
         }
-        bool operator!=(Iterator const& b) const
-        {
-            return record.offset != b.record.offset;
-        }
     private:
         Record record;
 

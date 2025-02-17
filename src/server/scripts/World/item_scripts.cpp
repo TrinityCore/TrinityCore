@@ -77,7 +77,7 @@ public:
             return false;
 
         // error
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, nullptr);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         return true;
     }
 };
@@ -178,7 +178,7 @@ public:
                 player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, nullptr);
         }
         else
-            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, nullptr);
+            player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         return true;
     }
 };

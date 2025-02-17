@@ -77,19 +77,19 @@ void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* na
 {
     if (uint32(opcode) == NULL_OPCODE)
     {
-        TC_LOG_ERROR("network", "Opcode %s does not have a value", name);
+        TC_LOG_ERROR("network", "Opcode {} does not have a value", name);
         return;
     }
 
     if (uint32(opcode) >= NUM_OPCODE_HANDLERS)
     {
-        TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode %d", opcode);
+        TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return;
     }
 
     if (_internalTableClient[opcode] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override client handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override client handler of {} with {} (opcode {})", opcodeTable[opcode]->Name, name, opcode);
         return;
     }
 
@@ -100,19 +100,19 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
 {
     if (uint32(opcode) == NULL_OPCODE)
     {
-        TC_LOG_ERROR("network", "Opcode %s does not have a value", name);
+        TC_LOG_ERROR("network", "Opcode {} does not have a value", name);
         return;
     }
 
     if (uint32(opcode) >= NUM_OPCODE_HANDLERS)
     {
-        TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode %d", opcode);
+        TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return;
     }
 
     if (_internalTableClient[opcode] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override server handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override server handler of {} with {} (opcode {})", opcodeTable[opcode]->Name, name, opcode);
         return;
     }
 
@@ -851,7 +851,7 @@ void OpcodeTable::Initialize()
     /*0x2D0*/ DEFINE_HANDLER(CMSG_MOVE_WATER_WALK_ACK,                     STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveWaterWalkAck          );
     /*0x2D1*/ DEFINE_HANDLER(CMSG_MOVE_NOT_ACTIVE_MOVER,                   STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );
     /*0x2D2*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAY_SOUND,                STATUS_NEVER);
-    /*0x2D3*/ DEFINE_HANDLER(CMSG_BATTLEFIELD_STATUS,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBattlefieldStatusOpcode   );
+    /*0x2D3*/ DEFINE_HANDLER(CMSG_BATTLEFIELD_STATUS,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRequestBattlefieldStatusOpcode);
     /*0x2D4*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_BATTLEFIELD_STATUS,        STATUS_NEVER);
     /*0x2D5*/ DEFINE_HANDLER(CMSG_BATTLEFIELD_PORT,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBattleFieldPortOpcode     );
     /*0x2D6*/ DEFINE_HANDLER(MSG_INSPECT_HONOR_STATS,                      STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleInspectHonorStatsOpcode   );

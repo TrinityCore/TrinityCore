@@ -10,6 +10,13 @@
 #ifndef SFMT_NEON_H
 #define SFMT_NEON_H
 
+#ifdef _MSC_VER
+// The .n128_u64 field is first.  Combine pairs of 32-bit integers in little-endian order.
+#define sfmt_neon_init_uint32x4_t(w,x,y,z) { .n128_u32 = { (w), (x), (y), (z) } }
+#else
+#define sfmt_neon_init_uint32x4_t(w,x,y,z) { (w), (x), (y), (z) }
+#endif
+
 inline static void neon_recursion(uint32x4_t * r, uint32x4_t a, uint32x4_t b,
                                 uint32x4_t c, uint32x4_t d);
 
@@ -27,8 +34,8 @@ inline static void neon_recursion(uint32x4_t * r, uint32x4_t a, uint32x4_t b,
                                 uint32x4_t c, uint32x4_t d)
 {
     uint32x4_t v, x, y, z;
-    static const uint32x4_t vzero = {0,0,0,0};
-    static const uint32x4_t vmask = {SFMT_MSK1, SFMT_MSK2, SFMT_MSK3, SFMT_MSK4};
+    static const uint32x4_t vzero = sfmt_neon_init_uint32x4_t(0, 0, 0, 0);
+    static const uint32x4_t vmask = sfmt_neon_init_uint32x4_t(SFMT_MSK1, SFMT_MSK2, SFMT_MSK3, SFMT_MSK4);
 
 #define rotate_bytes(A, B, C) vreinterpretq_u32_u8(vextq_u8(vreinterpretq_u8_u32(A),vreinterpretq_u8_u32(B),(C)))
 

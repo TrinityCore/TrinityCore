@@ -20,6 +20,8 @@
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "PreparedStatement.h"
+#include <chrono>
+#include <cstring>
 
 template<typename T>
 struct MySQLType { };
@@ -76,7 +78,7 @@ void MySQLPreparedStatement::BindParameters(PreparedStatementBase* stmt)
     }
 #ifdef _DEBUG
     if (pos < m_paramCount)
-        TC_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", stmt->GetIndex());
+        TC_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement {} did not bind all allocated parameters", stmt->GetIndex());
 #endif
 }
 
@@ -94,7 +96,7 @@ void MySQLPreparedStatement::ClearParameters()
 
 static bool ParamenterIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 paramCount)
 {
-    TC_LOG_ERROR("sql.driver", "Attempted to bind parameter %u%s on a PreparedStatement %u (statement has only %u parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
+    TC_LOG_ERROR("sql.driver", "Attempted to bind parameter {}{} on a PreparedStatement {} (statement has only {} parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
     return false;
 }
 
@@ -104,7 +106,7 @@ void MySQLPreparedStatement::AssertValidIndex(uint8 index)
     ASSERT(index < m_paramCount || ParamenterIndexAssertFail(m_stmt->GetIndex(), index, m_paramCount));
 
     if (m_paramsSet[index])
-        TC_LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->GetIndex(), index);
+        TC_LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: {}) trying to bind value on already bound index ({}).", m_stmt->GetIndex(), index);
 }
 
 void MySQLPreparedStatement::SetParameter(uint8 index, std::nullptr_t)
@@ -142,6 +144,33 @@ void MySQLPreparedStatement::SetParameter(uint8 index, T value)
     param->is_unsigned = std::is_unsigned_v<T>;
 
     memcpy(param->buffer, &value, len);
+}
+
+void MySQLPreparedStatement::SetParameter(uint8 index, SystemTimePoint value)
+{
+    AssertValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    uint32 len = sizeof(MYSQL_TIME);
+    param->buffer_type = MYSQL_TYPE_DATETIME;
+    delete[] static_cast<char*>(param->buffer);
+    param->buffer = new char[len];
+    param->buffer_length = len;
+    param->is_null_value = 0;
+    delete param->length;
+    param->length = new unsigned long(len);
+
+    std::chrono::year_month_day ymd(time_point_cast<std::chrono::days>(value));
+    std::chrono::hh_mm_ss hms(duration_cast<std::chrono::microseconds>(value - std::chrono::sys_days(ymd)));
+
+    MYSQL_TIME* time = reinterpret_cast<MYSQL_TIME*>(static_cast<char*>(param->buffer));
+    time->year = static_cast<int32>(ymd.year());
+    time->month = static_cast<uint32>(ymd.month());
+    time->day = static_cast<uint32>(ymd.day());
+    time->hour = hms.hours().count();
+    time->minute = hms.minutes().count();
+    time->second = hms.seconds().count();
+    time->second_part = hms.subseconds().count();
 }
 
 void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)

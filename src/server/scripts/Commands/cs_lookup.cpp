@@ -710,7 +710,7 @@ public:
                         }
 
                         if (handler->GetSession())
-                            handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second.GetQuestLevel(), title.c_str(), statusStr);
+                            handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second->GetQuestLevel(), title.c_str(), statusStr);
                         else
                             handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, questTemplatePair.first, title.c_str(), statusStr);
 
@@ -722,7 +722,7 @@ public:
                 }
             }
 
-            std::string const& title = questTemplatePair.second.GetTitle();
+            std::string const& title = questTemplatePair.second->GetTitle();
             if (title.empty())
                 continue;
 
@@ -755,7 +755,7 @@ public:
                 }
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second.GetQuestLevel(), title.c_str(), statusStr);
+                    handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second->GetQuestLevel(), title.c_str(), statusStr);
                 else
                     handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, questTemplatePair.first, title.c_str(), statusStr);
 

@@ -27,6 +27,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "ObjectAccessor.h"
 
 enum PandarenMonkMisc
 {
@@ -289,6 +290,127 @@ class spell_pet_gen_lich_pet_focus : public SpellScript
     }
 };
 
+enum ElwynnLambMisc
+{
+    // Spells
+    SPELL_SLEEPING_SLEEP        = 32951,
+    SPELL_SUICIDE               = 45254,
+    SPELL_ELWYNN_FOREST_WOLF    = 62701,
+
+    // Sound
+    SOUND_WOLF_HOWL             = 9036,
+};
+
+struct npc_elwynn_forest_wolf : public NullCreatureAI
+{
+    npc_elwynn_forest_wolf(Creature* creature) : NullCreatureAI(creature), _chasing(false) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (!summoner->IsCreature())
+            return;
+
+        _summonerGUID = summoner->GetGUID();
+        _ScheduleBeforeChasingEvents();
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == CHASE_MOTION_TYPE && id == _summonerGUID.GetCounter())
+            _ScheduleAfterChasingEvents();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        if (_chasing && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
+            _ScheduleAfterChasingEvents();
+    }
+
+private:
+    void _ScheduleBeforeChasingEvents()
+    {
+        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+        {
+            me->PlayDistanceSound(SOUND_WOLF_HOWL);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_BATTLE_ROAR);
+        })
+        .Schedule(4s, [this](TaskContext /*context*/)
+        {
+            if (Creature* summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
+                if (me->Attack(summoner, false))
+                    me->GetMotionMaster()->MoveChase(summoner);
+
+            _chasing = true;
+        });
+    }
+
+    void _ScheduleAfterChasingEvents()
+    {
+        _chasing = false;
+        me->GetMotionMaster()->Clear();
+
+        _scheduler.Schedule(2s, [this](TaskContext /*context*/)
+        {
+            DoCastAOE(SPELL_ELWYNN_FOREST_WOLF);
+        })
+        .Schedule(4s, [this](TaskContext /*context*/)
+        {
+            DoCastSelf(SPELL_SLEEPING_SLEEP);
+            me->DespawnOrUnsummon(7s);
+        });
+    }
+
+    ObjectGuid _summonerGUID;
+    bool _chasing;
+    TaskScheduler _scheduler;
+};
+
+// 62701 - Elwynn Forest Wolf
+class spell_gen_elwynn_forest_wolf : public SpellScript
+{
+    PrepareSpellScript(spell_gen_elwynn_forest_wolf);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUICIDE });
+    }
+
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        if (Creature* target = GetHitCreature())
+        {
+            target->CastSpell(target, SPELL_SUICIDE, true);
+            target->DespawnOrUnsummon(4s);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_elwynn_forest_wolf::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 62703 - Elwynn Lamb
+class spell_gen_elwynn_lamb : public AuraScript
+{
+    PrepareAuraScript(spell_gen_elwynn_lamb);
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        // Based on WotLK Classic sniffs (3.4.3 52237).
+        if (!GetTarget()->IsOutdoors() || !roll_chance_i(5))
+            PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_elwynn_lamb::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_generic_pet_scripts()
 {
     RegisterCreatureAI(npc_pet_gen_pandaren_monk);
@@ -299,4 +421,7 @@ void AddSC_generic_pet_scripts()
     RegisterSpellScript(spell_pet_gen_lich_pet_periodic_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_focus);
+    RegisterCreatureAI(npc_elwynn_forest_wolf);
+    RegisterSpellScript(spell_gen_elwynn_forest_wolf);
+    RegisterSpellScript(spell_gen_elwynn_lamb);
 }

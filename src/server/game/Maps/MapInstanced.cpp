@@ -25,6 +25,7 @@
 #include "MMapFactory.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "World.h"
@@ -95,11 +96,11 @@ void MapInstanced::UnloadAll()
 {
     // Unload instanced maps
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+    {
         i->second->UnloadAll();
 
-    // Delete the maps only after everything is unloaded to prevent crashes
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        delete i->second;
+        sScriptMgr->OnDestroyMap(i->second.get());
+    }
 
     m_InstancedMaps.clear();
 
@@ -210,20 +211,20 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     MapEntry const* entry = sMapStore.LookupEntry(GetId());
     if (!entry)
     {
-        TC_LOG_ERROR("maps", "CreateInstance: no entry for map %d", GetId());
+        TC_LOG_ERROR("maps", "CreateInstance: no entry for map {}", GetId());
         ABORT();
     }
     InstanceTemplate const* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
-        TC_LOG_ERROR("maps", "CreateInstance: no instance template for map %d", GetId());
+        TC_LOG_ERROR("maps", "CreateInstance: no instance template for map {}", GetId());
         ABORT();
     }
 
     // some instances only have one difficulty
     GetDownscaledMapDifficultyData(GetId(), difficulty);
 
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %u", save ? "" : "new ", InstanceId, GetId(), static_cast<uint32>(difficulty));
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {} map instance {} for {} created with difficulty {}", save ? "" : "new ", InstanceId, GetId(), static_cast<uint32>(difficulty));
 
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this, InstanceTeam);
     ASSERT(map->IsDungeon());
@@ -237,7 +238,11 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
         map->LoadAllCells();
 
-    m_InstancedMaps[InstanceId] = map;
+    Trinity::unique_trackable_ptr<Map>& ptr = m_InstancedMaps[InstanceId];
+    ptr.reset(map);
+    map->SetWeakPtr(ptr);
+
+    sScriptMgr->OnCreateMap(map);
     return map;
 }
 
@@ -246,7 +251,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     // load/create a map
     std::lock_guard<std::mutex> lock(_mapLock);
 
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg {} for {} created.", InstanceId, GetId());
 
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
 
@@ -262,7 +267,11 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     map->SetBG(bg);
     bg->SetBgMap(map);
 
-    m_InstancedMaps[InstanceId] = map;
+    Trinity::unique_trackable_ptr<Map>& ptr = m_InstancedMaps[InstanceId];
+    ptr.reset(map);
+    map->SetWeakPtr(ptr);
+
+    sScriptMgr->OnCreateMap(map);
     return map;
 }
 
@@ -287,12 +296,13 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
         Map::UnloadAll();
     }
 
+    sScriptMgr->OnDestroyMap(itr->second.get());
+
     // Free up the instance id and allow it to be reused for bgs and arenas (other instances are handled in the InstanceSaveMgr)
     if (itr->second->IsBattlegroundOrArena())
         sMapMgr->FreeInstanceId(itr->second->GetInstanceId());
 
     // erase map
-    delete itr->second;
     m_InstancedMaps.erase(itr++);
 
     return true;

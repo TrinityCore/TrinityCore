@@ -8,15 +8,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if (NOT MYSQL_FOUND)
-  message(FATAL_ERROR "MySQL wasn't found on your system but it's required to build the servers!")
-endif()
+find_package(MySQL REQUIRED COMPONENTS lib)
 
-add_library(mysql STATIC IMPORTED GLOBAL)
+add_library(mysql INTERFACE)
 
-set_target_properties(mysql
-  PROPERTIES
-    IMPORTED_LOCATION
-      "${MYSQL_LIBRARY}"
-    INTERFACE_INCLUDE_DIRECTORIES
-      "${MYSQL_INCLUDE_DIR}")
+target_link_libraries(mysql
+  INTERFACE
+    MySQL::MySQL)

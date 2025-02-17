@@ -930,10 +930,10 @@ struct BattlegroundICScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
-        uint32 GetAttr1() const final override { return BasesAssaulted; }
-        uint32 GetAttr2() const final override { return BasesDefended; }
+        uint32 GetAttr1() const override { return BasesAssaulted; }
+        uint32 GetAttr2() const override { return BasesDefended; }
 
         uint32 BasesAssaulted;
         uint32 BasesDefended;

@@ -18,8 +18,6 @@
 #ifndef TRINITY_CELL_H
 #define TRINITY_CELL_H
 
-#include <cmath>
-
 #include "TypeContainer.h"
 #include "TypeContainerVisitor.h"
 
@@ -47,10 +45,9 @@ struct CellArea
 
 struct Cell
 {
-    Cell() { data.All = 0; }
-    Cell(Cell const& cell) { data.All = cell.data.All; }
+    Cell() : data() { }
     explicit Cell(CellCoord const& p);
-    explicit Cell(float x, float y);
+    explicit Cell(float x, float y) : Cell(Trinity::ComputeCellCoord(x, y)) { }
 
     void Compute(uint32 &x, uint32 &y) const
     {
@@ -84,26 +81,18 @@ struct Cell
             data.Part.grid_y * MAX_NUMBER_OF_CELLS+data.Part.cell_y);
     }
 
-    Cell& operator=(Cell const& cell)
-    {
-        this->data.All = cell.data.All;
-        return *this;
-    }
-
     bool operator == (Cell const& cell) const { return (data.All == cell.data.All); }
-    bool operator != (Cell const& cell) const { return !operator == (cell); }
     union
     {
         struct
         {
-            unsigned grid_x : 6;
-            unsigned grid_y : 6;
-            unsigned cell_x : 6;
-            unsigned cell_y : 6;
-            unsigned nocreate : 1;
-            unsigned reserved : 7;
+            uint8 grid_x;
+            uint8 grid_y;
+            uint8 cell_x;
+            uint8 cell_y;
+            uint8 nocreate;
         } Part;
-        uint32 All;
+        uint64 All;
     } data;
 
     template<class T, class CONTAINER> void Visit(CellCoord const&, TypeContainerVisitor<T, CONTAINER>& visitor, Map&, WorldObject const& obj, float radius) const;

@@ -271,7 +271,7 @@ bool EquippedOk(Player* player, uint32 spellId)
             if (item && item->GetTemplate()->RequiredSpell == reqSpell)
             {
                 //player has item equipped that require specialty. Not allow to unlearn, player has to unequip first
-                TC_LOG_DEBUG("scripts", "player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, item->GetEntry());
+                TC_LOG_DEBUG("scripts", "player attempt to unlearn spell {}, but item {} is equipped.", reqSpell, item->GetEntry());
                 return false;
             }
         }
@@ -409,7 +409,7 @@ void ProcessUnlearnAction(Player* player, Creature* creature, uint32 spellId, ui
             player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, 0, 0);
     }
     else
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, nullptr, nullptr);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, nullptr, nullptr);
     CloseGossipMenuFor(player);
 }
 

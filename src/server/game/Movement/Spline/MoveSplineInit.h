@@ -151,7 +151,6 @@ namespace Movement
     inline void MoveSplineInit::SetWalk(bool enable) { args.walk = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
-    inline void MoveSplineInit::SetFall() { args.flags.EnableFalling(); }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetBackward() { args.flags.backward = true; }
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }

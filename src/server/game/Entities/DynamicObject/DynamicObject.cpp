@@ -88,7 +88,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spellId, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "DynamicObject (spell {}) not created. Suggested coordinates isn't valid (X: {} Y: {})", spellId, GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -108,7 +108,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, GameTime::GetGameTimeMS());
 
-    if (IsWorldObject())
+    if (IsStoredInWorldObjectGridContainer())
         setActive(true);    //must before add to map to be put in world container
 
     Transport* transport = caster->GetTransport();

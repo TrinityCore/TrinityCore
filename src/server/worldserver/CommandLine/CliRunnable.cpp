@@ -35,6 +35,8 @@
 #include <cstring>
 #include <readline/readline.h>
 #include <readline/history.h>
+#else
+#include <Windows.h>
 #endif
 
 static constexpr char CLI_PREFIX[] = "TC> ";

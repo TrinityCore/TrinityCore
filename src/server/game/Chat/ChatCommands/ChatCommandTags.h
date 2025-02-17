@@ -18,7 +18,6 @@
 #ifndef TRINITY_CHATCOMMANDTAGS_H
 #define TRINITY_CHATCOMMANDTAGS_H
 
-#include "advstd.h"
 #include "ChatCommandHelpers.h"
 #include "Hyperlinks.h"
 #include "ObjectGuid.h"
@@ -26,6 +25,7 @@
 #include "Util.h"
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
+#include <fmt/ostream.h>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -213,7 +213,7 @@ namespace Trinity::ChatCommands
     struct Hyperlink : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = typename linktag::value_type;
-        using storage_type = advstd::remove_cvref_t<value_type>;
+        using storage_type = std::remove_cvref_t<value_type>;
 
         operator value_type() const { return val; }
         value_type operator*() const { return val; }
@@ -282,12 +282,6 @@ namespace Trinity::ChatCommands
             return operator*();
         }
 
-        template<bool C = have_operators>
-        operator std::enable_if_t<C && !std::is_same_v<first_type, size_t> && std::is_convertible_v<first_type, size_t>, size_t>() const
-        {
-            return operator*();
-        }
-
         template <bool C = have_operators>
         std::enable_if_t<C, bool> operator!() const { return !**this; }
 
@@ -318,5 +312,18 @@ namespace Trinity::ChatCommands
         }
     };
 }
+
+template <typename T1, typename... Ts>
+struct fmt::formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : ostream_formatter { };
+
+template <typename T1, typename... Ts>
+struct fmt::printf_formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : formatter<T1>
+{
+    template <typename T, typename OutputIt>
+    auto format(T const& value, basic_format_context<OutputIt, char>& ctx) const -> OutputIt
+    {
+        return formatter<T1>::format(*value, ctx);
+    }
+};
 
 #endif

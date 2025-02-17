@@ -406,7 +406,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName().c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [{}].", target->GetName());
 
     if (_player->GetLootGUID() != lootguid)
     {
@@ -417,7 +417,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
     {
         _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
-        TC_LOG_INFO("entities.player.cheat", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
+        TC_LOG_INFO("entities.player.cheat", "MasterLootItem: Player {} tried to give an item to ineligible player {} !", GetPlayer()->GetName(), target->GetName());
         return;
     }
 
@@ -445,8 +445,8 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     if (slotid >= loot->items.size() + loot->quest_items.size())
     {
-        TC_LOG_DEBUG("loot", "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",
-            GetPlayer()->GetName().c_str(), slotid, (unsigned long)loot->items.size());
+        TC_LOG_DEBUG("loot", "MasterLootItem: Player {} might be using a hack! (slot {}, size {})",
+            GetPlayer()->GetName(), slotid, (unsigned long)loot->items.size());
         return;
     }
 
@@ -455,12 +455,12 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     ItemPosCountVec dest;
     InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
     if (!item.AllowedForPlayer(target, true))
-        msg = EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+        msg = EQUIP_ERR_CANT_EQUIP_EVER;
     if (msg != EQUIP_ERR_OK)
     {
-        if (msg == EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+        if (msg == EQUIP_ERR_ITEM_MAX_COUNT)
             _player->SendLootError(lootguid, LOOT_ERROR_MASTER_UNIQUE_ITEM);
-        else if (msg == EQUIP_ERR_INVENTORY_FULL)
+        else if (msg == EQUIP_ERR_INV_FULL)
             _player->SendLootError(lootguid, LOOT_ERROR_MASTER_INV_FULL);
         else
             _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);

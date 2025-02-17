@@ -21,10 +21,10 @@
 
 enum Spells
 {
-    SPELL_SHADOWWORDPAIN                                   = 10894,
-    SPELL_MANABURN                                         = 10876,
-    SPELL_PSYCHICSCREAM                                    = 8122,
-    SPELL_SHADOWSHIELD                                     = 22417
+    SPELL_SHADOWWORDPAIN                                   = 14032,
+    SPELL_MANABURN                                         = 14033,
+    SPELL_PSYCHICSCREAM                                    = 13704,
+    SPELL_SHADOWSHIELD                                     = 12040
 };
 
 enum Events

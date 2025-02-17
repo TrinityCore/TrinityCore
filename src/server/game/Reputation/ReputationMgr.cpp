@@ -49,7 +49,7 @@ bool ReputationMgr::IsAtWar(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        TC_LOG_ERROR("misc", "ReputationMgr::IsAtWar: Can't get AtWar flag of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
+        TC_LOG_ERROR("misc", "ReputationMgr::IsAtWar: Can't get AtWar flag of {} for unknown faction (faction id) #{}.", _player->GetName(), faction_id);
         return 0;
     }
 
@@ -87,7 +87,7 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        TC_LOG_ERROR("misc", "ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
+        TC_LOG_ERROR("misc", "ReputationMgr::GetReputation: Can't get reputation of {} for unknown faction (faction id) #{}.", _player->GetName(), faction_id);
         return 0;
     }
 
@@ -527,7 +527,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
     // Set initial reputations (so everything is nifty before DB data load)
     Initialize();
 
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT faction, standing, flags FROM character_reputation WHERE guid = '%u'", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT faction, standing, flags FROM character_reputation WHERE guid = '{}'", GetGUID().GetCounter());
 
     if (result)
     {

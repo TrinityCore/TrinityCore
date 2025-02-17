@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 8.0.31, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.40, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.31-0ubuntu0.20.04.2
+-- Server version	8.0.40-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -33,8 +33,8 @@ CREATE TABLE `access_requirement` (
   `quest_done_A` int unsigned NOT NULL DEFAULT '0',
   `quest_done_H` int unsigned NOT NULL DEFAULT '0',
   `completed_achievement` int unsigned NOT NULL DEFAULT '0',
-  `quest_failed_text` mediumtext COLLATE utf8mb4_unicode_ci,
-  `comment` mediumtext COLLATE utf8mb4_unicode_ci,
+  `quest_failed_text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`mapId`,`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Access Requirements';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -51,7 +51,7 @@ CREATE TABLE `achievement_criteria_data` (
   `type` tinyint unsigned NOT NULL DEFAULT '0',
   `value1` int unsigned NOT NULL DEFAULT '0',
   `value2` int unsigned NOT NULL DEFAULT '0',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`criteria_id`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Achievment system';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -88,8 +88,8 @@ CREATE TABLE `achievement_reward` (
   `TitleH` int unsigned NOT NULL DEFAULT '0',
   `ItemID` int unsigned NOT NULL DEFAULT '0',
   `Sender` int unsigned NOT NULL DEFAULT '0',
-  `Subject` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Body` mediumtext COLLATE utf8mb4_unicode_ci,
+  `Subject` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Body` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `MailTemplateID` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
@@ -104,9 +104,9 @@ DROP TABLE IF EXISTS `achievement_reward_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `achievement_reward_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `Locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Subject` mediumtext COLLATE utf8mb4_unicode_ci,
-  `Body` mediumtext COLLATE utf8mb4_unicode_ci,
+  `Locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Subject` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Body` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`ID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -134,7 +134,7 @@ DROP TABLE IF EXISTS `areatrigger_scripts`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_scripts` (
   `entry` int NOT NULL,
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -148,7 +148,7 @@ DROP TABLE IF EXISTS `areatrigger_tavern`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_tavern` (
   `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
-  `name` mediumtext COLLATE utf8mb4_unicode_ci,
+  `name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Trigger System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -162,13 +162,13 @@ DROP TABLE IF EXISTS `areatrigger_teleport`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `areatrigger_teleport` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `Name` mediumtext COLLATE utf8mb4_unicode_ci,
+  `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `target_map` smallint unsigned NOT NULL DEFAULT '0',
   `target_position_x` float NOT NULL DEFAULT '0',
   `target_position_y` float NOT NULL DEFAULT '0',
   `target_position_z` float NOT NULL DEFAULT '0',
   `target_orientation` float NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`),
   FULLTEXT KEY `name` (`Name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Trigger System';
@@ -183,8 +183,8 @@ DROP TABLE IF EXISTS `battlefield_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battlefield_template` (
   `TypeId` tinyint unsigned NOT NULL,
-  `ScriptName` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `comment` mediumtext COLLATE utf8mb4_unicode_ci
+  `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -207,8 +207,8 @@ CREATE TABLE `battleground_template` (
   `HordeStartO` float NOT NULL,
   `StartMaxDist` float NOT NULL DEFAULT '0',
   `Weight` tinyint unsigned NOT NULL DEFAULT '1',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `Comment` char(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `Comment` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -237,8 +237,8 @@ DROP TABLE IF EXISTS `broadcast_text`;
 CREATE TABLE `broadcast_text` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `LanguageID` int unsigned NOT NULL DEFAULT '0',
-  `Text` longtext COLLATE utf8mb4_unicode_ci,
-  `Text1` longtext COLLATE utf8mb4_unicode_ci,
+  `Text` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `EmoteID1` int unsigned NOT NULL DEFAULT '0',
   `EmoteID2` int unsigned NOT NULL DEFAULT '0',
   `EmoteID3` int unsigned NOT NULL DEFAULT '0',
@@ -262,10 +262,10 @@ DROP TABLE IF EXISTS `broadcast_text_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `broadcast_text_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Text` mediumtext COLLATE utf8mb4_unicode_ci,
-  `Text1` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text1` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -278,8 +278,8 @@ DROP TABLE IF EXISTS `command`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `command` (
-  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `help` longtext COLLATE utf8mb4_unicode_ci,
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `help` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Chat System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -305,8 +305,8 @@ CREATE TABLE `conditions` (
   `NegativeCondition` tinyint unsigned NOT NULL DEFAULT '0',
   `ErrorType` int unsigned NOT NULL DEFAULT '0',
   `ErrorTextId` int unsigned NOT NULL DEFAULT '0',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Condition System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -341,7 +341,8 @@ CREATE TABLE `creature` (
   `npcflag` int unsigned NOT NULL DEFAULT '0',
   `unit_flags` int unsigned NOT NULL DEFAULT '0',
   `dynamicflags` int unsigned NOT NULL DEFAULT '0',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_map` (`map`),
@@ -368,7 +369,7 @@ CREATE TABLE `creature_addon` (
   `PvPFlags` tinyint unsigned NOT NULL DEFAULT '0',
   `emote` int unsigned NOT NULL DEFAULT '0',
   `visibilityDistanceType` tinyint unsigned NOT NULL DEFAULT '0',
-  `auras` mediumtext COLLATE utf8mb4_unicode_ci,
+  `auras` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -393,7 +394,7 @@ CREATE TABLE `creature_classlevelstats` (
   `damage_base` float NOT NULL DEFAULT '0',
   `damage_exp1` float NOT NULL DEFAULT '0',
   `damage_exp2` float NOT NULL DEFAULT '0',
-  `comment` mediumtext COLLATE utf8mb4_unicode_ci,
+  `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`level`,`class`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -425,7 +426,7 @@ CREATE TABLE `creature_equip_template` (
   `ItemID1` int unsigned NOT NULL DEFAULT '0',
   `ItemID2` int unsigned NOT NULL DEFAULT '0',
   `ItemID3` int unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`CreatureID`,`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -466,7 +467,7 @@ CREATE TABLE `creature_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -570,7 +571,7 @@ CREATE TABLE `creature_questitem` (
   `CreatureEntry` int unsigned NOT NULL DEFAULT '0',
   `Idx` int unsigned NOT NULL DEFAULT '0',
   `ItemId` int unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`CreatureEntry`,`Idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -607,7 +608,7 @@ CREATE TABLE `creature_summon_groups` (
   `orientation` float NOT NULL DEFAULT '0',
   `summonType` tinyint unsigned NOT NULL DEFAULT '0',
   `summonTime` int unsigned NOT NULL DEFAULT '0',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -629,9 +630,9 @@ CREATE TABLE `creature_template` (
   `modelid2` int unsigned NOT NULL DEFAULT '0',
   `modelid3` int unsigned NOT NULL DEFAULT '0',
   `modelid4` int unsigned NOT NULL DEFAULT '0',
-  `name` char(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `subname` char(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `IconName` char(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `subname` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `IconName` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gossip_menu_id` int unsigned NOT NULL DEFAULT '0',
   `minlevel` tinyint unsigned NOT NULL DEFAULT '1',
   `maxlevel` tinyint unsigned NOT NULL DEFAULT '1',
@@ -661,7 +662,7 @@ CREATE TABLE `creature_template` (
   `VehicleId` int unsigned NOT NULL DEFAULT '0',
   `mingold` int unsigned NOT NULL DEFAULT '0',
   `maxgold` int unsigned NOT NULL DEFAULT '0',
-  `AIName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `AIName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `MovementType` tinyint unsigned NOT NULL DEFAULT '0',
   `HoverHeight` float NOT NULL DEFAULT '1',
   `HealthModifier` float NOT NULL DEFAULT '1',
@@ -675,8 +676,9 @@ CREATE TABLE `creature_template` (
   `mechanic_immune_mask` int unsigned NOT NULL DEFAULT '0',
   `spell_school_immune_mask` int unsigned NOT NULL DEFAULT '0',
   `flags_extra` int unsigned NOT NULL DEFAULT '0',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Creature System';
@@ -701,7 +703,7 @@ CREATE TABLE `creature_template_addon` (
   `PvPFlags` tinyint unsigned NOT NULL DEFAULT '0',
   `emote` int unsigned NOT NULL DEFAULT '0',
   `visibilityDistanceType` tinyint unsigned NOT NULL DEFAULT '0',
-  `auras` mediumtext COLLATE utf8mb4_unicode_ci,
+  `auras` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -715,10 +717,10 @@ DROP TABLE IF EXISTS `creature_template_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_template_locale` (
   `entry` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Name` mediumtext COLLATE utf8mb4_unicode_ci,
-  `Title` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Title` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -754,7 +756,7 @@ CREATE TABLE `creature_template_resistance` (
   `CreatureID` int unsigned NOT NULL,
   `School` tinyint unsigned NOT NULL,
   `Resistance` smallint DEFAULT NULL,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`CreatureID`,`School`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -770,7 +772,7 @@ CREATE TABLE `creature_template_spell` (
   `CreatureID` int unsigned NOT NULL,
   `Index` tinyint unsigned NOT NULL DEFAULT '0',
   `Spell` int unsigned NOT NULL,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`CreatureID`,`Index`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -786,7 +788,7 @@ CREATE TABLE `creature_text` (
   `CreatureID` int unsigned NOT NULL DEFAULT '0',
   `GroupID` tinyint unsigned NOT NULL DEFAULT '0',
   `ID` tinyint unsigned NOT NULL DEFAULT '0',
-  `Text` longtext COLLATE utf8mb4_unicode_ci,
+  `Text` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
   `Language` tinyint NOT NULL DEFAULT '0',
   `Probability` float unsigned NOT NULL DEFAULT '0',
@@ -795,7 +797,7 @@ CREATE TABLE `creature_text` (
   `Sound` int unsigned NOT NULL DEFAULT '0',
   `BroadcastTextId` int NOT NULL DEFAULT '0',
   `TextRange` tinyint unsigned NOT NULL DEFAULT '0',
-  `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   PRIMARY KEY (`CreatureID`,`GroupID`,`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -811,8 +813,8 @@ CREATE TABLE `creature_text_locale` (
   `CreatureID` int unsigned NOT NULL DEFAULT '0',
   `GroupID` tinyint unsigned NOT NULL DEFAULT '0',
   `ID` tinyint unsigned NOT NULL DEFAULT '0',
-  `Locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Text` mediumtext COLLATE utf8mb4_unicode_ci,
+  `Locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`CreatureID`,`GroupID`,`ID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -828,9 +830,9 @@ CREATE TABLE `disables` (
   `sourceType` int unsigned NOT NULL,
   `entry` int unsigned NOT NULL,
   `flags` smallint NOT NULL,
-  `params_0` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `params_1` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `comment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `params_0` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `params_1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`sourceType`,`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -852,7 +854,7 @@ CREATE TABLE `disenchant_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -875,7 +877,7 @@ CREATE TABLE `event_scripts` (
   `y` float NOT NULL DEFAULT '0',
   `z` float NOT NULL DEFAULT '0',
   `o` float NOT NULL DEFAULT '0',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -910,7 +912,7 @@ CREATE TABLE `fishing_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -930,7 +932,7 @@ CREATE TABLE `game_event` (
   `length` bigint unsigned NOT NULL DEFAULT '2592000' COMMENT 'Length in minutes of the event',
   `holiday` int unsigned NOT NULL DEFAULT '0' COMMENT 'Client side holiday id',
   `holidayStage` tinyint unsigned NOT NULL DEFAULT '0',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Description of the event displayed in console',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Description of the event displayed in console',
   `world_event` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '0 if normal event, 1 if world event',
   `announce` tinyint unsigned DEFAULT '2' COMMENT '0 dont announce, 1 announce, 2 value from config',
   PRIMARY KEY (`eventEntry`)
@@ -978,7 +980,7 @@ CREATE TABLE `game_event_condition` (
   `req_num` float DEFAULT '0',
   `max_world_state_field` smallint unsigned NOT NULL DEFAULT '0',
   `done_world_state_field` smallint unsigned NOT NULL DEFAULT '0',
-  `description` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `description` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`eventEntry`,`condition_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1165,7 +1167,7 @@ CREATE TABLE `game_tele` (
   `position_z` float NOT NULL DEFAULT '0',
   `orientation` float NOT NULL DEFAULT '0',
   `map` smallint unsigned NOT NULL DEFAULT '0',
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1191,7 +1193,7 @@ CREATE TABLE `game_weather` (
   `winter_rain_chance` tinyint unsigned NOT NULL DEFAULT '25',
   `winter_snow_chance` tinyint unsigned NOT NULL DEFAULT '25',
   `winter_storm_chance` tinyint unsigned NOT NULL DEFAULT '25',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`zone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Weather System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1222,8 +1224,9 @@ CREATE TABLE `gameobject` (
   `spawntimesecs` int NOT NULL DEFAULT '0',
   `animprogress` tinyint unsigned NOT NULL DEFAULT '0',
   `state` tinyint unsigned NOT NULL DEFAULT '0',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2134507 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gameobject System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1264,7 +1267,7 @@ CREATE TABLE `gameobject_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1309,7 +1312,7 @@ CREATE TABLE `gameobject_questitem` (
   `GameObjectEntry` int unsigned NOT NULL DEFAULT '0',
   `Idx` int unsigned NOT NULL DEFAULT '0',
   `ItemId` int unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`GameObjectEntry`,`Idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1339,10 +1342,10 @@ CREATE TABLE `gameobject_template` (
   `entry` int unsigned NOT NULL DEFAULT '0',
   `type` tinyint unsigned NOT NULL DEFAULT '0',
   `displayId` int unsigned NOT NULL DEFAULT '0',
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `IconName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `castBarCaption` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `unk1` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `IconName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `castBarCaption` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `unk1` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `size` float NOT NULL DEFAULT '1',
   `Data0` int unsigned NOT NULL DEFAULT '0',
   `Data1` int NOT NULL DEFAULT '0',
@@ -1368,9 +1371,10 @@ CREATE TABLE `gameobject_template` (
   `Data21` int unsigned NOT NULL DEFAULT '0',
   `Data22` int unsigned NOT NULL DEFAULT '0',
   `Data23` int unsigned NOT NULL DEFAULT '0',
-  `AIName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `ScriptName` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `AIName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gameobject System';
@@ -1406,10 +1410,10 @@ DROP TABLE IF EXISTS `gameobject_template_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `gameobject_template_locale` (
   `entry` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` mediumtext COLLATE utf8mb4_unicode_ci,
-  `castBarCaption` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `castBarCaption` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1440,7 +1444,7 @@ CREATE TABLE `gossip_menu_option` (
   `MenuID` smallint unsigned NOT NULL DEFAULT '0',
   `OptionID` smallint unsigned NOT NULL DEFAULT '0',
   `OptionIcon` int unsigned NOT NULL DEFAULT '0',
-  `OptionText` mediumtext COLLATE utf8mb4_unicode_ci,
+  `OptionText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `OptionBroadcastTextID` int NOT NULL DEFAULT '0',
   `OptionType` tinyint unsigned NOT NULL DEFAULT '0',
   `OptionNpcFlag` int unsigned NOT NULL DEFAULT '0',
@@ -1448,7 +1452,7 @@ CREATE TABLE `gossip_menu_option` (
   `ActionPoiID` int unsigned NOT NULL DEFAULT '0',
   `BoxCoded` tinyint unsigned NOT NULL DEFAULT '0',
   `BoxMoney` int unsigned NOT NULL DEFAULT '0',
-  `BoxText` mediumtext COLLATE utf8mb4_unicode_ci,
+  `BoxText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BoxBroadcastTextID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`MenuID`,`OptionID`)
@@ -1465,9 +1469,9 @@ DROP TABLE IF EXISTS `gossip_menu_option_locale`;
 CREATE TABLE `gossip_menu_option_locale` (
   `MenuID` smallint unsigned NOT NULL DEFAULT '0',
   `OptionID` smallint unsigned NOT NULL DEFAULT '0',
-  `Locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `OptionText` mediumtext COLLATE utf8mb4_unicode_ci,
-  `BoxText` mediumtext COLLATE utf8mb4_unicode_ci,
+  `Locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `OptionText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `BoxText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`MenuID`,`OptionID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1483,7 +1487,7 @@ CREATE TABLE `graveyard_zone` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `GhostZone` int unsigned NOT NULL DEFAULT '0',
   `Faction` smallint unsigned NOT NULL DEFAULT '0',
-  `Comment` mediumtext COLLATE utf8mb4_unicode_ci,
+  `Comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`ID`,`GhostZone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Trigger System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1516,7 +1520,7 @@ CREATE TABLE `instance_encounters` (
   `creditType` tinyint unsigned NOT NULL DEFAULT '0',
   `creditEntry` int unsigned NOT NULL DEFAULT '0',
   `lastEncounterDungeon` smallint unsigned NOT NULL DEFAULT '0' COMMENT 'If not 0, LfgDungeon.dbc entry for the instance it is last encounter in',
-  `comment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1548,7 +1552,7 @@ DROP TABLE IF EXISTS `instance_template`;
 CREATE TABLE `instance_template` (
   `map` smallint unsigned NOT NULL,
   `parent` smallint unsigned NOT NULL,
-  `script` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `script` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `allowMount` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`map`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1586,7 +1590,7 @@ CREATE TABLE `item_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1600,9 +1604,9 @@ DROP TABLE IF EXISTS `item_set_names`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_set_names` (
   `entry` int unsigned NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `InventoryType` tinyint unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1616,9 +1620,9 @@ DROP TABLE IF EXISTS `item_set_names_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_set_names_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Name` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1635,7 +1639,7 @@ CREATE TABLE `item_template` (
   `class` tinyint unsigned NOT NULL DEFAULT '0',
   `subclass` tinyint unsigned NOT NULL DEFAULT '0',
   `SoundOverrideSubclass` tinyint NOT NULL DEFAULT '-1',
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `displayid` int unsigned NOT NULL DEFAULT '0',
   `Quality` tinyint unsigned NOT NULL DEFAULT '0',
   `Flags` int unsigned NOT NULL DEFAULT '0',
@@ -1733,7 +1737,7 @@ CREATE TABLE `item_template` (
   `spellcategory_5` smallint unsigned NOT NULL DEFAULT '0',
   `spellcategorycooldown_5` int NOT NULL DEFAULT '-1',
   `bonding` tinyint unsigned NOT NULL DEFAULT '0',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `PageText` int unsigned NOT NULL DEFAULT '0',
   `LanguageID` tinyint unsigned NOT NULL DEFAULT '0',
   `PageMaterial` tinyint unsigned NOT NULL DEFAULT '0',
@@ -1763,13 +1767,13 @@ CREATE TABLE `item_template` (
   `duration` int unsigned NOT NULL DEFAULT '0',
   `ItemLimitCategory` smallint NOT NULL DEFAULT '0',
   `HolidayId` int unsigned NOT NULL DEFAULT '0',
-  `ScriptName` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `DisenchantID` int unsigned NOT NULL DEFAULT '0',
   `FoodType` tinyint unsigned NOT NULL DEFAULT '0',
   `minMoneyLoot` int unsigned NOT NULL DEFAULT '0',
   `maxMoneyLoot` int unsigned NOT NULL DEFAULT '0',
   `flagsCustom` int unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`),
   KEY `items_index` (`class`)
@@ -1785,10 +1789,10 @@ DROP TABLE IF EXISTS `item_template_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_template_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Name` mediumtext COLLATE utf8mb4_unicode_ci,
-  `Description` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1823,7 +1827,7 @@ CREATE TABLE `lfg_dungeon_template` (
   `position_y` float NOT NULL DEFAULT '0',
   `position_z` float NOT NULL DEFAULT '0',
   `orientation` float NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`dungeonId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1876,7 +1880,7 @@ CREATE TABLE `mail_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1898,7 +1902,7 @@ CREATE TABLE `milling_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1928,8 +1932,8 @@ DROP TABLE IF EXISTS `npc_text`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `npc_text` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `text0_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text0_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text0_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text0_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID0` int NOT NULL DEFAULT '0',
   `lang0` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability0` float NOT NULL DEFAULT '0',
@@ -1939,8 +1943,8 @@ CREATE TABLE `npc_text` (
   `Emote0_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay0_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote0_2` smallint unsigned NOT NULL DEFAULT '0',
-  `text1_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text1_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text1_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text1_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID1` int NOT NULL DEFAULT '0',
   `lang1` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability1` float NOT NULL DEFAULT '0',
@@ -1950,8 +1954,8 @@ CREATE TABLE `npc_text` (
   `Emote1_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay1_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote1_2` smallint unsigned NOT NULL DEFAULT '0',
-  `text2_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text2_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text2_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text2_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID2` int NOT NULL DEFAULT '0',
   `lang2` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability2` float NOT NULL DEFAULT '0',
@@ -1961,8 +1965,8 @@ CREATE TABLE `npc_text` (
   `Emote2_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay2_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote2_2` smallint unsigned NOT NULL DEFAULT '0',
-  `text3_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text3_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text3_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text3_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID3` int NOT NULL DEFAULT '0',
   `lang3` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability3` float NOT NULL DEFAULT '0',
@@ -1972,8 +1976,8 @@ CREATE TABLE `npc_text` (
   `Emote3_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay3_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote3_2` smallint unsigned NOT NULL DEFAULT '0',
-  `text4_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text4_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text4_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text4_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID4` int NOT NULL DEFAULT '0',
   `lang4` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability4` float NOT NULL DEFAULT '0',
@@ -1983,8 +1987,8 @@ CREATE TABLE `npc_text` (
   `Emote4_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay4_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote4_2` smallint unsigned NOT NULL DEFAULT '0',
-  `text5_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text5_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text5_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text5_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID5` int NOT NULL DEFAULT '0',
   `lang5` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability5` float NOT NULL DEFAULT '0',
@@ -1994,8 +1998,8 @@ CREATE TABLE `npc_text` (
   `Emote5_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay5_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote5_2` smallint unsigned NOT NULL DEFAULT '0',
-  `text6_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text6_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text6_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text6_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID6` int NOT NULL DEFAULT '0',
   `lang6` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability6` float NOT NULL DEFAULT '0',
@@ -2005,8 +2009,8 @@ CREATE TABLE `npc_text` (
   `Emote6_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay6_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote6_2` smallint unsigned NOT NULL DEFAULT '0',
-  `text7_0` longtext COLLATE utf8mb4_unicode_ci,
-  `text7_1` longtext COLLATE utf8mb4_unicode_ci,
+  `text7_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `text7_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BroadcastTextID7` int NOT NULL DEFAULT '0',
   `lang7` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability7` float NOT NULL DEFAULT '0',
@@ -2016,7 +2020,7 @@ CREATE TABLE `npc_text` (
   `Emote7_1` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteDelay7_2` smallint unsigned NOT NULL DEFAULT '0',
   `Emote7_2` smallint unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2030,23 +2034,23 @@ DROP TABLE IF EXISTS `npc_text_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `npc_text_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `Locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Text0_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text0_1` longtext COLLATE utf8mb4_unicode_ci,
-  `Text1_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text1_1` longtext COLLATE utf8mb4_unicode_ci,
-  `Text2_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text2_1` longtext COLLATE utf8mb4_unicode_ci,
-  `Text3_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text3_1` longtext COLLATE utf8mb4_unicode_ci,
-  `Text4_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text4_1` longtext COLLATE utf8mb4_unicode_ci,
-  `Text5_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text5_1` longtext COLLATE utf8mb4_unicode_ci,
-  `Text6_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text6_1` longtext COLLATE utf8mb4_unicode_ci,
-  `Text7_0` longtext COLLATE utf8mb4_unicode_ci,
-  `Text7_1` longtext COLLATE utf8mb4_unicode_ci,
+  `Locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Text0_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text0_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text1_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text1_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text2_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text2_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text3_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text3_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text4_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text4_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text5_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text5_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text6_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text6_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text7_0` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Text7_1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`ID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2065,7 +2069,7 @@ CREATE TABLE `npc_vendor` (
   `maxcount` tinyint unsigned NOT NULL DEFAULT '0',
   `incrtime` int unsigned NOT NULL DEFAULT '0',
   `ExtendedCost` int unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`,`item`,`ExtendedCost`),
   KEY `slot` (`slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Npc System';
@@ -2080,8 +2084,8 @@ DROP TABLE IF EXISTS `outdoorpvp_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `outdoorpvp_template` (
   `TypeId` tinyint unsigned NOT NULL,
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `comment` mediumtext COLLATE utf8mb4_unicode_ci,
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`TypeId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OutdoorPvP Templates';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2095,7 +2099,7 @@ DROP TABLE IF EXISTS `page_text`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `page_text` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `Text` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Text` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `NextPageID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
@@ -2111,9 +2115,9 @@ DROP TABLE IF EXISTS `page_text_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `page_text_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Text` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2151,7 +2155,7 @@ DROP TABLE IF EXISTS `pet_name_generation`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pet_name_generation` (
   `id` int unsigned NOT NULL,
-  `word` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `word` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `entry` int unsigned NOT NULL DEFAULT '0',
   `half` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -2175,7 +2179,7 @@ CREATE TABLE `pickpocketing_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2220,10 +2224,10 @@ DROP TABLE IF EXISTS `player_factionchange_items`;
 CREATE TABLE `player_factionchange_items` (
   `race_A` int unsigned NOT NULL,
   `alliance_id` int unsigned NOT NULL,
-  `commentA` mediumtext COLLATE utf8mb4_unicode_ci,
+  `commentA` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `race_H` int unsigned NOT NULL,
   `horde_id` int unsigned NOT NULL,
-  `commentH` mediumtext COLLATE utf8mb4_unicode_ci,
+  `commentH` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`alliance_id`,`horde_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2384,7 +2388,7 @@ CREATE TABLE `playercreateinfo_cast_spell` (
   `raceMask` int unsigned NOT NULL DEFAULT '0',
   `classMask` int unsigned NOT NULL DEFAULT '0',
   `spell` int unsigned NOT NULL DEFAULT '0',
-  `note` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `note` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2417,7 +2421,7 @@ CREATE TABLE `playercreateinfo_skills` (
   `classMask` int unsigned NOT NULL,
   `skill` smallint unsigned NOT NULL,
   `rank` smallint unsigned NOT NULL DEFAULT '0',
-  `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`raceMask`,`classMask`,`skill`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2433,7 +2437,7 @@ CREATE TABLE `playercreateinfo_spell_custom` (
   `racemask` int unsigned NOT NULL DEFAULT '0',
   `classmask` int unsigned NOT NULL DEFAULT '0',
   `Spell` int unsigned NOT NULL DEFAULT '0',
-  `Note` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Note` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`racemask`,`classmask`,`Spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2452,8 +2456,8 @@ CREATE TABLE `points_of_interest` (
   `Icon` int unsigned NOT NULL DEFAULT '0',
   `Flags` int unsigned NOT NULL DEFAULT '0',
   `Importance` int unsigned NOT NULL DEFAULT '0',
-  `Name` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2467,9 +2471,9 @@ DROP TABLE IF EXISTS `points_of_interest_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `points_of_interest_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Name` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2486,7 +2490,7 @@ CREATE TABLE `pool_members` (
   `spawnId` int unsigned NOT NULL,
   `poolSpawnId` int unsigned NOT NULL,
   `chance` float NOT NULL,
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`type`,`spawnId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2501,7 +2505,7 @@ DROP TABLE IF EXISTS `pool_template`;
 CREATE TABLE `pool_template` (
   `entry` int unsigned NOT NULL DEFAULT '0' COMMENT 'Pool entry',
   `max_limit` int unsigned NOT NULL DEFAULT '0' COMMENT 'Max number of objects (0) is no limit',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2523,7 +2527,7 @@ CREATE TABLE `prospecting_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2562,8 +2566,8 @@ CREATE TABLE `quest_greeting` (
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
   `GreetEmoteType` smallint unsigned NOT NULL DEFAULT '0',
   `GreetEmoteDelay` int unsigned NOT NULL DEFAULT '0',
-  `Greeting` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `Greeting` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`Type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2578,9 +2582,9 @@ DROP TABLE IF EXISTS `quest_greeting_locale`;
 CREATE TABLE `quest_greeting_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Greeting` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Greeting` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`Type`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2616,7 +2620,7 @@ CREATE TABLE `quest_offer_reward` (
   `EmoteDelay2` int unsigned NOT NULL DEFAULT '0',
   `EmoteDelay3` int unsigned NOT NULL DEFAULT '0',
   `EmoteDelay4` int unsigned NOT NULL DEFAULT '0',
-  `RewardText` mediumtext COLLATE utf8mb4_unicode_ci,
+  `RewardText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2631,9 +2635,9 @@ DROP TABLE IF EXISTS `quest_offer_reward_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quest_offer_reward_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `RewardText` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `RewardText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2654,7 +2658,7 @@ CREATE TABLE `quest_poi` (
   `Floor` int unsigned NOT NULL DEFAULT '0',
   `Priority` int unsigned NOT NULL DEFAULT '0',
   `Flags` int unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`QuestID`,`id`),
   KEY `idx` (`QuestID`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2673,7 +2677,7 @@ CREATE TABLE `quest_poi_points` (
   `Idx2` int unsigned NOT NULL DEFAULT '0',
   `X` int NOT NULL DEFAULT '0',
   `Y` int NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`QuestID`,`Idx1`,`Idx2`),
   KEY `questId_id` (`QuestID`,`Idx1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2690,7 +2694,7 @@ CREATE TABLE `quest_pool_members` (
   `questId` int unsigned NOT NULL,
   `poolId` int unsigned NOT NULL,
   `poolIndex` tinyint unsigned NOT NULL COMMENT 'Multiple quests with the same index will always spawn together!',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`questId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2705,7 +2709,7 @@ DROP TABLE IF EXISTS `quest_pool_template`;
 CREATE TABLE `quest_pool_template` (
   `poolId` int unsigned NOT NULL,
   `numActive` int unsigned NOT NULL COMMENT 'Number of indices to have active at any time',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`poolId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2721,7 +2725,7 @@ CREATE TABLE `quest_request_items` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `EmoteOnComplete` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteOnIncomplete` smallint unsigned NOT NULL DEFAULT '0',
-  `CompletionText` mediumtext COLLATE utf8mb4_unicode_ci,
+  `CompletionText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2736,9 +2740,9 @@ DROP TABLE IF EXISTS `quest_request_items_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quest_request_items_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `CompletionText` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `CompletionText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2825,11 +2829,11 @@ CREATE TABLE `quest_template` (
   `RewardFactionOverride5` int NOT NULL DEFAULT '0',
   `TimeAllowed` int unsigned NOT NULL DEFAULT '0',
   `AllowableRaces` smallint unsigned NOT NULL DEFAULT '0',
-  `LogTitle` mediumtext COLLATE utf8mb4_unicode_ci,
-  `LogDescription` mediumtext COLLATE utf8mb4_unicode_ci,
-  `QuestDescription` mediumtext COLLATE utf8mb4_unicode_ci,
-  `AreaDescription` mediumtext COLLATE utf8mb4_unicode_ci,
-  `QuestCompletionLog` mediumtext COLLATE utf8mb4_unicode_ci,
+  `LogTitle` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `LogDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `QuestDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `AreaDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `QuestCompletionLog` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `RequiredNpcOrGo1` int NOT NULL DEFAULT '0',
   `RequiredNpcOrGo2` int NOT NULL DEFAULT '0',
   `RequiredNpcOrGo3` int NOT NULL DEFAULT '0',
@@ -2851,11 +2855,11 @@ CREATE TABLE `quest_template` (
   `RequiredItemCount5` smallint unsigned NOT NULL DEFAULT '0',
   `RequiredItemCount6` smallint unsigned NOT NULL DEFAULT '0',
   `Unknown0` tinyint unsigned NOT NULL DEFAULT '0',
-  `ObjectiveText1` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ObjectiveText2` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ObjectiveText3` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ObjectiveText4` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `ObjectiveText1` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ObjectiveText2` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ObjectiveText3` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ObjectiveText4` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quest System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2899,17 +2903,17 @@ DROP TABLE IF EXISTS `quest_template_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quest_template_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Title` mediumtext COLLATE utf8mb4_unicode_ci,
-  `Details` mediumtext COLLATE utf8mb4_unicode_ci,
-  `Objectives` mediumtext COLLATE utf8mb4_unicode_ci,
-  `EndText` mediumtext COLLATE utf8mb4_unicode_ci,
-  `CompletedText` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ObjectiveText1` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ObjectiveText2` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ObjectiveText3` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ObjectiveText4` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Title` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Details` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Objectives` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `EndText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `CompletedText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ObjectiveText1` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ObjectiveText2` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ObjectiveText3` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ObjectiveText4` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2931,7 +2935,7 @@ CREATE TABLE `reference_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3032,7 +3036,7 @@ CREATE TABLE `script_waypoint` (
   `location_y` float NOT NULL DEFAULT '0',
   `location_z` float NOT NULL DEFAULT '0',
   `waittime` int unsigned NOT NULL DEFAULT '0' COMMENT 'waittime in millisecs',
-  `point_comment` mediumtext COLLATE utf8mb4_unicode_ci,
+  `point_comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Script Creature waypoints';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3116,7 +3120,7 @@ CREATE TABLE `skinning_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3158,7 +3162,7 @@ CREATE TABLE `smart_scripts` (
   `target_y` float NOT NULL DEFAULT '0',
   `target_z` float NOT NULL DEFAULT '0',
   `target_o` float NOT NULL DEFAULT '0',
-  `comment` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Event Comment',
+  `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Event Comment',
   PRIMARY KEY (`entryorguid`,`source_type`,`id`,`link`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3187,7 +3191,7 @@ DROP TABLE IF EXISTS `spawn_group_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `spawn_group_template` (
   `groupId` int unsigned NOT NULL,
-  `groupName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `groupName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `groupFlags` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`groupId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3228,7 +3232,7 @@ CREATE TABLE `spell_bonus_data` (
   `dot_bonus` float NOT NULL DEFAULT '0',
   `ap_bonus` float NOT NULL DEFAULT '0',
   `ap_dot_bonus` float NOT NULL DEFAULT '0',
-  `comments` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `comments` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3337,7 +3341,7 @@ CREATE TABLE `spell_dbc` (
   `EffectSpellClassMaskC1` int unsigned NOT NULL DEFAULT '0',
   `EffectSpellClassMaskC2` int unsigned NOT NULL DEFAULT '0',
   `EffectSpellClassMaskC3` int unsigned NOT NULL DEFAULT '0',
-  `SpellName` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `SpellName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `MaxTargetLevel` int unsigned NOT NULL DEFAULT '0',
   `SpellFamilyName` int unsigned NOT NULL DEFAULT '0',
   `SpellFamilyFlags1` int unsigned NOT NULL DEFAULT '0',
@@ -3426,7 +3430,7 @@ CREATE TABLE `spell_linked_spell` (
   `spell_trigger` int NOT NULL,
   `spell_effect` int NOT NULL DEFAULT '0',
   `type` tinyint unsigned NOT NULL DEFAULT '0',
-  `comment` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   UNIQUE KEY `trigger_effect_type` (`spell_trigger`,`spell_effect`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Spell System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3448,7 +3452,7 @@ CREATE TABLE `spell_loot_template` (
   `GroupId` tinyint unsigned NOT NULL DEFAULT '0',
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3536,7 +3540,7 @@ DROP TABLE IF EXISTS `spell_script_names`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `spell_script_names` (
   `spell_id` int NOT NULL,
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3560,7 +3564,7 @@ CREATE TABLE `spell_scripts` (
   `y` float NOT NULL DEFAULT '0',
   `z` float NOT NULL DEFAULT '0',
   `o` float NOT NULL DEFAULT '0',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3579,7 +3583,7 @@ CREATE TABLE `spell_target_position` (
   `PositionY` float NOT NULL DEFAULT '0',
   `PositionZ` float NOT NULL DEFAULT '0',
   `Orientation` float NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`ID`,`EffectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Spell System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3628,8 +3632,8 @@ CREATE TABLE `trainer` (
   `Id` int unsigned NOT NULL DEFAULT '0',
   `Type` tinyint unsigned NOT NULL DEFAULT '2',
   `Requirement` int unsigned NOT NULL DEFAULT '0',
-  `Greeting` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `Greeting` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3643,9 +3647,9 @@ DROP TABLE IF EXISTS `trainer_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trainer_locale` (
   `Id` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Greeting_lang` mediumtext COLLATE utf8mb4_unicode_ci,
-  `VerifiedBuild` smallint DEFAULT '0',
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Greeting_lang` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`Id`,`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3667,7 +3671,7 @@ CREATE TABLE `trainer_spell` (
   `ReqAbility2` int unsigned NOT NULL DEFAULT '0',
   `ReqAbility3` int unsigned NOT NULL DEFAULT '0',
   `ReqLevel` tinyint unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`TrainerId`,`SpellId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3682,8 +3686,8 @@ DROP TABLE IF EXISTS `transports`;
 CREATE TABLE `transports` (
   `guid` int unsigned NOT NULL AUTO_INCREMENT,
   `entry` int unsigned NOT NULL DEFAULT '0',
-  `name` mediumtext COLLATE utf8mb4_unicode_ci,
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`guid`),
   UNIQUE KEY `idx_entry` (`entry`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Transports';
@@ -3698,15 +3702,15 @@ DROP TABLE IF EXISTS `trinity_string`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trinity_string` (
   `entry` int unsigned NOT NULL DEFAULT '0',
-  `content_default` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content_loc1` mediumtext COLLATE utf8mb4_unicode_ci,
-  `content_loc2` mediumtext COLLATE utf8mb4_unicode_ci,
-  `content_loc3` mediumtext COLLATE utf8mb4_unicode_ci,
-  `content_loc4` mediumtext COLLATE utf8mb4_unicode_ci,
-  `content_loc5` mediumtext COLLATE utf8mb4_unicode_ci,
-  `content_loc6` mediumtext COLLATE utf8mb4_unicode_ci,
-  `content_loc7` mediumtext COLLATE utf8mb4_unicode_ci,
-  `content_loc8` mediumtext COLLATE utf8mb4_unicode_ci,
+  `content_default` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content_loc1` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content_loc2` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content_loc3` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content_loc4` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content_loc5` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content_loc6` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content_loc7` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `content_loc8` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3719,9 +3723,9 @@ DROP TABLE IF EXISTS `updates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `updates` (
-  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'filename with extension of the update.',
-  `hash` char(40) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'sha1 hash of the sql file.',
-  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'filename with extension of the update.',
+  `hash` char(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'sha1 hash of the sql file.',
+  `state` enum('RELEASED','ARCHIVED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
   `speed` int unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
   PRIMARY KEY (`name`)
@@ -3736,8 +3740,8 @@ DROP TABLE IF EXISTS `updates_include`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `updates_include` (
-  `path` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
-  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
+  `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
+  `state` enum('RELEASED','ARCHIVED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
   PRIMARY KEY (`path`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3754,7 +3758,7 @@ CREATE TABLE `vehicle_accessory` (
   `accessory_entry` int unsigned NOT NULL DEFAULT '0',
   `seat_id` tinyint NOT NULL DEFAULT '0',
   `minion` tinyint unsigned NOT NULL DEFAULT '0',
-  `description` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `summontype` tinyint unsigned NOT NULL DEFAULT '6' COMMENT 'see enum TempSummonType',
   `summontimer` int unsigned NOT NULL DEFAULT '30000' COMMENT 'timer, only relevant for certain summontypes',
   PRIMARY KEY (`guid`,`seat_id`)
@@ -3806,7 +3810,7 @@ CREATE TABLE `vehicle_template_accessory` (
   `accessory_entry` int unsigned NOT NULL DEFAULT '0',
   `seat_id` tinyint NOT NULL DEFAULT '0',
   `minion` tinyint unsigned NOT NULL DEFAULT '0',
-  `description` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `summontype` tinyint unsigned NOT NULL DEFAULT '6' COMMENT 'see enum TempSummonType',
   `summontimer` int unsigned NOT NULL DEFAULT '30000' COMMENT 'timer, only relevant for certain summontypes',
   PRIMARY KEY (`entry`,`seat_id`)
@@ -3821,9 +3825,9 @@ DROP TABLE IF EXISTS `version`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `version` (
-  `core_version` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'Core revision dumped at startup.',
-  `core_revision` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `db_version` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Version of world DB.',
+  `core_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'Core revision dumped at startup.',
+  `core_revision` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `db_version` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Version of world DB.',
   `cache_id` int DEFAULT '0',
   PRIMARY KEY (`core_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Version Notes';
@@ -3923,14 +3927,14 @@ DROP TABLE IF EXISTS `warden_checks`;
 CREATE TABLE `warden_checks` (
   `id` smallint unsigned NOT NULL AUTO_INCREMENT,
   `type` tinyint unsigned DEFAULT NULL,
-  `str` varchar(170) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `str` varchar(170) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `address` int unsigned DEFAULT NULL,
   `length` tinyint unsigned DEFAULT NULL,
-  `comment` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `comment` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `data` binary(24) DEFAULT NULL,
   `result` varbinary(24) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=791 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=812 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3975,7 +3979,7 @@ CREATE TABLE `waypoint_scripts` (
   `z` float NOT NULL DEFAULT '0',
   `o` float NOT NULL DEFAULT '0',
   `guid` int NOT NULL DEFAULT '0',
-  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3995,7 +3999,7 @@ CREATE TABLE `waypoints` (
   `position_z` float NOT NULL DEFAULT '0',
   `orientation` float DEFAULT NULL,
   `delay` int unsigned NOT NULL DEFAULT '0',
-  `point_comment` mediumtext COLLATE utf8mb4_unicode_ci,
+  `point_comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Creature waypoints';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4016,7 +4020,7 @@ CREATE TABLE `waypoints` (
 /*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8mb3_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_conditions_with_labels` AS select (case when (`conditions`.`SourceTypeOrReferenceId` = 0) then 'CONDITION_SOURCE_TYPE_NONE' when (`conditions`.`SourceTypeOrReferenceId` = 1) then 'CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 2) then 'CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 3) then 'CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 4) then 'CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 5) then 'CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 6) then 'CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 7) then 'CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 8) then 'CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 9) then 'CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 10) then 'CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 11) then 'CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 12) then 'CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 13) then 'CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET' when (`conditions`.`SourceTypeOrReferenceId` = 14) then 'CONDITION_SOURCE_TYPE_GOSSIP_MENU' when (`conditions`.`SourceTypeOrReferenceId` = 15) then 'CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION' when (`conditions`.`SourceTypeOrReferenceId` = 16) then 'CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE' when (`conditions`.`SourceTypeOrReferenceId` = 17) then 'CONDITION_SOURCE_TYPE_SPELL' when (`conditions`.`SourceTypeOrReferenceId` = 18) then 'CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT' when (`conditions`.`SourceTypeOrReferenceId` = 19) then 'CONDITION_SOURCE_TYPE_QUEST_AVAILABLE' when (`conditions`.`SourceTypeOrReferenceId` = 21) then 'CONDITION_SOURCE_TYPE_VEHICLE_SPELL' when (`conditions`.`SourceTypeOrReferenceId` = 22) then 'CONDITION_SOURCE_TYPE_SMART_EVENT' when (`conditions`.`SourceTypeOrReferenceId` = 23) then 'CONDITION_SOURCE_TYPE_NPC_VENDOR' when (`conditions`.`SourceTypeOrReferenceId` = 24) then 'CONDITION_SOURCE_TYPE_SPELL_PROC' when (`conditions`.`SourceTypeOrReferenceId` = 25) then 'CONDITION_SOURCE_TYPE_TERRAIN_SWAP' when (`conditions`.`SourceTypeOrReferenceId` = 26) then 'CONDITION_SOURCE_TYPE_PHASE' when (`conditions`.`SourceTypeOrReferenceId` = 27) then 'CONDITION_SOURCE_TYPE_GRAVEYARD' else `conditions`.`SourceTypeOrReferenceId` end) AS `SourceTypeOrReferenceId`,`conditions`.`SourceGroup` AS `SourceGroup`,`conditions`.`SourceEntry` AS `SourceEntry`,`conditions`.`SourceId` AS `SourceId`,`conditions`.`ElseGroup` AS `ElseGroup`,(case when (`conditions`.`SourceTypeOrReferenceId` = 0) then 'CONDITION_NONE' when (`conditions`.`SourceTypeOrReferenceId` = 1) then 'CONDITION_AURA' when (`conditions`.`SourceTypeOrReferenceId` = 2) then 'CONDITION_ITEM' when (`conditions`.`SourceTypeOrReferenceId` = 3) then 'CONDITION_ITEM_EQUIPPED' when (`conditions`.`SourceTypeOrReferenceId` = 4) then 'CONDITION_ZONEID' when (`conditions`.`SourceTypeOrReferenceId` = 5) then 'CONDITION_REPUTATION_RANK' when (`conditions`.`SourceTypeOrReferenceId` = 6) then 'CONDITION_TEAM' when (`conditions`.`SourceTypeOrReferenceId` = 7) then 'CONDITION_SKILL' when (`conditions`.`SourceTypeOrReferenceId` = 8) then 'CONDITION_QUESTREWARDED' when (`conditions`.`SourceTypeOrReferenceId` = 9) then 'CONDITION_QUESTTAKEN' when (`conditions`.`SourceTypeOrReferenceId` = 10) then 'CONDITION_DRUNKENSTATE' when (`conditions`.`SourceTypeOrReferenceId` = 11) then 'CONDITION_WORLD_STATE' when (`conditions`.`SourceTypeOrReferenceId` = 12) then 'CONDITION_ACTIVE_EVENT' when (`conditions`.`SourceTypeOrReferenceId` = 13) then 'CONDITION_INSTANCE_INFO' when (`conditions`.`SourceTypeOrReferenceId` = 14) then 'CONDITION_QUEST_NONE' when (`conditions`.`SourceTypeOrReferenceId` = 15) then 'CONDITION_CLASS' when (`conditions`.`SourceTypeOrReferenceId` = 16) then 'CONDITION_RACE' when (`conditions`.`SourceTypeOrReferenceId` = 17) then 'CONDITION_ACHIEVEMENT' when (`conditions`.`SourceTypeOrReferenceId` = 18) then 'CONDITION_TITLE' when (`conditions`.`SourceTypeOrReferenceId` = 19) then 'CONDITION_SPAWNMASK' when (`conditions`.`SourceTypeOrReferenceId` = 20) then 'CONDITION_GENDER' when (`conditions`.`SourceTypeOrReferenceId` = 21) then 'CONDITION_UNIT_STATE' when (`conditions`.`SourceTypeOrReferenceId` = 22) then 'CONDITION_MAPID' when (`conditions`.`SourceTypeOrReferenceId` = 23) then 'CONDITION_AREAID' when (`conditions`.`SourceTypeOrReferenceId` = 24) then 'CONDITION_CREATURE_TYPE' when (`conditions`.`SourceTypeOrReferenceId` = 25) then 'CONDITION_SPELL' when (`conditions`.`SourceTypeOrReferenceId` = 26) then 'CONDITION_PHASEMASK' when (`conditions`.`SourceTypeOrReferenceId` = 27) then 'CONDITION_LEVEL' when (`conditions`.`SourceTypeOrReferenceId` = 28) then 'CONDITION_QUEST_COMPLETE' when (`conditions`.`SourceTypeOrReferenceId` = 29) then 'CONDITION_NEAR_CREATURE' when (`conditions`.`SourceTypeOrReferenceId` = 30) then 'CONDITION_NEAR_GAMEOBJECT' when (`conditions`.`SourceTypeOrReferenceId` = 31) then 'CONDITION_OBJECT_ENTRY_GUID' when (`conditions`.`SourceTypeOrReferenceId` = 32) then 'CONDITION_TYPE_MASK' when (`conditions`.`SourceTypeOrReferenceId` = 33) then 'CONDITION_RELATION_TO' when (`conditions`.`SourceTypeOrReferenceId` = 34) then 'CONDITION_REACTION_TO' when (`conditions`.`SourceTypeOrReferenceId` = 35) then 'CONDITION_DISTANCE_TO' when (`conditions`.`SourceTypeOrReferenceId` = 36) then 'CONDITION_ALIVE' when (`conditions`.`SourceTypeOrReferenceId` = 37) then 'CONDITION_HP_VAL' when (`conditions`.`SourceTypeOrReferenceId` = 38) then 'CONDITION_HP_PCT' when (`conditions`.`SourceTypeOrReferenceId` = 39) then 'CONDITION_REALM_ACHIEVEMENT' when (`conditions`.`SourceTypeOrReferenceId` = 40) then 'CONDITION_IN_WATER' when (`conditions`.`SourceTypeOrReferenceId` = 41) then 'CONDITION_TERRAIN_SWAP' when (`conditions`.`SourceTypeOrReferenceId` = 42) then 'CONDITION_STAND_STATE' when (`conditions`.`SourceTypeOrReferenceId` = 43) then 'CONDITION_DAILY_QUEST_DONE' when (`conditions`.`SourceTypeOrReferenceId` = 44) then 'CONDITION_CHARMED' when (`conditions`.`SourceTypeOrReferenceId` = 45) then 'CONDITION_PET_TYPE' when (`conditions`.`SourceTypeOrReferenceId` = 46) then 'CONDITION_TAXI' when (`conditions`.`SourceTypeOrReferenceId` = 47) then 'CONDITION_QUESTSTATE' when (`conditions`.`SourceTypeOrReferenceId` = 48) then 'CONDITION_QUEST_OBJECTIVE_PROGRESS' when (`conditions`.`SourceTypeOrReferenceId` = 49) then 'CONDITION_DIFFICULTY_ID' when (`conditions`.`SourceTypeOrReferenceId` = 50) then 'CONDITION_GAMEMASTER' when (`conditions`.`SourceTypeOrReferenceId` = 51) then 'CONDITION_OBJECT_ENTRY_GUID_MASTER' when (`conditions`.`SourceTypeOrReferenceId` = 52) then 'CONDITION_TYPE_MASK_MASTER' else `conditions`.`ConditionTypeOrReference` end) AS `ConditionTypeOrReference`,`conditions`.`ConditionTarget` AS `ConditionTarget`,`conditions`.`ConditionValue1` AS `ConditionValue1`,`conditions`.`ConditionValue2` AS `ConditionValue2`,`conditions`.`ConditionValue3` AS `ConditionValue3`,`conditions`.`NegativeCondition` AS `NegativeCondition`,`conditions`.`ErrorType` AS `ErrorType`,`conditions`.`ErrorTextId` AS `ErrorTextId`,`conditions`.`ScriptName` AS `ScriptName`,`conditions`.`Comment` AS `Comment` from `conditions` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -4034,7 +4038,7 @@ CREATE TABLE `waypoints` (
 /*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8mb3_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_disables_with_labels` AS select (case when (`disables`.`sourceType` = 0) then 'DISABLE_TYPE_SPELL' when (`disables`.`sourceType` = 1) then 'DISABLE_TYPE_QUEST' when (`disables`.`sourceType` = 2) then 'DISABLE_TYPE_MAP' when (`disables`.`sourceType` = 3) then 'DISABLE_TYPE_BATTLEGROUND' when (`disables`.`sourceType` = 4) then 'DISABLE_TYPE_ACHIEVEMENT_CRITERIA' when (`disables`.`sourceType` = 5) then 'DISABLE_TYPE_OUTDOORPVP' when (`disables`.`sourceType` = 6) then 'DISABLE_TYPE_VMAP' when (`disables`.`sourceType` = 7) then 'DISABLE_TYPE_MMAP' when (`disables`.`sourceType` = 8) then 'DISABLE_TYPE_LFG_MAP' else `disables`.`sourceType` end) AS `sourceType`,`disables`.`entry` AS `entry`,`disables`.`flags` AS `flags`,`disables`.`params_0` AS `params_0`,`disables`.`params_1` AS `params_1`,`disables`.`comment` AS `comment` from `disables` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -4052,7 +4056,7 @@ CREATE TABLE `waypoints` (
 /*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8mb3_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_smart_scripts_with_labels` AS select `smart_scripts`.`entryorguid` AS `entryorguid`,`smart_scripts`.`source_type` AS `source_type`,`smart_scripts`.`id` AS `id`,`smart_scripts`.`link` AS `link`,(case when (`smart_scripts`.`event_type` = 0) then 'SMART_EVENT_UPDATE_IC' when (`smart_scripts`.`event_type` = 1) then 'SMART_EVENT_UPDATE_OOC' when (`smart_scripts`.`event_type` = 2) then 'SMART_EVENT_HEALTH_PCT' when (`smart_scripts`.`event_type` = 3) then 'SMART_EVENT_MANA_PCT' when (`smart_scripts`.`event_type` = 4) then 'SMART_EVENT_AGGRO' when (`smart_scripts`.`event_type` = 5) then 'SMART_EVENT_KILL' when (`smart_scripts`.`event_type` = 6) then 'SMART_EVENT_DEATH' when (`smart_scripts`.`event_type` = 7) then 'SMART_EVENT_EVADE' when (`smart_scripts`.`event_type` = 8) then 'SMART_EVENT_SPELLHIT' when (`smart_scripts`.`event_type` = 9) then 'SMART_EVENT_RANGE' when (`smart_scripts`.`event_type` = 10) then 'SMART_EVENT_OOC_LOS' when (`smart_scripts`.`event_type` = 11) then 'SMART_EVENT_RESPAWN' when (`smart_scripts`.`event_type` = 12) then 'SMART_EVENT_TARGET_HEALTH_PCT' when (`smart_scripts`.`event_type` = 13) then 'SMART_EVENT_VICTIM_CASTING' when (`smart_scripts`.`event_type` = 14) then 'SMART_EVENT_FRIENDLY_HEALTH' when (`smart_scripts`.`event_type` = 15) then 'SMART_EVENT_FRIENDLY_IS_CC' when (`smart_scripts`.`event_type` = 16) then 'SMART_EVENT_FRIENDLY_MISSING_BUFF' when (`smart_scripts`.`event_type` = 17) then 'SMART_EVENT_SUMMONED_UNIT' when (`smart_scripts`.`event_type` = 18) then 'SMART_EVENT_TARGET_MANA_PCT' when (`smart_scripts`.`event_type` = 19) then 'SMART_EVENT_ACCEPTED_QUEST' when (`smart_scripts`.`event_type` = 20) then 'SMART_EVENT_REWARD_QUEST' when (`smart_scripts`.`event_type` = 21) then 'SMART_EVENT_REACHED_HOME' when (`smart_scripts`.`event_type` = 22) then 'SMART_EVENT_RECEIVE_EMOTE' when (`smart_scripts`.`event_type` = 23) then 'SMART_EVENT_HAS_AURA' when (`smart_scripts`.`event_type` = 24) then 'SMART_EVENT_TARGET_BUFFED' when (`smart_scripts`.`event_type` = 25) then 'SMART_EVENT_RESET' when (`smart_scripts`.`event_type` = 26) then 'SMART_EVENT_IC_LOS' when (`smart_scripts`.`event_type` = 27) then 'SMART_EVENT_PASSENGER_BOARDED' when (`smart_scripts`.`event_type` = 28) then 'SMART_EVENT_PASSENGER_REMOVED' when (`smart_scripts`.`event_type` = 29) then 'SMART_EVENT_CHARMED' when (`smart_scripts`.`event_type` = 30) then 'SMART_EVENT_CHARMED_TARGET' when (`smart_scripts`.`event_type` = 31) then 'SMART_EVENT_SPELLHIT_TARGET' when (`smart_scripts`.`event_type` = 32) then 'SMART_EVENT_DAMAGED' when (`smart_scripts`.`event_type` = 33) then 'SMART_EVENT_DAMAGED_TARGET' when (`smart_scripts`.`event_type` = 34) then 'SMART_EVENT_MOVEMENTINFORM' when (`smart_scripts`.`event_type` = 35) then 'SMART_EVENT_SUMMON_DESPAWNED' when (`smart_scripts`.`event_type` = 36) then 'SMART_EVENT_CORPSE_REMOVED' when (`smart_scripts`.`event_type` = 37) then 'SMART_EVENT_AI_INIT' when (`smart_scripts`.`event_type` = 38) then 'SMART_EVENT_DATA_SET' when (`smart_scripts`.`event_type` = 39) then 'SMART_EVENT_WAYPOINT_START' when (`smart_scripts`.`event_type` = 40) then 'SMART_EVENT_WAYPOINT_REACHED' when (`smart_scripts`.`event_type` = 41) then 'SMART_EVENT_TRANSPORT_ADDPLAYER' when (`smart_scripts`.`event_type` = 42) then 'SMART_EVENT_TRANSPORT_ADDCREATURE' when (`smart_scripts`.`event_type` = 43) then 'SMART_EVENT_TRANSPORT_REMOVE_PLAYER' when (`smart_scripts`.`event_type` = 44) then 'SMART_EVENT_TRANSPORT_RELOCATE' when (`smart_scripts`.`event_type` = 45) then 'SMART_EVENT_INSTANCE_PLAYER_ENTER' when (`smart_scripts`.`event_type` = 46) then 'SMART_EVENT_AREATRIGGER_ONTRIGGER' when (`smart_scripts`.`event_type` = 47) then 'SMART_EVENT_QUEST_ACCEPTED' when (`smart_scripts`.`event_type` = 48) then 'SMART_EVENT_QUEST_OBJ_COPLETETION' when (`smart_scripts`.`event_type` = 49) then 'SMART_EVENT_QUEST_COMPLETION' when (`smart_scripts`.`event_type` = 50) then 'SMART_EVENT_QUEST_REWARDED' when (`smart_scripts`.`event_type` = 51) then 'SMART_EVENT_QUEST_FAIL' when (`smart_scripts`.`event_type` = 52) then 'SMART_EVENT_TEXT_OVER' when (`smart_scripts`.`event_type` = 53) then 'SMART_EVENT_RECEIVE_HEAL' when (`smart_scripts`.`event_type` = 54) then 'SMART_EVENT_JUST_SUMMONED' when (`smart_scripts`.`event_type` = 55) then 'SMART_EVENT_WAYPOINT_PAUSED' when (`smart_scripts`.`event_type` = 56) then 'SMART_EVENT_WAYPOINT_RESUMED' when (`smart_scripts`.`event_type` = 57) then 'SMART_EVENT_WAYPOINT_STOPPED' when (`smart_scripts`.`event_type` = 58) then 'SMART_EVENT_WAYPOINT_ENDED' when (`smart_scripts`.`event_type` = 59) then 'SMART_EVENT_TIMED_EVENT_TRIGGERED' when (`smart_scripts`.`event_type` = 60) then 'SMART_EVENT_UPDATE' when (`smart_scripts`.`event_type` = 61) then 'SMART_EVENT_LINK' when (`smart_scripts`.`event_type` = 62) then 'SMART_EVENT_GOSSIP_SELECT' when (`smart_scripts`.`event_type` = 63) then 'SMART_EVENT_JUST_CREATED' when (`smart_scripts`.`event_type` = 64) then 'SMART_EVENT_GOSSIP_HELLO' when (`smart_scripts`.`event_type` = 65) then 'SMART_EVENT_FOLLOW_COMPLETED' when (`smart_scripts`.`event_type` = 66) then 'SMART_EVENT_EVENT_PHASE_CHANGE' when (`smart_scripts`.`event_type` = 67) then 'SMART_EVENT_IS_BEHIND_TARGET' when (`smart_scripts`.`event_type` = 68) then 'SMART_EVENT_GAME_EVENT_START' when (`smart_scripts`.`event_type` = 69) then 'SMART_EVENT_GAME_EVENT_END' when (`smart_scripts`.`event_type` = 70) then 'SMART_EVENT_GO_LOOT_STATE_CHANGED' when (`smart_scripts`.`event_type` = 71) then 'SMART_EVENT_GO_EVENT_INFORM' when (`smart_scripts`.`event_type` = 72) then 'SMART_EVENT_ACTION_DONE' when (`smart_scripts`.`event_type` = 73) then 'SMART_EVENT_ON_SPELLCLICK' when (`smart_scripts`.`event_type` = 74) then 'SMART_EVENT_FRIENDLY_HEALTH_PCT' when (`smart_scripts`.`event_type` = 75) then 'SMART_EVENT_DISTANCE_CREATURE' when (`smart_scripts`.`event_type` = 76) then 'SMART_EVENT_DISTANCE_GAMEOBJECT' when (`smart_scripts`.`event_type` = 77) then 'SMART_EVENT_COUNTER_SET' when (`smart_scripts`.`event_type` = 78) then 'SMART_EVENT_SCENE_START' when (`smart_scripts`.`event_type` = 79) then 'SMART_EVENT_SCENE_TRIGGER' when (`smart_scripts`.`event_type` = 80) then 'SMART_EVENT_SCENE_CANCEL' when (`smart_scripts`.`event_type` = 81) then 'SMART_EVENT_SCENE_COMPLETE' when (`smart_scripts`.`event_type` = 82) then 'SMART_EVENT_SUMMONED_UNIT_DIES' else `smart_scripts`.`event_type` end) AS `event_type`,`smart_scripts`.`event_phase_mask` AS `event_phase_mask`,`smart_scripts`.`event_chance` AS `event_chance`,`smart_scripts`.`event_flags` AS `event_flags`,`smart_scripts`.`event_param1` AS `event_param1`,`smart_scripts`.`event_param2` AS `event_param2`,`smart_scripts`.`event_param3` AS `event_param3`,`smart_scripts`.`event_param4` AS `event_param4`,`smart_scripts`.`event_param5` AS `event_param5`,(case when (`smart_scripts`.`action_type` = 0) then 'SMART_ACTION_NONE' when (`smart_scripts`.`action_type` = 1) then 'SMART_ACTION_TALK' when (`smart_scripts`.`action_type` = 2) then 'SMART_ACTION_SET_FACTION' when (`smart_scripts`.`action_type` = 3) then 'SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL' when (`smart_scripts`.`action_type` = 4) then 'SMART_ACTION_SOUND' when (`smart_scripts`.`action_type` = 5) then 'SMART_ACTION_PLAY_EMOTE' when (`smart_scripts`.`action_type` = 6) then 'SMART_ACTION_FAIL_QUEST' when (`smart_scripts`.`action_type` = 7) then 'SMART_ACTION_OFFER_QUEST' when (`smart_scripts`.`action_type` = 8) then 'SMART_ACTION_SET_REACT_STATE' when (`smart_scripts`.`action_type` = 9) then 'SMART_ACTION_ACTIVATE_GOBJECT' when (`smart_scripts`.`action_type` = 10) then 'SMART_ACTION_RANDOM_EMOTE' when (`smart_scripts`.`action_type` = 11) then 'SMART_ACTION_CAST' when (`smart_scripts`.`action_type` = 12) then 'SMART_ACTION_SUMMON_CREATURE' when (`smart_scripts`.`action_type` = 13) then 'SMART_ACTION_THREAT_SINGLE_PCT' when (`smart_scripts`.`action_type` = 14) then 'SMART_ACTION_THREAT_ALL_PCT' when (`smart_scripts`.`action_type` = 15) then 'SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS' when (`smart_scripts`.`action_type` = 16) then 'SMART_ACTION_RESERVED_16' when (`smart_scripts`.`action_type` = 17) then 'SMART_ACTION_SET_EMOTE_STATE' when (`smart_scripts`.`action_type` = 18) then 'SMART_ACTION_SET_UNIT_FLAG' when (`smart_scripts`.`action_type` = 19) then 'SMART_ACTION_REMOVE_UNIT_FLAG' when (`smart_scripts`.`action_type` = 20) then 'SMART_ACTION_AUTO_ATTACK' when (`smart_scripts`.`action_type` = 21) then 'SMART_ACTION_ALLOW_COMBAT_MOVEMENT' when (`smart_scripts`.`action_type` = 22) then 'SMART_ACTION_SET_EVENT_PHASE' when (`smart_scripts`.`action_type` = 23) then 'SMART_ACTION_INC_EVENT_PHASE' when (`smart_scripts`.`action_type` = 24) then 'SMART_ACTION_EVADE' when (`smart_scripts`.`action_type` = 25) then 'SMART_ACTION_FLEE_FOR_ASSIST' when (`smart_scripts`.`action_type` = 26) then 'SMART_ACTION_CALL_GROUPEVENTHAPPENS' when (`smart_scripts`.`action_type` = 27) then 'SMART_ACTION_COMBAT_STOP' when (`smart_scripts`.`action_type` = 28) then 'SMART_ACTION_REMOVEAURASFROMSPELL' when (`smart_scripts`.`action_type` = 29) then 'SMART_ACTION_FOLLOW' when (`smart_scripts`.`action_type` = 30) then 'SMART_ACTION_RANDOM_PHASE' when (`smart_scripts`.`action_type` = 31) then 'SMART_ACTION_RANDOM_PHASE_RANGE' when (`smart_scripts`.`action_type` = 32) then 'SMART_ACTION_RESET_GOBJECT' when (`smart_scripts`.`action_type` = 33) then 'SMART_ACTION_CALL_KILLEDMONSTER' when (`smart_scripts`.`action_type` = 34) then 'SMART_ACTION_SET_INST_DATA' when (`smart_scripts`.`action_type` = 35) then 'SMART_ACTION_SET_INST_DATA64' when (`smart_scripts`.`action_type` = 36) then 'SMART_ACTION_UPDATE_TEMPLATE' when (`smart_scripts`.`action_type` = 37) then 'SMART_ACTION_DIE' when (`smart_scripts`.`action_type` = 38) then 'SMART_ACTION_SET_IN_COMBAT_WITH_ZONE' when (`smart_scripts`.`action_type` = 39) then 'SMART_ACTION_CALL_FOR_HELP' when (`smart_scripts`.`action_type` = 40) then 'SMART_ACTION_SET_SHEATH' when (`smart_scripts`.`action_type` = 41) then 'SMART_ACTION_FORCE_DESPAWN' when (`smart_scripts`.`action_type` = 42) then 'SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL' when (`smart_scripts`.`action_type` = 43) then 'SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL' when (`smart_scripts`.`action_type` = 44) then 'SMART_ACTION_SET_INGAME_PHASE_MASK' when (`smart_scripts`.`action_type` = 45) then 'SMART_ACTION_SET_DATA' when (`smart_scripts`.`action_type` = 46) then 'SMART_ACTION_ATTACK_STOP' when (`smart_scripts`.`action_type` = 47) then 'SMART_ACTION_SET_VISIBILITY' when (`smart_scripts`.`action_type` = 48) then 'SMART_ACTION_SET_ACTIVE' when (`smart_scripts`.`action_type` = 49) then 'SMART_ACTION_ATTACK_START' when (`smart_scripts`.`action_type` = 50) then 'SMART_ACTION_SUMMON_GO' when (`smart_scripts`.`action_type` = 51) then 'SMART_ACTION_KILL_UNIT' when (`smart_scripts`.`action_type` = 52) then 'SMART_ACTION_ACTIVATE_TAXI' when (`smart_scripts`.`action_type` = 53) then 'SMART_ACTION_WP_START' when (`smart_scripts`.`action_type` = 54) then 'SMART_ACTION_WP_PAUSE' when (`smart_scripts`.`action_type` = 55) then 'SMART_ACTION_WP_STOP' when (`smart_scripts`.`action_type` = 56) then 'SMART_ACTION_ADD_ITEM' when (`smart_scripts`.`action_type` = 57) then 'SMART_ACTION_REMOVE_ITEM' when (`smart_scripts`.`action_type` = 58) then 'SMART_ACTION_INSTALL_AI_TEMPLATE' when (`smart_scripts`.`action_type` = 59) then 'SMART_ACTION_SET_RUN' when (`smart_scripts`.`action_type` = 60) then 'SMART_ACTION_SET_DISABLE_GRAVITY' when (`smart_scripts`.`action_type` = 61) then 'SMART_ACTION_SET_SWIM' when (`smart_scripts`.`action_type` = 62) then 'SMART_ACTION_TELEPORT' when (`smart_scripts`.`action_type` = 63) then 'SMART_ACTION_SET_COUNTER' when (`smart_scripts`.`action_type` = 64) then 'SMART_ACTION_STORE_TARGET_LIST' when (`smart_scripts`.`action_type` = 65) then 'SMART_ACTION_WP_RESUME' when (`smart_scripts`.`action_type` = 66) then 'SMART_ACTION_SET_ORIENTATION' when (`smart_scripts`.`action_type` = 67) then 'SMART_ACTION_CREATE_TIMED_EVENT' when (`smart_scripts`.`action_type` = 68) then 'SMART_ACTION_PLAYMOVIE' when (`smart_scripts`.`action_type` = 69) then 'SMART_ACTION_MOVE_TO_POS' when (`smart_scripts`.`action_type` = 70) then 'SMART_ACTION_ENABLE_TEMP_GOBJ' when (`smart_scripts`.`action_type` = 71) then 'SMART_ACTION_EQUIP' when (`smart_scripts`.`action_type` = 72) then 'SMART_ACTION_CLOSE_GOSSIP' when (`smart_scripts`.`action_type` = 73) then 'SMART_ACTION_TRIGGER_TIMED_EVENT' when (`smart_scripts`.`action_type` = 74) then 'SMART_ACTION_REMOVE_TIMED_EVENT' when (`smart_scripts`.`action_type` = 75) then 'SMART_ACTION_ADD_AURA' when (`smart_scripts`.`action_type` = 76) then 'SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT' when (`smart_scripts`.`action_type` = 77) then 'SMART_ACTION_RESET_SCRIPT_BASE_OBJECT' when (`smart_scripts`.`action_type` = 78) then 'SMART_ACTION_CALL_SCRIPT_RESET' when (`smart_scripts`.`action_type` = 79) then 'SMART_ACTION_SET_RANGED_MOVEMENT' when (`smart_scripts`.`action_type` = 80) then 'SMART_ACTION_CALL_TIMED_ACTIONLIST' when (`smart_scripts`.`action_type` = 81) then 'SMART_ACTION_SET_NPC_FLAG' when (`smart_scripts`.`action_type` = 82) then 'SMART_ACTION_ADD_NPC_FLAG' when (`smart_scripts`.`action_type` = 83) then 'SMART_ACTION_REMOVE_NPC_FLAG' when (`smart_scripts`.`action_type` = 84) then 'SMART_ACTION_SIMPLE_TALK' when (`smart_scripts`.`action_type` = 85) then 'SMART_ACTION_SELF_CAST' when (`smart_scripts`.`action_type` = 86) then 'SMART_ACTION_CROSS_CAST' when (`smart_scripts`.`action_type` = 87) then 'SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST' when (`smart_scripts`.`action_type` = 88) then 'SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST' when (`smart_scripts`.`action_type` = 89) then 'SMART_ACTION_RANDOM_MOVE' when (`smart_scripts`.`action_type` = 90) then 'SMART_ACTION_SET_UNIT_FIELD_BYTES_1' when (`smart_scripts`.`action_type` = 91) then 'SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1' when (`smart_scripts`.`action_type` = 92) then 'SMART_ACTION_INTERRUPT_SPELL' when (`smart_scripts`.`action_type` = 93) then 'SMART_ACTION_SEND_GO_CUSTOM_ANIM' when (`smart_scripts`.`action_type` = 94) then 'SMART_ACTION_SET_DYNAMIC_FLAG' when (`smart_scripts`.`action_type` = 95) then 'SMART_ACTION_ADD_DYNAMIC_FLAG' when (`smart_scripts`.`action_type` = 96) then 'SMART_ACTION_REMOVE_DYNAMIC_FLAG' when (`smart_scripts`.`action_type` = 97) then 'SMART_ACTION_JUMP_TO_POS' when (`smart_scripts`.`action_type` = 98) then 'SMART_ACTION_SEND_GOSSIP_MENU' when (`smart_scripts`.`action_type` = 99) then 'SMART_ACTION_GO_SET_LOOT_STATE' when (`smart_scripts`.`action_type` = 100) then 'SMART_ACTION_SEND_TARGET_TO_TARGET' when (`smart_scripts`.`action_type` = 101) then 'SMART_ACTION_SET_HOME_POS' when (`smart_scripts`.`action_type` = 102) then 'SMART_ACTION_SET_HEALTH_REGEN' when (`smart_scripts`.`action_type` = 103) then 'SMART_ACTION_SET_ROOT' when (`smart_scripts`.`action_type` = 104) then 'SMART_ACTION_SET_GO_FLAG' when (`smart_scripts`.`action_type` = 105) then 'SMART_ACTION_ADD_GO_FLAG' when (`smart_scripts`.`action_type` = 106) then 'SMART_ACTION_REMOVE_GO_FLAG' when (`smart_scripts`.`action_type` = 107) then 'SMART_ACTION_SUMMON_CREATURE_GROUP' when (`smart_scripts`.`action_type` = 108) then 'SMART_ACTION_SET_POWER' when (`smart_scripts`.`action_type` = 109) then 'SMART_ACTION_ADD_POWER' when (`smart_scripts`.`action_type` = 110) then 'SMART_ACTION_REMOVE_POWER' when (`smart_scripts`.`action_type` = 111) then 'SMART_ACTION_GAME_EVENT_STOP' when (`smart_scripts`.`action_type` = 112) then 'SMART_ACTION_GAME_EVENT_START' when (`smart_scripts`.`action_type` = 113) then 'SMART_ACTION_START_CLOSEST_WAYPOINT' when (`smart_scripts`.`action_type` = 114) then 'SMART_ACTION_MOVE_OFFSET' when (`smart_scripts`.`action_type` = 115) then 'SMART_ACTION_RANDOM_SOUND' when (`smart_scripts`.`action_type` = 116) then 'SMART_ACTION_SET_CORPSE_DELAY' when (`smart_scripts`.`action_type` = 117) then 'SMART_ACTION_DISABLE_EVADE' when (`smart_scripts`.`action_type` = 118) then 'SMART_ACTION_GO_SET_GO_STATE' when (`smart_scripts`.`action_type` = 119) then 'SMART_ACTION_SET_CAN_FLY' when (`smart_scripts`.`action_type` = 120) then 'SMART_ACTION_REMOVE_AURAS_BY_TYPE' when (`smart_scripts`.`action_type` = 121) then 'SMART_ACTION_SET_SIGHT_DIST' when (`smart_scripts`.`action_type` = 122) then 'SMART_ACTION_FLEE' when (`smart_scripts`.`action_type` = 123) then 'SMART_ACTION_ADD_THREAT' when (`smart_scripts`.`action_type` = 124) then 'SMART_ACTION_LOAD_EQUIPMENT' when (`smart_scripts`.`action_type` = 125) then 'SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT' when (`smart_scripts`.`action_type` = 126) then 'SMART_ACTION_REMOVE_ALL_GAMEOBJECTS' when (`smart_scripts`.`action_type` = 127) then 'SMART_ACTION_PAUSE_MOVEMENT' when (`smart_scripts`.`action_type` = 128) then 'SMART_ACTION_PLAY_ANIMKIT' when (`smart_scripts`.`action_type` = 129) then 'SMART_ACTION_SCENE_PLAY' when (`smart_scripts`.`action_type` = 130) then 'SMART_ACTION_SCENE_CANCEL' when (`smart_scripts`.`action_type` = 131) then 'SMART_ACTION_SPAWN_SPAWNGROUP' when (`smart_scripts`.`action_type` = 132) then 'SMART_ACTION_DESPAWN_SPAWNGROUP' when (`smart_scripts`.`action_type` = 133) then 'SMART_ACTION_RESPAWN_BY_SPAWNID' when (`smart_scripts`.`action_type` = 134) then 'SMART_ACTION_INVOKER_CAST' when (`smart_scripts`.`action_type` = 135) then 'SMART_ACTION_PLAY_CINEMATIC' when (`smart_scripts`.`action_type` = 136) then 'SMART_ACTION_SET_MOVEMENT_SPEED' when (`smart_scripts`.`action_type` = 137) then 'SMART_ACTION_PLAY_SPELL_VISUAL_KIT' when (`smart_scripts`.`action_type` = 138) then 'SMART_ACTION_OVERRIDE_LIGHT' when (`smart_scripts`.`action_type` = 139) then 'SMART_ACTION_OVERRIDE_WEATHER' else `smart_scripts`.`action_type` end) AS `action_type`,`smart_scripts`.`action_param1` AS `action_param1`,`smart_scripts`.`action_param2` AS `action_param2`,`smart_scripts`.`action_param3` AS `action_param3`,`smart_scripts`.`action_param4` AS `action_param4`,`smart_scripts`.`action_param5` AS `action_param5`,`smart_scripts`.`action_param6` AS `action_param6`,(case when (`smart_scripts`.`target_type` = 0) then 'SMART_TARGET_NONE' when (`smart_scripts`.`target_type` = 1) then 'SMART_TARGET_SELF' when (`smart_scripts`.`target_type` = 2) then 'SMART_TARGET_VICTIM' when (`smart_scripts`.`target_type` = 3) then 'SMART_TARGET_HOSTILE_SECOND_AGGRO' when (`smart_scripts`.`target_type` = 4) then 'SMART_TARGET_HOSTILE_LAST_AGGRO' when (`smart_scripts`.`target_type` = 5) then 'SMART_TARGET_HOSTILE_RANDOM' when (`smart_scripts`.`target_type` = 6) then 'SMART_TARGET_HOSTILE_RANDOM_NOT_TOP' when (`smart_scripts`.`target_type` = 7) then 'SMART_TARGET_ACTION_INVOKER' when (`smart_scripts`.`target_type` = 8) then 'SMART_TARGET_POSITION' when (`smart_scripts`.`target_type` = 9) then 'SMART_TARGET_CREATURE_RANGE' when (`smart_scripts`.`target_type` = 10) then 'SMART_TARGET_CREATURE_GUID' when (`smart_scripts`.`target_type` = 11) then 'SMART_TARGET_CREATURE_DISTANCE' when (`smart_scripts`.`target_type` = 12) then 'SMART_TARGET_STORED' when (`smart_scripts`.`target_type` = 13) then 'SMART_TARGET_GAMEOBJECT_RANGE' when (`smart_scripts`.`target_type` = 14) then 'SMART_TARGET_GAMEOBJECT_GUID' when (`smart_scripts`.`target_type` = 15) then 'SMART_TARGET_GAMEOBJECT_DISTANCE' when (`smart_scripts`.`target_type` = 16) then 'SMART_TARGET_INVOKER_PARTY' when (`smart_scripts`.`target_type` = 17) then 'SMART_TARGET_PLAYER_RANGE' when (`smart_scripts`.`target_type` = 18) then 'SMART_TARGET_PLAYER_DISTANCE' when (`smart_scripts`.`target_type` = 19) then 'SMART_TARGET_CLOSEST_CREATURE' when (`smart_scripts`.`target_type` = 20) then 'SMART_TARGET_CLOSEST_GAMEOBJECT' when (`smart_scripts`.`target_type` = 21) then 'SMART_TARGET_CLOSEST_PLAYER' when (`smart_scripts`.`target_type` = 22) then 'SMART_TARGET_ACTION_INVOKER_VEHICLE' when (`smart_scripts`.`target_type` = 23) then 'SMART_TARGET_OWNER_OR_SUMMONER' when (`smart_scripts`.`target_type` = 24) then 'SMART_TARGET_THREAT_LIST' when (`smart_scripts`.`target_type` = 25) then 'SMART_TARGET_CLOSEST_ENEMY' when (`smart_scripts`.`target_type` = 26) then 'SMART_TARGET_CLOSEST_FRIENDLY' when (`smart_scripts`.`target_type` = 27) then 'SMART_TARGET_LOOT_RECIPIENTS' when (`smart_scripts`.`target_type` = 28) then 'SMART_TARGET_FARTHEST' when (`smart_scripts`.`target_type` = 29) then 'SMART_TARGET_VEHICLE_PASSENGER' when (`smart_scripts`.`target_type` = 30) then 'SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT' else `smart_scripts`.`target_type` end) AS `target_type`,`smart_scripts`.`target_param1` AS `target_param1`,`smart_scripts`.`target_param2` AS `target_param2`,`smart_scripts`.`target_param3` AS `target_param3`,`smart_scripts`.`target_param4` AS `target_param4`,`smart_scripts`.`target_x` AS `target_x`,`smart_scripts`.`target_y` AS `target_y`,`smart_scripts`.`target_z` AS `target_z`,`smart_scripts`.`target_o` AS `target_o`,`smart_scripts`.`comment` AS `comment` from `smart_scripts` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -4067,4 +4071,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-16 11:08:18
+-- Dump completed on 2024-11-22 23:18:19
