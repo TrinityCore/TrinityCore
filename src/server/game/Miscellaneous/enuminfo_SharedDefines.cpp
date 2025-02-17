@@ -1966,7 +1966,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr13>::ToString(SpellAttr13 value)
         case SPELL_ATTR13_UNK12: return { "SPELL_ATTR13_UNK12", "Unknown attribute 12@Attr13", "" };
         case SPELL_ATTR13_UNK13: return { "SPELL_ATTR13_UNK13", "Unknown attribute 13@Attr13", "" };
         case SPELL_ATTR13_UNK14: return { "SPELL_ATTR13_UNK14", "Unknown attribute 14@Attr13", "" };
-        case SPELL_ATTR13_UNK15: return { "SPELL_ATTR13_UNK15", "Unknown attribute 15@Attr13", "" };
+        case SPELL_ATTR13_DO_NOT_FAIL_IF_NO_TARGET: return { "SPELL_ATTR13_DO_NOT_FAIL_IF_NO_TARGET", "Do Not Fail if No Target", "" };
         case SPELL_ATTR13_UNK16: return { "SPELL_ATTR13_UNK16", "Unknown attribute 16@Attr13", "" };
         case SPELL_ATTR13_UNK17: return { "SPELL_ATTR13_UNK17", "Unknown attribute 17@Attr13", "" };
         case SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT: return { "SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT", "Do Not Enforce Shapeshift Requirements", "" };
@@ -2010,7 +2010,7 @@ TC_API_EXPORT SpellAttr13 EnumUtils<SpellAttr13>::FromIndex(size_t index)
         case 12: return SPELL_ATTR13_UNK12;
         case 13: return SPELL_ATTR13_UNK13;
         case 14: return SPELL_ATTR13_UNK14;
-        case 15: return SPELL_ATTR13_UNK15;
+        case 15: return SPELL_ATTR13_DO_NOT_FAIL_IF_NO_TARGET;
         case 16: return SPELL_ATTR13_UNK16;
         case 17: return SPELL_ATTR13_UNK17;
         case 18: return SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT;
@@ -2051,7 +2051,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr13>::ToIndex(SpellAttr13 value)
         case SPELL_ATTR13_UNK12: return 12;
         case SPELL_ATTR13_UNK13: return 13;
         case SPELL_ATTR13_UNK14: return 14;
-        case SPELL_ATTR13_UNK15: return 15;
+        case SPELL_ATTR13_DO_NOT_FAIL_IF_NO_TARGET: return 15;
         case SPELL_ATTR13_UNK16: return 16;
         case SPELL_ATTR13_UNK17: return 17;
         case SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT: return 18;

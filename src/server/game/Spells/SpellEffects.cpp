@@ -1084,7 +1084,7 @@ void Spell::EffectApplyAura()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!_spellAura || !unitTarget)
+    if (!_spellAura || _spellAura->IsRemoved() || !unitTarget)
         return;
 
     // register target/effect on aura
@@ -5170,8 +5170,7 @@ void Spell::EffectRechargeItem()
     if (Item* item = player->GetItemByEntry(effectInfo->ItemType))
     {
         for (ItemEffectEntry const* itemEffect : item->GetEffects())
-            if (itemEffect->LegacySlotIndex <= item->m_itemData->SpellCharges.size())
-                item->SetSpellCharges(itemEffect->LegacySlotIndex, itemEffect->Charges);
+            item->SetSpellCharges(itemEffect, itemEffect->Charges);
 
         item->SetState(ITEM_CHANGED, player);
     }
@@ -6074,9 +6073,9 @@ void Spell::EffectModifyCooldowns()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    unitTarget->GetSpellHistory()->ModifyCoooldowns([this](SpellHistory::CooldownStorageType::iterator itr)
+    unitTarget->GetSpellHistory()->ModifyCoooldowns([this](SpellHistory::CooldownEntry const& cooldown)
     {
-        SpellInfo const* spellOnCooldown = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
+        SpellInfo const* spellOnCooldown = sSpellMgr->AssertSpellInfo(cooldown.SpellId, DIFFICULTY_NONE);
         if (spellOnCooldown->SpellFamilyName != uint32(effectInfo->MiscValue))
             return false;
 
@@ -6095,9 +6094,9 @@ void Spell::EffectModifyCooldownsByCategory()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    unitTarget->GetSpellHistory()->ModifyCoooldowns([this](SpellHistory::CooldownStorageType::iterator itr)
+    unitTarget->GetSpellHistory()->ModifyCoooldowns([this](SpellHistory::CooldownEntry const& cooldown)
     {
-        return sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE)->CategoryId == uint32(effectInfo->MiscValue);
+        return sSpellMgr->AssertSpellInfo(cooldown.SpellId, DIFFICULTY_NONE)->CategoryId == uint32(effectInfo->MiscValue);
     }, Milliseconds(damage));
 }
 

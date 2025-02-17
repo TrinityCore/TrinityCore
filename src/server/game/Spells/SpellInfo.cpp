@@ -347,7 +347,7 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 103 TARGET_UNIT_PASSENGER_7
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 104 TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 105 TARGET_UNIT_CASTER_AND_PASSENGERS
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CHANNEL, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 106 TARGET_DEST_CHANNEL_CASTER
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 106 TARGET_DEST_NEARBY_DB
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ENTRY,    TARGET_DIR_NONE},        // 107 TARGET_DEST_NEARBY_ENTRY_2
     {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 108 TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ENEMY
     {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ALLY,     TARGET_DIR_FRONT},       // 109 TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ALLY
@@ -465,7 +465,7 @@ bool SpellEffectInfo::IsAura() const
 
 bool SpellEffectInfo::IsAura(AuraType aura) const
 {
-    return IsAura() && ApplyAuraName == uint32(aura);
+    return IsAura() && ApplyAuraName == aura;
 }
 
 bool SpellEffectInfo::IsTargetingArea() const
@@ -713,6 +713,39 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
     }
 
     return radius;
+}
+
+Optional<std::pair<float, float>> SpellEffectInfo::CalcRadiusBounds(WorldObject* caster, SpellTargetIndex targetIndex, Spell* spell) const
+{
+    // TargetA -> TargetARadiusEntry
+    // TargetB -> TargetBRadiusEntry
+    // Aura effects have TargetARadiusEntry == TargetBRadiusEntry (mostly)
+    SpellRadiusEntry const* entry = TargetARadiusEntry;
+    if (targetIndex == SpellTargetIndex::TargetB && HasRadius(targetIndex))
+        entry = TargetBRadiusEntry;
+
+    Optional<std::pair<float, float>> bounds;
+    if (!entry)
+        return bounds;
+
+    bounds.emplace(entry->RadiusMin, entry->RadiusMax);
+
+    if (caster)
+    {
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, bounds->second, spell);
+
+        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
+        {
+            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
+            {
+                bounds->first = std::max(bounds->first - 2.0f, 0.0f);
+                bounds->second += 2.0f;
+            }
+        }
+    }
+
+    return bounds;
 }
 
 uint32 SpellEffectInfo::GetProvidedTargetMask() const
@@ -2386,7 +2419,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
 
 SpellCastResult SpellInfo::CheckExplicitTarget(WorldObject const* caster, WorldObject const* target, Item const* itemTarget /*= nullptr*/) const
 {
-    uint32 neededTargets = GetExplicitTargetMask();
+    uint32 neededTargets = RequiredExplicitTargetMask;
     if (!target)
     {
         if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
@@ -4428,31 +4461,38 @@ void SpellInfo::_InitializeExplicitTargetMask()
 {
     bool srcSet = false;
     bool dstSet = false;
-    uint32 targetMask = Targets;
     // prepare target mask using effect target entries
     for (SpellEffectInfo const& effect : GetEffects())
     {
         if (!effect.IsEffect())
             continue;
 
+        uint32 targetMask = 0;
         targetMask |= effect.TargetA.GetExplicitTargetMask(srcSet, dstSet);
         targetMask |= effect.TargetB.GetExplicitTargetMask(srcSet, dstSet);
 
         // add explicit target flags based on spell effects which have EFFECT_IMPLICIT_TARGET_EXPLICIT and no valid target provided
-        if (effect.GetImplicitTargetType() != EFFECT_IMPLICIT_TARGET_EXPLICIT)
-            continue;
+        if (effect.GetImplicitTargetType() == EFFECT_IMPLICIT_TARGET_EXPLICIT)
+        {
 
-        // extend explicit target mask only if valid targets for effect could not be provided by target types
-        uint32 effectTargetMask = effect.GetMissingTargetMask(srcSet, dstSet, targetMask);
+            // extend explicit target mask only if valid targets for effect could not be provided by target types
+            uint32 effectTargetMask = effect.GetMissingTargetMask(srcSet, dstSet, targetMask);
 
-        // don't add explicit object/dest flags when spell has no max range
-        if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
-            effectTargetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_DEST_LOCATION);
+            // don't add explicit object/dest flags when spell has no max range
+            if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
+                effectTargetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_DEST_LOCATION);
 
-        targetMask |= effectTargetMask;
+            targetMask |= effectTargetMask;
+        }
+
+        ExplicitTargetMask |= targetMask;
+        if (!effect.EffectAttributes.HasFlag(SpellEffectAttributes::DontFailSpellOnTargetingFailure))
+            RequiredExplicitTargetMask |= targetMask;
     }
 
-    ExplicitTargetMask = targetMask;
+    ExplicitTargetMask |= Targets;
+    if (!HasAttribute(SPELL_ATTR13_DO_NOT_FAIL_IF_NO_TARGET))
+        RequiredExplicitTargetMask |= Targets;
 }
 
 inline bool _isPositiveTarget(SpellEffectInfo const& effect)

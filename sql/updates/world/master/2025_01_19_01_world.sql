@@ -1,0 +1,49 @@
+SET @CGUID := 4000447;
+SET @OGUID := 4000169;
+
+-- Creature spawns
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+6;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(@CGUID+0, 67136, 870, 5785, 6522, '0', 1867, 0, 1076, 0, 0, 3209.306396484375, -750.66839599609375, 238.580780029296875, 0, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58608), -- Exploding Manfred (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@CGUID+1, 67136, 870, 5785, 6522, '0', 1867, 0, 1076, 0, 0, 3216.209228515625, -748.07293701171875, 239.939483642578125, 0, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58608), -- Exploding Manfred (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@CGUID+2, 67136, 870, 5785, 6522, '0', 1867, 0, 1076, 0, 0, 3205.7734375, -757.23614501953125, 236.4212493896484375, 0, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58608), -- Exploding Manfred (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@CGUID+3, 67136, 870, 5785, 6522, '0', 1867, 0, 1076, 0, 0, 3139.546875, -771.76739501953125, 227.258087158203125, 0, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58608), -- Exploding Manfred (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@CGUID+4, 67136, 870, 5785, 6522, '0', 1867, 0, 1076, 0, 0, 3163.856689453125, -768.498291015625, 227.261016845703125, 0, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58608), -- Exploding Manfred (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@CGUID+5, 67136, 870, 5785, 6522, '0', 1867, 0, 1076, 0, 0, 3173.002685546875, -764.1319580078125, 226.5719757080078125, 0, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58608), -- Exploding Manfred (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@CGUID+6, 67136, 870, 5785, 6522, '0', 1867, 0, 1076, 0, 0, 3231.092041015625, -760.6319580078125, 235.057037353515625, 0, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 58608); -- Exploding Manfred (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+
+UPDATE `creature` SET `PhaseId`=0, `PhaseGroup`=742 WHERE `id`=40789 AND `guid` IN (4000330,4000331,4000332);
+
+-- Gameobject spawns
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+19;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 215683, 870, 5785, 6522, '0', 0, 742, 1076, 3119.43310546875, -767.70489501953125, 229.956329345703125, 4.921046257019042968, -0.63747072219848632, 0.290450096130371093, -0.56973075866699218, 0.429740279912948608, 120, 255, 1, 58608), -- Horde Barricade (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+1, 215683, 870, 5785, 6522, '0', 0, 742, 1076, 3131.931396484375, -757.91668701171875, 231.7057037353515625, 6.235591411590576171, -0.68633747100830078, -0.17629241943359375, -0.20963478088378906, 0.673732221126556396, 120, 255, 1, 58608), -- Horde Barricade (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+2, 215683, 870, 5785, 6522, '0', 0, 742, 1076, 3129.157958984375, -766.14239501953125, 230.347625732421875, 5.675584793090820312, -0.68293046951293945, 0.083215713500976562, -0.32680797576904296, 0.647979676723480224, 120, 255, 1, 58608), -- Horde Barricade (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+3, 215684, 870, 5785, 6522, '0', 0, 742, 1076, 3123.10595703125, -741.17706298828125, 227.586181640625, 5.650892257690429687, 0, 0, -0.31090641021728515, 0.950440526008605957, 120, 255, 1, 58608), -- Horde Supplies (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+4, 215684, 870, 5785, 6522, '0', 0, 742, 1076, 3111.77783203125, -763.5, 228.7074127197265625, 3.190537929534912109, 0, 0, -0.99970054626464843, 0.024470150470733642, 120, 255, 1, 58608), -- Horde Supplies (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+5, 215684, 870, 5785, 6522, '0', 0, 742, 1076, 3109.06591796875, -760.263916015625, 228.1165618896484375, 4.332353591918945312, 0, 0, -0.82793521881103515, 0.560823738574981689, 120, 255, 1, 58608), -- Horde Supplies (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+6, 215686, 870, 5785, 6522, '0', 0, 742, 1076, 3112.154541015625, -756.920166015625, 228.2203521728515625, 0, 0, 0, 0, 1, 120, 255, 1, 58608), -- Horde Supplies (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+7, 215686, 870, 5785, 6522, '0', 0, 742, 1076, 3124.0703125, -742.654541015625, 229.0995635986328125, 0, 0, 0, 0, 1, 120, 255, 1, 58608), -- Horde Supplies (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+8, 215686, 870, 5785, 6522, '0', 0, 742, 1076, 3106.674560546875, -760.953125, 229.160430908203125, 2.804433584213256835, -0.4759831428527832, 0.112279891967773437, 0.856829643249511718, 0.163328617811203002, 120, 255, 1, 58608), -- Horde Supplies (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+9, 215686, 870, 5785, 6522, '0', 0, 742, 1076, 3123.12841796875, -743.7882080078125, 227.9639434814453125, 5.6063385009765625, 0.418482303619384765, -0.13399219512939453, -0.30401039123535156, 0.845278859138488769, 120, 255, 1, 58608), -- Horde Supplies (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+10, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3120.955810546875, -765.55902099609375, 228.011199951171875, 4.492192268371582031, -0.33418893814086914, -0.36939907073974609, -0.64768028259277343, 0.576517403125762939, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+11, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3129.93310546875, -744.11981201171875, 228.8541717529296875, 2.45047616958618164, -0.05553388595581054, -0.01644039154052734, 0.939848899841308593, 0.336644768714904785, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+12, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3130.468017578125, -743.50518798828125, 228.1533203125, 5.951984882354736328, -0.0268874168395996, -0.07801055908203125, -0.16538238525390625, 0.982771635055541992, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+13, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3124.328125, -764.37152099609375, 227.9479522705078125, 4.879216670989990234, -0.2569122314453125, -0.42677211761474609, -0.52472209930419921, 0.690310359001159667, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+14, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3129.762939453125, -745.12677001953125, 228.0257720947265625, 5.951984882354736328, -0.0268874168395996, -0.07801055908203125, -0.16538238525390625, 0.982771635055541992, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+15, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3130.01904296875, -752.2100830078125, 229.6870880126953125, 5.979323387145996093, 0.004070281982421875, -0.49811840057373046, -0.08647632598876953, 0.862776517868041992, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+16, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3129.572998046875, -762.3211669921875, 228.551239013671875, 5.468065261840820312, -0.12201261520385742, -0.48296070098876953, -0.30182266235351562, 0.812874495983123779, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+17, 215687, 870, 5785, 6522, '0', 0, 742, 1076, 3130.257080078125, -756.40277099609375, 229.68017578125, 0.299604445695877075, 0.151916027069091796, -0.47440433502197265, 0.173827171325683593, 0.849497616291046142, 120, 255, 1, 58608), -- Barricade Supports (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+18, 215766, 870, 5785, 6522, '0', 0, 742, 1076, 3108.1494140625, -748.17535400390625, 227.243072509765625, 6.165671348571777343, 0.041583061218261718, -0.00107955932617187, -0.05872917175292968, 0.997406959533691406, 120, 255, 1, 58608), -- Gunship Portal (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+(@OGUID+19, 215767, 870, 5785, 6522, '0', 0, 742, 1076, 3108.251708984375, -748.15277099609375, 227.3683013916015625, 6.132144927978515625, 0.053320884704589843, 0.030584335327148437, -0.07705974578857421, 0.995129764080047607, 120, 255, 0, 58608); -- Horde Gunship Portal Effects (Area: Honeydew Glade - Difficulty: 0) CreateObject1
+
+UPDATE `gameobject` SET `PhaseId`=0, `PhaseGroup`=742 WHERE `id`=191640 AND `guid`=4000114;
+UPDATE `gameobject` SET `PhaseId`=0, `PhaseGroup`=742 WHERE `id`=215689 AND `guid` IN (4000119,4000120,4000121);
+
+-- Smart scripts
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (67136);
+
+DELETE FROM `smart_scripts` WHERE `entryorguid`=67136 AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(67136,0,0,0,'',1,0,100,0,0,7200,4800,7200,0,'',11,132002,0,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,'Exploding Manfred - Out of combat (4.8s-7.2s) - Cast ''Fiery Explosion w/ Projectile''');

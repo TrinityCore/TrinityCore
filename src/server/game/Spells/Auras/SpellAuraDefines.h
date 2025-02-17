@@ -294,7 +294,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_XP_PCT                                   = 200,
     SPELL_AURA_FLY                                          = 201,
     SPELL_AURA_IGNORE_COMBAT_RESULT                         = 202,
-    SPELL_AURA_PREVENT_INTERRUPT                            = 203,  // NYI
+    SPELL_AURA_PREVENT_INTERRUPT                            = 203,
     SPELL_AURA_PREVENT_CORPSE_RELEASE                       = 204,  // NYI
     SPELL_AURA_MOD_CHARGE_COOLDOWN                          = 205,  // NYI
     SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED            = 206,
@@ -357,7 +357,7 @@ enum AuraType : uint32
     SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES             = 263,
     SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES           = 264,
     SPELL_AURA_265                                          = 265,
-    SPELL_AURA_SET_VIGNETTE                                 = 266,  // NYI
+    SPELL_AURA_SET_VIGNETTE                                 = 266,
     SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL                 = 267,
     SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT                      = 268,
     SPELL_AURA_MOD_IGNORE_TARGET_RESIST                     = 269,
@@ -388,8 +388,8 @@ enum AuraType : uint32
     SPELL_AURA_PREVENT_REGENERATE_POWER                     = 294,
     SPELL_AURA_MOD_PERIODIC_DAMAGE_TAKEN                    = 295,
     SPELL_AURA_SET_VEHICLE_ID                               = 296,
-    SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY                     = 297,  // NYI
-    SPELL_AURA_MOD_STUN_DISABLE_GRAVITY                     = 298,  // NYI
+    SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY                     = 297,
+    SPELL_AURA_MOD_STUN_DISABLE_GRAVITY                     = 298,
     SPELL_AURA_299                                          = 299,
     SPELL_AURA_SHARE_DAMAGE_PCT                             = 300,
     SPELL_AURA_SCHOOL_HEAL_ABSORB                           = 301,
@@ -407,7 +407,7 @@ enum AuraType : uint32
     SPELL_AURA_MOUNT_ANIM_REPLACEMENT_SET                   = 313,
     SPELL_AURA_PREVENT_RESURRECTION                         = 314,
     SPELL_AURA_UNDERWATER_WALKING                           = 315,
-    SPELL_AURA_SCHOOL_ABSORB_OVERKILL                       = 316,  // NYI - absorbs overkill damage
+    SPELL_AURA_SCHOOL_ABSORB_OVERKILL                       = 316,
     SPELL_AURA_MOD_SPELL_POWER_PCT                          = 317,
     SPELL_AURA_MASTERY                                      = 318,
     SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
@@ -486,7 +486,7 @@ enum AuraType : uint32
     SPELL_AURA_392                                          = 392,
     SPELL_AURA_BLOCK_SPELLS_IN_FRONT                        = 393,  // NYI
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT                     = 394,
-    SPELL_AURA_AREA_TRIGGER                                 = 395,  // NYI
+    SPELL_AURA_AREA_TRIGGER                                 = 395,
     SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT                = 396,  // Triggers spell when power goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL       = 397,
     SPELL_AURA_BATTLEGROUND_PLAYER_POSITION                 = 398,
@@ -509,7 +509,7 @@ enum AuraType : uint32
     SPELL_AURA_415                                          = 415,
     SPELL_AURA_MOD_COOLDOWN_BY_HASTE_REGEN                  = 416,
     SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN           = 417,
-    SPELL_AURA_MOD_MAX_POWER                                = 418,  // NYI
+    SPELL_AURA_MOD_MAX_POWER                                = 418,
     SPELL_AURA_MOD_BASE_MANA_PCT                            = 419,
     SPELL_AURA_MOD_BATTLE_PET_XP_PCT                        = 420,
     SPELL_AURA_MOD_ABSORB_EFFECTS_DONE_PCT                  = 421,  // NYI
@@ -522,7 +522,7 @@ enum AuraType : uint32
     SPELL_AURA_LINKED_SUMMON                                = 428,
     SPELL_AURA_MOD_SUMMON_DAMAGE                            = 429,  // NYI - increases damage done by all summons, not just controlled pets
     SPELL_AURA_PLAY_SCENE                                   = 430,
-    SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,  // NYI
+    SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,
     SPELL_AURA_432                                          = 432,
     SPELL_AURA_433                                          = 433,
     SPELL_AURA_434                                          = 434,
@@ -575,7 +575,7 @@ enum AuraType : uint32
     SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
-    SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,  // NYI
+    SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
     SPELL_AURA_486                                          = 486,
     SPELL_AURA_COSMETIC_MOUNTED                             = 487,
