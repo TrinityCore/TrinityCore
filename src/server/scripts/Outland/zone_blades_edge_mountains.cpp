@@ -1038,11 +1038,8 @@ public:
 
             if (Creature* marmot = GetCaster()->SummonCreature(entry, pos))
             {
-                GetCaster()->CastSpell(marmot, SPELL_CHARM_REXXARS_RODENT, true);
-                _marmotGuid = marmot->GetGUID();
-
-                // Invisible on player
-                GetCaster()->SetVisible(false);
+                GetCaster()->CastSpell(summon, SPELL_CHARM_REXXARS_RODENT, true);
+                _marmotGuid = summon->GetGUID();
             }
         }
 
@@ -1084,7 +1081,7 @@ public:
             if (!caster || caster->GetCharmedGUID())
                 return;
 
-            caster->RemoveAurasByType(SPELL_AURA_DUMMY);
+            caster->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1097,15 +1094,12 @@ public:
             // Dismiss Marmot
             if (Creature * marmot = ObjectAccessor::GetCreature(*GetCaster(), marmotGuid))
                 marmot->DespawnOrUnsummon();
-
-            // Visible on player
-            GetCaster()->SetVisible(true);
         }
 
         void Register() override
         {
-            OnEffectApply += AuraEffectApplyFn(spell_coax_marmot_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_coax_marmot_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectApply += AuraEffectApplyFn(spell_coax_marmot_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_coax_marmot_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
         }
 
         ObjectGuid marmotGuid;

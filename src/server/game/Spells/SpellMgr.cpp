@@ -4948,12 +4948,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
     });
 
-    // Coax Marmot
-    ApplySpellFix({ 38544 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->_GetEffect(EFFECT_1).ApplyAuraName = SPELL_AURA_DUMMY;
-    });
-
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
