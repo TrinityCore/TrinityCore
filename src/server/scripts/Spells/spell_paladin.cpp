@@ -431,17 +431,20 @@ class spell_pal_divine_purpose : public AuraScript
 {
     PrepareAuraScript(spell_pal_divine_purpose);
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        if (!roll_chance_i(aurEff->GetAmount()))
-            return;
-
-        eventInfo.GetProcTarget()->RemoveAurasWithMechanic(1 << MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
+        eventInfo.GetActionTarget()->RemoveAurasWithMechanic(1 << MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
     }
 
     void Register() override
     {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_divine_purpose::CheckProc, EFFECT_2, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_pal_divine_purpose::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
@@ -599,22 +602,26 @@ class spell_pal_eye_for_an_eye : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        return damageInfo && damageInfo->GetDamage();
+    }
+
     void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        if (!damageInfo || !damageInfo->GetDamage())
-            return;
 
         // return damage % to attacker but < 50% own total health
-        int32 damage = std::min(CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount()), static_cast<int32>(GetTarget()->GetMaxHealth()) / 2);
+        int32 damage = std::min(CalculatePct(static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount()), static_cast<int32>(eventInfo.GetActionTarget()->GetMaxHealth()) / 2);
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(damage);
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, args);
+        eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, args);
     }
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_pal_eye_for_an_eye::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -637,7 +644,7 @@ class spell_pal_glyph_of_divinity : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        if (caster == eventInfo.GetProcTarget())
+        if (caster == eventInfo.GetActionTarget())
             return;
 
         CastSpellExtraArgs args(aurEff);
@@ -684,12 +691,17 @@ class spell_pal_glyph_of_holy_light_dummy : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        HealInfo* healInfo = eventInfo.GetHealInfo();
+        return healInfo && healInfo->GetHeal();
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
+
         HealInfo* healInfo = eventInfo.GetHealInfo();
-        if (!healInfo || !healInfo->GetHeal())
-            return;
 
         uint32 basePoints = healInfo->GetSpellInfo()->GetEffect(EFFECT_0).BasePoints + healInfo->GetSpellInfo()->GetEffect(EFFECT_0).DieSides;
         uint32 healAmount;
@@ -700,11 +712,12 @@ class spell_pal_glyph_of_holy_light_dummy : public AuraScript
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(CalculatePct(healAmount, aurEff->GetAmount()));
-        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL, args);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL, args);
     }
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_pal_glyph_of_holy_light_dummy::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_glyph_of_holy_light_dummy::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -803,7 +816,7 @@ class spell_pal_heart_of_the_crusader : public AuraScript
         PreventDefaultAction();
 
         uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HEART_OF_THE_CRUSADER_EFF_R1, GetSpellInfo()->GetRank());
-        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), spellId, aurEff);
     }
 
     void Register() override
@@ -1140,39 +1153,47 @@ class spell_pal_item_t6_trinket : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        PreventDefaultAction();
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
         if (!spellInfo)
-            return;
-
-        uint32 spellId;
-        int32 chance;
+            return false;
 
         // Holy Light & Flash of Light
         if (spellInfo->SpellFamilyFlags[0] & 0xC0000000)
         {
-            spellId = SPELL_PALADIN_ENDURING_LIGHT;
-            chance = 15;
+            if (!roll_chance_i(15))
+                return false;
+
+            _triggeredSpellId = SPELL_PALADIN_ENDURING_LIGHT;
+            return true;
         }
         // Judgements
         else if (spellInfo->SpellFamilyFlags[0] & 0x00800000)
         {
-            spellId = SPELL_PALADIN_ENDURING_JUDGEMENT;
-            chance = 50;
-        }
-        else
-            return;
+            if (!roll_chance_i(50))
+                return false;
 
-        if (roll_chance_i(chance))
-            eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, aurEff);
+            _triggeredSpellId = SPELL_PALADIN_ENDURING_JUDGEMENT;
+            return true;
+        }
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), _triggeredSpellId, aurEff);
     }
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_pal_item_t6_trinket::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_item_t6_trinket::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+
+    uint32 _triggeredSpellId = 0;
 };
 
 // 53407 - Judgement of Justice
@@ -1256,7 +1277,7 @@ class spell_pal_judgement_of_light_heal : public AuraScript
     {
         PreventDefaultAction();
 
-        Unit* caster = eventInfo.GetProcTarget();
+        Unit* caster = eventInfo.GetActor();
 
         CastSpellExtraArgs args(aurEff);
         args.OriginalCaster = GetCasterGUID();
@@ -1282,7 +1303,7 @@ class spell_pal_judgement_of_wisdom_mana : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget()->GetPowerType() == POWER_MANA;
+        return eventInfo.GetActor()->GetPowerType() == POWER_MANA;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1291,7 +1312,7 @@ class spell_pal_judgement_of_wisdom_mana : public AuraScript
 
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA);
 
-        Unit* caster = eventInfo.GetProcTarget();
+        Unit* caster = eventInfo.GetActor();
         int32 const amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), spellInfo->GetEffect(EFFECT_0).CalcValue());
         CastSpellExtraArgs args(aurEff);
         args.OriginalCaster = GetCasterGUID();
@@ -1517,19 +1538,21 @@ class spell_pal_righteous_vengeance : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        return damageInfo && damageInfo->GetDamage();
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        if (!damageInfo || !damageInfo->GetDamage())
-            return;
-
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE);
-        int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+        int32 amount = CalculatePct(static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
 
         ASSERT(spellInfo->GetMaxTicks() > 0);
         amount /= spellInfo->GetMaxTicks();
@@ -1541,6 +1564,7 @@ class spell_pal_righteous_vengeance : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_pal_righteous_vengeance::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_righteous_vengeance::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -1637,16 +1661,11 @@ class spell_pal_seal_of_righteousness : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        return eventInfo.GetProcTarget() != nullptr;
-    }
-
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
-        Unit* victim = eventInfo.GetProcTarget();
+        Unit* victim = eventInfo.GetActionTarget();
 
         float ap = GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK);
         ap += victim->GetTotalAuraModifier(SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS);
@@ -1660,12 +1679,11 @@ class spell_pal_seal_of_righteousness : public AuraScript
         int32 bp = std::lroundf(mws * (0.022f * ap + 0.044f * sph));
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(bp);
-        GetTarget()->CastSpell(victim, SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, args);
+        eventInfo.GetActor()->CastSpell(victim, SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, args);
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pal_seal_of_righteousness::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_righteousness::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -1722,7 +1740,7 @@ class spell_pal_seal_of_vengeance : public SpellScriptLoader
                 }
 
                 // don't cast triggered, spell already has SPELL_ATTR4_CAN_CAST_WHILE_CASTING attr
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), DoTSpell, CastSpellExtraArgs(TRIGGERED_DONT_RESET_PERIODIC_TIMER).SetTriggeringAura(aurEff));
+                eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), DoTSpell, CastSpellExtraArgs(TRIGGERED_DONT_RESET_PERIODIC_TIMER).SetTriggeringAura(aurEff));
             }
 
             void HandleSeal(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1730,7 +1748,7 @@ class spell_pal_seal_of_vengeance : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetActor();
-                Unit* target = eventInfo.GetProcTarget();
+                Unit* target = eventInfo.GetActionTarget();
 
                 // get current aura on target, if any
                 AuraEffect const* sealDot = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PALADIN, 0x00000000, 0x00000800, 0x00000000, caster->GetGUID());
@@ -1804,7 +1822,7 @@ class spell_pal_spiritual_attunement : public AuraScript
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         // "when healed by other friendly targets' spells"
-        if (eventInfo.GetProcTarget() == eventInfo.GetActionTarget())
+        if (eventInfo.GetActor() == eventInfo.GetActionTarget())
             return false;
 
         return eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetEffectiveHeal();
@@ -1838,19 +1856,21 @@ class spell_pal_sheath_of_light : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        HealInfo* healInfo = eventInfo.GetHealInfo();
+        return healInfo && healInfo->GetEffectiveHeal();
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
-        HealInfo* healInfo = eventInfo.GetHealInfo();
-        if (!healInfo || !healInfo->GetEffectiveHeal())
-            return;
-
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL);
-        int32 amount = CalculatePct(static_cast<int32>(healInfo->GetEffectiveHeal()), aurEff->GetAmount());
+        int32 amount = CalculatePct(static_cast<int32>(eventInfo.GetHealInfo()->GetEffectiveHeal()), aurEff->GetAmount());
 
         ASSERT(spellInfo->GetMaxTicks() > 0);
         amount /= spellInfo->GetMaxTicks();
@@ -1862,6 +1882,7 @@ class spell_pal_sheath_of_light : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_pal_sheath_of_light::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_sheath_of_light::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
@@ -1888,7 +1909,7 @@ class spell_pal_t3_6p_bonus : public AuraScript
 
         uint32 spellId;
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         switch (target->GetClass())
         {
@@ -1932,19 +1953,21 @@ class spell_pal_t8_2p_bonus : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_HOLY_MENDING });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        HealInfo* healInfo = eventInfo.GetHealInfo();
+        return healInfo && healInfo->GetHeal();
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
-        HealInfo* healInfo = eventInfo.GetHealInfo();
-        if (!healInfo || !healInfo->GetHeal())
-            return;
-
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING);
-        int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+        int32 amount = CalculatePct(static_cast<int32>(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
 
         ASSERT(spellInfo->GetMaxTicks() > 0);
         amount /= spellInfo->GetMaxTicks();
@@ -1956,6 +1979,7 @@ class spell_pal_t8_2p_bonus : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_pal_t8_2p_bonus::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pal_t8_2p_bonus::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };

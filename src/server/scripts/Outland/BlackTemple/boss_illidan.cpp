@@ -1952,8 +1952,8 @@ class spell_illidan_parasitic_shadowfiend_proc : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        Unit* target = eventInfo.GetProcTarget();
-        return target && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND) && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND_2);
+        Unit* target = eventInfo.GetActionTarget();
+        return !target->HasAura(SPELL_PARASITIC_SHADOWFIEND) && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND_2);
     }
 
     void Register() override
