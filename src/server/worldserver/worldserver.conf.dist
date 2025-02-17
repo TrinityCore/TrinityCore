@@ -2178,8 +2178,12 @@ GM.AllowInvite = 0
 
 #
 #    GM.LowerSecurity
-#        Description: Allow lower security levels to use commands on higher security level
-#                     characters.
+#        Description: Disallow lower security levels to use commands on higher security level
+#                     characters. Regardless of this value, lower security check is always
+#                     enabled for accounts without RBAC_PERM_CAN_IGNORE_LOWER_SECURITY_CHECK.
+#                     This option also does not affect "strong" checks, such as in
+#                     certain .account and .rbac commands, which are always enabled.
+#
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 

@@ -327,7 +327,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
             if (item->IsBindedNotWith(trader))
             {
                 info.Status = TRADE_STATUS_CLOSE_WINDOW;
-                info.Result = EQUIP_ERR_CANNOT_TRADE_THAT;
+                info.Result = EQUIP_ERR_TRADE_BOUND_ITEM;
                 SendTradeStatus(info);
                 return;
             }

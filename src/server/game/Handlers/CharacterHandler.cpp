@@ -776,12 +776,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     {
         Field* fields = resultGuild->Fetch();
         pCurrChar->SetInGuild(fields[0].GetUInt32());
-        pCurrChar->SetRank(fields[1].GetUInt8());
+        pCurrChar->SetGuildRank(fields[1].GetUInt8());
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(0);
-        pCurrChar->SetRank(0);
+        pCurrChar->SetGuildRank(0);
     }
 
     if (pCurrChar->GetGuildId() != 0)
@@ -1305,7 +1305,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 
     // 0 - ok
     // 1, 3 - not enough money
-    // 2 - you have to seat on barber chair
+    // 2 - you have to sit on barber chair
     if (!_player->HasEnoughMoney(cost))
     {
         SendBarberShopResult(BARBER_SHOP_RESULT_NO_MONEY);

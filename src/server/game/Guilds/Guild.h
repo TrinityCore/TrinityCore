@@ -313,8 +313,8 @@ class TC_GAME_API Guild
                 std::string GetPublicNote() const { return m_publicNote; }
                 std::string GetOfficerNote() const { return m_officerNote; }
                 uint8 GetClass() const { return m_class; }
-                uint8 GetLevel() const { return m_level; }
                 uint8 GetGender() const { return m_gender; }
+                uint8 GetLevel() const { return m_level; }
                 uint8 GetFlags() const { return m_flags; }
                 uint32 GetZoneId() const { return m_zoneId; }
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
@@ -501,7 +501,6 @@ class TC_GAME_API Guild
 
             private:
                 ObjectGuid::LowType m_guildId;
-
                 uint8  m_rankId;
                 std::string m_name;
                 uint32 m_rights;
@@ -655,7 +654,7 @@ class TC_GAME_API Guild
         void HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo);
         void HandleSetLeader(WorldSession* session, std::string_view name);
         void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string_view name, std::string_view icon);
-        void HandleSetMemberNote(WorldSession* session, std::string_view name, std::string_view note, bool officer);
+        void HandleSetMemberNote(WorldSession* session, std::string_view note, std::string_view name, bool isPublic);
         void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string_view name, uint32 rights, uint32 moneyPerDay, std::array<GuildBankRightsAndSlots, GUILD_BANK_MAX_TABS> const& rightsAndSlots);
         void HandleBuyBankTab(WorldSession* session, uint8 tabId);
         void HandleInviteMember(WorldSession* session, std::string_view name);
@@ -678,7 +677,7 @@ class TC_GAME_API Guild
         void SendInfo(WorldSession* session) const;
         void SendEventLog(WorldSession* session) const;
         void SendBankLog(WorldSession* session, uint8 tabId) const;
-        void SendBankTabsInfo(WorldSession* session, bool showTabs = false) const;
+        void SendBankList(WorldSession* session = nullptr, uint8 tabId = 0, bool fullUpdate = false, SlotIds* slots = nullptr) const;
         void SendBankTabData(WorldSession* session, uint8 tabId, bool sendAllSlots) const;
         void SendBankTabText(WorldSession* session, uint8 tabId) const;
         void SendPermissions(WorldSession* session) const;
@@ -823,11 +822,8 @@ class TC_GAME_API Guild
         void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount);
         bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
 
-        void _SendBankContent(WorldSession* session, uint8 tabId, bool sendAllSlots) const;
-        void _SendBankMoneyUpdate(WorldSession* session) const;
         void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
         void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
-        void _SendBankList(WorldSession* session = nullptr, uint8 tabId = 0, bool sendFullSlots = false, SlotIds* slots = nullptr) const;
 
         void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, Optional<std::string_view> param1 = {}, Optional<std::string_view> param2 = {}, Optional<std::string_view> param3 = {}) const;
 };
