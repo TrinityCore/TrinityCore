@@ -482,7 +482,7 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
                 {
                     if (unit->IsAlive() && !_player->IsFriendlyTo(unit) && unit->isTargetableForAttack())
                         autoReapeatSpell->m_targets.SetUnitTarget(unit);
-					else
+                    else
                         _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
                 }
             }
