@@ -1261,7 +1261,7 @@ class spell_pal_item_t6_trinket : public AuraScript
 };
 
 // 633 - Lay on Hands
-// 471195 - Lay on Hands
+// 471195 - Lay on Hands (from 387791 - Empyreal Ward)
 class spell_pal_lay_on_hands : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -1269,7 +1269,7 @@ class spell_pal_lay_on_hands : public SpellScript
         return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE, SPELL_PALADIN_IMMUNE_SHIELD_MARKER });
     }
 
-    SpellCastResult CheckForbearance()
+    SpellCastResult CheckForbearance() const
     {
         Unit* target = GetExplTargetUnit();
         if (!target || target->HasAura(SPELL_PALADIN_FORBEARANCE))
@@ -1278,7 +1278,7 @@ class spell_pal_lay_on_hands : public SpellScript
         return SPELL_CAST_OK;
     }
 
-    void TriggerForbearance()
+    void TriggerForbearance() const
     {
         if (Unit* target = GetHitUnit())
         {
