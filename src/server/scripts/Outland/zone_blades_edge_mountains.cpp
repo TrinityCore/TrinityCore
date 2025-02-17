@@ -1019,12 +1019,11 @@ enum Marmot
     SPELL_COAX_MARMOT              = 38544
 };
 
+#define CoaxMarmotScriptName "spell_coax_marmot"
 class spell_coax_marmot : public SpellScriptLoader
 {
 public:
-    static char constexpr const ScriptName[] = "spell_coax_marmot";
-
-    spell_coax_marmot() : SpellScriptLoader(ScriptName) { }
+    spell_coax_marmot() : SpellScriptLoader(CoaxMarmotScriptName) { }
 
     class spell_coax_marmot_SpellScript : public SpellScript
     {
@@ -1034,19 +1033,20 @@ public:
         {
             PreventHitDefaultEffect(effIndex);
             uint32 entry = uint32(GetEffectInfo().MiscValue);
-            Position pos = GetCaster()->GetPosition();
+            Unit* caster = GetCaster();
+            Position pos = caster->GetPosition();
 
-            if (Creature* marmot = GetCaster()->SummonCreature(entry, pos))
+            if (Creature* marmot = caster->SummonCreature(entry, pos))
             {
-                GetCaster()->CastSpell(summon, SPELL_CHARM_REXXARS_RODENT, true);
-                _marmotGuid = summon->GetGUID();
+                caster->CastSpell(marmot, SPELL_CHARM_REXXARS_RODENT, true);
+                _marmotGuid = marmot->GetGUID();
             }
         }
 
         void SetMarmot(SpellEffIndex /*effIndex*/)
         {
             if (Aura* aura = GetHitAura())
-                if (spell_coax_marmot_AuraScript* script = aura->GetScript<spell_coax_marmot_AuraScript>(ScriptName))
+                if (spell_coax_marmot_AuraScript* script = aura->GetScript<spell_coax_marmot_AuraScript>(CoaxMarmotScriptName))
                     script->SetMarmotGuid(_marmotGuid);
         }
 
