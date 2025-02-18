@@ -377,10 +377,9 @@ class spell_pal_blinding_light : public SpellScript
         return ValidateSpellInfo({ SPELL_PALADIN_BLINDING_LIGHT_EFFECT });
     }
 
-    void HandleOnHit() const
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_PALADIN_BLINDING_LIGHT_EFFECT, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_BLINDING_LIGHT_EFFECT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -388,7 +387,7 @@ class spell_pal_blinding_light : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pal_blinding_light::HandleOnHit);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_blinding_light::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
