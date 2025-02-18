@@ -1549,10 +1549,10 @@ class spell_sha_item_lightning_shield_trigger : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, CastSpellExtraArgsInit{
+        eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK,
             .TriggeringAura = aurEff
         });
