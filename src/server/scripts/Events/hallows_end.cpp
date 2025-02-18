@@ -353,7 +353,7 @@ class spell_hallows_end_powder_blast : public AuraScript
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_HALLOWS_END_DUMMY_NUKE);
-        eventInfo.GetProcTarget()->CastSpell(GetTarget(), SPELL_HALLOWS_END_DREAD_FERTILIZER);
+        eventInfo.GetActor()->CastSpell(GetTarget(), SPELL_HALLOWS_END_DREAD_FERTILIZER);
     }
 
     void Register() override

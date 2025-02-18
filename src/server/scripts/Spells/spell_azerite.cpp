@@ -187,7 +187,7 @@ class spell_item_bracing_chill_proc : public AuraScript
             return;
 
         if (AuraEffect const* trait = caster->GetAuraEffect(SPELL_BRACING_CHILL_TRAIT, EFFECT_0, caster->GetGUID()))
-            caster->CastSpell(procInfo.GetProcTarget(), SPELL_BRACING_CHILL_HEAL,
+            caster->CastSpell(procInfo.GetActionTarget(), SPELL_BRACING_CHILL_HEAL,
                 CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_BASE_POINT0, trait->GetAmount()));
 
         if (GetStackAmount() > 1)
@@ -344,7 +344,7 @@ class spell_item_divine_right : public AuraScript
 {
     bool CheckHealthPct(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget()->HasAuraState(AURA_STATE_WOUNDED_20_PERCENT, eventInfo.GetSpellInfo(), eventInfo.GetActor());
+        return eventInfo.GetActionTarget()->HasAuraState(AURA_STATE_WOUNDED_20_PERCENT, eventInfo.GetSpellInfo(), eventInfo.GetActor());
     }
 
     void Register() override

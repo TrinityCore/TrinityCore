@@ -1941,7 +1941,7 @@ class spell_warr_sweeping_strikes : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        _procTarget = eventInfo.GetActor()->SelectNearbyTarget(eventInfo.GetProcTarget());
+        _procTarget = eventInfo.GetActor()->SelectNearbyTarget(eventInfo.GetActionTarget());
         return _procTarget != nullptr;
     }
 

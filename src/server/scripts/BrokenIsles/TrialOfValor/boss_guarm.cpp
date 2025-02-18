@@ -378,7 +378,7 @@ class spell_multi_headed_proc_guarm : public AuraScript
 {
     void HandleProc(ProcEventInfo& eventInfo)
     {
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MULTI_HEADED_DAMAGE);
+        GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_MULTI_HEADED_DAMAGE);
     }
 
     void Register() override

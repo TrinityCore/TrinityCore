@@ -264,7 +264,7 @@ class spell_enigma_arena_reaction_trigger : public AuraScript
     void HandleProc(ProcEventInfo const& eventInfo) const
     {
         if (ZoneScript* zonescript = GetTarget()->FindZoneScript())
-            zonescript->DoAction(EnigmaCrucible::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetProcTarget());
+            zonescript->DoAction(EnigmaCrucible::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetActionTarget());
     }
 
     void Register() override

@@ -1300,7 +1300,8 @@ class spell_mage_ignite : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget() != nullptr;
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        return damageInfo && damageInfo->GetDamage();
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -1317,7 +1318,7 @@ class spell_mage_ignite : public AuraScript
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, args);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IGNITE, args);
     }
 
     void Register() override
@@ -1412,7 +1413,7 @@ class spell_mage_improved_scorch : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount()) || eventInfo.GetActor()->HasAura(SPELL_MAGE_HEAT_SHIMMER);
+        return eventInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount()) || eventInfo.GetActor()->HasAura(SPELL_MAGE_HEAT_SHIMMER);
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
@@ -1712,22 +1713,23 @@ class spell_mage_radiant_spark : public AuraScript
 
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
     {
-        return !procInfo.GetProcTarget()->HasAura(SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, GetCasterGUID());
+        return !procInfo.GetActor()->HasAura(SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, GetCasterGUID());
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
     {
-        Aura* vulnerability = procInfo.GetProcTarget()->GetAura(aurEff->GetSpellEffectInfo().TriggerSpell, GetCasterGUID());
+        Aura* vulnerability = procInfo.GetActionTarget()->GetAura(aurEff->GetSpellEffectInfo().TriggerSpell, GetCasterGUID());
         if (vulnerability && vulnerability->GetStackAmount() == vulnerability->CalcMaxStackAmount())
         {
             PreventDefaultAction();
             vulnerability->Remove();
-            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, true);
+            procInfo.GetActor()->CastSpell(procInfo.GetActor(), SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, true);
         }
     }
 
     void Register() override
     {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_radiant_spark::CheckProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
         OnEffectProc += AuraEffectProcFn(spell_mage_radiant_spark::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };

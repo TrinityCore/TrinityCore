@@ -198,7 +198,7 @@ class spell_pet_gen_lich_pet_aura : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return (eventInfo.GetProcTarget()->GetTypeId() == TYPEID_PLAYER);
+        return eventInfo.GetActionTarget()->IsPlayer();
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)

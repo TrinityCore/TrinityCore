@@ -227,7 +227,7 @@ class spell_zandalar_arena_reaction_trigger : public AuraScript
     void HandleProc(ProcEventInfo const& eventInfo) const
     {
         if (ZoneScript* zonescript = GetTarget()->FindZoneScript())
-            zonescript->DoAction(Mugambala::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetProcTarget());
+            zonescript->DoAction(Mugambala::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetActionTarget());
     }
 
     void Register() override

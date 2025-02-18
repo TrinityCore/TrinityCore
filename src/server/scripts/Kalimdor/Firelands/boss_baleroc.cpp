@@ -679,7 +679,7 @@ class spell_baleroc_torment_AuraScript : public AuraScript
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        Unit* healer = eventInfo.GetProcTarget();
+        Unit* healer = eventInfo.GetActor();
         if (healer->HasAura(SPELL_VITAL_FLAME))
             return;
 
@@ -751,7 +751,7 @@ class spell_baleroc_vital_spark : public AuraScript
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        if (Unit* target = eventInfo.GetProcTarget())
+        if (Unit* target = eventInfo.GetActionTarget())
             if (target->HasAura(SPELL_BLAZE_OF_GLORY))
                 GetCaster()->CastSpell(GetCaster(), SPELL_VITAL_FLAME, true);
     }
