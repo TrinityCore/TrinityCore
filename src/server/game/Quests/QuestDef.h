@@ -206,6 +206,11 @@ enum class QuestGiverStatus : uint64
 
 DEFINE_ENUM_FLAG(QuestGiverStatus);
 
+inline constexpr QuestGiverStatus QuestGiverStatusFutureMask = QuestGiverStatus::Future
+    | QuestGiverStatus::FutureJourneyQuest
+    | QuestGiverStatus::FutureLegendaryQuest
+    | QuestGiverStatus::FutureImportantQuest;
+
 enum QuestFlags : uint32
 {
     QUEST_FLAGS_NONE                        = 0x00000000,

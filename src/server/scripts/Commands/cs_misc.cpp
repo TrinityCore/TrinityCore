@@ -306,15 +306,10 @@ public:
             return false;
         }
 
-        if(!spell)
+        if (!spell)
             return false;
 
-        ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, target->GetMapId(), spell->Id, target->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-        AuraCreateInfo createInfo(castId, spell, target->GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, target);
-        createInfo.SetCaster(target);
-
-        Aura::TryRefreshStackOrCreate(createInfo);
-
+        target->AddAura(spell, MAX_EFFECT_MASK, target);
         return true;
     }
 
@@ -957,10 +952,7 @@ public:
                 return false;
 
             if (Player* caster = handler->GetSession()->GetPlayer())
-            {
-                ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), SPELL_UNSTUCK_ID, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                Spell::SendCastResult(caster, spellInfo, { SPELL_UNSTUCK_VISUAL, 0 }, castId, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
-            }
+                caster->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_CLIENT_LOCKED_OUT).Write());
 
             return false;
         }

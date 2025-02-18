@@ -2725,7 +2725,7 @@ inline bool PlayerConditionCompare(int32 comparisonType, int32 value1, int32 val
 template<std::size_t N>
 inline bool PlayerConditionLogic(uint32 logic, std::array<bool, N>& results)
 {
-    static_assert(N < 16, "Logic array size must be equal to or less than 16");
+    static_assert(N < 8, "Logic array size must be equal to or less than 8");
 
     for (std::size_t i = 0; i < results.size(); ++i)
         if ((logic >> (16 + i)) & 1)

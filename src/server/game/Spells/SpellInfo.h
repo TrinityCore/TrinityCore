@@ -36,7 +36,6 @@ class WorldObject;
 struct Condition;
 struct SpellChainNode;
 struct SpellModifier;
-struct SpellTargetPosition;
 enum WeaponAttackType : uint8;
 
 enum SpellTargetSelectionCategories
@@ -267,7 +266,8 @@ public:
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
     bool HasRadius(SpellTargetIndex targetIndex) const;
-    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* = nullptr) const;
+    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* spell = nullptr) const;
+    Optional<std::pair<float, float>> CalcRadiusBounds(WorldObject* caster, SpellTargetIndex targetIndex, Spell* spell) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool dstSet = false, uint32 mask = 0) const;
@@ -422,6 +422,7 @@ class TC_GAME_API SpellInfo
         } Scaling;
 
         uint32 ExplicitTargetMask = 0;
+        uint32 RequiredExplicitTargetMask = 0;
         SpellChainNode const* ChainEntry = nullptr;
         struct
         {

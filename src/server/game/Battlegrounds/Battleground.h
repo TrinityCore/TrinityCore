@@ -442,7 +442,7 @@ class TC_GAME_API Battleground
 
         BattlegroundPlayer const* GetBattlegroundPlayerData(ObjectGuid const& playerGuid) const
         {
-            auto const& itr = m_Players.find(playerGuid);
+            auto itr = m_Players.find(playerGuid);
             if (itr == m_Players.end())
                 return nullptr;
 

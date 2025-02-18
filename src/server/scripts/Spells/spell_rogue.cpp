@@ -1031,10 +1031,8 @@ class spell_rog_sinister_strike : public SpellScript
             damagePerCombo += t5->GetAmount();
 
         int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
+        if (Optional<int32> comboPointCost = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS))
+            finalDamage *= *comboPointCost;
 
         SetHitDamage(finalDamage);
     }

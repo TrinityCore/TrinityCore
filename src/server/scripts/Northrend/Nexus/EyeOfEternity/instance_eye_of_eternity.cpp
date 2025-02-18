@@ -27,7 +27,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_MALYGOS_EVENT, new CircleBoundary(Position(754.362f, 1301.609985f), 280.0) } // sanity check boundary
+    { DATA_MALYGOS_EVENT, new CircleBoundary(Position(754.362f, 1301.609985f), 280.0f) } // sanity check boundary
 };
 
 DungeonEncounterData const encounters[] =

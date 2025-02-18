@@ -73,40 +73,9 @@
 
 extern NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
 
-SpellDestination::SpellDestination()
+SpellDestination::SpellDestination(WorldObject const& wObj) : _position(wObj.GetMapId(), wObj),
+    _transportGUID(wObj.GetTransGUID()), _transportOffset(wObj.GetTransOffset())
 {
-    _position.Relocate(0, 0, 0, 0);
-    _transportGUID.Clear();
-    _transportOffset.Relocate(0, 0, 0, 0);
-}
-
-SpellDestination::SpellDestination(float x, float y, float z, float orientation, uint32 mapId)
-{
-    _position.Relocate(x, y, z, orientation);
-    _transportGUID.Clear();
-    _position.m_mapId = mapId;
-    _transportOffset.Relocate(0, 0, 0, 0);
-}
-
-SpellDestination::SpellDestination(Position const& pos)
-{
-    _position.Relocate(pos);
-    _transportGUID.Clear();
-    _transportOffset.Relocate(0, 0, 0, 0);
-}
-
-SpellDestination::SpellDestination(WorldLocation const& loc)
-{
-    _position.WorldRelocate(loc);
-    _transportGUID.Clear();
-    _transportOffset.Relocate(0, 0, 0, 0);
-}
-
-SpellDestination::SpellDestination(WorldObject const& wObj)
-{
-    _transportGUID = wObj.GetTransGUID();
-    _transportOffset.Relocate(wObj.GetTransOffsetX(), wObj.GetTransOffsetY(), wObj.GetTransOffsetZ(), wObj.GetTransOffsetO());
-    _position.Relocate(wObj);
 }
 
 void SpellDestination::Relocate(Position const& pos)
@@ -779,7 +748,7 @@ void Spell::SelectSpellTargets()
         {
             if (m_spellInfo->HasAttribute(SPELL_ATTR1_REQUIRE_ALL_TARGETS))
             {
-                bool noTargetFound = std::none_of(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [effectMask = 1u << spellEffectInfo.EffectIndex](TargetInfo const& target)
+                bool noTargetFound = std::ranges::none_of(m_UniqueTargetInfo, [effectMask = 1u << spellEffectInfo.EffectIndex](TargetInfo const& target)
                 {
                     return target.EffectMask & effectMask;
                 });
@@ -788,20 +757,6 @@ void Spell::SelectSpellTargets()
                 {
                     SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
                     finish(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
-                    return;
-                }
-            }
-            if (m_spellInfo->HasAttribute(SPELL_ATTR2_FAIL_ON_ALL_TARGETS_IMMUNE))
-            {
-                bool anyNonImmuneTargetFound = std::any_of(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [effectMask = 1u << spellEffectInfo.EffectIndex](TargetInfo const& target)
-                {
-                    return target.EffectMask & effectMask && target.MissCondition != SPELL_MISS_IMMUNE && target.MissCondition != SPELL_MISS_IMMUNE2;
-                });
-
-                if (!anyNonImmuneTargetFound)
-                {
-                    SendCastResult(SPELL_FAILED_IMMUNE);
-                    finish(SPELL_FAILED_IMMUNE);
                     return;
                 }
             }
@@ -826,6 +781,21 @@ void Spell::SelectSpellTargets()
                     break;
                 }
             }
+        }
+    }
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR2_FAIL_ON_ALL_TARGETS_IMMUNE))
+    {
+        bool anyNonImmuneTargetFound = std::ranges::any_of(m_UniqueTargetInfo, [](TargetInfo const& target)
+        {
+            return target.MissCondition != SPELL_MISS_IMMUNE && target.MissCondition != SPELL_MISS_IMMUNE2;
+        });
+
+        if (!anyNonImmuneTargetFound)
+        {
+            SendCastResult(SPELL_FAILED_IMMUNE);
+            finish(SPELL_FAILED_IMMUNE);
+            return;
         }
     }
 
@@ -1088,16 +1058,6 @@ void Spell::SelectImplicitChannelTargets(SpellEffectInfo const& spellEffectInfo,
                     TC_LOG_DEBUG("spells", "SPELL: cannot find channel spell destination for spell ID {}, effect {}", m_spellInfo->Id, uint32(spellEffectInfo.EffectIndex));
             }
             break;
-        case TARGET_DEST_CHANNEL_CASTER:
-        {
-            SpellDestination dest(*channeledSpell->GetCaster());
-            if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
-                dest._position.SetOrientation(spellEffectInfo.PositionFacing);
-
-            CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
-            m_targets.SetDst(dest);
-            break;
-        }
         default:
             ABORT_MSG("Spell::SelectImplicitChannelTargets: received not implemented target type");
             break;
@@ -1178,8 +1138,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                     if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id, spellEffectInfo.EffectIndex))
                     {
                         SpellDestination dest(*m_caster);
-                        if (st->target_mapId == m_caster->GetMapId() && m_caster->IsInDist(st->target_X, st->target_Y, st->target_Z, range))
-                            dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
+                        if (st->GetMapId() == m_caster->GetMapId() && m_caster->IsInDist(st, range))
+                            dest = st->GetPosition();
                         else
                         {
                             float randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex);
@@ -1503,16 +1463,16 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id, spellEffectInfo.EffectIndex))
             {
                 /// @todo fix this check
-                if (m_spellInfo->HasEffect(SPELL_EFFECT_TELEPORT_UNITS) || m_spellInfo->HasEffect(SPELL_EFFECT_TELEPORT_WITH_SPELL_VISUAL_KIT_LOADING_SCREEN) || m_spellInfo->HasEffect(SPELL_EFFECT_BIND))
-                    dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation, (int32)st->target_mapId);
-                else if (st->target_mapId == m_caster->GetMapId())
-                    dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_TELEPORT_UNITS) || spellEffectInfo.IsEffect(SPELL_EFFECT_TELEPORT_WITH_SPELL_VISUAL_KIT_LOADING_SCREEN) || spellEffectInfo.IsEffect(SPELL_EFFECT_BIND))
+                    dest = *st;
+                else if (st->GetMapId() == m_caster->GetMapId())
+                    dest = st->GetPosition();
             }
             else
             {
                 TC_LOG_DEBUG("spells", "SPELL: unknown target coordinates for spell ID {}", m_spellInfo->Id);
                 if (WorldObject* target = m_targets.GetObjectTarget())
-                    dest = SpellDestination(*target);
+                    dest = *target;
             }
             break;
         case TARGET_DEST_CASTER_FISHING:
@@ -1610,6 +1570,25 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                     if (WorldObject const* summoner = casterSummon->GetSummoner())
                         dest = SpellDestination(*summoner);
             break;
+        case TARGET_DEST_NEARBY_DB:
+        {
+            Optional<std::pair<float, float>> radiusBounds = spellEffectInfo.CalcRadiusBounds(m_caster, targetIndex, this);
+            std::vector<SpellTargetPosition const*> positionsInRange;
+            for (auto const& [_, position] : sSpellMgr->GetSpellTargetPositions(m_spellInfo->Id, spellEffectInfo.EffectIndex))
+                if (m_caster->GetMapId() == position.GetMapId() && (!radiusBounds || (!m_caster->IsInDist(position, radiusBounds->first) && m_caster->IsInDist(position, radiusBounds->second))))
+                    positionsInRange.push_back(&position);
+
+            if (positionsInRange.empty())
+            {
+                TC_LOG_DEBUG("spells", "SPELL: unknown target coordinates for spell ID {}", m_spellInfo->Id);
+                SendCastResult(SPELL_FAILED_NO_VALID_TARGETS);
+                finish(SPELL_FAILED_NO_VALID_TARGETS);
+                return;
+            }
+
+            dest = Trinity::Containers::SelectRandomContainerElement(positionsInRange)->GetPosition();
+            break;
+        }
         default:
         {
             float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
@@ -1630,7 +1609,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                 case TARGET_DEST_CASTER_FRONT_RIGHT:
                 case TARGET_DEST_CASTER_BACK_RIGHT:
                 {
-                    static float const DefaultTotemDistance = 3.0f;
+                    static constexpr float DefaultTotemDistance = 3.0f;
                     if (!spellEffectInfo.HasRadius(targetIndex))
                         dist = DefaultTotemDistance;
                     break;
@@ -1659,8 +1638,12 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
 
 void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, SpellTargetIndex targetIndex)
 {
-    ASSERT(m_targets.GetObjectTarget() && "Spell::SelectImplicitTargetDestTargets - no explicit object target available!");
+    ASSERT(m_targets.GetObjectTarget() || spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::DontFailSpellOnTargetingFailure),
+        "Spell::SelectImplicitTargetDestTargets - no explicit object target available!");
+
     WorldObject* target = m_targets.GetObjectTarget();
+    if (!target)
+        return;
 
     SpellDestination dest(*target);
 
@@ -1809,7 +1792,8 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffectInfo const& spellEffect
 
 void Spell::SelectImplicitTargetObjectTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType)
 {
-    ASSERT((m_targets.GetObjectTarget() || m_targets.GetItemTarget()) && "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
+    ASSERT(m_targets.GetObjectTarget() || m_targets.GetItemTarget() || spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::DontFailSpellOnTargetingFailure),
+        "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
 
     WorldObject* target = m_targets.GetObjectTarget();
 
@@ -4802,7 +4786,7 @@ void Spell::SendSpellStart()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsPet()))
-        && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellPowerCost const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
+        && std::ranges::any_of(m_powerCost, [](SpellPowerCost const& cost) { return cost.Power != POWER_HEALTH; }))
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if (HasPowerTypeCost(POWER_RUNES))
@@ -4901,7 +4885,7 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsPet()))
-        && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellPowerCost const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
+        && std::ranges::any_of(m_powerCost, [](SpellPowerCost const& cost) { return cost.Power != POWER_HEALTH; }))
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -5500,23 +5484,24 @@ void Spell::TakeCastItem()
 
     for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
     {
-        if (itemEffect->LegacySlotIndex >= m_CastItem->m_itemData->SpellCharges.size())
-            continue;
-
         // item has limited charges
         if (itemEffect->Charges)
         {
             if (itemEffect->Charges < 0)
                 expendable = true;
 
-            int32 charges = m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex);
+            int32 charges = m_CastItem->GetSpellCharges(itemEffect);
 
             // item has charges left for this slot
             if (charges && itemEffect->SpellID == int32(m_spellInfo->Id))
             {
-                (charges > 0) ? --charges : ++charges;  // abs(charges) less at 1 after use
+                if (charges > 0)
+                    --charges;
+                else
+                    ++charges;
+
                 if (proto->GetMaxStackSize() == 1)
-                    m_CastItem->SetSpellCharges(itemEffect->LegacySlotIndex, charges);
+                    m_CastItem->SetSpellCharges(itemEffect, charges);
                 m_CastItem->SetState(ITEM_CHANGED, player);
             }
 
@@ -5734,11 +5719,8 @@ void Spell::TakeReagents()
         {
             for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
             {
-                if (itemEffect->LegacySlotIndex >= m_CastItem->m_itemData->SpellCharges.size())
-                    continue;
-
                 // CastItem will be used up and does not count as reagent
-                int32 charges = m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex);
+                int32 charges = m_CastItem->GetSpellCharges(itemEffect);
                 if (itemEffect->Charges < 0 && abs(charges) < 2)
                 {
                     ++itemcount;
@@ -7346,7 +7328,7 @@ bool Spell::CanAutoCast(Unit* target)
     if (result == SPELL_CAST_OK || result == SPELL_FAILED_UNIT_NOT_INFRONT)
     {
         // do not check targets for ground-targeted spells (we target them on top of the intended target anyway)
-        if (GetSpellInfo()->ExplicitTargetMask & TARGET_FLAG_DEST_LOCATION)
+        if (GetSpellInfo()->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
             return true;
         SelectSpellTargets();
         //check if among target units, our WANTED target is as well (->only self cast spells return false)
@@ -7549,9 +7531,8 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
             return SPELL_FAILED_ITEM_NOT_READY;
 
         for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
-            if (itemEffect->LegacySlotIndex < m_CastItem->m_itemData->SpellCharges.size() && itemEffect->Charges)
-                if (m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex) == 0)
-                    return SPELL_FAILED_NO_CHARGES_REMAIN;
+            if (itemEffect->Charges && m_CastItem->GetSpellCharges(itemEffect) == 0)
+                return SPELL_FAILED_NO_CHARGES_REMAIN;
 
         // consumable cast item checks
         if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && m_targets.GetUnitTarget())
@@ -7653,11 +7634,8 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
 
                     for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
                     {
-                        if (itemEffect->LegacySlotIndex >= m_CastItem->m_itemData->SpellCharges.size())
-                            continue;
-
                         // CastItem will be used up and does not count as reagent
-                        int32 charges = m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex);
+                        int32 charges = m_CastItem->GetSpellCharges(itemEffect);
                         if (itemEffect->Charges < 0 && abs(charges) < 2)
                         {
                             ++itemcount;
@@ -8013,9 +7991,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
 
                  if (Item* item = player->GetItemByEntry(itemId))
                      for (ItemEffectEntry const* itemEffect : item->GetEffects())
-                         if (itemEffect->LegacySlotIndex <= item->m_itemData->SpellCharges.size()
-                             && itemEffect->Charges != 0
-                             && item->GetSpellCharges(itemEffect->LegacySlotIndex) == itemEffect->Charges)
+                         if (itemEffect->Charges != 0 && item->GetSpellCharges(itemEffect) == itemEffect->Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  break;
             }
@@ -8181,11 +8157,7 @@ bool Spell::HasPowerTypeCost(Powers power) const
 
 Optional<int32> Spell::GetPowerTypeCostAmount(Powers power) const
 {
-    auto itr = std::find_if(m_powerCost.cbegin(), m_powerCost.cend(), [power](SpellPowerCost const& cost)
-    {
-        return cost.Power == power;
-    });
-
+    auto itr = std::ranges::find(m_powerCost, power, &SpellPowerCost::Power);
     if (itr == m_powerCost.cend())
         return { };
 
@@ -8376,7 +8348,7 @@ bool Spell::CheckEffectTarget(Item const* /*target*/, SpellEffectInfo const& /*s
 
 bool Spell::IsTriggered() const
 {
-    return (!m_fromClient && (_triggeredCastFlags & TRIGGERED_FULL_MASK) != 0)
+    return (!m_fromClient && (_triggeredCastFlags & TRIGGERED_IS_TRIGGERED_MASK) != 0)
         || !m_originalCastId.IsEmpty();
 }
 
@@ -9621,7 +9593,7 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     tempTargets.resize(targets.size());
 
     // categorize each target
-    std::transform(targets.begin(), targets.end(), tempTargets.begin(), [&](WorldObject* target)
+    std::ranges::transform(targets, tempTargets.begin(), [&](WorldObject* target)
     {
         int32 negativePoints = 0;
         if (prioritizeGroupMembersOf && (!target->IsUnit() || target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
