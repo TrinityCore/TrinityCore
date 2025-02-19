@@ -1182,8 +1182,8 @@ class TC_GAME_API Unit : public WorldObject
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint8 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisual(uint32 id) const;
-        void SendPlaySpellImpact(ObjectGuid guid, uint32 id) const;
+
+        void SendPlaySpellVisualKit(uint32 id, uint32 type) const;
 
         void DeMorph();
 
