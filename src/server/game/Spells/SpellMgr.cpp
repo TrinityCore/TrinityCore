@@ -1973,6 +1973,10 @@ void SpellMgr::LoadSkillLineAbilityMap()
         ++count;
     }
 
+    // Don't autolearn secondary variant of Seal of Righteousness - it is learned together with Judgement of Light
+    if (SkillLineAbilityEntry* sealOfRighteousnessR2 = const_cast<SkillLineAbilityEntry*>(sSkillLineAbilityStore.LookupEntry(11957)))
+        sealOfRighteousnessR2->AcquireMethod = 0;
+
     TC_LOG_INFO("server.loading", ">> Loaded {} SkillLineAbility MultiMap Data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
