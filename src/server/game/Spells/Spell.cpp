@@ -4372,10 +4372,13 @@ void Spell::SendSpellGo()
     }
 
     if (castFlags & CAST_FLAG_AMMO)
-    {
-        castData.Ammo.emplace();
-        UpdateSpellCastDataAmmo(*castData.Ammo);
-    }
+        UpdateSpellCastDataAmmo(castData.Ammo.emplace());
+
+    if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
+        castData.DestLocSpellCastIndex.emplace();
+
+    if (m_targets.GetTargetMask() & TARGET_FLAG_UNUSED20)
+        castData.TargetPoints.emplace();
 
     // should be sent to self only
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF && m_caster->IsPlayer())

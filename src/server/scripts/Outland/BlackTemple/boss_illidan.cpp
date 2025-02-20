@@ -1952,8 +1952,8 @@ class spell_illidan_parasitic_shadowfiend_proc : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        Unit* target = eventInfo.GetProcTarget();
-        return target && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND) && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND_2);
+        Unit* target = eventInfo.GetActionTarget();
+        return !target->HasAura(SPELL_PARASITIC_SHADOWFIEND) && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND_2);
     }
 
     void Register() override
@@ -2062,7 +2062,7 @@ class spell_illidan_return_glaives : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->SendPlaySpellVisual(SPELL_GLAIVE_VISUAL_KIT);
+        GetHitUnit()->SendPlaySpellVisualKit(SPELL_GLAIVE_VISUAL_KIT, 0);
         if (Creature* caster = GetCaster()->ToCreature())
             caster->DespawnOrUnsummon();
     }

@@ -70,6 +70,7 @@
 #include "SpellInfo.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "StringConvert.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
@@ -253,12 +254,12 @@ uint32 HealInfo::GetHitMask() const
     return _hitMask;
 }
 
-ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
+ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget,
                              uint32 typeMask, uint32 spellTypeMask,
                              uint32 spellPhaseMask, uint32 hitMask,
                              Spell* spell, DamageInfo* damageInfo,
                              HealInfo* healInfo) :
-    _actor(actor), _actionTarget(actionTarget), _procTarget(procTarget),
+    _actor(actor), _actionTarget(actionTarget),
     _typeMask(typeMask), _spellTypeMask(spellTypeMask),
     _spellPhaseMask(spellPhaseMask), _hitMask(hitMask), _spell(spell),
     _damageInfo(damageInfo), _healInfo(healInfo)
@@ -10179,7 +10180,7 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTrigg
 void Unit::TriggerAurasProcOnEvent(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
     // prepare data for self trigger
-    ProcEventInfo myProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    ProcEventInfo myProcEventInfo(this, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
     if (typeMaskActor)
     {
         AuraApplicationProcContainer myAurasTriggeringProc;
@@ -10203,7 +10204,7 @@ void Unit::TriggerAurasProcOnEvent(Unit* actionTarget, uint32 typeMaskActor, uin
     }
 
     // prepare data for target trigger
-    ProcEventInfo targetProcEventInfo(this, actionTarget, this, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    ProcEventInfo targetProcEventInfo(this, actionTarget, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
     if (typeMaskActionTarget && actionTarget)
     {
         AuraApplicationProcContainer targetAurasTriggeringProc;
@@ -12048,20 +12049,12 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisual(uint32 id) const
+void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type) const
 {
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 8 + 4);
-    data << uint64(GetGUID());
-    data << uint32(id); // SpellVisualKit.dbc index
-    SendMessageToSet(&data, true);
-}
-
-void Unit::SendPlaySpellImpact(ObjectGuid guid, uint32 id) const
-{
-    WorldPacket data(SMSG_PLAY_SPELL_IMPACT, 8 + 4);
-    data << uint64(guid); // target
-    data << uint32(id); // SpellVisualKit.dbc index
-    SendMessageToSet(&data, false);
+    WorldPackets::Spells::PlaySpellVisualKit playSpellVisualKit(type);
+    playSpellVisualKit.Unit = GetGUID();
+    playSpellVisualKit.KitRecID = id;
+    SendMessageToSet(playSpellVisualKit.Write(), true);
 }
 
 bool Unit::CanApplyResilience() const
