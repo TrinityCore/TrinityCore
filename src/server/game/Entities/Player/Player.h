@@ -1673,6 +1673,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         float OCTRegenMPPerSpirit() const;
         float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
+
+        /// Returns base spellpower bonus from spellpower stat on items
         uint32 GetBaseSpellPowerBonus() const { return m_baseSpellPower; }
         int32 GetSpellPenetrationItemMod() const { return m_spellPenetrationItemMod; }
 
@@ -2065,6 +2067,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         float m_homebindY;
         float m_homebindZ;
 
+        uint8 GetStartLevel(uint8 playerClass) const;
         WorldLocation GetStartPosition() const;
 
         // currently visible objects at player client
