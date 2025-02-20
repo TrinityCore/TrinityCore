@@ -76,6 +76,34 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
+{
+    _worldPacket << uint8(Valid);
+
+    if (Valid)
+    {
+        _worldPacket << int32(MapID);
+        _worldPacket << Position;
+        _worldPacket << int32(ActualMapID);
+        _worldPacket << uint32(Transport);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryCorpseTransport::Read()
+{
+    _worldPacket >> Transport;
+}
+
+WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
+{
+    _worldPacket << Position;
+    _worldPacket << float(Facing);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Query::QueryItemSingle::Read()
 {
     _worldPacket >> ItemID;

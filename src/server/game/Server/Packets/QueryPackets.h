@@ -108,6 +108,49 @@ namespace WorldPackets
                 GameObjectStats Stats;
         };
 
+        class QueryCorpseLocationFromClient final : public ClientPacket
+        {
+        public:
+            QueryCorpseLocationFromClient(WorldPacket&& packet) : ClientPacket(MSG_CORPSE_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CorpseLocation final : public ServerPacket
+        {
+        public:
+            CorpseLocation() : ServerPacket(MSG_CORPSE_QUERY, 1 + 4 + 4 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Transport = 0;
+            TaggedPosition<::Position::XYZ> Position;
+            int32 ActualMapID = 0;
+            int32 MapID = 0;
+            bool Valid = false;
+        };
+
+        class QueryCorpseTransport final : public ClientPacket
+        {
+        public:
+            QueryCorpseTransport(WorldPacket&& packet) : ClientPacket(CMSG_CORPSE_MAP_POSITION_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Transport = 0;
+        };
+
+        class CorpseTransportQuery final : public ServerPacket
+        {
+        public:
+            CorpseTransportQuery() : ServerPacket(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            TaggedPosition<::Position::XYZ> Position;
+            float Facing = 0.0f;
+        };
+
         class QueryItemSingle final : public ClientPacket
         {
             public:
