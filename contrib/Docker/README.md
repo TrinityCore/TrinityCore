@@ -1,6 +1,6 @@
 # Docker
 
-The Circle CI Linux pch job uses the Dockerfile contained in the same folder as this README to create an image with the binaries built for Linux, and stores that in the job artifacts. For the 3.3.5 and master branches, it also pushes the images to https://hub.docker.com/r/trinitycore/trinitycore .
+The Circle CI Linux pch job uses the Dockerfile contained in the same folder as this README to create an image with the binaries built for Linux, and stores that in the job artifacts. For the 3.3.5 and master branches, it also pushes the images to pkg.trinitycore.org/trinitycore/trinitycore .
 
 The instructions below expect a basic knowledge of how to configure TrinityCore and how to use Docker.
 
@@ -8,15 +8,15 @@ The instructions below expect a basic knowledge of how to configure TrinityCore 
 For the 3.3.5 and master branches, it's possible to pull the images from DockerHub.
 - For latest 3.3.5, use the following command:
   ```
-  docker pull trinitycore/trinitycore:3.3.5
+  docker pull pkg.trinitycore.org/trinitycore/trinitycore:3.3.5
   ```
 - For latest master, use the following command:
   ```
-  docker pull trinitycore/trinitycore:master
+  docker pull pkg.trinitycore.org/trinitycore/trinitycore:master
   ```
 - For a specific 3.3.5 or master commit, use the following command, replacing "commit_hash" with the hash of the commit:
   ```
-  docker pull trinitycore/trinitycore:commit_hash
+  docker pull pkg.trinitycore.org/trinitycore/trinitycore:commit_hash
   ```
 
 For Pull Requests or branches other than 3.3.5 or master, follow the steps below to load the image from Circle CI:
