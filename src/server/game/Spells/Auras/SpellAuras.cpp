@@ -512,6 +512,17 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount)
         _effects.pop_back();
 }
 
+bool Aura::CanPeriodicTickCrit() const
+{
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+        return false;
+
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_PERIODIC_CAN_CRIT))
+        return true;
+
+    return false;
+}
+
 Aura::~Aura()
 {
     // unload scripts
