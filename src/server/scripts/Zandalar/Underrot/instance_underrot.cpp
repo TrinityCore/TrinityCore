@@ -23,7 +23,8 @@
 BossBoundaryData const boundaries =
 {
     { DATA_ELDER_LEAXA,          new CircleBoundary(Position(869.502014f, 1230.199951f), 58.0f) },
-    { DATA_CRAGMAW_THE_INFESTED, new CircleBoundary(Position(852.797974f, 982.133545f), 90.0f) }
+    { DATA_CRAGMAW_THE_INFESTED, new CircleBoundary(Position(852.797974f, 982.133545f), 90.0f) },
+    { BOSS_SPORECALLER_ZANCHA,   new ZRangeBoundary(35.240f, 26.790f) }
 };
 
 ObjectData const creatureData[] =
@@ -44,8 +45,8 @@ DoorData const doorData[] =
 DungeonEncounterData const encounters[] =
 {
     { DATA_ELDER_LEAXA,             {{ 2111 }} },
-    { DATA_CRAGMAW_THE_INFESTED,    {{ 2112 }} },
-    { DATA_SPORECALLER_ZANCHA,      {{ 2118 }} },
+    { DATA_CRAGMAW_THE_INFESTED,    {{ 2118 }} },
+    { DATA_SPORECALLER_ZANCHA,      {{ 2112 }} },
     { DATA_UNBOUND_ABOMINATION,     {{ 2123 }} },
 };
 
