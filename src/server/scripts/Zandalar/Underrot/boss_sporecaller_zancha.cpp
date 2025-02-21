@@ -671,7 +671,7 @@ struct at_underrot_sporecaller_zancha_intro : AreaTriggerAI
         if (!instance)
             return;
 
-        Creature* zancha = instance->GetCreature(DATA_SPORECALLER_ZANCHA)
+        Creature* zancha = instance->GetCreature(DATA_SPORECALLER_ZANCHA);
         if (!zancha)
             return;
 
