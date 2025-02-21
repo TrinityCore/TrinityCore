@@ -1424,6 +1424,9 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
         // remove all areatriggers entities
         RemoveAllAreaTriggers();
 
+        // despawn all personal summons
+        DespawnAllPersonalSummons();
+
         // stop spellcasting
         // not attempt interrupt teleportation spell at caster teleport
         if (!(options & TELE_TO_SPELL))
@@ -1582,6 +1585,9 @@ void Player::RemoveFromWorld()
     ///- It will crash when updating the ObjectAccessor
     ///- The player should only be removed when logging out
     Unit::RemoveFromWorld();
+
+    // despawn personal summons
+    DespawnAllPersonalSummons();
 
     for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
         iter->second->RemoveFromWorld();
@@ -16354,22 +16360,48 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
         UpdateObjectVisibility();
 }
 
+void Player::AddPersonalSummon(ObjectGuid guid)
+{
+    _personalSummonGUIDs.push_back(guid);
+}
+
+void Player::DespawnAllPersonalSummons()
+{
+    for (ObjectGuid const& guid : _personalSummonGUIDs)
+    {
+        if (Creature* creature = ObjectAccessor::GetCreature(*this, guid))
+            creature->DespawnOrUnsummon();
+    }
+    _personalSummonGUIDs.clear();
+}
+
 void Player::DespawnPersonalSummonsForQuest(uint32 questId)
 {
-    std::list<Creature*> creatureList;
-    GetCreatureListWithOptionsInGrid(creatureList, 100.0f, { .IgnorePhases = true, .PrivateObjectOwnerGuid = GetGUID() }); // we might want to replace this with SummonList in Player at some point
-
-    for (Creature* creature : creatureList)
+    GuidVector personalSummonGUIDsCopy = _personalSummonGUIDs;
+    for (auto itr = _personalSummonGUIDs.begin(); itr != _personalSummonGUIDs.end(); )
     {
-        CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(creature->GetEntry());
-        if (!summonedData)
-            continue;
-
-        if (summonedData->DespawnOnQuestsRemoved)
+        Creature* creature = ObjectAccessor::GetCreature(*this, *itr);
+        if (!creature)
         {
-            if (std::find(summonedData->DespawnOnQuestsRemoved->begin(), summonedData->DespawnOnQuestsRemoved->end(), questId) != summonedData->DespawnOnQuestsRemoved->end())
-                creature->DespawnOrUnsummon();
+            itr++;
+            continue;
         }
+
+        CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(creature->GetEntry());
+        if (!summonedData || !summonedData->DespawnOnQuestsRemoved)
+        {
+            itr++;
+            continue;
+        }
+
+        if (std::find(summonedData->DespawnOnQuestsRemoved->begin(), summonedData->DespawnOnQuestsRemoved->end(), questId) == summonedData->DespawnOnQuestsRemoved->end())
+        {
+            itr++;
+            continue;
+        }
+
+        creature->DespawnOrUnsummon();
+        itr = _personalSummonGUIDs.erase(itr);
     }
 }
 
