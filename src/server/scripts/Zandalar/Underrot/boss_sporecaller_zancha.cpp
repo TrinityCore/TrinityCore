@@ -22,6 +22,7 @@
 #include "Conversation.h"
 #include "Creature.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -196,7 +197,7 @@ struct boss_sporecaller_zancha : public BossAI
             }
             default:
                 break;
-        }        
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -663,21 +664,19 @@ struct at_underrot_sporecaller_zancha_intro : AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         Player* player = unit->ToPlayer();
-        if (!player)
-            return;
-
-        if (player->IsGameMaster())
+        if (!player || player->IsGameMaster())
             return;
 
         InstanceScript* instance = at->GetInstanceScript();
         if (!instance)
             return;
 
-        if (Creature* zancha = instance->GetCreature(DATA_SPORECALLER_ZANCHA))
-        {
-            zancha->AI()->DoAction(ACTION_INTRO);
-            zancha->CastSpell(unit, SPELL_BOSS_3_INTRO);
-        }
+        Creature* zancha = instance->GetCreature(DATA_SPORECALLER_ZANCHA)
+        if (!zancha)
+            return;
+
+        zancha->AI()->DoAction(ACTION_INTRO);
+        zancha->CastSpell(unit, SPELL_BOSS_3_INTRO);
 
         at->Remove();
     }
