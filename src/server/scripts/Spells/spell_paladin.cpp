@@ -1785,6 +1785,7 @@ class spell_pal_seal_of_vengeance : public SpellScriptLoader
 };
 
 // 20375 - Seal of Command
+// 20154 - Seal of Righteousness
 // 21084 - Seal of Righteousness
 // 31801 - Seal of Vengeance
 // 31892 - Seal of Blood
@@ -1805,6 +1806,9 @@ class spell_pal_seals : public AuraScript
 
     void Register() override
     {
+        if (m_scriptSpellId == 20154)
+            return; // another console log prevention hack - first "rank" of Seal of Righteousness doesn't have the judgement effect
+
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_seals::CheckDummyProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
