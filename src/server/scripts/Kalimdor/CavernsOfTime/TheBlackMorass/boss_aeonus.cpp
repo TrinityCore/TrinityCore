@@ -84,9 +84,9 @@ struct boss_aeonus : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         Talk(SAY_DEATH);
-
+        if (Creature* creature = me->FindNearestCreature(NPC_TIME_RIFT, 250.0f))
+            creature->DespawnOrUnsummon();
         instance->SetData(TYPE_RIFT, DONE);
-        instance->SetData(TYPE_MEDIVH, DONE); // FIXME: later should be removed
     }
 
     void KilledUnit(Unit* who) override
