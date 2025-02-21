@@ -513,6 +513,14 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            // This check is done at all times, but does not take effect if casting.
+            if (!me->HasUnitState(UNIT_STATE_CASTING) && !has_fled && me->HealthBelowPct(15))
+            {
+                me->DoFleeToGetAssistance();
+                has_fled = true;
+                return;
+            }
+
             if (!UpdateVictim() || !me->GetVictim())
                 return;
 
@@ -530,15 +538,6 @@ public:
             {
                 DoMeleeAttackIfReady();
             });
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-        {
-            if (!has_fled && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
-            {
-                me->DoFleeToGetAssistance();
-                has_fled = true;
-            }
         }
 
     private:
