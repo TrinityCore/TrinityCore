@@ -27,6 +27,7 @@ void AddSC_boss_priestess_alun_za();
 void AddSC_instance_underrot();
 void AddSC_boss_elder_leaxa();
 void AddSC_boss_cragmaw_the_infested();
+void AddSC_boss_sporecaller_zancha();
 
 // KingsRest
 void AddSC_instance_kings_rest();
@@ -47,6 +48,7 @@ void AddZandalarScripts()
     AddSC_instance_underrot();
     AddSC_boss_elder_leaxa();
     AddSC_boss_cragmaw_the_infested();
+    AddSC_boss_sporecaller_zancha();
 
     //KingsRest
     AddSC_instance_kings_rest();

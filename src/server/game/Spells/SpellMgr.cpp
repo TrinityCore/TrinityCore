@@ -4812,6 +4812,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    ApplySpellFix({
+        260566, // Wildfire Missile
+        260570  // Wildfire Missile Impact
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
+    });
+
     // ENDOF WAYCREST MANOR SPELLS
 
     //
@@ -4943,19 +4952,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
 
     //
-    // WAYCREST MANOR SPELLS
+    // UNDERROT SPELLS
     //
 
-    ApplySpellFix({
-        260566, // Wildfire Missile
-        260570  // Wildfire Missile Impact
-    }, [](SpellInfo* spellInfo)
+    // Boundless Rot
+    ApplySpellFix({ 259845 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
-        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
     });
 
-    // ENDOF WAYCREST MANOR SPELLS
+    // ENDOF UNDERROT SPELLS
     //
 
     //
