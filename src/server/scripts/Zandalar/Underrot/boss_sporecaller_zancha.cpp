@@ -21,6 +21,7 @@
 #include "Containers.h"
 #include "Conversation.h"
 #include "Creature.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
