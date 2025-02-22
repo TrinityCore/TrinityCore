@@ -920,12 +920,12 @@ public:
     #define SpellDestinationTargetSelectFn(F, I, N) DestinationTargetSelectHandler(&F, I, N)
 
     // example: CalcDamage += SpellCalcDamageFn(class::function);
-    // where function is void function(Unit* victim, int32& damage, int32& flatMod, float& pctMod)
+    // where function is void function(SpellEffectInfo const& effectInfo, Unit* victim, int32& damage, int32& flatMod, float& pctMod)
     HookList<DamageAndHealingCalcHandler> CalcDamage;
     #define SpellCalcDamageFn(F) DamageAndHealingCalcHandler(&F)
 
     // example: CalcHealing += SpellCalcHealingFn(class::function);
-    // where function is void function(Unit* victim, int32& healing, int32& flatMod, float& pctMod)
+    // where function is void function(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& healing, int32& flatMod, float& pctMod)
     HookList<DamageAndHealingCalcHandler> CalcHealing;
     #define SpellCalcHealingFn(F) DamageAndHealingCalcHandler(&F)
 
