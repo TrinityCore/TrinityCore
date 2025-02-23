@@ -60,6 +60,9 @@ namespace Trinity
     {
         return Impl::new_from_tuple<T>(std::forward<Tuple>(args), std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
     }
+
+    template <std::size_t I>
+    inline constexpr auto TupleElement = []<typename Tuple>(Tuple&& tuple) constexpr -> decltype(auto) { return std::get<I>(std::forward<Tuple>(tuple)); };
 }
 
 #endif // Tuples_h__
