@@ -136,7 +136,7 @@ struct AreaTriggerEntry
     float BoxYaw;
     int8 ShapeType;
     int16 ShapeID;
-    int16 AreaTriggerActionSetID;
+    int32 AreaTriggerActionSetID;
     int8 Flags;
 
     AreaTriggerShapeType GetShapeType() const { return static_cast<AreaTriggerShapeType>(ShapeType); }
@@ -406,6 +406,7 @@ struct ChrClassesEntry
     uint32 LowResScreenFileDataID;
     int32 Flags;
     int32 StartingLevel;
+    uint32 SpellTextureBlobFileDataID;
     uint32 ArmorTypeMask;
     uint16 CinematicSequenceID;
     uint16 DefaultSpec;
@@ -482,8 +483,6 @@ struct ChrCustomizationOptionEntry
     uint32 ID;
     uint16 SecondaryID;
     int32 Flags;
-    int32 ChrRacesID;
-    int32 Sex;
     uint32 ChrModelID;
     int32 OrderIndex;
     int32 ChrCustomizationCategoryID;
@@ -2184,6 +2183,9 @@ struct LFGDungeonsEntry
     uint8 MinCountTank;
     uint8 MinCountHealer;
     uint8 MinCountDamage;
+    uint8 MaxPremadeCountTank;
+    uint8 MaxPremadeCountHealer;
+    uint8 MaxPremadeCountDamage;
     uint16 BonusReputationAmount;
     uint16 MentorItemLevel;
     uint8 MentorCharLevel;
@@ -2361,16 +2363,17 @@ struct MapChallengeModeEntry
 // structure for MapDifficulty.db2
 struct MapDifficultyEntry
 {
+    LocalizedString Message;
     uint32 ID;
-    LocalizedString Message;                                // m_message_lang (text showed when transfer to map failed)
-    uint32 ItemContextPickerID;
-    int32 ContentTuningID;
-    int32 ItemContext;
-    uint8 DifficultyID;
-    uint8 LockID;
+    int32 DifficultyID;
+    int32 LockID;
     uint8 ResetInterval;
-    uint8 MaxPlayers;
-    uint8 Flags;
+    int32 MaxPlayers;
+    uint8 ItemContext;
+    int32 ItemContextPickerID;
+    int32 Flags;
+    int32 ContentTuningID;
+    int32 WorldStateExpressionID;
     uint32 MapID;
 
     bool HasResetSchedule() const { return ResetInterval != MAP_DIFFICULTY_RESET_ANYTIME; }
@@ -2600,14 +2603,14 @@ struct PhaseXPhaseGroupEntry
 // structure for PlayerCondition.db2
 struct PlayerConditionEntry
 {
+    uint32 ID;
     Trinity::RaceMask<int64> RaceMask;
     LocalizedString FailureDescription;
-    uint32 ID;
     uint16 MinLevel;
     uint16 MaxLevel;
     int32 ClassMask;
     uint32 SkillLogic;
-    uint8 LanguageID;
+    int32 LanguageID;
     uint8 MinLanguage;
     int32 MaxLanguage;
     uint16 MaxFactionID;
@@ -2623,7 +2626,7 @@ struct PlayerConditionEntry
     uint8 ItemFlags;
     uint32 AuraSpellLogic;
     uint16 WorldStateExpressionID;
-    uint8 WeatherID;
+    int32 WeatherID;
     uint8 PartyStatus;
     uint8 LifetimeMaxPVPRank;
     uint32 AchievementLogic;
@@ -2632,7 +2635,7 @@ struct PlayerConditionEntry
     uint32 AreaLogic;
     uint32 LfgLogic;
     uint32 CurrencyLogic;
-    uint32 QuestKillID;
+    int32 QuestKillID;
     uint32 QuestKillLogic;
     int8 MinExpansionLevel;
     int8 MaxExpansionLevel;
@@ -2657,14 +2660,17 @@ struct PlayerConditionEntry
     int8 MinExpansionTier;
     uint8 MinPVPRank;
     uint8 MaxPVPRank;
+    int32 ContentTuningID;
+    int32 CovenantID;
+    uint32 TraitNodeEntryLogic;
     std::array<uint16, 4> SkillID;
     std::array<uint16, 4> MinSkill;
     std::array<uint16, 4> MaxSkill;
     std::array<uint32, 3> MinFactionID;
     std::array<uint8, 3> MinReputation;
-    std::array<uint32, 4> PrevQuestID;
-    std::array<uint32, 4> CurrQuestID;
-    std::array<uint32, 4> CurrentCompletedQuestID;
+    std::array<int32, 4> PrevQuestID;
+    std::array<int32, 4> CurrQuestID;
+    std::array<int32, 4> CurrentCompletedQuestID;
     std::array<int32, 4> SpellID;
     std::array<int32, 4> ItemID;
     std::array<uint32, 4> ItemCount;
@@ -2681,6 +2687,9 @@ struct PlayerConditionEntry
     std::array<uint32, 4> CurrencyCount;
     std::array<uint32, 6> QuestKillMonster;
     std::array<int32, 2> MovementFlags;
+    std::array<int32, 4> TraitNodeEntryID;
+    std::array<uint16, 4> TraitNodeEntryMinRank;
+    std::array<uint16, 4> TraitNodeEntryMaxRank;
 };
 
 // structure for PowerDisplay.db2
@@ -2697,9 +2706,9 @@ struct PowerDisplayEntry
 // structure for PowerType.db2
 struct PowerTypeEntry
 {
-    uint32 ID;
     char const* NameGlobalStringTag;
     char const* CostGlobalStringTag;
+    uint32 ID;
     int8 PowerTypeEnum;
     int32 MinPower;
     int32 MaxBasePower;
@@ -2889,12 +2898,12 @@ struct ScenarioEntry
 // structure for ScenarioStep.db2
 struct ScenarioStepEntry
 {
-    uint32 ID;
     LocalizedString Description;
     LocalizedString Title;
+    uint32 ID;
     uint16 ScenarioID;
     uint32 CriteriatreeID;
-    uint32 RewardQuestID;
+    int32 RewardQuestID;
     int32 RelatedStep;                                              // Bonus step can only be completed if scenario is in the step specified in this field
     uint16 Supersedes;                                              // Used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
     uint8 OrderIndex;
@@ -3985,6 +3994,7 @@ struct VignetteEntry
     float MinHeight;
     int8 VignetteType;
     int32 RewardQuestID;
+    int8 Unknown1156;
 
     EnumFlag<VignetteFlags> GetFlags() const { return static_cast<VignetteFlags>(Flags); }
     bool IsInfiniteAOI() const { return GetFlags().HasFlag(VignetteFlags::InfiniteAOI | VignetteFlags::ZoneInfiniteAOI); }

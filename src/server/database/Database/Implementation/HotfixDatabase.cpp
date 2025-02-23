@@ -198,9 +198,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // ChrClasses.db2
     PrepareStatement(HOTFIX_SEL_CHR_CLASSES, "SELECT Name, Filename, NameMale, NameFemale, PetNameToken, ID, CreateScreenFileDataID, "
-        "SelectScreenFileDataID, IconFileDataID, LowResScreenFileDataID, Flags, StartingLevel, ArmorTypeMask, CinematicSequenceID, DefaultSpec, "
-        "HasStrengthAttackBonus, PrimaryStatPriority, DisplayPower, RangedAttackPowerPerAgility, AttackPowerPerAgility, AttackPowerPerStrength, "
-        "SpellClassSet, RolesMask, DamageBonusStat, HasRelicSlot FROM chr_classes WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "SelectScreenFileDataID, IconFileDataID, LowResScreenFileDataID, Flags, StartingLevel, SpellTextureBlobFileDataID, ArmorTypeMask, "
+        "CinematicSequenceID, DefaultSpec, HasStrengthAttackBonus, PrimaryStatPriority, DisplayPower, RangedAttackPowerPerAgility, "
+        "AttackPowerPerAgility, AttackPowerPerStrength, SpellClassSet, RolesMask, DamageBonusStat, HasRelicSlot FROM chr_classes"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_CLASSES, "SELECT MAX(ID) + 1 FROM chr_classes", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_CLASSES, "SELECT ID, Name_lang, NameMale_lang, NameFemale_lang FROM chr_classes_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
@@ -232,9 +233,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_CUSTOMIZATION_ELEMENT, "SELECT MAX(ID) + 1 FROM chr_customization_element", CONNECTION_SYNCH);
 
     // ChrCustomizationOption.db2
-    PrepareStatement(HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION, "SELECT Name, ID, SecondaryID, Flags, ChrRacesID, Sex, ChrModelID, OrderIndex, "
-        "ChrCustomizationCategoryID, OptionType, BarberShopCostModifier, ChrCustomizationID, ChrCustomizationReqID, SecondaryOrderIndex"
-        " FROM chr_customization_option WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION, "SELECT Name, ID, SecondaryID, Flags, ChrModelID, OrderIndex, ChrCustomizationCategoryID, "
+        "OptionType, BarberShopCostModifier, ChrCustomizationID, ChrCustomizationReqID, SecondaryOrderIndex FROM chr_customization_option"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION, "SELECT MAX(ID) + 1 FROM chr_customization_option", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_CUSTOMIZATION_OPTION, "SELECT ID, Name_lang FROM chr_customization_option_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
@@ -827,8 +828,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_LFG_DUNGEONS, "SELECT ID, Name, Description, MinLevel, MaxLevel, TypeID, Subtype, Faction, IconTextureFileID, "
         "RewardsBgTextureFileID, PopupBgTextureFileID, ExpansionLevel, MapID, DifficultyID, MinGear, GroupID, OrderIndex, RequiredPlayerConditionID, "
         "TargetLevel, TargetLevelMin, TargetLevelMax, RandomID, ScenarioID, FinalEncounterID, CountTank, CountHealer, CountDamage, MinCountTank, "
-        "MinCountHealer, MinCountDamage, BonusReputationAmount, MentorItemLevel, MentorCharLevel, Flags1, Flags2 FROM lfg_dungeons"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "MinCountHealer, MinCountDamage, MaxPremadeCountTank, MaxPremadeCountHealer, MaxPremadeCountDamage, BonusReputationAmount, MentorItemLevel, "
+        "MentorCharLevel, Flags1, Flags2 FROM lfg_dungeons WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_LFG_DUNGEONS, "SELECT MAX(ID) + 1 FROM lfg_dungeons", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_LFG_DUNGEONS, "SELECT ID, Name_lang, Description_lang FROM lfg_dungeons_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
@@ -880,8 +881,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " AND locale = ?", CONNECTION_SYNCH);
 
     // MapDifficulty.db2
-    PrepareStatement(HOTFIX_SEL_MAP_DIFFICULTY, "SELECT ID, Message, ItemContextPickerID, ContentTuningID, ItemContext, DifficultyID, LockID, "
-        "ResetInterval, MaxPlayers, Flags, MapID FROM map_difficulty WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_MAP_DIFFICULTY, "SELECT Message, ID, DifficultyID, LockID, ResetInterval, MaxPlayers, ItemContext, "
+        "ItemContextPickerID, Flags, ContentTuningID, WorldStateExpressionID, MapID FROM map_difficulty WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_MAP_DIFFICULTY, "SELECT MAX(ID) + 1 FROM map_difficulty", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_MAP_DIFFICULTY, "SELECT ID, Message_lang FROM map_difficulty_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
@@ -980,23 +981,25 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PHASE_X_PHASE_GROUP, "SELECT MAX(ID) + 1 FROM phase_x_phase_group", CONNECTION_SYNCH);
 
     // PlayerCondition.db2
-    PrepareStatement(HOTFIX_SEL_PLAYER_CONDITION, "SELECT RaceMask, FailureDescription, ID, MinLevel, MaxLevel, ClassMask, SkillLogic, LanguageID, "
+    PrepareStatement(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, RaceMask, FailureDescription, MinLevel, MaxLevel, ClassMask, SkillLogic, LanguageID, "
         "MinLanguage, MaxLanguage, MaxFactionID, MaxReputation, ReputationLogic, CurrentPvpFaction, PvpMedal, PrevQuestLogic, CurrQuestLogic, "
         "CurrentCompletedQuestLogic, SpellLogic, ItemLogic, ItemFlags, AuraSpellLogic, WorldStateExpressionID, WeatherID, PartyStatus, "
         "LifetimeMaxPVPRank, AchievementLogic, Gender, NativeGender, AreaLogic, LfgLogic, CurrencyLogic, QuestKillID, QuestKillLogic, "
         "MinExpansionLevel, MaxExpansionLevel, MinAvgItemLevel, MaxAvgItemLevel, MinAvgEquippedItemLevel, MaxAvgEquippedItemLevel, PhaseUseFlags, "
         "PhaseID, PhaseGroupID, Flags, ChrSpecializationIndex, ChrSpecializationRole, ModifierTreeID, PowerType, PowerTypeComp, PowerTypeValue, "
-        "WeaponSubclassMask, MaxGuildLevel, MinGuildLevel, MaxExpansionTier, MinExpansionTier, MinPVPRank, MaxPVPRank, SkillID1, SkillID2, SkillID3, "
-        "SkillID4, MinSkill1, MinSkill2, MinSkill3, MinSkill4, MaxSkill1, MaxSkill2, MaxSkill3, MaxSkill4, MinFactionID1, MinFactionID2, "
-        "MinFactionID3, MinReputation1, MinReputation2, MinReputation3, PrevQuestID1, PrevQuestID2, PrevQuestID3, PrevQuestID4, CurrQuestID1, "
-        "CurrQuestID2, CurrQuestID3, CurrQuestID4, CurrentCompletedQuestID1, CurrentCompletedQuestID2, CurrentCompletedQuestID3, "
-        "CurrentCompletedQuestID4, SpellID1, SpellID2, SpellID3, SpellID4, ItemID1, ItemID2, ItemID3, ItemID4, ItemCount1, ItemCount2, ItemCount3, "
-        "ItemCount4, Explored1, Explored2, Time1, Time2, AuraSpellID1, AuraSpellID2, AuraSpellID3, AuraSpellID4, AuraStacks1, AuraStacks2, "
-        "AuraStacks3, AuraStacks4, Achievement1, Achievement2, Achievement3, Achievement4, AreaID1, AreaID2, AreaID3, AreaID4, LfgStatus1, "
-        "LfgStatus2, LfgStatus3, LfgStatus4, LfgCompare1, LfgCompare2, LfgCompare3, LfgCompare4, LfgValue1, LfgValue2, LfgValue3, LfgValue4, "
-        "CurrencyID1, CurrencyID2, CurrencyID3, CurrencyID4, CurrencyCount1, CurrencyCount2, CurrencyCount3, CurrencyCount4, QuestKillMonster1, "
-        "QuestKillMonster2, QuestKillMonster3, QuestKillMonster4, QuestKillMonster5, QuestKillMonster6, MovementFlags1, MovementFlags2"
-        " FROM player_condition WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "WeaponSubclassMask, MaxGuildLevel, MinGuildLevel, MaxExpansionTier, MinExpansionTier, MinPVPRank, MaxPVPRank, ContentTuningID, CovenantID, "
+        "TraitNodeEntryLogic, SkillID1, SkillID2, SkillID3, SkillID4, MinSkill1, MinSkill2, MinSkill3, MinSkill4, MaxSkill1, MaxSkill2, MaxSkill3, "
+        "MaxSkill4, MinFactionID1, MinFactionID2, MinFactionID3, MinReputation1, MinReputation2, MinReputation3, PrevQuestID1, PrevQuestID2, "
+        "PrevQuestID3, PrevQuestID4, CurrQuestID1, CurrQuestID2, CurrQuestID3, CurrQuestID4, CurrentCompletedQuestID1, CurrentCompletedQuestID2, "
+        "CurrentCompletedQuestID3, CurrentCompletedQuestID4, SpellID1, SpellID2, SpellID3, SpellID4, ItemID1, ItemID2, ItemID3, ItemID4, ItemCount1, "
+        "ItemCount2, ItemCount3, ItemCount4, Explored1, Explored2, Time1, Time2, AuraSpellID1, AuraSpellID2, AuraSpellID3, AuraSpellID4, AuraStacks1, "
+        "AuraStacks2, AuraStacks3, AuraStacks4, Achievement1, Achievement2, Achievement3, Achievement4, AreaID1, AreaID2, AreaID3, AreaID4, "
+        "LfgStatus1, LfgStatus2, LfgStatus3, LfgStatus4, LfgCompare1, LfgCompare2, LfgCompare3, LfgCompare4, LfgValue1, LfgValue2, LfgValue3, "
+        "LfgValue4, CurrencyID1, CurrencyID2, CurrencyID3, CurrencyID4, CurrencyCount1, CurrencyCount2, CurrencyCount3, CurrencyCount4, "
+        "QuestKillMonster1, QuestKillMonster2, QuestKillMonster3, QuestKillMonster4, QuestKillMonster5, QuestKillMonster6, MovementFlags1, "
+        "MovementFlags2, TraitNodeEntryID1, TraitNodeEntryID2, TraitNodeEntryID3, TraitNodeEntryID4, TraitNodeEntryMinRank1, TraitNodeEntryMinRank2, "
+        "TraitNodeEntryMinRank3, TraitNodeEntryMinRank4, TraitNodeEntryMaxRank1, TraitNodeEntryMaxRank2, TraitNodeEntryMaxRank3, "
+        "TraitNodeEntryMaxRank4 FROM player_condition WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_CONDITION, "SELECT MAX(ID) + 1 FROM player_condition", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, FailureDescription_lang FROM player_condition_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
@@ -1007,7 +1010,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_POWER_DISPLAY, "SELECT MAX(ID) + 1 FROM power_display", CONNECTION_SYNCH);
 
     // PowerType.db2
-    PrepareStatement(HOTFIX_SEL_POWER_TYPE, "SELECT ID, NameGlobalStringTag, CostGlobalStringTag, PowerTypeEnum, MinPower, MaxBasePower, CenterPower, "
+    PrepareStatement(HOTFIX_SEL_POWER_TYPE, "SELECT NameGlobalStringTag, CostGlobalStringTag, ID, PowerTypeEnum, MinPower, MaxBasePower, CenterPower, "
         "DefaultPower, DisplayModifier, RegenInterruptTimeMS, RegenPeace, RegenCombat, Flags FROM power_type WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_POWER_TYPE, "SELECT MAX(ID) + 1 FROM power_type", CONNECTION_SYNCH);
 
@@ -1102,7 +1105,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SCENARIO, "SELECT ID, Name_lang FROM scenario_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // ScenarioStep.db2
-    PrepareStatement(HOTFIX_SEL_SCENARIO_STEP, "SELECT ID, Description, Title, ScenarioID, CriteriatreeID, RewardQuestID, RelatedStep, Supersedes, "
+    PrepareStatement(HOTFIX_SEL_SCENARIO_STEP, "SELECT Description, Title, ID, ScenarioID, CriteriatreeID, RewardQuestID, RelatedStep, Supersedes, "
         "OrderIndex, Flags, VisibilityPlayerConditionID, WidgetSetID FROM scenario_step WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCENARIO_STEP, "SELECT MAX(ID) + 1 FROM scenario_step", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SCENARIO_STEP, "SELECT ID, Description_lang, Title_lang FROM scenario_step_locale WHERE (`VerifiedBuild` > 0) = ?"
@@ -1523,7 +1526,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // Vignette.db2
     PrepareStatement(HOTFIX_SEL_VIGNETTE, "SELECT ID, Name, PlayerConditionID, VisibleTrackingQuestID, QuestFeedbackEffectID, Flags, MaxHeight, "
-        "MinHeight, VignetteType, RewardQuestID FROM vignette WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "MinHeight, VignetteType, RewardQuestID, Unknown1156 FROM vignette WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_VIGNETTE, "SELECT MAX(ID) + 1 FROM vignette", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_VIGNETTE, "SELECT ID, Name_lang FROM vignette_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
