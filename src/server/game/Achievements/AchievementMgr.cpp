@@ -77,11 +77,8 @@ uint32 AchievementMgr::GetAchievementPoints() const
 
 std::vector<uint32> AchievementMgr::GetCompletedAchievementIds() const
 {
-    std::vector<uint32> achievementIds;
-    std::transform(_completedAchievements.begin(), _completedAchievements.end(), std::back_inserter(achievementIds), [](std::pair<uint32 const, CompletedAchievementData> const& achievement)
-    {
-        return achievement.first;
-    });
+    std::vector<uint32> achievementIds(_completedAchievements.size());
+    std::ranges::transform(_completedAchievements, achievementIds.begin(), Trinity::Containers::MapKey);
     return achievementIds;
 }
 

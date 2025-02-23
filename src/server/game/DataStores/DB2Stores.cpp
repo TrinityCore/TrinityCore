@@ -2721,7 +2721,8 @@ MapDifficultyEntry const* DB2Manager::GetDefaultMapDifficulty(uint32 mapId, Diff
 
     // first find any valid difficulty
     auto foundDifficulty = std::ranges::find_if(difficultiesForMap->begin(), difficultyEnd,
-        [](std::pair<uint32 const, MapDifficultyEntry const*> const& p) { return sDifficultyStore.HasRecord(p.first); });
+        [](uint32 difficultyId) { return sDifficultyStore.HasRecord(difficultyId); },
+        Trinity::Containers::MapKey);
 
     if (foundDifficulty == difficultyEnd)
         return nullptr; // nothing valid was found

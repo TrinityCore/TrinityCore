@@ -36,6 +36,7 @@
 #include "Util.h"
 #include "WaypointDefines.h"
 #include "WaypointManager.h"
+#include "advstd.h"
 #include <algorithm>
 
 #define TC_SAI_IS_BOOLEAN_VALID(e, value) \
@@ -2036,7 +2037,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                     }
 
-                    if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
+                    if (!advstd::ranges::contains(InventoryTypesEquipable, dbcItem->InventoryType))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses item {} (slot {}) not equipable in a hand for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
                         return false;

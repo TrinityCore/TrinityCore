@@ -312,7 +312,7 @@ bool CreatureGroup::CanLeaderStartMoving() const
 
 bool CreatureGroup::HasAliveMembers() const
 {
-    return std::ranges::any_of(_members, [](Creature const* member) { return member->IsAlive(); }, &MembersMap::value_type::first);
+    return std::ranges::any_of(_members, [](Creature const* member) { return member->IsAlive(); }, Trinity::Containers::MapKey);
 }
 
 bool CreatureGroup::LeaderHasStringId(std::string_view id) const

@@ -37,8 +37,8 @@ namespace BattlePets
 {
 namespace
 {
-std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetBreedStates;
-std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetSpeciesStates;
+std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/>> _battlePetBreedStates;
+std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/>> _battlePetSpeciesStates;
 std::unordered_map<uint32 /*CreatureID*/, BattlePetSpeciesEntry const*> _battlePetSpeciesByCreature;
 std::unordered_map<uint32 /*SpellID*/, BattlePetSpeciesEntry const*> _battlePetSpeciesBySpell;
 std::unordered_map<uint32 /*SpeciesID*/, std::unordered_set<uint8 /*breed*/>> _availableBreedsPerSpecies;
@@ -47,18 +47,14 @@ std::unordered_map<uint32 /*SpeciesID*/, uint8 /*quality*/> _defaultQualityPerSp
 
 void BattlePet::CalculateStats()
 {
-    float health = 0.0f;
-    float power = 0.0f;
-    float speed = 0.0f;
-
     // get base breed stats
     auto breedState = _battlePetBreedStates.find(PacketInfo.Breed);
     if (breedState == _battlePetBreedStates.end()) // non existing breed id
         return;
 
-    health = breedState->second[STATE_STAT_STAMINA];
-    power = breedState->second[STATE_STAT_POWER];
-    speed = breedState->second[STATE_STAT_SPEED];
+    float health = breedState->second[STATE_STAT_STAMINA];
+    float power = breedState->second[STATE_STAT_POWER];
+    float speed = breedState->second[STATE_STAT_SPEED];
 
     // modify stats depending on species - not all pets have this
     auto speciesState = _battlePetSpeciesStates.find(PacketInfo.Species);
@@ -538,7 +534,7 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, std::uni
             summonedBattlePet->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
 }
 
-bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
+bool BattlePetMgr::IsPetInSlot(ObjectGuid guid) const
 {
     for (WorldPackets::BattlePet::BattlePetSlot const& slot : _slots)
         if (slot.Pet.Guid == guid)
@@ -549,21 +545,21 @@ bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
 
 uint8 BattlePetMgr::GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const
 {
-    return uint8(std::count_if(_pets.begin(), _pets.end(), [battlePetSpecies, ownerGuid](std::pair<uint64 const, BattlePet> const& pet)
+    return uint8(std::ranges::count_if(_pets, [battlePetSpecies, ownerGuid](BattlePet const& pet)
     {
-        if (pet.second.PacketInfo.Species != battlePetSpecies->ID)
+        if (pet.PacketInfo.Species != battlePetSpecies->ID)
             return false;
 
-        if (pet.second.SaveInfo == BATTLE_PET_REMOVED)
+        if (pet.SaveInfo == BATTLE_PET_REMOVED)
             return false;
 
         if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::NotAccountWide))
-            if (!ownerGuid.IsEmpty() && pet.second.PacketInfo.OwnerInfo)
-                if (pet.second.PacketInfo.OwnerInfo->Guid != ownerGuid)
+            if (!ownerGuid.IsEmpty() && pet.PacketInfo.OwnerInfo)
+                if (pet.PacketInfo.OwnerInfo->Guid != ownerGuid)
                     return false;
 
         return true;
-    }));
+    }, Trinity::Containers::MapValue));
 }
 
 bool BattlePetMgr::HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const
@@ -576,10 +572,10 @@ bool BattlePetMgr::HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies,
 uint32 BattlePetMgr::GetPetUniqueSpeciesCount() const
 {
     std::set<uint32> speciesIds;
-    std::transform(_pets.begin(), _pets.end(), std::inserter(speciesIds, speciesIds.end()), [](std::pair<uint64 const, BattlePet> const& pet)
+    std::ranges::transform(_pets, std::inserter(speciesIds, speciesIds.end()), [](BattlePet const& pet)
     {
-        return pet.second.PacketInfo.Species;
-    });
+        return pet.PacketInfo.Species;
+    }, Trinity::Containers::MapValue);
     return speciesIds.size();
 }
 
@@ -885,7 +881,7 @@ void BattlePetMgr::SendJournal()
                 battlePetJournal.Pets.push_back(std::ref(pet.second.PacketInfo));
 
     battlePetJournal.Slots.reserve(_slots.size());
-    std::transform(_slots.begin(), _slots.end(), std::back_inserter(battlePetJournal.Slots), [](WorldPackets::BattlePet::BattlePetSlot& slot) { return std::ref(slot); });
+    std::ranges::transform(_slots, std::back_inserter(battlePetJournal.Slots), [](WorldPackets::BattlePet::BattlePetSlot& slot) { return std::ref(slot); });
     _owner->SendPacket(battlePetJournal.Write());
 }
 
