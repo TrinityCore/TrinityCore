@@ -70,6 +70,7 @@
 #include "VMapManager2.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "advstd.h"
 #include <G3D/g3dmath.h>
 #include <limits>
 #include <numeric>
@@ -1549,7 +1550,7 @@ void ObjectMgr::LoadEquipmentTemplates()
                 continue;
             }
 
-            if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
+            if (!advstd::ranges::contains(InventoryTypesEquipable, dbcItem->InventoryType))
             {
                 TC_LOG_ERROR("sql.sql", "Item (ID={}) in creature_equip_template.ItemID{} for CreatureID = {} and ID = {} is not equipable in a hand, forced to 0.",
                     equipmentInfo.Items[i].ItemId, i + 1, entry, id);

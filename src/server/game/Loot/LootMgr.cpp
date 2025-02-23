@@ -213,7 +213,7 @@ uint32 LootStore::LoadAndCollectLootIds(LootIdSet& lootIdSet)
 {
     uint32 count = LoadLootTable();
 
-    std::ranges::transform(m_LootTemplates, std::inserter(lootIdSet, lootIdSet.end()), &LootTemplateMap::value_type::first);
+    std::ranges::transform(m_LootTemplates, std::inserter(lootIdSet, lootIdSet.end()), Trinity::Containers::MapKey);
 
     return count;
 }

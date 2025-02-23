@@ -3042,7 +3042,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
             if (!learnNode->Active)
                 return false;
             return HasSpell(learnNode->SourceSpell);
-        }, &SpellLearnedBySpellMap::value_type::second);
+        }, Trinity::Containers::MapValue);
 
         if (hasOtherSpellTeachingThis)
             continue;
