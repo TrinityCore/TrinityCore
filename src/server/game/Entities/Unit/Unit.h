@@ -1462,6 +1462,18 @@ class TC_GAME_API Unit : public WorldObject
             std::array<uint32, 5> VisitedSpells = { };
             bool AddSpell(uint32 spellId);
         };
+        struct GetCastSpellInfoResult
+        {
+            ::SpellInfo const* SpellInfo = nullptr;
+            TriggerCastFlags TriggerFlag = TRIGGERED_NONE;
+        };
+        GetCastSpellInfoResult GetCastSpellInfo(SpellInfo const* spellInfo) const
+        {
+            GetCastSpellInfoContext context;
+            GetCastSpellInfoResult result;
+            result.SpellInfo = GetCastSpellInfo(spellInfo, result.TriggerFlag, &context);
+            return result;
+        }
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag, GetCastSpellInfoContext* context) const;
         uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const override;
 

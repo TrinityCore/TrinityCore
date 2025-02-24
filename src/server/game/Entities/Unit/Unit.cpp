@@ -14085,16 +14085,19 @@ void Unit::ClearBossEmotes(Optional<uint32> zoneId, Player const* target) const
 
 bool Unit::GetCastSpellInfoContext::AddSpell(uint32 spellId)
 {
-    auto itr = std::ranges::find(VisitedSpells, spellId);
-    if (itr != VisitedSpells.end())
-        return false; // already exists
+    for (uint32& slot : VisitedSpells)
+    {
+        if (slot == spellId)
+            return false; // already exists
 
-    itr = std::ranges::find(VisitedSpells, 0u);
-    if (itr == VisitedSpells.end())
-        return false; // no free slots left
+        if (!slot)
+        {
+            slot = spellId;
+            return true;
+        }
+    }
 
-    *itr = spellId;
-    return true;
+    return false; // no free slots left
 }
 
 SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo, TriggerCastFlags& triggerFlag, GetCastSpellInfoContext* context) const

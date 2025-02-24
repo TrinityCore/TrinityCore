@@ -30904,8 +30904,9 @@ void Player::ExecutePendingSpellCastRequest()
     }
 
     // Check possible spell cast overrides
-    GetCastSpellInfoContext overrideContext;
-    spellInfo = castingUnit->GetCastSpellInfo(spellInfo, triggerFlag, &overrideContext);
+    auto [overrideSpellInfo, overrideTriggerFlag] = castingUnit->GetCastSpellInfo(spellInfo);
+    spellInfo = overrideSpellInfo;
+    triggerFlag |= overrideTriggerFlag;
     if (spellInfo->IsPassive())
     {
         CancelPendingCastRequest();

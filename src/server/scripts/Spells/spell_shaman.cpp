@@ -1788,10 +1788,7 @@ class spell_sha_thorims_invocation_trigger : public SpellScript
         if (!spellIdHolder)
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellIdHolder->SpellIdToTrigger, GetCastDifficulty());
-        TriggerCastFlags triggerFlags = TRIGGERED_NONE;
-        Unit::GetCastSpellInfoContext overrideContext;
-        spellInfo = caster->GetCastSpellInfo(spellInfo, triggerFlags, &overrideContext);
+        auto [spellInfo, triggerFlags] = caster->GetCastSpellInfo(sSpellMgr->GetSpellInfo(spellIdHolder->SpellIdToTrigger, GetCastDifficulty()));
 
         // Remove Overflowing Maelstrom spellmod early to make next cast behave as if it consumed only 5 or less maelstrom stacks
         // this works because consuming "up to 5 stacks" will always cause Maelstrom Weapon stacks to drop to 5 or lower
