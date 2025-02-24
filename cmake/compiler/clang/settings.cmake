@@ -48,7 +48,8 @@ if(WITH_WARNINGS)
       -Winit-self
       -Wfatal-errors
       -Wno-mismatched-tags
-      -Woverloaded-virtual)
+      -Woverloaded-virtual
+      -Wno-missing-field-initializers) # this warning is useless when combined with structure members that have default initializers
 
   message(STATUS "Clang: All warnings enabled")
 endif()

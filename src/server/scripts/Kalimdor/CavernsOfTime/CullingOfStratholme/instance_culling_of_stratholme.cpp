@@ -729,7 +729,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     // Reset respawn time on all permanent spawns, despawn all temporary spawns
                     // @todo dynspawn, this won't work
                     std::vector<Creature*> toDespawn;
-                    std::unordered_map<ObjectGuid, Creature*> const& objects = instance->GetObjectsStore().GetElements()._elements._element;
+                    std::unordered_map<ObjectGuid, Creature*> const& objects = instance->GetObjectsStore().Data.Head;
                     for (std::unordered_map<ObjectGuid, Creature*>::const_iterator itr = objects.cbegin(); itr != objects.cend(); ++itr)
                     {
                         if (itr->second && (itr->second->isDead() || !itr->second->GetSpawnId() || itr->second->GetOriginalEntry() != itr->second->GetEntry()))

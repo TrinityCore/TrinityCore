@@ -561,13 +561,11 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
     {
         case ITEM_VENDOR_TYPE_ITEM:
         {
-            Item* bagItem = _player->GetItemByGuid(packet.ContainerGUID);
-
             uint8 bag = NULL_BAG;
-            if (bagItem && bagItem->IsBag())
-                bag = bagItem->GetSlot();
-            else if (packet.ContainerGUID == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
+            if (packet.ContainerGUID == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
                 bag = INVENTORY_SLOT_BAG_0;
+            else if (Item* bagItem = _player->GetItemByGuid(packet.ContainerGUID))
+                bag = bagItem->GetSlot();
 
             GetPlayer()->BuyItemFromVendorSlot(packet.VendorGUID, packet.Muid, packet.Item.ItemID,
                 packet.Quantity, bag, packet.Slot);

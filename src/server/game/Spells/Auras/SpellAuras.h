@@ -18,6 +18,8 @@
 #ifndef TRINITY_SPELLAURAS_H
 #define TRINITY_SPELLAURAS_H
 
+#include "DBStorageIterator.h"
+#include "IteratorPair.h"
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "UniqueTrackablePtr.h"
@@ -86,6 +88,7 @@ class TC_GAME_API AuraApplication
 
         uint32 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNewEffects);
+        void AddEffectToApplyEffectMask(SpellEffIndex spellEffectIndex);
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const { return _removeMode; }
@@ -222,6 +225,9 @@ class TC_GAME_API Aura
         AuraKey GenerateKey(uint32& recalculateMask) const;
         void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount);
 
+        // helpers for aura effects
+        bool CanPeriodicTickCrit() const;
+
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
         static bool EffectTypeNeedsSendingAmount(AuraType type);
@@ -307,7 +313,19 @@ class TC_GAME_API Aura
 
         std::vector<AuraScript*> m_loadedScripts;
 
-        AuraEffectVector const& GetAuraEffects() const { return _effects; }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect*>> GetAuraEffects()
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator(_effects.data(), _effects.size()),
+                DBStorageIterator(_effects.data(), _effects.size(), _effects.size()));
+        }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect const*>> GetAuraEffects() const
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size()),
+                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size(), _effects.size()));
+        }
+        std::size_t GetAuraEffectCount() const { return _effects.size(); }
 
         virtual std::string GetDebugInfo() const;
 

@@ -98,7 +98,7 @@ enum SpellCastFlags : uint32
     CAST_FLAG_UNKNOWN_8             = 0x00000080,
     CAST_FLAG_UNKNOWN_9             = 0x00000100,
     CAST_FLAG_UNKNOWN_10            = 0x00000200,
-    CAST_FLAG_UNKNOWN_11            = 0x00000400,
+    CAST_FLAG_UNKNOWN_11            = 0x00000400,           // sorts missed targets before hit targets for chain visual
     CAST_FLAG_POWER_LEFT_SELF       = 0x00000800,
     CAST_FLAG_UNKNOWN_13            = 0x00001000,
     CAST_FLAG_UNKNOWN_14            = 0x00002000,
@@ -372,6 +372,7 @@ class TC_GAME_API Spell
         void EffectUnlockGuildVaultTab();
         void EffectKillCreditPersonal();
         void EffectKillCredit();
+        void EffectKillCreditLabel();
         void EffectQuestFail();
         void EffectQuestStart();
         void EffectRedirectThreat();
@@ -427,6 +428,7 @@ class TC_GAME_API Spell
         void EffectRespecAzeriteEmpoweredItem();
         void EffectLearnAzeriteEssencePower();
         void EffectCreatePrivateConversation();
+        void EffectApplyMountEquipment();
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
         void EffectLearnTransmogIllusion();
@@ -438,6 +440,7 @@ class TC_GAME_API Spell
         void EffectCreateTraitTreeConfig();
         void EffectChangeActiveCombatTraitConfig();
         void EffectTeleportGraveyard();
+        void EffectUpdateInteractions();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -830,6 +833,7 @@ class TC_GAME_API Spell
             int32 AuraBasePoints[MAX_SPELL_EFFECTS] = { };
             bool Positive = true;
             UnitAura* HitAura = nullptr;
+            ProcFlagsHit ProcHitMask = { };
 
         private:
             Unit* _spellHitTarget = nullptr; // changed for example by reflect
@@ -906,8 +910,8 @@ class TC_GAME_API Spell
         void CallScriptAfterHitHandlers();
     public:
         void CallScriptCalcCritChanceHandlers(Unit const* victim, float& chance);
-        void CallScriptCalcDamageHandlers(Unit* victim, int32& damage, int32& flatMod, float& pctMod);
-        void CallScriptCalcHealingHandlers(Unit* victim, int32& healing, int32& flatMod, float& pctMod);
+        void CallScriptCalcDamageHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damage, int32& flatMod, float& pctMod);
+        void CallScriptCalcHealingHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& healing, int32& flatMod, float& pctMod);
     protected:
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);

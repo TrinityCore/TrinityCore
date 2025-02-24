@@ -438,10 +438,10 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     if (canBuyout && placeBid.BidAmount == auction->BuyoutOrUnitPrice)
     {
         // buyout
-        auctionHouse->SendAuctionSold(auction, nullptr, trans);
-        auctionHouse->SendAuctionWon(auction, player, trans);
+        std::map<uint32, AuctionPosting>::node_type removedAuctionNode = auctionHouse->RemoveAuction(trans, auction);
 
-        auctionHouse->RemoveAuction(trans, auction);
+        auctionHouse->SendAuctionSold(&removedAuctionNode.mapped(), nullptr, trans);
+        auctionHouse->SendAuctionWon(&removedAuctionNode.mapped(), player, trans);
     }
     else
     {
@@ -508,7 +508,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (auction && auction->Owner == player->GetGUID())
     {
-        if (auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
+        if (!auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
         {
             uint64 cancelCost = CalculatePct(auction->BidAmount, 5u);
             if (!player->HasEnoughMoney(cancelCost))          //player doesn't have enough money
@@ -1010,13 +1010,13 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Unit const* unit)
     SendPacket(auctionHelloResponse.Write());
 }
 
-void WorldSession::SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagError /*= 0*/)
+void WorldSession::SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagResult /*= 0*/)
 {
     WorldPackets::AuctionHouse::AuctionCommandResult auctionCommandResult;
     auctionCommandResult.AuctionID = auctionId;
     auctionCommandResult.Command = AsUnderlyingType(command);
     auctionCommandResult.ErrorCode = AsUnderlyingType(errorCode);
-    auctionCommandResult.BagResult = AsUnderlyingType(bagError);
+    auctionCommandResult.BagResult = AsUnderlyingType(bagResult);
     auctionCommandResult.DesiredDelay = uint32(delayForNextAction.count());
     SendPacket(auctionCommandResult.Write());
 }

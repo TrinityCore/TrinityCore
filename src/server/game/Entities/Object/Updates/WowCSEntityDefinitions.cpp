@@ -25,12 +25,14 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update)
 {
     ASSERT(Count < Ids.size());
 
-    auto insertSorted = [](auto& arr, uint8& count, EntityFragment f)
+    auto insertSorted = []<size_t N>(std::array<EntityFragment, N>& arr, uint8& count, EntityFragment f)
     {
-        auto where = std::ranges::lower_bound(arr.begin(), arr.begin() + count, f);
+        auto end = arr.begin() + count;
+        auto where = std::ranges::lower_bound(arr.begin(), end, f);
         if (*where == f)
             return std::pair(where, false);
-        std::rotate(where, arr.begin() + count, arr.begin() + count + 1);
+
+        std::ranges::move_backward(where, end, end + 1);
         ++count;
         *where = f;
         return std::pair(where, true);
@@ -44,7 +46,7 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update)
         ASSERT(UpdateableCount < UpdateableIds.size());
 
         auto insertedItr = insertSorted(UpdateableIds, UpdateableCount, fragment).first;
-        std::ptrdiff_t index = std::distance(UpdateableIds.begin(), insertedItr);
+        std::ptrdiff_t index = std::ranges::distance(UpdateableIds.begin(), insertedItr);
         uint8 maskLowPart = ContentsChangedMask & ((1 << index) - 1);
         uint8 maskHighPart = (ContentsChangedMask & ~((1 << index) - 1)) << (1 + IsIndirectFragment(fragment));
         ContentsChangedMask = maskLowPart | maskHighPart;
@@ -65,13 +67,13 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update)
 
 void EntityFragmentsHolder::Remove(EntityFragment fragment)
 {
-    auto removeSorted = [](auto& arr, uint8& count, EntityFragment f)
+    auto removeSorted = []<size_t N>(std::array<EntityFragment, N>& arr, uint8& count, EntityFragment f)
     {
-        auto where = std::ranges::find(arr.begin(), arr.begin() + count, f);
-        if (where != arr.end())
+        auto end = arr.begin() + count;
+        auto where = std::ranges::find(arr.begin(), end, f);
+        if (where != end)
         {
-            *where = EntityFragment::End;
-            std::rotate(where, where + 1, arr.begin() + count);
+            *std::ranges::move(where + 1, end, where).out = EntityFragment::End;
             --count;
             return std::pair(where, true);
         }
@@ -86,7 +88,7 @@ void EntityFragmentsHolder::Remove(EntityFragment fragment)
         auto [removedItr, removed] = removeSorted(UpdateableIds, UpdateableCount, fragment);
         if (removed)
         {
-            std::ptrdiff_t index = std::distance(UpdateableIds.begin(), removedItr);
+            std::ptrdiff_t index = std::ranges::distance(UpdateableIds.begin(), removedItr);
             uint8 maskLowPart = ContentsChangedMask & ((1 << index) - 1);
             uint8 maskHighPart = (ContentsChangedMask & ~((1 << index) - 1)) >> (1 + IsIndirectFragment(fragment));
             ContentsChangedMask = maskLowPart | maskHighPart;

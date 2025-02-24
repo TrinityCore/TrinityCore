@@ -676,6 +676,7 @@ namespace WorldPackets
         class RequestWorldQuestUpdate;
         class ChoiceResponse;
         class UiMapQuestLinesRequest;
+        class SpawnTrackingUpdate;
     }
 
     namespace RaF
@@ -1124,9 +1125,9 @@ class TC_GAME_API WorldSession
          * @param   auctionId       The relevant auction id
          * @param   command         The action that was performed.
          * @param   errorCode       The resulting error code.
-         * @param   bagError        (Optional) InventoryResult.
+         * @param   bagResult       (Optional) InventoryResult.
          */
-        void SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagError = InventoryResult(0));
+        void SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagResult = InventoryResult(0));
         void SendAuctionClosedNotification(AuctionPosting const* auction, float mailDelay, bool sold);
         void SendAuctionOwnerBidNotification(AuctionPosting const* auction);
 
@@ -1572,6 +1573,7 @@ class TC_GAME_API WorldSession
         void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
         void HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest);
         void HandleQueryTreasurePicker(WorldPackets::Query::QueryTreasurePicker const& queryTreasurePicker);
+        void HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingUpdate& spawnTrackingUpdate);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);

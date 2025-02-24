@@ -19,13 +19,14 @@
 #include "Arena.h"
 #include "BattlegroundPackets.h"
 #include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SharedDefines.h"
@@ -125,13 +126,8 @@ void BattlegroundMgr::Update(uint32 diff)
         std::vector<ScheduledQueueUpdate> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
 
-        for (uint8 i = 0; i < scheduled.size(); i++)
-        {
-            uint32 arenaMMRating = scheduled[i].ArenaMatchmakerRating;
-            BattlegroundQueueTypeId bgQueueTypeId = scheduled[i].QueueId;
-            BattlegroundBracketId bracket_id = scheduled[i].BracketId;
+        for (auto& [arenaMMRating, bgQueueTypeId, bracket_id] : scheduled)
             GetBattlegroundQueue(bgQueueTypeId).BattlegroundQueueUpdate(diff, bracket_id, arenaMMRating);
-        }
     }
 
     // if rating difference counts, maybe force-update queues
@@ -156,7 +152,7 @@ void BattlegroundMgr::Update(uint32 diff)
     }
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::BattlefieldStatusHeader* header, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId)
+void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::BattlefieldStatusHeader* header, Player const* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId)
 {
     header->Ticket.RequesterGuid = player->GetGUID();
     header->Ticket.Id = ticketId;
@@ -171,7 +167,7 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
     header->TournamentRules = false;
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime)
+void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player const* player, uint32 ticketId, uint32 joinTime)
 {
     battlefieldStatus->Ticket.RequesterGuid = player->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
@@ -179,7 +175,7 @@ void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::Ba
     battlefieldStatus->Ticket.Time = joinTime;
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Battleground::BattlefieldStatusNeedConfirmation* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 timeout, BattlegroundQueueTypeId queueId)
+void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Battleground::BattlefieldStatusNeedConfirmation* battlefieldStatus, Battleground const* bg, Player const* player, uint32 ticketId, uint32 joinTime, uint32 timeout, BattlegroundQueueTypeId queueId)
 {
     BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, player, ticketId, joinTime, queueId);
     battlefieldStatus->Mapid = bg->GetMapId();
@@ -187,7 +183,7 @@ void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Batt
     battlefieldStatus->Role = 0;
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId)
+void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground const* bg, Player const* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId)
 {
     BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, player, ticketId, joinTime, queueId);
     battlefieldStatus->ShutdownTimer = bg->GetRemainingTime();
@@ -197,7 +193,7 @@ void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::
     battlefieldStatus->Mapid = bg->GetMapId();
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusQueued(WorldPackets::Battleground::BattlefieldStatusQueued* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId, uint32 avgWaitTime, bool asGroup)
+void BattlegroundMgr::BuildBattlegroundStatusQueued(WorldPackets::Battleground::BattlefieldStatusQueued* battlefieldStatus, Player const* player, uint32 ticketId, uint32 joinTime, BattlegroundQueueTypeId queueId, uint32 avgWaitTime, bool asGroup)
 {
     BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, player, ticketId, joinTime, queueId);
     battlefieldStatus->AverageWaitTime = avgWaitTime;
@@ -207,12 +203,12 @@ void BattlegroundMgr::BuildBattlegroundStatusQueued(WorldPackets::Battleground::
     battlefieldStatus->WaitTime = GetMSTimeDiffToNow(joinTime);
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::BattlefieldStatusFailed* battlefieldStatus, BattlegroundQueueTypeId queueId, Player* pPlayer, uint32 ticketId, GroupJoinBattlegroundResult result, ObjectGuid const* errorGuid /*= nullptr*/)
+void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::BattlefieldStatusFailed* battlefieldStatus, BattlegroundQueueTypeId queueId, Player const* player, uint32 ticketId, GroupJoinBattlegroundResult result, ObjectGuid const* errorGuid /*= nullptr*/)
 {
-    battlefieldStatus->Ticket.RequesterGuid = pPlayer->GetGUID();
+    battlefieldStatus->Ticket.RequesterGuid = player->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
     battlefieldStatus->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
-    battlefieldStatus->Ticket.Time = pPlayer->GetBattlegroundQueueJoinTime(queueId);
+    battlefieldStatus->Ticket.Time = player->GetBattlegroundQueueJoinTime(queueId);
     battlefieldStatus->QueueID = queueId.GetPacked();
     battlefieldStatus->Reason = result;
     if (errorGuid && (result == ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND || result == ERR_BATTLEGROUND_JOIN_TIMED_OUT))
@@ -498,7 +494,7 @@ bool BattlegroundMgr::IsRandomBattleground(uint32 battlemasterListId)
 
 BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(uint16 battlemasterListId, BattlegroundQueueIdType type, bool rated, uint8 teamSize)
 {
-    return { battlemasterListId, AsUnderlyingType(type), rated, teamSize };
+    return { .BattlemasterListId = battlemasterListId, .Type = AsUnderlyingType(type), .Rated = rated, .TeamSize = teamSize };
 }
 
 void BattlegroundMgr::ToggleTesting()
@@ -686,23 +682,14 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
-        std::vector<BattlegroundTypeId> ids;
+        std::vector<BattlegroundTemplate const*> ids;
         ids.reserve(bgTemplate->MapIDs.size());
-        std::vector<double> weights;
-        weights.reserve(bgTemplate->MapIDs.size());
-        double totalWeight = 0.0;
         for (int32 mapId : bgTemplate->MapIDs)
-        {
             if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
-            {
-                ids.push_back(bg->Id);
-                weights.push_back(bg->Weight);
-                totalWeight += bg->Weight;
-            }
-        }
+                ids.push_back(bg);
 
-        if (totalWeight > 0.0)
-            return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, std::span(weights));
+        if (!ids.empty())
+            return (*Trinity::Containers::SelectRandomWeightedContainerElement(ids, [](BattlegroundTemplate const* bg) { return bg->Weight; }))->Id;
     }
 
     return BATTLEGROUND_TYPE_NONE;

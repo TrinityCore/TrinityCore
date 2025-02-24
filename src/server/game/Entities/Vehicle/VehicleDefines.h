@@ -131,13 +131,14 @@ struct VehicleSeat
 
 struct VehicleAccessory
 {
-    VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime) :
-        AccessoryEntry(entry), IsMinion(isMinion), SummonTime(summonTime), SeatId(seatId), SummonedType(summonType) { }
+    VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime, Optional<uint32> rideSpellID) :
+        AccessoryEntry(entry), IsMinion(isMinion), SummonTime(summonTime), SeatId(seatId), SummonedType(summonType), RideSpellID(rideSpellID) { }
     uint32 AccessoryEntry;
     bool IsMinion;
     uint32 SummonTime;
     int8 SeatId;
     uint8 SummonedType;
+    Optional<uint32> RideSpellID;
 };
 
 struct VehicleTemplate

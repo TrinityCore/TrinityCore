@@ -272,7 +272,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //200 SPELL_AURA_MOD_XP_PCT implemented in Player::RewardPlayerAndGroupAtKill
     &AuraEffect::HandleAuraAllowFlight,                           //201 SPELL_AURA_FLY                             this aura enable flight mode...
     &AuraEffect::HandleNoImmediateEffect,                         //202 SPELL_AURA_CANNOT_BE_DODGED                implemented in Unit::RollPhysicalOutcomeAgainst
-    &AuraEffect::HandleNULL,                                      //203 SPELL_AURA_PREVENT_INTERRUPT
+    &AuraEffect::HandleNoImmediateEffect,                         //203 SPELL_AURA_PREVENT_INTERRUPT implemented in SpellInfo::CanBeInterrupted
     &AuraEffect::HandleNULL,                                      //204 SPELL_AURA_PREVENT_CORPSE_RELEASE
     &AuraEffect::HandleNULL,                                      //205 SPELL_AURA_MOD_CHARGE_COOLDOWN
     &AuraEffect::HandleAuraModIncreaseFlightSpeed,                //206 SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED
@@ -349,7 +349,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //277 unused (4.3.4) old SPELL_AURA_MOD_MAX_AFFECTED_TARGETS
     &AuraEffect::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &AuraEffect::HandleNoImmediateEffect,                         //279 SPELL_AURA_INITIALIZE_IMAGES
-    &AuraEffect::HandleUnused,                                    //280 unused (4.3.4) old SPELL_AURA_MOD_ARMOR_PENETRATION_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         //280 SPELL_AURA_MOD_ARMOR_PENETRATION_PCT implemented in Unit::CalcArmorReducedDamage
     &AuraEffect::HandleNoImmediateEffect,                         //281 SPELL_AURA_PROVIDE_SPELL_FOCUS implemented in Spell::CheckCast
     &AuraEffect::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_MOD_BASE_HEALTH_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
@@ -553,11 +553,11 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //481 SPELL_AURA_CONVERT_CONSUMED_RUNE implemented in Spell::TakeRunePower
     &AuraEffect::HandleNULL,                                      //482
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_SUPPRESS_TRANSFORMS
-    &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_ALLOW_INTERRUPT_SPELL
+    &AuraEffect::HandleNoImmediateEffect,                         //484 SPELL_AURA_ALLOW_INTERRUPT_SPELL implemented in SpellInfo::CanBeInterrupted
     &AuraEffect::HandleModMovementForceMagnitude,                 //485 SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE
     &AuraEffect::HandleNULL,                                      //486
     &AuraEffect::HandleCosmeticMounted,                           //487 SPELL_AURA_COSMETIC_MOUNTED
-    &AuraEffect::HandleNULL,                                      //488
+    &AuraEffect::HandleAuraDisableGravity,                        //488 SPELL_AURA_DISABLE_GRAVITY
     &AuraEffect::HandleModAlternativeDefaultLanguage,             //489 SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE
     &AuraEffect::HandleNULL,                                      //490
     &AuraEffect::HandleNULL,                                      //491
@@ -1168,50 +1168,53 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply, AuraEffect const* trigg
 
     // reapply some passive spells after add/remove related spellmods
     // Warning: it is a dead loop if 2 auras each other amount-shouldn't happen
-    std::bitset<MAX_SPELL_EFFECTS> recalculateEffectMask;
+    Optional<SpellEffIndex> recalculateEffectIndex;
     switch (SpellModOp(GetMiscValue()))
     {
         case SpellModOp::Points:
-            recalculateEffectMask.set();
             break;
         case SpellModOp::PointsIndex0:
-            recalculateEffectMask.set(EFFECT_0);
+            recalculateEffectIndex = EFFECT_0;
             break;
         case SpellModOp::PointsIndex1:
-            recalculateEffectMask.set(EFFECT_1);
+            recalculateEffectIndex = EFFECT_1;
             break;
         case SpellModOp::PointsIndex2:
-            recalculateEffectMask.set(EFFECT_2);
+            recalculateEffectIndex = EFFECT_2;
             break;
         case SpellModOp::PointsIndex3:
-            recalculateEffectMask.set(EFFECT_3);
+            recalculateEffectIndex = EFFECT_3;
             break;
         case SpellModOp::PointsIndex4:
-            recalculateEffectMask.set(EFFECT_4);
+            recalculateEffectIndex = EFFECT_4;
             break;
         default:
-            break;
+            return;
     }
 
-    if (recalculateEffectMask.any())
-    {
-        if (!triggeredBy)
-            triggeredBy = this;
+    if (!triggeredBy)
+        triggeredBy = this;
 
-        ObjectGuid guid = target->GetGUID();
-        Unit::AuraApplicationMap& auras = target->GetAppliedAuras();
-        for (auto iter = auras.begin(); iter != auras.end(); ++iter)
+    ObjectGuid guid = target->GetGUID();
+    for (auto& [_, aurApp] : target->GetAppliedAuras())
+    {
+        Aura* aura = aurApp->GetBase();
+        // only passive and permament auras-active auras should have amount set on spellcast and not be affected
+        // if aura is cast by others, it will not be affected
+        if ((!aura->IsPassive() && !aura->IsPermanent() && !GetSpellInfo()->IsUpdatingTemporaryAuraValuesBySpellMod())
+            || aura->GetCasterGUID() != guid || !aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
+            continue;
+
+        if (recalculateEffectIndex)
         {
-            Aura* aura = iter->second->GetBase();
-            // only passive and permament auras-active auras should have amount set on spellcast and not be affected
-            // if aura is cast by others, it will not be affected
-            if ((aura->IsPassive() || aura->IsPermanent()) && aura->GetCasterGUID() == guid && aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
-                for (size_t i = 0; i < recalculateEffectMask.size(); ++i)
-                    if (recalculateEffectMask[i])
-                        if (AuraEffect* aurEff = aura->GetEffect(i))
-                            if (aurEff != triggeredBy)
-                                aurEff->RecalculateAmount(triggeredBy);
+            if (AuraEffect* aurEff = aura->GetEffect(*recalculateEffectIndex))
+                if (aurEff != triggeredBy)
+                    aurEff->RecalculateAmount(triggeredBy);
         }
+        else
+            for (AuraEffect* aurEff : aura->GetAuraEffects())
+                if (aurEff != triggeredBy)
+                    aurEff->RecalculateAmount(triggeredBy);
     }
 }
 
@@ -1386,8 +1389,7 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
 
             // Costs Check
             std::vector<SpellPowerCost> const& costs = eventInfo.GetProcSpell()->GetPowerCost();
-            auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Amount > 0; });
-            if (m == costs.end())
+            if (std::ranges::none_of(costs, [](SpellPowerCost const& cost) { return cost.Amount > 0; }))
                 return false;
             break;
         }
@@ -1487,6 +1489,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId = 5421;
             break;
         case FORM_BEAR_FORM:
+        case FORM_DIRE_BEAR_FORM:
             spellId = 1178;
             spellId2 = 21178;
             spellId3 = 106829;
@@ -1644,14 +1647,14 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
         return;
 
     Unit* target = aurApp->GetTarget();
-    Player* playerTarget = target->ToPlayer();
     InvisibilityType type = InvisibilityType(GetMiscValue());
 
     if (apply)
     {
         // apply glow vision
-        if (playerTarget && type == INVISIBILITY_GENERAL)
-            playerTarget->AddAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
+        if (type == INVISIBILITY_GENERAL)
+            if (Player* playerTarget = target->ToPlayer())
+                playerTarget->AddAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
         target->m_invisibility.AddFlag(type);
         target->m_invisibility.AddValue(type, GetAmount());
@@ -1660,39 +1663,19 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     }
     else
     {
-        if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_INVISIBILITY, type))
         {
-            // if not have different invisibility auras.
-            // always remove glow vision
-            if (Player * playerTarget = target->ToPlayer())
-                playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-
-            target->m_invisibility.DelFlag(type);
-
-            target->RemoveVisFlag(UNIT_VIS_FLAGS_INVISIBLE);
-        }
-        else
-        {
-            bool found = false;
-            Unit::AuraEffectList const& invisAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
-            for (Unit::AuraEffectList::const_iterator i = invisAuras.begin(); i != invisAuras.end(); ++i)
-            {
-                if (GetMiscValue() == (*i)->GetMiscValue())
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                // if not have invisibility auras of type INVISIBILITY_GENERAL
-                // remove glow vision
-                if (playerTarget && type == INVISIBILITY_GENERAL)
+            // if not have invisibility auras of type INVISIBILITY_GENERAL
+            // remove glow vision
+            if (type == INVISIBILITY_GENERAL)
+                if (Player* playerTarget = target->ToPlayer())
                     playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
-                target->m_invisibility.DelFlag(type);
-            }
+            target->m_invisibility.DelFlag(type);
         }
+
+        if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
+            target->RemoveVisFlag(UNIT_VIS_FLAGS_INVISIBLE);
 
         target->m_invisibility.AddValue(type, -GetAmount());
     }
@@ -1951,6 +1934,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_TRAVEL_FORM:
             case FORM_AQUATIC_FORM:
             case FORM_BEAR_FORM:
+            case FORM_DIRE_BEAR_FORM:
             case FORM_FLIGHT_FORM_EPIC:
             case FORM_FLIGHT_FORM:
             case FORM_MOONKIN_FORM:
@@ -2011,6 +1995,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         {
             // Nordrassil Harness - bonus
             case FORM_BEAR_FORM:
+            case FORM_DIRE_BEAR_FORM:
             case FORM_CAT_FORM:
                 if (AuraEffect* dummy = target->GetAuraEffect(37315, 0))
                     target->CastSpell(target, 37316, dummy);
@@ -2749,7 +2734,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
             {
                 if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mountEntry->ID))
                 {
-                    if (mountEntry->IsSelfMount())
+                    if (mountEntry->GetFlags().HasFlag(MountFlags::IsSelfMount))
                     {
                         displayId = DISPLAYID_HIDDEN_MOUNT;
                     }
@@ -2771,6 +2756,18 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
                 // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
                 //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
                 //    creatureEntry = mountVehicle->VehicleCreatureId;
+
+                if (mode & AURA_EFFECT_HANDLE_REAL && !mountEntry->GetFlags().HasFlag(MountFlags::MountEquipmentEffectsSuppressed))
+                {
+                    if (Player* playerTarget = target->ToPlayer())
+                    {
+                        auto mountEquipmentItr = std::ranges::find_if(sMountEquipmentStore,
+                            [&](int32 equipmentSpell) { return playerTarget->HasSpell(equipmentSpell); },
+                            &MountEquipmentEntry::LearnedBySpell);
+                        if (mountEquipmentItr != sMountEquipmentStore.end())
+                            playerTarget->CastSpell(playerTarget, mountEquipmentItr->BuffSpell, this);
+                    }
+                }
             }
 
             if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry))
@@ -2812,7 +2809,11 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
         if (mode & AURA_EFFECT_HANDLE_REAL)
+        {
             target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            for (MountEquipmentEntry const* mountEquipmentStore : sMountEquipmentStore)
+                target->RemoveOwnedAura(mountEquipmentStore->BuffSpell);
+        }
 
         if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
             // remove speed aura
@@ -3144,6 +3145,21 @@ void AuraEffect::HandlePreventFleeing(AuraApplication const* aurApp, uint8 mode,
     target->SetControlled(false, UNIT_STATE_FLEEING);
 }
 
+static void HandleAuraDisableGravity(Unit* target, bool apply)
+{
+    // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
+    if (!apply)
+        if (target->HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY)
+            || target->HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY)
+            || target->HasAuraType(SPELL_AURA_DISABLE_GRAVITY)
+            || (target->IsCreature() && target->ToCreature()->IsFloating()))
+        return;
+
+    if (target->SetDisableGravity(apply))
+        if (!apply && !target->IsFlying())
+            target->GetMotionMaster()->MoveFall();
+}
+
 void AuraEffect::HandleAuraModRootAndDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
@@ -3153,13 +3169,7 @@ void AuraEffect::HandleAuraModRootAndDisableGravity(AuraApplication const* aurAp
 
     target->SetControlled(apply, UNIT_STATE_ROOT);
 
-    // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-    if (!apply && (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY) || (target->IsCreature() && target->ToCreature()->IsFloating())))
-        return;
-
-    if (target->SetDisableGravity(apply))
-        if (!apply && !target->IsFlying())
-            target->GetMotionMaster()->MoveFall();
+    ::HandleAuraDisableGravity(target, apply);
 }
 
 void AuraEffect::HandleAuraModStunAndDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3174,13 +3184,17 @@ void AuraEffect::HandleAuraModStunAndDisableGravity(AuraApplication const* aurAp
     if (apply)
         target->GetThreatManager().EvaluateSuppressed();
 
-    // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-    if (!apply && (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY) || (target->IsCreature() && target->ToCreature()->IsFloating())))
+    ::HandleAuraDisableGravity(target, apply);
+}
+
+void AuraEffect::HandleAuraDisableGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (target->SetDisableGravity(apply))
-        if (!apply && !target->IsFlying())
-            target->GetMotionMaster()->MoveFall();
+    Unit* target = aurApp->GetTarget();
+
+    ::HandleAuraDisableGravity(target, apply);
 }
 
 /***************************/
@@ -5313,7 +5327,11 @@ void AuraEffect::HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp,
 
     int32 effectAmount = GetAmount();
     uint32 triggerSpell = GetSpellEffectInfo().TriggerSpell;
-    float powerAmountPct = GetPctOf(target->GetPower(Powers(GetMiscValue())), target->GetMaxPower(Powers(GetMiscValue())));
+    int32 maxPower = target->GetMaxPower(Powers(GetMiscValue()));
+    if (!maxPower)
+        return;
+
+    float powerAmountPct = GetPctOf(target->GetPower(Powers(GetMiscValue())), maxPower);
 
     switch (AuraTriggerOnPowerChangeDirection(GetMiscValueB()))
     {
@@ -5544,7 +5562,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
     {
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
-            triggerCaster->CastSpell(target, triggerSpellId, this);
+            triggerCaster->CastSpell(target, triggerSpellId, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST),
+                .TriggeringAura = this
+            });
             TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell {} Trigger {}", GetId(), triggeredSpellInfo->Id);
         }
     }
@@ -5566,7 +5587,8 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
             CastSpellExtraArgs args(this);
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            args.SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
+            for (std::size_t i = 0; i < triggeredSpellInfo->GetEffects().size(); ++i)
                 args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), GetAmount());
             triggerCaster->CastSpell(target, triggerSpellId, args);
             TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell {} Trigger {}", GetId(), triggeredSpellInfo->Id);
@@ -5635,7 +5657,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
             // Add melee damage bonuses (also check for negative)
             if (caster)
-                damage = caster->MeleeDamageBonusDone(target, damage, attackType, DOT, GetSpellInfo(), GetSpellEffectInfo().Mechanic, GetSpellInfo()->GetSchoolMask(), nullptr, this);
+                damage = caster->MeleeDamageBonusDone(target, damage, attackType, DOT, GetSpellInfo(), &GetSpellEffectInfo(), GetSpellEffectInfo().Mechanic, GetSpellInfo()->GetSchoolMask(), nullptr, this);
 
             damage = target->MeleeDamageBonusTaken(caster, damage, attackType, DOT, GetSpellInfo());
             break;
@@ -6071,20 +6093,9 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     caster->SendSpellNonMeleeDamageLog(&damageInfo);
 }
 
-bool AuraEffect::CanPeriodicTickCrit() const
-{
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR2_CANT_CRIT))
-        return false;
-
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_PERIODIC_CAN_CRIT))
-        return true;
-
-    return false;
-}
-
 float AuraEffect::CalcPeriodicCritChance(Unit const* caster) const
 {
-    if (!caster || !CanPeriodicTickCrit())
+    if (!caster || !GetBase()->CanPeriodicTickCrit())
         return 0.0f;
 
     Player* modOwner = caster->GetSpellModOwner();
@@ -6122,7 +6133,9 @@ void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEve
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId, GetBase()->GetCastDifficulty()))
     {
         TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandleProcTriggerSpellAuraProc: Triggering spell {} from aura {} proc", triggeredSpellInfo->Id, GetId());
-        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo->Id, CastSpellExtraArgs(this).SetTriggeringSpell(eventInfo.GetProcSpell()));
+        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo->Id, CastSpellExtraArgs(this)
+            .SetTriggeringSpell(eventInfo.GetProcSpell())
+            .SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST)));
     }
     else if (triggerSpellId && GetAuraType() != SPELL_AURA_DUMMY)
         TC_LOG_ERROR("spells.aura.effect.nospell","AuraEffect::HandleProcTriggerSpellAuraProc: Spell {} has non-existent spell {} in EffectTriggered[{}] and is therefore not triggered.", GetId(), triggerSpellId, GetEffIndex());
@@ -6145,6 +6158,7 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId, GetBase()->GetCastDifficulty()))
     {
         CastSpellExtraArgs args(this);
+        args.SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
         args.SetTriggeringSpell(eventInfo.GetProcSpell());
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetAmount());
         triggerCaster->CastSpell(triggerTarget, triggerSpellId, args);
@@ -6286,7 +6300,14 @@ void AuraEffect::HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool
     if (apply)
         player->GetSceneMgr().PlayScene(GetMiscValue());
     else
+    {
+        if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+        {
+            if (Optional<uint32> sceneInstanceId = player->GetSceneMgr().GetInstanceIdBySceneId(GetMiscValue()))
+                player->GetSceneMgr().OnSceneComplete(*sceneInstanceId);
+        }
         player->GetSceneMgr().CancelSceneBySceneId(GetMiscValue());
+    }
 }
 
 void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const

@@ -21,7 +21,6 @@
 #include "BattlegroundScript.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
-#include "Containers.h"
 #include "Conversation.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
@@ -38,6 +37,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -180,52 +180,21 @@ template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
-}
+    if constexpr (WorldTypeMapContainer::TypeExists<T> && GridTypeMapContainer::TypeExists<T>)
+    {
+        NGridType::GridType& cellType = grid->GetGridType(cell.CellX(), cell.CellY());
+        if (obj->IsStoredInWorldObjectGridContainer())
+            cellType.AddWorldObject<T>(obj);
+        else
+            cellType.AddGridObject<T>(obj);
+    }
+    else if constexpr (WorldTypeMapContainer::TypeExists<T>)
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject<T>(obj);
+    else if constexpr (GridTypeMapContainer::TypeExists<T>)
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject<T>(obj);
 
-template<>
-void Map::AddToGrid(Creature* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(GameObject* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(AreaTrigger* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
+    if constexpr (std::is_base_of_v<MapObject, T>)
+        obj->SetCurrentCell(cell);
 }
 
 template<>
@@ -240,10 +209,11 @@ void Map::AddToGrid(Corpse* obj, Cell const& cell)
     // to avoid failing an assertion in GridObject::AddToGrid
     if (grid->isGridObjectDataLoaded())
     {
+        NGridType::GridType& cellType = grid->GetGridType(cell.CellX(), cell.CellY());
         if (obj->IsStoredInWorldObjectGridContainer())
-            grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
+            cellType.AddWorldObject(obj);
         else
-            grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+            cellType.AddGridObject(obj);
     }
 }
 
@@ -2548,11 +2518,7 @@ void Map::UpdateSpawnGroupConditions()
 
 ObjectGuidGenerator& Map::GetGuidSequenceGenerator(HighGuid high)
 {
-    auto itr = _guidGenerators.find(high);
-    if (itr == _guidGenerators.end())
-        itr = _guidGenerators.insert(std::make_pair(high, std::make_unique<ObjectGuidGenerator>(high))).first;
-
-    return *itr->second;
+    return _guidGenerators.try_emplace(high, high).first->second;
 }
 
 void Map::AddFarSpellCallback(FarSpellCallback&& callback)
@@ -3446,8 +3412,6 @@ void BattlegroundMap::InitScriptData()
         else
             _battlegroundScript = std::make_unique<BattlegroundScript>(this);
     }
-
-    _battlegroundScript->OnInit();
 }
 
 TransferAbortParams BattlegroundMap::CannotEnter(Player* player)
@@ -4094,4 +4058,4 @@ std::string InstanceMap::GetDebugInfo() const
     return sstr.str();
 }
 
-template class TC_GAME_API TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid>;
+template struct TC_GAME_API TypeListContainer<MapStoredObjectsUnorderedMap, Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, SceneObject, Conversation>;

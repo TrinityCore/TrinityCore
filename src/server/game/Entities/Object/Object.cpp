@@ -562,7 +562,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool hasAttached            = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached);
         bool hasFaceMovementDir     = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir);
         bool hasFollowsTerrain      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain);
-        bool hasUnk1                = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::Unk1);
+        bool hasAlwaysExterior      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::AlwaysExterior);
         bool hasUnknown1025         = false;
         bool hasTargetRollPitchYaw  = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasTargetRollPitchYaw);
         bool hasScaleCurveID        = createProperties && createProperties->ScaleCurveId != 0;
@@ -579,7 +579,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasAttached);
         data->WriteBit(hasFaceMovementDir);
         data->WriteBit(hasFollowsTerrain);
-        data->WriteBit(hasUnk1);
+        data->WriteBit(hasAlwaysExterior);
         data->WriteBit(hasUnknown1025);
         data->WriteBit(hasTargetRollPitchYaw);
         data->WriteBit(hasScaleCurveID);
@@ -623,7 +623,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
 
         if (hasOrbit)
-            *data << *areaTrigger->GetOrbit();
+            *data << areaTrigger->GetOrbit();
     }
 
     if (flags.GameObject)
@@ -1578,8 +1578,14 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
         if (smoothPhasing->IsBeingReplacedForSeer(GetGUID()))
             return false;
 
-    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj->GetTypeId(), obj->GetEntry(), this))
+    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj, this))
         return false;
+
+    // Spawn tracking
+    if (Player const* player = ToPlayer())
+        if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
+            if (!spawnTrackingStateData->Visible)
+                return false;
 
     bool corpseVisibility = false;
     if (distanceCheck)
@@ -1895,12 +1901,12 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             case SUMMON_CATEGORY_PUPPET:
                 mask = UNIT_MASK_PUPPET;
                 break;
+            case SUMMON_CATEGORY_POSSESSED_VEHICLE:
             case SUMMON_CATEGORY_VEHICLE:
                 mask = UNIT_MASK_MINION;
                 break;
             case SUMMON_CATEGORY_WILD:
             case SUMMON_CATEGORY_ALLY:
-            case SUMMON_CATEGORY_UNK:
             {
                 switch (SummonTitle(properties->Title))
                 {

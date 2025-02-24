@@ -29,6 +29,7 @@
 #include "NPCHandler.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
+#include "ObjectGuidSequenceGenerator.h"
 #include "Position.h"
 #include "QuestDef.h"
 #include "RaceMask.h"
@@ -71,22 +72,14 @@ enum SummonerType
     SUMMONER_TYPE_MAP           = 2
 };
 
-#pragma pack(push, 1)
-
 /// Key for storing temp summon data in TempSummonDataContainer
 struct TempSummonGroupKey
 {
-    TempSummonGroupKey(uint32 summonerEntry, SummonerType summonerType, uint8 group)
-        : _summonerEntry(summonerEntry), _summonerType(summonerType), _summonGroup(group)
-    {
-    }
-
     std::strong_ordering operator<=>(TempSummonGroupKey const& right) const = default;
 
-private:
-    uint32 _summonerEntry;      ///< Summoner's entry
-    SummonerType _summonerType; ///< Summoner's type, see SummonerType for available types
-    uint8 _summonGroup;         ///< Summon's group id
+    uint32 SummonerEntry;   ///< Summoner's entry
+    SummonerType Type;      ///< Summoner's type, see SummonerType for available types
+    uint8 SummonGroup;      ///< Summon's group id
 };
 
 /// Stores data for temp summons
@@ -97,8 +90,6 @@ struct TempSummonData
     TempSummonType type; ///< Summon type, see TempSummonType for available types
     Milliseconds time;   ///< Despawn time, usable only with certain temp summon types
 };
-
-#pragma pack(pop)
 
 // DB scripting commands
 enum ScriptCommands
@@ -521,6 +512,9 @@ typedef std::unordered_map<uint32, std::vector<uint32>> GameObjectQuestItemMap;
 typedef std::unordered_map<uint32, SpawnGroupTemplateData> SpawnGroupDataContainer;
 typedef std::multimap<uint32, SpawnMetadata const*> SpawnGroupLinkContainer;
 typedef std::unordered_map<uint16, std::vector<InstanceSpawnGroupInfo>> InstanceSpawnGroupContainer;
+typedef std::unordered_map<uint32, SpawnTrackingTemplateData> SpawnTrackingTemplateContainer;
+typedef std::multimap<uint32, SpawnMetadata const*> SpawnTrackingLinkContainer;
+typedef std::unordered_map<uint32 /*spawnTrackingId*/, std::vector<QuestObjective const*>> SpawnTrackingQuestObjectiveContainer;
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData>> TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
@@ -640,7 +634,7 @@ typedef std::vector<PlayerCreateInfoItem> PlayerCreateInfoItems;
 
 struct PlayerLevelInfo
 {
-    uint16 stats[MAX_STATS] = { };
+    int32 stats[MAX_STATS] = { };
 };
 
 typedef std::vector<uint32> PlayerCreateInfoSpells;
@@ -1428,6 +1422,11 @@ class TC_GAME_API ObjectMgr
         void LoadUiMapQuestLines();
         void LoadUiMapQuests();
 
+        void LoadSpawnTrackingTemplates();
+        void LoadSpawnTrackingQuestObjectives();
+        void LoadSpawnTrackings();
+        void LoadSpawnTrackingStates();
+
         void LoadJumpChargeParams();
         void LoadPhaseNames();
 
@@ -1471,6 +1470,11 @@ class TC_GAME_API ObjectMgr
         std::vector<uint32> const* GetSpawnGroupsForMap(uint32 mapId) const { auto it = _spawnGroupsByMap.find(mapId); return it != _spawnGroupsByMap.end() ? &it->second : nullptr; }
         std::vector<InstanceSpawnGroupInfo> const* GetInstanceSpawnGroupsForMap(uint32 mapId) const { auto it = _instanceSpawnGroupStore.find(mapId); return it != _instanceSpawnGroupStore.end() ? &it->second : nullptr; }
 
+        SpawnTrackingTemplateData const* GetSpawnTrackingData(uint32 spawnTrackingId) const;
+        Trinity::IteratorPair<SpawnTrackingLinkContainer::const_iterator> GetSpawnMetadataForSpawnTracking(uint32 spawnTrackingId) const { return Trinity::Containers::MapEqualRange(_spawnTrackingMapStore, spawnTrackingId); }
+        std::vector<QuestObjective const*> const* GetSpawnTrackingQuestObjectiveList(uint32 spawnTrackingId) const { auto it = _spawnTrackingQuestObjectiveStore.find(spawnTrackingId); return it != _spawnTrackingQuestObjectiveStore.end() ? &it->second : nullptr; }
+        bool IsQuestObjectiveForSpawnTracking(uint32 spawnTrackingId, uint32 questObjectiveId) const;
+
         MailLevelReward const* GetMailLevelReward(uint8 level, uint8 race) const
         {
             MailLevelRewardContainer::const_iterator map_itr = _mailLevelRewardStore.find(level);
@@ -1502,7 +1506,7 @@ class TC_GAME_API ObjectMgr
          */
         std::vector<TempSummonData> const* GetSummonGroup(uint32 summonerId, SummonerType summonerType, uint8 group) const
         {
-            TempSummonDataContainer::const_iterator itr = _tempSummonDataStore.find(TempSummonGroupKey(summonerId, summonerType, group));
+            auto itr = _tempSummonDataStore.find({ .SummonerEntry =  summonerId, .Type = summonerType, .SummonGroup = group });
             if (itr != _tempSummonDataStore.end())
                 return &itr->second;
 
@@ -1794,7 +1798,7 @@ class TC_GAME_API ObjectMgr
         // first free low guid for selected guid type
         ObjectGuidGenerator& GetGuidSequenceGenerator(HighGuid high);
 
-        std::map<HighGuid, std::unique_ptr<ObjectGuidGenerator>> _guidGenerators;
+        std::map<HighGuid, ObjectGuidGenerator> _guidGenerators;
         QuestContainer _questTemplates;
         std::vector<Quest const*> _questTemplatesAutoPush;
         QuestObjectivesByIdContainer _questObjectives;
@@ -1938,6 +1942,9 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<uint32, std::vector<uint32>> _spawnGroupsByMap;
         SpawnGroupLinkContainer _spawnGroupMapStore;
         InstanceSpawnGroupContainer _instanceSpawnGroupStore;
+        SpawnTrackingTemplateContainer _spawnTrackingDataStore;
+        SpawnTrackingLinkContainer _spawnTrackingMapStore;
+        SpawnTrackingQuestObjectiveContainer _spawnTrackingQuestObjectiveStore;
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
         std::unordered_map<int32 /*choiceId*/, PlayerChoice> _playerChoices;

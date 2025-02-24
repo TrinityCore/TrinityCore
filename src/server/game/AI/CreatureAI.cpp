@@ -17,7 +17,6 @@
 
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
@@ -27,6 +26,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapReference.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -124,7 +124,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->IsEngaged())
         return;
 
-    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
+    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false) && (me->IsAggroGracePeriodExpired() || me->GetMap()->Instanceable()))
         me->EngageWithTarget(who);
 }
 
@@ -172,7 +172,6 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
             return true;
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
-        case SUMMON_CATEGORY_UNK:
             if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup))
                 return true;
             switch (SummonTitle(properties->Title))

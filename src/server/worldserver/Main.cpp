@@ -105,7 +105,7 @@ public:
 
     static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
     {
-        freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
+        freezeDetector->_timer.expires_after(5s);
         freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr(freezeDetector)](boost::system::error_code const& error) mutable
         {
             Handler(std::move(freezeDetectorRef), error);
@@ -388,7 +388,6 @@ int main(int argc, char** argv)
 
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
-    uint16 instancePort = uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     int networkThreads = sConfigMgr->GetIntDefault("Network.Threads", 1);
@@ -400,7 +399,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, instancePort, networkThreads))
+    if (!sWorldSocketMgr.StartNetwork(*ioContext, worldListener, worldPort, networkThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
         World::StopNow(ERROR_EXIT_CODE);
@@ -624,7 +623,7 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 }
             }
 
-            freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
+            freezeDetector->_timer.expires_after(1s);
             freezeDetector->_timer.async_wait([freezeDetectorRef = std::move(freezeDetectorRef)](boost::system::error_code const& error) mutable
             {
                 Handler(std::move(freezeDetectorRef), error);

@@ -135,7 +135,7 @@ struct ItemData : public IsUpdateFieldStructureTag, public HasChangesMask<41>
     UpdateField<uint64, 0, 15> ArtifactXP;
     UpdateField<uint8, 0, 16> ItemAppearanceModID;
     UpdateField<UF::ItemModList, 0, 17> Modifiers;
-    UpdateField<uint32, 0, 18> DynamicFlags2;
+    UpdateField<uint32, 0, 18> ZoneFlags;
     UpdateField<WorldPackets::Item::ItemBonusKey, 0, 19> ItemBonusKey;
     UpdateField<uint16, 0, 20> DEBUGItemLevel;
     UpdateFieldArray<int32, 5, 21, 22> SpellCharges;
@@ -262,6 +262,7 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<220>
 {
     UpdateField<bool, 0, 1> Field_314;
     UpdateField<std::vector<uint32>, 0, 2> StateWorldEffectIDs;
+    struct StateWorldEffectIDsTag : ViewerDependentValueTag<std::vector<uint32>> {};
     DynamicUpdateField<UF::PassiveSpellHistory, 0, 3> PassiveSpells;
     DynamicUpdateField<int32, 0, 4> WorldEffects;
     DynamicUpdateField<ObjectGuid, 0, 5> ChannelObjects;
@@ -272,8 +273,11 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<220>
     UpdateField<uint32, 0, 8> NpcFlags2;
     struct NpcFlags2Tag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 9> StateSpellVisualID;
+    struct StateSpellVisualIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 10> StateAnimID;
+    struct StateAnimIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 11> StateAnimKitID;
+    struct StateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 12> StateWorldEffectsQuestObjectiveID;
     UpdateField<int32, 0, 13> SpellOverrideNameID;
     UpdateField<ObjectGuid, 0, 14> Charm;
@@ -481,9 +485,9 @@ struct PetCreatureName : public IsUpdateFieldStructureTag, public HasChangesMask
 
 struct CTROptions : public IsUpdateFieldStructureTag
 {
-    int32 ContentTuningConditionMask;
-    uint32 Field_4;
-    uint32 ExpansionLevelMask;
+    int32 ConditionalFlags;
+    uint32 FactionGroup;
+    uint32 ChromieTimeExpansionMask;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -757,10 +761,10 @@ struct ActivePlayerUnk901 : public IsUpdateFieldStructureTag, public HasChangesM
     void ClearChangesMask();
 };
 
-struct QuestSession : public IsUpdateFieldStructureTag, public HasChangesMask<953>
+struct QuestSession : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
     UpdateField<ObjectGuid, 0, 1> Owner;
-    UpdateFieldArray<uint64, 950, 2, 3> QuestCompleted;
+    UpdateField<UF::BitVector, 0, 2> QuestCompleted;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -1192,13 +1196,17 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
 struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<25>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
+    struct StateWorldEffectIDsTag : ViewerDependentValueTag<std::vector<uint32>> {};
     DynamicUpdateField<int32, 0, 2> EnableDoodadSets;
     DynamicUpdateField<int32, 0, 3> WorldEffects;
     UpdateField<int32, 0, 4> DisplayID;
     UpdateField<uint32, 0, 5> SpellVisualID;
     UpdateField<uint32, 0, 6> StateSpellVisualID;
+    struct StateSpellVisualIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 7> SpawnTrackingStateAnimID;
+    struct StateAnimIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 8> SpawnTrackingStateAnimKitID;
+    struct StateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 9> StateWorldEffectsQuestObjectiveID;
     UpdateField<ObjectGuid, 0, 10> CreatedBy;
     UpdateField<ObjectGuid, 0, 11> GuildGUID;
@@ -1275,7 +1283,7 @@ struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 
 struct VisualAnim : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
-    UpdateField<bool, 0, 1> Field_C;
+    UpdateField<bool, 0, 1> IsDecay;
     UpdateField<uint32, 0, 2> AnimationDataID;
     UpdateField<uint32, 0, 3> AnimKitID;
     UpdateField<uint32, 0, 4> AnimProgress;

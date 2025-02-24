@@ -107,6 +107,7 @@ enum class MovementStopReason : uint8;
 enum PlayerRestState : uint8;
 enum class PlayerCreateMode : int8;
 enum RestTypes : uint8;
+enum class SpawnTrackingState : uint8;
 enum TransferAbortReason : uint32;
 
 namespace BattlePets
@@ -156,6 +157,7 @@ enum PlayerDataFlagConstants
     PLAYER_DATA_FLAG_ACCOUNT_COMBINED_QUESTS_INDEX          = 6,
     PLAYER_DATA_FLAG_ACCOUNT_COMBINED_QUEST_REWARDS_INDEX   = 7,
     PLAYER_DATA_FLAG_CHARACTER_CONTENTPUSH_INDEX            = 8,
+    PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX        = 9,
 };
 
 enum SpellModType : uint8
@@ -408,8 +410,7 @@ struct Areas
 
 enum RuneCooldowns
 {
-    RUNE_BASE_COOLDOWN  = 10000,
-    RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
+    RUNE_BASE_COOLDOWN  = 10000
 };
 
 struct Runes
@@ -886,6 +887,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA_PROGRESS,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_SPAWN_TRACKING,
     PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_REPUTATION,
     PLAYER_LOGIN_QUERY_LOAD_INVENTORY,
@@ -1155,6 +1157,8 @@ enum class ZonePVPTypeOverride : uint32
     Combat      = 4
 };
 
+float constexpr TELEPORT_MIN_LOAD_SCREEN_DISTANCE = 200.0f;
+
 struct TeleportLocation
 {
     WorldLocation Location;
@@ -1183,9 +1187,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {});
-        bool TeleportTo(WorldLocation const& loc, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {});
-        bool TeleportTo(TeleportLocation const& teleportLocation, TeleportToOptions options = TELE_TO_NONE);
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {}, uint32 teleportSpellId = 0);
+        bool TeleportTo(WorldLocation const& loc, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {}, uint32 teleportSpellId = 0);
+        bool TeleportTo(TeleportLocation const& teleportLocation, TeleportToOptions options = TELE_TO_NONE, uint32 teleportSpellId = 0);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -1566,7 +1570,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool IsTwoHandUsed() const;
         bool IsUsingTwoHandedWeaponInOneHand() const;
         void SendNewItem(Item* item, uint32 quantity, bool received, bool created, bool broadcast = false, uint32 dungeonEncounterId = 0);
-        bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
+        bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint32 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
@@ -1706,14 +1710,15 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetQuestSlotEndTime(uint16 slot, time_t endTime);
         void SetQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex);
         void RemoveQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex);
-        void SetQuestCompletedBit(uint32 questBit, bool completed);
+        bool IsQuestCompletedBitSet(uint32 questId) const;
+        void SetQuestCompletedBit(uint32 questId, bool completed);
 
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const;
         void AreaExploredOrEventHappens(uint32 questId);
         void GroupEventHappens(uint32 questId, WorldObject const* pEventObject);
         void ItemAddedQuestCheck(uint32 entry, uint32 count, Optional<bool> boundItemFlagRequirement = {}, bool* hadBoundItemObjective = nullptr);
         void ItemRemovedQuestCheck(uint32 entry, uint32 count);
-        void KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid);
+        void KilledMonster(Creature const* creature);
         void KilledMonsterCredit(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
         void KilledPlayerCredit(ObjectGuid victimGuid);
         void KillCreditGO(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
@@ -1775,6 +1780,10 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         }
 
         bool HasPvPForcingQuest() const;
+
+        void SendForceSpawnTrackingUpdate(uint32 questId) const;
+        QuestObjective const* GetActiveQuestObjectiveForForSpawnTracking(uint32 spawnTrackingId) const;
+        SpawnTrackingState GetSpawnTrackingStateByObjective(uint32 spawnTrackingId, uint32 questObjectiveId) const;
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/
@@ -3024,6 +3033,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusObjectives(PreparedQueryResult result);
+        void _LoadQuestStatusObjectiveSpawnTrackings(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
@@ -3263,6 +3273,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         // Current teleport data
         TeleportLocation m_teleport_dest;
         TeleportToOptions m_teleport_options;
+        uint32 m_teleportSpellId;
         int32 m_newWorldCounter;
         bool mSemaphoreTeleport_Near;
         bool mSemaphoreTeleport_Far;

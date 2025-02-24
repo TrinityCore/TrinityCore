@@ -66,12 +66,11 @@ namespace WorldPackets
 
             void Initialize(Player const* inviter, int32 proposedRoles, bool canAccept);
 
-            bool MightCRZYou = false;
-            bool MustBeBNetFriend = false;
+            bool ShouldSquelch = false;
             bool AllowMultipleRoles = false;
             bool QuestSessionActive = false;
-            bool Unused1102 = false;
-            uint16 Unk1 = 0;
+            bool IsCrossFaction = false;
+            uint16 InviterCfgRealmID = 0;
 
             bool CanAccept = false;
 
@@ -83,6 +82,7 @@ namespace WorldPackets
 
             // Realm
             bool IsXRealm = false;
+            bool IsXNativeRealm = false;
 
             // Lfg
             uint8 ProposedRoles = 0;
@@ -178,9 +178,9 @@ namespace WorldPackets
 
         struct CTROptions
         {
-            uint32 ContentTuningConditionMask = 0;
-            int32 Unused901 = 0;
-            uint32 ExpansionLevelMask = 0;
+            uint32 ConditionalFlags = 0;
+            int32 FactionGroup = 0;
+            uint32 ChromieTimeExpansionMask = 0;
         };
 
         struct PartyMemberStats
