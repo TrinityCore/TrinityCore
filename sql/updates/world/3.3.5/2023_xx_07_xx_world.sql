@@ -18,4 +18,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 38629, 0, 1, 31, 0, 3, 22367, 0, 0, 0, 0, '', 'Poison Keg Targets [DND]Ripe Moonshine Keg Credit'),
 (13, 1, 38629, 0, 2, 31, 0, 3, 22368, 0, 0, 0, 0, '', 'Poison Keg Targets [DND]Fermented Seed Beer Keg Credit');
 
-UPDATE `creature_template_addon` SET `auras` = '32754' WHERE `entry` IN (22356,22367,22368);
+UPDATE `creature_template` SET `ScriptName` = 'npc_q10720_key_credit' WHERE `entry` IN (22356,22367,22368);

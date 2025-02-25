@@ -41,6 +41,7 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include <DBCStores.h>
 
 /*######
 ## npc_nether_drake
@@ -1019,6 +1020,14 @@ enum Marmot
     SPELL_COAX_MARMOT              = 38544
 };
 
+struct npc_q10720_key_credit : public ScriptedAI
+{
+    npc_q10720_key_credit(Creature * creature) : ScriptedAI(creature)
+    {
+        creature->m_invisibilityDetect.AddFlag(INVISIBILITY_UNK4);
+    }
+};
+
 #define CoaxMarmotScriptName "spell_coax_marmot"
 class spell_coax_marmot : public SpellScriptLoader
 {
@@ -1035,8 +1044,10 @@ public:
             uint32 entry = uint32(GetEffectInfo().MiscValue);
             Unit* caster = GetCaster();
             Position pos = caster->GetPosition();
+            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
+            uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
-            if (Creature* marmot = caster->SummonCreature(entry, pos))
+            if (Creature* marmot = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
             {
                 caster->CastSpell(marmot, SPELL_CHARM_REXXARS_RODENT, true);
                 _marmotGuid = marmot->GetGUID();
@@ -1150,6 +1161,7 @@ void AddSC_blades_edge_mountains()
     new go_apexis_relic();
     new npc_oscillating_frequency_scanner_master_bunny();
     new spell_oscillating_field();
+    RegisterCreatureAI(npc_q10720_key_credit);
     new spell_coax_marmot();
     RegisterSpellScript(spell_charm_rexxars_rodent);
     RegisterSpellScript(spell_stealth_marmot);
