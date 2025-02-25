@@ -1305,7 +1305,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 
     // 0 - ok
     // 1, 3 - not enough money
-    // 2 - you have to seat on barber chair
+    // 2 - you have to sit on barber chair
     if (!_player->HasEnoughMoney(cost))
     {
         SendBarberShopResult(BARBER_SHOP_RESULT_NO_MONEY);

@@ -83,7 +83,7 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& pa
 
     if (dest.size() == 1 && dest[0].pos == item->GetPos())
     {
-        _player->SendEquipError(EQUIP_ERR_NONE, item, nullptr);
+        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, nullptr);
         return;
     }
 

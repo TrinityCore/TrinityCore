@@ -21,15 +21,15 @@
 #include "BattlegroundScore.h"
 #include <sstream>
 
-struct TC_GAME_API ArenaScore : public BattlegroundScore
+struct TC_GAME_API ArenaScore final : public BattlegroundScore
 {
     friend class Arena;
 
     protected:
         ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE) { }
 
-        void AppendToPacket(WorldPacket& data) final override;
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void AppendToPacket(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
         // For Logging purpose
         std::string ToString() const override
@@ -50,8 +50,6 @@ struct TC_GAME_API ArenaTeamScore
     protected:
         ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) { }
 
-        virtual ~ArenaTeamScore() { }
-
         void Reset()
         {
             RatingChange = 0;
@@ -65,9 +63,6 @@ struct TC_GAME_API ArenaTeamScore
             MatchmakerRating = matchMakerRating;
             TeamName = teamName;
         }
-
-        void BuildRatingInfoBlock(WorldPacket& data);
-        void BuildTeamInfoBlock(WorldPacket& data);
 
         int32 RatingChange;
         uint32 MatchmakerRating;

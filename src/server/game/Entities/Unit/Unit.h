@@ -21,6 +21,7 @@
 #include "Object.h"
 #include "CombatManager.h"
 #include "SpellAuraDefines.h"
+#include "PetDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
@@ -500,13 +501,12 @@ class TC_GAME_API HealInfo
 class TC_GAME_API ProcEventInfo
 {
     public:
-        ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask,
+        ProcEventInfo(Unit* actor, Unit* actionTarget, uint32 typeMask,
                       uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
         Unit* GetActor() { return _actor; }
         Unit* GetActionTarget() const { return _actionTarget; }
-        Unit* GetProcTarget() const { return _procTarget; }
 
         uint32 GetTypeMask() const { return _typeMask; }
         uint32 GetSpellTypeMask() const { return _spellTypeMask; }
@@ -524,7 +524,6 @@ class TC_GAME_API ProcEventInfo
     private:
         Unit* const _actor;
         Unit* const _actionTarget;
-        Unit* const _procTarget;
         uint32 _typeMask;
         uint32 _spellTypeMask;
         uint32 _spellPhaseMask;
@@ -931,6 +930,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetPowerType(Powers power, bool sendUpdate = true);
         void UpdateDisplayPower();
         uint32 GetPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_POWER1 + int32(power)); }
+        int32 GetMinPower(Powers /*power*/) const { return 0; }
         uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + int32(power)); }
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
@@ -1182,8 +1182,8 @@ class TC_GAME_API Unit : public WorldObject
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint8 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisual(uint32 id) const;
-        void SendPlaySpellImpact(ObjectGuid guid, uint32 id) const;
+
+        void SendPlaySpellVisualKit(uint32 id, uint32 type) const;
 
         void DeMorph();
 
@@ -1204,6 +1204,7 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
 
+        void SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin);
         void KnockbackFrom(float x, float y, float speedXY, float speedZ);
         void JumpTo(float speedXY, float speedZ, bool forward = true, Optional<Position> dest = {});
         void JumpTo(WorldObject* obj, float speedZ, bool withOrientation = false);
@@ -1705,9 +1706,10 @@ class TC_GAME_API Unit : public WorldObject
         void ClearComboPointHolders();
 
         ///----------Pet responses methods-----------------
-        void SendPetActionFeedback(uint8 msg);
-        void SendPetTalk(uint32 pettalk);
-        void SendPetAIReaction(ObjectGuid guid);
+        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId) const;
+        void SendPetActionSound(PetAction action) const;
+        void SendPetDismissSound() const;
+        void SendPetAIReaction(ObjectGuid guid) const;
         ///----------End of Pet responses methods----------
 
         void PropagateSpeedChange();
@@ -1831,6 +1833,7 @@ class TC_GAME_API Unit : public WorldObject
         explicit Unit (bool isWorldObject);
 
         void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const override;
+        void DestroyForPlayer(Player* target, bool onDeath) const override;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();

@@ -294,7 +294,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     }
 }
 
-bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, WorldObject const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
+bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, WorldObject const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /* = 0*/) const
 {
     switch (dataType)
     {
@@ -350,7 +350,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             return unitTarget->HasAuraEffect(aura.spell_id, aura.effect_idx);
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
-            return CompareValues(ComparisionType(value.compType), miscvalue1, value.value);
+            return CompareValues(ComparisionType(value.compType), miscValue1, value.value);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
         {
             if (!target)
@@ -422,13 +422,13 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             Unit const* unitTarget = nullptr;
             if (target)
                 unitTarget = target->ToUnit();
-            return instance->CheckAchievementCriteriaMeet(criteria_id, source, unitTarget, miscvalue1);
+            return instance->CheckAchievementCriteriaMeet(criteria_id, source, unitTarget, miscValue1);
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
             AchievementCriteriaEntry const* entry = ASSERT_NOTNULL(sAchievementMgr->GetAchievementCriteria(criteria_id));
 
-            uint32 itemId = (entry->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscvalue2 : miscvalue1);
+            uint32 itemId = (entry->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
             if (!itemTemplate)
                 return false;
@@ -457,7 +457,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
         {
-            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscvalue1);
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
                 return false;
             return pProto->Quality == item.item_quality;
@@ -468,10 +468,10 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
     return false;
 }
 
-bool AchievementCriteriaDataSet::Meets(Player const* source, WorldObject const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
+bool AchievementCriteriaDataSet::Meets(Player const* source, WorldObject const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /* = 0*/) const
 {
     for (AchievementCriteriaData const& criteriadata : storage)
-        if (!criteriadata.Meets(criteria_id, source, target, miscvalue1, miscvalue2))
+        if (!criteriadata.Meets(criteria_id, source, target, miscValue1, miscValue2))
             return false;
 
     return true;
@@ -845,7 +845,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
-            // std case: increment at miscvalue1
+            // std case: increment at miscValue1
             case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
             case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
             case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
@@ -861,7 +861,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
                 SetCriteriaProgress(achievementCriteria, miscValue1, PROGRESS_ACCUMULATE);
                 break;
-            // std case: increment at miscvalue2
+            // std case: increment at miscValue2
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
@@ -869,7 +869,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
                 SetCriteriaProgress(achievementCriteria, miscValue2, PROGRESS_ACCUMULATE);
                 break;
-            // std case: high value at miscvalue1
+            // std case: high value at miscValue1
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD: /* FIXME: for online player only currently */
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
@@ -949,7 +949,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
-                // miscvalue1 is the ingame fallheight*100 as stored in dbc
+                // miscValue1 is the ingame fallheight*100 as stored in dbc
                 SetCriteriaProgress(achievementCriteria, miscValue1);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
@@ -1871,8 +1871,8 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-            // miscvalue1=loot_type (note: 0 = LOOT_CORPSE and then it ignored)
-            // miscvalue2=count of item loot
+            // miscValue1=loot_type (note: 0 = LOOT_CORPSE and then it ignored)
+            // miscValue2=count of item loot
             if (!miscValue1 || !miscValue2)
                 return false;
             if (miscValue1 != achievementCriteria->Asset.LootType)
@@ -1924,8 +1924,8 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            // miscvalue1 = itemSlot
-            // miscvalue2 = itemid
+            // miscValue1 = itemSlot
+            // miscValue2 = itemid
             if (!miscValue2)
                 return false;
             if (miscValue1 != achievementCriteria->Asset.ItemSlot)
@@ -1933,15 +1933,15 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
-            // miscvalue1 = itemid
-            // miscvalue2 = diced value
+            // miscValue1 = itemid
+            // miscValue2 = diced value
             if (!miscValue1)
                 return false;
             if (miscValue2 != achievementCriteria->Asset.RollValue)
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
-            // miscvalue1 = emote
+            // miscValue1 = emote
             if (!miscValue1)
                 return false;
             if (miscValue1 != achievementCriteria->Asset.EmoteID)
