@@ -26,9 +26,9 @@ WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
     _worldPacket << int32(ConquestWeeklyProgressCurrencyID);
     _worldPacket << int32(PvpSeasonID);
     _worldPacket << int32(Unknown1027_1);
-    _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
-    _worldPacket.WriteBit(CurrentArenaSeasonUsesTeams);
-    _worldPacket.WriteBit(PreviousArenaSeasonUsesTeams);
+    _worldPacket << Bits<1>(WeeklyRewardChestsEnabled);
+    _worldPacket << Bits<1>(CurrentArenaSeasonUsesTeams);
+    _worldPacket << Bits<1>(PreviousArenaSeasonUsesTeams);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -203,8 +203,9 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusActive::Write()
     _worldPacket << uint32(Mapid);
     _worldPacket << uint32(ShutdownTimer);
     _worldPacket << uint32(StartTimer);
-    _worldPacket.WriteBit(ArenaFaction != 0);
-    _worldPacket.WriteBit(LeftEarly);
+    _worldPacket << Bits<1>(ArenaFaction != 0);
+    _worldPacket << Bits<1>(LeftEarly);
+    _worldPacket << Bits<1>(Brawl);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
@@ -215,9 +216,9 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusQueued::Write()
     _worldPacket << uint32(AverageWaitTime);
     _worldPacket << uint32(WaitTime);
     _worldPacket << int32(SpecSelected);
-    _worldPacket.WriteBit(AsGroup);
-    _worldPacket.WriteBit(EligibleForMatchmaking);
-    _worldPacket.WriteBit(SuspendedQueue);
+    _worldPacket << Bits<1>(AsGroup);
+    _worldPacket << Bits<1>(EligibleForMatchmaking);
+    _worldPacket << Bits<1>(SuspendedQueue);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
@@ -234,7 +235,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusFailed::Write()
 void WorldPackets::Battleground::BattlefieldPort::Read()
 {
     _worldPacket >> Ticket;
-    AcceptedInvite = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(AcceptedInvite);
 }
 
 void WorldPackets::Battleground::BattlefieldListRequest::Read()
@@ -252,24 +253,24 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
     if (!Battlefields.empty())
         _worldPacket.append(Battlefields.data(), Battlefields.size());
 
-    _worldPacket.WriteBit(PvpAnywhere);
-    _worldPacket.WriteBit(HasRandomWinToday);
+    _worldPacket << Bits<1>(PvpAnywhere);
+    _worldPacket << Bits<1>(HasRandomWinToday);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Battleground::PVPOptionsEnabled::Write()
 {
-    _worldPacket.WriteBit(RatedBattlegrounds);
-    _worldPacket.WriteBit(PugBattlegrounds);
-    _worldPacket.WriteBit(WargameBattlegrounds);
-    _worldPacket.WriteBit(WargameArenas);
-    _worldPacket.WriteBit(RatedArenas);
-    _worldPacket.WriteBit(ArenaSkirmish);
-    _worldPacket.WriteBit(SoloShuffle);
-    _worldPacket.WriteBit(RatedSoloShuffle);
-    _worldPacket.WriteBit(BattlegroundBlitz);
-    _worldPacket.WriteBit(RatedBattlegroundBlitz);
+    _worldPacket << Bits<1>(RatedBattlegrounds);
+    _worldPacket << Bits<1>(PugBattlegrounds);
+    _worldPacket << Bits<1>(WargameBattlegrounds);
+    _worldPacket << Bits<1>(WargameArenas);
+    _worldPacket << Bits<1>(RatedArenas);
+    _worldPacket << Bits<1>(ArenaSkirmish);
+    _worldPacket << Bits<1>(SoloShuffle);
+    _worldPacket << Bits<1>(RatedSoloShuffle);
+    _worldPacket << Bits<1>(BattlegroundBlitz);
+    _worldPacket << Bits<1>(RatedBattlegroundBlitz);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
@@ -375,9 +376,9 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchInitialize::Write()
     _worldPacket << Duration;
     _worldPacket << uint8(ArenaFaction);
     _worldPacket << uint32(BattlemasterListID);
-    _worldPacket.WriteBit(Registered);
-    _worldPacket.WriteBit(AffectsRating);
-    _worldPacket.WriteBit(DeserterPenalty.has_value());
+    _worldPacket << Bits<1>(Registered);
+    _worldPacket << Bits<1>(AffectsRating);
+    _worldPacket << OptionalInit(DeserterPenalty);
     _worldPacket.FlushBits();
 
     if (DeserterPenalty)
@@ -397,8 +398,8 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchComplete::Write()
 {
     _worldPacket << uint8(Winner);
     _worldPacket << Duration;
-    _worldPacket.WriteBit(LogData.has_value());
-    _worldPacket.WriteBits(SoloShuffleStatus, 2);
+    _worldPacket << OptionalInit(LogData);
+    _worldPacket << Bits<2>(SoloShuffleStatus);
     _worldPacket.FlushBits();
 
     if (LogData)

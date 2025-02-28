@@ -23,10 +23,10 @@ void WorldSession::HandleCollectionItemSetFavorite(WorldPackets::Collections::Co
 {
     switch (collectionItemSetFavorite.Type)
     {
-        case WorldPackets::Collections::TOYBOX:
+        case ItemCollectionType::Toy:
             GetCollectionMgr()->ToySetFavorite(collectionItemSetFavorite.ID, collectionItemSetFavorite.IsFavorite);
             break;
-        case WorldPackets::Collections::APPEARANCE:
+        case ItemCollectionType::Transmog:
         {
             auto [hasAppearance, isTemporary] = GetCollectionMgr()->HasItemAppearance(collectionItemSetFavorite.ID);
             if (!hasAppearance || isTemporary)
@@ -35,7 +35,7 @@ void WorldSession::HandleCollectionItemSetFavorite(WorldPackets::Collections::Co
             GetCollectionMgr()->SetAppearanceIsFavorite(collectionItemSetFavorite.ID, collectionItemSetFavorite.IsFavorite);
             break;
         }
-        case WorldPackets::Collections::TRANSMOG_SET:
+        case ItemCollectionType::TransmogSetFavorite:
             break;
         default:
             break;

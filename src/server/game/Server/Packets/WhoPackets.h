@@ -84,9 +84,9 @@ namespace WorldPackets
             void Read() override;
 
             WhoRequest Request;
-            uint32 RequestID = 0;
+            uint32 Token = 0;
             uint8 Origin = 0;   // 1 = Social, 2 = Chat, 3 = Item
-            bool IsFromAddOn = false;
+            bool IsAddon = false;
             Array<int32, 10> Areas;
         };
 
@@ -112,7 +112,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 RequestID = 0;
+            uint32 Token = 0;
             WhoResponse Response;
         };
     }

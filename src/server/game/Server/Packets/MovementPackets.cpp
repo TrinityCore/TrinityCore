@@ -674,8 +674,10 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 {
     _worldPacket << int32(MapID);
     _worldPacket << OldMapPosition;
-    _worldPacket.WriteBit(Ship.has_value());
-    _worldPacket.WriteBit(TransferSpellID.has_value());
+    _worldPacket << OptionalInit(Ship);
+    _worldPacket << OptionalInit(TransferSpellID);
+    _worldPacket.FlushBits();
+
     if (Ship)
     {
         _worldPacket << uint32(Ship->ID);
@@ -685,7 +687,6 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
     if (TransferSpellID)
         _worldPacket << int32(*TransferSpellID);
 
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -1054,7 +1055,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     data << uint32(stateChange.MessageID);
     data << uint32(stateChange.SequenceIndex);
     data.WriteBit(stateChange.Speed.has_value());
-    data.WriteBit(stateChange.SpeedRange.has_value());
+    data.WriteBit(stateChange.Range.has_value());
     data.WriteBit(stateChange.KnockBack.has_value());
     data.WriteBit(stateChange.VehicleRecID.has_value());
     data.WriteBit(stateChange.CollisionHeight.has_value());
@@ -1070,10 +1071,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     if (stateChange.Speed)
         data << float(*stateChange.Speed);
 
-    if (stateChange.SpeedRange)
+    if (stateChange.Range)
     {
-        data << float(stateChange.SpeedRange->Min);
-        data << float(stateChange.SpeedRange->Max);
+        data << float(stateChange.Range->Min);
+        data << float(stateChange.Range->Max);
     }
 
     if (stateChange.KnockBack)

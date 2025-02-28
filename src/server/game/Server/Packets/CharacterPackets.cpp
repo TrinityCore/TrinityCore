@@ -236,12 +236,12 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     for (ChrCustomizationChoice const& customization : charInfo.Customizations)
         data << customization;
 
-    data << BitsSize<6>(charInfo.Name);
+    data << SizedString::BitsSize<6>(charInfo.Name);
     data << Bits<1>(charInfo.FirstLogin);
 
     data.FlushBits();
 
-    data.WriteString(charInfo.Name);
+    data << SizedString::Data(charInfo.Name);
 
     return data;
 }
@@ -263,13 +263,12 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterRestrict
         data.append(restrictionsAndMails.MailSenderTypes.data(), restrictionsAndMails.MailSenderTypes.size());
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        data << Bits<6>(str.length() + 1);
+        data << SizedCString::BitsSize<6>(str);
 
     data.FlushBits();
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        if (!str.empty())
-            data << str;
+        data << SizedCString::Data(str);
 
     return data;
 }

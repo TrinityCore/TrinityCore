@@ -69,30 +69,27 @@ void QueryCreature::Read()
 WorldPacket const* QueryCreatureResponse::Write()
 {
     _worldPacket << uint32(CreatureID);
-    _worldPacket.WriteBit(Allow);
+    _worldPacket << Bits<1>(Allow);
 
     _worldPacket.FlushBits();
 
     if (Allow)
     {
-        _worldPacket.WriteBits(Stats.Title.length() + 1, 11);
-        _worldPacket.WriteBits(Stats.TitleAlt.length() + 1, 11);
-        _worldPacket.WriteBits(Stats.CursorName.length() + 1, 6);
-        _worldPacket.WriteBit(Stats.Leader);
+        _worldPacket << SizedCString::BitsSize<11>(Stats.Title);
+        _worldPacket << SizedCString::BitsSize<11>(Stats.TitleAlt);
+        _worldPacket << SizedCString::BitsSize<6>(Stats.CursorName);
+        _worldPacket << Bits<1>(Stats.Leader);
 
         for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
-            _worldPacket.WriteBits(Stats.Name[i].length() + 1, 11);
-            _worldPacket.WriteBits(Stats.NameAlt[i].length() + 1, 11);
+            _worldPacket << SizedCString::BitsSize<11>(Stats.Name[i]);
+            _worldPacket << SizedCString::BitsSize<11>(Stats.NameAlt[i]);
         }
 
         for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
-            if (!Stats.Name[i].empty())
-                _worldPacket << Stats.Name[i];
-
-            if (!Stats.NameAlt[i].empty())
-                _worldPacket << Stats.NameAlt[i];
+            _worldPacket << SizedCString::Data(Stats.Name[i]);
+            _worldPacket << SizedCString::Data(Stats.NameAlt[i]);
         }
 
         _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
@@ -123,14 +120,9 @@ WorldPacket const* QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.WidgetSetID);
         _worldPacket << int32(Stats.WidgetSetUnitConditionID);
 
-        if (!Stats.Title.empty())
-            _worldPacket << Stats.Title;
-
-        if (!Stats.TitleAlt.empty())
-            _worldPacket << Stats.TitleAlt;
-
-        if (!Stats.CursorName.empty())
-            _worldPacket << Stats.CursorName;
+        _worldPacket << SizedCString::Data(Stats.Title);
+        _worldPacket << SizedCString::Data(Stats.TitleAlt);
+        _worldPacket << SizedCString::Data(Stats.CursorName);
 
         if (!Stats.QuestItems.empty())
             _worldPacket.append(Stats.QuestItems.data(), Stats.QuestItems.size());

@@ -412,9 +412,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Guid;
-            uint32 PurchasedItemDeliveryDelay = 0;
-            uint32 CancelledItemDeliveryDelay = 0;
+            ObjectGuid Auctioneer;
+            uint32 PurchaseDeliveryDelay = 0;
+            uint32 CancelDeliveryDelay = 0;
             bool OpenForBusiness = true;
         };
 

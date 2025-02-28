@@ -148,7 +148,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(false); // unused 10.2.7
     _worldPacket << Bits<1>(GuildEventsEditsEnabled);
     _worldPacket << Bits<1>(GuildTradeSkillsEnabled);
-    _worldPacket << BitsSize<7>(Unknown1027);
+    _worldPacket << SizedString::BitsSize<7>(Unknown1027);
     _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(IsAccountCurrencyTransferEnabled);
@@ -192,7 +192,7 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
-    _worldPacket.WriteString(Unknown1027);
+    _worldPacket << SizedString::Data(Unknown1027);
 
     {
         _worldPacket << Bits<1>(Squelch.IsSquelched);

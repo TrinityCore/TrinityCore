@@ -210,6 +210,7 @@ namespace WorldPackets
             uint32 ShutdownTimer = 0;
             uint8 ArenaFaction = 0;
             bool LeftEarly = false;
+            bool Brawl = false;
             uint32 StartTimer = 0;
             uint32 Mapid = 0;
         };

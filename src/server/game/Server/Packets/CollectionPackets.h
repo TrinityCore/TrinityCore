@@ -15,23 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CollectionPackets_h__
-#define CollectionPackets_h__
+#ifndef TRINITYCORE_COLLECTION_PACKETS_H
+#define TRINITYCORE_COLLECTION_PACKETS_H
 
+#include "DBCEnums.h"
 #include "Packet.h"
 
 namespace WorldPackets
 {
     namespace Collections
     {
-        enum CollectionType : int32
-        {
-            NONE            = -1,
-            TOYBOX          = 1,
-            APPEARANCE      = 3,
-            TRANSMOG_SET    = 4
-        };
-
         class CollectionItemSetFavorite final : public ClientPacket
         {
         public:
@@ -39,11 +32,11 @@ namespace WorldPackets
 
             void Read() override;
 
-            CollectionType Type = NONE;
+            ItemCollectionType Type = ItemCollectionType::None;
             uint32 ID = 0;
             bool IsFavorite = false;
         };
     }
 }
 
-#endif // CollectionPackets_h__
+#endif // TRINITYCORE_COLLECTION_PACKETS_H
