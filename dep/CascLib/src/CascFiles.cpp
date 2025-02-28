@@ -496,16 +496,7 @@ static DWORD LoadVfsRootEntry(TCascStorage * hs, const char * szVariableName, co
 
 static DWORD LoadBuildProductId(TCascStorage * hs, const char * /* szVariableName */, const char * szDataBegin, const char * szDataEnd, void * /* pvParam */)
 {
-    size_t nLength = (szDataEnd - szDataBegin);
-
-    if(hs->szCodeName == NULL)
-    {
-        if((hs->szCodeName = CASC_ALLOC<TCHAR>(nLength + 1)) != NULL)
-        {
-            CascStrCopy(hs->szCodeName, nLength + 1, szDataBegin, nLength);
-        }
-    }
-
+    hs->SetProductCodeName(szDataBegin, (szDataEnd - szDataBegin));
     return ERROR_SUCCESS;
 }
 
@@ -557,14 +548,6 @@ static int LoadQueryKey(const CASC_CSV_COLUMN & Column, CASC_BLOB & Key)
         return ERROR_BAD_FORMAT;
 
     return LoadHashArray(&Key, Column.szValue, Column.szValue + Column.nLength, 1);
-}
-
-static void SetProductCodeName(TCascStorage * hs, LPCSTR szCodeName)
-{
-    if(hs->szCodeName == NULL && szCodeName != NULL)
-    {
-        hs->szCodeName = CascNewStrA2T(szCodeName);
-    }
 }
 
 static DWORD GetDefaultCdnServers(TCascStorage * hs, const CASC_CSV_COLUMN & Column)
@@ -661,12 +644,12 @@ static DWORD ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
                 return ERROR_CANCELLED;
 
             // We now have preferred product to open
-            SetProductCodeName(hs, ProductsList[nChoiceIndex]);
+            hs->SetProductCodeName(ProductsList[nChoiceIndex]);
         }
         else if(nProductCount == 1)
         {
             // We now have preferred product to open
-            SetProductCodeName(hs, ProductsList[nDefault]);
+            hs->SetProductCodeName(ProductsList[nDefault]);
         }
         else
         {
@@ -692,7 +675,7 @@ static DWORD ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
                     continue;
 
                 // Save the code name of the selected product
-                SetProductCodeName(hs, Csv[i]["Product!STRING:0"].szValue);
+                hs->SetProductCodeName(Csv[i]["Product!STRING:0"].szValue);
                 nSelected = i;
                 break;
             }
@@ -949,7 +932,7 @@ static DWORD LoadCsvFile(TCascStorage * hs, PARSE_REGION_LINE PfnParseRegionLine
     {
         // Inform the user that we are downloading something
         CascStrCopy(szFileNameA, _countof(szFileNameA), szFileName);
-        if(InvokeProgressCallback(hs, "Downloading the \"%s\" file", szFileNameA, 0, 0))
+        if(InvokeProgressCallback(hs, CascProgressDownloadingFile, szFileNameA, 0, 0))
             return ERROR_CANCELLED;
 
         // Download the file using Ribbit/HTTP protocol
@@ -1275,6 +1258,23 @@ static DWORD HttpDownloadFile(
     return dwErrCode;
 }
 
+DWORD SetProductCodeName(TCascStorage * hs, LPCSTR szCodeName, size_t nLength)
+{
+    if(hs->szCodeName == NULL && szCodeName != NULL)
+    {
+        // Make sure we have the length
+        if(nLength == 0)
+        {
+            nLength = strlen(szCodeName);
+        }
+
+        if((hs->szCodeName = CASC_ALLOC<TCHAR>(nLength + 1)) == NULL)
+            return ERROR_NOT_ENOUGH_MEMORY;
+        CascStrCopy(hs->szCodeName, nLength + 1, szCodeName, nLength);
+    }
+    return ERROR_SUCCESS;
+}
+
 DWORD FetchCascFile(
     TCascStorage * hs,
     LPCTSTR szRootPath,
@@ -1450,13 +1450,13 @@ static LPTSTR CheckForDirectories(LPCTSTR szParentFolder, ...)
 //-----------------------------------------------------------------------------
 // Public functions
 
-bool InvokeProgressCallback(TCascStorage * hs, LPCSTR szMessage, LPCSTR szObject, DWORD CurrentValue, DWORD TotalValue)
+bool InvokeProgressCallback(TCascStorage * hs, CASC_PROGRESS_MSG Message, LPCSTR szObject, DWORD CurrentValue, DWORD TotalValue)
 {
     PCASC_OPEN_STORAGE_ARGS pArgs = hs->pArgs;
     bool bResult = false;
 
     if(pArgs && pArgs->PfnProgressCallback)
-        bResult = pArgs->PfnProgressCallback(pArgs->PtrProgressParam, szMessage, szObject, CurrentValue, TotalValue);
+        bResult = pArgs->PfnProgressCallback(pArgs->PtrProgressParam, Message, szObject, CurrentValue, TotalValue);
     return bResult;
 }
 
@@ -1522,14 +1522,14 @@ DWORD CheckCascBuildFileExact(CASC_BUILD_FILE & BuildFile, LPCTSTR szLocalPath)
     }
 
     // Unrecognized file name
-    return ERROR_BAD_FORMAT;
+    return ERROR_FILE_NOT_FOUND;
 }
 
 DWORD CheckCascBuildFileDirs(CASC_BUILD_FILE & BuildFile, LPCTSTR szLocalPath)
 {
     CASC_PATH<TCHAR> WorkPath(szLocalPath, NULL);
-    DWORD dwErrCode = ERROR_FILE_NOT_FOUND;
-
+    DWORD dwLevelCount = 0;
+    
     // Clear the build file structure
     memset(&BuildFile, 0, sizeof(CASC_BUILD_FILE));
 
@@ -1547,16 +1547,15 @@ DWORD CheckCascBuildFileDirs(CASC_BUILD_FILE & BuildFile, LPCTSTR szLocalPath)
             }
         }
 
-        // Try to cut off one path path
-        if(!WorkPath.CutLastPart())
+        // Try to cut off one path path. Don't go indefinitely.
+        if((dwLevelCount > 5) || !WorkPath.CutLastPart())
         {
-            dwErrCode = ERROR_PATH_NOT_FOUND;
             break;
         }
     }
 
-    // Unrecognized file name
-    return dwErrCode;
+    // None of the supported file names was found
+    return ERROR_FILE_NOT_FOUND;
 }
 
 DWORD CheckOnlineStorage(PCASC_OPEN_STORAGE_ARGS pArgs, CASC_BUILD_FILE & BuildFile, bool bOnlineStorage)
@@ -1616,6 +1615,7 @@ DWORD CheckArchiveFilesDirectories(TCascStorage * hs)
 DWORD CheckDataFilesDirectory(TCascStorage * hs)
 {
     CASC_PATH<TCHAR> DataPath(hs->szRootPath, _T("data"), NULL);
+    DWORD dwErrCode;
     bool bTwoDigitFolderFound = false;
 
     // When CASC_FEATURE_ONLINE is not set, then the folder must exist
@@ -1623,17 +1623,15 @@ DWORD CheckDataFilesDirectory(TCascStorage * hs)
     {
         // Check if there are subfolders at all. If not, do not bother
         // the file system with open requests into data files folder
-        if(ScanDirectory(DataPath, CheckForTwoDigitFolder, NULL, &bTwoDigitFolderFound) != ERROR_SUCCESS)
-            return ERROR_PATH_NOT_FOUND;
+        if((dwErrCode = ScanDirectory(DataPath, CheckForTwoDigitFolder, NULL, &bTwoDigitFolderFound)) != ERROR_SUCCESS)
+            return dwErrCode;
 
         if(bTwoDigitFolderFound == false)
             return ERROR_PATH_NOT_FOUND;
     }
 
     // Create the path for raw files
-    if((hs->szFilesPath = DataPath.New()) == NULL)
-        return ERROR_NOT_ENOUGH_MEMORY;
-    return ERROR_SUCCESS;
+    return ((hs->szFilesPath = DataPath.New()) == NULL) ? ERROR_NOT_ENOUGH_MEMORY : ERROR_SUCCESS;
 }
 
 DWORD LoadBuildFile_Versions_Cdns(TCascStorage * hs)
@@ -1705,7 +1703,7 @@ DWORD LoadCdnConfigFile(TCascStorage * hs)
     assert(hs->CdnConfigKey.pbData != NULL && hs->CdnConfigKey.cbData == MD5_HASH_SIZE);
 
     // Inform the user about what we are doing
-    if(InvokeProgressCallback(hs, "Loading CDN config file", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, CascProgressLoadingFile, "CDN config", 0, 0))
         return ERROR_CANCELLED;
 
     // Load the CDN config file
@@ -1718,7 +1716,7 @@ DWORD LoadCdnBuildFile(TCascStorage * hs)
     assert(hs->CdnBuildKey.pbData != NULL && hs->CdnBuildKey.cbData == MD5_HASH_SIZE);
 
     // Inform the user about what we are doing
-    if(InvokeProgressCallback(hs, "Loading CDN build file", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, CascProgressLoadingFile, "CDN build", 0, 0))
         return ERROR_CANCELLED;
 
     // Load the CDN config file. Note that we don't
