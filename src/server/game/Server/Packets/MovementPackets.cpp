@@ -687,7 +687,6 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
     if (TransferSpellID)
         _worldPacket << int32(*TransferSpellID);
 
-
     return &_worldPacket;
 }
 

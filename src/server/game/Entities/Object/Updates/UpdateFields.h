@@ -1204,9 +1204,9 @@ struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<
     UpdateField<uint32, 0, 6> StateSpellVisualID;
     struct StateSpellVisualIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 7> SpawnTrackingStateAnimID;
-    struct StateAnimIDTag : ViewerDependentValueTag<uint32> {};
+    struct SpawnTrackingStateAnimIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 8> SpawnTrackingStateAnimKitID;
-    struct StateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
+    struct SpawnTrackingStateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 9> StateWorldEffectsQuestObjectiveID;
     UpdateField<ObjectGuid, 0, 10> CreatedBy;
     UpdateField<ObjectGuid, 0, 11> GuildGUID;

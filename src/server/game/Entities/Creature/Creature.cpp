@@ -3205,7 +3205,7 @@ SpawnTrackingStateData const* Creature::GetSpawnTrackingStateDataForPlayer(Playe
     if (!player)
         return nullptr;
 
-    if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_CREATURE, GetSpawnId()))
+    if (CreatureData const* data = GetCreatureData())
     {
         if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
         {

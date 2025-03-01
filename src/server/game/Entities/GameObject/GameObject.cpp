@@ -3586,7 +3586,7 @@ SpawnTrackingStateData const* GameObject::GetSpawnTrackingStateDataForPlayer(Pla
     if (!player)
         return nullptr;
 
-    if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, GetSpawnId()))
+    if (GameObjectData const* data = GetGameObjectData())
     {
         if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
         {
