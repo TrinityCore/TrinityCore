@@ -429,6 +429,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //338 SPELL_EFFECT_338
     &Spell::EffectNULL,                                     //339 SPELL_EFFECT_UI_ACTION
     &Spell::EffectNULL,                                     //340 SPELL_EFFECT_340
+    &Spell::EffectNULL,                                     //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
 };
 
 void Spell::EffectNULL()

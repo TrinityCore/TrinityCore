@@ -82,20 +82,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
 {
     data << playerData.PlayerGUID;
     data << uint32(playerData.Kills);
+    data << int32(playerData.Faction);
     data << uint32(playerData.DamageDone);
     data << uint32(playerData.HealingDone);
     data << uint32(playerData.Stats.size());
     data << int32(playerData.PrimaryTalentTree);
     data << int8(playerData.Sex);
-    data << int32(playerData.Race);
-    data << int32(playerData.Class);
+    data << int8(playerData.Race);
+    data << int8(playerData.Class);
     data << int32(playerData.CreatureID);
     data << int32(playerData.HonorLevel);
     data << int32(playerData.Role);
     for (WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerPVPStat const& pvpStat : playerData.Stats)
         data << pvpStat;
 
-    data.WriteBit(playerData.Faction != 0);
     data.WriteBit(playerData.IsInWorld);
     data.WriteBit(playerData.Honor.has_value());
     data.WriteBit(playerData.PreMatchRating.has_value());
@@ -203,7 +203,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusActive::Write()
     _worldPacket << uint32(Mapid);
     _worldPacket << uint32(ShutdownTimer);
     _worldPacket << uint32(StartTimer);
-    _worldPacket << Bits<1>(ArenaFaction != 0);
+    _worldPacket << int8(ArenaFaction);
     _worldPacket << Bits<1>(LeftEarly);
     _worldPacket << Bits<1>(Brawl);
     _worldPacket.FlushBits();

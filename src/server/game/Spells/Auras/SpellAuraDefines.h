@@ -26,7 +26,7 @@ class Unit;
 class WorldObject;
 enum Difficulty : uint8;
 
-#define MAX_AURAS 255
+#define MAX_AURAS 300
 
 enum AURA_FLAGS
 {
@@ -731,6 +731,10 @@ enum AuraType : uint32
     SPELL_AURA_MOD_EXPLORATION_EXPERIENCE                   = 637,
     SPELL_AURA_MOD_CRITICAL_BLOCK_AMOUNT                    = 638,
     SPELL_AURA_639                                          = 639,
+    SPELL_AURA_640                                          = 640,
+    SPELL_AURA_641                                          = 641,
+    SPELL_AURA_642                                          = 642,
+    SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT                 = 643, // NYI
 
     TOTAL_AURAS
 };

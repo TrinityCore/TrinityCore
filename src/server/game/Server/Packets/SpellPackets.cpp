@@ -94,6 +94,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
     data << uint16(auraData.CastLevel);
     data << uint8(auraData.Applications);
     data << int32(auraData.ContentTuningID);
+    data << auraData.DstLocation;
     data << OptionalInit(auraData.CastUnit);
     data << OptionalInit(auraData.Duration);
     data << OptionalInit(auraData.Remaining);
@@ -128,7 +129,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
 
 ByteBuffer& operator<<(ByteBuffer& data, AuraInfo const& aura)
 {
-    data << aura.Slot;
+    data << uint16(aura.Slot);
     data << OptionalInit(aura.AuraData);
     data.FlushBits();
 

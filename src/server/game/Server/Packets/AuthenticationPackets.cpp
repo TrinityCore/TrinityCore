@@ -102,7 +102,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const&
 {
     data << uint32(waitInfo.WaitCount);
     data << uint32(waitInfo.WaitTime);
-    data << uint32(waitInfo.AllowedFactionGroupForCharacterCreate);
+    data << uint8(waitInfo.AllowedFactionGroupForCharacterCreate);
     data << WorldPackets::Bits<1>(waitInfo.HasFCM);
     data << WorldPackets::Bits<1>(waitInfo.CanCreateOnlyIfExisting);
     data.FlushBits();
@@ -361,6 +361,7 @@ WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
     ed25519.SignWithContext(toSign, { EnableEncryptionContext.begin(), EnableEncryptionContext.end() }, signature);
 
     _worldPacket.append(signature.data(), signature.size());
+    _worldPacket << int32(RegionGroup);
     _worldPacket << Bits<1>(Enabled);
     _worldPacket.FlushBits();
 

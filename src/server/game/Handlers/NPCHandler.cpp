@@ -372,9 +372,15 @@ void WorldSession::SendPetStableResult(StableResult result)
 
 void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
 {
-    if (!CheckStableMaster(setPetSlot.StableMaster) || setPetSlot.DestSlot >= PET_SAVE_LAST_STABLE_SLOT)
+    if (!CheckStableMaster(setPetSlot.StableMaster))
     {
-        SendPetStableResult(StableResult::InternalError);
+        SendPetStableResult(StableResult::NotStableMaster);
+        return;
+    }
+
+    if (setPetSlot.DestSlot >= PET_SAVE_LAST_STABLE_SLOT)
+    {
+        SendPetStableResult(StableResult::InvalidSlot);
         return;
     }
 

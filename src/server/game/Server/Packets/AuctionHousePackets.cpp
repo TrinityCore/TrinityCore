@@ -208,6 +208,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuctionItem const& auctionItem)
     data << auctionItem.Owner;
     data << int32(auctionItem.DurationLeft);
     data << uint8(auctionItem.DeleteReason);
+    data << uint32(auctionItem.Unused1110);
 
     for (WorldPackets::Item::ItemEnchantData const& enchant : auctionItem.Enchantments)
         data << enchant;
@@ -252,8 +253,9 @@ ByteBuffer& operator<<(ByteBuffer& data, AuctionItem const& auctionItem)
     return data;
 }
 
-void AuctionBidderNotification::Initialize(::AuctionPosting const* auction, ::Item const* item)
+void AuctionBidderNotification::Initialize(int32 auctionHouseId, ::AuctionPosting const* auction, ::Item const* item)
 {
+    AuctionHouseID = auctionHouseId;
     AuctionID = auction->Id;
     Item.Initialize(item);
     Bidder = auction->Bidder;
@@ -261,6 +263,7 @@ void AuctionBidderNotification::Initialize(::AuctionPosting const* auction, ::It
 
 ByteBuffer& operator<<(ByteBuffer& data, AuctionBidderNotification const& bidderNotification)
 {
+    data << int32(bidderNotification.AuctionHouseID);
     data << int32(bidderNotification.AuctionID);
     data << bidderNotification.Bidder;
     data << bidderNotification.Item;
@@ -549,6 +552,7 @@ WorldPacket const* AuctionHelloResponse::Write()
     _worldPacket << Auctioneer;
     _worldPacket << uint32(PurchaseDeliveryDelay);
     _worldPacket << uint32(CancelDeliveryDelay);
+    _worldPacket << int32(AuctionHouseID);
     _worldPacket << Bits<1>(OpenForBusiness);
     _worldPacket.FlushBits();
 

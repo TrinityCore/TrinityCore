@@ -522,7 +522,7 @@ struct GameObjectTemplate
             int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
             uint32 SitAnimKit;                              // 2 Sit Anim Kit, References: AnimKit, NoValue = 0
             uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
-            uint32 CustomizationScope;                      // 4 Customization Scope, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 CustomizationFeatureMask;                // 4 Customization Feature Mask, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Preventteleportingtheplayeroutofthebarbershopchair;// 5 Prevent teleporting the player out of the barbershop chair, enum { false, true, }; Default: false
         } barberChair;
         // 33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
@@ -700,13 +700,14 @@ struct GameObjectTemplate
         // 48 GAMEOBJECT_TYPE_UI_LINK
         struct
         {
-            uint32 UILinkType;                              // 0 UI Link Type, enum { Adventure Journal, Obliterum Forge, Scrapping Machine, Item Interaction, }; Default: Adventure Journal
+            uint32 UILinkType;                              // 0 UI Link Type(Deprecated), enum { Adventure Journal, Obliterum Forge, Scrapping Machine, Item Interaction, }; Default: Adventure Journal
             uint32 allowMounted;                            // 1 allowMounted, enum { false, true, }; Default: false
             uint32 GiganticAOI;                             // 2 Gigantic AOI, enum { false, true, }; Default: false
             uint32 spellFocusType;                          // 3 spellFocusType, References: SpellFocusObject, NoValue = 0
             uint32 radius;                                  // 4 radius, int, Min value: 0, Max value: 50, Default value: 10
             uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 ItemInteractionID;                       // 6 Item Interaction ID, References: UiItemInteraction, NoValue = 0
+            uint32 PlayerInteractionType;                   // 7 Player Interaction Type, enum { None, TradePartner, Item, Gossip, QuestGiver, Merchant, TaxiNode, Trainer, Banker, AlliedRaceDetailsGiver, GuildBanker, Registrar, Vendor, PetitionVendor, GuildTabardVendor, TalentMaster, SpecializationMaster, MailInfo, SpiritHealer, AreaSpiritHealer, Binder, Auctioneer, StableMaster, BattleMaster, Transmogrifier, LFGDungeon, VoidStorageBanker, BlackMarketAuctioneer, AdventureMap, WorldMap, GarrArchitect, GarrTradeskill, GarrMission, ShipmentCrafter, GarrRecruitment, GarrTalent, Trophy, PlayerChoice, ArtifactForge, ObliterumForge, ScrappingMachine, ContributionCollector, AzeriteRespec, IslandQueue, ItemInteraction, ChromieTime, CovenantPreview, AnimaDiversion, LegendaryCrafting, WeeklyRewards, Soulbind, CovenantSanctum, NewPlayerGuide, ItemUpgrade, AdventureJournal, Renown, AzeriteForge, PerksProgramVendor, ProfessionsCraftingOrder, Professions, ProfessionsCustomerOrder, TraitSystem, BarbersChoice, JailersTowerBuffs, MajorFactionRenown, PersonalTabardVendor, ForgeMaster, CharacterBanker, AccountBanker, ProfessionRespec, PlaceholderType71, PlaceholderType72, PlaceholderType73, PlaceholderType74, PlaceholderType75, PlaceholderType76, PlaceholderType77, }; Default: None
         } UILink;
         // 49 GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE
         struct

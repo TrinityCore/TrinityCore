@@ -172,11 +172,12 @@ namespace WorldPackets
             Optional<float> TimeMod;
             std::vector<float> Points;
             std::vector<float> EstimatedPoints;
+            TaggedPosition<Position::XYZ> DstLocation;
         };
 
         struct AuraInfo
         {
-            uint8 Slot = 0;
+            uint16 Slot = 0;
             Optional<AuraDataInfo> AuraData;
         };
 

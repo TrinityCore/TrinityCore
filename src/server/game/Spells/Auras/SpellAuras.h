@@ -63,7 +63,7 @@ class TC_GAME_API AuraApplication
         Unit* const _target;
         Aura* const _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
-        uint8 _slot;                                   // Aura slot on unit
+        uint16 _slot;                                  // Aura slot on unit
         uint16 _flags;                                 // Aura info flag
         uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
@@ -79,7 +79,7 @@ class TC_GAME_API AuraApplication
         Unit* GetTarget() const { return _target; }
         Aura* GetBase() const { return _base; }
 
-        uint8 GetSlot() const { return _slot; }
+        uint16 GetSlot() const { return _slot; }
         uint16 GetFlags() const { return _flags; }
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS); return (_effectMask & (1 << effect)) != 0; }

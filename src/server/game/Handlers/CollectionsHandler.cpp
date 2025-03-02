@@ -36,6 +36,7 @@ void WorldSession::HandleCollectionItemSetFavorite(WorldPackets::Collections::Co
             break;
         }
         case ItemCollectionType::TransmogSetFavorite:
+        case ItemCollectionType::WarbandScene:
             break;
         default:
             break;

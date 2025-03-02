@@ -93,9 +93,9 @@ WorldPacket const* QueryCreatureResponse::Write()
         }
 
         _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
-        _worldPacket << int32(Stats.CreatureType);
+        _worldPacket << uint8(Stats.CreatureType);
         _worldPacket << int32(Stats.CreatureFamily);
-        _worldPacket << int32(Stats.Classification);
+        _worldPacket << int8(Stats.Classification);
         _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
         _worldPacket << uint32(Stats.Display.CreatureDisplay.size());
         _worldPacket << float(Stats.Display.TotalProbability);

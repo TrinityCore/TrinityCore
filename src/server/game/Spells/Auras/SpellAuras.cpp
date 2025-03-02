@@ -75,7 +75,7 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
     ASSERT(GetTarget() && GetBase());
 
     // Try find slot for aura
-    uint8 slot = 0;
+    uint16 slot = 0;
     // lookup for free slots in units visibleAuras
     for (AuraApplication* visibleAura : GetTarget()->GetVisibleAuras())
     {

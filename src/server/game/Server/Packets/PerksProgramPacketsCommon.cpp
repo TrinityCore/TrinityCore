@@ -31,6 +31,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PerksVendorItem const& perksVendorItem)
     data << int32(perksVendorItem.Price);
     data << int32(perksVendorItem.OriginalPrice);
     data << perksVendorItem.AvailableUntil;
+    data << int32(perksVendorItem.WarbandSceneID);
     data << Bits<1>(perksVendorItem.Disabled);
     data << Bits<1>(perksVendorItem.DoesNotExpire);
     data.FlushBits();

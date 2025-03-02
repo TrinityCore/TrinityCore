@@ -556,7 +556,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 CustomizationScope = 0;
+            uint32 CustomizationFeatureMask = 0;
         };
 
         struct PhaseShiftDataPhase

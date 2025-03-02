@@ -428,7 +428,7 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
 
 WorldPacket const* WorldPackets::Misc::EnableBarberShop::Write()
 {
-    _worldPacket << uint8(CustomizationScope);
+    _worldPacket << uint32(CustomizationFeatureMask);
 
     return &_worldPacket;
 }

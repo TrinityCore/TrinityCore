@@ -54,7 +54,7 @@ namespace WorldPackets
 
         struct WhoRequestServerInfo
         {
-            int32 FactionGroup = 0;
+            uint8 FactionGroup = 0;
             int32 Locale = 0;
             uint32 RequesterVirtualRealmAddress = 0;
         };

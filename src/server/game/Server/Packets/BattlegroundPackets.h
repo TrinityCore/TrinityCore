@@ -129,7 +129,7 @@ namespace WorldPackets
             {
                 ObjectGuid PlayerGUID;
                 uint32 Kills = 0;
-                uint8 Faction = 0;
+                int32 Faction = 0;
                 bool IsInWorld = false;
                 Optional<HonorData> Honor;
                 uint32 DamageDone = 0;
@@ -142,8 +142,8 @@ namespace WorldPackets
                 std::vector<PVPMatchPlayerPVPStat> Stats;
                 int32 PrimaryTalentTree = 0;
                 int8 Sex = 0;
-                int32 Race = 0;
-                int32 Class = 0;
+                int8 Race = 0;
+                int8 Class = 0;
                 int32 CreatureID = 0;
                 int32 HonorLevel = 0;
                 int32 Role = 0;
@@ -208,7 +208,7 @@ namespace WorldPackets
 
             BattlefieldStatusHeader Hdr;
             uint32 ShutdownTimer = 0;
-            uint8 ArenaFaction = 0;
+            int8 ArenaFaction = 0;
             bool LeftEarly = false;
             bool Brawl = false;
             uint32 StartTimer = 0;

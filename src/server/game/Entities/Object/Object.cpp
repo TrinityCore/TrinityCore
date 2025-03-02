@@ -247,11 +247,16 @@ void Object::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragm
     *data << WorldPackets::As<uint8>(WowCS::EntityFragment::End);
 }
 
-void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags)
+void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
 {
+    uint8 contentsChangedMask = WowCS::CGObjectChangedMask;
+    for (WowCS::EntityFragment updateableFragmentId : m_entityFragments.GetUpdateableIds())
+        if (WowCS::IsIndirectFragment(updateableFragmentId))
+            contentsChangedMask |= m_entityFragments.GetUpdateMaskFor(updateableFragmentId) >> 1;   // set the "fragment exists" bit
+
     *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
     *data << uint8(false);                                  // m_entityFragments.IdsChanged
-    *data << uint8(WowCS::CGObjectUpdateMask);
+    *data << uint8(contentsChangedMask);
 }
 
 void Object::BuildDestroyUpdateBlock(UpdateData* data) const
@@ -329,6 +334,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool HasSpline = unit->IsSplineEnabled();
         bool HasInertia = unit->m_movementInfo.inertia.has_value();
         bool HasAdvFlying = unit->m_movementInfo.advFlying.has_value();
+        bool HasDriveStatus = unit->m_movementInfo.driveStatus.has_value();
         bool HasStandingOnGameObjectGUID = unit->m_movementInfo.standingOnGameObjectGUID.has_value();
 
         *data << GetGUID();                                             // MoverGUID
@@ -360,6 +366,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(false);                                          // RemoteTimeValid
         data->WriteBit(HasInertia);                                     // HasInertia
         data->WriteBit(HasAdvFlying);                                   // HasAdvFlying
+        data->WriteBit(HasDriveStatus);                                 // HasDriveStatus
+        data->FlushBits();
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
             *data << unit->m_movementInfo.transport;
@@ -391,6 +399,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
                 *data << float(unit->m_movementInfo.jump.cosAngle);
                 *data << float(unit->m_movementInfo.jump.xyspeed);      // Speed
             }
+        }
+
+        if (HasDriveStatus)
+        {
+            data->WriteBit(unit->m_movementInfo.driveStatus->accelerating);
+            data->WriteBit(unit->m_movementInfo.driveStatus->drifting);
+            *data << float(unit->m_movementInfo.driveStatus->speed);
+            *data << float(unit->m_movementInfo.driveStatus->movementAngle);
         }
 
         *data << float(unit->GetSpeed(MOVE_WALK));
@@ -838,7 +854,6 @@ void Object::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Object::m_objectData);
     m_entityFragments.IdsChanged = false;
-    m_entityFragments.ContentsChangedMask = WowCS::CGObjectActiveMask;
 
     if (m_objectUpdated)
     {

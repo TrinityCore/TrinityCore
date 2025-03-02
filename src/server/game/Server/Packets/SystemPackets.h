@@ -180,6 +180,7 @@ namespace WorldPackets
             bool IsAccountCurrencyTransferEnabled    = false;
             bool LobbyMatchmakerQueueFromMainlineEnabled = false;
             bool CanSendLobbyMatchmakerPartyCustomizations = false;
+            bool AddonProfilerEnabled                = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
@@ -189,6 +190,10 @@ namespace WorldPackets
             int32 RemainingTimerunningSeasonSeconds  = 0;
             std::string Unknown1027;                          // related to movement lua functions used by keybinds
             AddonChatThrottleParams AddonChatThrottle;
+            uint32 RealmPvpTypeOverride              = 0;       ///< Use Cfg_Configs value = 0, ForceEnabled = 1, ForceDisabled = 2
+            float AddonPerformanceMsgWarning         = 0.0f;
+            float AddonPerformanceMsgError           = 0.0f;
+            float AddonPerformanceMsgOverall         = 0.0f;
         };
 
         struct DebugTimeEventInfo

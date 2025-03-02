@@ -1113,6 +1113,7 @@ enum class ItemCollectionType : uint8
     TransmogSetFavorite         = 4,
     RuneforgeLegendaryAbility   = 5,
     TransmogIllusion            = 6,
+    WarbandScene                = 7,
 };
 
 enum class ItemContext : uint8
@@ -1994,6 +1995,7 @@ enum class PlayerInteractionType : int32
     ForgeMaster                 = 66,
     CharacterBanker             = 67,
     AccountBanker               = 68,
+    ProfessionRespec            = 69,
 };
 
 enum class PowerTypeFlags : int16

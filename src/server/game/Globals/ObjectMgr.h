@@ -757,7 +757,7 @@ struct GossipMenuItems
     uint32              ActionPoiID;
     Optional<int32>     GossipNpcOptionID;
     bool                BoxCoded;
-    uint32              BoxMoney;
+    uint64              BoxMoney;
     std::string         BoxText;
     uint32              BoxBroadcastTextID;
     Optional<int32>     SpellID;

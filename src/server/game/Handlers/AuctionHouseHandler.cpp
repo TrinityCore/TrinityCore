@@ -1006,6 +1006,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Unit const* unit)
 
     WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
     auctionHelloResponse.Auctioneer = guid;
+    auctionHelloResponse.AuctionHouseID = ahEntry->ID;
     auctionHelloResponse.OpenForBusiness = true;                         // 3.3.3: 1 - AH enabled, 0 - AH disabled
     SendPacket(auctionHelloResponse.Write());
 }

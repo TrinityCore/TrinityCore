@@ -3128,7 +3128,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
             int32 scalingLevelMin = m_unitData->ScalingLevelMin;
             int32 scalingLevelMax = m_unitData->ScalingLevelMax;
             int32 scalingLevelDelta = m_unitData->ScalingLevelDelta;
-            int32 scalingFactionGroup = m_unitData->ScalingFactionGroup;
+            uint8 scalingFactionGroup = m_unitData->ScalingFactionGroup;
             int32 targetLevel = unitTarget->m_unitData->EffectiveLevel;
             if (!targetLevel)
                 targetLevel = unitTarget->GetLevel();
@@ -3872,7 +3872,12 @@ void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Pl
     m_unitData->WriteCreate(*data, flags, this, target);
 
     if (m_vendorData)
+    {
+        if constexpr (WowCS::IsIndirectFragment(WowCS::EntityFragment::FVendor_C))
+            *data << uint8(1);  // IndirectFragmentActive: FVendor_C
+
         m_vendorData->WriteCreate(*data, flags, this, target);
+    }
 }
 
 void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
@@ -3947,8 +3952,6 @@ void Creature::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* pla
 
 void Creature::ClearUpdateMask(bool remove)
 {
-    if (m_vendorData)
-        m_values.ClearChangesMask(&Creature::m_vendorData);
-
+    m_values.ClearChangesMask(&Creature::m_vendorData);
     Unit::ClearUpdateMask(remove);
 }

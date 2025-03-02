@@ -9730,7 +9730,7 @@ void ObjectMgr::LoadGossipMenuItems()
             gMenuItem.GossipNpcOptionID = fields[10].GetInt32();
 
         gMenuItem.BoxCoded              = fields[11].GetBool();
-        gMenuItem.BoxMoney              = fields[12].GetUInt32();
+        gMenuItem.BoxMoney              = fields[12].GetUInt64();
         gMenuItem.BoxText               = fields[13].GetString();
         gMenuItem.BoxBroadcastTextID    = fields[14].GetUInt32();
         if (!fields[15].IsNull())

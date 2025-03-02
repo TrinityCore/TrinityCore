@@ -88,8 +88,8 @@ void WorldPackets::Guild::GuildUpdateMotdText::Read()
 
 WorldPacket const* WorldPackets::Guild::GuildCommandResult::Write()
 {
-    _worldPacket << int32(Result);
-    _worldPacket << int32(Command);
+    _worldPacket << uint8(Result);
+    _worldPacket << uint8(Command);
 
     _worldPacket << SizedString::BitsSize<8>(Name);
     _worldPacket.FlushBits();

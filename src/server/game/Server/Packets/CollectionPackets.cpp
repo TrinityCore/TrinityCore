@@ -20,7 +20,7 @@
 
 void WorldPackets::Collections::CollectionItemSetFavorite::Read()
 {
-    _worldPacket >> As<uint32>(Type);
+    _worldPacket >> As<uint8>(Type);
     _worldPacket >> ID;
     _worldPacket >> Bits<1>(IsFavorite);
 }

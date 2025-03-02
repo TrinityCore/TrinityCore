@@ -90,9 +90,15 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << int16(NameLookupTelemetryInterval);
     _worldPacket << NotFoundCacheTimeSeconds;
 
+    _worldPacket << uint32(RealmPvpTypeOverride);
+
     _worldPacket << int32(AddonChatThrottle.MaxTries);
     _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
     _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
+
+    _worldPacket << float(AddonPerformanceMsgWarning);
+    _worldPacket << float(AddonPerformanceMsgError);
+    _worldPacket << float(AddonPerformanceMsgOverall);
 
     for (GameRuleValuePair const& gameRuleValue : GameRules)
         _worldPacket << gameRuleValue;
@@ -156,6 +162,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(false); // unused 11.0.7
     _worldPacket << Bits<1>(LobbyMatchmakerQueueFromMainlineEnabled);
     _worldPacket << Bits<1>(CanSendLobbyMatchmakerPartyCustomizations);
+    _worldPacket << Bits<1>(AddonProfilerEnabled);
 
     _worldPacket.FlushBits();
 

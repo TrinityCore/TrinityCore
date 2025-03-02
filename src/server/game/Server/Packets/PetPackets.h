@@ -136,7 +136,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0;
+            int32 Result = 0;
         };
 
         class PetLearnedSpells final : public ServerPacket

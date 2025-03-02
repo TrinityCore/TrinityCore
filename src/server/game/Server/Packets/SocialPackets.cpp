@@ -51,7 +51,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ContactInfo const& contact)
     data << uint8(contact.Status);
     data << uint32(contact.AreaID);
     data << uint32(contact.Level);
-    data << uint32(contact.ClassID);
+    data << int8(contact.ClassID);
     data << SizedString::BitsSize<10>(contact.Notes);
     data.FlushBits();
 
@@ -94,7 +94,7 @@ WorldPacket const* FriendStatus::Write()
     _worldPacket << uint8(Status);
     _worldPacket << uint32(AreaID);
     _worldPacket << uint32(Level);
-    _worldPacket << uint32(ClassID);
+    _worldPacket << int8(ClassID);
     _worldPacket << SizedString::BitsSize<10>(Notes);
     _worldPacket.FlushBits();
 

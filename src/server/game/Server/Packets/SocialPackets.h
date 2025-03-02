@@ -52,7 +52,7 @@ namespace WorldPackets
             uint8 Status            = 0; ///< @see enum FriendStatus
             uint32 AreaID           = 0;
             uint32 Level            = 0;
-            uint32 ClassID          = CLASS_NONE;
+            int8 ClassID            = CLASS_NONE;
         };
 
         class ContactList final : public ServerPacket
@@ -77,7 +77,7 @@ namespace WorldPackets
 
             uint32 VirtualRealmAddress = 0;
             std::string Notes;
-            uint32 ClassID             = CLASS_NONE;
+            int8 ClassID               = CLASS_NONE;
             uint8 Status               = 0; ///< @see enum FriendStatus
             ObjectGuid Guid;
             ObjectGuid WowAccountGuid;

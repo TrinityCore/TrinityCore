@@ -133,6 +133,13 @@ WorldPacket const* WorldPackets::Party::GroupDecline::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Party::GroupUninvite::Write()
+{
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Party::RequestPartyMemberStats::Read()
 {
     bool hasPartyIndex = _worldPacket.ReadBit();
@@ -176,7 +183,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberAuraSta
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::CTROptions const& ctrOptions)
 {
     data << uint32(ctrOptions.ConditionalFlags);
-    data << int32(ctrOptions.FactionGroup);
+    data << int8(ctrOptions.FactionGroup);
     data << uint32(ctrOptions.ChromieTimeExpansionMask);
 
     return data;

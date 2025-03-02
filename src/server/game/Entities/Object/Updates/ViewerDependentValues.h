@@ -346,6 +346,18 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::UnitData::Flags4Tag>
+{
+public:
+    using value_type = UF::UnitData::Flags4Tag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* /*unit*/, Player const* /*receiver*/)
+    {
+        return unitData->Flags4;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::UnitData::AuraStateTag>
 {
 public:

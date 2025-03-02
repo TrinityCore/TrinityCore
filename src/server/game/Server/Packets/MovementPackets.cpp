@@ -31,6 +31,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     bool hasSpline = false; // todo 6.x send this infos
     bool hasInertia = movementInfo.inertia.has_value();
     bool hasAdvFlying = movementInfo.advFlying.has_value();
+    bool hasDriveStatus = movementInfo.driveStatus.has_value();
     bool hasStandingOnGameObjectGUID = movementInfo.standingOnGameObjectGUID.has_value();
 
     data << movementInfo.guid;
@@ -62,6 +63,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     data.WriteBit(false); // RemoteTimeValid
     data.WriteBit(hasInertia);
     data.WriteBit(hasAdvFlying);
+    data.WriteBit(hasDriveStatus);
 
     data.FlushBits();
 
@@ -97,6 +99,14 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
             data << float(movementInfo.jump.cosAngle);
             data << float(movementInfo.jump.xyspeed);
         }
+    }
+
+    if (hasDriveStatus)
+    {
+        data.WriteBit(movementInfo.driveStatus->accelerating);
+        data.WriteBit(movementInfo.driveStatus->drifting);
+        data << float(movementInfo.driveStatus->speed);
+        data << float(movementInfo.driveStatus->movementAngle);
     }
 
     return data;
@@ -136,6 +146,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     data.ReadBit(); // RemoteTimeValid
     bool hasInertia = data.ReadBit();
     bool hasAdvFlying = data.ReadBit();
+    bool hasDriveStatus = data.ReadBit();
 
     if (hasTransport)
         data >> movementInfo.transport;
@@ -174,6 +185,18 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
             data >> movementInfo.jump.cosAngle;
             data >> movementInfo.jump.xyspeed;
         }
+    }
+
+    if (hasDriveStatus)
+    {
+        data.ResetBitPos();
+
+        movementInfo.driveStatus.emplace();
+
+        movementInfo.driveStatus->accelerating = data.ReadBit();
+        movementInfo.driveStatus->drifting = data.ReadBit();
+        data >> movementInfo.driveStatus->speed;
+        data >> movementInfo.driveStatus->movementAngle;
     }
 
     return data;
@@ -519,6 +542,9 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
     data << uint32(movementForce.TransportID);
     data << float(movementForce.Magnitude);
     data << int32(movementForce.MovementForceID);
+    data << int32(movementForce.Unknown1110_1);
+    data << int32(movementForce.Unused1110);
+    data << uint32(movementForce.Flags);
     data.WriteBits(AsUnderlyingType(movementForce.Type), 2);
     data.FlushBits();
 }
@@ -676,6 +702,7 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
     _worldPacket << OldMapPosition;
     _worldPacket << OptionalInit(Ship);
     _worldPacket << OptionalInit(TransferSpellID);
+    _worldPacket << OptionalInit(TaxiPathID);
     _worldPacket.FlushBits();
 
     if (Ship)
@@ -686,6 +713,9 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 
     if (TransferSpellID)
         _worldPacket << int32(*TransferSpellID);
+
+    if (TaxiPathID)
+        _worldPacket << int32(*TaxiPathID);
 
     return &_worldPacket;
 }
@@ -759,6 +789,9 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
     data >> movementForce.TransportID;
     data >> movementForce.Magnitude;
     data >> movementForce.MovementForceID;
+    data >> movementForce.Unknown1110_1;
+    data >> movementForce.Unused1110;
+    data >> movementForce.Flags;
     movementForce.Type = MovementForceType(data.ReadBits(2));
 
     return data;
@@ -1062,6 +1095,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     data.WriteBit(stateChange.MovementForceGUID.has_value());
     data.WriteBit(stateChange.MovementInertiaID.has_value());
     data.WriteBit(stateChange.MovementInertiaLifetimeMs.has_value());
+    data.WriteBit(stateChange.DriveCapabilityRecID.has_value());
     data.FlushBits();
 
     if (stateChange.MovementForce_)
@@ -1101,6 +1135,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
 
     if (stateChange.MovementInertiaLifetimeMs)
         data << uint32(*stateChange.MovementInertiaLifetimeMs);
+
+    if (stateChange.DriveCapabilityRecID)
+        data << int32(*stateChange.DriveCapabilityRecID);
 
     return data;
 }

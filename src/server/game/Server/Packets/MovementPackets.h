@@ -275,6 +275,7 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> OldMapPosition;
             Optional<ShipTransferPending> Ship;
             Optional<int32> TransferSpellID;
+            Optional<int32> TaxiPathID;
         };
 
         class TransferAborted final : public ServerPacket
@@ -728,6 +729,7 @@ namespace WorldPackets
                 Optional<ObjectGuid> MovementForceGUID;
                 Optional<int32> MovementInertiaID;
                 Optional<uint32> MovementInertiaLifetimeMs;
+                Optional<int32> DriveCapabilityRecID;
             };
 
             MoveSetCompoundState() : ServerPacket(SMSG_MOVE_SET_COMPOUND_STATE, 4 + 1) { }
