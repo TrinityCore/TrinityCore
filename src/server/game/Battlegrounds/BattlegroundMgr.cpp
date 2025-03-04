@@ -70,6 +70,10 @@ BattlegroundMgr::~BattlegroundMgr()
 
 void BattlegroundMgr::DeleteAllBattlegrounds()
 {
+    for (auto& [_, data] : bgDataStore)
+        for (Battleground* battleground : data.BGFreeSlotQueue)
+            battleground->RemoveFromBGFreeSlotQueueOnShutdown();
+
     bgDataStore.clear();
 }
 
@@ -904,13 +908,12 @@ void BattlegroundMgr::AddToBGFreeSlotQueue(BattlegroundTypeId bgTypeId, Battlegr
 
 void BattlegroundMgr::RemoveFromBGFreeSlotQueue(BattlegroundTypeId bgTypeId, uint32 instanceId)
 {
-    BGFreeSlotQueueContainer& queues = bgDataStore[bgTypeId].BGFreeSlotQueue;
-    for (BGFreeSlotQueueContainer::iterator itr = queues.begin(); itr != queues.end(); ++itr)
-        if ((*itr)->GetInstanceID() == instanceId)
-        {
-            queues.erase(itr);
-            return;
-        }
+    if (BattlegroundData* battlegroundData = Trinity::Containers::MapGetValuePtr(bgDataStore, bgTypeId))
+    {
+        auto itr = std::ranges::find(battlegroundData->BGFreeSlotQueue, instanceId, [](Battleground const* bg) { return bg->GetInstanceID(); });
+        if (itr != battlegroundData->BGFreeSlotQueue.end())
+            battlegroundData->BGFreeSlotQueue.erase(itr);
+    }
 }
 
 void BattlegroundMgr::AddBattleground(Battleground* bg)
