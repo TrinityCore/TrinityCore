@@ -470,6 +470,24 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
     recvData >> guid;
 
     _player->SetSelection(guid);
+
+    // Update target of current autoshoot spell
+    if (guid)
+    {
+        if (Spell* autoReapeatSpell = _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoReapeatSpell->m_targets.GetUnitTargetGUID() != guid)
+            {
+                if (Unit* unit = ObjectAccessor::GetUnit(*_player, guid))
+                {
+                    if (_player->IsValidAttackTarget(unit, autoReapeatSpell->GetSpellInfo()))
+                        autoReapeatSpell->m_targets.SetUnitTarget(unit);
+                    else
+                        _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+                }
+            }
+        }
+    }
 }
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
