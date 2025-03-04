@@ -18472,6 +18472,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     GetSession()->GetCollectionMgr()->LoadMounts();
     GetSession()->GetCollectionMgr()->LoadItemAppearances();
     GetSession()->GetCollectionMgr()->LoadTransmogIllusions();
+    GetSession()->GetCollectionMgr()->LoadWarbandScenes();
 
     LearnSpecializationSpells();
 
@@ -20644,6 +20645,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     GetSession()->GetCollectionMgr()->SaveAccountMounts(loginTransaction);
     GetSession()->GetCollectionMgr()->SaveAccountItemAppearances(loginTransaction);
     GetSession()->GetCollectionMgr()->SaveAccountTransmogIllusions(loginTransaction);
+    GetSession()->GetCollectionMgr()->SaveAccountWarbandScenes(loginTransaction);
 
     Battlenet::RealmHandle currentRealmId = sRealmList->GetCurrentRealmId();
 
@@ -24739,6 +24741,12 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendDirectMessage(heirloomUpdate.Write());
 
     GetSession()->GetCollectionMgr()->SendFavoriteAppearances();
+
+    // SMSG_ACCOUNT_WARBAND_SCENE_UPDATE
+    WorldPackets::Misc::AccountWarbandSceneUpdate warbandSceneUpdate;
+    warbandSceneUpdate.IsFullUpdate = true;
+    warbandSceneUpdate.WarbandScenes = &GetSession()->GetCollectionMgr()->GetWarbandScenes();
+    SendDirectMessage(warbandSceneUpdate.Write());
 
     WorldPackets::Character::InitialSetup initialSetup;
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);

@@ -1100,6 +1100,7 @@ public:
         ITEM_APPEARANCES,
         ITEM_FAVORITE_APPEARANCES,
         TRANSMOG_ILLUSIONS,
+        WARBAND_SCENES,
 
         MAX_QUERIES
     };
@@ -1146,6 +1147,10 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_TRANSMOG_ILLUSIONS);
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(TRANSMOG_ILLUSIONS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_WARBAND_SCENES);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(WARBAND_SCENES, stmt) && ok;
 
         return ok;
     }
@@ -1199,6 +1204,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
     _collectionMgr->LoadAccountMounts(holder.GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
     _collectionMgr->LoadAccountItemAppearances(holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
     _collectionMgr->LoadAccountTransmogIllusions(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_ILLUSIONS));
+    _collectionMgr->LoadAccountWarbandScenes(holder.GetPreparedResult(AccountInfoQueryHolder::WARBAND_SCENES));
 
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);

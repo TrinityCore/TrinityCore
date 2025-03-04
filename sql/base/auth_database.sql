@@ -411,6 +411,32 @@ LOCK TABLES `battlenet_account_transmog_illusions` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battlenet_account_warband_scenes`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_warband_scenes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_warband_scenes` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `warbandSceneId` int NOT NULL DEFAULT '0',
+  `isFavorite` tinyint(1) DEFAULT '0',
+  `hasFanfare` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`battlenetAccountId`,`warbandSceneId`),
+  CONSTRAINT `fk_battlenet_account_warband_scenes__accountId` FOREIGN KEY (`battlenetAccountId`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_transmog_illusions`
+--
+
+LOCK TABLES `battlenet_account_warband_scenes` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_warband_scenes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_warband_scenes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battlenet_accounts`
 --
 
@@ -3459,7 +3485,8 @@ INSERT INTO `updates` VALUES
 ('2025_02_03_00_auth.sql','87033116EF72051499AF23FE14545D828F5A9B59','RELEASED','2025-02-03 22:51:31',0),
 ('2025_02_19_00_auth.sql','6D0EBB3E2DD1B26682A424EDDC090F515BCA5B32','RELEASED','2025-02-19 00:16:52',0),
 ('2025_02_21_00_auth.sql','E9EA49CEB396561D641A7C82251DCBF9DF3E9983','RELEASED','2025-02-21 00:53:17',0),
-('2025_03_02_00_auth.sql','1CEAB7B308823D5FAA51360A1B2A7CA0E89A6081','RELEASED','2025-03-02 14:50:10',0);
+('2025_03_02_00_auth.sql','1CEAB7B308823D5FAA51360A1B2A7CA0E89A6081','RELEASED','2025-03-02 14:50:10',0),
+('2025_03_04_00_auth.sql','AB20016BC7251E6DE80E2AC658F18F6076EA81AA','RELEASED','2025-03-04 20:01:43',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -302,6 +302,7 @@ TC_GAME_API extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBa
 TC_GAME_API extern DB2Storage<VehicleEntry>                         sVehicleStore;
 TC_GAME_API extern DB2Storage<VehicleSeatEntry>                     sVehicleSeatStore;
 TC_GAME_API extern DB2Storage<VignetteEntry>                        sVignetteStore;
+TC_GAME_API extern DB2Storage<WarbandSceneEntry>                    sWarbandSceneStore;
 TC_GAME_API extern DB2Storage<WorldEffectEntry>                     sWorldEffectStore;
 TC_GAME_API extern DB2Storage<WorldMapOverlayEntry>                 sWorldMapOverlayStore;
 TC_GAME_API extern DB2Storage<WorldStateExpressionEntry>            sWorldStateExpressionStore;

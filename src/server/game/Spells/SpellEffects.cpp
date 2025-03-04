@@ -429,7 +429,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //338 SPELL_EFFECT_338
     &Spell::EffectNULL,                                     //339 SPELL_EFFECT_UI_ACTION
     &Spell::EffectNULL,                                     //340 SPELL_EFFECT_340
-    &Spell::EffectNULL,                                     //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
+    &Spell::EffectLearnWarbandScene,                        //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
 };
 
 void Spell::EffectNULL()
@@ -6176,4 +6176,16 @@ void Spell::EffectUpdateInteractions()
         return;
 
     target->UpdateVisibleObjectInteractions(true, false, true, true);
+}
+
+void Spell::EffectLearnWarbandScene()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->GetSession()->GetCollectionMgr()->AddWarbandScene(effectInfo->MiscValue);
 }

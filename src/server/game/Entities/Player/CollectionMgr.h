@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CollectionMgr_h__
-#define CollectionMgr_h__
+#ifndef TRINITYCORE_COLLECTION_MGR_H
+#define TRINITYCORE_COLLECTION_MGR_H
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
@@ -30,6 +30,14 @@
 class Item;
 class WorldSession;
 struct ItemModifiedAppearanceEntry;
+
+enum class CollectionItemState : uint8
+{
+    Unchanged,
+    New,
+    Changed,
+    Removed
+};
 
 enum HeirloomPlayerFlags
 {
@@ -79,13 +87,35 @@ enum MountStatusFlags : uint8
 typedef std::map<uint32, MountStatusFlags> MountContainer;
 typedef std::unordered_map<uint32, uint32> MountDefinitionMap;
 
+enum class WarbandSceneCollectionFlags : uint8
+{
+    None        = 0x00,
+    Favorite    = 0x01,
+    HasFanfare  = 0x02
+};
+
+DEFINE_ENUM_FLAG(WarbandSceneCollectionFlags);
+
+struct WarbandSceneCollectionItem
+{
+    EnumFlag<WarbandSceneCollectionFlags> Flags = WarbandSceneCollectionFlags::None;
+    CollectionItemState State = CollectionItemState::Unchanged;
+};
+
+using WarbandSceneCollectionContainer = std::map<uint32, WarbandSceneCollectionItem>;
+
 class TC_GAME_API CollectionMgr
 {
 public:
     explicit CollectionMgr(WorldSession* owner);
+    CollectionMgr(CollectionMgr const&) = delete;
+    CollectionMgr(CollectionMgr&&) = delete;
+    CollectionMgr& operator=(CollectionMgr const&) = delete;
+    CollectionMgr& operator=(CollectionMgr&&) = delete;
     ~CollectionMgr();
 
     static void LoadMountDefinitions();
+    static void LoadWarbandSceneDefinitions();
 
     // Account-wide toys
     void LoadToys();
@@ -96,7 +126,7 @@ public:
 
     bool AddToy(uint32 itemId, bool isFavourite, bool hasFanfare);
     bool UpdateAccountToys(uint32 itemId, bool isFavourite, bool hasFanfare);
-    bool HasToy(uint32 itemId) const { return _toys.count(itemId) > 0; }
+    bool HasToy(uint32 itemId) const { return _toys.contains(itemId); }
 
     ToyBoxContainer const& GetAccountToys() const { return _toys; }
 
@@ -139,6 +169,9 @@ public:
     // returns ItemAppearance::ID, not ItemModifiedAppearance::ID
     std::unordered_set<uint32> GetAppearanceIds() const;
 
+    void SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, bool apply);
+    void SendFavoriteAppearances() const;
+
     // Illusions
     void LoadTransmogIllusions();
     void LoadAccountTransmogIllusions(PreparedQueryResult knownTransmogIllusions);
@@ -146,15 +179,16 @@ public:
     void AddTransmogIllusion(uint32 transmogIllusionId);
     bool HasTransmogIllusion(uint32 transmogIllusionId) const;
 
-    enum class FavoriteAppearanceState
-    {
-        New,
-        Removed,
-        Unchanged
-    };
+    // Warband Scenes
+    void LoadWarbandScenes();
+    void LoadAccountWarbandScenes(PreparedQueryResult knownWarbandScenes);
+    void SaveAccountWarbandScenes(LoginDatabaseTransaction trans);
+    void AddWarbandScene(uint32 warbandSceneId);
+    bool HasWarbandScene(uint32 warbandSceneId) const;
+    void SetWarbandSceneIsFavorite(uint32 warbandSceneId, bool apply);
+    WarbandSceneCollectionContainer const& GetWarbandScenes() const { return _warbandScenes; }
 
-    void SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, bool apply);
-    void SendFavoriteAppearances() const;
+    void SendWarbandSceneCollectionData() const;
 
 private:
     bool CanAddAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance) const;
@@ -168,8 +202,9 @@ private:
     MountContainer _mounts;
     std::unique_ptr<boost::dynamic_bitset<uint32>> _appearances;
     std::unordered_map<uint32, std::unordered_set<ObjectGuid>> _temporaryAppearances;
-    std::unordered_map<uint32, FavoriteAppearanceState> _favoriteAppearances;
+    std::unordered_map<uint32, CollectionItemState> _favoriteAppearances;
     std::unique_ptr<boost::dynamic_bitset<uint32>> _transmogIllusions;
+    WarbandSceneCollectionContainer _warbandScenes;
 };
 
-#endif // CollectionMgr_h__
+#endif // TRINITYCORE_COLLECTION_MGR_H
