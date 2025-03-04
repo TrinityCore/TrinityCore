@@ -1036,6 +1036,7 @@ void CollectionMgr::SaveAccountWarbandScenes(LoginDatabaseTransaction trans)
                 stmt->setBool(3, data.Flags.HasFlag(WarbandSceneCollectionFlags::HasFanfare));
                 trans->Append(stmt);
                 data.State = CollectionItemState::Unchanged;
+                ++itr;
                 break;
             case CollectionItemState::Changed:
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_WARBAND_SCENE);
@@ -1045,6 +1046,7 @@ void CollectionMgr::SaveAccountWarbandScenes(LoginDatabaseTransaction trans)
                 stmt->setUInt32(3, warbandSceneId);
                 trans->Append(stmt);
                 data.State = CollectionItemState::Unchanged;
+                ++itr;
                 break;
             case CollectionItemState::Removed:
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_WARBAND_SCENE);
@@ -1054,6 +1056,7 @@ void CollectionMgr::SaveAccountWarbandScenes(LoginDatabaseTransaction trans)
                 itr = _warbandScenes.erase(itr);
                 break;
             default:
+                ++itr;
                 break;
         }
     }
