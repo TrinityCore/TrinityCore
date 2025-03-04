@@ -340,6 +340,13 @@ struct boss_drakkari_elemental : public ScriptedAI
         }
     }
 
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+            colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
+        me->DespawnOrUnsummon();
+    }
+
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_MERGE)
