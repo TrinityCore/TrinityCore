@@ -48,22 +48,15 @@ class go_shadowforge_brazier : public GameObjectScript
                 else
                     instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
                 // If used both braziers, open linked doors (North and South)
-                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N)) {
-                    if (braziersUsed == 0) {
-                        braziersUsed = 1;
-                    } else if (braziersUsed == 2){
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
-                        braziersUsed = 0;
-                    }
-                } else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S)) {
-                    if (braziersUsed == 0) {
-                    braziersUsed = 2;
-                    } else if (braziersUsed == 1) {
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
-                        braziersUsed = 0;
-                    }
+                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
+                    braziersUsed |= 1;
+                else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
+                    braziersUsed |= 2;
+
+                if (braziersUsed == 3) {
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
+                    braziersUsed = 0;
                 }
 
                 return false;
