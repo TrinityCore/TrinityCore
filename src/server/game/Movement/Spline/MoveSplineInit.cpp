@@ -126,7 +126,10 @@ namespace Movement
             return std::max(28.0f, unit->GetSpeed(MOVE_RUN) * 4.0f);
         }();
 
-        args.velocity = std::min(args.velocity, speedLimit);
+        if (args.velocity >= 0.0f)
+            args.velocity = std::min(args.velocity, speedLimit);
+        else
+            args.velocity = std::max(args.velocity, -speedLimit);
 
         if (!args.Validate(unit))
             return 0;
