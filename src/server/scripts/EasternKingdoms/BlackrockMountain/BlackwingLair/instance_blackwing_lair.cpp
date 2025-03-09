@@ -122,6 +122,9 @@ public:
                     else
                         EggList.push_back(go->GetGUID());
                     break;
+                case GO_DRAKONID_BONES:
+                    DrakonidBonesGUIDs.emplace_back(go->GetGUID());
+                    break;
                 default:
                     break;
             }
@@ -233,6 +236,17 @@ public:
                         break;
                 }
             }
+
+            if (type == DATA_DRAKONID_BONES)
+            {
+                if (data == SPECIAL)
+                {
+                    for (ObjectGuid& guid : DrakonidBonesGUIDs)
+                        if (GameObject* go = instance->GetGameObject(guid))
+                            go->DespawnOrUnsummon();
+                    DrakonidBonesGUIDs.clear();
+                }
+            }
         }
 
         void OnUnitDeath(Unit* unit) override
@@ -286,6 +300,9 @@ public:
         uint8 EggCount;
         uint32 EggEvent;
         GuidList EggList;
+
+        // Nefarian
+        GuidVector DrakonidBonesGUIDs;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
