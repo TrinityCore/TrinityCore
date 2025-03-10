@@ -29,7 +29,6 @@
 #include "WorldSession.h"
 
 //go_shadowforge_brazier
-uint32 braziersUsed = 0;
 class go_shadowforge_brazier : public GameObjectScript
 {
     public:
@@ -48,15 +47,10 @@ class go_shadowforge_brazier : public GameObjectScript
                 else
                     instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
                 // If used both braziers, open linked doors (North and South)
-                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
-                    braziersUsed |= 1;
-                else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
-                    braziersUsed |= 2;
-
-                if (braziersUsed == 3) {
+                if (instance->GetData(TYPE_LYCEUM) == DONE)
+                {
                     instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
                     instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
-                    braziersUsed = 0;
                 }
 
                 return false;
