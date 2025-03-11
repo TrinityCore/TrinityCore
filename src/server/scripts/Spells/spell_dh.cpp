@@ -519,7 +519,7 @@ class spell_dh_cycle_of_hatred : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_DH_CYCLE_OF_HATRED_TALENT);
+        return GetCaster()->HasAuraEffect(SPELL_DH_CYCLE_OF_HATRED_TALENT, EFFECT_0);
     }
 
     void HandleCycleOfHatred() const
@@ -527,9 +527,9 @@ class spell_dh_cycle_of_hatred : public SpellScript
         Unit* caster = GetCaster();
 
         // First calculate cooldown then add another stack
-        Aura const* cycleOfHatredStack = caster->GetAura(SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION);
-        SpellInfo const* cycleOfHatred = sSpellMgr->AssertSpellInfo(SPELL_DH_CYCLE_OF_HATRED_TALENT, DIFFICULTY_NONE);
-        caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo(), -Milliseconds(cycleOfHatred->GetEffect(EFFECT_0).CalcValue() * cycleOfHatredStack->GetStackAmount()));
+        uint32 cycleOfHatredStack = caster->GetAuraCount(SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION);
+        AuraEffect const* cycleOfHatred = caster->GetAuraEffect(SPELL_DH_CYCLE_OF_HATRED_TALENT, EFFECT_0);
+        caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo(), -Milliseconds(cycleOfHatred->GetAmount() * cycleOfHatredStack));
 
         CastSpellExtraArgs args;
         args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
