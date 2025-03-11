@@ -36,6 +36,27 @@ namespace WorldPackets
             uint32 ID = 0;
             bool IsFavorite = false;
         };
+
+        struct ItemCollectionItemData
+        {
+            int32 ID = 0;
+            ItemCollectionType Type = ItemCollectionType::None;
+            int64 Unknown1110 = 0;
+            int32 Flags = 0;
+        };
+
+        class AccountItemCollectionData final : public ServerPacket
+        {
+        public:
+            AccountItemCollectionData() : ServerPacket(SMSG_ACCOUNT_ITEM_COLLECTION_DATA) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Unknown1110_1 = 0;
+            ItemCollectionType Type = ItemCollectionType::None;
+            bool Unknown1110_2 = false;
+            std::vector<ItemCollectionItemData> Items;
+        };
     }
 }
 

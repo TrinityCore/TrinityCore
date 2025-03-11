@@ -2657,6 +2657,17 @@ enum class VignetteFlags
 
 DEFINE_ENUM_FLAG(VignetteFlags);
 
+enum class WarbandSceneFlags : uint8
+{
+    DoNotInclude            = 0x01,
+    HiddenUntilCollected    = 0x02,
+    CannotBeSaved           = 0x04,
+    AwardedAutomatically    = 0x08,
+    IsDefault               = 0x10
+};
+
+DEFINE_ENUM_FLAG(WarbandSceneFlags);
+
 enum WorldMapTransformsFlags
 {
     WORLD_MAP_TRANSFORMS_FLAG_DUNGEON   = 0x04

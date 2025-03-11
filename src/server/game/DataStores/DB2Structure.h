@@ -4770,6 +4770,27 @@ struct VignetteEntry
     bool IsInfiniteAOI() const { return GetFlags().HasFlag(VignetteFlags::InfiniteAOI | VignetteFlags::ZoneInfiniteAOI); }
 };
 
+struct WarbandSceneEntry
+{
+    LocalizedString Name;
+    LocalizedString Description;
+    LocalizedString Source;
+    DBCPosition3D Position;
+    DBCPosition3D LookAt;
+    uint32 ID;
+    uint32 MapID;
+    float Fov;
+    int32 TimeOfDay;
+    int32 Flags;
+    int32 SoundAmbienceID;
+    int8 Quality;
+    int32 TextureKit;
+    int32 DefaultScenePriority;
+    int8 SourceType;
+
+    EnumFlag<WarbandSceneFlags> GetFlags() const { return static_cast<WarbandSceneFlags>(Flags); }
+};
+
 struct WMOAreaTableEntry
 {
     LocalizedString AreaName;
