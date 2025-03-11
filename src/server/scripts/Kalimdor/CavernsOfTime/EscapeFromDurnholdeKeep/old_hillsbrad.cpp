@@ -304,8 +304,10 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 break;
             case 38:
                 if (!me->IsInCombat() && HadMount)
+                {
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     DoMount();
+                }
                 break;
             case 59:
                 me->SummonCreature(SKARLOC_MOUNT, 2488.64f, 625.77f, 58.26f, 4.71f, TEMPSUMMON_TIMED_DESPAWN, 10s);
