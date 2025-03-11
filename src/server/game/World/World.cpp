@@ -1426,6 +1426,7 @@ void World::LoadConfigSettings(bool reload)
     TC_LOG_INFO("server.loading", "VMap data directory is: {}vmaps", m_dataPath);
 
     m_int_configs[CONFIG_MAX_WHO] = sConfigMgr->GetIntDefault("MaxWhoListReturns", 49);
+    m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("WhoList.Update.Interval", 5);
     m_bool_configs[CONFIG_START_ALL_SPELLS] = sConfigMgr->GetBoolDefault("PlayerStart.AllSpells", false);
     m_int_configs[CONFIG_HONOR_AFTER_DUEL] = sConfigMgr->GetIntDefault("HonorPointsAfterDuel", 0);
     m_bool_configs[CONFIG_RESET_DUEL_COOLDOWNS] = sConfigMgr->GetBoolDefault("ResetDuelCooldowns", false);
@@ -2144,7 +2145,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
 
-    m_timers[WUPDATE_WHO_LIST].SetInterval(5 * IN_MILLISECONDS); // update who list cache every 5 seconds
+    m_timers[WUPDATE_WHO_LIST].SetInterval(getIntConfig(CONFIG_WHO_LIST_UPDATE_INTERVAL) * IN_MILLISECONDS); // update who list cache every 5 seconds
 
     m_timers[WUPDATE_CHANNEL_SAVE].SetInterval(getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
