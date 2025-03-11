@@ -1,18 +1,25 @@
 -- quest_template_addon
-INSERT INTO `world`.`quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestId`, `ExclusiveGroup`) VALUES (13583, 13582, 13586, -13581);
-INSERT INTO `world`.`quest_template_addon` (`ID`, `PrevQuestID`) VALUES (13902, 13588);
-UPDATE `world`.`quest_template_addon` SET `PrevQuestID`=13940 where `ID`=13588;
-UPDATE `world`.`quest_template_addon` SET `NextQuestId`=13586, `ExclusiveGroup`=-13581 WHERE `ID`=13581;
-UPDATE `world`.`quest_template_addon` SET `NextQuestId`=13586, `ExclusiveGroup`=-13581 WHERE `ID`=13585;
+
+DELETE FROM `quest_template_addon` WHERE `ID` = 13583;
+INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestId`, `ExclusiveGroup`) VALUES (13583, 13582, 13586, -13581);
+DELETE FROM `quest_template_addon` WHERE `ID` = 13902;
+INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES (13902, 13588);
+DELETE FROM `quest_template_addon` WHERE `ID` = 13588;
+INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES (13588, 13940);
+DELETE FROM `quest_template_addon` WHERE `ID` = 13581;
+INSERT INTO `quest_template_addon` (`ID`, `NextQuestId`, `ExclusiveGroup`) VALUES (13581, 13586, -13581);
+DELETE FROM `quest_template_addon` WHERE `ID` = 13585;
+INSERT INTO `quest_template_addon` (`ID`, `NextQuestId`, `ExclusiveGroup`) VALUES (13585, 13586, -13581);
 
 -- creature_template_model
-UPDATE `world`.`creature_template_model` SET `CreatureDisplayID`=5494 WHERE  `CreatureID`=32985 AND `Idx`=0;
-UPDATE `world`.`creature_template_model` SET `CreatureDisplayID`=5494 WHERE  `CreatureID`=32985 AND `Idx`=1;
+
+DELETE FROM `creature_template_model` WHERE `CreatureID`=32985 AND `Idx`=0;
+INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`, `VerifiedBuild`) VALUES (32985, 0, 5494, 1, 0, 59538);
 
 
 -- creature_loot_template
 
-INSERT INTO `world`.`creature_loot_template` (`Entry`, `Item`, `Chance`, `QuestRequired`) VALUES
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `QuestRequired`) VALUES
 (32935, 44863, 40, 1), -- Corrupted Tide Crawler Flesh
 (32935, 2674, 41, 0), -- Crawler Meat
 (32935, 2675, 39, 0), -- Crawler Claw
@@ -390,153 +397,104 @@ INSERT INTO `world`.`creature_loot_template` (`Entry`, `Item`, `Chance`, `QuestR
 
 -- creature_template_difficulty
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32935 WHERE `Entry`=32935 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32935 WHERE `Entry`=32935 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32935 WHERE `Entry`=32935 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33009 WHERE `Entry`=33009 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33009 WHERE `Entry`=33009 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33009 WHERE `Entry`=33009 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33905 WHERE `Entry`=33905 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33905 WHERE `Entry`=33905 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33905 WHERE `Entry`=33905 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33311 WHERE `Entry`=33311 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33311 WHERE `Entry`=33311 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33311 WHERE `Entry`=33311 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33277, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33277 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33277, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33277 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33277, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33277 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33262, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33262 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33262, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33262 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33262, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33262 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32861, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32861 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32861, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32861 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32861, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32861 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33071, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33071 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33071, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33071 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33071, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33071 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34046, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=34046 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34046, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=34046 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34046, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=34046 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34033, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=34033 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34033, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=34033 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34033, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=34033 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32863, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32863 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32863, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32863 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32863, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32863 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32869, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32869 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32869, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32869 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32869, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32869 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32970, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=32970 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32970, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=32970 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32970, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=32970 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34248, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=34248 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34248, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=34248 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34248, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=34248 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32859, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32859 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32859, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32859 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32859, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=32859 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33021, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33021 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33021, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33021 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33021, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33021 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33022, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33022 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33022, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33022 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33022, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33022 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33020, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=33020 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33020, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=33020 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33020, `GoldMin`=12, `GoldMax`=35 WHERE `Entry`=33020 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33180, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33180 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33180, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33180 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33180, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33180 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33179, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33179 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33179, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33179 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33179, `GoldMin`=8, `GoldMax`=24 WHERE `Entry`=33179 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33206, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33206 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33206, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33206 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33206, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33206 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33207, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33207 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33207, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33207 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33207, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33207 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34304, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34304 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34304, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34304 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34304, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34304 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34385, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34385 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34385, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34385 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34385, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34385 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33083 WHERE `Entry`=33083 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33083 WHERE `Entry`=33083 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33083 WHERE `Entry`=33083 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33057, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33057 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33057, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33057 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33057, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33057 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32890 WHERE `Entry`=32890 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32890 WHERE `Entry`=32890 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32890 WHERE `Entry`=32890 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32888, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32888 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32888, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32888 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32888, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32888 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33127 WHERE `Entry`=33127 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33127 WHERE `Entry`=33127 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33127 WHERE `Entry`=33127 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32989, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32989 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32989, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32989 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32989, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32989 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34302 WHERE `Entry`=34302 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34302 WHERE `Entry`=34302 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34302 WHERE `Entry`=34302 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32997 WHERE `Entry`=32997 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32997 WHERE `Entry`=32997 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32997 WHERE `Entry`=32997 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33044, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33044 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33044, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33044 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33044, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33044 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33043, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33043 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33043, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33043 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33043, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33043 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34413 WHERE `Entry`=34413 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34413 WHERE `Entry`=34413 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34413 WHERE `Entry`=34413 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34405, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34405 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34405, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34405 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34405, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34405 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=2237 WHERE `Entry`=2237 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=2237 WHERE `Entry`=2237 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=2237 WHERE `Entry`=2237 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=2071 WHERE `Entry`=2071 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=2071 WHERE `Entry`=2071 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=2071 WHERE `Entry`=2071 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=2070 WHERE `Entry`=2070 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=2070 WHERE `Entry`=2070 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=2070 WHERE `Entry`=2070 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34339, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34339 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34339, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34339 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34339, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=34339 AND `DifficultyID`=0;
 
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34350 WHERE `Entry`=34350 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=34350 WHERE `Entry`=34350 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=34350 WHERE `Entry`=34350 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32996, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32996 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32996, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32996 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32996, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32996 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33079, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33079 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33079, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33079 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33079, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33079 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32928 WHERE `Entry`=32928 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32928 WHERE `Entry`=32928 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32928 WHERE `Entry`=32928 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32860, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32860 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32860, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32860 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32860, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32860 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32868, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32868 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32868, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32868 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32868, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32868 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33980, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33980 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=33980, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33980 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=33980, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=33980 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32862, `GoldMin`=14, `GoldMax`=29 WHERE `Entry`=32862 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32862, `GoldMin`=14, `GoldMax`=29 WHERE `Entry`=32862 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32862, `GoldMin`=14, `GoldMax`=29 WHERE `Entry`=32862 AND `DifficultyID`=0;
 
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32899, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32899 AND `DifficultyID`=0;
-UPDATE `world`.`creature_template_difficulty` SET `LootID`=32899, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32899 AND `DifficultyID`=1;
+UPDATE `creature_template_difficulty` SET `LootID`=32899, `GoldMin`=10, `GoldMax`=26 WHERE `Entry`=32899 AND `DifficultyID`=0;
 
 
 -- creature
