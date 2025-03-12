@@ -551,6 +551,18 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_XP_BOOST_DAYMASK] = sConfigMgr->GetIntDefault("XP.Boost.Daymask", 0);
     rate_values[RATE_XP_BOOST] = sConfigMgr->GetFloatDefault("XP.Boost.Rate", 2.0f);
 
+    m_int_configs[CONFIG_ITEM_STACKSIZE_MULTIPLIER] = sConfigMgr->GetIntDefault("Item.StackSize.Multiplier", 1);
+    if (m_int_configs[CONFIG_ITEM_STACKSIZE_MULTIPLIER] < 1)
+    {
+        TC_LOG_ERROR("server.loading", "Item.StackSize.Multiplier ({}) must be >= 1. Using 1 instead.", m_int_configs[CONFIG_ITEM_STACKSIZE_MULTIPLIER]);
+        m_int_configs[CONFIG_ITEM_STACKSIZE_MULTIPLIER] = 1;
+    }
+    if (m_int_configs[CONFIG_ITEM_STACKSIZE_MULTIPLIER] > 100)
+    {
+        TC_LOG_ERROR("server.loading", "Item.StackSize.Multiplier ({}) must be <= 100. Using 100 instead.", m_int_configs[CONFIG_ITEM_STACKSIZE_MULTIPLIER]);
+        m_int_configs[CONFIG_ITEM_STACKSIZE_MULTIPLIER] = 100;
+    }
+
     rate_values[RATE_REPAIRCOST]  = sConfigMgr->GetFloatDefault("Rate.RepairCost", 1.0f);
     if (rate_values[RATE_REPAIRCOST] < 0.0f)
     {

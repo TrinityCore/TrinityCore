@@ -3165,6 +3165,16 @@ XP.Boost.Daymask = 0
 XP.Boost.Rate = 2.0
 
 #
+#   Item.StackSize.Multiplier
+#       Description: How big stacks can stackable items make.
+#       Example:    By default, most crafting reagents are limited to 20 items per stack.
+#                   With Multiplier set to 10, they will be limited to 200 items per stack.
+#       Range:      1 - 100
+#       Default:    1
+
+Item.StackSize.Multiplier = 1
+
+#
 #    PlayerStart.AllSpells
 #        Description: If enabled, players will start with all their class spells (not talents).
 #                     You must populate playercreateinfo_spell_custom table with the spells you
