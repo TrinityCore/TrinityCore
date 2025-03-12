@@ -2,6 +2,7 @@
 
 INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestId`, `ExclusiveGroup`)
 VALUES (13583, 13582, 13586, -13581)
+AS new_data
 ON DUPLICATE KEY UPDATE
     `PrevQuestID` = new_data.`PrevQuestID`,
     `NextQuestId` = new_data.`NextQuestId`,
@@ -9,22 +10,26 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`)
 VALUES (13902, 13588)
+AS new_data
 ON DUPLICATE KEY UPDATE
     `PrevQuestID` = new_data.`PrevQuestID`;
 
 INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`)
 VALUES (13588, 13940)
+AS new_data
 ON DUPLICATE KEY UPDATE
     `PrevQuestID` = new_data.`PrevQuestID`;
 
 INSERT INTO `quest_template_addon` (`ID`, `NextQuestId`, `ExclusiveGroup`)
 VALUES (13581, 13586, -13581)
+AS new_data
 ON DUPLICATE KEY UPDATE
     `NextQuestId` = new_data.`NextQuestId`,
     `ExclusiveGroup` = new_data.`ExclusiveGroup`;
 
 INSERT INTO `quest_template_addon` (`ID`, `NextQuestId`, `ExclusiveGroup`)
 VALUES (13585, 13586, -13581)
+AS new_data
 ON DUPLICATE KEY UPDATE
     `NextQuestId` = new_data.`NextQuestId`,
     `ExclusiveGroup` = new_data.`ExclusiveGroup`;
@@ -34,6 +39,7 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`, `VerifiedBuild`)
 VALUES (32985, 0, 5494, 1, 0, 59538)
+AS new_data
 ON DUPLICATE KEY UPDATE
     `CreatureDisplayID` = new_data.`CreatureDisplayID`,
     `DisplayScale` = new_data.`DisplayScale`,
@@ -418,6 +424,7 @@ VALUES
 (32899, 0, 1179, 3, 0), -- Ice Cold Milk
 (32899, 0, 858, 1.7, 0), -- Lesser Healing Potion
 (32899, 0, 2455, 0.9, 0) -- Minor Mana Potion
+AS new_data
 ON DUPLICATE KEY UPDATE
     `Chance` = new_data.`Chance`,
     `QuestRequired` = new_data.`QuestRequired`;
@@ -493,6 +500,7 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curHealthPct`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `ScriptName`, `StringId`, `VerifiedBuild`)
 VALUES (10800002, 32960, 1, 0, 0, '0', 0, 0, 0, -1, 0, 0, 7445.79, -276.892, 13.6994, 1.61637, 300, 0, 0, 100, 0, NULL, NULL, NULL, NULL, '', NULL, 0)
+AS new_data
 ON DUPLICATE KEY UPDATE
     `id` = new_data.`id`,
     `map` = new_data.`map`,
