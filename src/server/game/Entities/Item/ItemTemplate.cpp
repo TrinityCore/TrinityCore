@@ -20,6 +20,7 @@
 #include "Opcodes.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 #include "Packets/QueryPackets.h"
 
