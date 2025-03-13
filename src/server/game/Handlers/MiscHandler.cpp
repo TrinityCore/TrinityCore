@@ -472,19 +472,25 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
     _player->SetSelection(guid);
 
     // Update target of current autoshoot spell
-    if (guid)
+    if (!guid.IsEmpty())
     {
         if (Spell* autoReapeatSpell = _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (autoReapeatSpell->m_targets.GetUnitTargetGUID() != guid)
+            if (!autoReapeatSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR4_UNK24) // client automatically handles spells with SPELL_ATTR4_AUTO_RANGED_COMBAT
+                && autoReapeatSpell->m_targets.GetUnitTargetGUID() != guid)
             {
-                if (Unit* unit = ObjectAccessor::GetUnit(*_player, guid))
+                Unit* unitTarget = [&]() -> Unit*
                 {
-                    if (_player->IsValidAttackTarget(unit, autoReapeatSpell->GetSpellInfo()))
-                        autoReapeatSpell->m_targets.SetUnitTarget(unit);
-                    else
-                        _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                }
+                    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
+                    if (unit && _player->IsValidAttackTarget(unit, autoReapeatSpell->GetSpellInfo()))
+                        return unit;
+                    return nullptr;
+                }();
+
+                if (unitTarget)
+                    autoReapeatSpell->m_targets.SetUnitTarget(unitTarget);
+                else
+                    autoReapeatSpell->m_targets.RemoveObjectTarget();
             }
         }
     }
