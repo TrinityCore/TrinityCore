@@ -302,17 +302,9 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 me->SummonCreature(NPC_WATCHMAN, 2121.69f, 525.37f, 57.11f, 4.01f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 me->SummonCreature(NPC_SENTRY, 2124.65f, 524.55f, 56.63f, 3.98f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 break;
-            case 38:
-                if (!me->IsInCombat() && HadMount)
-                {
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    DoMount();
-                }
-                break;
             case 59:
                 me->SummonCreature(SKARLOC_MOUNT, 2488.64f, 625.77f, 58.26f, 4.71f, TEMPSUMMON_TIMED_DESPAWN, 10s);
                 DoUnmount();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 HadMount = false;
                 SetRun(false);
                 break;
@@ -490,6 +482,10 @@ struct npc_thrall_old_hillsbrad : public EscortAI
     void UpdateAI(uint32 diff) override
     {
         EscortAI::UpdateAI(diff);
+
+        // If not in combat, and supposed to have a mount, ensure he is mounted.
+        if (!me->IsInCombat() && !me->IsMounted() && HadMount)
+        DoMount();
 
         if (!UpdateVictim())
             return;
