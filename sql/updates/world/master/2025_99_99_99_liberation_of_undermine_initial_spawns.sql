@@ -1,5 +1,6 @@
 SET @CGUID := 10000000000;
 SET @OGUID := 10000000000;
+SET @NPCTEXTID := 10000000000;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+75;
@@ -133,7 +134,7 @@ UPDATE `creature_template` SET `faction`=35, `speed_walk`=2.799999952316284179, 
 UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x4000800, `unit_flags3`=0x8001 WHERE `entry`=233156; -- Geargrinder Gear-Grinder
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x2000100, `unit_flags2`=0x4000800, `unit_flags3`=0x8001 WHERE `entry`=234569; -- [DNT] Crash Target
 UPDATE `creature_template` SET `faction`=3534, `npcflag`=129, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=235621; -- Ando the Gat
-UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=0x2000100, `unit_flags2`=0x800, `unit_flags3`=0x1000000 WHERE `entry` IN (240528, 238781); -- Sound Stalker - 11.1 Amb - Undermine - Traffic Sound Stalker
+UPDATE `creature_template` SET `faction`=35, `speed_walk`=3.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=0x2000100, `unit_flags2`=0x800, `unit_flags3`=0x1000000, `flags_extra`=128 WHERE `entry` IN (240528, 238781); -- Sound Stalker - 11.1 Amb - Undermine - Traffic Sound Stalker
 UPDATE `creature_template` SET `faction`=3534, `npcflag`=129, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=235620; -- Sando the Rat
 UPDATE `creature_template` SET `faction`=3534, `npcflag`=128, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=235622; -- Mabel Hexkey
 UPDATE `creature_template` SET `faction`=3534, `npcflag`=3, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=235617; -- Paula Piranha
@@ -735,3 +736,40 @@ UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=10 WHERE (`En
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=10 WHERE (`Entry`=229180 AND `DifficultyID`=0); -- Darkfuse Gunner
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=10 WHERE (`Entry`=230853 AND `DifficultyID`=0); -- Geargrinder Bomber
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=10 WHERE (`DifficultyID`=0 AND `Entry` IN (228662,228665)); -- Geargrinder Biker
+
+-- Gossips
+DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=235615 AND `MenuID`=37951) OR (`CreatureID`=235621 AND `MenuID`=37947) OR (`CreatureID`=235620 AND `MenuID`=37946) OR (`CreatureID`=235612 AND `MenuID`=37949) OR (`CreatureID`=235626 AND `MenuID`=30243) OR (`CreatureID`=235617 AND `MenuID`=38147);
+INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`) VALUES
+(235615, 37951, 59570), -- Lathe Faceter
+(235621, 37947, 59570), -- Ando the Gat
+(235620, 37946, 59570), -- Sando the Rat
+(235612, 37949, 59570), -- Scramblington Spoonfork
+(235626, 30243, 59570), -- Lynndy Leatherbolts
+(235617, 38147, 59570); -- Paula Piranha
+
+DELETE FROM `npc_text` WHERE `ID` BETWEEN @NPCTEXTID+0 AND @NPCTEXTID+6;
+INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
+(@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 281718, 0, 0, 0, 0, 0, 0, 0, 59570), -- 235617 (Paula Piranha)
+(@NPCTEXTID+1, 1, 0, 0, 0, 0, 0, 0, 0, 233159, 0, 0, 0, 0, 0, 0, 0, 59570), -- 235626 (Lynndy Leatherbolts)
+(@NPCTEXTID+2, 1, 0, 0, 0, 0, 0, 0, 0, 280933, 0, 0, 0, 0, 0, 0, 0, 59570), -- 235620 (Sando the Rat)
+(@NPCTEXTID+3, 1, 0, 0, 0, 0, 0, 0, 0, 280935, 0, 0, 0, 0, 0, 0, 0, 59570), -- 235621 (Ando the Gat)
+(@NPCTEXTID+4, 1, 0, 0, 0, 0, 0, 0, 0, 280940, 0, 0, 0, 0, 0, 0, 0, 59570), -- 235612 (Scramblington Spoonfork)
+(@NPCTEXTID+5, 1, 0, 0, 0, 0, 0, 0, 0, 280946, 0, 0, 0, 0, 0, 0, 0, 59570), -- 235615 (Lathe Faceter)
+(@NPCTEXTID+6, 1, 0, 0, 0, 0, 0, 0, 0, 233214, 0, 0, 0, 0, 0, 0, 0, 59570); -- 504793 (Swindler's Lectern)
+
+DELETE FROM `gossip_menu` WHERE (`MenuID`=38147 AND `TextID`=@NPCTEXTID+0) OR (`MenuID`=30243 AND `TextID`=@NPCTEXTID+1) OR (`MenuID`=37946 AND `TextID`=@NPCTEXTID+2) OR (`MenuID`=37947 AND `TextID`=@NPCTEXTID+3) OR (`MenuID`=37949 AND `TextID`=@NPCTEXTID+4) OR (`MenuID`=37951 AND `TextID`=@NPCTEXTID+5) OR (`MenuID`=30079 AND `TextID`=@NPCTEXTID+6);
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(38147, @NPCTEXTID+0, 59570), -- 235617 (Paula Piranha)
+(30243, @NPCTEXTID+1, 59570), -- 235626 (Lynndy Leatherbolts)
+(37946, @NPCTEXTID+2, 59570), -- 235620 (Sando the Rat)
+(37947, @NPCTEXTID+3, 59570), -- 235621 (Ando the Gat)
+(37949, @NPCTEXTID+4, 59570), -- 235612 (Scramblington Spoonfork)
+(37951, @NPCTEXTID+5, 59570), -- 235615 (Lathe Faceter)
+(30079, @NPCTEXTID+6, 59570); -- 504793 (Swindler's Lectern)
+
+DELETE FROM `gossip_menu_option` WHERE (`OptionID`=0 AND `MenuID` IN (30079,38147,37946,37947));
+INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `Language`, `Flags`, `ActionMenuID`, `ActionPoiID`, `GossipNpcOptionID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `SpellID`, `OverrideIconID`, `VerifiedBuild`) VALUES
+(30079, 107474, 0, 49, '<Take up your tools and practice enchanting.>', 0, 0, 0, 0, 0, 42379, 0, 0, NULL, 0, NULL, NULL, 59570),
+(38147, 132218, 0, 53, 'Where do I stand with the Gallagio?', 0, 0, 0, 0, 0, 58586, 0, 0, NULL, 0, NULL, NULL, 59570),
+(37946, 131916, 0, 1, 'Show me your wares.', 58437, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 59570), -- OptionBroadcastTextID: 58437 - 90189 - 180077
+(37947, 131919, 0, 1, 'Show me your wares.', 58437, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 59570); -- OptionBroadcastTextID: 58437 - 90189 - 180077
