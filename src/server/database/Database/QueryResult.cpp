@@ -405,8 +405,9 @@ _fields(fields)
     for (uint32 i = 0; i < _fieldCount; i++)
     {
         InitializeDatabaseFieldMetadata(&_fieldMetadata[i], &_fields[i], i, false);
-        bool success = _fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, _fieldMetadata[i].Alias }, i).second;
-        ASSERT(success);
+        auto [itr, success] = _fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, _fieldMetadata[i].Alias }, i);
+        ASSERT(success, "Duplicate column alias %s in query for column %s.%s, conflicts with column %s.%s",
+            _fieldMetadata[i].Alias, _fieldMetadata[i].TableName, _fieldMetadata[i].Name, _fieldMetadata[itr->second].TableName, _fieldMetadata[itr->second].Name);
         _currentRow[i].SetMetadata(&_fieldMetadata[i]);
     }
 }
@@ -463,8 +464,9 @@ m_metadataResult(result)
         rowSize += size;
 
         InitializeDatabaseFieldMetadata(&m_fieldMetadata[i], &field[i], i, true);
-        bool success = m_fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, m_fieldMetadata[i].Alias }, i).second;
-        ASSERT(success);
+        auto [itr, success] = m_fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, m_fieldMetadata[i].Alias }, i);
+        ASSERT(success, "Duplicate column alias %s in query for column %s.%s, conflicts with column %s.%s",
+            m_fieldMetadata[i].Alias, m_fieldMetadata[i].TableName, m_fieldMetadata[i].Name, m_fieldMetadata[itr->second].TableName, m_fieldMetadata[itr->second].Name);
 
         m_rBind[i].buffer_type = field[i].type;
         m_rBind[i].buffer_length = size;
