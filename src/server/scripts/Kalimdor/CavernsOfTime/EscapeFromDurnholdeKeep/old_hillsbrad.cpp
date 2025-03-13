@@ -483,9 +483,10 @@ struct npc_thrall_old_hillsbrad : public EscortAI
     {
         EscortAI::UpdateAI(diff);
 
-        // If not in combat, and supposed to have a mount, ensure he is mounted.
         if (!me->IsInCombat() && !me->IsMounted() && HadMount)
         DoMount();
+        else if (me->IsInCombat() && me->IsMounted())
+        DoUnmount();
 
         if (!UpdateVictim())
             return;
