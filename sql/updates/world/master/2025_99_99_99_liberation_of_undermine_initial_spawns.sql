@@ -162,7 +162,6 @@ UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`
 UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x4000800, `unit_flags3`=0x8001 WHERE `entry`=225822; -- Vexie Fullthrottle
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000300, `unit_flags2`=0x4000800, `unit_flags3`=0x8000 WHERE `entry`=228665; -- Geargrinder Biker
 
-
 -- Gameobjects
 DELETE FROM `gameobject_template` WHERE `entry` IN (484571, 516767, 484570, 494478, 505248, 504688, 494485, 494484, 494487, 494486, 494481, 499159, 494483, 494482, 499165, 499164, 494488, 499166, 499160, 499163, 494731, 494730, 455349, 455351, 505163, 504785, 455357, 455356, 455359, 455358, 455353, 525461, 504798, 455352, 504793, 455355, 525463, 455354, 525462, 504795, 499251, 455361, 525469, 455360, 525468, 525465, 525464, 525467, 525466, 484573, 504686, 484572, 499202, 504791, 504794, 506582);
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `Data8`, `Data9`, `Data10`, `Data11`, `Data12`, `Data13`, `Data14`, `Data15`, `Data16`, `Data17`, `Data18`, `Data19`, `Data20`, `Data21`, `Data22`, `Data23`, `Data24`, `Data25`, `Data26`, `Data27`, `Data28`, `Data29`, `Data30`, `Data31`, `Data32`, `Data33`, `Data34`, `ContentTuningId`, `VerifiedBuild`) VALUES
