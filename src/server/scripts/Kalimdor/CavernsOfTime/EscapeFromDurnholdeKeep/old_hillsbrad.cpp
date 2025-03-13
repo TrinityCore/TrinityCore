@@ -484,9 +484,9 @@ struct npc_thrall_old_hillsbrad : public EscortAI
         EscortAI::UpdateAI(diff);
 
         if (!me->IsInCombat() && !me->IsMounted() && HadMount)
-        DoMount();
+            DoMount();
         else if (me->IsInCombat() && me->IsMounted())
-        DoUnmount();
+            DoUnmount();
 
         if (!UpdateVictim())
             return;
