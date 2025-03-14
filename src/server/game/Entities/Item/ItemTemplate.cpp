@@ -20,8 +20,14 @@
 #include "Opcodes.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 #include "Packets/QueryPackets.h"
+
+uint32 ItemTemplate::GetMaxStackSize() const
+{
+    return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF - 1) : uint32(Stackable * sWorld->getIntConfig(CONFIG_ITEM_STACKSIZE_MULTIPLIER));
+}
 
 bool ItemTemplate::HasSignature() const
 {
