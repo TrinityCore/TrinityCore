@@ -716,6 +716,13 @@ ArenaTeam.CharterCost.5v5 = 2000000
 MaxWhoListReturns = 49
 
 #
+#    WhoList.Update.Interval
+#        Description: Interval in seconds for Who List to get updated
+#        Default:     5 (seconds)
+
+WhoList.Update.Interval = 5
+
+#
 #    CharacterCreating.Disabled
 #        Description: Disable character creation for players based on faction.
 #        Default:     0 - (Enabled, All factions are allowed)
