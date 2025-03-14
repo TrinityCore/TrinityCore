@@ -7386,7 +7386,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         if (ar->achievement)
         {
-            if (!sAchievementMgr->GetAchievement(ar->achievement))
+            if (!sAchievementStore.LookupEntry(ar->achievement))
             {
                 TC_LOG_ERROR("sql.sql", "Required Achievement {} not exist for map {} difficulty {}, remove quest done requirement.", ar->achievement, mapid, difficulty);
                 ar->achievement = 0;
@@ -10103,9 +10103,9 @@ void ObjectMgr::LoadFactionChangeAchievements()
         uint32 alliance = fields[0].GetUInt32();
         uint32 horde = fields[1].GetUInt32();
 
-        if (!sAchievementMgr->GetAchievement(alliance))
+        if (!sAchievementStore.LookupEntry(alliance))
             TC_LOG_ERROR("sql.sql", "Achievement {} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
-        else if (!sAchievementMgr->GetAchievement(horde))
+        else if (!sAchievementStore.LookupEntry(horde))
             TC_LOG_ERROR("sql.sql", "Achievement {} (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
         else
             FactionChangeAchievements[alliance] = horde;
