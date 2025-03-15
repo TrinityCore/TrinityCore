@@ -831,14 +831,14 @@ class spell_sha_flametongue_weapon_aura : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_FLAMETONGUE_ATTACK });
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
 
-        Unit* attacker = eventInfo.GetActor();
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::max(1, int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0264f)));
-        attacker->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_FLAMETONGUE_ATTACK, args);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_FLAMETONGUE_ATTACK, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
     }
 
     void Register() override
