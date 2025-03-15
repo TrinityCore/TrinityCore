@@ -727,6 +727,7 @@ class TC_GAME_API Guild
         // Bank tabs
         void SetBankTabText(uint8 tabId, std::string_view text);
 
+        EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }
         void ResetTimes();
 
         Trinity::unique_weak_ptr<Guild> GetWeakPtr() const { return m_weakRef; }

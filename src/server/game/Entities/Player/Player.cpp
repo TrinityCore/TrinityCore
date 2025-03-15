@@ -14411,11 +14411,11 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
         //only for quests which cast teleport spells on player
         Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
         ASSERT(_map);
-        GameObject* pGameObject = _map->GetGameObject(guid);
-        if (pGameObject)
+        GameObject* gameObject = _map->GetGameObject(guid);
+        if (gameObject)
         {
-            objectQR  = sObjectMgr->GetGOQuestRelations(pGameObject->GetEntry());
-            objectQIR = sObjectMgr->GetGOQuestInvolvedRelations(pGameObject->GetEntry());
+            objectQR  = sObjectMgr->GetGOQuestRelations(gameObject->GetEntry());
+            objectQIR = sObjectMgr->GetGOQuestInvolvedRelations(gameObject->GetEntry());
         }
         else
             return;
@@ -14538,31 +14538,30 @@ bool Player::IsActiveQuest(uint32 quest_id) const
     return m_QuestStatus.find(quest_id) != m_QuestStatus.end();
 }
 
-Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
+Quest const* Player::GetNextQuest(Object const* questGiver, Quest const* quest) const
 {
-    QuestRelationResult quests;
+    uint32 nextQuestID = quest->GetNextQuestInChain();
+    if (!nextQuestID)
+        return nullptr;
 
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (creature)
-        quests  = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
-    else
+    if (questGiver == this)
     {
-        //we should obtain map pointer from GetMap() in 99% of cases. Special case
-        //only for quests which cast teleport spells on player
-        Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
-        ASSERT(_map);
-        GameObject* pGameObject = _map->GetGameObject(guid);
-        if (pGameObject)
-            quests  = sObjectMgr->GetGOQuestRelations(pGameObject->GetEntry());
-        else
+        if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
             return nullptr;
+
+        return sObjectMgr->GetQuestTemplate(nextQuestID);
     }
 
-    if (uint32 nextQuestID = quest->GetNextQuestInChain())
-        if (quests.HasQuest(nextQuestID))
-            return sObjectMgr->GetQuestTemplate(nextQuestID);
+    //we should obtain map pointer from GetMap() in 99% of cases. Special case
+    //only for quests which cast teleport spells on player
+    if (WorldObject const* worldObjectQuestGiver = dynamic_cast<WorldObject const*>(questGiver))
+        if (!IsInMap(worldObjectQuestGiver))
+            return nullptr;
 
-    return nullptr;
+    if (!questGiver->hasQuest(nextQuestID))
+        return nullptr;
+
+    return sObjectMgr->GetQuestTemplate(nextQuestID);
 }
 
 bool Player::CanSeeStartQuest(Quest const* quest) const
