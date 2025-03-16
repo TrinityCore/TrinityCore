@@ -133,6 +133,8 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_UMBRAL_INSPIRATION_TALENT      = 450418,
+    SPELL_DRUID_UMBRAL_INSPIRATION_AURA        = 450419,
     SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY         = 145110,
     SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
@@ -2218,6 +2220,53 @@ class spell_dru_tiger_dash_aura : public AuraScript
     }
 };
 
+// 393763 - Umbral Embrace
+class spell_dru_umbral_embrace : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_LUNAR_AURA, SPELL_DRUID_ECLIPSE_SOLAR_AURA });
+    }
+
+    bool CheckEclipse(ProcEventInfo const& eventInfo) const
+    {
+        return eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_AURA) || eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_AURA);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_umbral_embrace::CheckEclipse);
+    }
+};
+
+// Called by 393763 - Umbral Embrace
+class spell_dru_umbral_inspiration : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_UMBRAL_INSPIRATION_TALENT, SPELL_DRUID_UMBRAL_INSPIRATION_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DRUID_UMBRAL_INSPIRATION_TALENT);
+    }
+
+    void HandleAfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DRUID_UMBRAL_INSPIRATION_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_umbral_inspiration::HandleAfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 48438 - Wild Growth
 class spell_dru_wild_growth : public SpellScript
 {
@@ -2389,6 +2438,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
+    RegisterSpellScript(spell_dru_umbral_embrace);
+    RegisterSpellScript(spell_dru_umbral_inspiration);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
     RegisterSpellScript(spell_dru_yseras_gift);
     RegisterSpellScript(spell_dru_yseras_gift_group_heal);
