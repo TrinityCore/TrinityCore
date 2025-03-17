@@ -27,6 +27,7 @@
 #include "PetPackets.h"
 #include "Player.h"
 #include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -422,6 +423,8 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     {
         if (!forcedCooldown)
         {
+            Duration baseCooldown = cooldown;
+
             // Now we have cooldown data (if found any), time to apply mods
             if (Player* modOwner = _owner->GetSpellModOwner())
             {
@@ -449,6 +452,34 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
             {
                 cooldown = Duration(int64(cooldown.count() * _owner->m_unitData->ModHasteRegen));
                 categoryCooldown = Duration(int64(categoryCooldown.count() * _owner->m_unitData->ModHasteRegen));
+            }
+
+            {
+                auto calcRecoveryRate = [&](AuraEffect const* modRecoveryRate)
+                {
+                    float rate = 100.0f / (std::max<float>(modRecoveryRate->GetAmount(), -99.0f) + 100.0f);
+                    if (baseCooldown <= 1h
+                        && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_FOR_MOD_TIME_RATE)
+                        && !modRecoveryRate->GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes::IgnoreDuringCooldownTimeRateCalculation))
+                        rate *= *_owner->m_unitData->ModTimeRate;
+
+                    return rate;
+                };
+
+                float recoveryRate = 1.0f;
+                for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_RECOVERY_RATE))
+                    if (modRecoveryRate->IsAffectingSpell(spellInfo))
+                        recoveryRate *= calcRecoveryRate(modRecoveryRate);
+
+                for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_RECOVERY_RATE_BY_SPELL_LABEL))
+                    if (spellInfo->HasLabel(modRecoveryRate->GetMiscValue()) || (modRecoveryRate->GetMiscValueB() && spellInfo->HasLabel(modRecoveryRate->GetMiscValueB())))
+                        recoveryRate *= calcRecoveryRate(modRecoveryRate);
+
+                if (recoveryRate > 0.0f)
+                {
+                    cooldown = Duration(int64(cooldown.count() * recoveryRate));
+                    categoryCooldown = Duration(int64(categoryCooldown.count() * recoveryRate));
+                }
             }
 
             if (int32 cooldownMod = _owner->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
@@ -591,12 +622,36 @@ void SpellHistory::ModifySpellCooldown(CooldownStorageType::iterator& itr, Durat
         modifyCooldown.IsPet = _owner != playerOwner;
         modifyCooldown.SpellID = itr->second.SpellId;
         modifyCooldown.DeltaTime = duration_cast<Milliseconds>(cooldownMod).count();
-        modifyCooldown.WithoutCategoryCooldown = withoutCategoryCooldown;
+        modifyCooldown.SkipCategory = withoutCategoryCooldown;
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 
     if (itr->second.CooldownEnd <= now)
         itr = EraseCooldown(itr);
+}
+
+void SpellHistory::UpdateCooldownRecoveryRate(CooldownStorageType::iterator& itr, float modChange, bool apply)
+{
+    if (modChange <= 0.0f)
+        return;
+
+    if (!apply)
+        modChange = 1.0f / modChange;
+
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+
+    itr->second.CooldownEnd = now + duration_cast<Duration>((itr->second.CooldownEnd - now) * modChange);
+
+    if (itr->second.CategoryId)
+        itr->second.CategoryEnd = now + duration_cast<Duration>((itr->second.CategoryEnd - now) * modChange);
+
+    if (Player* playerOwner = GetPlayerOwner())
+    {
+        WorldPackets::Spells::UpdateCooldown updateCooldown;
+        updateCooldown.SpellID = itr->second.SpellId;
+        updateCooldown.ModChange = modChange;
+        playerOwner->SendDirectMessage(updateCooldown.Write());
+    }
 }
 
 void SpellHistory::ModifyCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown)

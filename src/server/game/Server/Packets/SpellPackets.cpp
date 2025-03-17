@@ -610,6 +610,15 @@ WorldPacket const* ModifyCooldown::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* UpdateCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << float(ModChange);
+    _worldPacket << float(ModRate);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, SpellCooldownStruct const& cooldown)
 {
     data << uint32(cooldown.SrecID);

@@ -139,6 +139,16 @@ public:
         }
     }
 
+    template <Trinity::invocable_r<bool, CooldownEntry const&> Predicate>
+    void UpdateCooldownRecoveryRate(Predicate&& predicate, float modChange, bool apply)
+    {
+        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
+        {
+            if (std::forward<Predicate>(predicate)(itr->second))
+                UpdateCooldownRecoveryRate(itr, modChange, apply);
+        }
+    }
+
     void ResetCooldown(uint32 spellId, bool update = false);
     template <Trinity::invocable_r<bool, CooldownEntry const&> Predicate>
     void ResetCooldowns(Predicate&& predicate, bool update = false)
@@ -200,6 +210,7 @@ private:
     Player* GetPlayerOwner() const;
     void ModifySpellCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown);
     void ModifySpellCooldown(CooldownStorageType::iterator& itr, Duration cooldownMod, bool withoutCategoryCooldown);
+    void UpdateCooldownRecoveryRate(CooldownStorageType::iterator& itr, float modChange, bool apply);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
