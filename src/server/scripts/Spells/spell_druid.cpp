@@ -59,6 +59,8 @@ enum DruidSpells
     SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_DREAMSTATE                     = 450346,
+    SPELL_DRUID_DREAM_OF_CENARIUS              = 372152,
+    SPELL_DRUID_DREAM_OF_CENARIUS_MARKER       = 372523,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
     SPELL_DRUID_ECLIPSE_LUNAR_AURA             = 48518,
@@ -466,6 +468,40 @@ class spell_dru_dash : public AuraScript
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
+    }
+};
+
+// 372119 - Dream of Cenarius
+class spell_dru_dream_of_cenarius : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_DREAM_OF_CENARIUS, SPELL_DRUID_DREAM_OF_CENARIUS_MARKER });
+    }
+
+    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/)
+    {
+        if (GetUnitOwner()->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_MARKER))
+            return false;
+
+        return roll_chance_f(GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK));
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*procInfo*/) const
+    {
+        Unit* target = GetTarget();
+        CastSpellExtraArgs args;
+        args.SetTriggeringAura(aurEff);
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        target->CastSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS, args);
+        target->CastSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_MARKER, args);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_dream_of_cenarius::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_dream_of_cenarius::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2331,6 +2367,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_celestial_alignment);
     RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
+    RegisterSpellScript(spell_dru_dream_of_cenarius);
     RegisterSpellScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
