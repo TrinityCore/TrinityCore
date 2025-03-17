@@ -234,7 +234,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_RANGED_HASTE                             = 140,
     SPELL_AURA_141                                          = 141,  // old SPELL_AURA_MOD_RANGED_AMMO_HASTE, unused now
     SPELL_AURA_MOD_BASE_RESISTANCE_PCT                      = 142,
-    SPELL_AURA_MOD_RECOVERY_RATE_BY_SPELL_LABEL             = 143,  // NYI
+    SPELL_AURA_MOD_RECOVERY_RATE_BY_SPELL_LABEL             = 143,
     SPELL_AURA_SAFE_FALL                                    = 144,
     SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT2                 = 145,
     SPELL_AURA_ALLOW_TAME_PET_TYPE                          = 146,

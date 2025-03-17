@@ -561,9 +561,21 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsPet = false;
-            bool WithoutCategoryCooldown = false;
+            bool SkipCategory = false;
             int32 DeltaTime = 0;
             int32 SpellID = 0;
+        };
+
+        class UpdateCooldown final : public ServerPacket
+        {
+        public:
+            UpdateCooldown() : ServerPacket(SMSG_UPDATE_COOLDOWN, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            float ModChange = 1.0f;
+            float ModRate = 1.0f;
         };
 
         struct SpellCooldownStruct
