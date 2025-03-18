@@ -326,6 +326,7 @@ class TC_GAME_API AuraEffect
         void HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModRecoveryRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModRecoveryRateBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModChargeRecoveryRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleShowConfirmationPrompt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
