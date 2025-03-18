@@ -239,7 +239,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT2                 = 145,
     SPELL_AURA_ALLOW_TAME_PET_TYPE                          = 146,
     SPELL_AURA_MECHANIC_IMMUNITY_MASK                       = 147,
-    SPELL_AURA_MOD_CHARGE_RECOVERY_RATE                     = 148,  // NYI
+    SPELL_AURA_MOD_CHARGE_RECOVERY_RATE                     = 148,
     SPELL_AURA_REDUCE_PUSHBACK                              = 149,  //    Reduce Pushback
     SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT                    = 150,
     SPELL_AURA_TRACK_STEALTHED                              = 151,  //    Track Stealthed
@@ -264,7 +264,7 @@ enum AuraType : uint32
     SPELL_AURA_DETECT_AMORE                                 = 170,
     SPELL_AURA_MOD_SPEED_NOT_STACK                          = 171,
     SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK                  = 172,
-    SPELL_AURA_MOD_RECOVERY_RATE_2                          = 173,  // NYI
+    SPELL_AURA_MOD_CHARGE_RECOVERY_RATE_BY_TYPE_MASK        = 173,
     SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT             = 174,  // by defeult intelect, dependent from SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT
     SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT            = 175,
     SPELL_AURA_SPIRIT_OF_REDEMPTION                         = 176,
@@ -296,7 +296,7 @@ enum AuraType : uint32
     SPELL_AURA_IGNORE_COMBAT_RESULT                         = 202,
     SPELL_AURA_PREVENT_INTERRUPT                            = 203,
     SPELL_AURA_PREVENT_CORPSE_RELEASE                       = 204,  // NYI
-    SPELL_AURA_MOD_CHARGE_COOLDOWN                          = 205,  // NYI
+    SPELL_AURA_MOD_CHARGE_RECOVERY_BY_TYPE_MASK             = 205,
     SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED            = 206,
     SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED            = 207,
     SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED                    = 208,

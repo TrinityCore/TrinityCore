@@ -704,6 +704,17 @@ WorldPacket const* SetSpellCharges::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* UpdateChargeCategoryCooldown::Write()
+{
+    _worldPacket << int32(Category);
+    _worldPacket << float(ModChange);
+    _worldPacket << float(ModRate);
+    _worldPacket << Bits<1>(Snapshot);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, SpellChargeEntry const& chargeEntry)
 {
     data << uint32(chargeEntry.Category);

@@ -658,6 +658,19 @@ namespace WorldPackets
             float ChargeModRate = 1.0f;
         };
 
+        class UpdateChargeCategoryCooldown final : public ServerPacket
+        {
+        public:
+            UpdateChargeCategoryCooldown() : ServerPacket(SMSG_UPDATE_CHARGE_CATEGORY_COOLDOWN, 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Category = 0;
+            float ModChange = 1.0f;
+            float ModRate = 1.0f;
+            bool Snapshot = false;
+        };
+
         struct SpellChargeEntry
         {
             uint32 Category = 0;
