@@ -859,6 +859,9 @@ bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
     int32 chargeRecovery = GetChargeRecoveryTime(chargeCategoryId);
     if (chargeRecovery > 0 && GetMaxCharges(chargeCategoryId) > 0)
     {
+        if (_owner->HasAuraTypeWithMiscvalue(SPELL_AURA_IGNORE_SPELL_CHARGE_COOLDOWN, chargeCategoryId))
+            return true;
+
         TimePoint recoveryStart;
         std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryId];
         if (charges.empty())
