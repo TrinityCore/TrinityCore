@@ -133,6 +133,7 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_URSOCS_FURY_SHIELD             = 372505,
     SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY         = 145110,
     SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
@@ -2218,6 +2219,36 @@ class spell_dru_tiger_dash_aura : public AuraScript
     }
 };
 
+// 377210 - Ursoc's Fury
+class spell_dru_ursocs_fury : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_URSOCS_FURY_SHIELD });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return;
+
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetProcTarget();
+        int32 amount = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
+
+        caster->CastSpell(caster, SPELL_DRUID_URSOCS_FURY_SHIELD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_ursocs_fury::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 48438 - Wild Growth
 class spell_dru_wild_growth : public SpellScript
 {
@@ -2389,6 +2420,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
+    RegisterSpellScript(spell_dru_ursocs_fury);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
     RegisterSpellScript(spell_dru_yseras_gift);
     RegisterSpellScript(spell_dru_yseras_gift_group_heal);
