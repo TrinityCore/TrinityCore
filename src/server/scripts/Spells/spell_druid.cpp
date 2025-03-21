@@ -2234,7 +2234,6 @@ class spell_dru_ursocs_fury : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
         int32 amount = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
 
         caster->CastSpell(caster, SPELL_DRUID_URSOCS_FURY_SHIELD, CastSpellExtraArgsInit{
