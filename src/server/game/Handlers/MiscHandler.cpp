@@ -1163,6 +1163,9 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 
     if (_player->GetStableMaster() == closeInteraction.SourceGuid)
         _player->SetStableMaster(ObjectGuid::Empty);
+
+    if (_player->GetSelfOfferQuest())
+        _player->SetSelfOfferQuest(0);
 }
 
 void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted)

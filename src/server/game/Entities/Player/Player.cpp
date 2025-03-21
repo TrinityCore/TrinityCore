@@ -31068,3 +31068,13 @@ bool Player::CanExecutePendingSpellCastRequest()
 
     return true;
 }
+
+void Player::SetSelfOfferQuest(uint32 questId)
+{
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Field_1B0), questId);
+}
+
+uint32 Player::GetSelfOfferQuest() const
+{
+    return m_playerData->Field_1B0;
+}

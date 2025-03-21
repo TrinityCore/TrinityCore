@@ -556,7 +556,7 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<322>
     UpdateField<int64, 32, 33> LogoutTime;
     UpdateField<std::string, 32, 34> Name;
     UpdateField<int32, 32, 35> Field_1AC;
-    UpdateField<int32, 32, 36> Field_1B0;
+    UpdateField<int32, 32, 36> Field_1B0; // related to accepting quests from self, needs to be set to quest currently send in offer message, otherwise client does not send accept packet
     UpdateField<int32, 32, 37> CurrentBattlePetSpeciesID;
     UpdateField<UF::CTROptions, 32, 38> CtrOptions;
     UpdateField<int32, 32, 39> CovenantID;
