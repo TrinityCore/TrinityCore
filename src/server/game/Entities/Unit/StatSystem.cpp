@@ -550,20 +550,11 @@ void Player::UpdateMastery()
     if (!chrSpec)
         return;
 
-    for (int32 masterySpellId : chrSpec->MasterySpellID)
-    {
-        if (Aura* aura = GetAura(masterySpellId))
-        {
+    for (auto const& [_, aura] : GetOwnedAuras())
+        if (aura->GetCasterGUID() == GetGUID() && aura->GetSpellInfo()->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS))
             for (AuraEffect* auraEff : aura->GetAuraEffects())
-            {
-                float mult = auraEff->GetSpellEffectInfo().BonusCoefficient;
-                if (G3D::fuzzyEq(mult, 0.0f))
-                    continue;
-
-                auraEff->ChangeAmount(int32(value * mult));
-            }
-        }
-    }
+                if (G3D::fuzzyNe(auraEff->GetSpellEffectInfo().BonusCoefficient, 0.0f))
+                    auraEff->RecalculateAmount(this);
 }
 
 void Player::UpdateVersatilityDamageDone()
