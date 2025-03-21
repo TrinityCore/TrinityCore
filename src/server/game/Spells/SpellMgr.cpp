@@ -5014,6 +5014,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->NegativeEffects[EFFECT_2] = true;
     });
 
+    // Sundering
+    ApplySpellFix({ 197214 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetB = SpellImplicitTargetInfo();
+        });
+    });
+
     // Headless Horseman Climax - Return Head (Hallow End)
     // Headless Horseman Climax - Body Regen (confuse only - removed on death)
     // Headless Horseman Climax - Head Is Dead
