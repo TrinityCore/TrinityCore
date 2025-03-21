@@ -430,39 +430,6 @@ public:
     }
 };
 
-/*######
-# spell_low_health
-# 76143 - Low Health
-######*/
-
-class spell_low_health: public SpellScriptLoader
-{
-public:
-    spell_low_health() : SpellScriptLoader("spell_low_health") { }
-
-    class spell_low_health_SpellScript : public SpellScript
-    {
-        void HandleDummyEffect(SpellEffIndex /*eff*/)
-        {
-            if (Creature* target = GetHitCreature())
-            {
-                target->SetRegenerateHealth(false);
-                target->SetHealth(target->CountPctFromMaxHealth(10));
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_low_health_SpellScript::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_low_health_SpellScript();
-    }
-};
-
 Position const RockjawInvaderSpawnPoints[7] =
 {
     { -6237.6807f, 375.5191f, 385.44696f, 5.168368339538574218f },
@@ -555,6 +522,5 @@ void AddSC_dun_morogh_area_coldridge_valley()
     new npc_milos_gyro();
     new spell_a_trip_to_ironforge_quest_complete();
     new spell_follow_that_gyrocopter_quest_start();
-    new spell_low_health();
     RegisterCreatureAI(npc_joren_ironstock);
 }

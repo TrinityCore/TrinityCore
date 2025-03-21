@@ -5093,6 +5093,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
+    //
+    // DUROTAR SPELLS
+    //
+
+    // Injured Razor Hill Grunt - Cancel Feign Death cast time 0
+    ApplySpellFix({ 73705 }, [](SpellInfo* spellInfo)
+    {
+            spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(0);
+    });
+
+    // ENDOF THE DUROTAR SPELLS
+
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
