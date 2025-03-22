@@ -504,8 +504,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                                     if (e.action.questOffer.playerMenu)
                                     {
-                                        player->SetQuestSharingInfo(player->GetGUID(), e.action.questOffer.questID);
-                                        player->SetSelfOfferQuest(e.action.questOffer.questID);
+                                        player->SetQuestSharingInfo(player->GetGUID(), int32(e.action.questOffer.questID));
+                                        player->SetSelfOfferQuest(int32(e.action.questOffer.questID));
                                     }
 
                                     menu.SendQuestGiverQuestDetails(q, e.action.questOffer.playerMenu ? player->GetGUID() : me->GetGUID(), true, false);
