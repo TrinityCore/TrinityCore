@@ -223,7 +223,7 @@ class TC_GAME_API Aura
         * @return Aura key.
         */
         AuraKey GenerateKey(uint32& recalculateMask) const;
-        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount);
+        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, int32* amount);
 
         // helpers for aura effects
         bool CanPeriodicTickCrit() const;
