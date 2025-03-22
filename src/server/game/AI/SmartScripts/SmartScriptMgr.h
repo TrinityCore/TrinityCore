@@ -673,6 +673,7 @@ struct SmartAction
         {
             uint32 questID;
             SAIBool directAdd;
+            SAIBool playerMenu;
         } questOffer;
 
         struct
