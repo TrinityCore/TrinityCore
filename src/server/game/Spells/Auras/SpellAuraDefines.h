@@ -806,6 +806,8 @@ struct TC_GAME_API AuraCreateInfo
     AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
     AuraCreateInfo& SetCastItem(ObjectGuid const& guid, uint32 itemId, int32 itemLevel) { CastItemGUID = guid; CastItemId = itemId; CastItemLevel = itemLevel; return *this; }
     AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
+    AuraCreateInfo& SetIsRefresh(bool* isRefresh) { IsRefresh = isRefresh; return *this; }
+    AuraCreateInfo& SetStackAmount(int32 stackAmount) { StackAmount = stackAmount > 0 ? stackAmount : 1; return *this; }
     AuraCreateInfo& SetOwnerEffectMask(uint32 effMask) { _targetEffectMask = effMask; return *this; }
 
     SpellInfo const* GetSpellInfo() const { return _spellInfo; }
@@ -818,6 +820,7 @@ struct TC_GAME_API AuraCreateInfo
     uint32 CastItemId = 0;
     int32 CastItemLevel = -1;
     bool* IsRefresh = nullptr;
+    int32 StackAmount = 1;
     bool ResetPeriodicTimer = true;
 
 private:
