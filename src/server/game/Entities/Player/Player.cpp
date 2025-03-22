@@ -14723,6 +14723,9 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
     if (!questGiver)
         return;
 
+    if (quest->GetAcceptConversationID())
+        Conversation::CreateConversation(*quest->GetAcceptConversationID(), this, *this, GetGUID(), nullptr);
+
     switch (questGiver->GetTypeId())
     {
         case TYPEID_UNIT:
@@ -15377,6 +15380,9 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         else if (GameObject* goQGiver = questGiver->ToGameObject())
             goQGiver->AI()->OnQuestReward(this, quest, rewardType, rewardId);
     }
+
+    if (quest->GetRewardConversationID())
+        Conversation::CreateConversation(*quest->GetRewardConversationID(), this, *this, GetGUID(), nullptr);
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
