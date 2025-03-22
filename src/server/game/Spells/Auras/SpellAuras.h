@@ -35,6 +35,7 @@ namespace WorldPackets
     namespace Spells
     {
         struct AuraInfo;
+        struct LossOfControlAuraData;
     }
 }
 
@@ -97,6 +98,8 @@ class TC_GAME_API AuraApplication
         bool IsNeedClientUpdate() const { return _needClientUpdate; }
         void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
         void ClientUpdate(bool remove = false);
+
+        void AddLossOfControlAuraData(std::vector<WorldPackets::Spells::LossOfControlAuraData>& lossOfControlAuraData);
 
         std::string GetDebugInfo() const;
 };
