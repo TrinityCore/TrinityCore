@@ -612,8 +612,17 @@ WorldPacket const* ModifyCooldown::Write()
     _worldPacket << int32(SpellID);
     _worldPacket << int32(DeltaTime);
     _worldPacket << Bits<1>(IsPet);
-    _worldPacket << Bits<1>(WithoutCategoryCooldown);
+    _worldPacket << Bits<1>(SkipCategory);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* UpdateCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << float(ModChange);
+    _worldPacket << float(ModRate);
 
     return &_worldPacket;
 }
@@ -690,6 +699,17 @@ WorldPacket const* SetSpellCharges::Write()
     _worldPacket << uint8(ConsumedCharges);
     _worldPacket << float(ChargeModRate);
     _worldPacket << Bits<1>(IsPet);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* UpdateChargeCategoryCooldown::Write()
+{
+    _worldPacket << int32(Category);
+    _worldPacket << float(ModChange);
+    _worldPacket << float(ModRate);
+    _worldPacket << Bits<1>(Snapshot);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

@@ -545,6 +545,10 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
                 value += comboDamage * comboPoints;
     }
 
+    if (_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS))
+        if (Player const* playerCaster = Object::ToPlayer(caster))
+            value += *playerCaster->m_activePlayerData->Mastery * BonusCoefficient;
+
     if (caster)
         value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
 
@@ -4831,7 +4835,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_WEAPON_CRIT_PERCENT:
             case SPELL_AURA_POWER_BURN:
             case SPELL_AURA_MOD_COOLDOWN:
-            case SPELL_AURA_MOD_CHARGE_COOLDOWN:
+            case SPELL_AURA_MOD_CHARGE_RECOVERY_BY_TYPE_MASK:
             case SPELL_AURA_MOD_INCREASE_SPEED:
             case SPELL_AURA_MOD_PARRY_PERCENT:
             case SPELL_AURA_SET_VEHICLE_ID:
