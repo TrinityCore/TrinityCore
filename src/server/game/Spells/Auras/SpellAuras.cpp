@@ -967,9 +967,6 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
     {
         // Pandemic doesn't reset periodic timer
         resetPeriodicTimer = false;
-
-        int32 pandemicDuration = CalculatePct(m_maxDuration, 30.f);
-        m_maxDuration = std::max(GetDuration(), std::min(pandemicDuration, GetDuration()) + m_maxDuration);
     }
 
     RefreshDuration();
