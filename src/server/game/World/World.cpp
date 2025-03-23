@@ -100,7 +100,6 @@
 #include "UpdateTime.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-#include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 #include "WeatherMgr.h"
 #include "WhoListStorage.h"
@@ -1571,16 +1570,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_NUMTHREADS] = sConfigMgr->GetIntDefault("MapUpdate.Threads", 1);
     m_int_configs[CONFIG_MAX_RESULTS_LOOKUP_COMMANDS] = sConfigMgr->GetIntDefault("Command.LookupMaxResults", 0);
 
-    // Warden
-    m_bool_configs[CONFIG_WARDEN_ENABLED]              = sConfigMgr->GetBoolDefault("Warden.Enabled", false);
-    m_int_configs[CONFIG_WARDEN_NUM_INJECT_CHECKS]     = sConfigMgr->GetIntDefault("Warden.NumInjectionChecks", 9);
-    m_int_configs[CONFIG_WARDEN_NUM_LUA_CHECKS]        = sConfigMgr->GetIntDefault("Warden.NumLuaSandboxChecks", 1);
-    m_int_configs[CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS] = sConfigMgr->GetIntDefault("Warden.NumClientModChecks", 1);
-    m_int_configs[CONFIG_WARDEN_CLIENT_BAN_DURATION]   = sConfigMgr->GetIntDefault("Warden.BanDuration", 86400);
-    m_int_configs[CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF]  = sConfigMgr->GetIntDefault("Warden.ClientCheckHoldOff", 30);
-    m_int_configs[CONFIG_WARDEN_CLIENT_FAIL_ACTION]    = sConfigMgr->GetIntDefault("Warden.ClientCheckFailAction", 0);
-    m_int_configs[CONFIG_WARDEN_CLIENT_RESPONSE_DELAY] = sConfigMgr->GetIntDefault("Warden.ClientResponseDelay", 600);
-
     // Feature System
     m_bool_configs[CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED]         = sConfigMgr->GetBoolDefault("FeatureSystem.BpayStore.Enabled", false);
     m_bool_configs[CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED] = sConfigMgr->GetBoolDefault("FeatureSystem.CharacterUndelete.Enabled", false);
@@ -2522,13 +2511,6 @@ bool World::SetInitialWorldSettings()
     ///- Initialize Battlefield
     TC_LOG_INFO("server.loading", "Starting Battlefield System");
     sBattlefieldMgr->InitBattlefield();
-
-    ///- Initialize Warden
-    TC_LOG_INFO("server.loading", "Loading Warden Checks...");
-    sWardenCheckMgr->LoadWardenChecks();
-
-    TC_LOG_INFO("server.loading", "Loading Warden Action Overrides...");
-    sWardenCheckMgr->LoadWardenOverrides();
 
     TC_LOG_INFO("server.loading", "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
