@@ -133,6 +133,11 @@ namespace WorldPackets
         struct TraitConfig;
         struct TraitEntry;
     }
+
+    namespace Spells
+    {
+        struct LossOfControlAuraData;
+    }
 }
 
 TC_GAME_API uint32 GetBagSize(Bag const* bag);
@@ -2972,6 +2977,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool CanAcceptAreaSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _areaSpiritHealerGUID; }
         void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
         void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
+
+        void SendLossOfControlAuraUpdate(std::vector<WorldPackets::Spells::LossOfControlAuraData>& lossOfControlAuraData);
 
     protected:
         // Gamemaster whisper whitelist
