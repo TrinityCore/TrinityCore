@@ -195,7 +195,7 @@ int main(int argc, char** argv)
     if (sRealmList->GetRealms().empty())
     {
         TC_LOG_ERROR("server.authserver", "No valid realms specified.");
-        return 1;
+        // return 1; (skip to the loop)
     }
 
     // Start the listening port (acceptor) for auth connections
