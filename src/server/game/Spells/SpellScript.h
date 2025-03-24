@@ -1926,10 +1926,10 @@ public:
                 static_assert(std::is_invocable_r_v<void, ScriptFunc, ProcEventInfo&>,
                     "AuraProcHandler signature must be \"static void HandleProc(ProcEventInfo& eventInfo)\"");
 
-                _callImpl = { .Member = reinterpret_cast<decltype(AuraProcFnType::Member)>(handler) };
+                _callImpl = { .Static = reinterpret_cast<decltype(AuraProcFnType::Static)>(handler) };
                 _safeWrapper = [](AuraScript* /*auraScript*/, ProcEventInfo& eventInfo, AuraProcFnType callImpl) -> void
                 {
-                    return reinterpret_cast<ScriptFunc>(callImpl.Member)(eventInfo);
+                    return reinterpret_cast<ScriptFunc>(callImpl.Static)(eventInfo);
                 };
             }
         }
