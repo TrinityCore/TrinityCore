@@ -158,6 +158,20 @@ class spell_hun_aspect_of_the_turtle : public AuraScript
     }
 };
 
+// 204089 - Bullseye
+class spell_hun_bullseye : public AuraScript
+{
+    bool CheckProc(ProcEventInfo const& eventInfo) const
+    {
+        return eventInfo.GetActionTarget()->HealthBelowPct(GetEffectInfo(EFFECT_0).CalcValue(eventInfo.GetActor()));
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_hun_bullseye::CheckProc);
+    }
+};
+
 // 378750 - Cobra Sting
 class spell_hun_cobra_sting : public AuraScript
 {
@@ -810,6 +824,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_a_murder_of_crows);
     RegisterSpellScript(spell_hun_aspect_cheetah);
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
+    RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
