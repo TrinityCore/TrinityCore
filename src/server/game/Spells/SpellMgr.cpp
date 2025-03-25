@@ -3890,12 +3890,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // Gathering Storms
-    ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->ProcCharges = 1; // override proc charges, has 0 (unlimited) in db2
-    });
-
     ApplySpellFix({
         15538, // Gout of Flame
         42490, // Energized!
