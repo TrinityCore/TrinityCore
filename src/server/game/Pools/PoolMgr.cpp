@@ -288,7 +288,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
 
         if (!EqualChanced.empty() && rolledObjects.empty())
         {
-            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [triggerFrom, &spawns](PoolObject const& object)
+            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [&spawns](PoolObject const& object)
             {
                 return !spawns.IsActiveObject<T>(object.guid);
             });
