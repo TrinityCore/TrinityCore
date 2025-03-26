@@ -278,7 +278,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
                 roll -= obj.chance;
                 // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
                 // so this need explicit check for this case
-                if (roll < 0 && (!spawns.IsActiveObject<T>(obj.guid)))
+                if (roll < 0 && !spawns.IsActiveObject<T>(obj.guid))
                 {
                     rolledObjects.push_back(obj);
                     break;
