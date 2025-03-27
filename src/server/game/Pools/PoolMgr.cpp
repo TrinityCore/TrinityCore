@@ -301,6 +301,8 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
         {
             if (obj.guid == triggerFrom)
             {
+                // Remove the object from active state before respawning.
+                spawns.RemoveObject<T>(obj.guid, poolId);
                 ReSpawn1Object(&obj);
                 triggerFrom = 0;
             }
