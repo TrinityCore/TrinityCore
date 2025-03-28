@@ -22403,45 +22403,45 @@ void Player::SendRemoveControlBar() const
     SendDirectMessage(packet.Write());
 }
 
-bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell* spell)
+uint32 Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell)
 {
     if (!mod || !spellInfo)
-        return false;
+        return 0;
 
     // First time this aura applies a mod to us and is out of charges
-    if (spell && mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges() && !spell->m_appliedMods.count(mod->ownerAura))
-        return false;
+    if (spell && mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges() && !spell->m_appliedMods.contains(mod->ownerAura))
+        return 0;
 
     switch (mod->op)
     {
         case SpellModOp::Duration: // +duration to infinite duration spells making them limited
             if (spellInfo->GetDuration() == -1)
-                return false;
+                return 0;
             break;
         case SpellModOp::CritChance: // mod crit to spells that can't crit
             if (!spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
-                return false;
+                return 0;
             break;
         case SpellModOp::PointsIndex0: // check if spell has any effect at that index
         case SpellModOp::Points:
             if (spellInfo->GetEffects().size() <= EFFECT_0)
-                return false;
+                return 0;
             break;
         case SpellModOp::PointsIndex1: // check if spell has any effect at that index
             if (spellInfo->GetEffects().size() <= EFFECT_1)
-                return false;
+                return 0;
             break;
         case SpellModOp::PointsIndex2: // check if spell has any effect at that index
             if (spellInfo->GetEffects().size() <= EFFECT_2)
-                return false;
+                return 0;
             break;
         case SpellModOp::PointsIndex3: // check if spell has any effect at that index
             if (spellInfo->GetEffects().size() <= EFFECT_3)
-                return false;
+                return 0;
             break;
         case SpellModOp::PointsIndex4: // check if spell has any effect at that index
             if (spellInfo->GetEffects().size() <= EFFECT_4)
-                return false;
+                return 0;
             break;
         default:
             break;
@@ -22457,6 +22457,9 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
 
     *flat = 0;
     *pct = 1.0f;
+
+    if (!spellInfo->IsAffectedBySpellMods())
+        return;
 
     auto spellModOpBegin = std::ranges::lower_bound(m_spellMods, op, std::ranges::less(), &SpellModifier::op);
     if (spellModOpBegin == m_spellMods.end() || (*spellModOpBegin)->op != op)
@@ -22587,33 +22590,36 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_FLAT))
     {
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        if (!applyCount)
             continue;
 
         int32 value = static_cast<SpellModifierByClassMask*>(mod)->value;
         if (value == 0)
             continue;
 
-        *flat += value;
+        *flat += value * applyCount;
         Player::ApplyModToSpell(mod, spell);
     }
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_FLAT))
     {
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        if (!applyCount)
             continue;
 
         int32 value = static_cast<SpellFlatModifierByLabel*>(mod)->value.ModifierValue;
         if (value == 0)
             continue;
 
-        *flat += value;
+        *flat += value * applyCount;
         Player::ApplyModToSpell(mod, spell);
     }
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_PCT))
     {
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        if (!applyCount)
             continue;
 
         // skip percent mods for null basevalue (most important for spell mods with charges)
@@ -22631,13 +22637,14 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 continue;
         }
 
-        *pct *= 1.0f + CalculatePct(1.0f, value);
+        *pct *= std::pow(1.0f + CalculatePct(1.0f, value), applyCount);
         Player::ApplyModToSpell(mod, spell);
     }
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_PCT))
     {
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        if (!applyCount)
             continue;
 
         // skip percent mods for null basevalue (most important for spell mods with charges)
@@ -22655,7 +22662,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 continue;
         }
 
-        *pct *= value;
+        *pct *= std::pow(value, applyCount);
         Player::ApplyModToSpell(mod, spell);
     }
 }
