@@ -208,7 +208,7 @@ void Transport::Update(uint32 diff)
     size_t eventToTriggerIndex = _eventsToTrigger->find_first();
     if (eventToTriggerIndex != boost::dynamic_bitset<uint8>::npos)
     {
-        while (eventToTriggerIndex < _transportInfo->Events.size() && _transportInfo->Events[eventToTriggerIndex].Timestamp < timer)
+        while (eventToTriggerIndex < _transportInfo->Events.size() && _transportInfo->Events[eventToTriggerIndex].Timestamp <= timer)
         {
             if (TransportPathLeg const* leg = _transportInfo->GetLegForTime(_transportInfo->Events[eventToTriggerIndex].Timestamp))
                 if (leg->MapId == GetMapId())
