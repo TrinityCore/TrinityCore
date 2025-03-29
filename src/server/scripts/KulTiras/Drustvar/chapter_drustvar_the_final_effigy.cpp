@@ -20,9 +20,8 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 
-enum WitchHuntdata
+enum WitchHuntData
 {
     NPC_HELENA_GENTLE_HUMAN  = 124922,
 
@@ -45,9 +44,7 @@ public:
             if (!helenaObject)
                 return;
 
-            Creature* helenaClone = helenaObject->SummonPersonalClone(helenaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-            if (!helenaClone)
-                return;
+            helenaObject->SummonPersonalClone(helenaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
 };
