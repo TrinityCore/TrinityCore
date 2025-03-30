@@ -99,8 +99,6 @@ enum ShamanSpells
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
-    SPELL_SHAMAN_LAVA_BEAM                      = 114074,
-    SPELL_SHAMAN_LAVA_BEAM_OVERLOAD             = 114738,
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE        = 71824,
     SPELL_SHAMAN_LAVA_BURST_OVERLOAD            = 77451,
@@ -156,7 +154,6 @@ enum ShamanSpells
     SPELL_SHAMAN_UNRELENTING_STORMS_REDUCTION   = 470491,
     SPELL_SHAMAN_UNRELENTING_STORMS_TALENT      = 470490,
     SPELL_SHAMAN_UNRULY_WINDS                   = 390288,
-    SPELL_SHAMAN_VOLCANIC_SURGE                 = 408572,
     SPELL_SHAMAN_VOLTAIC_BLAZE_DAMAGE           = 470057,
     SPELL_SHAMAN_VOLTAIC_BLAZE_OVERRIDE         = 470058,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
@@ -303,7 +300,7 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal::ResizeTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal::ResizeTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
     }
 };
 
@@ -366,14 +363,14 @@ class spell_sha_ascendance_restoration : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_RESTORATIVE_MISTS });
     }
 
-    bool CheckProc(ProcEventInfo& procInfo)
+    static bool CheckProc(ProcEventInfo const& procInfo)
     {
         return procInfo.GetHealInfo() && procInfo.GetHealInfo()->GetOriginalHeal() && procInfo.GetSpellInfo()->Id != SPELL_SHAMAN_RESTORATIVE_MISTS_INITIAL;
     }
 
-    void OnProcHeal(AuraEffect* /*aurEff*/, ProcEventInfo& procInfo)
+    void OnProcHeal(AuraEffect const* aurEff, ProcEventInfo const& procInfo)
     {
-        _healToDistribute += procInfo.GetHealInfo()->GetOriginalHeal();
+        _healToDistribute += CalculatePct(int32(procInfo.GetHealInfo()->GetOriginalHeal()), aurEff->GetAmount());
     }
 
     void HandleEffectPeriodic(AuraEffect const* aurEff)
@@ -381,21 +378,23 @@ class spell_sha_ascendance_restoration : public AuraScript
         if (!_healToDistribute)
             return;
 
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellBP0(_healToDistribute);
-        GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_RESTORATIVE_MISTS, args);
+        GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_RESTORATIVE_MISTS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, _healToDistribute } }
+        });
         _healToDistribute = 0;
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_sha_ascendance_restoration::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_ascendance_restoration::OnProcHeal, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_ascendance_restoration::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_sha_ascendance_restoration::OnProcHeal, EFFECT_8, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_ascendance_restoration::HandleEffectPeriodic, EFFECT_6, SPELL_AURA_PERIODIC_DUMMY);
     }
 
 private:
-    uint32 _healToDistribute = 0;
+    int32 _healToDistribute = 0;
 };
 
 // 390370 - Ashen Catalyst
@@ -1914,13 +1913,11 @@ class spell_sha_mastery_elemental_overload : public AuraScript
             SPELL_SHAMAN_LAVA_BURST_OVERLOAD,
             SPELL_SHAMAN_CHAIN_LIGHTNING,
             SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD,
-            SPELL_SHAMAN_LAVA_BEAM,
-            SPELL_SHAMAN_LAVA_BEAM_OVERLOAD,
             SPELL_SHAMAN_STORMKEEPER
         });
     }
 
-    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
         if (!spellInfo || !eventInfo.GetProcSpell())
@@ -1935,13 +1932,13 @@ class spell_sha_mastery_elemental_overload : public AuraScript
             chance /= 3.0f;
 
         if (Aura* stormkeeper = eventInfo.GetActor()->GetAura(SPELL_SHAMAN_STORMKEEPER))
-            if (eventInfo.GetProcSpell()->m_appliedMods.find(stormkeeper) != eventInfo.GetProcSpell()->m_appliedMods.end())
+            if (eventInfo.GetProcSpell()->m_appliedMods.contains(stormkeeper))
                 chance = 100.0f;
 
         return roll_chance_f(chance);
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& procInfo)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
     {
         PreventDefaultAction();
 
@@ -1969,7 +1966,7 @@ class spell_sha_mastery_elemental_overload : public AuraScript
         OnEffectProc += AuraEffectProcFn(spell_sha_mastery_elemental_overload::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 
-    uint32 GetTriggeredSpellId(uint32 triggeringSpellId)
+    static uint32 GetTriggeredSpellId(uint32 triggeringSpellId)
     {
         switch (triggeringSpellId)
         {
@@ -1978,7 +1975,6 @@ class spell_sha_mastery_elemental_overload : public AuraScript
             case SPELL_SHAMAN_ICEFURY: return SPELL_SHAMAN_ICEFURY_OVERLOAD;
             case SPELL_SHAMAN_LAVA_BURST: return SPELL_SHAMAN_LAVA_BURST_OVERLOAD;
             case SPELL_SHAMAN_CHAIN_LIGHTNING: return SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD;
-            case SPELL_SHAMAN_LAVA_BEAM: return SPELL_SHAMAN_LAVA_BEAM_OVERLOAD;
             default:
                 break;
         }
@@ -2198,25 +2194,15 @@ class spell_sha_path_of_flames_spread : public SpellScript
 // 294020 - Restorative Mists
 class spell_sha_restorative_mists : public SpellScript
 {
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void HandleHeal(SpellEffIndex effIndex)
     {
-        _targetCount = uint32(targets.size());
-    }
-
-    void HandleHeal(SpellEffIndex /*effIndex*/)
-    {
-        if (_targetCount)
-            SetHitHeal(GetHitHeal() / _targetCount);
+        SetHitHeal(GetHitHeal() / GetUnitTargetCountForEffect(effIndex));
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_restorative_mists::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_sha_restorative_mists::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
-
-private:
-    uint32 _targetCount = 0;
 };
 
 // 2645 - Ghost Wolf
@@ -3119,33 +3105,6 @@ class spell_sha_windfury_weapon_proc : public AuraScript
     }
 };
 
-// 378269 - Windspeaker's Lava Resurgence
-class spell_sha_windspeakers_lava_resurgence : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_VOLCANIC_SURGE });
-    }
-
-    void PreventLavaSurge(SpellEffIndex effIndex)
-    {
-        if (GetCaster()->HasAura(SPELL_SHAMAN_VOLCANIC_SURGE))
-            PreventHitDefaultEffect(effIndex);
-    }
-
-    void PreventVolcanicSurge(SpellEffIndex effIndex)
-    {
-        if (!GetCaster()->HasAura(SPELL_SHAMAN_VOLCANIC_SURGE))
-            PreventHitDefaultEffect(effIndex);
-    }
-
-    void Register() override
-    {
-        OnEffectLaunch += SpellEffectFn(spell_sha_windspeakers_lava_resurgence::PreventLavaSurge, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-        OnEffectLaunch += SpellEffectFn(spell_sha_windspeakers_lava_resurgence::PreventVolcanicSurge, EFFECT_2, SPELL_EFFECT_TRIGGER_SPELL);
-    }
-};
-
 // 462767 - Arctic Snowstorm
 // 36797 - AreatriggerId
 struct areatrigger_sha_arctic_snowstorm : AreaTriggerAI
@@ -3312,7 +3271,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_voltaic_blaze_talent);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_windfury_weapon_proc);
-    RegisterSpellScript(spell_sha_windspeakers_lava_resurgence);
     RegisterAreaTriggerAI(areatrigger_sha_arctic_snowstorm);
     RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
 }
