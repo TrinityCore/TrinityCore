@@ -71,7 +71,9 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY        = 173184,
     SPELL_SHAMAN_ELEMENTAL_BLAST_OVERLOAD       = 120588,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
+    SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF         = 408390,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
+    SPELL_SHAMAN_ENHANCED_ELEMENTS              = 77223,
     SPELL_SHAMAN_FIRE_NOVA_DAMAGE               = 333977,
     SPELL_SHAMAN_FIRE_NOVA_ENABLER              = 466622,
     SPELL_SHAMAN_FLAME_SHOCK                    = 188389,
@@ -130,8 +132,16 @@ enum ShamanSpells
     SPELL_SHAMAN_SPIRIT_WOLF_TALENT             = 260878,
     SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
+    SPELL_SHAMAN_STORMBLAST_DAMAGE              = 390287,
+    SPELL_SHAMAN_STORMBLAST_PROC                = 470466,
+    SPELL_SHAMAN_STORMBLAST_TALENT              = 319930,
+    SPELL_SHAMAN_STORMFLURRY                    = 344357,
+    SPELL_SHAMAN_STORMFLURRY_ARTIFACT           = 198367,
     SPELL_SHAMAN_STORMKEEPER                    = 191634,
     SPELL_SHAMAN_STORMSTRIKE                    = 17364,
+    SPELL_SHAMAN_STORMSTRIKE_DAMAGE_MAIN_HAND   = 32175,
+    SPELL_SHAMAN_STORMSTRIKE_DAMAGE_OFF_HAND    = 32176,
+    SPELL_SHAMAN_STORMSURGE_PROC                = 201846,
     SPELL_SHAMAN_STORMWEAVER_PVP_TALENT         = 410673,
     SPELL_SHAMAN_STORMWEAVER_PVP_TALENT_BUFF    = 410681,
     SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF   = 394651,
@@ -155,7 +165,9 @@ enum ShamanSpells
     SPELL_SHAMAN_WINDFURY_VISUAL_1              = 466440,
     SPELL_SHAMAN_WINDFURY_VISUAL_2              = 466442,
     SPELL_SHAMAN_WINDFURY_VISUAL_3              = 466443,
-    SPELL_SHAMAN_WIND_RUSH                      = 192082
+    SPELL_SHAMAN_WIND_RUSH                      = 192082,
+    SPELL_SHAMAN_WINDSTRIKE_DAMAGE_MAIN_HAND    = 115357,
+    SPELL_SHAMAN_WINDSTRIKE_DAMAGE_OFF_HAND     = 115360
 };
 
 enum ShamanSpellLabels
@@ -481,7 +493,7 @@ class spell_sha_converging_storms : public SpellScript
 };
 
 // 198300 - Converging Storms
-class spell_sha_converging_storms_buff : public AuraScript
+class spell_sha_delayed_stormstrike_mod_charge_drop_proc : public AuraScript
 {
     void DropAura(ProcEventInfo const& /*eventInfo*/) const
     {
@@ -490,7 +502,7 @@ class spell_sha_converging_storms_buff : public AuraScript
 
     void Register() override
     {
-        AfterProc += AuraProcFn(spell_sha_converging_storms_buff::DropAura);
+        AfterProc += AuraProcFn(spell_sha_delayed_stormstrike_mod_charge_drop_proc::DropAura);
     }
 };
 
@@ -948,6 +960,54 @@ class spell_sha_elemental_blast : public SpellScript
     {
         AfterCast += SpellCastFn(spell_sha_elemental_blast::TriggerBuff);
         OnHit += SpellHitFn(spell_sha_elemental_blast::AddScriptedDamageMods);
+    }
+};
+
+// 384355 - Elemental Weapons
+class spell_sha_elemental_weapons : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void CheckEnchantments() const
+    {
+        Player* owner = GetUnitOwner()->ToPlayer();
+        int32 enchatmentCount = 0;
+        if (owner->HasAura(SPELL_SHAMAN_FLAMETONGUE_WEAPON_AURA))
+            ++enchatmentCount;
+        if (owner->HasAura(SPELL_SHAMAN_WINDFURY_AURA))
+            ++enchatmentCount;
+
+        int32 valuePerStack = GetEffect(EFFECT_0)->GetAmount();
+
+        if (Aura* buff = owner->GetAura(SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF))
+        {
+            if (enchatmentCount)
+                for (AuraEffect* aurEff : buff->GetAuraEffects())
+                    aurEff->ChangeAmount(valuePerStack * enchatmentCount / 10);
+            else
+                buff->Remove();
+        }
+        else if (enchatmentCount)
+            owner->CastSpell(owner, SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .SpellValueOverrides = {
+                    { SPELLVALUE_BASE_POINT0, valuePerStack * enchatmentCount / 10 },
+                    { SPELLVALUE_BASE_POINT1, valuePerStack * enchatmentCount / 10 }
+                }
+            });
+    }
+
+    void Register() override
+    {
+        OnHeartbeat += AuraHeartbeatFn(spell_sha_elemental_weapons::CheckEnchantments);
     }
 };
 
@@ -2188,6 +2248,221 @@ class spell_sha_spirit_wolf : public AuraScript
     }
 };
 
+// 319930 - Stormblast
+class spell_sha_stormblast : public AuraScript
+{
+    void Register() override { }
+
+public:
+    ObjectGuid AllowedOriginalCastId;
+};
+
+// 470466 - Stormblast (Stormstrike and Winstrike damaging spells)
+class spell_sha_stormblast_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({
+            { SPELL_SHAMAN_STORMBLAST_TALENT, EFFECT_0 },
+            { SPELL_SHAMAN_ENHANCED_ELEMENTS, EFFECT_0 }
+        });
+    }
+
+    bool Load() override
+    {
+        if (Aura const* stormblast = GetCaster()->GetAura(SPELL_SHAMAN_STORMBLAST_TALENT))
+            if (spell_sha_stormblast const* script = stormblast->GetScript<spell_sha_stormblast>())
+                return script->AllowedOriginalCastId == GetSpell()->m_originalCastId;
+
+        return false;
+    }
+
+    void TriggerDamage() const
+    {
+        if (AuraEffect const* stormblast = GetCaster()->GetAuraEffect(SPELL_SHAMAN_STORMBLAST_TALENT, EFFECT_0))
+        {
+            int32 damage = CalculatePct(GetHitDamage(), stormblast->GetAmount());
+
+            // Not part of SpellFamilyFlags for mastery effect but known to be affected by it
+            if (AuraEffect const* mastery = GetCaster()->GetAuraEffect(SPELL_SHAMAN_ENHANCED_ELEMENTS, EFFECT_0))
+                AddPct(damage, mastery->GetAmount());
+
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_SHAMAN_STORMBLAST_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, damage } }
+            });
+        }
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_sha_stormblast_damage::TriggerDamage);
+    }
+};
+
+// 470466 - Stormblast (17364 - Stormstrike, 115356 - Windstrike)
+class spell_sha_stormblast_proc : public SpellScript
+{
+    bool Load() override
+    {
+        Unit const* caster = GetCaster();
+        return caster->HasAura(SPELL_SHAMAN_STORMBLAST_TALENT)
+            && caster->HasAura(SPELL_SHAMAN_STORMBLAST_PROC);
+    }
+
+    // Store allowed CastId in passive aura because damaging spells are delayed (and delayed further if Stormflurry is triggered)
+    void SaveCastId() const
+    {
+        Unit* caster = GetCaster();
+        if (Aura* stormblast = caster->GetAura(SPELL_SHAMAN_STORMBLAST_TALENT))
+            if (spell_sha_stormblast* script = stormblast->GetScript<spell_sha_stormblast>())
+                script->AllowedOriginalCastId = GetSpell()->m_castId;
+
+        caster->RemoveAuraFromStack(SPELL_SHAMAN_STORMBLAST_PROC);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_sha_stormblast_proc::SaveCastId);
+    }
+};
+
+class StormflurryEvent : public BasicEvent
+{
+public:
+    struct Data
+    {
+        int32 DamagePercent = 0;
+    };
+
+    explicit StormflurryEvent(Unit* caster, Unit* target, ObjectGuid const& originalCastId, int32 damagePercent,
+        uint32 mainHandDamageSpellId, uint32 offHandDamageSpellId, int32 procChance)
+        : _caster(caster), _target(target), _originalCastId(originalCastId), _damagePercent(damagePercent),
+            _mainHandDamageSpellId(mainHandDamageSpellId), _offHandDamageSpellId(offHandDamageSpellId), _procChance(procChance)
+    {
+    }
+
+    bool Execute(uint64 time, uint32 /*diff*/) override
+    {
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.OriginalCastId = _originalCastId;
+        args.CustomArg.emplace<Data>().DamagePercent = _damagePercent;
+
+        _caster->CastSpell(_target, _mainHandDamageSpellId, args);
+        _caster->CastSpell(_target, _offHandDamageSpellId, args);
+
+        if (!roll_chance_i(_procChance))
+            return true;
+
+        _caster->m_Events.AddEvent(this, Milliseconds(time) + 200ms);
+        return false;
+    }
+
+private:
+    Unit* _caster;
+    CastSpellTargetArg _target;
+    ObjectGuid _originalCastId;
+    int32 _damagePercent;
+    uint32 _mainHandDamageSpellId;
+    uint32 _offHandDamageSpellId;
+    int32 _procChance;
+};
+
+// 198367 Stormflurry
+// 344357 Stormflurry
+class spell_sha_stormflurry : public SpellScript
+{
+public:
+    explicit spell_sha_stormflurry(uint32 stormflurrySpellId, uint32 mainHandDamageSpellId, uint32 offHandDamageSpellId)
+        : _stormflurrySpellId(stormflurrySpellId), _mainHandDamageSpellId(mainHandDamageSpellId), _offHandDamageSpellId(offHandDamageSpellId) { }
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ _stormflurrySpellId, _mainHandDamageSpellId, _offHandDamageSpellId })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_0).IsEffect(SPELL_EFFECT_TRIGGER_SPELL)
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_TRIGGER_SPELL);
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(_stormflurrySpellId);
+    }
+
+    void HandleProc(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Aura const* stormflurry = caster->GetAura(_stormflurrySpellId);
+        if (!stormflurry)
+            return;
+
+        AuraEffect const* chanceEffect = stormflurry->GetEffect(EFFECT_0);
+        AuraEffect const* damageEffect = stormflurry->GetEffect(EFFECT_1);
+        if (!chanceEffect || !damageEffect)
+            return;
+
+        int32 procChance = chanceEffect->GetAmount();
+        if (!roll_chance_i(procChance))
+            return;
+
+        caster->m_Events.AddEventAtOffset(new StormflurryEvent(caster, GetHitUnit(), GetSpell()->m_castId, damageEffect->GetAmount(),
+            _mainHandDamageSpellId, _offHandDamageSpellId, procChance), 200ms);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_stormflurry::HandleProc, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+
+private:
+    uint32 _stormflurrySpellId;
+    uint32 _mainHandDamageSpellId;
+    uint32 _offHandDamageSpellId;
+};
+
+// 32175 - Stormstrike
+// 32176 - Stormstrike Off-Hand
+class spell_sha_stormflurry_damage : public SpellScript
+{
+    bool Load() override
+    {
+        return GetSpell()->m_customArg.type() == typeid(StormflurryEvent::Data);
+    }
+
+    void ApplyModifier(SpellEffectInfo const& /*effectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        ApplyPct(pctMod, std::any_cast<StormflurryEvent::Data>(&GetSpell()->m_customArg)->DamagePercent);
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_sha_stormflurry_damage::ApplyModifier);
+    }
+};
+
+// 201845 - Stormsurge
+class spell_sha_stormsurge : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_STORMSURGE_PROC });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_STORMSURGE_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_stormsurge::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 187881 - Maelstrom Weapon
 class spell_sha_stormweaver : public SpellScript
 {
@@ -2232,7 +2507,6 @@ class spell_sha_swirling_maelstrom : public AuraScript
 
             if (!eventInfo.GetProcSpell()->m_appliedMods.contains(hailstorm))
                 return false;
-
         }
 
         return true;
@@ -2952,7 +3226,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_converging_storms);
-    RegisterSpellScript(spell_sha_converging_storms_buff);
+    RegisterSpellScriptWithArgs(spell_sha_delayed_stormstrike_mod_charge_drop_proc, "spell_sha_converging_storms_buff");
     RegisterSpellScript(spell_sha_crash_lightning);
     RegisterSpellScript(spell_sha_deeply_rooted_elements);
     RegisterSpellScript(spell_sha_doom_winds);
@@ -2966,6 +3240,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_earthquake);
     RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
+    RegisterSpellScript(spell_sha_elemental_weapons);
     RegisterSpellScript(spell_sha_fire_nova);
     RegisterSpellScript(spell_sha_flame_shock_fire_nova_enabler);
     RegisterSpellScript(spell_sha_flametongue_weapon);
@@ -3003,6 +3278,20 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_path_of_flames_spread);
     RegisterSpellScript(spell_sha_restorative_mists);
     RegisterSpellScript(spell_sha_spirit_wolf);
+    RegisterSpellScript(spell_sha_stormblast);
+    RegisterSpellScript(spell_sha_stormblast_damage);
+    RegisterSpellScript(spell_sha_stormblast_proc);
+    RegisterSpellScriptWithArgs(spell_sha_stormflurry, "spell_sha_artifact_stormflurry_stormstrike",
+        SPELL_SHAMAN_STORMFLURRY_ARTIFACT, SPELL_SHAMAN_STORMSTRIKE_DAMAGE_MAIN_HAND, SPELL_SHAMAN_STORMSTRIKE_DAMAGE_OFF_HAND);
+    RegisterSpellScriptWithArgs(spell_sha_stormflurry, "spell_sha_artifact_stormflurry_windstrike",
+        SPELL_SHAMAN_STORMFLURRY_ARTIFACT, SPELL_SHAMAN_WINDSTRIKE_DAMAGE_MAIN_HAND, SPELL_SHAMAN_WINDSTRIKE_DAMAGE_OFF_HAND);
+    RegisterSpellScriptWithArgs(spell_sha_stormflurry, "spell_sha_stormflurry_stormstrike",
+        SPELL_SHAMAN_STORMFLURRY, SPELL_SHAMAN_STORMSTRIKE_DAMAGE_MAIN_HAND, SPELL_SHAMAN_STORMSTRIKE_DAMAGE_OFF_HAND);
+    RegisterSpellScriptWithArgs(spell_sha_stormflurry, "spell_sha_stormflurry_windstrike",
+        SPELL_SHAMAN_STORMFLURRY, SPELL_SHAMAN_WINDSTRIKE_DAMAGE_MAIN_HAND, SPELL_SHAMAN_WINDSTRIKE_DAMAGE_OFF_HAND);
+    RegisterSpellScript(spell_sha_stormflurry_damage);
+    RegisterSpellScript(spell_sha_stormsurge);
+    RegisterSpellScriptWithArgs(spell_sha_delayed_stormstrike_mod_charge_drop_proc, "spell_sha_stormsurge_proc");
     RegisterSpellScript(spell_sha_stormweaver);
     RegisterSpellScript(spell_sha_swirling_maelstrom);
     RegisterSpellScript(spell_sha_tidal_waves);
