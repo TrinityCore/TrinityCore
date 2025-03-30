@@ -34,34 +34,12 @@ enum WitchHuntData
     SAY_HELENA_DEATH            = 2,
 
     EVENT_HELENA_RUINED_BOLT    = 1,
-    EVENT_HELENA_CHECK_SUMMON,
     EVENT_HELENA_SUMMON_ALIVE,
     EVENT_HELENA_SUMMON_ATTACK,
 
     SPELL_TAKE_A_SEAT_CURSED    = 248423,
     SPELL_HELENA_EMPOWERING     = 257877,
     SPELL_HELENA_RUINED_BOLT    = 256865
-};
-
-// EventID: 59332
-class event_listen_to_helenas_story : public EventScript
-{
-public:
-    event_listen_to_helenas_story() : EventScript("event_listen_to_helenas_story") {}
-
-    void OnTrigger(WorldObject* /*object*/, WorldObject* invoker, uint32 /*eventId*/) override
-    {
-        if (Player* player = invoker->ToPlayer())
-        {
-            player->CastSpell(player, SPELL_TAKE_A_SEAT_CURSED);
-
-            Creature* helenaObject = player->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_HELENA_GENTLE_HUMAN, .IgnorePhases = true });
-            if (!helenaObject)
-                return;
-
-            helenaObject->SummonPersonalClone(helenaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-        }
-    }
 };
 
 constexpr Position HelenaPetSummonPos = { 181.513885f, 1987.2222f, 101.9137f, 1.667730f };
@@ -183,7 +161,4 @@ void AddSC_chapter_drustvar_the_final_effigy()
 {
     // Creature
     RegisterCreatureAI(npc_helena_gentle_witch_hunt);
-
-    // EventScripts
-    new event_listen_to_helenas_story();
 }
