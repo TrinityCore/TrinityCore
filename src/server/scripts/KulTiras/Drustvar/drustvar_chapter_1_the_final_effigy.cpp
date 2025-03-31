@@ -15,16 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "Player.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum WitchHuntData
 {
-    NPC_HELENA_GENTLE_HUMAN  = 124922,
+    NPC_HELENA_GENTLE_HUMAN     = 124922,
+    NPC_HEXBOUND_SNARLER        = 128347,
 
-    SPELL_TAKE_A_SEAT_CURSED = 248423
+    SAY_HELENA_AGGRO            = 0,
+    SAY_HELENA_HALF_LIFE        = 1,
+    SAY_HELENA_DEATH            = 2,
+
+    EVENT_HELENA_RUINED_BOLT    = 1,
+    EVENT_HELENA_SUMMON_ALIVE,
+    EVENT_HELENA_SUMMON_ATTACK,
+
+    SPELL_TAKE_A_SEAT_CURSED    = 248423,
+    SPELL_HELENA_EMPOWERING     = 257877,
+    SPELL_HELENA_RUINED_BOLT    = 256865
 };
 
 // EventID: 59332
@@ -45,8 +59,138 @@ public:
     }
 };
 
+constexpr Position HelenaPetSummonPos = { 181.513885f, 1987.2222f, 101.9137f, 1.667730f };
+
+// 124953 - Helena Gentle
+struct npc_helena_gentle_witch_hunt : public ScriptedAI
+{
+    npc_helena_gentle_witch_hunt(Creature* creature) : ScriptedAI(creature), _halfLifeTriggered(false) { }
+
+    void JustAppeared() override
+    {
+        _oocScheduler.Schedule(0ms, [this](TaskContext context)
+        {
+            if (Creature* hexboundSnarler = me->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_HEXBOUND_SNARLER, .StringId = "HelenaSummon", .IsAlive = FindCreatureAliveState::Alive }))
+            {
+                if (!hexboundSnarler->IsInCombat())
+                    _hexboundSnarlerGuid = hexboundSnarler->GetGUID();
+                else
+                    context.Repeat(1s);
+            }
+            else
+                SummonHexboundSnarler();
+        });
+    }
+
+    void Reset() override
+    {
+        _halfLifeTriggered = false;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_HELENA_AGGRO);
+        _events.ScheduleEvent(EVENT_HELENA_RUINED_BOLT, 9s);
+        _events.ScheduleEvent(EVENT_HELENA_SUMMON_ALIVE, 1s);
+
+        _oocScheduler.CancelAll();
+
+        if (Creature* hexboundSnarler = ObjectAccessor::GetCreature(*me, _hexboundSnarlerGuid))
+            hexboundSnarler->AI()->AttackStart(who);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_halfLifeTriggered && me->HealthBelowPctDamaged(50, damage))
+        {
+            Talk(SAY_HELENA_HALF_LIFE);
+            _halfLifeTriggered = true;
+        }
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        me->DespawnOrUnsummon(0ms, 1min);
+
+        if (Creature* hexboundSnarler = ObjectAccessor::GetCreature(*me, _hexboundSnarlerGuid))
+            hexboundSnarler->DespawnOrUnsummon();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_HELENA_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+        {
+            _oocScheduler.Update(diff);
+            return;
+        }
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HELENA_RUINED_BOLT:
+                    DoCastVictim(SPELL_HELENA_RUINED_BOLT);
+                    _events.ScheduleEvent(EVENT_HELENA_RUINED_BOLT, 9s);
+                    break;
+                case EVENT_HELENA_SUMMON_ALIVE:
+                    if (Creature* hexboundSnarler = ObjectAccessor::GetCreature(*me, _hexboundSnarlerGuid))
+                    {
+                        hexboundSnarler->SetAIAnimKitId(0);
+                        hexboundSnarler->PlayOneShotAnimKitId(1099);
+                        _events.ScheduleEvent(EVENT_HELENA_SUMMON_ATTACK, 2s);
+                    }
+                    break;
+                case EVENT_HELENA_SUMMON_ATTACK:
+                    if (Creature* hexboundSnarler = ObjectAccessor::GetCreature(*me, _hexboundSnarlerGuid))
+                    {
+                        hexboundSnarler->SetImmuneToAll(false);
+                        hexboundSnarler->SetUninteractible(false);
+                        hexboundSnarler->SetReactState(REACT_AGGRESSIVE);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void SummonHexboundSnarler()
+    {
+        if (TempSummon* hexboundSnarler = me->SummonCreature(NPC_HEXBOUND_SNARLER, HelenaPetSummonPos))
+        {
+            me->CastSpell(hexboundSnarler, SPELL_HELENA_EMPOWERING);
+
+            _hexboundSnarlerGuid = hexboundSnarler->GetGUID();
+            hexboundSnarler->SetScriptStringId("HelenaSummon");
+            hexboundSnarler->SetAIAnimKitId(730);
+            hexboundSnarler->SetReactState(REACT_PASSIVE);
+            hexboundSnarler->SetImmuneToAll(true);
+            hexboundSnarler->SetUninteractible(true);
+        }
+    }
+
+private:
+    EventMap _events;
+    TaskScheduler _oocScheduler;
+    ObjectGuid _hexboundSnarlerGuid;
+    bool _halfLifeTriggered;
+};
+
 void AddSC_drustvar_chapter_1_the_final_effigy()
 {
     // EventScripts
     new event_listen_to_helenas_story();
+
+    // Creature
+    RegisterCreatureAI(npc_helena_gentle_witch_hunt);
 }
