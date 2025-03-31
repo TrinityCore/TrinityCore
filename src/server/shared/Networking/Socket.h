@@ -240,7 +240,7 @@ private:
         if (memcmp(packet.GetReadPointer(), expectedSignature, signatureSize) != 0)
         {
             _proxyHeaderReadingState = PROXY_HEADER_READING_STATE_FAILED;
-            LOG_ERROR("network", "Socket::ProxyReadHeaderHandler: received bad PROXY Protocol v2 signature for {}", GetRemoteIpAddress().to_string());
+            TC_LOG_DEBUG("network", "Socket::ProxyReadHeaderHandler: received bad PROXY Protocol v2 signature for {}", GetRemoteIpAddress().to_string());
             return;
         }
 
@@ -250,7 +250,7 @@ private:
         if (version != 2)
         {
             _proxyHeaderReadingState = PROXY_HEADER_READING_STATE_FAILED;
-            LOG_ERROR("network", "Socket::ProxyReadHeaderHandler: received bad PROXY Protocol v2 signature for {}", GetRemoteIpAddress().to_string());
+            TC_LOG_DEBUG("network", "Socket::ProxyReadHeaderHandler: received bad PROXY Protocol v2 signature for {}", GetRemoteIpAddress().to_string());
             return;
         }
 
@@ -316,7 +316,7 @@ private:
 
             default:
                 _proxyHeaderReadingState = PROXY_HEADER_READING_STATE_FAILED;
-                LOG_ERROR("network", "Socket::ProxyReadHeaderHandler: unsupported address family type {}", GetRemoteIpAddress().to_string());
+                TC_LOG_DEBUG("network", "Socket::ProxyReadHeaderHandler: unsupported address family type {}", GetRemoteIpAddress().to_string());
                 return;
         }
 
