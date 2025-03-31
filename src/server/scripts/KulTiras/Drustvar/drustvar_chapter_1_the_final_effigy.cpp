@@ -49,7 +49,7 @@ public:
     }
 };
 
-void AddSC_chapter_drustvar_the_final_effigy()
+void AddSC_drustvar_chapter_1_the_final_effigy()
 {
     // EventScripts
     new event_listen_to_helenas_story();
