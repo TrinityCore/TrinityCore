@@ -1,4 +1,4 @@
-SET @OGUID := 11100000;
+SET @OGUID := 7000384;
 
 -- GameObject
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+24;

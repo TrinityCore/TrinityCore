@@ -16,10 +16,8 @@
  */
 
 #include "CreatureAIImpl.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 
 enum WitchHuntData
 {
