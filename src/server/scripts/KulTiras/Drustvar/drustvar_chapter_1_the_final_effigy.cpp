@@ -85,6 +85,8 @@ struct npc_helena_gentle_witch_hunt : public ScriptedAI
     void Reset() override
     {
         _halfLifeTriggered = false;
+        _events.Reset();
+        _oocScheduler.CancelAll();
     }
 
     void JustEngagedWith(Unit* who) override
