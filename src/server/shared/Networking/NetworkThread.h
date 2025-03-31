@@ -23,6 +23,7 @@
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
+#include "Socket.h"
 #include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <atomic>
