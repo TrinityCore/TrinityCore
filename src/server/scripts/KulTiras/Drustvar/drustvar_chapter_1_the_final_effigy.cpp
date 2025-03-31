@@ -40,11 +40,8 @@ public:
         {
             player->CastSpell(player, SPELL_TAKE_A_SEAT_CURSED);
 
-            Creature* helenaObject = player->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_HELENA_GENTLE_HUMAN, .IgnorePhases = true });
-            if (!helenaObject)
-                return;
-
-            helenaObject->SummonPersonalClone(helenaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (Creature* helenaObject = player->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_HELENA_GENTLE_HUMAN, .IgnorePhases = true }))
+                helenaObject->SummonPersonalClone(helenaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
 };
