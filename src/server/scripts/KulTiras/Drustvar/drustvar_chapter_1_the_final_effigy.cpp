@@ -190,7 +190,7 @@ void AddSC_drustvar_chapter_1_the_final_effigy()
 {
     // Creature
     RegisterCreatureAI(npc_helena_gentle_witch_hunt);
-    
+
     // EventScripts
     new event_listen_to_helenas_story();
 }
