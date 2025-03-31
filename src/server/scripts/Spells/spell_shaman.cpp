@@ -52,7 +52,9 @@ enum ShamanSpells
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE = 218558,
     SPELL_SHAMAN_CHAINED_HEAL                   = 70809,
     SPELL_SHAMAN_CONVERGING_STORMS              = 384363,
+    SPELL_SHAMAN_CRASH_LIGHTNING                = 187874,
     SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE         = 187878,
+    SPELL_SHAMAN_CRASH_LIGHTNING_DAMAGE_BUFF    = 333964,
     SPELL_SHAMAN_DOOM_WINDS_DAMAGE              = 469270,
     SPELL_SHAMAN_DOOM_WINDS_LEGENDARY_COOLDOWN  = 335904,
     SPELL_SHAMAN_EARTHQUAKE                     = 61882,
@@ -417,15 +419,55 @@ class spell_sha_ashen_catalyst : public AuraScript
 };
 
 // 188443 - Chain Lightning
-class spell_sha_chain_lightning : public SpellScript
+class spell_sha_chain_lightning_crash_lightning : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
+        return ValidateSpellInfo({ SPELL_SHAMAN_CRASH_LIGHTNING, SPELL_SHAMAN_CRASH_LIGHTNING_DAMAGE_BUFF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasSpell(SPELL_SHAMAN_CRASH_LIGHTNING);
+    }
+
+    void HandleCooldownReduction(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_SHAMAN_CRASH_LIGHTNING, Milliseconds(-GetEffectValue()) * GetUnitTargetCountForEffect(EFFECT_0));
+    }
+
+    void HandleDamageBuff(SpellEffIndex effIndex) const
+    {
+        int64 targetsHit = GetUnitTargetCountForEffect(effIndex);
+        if (targetsHit > 1)
+            GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_CRASH_LIGHTNING_DAMAGE_BUFF, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, int32(targetsHit) } }
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sha_chain_lightning_crash_lightning::HandleCooldownReduction, EFFECT_2, SPELL_EFFECT_DUMMY);
+        OnEffectLaunch += SpellEffectFn(spell_sha_chain_lightning_crash_lightning::HandleDamageBuff, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 188443 - Chain Lightning
+class spell_sha_chain_lightning_energize : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE })
             && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_4 } });
     }
 
-    void HandleScript(SpellEffIndex /*effIndex*/)
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_4);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/) const
     {
         if (AuraEffect const* energizeAmount = GetCaster()->GetAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_4))
             GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE, CastSpellExtraArgs(energizeAmount)
@@ -434,7 +476,7 @@ class spell_sha_chain_lightning : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_sha_chain_lightning::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunch += SpellEffectFn(spell_sha_chain_lightning_energize::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -447,7 +489,7 @@ class spell_sha_chain_lightning_overload : public SpellScript
             && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_5 } });
     }
 
-    void HandleScript(SpellEffIndex /*effIndex*/)
+    void HandleScript(SpellEffIndex /*effIndex*/) const
     {
         if (AuraEffect const* energizeAmount = GetCaster()->GetAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_5))
             GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE, CastSpellExtraArgs(energizeAmount)
@@ -3182,7 +3224,8 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_artifact_gathering_storms);
     RegisterSpellScript(spell_sha_ascendance_restoration);
     RegisterSpellScript(spell_sha_ashen_catalyst);
-    RegisterSpellScript(spell_sha_chain_lightning);
+    RegisterSpellScript(spell_sha_chain_lightning_crash_lightning);
+    RegisterSpellScript(spell_sha_chain_lightning_energize);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_converging_storms);
     RegisterSpellScriptWithArgs(spell_sha_delayed_stormstrike_mod_charge_drop_proc, "spell_sha_converging_storms_buff");
