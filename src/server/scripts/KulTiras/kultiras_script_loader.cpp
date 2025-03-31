@@ -20,7 +20,7 @@
 void AddSC_zone_boralus();
 
 // Drustvar
-void AddSC_chapter_drustvar_the_final_effigy();
+void AddSC_drustvar_chapter_1_the_final_effigy();
 
 // Shrine of the Storm
 void AddSC_boss_aqusirr();
@@ -40,7 +40,7 @@ void AddKulTirasScripts()
     AddSC_zone_boralus();
 
     // Drustvar
-    AddSC_chapter_drustvar_the_final_effigy();
+    AddSC_drustvar_chapter_1_the_final_effigy();
 
     // Shrine of the Storm
     AddSC_boss_aqusirr();
