@@ -44,7 +44,11 @@ public:
 protected:
     NetworkThread<AuthSession>* CreateThreads() const override
     {
-        return new NetworkThread<AuthSession>[1];
+        NetworkThread<AuthSession>* threads = new NetworkThread<AuthSession>[1];
+        bool proxyProtocolEnabled = sConfigMgr->GetOption<bool>("EnableProxyProtocol", false, true);
+        if (proxyProtocolEnabled)
+            threads[0].EnableProxyProtocol();
+        return threads;
     }
 
     static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
