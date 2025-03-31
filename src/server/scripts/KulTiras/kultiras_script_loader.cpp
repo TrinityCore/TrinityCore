@@ -19,6 +19,9 @@
 
 void AddSC_zone_boralus();
 
+// Drustvar
+void AddSC_drustvar_chapter_1_the_final_effigy();
+
 // Shrine of the Storm
 void AddSC_boss_aqusirr();
 void AddSC_instance_shrine_of_the_storm();
@@ -35,6 +38,9 @@ void AddSC_waycrest_manor();
 void AddKulTirasScripts()
 {
     AddSC_zone_boralus();
+
+    // Drustvar
+    AddSC_drustvar_chapter_1_the_final_effigy();
 
     // Shrine of the Storm
     AddSC_boss_aqusirr();
