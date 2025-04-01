@@ -46,8 +46,7 @@ protected:
     NetworkThread<AuthSession>* CreateThreads() const override
     {
         NetworkThread<AuthSession>* threads = new NetworkThread<AuthSession>[1];
-        bool proxyProtocolEnabled = sConfigMgr->GetBoolDefault("EnableProxyProtocol", true);
-        if (proxyProtocolEnabled)
+        if (sConfigMgr->GetBoolDefault("EnableProxyProtocol", true))
             threads[0].EnableProxyProtocol();
         return threads;
     }
