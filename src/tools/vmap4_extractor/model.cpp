@@ -20,7 +20,7 @@
 #include "model.h"
 #include "wmo.h"
 #include "adtfile.h"
-#include "mpq_libmpq04.h"
+#include "mpq_libmpq.h"
 #include "VMapDefinitions.h"
 #include <G3D/Quat.h>
 #include <algorithm>
