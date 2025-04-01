@@ -211,7 +211,6 @@ private:
         ReadHandler();
     }
 
-
     // ProxyReadHeaderHandler reads Proxy Protocol v2 header (v1 is not supported).
     // See https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt (2.2. Binary header format (version 2)) for more details.
     void ProxyReadHeaderHandler(boost::system::error_code error, size_t transferredBytes)
@@ -323,7 +322,6 @@ private:
         packet.ReadCompleted(len+16);
         _proxyHeaderReadingState = PROXY_HEADER_READING_STATE_FINISHED;
     }
-
 
 #ifdef TC_SOCKET_USE_IOCP
 
