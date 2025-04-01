@@ -18,6 +18,7 @@
 #ifndef AuthSocketMgr_h__
 #define AuthSocketMgr_h__
 
+#include "Config.h"
 #include "SocketMgr.h"
 #include "AuthSession.h"
 
