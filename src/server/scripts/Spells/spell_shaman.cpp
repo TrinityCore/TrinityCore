@@ -1046,9 +1046,15 @@ class spell_sha_elemental_weapons : public AuraScript
             });
     }
 
+    void RemoveAllBuffs(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetUnitOwner()->RemoveAurasDueToSpell(SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF);
+    }
+
     void Register() override
     {
         OnHeartbeat += AuraHeartbeatFn(spell_sha_elemental_weapons::CheckEnchantments);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sha_elemental_weapons::RemoveAllBuffs, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
