@@ -3012,8 +3012,8 @@ Network.TcpNodelay = 1
 
 #
 #    Network.EnableProxyProtocol
-#        Description: Enables Proxy Protocol v2. When your server is behind a proxy, 
-#                     load balancer, or similar component, you need to enable Proxy Protocol v2 on both 
+#        Description: Enables Proxy Protocol v2. When your server is behind a proxy,
+#                     load balancer, or similar component, you need to enable Proxy Protocol v2 on both
 #                     this server and the proxy/load balancer to track the real IP address of players.
 #        Example:     1 - (Enabled)
 #        Default:     0 - (Disabled)
