@@ -64,7 +64,13 @@ enum TBMCreatureIds
     NPC_INFINITE_WHELP                  = 21818,
     NPC_INFINITE_CRONOMANCER            = 17892,
     NPC_INFINITE_EXECUTIONER            = 18994,
-    NPC_INFINITE_VANQUISHER             = 18995
+    NPC_INFINITE_VANQUISHER             = 18995,
+    NPC_SHADOW_COUNCIL_ENFORCER         = 17023,
+};
+
+enum TBMGameObjectIds
+{
+    GO_DARK_PORTAL = 185103
 };
 
 template <class AI, class T>
