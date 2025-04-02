@@ -239,7 +239,7 @@ namespace Trinity
                     ++first1;
                 else if (*first2 < *first1)
                     ++first2;
-                else if (!std::invoke(std::forward<Predicate>(equalPred), *first1, *first2))
+                else if (!std::forward<Predicate>(equalPred)(*first1, *first2))
                     ++first1, ++first2;
                 else
                     return true;
