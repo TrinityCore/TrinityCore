@@ -150,7 +150,8 @@ protected:
             if (proxyHeaderReadingState == PROXY_HEADER_READING_STATE_STARTED)
                 continue;
 
-            switch (proxyHeaderReadingState) {
+            switch (proxyHeaderReadingState)
+            {
                 case PROXY_HEADER_READING_STATE_NOT_STARTED:
                     sock->AsyncReadProxyHeader();
                     break;
