@@ -274,7 +274,8 @@ private:
         auto remainingLen = packet.GetActiveSize() - 16;
         readPointer += 16; // Skip strait to address.
 
-        switch (addressFamily) {
+        switch (addressFamily)
+        {
             case PROXY_HEADER_ADDRESS_FAMILY_AND_PROTOCOL_TCP_V4:
             {
                 if (remainingLen < 12)
