@@ -35,14 +35,16 @@ using boost::asio::ip::tcp;
 #define TC_SOCKET_USE_IOCP
 #endif
 
-enum ProxyHeaderReadingState {
+enum ProxyHeaderReadingState
+{
     PROXY_HEADER_READING_STATE_NOT_STARTED,
     PROXY_HEADER_READING_STATE_STARTED,
     PROXY_HEADER_READING_STATE_FINISHED,
     PROXY_HEADER_READING_STATE_FAILED,
 };
 
-enum ProxyHeaderAddressFamilyAndProtocol {
+enum ProxyHeaderAddressFamilyAndProtocol
+{
     PROXY_HEADER_ADDRESS_FAMILY_AND_PROTOCOL_TCP_V4 = 0x11,
     PROXY_HEADER_ADDRESS_FAMILY_AND_PROTOCOL_TCP_V6 = 0x21,
 };
