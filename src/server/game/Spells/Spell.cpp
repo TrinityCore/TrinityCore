@@ -8493,49 +8493,40 @@ SpellCastResult Spell::CanOpenLock(SpellEffectInfo const& effect, uint32 lockId,
     return SPELL_CAST_OK;
 }
 
-void Spell::SetSpellValue(SpellValueMod mod, int32 value)
+void Spell::SetSpellValue(CastSpellExtraArgsInit::SpellValueOverride const& value)
 {
-    if (mod < SPELLVALUE_BASE_POINT_END)
+    if (value.Type >= SPELLVALUE_BASE_POINT0 && value.Type < SPELLVALUE_BASE_POINT_END)
     {
-        m_spellValue->EffectBasePoints[mod] = value;
-        m_spellValue->CustomBasePointsMask |= 1 << mod;
+        m_spellValue->EffectBasePoints[value.Type - SPELLVALUE_BASE_POINT0] = value.Value.I;
+        m_spellValue->CustomBasePointsMask |= 1 << (value.Type - SPELLVALUE_BASE_POINT0);
         return;
     }
 
-    switch (mod)
+    switch (value.Type)
     {
         case SPELLVALUE_MAX_TARGETS:
-            m_spellValue->MaxAffectedTargets = (uint32)value;
+            m_spellValue->MaxAffectedTargets = uint32(value.Value.I);
             break;
         case SPELLVALUE_AURA_STACK:
-            m_spellValue->AuraStackAmount = uint8(value);
+            m_spellValue->AuraStackAmount = uint8(value.Value.I);
             break;
         case SPELLVALUE_DURATION:
-            m_spellValue->Duration = value;
+            m_spellValue->Duration = value.Value.I;
             break;
         case SPELLVALUE_PARENT_SPELL_TARGET_COUNT:
-            m_spellValue->ParentSpellTargetCount = value;
+            m_spellValue->ParentSpellTargetCount = value.Value.I;
             break;
         case SPELLVALUE_PARENT_SPELL_TARGET_INDEX:
-            m_spellValue->ParentSpellTargetIndex = value;
+            m_spellValue->ParentSpellTargetIndex = value.Value.I;
             break;
-        default:
-            break;
-    }
-}
-
-void Spell::SetSpellValue(SpellValueModFloat mod, float value)
-{
-    switch (mod)
-    {
         case SPELLVALUE_RADIUS_MOD:
-            m_spellValue->RadiusMod = value;
+            m_spellValue->RadiusMod = value.Value.F;
             break;
         case SPELLVALUE_CRIT_CHANCE:
-            m_spellValue->CriticalChance = value;
+            m_spellValue->CriticalChance = value.Value.F;
             break;
         case SPELLVALUE_DURATION_PCT:
-            m_spellValue->DurationMul = value / 100.0f;
+            m_spellValue->DurationMul = value.Value.F / 100.0f;
             break;
         default:
             break;
