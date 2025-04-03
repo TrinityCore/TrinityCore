@@ -677,8 +677,7 @@ class TC_GAME_API Spell
 
         void CleanupTargetList();
 
-        void SetSpellValue(SpellValueMod mod, int32 value);
-        void SetSpellValue(SpellValueModFloat mod, float value);
+        void SetSpellValue(CastSpellExtraArgsInit::SpellValueOverride const& value);
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
