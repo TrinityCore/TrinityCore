@@ -23,6 +23,7 @@
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
+#include "Socket.h"
 #include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <atomic>
@@ -39,7 +40,7 @@ class NetworkThread
 {
 public:
     NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _ioContext(1),
-        _acceptSocket(_ioContext), _updateTimer(_ioContext)
+        _acceptSocket(_ioContext), _updateTimer(_ioContext), _proxyHeaderReadingEnabled(false)
     {
     }
 
@@ -93,6 +94,8 @@ public:
 
     tcp::socket* GetSocketForAccept() { return &_acceptSocket; }
 
+    void EnableProxyProtocol() { _proxyHeaderReadingEnabled = true; }
+
 protected:
     virtual void SocketAdded(std::shared_ptr<SocketType> /*sock*/) { }
     virtual void SocketRemoved(std::shared_ptr<SocketType> /*sock*/) { }
@@ -104,18 +107,73 @@ protected:
         if (_newSockets.empty())
             return;
 
-        for (std::shared_ptr<SocketType> sock : _newSockets)
+        if (!_proxyHeaderReadingEnabled)
         {
+            for (std::shared_ptr<SocketType> sock : _newSockets)
+            {
+                if (!sock->IsOpen())
+                {
+                    SocketRemoved(sock);
+                    --_connections;
+                    continue;
+                }
+
+                _sockets.emplace_back(sock);
+
+                sock->Start();
+            }
+
+            _newSockets.clear();
+        }
+        else
+        {
+            HandleNewSocketsProxyReadingOnConnect();
+        }
+    }
+    void HandleNewSocketsProxyReadingOnConnect()
+    {
+        size_t index = 0;
+        std::vector<int> newSocketsToRemoveIndexes;
+        for (auto sock_iter = _newSockets.begin(); sock_iter != _newSockets.end(); ++sock_iter, ++index)
+        {
+            std::shared_ptr<SocketType> sock = *sock_iter;
+
             if (!sock->IsOpen())
             {
+                newSocketsToRemoveIndexes.emplace_back(index);
                 SocketRemoved(sock);
                 --_connections;
+                continue;
             }
-            else
-                _sockets.push_back(sock);
+
+            const auto proxyHeaderReadingState = sock->GetProxyHeaderReadingState();
+            if (proxyHeaderReadingState == PROXY_HEADER_READING_STATE_STARTED)
+                continue;
+
+            switch (proxyHeaderReadingState)
+            {
+                case PROXY_HEADER_READING_STATE_NOT_STARTED:
+                    sock->AsyncReadProxyHeader();
+                    break;
+
+                case PROXY_HEADER_READING_STATE_FINISHED:
+                    newSocketsToRemoveIndexes.emplace_back(index);
+                    _sockets.emplace_back(sock);
+
+                    sock->Start();
+
+                    break;
+
+                default:
+                    newSocketsToRemoveIndexes.emplace_back(index);
+                    SocketRemoved(sock);
+                    --_connections;
+                    break;
+            }
         }
 
-        _newSockets.clear();
+        for (int removeIndex : newSocketsToRemoveIndexes)
+            _newSockets.erase(_newSockets.begin() + removeIndex);
     }
 
     void Run()
@@ -174,6 +232,8 @@ private:
     Trinity::Asio::IoContext _ioContext;
     tcp::socket _acceptSocket;
     Trinity::Asio::DeadlineTimer _updateTimer;
+
+    bool _proxyHeaderReadingEnabled;
 };
 
 #endif // NetworkThread_h__

@@ -18,6 +18,7 @@
 #ifndef AuthSocketMgr_h__
 #define AuthSocketMgr_h__
 
+#include "Config.h"
 #include "SocketMgr.h"
 #include "AuthSession.h"
 
@@ -44,7 +45,10 @@ public:
 protected:
     NetworkThread<AuthSession>* CreateThreads() const override
     {
-        return new NetworkThread<AuthSession>[1];
+        NetworkThread<AuthSession>* threads = new NetworkThread<AuthSession>[1];
+        if (sConfigMgr->GetBoolDefault("EnableProxyProtocol", true))
+            threads[0].EnableProxyProtocol();
+        return threads;
     }
 
     static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
