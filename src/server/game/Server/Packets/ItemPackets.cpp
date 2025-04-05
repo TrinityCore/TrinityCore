@@ -48,7 +48,7 @@ WorldPacket const* WorldPackets::Item::BuyFailed::Write()
 {
     _worldPacket << VendorGUID;
     _worldPacket << uint32(Muid);
-    _worldPacket << uint8(Reason);
+    _worldPacket << int32(Reason);
 
     return &_worldPacket;
 }

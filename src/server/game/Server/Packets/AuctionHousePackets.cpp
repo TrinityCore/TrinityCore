@@ -628,18 +628,22 @@ WorldPacket const* AuctionListBucketsResult::Write()
 
 WorldPacket const* AuctionListItemsResult::Write()
 {
-    _worldPacket << uint32(Items.size());
-    _worldPacket << uint32(Unknown830);
-    _worldPacket << uint32(TotalCount);
-    _worldPacket << uint32(DesiredDelay);
-    _worldPacket.WriteBits(AsUnderlyingType(ListType), 2);
-    _worldPacket.WriteBit(HasMoreResults);
-    _worldPacket.FlushBits();
+    {
+        _worldPacket << uint32(Items.size());
+        _worldPacket << uint32(Unknown830);
+        _worldPacket << uint32(DesiredDelay);
+        for (AuctionItem const& item : Items)
+            _worldPacket << item;
+    }
 
-    _worldPacket << BucketKey;
+    {
+        _worldPacket.WriteBits(AsUnderlyingType(ListType), 2);
+        _worldPacket.WriteBit(HasMoreResults);
+        _worldPacket.FlushBits();
 
-    for (AuctionItem const& item : Items)
-        _worldPacket << item;
+        _worldPacket << BucketKey;
+        _worldPacket << uint32(TotalCount);
+    }
 
     return &_worldPacket;
 }
