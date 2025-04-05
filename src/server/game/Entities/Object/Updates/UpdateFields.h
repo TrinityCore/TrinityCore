@@ -37,6 +37,7 @@ class Bag;
 class ByteBuffer;
 class Conversation;
 class Corpse;
+class Creature;
 class DynamicObject;
 class GameObject;
 class Item;
@@ -136,7 +137,7 @@ struct ItemData : public IsUpdateFieldStructureTag, public HasChangesMask<43>
     UpdateField<uint64, 0, 17> ArtifactXP;
     UpdateField<uint8, 0, 18> ItemAppearanceModID;
     UpdateField<UF::ItemModList, 0, 19> Modifiers;
-    UpdateField<uint32, 0, 20> DynamicFlags2;
+    UpdateField<uint32, 0, 20> ZoneFlags;
     UpdateField<WorldPackets::Item::ItemBonusKey, 0, 21> ItemBonusKey;
     UpdateField<uint16, 0, 22> DEBUGItemLevel;
     UpdateFieldArray<int32, 5, 23, 24> SpellCharges;
@@ -194,9 +195,10 @@ struct PassiveSpellHistory : public IsUpdateFieldStructureTag
     bool operator!=(PassiveSpellHistory const& right) const { return !(*this == right); }
 };
 
-struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<226>
+struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<228>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
+    struct StateWorldEffectIDsTag : ViewerDependentValueTag<std::vector<uint32>> {};
     DynamicUpdateField<UF::PassiveSpellHistory, 0, 2> PassiveSpells;
     DynamicUpdateField<int32, 0, 3> WorldEffects;
     DynamicUpdateField<ObjectGuid, 0, 4> ChannelObjects;
@@ -209,8 +211,11 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<226>
     UpdateField<uint32, 0, 9> NpcFlags2;
     struct NpcFlags2Tag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 10> StateSpellVisualID;
+    struct StateSpellVisualIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 11> StateAnimID;
+    struct StateAnimIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 12> StateAnimKitID;
+    struct StateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<ObjectGuid, 0, 13> Charm;
     UpdateField<ObjectGuid, 0, 14> Summon;
     UpdateField<ObjectGuid, 0, 15> Critter;
@@ -245,94 +250,96 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<226>
     struct Flags2Tag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 32, 43> Flags3;
     struct Flags3Tag : ViewerDependentValueTag<uint32> {};
-    UpdateField<uint32, 32, 44> AuraState;
+    UpdateField<uint32, 32, 44> Flags4;
+    struct Flags4Tag : ViewerDependentValueTag<uint32> {};
+    UpdateField<uint32, 32, 45> AuraState;
     struct AuraStateTag : ViewerDependentValueTag<uint32> {};
-    UpdateField<uint32, 32, 45> RangedAttackRoundBaseTime;
-    UpdateField<float, 32, 46> BoundingRadius;
-    UpdateField<float, 32, 47> CombatReach;
-    UpdateField<float, 32, 48> DisplayScale;
-    UpdateField<int32, 32, 49> NativeDisplayID;
-    UpdateField<float, 32, 50> NativeXDisplayScale;
-    UpdateField<int32, 32, 51> MountDisplayID;
-    UpdateField<float, 32, 52> MinDamage;
-    UpdateField<float, 32, 53> MaxDamage;
-    UpdateField<float, 32, 54> MinOffHandDamage;
-    UpdateField<float, 32, 55> MaxOffHandDamage;
-    UpdateField<uint8, 32, 56> StandState;
-    UpdateField<uint8, 32, 57> PetTalentPoints;
-    UpdateField<uint8, 32, 58> VisFlags;
-    UpdateField<uint8, 32, 59> AnimTier;
-    UpdateField<uint32, 32, 60> PetNumber;
-    UpdateField<uint32, 32, 61> PetNameTimestamp;
-    UpdateField<uint32, 32, 62> PetExperience;
-    UpdateField<uint32, 32, 63> PetNextLevelExperience;
-    UpdateField<float, 64, 65> ModCastingSpeed;
-    UpdateField<float, 64, 66> ModSpellHaste;
-    UpdateField<float, 64, 67> ModHaste;
-    UpdateField<float, 64, 68> ModRangedHaste;
-    UpdateField<float, 64, 69> ModHasteRegen;
-    UpdateField<float, 64, 70> ModTimeRate;
-    UpdateField<int32, 64, 71> CreatedBySpell;
-    UpdateField<int32, 64, 72> EmoteState;
-    UpdateField<int16, 64, 73> TrainingPointsUsed;
-    UpdateField<int16, 64, 74> TrainingPointsTotal;
-    UpdateField<int32, 64, 75> BaseMana;
-    UpdateField<int32, 64, 76> BaseHealth;
-    UpdateField<uint8, 64, 77> SheatheState;
-    UpdateField<uint8, 64, 78> PvpFlags;
+    UpdateField<uint32, 32, 46> RangedAttackRoundBaseTime;
+    UpdateField<float, 32, 47> BoundingRadius;
+    UpdateField<float, 32, 48> CombatReach;
+    UpdateField<float, 32, 49> DisplayScale;
+    UpdateField<int32, 32, 50> NativeDisplayID;
+    UpdateField<float, 32, 51> NativeXDisplayScale;
+    UpdateField<int32, 32, 52> MountDisplayID;
+    UpdateField<float, 32, 53> MinDamage;
+    UpdateField<float, 32, 54> MaxDamage;
+    UpdateField<float, 32, 55> MinOffHandDamage;
+    UpdateField<float, 32, 56> MaxOffHandDamage;
+    UpdateField<uint8, 32, 57> StandState;
+    UpdateField<uint8, 32, 58> PetTalentPoints;
+    UpdateField<uint8, 32, 59> VisFlags;
+    UpdateField<uint8, 32, 60> AnimTier;
+    UpdateField<uint32, 32, 61> PetNumber;
+    UpdateField<uint32, 32, 62> PetNameTimestamp;
+    UpdateField<uint32, 32, 63> PetExperience;
+    UpdateField<uint32, 64, 65> PetNextLevelExperience;
+    UpdateField<float, 64, 66> ModCastingSpeed;
+    UpdateField<float, 64, 67> ModSpellHaste;
+    UpdateField<float, 64, 68> ModHaste;
+    UpdateField<float, 64, 69> ModRangedHaste;
+    UpdateField<float, 64, 70> ModHasteRegen;
+    UpdateField<float, 64, 71> ModTimeRate;
+    UpdateField<int32, 64, 72> CreatedBySpell;
+    UpdateField<int32, 64, 73> EmoteState;
+    UpdateField<int16, 64, 74> TrainingPointsUsed;
+    UpdateField<int16, 64, 75> TrainingPointsTotal;
+    UpdateField<int32, 64, 76> BaseMana;
+    UpdateField<int32, 64, 77> BaseHealth;
+    UpdateField<uint8, 64, 78> SheatheState;
+    UpdateField<uint8, 64, 79> PvpFlags;
     struct PvpFlagsTag : ViewerDependentValueTag<uint8> {};
-    UpdateField<uint8, 64, 79> PetFlags;
-    UpdateField<uint8, 64, 80> ShapeshiftForm;
-    UpdateField<int32, 64, 81> AttackPower;
-    UpdateField<int32, 64, 82> AttackPowerModPos;
-    UpdateField<int32, 64, 83> AttackPowerModNeg;
-    UpdateField<float, 64, 84> AttackPowerMultiplier;
-    UpdateField<int32, 64, 85> RangedAttackPower;
-    UpdateField<int32, 64, 86> RangedAttackPowerModPos;
-    UpdateField<int32, 64, 87> RangedAttackPowerModNeg;
-    UpdateField<float, 64, 88> RangedAttackPowerMultiplier;
-    UpdateField<int32, 64, 89> SetAttackSpeedAura;
-    UpdateField<float, 64, 90> Lifesteal;
-    UpdateField<float, 64, 91> MinRangedDamage;
-    UpdateField<float, 64, 92> MaxRangedDamage;
-    UpdateField<float, 64, 93> MaxHealthModifier;
-    UpdateField<float, 64, 94> HoverHeight;
-    UpdateField<int32, 64, 95> MinItemLevelCutoff;
-    UpdateField<int32, 96, 97> MinItemLevel;
-    UpdateField<int32, 96, 98> MaxItemLevel;
-    UpdateField<int32, 96, 99> WildBattlePetLevel;
-    UpdateField<uint32, 96, 100> BattlePetCompanionNameTimestamp;
-    UpdateField<int32, 96, 101> InteractSpellID;
+    UpdateField<uint8, 64, 80> PetFlags;
+    UpdateField<uint8, 64, 81> ShapeshiftForm;
+    UpdateField<int32, 64, 82> AttackPower;
+    UpdateField<int32, 64, 83> AttackPowerModPos;
+    UpdateField<int32, 64, 84> AttackPowerModNeg;
+    UpdateField<float, 64, 85> AttackPowerMultiplier;
+    UpdateField<int32, 64, 86> RangedAttackPower;
+    UpdateField<int32, 64, 87> RangedAttackPowerModPos;
+    UpdateField<int32, 64, 88> RangedAttackPowerModNeg;
+    UpdateField<float, 64, 89> RangedAttackPowerMultiplier;
+    UpdateField<int32, 64, 90> SetAttackSpeedAura;
+    UpdateField<float, 64, 91> Lifesteal;
+    UpdateField<float, 64, 92> MinRangedDamage;
+    UpdateField<float, 64, 93> MaxRangedDamage;
+    UpdateField<float, 64, 94> MaxHealthModifier;
+    UpdateField<float, 64, 95> HoverHeight;
+    UpdateField<int32, 96, 97> MinItemLevelCutoff;
+    UpdateField<int32, 96, 98> MinItemLevel;
+    UpdateField<int32, 96, 99> MaxItemLevel;
+    UpdateField<int32, 96, 100> WildBattlePetLevel;
+    UpdateField<uint32, 96, 101> BattlePetCompanionNameTimestamp;
+    UpdateField<int32, 96, 102> InteractSpellID;
     struct InteractSpellIDTag : ViewerDependentValueTag<int32> {};
-    UpdateField<int32, 96, 102> ScaleDuration;
-    UpdateField<int32, 96, 103> LooksLikeMountID;
-    UpdateField<int32, 96, 104> LooksLikeCreatureID;
-    UpdateField<int32, 96, 105> LookAtControllerID;
-    UpdateField<int32, 96, 106> PerksVendorItemID;
-    UpdateField<ObjectGuid, 96, 107> GuildGUID;
-    UpdateField<ObjectGuid, 96, 108> SkinningOwnerGUID;
-    UpdateField<int32, 96, 109> FlightCapabilityID;
-    UpdateField<float, 96, 110> GlideEventSpeedDivisor;                         // Movement speed gets divided by this value when evaluating what GlideEvents to use
-    UpdateField<uint32, 96, 111> SilencedSchoolMask;
-    UpdateField<uint32, 96, 112> CurrentAreaID;
-    UpdateField<ObjectGuid, 96, 113> ComboTarget;
-    UpdateField<float, 96, 114> Field_2F0;
-    UpdateField<float, 96, 115> Field_2F4;
-    UpdateFieldArray<float, 10, 116, 117> PowerRegenFlatModifier;
-    UpdateFieldArray<float, 10, 116, 127> PowerRegenInterruptedFlatModifier;
-    UpdateFieldArray<int32, 10, 116, 137> Power;
-    UpdateFieldArray<int32, 10, 116, 147> MaxPower;
-    UpdateFieldArray<float, 10, 116, 157> ModPowerRegen;                        // Applies to power regen only if expansion < 2, hidden from lua
-    UpdateFieldArray<UF::VisibleItem, 3, 167, 168> VirtualItems;
-    UpdateFieldArray<uint32, 2, 171, 172> AttackRoundBaseTime;
-    UpdateFieldArray<int32, 5, 174, 175> Stats;
-    UpdateFieldArray<int32, 5, 174, 180> StatPosBuff;
-    UpdateFieldArray<int32, 5, 174, 185> StatNegBuff;
-    UpdateFieldArray<int32, 7, 190, 191> Resistances;
-    UpdateFieldArray<int32, 7, 190, 198> ResistanceBuffModsPositive;
-    UpdateFieldArray<int32, 7, 190, 205> ResistanceBuffModsNegative;
-    UpdateFieldArray<int32, 7, 190, 212> PowerCostModifier;
-    UpdateFieldArray<float, 7, 190, 219> PowerCostMultiplier;
+    UpdateField<int32, 96, 103> ScaleDuration;
+    UpdateField<int32, 96, 104> LooksLikeMountID;
+    UpdateField<int32, 96, 105> LooksLikeCreatureID;
+    UpdateField<int32, 96, 106> LookAtControllerID;
+    UpdateField<int32, 96, 107> PerksVendorItemID;
+    UpdateField<ObjectGuid, 96, 108> GuildGUID;
+    UpdateField<ObjectGuid, 96, 109> SkinningOwnerGUID;
+    UpdateField<int32, 96, 110> FlightCapabilityID;
+    UpdateField<float, 96, 111> GlideEventSpeedDivisor;                         // Movement speed gets divided by this value when evaluating what GlideEvents to use
+    UpdateField<uint32, 96, 112> SilencedSchoolMask;
+    UpdateField<uint32, 96, 113> CurrentAreaID;
+    UpdateField<ObjectGuid, 96, 114> ComboTarget;
+    UpdateField<float, 96, 115> Field_2F0;
+    UpdateField<float, 96, 116> Field_2F4;
+    UpdateFieldArray<float, 10, 117, 118> PowerRegenFlatModifier;
+    UpdateFieldArray<float, 10, 117, 128> PowerRegenInterruptedFlatModifier;
+    UpdateFieldArray<int32, 10, 117, 138> Power;
+    UpdateFieldArray<int32, 10, 117, 148> MaxPower;
+    UpdateFieldArray<float, 10, 117, 158> ModPowerRegen;                        // Applies to power regen only if expansion < 2, hidden from lua
+    UpdateFieldArray<UF::VisibleItem, 3, 168, 169> VirtualItems;
+    UpdateFieldArray<uint32, 3, 172, 173> AttackRoundBaseTime;
+    UpdateFieldArray<int32, 5, 176, 177> Stats;
+    UpdateFieldArray<int32, 5, 176, 182> StatPosBuff;
+    UpdateFieldArray<int32, 5, 176, 187> StatNegBuff;
+    UpdateFieldArray<int32, 7, 192, 193> Resistances;
+    UpdateFieldArray<int32, 7, 192, 200> ResistanceBuffModsPositive;
+    UpdateFieldArray<int32, 7, 192, 207> ResistanceBuffModsNegative;
+    UpdateFieldArray<int32, 7, 192, 214> PowerCostModifier;
+    UpdateFieldArray<float, 7, 192, 221> PowerCostMultiplier;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
@@ -483,9 +490,18 @@ struct SkillInfo : public IsUpdateFieldStructureTag, public HasChangesMask<1793>
     void ClearChangesMask();
 };
 
-struct BitVectors : public IsUpdateFieldStructureTag, public HasChangesMask<1>
+struct BitVector : public IsUpdateFieldStructureTag, public HasChangesMask<2>
 {
-    UpdateFieldArray<DynamicUpdateFieldBase<uint64>, 11, 0, -1> Values;
+    DynamicUpdateField<uint64, 0, 1> Values;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct BitVectors : public IsUpdateFieldStructureTag, public HasChangesMask<14>
+{
+    UpdateFieldArray<UF::BitVector, 13, 0, 1> Values;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -867,13 +883,17 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
 struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<20>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
+    struct StateWorldEffectIDsTag : ViewerDependentValueTag<std::vector<uint32>> {};
     DynamicUpdateField<int32, 0, 2> EnableDoodadSets;
     DynamicUpdateField<int32, 0, 3> WorldEffects;
     UpdateField<int32, 0, 4> DisplayID;
     UpdateField<uint32, 0, 5> SpellVisualID;
     UpdateField<uint32, 0, 6> StateSpellVisualID;
+    struct StateSpellVisualIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 7> SpawnTrackingStateAnimID;
+    struct SpawnTrackingStateAnimIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 8> SpawnTrackingStateAnimKitID;
+    struct SpawnTrackingStateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<ObjectGuid, 0, 9> CreatedBy;
     UpdateField<ObjectGuid, 0, 10> GuildGUID;
     UpdateField<uint32, 0, 11> Flags;
@@ -944,7 +964,7 @@ struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 
 struct VisualAnim : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
-    UpdateField<bool, 0, 1> Field_C;
+    UpdateField<bool, 0, 1> IsDecay;
     UpdateField<uint32, 0, 2> AnimationDataID;
     UpdateField<uint32, 0, 3> AnimKitID;
     UpdateField<uint32, 0, 4> AnimProgress;
