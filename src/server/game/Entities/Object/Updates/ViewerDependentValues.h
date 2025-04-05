@@ -20,6 +20,7 @@
 
 #include "Conversation.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Map.h"
 #include "ObjectMgr.h"
