@@ -17,8 +17,9 @@
 
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
-#include "Player.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -188,11 +189,98 @@ private:
     bool _halfLifeTriggered;
 };
 
+enum TheFinalEffigyData
+{
+    NPC_CYRIL_WHITE_CURSED          = 130419,
+
+    PHASE_PERSONAL_DEATHCURSE       = 9567,
+    PHASE_COSMETIC_DEATHCURSE_AT    = 9846,
+
+    SPELL_DRUSTVAR_FALLHAVEN_SCENE  = 281070
+};
+
+// 248476 - Deathcurse
+class spell_drustvar_deathcurse : public AuraScript
+{
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        PhasingHandler::AddPhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, true);
+        PhasingHandler::AddPhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        PhasingHandler::RemovePhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, true);
+        PhasingHandler::RemovePhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_drustvar_deathcurse::OnApply, EFFECT_1, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_drustvar_deathcurse::OnRemove, EFFECT_1, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 254558 - Cancel Deathcurse
+class spell_drustvar_cancel_deathcurse : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUSTVAR_FALLHAVEN_SCENE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DRUSTVAR_FALLHAVEN_SCENE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_drustvar_cancel_deathcurse::HandleHit, EFFECT_0, SPELL_EFFECT_REMOVE_AURA_2);
+    }
+};
+
+// Scene 2131
+class scene_drustvar_cleanse_fallhaven : public SceneScript
+{
+public:
+    scene_drustvar_cleanse_fallhaven() : SceneScript("scene_drustvar_cleanse_fallhaven") {}
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        PhasingHandler::OnConditionChange(player);
+        PhasingHandler::RemovePhase(player, PHASE_COSMETIC_DEATHCURSE_AT, true);
+        CloneCyril(player);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        PhasingHandler::OnConditionChange(player);
+        CloneCyril(player);
+    }
+
+    void CloneCyril(Player* player)
+    {
+        if (Creature* cyrilObject = player->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_CYRIL_WHITE_CURSED, .IgnorePhases = true }))
+            cyrilObject->SummonPersonalClone(cyrilObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+    }
+};
+
 void AddSC_drustvar_chapter_1_the_final_effigy()
 {
     // Creature
     RegisterCreatureAI(npc_helena_gentle_witch_hunt);
 
+    // Scene
+    new scene_drustvar_cleanse_fallhaven();
+
     // EventScripts
     new event_listen_to_helenas_story();
+
+    // Spells
+    RegisterSpellScript(spell_drustvar_deathcurse);
+    RegisterSpellScript(spell_drustvar_cancel_deathcurse);
 }
