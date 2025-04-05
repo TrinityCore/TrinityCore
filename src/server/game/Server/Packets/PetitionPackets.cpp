@@ -44,11 +44,11 @@ ByteBuffer& operator<<(ByteBuffer& data, PetitionInfo const& petitionInfo)
     data << int32(petitionInfo.StaticType);
     data << uint32(petitionInfo.Muid);
 
-    data << SizedString::BitsSize<7>(petitionInfo.Title);
+    data << SizedString::BitsSize<8>(petitionInfo.Title);
     data << SizedString::BitsSize<12>(petitionInfo.BodyText);
 
     for (std::string const& choiceText : petitionInfo.Choicetext)
-        data << SizedString::BitsSize<6>(choiceText);
+        data << SizedString::BitsSize<7>(choiceText);
 
     data.FlushBits();
 

@@ -315,16 +315,13 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
 
 void WorldPackets::Misc::StandStateChange::Read()
 {
-    uint32 state;
-    _worldPacket >> state;
-
-    StandState = UnitStandStateType(state);
+    _worldPacket >> As<uint8>(StandState);
 }
 
 WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
 {
-    _worldPacket << uint32(AnimKitID);
     _worldPacket << uint8(State);
+    _worldPacket << uint32(AnimKitID);
 
     return &_worldPacket;
 }
@@ -348,7 +345,7 @@ WorldPacket const* WorldPackets::Misc::PlayerBound::Write()
 
 WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
 {
-    _worldPacket << int32(Timer);
+    _worldPacket << uint8(Timer);
     _worldPacket << int32(Value);
     _worldPacket << int32(MaxValue);
     _worldPacket << int32(Scale);
@@ -361,7 +358,7 @@ WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
 
 WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
 {
-    _worldPacket << int32(Timer);
+    _worldPacket << uint8(Timer);
     _worldPacket.WriteBit(Paused);
     _worldPacket.FlushBits();
 
@@ -370,7 +367,7 @@ WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
 
 WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
 {
-    _worldPacket << int32(Timer);
+    _worldPacket << uint8(Timer);
 
     return &_worldPacket;
 }
