@@ -270,7 +270,6 @@ public:
     }
 };
 
-
 template<>
 class ViewerDependentValue<UF::UnitData::FactionTemplateTag>
 {
