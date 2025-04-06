@@ -22,6 +22,8 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum WitchHuntData
