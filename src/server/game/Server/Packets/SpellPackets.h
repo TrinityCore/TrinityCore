@@ -542,7 +542,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsPet = false;
-            bool SkipCategory = false;
+            bool WithoutCategoryCooldown = false;
             int32 DeltaTime = 0;
             int32 SpellID = 0;
         };

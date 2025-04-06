@@ -622,7 +622,7 @@ void SpellHistory::ModifySpellCooldown(CooldownStorageType::iterator& itr, Durat
         modifyCooldown.IsPet = _owner != playerOwner;
         modifyCooldown.SpellID = itr->second.SpellId;
         modifyCooldown.DeltaTime = duration_cast<Milliseconds>(cooldownMod).count();
-        modifyCooldown.SkipCategory = withoutCategoryCooldown;
+        modifyCooldown.WithoutCategoryCooldown = withoutCategoryCooldown;
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 
