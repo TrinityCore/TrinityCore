@@ -1329,18 +1329,18 @@ void WorldSession::SendFeatureSystemStatus()
     features.ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
     features.CfgRealmID = 2;
     features.CfgRealmRecID = 0;
-    features.TokenPollTimeSeconds = 300;
+    features.CommercePricePollTimeSeconds = 300;
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
     // Enable guilds only.
     // This is required to restore old guild channel behavior for GMs.
     // The new club streams do not support sending messages through the guild channel when you are not in a guild.
-    features.ClubsEnabled = true;
-    features.ClubsBattleNetClubTypeAllowed = false;
-    features.ClubsCharacterClubTypeAllowed = false;
-    features.ClubsPresenceUpdateEnabled = true;
-    features.HiddenUIClubsPresenceUpdateTimer = 60000;
+    features.CommunitiesEnabled = true;
+    features.BnetGroupsEnabled = false;
+    features.CharacterCommunitiesEnabled = false;
+    features.ClubPresenceAllowSubscribeAll = true;
+    features.ClubPresenceUnsubscribeDelay = 60000;
 
     features.EuropaTicketSystemStatus.emplace();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
@@ -1348,11 +1348,11 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
 
-    features.TutorialsEnabled = true;
-    features.WarModeFeatureEnabled = true;
+    features.TutorialEnabled = true;
+    features.WarModeEnabled = true;
     features.QuestSessionEnabled = true;
     features.WarGamesEnabled = true;
-    features.CanShowSetRoleButton = true;
+    features.Unk441_0 = 1; // set to true according to sniffs
 
     features.GuildEventsEditsEnabled = true;
     features.GuildTradeSkillsEnabled = false; // currently disabled on 4.4.1
@@ -1361,8 +1361,6 @@ void WorldSession::SendFeatureSystemStatus()
     features.AddonChatThrottle.TriesRestoredPerSecond = 1;
     features.AddonChatThrottle.UsedTriesPerMessage = 1;
 
-    features.VoiceChatDisabledByParentalControl = true;
-    features.VoiceChatMutedByParentalControl = true;
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
@@ -1372,12 +1370,14 @@ void WorldSession::SendFeatureSystemStatus()
 
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
-    features.IsMuted = !CanSpeak();
+    features.IsChatMuted = !CanSpeak();
 
-    features.IsLFDEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER);
-    features.IsLFREnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_RAID_FINDER);
-    features.IsPremadeGroupEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_PREMADE_GROUP);
-    features.IsGroupFinderEnabled = features.IsLFDEnabled || features.IsLFREnabled || features.IsPremadeGroupEnabled;
+    features.SpeakForMeAllowed = false;
+
+    features.LFDEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER);
+    features.LFREnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_RAID_FINDER);
+    features.PremadeGroupEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_PREMADE_GROUP);
+    features.GroupFinderEnabled = features.LFDEnabled || features.LFREnabled || features.PremadeGroupEnabled;
 
     SendPacket(features.Write());
 }
