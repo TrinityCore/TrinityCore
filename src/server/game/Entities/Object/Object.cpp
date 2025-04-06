@@ -247,11 +247,16 @@ void Object::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragm
     *data << WorldPackets::As<uint8>(WowCS::EntityFragment::End);
 }
 
-void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags)
+void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
 {
+    uint8 contentsChangedMask = WowCS::CGObjectChangedMask;
+    for (WowCS::EntityFragment updateableFragmentId : m_entityFragments.GetUpdateableIds())
+        if (WowCS::IsIndirectFragment(updateableFragmentId))
+            contentsChangedMask |= m_entityFragments.GetUpdateMaskFor(updateableFragmentId) >> 1;   // set the "fragment exists" bit
+
     *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
     *data << uint8(false);                                  // m_entityFragments.IdsChanged
-    *data << uint8(WowCS::CGObjectUpdateMask);
+    *data << uint8(contentsChangedMask);
 }
 
 void Object::BuildDestroyUpdateBlock(UpdateData* data) const
@@ -869,7 +874,6 @@ void Object::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Object::m_objectData);
     m_entityFragments.IdsChanged = false;
-    m_entityFragments.ContentsChangedMask = WowCS::CGObjectActiveMask;
 
     if (m_objectUpdated)
     {

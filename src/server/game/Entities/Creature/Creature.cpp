@@ -3668,7 +3668,12 @@ void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Pl
     m_unitData->WriteCreate(*data, flags, this, target);
 
     if (m_vendorData)
+    {
+        if constexpr (WowCS::IsIndirectFragment(WowCS::EntityFragment::FVendor_C))
+            *data << uint8(1);  // IndirectFragmentActive: FVendor_C
+
         m_vendorData->WriteCreate(*data, flags, this, target);
+    }
 }
 
 void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
@@ -3743,8 +3748,6 @@ void Creature::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* pla
 
 void Creature::ClearUpdateMask(bool remove)
 {
-    if (m_vendorData)
-        m_values.ClearChangesMask(&Creature::m_vendorData);
-
+    m_values.ClearChangesMask(&Creature::m_vendorData);
     Unit::ClearUpdateMask(remove);
 }
