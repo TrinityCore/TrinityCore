@@ -76,7 +76,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate
     switch (bankerActivate.InteractionType)
     {
         case PlayerInteractionType::Banker:
-            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_ACCOUNT_BANKER) || !unit->HasNpcFlag(UNIT_NPC_FLAG_BANKER))
+            if (!unit->HasNpcFlag(UNIT_NPC_FLAG_ACCOUNT_BANKER | UNIT_NPC_FLAG_BANKER)) // Classic only - the banker check has been adjusted
                 return;
             break;
         case PlayerInteractionType::CharacterBanker:
