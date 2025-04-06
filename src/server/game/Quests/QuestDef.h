@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "EnumFlag.h"
+#include "Hash.h"
 #include "LootItemType.h"
 #include "Optional.h"
 #include "RaceMask.h"
