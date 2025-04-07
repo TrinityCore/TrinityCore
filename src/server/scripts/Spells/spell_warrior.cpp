@@ -68,6 +68,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_STOICISM                          = 70845,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
+    SPELL_WARRIOR_STORM_BOLTS                       = 436162,
     SPELL_WARRIOR_STRATEGIST                        = 384041,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -611,25 +612,55 @@ class spell_warr_shockwave : public SpellScript
     uint32 _targetCount = 0;
 };
 
-// 107570 - Storm Bolt
+// Warrior: Arms, Fury, Protection
+// Storm Bolt (SpellID: 107570)
 class spell_warr_storm_bolt : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_WARRIOR_STORM_BOLT_STUN
+        return ValidateSpellInfo({
+            SPELL_WARRIOR_STORM_BOLT_STUN,
+            SPELL_WARRIOR_STORM_BOLTS
         });
     }
 
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
+        Unit* caster = GetCaster();
+
+        if (!caster)
+            return;
+
+        // If the caster has the Storm Bolts aura, do not filter targets
+        if (caster && caster->HasAura(SPELL_WARRIOR_STORM_BOLTS))
+            return;
+
+        // Clear the current targets
+        targets.clear();
+
+        // Add the desired target back to the list
+        if (Unit* target = GetExplTargetUnit())
+        {
+            targets.push_back(GetExplTargetUnit());
+        }
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (!caster || !target)
+            return;
+
+        // Apply the stun effect to the primary target
+        caster->CastSpell(target, SPELL_WARRIOR_STORM_BOLT_STUN, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_storm_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
