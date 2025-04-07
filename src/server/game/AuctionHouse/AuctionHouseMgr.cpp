@@ -441,13 +441,23 @@ Item* AuctionHouseMgr::GetAItem(ObjectGuid itemGuid)
 uint64 AuctionHouseMgr::GetCommodityAuctionDeposit(ItemTemplate const* item, Minutes time, uint32 quantity)
 {
     uint32 sellPrice = item->GetSellPrice();
-    return uint64(std::ceil(std::floor(fmax(0.15 * quantity * sellPrice, 100.0)) / int64(SILVER)) * int64(SILVER)) * (time.count() / (MIN_AUCTION_TIME / MINUTE));
+    uint64 deposit = uint64(sellPrice * 0.15); // rounding off the remainder
+    uint32 remainder = std::ceil(sellPrice * 0.15 - deposit); // and subtracting a ceiled remainder on top of it
+    if (deposit >= remainder)
+        deposit -= remainder;
+
+    return uint64(deposit * quantity) * (time.count() / (MIN_AUCTION_TIME / MINUTE));
 }
 
 uint64 AuctionHouseMgr::GetItemAuctionDeposit(Player const* player, Item const* item, Minutes time)
 {
     uint32 sellPrice = item->GetSellPrice(player);
-    return uint64(std::ceil(std::floor(fmax(sellPrice * 0.15, 100.0)) / int64(SILVER)) * int64(SILVER)) * (time.count() / (MIN_AUCTION_TIME / MINUTE));
+    uint64 deposit = uint64(sellPrice * 0.15); // rounding off the remainder
+    uint32 remainder = std::ceil(sellPrice * 0.15 - deposit); // and subtracting a ceiled remainder on top of it
+    if (deposit >= remainder)
+        deposit -= remainder;
+
+    return deposit * (time.count() / (MIN_AUCTION_TIME / MINUTE));
 }
 
 std::string AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType type, AuctionPosting const* auction)
@@ -1703,7 +1713,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     }
 
     WorldPackets::AuctionHouse::AuctionWonNotification packet;
-    packet.Info.Initialize(auctions[0], items[0].Items[0]);
+    packet.Info.Initialize(_auctionHouse->ID, auctions[0], items[0].Items[0]);
     player->SendDirectMessage(packet.Write());
 
     for (std::size_t i = 0; i < auctions.size(); ++i)
@@ -1805,7 +1815,7 @@ void AuctionHouseObject::SendAuctionWon(AuctionPosting const* auction, Player* b
         if (bidder)
         {
             WorldPackets::AuctionHouse::AuctionWonNotification packet;
-            packet.Info.Initialize(auction, auction->Items[0]);
+            packet.Info.Initialize(_auctionHouse->ID, auction, auction->Items[0]);
             bidder->SendDirectMessage(packet.Write());
 
             // FIXME: for offline player need also
