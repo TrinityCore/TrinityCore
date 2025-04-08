@@ -15,20 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NetworkThread_h__
-#define NetworkThread_h__
+#ifndef TRINITYCORE_NETWORK_THREAD_H
+#define TRINITYCORE_NETWORK_THREAD_H
 
-#include "Define.h"
+#include "Containers.h"
 #include "DeadlineTimer.h"
+#include "Define.h"
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
+#include "Socket.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <thread>
 
+namespace Trinity::Net
+{
 template<class SocketType>
 class NetworkThread
 {
@@ -38,14 +42,16 @@ public:
     {
     }
 
+    NetworkThread(NetworkThread const&) = delete;
+    NetworkThread(NetworkThread&&) = delete;
+    NetworkThread& operator=(NetworkThread const&) = delete;
+    NetworkThread& operator=(NetworkThread&&) = delete;
+
     virtual ~NetworkThread()
     {
         Stop();
         if (_thread)
-        {
             Wait();
-            delete _thread;
-        }
     }
 
     void Stop()
@@ -59,7 +65,7 @@ public:
         if (_thread)
             return false;
 
-        _thread = new std::thread(&NetworkThread::Run, this);
+        _thread = std::make_unique<std::thread>(&NetworkThread::Run, this);
         return true;
     }
 
@@ -68,7 +74,6 @@ public:
         ASSERT(_thread);
 
         _thread->join();
-        delete _thread;
         _thread = nullptr;
     }
 
@@ -82,15 +87,14 @@ public:
         std::lock_guard<std::mutex> lock(_newSocketsLock);
 
         ++_connections;
-        _newSockets.push_back(sock);
-        SocketAdded(sock);
+        SocketAdded(_newSockets.emplace_back(std::move(sock)));
     }
 
-    boost::asio::ip::tcp::socket* GetSocketForAccept() { return &_acceptSocket; }
+    Trinity::Net::IoContextTcpSocket* GetSocketForAccept() { return &_acceptSocket; }
 
 protected:
-    virtual void SocketAdded(std::shared_ptr<SocketType> /*sock*/) { }
-    virtual void SocketRemoved(std::shared_ptr<SocketType> /*sock*/) { }
+    virtual void SocketAdded(std::shared_ptr<SocketType> const& /*sock*/) { }
+    virtual void SocketRemoved(std::shared_ptr<SocketType> const& /*sock*/) { }
 
     void AddNewSockets()
     {
@@ -99,7 +103,7 @@ protected:
         if (_newSockets.empty())
             return;
 
-        for (std::shared_ptr<SocketType> sock : _newSockets)
+        for (std::shared_ptr<SocketType>& sock : _newSockets)
         {
             if (!sock->IsOpen())
             {
@@ -107,7 +111,7 @@ protected:
                 --_connections;
             }
             else
-                _sockets.push_back(sock);
+                _sockets.emplace_back(std::move(sock));
         }
 
         _newSockets.clear();
@@ -136,7 +140,7 @@ protected:
 
         AddNewSockets();
 
-        _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(), [this](std::shared_ptr<SocketType> sock)
+        Trinity::Containers::EraseIf(_sockets, [this](std::shared_ptr<SocketType> const& sock)
         {
             if (!sock->Update())
             {
@@ -150,7 +154,7 @@ protected:
             }
 
             return false;
-        }), _sockets.end());
+        });
     }
 
 private:
@@ -159,7 +163,7 @@ private:
     std::atomic<int32> _connections;
     std::atomic<bool> _stopped;
 
-    std::thread* _thread;
+    std::unique_ptr<std::thread> _thread;
 
     SocketContainer _sockets;
 
@@ -167,8 +171,9 @@ private:
     SocketContainer _newSockets;
 
     Trinity::Asio::IoContext _ioContext;
-    boost::asio::ip::tcp::socket _acceptSocket;
+    Trinity::Net::IoContextTcpSocket _acceptSocket;
     Trinity::Asio::DeadlineTimer _updateTimer;
 };
+}
 
-#endif // NetworkThread_h__
+#endif // TRINITYCORE_NETWORK_THREAD_H

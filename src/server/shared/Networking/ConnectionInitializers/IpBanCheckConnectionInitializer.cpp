@@ -15,28 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_SESSION_MANAGER_H
-#define TRINITYCORE_SESSION_MANAGER_H
+#include "IpBanCheckConnectionInitializer.h"
+#include "DatabaseEnv.h"
 
-#include "SocketMgr.h"
-#include "Session.h"
-
-namespace Battlenet
+QueryCallback Trinity::Net::IpBanCheckHelpers::AsyncQuery(std::string_view ipAddress)
 {
-    class SessionManager : public Trinity::Net::SocketMgr<Session>
-    {
-        typedef SocketMgr<Session> BaseSocketMgr;
-
-    public:
-        static SessionManager& Instance();
-
-        bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount = 1) override;
-
-    protected:
-        Trinity::Net::NetworkThread<Session>* CreateThreads() const override;
-    };
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+    stmt->setString(0, ipAddress);
+    return LoginDatabase.AsyncQuery(stmt);
 }
 
-#define sSessionMgr Battlenet::SessionManager::Instance()
+bool Trinity::Net::IpBanCheckHelpers::IsBanned(PreparedQueryResult const& result)
+{
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            if (fields[0].GetUInt64() != 0)
+                return true;
 
-#endif // TRINITYCORE_SESSION_MANAGER_H
+        } while (result->NextRow());
+    }
+
+    return false;
+}

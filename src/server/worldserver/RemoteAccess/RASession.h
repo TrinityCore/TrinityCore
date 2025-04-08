@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __RASESSION_H__
-#define __RASESSION_H__
+#ifndef TRINITYCORE_RA_SESSION_H
+#define TRINITYCORE_RA_SESSION_H
 
 #include "Define.h"
+#include "Socket.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <future>
@@ -29,7 +30,7 @@ const size_t bufferSize = 4096;
 class RASession : public std::enable_shared_from_this <RASession>
 {
 public:
-    RASession(boost::asio::ip::tcp::socket&& socket) : _socket(std::move(socket)), _commandExecuting(nullptr)
+    RASession(Trinity::Net::IoContextTcpSocket&& socket) : _socket(std::move(socket)), _commandExecuting(nullptr)
     {
     }
 
@@ -47,7 +48,7 @@ private:
     static void CommandPrint(void* callbackArg, std::string_view text);
     static void CommandFinished(void* callbackArg, bool);
 
-    boost::asio::ip::tcp::socket _socket;
+    Trinity::Net::IoContextTcpSocket _socket;
     boost::asio::streambuf _readBuffer;
     boost::asio::streambuf _writeBuffer;
     std::promise<void>* _commandExecuting;
