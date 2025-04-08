@@ -16,6 +16,7 @@
  */
 
 #include "BaseHttpSocket.h"
+#include <boost/asio/buffers_iterator.hpp>
 #include <boost/beast/http/serializer.hpp>
 
 namespace Trinity::Net::Http
@@ -111,5 +112,35 @@ MessageBuffer AbstractSocket::SerializeResponse(Request const& request, Response
     }
 
     return buffer;
+}
+
+void AbstractSocket::LogRequestAndResponse(RequestContext const& context, MessageBuffer& buffer) const
+{
+    if (Logger const* logger = sLog->GetEnabledLogger("server.http", LOG_LEVEL_DEBUG))
+    {
+        std::string clientInfo = GetClientInfo();
+        sLog->OutMessageTo(logger, "server.http", LOG_LEVEL_DEBUG, "{} Request {} {} done, status {}", clientInfo,
+            ToStdStringView(context.request.method_string()), ToStdStringView(context.request.target()), context.response.result_int());
+        if (sLog->ShouldLog("server.http", LOG_LEVEL_TRACE))
+        {
+            sLog->OutMessageTo(logger, "server.http", LOG_LEVEL_TRACE, "{} Request: {}", clientInfo,
+                CanLogRequestContent(context) ? SerializeRequest(context.request) : "<REDACTED>");
+            sLog->OutMessageTo(logger, "server.http", LOG_LEVEL_TRACE, "{} Response: {}", clientInfo,
+                CanLogResponseContent(context) ? std::string_view(reinterpret_cast<char const*>(buffer.GetBasePointer()), buffer.GetActiveSize()) : "<REDACTED>");
+        }
+    }
+}
+
+std::string AbstractSocket::GetClientInfo(boost::asio::ip::address const& address, uint16 port, SessionState const* state)
+{
+    std::string info = StringFormat("[{}:{}", address.to_string(), port);
+    if (state)
+    {
+        info.append(", Session Id: ");
+        info.append(boost::uuids::to_string(state->Id));
+    }
+
+    info += ']';
+    return info;
 }
 }
