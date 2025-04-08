@@ -818,6 +818,22 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
+// Warrior: Arms, Protection
+// Execute damage (SpellID: 260798)
+class spell_warr_execute_damage : public SpellScript
+{
+    void CalculateExecuteDamage(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)
+    {
+        // Double the percentage modifier for Execute damage
+        pctMod *= 2.0f;
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_bloodthirst);
@@ -847,4 +863,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_execute_damage);
 }
