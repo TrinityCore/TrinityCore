@@ -312,6 +312,21 @@ class spell_warr_devastator : public AuraScript
     }
 };
 
+// 260798 - Execute (Arms, Protection)
+class spell_warr_execute_damage : public SpellScript
+{
+    static void CalculateExecuteDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod)
+    {
+        // tooltip has 2 multiplier hardcoded in it $damage=${2.0*$260798s1}
+        pctMod *= 2.0f;
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
+    }
+};
+
 // 383103  - Fueled by Violence
 class spell_warr_fueled_by_violence : public AuraScript
 {
@@ -818,22 +833,6 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
-// Warrior: Arms, Protection
-// Execute damage (SpellID: 260798)
-class spell_warr_execute_damage : public SpellScript
-{
-    void CalculateExecuteDamage(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod)
-    {
-        // Double the percentage modifier for Execute damage
-        pctMod *= 2.0f;
-    }
-
-    void Register() override
-    {
-        CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
-    }
-};
-
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_bloodthirst);
@@ -844,6 +843,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_devastator);
+    RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
@@ -863,5 +863,4 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
-    RegisterSpellScript(spell_warr_execute_damage);
 }
