@@ -51,7 +51,7 @@ struct RequestHandler
     EnumFlag<RequestHandlerFlag> Flags = RequestHandlerFlag::None;
 };
 
-class TC_SHARED_API DispatcherService
+class TC_NETWORK_API DispatcherService
 {
 public:
     explicit DispatcherService(std::string_view loggerSuffix) : _logger("server.http.dispatcher.")
@@ -79,7 +79,7 @@ private:
     std::string _logger;
 };
 
-class TC_SHARED_API SessionService
+class TC_NETWORK_API SessionService
 {
 public:
     explicit SessionService(std::string_view loggerSuffix) : _logger("server.http.session.")

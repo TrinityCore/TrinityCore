@@ -47,7 +47,7 @@ struct IpBanCheckConnectionInitializer final : SocketConnectionInitializer
             if (IpBanCheckHelpers::IsBanned(result))
             {
                 TC_LOG_ERROR("network", "IpBanCheckConnectionInitializer: IP {} is banned.", socket->GetRemoteIpAddress().to_string());
-                socket->DelayedCloseSocket();
+                socket->CloseSocket();
                 return;
             }
 

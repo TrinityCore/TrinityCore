@@ -37,8 +37,8 @@ struct RequestContext
     struct RequestHandler const* handler = nullptr;
 };
 
-TC_SHARED_API bool CanLogRequestContent(RequestContext const& context);
-TC_SHARED_API bool CanLogResponseContent(RequestContext const& context);
+TC_NETWORK_API bool CanLogRequestContent(RequestContext const& context);
+TC_NETWORK_API bool CanLogResponseContent(RequestContext const& context);
 
 inline std::string_view ToStdStringView(boost::beast::string_view bsw)
 {
