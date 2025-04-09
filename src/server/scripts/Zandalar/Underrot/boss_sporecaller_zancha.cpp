@@ -511,11 +511,9 @@ class spell_sporecaller_zancha_volatile_pods_explosion : public SpellScript
 
         for (uint8 i = 0; i < MAX_VOLATILE_PODS; ++i)
         {
-            float angle = (target->GetOrientation() + (float(M_PI) / 6.0f)) + (i * float(M_PI) / 3.0f);
-            Position pos(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), angle);
-            SpellCastTargets targets;
-            targets.SetDst(pos);
-            target->CastSpell(std::move(targets), SPELL_VOLATILE_PODS_AREATRIGGER, CastSpellExtraArgsInit{
+            float angle = target->GetOrientation() + float(M_PI) / 6.0f + i * float(M_PI) / 3.0f;
+            Position dest(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), angle);
+            target->CastSpell(dest, SPELL_VOLATILE_PODS_AREATRIGGER, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
             });
