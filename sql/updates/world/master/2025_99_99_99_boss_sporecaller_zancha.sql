@@ -44,7 +44,7 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATPROPERTIESID AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATPROPERTIESID, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 12, 30, 5, 12, 30, 5, 0, 0, 'at_underrot_sporecaller_zancha_intro', 0);
+(@ATPROPERTIESID, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 12, 30, 5, 12, 30, 5, 0, 0, 'at_sporecaller_zancha_intro', 0);
 
 DELETE FROM `areatrigger_template` WHERE `Id`=@ATPROPERTIESID AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES

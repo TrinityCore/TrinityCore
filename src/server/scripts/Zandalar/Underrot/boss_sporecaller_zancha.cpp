@@ -631,7 +631,7 @@ struct at_sporecaller_zancha_volatile_pod : AreaTriggerAI
 
 // TODO: Change id on merge
 // Id 100000 - Areatrigger
-struct at_underrot_sporecaller_zancha_intro : AreaTriggerAI
+struct at_sporecaller_zancha_intro : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
@@ -686,5 +686,5 @@ void AddSC_boss_sporecaller_zancha()
 
     RegisterAreaTriggerAI(at_sporecaller_zancha_boundless_rot);
     RegisterAreaTriggerAI(at_sporecaller_zancha_volatile_pod);
-    RegisterAreaTriggerAI(at_underrot_sporecaller_zancha_intro);
+    RegisterAreaTriggerAI(at_sporecaller_zancha_intro);
 }
