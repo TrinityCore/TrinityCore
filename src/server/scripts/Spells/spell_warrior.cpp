@@ -638,7 +638,7 @@ class spell_warr_storm_bolt : public SpellScript
             targets.push_back(GetExplTargetUnit());
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleStun(SpellEffIndex /*effIndex*/)
     {
         // Apply the stun effect to hit target or targets
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
@@ -647,7 +647,7 @@ class spell_warr_storm_bolt : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_storm_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleStun, EFFECT_0, TARGET_UNIT_TARGET_ENEMY));
     }
 };
 
