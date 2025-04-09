@@ -19,11 +19,9 @@
 #define TRINITYCORE_BASE_HTTP_SOCKET_H
 
 #include "AsyncCallbackProcessor.h"
-#include "DatabaseEnvFwd.h"
 #include "HttpCommon.h"
 #include "HttpSessionState.h"
 #include "Optional.h"
-#include "QueryCallback.h"
 #include "Socket.h"
 #include "SocketConnectionInitializer.h"
 #include <boost/beast/core/basic_stream.hpp>
@@ -67,7 +65,7 @@ public:
 
 using RequestParser = boost::beast::http::request_parser<RequestBody>;
 
-class TC_SHARED_API AbstractSocket
+class TC_NETWORK_API AbstractSocket
 {
 public:
     AbstractSocket() = default;
@@ -85,8 +83,6 @@ public:
     virtual void SendResponse(RequestContext& context) = 0;
 
     void LogRequestAndResponse(RequestContext const& context, MessageBuffer& buffer) const;
-
-    virtual void QueueQuery(QueryCallback&& queryCallback) = 0;
 
     virtual std::string GetClientInfo() const = 0;
 
@@ -197,21 +193,9 @@ public:
             this->DelayedCloseSocket();
     }
 
-    void QueueQuery(QueryCallback&& queryCallback) final
-    {
-        this->_queryProcessor.AddCallback(std::move(queryCallback));
-    }
-
     void Start() override { return this->Base::Start(); }
 
-    bool Update() override
-    {
-        if (!this->Base::Update())
-            return false;
-
-        this->_queryProcessor.ProcessReadyCallbacks();
-        return true;
-    }
+    bool Update() override { return this->Base::Update(); }
 
     boost::asio::ip::address const& GetRemoteIpAddress() const final { return this->Base::GetRemoteIpAddress(); }
 
@@ -236,7 +220,6 @@ public:
 protected:
     virtual std::shared_ptr<SessionState> ObtainSessionState(RequestContext& context) const = 0;
 
-    QueryCallbackProcessor _queryProcessor;
     Optional<RequestParser> _httpParser;
     std::shared_ptr<SessionState> _state;
 };

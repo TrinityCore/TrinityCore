@@ -15,22 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IpAddress_h__
-#define IpAddress_h__
+#ifndef TRINITYCORE_IP_NETWORK_H
+#define TRINITYCORE_IP_NETWORK_H
 
+#include "AsioHacksFwd.h"
 #include "Define.h"
-#include <boost/asio/ip/address.hpp>
+#include "Optional.h"
+#include <span>
 
-namespace Trinity
+namespace Trinity::Net
 {
-    namespace Net
-    {
-        using boost::asio::ip::make_address;
-        using boost::asio::ip::make_address_v4;
-        using boost::asio::ip::make_address_v6;
-        using boost::asio::ip::v4_mapped_t::v4_mapped;
-        inline uint32 address_to_uint(boost::asio::ip::address_v4 const& address) { return address.to_uint(); }
-    }
+TC_NETWORK_API bool IsInLocalNetwork(boost::asio::ip::address const& clientAddress);
+
+TC_NETWORK_API bool IsInNetwork(boost::asio::ip::network_v4 const& network, boost::asio::ip::address_v4 const& clientAddress);
+
+TC_NETWORK_API bool IsInNetwork(boost::asio::ip::network_v6 const& network, boost::asio::ip::address_v6 const& clientAddress);
+
+TC_NETWORK_API Optional<std::size_t> SelectAddressForClient(boost::asio::ip::address const& clientAddress, std::span<boost::asio::ip::address const> const& addresses);
+
+TC_NETWORK_API void ScanLocalNetworks();
 }
 
-#endif // IpAddress_h__
+#endif // TRINITYCORE_IP_NETWORK_H

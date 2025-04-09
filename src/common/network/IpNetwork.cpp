@@ -33,7 +33,7 @@ bool IsInLocalNetwork(boost::asio::ip::address const& clientAddress)
 {
     if (clientAddress.is_v4())
     {
-        return std::any_of(LocalV4Networks.begin(), LocalV4Networks.end(), [clientAddressV4 = clientAddress.to_v4()](boost::asio::ip::network_v4 const& network)
+        return std::ranges::any_of(LocalV4Networks, [clientAddressV4 = clientAddress.to_v4()](boost::asio::ip::network_v4 const& network)
         {
             return IsInNetwork(network, clientAddressV4);
         });
@@ -41,7 +41,7 @@ bool IsInLocalNetwork(boost::asio::ip::address const& clientAddress)
 
     if (clientAddress.is_v6())
     {
-        return std::any_of(LocalV6Networks.begin(), LocalV6Networks.end(), [clientAddressV6 = clientAddress.to_v6()](boost::asio::ip::network_v6 const& network)
+        return std::ranges::any_of(LocalV6Networks, [clientAddressV6 = clientAddress.to_v6()](boost::asio::ip::network_v6 const& network)
         {
             return IsInNetwork(network, clientAddressV6);
         });
