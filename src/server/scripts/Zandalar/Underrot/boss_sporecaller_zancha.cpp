@@ -108,8 +108,6 @@ enum MusashitakeMisc
     CONVERSATION_START = 8358
 };
 
-constexpr Position CenterPosition = { 1032.9444f, 1058.2899f, 33.330894f };
-
 // 131383 - Sporecaller Zancha
 struct boss_sporecaller_zancha : public BossAI
 {
@@ -183,24 +181,18 @@ struct boss_sporecaller_zancha : public BossAI
 
     void DoAction(int32 action) override
     {
-        switch (action)
+        if (action != ACTION_INTRO)
+            return;
+
+        for (ObjectGuid summonGUID : summons)
         {
-            case ACTION_INTRO:
+            if (Creature* defiler = ObjectAccessor::GetCreature(*me, summonGUID))
             {
-                for (ObjectGuid summonGuid : summons)
-                {
-                    if (Creature* defiler = ObjectAccessor::GetCreature(*me, summonGuid))
-                    {
-                        defiler->KillSelf();
-                        defiler->DespawnOrUnsummon(20s);
-                    }
-                }
-                me->SummonCreatureGroup(SUMMON_GROUP_MUSASHITAKE);
-                break;
+                defiler->KillSelf();
+                defiler->DespawnOrUnsummon(20s);
             }
-            default:
-                break;
         }
+        me->SummonCreatureGroup(SUMMON_GROUP_MUSASHITAKE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -296,11 +288,9 @@ struct boss_sporecaller_zancha : public BossAI
             }
             default:
                 break;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
+
 private:
     uint32 _shockwaveCount;
     uint32 _upheavalCount;
@@ -354,9 +344,6 @@ struct npc_sporecaller_zancha_musashitake : public ScriptedAI
             }
             default:
                 break;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
 
@@ -374,8 +361,7 @@ class spell_sporecaller_zancha_upheaval_selector : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        if (Creature* creatureCaster = caster->ToCreature())
+        if (Creature* creatureCaster = GetCaster()->ToCreature())
         {
             creatureCaster->CastSpell(GetHitUnit(), SPELL_UPHEAVAL_AURA, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -486,6 +472,8 @@ class spell_sporecaller_zancha_festering_harvest_pods_selector : public SpellScr
 // 259845 - Boundless Rot
 class spell_sporecaller_zancha_boundless_rot : public SpellScript
 {
+    static constexpr Position CenterPosition = { 1032.9444f, 1058.2899f, 33.330894f };
+
     static void SetDest(SpellDestination& dest)
     {
         dest.Relocate(CenterPosition);
@@ -502,8 +490,7 @@ class spell_sporecaller_zancha_volatile_pods : public SpellScript
 {
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        Creature* creatureCaster = GetCaster()->ToCreature();
-        if (creatureCaster)
+        if (Creature* creatureCaster = GetCaster()->ToCreature())
             creatureCaster->SummonCreatureGroup(SUMMON_GROUP_VOLATILE_PODS);
     }
 
@@ -516,11 +503,12 @@ class spell_sporecaller_zancha_volatile_pods : public SpellScript
 // 273285 - Volatile Pods
 class spell_sporecaller_zancha_volatile_pods_explosion : public SpellScript
 {
+    static constexpr uint8 MAX_VOLATILE_PODS = 6;
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         Unit* target = GetHitUnit();
 
-        for (uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < MAX_VOLATILE_PODS; ++i)
         {
             float angle = (target->GetOrientation() + (float(M_PI) / 6.0f)) + (i * float(M_PI) / 3.0f);
             Position pos(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), angle);
@@ -569,7 +557,7 @@ class spell_sporecaller_zancha_musashitake_teleport : public SpellScript
         return ValidateSpellInfo({ SPELL_THOUSAND_FOLD_BLADE });
     }
 
-    void HandleTeleport(SpellEffIndex /*effIndex*/)
+    void HandleTeleport(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_THOUSAND_FOLD_BLADE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -591,14 +579,15 @@ struct at_sporecaller_zancha_boundless_rot : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!unit->IsPlayer())
+        Player* player = unit->ToPlayer();
+        if (!player || player->IsGameMaster())
             return;
 
         Unit* caster = at->GetCaster();
         if (!caster)
             return;
 
-        caster->CastSpell(unit, SPELL_DECAYING_SPORES, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->CastSpell(player, SPELL_DECAYING_SPORES, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         if (Creature* creatureCaster = caster->ToCreature())
             creatureCaster->DespawnOrUnsummon();
@@ -613,14 +602,6 @@ struct at_sporecaller_zancha_volatile_pod : AreaTriggerAI
 
     void OnInitialize() override
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
-        if (!spellInfo)
-            return;
-
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
         Position destPos = at->GetPosition();
         at->MovePositionToFirstCollision(destPos, 200.0f, 0.0f);
 
