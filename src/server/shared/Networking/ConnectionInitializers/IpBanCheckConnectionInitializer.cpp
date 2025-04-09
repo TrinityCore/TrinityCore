@@ -15,25 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IpNetwork_h__
-#define IpNetwork_h__
+#include "IpBanCheckConnectionInitializer.h"
+#include "DatabaseEnv.h"
 
-#include "AsioHacksFwd.h"
-#include "Define.h"
-#include "Optional.h"
-#include <span>
-
-namespace Trinity::Net
+QueryCallback Trinity::Net::IpBanCheckHelpers::AsyncQuery(std::string_view ipAddress)
 {
-TC_COMMON_API bool IsInLocalNetwork(boost::asio::ip::address const& clientAddress);
-
-TC_COMMON_API bool IsInNetwork(boost::asio::ip::network_v4 const& network, boost::asio::ip::address_v4 const& clientAddress);
-
-TC_COMMON_API bool IsInNetwork(boost::asio::ip::network_v6 const& network, boost::asio::ip::address_v6 const& clientAddress);
-
-TC_COMMON_API Optional<std::size_t> SelectAddressForClient(boost::asio::ip::address const& clientAddress, std::span<boost::asio::ip::address const> const& addresses);
-
-TC_COMMON_API void ScanLocalNetworks();
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+    stmt->setString(0, ipAddress);
+    return LoginDatabase.AsyncQuery(stmt);
 }
 
-#endif // IpNetwork_h__
+bool Trinity::Net::IpBanCheckHelpers::IsBanned(PreparedQueryResult const& result)
+{
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            if (fields[0].GetUInt64() != 0)
+                return true;
+
+        } while (result->NextRow());
+    }
+
+    return false;
+}

@@ -19,22 +19,53 @@
 #define TRINITYCORE_BASE_HTTP_SOCKET_H
 
 #include "AsyncCallbackProcessor.h"
-#include "DatabaseEnvFwd.h"
 #include "HttpCommon.h"
 #include "HttpSessionState.h"
 #include "Optional.h"
-#include "QueryCallback.h"
 #include "Socket.h"
-#include <boost/asio/buffers_iterator.hpp>
+#include "SocketConnectionInitializer.h"
+#include <boost/beast/core/basic_stream.hpp>
 #include <boost/beast/http/parser.hpp>
 #include <boost/beast/http/string_body.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 namespace Trinity::Net::Http
 {
+using IoContextHttpSocket = boost::beast::basic_stream<boost::asio::ip::tcp, boost::asio::io_context::executor_type, boost::beast::unlimited_rate_policy>;
+
+namespace Impl
+{
+class BoostBeastSocketWrapper : public IoContextHttpSocket
+{
+public:
+    using IoContextHttpSocket::basic_stream;
+
+    void shutdown(boost::asio::socket_base::shutdown_type what, boost::system::error_code& shutdownError)
+    {
+        socket().shutdown(what, shutdownError);
+    }
+
+    void close(boost::system::error_code& /*error*/)
+    {
+        IoContextHttpSocket::close();
+    }
+
+    template<typename WaitHandlerType>
+    void async_wait(boost::asio::socket_base::wait_type type, WaitHandlerType&& handler)
+    {
+        socket().async_wait(type, std::forward<WaitHandlerType>(handler));
+    }
+
+    IoContextTcpSocket::endpoint_type remote_endpoint() const
+    {
+        return socket().remote_endpoint();
+    }
+};
+}
+
 using RequestParser = boost::beast::http::request_parser<RequestBody>;
 
-class TC_SHARED_API AbstractSocket
+class TC_NETWORK_API AbstractSocket
 {
 public:
     AbstractSocket() = default;
@@ -51,22 +82,57 @@ public:
 
     virtual void SendResponse(RequestContext& context) = 0;
 
-    virtual void QueueQuery(QueryCallback&& queryCallback) = 0;
+    void LogRequestAndResponse(RequestContext const& context, MessageBuffer& buffer) const;
 
     virtual std::string GetClientInfo() const = 0;
 
-    virtual Optional<boost::uuids::uuid> GetSessionId() const = 0;
+    static std::string GetClientInfo(boost::asio::ip::address const& address, uint16 port, SessionState const* state);
+
+    virtual SessionState* GetSessionState() const = 0;
+
+    Optional<boost::uuids::uuid> GetSessionId() const
+    {
+        if (SessionState* state = this->GetSessionState())
+            return state->Id;
+
+        return {};
+    }
+
+    virtual void Start() = 0;
+
+    virtual bool Update() = 0;
+
+    virtual boost::asio::ip::address const& GetRemoteIpAddress() const = 0;
+
+    virtual bool IsOpen() const = 0;
+
+    virtual void CloseSocket() = 0;
 };
 
-template<typename Derived, typename Stream>
-class BaseSocket : public ::Socket<Derived, Stream>, public AbstractSocket
+template <typename SocketImpl>
+struct HttpConnectionInitializer final : SocketConnectionInitializer
 {
-    using Base = ::Socket<Derived, Stream>;
+    explicit HttpConnectionInitializer(SocketImpl* socket) : _socket(socket) { }
+
+    void Start() override
+    {
+        _socket->ResetHttpParser();
+
+        if (this->next)
+            this->next->Start();
+    }
+
+private:
+    SocketImpl* _socket;
+};
+
+template<typename Stream>
+class BaseSocket : public Trinity::Net::Socket<Stream>, public AbstractSocket
+{
+    using Base = Trinity::Net::Socket<Stream>;
 
 public:
-    template<typename... Args>
-    explicit BaseSocket(boost::asio::ip::tcp::socket&& socket, Args&&... args)
-        : Base(std::move(socket), std::forward<Args>(args)...) { }
+    using Base::Base;
 
     BaseSocket(BaseSocket const& other) = delete;
     BaseSocket(BaseSocket&& other) = delete;
@@ -75,11 +141,8 @@ public:
 
     ~BaseSocket() = default;
 
-    void ReadHandler() override
+    SocketReadCallbackResult ReadHandler() final
     {
-        if (!this->IsOpen())
-            return;
-
         MessageBuffer& packet = this->GetReadBuffer();
         while (packet.GetActiveSize() > 0)
         {
@@ -92,13 +155,13 @@ public:
             if (!HandleMessage(_httpParser->get()))
             {
                 this->CloseSocket();
-                break;
+                return SocketReadCallbackResult::Stop;
             }
 
             this->ResetHttpParser();
         }
 
-        this->AsyncRead();
+        return SocketReadCallbackResult::KeepReading;
     }
 
     bool HandleMessage(Request& request)
@@ -118,19 +181,11 @@ public:
 
     virtual RequestHandlerResult RequestHandler(RequestContext& context) = 0;
 
-    void SendResponse(RequestContext& context) override
+    void SendResponse(RequestContext& context) final
     {
         MessageBuffer buffer = SerializeResponse(context.request, context.response);
 
-        TC_LOG_DEBUG("server.http", "{} Request {} {} done, status {}", this->GetClientInfo(), ToStdStringView(context.request.method_string()),
-            ToStdStringView(context.request.target()), context.response.result_int());
-        if (sLog->ShouldLog("server.http", LOG_LEVEL_TRACE))
-        {
-            sLog->OutMessage("server.http", LOG_LEVEL_TRACE, "{} Request: {}", this->GetClientInfo(),
-                CanLogRequestContent(context) ? SerializeRequest(context.request) : "<REDACTED>");
-            sLog->OutMessage("server.http", LOG_LEVEL_TRACE, "{} Response: {}", this->GetClientInfo(),
-                CanLogResponseContent(context) ? std::string_view(reinterpret_cast<char const*>(buffer.GetBasePointer()), buffer.GetActiveSize()) : "<REDACTED>");
-        }
+        this->LogRequestAndResponse(context, buffer);
 
         this->QueuePacket(std::move(buffer));
 
@@ -138,41 +193,23 @@ public:
             this->DelayedCloseSocket();
     }
 
-    void QueueQuery(QueryCallback&& queryCallback) override
-    {
-        this->_queryProcessor.AddCallback(std::move(queryCallback));
-    }
+    void Start() override { return this->Base::Start(); }
 
-    bool Update() override
-    {
-        if (!this->Base::Update())
-            return false;
+    bool Update() override { return this->Base::Update(); }
 
-        this->_queryProcessor.ProcessReadyCallbacks();
-        return true;
-    }
+    boost::asio::ip::address const& GetRemoteIpAddress() const final { return this->Base::GetRemoteIpAddress(); }
+
+    bool IsOpen() const final { return this->Base::IsOpen(); }
+
+    void CloseSocket() final { return this->Base::CloseSocket(); }
 
     std::string GetClientInfo() const override
     {
-        std::string info;
-        info.reserve(500);
-        auto itr = StringFormatTo(std::back_inserter(info), "[{}:{}", this->GetRemoteIpAddress().to_string(), this->GetRemotePort());
-        if (_state)
-            itr = StringFormatTo(itr, ", Session Id: {}", boost::uuids::to_string(_state->Id));
-
-        StringFormatTo(itr, "]");
-        return info;
+        return AbstractSocket::GetClientInfo(this->GetRemoteIpAddress(), this->GetRemotePort(), this->_state.get());
     }
 
-    Optional<boost::uuids::uuid> GetSessionId() const final
-    {
-        if (this->_state)
-            return this->_state->Id;
+    SessionState* GetSessionState() const override { return _state.get(); }
 
-        return {};
-    }
-
-protected:
     void ResetHttpParser()
     {
         this->_httpParser.reset();
@@ -180,9 +217,9 @@ protected:
         this->_httpParser->eager(true);
     }
 
+protected:
     virtual std::shared_ptr<SessionState> ObtainSessionState(RequestContext& context) const = 0;
 
-    QueryCallbackProcessor _queryProcessor;
     Optional<RequestParser> _httpParser;
     std::shared_ptr<SessionState> _state;
 };

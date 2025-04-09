@@ -312,6 +312,21 @@ class spell_warr_devastator : public AuraScript
     }
 };
 
+// 260798 - Execute (Arms, Protection)
+class spell_warr_execute_damage : public SpellScript
+{
+    static void CalculateExecuteDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod)
+    {
+        // tooltip has 2 multiplier hardcoded in it $damage=${2.0*$260798s1}
+        pctMod *= 2.0f;
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
+    }
+};
+
 // 383103  - Fueled by Violence
 class spell_warr_fueled_by_violence : public AuraScript
 {
@@ -828,6 +843,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_devastator);
+    RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);

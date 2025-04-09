@@ -15,22 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IpAddress_h__
-#define IpAddress_h__
+#ifndef TRINITYCORE_IP_ADDRESS_H
+#define TRINITYCORE_IP_ADDRESS_H
 
 #include "Define.h"
 #include <boost/asio/ip/address.hpp>
 
-namespace Trinity
+namespace Trinity::Net
 {
-    namespace Net
-    {
-        using boost::asio::ip::make_address;
-        using boost::asio::ip::make_address_v4;
-        using boost::asio::ip::make_address_v6;
-        using boost::asio::ip::v4_mapped_t::v4_mapped;
-        inline uint32 address_to_uint(boost::asio::ip::address_v4 const& address) { return address.to_uint(); }
-    }
+    using boost::asio::ip::make_address;
+    using boost::asio::ip::make_address_v4;
+    using boost::asio::ip::make_address_v6;
+    using boost::asio::ip::v4_mapped_t::v4_mapped;
+    inline uint32 address_to_uint(boost::asio::ip::address_v4 const& address) { return address.to_uint(); }
 }
 
-#endif // IpAddress_h__
+#endif // TRINITYCORE_IP_ADDRESS_H

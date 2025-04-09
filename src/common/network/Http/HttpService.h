@@ -51,7 +51,7 @@ struct RequestHandler
     EnumFlag<RequestHandlerFlag> Flags = RequestHandlerFlag::None;
 };
 
-class TC_SHARED_API DispatcherService
+class TC_NETWORK_API DispatcherService
 {
 public:
     explicit DispatcherService(std::string_view loggerSuffix) : _logger("server.http.dispatcher.")
@@ -79,7 +79,7 @@ private:
     std::string _logger;
 };
 
-class TC_SHARED_API SessionService
+class TC_NETWORK_API SessionService
 {
 public:
     explicit SessionService(std::string_view loggerSuffix) : _logger("server.http.session.")
@@ -160,7 +160,7 @@ protected:
     class Thread : public NetworkThread<SessionImpl>
     {
     protected:
-        void SocketRemoved(std::shared_ptr<SessionImpl> session) override
+        void SocketRemoved(std::shared_ptr<SessionImpl> const& session) override
         {
             if (Optional<boost::uuids::uuid> id = session->GetSessionId())
                 _service->MarkSessionInactive(*id);

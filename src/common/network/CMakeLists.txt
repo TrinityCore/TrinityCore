@@ -10,61 +10,44 @@
 
 CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
-if(USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/sharedPCH.h)
-endif()
+  PRIVATE_SOURCES)
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(shared
-  ${PRIVATE_SOURCES}
-)
+add_library(network
+  ${PRIVATE_SOURCES})
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+  PUBLIC_INCLUDES)
 
-target_include_directories(shared
+target_include_directories(network
   PUBLIC
     ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(shared
+target_link_libraries(network
   PRIVATE
     trinity-core-interface
   PUBLIC
-    database
-    network
-    rapidjson
-    proto
-    zlib)
+    common)
 
-set_target_properties(shared
+set_target_properties(network
   PROPERTIES
     COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
-    DEFINE_SYMBOL TRINITY_API_EXPORT_SHARED
-    FOLDER "server")
+    DEFINE_SYMBOL TRINITY_API_EXPORT_NETWORK
+    FOLDER "server"
+    OUTPUT_NAME trinity_network)
 
 if(BUILD_SHARED_LIBS)
   if(UNIX)
-    install(TARGETS shared
+    install(TARGETS network
       LIBRARY
         DESTINATION lib)
   elseif(WIN32)
-    install(TARGETS shared
+    install(TARGETS network
       RUNTIME
         DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
-endif()
-
-# Generate precompiled header
-if(USE_COREPCH)
-  add_cxx_pch(shared ${PRIVATE_PCH_HEADER})
 endif()
