@@ -1341,7 +1341,7 @@ class spell_dru_mangle : public SpellScript
     void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (victim->HasAuraState(AURA_STATE_BLEED))
-            AddPct(pctMod, GetSpellInfo()->GetEffect(EFFECT_2).CalcValue());
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
     }
 
     void Register() override
