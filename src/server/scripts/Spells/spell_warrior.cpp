@@ -620,19 +620,14 @@ class spell_warr_storm_bolt : public SpellScript
     {
         return ValidateSpellInfo({
             SPELL_WARRIOR_STORM_BOLT_STUN,
-            SPELL_WARRIOR_STORM_BOLTS
+            SPELL_WARRIOR_STORM_BOLTS // Sends missile to two additional targets for damage and stun
         });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Unit* caster = GetCaster();
-
-        if (!caster)
-            return;
-
         // If the caster has the Storm Bolts aura, do not filter targets
-        if (caster && caster->HasAura(SPELL_WARRIOR_STORM_BOLTS))
+        if (GetCaster() && GetCaster()->HasAura(SPELL_WARRIOR_STORM_BOLTS))
             return;
 
         // Clear the current targets
@@ -640,26 +635,18 @@ class spell_warr_storm_bolt : public SpellScript
 
         // Add the desired target back to the list
         if (Unit* target = GetExplTargetUnit())
-        {
             targets.push_back(GetExplTargetUnit());
-        }
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        if (!caster || !target)
-            return;
-
-        // Apply the stun effect to the primary target
-        caster->CastSpell(target, SPELL_WARRIOR_STORM_BOLT_STUN, true);
+        // Apply the stun effect to hit target or targets
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_storm_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_storm_bolt::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
