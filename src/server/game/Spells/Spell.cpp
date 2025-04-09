@@ -3235,20 +3235,12 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                     .SetCastItem(m_castItemGUID, m_castItemEntry, m_castItemLevel)
                     .SetPeriodicReset(resetPeriodicTimer)
                     .SetOwnerEffectMask(aura_effmask)
-                    .IsRefresh = &refresh;
+                    .SetIsRefresh(&refresh)
+                    .SetStackAmount(m_spellValue->AuraStackAmount);
 
                 if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo, false))
                 {
                     hitInfo.HitAura = aura->ToUnitAura();
-
-                    // Set aura stack amount to desired value
-                    if (m_spellValue->AuraStackAmount > 1)
-                    {
-                        if (!refresh)
-                            hitInfo.HitAura->SetStackAmount(m_spellValue->AuraStackAmount);
-                        else
-                            hitInfo.HitAura->ModStackAmount(m_spellValue->AuraStackAmount);
-                    }
 
                     hitInfo.HitAura->SetDiminishGroup(hitInfo.DRGroup);
 
@@ -3274,6 +3266,12 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                                 // if there is no periodic effect
                                 if (!hitInfo.AuraDuration)
                                     hitInfo.AuraDuration = int32(origDuration * m_originalCaster->m_unitData->ModCastingSpeed);
+                            }
+
+                            if (refresh && m_spellInfo->HasAttribute(SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION))
+                            {
+                                int32 newDuration = hitInfo.AuraDuration + hitInfo.HitAura->GetDuration();
+                                hitInfo.AuraDuration = std::min(newDuration, CalculatePct(hitInfo.AuraDuration, 130));
                             }
                         }
                     }
@@ -8777,49 +8775,40 @@ SpellCastResult Spell::CanOpenLock(SpellEffectInfo const& effect, uint32 lockId,
     return SPELL_CAST_OK;
 }
 
-void Spell::SetSpellValue(SpellValueMod mod, int32 value)
+void Spell::SetSpellValue(CastSpellExtraArgsInit::SpellValueOverride const& value)
 {
-    if (mod < SPELLVALUE_BASE_POINT_END)
+    if (value.Type >= SPELLVALUE_BASE_POINT0 && value.Type < SPELLVALUE_BASE_POINT_END)
     {
-        m_spellValue->EffectBasePoints[mod] = value;
-        m_spellValue->CustomBasePointsMask |= 1 << mod;
+        m_spellValue->EffectBasePoints[value.Type - SPELLVALUE_BASE_POINT0] = value.Value.I;
+        m_spellValue->CustomBasePointsMask |= 1 << (value.Type - SPELLVALUE_BASE_POINT0);
         return;
     }
 
-    switch (mod)
+    switch (value.Type)
     {
         case SPELLVALUE_MAX_TARGETS:
-            m_spellValue->MaxAffectedTargets = (uint32)value;
+            m_spellValue->MaxAffectedTargets = uint32(value.Value.I);
             break;
         case SPELLVALUE_AURA_STACK:
-            m_spellValue->AuraStackAmount = uint8(value);
+            m_spellValue->AuraStackAmount = uint8(value.Value.I);
             break;
         case SPELLVALUE_DURATION:
-            m_spellValue->Duration = value;
+            m_spellValue->Duration = value.Value.I;
             break;
         case SPELLVALUE_PARENT_SPELL_TARGET_COUNT:
-            m_spellValue->ParentSpellTargetCount = value;
+            m_spellValue->ParentSpellTargetCount = value.Value.I;
             break;
         case SPELLVALUE_PARENT_SPELL_TARGET_INDEX:
-            m_spellValue->ParentSpellTargetIndex = value;
+            m_spellValue->ParentSpellTargetIndex = value.Value.I;
             break;
-        default:
-            break;
-    }
-}
-
-void Spell::SetSpellValue(SpellValueModFloat mod, float value)
-{
-    switch (mod)
-    {
         case SPELLVALUE_RADIUS_MOD:
-            m_spellValue->RadiusMod = value;
+            m_spellValue->RadiusMod = value.Value.F;
             break;
         case SPELLVALUE_CRIT_CHANCE:
-            m_spellValue->CriticalChance = value;
+            m_spellValue->CriticalChance = value.Value.F;
             break;
         case SPELLVALUE_DURATION_PCT:
-            m_spellValue->DurationMul = value / 100.0f;
+            m_spellValue->DurationMul = value.Value.F / 100.0f;
             break;
         default:
             break;
@@ -9609,10 +9598,7 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
         return std::make_pair(target, negativePoints);
     });
 
-    std::sort(tempTargets.begin(), tempTargets.end(), [](std::pair<WorldObject*, int32> const& left, std::pair<WorldObject*, int32> const& right)
-    {
-        return left.second < right.second;
-    });
+    std::ranges::sort(tempTargets, {}, Trinity::TupleElement<1>);
 
     std::size_t foundTargets = 0;
     for (std::ptrdiff_t countForPriority : countsByPriority)
@@ -9630,7 +9616,7 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     }
 
     targets.resize(maxTargets);
-    std::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), std::mem_fn(&std::pair<WorldObject*, int32>::first));
+    std::ranges::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), Trinity::TupleElement<0>);
 }
 } //namespace Trinity
 

@@ -19,43 +19,16 @@
 #define TRINITYCORE_HTTP_SOCKET_H
 
 #include "BaseHttpSocket.h"
-#include <boost/beast/core/tcp_stream.hpp>
+#include <array>
 
 namespace Trinity::Net::Http
 {
-namespace Impl
+class Socket : public BaseSocket<Impl::BoostBeastSocketWrapper>
 {
-class BoostBeastSocketWrapper : public boost::beast::tcp_stream
-{
-public:
-    using boost::beast::tcp_stream::tcp_stream;
-
-    void shutdown(boost::asio::socket_base::shutdown_type what, boost::system::error_code& shutdownError)
-    {
-        socket().shutdown(what, shutdownError);
-    }
-
-    void close(boost::system::error_code& /*error*/)
-    {
-        boost::beast::tcp_stream::close();
-    }
-
-    boost::asio::ip::tcp::socket::endpoint_type remote_endpoint() const
-    {
-        return socket().remote_endpoint();
-    }
-};
-}
-
-template <typename Derived>
-class Socket : public BaseSocket<Derived, Impl::BoostBeastSocketWrapper>
-{
-    using SocketBase = BaseSocket<Derived, Impl::BoostBeastSocketWrapper>;
+    using SocketBase = BaseSocket<Impl::BoostBeastSocketWrapper>;
 
 public:
-    template<typename... Args>
-    explicit Socket(boost::asio::ip::tcp::socket&& socket, Args&&...)
-        : SocketBase(std::move(socket)) { }
+    using SocketBase::SocketBase;
 
     Socket(Socket const& other) = delete;
     Socket(Socket&& other) = delete;
@@ -66,9 +39,13 @@ public:
 
     void Start() override
     {
-        this->ResetHttpParser();
+        std::array<std::shared_ptr<SocketConnectionInitializer>, 2> initializers =
+        { {
+            std::make_shared<HttpConnectionInitializer<SocketBase>>(this),
+            std::make_shared<ReadConnectionInitializer<SocketBase>>(this),
+        } };
 
-        this->AsyncRead();
+        SocketConnectionInitializer::SetupChain(initializers)->Start();
     }
 };
 }

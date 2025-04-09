@@ -450,7 +450,7 @@ WorldPacket const* SpellAbsorbLog::Write()
     for (Spells::SpellSupportInfo const& supportInfo : Supporters)
         *this << supportInfo;
 
-    WriteBit(Unk);
+    WriteBit(Crit);
     WriteLogDataBit();
     FlushBits();
     WriteLogData();

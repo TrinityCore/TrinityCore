@@ -56,7 +56,7 @@ WorldPacket const* WorldPackets::Pet::PetSpells::Write()
 
 WorldPacket const* WorldPackets::Pet::PetStableResult::Write()
 {
-    _worldPacket << uint8(Result);
+    _worldPacket << int32(Result);
 
     return &_worldPacket;
 }

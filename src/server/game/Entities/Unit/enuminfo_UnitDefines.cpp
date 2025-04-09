@@ -852,12 +852,15 @@ TC_API_EXPORT EnumText EnumUtils<MovementFlags3>::ToString(MovementFlags3 value)
         case MOVEMENTFLAG3_CAN_ADV_FLY: return { "MOVEMENTFLAG3_CAN_ADV_FLY", "MOVEMENTFLAG3_CAN_ADV_FLY", "" };
         case MOVEMENTFLAG3_ADV_FLYING: return { "MOVEMENTFLAG3_ADV_FLYING", "MOVEMENTFLAG3_ADV_FLYING", "" };
         case MOVEMENTFLAG3_CANT_SWIM: return { "MOVEMENTFLAG3_CANT_SWIM", "MOVEMENTFLAG3_CANT_SWIM", "" };
+        case MOVEMENTFLAG3_CAN_DRIVE: return { "MOVEMENTFLAG3_CAN_DRIVE", "MOVEMENTFLAG3_CAN_DRIVE", "" };
+        case MOVEMENTFLAG3_DRIVING_FORWARD: return { "MOVEMENTFLAG3_DRIVING_FORWARD", "MOVEMENTFLAG3_DRIVING_FORWARD", "" };
+        case MOVEMENTFLAG3_DRIVING_BACKWARD: return { "MOVEMENTFLAG3_DRIVING_BACKWARD", "MOVEMENTFLAG3_DRIVING_BACKWARD", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<MovementFlags3>::Count() { return 5; }
+TC_API_EXPORT size_t EnumUtils<MovementFlags3>::Count() { return 8; }
 
 template <>
 TC_API_EXPORT MovementFlags3 EnumUtils<MovementFlags3>::FromIndex(size_t index)
@@ -869,6 +872,9 @@ TC_API_EXPORT MovementFlags3 EnumUtils<MovementFlags3>::FromIndex(size_t index)
         case 2: return MOVEMENTFLAG3_CAN_ADV_FLY;
         case 3: return MOVEMENTFLAG3_ADV_FLYING;
         case 4: return MOVEMENTFLAG3_CANT_SWIM;
+        case 5: return MOVEMENTFLAG3_CAN_DRIVE;
+        case 6: return MOVEMENTFLAG3_DRIVING_FORWARD;
+        case 7: return MOVEMENTFLAG3_DRIVING_BACKWARD;
         default: throw std::out_of_range("index");
     }
 }
@@ -883,6 +889,9 @@ TC_API_EXPORT size_t EnumUtils<MovementFlags3>::ToIndex(MovementFlags3 value)
         case MOVEMENTFLAG3_CAN_ADV_FLY: return 2;
         case MOVEMENTFLAG3_ADV_FLYING: return 3;
         case MOVEMENTFLAG3_CANT_SWIM: return 4;
+        case MOVEMENTFLAG3_CAN_DRIVE: return 5;
+        case MOVEMENTFLAG3_DRIVING_FORWARD: return 6;
+        case MOVEMENTFLAG3_DRIVING_BACKWARD: return 7;
         default: throw std::out_of_range("value");
     }
 }

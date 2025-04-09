@@ -222,7 +222,7 @@ namespace WorldPackets
             int32 OriginalHonor = 0;
             int32 Honor = 0;
             ObjectGuid Target;
-            int32 Rank = 0;
+            int8 Rank = 0;
         };
 
         class BreakTarget final : public ServerPacket

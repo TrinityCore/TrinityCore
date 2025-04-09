@@ -213,6 +213,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     data << uint32(charInfo.Flags);
     data << uint32(charInfo.Flags2);
     data << uint32(charInfo.Flags3);
+    data << uint32(charInfo.Flags4);
     data << uint8(charInfo.CantLoginReason);
 
     data << uint32(charInfo.PetCreatureDisplayID);
@@ -232,16 +233,19 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
 
     data << int32(charInfo.TimerunningSeasonID);
     data << uint32(charInfo.OverrideSelectScreenFileDataID);
+    data << uint32(charInfo.Unused1110_1);
 
     for (ChrCustomizationChoice const& customization : charInfo.Customizations)
         data << customization;
 
-    data << BitsSize<6>(charInfo.Name);
+    data << SizedString::BitsSize<6>(charInfo.Name);
     data << Bits<1>(charInfo.FirstLogin);
+    data << Bits<1>(charInfo.Unused1110_2);
+    data << Bits<1>(charInfo.Unused1110_3);
 
     data.FlushBits();
 
-    data.WriteString(charInfo.Name);
+    data << SizedString::Data(charInfo.Name);
 
     return data;
 }
@@ -263,13 +267,12 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterRestrict
         data.append(restrictionsAndMails.MailSenderTypes.data(), restrictionsAndMails.MailSenderTypes.size());
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        data << Bits<6>(str.length() + 1);
+        data << SizedCString::BitsSize<6>(str);
 
     data.FlushBits();
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        if (!str.empty())
-            data << str;
+        data << SizedCString::Data(str);
 
     return data;
 }
@@ -286,6 +289,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RegionwideCharact
 {
     data << charInfo.Basic;
     data << uint64(charInfo.Money);
+    data << float(charInfo.AvgEquippedItemLevel);
     data << float(charInfo.CurrentSeasonMythicPlusOverallScore);
     data << int32(charInfo.CurrentSeasonBestPvpRating);
     data << int8(charInfo.PvpRatingBracket);
@@ -296,7 +300,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RegionwideCharact
 
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const& raceUnlock)
 {
-    data << int32(raceUnlock.RaceID);
+    data << int8(raceUnlock.RaceID);
     data << Bits<1>(raceUnlock.HasUnlockedLicense);
     data << Bits<1>(raceUnlock.HasUnlockedAchievement);
     data << Bits<1>(raceUnlock.HasHeritageArmorUnlockAchievement);
@@ -317,7 +321,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedCondition
 
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableInfo const& raceLimitDisableInfo)
 {
-    data << int32(raceLimitDisableInfo.RaceID);
+    data << int8(raceLimitDisableInfo.RaceID);
     data << int32(raceLimitDisableInfo.Reason);
 
     return data;
@@ -325,7 +329,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableI
 
 ByteBuffer& operator<<(ByteBuffer& data, WarbandGroupMember const& warbandGroupMember)
 {
-    data << int32(warbandGroupMember.WarbandScenePlacementID);
+    data << uint32(warbandGroupMember.WarbandScenePlacementID);
     data << int32(warbandGroupMember.Type);
     if (warbandGroupMember.Type == 0)
         data << warbandGroupMember.Guid;
@@ -336,12 +340,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WarbandGroupMember const& warbandGroupM
 ByteBuffer& operator<<(ByteBuffer& data, WarbandGroup const& warbandGroup)
 {
     data << uint64(warbandGroup.GroupID);
-    data << uint8(warbandGroup.Unknown_1100);
-    data << int32(warbandGroup.Flags);
+    data << uint8(warbandGroup.OrderIndex);
+    data << uint32(warbandGroup.WarbandSceneID);
+    data << uint32(warbandGroup.Flags);
     data << uint32(warbandGroup.Members.size());
 
     for (WarbandGroupMember const& member : warbandGroup.Members)
         data << member;
+
+    data << SizedString::BitsSize<9>(warbandGroup.Name);
+    data.FlushBits();
+
+    data << SizedString::Data(warbandGroup.Name);
 
     return data;
 }
@@ -384,9 +394,6 @@ WorldPacket const* EnumCharactersResult::Write()
     for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
         _worldPacket << raceLimitDisableInfo;
 
-    for (WarbandGroup const& warbandGroup : WarbandGroups)
-        _worldPacket << warbandGroup;
-
     for (CharacterInfo const& charInfo : Characters)
         _worldPacket << charInfo;
 
@@ -395,6 +402,9 @@ WorldPacket const* EnumCharactersResult::Write()
 
     for (RaceUnlock const& raceUnlock : RaceUnlockData)
         _worldPacket << raceUnlock;
+
+    for (WarbandGroup const& warbandGroup : WarbandGroups)
+        _worldPacket << warbandGroup;
 
     return &_worldPacket;
 }

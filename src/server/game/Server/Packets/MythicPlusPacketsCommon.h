@@ -32,6 +32,7 @@ namespace WorldPackets
             int32 BestRunLevel = 0;
             int32 BestRunDurationMS = 0;
             bool FinishedSuccess = false;
+            uint8 Unknown1110 = 0;
         };
 
         struct DungeonScoreSummary
@@ -50,7 +51,7 @@ namespace WorldPackets
             uint32 NativeRealmAddress = 0;
             uint32 VirtualRealmAddress = 0;
             int32 ChrSpecializationID = 0;
-            int16 RaceID = 0;
+            int8 RaceID = 0;
             int32 ItemLevel = 0;
             int32 CovenantID = 0;
             int32 SoulbindID = 0;

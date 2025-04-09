@@ -78,7 +78,9 @@ enum DemonHunterSpells
     SPELL_DH_CONSUME_SOUL_VENGEANCE                = 208014,
     SPELL_DH_CONSUME_SOUL_VENGEANCE_DEMON          = 210050,
     SPELL_DH_CONSUME_SOUL_VENGEANCE_SHATTERED      = 210047,
-    SPELL_DH_CYCLE_OF_HATRED                       = 258887,
+    SPELL_DH_CYCLE_OF_HATRED_TALENT                = 258887,
+    SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION    = 1214887,
+    SPELL_DH_CYCLE_OF_HATRED_REMOVE_STACKS         = 1214890,
     SPELL_DH_DARKGLARE_BOON                        = 389708,
     SPELL_DH_DARKGLARE_BOON_ENERGIZE               = 391345,
     SPELL_DH_DARKNESS_ABSORB                       = 209426,
@@ -507,35 +509,85 @@ class spell_dh_collective_anguish_eye_beam : public AuraScript
     }
 };
 
-// Called by 188499 - Blade Dance, 162794 - Chaos Strike, 185123 - Throw Glaive and 342817 - Glaive Tempest
+// Called by 198013 - Eye Beam
 class spell_dh_cycle_of_hatred : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_CYCLE_OF_HATRED });
+        return ValidateSpellInfo({ SPELL_DH_CYCLE_OF_HATRED_TALENT, SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION, SPELL_DH_CYCLE_OF_HATRED_REMOVE_STACKS });
     }
 
     bool Load() override
     {
-        if (!GetCaster()->HasAura(SPELL_DH_CYCLE_OF_HATRED))
-            return false;
-
-        if (GetSpellInfo()->Id != SPELL_DH_THROW_GLAIVE)
-            return true;
-
-        // Throw Glaive triggers this talent only with Furious Throws
-        return GetCaster()->HasAura(SPELL_DH_FURIOUS_THROWS);
+        return GetCaster()->HasAuraEffect(SPELL_DH_CYCLE_OF_HATRED_TALENT, EFFECT_0);
     }
 
-    void ReduceEyeBeamCooldown() const
+    void HandleCycleOfHatred() const
     {
-        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_DH_CYCLE_OF_HATRED, EFFECT_0))
-            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_DH_EYE_BEAM, Milliseconds(-aurEff->GetAmount()));
+        Unit* caster = GetCaster();
+
+        // First calculate cooldown then add another stack
+        uint32 cycleOfHatredStack = caster->GetAuraCount(SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION);
+        AuraEffect const* cycleOfHatred = caster->GetAuraEffect(SPELL_DH_CYCLE_OF_HATRED_TALENT, EFFECT_0);
+        caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo(), -Milliseconds(cycleOfHatred->GetAmount() * cycleOfHatredStack));
+
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
+
+        caster->CastSpell(caster, SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION, args);
+        caster->CastSpell(caster, SPELL_DH_CYCLE_OF_HATRED_REMOVE_STACKS, args);
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_dh_cycle_of_hatred::ReduceEyeBeamCooldown);
+        AfterCast += SpellCastFn(spell_dh_cycle_of_hatred::HandleCycleOfHatred);
+    }
+};
+
+// 1214890 - Cycle of Hatred
+class spell_dh_cycle_of_hatred_remove_stacks : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Aura* aura = GetTarget()->GetAura(SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION))
+            aura->SetStackAmount(1);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_cycle_of_hatred_remove_stacks::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 258887 - Cycle of Hatred
+class spell_dh_cycle_of_hatred_talent : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_cycle_of_hatred_talent::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_cycle_of_hatred_talent::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1564,6 +1616,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_collective_anguish);
     RegisterSpellScript(spell_dh_collective_anguish_eye_beam);
     RegisterSpellScript(spell_dh_cycle_of_hatred);
+    RegisterSpellScript(spell_dh_cycle_of_hatred_remove_stacks);
+    RegisterSpellScript(spell_dh_cycle_of_hatred_talent);
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);

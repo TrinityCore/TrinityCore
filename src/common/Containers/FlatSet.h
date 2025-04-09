@@ -70,7 +70,7 @@ public:
         return { _storage.emplace(itr, std::move(newElement)), true };
     }
 
-    std::pair<iterator, bool> insert(Key const& key) { return emplace(key); }
+    std::pair<iterator, bool> insert(Key const& key) { return this->emplace(key); }
 
     std::size_t erase(Key const& key)
     {

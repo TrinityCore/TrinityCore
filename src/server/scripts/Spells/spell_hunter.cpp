@@ -36,6 +36,7 @@ enum HunterSpells
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1         = 131637,
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2         = 131951,
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3         = 131952,
+    SPELL_HUNTER_AIMED_SHOT                         = 19434,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
     SPELL_HUNTER_EXHILARATION                       = 109304,
@@ -47,6 +48,7 @@ enum HunterSpells
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_DAMAGE     = 336904,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
+    SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA           = 137016,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION                       = 34477,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
@@ -652,7 +654,7 @@ class spell_hun_steady_shot : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_HUNTER_STEADY_SHOT_FOCUS });
+        return ValidateSpellInfo({ SPELL_HUNTER_STEADY_SHOT_FOCUS, SPELL_HUNTER_AIMED_SHOT, SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA });
     }
 
     bool Load() override
@@ -660,9 +662,15 @@ class spell_hun_steady_shot : public SpellScript
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void HandleOnHit()
+    void HandleOnHit() const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_STEADY_SHOT_FOCUS, true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_STEADY_SHOT_FOCUS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        if (GetCaster()->HasAura(SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA))
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, Milliseconds(-GetEffectInfo(EFFECT_1).CalcValue()));
     }
 
     void Register() override

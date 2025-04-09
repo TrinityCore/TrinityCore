@@ -3225,7 +3225,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             Player* player = user->ToPlayer();
 
             WorldPackets::Misc::EnableBarberShop enableBarberShop;
-            enableBarberShop.CustomizationScope = info->barberChair.CustomizationScope;
+            enableBarberShop.CustomizationFeatureMask = info->barberChair.CustomizationFeatureMask;
             player->SendDirectMessage(enableBarberShop.Write());
 
             // fallback, will always work
@@ -3586,7 +3586,7 @@ SpawnTrackingStateData const* GameObject::GetSpawnTrackingStateDataForPlayer(Pla
     if (!player)
         return nullptr;
 
-    if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, GetSpawnId()))
+    if (GameObjectData const* data = GetGameObjectData())
     {
         if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
         {

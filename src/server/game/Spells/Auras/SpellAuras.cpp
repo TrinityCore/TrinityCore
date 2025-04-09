@@ -75,7 +75,7 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
     ASSERT(GetTarget() && GetBase());
 
     // Try find slot for aura
-    uint8 slot = 0;
+    uint16 slot = 0;
     // lookup for free slots in units visibleAuras
     for (AuraApplication* visibleAura : GetTarget()->GetVisibleAuras())
     {
@@ -469,7 +469,7 @@ m_spellInfo(createInfo._spellInfo), m_castDifficulty(createInfo._castDifficulty)
 m_castItemGuid(createInfo.CastItemGUID), m_castItemId(createInfo.CastItemId),
 m_castItemLevel(createInfo.CastItemLevel), m_spellVisual({ createInfo.Caster ? createInfo.Caster->GetCastSpellXSpellVisualId(createInfo._spellInfo) : createInfo._spellInfo->GetSpellXSpellVisualId(), 0 }),
 m_applyTime(GameTime::GetGameTime()), m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
-m_casterLevel(createInfo.Caster ? createInfo.Caster->GetLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
+m_casterLevel(createInfo.Caster ? createInfo.Caster->GetLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(createInfo.StackAmount),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
 m_procCooldown(TimePoint::min()),
 m_lastProcAttemptTime(GameTime::Now() - Seconds(10)), m_lastProcSuccessTime(GameTime::Now() - Seconds(120)), m_scriptRef(this, NoopAuraDeleter())
@@ -967,9 +967,6 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
     {
         // Pandemic doesn't reset periodic timer
         resetPeriodicTimer = false;
-
-        int32 pandemicDuration = CalculatePct(m_maxDuration, 30.f);
-        m_maxDuration = std::max(GetDuration(), std::min(pandemicDuration, GetDuration()) + m_maxDuration);
     }
 
     RefreshDuration();
@@ -1258,13 +1255,12 @@ AuraKey Aura::GenerateKey(uint32& recalculateMask) const
     return key;
 }
 
-void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount)
+void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, int32* amount)
 {
     m_maxDuration = maxDuration;
     m_duration = duration;
     m_procCharges = charges;
     m_isUsingCharges = m_procCharges != 0;
-    m_stackAmount = stackAmount;
     Unit* caster = GetCaster();
     for (AuraEffect* effect : GetAuraEffects())
     {

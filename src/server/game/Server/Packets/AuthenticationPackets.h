@@ -102,7 +102,7 @@ namespace WorldPackets
         {
             uint32 WaitCount = 0; ///< position of the account in the login queue
             uint32 WaitTime = 0; ///< Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
-            int32 AllowedFactionGroupForCharacterCreate = 0;
+            uint8 AllowedFactionGroupForCharacterCreate = 0;
             bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
             bool CanCreateOnlyIfExisting = false; ///< Can create characters on realm only if player has other existing characters there
         };
@@ -310,6 +310,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::array<uint8, 32> const& EncryptionKey;
+            int32 RegionGroup = 0;
             bool Enabled = false;
         };
     }

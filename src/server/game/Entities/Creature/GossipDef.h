@@ -91,6 +91,7 @@ enum class GossipOptionNpc : uint8
     ForgeMaster                = 55,
     CharacterBanker            = 56,
     AccountBanker              = 57,
+    ProfessionRespec           = 58,
 
     Count
 };
@@ -113,7 +114,8 @@ enum class GossipOptionFlags : int32
 {
     None                    = 0x0,
     QuestLabelPrepend       = 0x1,
-    HideOptionIDFromClient  = 0x2
+    HideOptionIDFromClient  = 0x2,
+    PlayMovieLabelPrepend   = 0x4
 };
 
 struct GossipMenuItem
@@ -126,7 +128,7 @@ struct GossipMenuItem
     GossipOptionFlags   Flags;
     Optional<int32>     GossipNpcOptionID;
     bool                BoxCoded;
-    uint32              BoxMoney;
+    uint64              BoxMoney;
     std::string         BoxText;
     Optional<int32>     SpellID;
     Optional<int32>     OverrideIconID;
@@ -162,7 +164,7 @@ class TC_GAME_API GossipMenu
         ~GossipMenu();
 
         uint32 AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOptionNpc optionNpc, std::string optionText, uint32 language, GossipOptionFlags flags,
-                           Optional<int32> gossipNpcOptionId, uint32 actionMenuId, uint32 actionPoiId, bool boxCoded, uint32 boxMoney,
+                           Optional<int32> gossipNpcOptionId, uint32 actionMenuId, uint32 actionPoiId, bool boxCoded, uint64 boxMoney,
                            std::string boxText, Optional<int32> spellId, Optional<int32> overrideIconId, uint32 sender, uint32 action);
         void AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action);
         void AddMenuItem(GossipMenuItems const& menuItem, uint32 sender, uint32 action);

@@ -3890,12 +3890,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // Gathering Storms
-    ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->ProcCharges = 1; // override proc charges, has 0 (unlimited) in db2
-    });
-
     ApplySpellFix({
         15538, // Gout of Flame
         42490, // Energized!
@@ -5023,6 +5017,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->NegativeEffects[EFFECT_2] = true;
     });
 
+    // Sundering
+    ApplySpellFix({ 197214 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetB = SpellImplicitTargetInfo();
+        });
+    });
+
     // Headless Horseman Climax - Return Head (Hallow End)
     // Headless Horseman Climax - Body Regen (confuse only - removed on death)
     // Headless Horseman Climax - Head Is Dead
@@ -5302,6 +5305,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 404358 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, {}, {}, {}, {});
+    });
+
+    // Raze
+    ApplySpellFix({ 400254 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_2, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

@@ -219,10 +219,7 @@ Optional<LootSlotType> LootItem::GetUiTypeForPlayer(Player const* player, Loot c
     {
         if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(loot.GetPlayerFFAItems(), player->GetGUID()))
         {
-            auto ffaItemItr = std::ranges::find_if(*ffaItems, [&](NotNormalLootItem const& ffaItem)
-            {
-                return ffaItem.LootListId == LootListId;
-            });
+            auto ffaItemItr = std::ranges::find(*ffaItems, LootListId, &NotNormalLootItem::LootListId);
             if (ffaItemItr != ffaItems->end() && !ffaItemItr->is_looted)
                 return loot.GetLootMethod() == FREE_FOR_ALL ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
         }
@@ -1128,7 +1125,7 @@ bool Loot::hasItemFor(Player const* player) const
             return true;
 
     if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(GetPlayerFFAItems(), player->GetGUID()))
-        if (std::ranges::any_of(*ffaItems, std::identity(), &NotNormalLootItem::is_looted))
+        if (std::ranges::any_of(*ffaItems, &NotNormalLootItem::is_looted))
             return true;
 
     return false;

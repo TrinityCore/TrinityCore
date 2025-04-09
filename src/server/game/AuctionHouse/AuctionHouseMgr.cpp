@@ -910,10 +910,10 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
 
     if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = auction.Items[0]->GetItemModifiedAppearance())
     {
-        auto itr = std::ranges::find(bucket->ItemModifiedAppearanceId, itemModifiedAppearance->ID, &std::pair<uint32, uint32>::first);
+        auto itr = std::ranges::find(bucket->ItemModifiedAppearanceId, itemModifiedAppearance->ID, Trinity::TupleElement<0>);
 
         if (itr == bucket->ItemModifiedAppearanceId.end())
-            itr = std::ranges::find(bucket->ItemModifiedAppearanceId, 0u, &std::pair<uint32, uint32>::first);
+            itr = std::ranges::find(bucket->ItemModifiedAppearanceId, 0u, Trinity::TupleElement<0>);
 
         if (itr != bucket->ItemModifiedAppearanceId.end())
         {
@@ -1703,7 +1703,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     }
 
     WorldPackets::AuctionHouse::AuctionWonNotification packet;
-    packet.Info.Initialize(auctions[0], items[0].Items[0]);
+    packet.Info.Initialize(_auctionHouse->ID, auctions[0], items[0].Items[0]);
     player->SendDirectMessage(packet.Write());
 
     for (std::size_t i = 0; i < auctions.size(); ++i)
@@ -1805,7 +1805,7 @@ void AuctionHouseObject::SendAuctionWon(AuctionPosting const* auction, Player* b
         if (bidder)
         {
             WorldPackets::AuctionHouse::AuctionWonNotification packet;
-            packet.Info.Initialize(auction, auction->Items[0]);
+            packet.Info.Initialize(_auctionHouse->ID, auction, auction->Items[0]);
             bidder->SendDirectMessage(packet.Write());
 
             // FIXME: for offline player need also

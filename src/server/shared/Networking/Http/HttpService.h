@@ -160,7 +160,7 @@ protected:
     class Thread : public NetworkThread<SessionImpl>
     {
     protected:
-        void SocketRemoved(std::shared_ptr<SessionImpl> session) override
+        void SocketRemoved(std::shared_ptr<SessionImpl> const& session) override
         {
             if (Optional<boost::uuids::uuid> id = session->GetSessionId())
                 _service->MarkSessionInactive(*id);

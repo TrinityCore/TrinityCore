@@ -35,6 +35,7 @@ EndScriptData */
 #include "Language.h"
 #include "Loot.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
@@ -1313,7 +1314,7 @@ public:
 
         Loot const* loot = creatureTarget->m_loot.get();
         if ((!loot || loot->isLooted())
-            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), &std::unordered_map<ObjectGuid, std::unique_ptr<Loot>>::value_type::second))
+            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), Trinity::Containers::MapValue))
         {
             handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
             handler->SetSentErrorMessage(true);

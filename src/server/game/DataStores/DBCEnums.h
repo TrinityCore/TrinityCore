@@ -1104,6 +1104,18 @@ enum ItemBonusType
     ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
 };
 
+enum class ItemCollectionType : uint8
+{
+    None                        = 0,
+    Toy                         = 1,
+    Heirloom                    = 2,
+    Transmog                    = 3,
+    TransmogSetFavorite         = 4,
+    RuneforgeLegendaryAbility   = 5,
+    TransmogIllusion            = 6,
+    WarbandScene                = 7,
+};
+
 enum class ItemContext : uint8
 {
     NONE                                            = 0,
@@ -1983,6 +1995,7 @@ enum class PlayerInteractionType : int32
     ForgeMaster                 = 66,
     CharacterBanker             = 67,
     AccountBanker               = 68,
+    ProfessionRespec            = 69,
 };
 
 enum class PowerTypeFlags : int16
@@ -2072,7 +2085,8 @@ enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08,
+    SPELL_CATEGORY_FLAG_IGNORE_FOR_MOD_TIME_RATE            = 0x40
 };
 
 enum class SpellEffectAttributes
@@ -2643,6 +2657,17 @@ enum class VignetteFlags
 };
 
 DEFINE_ENUM_FLAG(VignetteFlags);
+
+enum class WarbandSceneFlags : uint8
+{
+    DoNotInclude            = 0x01,
+    HiddenUntilCollected    = 0x02,
+    CannotBeSaved           = 0x04,
+    AwardedAutomatically    = 0x08,
+    IsDefault               = 0x10
+};
+
+DEFINE_ENUM_FLAG(WarbandSceneFlags);
 
 enum WorldMapTransformsFlags
 {
