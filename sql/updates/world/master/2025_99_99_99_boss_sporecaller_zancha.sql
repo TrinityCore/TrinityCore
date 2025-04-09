@@ -52,9 +52,9 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `A
 
 -- SPELLS
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (18227, 16966));
-INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
-(18227, 0, 0, 58911),
-(16966, 0, 0, 49343);
+INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetFlags`, `VerifiedBuild`) VALUES
+(18227, 0, 0, 0x0800, 58911),
+(16966, 0, 0, 0, 49343);
 
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (12266, 13726));
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
@@ -105,16 +105,19 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (131597, 0, 1, 4, '', 8, 0, 100, 0, 272457, 0, 0, 0, 0, '', 85, 259862, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Spore Pod - On Spellhit - Cast \'Spore Pod hit by Boss Ability\''),
 (131597, 0, 2, 4, '', 8, 0, 100, 0, 259720, 0, 0, 0, 0, '', 85, 259862, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Spore Pod - On Spellhit - Cast \'Spore Pod hit by Boss Ability\''),
 (131597, 0, 3, 4, '', 8, 0, 100, 0, 259732, 0, 0, 0, 0, '', 85, 259958, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Spore Pod - On Spellhit - Cast \'BIG Spore Pod Detonation\''),
-(131597, 0, 4, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 100, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Pod - On Action List - Despawn');
+(131597, 0, 4, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 41, 100, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Spore Pod - On Linked Event - Despawn');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`=139127 AND `source_type`=0;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=13912700 AND `source_type`=9;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(139127, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 80, 13912700, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Pod - On Just Created - Do Action List'),
-(13912700, 9, 0, 1, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 8, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Pod - On Action List - Set ReactState Passive'),
-(13912700, 9, 1, 2, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 128, 7687, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Pod - On Action List - Play OneShot Anim Kit'),
-(13912700, 9, 2, 3, '', 0, 0, 100, 0, 4000, 4000, 0, 0, 0, '', 85, 273285, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Pod - On Action List - Cast self: 273285'),
-(13912700, 9, 3, 0, '', 0, 0, 100, 0, 100, 100, 0, 0, 0, '', 41, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Volatile Pod - On Action List - Despawn');
+ -- Volatile Pod smart ai
+SET @ENTRY := 139127;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (13912700);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 80, 13912700, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #Volatile Pod #0 (13912700) (update always) // -inline', ''),
+(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set react state to Passive', ''),
+(@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 128, 7687, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 7687', ''),
+(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 85, 273285, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 4 seconds - Self: Cast spell 273285 on self', ''),
+(@ENTRY * 100, 9, 3, 0, 0, 0, 100, 0, 100, 100, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0.1 seconds - Self: Despawn instantly', '');
 
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID` IN (131383, 138740);
@@ -142,3 +145,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (259717, 'spell_sporecaller_zancha_upheaval_selector'),
 (272786, 'spell_sporecaller_zancha_musashitake_teleport_selector'),
 (272787, 'spell_sporecaller_zancha_musashitake_teleport');
+
+DELETE FROM `creature_template_addon` WHERE `entry`=139127;
+INSERT INTO `creature_template_addon` (`entry`, `AnimTier`) VALUES
+(139127, 0);

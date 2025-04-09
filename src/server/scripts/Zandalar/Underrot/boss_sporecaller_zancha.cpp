@@ -504,6 +504,7 @@ class spell_sporecaller_zancha_volatile_pods : public SpellScript
 class spell_sporecaller_zancha_volatile_pods_explosion : public SpellScript
 {
     static constexpr uint8 MAX_VOLATILE_PODS = 6;
+
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         Unit* target = GetHitUnit();
@@ -587,7 +588,7 @@ struct at_sporecaller_zancha_boundless_rot : AreaTriggerAI
         if (!caster)
             return;
 
-        caster->CastSpell(player, SPELL_DECAYING_SPORES, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        player->CastSpell(player, SPELL_DECAYING_SPORES, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         if (Creature* creatureCaster = caster->ToCreature())
             creatureCaster->DespawnOrUnsummon();
