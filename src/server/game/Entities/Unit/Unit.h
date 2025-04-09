@@ -1628,7 +1628,7 @@ class TC_GAME_API Unit : public WorldObject
         std::vector<AreaTrigger*> GetAreaTriggers(uint32 spellId) const;
         void RemoveAreaTrigger(uint32 spellId);
         void RemoveAreaTrigger(AuraEffect const* aurEff);
-        void RemoveAllAreaTriggers();
+        void RemoveAllAreaTriggers(bool force = true);
 
         void ModifyAuraState(AuraStateType flag, bool apply);
         uint32 BuildAuraStateUpdateForTarget(Unit const* target) const;
