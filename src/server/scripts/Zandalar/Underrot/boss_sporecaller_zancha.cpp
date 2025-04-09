@@ -255,7 +255,7 @@ struct boss_sporecaller_zancha : public BossAI
                 {
                     if (_upheavalCount == 3)
                         events.Repeat(24300ms);
-                    else if (_upheavalCount % 3 == 0)
+                    else if (_upheavalCount % 2 == 0)
                         events.Repeat(20700ms);
                     else
                         events.Repeat(30400ms);

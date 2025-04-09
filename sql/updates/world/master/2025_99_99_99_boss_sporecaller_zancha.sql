@@ -31,7 +31,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 272104, 0, 0, 51, 0, 5, 131383, 0, '', 0, 0, 0, '', 'Spell \'Infusion\' can only hit \'Sporecaller Zancha\''),
 (13, 4, 259720, 0, 0, 51, 0, 5, 131597, 0, '', 0, 0, 0, '', 'Spell \'Upheaval\' can only hit \'Spore Pod\''),
 (13, 4, 259720, 0, 1, 51, 0, 5, 138740, 0, '', 0, 0, 0, '', 'Spell \'Upheaval\' can only hit \'Musashitake\''),
-(13, 2, 272511, 0, 0, 51, 0, 5, 131383, 0, '', 0, 0, 0, '', 'Spell \'Upheaval\' can only hit \'Sporecaller Zancha\''),
+(13, 1, 272511, 0, 0, 51, 0, 5, 131383, 0, '', 0, 0, 0, '', 'Spell \'Upheaval\' can only hit \'Sporecaller Zancha\''),
 (13, 2, 272457, 0, 0, 51, 0, 5, 131597, 0, '', 0, 0, 0, '', 'Spell \'Shockwave\' can only hit \'Spore Pod\''),
 (13, 2, 272457, 0, 1, 51, 0, 5, 138740, 0, '', 0, 0, 0, '', 'Spell \'Shockwave\' can only hit \'Musashitake\''),
 (13, 1, 259732, 0, 0, 51, 0, 5, 131597, 0, '', 0, 0, 0, '', 'Spell \'Festering Harvest\' can only hit \'Spore Pod\'');
