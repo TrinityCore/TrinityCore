@@ -1,6 +1,6 @@
-SET @ATSPAWNID := 100000;
-SET @ATID := 100000;
-SET @ATPROPERTIESID := 100000;
+SET @ATSPAWNID := 199;
+SET @ATID := 105;
+SET @ATPROPERTIESID := 100;
 
 -- Creatures
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=58911 WHERE (`Entry`=144306 AND `DifficultyID`=23); -- 144306 (Bloodsworn Defiler) - CanSwim
@@ -40,15 +40,15 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- INTRO
 DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
-(@ATSPAWNID, @ATPROPERTIESID, 1, 1841, '1,2,8,23', 1032.29, 1028.09, 33.63, 4.695440, 0, 0, 0, '', 'The Underrot - Sporecaller Zancha Intro', 56647);
+(@ATSPAWNID, @ATPROPERTIESID, 1, 1841, '1,2,8,23', 1032.939941, 1058.290039, 33.330898, 4.695440, 0, 0, 0, '', 'The Underrot - Sporecaller Zancha Intro', 56647);
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATPROPERTIESID AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATPROPERTIESID, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 12, 30, 5, 12, 30, 5, 0, 0, 'at_sporecaller_zancha_intro', 0);
+(@ATPROPERTIESID, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 25, 25, 0, 0, 0, 0, 0, 0, 'at_sporecaller_zancha_intro', 0);
 
-DELETE FROM `areatrigger_template` WHERE `Id`=@ATPROPERTIESID AND `IsCustom`=1;
+DELETE FROM `areatrigger_template` WHERE `Id`=@ATID AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES
-(@ATPROPERTIESID, 1, 1, 0, 0, 0);
+(@ATID, 1, 1, 0, 0, 0);
 
 -- SPELLS
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (18227, 16966));

@@ -630,8 +630,7 @@ struct at_sporecaller_zancha_volatile_pod : AreaTriggerAI
     }
 };
 
-// TODO: Change id on merge
-// Id 100000 - Areatrigger
+// Id 100 - Areatrigger
 struct at_sporecaller_zancha_intro : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
@@ -643,7 +642,10 @@ struct at_sporecaller_zancha_intro : AreaTriggerAI
             return;
 
         if (Creature* zancha = instance->GetCreature(DATA_SPORECALLER_ZANCHA))
-            zancha->SummonCreatureGroup(SUMMON_GROUP_ZANCHA_INTRO);
+        {
+            if (zancha->IsAlive())
+                zancha->SummonCreatureGroup(SUMMON_GROUP_ZANCHA_INTRO);
+        }
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -657,7 +659,7 @@ struct at_sporecaller_zancha_intro : AreaTriggerAI
             return;
 
         Creature* zancha = instance->GetCreature(DATA_SPORECALLER_ZANCHA);
-        if (!zancha)
+        if (!zancha || !zancha->IsAlive())
             return;
 
         zancha->AI()->DoAction(ACTION_INTRO);
