@@ -197,6 +197,7 @@ enum TheFinalEffigyData
 
     PHASE_PERSONAL_DEATHCURSE       = 9567,
     PHASE_COSMETIC_DEATHCURSE_AT    = 9846,
+    PHASE_COSMETIC_CURSED_EFFIGY    = 9098,
 
     SPELL_DRUSTVAR_FALLHAVEN_SCENE  = 281070
 };
@@ -206,14 +207,16 @@ class spell_drustvar_deathcurse : public AuraScript
 {
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PhasingHandler::AddPhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, true);
-        PhasingHandler::AddPhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, true);
+        PhasingHandler::AddPhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, false);
+        PhasingHandler::AddPhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, false);
+        PhasingHandler::RemovePhase(GetTarget(), PHASE_COSMETIC_CURSED_EFFIGY, true);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PhasingHandler::RemovePhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, true);
-        PhasingHandler::RemovePhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, true);
+        PhasingHandler::RemovePhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, false);
+        PhasingHandler::RemovePhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, false);
+        PhasingHandler::AddPhase(GetTarget(), PHASE_COSMETIC_CURSED_EFFIGY, true);
     }
 
     void Register() override
