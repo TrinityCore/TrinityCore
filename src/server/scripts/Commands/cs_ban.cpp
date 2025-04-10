@@ -368,7 +368,7 @@ public:
         return true;
     }
 
-    static bool HandleBanInfoIPCommand(ChatHandler* handler, std::string&& ip)
+    static bool HandleBanInfoIPCommand(ChatHandler* handler, std::string& ip)
     {
         if (!IsIPAddress(ip))
             return false;
