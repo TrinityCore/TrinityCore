@@ -2973,6 +2973,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
         void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
 
+        void SetSelfOfferQuest(int32 questId);
+        int32 GetSelfOfferQuest() const;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
