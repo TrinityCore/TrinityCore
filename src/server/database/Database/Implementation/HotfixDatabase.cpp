@@ -1099,6 +1099,22 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_REWARD_PACK_X_ITEM, "SELECT MAX(ID) + 1 FROM reward_pack_x_item", CONNECTION_SYNCH);
 
+    // ScalingStatDistribution.db2
+    PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, StatID1, StatID2, StatID3, StatID4, StatID5, StatID6, StatID7, StatID8, "
+        "StatID9, StatID10, Bonus1, Bonus2, Bonus3, Bonus4, Bonus5, Bonus6, Bonus7, Bonus8, Bonus9, Bonus10, Maxlevel FROM scaling_stat_distribution"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT MAX(ID) + 1 FROM scaling_stat_distribution", CONNECTION_SYNCH);
+
+    // ScalingStatValues.db2
+    PrepareStatement(HOTFIX_SEL_SCALING_STAT_VALUES, "SELECT ID, Charlevel, WeaponDPS1H, WeaponDPS2H, SpellcasterDPS1H, SpellcasterDPS2H, RangedDPS, "
+        "WandDPS, SpellPower, BudgetPrimary, BudgetSecondary, BudgetTertiary, BudgetSub, BudgetTrivial, ClothCloakArmor, Unk440_0, Unk440_1, "
+        "Unk440_2, Unk440_3, Unk440_4, Unk440_5, Unk440_6, Unk440_7, Unk440_8, Unk440_9, Unk440_10, Unk440_11, Unk440_12, Unk440_13, Unk440_14, "
+        "Unk440_15, ShoulderArmor1, ShoulderArmor2, ShoulderArmor3, ShoulderArmor4, ChestArmor1, ChestArmor2, ChestArmor3, ChestArmor4, HeadArmor1, "
+        "HeadArmor2, HeadArmor3, HeadArmor4, LegsArmor1, LegsArmor2, LegsArmor3, LegsArmor4, FeetArmor1, FeetArmor2, FeetArmor3, FeetArmor4, "
+        "WaistArmor1, WaistArmor2, WaistArmor3, WaistArmor4, HandsArmor1, HandsArmor2, HandsArmor3, HandsArmor4, WristsArmor1, WristsArmor2, "
+        "WristsArmor3, WristsArmor4 FROM scaling_stat_values WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCALING_STAT_VALUES, "SELECT MAX(ID) + 1 FROM scaling_stat_values", CONNECTION_SYNCH);
+
     // Scenario.db2
     PrepareStatement(HOTFIX_SEL_SCENARIO, "SELECT ID, Name, AreaTableID, Type, Flags, UiTextureKitID FROM scenario WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCENARIO, "SELECT MAX(ID) + 1 FROM scenario", CONNECTION_SYNCH);

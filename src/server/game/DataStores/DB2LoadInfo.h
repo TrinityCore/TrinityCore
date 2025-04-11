@@ -23,7 +23,6 @@
 
 #include "DB2DatabaseLoader.h"
 #include "DB2Metadata.h"
-#include "HotfixDatabase.h"
 
 struct AchievementLoadInfo
 {
@@ -3710,6 +3709,109 @@ struct RewardPackXItemLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &RewardPackXItemMeta::Instance, HOTFIX_SEL_REWARD_PACK_X_ITEM };
+};
+
+struct ScalingStatDistributionLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[22] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "StatID1" },
+        { true, FT_INT, "StatID2" },
+        { true, FT_INT, "StatID3" },
+        { true, FT_INT, "StatID4" },
+        { true, FT_INT, "StatID5" },
+        { true, FT_INT, "StatID6" },
+        { true, FT_INT, "StatID7" },
+        { true, FT_INT, "StatID8" },
+        { true, FT_INT, "StatID9" },
+        { true, FT_INT, "StatID10" },
+        { true, FT_INT, "Bonus1" },
+        { true, FT_INT, "Bonus2" },
+        { true, FT_INT, "Bonus3" },
+        { true, FT_INT, "Bonus4" },
+        { true, FT_INT, "Bonus5" },
+        { true, FT_INT, "Bonus6" },
+        { true, FT_INT, "Bonus7" },
+        { true, FT_INT, "Bonus8" },
+        { true, FT_INT, "Bonus9" },
+        { true, FT_INT, "Bonus10" },
+        { true, FT_INT, "Maxlevel" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 22, &ScalingStatDistributionMeta::Instance, HOTFIX_SEL_SCALING_STAT_DISTRIBUTION };
+};
+
+struct ScalingStatValuesLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[63] =
+    {
+        { false, FT_INT, "ID" },
+        { true, FT_INT, "Charlevel" },
+        { true, FT_INT, "WeaponDPS1H" },
+        { true, FT_INT, "WeaponDPS2H" },
+        { true, FT_INT, "SpellcasterDPS1H" },
+        { true, FT_INT, "SpellcasterDPS2H" },
+        { true, FT_INT, "RangedDPS" },
+        { true, FT_INT, "WandDPS" },
+        { true, FT_INT, "SpellPower" },
+        { true, FT_INT, "BudgetPrimary" },
+        { true, FT_INT, "BudgetSecondary" },
+        { true, FT_INT, "BudgetTertiary" },
+        { true, FT_INT, "BudgetSub" },
+        { true, FT_INT, "BudgetTrivial" },
+        { true, FT_INT, "ClothCloakArmor" },
+        { true, FT_INT, "Unk440_0" },
+        { true, FT_INT, "Unk440_1" },
+        { true, FT_INT, "Unk440_2" },
+        { true, FT_INT, "Unk440_3" },
+        { true, FT_INT, "Unk440_4" },
+        { true, FT_INT, "Unk440_5" },
+        { true, FT_INT, "Unk440_6" },
+        { true, FT_INT, "Unk440_7" },
+        { true, FT_INT, "Unk440_8" },
+        { true, FT_INT, "Unk440_9" },
+        { true, FT_INT, "Unk440_10" },
+        { true, FT_INT, "Unk440_11" },
+        { true, FT_INT, "Unk440_12" },
+        { true, FT_INT, "Unk440_13" },
+        { true, FT_INT, "Unk440_14" },
+        { true, FT_INT, "Unk440_15" },
+        { true, FT_INT, "ShoulderArmor1" },
+        { true, FT_INT, "ShoulderArmor2" },
+        { true, FT_INT, "ShoulderArmor3" },
+        { true, FT_INT, "ShoulderArmor4" },
+        { true, FT_INT, "ChestArmor1" },
+        { true, FT_INT, "ChestArmor2" },
+        { true, FT_INT, "ChestArmor3" },
+        { true, FT_INT, "ChestArmor4" },
+        { true, FT_INT, "HeadArmor1" },
+        { true, FT_INT, "HeadArmor2" },
+        { true, FT_INT, "HeadArmor3" },
+        { true, FT_INT, "HeadArmor4" },
+        { true, FT_INT, "LegsArmor1" },
+        { true, FT_INT, "LegsArmor2" },
+        { true, FT_INT, "LegsArmor3" },
+        { true, FT_INT, "LegsArmor4" },
+        { true, FT_INT, "FeetArmor1" },
+        { true, FT_INT, "FeetArmor2" },
+        { true, FT_INT, "FeetArmor3" },
+        { true, FT_INT, "FeetArmor4" },
+        { true, FT_INT, "WaistArmor1" },
+        { true, FT_INT, "WaistArmor2" },
+        { true, FT_INT, "WaistArmor3" },
+        { true, FT_INT, "WaistArmor4" },
+        { true, FT_INT, "HandsArmor1" },
+        { true, FT_INT, "HandsArmor2" },
+        { true, FT_INT, "HandsArmor3" },
+        { true, FT_INT, "HandsArmor4" },
+        { true, FT_INT, "WristsArmor1" },
+        { true, FT_INT, "WristsArmor2" },
+        { true, FT_INT, "WristsArmor3" },
+        { true, FT_INT, "WristsArmor4" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 63, &ScalingStatValuesMeta::Instance, HOTFIX_SEL_SCALING_STAT_VALUES };
 };
 
 struct ScenarioLoadInfo
