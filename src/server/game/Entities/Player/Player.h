@@ -54,6 +54,7 @@ struct Mail;
 struct MapEntry;
 struct QuestPackageItemEntry;
 struct RewardPackEntry;
+struct ScalingStatValuesEntry;
 struct SkillRaceClassInfoEntry;
 struct SpellCastRequest;
 struct TalentEntry;
@@ -2305,12 +2306,12 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const override;
 
-        void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true);
+        void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true, bool updateHeirloomStats = false);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
-        void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
-        void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
+        void _ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool onlyLevelScaling = false);
+        void _ApplyWeaponDamage(uint8 slot, Item* item, ScalingStatValuesEntry const* ssv, bool apply);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const;
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);

@@ -1100,9 +1100,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_REWARD_PACK_X_ITEM, "SELECT MAX(ID) + 1 FROM reward_pack_x_item", CONNECTION_SYNCH);
 
     // ScalingStatDistribution.db2
-    PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, StatID1, StatID2, StatID3, StatID4, StatID5, StatID6, StatID7, StatID8, "
-        "StatID9, StatID10, Bonus1, Bonus2, Bonus3, Bonus4, Bonus5, Bonus6, Bonus7, Bonus8, Bonus9, Bonus10, Maxlevel FROM scaling_stat_distribution"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, PlayerLevelToItemLevelCurveID, Minlevel, Maxlevel, Bonus1, Bonus2, Bonus3, "
+        "Bonus4, Bonus5, Bonus6, Bonus7, Bonus8, Bonus9, Bonus10, StatID1, StatID2, StatID3, StatID4, StatID5, StatID6, StatID7, StatID8, StatID9, "
+        "StatID10 FROM scaling_stat_distribution WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT MAX(ID) + 1 FROM scaling_stat_distribution", CONNECTION_SYNCH);
 
     // ScalingStatValues.db2

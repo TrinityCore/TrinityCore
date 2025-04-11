@@ -7393,7 +7393,7 @@ void Player::DuelComplete(DuelCompleteType type)
 
 //---------------------------------------------------------//
 
-void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras /*= true*/)
+void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras /*= true*/, bool updateHeirloomStats /*= false*/)
 {
     if (slot >= INVENTORY_SLOT_BAG_END || !item)
         return;
@@ -7411,7 +7411,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     if (item->GetSocketColor(0))                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
         CorrectMetaGemEnchants(slot, apply);
 
-    _ApplyItemBonuses(item, slot, apply);
+    _ApplyItemBonuses(item, slot, apply, updateHeirloomStats);
     ApplyItemEquipSpell(item, apply);
     if (updateItemAuras)
     {
@@ -7427,44 +7427,104 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: completed");
 }
 
-void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
+void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool onlyLevelScaling /*= false*/)
 {
     ItemTemplate const* proto = item->GetTemplate();
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
+    ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistributionID());
+    ScalingStatValuesEntry const* ssv = ssd ? sDB2Manager.GetScalingStatValuesForLevel(std::clamp<uint32>(GetLevel(), ssd->Minlevel, ssd->Maxlevel)) : nullptr;
+    if (onlyLevelScaling && (!ssd || !ssv))
+        return;
+
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
         int32 statType = item->GetItemStatType(i);
-        if (statType == -1)
+        if ((statType == -1 && !ssd) || (statType == -1 && ssd && ssd->StatID[i] == -1))
             continue;
 
-        float val = item->GetItemStatValue(i, this);
+        if (statType == -1 && ssd)
+            statType = ssd->StatID[i];
+
+        float val = item->GetItemStatValue(i, this, ssd, ssv);
         if (val == 0)
             continue;
 
         ApplyItemModModifier(static_cast<ItemModType>(statType), val, apply);
     }
 
+    // Spellpower bonus from Heirlooms
+    if (ssd && proto->HasFlag(ItemFlags2::ITEM_FLAG2_CASTER_WEAPON))
+        if (int32 spellPowerBonus = ssv->SpellPower)
+            ApplySpellPowerBonus(spellPowerBonus, apply);
+
+    // Armor bonus from Heirlooms
+    int32 overrideArmor = 0;
+    if (ssd && proto->GetClass() == ITEM_CLASS_ARMOR)
+    {
+        switch (proto->GetInventoryType())
+        {
+            case INVTYPE_HEAD:
+                overrideArmor = ssv->HeadArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_SHOULDERS:
+                overrideArmor = ssv->ShoulderArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_CHEST:
+            case INVTYPE_ROBE:
+                overrideArmor = ssv->ChestArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_LEGS:
+                overrideArmor = ssv->LegsArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_FEET:
+                overrideArmor = ssv->FeetArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_WAIST:
+                overrideArmor = ssv->WaistArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_HANDS:
+                overrideArmor = ssv->HandsArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_WRISTS:
+                overrideArmor = ssv->WristsArmor[proto->GetSubClass() - 1];
+                break;
+            case INVTYPE_CLOAK:
+                overrideArmor = ssv->ClothCloakArmor;
+                break;
+            default:
+                break;
+        }
+    }
+
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if (int16 resistance = proto->GetResistance(SpellSchools(i)))
+    {
+        int16 resistance = proto->GetResistance(SpellSchools(i));
+        if (i == SPELL_SCHOOL_NORMAL && overrideArmor)
+            resistance = overrideArmor;
+
+        if (resistance)
+        {
+            if (i == SPELL_SCHOOL_NORMAL && overrideArmor)
+                resistance = overrideArmor;
+
             HandleStatFlatModifier(UnitMods(UNIT_MOD_ARMOR + i), BASE_VALUE, float(resistance), apply);
+        }
+    }
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
     if (attType != MAX_ATTACK)
-        _ApplyWeaponDamage(slot, item, apply);
+        _ApplyWeaponDamage(slot, item, ssv, apply);
 }
 
 // @TODO: Ovahlord ScalingStat db2s
-void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
+void Player::_ApplyWeaponDamage(uint8 slot, Item* item, ScalingStatValuesEntry const* ssv, bool apply)
 {
     ItemTemplate const* proto = item->GetTemplate();
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
     if (!IsInFeralForm() && apply && !CanUseAttackType(attType))
         return;
-
-    // ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistributionID());
-    // ScalingStatValuesEntry const* ssv = (ssd && proto->GetScalingStatValue() != 0) ? sDB2Manager.GetScalingStatValuesForLevel(std::clamp<uint32>(GetLevel(), ssd->MinLevel, ssd->MaxLevel)) : nullptr;
 
     float damage = 0.0f;
     //for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
@@ -7472,19 +7532,51 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
         int32 minDamage = proto->GetMinDamage(0);
         int32 maxDamage = proto->GetMaxDamage(0);
 
-        // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
-        // if (ssv)
-        // {
-        //     int32 extraDPS = ssv->getDPSMod(proto->GetScalingStatValue());
-        //     if (extraDPS)
-        //     {
-        //         float average = extraDPS * proto->GetDelay() / 1000.0f;
-        //         float mod = ssv->isTwoHand(proto->GetScalingStatValue()) ? 0.2f : 0.3f;
-        //
-        //         minDamage = (1.0f - mod) * average;
-        //         maxDamage = (1.0f + mod) * average;
-        //     }
-        // }
+        // Weapon damage from Heirlooms
+        if (ssv)
+        {
+            float multiplier = 0.0f;
+            int32 dps = 0;
+            switch (proto->GetSubClass())
+            {
+                case ITEM_SUBCLASS_WEAPON_AXE2:
+                case ITEM_SUBCLASS_WEAPON_MACE2:
+                case ITEM_SUBCLASS_WEAPON_POLEARM:
+                case ITEM_SUBCLASS_WEAPON_SWORD2:
+                case ITEM_SUBCLASS_WEAPON_STAFF:
+                case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
+                    dps = proto->HasFlag(ItemFlags2::ITEM_FLAG2_CASTER_WEAPON) ? ssv->SpellcasterDPS2H : ssv->WeaponDPS2H;
+                    multiplier = 0.2f;
+                    break;
+                case ITEM_SUBCLASS_WEAPON_BOW:
+                case ITEM_SUBCLASS_WEAPON_GUN:
+                case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                    dps = ssv->RangedDPS;
+                    multiplier = 0.3f;
+                    break;
+                case ITEM_SUBCLASS_WEAPON_AXE:
+                case ITEM_SUBCLASS_WEAPON_MACE:
+                case ITEM_SUBCLASS_WEAPON_SWORD:
+                case ITEM_SUBCLASS_WEAPON_DAGGER:
+                case ITEM_SUBCLASS_WEAPON_THROWN:
+                    dps = proto->HasFlag(ItemFlags2::ITEM_FLAG2_CASTER_WEAPON) ? ssv->SpellcasterDPS1H : ssv->WeaponDPS1H;
+                    multiplier = 0.3f;
+                    break;
+                case ITEM_SUBCLASS_WEAPON_WAND:
+                    dps = ssv->WandDPS;
+                    multiplier = 0.3f;
+                    break;
+                default:
+                    break;
+            }
+
+            if (dps > 0)
+            {
+                float average = dps * proto->GetDelay() / 1000.0f;
+                minDamage = (1.0f - multiplier) * average;
+                maxDamage = (1.0f + multiplier) * average;
+            }
+        }
 
         if (minDamage > 0)
         {
@@ -8109,7 +8201,7 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
             if (!CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
                 continue;
 
-            _ApplyItemMods(m_items[i], i, apply);
+            _ApplyItemMods(m_items[i], i, apply, true);
 
             // Update item sets for heirlooms
             if (sDB2Manager.GetHeirloomByItemId(m_items[i]->GetEntry()) && m_items[i]->GetTemplate()->GetItemSet())

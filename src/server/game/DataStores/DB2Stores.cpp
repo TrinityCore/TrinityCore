@@ -220,6 +220,8 @@ DB2Storage<RandPropPointsEntry>                 sRandPropPointsStore("RandPropPo
 DB2Storage<RewardPackEntry>                     sRewardPackStore("RewardPack.db2", &RewardPackLoadInfo::Instance);
 DB2Storage<RewardPackXCurrencyTypeEntry>        sRewardPackXCurrencyTypeStore("RewardPackXCurrencyType.db2", &RewardPackXCurrencyTypeLoadInfo::Instance);
 DB2Storage<RewardPackXItemEntry>                sRewardPackXItemStore("RewardPackXItem.db2", &RewardPackXItemLoadInfo::Instance);
+DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("ScalingStatDistribution.db2", &ScalingStatDistributionLoadInfo::Instance);
+DB2Storage<ScalingStatValuesEntry>              sScalingStatValuesStore("ScalingStatValues.db2", &ScalingStatValuesLoadInfo::Instance);
 DB2Storage<ScenarioEntry>                       sScenarioStore("Scenario.db2", &ScenarioLoadInfo::Instance);
 DB2Storage<ScenarioStepEntry>                   sScenarioStepStore("ScenarioStep.db2", &ScenarioStepLoadInfo::Instance);
 DB2Storage<SceneScriptEntry>                    sSceneScriptStore("SceneScript.db2", &SceneScriptLoadInfo::Instance);
@@ -417,6 +419,7 @@ namespace
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
     std::array<std::unordered_map<int32, TalentTabEntry const*>, MAX_CLASSES> _talentTabsByIndex;
     std::unordered_map<uint32, std::vector<uint32>> _primaryTalentTreeSpellsByTalentTab;
+    std::unordered_map<uint32, ScalingStatValuesEntry const*> _scalingStatValuesByCharacterLevel;
 }
 
 void LoadDB2(std::bitset<TOTAL_LOCALES>& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path,
@@ -722,6 +725,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sRewardPackStore);
     LOAD_DB2(sRewardPackXCurrencyTypeStore);
     LOAD_DB2(sRewardPackXItemStore);
+    LOAD_DB2(sScalingStatDistributionStore);
+    LOAD_DB2(sScalingStatValuesStore);
     LOAD_DB2(sScenarioStore);
     LOAD_DB2(sScenarioStepStore);
     LOAD_DB2(sSceneScriptStore);
@@ -1390,6 +1395,9 @@ void DB2Manager::IndexLoadedStores()
         if (uiMapId == 985 || uiMapId == 986)
             sOldContinentsNodesMask[field] |= submask;
     }
+
+    for (ScalingStatValuesEntry const* ssd : sScalingStatValuesStore)
+        _scalingStatValuesByCharacterLevel[ssd->Charlevel] = ssd;
 
     TC_LOG_INFO("server.loading", ">> Indexed DB2 data stores in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -2852,4 +2860,9 @@ bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabili
 std::vector<ItemEffectEntry const*> const* DB2Manager::GetItemEffectsForItemId(uint32 itemId) const
 {
     return Trinity::Containers::MapGetValuePtr(_itemEffectsByItemId, itemId);
+}
+
+ScalingStatValuesEntry const* DB2Manager::GetScalingStatValuesForLevel(uint32 level) const
+{
+    return Trinity::Containers::MapGetValuePtr(_scalingStatValuesByCharacterLevel, level);
 }

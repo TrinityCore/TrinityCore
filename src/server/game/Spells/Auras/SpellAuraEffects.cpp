@@ -2021,7 +2021,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         if (!target->CanUseAttackType(BASE_ATTACK))
         {
             if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem, apply);
+                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem, nullptr, apply);
         }
     }
 
@@ -2461,7 +2461,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
             player->ApplyItemDependentAuras(item, !apply);
             if (attackType != MAX_ATTACK)
             {
-                player->_ApplyWeaponDamage(slot, item, !apply);
+                player->_ApplyWeaponDamage(slot, item, nullptr, !apply);
                 if (!apply) // apply case already handled on item dependent aura removal (if any)
                     player->UpdateWeaponDependentAuras(attackType);
             }

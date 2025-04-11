@@ -3713,9 +3713,12 @@ struct RewardPackXItemLoadInfo
 
 struct ScalingStatDistributionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[22] =
+    static constexpr DB2FieldMeta Fields[24] =
     {
         { false, FT_INT, "ID" },
+        { false, FT_SHORT, "PlayerLevelToItemLevelCurveID" },
+        { true, FT_INT, "Minlevel" },
+        { true, FT_INT, "Maxlevel" },
         { true, FT_INT, "StatID1" },
         { true, FT_INT, "StatID2" },
         { true, FT_INT, "StatID3" },
@@ -3736,10 +3739,9 @@ struct ScalingStatDistributionLoadInfo
         { true, FT_INT, "Bonus8" },
         { true, FT_INT, "Bonus9" },
         { true, FT_INT, "Bonus10" },
-        { true, FT_INT, "Maxlevel" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 22, &ScalingStatDistributionMeta::Instance, HOTFIX_SEL_SCALING_STAT_DISTRIBUTION };
+    static constexpr DB2LoadInfo Instance{ Fields, 24, &ScalingStatDistributionMeta::Instance, HOTFIX_SEL_SCALING_STAT_DISTRIBUTION };
 };
 
 struct ScalingStatValuesLoadInfo

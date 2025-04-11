@@ -2033,9 +2033,58 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
-float Item::GetItemStatValue(uint32 index, Player const* /*owner*/) const
+float Item::GetItemStatValue(uint32 index, Player const* /*owner*/, ScalingStatDistributionEntry const* ssd /*= nullptr*/, ScalingStatValuesEntry const* ssv /*= nullptr*/) const
 {
     ASSERT(index < MAX_ITEM_PROTO_STATS);
+
+    // Stats from Heirlooms
+    if (ssd && ssv)
+    {
+        if (ssd->StatID[index] == -1)
+            return 0.0f;
+
+        int32 budget = 0;
+        switch (GetTemplate()->GetInventoryType())
+        {
+            case INVTYPE_HEAD:
+            case INVTYPE_CHEST:
+            case INVTYPE_LEGS:
+            case INVTYPE_2HWEAPON:
+            case INVTYPE_ROBE:
+                budget = ssv->BudgetPrimary;
+                break;
+            case INVTYPE_SHOULDERS:
+            case INVTYPE_WAIST:
+            case INVTYPE_FEET:
+            case INVTYPE_HANDS:
+            case INVTYPE_TRINKET:
+                budget = ssv->BudgetSecondary;
+                break;
+            case INVTYPE_NECK:
+            case INVTYPE_WRISTS:
+            case INVTYPE_FINGER:
+            case INVTYPE_SHIELD:
+            case INVTYPE_CLOAK:
+            case INVTYPE_HOLDABLE:
+                budget = ssv->BudgetTertiary;
+                break;
+            case INVTYPE_RANGED:
+            case INVTYPE_THROWN:
+            case INVTYPE_RANGEDRIGHT:
+            case INVTYPE_RELIC:
+                budget = ssv->BudgetSub;
+                break;
+            case INVTYPE_WEAPON:
+            case INVTYPE_WEAPONMAINHAND:
+            case INVTYPE_WEAPONOFFHAND:
+                budget = ssv->BudgetTrivial;
+                break;
+            default:
+                break;
+        }
+
+        return static_cast<float>(budget * ssd->Bonus[index] / 10000.0f);
+    }
 
     return static_cast<float>(_bonusData.ItemStatAmount[index]);
 }

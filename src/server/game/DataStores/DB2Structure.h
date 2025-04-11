@@ -2888,9 +2888,11 @@ struct RewardPackXItemEntry
 struct ScalingStatDistributionEntry
 {
     uint32 ID;
-    std::array<int32, 10> StatID;
-    std::array<int32, 10> Bonus;
+    uint16 PlayerLevelToItemLevelCurveID;
+    int32 Minlevel;
     int32 Maxlevel;
+    std::array<int32, 10> Bonus;
+    std::array<int32, 10> StatID;
 };
 
 // structure for ScalingStatValues.db2

@@ -169,6 +169,8 @@ TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortSt
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
 TC_GAME_API extern DB2Storage<RandPropPointsEntry>                  sRandPropPointsStore;
 TC_GAME_API extern DB2Storage<RewardPackEntry>                      sRewardPackStore;
+TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
+TC_GAME_API extern DB2Storage<ScalingStatValuesEntry>               sScalingStatValuesStore;
 TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioStore;
 TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
 TC_GAME_API extern DB2Storage<SkillLineEntry>                       sSkillLineStore;
@@ -454,6 +456,7 @@ public:
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
     std::unordered_set<uint32> const* GetPVPStatIDsForMap(uint32 mapId) const;
     std::vector<ItemEffectEntry const*> const* GetItemEffectsForItemId(uint32 itemId) const;
+    ScalingStatValuesEntry const* GetScalingStatValuesForLevel(uint32 characterLevel) const;
 
 private:
     friend class DB2HotfixGeneratorBase;
