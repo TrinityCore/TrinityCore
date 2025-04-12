@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTriggerAI.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Pet.h"
@@ -43,6 +44,8 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
     SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+    SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
+    SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
     SPELL_HUNTER_LATENT_POISON_STACK                = 378015,
     SPELL_HUNTER_LATENT_POISON_DAMAGE               = 378016,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
@@ -216,6 +219,35 @@ class spell_hun_explosive_shot : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 236775 - High Explosive Trap
+// 9810 - AreatriggerId
+struct areatrigger_hun_high_explosive_trap : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP);
+
+            if (areaTriggers.size() >= 1)
+                areaTriggers.front()->SetDuration(0);
+        }
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+
+        at->Remove();
     }
 };
 
@@ -821,6 +853,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_cobra_sting);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
+    RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterSpellScript(spell_hun_last_stand_pet);
     RegisterSpellScript(spell_hun_latent_poison_damage);
