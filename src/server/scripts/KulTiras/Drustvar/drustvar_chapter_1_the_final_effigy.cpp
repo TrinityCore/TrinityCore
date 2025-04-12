@@ -206,7 +206,7 @@ class spell_drustvar_cancel_deathcurse : public SpellScript
         return ValidateSpellInfo({ SPELL_DRUSTVAR_FALLHAVEN_SCENE });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/) const
     {
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DRUSTVAR_FALLHAVEN_SCENE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -238,7 +238,7 @@ public:
         CloneCyril(player);
     }
 
-    void CloneCyril(Player* player)
+    void CloneCyril(Player* player) const
     {
         if (Creature* cyrilObject = player->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_CYRIL_WHITE_CURSED, .IgnorePhases = true }))
             cyrilObject->SummonPersonalClone(cyrilObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
