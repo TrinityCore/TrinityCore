@@ -43,6 +43,7 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
     SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+    SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_LATENT_POISON_STACK                = 378015,
     SPELL_HUNTER_LATENT_POISON_DAMAGE               = 378016,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
@@ -353,6 +354,34 @@ class spell_hun_latent_poison_injectors_trigger : public SpellScript
     void Register() override
     {
         AfterHit += SpellHitFn(spell_hun_latent_poison_injectors_trigger::TriggerDamage);
+    }
+};
+
+// 1217788 - Manhunter
+class spell_hun_manhunter : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_GREVIOUS_INJURY });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget()->IsPlayer();
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_GREVIOUS_INJURY, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_hun_manhunter::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_hun_manhunter::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -827,6 +856,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_latent_poison_trigger);
     RegisterSpellScript(spell_hun_latent_poison_injectors_damage);
     RegisterSpellScript(spell_hun_latent_poison_injectors_trigger);
+    RegisterSpellScript(spell_hun_manhunter);
     RegisterSpellScript(spell_hun_masters_call);
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
