@@ -60,6 +60,8 @@ enum HunterSpells
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
     SPELL_HUNTER_RAPID_FIRE_DAMAGE                  = 257045,
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
+    SPELL_HUNTER_REJUVENATING_WIND_TALENT           = 385539,
+    SPELL_HUNTER_REJUVENATING_WIND_HEAL             = 385540,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
@@ -590,6 +592,40 @@ class spell_hun_rapid_fire_damage : public SpellScript
     }
 };
 
+// Called by 109304 - Exhilaration
+class spell_hun_rejuvenating_wind : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_REJUVENATING_WIND_HEAL, SPELL_HUNTER_REJUVENATING_WIND_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_REJUVENATING_WIND_TALENT);
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        Aura const* rejuvenatingWind = caster->GetAura(SPELL_HUNTER_REJUVENATING_WIND_TALENT);
+        if (!rejuvenatingWind)
+            return;
+
+        int32 heal = CalculatePct(caster->GetMaxHealth(), rejuvenatingWind->GetEffect(EFFECT_0)->GetAmount());
+
+        caster->CastSpell(caster, SPELL_HUNTER_REJUVENATING_WIND_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, heal } }
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_hun_rejuvenating_wind::HandleAfterCast);
+    }
+};
+
 // 53480 - Roar of Sacrifice
 class spell_hun_roar_of_sacrifice : public AuraScript
 {
@@ -835,6 +871,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_posthaste);
     RegisterSpellScript(spell_hun_rapid_fire);
     RegisterSpellScript(spell_hun_rapid_fire_damage);
+    RegisterSpellScript(spell_hun_rejuvenating_wind);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_steady_shot);
