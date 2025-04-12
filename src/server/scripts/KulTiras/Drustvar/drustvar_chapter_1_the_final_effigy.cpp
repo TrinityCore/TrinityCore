@@ -195,35 +195,7 @@ enum TheFinalEffigyData
 {
     NPC_CYRIL_WHITE_CURSED          = 130419,
 
-    PHASE_PERSONAL_DEATHCURSE       = 9567,
-    PHASE_COSMETIC_DEATHCURSE_AT    = 9846,
-    PHASE_COSMETIC_CURSED_EFFIGY    = 9098,
-
     SPELL_DRUSTVAR_FALLHAVEN_SCENE  = 281070
-};
-
-// 248476 - Deathcurse
-class spell_drustvar_deathcurse : public AuraScript
-{
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        PhasingHandler::AddPhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, false);
-        PhasingHandler::AddPhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, false);
-        PhasingHandler::RemovePhase(GetTarget(), PHASE_COSMETIC_CURSED_EFFIGY, true);
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        PhasingHandler::RemovePhase(GetTarget(), PHASE_PERSONAL_DEATHCURSE, false);
-        PhasingHandler::RemovePhase(GetTarget(), PHASE_COSMETIC_DEATHCURSE_AT, false);
-        PhasingHandler::AddPhase(GetTarget(), PHASE_COSMETIC_CURSED_EFFIGY, true);
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_drustvar_deathcurse::OnApply, EFFECT_1, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_drustvar_deathcurse::OnRemove, EFFECT_1, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
-    }
 };
 
 // 254558 - Cancel Deathcurse
@@ -257,7 +229,6 @@ public:
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         PhasingHandler::OnConditionChange(player);
-        PhasingHandler::RemovePhase(player, PHASE_COSMETIC_DEATHCURSE_AT, true);
         CloneCyril(player);
     }
 
@@ -286,6 +257,5 @@ void AddSC_drustvar_chapter_1_the_final_effigy()
     new event_listen_to_helenas_story();
 
     // Spells
-    RegisterSpellScript(spell_drustvar_deathcurse);
     RegisterSpellScript(spell_drustvar_cancel_deathcurse);
 }

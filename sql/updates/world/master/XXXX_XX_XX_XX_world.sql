@@ -64,20 +64,28 @@ INSERT INTO `phase_name` (`ID`, `Name`) VALUES
 (9086, 'Cosmetic - See destroyed Effigy'),
 (9114, 'Cosmetic - See Cyril White in Fallhaven');
 
-DELETE FROM `phase_area` WHERE `PhaseId` IN (9098,9086,9114);
+DELETE FROM `phase_area` WHERE `PhaseId` IN (9098,9086,9114,9567,9846);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (8721, 9098, 'See cursed Effigy after protection gets destroyed'),
 (8721, 9086, 'See destroyed Effigy'),
-(8721, 9114, 'See Cyril White in Fallhaven');
+(8721, 9114, 'See Cyril White in Fallhaven'),
+(8721, 9567, 'Deathcursed Terror'),
+(8721, 9846, 'Deathcursed Terror Areatrigger');
 
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (9115,9870,9098,9086,9114) AND `SourceEntry` = 0);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (9115,9870,9098,9086,9114,9567,9846) AND `SourceEntry` = 0);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUE
 (26, 9115, 0, 0, 0, 47, 0, 47982, 2|8|64, 0, 1, 'Apply Phase 9115 if Quest 48622 is not in progress | complete | rewarded'),
 (26, 9870, 0, 0, 0, 47, 0, 48622, 2|64, 0, 0, 'Apply Phase 9870 if Quest 48622 is complete | rewarded'),
 (26, 9870, 0, 0, 0, 47, 0, 47982, 2|8|64, 0, 1, 'Apply Phase 9870 if Quest 47982 is not in progress | complete | rewarded'),
-(26, 9098, 0, 0, 0, 47, 0, 47982, 8, 0, 0, 'Apply Phase 9098 if Quest 47982 is in progress'),
 (26, 9086, 0, 0, 0, 47, 0, 47982, 2|64, 0, 0, 'Apply Phase 9086 if Quest 47982 is complete | rewarded'),
-(26, 9114, 0, 0, 0, 47, 0, 47982, 2|64, 0, 0, 'Apply Phase 9114 if Quest 47982 is complete | rewarded');
+(26, 9114, 0, 0, 0, 47, 0, 47982, 2|64, 0, 0, 'Apply Phase 9114 if Quest 47982 is complete | rewarded'),
+(26, 9567, 0, 0, 0, 47, 0, 47982, 8, 0, 0, 'Apply Phase 9567 if Quest 47982 is in progress'),
+(26, 9567, 0, 0, 0, 1, 0, 248476, 1, 0, 0, 'Apply Phase 9567 if player has Aura 248476 effect 1'),
+(26, 9846, 0, 0, 0, 47, 0, 47982, 8, 0, 0, 'Apply Phase 9846 if Quest 47982 is in progress'),
+(26, 9846, 0, 0, 0, 1, 0, 248476, 1, 0, 0, 'Apply Phase 9846 if player has Aura 248476 effect 1'),
+(26, 9098, 0, 0, 0, 47, 0, 47982, 8, 0, 0, 'Apply Phase 9098 if Quest 47982 is in progress'),
+(26, 9098, 0, 0, 0, 47, 0, 47982, 2|64, 0, 1, 'Apply Phase 9098 if Quest 47982 is not complete | rewarded'),
+(26, 9098, 0, 0, 0, 1, 0, 248476, 1, 0, 1, 'Apply Phase 9098 if player has not Aura 248476 effect 1');
 
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` IN (128345, 130419);
@@ -90,7 +98,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- ScriptName
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (248476, 254558);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(248476, 'spell_drustvar_deathcurse'),
+(248476, 'spell_gen_force_phase_update'),
 (254558, 'spell_drustvar_cancel_deathcurse');
 
 -- Quest AI
