@@ -3890,12 +3890,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // Gathering Storms
-    ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->ProcCharges = 1; // override proc charges, has 0 (unlimited) in db2
-    });
-
     ApplySpellFix({
         15538, // Gout of Flame
         42490, // Energized!
@@ -4812,6 +4806,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    ApplySpellFix({
+        260566, // Wildfire Missile
+        260570  // Wildfire Missile Impact
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
+    });
+
     // ENDOF WAYCREST MANOR SPELLS
 
     //
@@ -4943,19 +4946,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
 
     //
-    // WAYCREST MANOR SPELLS
+    // UNDERROT SPELLS
     //
 
-    ApplySpellFix({
-        260566, // Wildfire Missile
-        260570  // Wildfire Missile Impact
-    }, [](SpellInfo* spellInfo)
+    // Boundless Rot
+    ApplySpellFix({ 259845 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
-        spellInfo->AttributesEx9 |= SPELL_ATTR9_FORCE_DEST_LOCATION;
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+        });
     });
 
-    // ENDOF WAYCREST MANOR SPELLS
+    // ENDOF UNDERROT SPELLS
     //
 
     //
@@ -5012,6 +5015,15 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
     {
         spellInfo->NegativeEffects[EFFECT_2] = true;
+    });
+
+    // Sundering
+    ApplySpellFix({ 197214 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetB = SpellImplicitTargetInfo();
+        });
     });
 
     // Headless Horseman Climax - Return Head (Hallow End)
@@ -5299,6 +5311,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 157997 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_2, {}, {});
+    });
+
+    // Raze
+    ApplySpellFix({ 400254 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_2, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

@@ -3364,7 +3364,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
             }
 
             // try to increase stack amount
-            foundAura->ModStackAmount(1, AURA_REMOVE_BY_DEFAULT, createInfo.ResetPeriodicTimer);
+            foundAura->ModStackAmount(createInfo.StackAmount, AURA_REMOVE_BY_DEFAULT, createInfo.ResetPeriodicTimer);
             return foundAura;
         }
     }
@@ -4008,7 +4008,8 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                     AuraCreateInfo createInfo(aura->GetCastId(), aura->GetSpellInfo(), aura->GetCastDifficulty(), effMask, unitStealer);
                     createInfo
                         .SetCasterGUID(aura->GetCasterGUID())
-                        .SetBaseAmount(baseDamage);
+                        .SetBaseAmount(baseDamage)
+                        .SetStackAmount(stolenCharges);
 
                     if (Aura* newAura = Aura::TryRefreshStackOrCreate(createInfo))
                     {
@@ -4021,7 +4022,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                             caster->GetSingleCastAuras().push_front(aura);
                         }
                         // FIXME: using aura->GetMaxDuration() maybe not blizzlike but it fixes stealing of spells like Innervate
-                        newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? stolenCharges : aura->GetCharges(), stolenCharges, recalculateMask, &damage[0]);
+                        newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? stolenCharges : aura->GetCharges(), recalculateMask, &damage[0]);
                         newAura->ApplyForTargets();
                     }
                 }
@@ -9559,7 +9560,7 @@ void Unit::UpdateDamagePctDoneMods(WeaponAttackType attackType)
     });
 
     if (attackType == OFF_ATTACK)
-        factor *= GetTotalAuraModifier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT, [this, attackType](AuraEffect const* aurEff)
+        factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT, [this, attackType](AuraEffect const* aurEff)
         {
             return CheckAttackFitToAuraRequirement(attackType, aurEff);
         });
