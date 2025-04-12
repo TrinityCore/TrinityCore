@@ -1,0 +1,9 @@
+SET @CGUID := 3990092;
+
+DELETE FROM `creature` WHERE `guid`= @CGUID;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curHealthPct`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(@CGUID, 44249, 0, 1519, 5149, '0', 169, 0, 0, 1, -8817.6474609375, 346.4913330078125, 107.131256103515625, 3.560471534729003906, 120, 0, 0, 100, 0, NULL, NULL, NULL, NULL, 60142); -- Sarisse Jume (Area: Old Town - Difficulty: 0) CreateObject1
+
+DELETE FROM `creature_addon` WHERE `guid`= @CGUID;
+INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(@CGUID, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, ''); -- Sarisse Jume
