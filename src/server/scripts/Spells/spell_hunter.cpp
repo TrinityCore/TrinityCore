@@ -39,6 +39,7 @@ enum HunterSpells
     SPELL_HUNTER_AIMED_SHOT                         = 19434,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
+    SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
@@ -60,6 +61,7 @@ enum HunterSpells
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
     SPELL_HUNTER_RAPID_FIRE_DAMAGE                  = 257045,
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
+    SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
@@ -176,6 +178,33 @@ class spell_hun_cobra_sting : public AuraScript
     void Register() override
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_cobra_sting::RollProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// Called by 193455 - Cobra Shot and 56641 - Steady Shot
+class spell_hun_concussive_shot : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_HUNTER_CONCUSSIVE_SHOT, SPELL_HUNTER_STEADY_SHOT });
+    }
+
+    void HandleDuration(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        if (Aura* concussiveShot = GetHitUnit()->GetAura(SPELL_HUNTER_CONCUSSIVE_SHOT, caster->GetGUID()))
+        {
+            Milliseconds extraDuration = 0ms;
+            SpellInfo const* steadyShot = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_STEADY_SHOT, GetCastDifficulty());
+            extraDuration = Seconds(steadyShot->GetEffect(EFFECT_2).CalcValue(caster) / 10);
+            concussiveShot->SetDuration(concussiveShot->GetDuration() + extraDuration.count());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_concussive_shot::HandleDuration, EFFECT_ALL, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -819,6 +848,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_aspect_cheetah);
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
     RegisterSpellScript(spell_hun_cobra_sting);
+    RegisterSpellScript(spell_hun_concussive_shot);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
     RegisterSpellScript(spell_hun_hunting_party);
