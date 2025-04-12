@@ -39,6 +39,7 @@
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
@@ -5395,6 +5396,25 @@ private:
     uint64 _health;
 };
 
+class spell_gen_force_phase_update : public AuraScript
+{
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        PhasingHandler::OnConditionChange(GetTarget());
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        PhasingHandler::OnConditionChange(GetTarget());
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_gen_force_phase_update::AfterApply, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_force_phase_update::AfterRemove, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5575,4 +5595,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_1", 1);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
+    RegisterSpellScript(spell_gen_force_phase_update);
 }
