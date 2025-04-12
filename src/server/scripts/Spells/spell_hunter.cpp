@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTriggerAI.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Pet.h"
@@ -63,6 +64,9 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
+    SPELL_HUNTER_TAR_TRAP                           = 187699,
+    SPELL_HUNTER_TAR_TRAP_AREATRIGGER               = 187700,
+    SPELL_HUNTER_TAR_TRAP_SLOW                      = 135299,
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
@@ -755,6 +759,56 @@ class spell_hun_tame_beast : public SpellScript
     }
 };
 
+// 187699 - Tar Trap
+// 4435 - AreatriggerId
+struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_HUNTER_TAR_TRAP);
+
+            if (areaTriggers.size() >= 1)
+                areaTriggers.front()->SetDuration(0);
+        }
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_HUNTER_TAR_TRAP_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+
+        at->Remove();
+    }
+};
+
+// 187700 - Tar Trap
+// 4436 - AreatriggerId
+struct areatrigger_hun_tar_trap : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_HUNTER_TAR_TRAP_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_HUNTER_TAR_TRAP_SLOW, at->GetCasterGuid());
+    }
+};
+
 // 67151 - Item - Hunter T9 4P Bonus (Steady Shot)
 class spell_hun_t9_4p_bonus : public AuraScript
 {
@@ -839,6 +893,8 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_tame_beast);
+    RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
+    RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
 }
