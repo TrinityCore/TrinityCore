@@ -23,35 +23,23 @@
 
 namespace Trinity::Net::Http
 {
-class SslSocket : public BaseSocket<SslStream<Impl::BoostBeastSocketWrapper>>
+class TC_NETWORK_API SslSocket : public BaseSocket<SslStream<Impl::BoostBeastSocketWrapper>>
 {
     using SocketBase = BaseSocket<SslStream<Impl::BoostBeastSocketWrapper>>;
 
 public:
-    explicit SslSocket(IoContextTcpSocket&& socket, boost::asio::ssl::context& sslContext)
-        : SocketBase(std::move(socket), sslContext) { }
+    explicit SslSocket(IoContextTcpSocket&& socket, boost::asio::ssl::context& sslContext);
 
-    explicit SslSocket(boost::asio::io_context& context, boost::asio::ssl::context& sslContext)
-        : SocketBase(context, sslContext) { }
+    explicit SslSocket(boost::asio::io_context& context, boost::asio::ssl::context& sslContext);
 
     SslSocket(SslSocket const& other) = delete;
     SslSocket(SslSocket&& other) = delete;
     SslSocket& operator=(SslSocket const& other) = delete;
     SslSocket& operator=(SslSocket&& other) = delete;
 
-    ~SslSocket() = default;
+    ~SslSocket();
 
-    void Start() override
-    {
-        std::array<std::shared_ptr<SocketConnectionInitializer>, 3> initializers =
-        { {
-            std::make_shared<SslHandshakeConnectionInitializer<SocketBase>>(this),
-            std::make_shared<HttpConnectionInitializer<SocketBase>>(this),
-            std::make_shared<ReadConnectionInitializer<SocketBase>>(this),
-        } };
-
-        SocketConnectionInitializer::SetupChain(initializers)->Start();
-    }
+    void Start() override;
 };
 }
 

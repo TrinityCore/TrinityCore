@@ -40,7 +40,7 @@ public:
     std::vector<boost::asio::ip::tcp::endpoint> ResolveAll(std::string_view host, std::string_view service);
 
 private:
-    boost::asio::ip::tcp::resolver _impl;
+    boost::asio::ip::basic_resolver<boost::asio::ip::tcp, Asio::IoContext::Executor> _impl;
 };
 }
 
