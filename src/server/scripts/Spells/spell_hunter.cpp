@@ -40,6 +40,7 @@ enum HunterSpells
     SPELL_HUNTER_AIMED_SHOT                         = 19434,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
+    SPELL_HUNTER_BINDING_SHOT                       = 109248,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_EMERGENCY_SALVE_TALENT             = 459517,
     SPELL_HUNTER_EMERGENCY_SALVE_DISPEL             = 459521,
@@ -50,6 +51,8 @@ enum HunterSpells
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
+    SPELL_HUNTER_INTIMIDATION                       = 19577,
+    SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP          = 474421,
     SPELL_HUNTER_LATENT_POISON_STACK                = 378015,
     SPELL_HUNTER_LATENT_POISON_DAMAGE               = 378016,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
@@ -767,6 +770,28 @@ class spell_hun_scatter_shot : public SpellScript
     }
 };
 
+// 459533 - Scrappy
+class spell_hun_scrappy : public AuraScript
+{
+    static constexpr std::array<uint32, 3> AffectedSpellIds = { SPELL_HUNTER_BINDING_SHOT, SPELL_HUNTER_INTIMIDATION, SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(AffectedSpellIds);
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        for (uint32 spellId : AffectedSpellIds)
+            GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, -Milliseconds(aurEff->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_hun_scrappy::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 56641 - Steady Shot
 class spell_hun_steady_shot : public SpellScript
 {
@@ -959,6 +984,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_rapid_fire_damage);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
+    RegisterSpellScript(spell_hun_scrappy);
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
