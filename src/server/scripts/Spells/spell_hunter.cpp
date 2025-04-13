@@ -770,20 +770,20 @@ class spell_hun_scatter_shot : public SpellScript
     }
 };
 
-static constexpr std::array<uint32, 3> ScrappySpells = { SPELL_HUNTER_BINDING_SHOT, SPELL_HUNTER_INTIMIDATION, SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP };
-
 // 459533 - Scrappy
 class spell_hun_scrappy : public AuraScript
 {
+    static constexpr std::array<uint32, 3> AffectedSpellIds = { SPELL_HUNTER_BINDING_SHOT, SPELL_HUNTER_INTIMIDATION, SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP };
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_HUNTER_BINDING_SHOT, SPELL_HUNTER_INTIMIDATION, SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP });
+        return ValidateSpellInfo(AffectedSpellIds);
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
-        for (uint32 spell : ScrappySpells)
-            GetTarget()->GetSpellHistory()->ModifyCooldown(spell, -Milliseconds(aurEff->GetAmount()));
+        for (uint32 spellId : AffectedSpellIds)
+            GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, -Milliseconds(aurEff->GetAmount()));
     }
 
     void Register() override
