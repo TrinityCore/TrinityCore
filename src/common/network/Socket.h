@@ -44,6 +44,13 @@ enum class SocketReadCallbackResult
     Stop
 };
 
+inline boost::asio::mutable_buffer PrepareReadBuffer(MessageBuffer& readBuffer)
+{
+    readBuffer.Normalize();
+    readBuffer.EnsureFreeSpace();
+    return boost::asio::buffer(readBuffer.GetWritePointer(), readBuffer.GetRemainingSpace());
+}
+
 template <typename Callable>
 concept SocketReadCallback = Trinity::invocable_r<Callable, SocketReadCallbackResult>;
 
@@ -81,6 +88,10 @@ struct ReadConnectionInitializer final : SocketConnectionInitializer
 
     @tparam Stream stream type used for operations on socket
             Stream must implement the following methods:
+
+            boost::asio::io_context::executor_type get_executor();
+
+            bool is_open() const;
 
             void close(boost::system::error_code& error);
 
@@ -164,9 +175,7 @@ public:
         if (!IsOpen())
             return;
 
-        _readBuffer.Normalize();
-        _readBuffer.EnsureFreeSpace();
-        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
+        _socket.async_read_some(PrepareReadBuffer(_readBuffer),
             [self = this->shared_from_this(), callback = std::forward<Callback>(callback)](boost::system::error_code const& error, size_t transferredBytes) mutable
             {
                 if (self->ReadHandlerInternal(error, transferredBytes))
