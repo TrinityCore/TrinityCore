@@ -59,6 +59,8 @@ template<class WrappedStream = IoContextTcpSocket>
 class SslStream
 {
 public:
+    using executor_type = typename WrappedStream::executor_type;
+
     explicit SslStream(IoContextTcpSocket&& socket, boost::asio::ssl::context& sslContext) : _sslSocket(std::move(socket), sslContext)
     {
         _sslSocket.set_verify_mode(boost::asio::ssl::verify_none);
@@ -70,6 +72,16 @@ public:
     }
 
     // adapting tcp::socket api
+    boost::asio::io_context::executor_type get_executor()
+    {
+        return _sslSocket.get_executor();
+    }
+
+    bool is_open() const
+    {
+        return _sslSocket.next_layer().is_open();
+    }
+
     void close(boost::system::error_code& error)
     {
         _sslSocket.next_layer().close(error);
@@ -82,15 +94,15 @@ public:
     }
 
     template<typename MutableBufferSequence, typename ReadHandlerType>
-    void async_read_some(MutableBufferSequence const& buffers, ReadHandlerType&& handler)
+    decltype(auto) async_read_some(MutableBufferSequence const& buffers, ReadHandlerType&& handler)
     {
-        _sslSocket.async_read_some(buffers, std::forward<ReadHandlerType>(handler));
+        return _sslSocket.async_read_some(buffers, std::forward<ReadHandlerType>(handler));
     }
 
     template<typename ConstBufferSequence, typename WriteHandlerType>
-    void async_write_some(ConstBufferSequence const& buffers, WriteHandlerType&& handler)
+    decltype(auto) async_write_some(ConstBufferSequence const& buffers, WriteHandlerType&& handler)
     {
-        _sslSocket.async_write_some(buffers, std::forward<WriteHandlerType>(handler));
+        return _sslSocket.async_write_some(buffers, std::forward<WriteHandlerType>(handler));
     }
 
     template<typename ConstBufferSequence>
@@ -100,9 +112,9 @@ public:
     }
 
     template<typename WaitHandlerType>
-    void async_wait(boost::asio::socket_base::wait_type type, WaitHandlerType&& handler)
+    decltype(auto) async_wait(boost::asio::socket_base::wait_type type, WaitHandlerType&& handler)
     {
-        _sslSocket.next_layer().async_wait(type, std::forward<WaitHandlerType>(handler));
+        return _sslSocket.next_layer().async_wait(type, std::forward<WaitHandlerType>(handler));
     }
 
     template<typename SettableSocketOption>
@@ -118,9 +130,15 @@ public:
 
     // ssl api
     template<typename HandshakeHandlerType>
-    void async_handshake(boost::asio::ssl::stream_base::handshake_type type, HandshakeHandlerType&& handler)
+    decltype(auto) async_handshake(boost::asio::ssl::stream_base::handshake_type type, HandshakeHandlerType&& handler)
     {
-        _sslSocket.async_handshake(type, std::forward<HandshakeHandlerType>(handler));
+        return _sslSocket.async_handshake(type, std::forward<HandshakeHandlerType>(handler));
+    }
+
+    void set_server_name(std::string const& serverName, boost::system::error_code& error)
+    {
+        if (!SSL_set_tlsext_host_name(_sslSocket.native_handle(), serverName.c_str()))
+            error.assign(static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category());
     }
 
 protected:
