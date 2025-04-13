@@ -291,12 +291,8 @@ struct areatrigger_hun_high_explosive_trap : AreaTriggerAI
     void OnInitialize() override
     {
         if (Unit* caster = at->GetCaster())
-        {
-            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP);
-
-            if (areaTriggers.size() >= 1)
-                areaTriggers.front()->SetDuration(0);
-        }
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP))
+                other->SetDuration(0);
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -304,10 +300,11 @@ struct areatrigger_hun_high_explosive_trap : AreaTriggerAI
         if (Unit* caster = at->GetCaster())
         {
             if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                at->Remove();
+            }
         }
-
-        at->Remove();
     }
 };
 
