@@ -181,12 +181,13 @@ class spell_hun_cobra_sting : public AuraScript
     }
 };
 
-// Called by 193455 - Cobra Shot and 56641 - Steady Shot
+// 5116 - Concussive Shot (attached to 193455 - Cobra Shot and 56641 - Steady Shot)
 class spell_hun_concussive_shot : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_HUNTER_CONCUSSIVE_SHOT, SPELL_HUNTER_STEADY_SHOT });
+        return ValidateSpellInfo ({ SPELL_HUNTER_CONCUSSIVE_SHOT,  })
+            && ValidateSpellEffect({ { SPELL_HUNTER_STEADY_SHOT, EFFECT_2 } });
     }
 
     void HandleDuration(SpellEffIndex /*effIndex*/) const
@@ -195,16 +196,17 @@ class spell_hun_concussive_shot : public SpellScript
 
         if (Aura* concussiveShot = GetHitUnit()->GetAura(SPELL_HUNTER_CONCUSSIVE_SHOT, caster->GetGUID()))
         {
-            Milliseconds extraDuration = 0ms;
             SpellInfo const* steadyShot = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_STEADY_SHOT, GetCastDifficulty());
-            extraDuration = Seconds(steadyShot->GetEffect(EFFECT_2).CalcValue(caster) / 10);
-            concussiveShot->SetDuration(concussiveShot->GetDuration() + extraDuration.count());
+            Milliseconds extraDuration = Seconds(steadyShot->GetEffect(EFFECT_2).CalcValue(caster) / 10);
+            Milliseconds newDuration = Milliseconds(concussiveShot->GetDuration()) + extraDuration;
+            concussiveShot->SetDuration(newDuration.count());
+            concussiveShot->SetMaxDuration(newDuration.count());
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_hun_concussive_shot::HandleDuration, EFFECT_ALL, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_hun_concussive_shot::HandleDuration, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
