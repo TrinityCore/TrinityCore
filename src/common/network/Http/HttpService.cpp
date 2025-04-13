@@ -21,6 +21,7 @@
 #include "Timezone.h"
 #include <boost/beast/version.hpp>
 #include <boost/uuid/string_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <fmt/chrono.h>
 
 namespace Trinity::Net::Http
