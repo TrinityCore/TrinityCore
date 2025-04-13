@@ -15,31 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_HTTP_SOCKET_H
-#define TRINITYCORE_HTTP_SOCKET_H
-
-#include "BaseHttpSocket.h"
+#include "HttpSslSocket.h"
+#include <array>
 
 namespace Trinity::Net::Http
 {
-class TC_NETWORK_API Socket : public BaseSocket<Impl::BoostBeastSocketWrapper>
+SslSocket::SslSocket(IoContextTcpSocket&& socket, boost::asio::ssl::context& sslContext) : SocketBase(std::move(socket), sslContext)
 {
-    using SocketBase = BaseSocket<Impl::BoostBeastSocketWrapper>;
-
-public:
-    explicit Socket(IoContextTcpSocket&& socket);
-
-    explicit Socket(boost::asio::io_context& context);
-
-    Socket(Socket const& other) = delete;
-    Socket(Socket&& other) = delete;
-    Socket& operator=(Socket const& other) = delete;
-    Socket& operator=(Socket&& other) = delete;
-
-    ~Socket();
-
-    void Start() override;
-};
 }
 
-#endif // TRINITYCORE_HTTP_SOCKET_H
+SslSocket::SslSocket(boost::asio::io_context& context, boost::asio::ssl::context& sslContext) : SocketBase(context, sslContext)
+{
+}
+
+SslSocket::~SslSocket() = default;
+
+void SslSocket::Start()
+{
+    std::array<std::shared_ptr<SocketConnectionInitializer>, 3> initializers =
+    { {
+        std::make_shared<SslHandshakeConnectionInitializer<SocketBase>>(this),
+        std::make_shared<HttpConnectionInitializer<SocketBase>>(this),
+        std::make_shared<ReadConnectionInitializer<SocketBase>>(this),
+    } };
+
+    SocketConnectionInitializer::SetupChain(initializers)->Start();
+}
+}

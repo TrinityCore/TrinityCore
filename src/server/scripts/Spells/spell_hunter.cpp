@@ -40,6 +40,9 @@ enum HunterSpells
     SPELL_HUNTER_AIMED_SHOT                         = 19434,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
+    SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
+    SPELL_HUNTER_EMERGENCY_SALVE_TALENT             = 459517,
+    SPELL_HUNTER_EMERGENCY_SALVE_DISPEL             = 459521,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
@@ -63,6 +66,7 @@ enum HunterSpells
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
     SPELL_HUNTER_RAPID_FIRE_DAMAGE                  = 257045,
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
+    SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
@@ -179,6 +183,62 @@ class spell_hun_cobra_sting : public AuraScript
     void Register() override
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_cobra_sting::RollProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 5116 - Concussive Shot (attached to 193455 - Cobra Shot and 56641 - Steady Shot)
+class spell_hun_concussive_shot : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_HUNTER_CONCUSSIVE_SHOT,  })
+            && ValidateSpellEffect({ { SPELL_HUNTER_STEADY_SHOT, EFFECT_2 } });
+    }
+
+    void HandleDuration(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        if (Aura* concussiveShot = GetHitUnit()->GetAura(SPELL_HUNTER_CONCUSSIVE_SHOT, caster->GetGUID()))
+        {
+            SpellInfo const* steadyShot = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_STEADY_SHOT, GetCastDifficulty());
+            Milliseconds extraDuration = Seconds(steadyShot->GetEffect(EFFECT_2).CalcValue(caster) / 10);
+            Milliseconds newDuration = Milliseconds(concussiveShot->GetDuration()) + extraDuration;
+            concussiveShot->SetDuration(newDuration.count());
+            concussiveShot->SetMaxDuration(newDuration.count());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_concussive_shot::HandleDuration, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 459517 - Concussive Shot (attached to 186265 - Aspect of the Turtle and 5384 - Feign Death)
+class spell_hun_emergency_salve : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_EMERGENCY_SALVE_TALENT, SPELL_HUNTER_EMERGENCY_SALVE_DISPEL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_EMERGENCY_SALVE_TALENT);
+    }
+
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_EMERGENCY_SALVE_DISPEL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_hun_emergency_salve::HandleAfterCast);
     }
 };
 
@@ -851,6 +911,8 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_aspect_cheetah);
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
     RegisterSpellScript(spell_hun_cobra_sting);
+    RegisterSpellScript(spell_hun_concussive_shot);
+    RegisterSpellScript(spell_hun_emergency_salve);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
