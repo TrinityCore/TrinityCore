@@ -454,14 +454,14 @@ class spell_hun_manhunter : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_GREVIOUS_INJURY });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetProcTarget()->IsPlayer();
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_GREVIOUS_INJURY, CastSpellExtraArgsInit{
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_GREVIOUS_INJURY, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff
         });
