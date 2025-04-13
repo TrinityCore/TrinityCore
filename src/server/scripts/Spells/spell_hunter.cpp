@@ -212,7 +212,7 @@ class spell_hun_concussive_shot : public SpellScript
     }
 };
 
-// Called by 186265 - Aspect of the Turtle and 5384 - Feign Death
+// 459517 - Concussive Shot (attached to 186265 - Aspect of the Turtle and 5384 - Feign Death)
 class spell_hun_emergency_salve : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -225,7 +225,7 @@ class spell_hun_emergency_salve : public SpellScript
         return GetCaster()->HasAura(SPELL_HUNTER_EMERGENCY_SALVE_TALENT);
     }
 
-    void HandleAfterCast()
+    void HandleAfterCast() const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_EMERGENCY_SALVE_DISPEL, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
