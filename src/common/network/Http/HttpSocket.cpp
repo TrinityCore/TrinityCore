@@ -15,31 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_HTTP_SOCKET_H
-#define TRINITYCORE_HTTP_SOCKET_H
-
-#include "BaseHttpSocket.h"
+#include "HttpSocket.h"
+#include <array>
 
 namespace Trinity::Net::Http
 {
-class TC_NETWORK_API Socket : public BaseSocket<Impl::BoostBeastSocketWrapper>
+Socket::Socket(IoContextTcpSocket&& socket): SocketBase(std::move(socket))
 {
-    using SocketBase = BaseSocket<Impl::BoostBeastSocketWrapper>;
-
-public:
-    explicit Socket(IoContextTcpSocket&& socket);
-
-    explicit Socket(boost::asio::io_context& context);
-
-    Socket(Socket const& other) = delete;
-    Socket(Socket&& other) = delete;
-    Socket& operator=(Socket const& other) = delete;
-    Socket& operator=(Socket&& other) = delete;
-
-    ~Socket();
-
-    void Start() override;
-};
 }
 
-#endif // TRINITYCORE_HTTP_SOCKET_H
+Socket::Socket(boost::asio::io_context& context): SocketBase(context)
+{
+}
+
+Socket::~Socket() = default;
+
+void Socket::Start()
+{
+    std::array<std::shared_ptr<SocketConnectionInitializer>, 2> initializers =
+    { {
+        std::make_shared<HttpConnectionInitializer<SocketBase>>(this),
+        std::make_shared<ReadConnectionInitializer<SocketBase>>(this),
+    } };
+
+    SocketConnectionInitializer::SetupChain(initializers)->Start();
+}
+}
