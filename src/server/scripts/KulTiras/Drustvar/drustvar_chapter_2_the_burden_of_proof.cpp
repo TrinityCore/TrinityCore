@@ -18,6 +18,7 @@
 #include "Conversation.h"
 #include "ConversationAI.h"
 #include "CreatureAIImpl.h"
+#include "MotionMaster.h"
 #include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
