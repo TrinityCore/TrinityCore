@@ -17,15 +17,10 @@
 
 #include "Conversation.h"
 #include "ConversationAI.h"
-#include "CreatureAI.h"
 #include "CreatureAIImpl.h"
-#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
-#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
-#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum StandingAccusedData
@@ -42,69 +37,67 @@ enum StandingAccusedData
     PATH_WAYCREST_GUARD_FOUR_INTRO      = 12539101
 };
 
-constexpr Position BellaIntroSpawnPos = { -390.261f, 1360.479f, 21.509799f, 5.260458f };
-constexpr Position MarshalIntroSpawnPos = { -392.267f, 1356.739f, 22.34238f, 5.33823f };
-constexpr Position GuardOneIntroSpawnPos = { -402.040f, 1362.930f, 23.69840f, 5.30345f };
-constexpr Position GuardTwoIntroSpawnPos = { -398.108f, 1363.3499f, 22.9922f, 5.30345f };
-constexpr Position GuardThreeIntroSpawnPos = { -390.244f, 1365.810f, 22.76930f, 5.30345f };
-constexpr Position GuardFourIntroSpawnPos = { -386.5169f, 1368.359f, 22.89900f, 5.30345f };
-
 // 5665 - Conversation
 class conversation_guards_intro_standing_accused : public ConversationAI
 {
 public:
     using ConversationAI::ConversationAI;
 
+    static constexpr Position BellaIntroSpawnPos = { -390.261f, 1360.479f, 21.509799f, 5.260458f };
+    static constexpr Position MarshalIntroSpawnPos = { -392.267f, 1356.739f, 22.34238f, 5.33823f };
+    static constexpr Position GuardOneIntroSpawnPos = { -402.040f, 1362.930f, 23.69840f, 5.30345f };
+    static constexpr Position GuardTwoIntroSpawnPos = { -398.108f, 1363.3499f, 22.9922f, 5.30345f };
+    static constexpr Position GuardThreeIntroSpawnPos = { -390.244f, 1365.810f, 22.76930f, 5.30345f };
+    static constexpr Position GuardFourIntroSpawnPos = { -386.5169f, 1368.359f, 22.89900f, 5.30345f };
+
     enum ConversationStandingAccusedIntroData
     {
         CONVO_ACTOR_MARSHAL_EVERIT_READE    = 61576
     };
 
+    static TempSummon* SummonPersonalCloneFromClosestCreatureWithOptions(Unit* creator, FindCreatureOptions const& options, Position const& position)
+    {
+        if (Creature* creature = GetClosestCreatureWithOptions(creator, 50.0f, options))
+            return creature->SummonPersonalClone(position, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        return nullptr;
+    }
+
     void OnCreate(Unit* creator) override
     {
-        Creature* marshalObject = GetClosestCreatureWithOptions(creator, 50.0f, { .CreatureId = NPC_STANDING_ACCUSED_MARSHAL, .IgnorePhases = true });
-        Creature* bellaObject = GetClosestCreatureWithOptions(creator, 50.0f, { .CreatureId = NPC_STANDING_ACCUESED_BELLA, .IgnorePhases = true });
-        Creature* guardOneObject = GetClosestCreatureWithOptions(creator, 50.0f, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardOne", .IgnorePhases = true });
-        Creature* guardTwoObject = GetClosestCreatureWithOptions(creator, 50.0f, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardTwo", .IgnorePhases = true });
-        Creature* guardThreeObject = GetClosestCreatureWithOptions(creator, 50.0f, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardThree", .IgnorePhases = true });
-        Creature* guardFourObject = GetClosestCreatureWithOptions(creator, 50.0f, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardFour", .IgnorePhases = true });
-        if (!marshalObject || !bellaObject || !guardOneObject || !guardTwoObject || !guardThreeObject || !guardFourObject)
-            return;
+        if (TempSummon* marshalClone = SummonPersonalCloneFromClosestCreatureWithOptions(creator, { .CreatureId = NPC_STANDING_ACCUSED_MARSHAL, .IgnorePhases = true }, MarshalIntroSpawnPos))
+        {
+            marshalClone->GetMotionMaster()->MovePath(PATH_MARSHAL_EVERITE_READE_INTRO, false);
 
-        TempSummon* marshalClone = marshalObject->SummonPersonalClone(MarshalIntroSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* bellaClone = bellaObject->SummonPersonalClone(BellaIntroSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* guardOneClone = guardOneObject->SummonPersonalClone(GuardOneIntroSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* guardTwoClone = guardTwoObject->SummonPersonalClone(GuardTwoIntroSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* guardThreeClone = guardThreeObject->SummonPersonalClone(GuardThreeIntroSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* guardFourClone = guardFourObject->SummonPersonalClone(GuardFourIntroSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!marshalClone || !bellaClone || !guardOneClone || !guardTwoClone || !guardThreeObject || !guardFourObject)
-            return;
+            conversation->AddActor(CONVO_ACTOR_MARSHAL_EVERIT_READE, 2, marshalClone->GetGUID());
+            conversation->Start();
+        }
 
-        marshalClone->GetMotionMaster()->MovePath(PATH_MARSHAL_EVERITE_READE_INTRO, false);
-        bellaClone->GetMotionMaster()->MovePath(PATH_BELLA_INTRO, false);
-        guardOneClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_ONE_INTRO, false);
-        guardTwoClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_TWO_INTRO, false);
-        guardThreeClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_THREE_INTRO, false);
-        guardFourClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_FOUR_INTRO, false);
+        if (TempSummon* bellaClone = SummonPersonalCloneFromClosestCreatureWithOptions(creator, { .CreatureId = NPC_STANDING_ACCUESED_BELLA, .IgnorePhases = true }, BellaIntroSpawnPos))
+            bellaClone->GetMotionMaster()->MovePath(PATH_BELLA_INTRO, false);
+
+        if (TempSummon* guardClone = SummonPersonalCloneFromClosestCreatureWithOptions(creator, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardOne", .IgnorePhases = true }, GuardOneIntroSpawnPos))
+            guardClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_ONE_INTRO, false);
+
+        if (TempSummon* guardClone = SummonPersonalCloneFromClosestCreatureWithOptions(creator, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardTwo", .IgnorePhases = true }, GuardTwoIntroSpawnPos))
+            guardClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_TWO_INTRO, false);
+
+        if (TempSummon* guardClone = SummonPersonalCloneFromClosestCreatureWithOptions(creator, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardThree", .IgnorePhases = true }, GuardThreeIntroSpawnPos))
+            guardClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_THREE_INTRO, false);
+
+        if (TempSummon* guardClone = SummonPersonalCloneFromClosestCreatureWithOptions(creator, { .CreatureId = NPC_STANDING_ACCUSED_GUARD, .StringId = "GuardFour", .IgnorePhases = true }, GuardFourIntroSpawnPos))
+            guardClone->GetMotionMaster()->MovePath(PATH_WAYCREST_GUARD_FOUR_INTRO, false);
 
         PhasingHandler::OnConditionChange(creator);
-
-        conversation->AddActor(CONVO_ACTOR_MARSHAL_EVERIT_READE, 2, marshalClone->GetGUID());
-        conversation->Start();
     }
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
         conversation->m_Events.AddEvent([conversation = conversation]()
         {
-            Creature* marshalClone = conversation->GetActorCreature(2);
-            if (!marshalClone)
-                return;
+            if (Creature* marshalClone = conversation->GetActorCreature(2))
+                marshalClone->DespawnOrUnsummon();
 
-            marshalClone->DespawnOrUnsummon();
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+        }, conversation->GetLastLineEndTime(conversation->GetPrivateObjectOwnerLocale()));
     }
 };
 
