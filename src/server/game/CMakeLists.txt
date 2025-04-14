@@ -20,8 +20,6 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_GAME)
-
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC_INCLUDES
@@ -47,6 +45,10 @@ add_library(game
 target_include_directories(game
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
+
+set_target_properties(game
+  PROPERTIES
+    DEFINE_SYMBOL TRINITY_API_EXPORT_GAME)
 
 target_link_libraries(game
   PRIVATE
