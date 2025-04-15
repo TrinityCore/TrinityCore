@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Timer.h"
+#include "Util.h"
 #include <list>
 #include <vector>
 
