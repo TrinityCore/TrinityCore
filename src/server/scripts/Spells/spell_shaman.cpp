@@ -125,6 +125,7 @@ enum ShamanSpells
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
+    SPELL_SHAMAN_PRIMORDIAL_WAVE_DAMAGE         = 375984,
     SPELL_SHAMAN_RESTORATIVE_MISTS              = 114083,
     SPELL_SHAMAN_RESTORATIVE_MISTS_INITIAL      = 294020,
     SPELL_SHAMAN_RIPTIDE                        = 61295,
@@ -1059,8 +1060,7 @@ class spell_sha_elemental_weapons : public AuraScript
 
 struct FireNovaTargetCheck
 {
-    static constexpr float MaxSearchRange = 40.0f;
-
+    float MaxSearchRange = 40.0f;
     Unit const* Shaman;
 
     bool operator()(Unit const* candidate) const
@@ -1083,7 +1083,7 @@ class spell_sha_fire_nova : public SpellScript
         std::vector<Unit*> targets;
         FireNovaTargetCheck check{ .Shaman = shaman };
         Trinity::UnitListSearcher searcher(shaman, targets, check);
-        Cell::VisitAllObjects(shaman, searcher, FireNovaTargetCheck::MaxSearchRange);
+        Cell::VisitAllObjects(shaman, searcher, check.MaxSearchRange);
 
         CastSpellExtraArgs args;
         args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -1113,7 +1113,7 @@ class spell_sha_flame_shock_fire_nova_enabler : public AuraScript
         Unit* target = nullptr;
         FireNovaTargetCheck check{ .Shaman = shaman };
         Trinity::UnitSearcher searcher(shaman, target, check);
-        Cell::VisitAllObjects(shaman, searcher, FireNovaTargetCheck::MaxSearchRange);
+        Cell::VisitAllObjects(shaman, searcher, check.MaxSearchRange);
         if (target)
             shaman->CastSpell(shaman, SPELL_SHAMAN_FIRE_NOVA_ENABLER, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -2237,6 +2237,57 @@ class spell_sha_path_of_flames_spread : public SpellScript
     }
 };
 
+// 375982 - Primordial Wave
+class spell_sha_primordial_wave : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_FLAME_SHOCK, SPELL_SHAMAN_PRIMORDIAL_WAVE_DAMAGE });
+    }
+
+    void TriggerDamage(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* shaman = GetCaster();
+        std::vector<Unit*> targets;
+        FireNovaTargetCheck check{ .MaxSearchRange = GetSpell()->GetMinMaxRange(false).second, .Shaman = shaman };
+        Trinity::UnitListSearcher searcher(shaman, targets, check);
+        Cell::VisitAllObjects(shaman, searcher, check.MaxSearchRange);
+
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
+
+        for (Unit* target : targets)
+            shaman->CastSpell(target, SPELL_SHAMAN_PRIMORDIAL_WAVE_DAMAGE, args);
+    }
+
+    void PreventLavaSurge(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void EnergizeMaelstrom(SpellEffIndex /*effIndex*/) const
+    {
+        spell_sha_maelstrom_weapon_base::GenerateMaelstromWeapon(GetCaster(), GetEffectValue());
+    }
+
+    void Register() override
+    {
+        ChrSpecialization specialization = ChrSpecialization::None;
+        if (Spell const* spell = GetSpell()) // spell doesn't exist at startup validation
+            if (Player const* caster = Object::ToPlayer(spell->GetCaster()))
+                specialization = caster->GetPrimarySpecialization();
+
+        OnEffectHitTarget += SpellEffectFn(spell_sha_primordial_wave::TriggerDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+
+        if (specialization != ChrSpecialization::ShamanElemental)
+            OnEffectLaunch += SpellEffectFn(spell_sha_primordial_wave::PreventLavaSurge, EFFECT_5, SPELL_EFFECT_TRIGGER_SPELL);
+
+        if (specialization == ChrSpecialization::None || specialization == ChrSpecialization::ShamanEnhancement)
+            OnEffectHitTarget += SpellEffectFn(spell_sha_primordial_wave::EnergizeMaelstrom, EFFECT_4, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 114083 - Restorative Mists
 // 294020 - Restorative Mists
 class spell_sha_restorative_mists : public SpellScript
@@ -3283,6 +3334,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_molten_thunder_sundering);
     RegisterSpellScript(spell_sha_natures_guardian);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
+    RegisterSpellScript(spell_sha_primordial_wave);
     RegisterSpellScript(spell_sha_restorative_mists);
     RegisterSpellScript(spell_sha_spirit_wolf);
     RegisterSpellScript(spell_sha_stormblast);
