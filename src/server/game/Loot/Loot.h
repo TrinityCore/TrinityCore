@@ -178,6 +178,8 @@ struct TC_GAME_API LootItem
     uint32  itemid = 0;
     uint32  LootListId = 0;
     ItemRandomBonusListId randomBonusListId = 0;
+    ItemRandomPropertiesId randomPropertiesId = 0;
+    int32 randomPropertiesSeed = 0;
     std::vector<int32> BonusListIDs;
     ItemContext context = ItemContext::NONE;
     ConditionsReference conditions;                         // additional loot condition

@@ -2265,6 +2265,43 @@ struct ItemPriceBaseLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &ItemPriceBaseMeta::Instance, HOTFIX_SEL_ITEM_PRICE_BASE };
 };
 
+struct ItemRandomPropertiesLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { true, FT_INT, "Enchantment1" },
+        { true, FT_INT, "Enchantment2" },
+        { true, FT_INT, "Enchantment3" },
+        { true, FT_INT, "Enchantment4" },
+        { true, FT_INT, "Enchantment5" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ItemRandomPropertiesMeta::Instance, HOTFIX_SEL_ITEM_RANDOM_PROPERTIES };
+};
+
+struct ItemRandomSuffixLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[12] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { true, FT_INT, "Enchantment1" },
+        { true, FT_INT, "Enchantment2" },
+        { true, FT_INT, "Enchantment3" },
+        { true, FT_INT, "Enchantment4" },
+        { true, FT_INT, "Enchantment5" },
+        { true, FT_INT, "AllocationPct1" },
+        { true, FT_INT, "AllocationPct2" },
+        { true, FT_INT, "AllocationPct3" },
+        { true, FT_INT, "AllocationPct4" },
+        { true, FT_INT, "AllocationPct5" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &ItemRandomSuffixMeta::Instance, HOTFIX_SEL_ITEM_RANDOM_SUFFIX };
+};
+
 struct ItemReforgeLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
@@ -3720,16 +3757,6 @@ struct ScalingStatDistributionLoadInfo
         { false, FT_SHORT, "PlayerLevelToItemLevelCurveID" },
         { true, FT_INT, "Minlevel" },
         { true, FT_INT, "Maxlevel" },
-        { true, FT_INT, "StatID1" },
-        { true, FT_INT, "StatID2" },
-        { true, FT_INT, "StatID3" },
-        { true, FT_INT, "StatID4" },
-        { true, FT_INT, "StatID5" },
-        { true, FT_INT, "StatID6" },
-        { true, FT_INT, "StatID7" },
-        { true, FT_INT, "StatID8" },
-        { true, FT_INT, "StatID9" },
-        { true, FT_INT, "StatID10" },
         { true, FT_INT, "Bonus1" },
         { true, FT_INT, "Bonus2" },
         { true, FT_INT, "Bonus3" },
@@ -3740,6 +3767,16 @@ struct ScalingStatDistributionLoadInfo
         { true, FT_INT, "Bonus8" },
         { true, FT_INT, "Bonus9" },
         { true, FT_INT, "Bonus10" },
+        { true, FT_INT, "StatID1" },
+        { true, FT_INT, "StatID2" },
+        { true, FT_INT, "StatID3" },
+        { true, FT_INT, "StatID4" },
+        { true, FT_INT, "StatID5" },
+        { true, FT_INT, "StatID6" },
+        { true, FT_INT, "StatID7" },
+        { true, FT_INT, "StatID8" },
+        { true, FT_INT, "StatID9" },
+        { true, FT_INT, "StatID10" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 24, &ScalingStatDistributionMeta::Instance, HOTFIX_SEL_SCALING_STAT_DISTRIBUTION };

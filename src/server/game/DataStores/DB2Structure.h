@@ -1912,6 +1912,23 @@ struct ItemPriceBaseEntry
     float Weapon;
 };
 
+// structure for ItemRandomProperties.db2
+struct ItemRandomPropertiesEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    std::array<int32, 5> Enchantment;
+};
+
+// structure for ItemRandomSuffix.db2
+struct ItemRandomSuffixEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    std::array<int32, 5> Enchantment;
+    std::array<int32, 5> AllocationPct;
+};
+
 // structure for ItemReforge.db2
 struct ItemReforgeEntry
 {

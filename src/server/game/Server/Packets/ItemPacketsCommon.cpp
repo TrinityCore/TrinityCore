@@ -57,6 +57,9 @@ void ItemInstance::Initialize(::Item const* item)
         ItemBonus->Context = item->GetContext();
     }
 
+    RandomPropertiesID = item->m_itemData->RandomPropertiesID;
+    RandomPropertiesSeed = item->m_itemData->PropertySeed;
+
     for (UF::ItemMod mod : item->m_itemData->Modifiers->Values)
         Modifications.Values.emplace_back(mod.Value, ItemModifier(mod.Type));
 }
@@ -87,6 +90,9 @@ void ItemInstance::Initialize(::LootItem const& lootItem)
         if (lootItem.randomBonusListId)
             ItemBonus->BonusListIDs.push_back(lootItem.randomBonusListId);
     }
+
+    RandomPropertiesID = lootItem.randomPropertiesId;
+    RandomPropertiesSeed = lootItem.randomPropertiesSeed;
 }
 
 void ItemInstance::Initialize(::VoidStorageItem const* voidItem)

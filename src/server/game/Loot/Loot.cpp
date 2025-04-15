@@ -47,6 +47,11 @@ LootItem::LootItem(LootStoreItem const& li) : itemid(li.itemid), conditions(li.c
         case LootStoreItem::Type::Item:
         {
             randomBonusListId = GenerateItemRandomBonusListId(itemid);
+            randomPropertiesId = GenerateItemRandomPropertiesId(itemid);
+            if (randomPropertiesId < 0)
+                if (int32 propertySeed = static_cast<int32>(GenerateEnchSuffixFactor(itemid)))
+                    randomPropertiesSeed = propertySeed;
+
             type = LootItemType::Item;
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
             freeforall = proto && proto->HasFlag(ITEM_FLAG_MULTI_DROP);
@@ -975,7 +980,7 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
                     continue;
                 }
 
-                if (Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs))
+                if (Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, lootItem->randomPropertiesId, GuidSet(), lootItem->context, &lootItem->BonusListIDs))
                 {
                     player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast, GetDungeonEncounterId());
                     player->ApplyItemLootedSpell(pItem, true);

@@ -1931,6 +1931,9 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Random item bonus list definitions...");
     LoadItemRandomBonusListTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading Random item enchantment definitions...");
+    LoadItemRandomEnchantmentsTemplates();
+
     TC_LOG_INFO("server.loading", "Loading Disables");                         // must be before loading quests and items
     DisableMgr::LoadDisables();
 
