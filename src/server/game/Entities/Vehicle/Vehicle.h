@@ -71,6 +71,7 @@ class TC_GAME_API Vehicle final : public TransportBase
         void RemovePendingEventsForPassenger(Unit* passenger);
 
         Milliseconds GetDespawnDelay();
+        float GetPitch();
 
         std::string GetDebugInfo() const;
 
