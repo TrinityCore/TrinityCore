@@ -1911,7 +1911,8 @@ enum SpellCastResult : int32
     SPELL_FAILED_CANT_FLY_HERE                                  = 318,
     SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT                = 319,
     SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN        = 320,
-    SPELL_FAILED_UNKNOWN                                        = 321,
+    SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT               = 321,
+    SPELL_FAILED_UNKNOWN                                        = 322,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
