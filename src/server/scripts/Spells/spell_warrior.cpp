@@ -75,6 +75,9 @@ enum WarriorSpells
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
+    SPELL_WARRIOR_THUNDER_CLAP_SLOW         = 435203,
+    SPELL_WARRIOR_THUNDER_CLAP_REND         = 388539,
+    SPELL_WARRIOR_REND                      = 772,
 };
 
 enum WarriorMisc
@@ -833,6 +836,49 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
+// Warrior: Thunder Clap (SpellID: 6343)
+class spell_warr_thunder_clap : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_WARRIOR_THUNDER_CLAP_SLOW,
+            SPELL_WARRIOR_THUNDER_CLAP_REND,
+            SPELL_WARRIOR_REND
+        });
+    }
+
+    void HandleSlow(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        // Apply movement speed reduction
+        if (Unit* target = GetHitUnit())
+        {
+            caster->CastSpell(target, SPELL_WARRIOR_THUNDER_CLAP_SLOW, true);
+        }
+    }
+
+    void HandleRend()
+    {
+        if (GetCaster()->HasSpell(SPELL_WARRIOR_REND))
+        {
+            // Apply Rend (388539) to the target
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_THUNDER_CLAP_REND, true);
+        }
+        
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap::HandleSlow, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnHit += SpellHitFn(spell_warr_thunder_clap::HandleRend, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_bloodthirst);
@@ -863,4 +909,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_thunder_clap);
 }
