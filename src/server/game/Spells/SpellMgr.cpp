@@ -3987,12 +3987,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // Gathering Storms
-    ApplySpellFix({ 198300 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->ProcCharges = 1; // override proc charges, has 0 (unlimited) in db2
-    });
-
     ApplySpellFix({
         15538, // Gout of Flame
         42490, // Energized!
@@ -4027,8 +4021,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // Gift of the Naaru (priest and monk variants)
-    ApplySpellFix({ 59544, 121093 }, [](SpellInfo* spellInfo)
+    // Gift of the Naaru (priest)
+    ApplySpellFix({ 59544 }, [](SpellInfo* spellInfo)
     {
         spellInfo->SpellFamilyFlags[2] = 0x80000000;
     });
@@ -4122,12 +4116,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // Dark Conclave Ritualist Channel
     ApplySpellFix({ 38469 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
-    });
-
-    // Chrono Shift (enemy slow part)
-    ApplySpellFix({ 236299 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
@@ -4755,154 +4743,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF FIRELANDS
 
-    //
-    // MARDUM SPELLS
-    //
-
-    // 187382 - The Invasion Begins: Summon Wrath Warrior
-    ApplySpellFix({ 187382 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000 yards
-
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-    });
-
-    // 195061 - Beaming Gaze
-    ApplySpellFix({ 195061 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-    });
-
-    // ENDOF MARDUM SPELLS
-
-    //
-    // ANTORUS THE BURNING THRONE SPELLS
-    //
-
-    // Decimation
-    ApplySpellFix({ 244449 }, [](SpellInfo* spellInfo)
-    {
-        // For some reason there is a instakill effect that serves absolutely no purpose.
-        // Until we figure out what it's actually used for we disable it.
-        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
-        });
-    });
-
-    // ENDOF ANTORUS THE BURNING THRONE SPELLS
-
-    //
-    // SEPULCHER OF THE FIRST ONES
-    //
-
-    // Wicked Star (Marker)
-    ApplySpellFix({ 365021 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
-    });
-
-    // Empowered Wicked Star (Marker)
-    ApplySpellFix({ 367632 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
-    });
-
-    // Wicked Star Areatrigger
-    ApplySpellFix({ 365017 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-    });
-
-    // Willpower Energize Large
-    ApplySpellFix({ 365228 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
-    });
-
-    // Willpower Energize Small
-    ApplySpellFix({ 365217 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
-    });
-
-    // Force of Will
-    ApplySpellFix({ 368913 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
-    });
-
-    // Fragment of Hope Areatrigger
-    ApplySpellFix({ 365816 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-    });
-
-    // Shadestep
-    ApplySpellFix({ 363976 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-    });
-    // END OF SEPULCHER OF THE FIRST ONES
-
-    //
-    // THE AZURE VAULT SPELLS
-    //
-
-    // Stinging Sap
-    ApplySpellFix({ 374523 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
-    });
-
-    // Jump to Center (DNT)
-    ApplySpellFix({ 387981 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-    });
-
-    // Jump to Platform (DNT)
-    ApplySpellFix({ 388082 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        });
-    });
-
-    // ENDOF THE AZURE VAULT SPELLS
-    //
-    // Summon Master Li Fei
-    ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
-        });
-    });
-
     // Earthquake
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
     {
@@ -4915,56 +4755,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 42401, 43105, 42428 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
-    });
-
-    // Horde / Alliance switch (BG mercenary system)
-    ApplySpellFix({ 195838, 195843 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
-        });
-        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
-        });
-        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
-        });
-    });
-
-    // Fire Cannon
-    ApplySpellFix({ 181593 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            // This spell never triggers, theory is that it was supposed to be only triggered until target reaches some health percentage
-            // but was broken and always caused visuals to break, then target was changed to immediately spawn with desired health
-            // leaving old data in db2
-            spellEffectInfo->TriggerSpell = 0;
-        });
-    });
-
-    ApplySpellFix({ 265057 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            // Fix incorrect spell id (it has self in TriggerSpell)
-            spellEffectInfo->TriggerSpell = 16403;
-        });
-    });
-
-    // Ray of Frost (Fingers of Frost charges)
-    ApplySpellFix({ 269748 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
-    });
-
-    // Burning Rush
-    ApplySpellFix({ 111400 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_AURA_IS_BUFF;
     });
 
     for (SpellInfo const& s : mSpellInfoMap)
