@@ -4438,7 +4438,7 @@ void ObjectMgr::LoadQuests()
                 if (itr != _questTemplates.end())
                     (itr->second.get()->*loader.LoaderFunction)(fields);
                 else
-                    TC_LOG_ERROR("server.loading", "Table `{}` has data for quest {} but such quest does not exist", loader.TableName, questId);
+                    TC_LOG_ERROR("sql.sql", "Table `{}` has data for quest {} but such quest does not exist", loader.TableName, questId);
             } while (result->NextRow());
         }
     }
@@ -4448,9 +4448,7 @@ void ObjectMgr::LoadQuests()
     result = WorldDatabase.Query("SELECT v.ID AS vID, o.ID AS oID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
 
     if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest visual effects. DB table `quest_visual_effect` is empty.");
-    }
+        TC_LOG_INFO("server.loading", ">> Loaded 0 quest visual effects. DB table `quest_visual_effect` is empty.");
     else
     {
         do
@@ -4461,14 +4459,14 @@ void ObjectMgr::LoadQuests()
 
             if (!vID)
             {
-                TC_LOG_ERROR("server.loading", "Table `quest_visual_effect` has visual effect for null objective id");
+                TC_LOG_ERROR("sql.sql", "Table `quest_visual_effect` has visual effect for null objective id");
                 continue;
             }
 
             // objID will be null if match for table join is not found
             if (vID != oID)
             {
-                TC_LOG_ERROR("server.loading", "Table `quest_visual_effect` has visual effect for objective {} but such objective does not exist.", vID);
+                TC_LOG_ERROR("sql.sql", "Table `quest_visual_effect` has visual effect for objective {} but such objective does not exist.", vID);
                 continue;
             }
 
