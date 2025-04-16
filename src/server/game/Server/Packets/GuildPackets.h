@@ -154,8 +154,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::string Name;
-            int32 Result = 0;
-            int32 Command = 0;
+            uint8 Result = 0;
+            uint8 Command = 0;
         };
 
         class AcceptGuildInvite final : public ClientPacket

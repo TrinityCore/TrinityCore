@@ -24,8 +24,8 @@
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
 #include "CreatureGroups.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
@@ -36,6 +36,7 @@
 #include "Loot.h"
 #include "LootMgr.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -315,7 +316,7 @@ Creature::Creature(bool isWorldObject) : Unit(isWorldObject), MapObject(), m_Pla
     m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(),
     m_creatureInfo(nullptr), m_creatureData(nullptr), m_creatureDifficulty(nullptr), m_stringIds(), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
-    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
+    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _aggroGracePeriodExpired(false), _lastDamagedTime(0),
     _regenerateHealth(true), _creatureImmunitiesId(0), _gossipMenuId(0), _sparringHealthPct(0)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
@@ -339,7 +340,7 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
-        GetMap()->GetObjectsStore().Insert<Creature>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<Creature>(this);
         if (m_spawnId)
             GetMap()->GetCreatureBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
 
@@ -368,7 +369,7 @@ void Creature::RemoveFromWorld()
 
         if (m_spawnId)
             Trinity::Containers::MultimapErasePair(GetMap()->GetCreatureBySpawnIdStore(), m_spawnId, this);
-        GetMap()->GetObjectsStore().Remove<Creature>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<Creature>(this);
     }
 }
 
@@ -628,7 +629,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId : 0);
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
@@ -929,6 +930,16 @@ void Creature::Heartbeat()
 
     // Creatures with CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT periodically force party members into combat
     ForcePartyMembersIntoCombat();
+
+    // creatures should only attack surroundings initially after heartbeat has passed or until attacked
+    if (!_aggroGracePeriodExpired)
+    {
+        _aggroGracePeriodExpired = true;
+
+        // trigger MoveInLineOfSight
+        Trinity::CreatureAggroGracePeriodExpiredNotifier notifier(*this);
+        Cell::VisitAllObjects(this, notifier, GetVisibilityRange());
+    }
 }
 
 void Creature::Regenerate(Powers power)
@@ -2335,6 +2346,7 @@ void Creature::Respawn(bool force)
                 ai->Reset();
 
             m_triggerJustAppeared = true;
+            _aggroGracePeriodExpired = false;
 
             uint32 poolid = GetCreatureData() ? GetCreatureData()->poolId : 0;
             if (poolid)
@@ -3116,7 +3128,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
             int32 scalingLevelMin = m_unitData->ScalingLevelMin;
             int32 scalingLevelMax = m_unitData->ScalingLevelMax;
             int32 scalingLevelDelta = m_unitData->ScalingLevelDelta;
-            int32 scalingFactionGroup = m_unitData->ScalingFactionGroup;
+            uint8 scalingFactionGroup = m_unitData->ScalingFactionGroup;
             int32 targetLevel = unitTarget->m_unitData->EffectiveLevel;
             if (!targetLevel)
                 targetLevel = unitTarget->GetLevel();
@@ -3186,6 +3198,23 @@ void Creature::SetScriptStringId(std::string id)
         m_scriptStringId.reset();
         m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
+}
+
+SpawnTrackingStateData const* Creature::GetSpawnTrackingStateDataForPlayer(Player const* player) const
+{
+    if (!player)
+        return nullptr;
+
+    if (CreatureData const* data = GetCreatureData())
+    {
+        if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        {
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId);
+            return &data->spawnTrackingStates[AsUnderlyingType(state)];
+        }
+    }
+
+    return nullptr;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
@@ -3318,6 +3347,16 @@ std::string Creature::GetNameForLocaleIdx(LocaleConstant locale) const
                 return cl->Name[locale];
 
     return GetName();
+}
+
+bool Creature::HasLabel(int32 cretureLabel) const
+{
+    return advstd::ranges::contains(GetLabels(), cretureLabel);
+}
+
+std::span<int32 const> Creature::GetLabels() const
+{
+    return sDB2Manager.GetCreatureLabels(GetCreatureDifficulty()->CreatureDifficultyID);
 }
 
 uint8 Creature::GetPetAutoSpellSize() const
@@ -3662,6 +3701,8 @@ void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
 
+    _aggroGracePeriodExpired = true;
+
     GetThreatManager().ResetUpdateTimer();
 
     if (!HasFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT))
@@ -3831,7 +3872,12 @@ void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Pl
     m_unitData->WriteCreate(*data, flags, this, target);
 
     if (m_vendorData)
+    {
+        if constexpr (WowCS::IsIndirectFragment(WowCS::EntityFragment::FVendor_C))
+            *data << uint8(1);  // IndirectFragmentActive: FVendor_C
+
         m_vendorData->WriteCreate(*data, flags, this, target);
+    }
 }
 
 void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
@@ -3906,8 +3952,6 @@ void Creature::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* pla
 
 void Creature::ClearUpdateMask(bool remove)
 {
-    if (m_vendorData)
-        m_values.ClearChangesMask(&Creature::m_vendorData);
-
+    m_values.ClearChangesMask(&Creature::m_vendorData);
     Unit::ClearUpdateMask(remove);
 }

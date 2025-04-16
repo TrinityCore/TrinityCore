@@ -29,14 +29,16 @@
 #include "PassiveAI.h"
 #include "ObjectAccessor.h"
 
-namespace Durotar
+namespace Scripts::Kalimdor::Durotar
 {
-    namespace Spells
-    {
-        static constexpr uint32 PhasePlayer               = 130750;
-        static constexpr uint32 TeleportTimer             = 132034;
-        static constexpr uint32 TeleportPlayerToCrashSite = 102930;
-    }
+namespace Spells
+{
+    // All Aboard!
+    static constexpr uint32 PhasePlayer               = 130750;
+
+    // Into the Mists
+    static constexpr uint32 TeleportTimer             = 132034;
+    static constexpr uint32 TeleportPlayerToCrashSite = 102930;
 }
 
 /*######
@@ -1231,7 +1233,7 @@ public:
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        player->CastSpell(player, Durotar::Spells::PhasePlayer, CastSpellExtraArgsInit{
+        player->CastSpell(nullptr, Spells::PhasePlayer, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
         });
         return true;
@@ -1239,18 +1241,18 @@ public:
 
     bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        player->RemoveAurasDueToSpell(Durotar::Spells::PhasePlayer);
+        player->RemoveAurasDueToSpell(Spells::PhasePlayer);
         return true;
     }
 };
 
 // 130810 - Teleport Prep
-class spell_teleport_prep : public SpellScript
+class spell_teleport_prep_horde : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
-            Durotar::Spells::TeleportTimer
+            Spells::TeleportTimer
         });
     }
 
@@ -1258,7 +1260,8 @@ class spell_teleport_prep : public SpellScript
     {
         Unit* hitUnit = GetHitUnit();
 
-        hitUnit->CastSpell(hitUnit, Durotar::Spells::TeleportTimer, CastSpellExtraArgsInit{
+        hitUnit->CancelMountAura();
+        hitUnit->CastSpell(nullptr, Spells::TeleportTimer, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .OriginalCastId = GetSpell()->m_castId
         });
@@ -1266,17 +1269,17 @@ class spell_teleport_prep : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_teleport_prep::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_teleport_prep_horde::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 // 132034 - Teleport Timer
-class spell_teleport_timer : public AuraScript
+class spell_teleport_timer_horde : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
-            Durotar::Spells::TeleportPlayerToCrashSite
+            Spells::TeleportPlayerToCrashSite
         });
     }
 
@@ -1284,19 +1287,23 @@ class spell_teleport_timer : public AuraScript
     {
         Unit* target = GetTarget();
 
-        target->CastSpell(target, Durotar::Spells::TeleportPlayerToCrashSite, CastSpellExtraArgsInit{
+        target->CancelTravelShapeshiftForm();
+        target->CastSpell(nullptr, Spells::TeleportPlayerToCrashSite, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_teleport_timer::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_teleport_timer_horde::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
+}
 
 void AddSC_durotar()
 {
+    using namespace Scripts::Kalimdor::Durotar;
+
     new npc_lazy_peon();
     RegisterSpellScript(spell_voodoo);
     RegisterCreatureAI(npc_mithaka);
@@ -1340,6 +1347,6 @@ void AddSC_durotar()
     new at_hellscreams_fist_gunship();
 
     // Spells
-    RegisterSpellScript(spell_teleport_prep);
-    RegisterSpellScript(spell_teleport_timer);
+    RegisterSpellScript(spell_teleport_prep_horde);
+    RegisterSpellScript(spell_teleport_timer_horde);
 }

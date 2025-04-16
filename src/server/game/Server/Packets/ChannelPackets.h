@@ -81,6 +81,7 @@ namespace WorldPackets
             uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
             std::string _Channel;     ///< Channel Name
             ObjectGuid ChannelGUID;
+            uint8 Unknown1107 = 0;
         };
 
         class ChannelNotifyLeft final : public ServerPacket

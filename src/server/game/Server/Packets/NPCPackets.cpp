@@ -43,7 +43,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     data << int32(gossipOption.GossipOptionID);
     data << uint8(gossipOption.OptionNPC);
     data << int8(gossipOption.OptionFlags);
-    data << int32(gossipOption.OptionCost);
+    data << uint64(gossipOption.OptionCost);
     data << uint32(gossipOption.OptionLanguage);
     data << int32(gossipOption.Flags);
     data << int32(gossipOption.OrderIndex);

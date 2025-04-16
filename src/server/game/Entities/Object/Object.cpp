@@ -153,8 +153,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         objectType = TYPEID_ACTIVE_PLAYER;
     }
 
-    if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
+    if (IsWorldObject())
     {
+        WorldObject const* worldObject = static_cast<WorldObject const*>(this);
         if (!flags.MovementUpdate && !worldObject->m_movementInfo.transport.guid.IsEmpty())
             flags.MovementTransport = true;
 
@@ -247,11 +248,16 @@ void Object::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragm
     *data << WorldPackets::As<uint8>(WowCS::EntityFragment::End);
 }
 
-void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags)
+void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
 {
+    uint8 contentsChangedMask = WowCS::CGObjectChangedMask;
+    for (WowCS::EntityFragment updateableFragmentId : m_entityFragments.GetUpdateableIds())
+        if (WowCS::IsIndirectFragment(updateableFragmentId))
+            contentsChangedMask |= m_entityFragments.GetUpdateMaskFor(updateableFragmentId) >> 1;   // set the "fragment exists" bit
+
     *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
     *data << uint8(false);                                  // m_entityFragments.IdsChanged
-    *data << uint8(WowCS::CGObjectUpdateMask);
+    *data << uint8(contentsChangedMask);
 }
 
 void Object::BuildDestroyUpdateBlock(UpdateData* data) const
@@ -329,6 +335,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool HasSpline = unit->IsSplineEnabled();
         bool HasInertia = unit->m_movementInfo.inertia.has_value();
         bool HasAdvFlying = unit->m_movementInfo.advFlying.has_value();
+        bool HasDriveStatus = unit->m_movementInfo.driveStatus.has_value();
         bool HasStandingOnGameObjectGUID = unit->m_movementInfo.standingOnGameObjectGUID.has_value();
 
         *data << GetGUID();                                             // MoverGUID
@@ -360,6 +367,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(false);                                          // RemoteTimeValid
         data->WriteBit(HasInertia);                                     // HasInertia
         data->WriteBit(HasAdvFlying);                                   // HasAdvFlying
+        data->WriteBit(HasDriveStatus);                                 // HasDriveStatus
+        data->FlushBits();
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
             *data << unit->m_movementInfo.transport;
@@ -391,6 +400,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
                 *data << float(unit->m_movementInfo.jump.cosAngle);
                 *data << float(unit->m_movementInfo.jump.xyspeed);      // Speed
             }
+        }
+
+        if (HasDriveStatus)
+        {
+            data->WriteBit(unit->m_movementInfo.driveStatus->accelerating);
+            data->WriteBit(unit->m_movementInfo.driveStatus->drifting);
+            *data << float(unit->m_movementInfo.driveStatus->speed);
+            *data << float(unit->m_movementInfo.driveStatus->movementAngle);
         }
 
         *data << float(unit->GetSpeed(MOVE_WALK));
@@ -623,7 +640,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
 
         if (hasOrbit)
-            *data << *areaTrigger->GetOrbit();
+            *data << areaTrigger->GetOrbit();
     }
 
     if (flags.GameObject)
@@ -838,7 +855,6 @@ void Object::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Object::m_objectData);
     m_entityFragments.IdsChanged = false;
-    m_entityFragments.ContentsChangedMask = WowCS::CGObjectActiveMask;
 
     if (m_objectUpdated)
     {
@@ -1578,8 +1594,14 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
         if (smoothPhasing->IsBeingReplacedForSeer(GetGUID()))
             return false;
 
-    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj->GetTypeId(), obj->GetEntry(), this))
+    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj, this))
         return false;
+
+    // Spawn tracking
+    if (Player const* player = ToPlayer())
+        if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
+            if (!spawnTrackingStateData->Visible)
+                return false;
 
     bool corpseVisibility = false;
     if (distanceCheck)
@@ -2973,24 +2995,19 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId, args.CastDifficulty != DIFFICULTY_NONE ? args.CastDifficulty : GetMap()->GetDifficultyID());
     if (!info)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell {} by caster {}", spellId, GetGUID().ToString());
+        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell {} by caster {}", spellId, GetGUID());
         return SPELL_FAILED_SPELL_UNAVAILABLE;
     }
 
     if (!targets.Targets)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast {} by {}", spellId, GetGUID().ToString());
+        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast {} by {}", spellId, GetGUID());
         return SPELL_FAILED_BAD_TARGETS;
     }
 
     Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId);
-    for (auto const& [Type, Value] : args.SpellValueOverrides)
-    {
-        if (Type < SPELLVALUE_INT_END)
-            spell->SetSpellValue(SpellValueMod(Type), Value.I);
-        else
-            spell->SetSpellValue(SpellValueModFloat(Type), Value.F);
-    }
+    for (CastSpellExtraArgsInit::SpellValueOverride const& value : args.SpellValueOverrides)
+        spell->SetSpellValue(value);
 
     spell->m_CastItem = args.CastItem;
     if (args.OriginalCastItemLevel)

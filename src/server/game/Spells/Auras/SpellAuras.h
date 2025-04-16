@@ -18,6 +18,8 @@
 #ifndef TRINITY_SPELLAURAS_H
 #define TRINITY_SPELLAURAS_H
 
+#include "DBStorageIterator.h"
+#include "IteratorPair.h"
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "UniqueTrackablePtr.h"
@@ -61,7 +63,7 @@ class TC_GAME_API AuraApplication
         Unit* const _target;
         Aura* const _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
-        uint8 _slot;                                   // Aura slot on unit
+        uint16 _slot;                                  // Aura slot on unit
         uint16 _flags;                                 // Aura info flag
         uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
@@ -77,7 +79,7 @@ class TC_GAME_API AuraApplication
         Unit* GetTarget() const { return _target; }
         Aura* GetBase() const { return _base; }
 
-        uint8 GetSlot() const { return _slot; }
+        uint16 GetSlot() const { return _slot; }
         uint16 GetFlags() const { return _flags; }
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS); return (_effectMask & (1 << effect)) != 0; }
@@ -86,6 +88,7 @@ class TC_GAME_API AuraApplication
 
         uint32 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNewEffects);
+        void AddEffectToApplyEffectMask(SpellEffIndex spellEffectIndex);
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const { return _removeMode; }
@@ -220,7 +223,10 @@ class TC_GAME_API Aura
         * @return Aura key.
         */
         AuraKey GenerateKey(uint32& recalculateMask) const;
-        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount);
+        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, int32* amount);
+
+        // helpers for aura effects
+        bool CanPeriodicTickCrit() const;
 
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
@@ -307,7 +313,19 @@ class TC_GAME_API Aura
 
         std::vector<AuraScript*> m_loadedScripts;
 
-        AuraEffectVector const& GetAuraEffects() const { return _effects; }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect*>> GetAuraEffects()
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator(_effects.data(), _effects.size()),
+                DBStorageIterator(_effects.data(), _effects.size(), _effects.size()));
+        }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect const*>> GetAuraEffects() const
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size()),
+                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size(), _effects.size()));
+        }
+        std::size_t GetAuraEffectCount() const { return _effects.size(); }
 
         virtual std::string GetDebugInfo() const;
 

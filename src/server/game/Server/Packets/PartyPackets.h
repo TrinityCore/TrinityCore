@@ -127,9 +127,11 @@ namespace WorldPackets
         class GroupUninvite final : public ServerPacket
         {
         public:
-            GroupUninvite() : ServerPacket(SMSG_GROUP_UNINVITE, 0) { }
+            GroupUninvite() : ServerPacket(SMSG_GROUP_UNINVITE, 1) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            uint8 Reason = 0;
         };
 
         class RequestPartyMemberStats final : public ClientPacket
@@ -179,7 +181,7 @@ namespace WorldPackets
         struct CTROptions
         {
             uint32 ConditionalFlags = 0;
-            int32 FactionGroup = 0;
+            int8 FactionGroup = 0;
             uint32 ChromieTimeExpansionMask = 0;
         };
 

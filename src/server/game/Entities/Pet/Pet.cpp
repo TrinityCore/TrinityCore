@@ -72,7 +72,7 @@ void Pet::AddToWorld()
     if (!IsInWorld())
     {
         ///- Register the pet for guid lookup
-        GetMap()->GetObjectsStore().Insert<Pet>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<Pet>(this);
         Unit::AddToWorld();
         AIM_Initialize();
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
@@ -98,7 +98,7 @@ void Pet::RemoveFromWorld()
     {
         ///- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
-        GetMap()->GetObjectsStore().Remove<Pet>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<Pet>(this);
     }
 }
 
@@ -1189,7 +1189,11 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
             uint32 effectIndex = fields[3].GetUInt8();
             if (effectIndex < MAX_SPELL_EFFECTS)
             {
-                casterGuid.SetRawValue(fields[0].GetBinary());
+                std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+                if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                    continue;
+
+                casterGuid.SetRawValue(rawGuidBytes);
                 if (casterGuid.IsEmpty())
                     casterGuid = GetGUID();
 
@@ -1211,7 +1215,11 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
         {
             Field* fields = auraResult->Fetch();
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
-            casterGuid.SetRawValue(fields[0].GetBinary());
+            std::span<uint8 const> rawGuidBytes = fields[0].GetBinaryView();
+            if (rawGuidBytes.size() != ObjectGuid::BytesSize)
+                continue;
+
+            casterGuid.SetRawValue(rawGuidBytes);
             if (casterGuid.IsEmpty())
                 casterGuid = GetGUID();
 
@@ -1261,7 +1269,8 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
             AuraCreateInfo createInfo(castId, spellInfo, difficulty, key.EffectMask, this);
             createInfo
                 .SetCasterGUID(casterGuid)
-                .SetBaseAmount(info.BaseAmounts.data());
+                .SetBaseAmount(info.BaseAmounts.data())
+                .SetStackAmount(stackCount);
 
             if (Aura* aura = Aura::TryCreate(createInfo))
             {
@@ -1271,7 +1280,7 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
                     continue;
                 }
 
-                aura->SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts.data());
+                aura->SetLoadedState(maxDuration, remainTime, remainCharges, recalculateMask, info.Amounts.data());
                 aura->ApplyForTargets();
                 TC_LOG_DEBUG("entities.pet", "Added aura spellid {}, effectmask {}", spellInfo->Id, key.EffectMask);
             }
@@ -1321,19 +1330,16 @@ void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
 
         for (AuraEffect const* effect : aura->GetAuraEffects())
         {
-            if (effect)
-            {
-                index = 0;
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA_EFFECT);
-                stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
-                stmt->setBinary(index++, key.Caster.GetRawValue());
-                stmt->setUInt32(index++, key.SpellId);
-                stmt->setUInt32(index++, key.EffectMask);
-                stmt->setUInt8(index++, effect->GetEffIndex());
-                stmt->setInt32(index++, effect->GetAmount());
-                stmt->setInt32(index++, effect->GetBaseAmount());
-                trans->Append(stmt);
-            }
+            index = 0;
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA_EFFECT);
+            stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
+            stmt->setBinary(index++, key.Caster.GetRawValue());
+            stmt->setUInt32(index++, key.SpellId);
+            stmt->setUInt32(index++, key.EffectMask);
+            stmt->setUInt8(index++, effect->GetEffIndex());
+            stmt->setInt32(index++, effect->GetAmount());
+            stmt->setInt32(index++, effect->GetBaseAmount());
+            trans->Append(stmt);
         }
     }
 }

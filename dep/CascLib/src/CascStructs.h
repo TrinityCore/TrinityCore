@@ -17,7 +17,7 @@
 #define CASC_INDEX_COUNT          0x10              // Number of index files
 #define CASC_CKEY_SIZE            0x10              // Size of the content key
 #define CASC_EKEY_SIZE            0x09              // Size of the encoded key
-#define CASC_MAX_DATA_FILES      0x100              // Maximum number of data files
+#define CASC_MAX_DATA_FILES       0x1000            // Maximum number of data files
 
 //-----------------------------------------------------------------------------
 // The index files structures

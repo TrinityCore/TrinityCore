@@ -27,6 +27,7 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreMapSummary const& dungeonSc
     data << float(dungeonScoreMapSummary.MapScore);
     data << int32(dungeonScoreMapSummary.BestRunLevel);
     data << int32(dungeonScoreMapSummary.BestRunDurationMS);
+    data << uint8(dungeonScoreMapSummary.Unknown1110);
     data.WriteBit(dungeonScoreMapSummary.FinishedSuccess);
     data.FlushBits();
 
@@ -53,7 +54,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MythicPlusMember const& mythicPlusMembe
     data << uint32(mythicPlusMember.NativeRealmAddress);
     data << uint32(mythicPlusMember.VirtualRealmAddress);
     data << int32(mythicPlusMember.ChrSpecializationID);
-    data << int16(mythicPlusMember.RaceID);
+    data << int8(mythicPlusMember.RaceID);
     data << int32(mythicPlusMember.ItemLevel);
     data << int32(mythicPlusMember.CovenantID);
     data << int32(mythicPlusMember.SoulbindID);

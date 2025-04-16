@@ -36,7 +36,6 @@ class WorldObject;
 struct Condition;
 struct SpellChainNode;
 struct SpellModifier;
-struct SpellTargetPosition;
 enum WeaponAttackType : uint8;
 
 enum SpellTargetSelectionCategories
@@ -267,7 +266,8 @@ public:
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
     bool HasRadius(SpellTargetIndex targetIndex) const;
-    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* = nullptr) const;
+    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* spell = nullptr) const;
+    Optional<std::pair<float, float>> CalcRadiusBounds(WorldObject* caster, SpellTargetIndex targetIndex, Spell* spell) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool dstSet = false, uint32 mask = 0) const;
@@ -422,6 +422,7 @@ class TC_GAME_API SpellInfo
         } Scaling;
 
         uint32 ExplicitTargetMask = 0;
+        uint32 RequiredExplicitTargetMask = 0;
         SpellChainNode const* ChainEntry = nullptr;
         struct
         {
@@ -515,7 +516,8 @@ class TC_GAME_API SpellInfo
         bool IsAffected(uint32 familyName, flag128 const& familyFlags) const;
 
         bool IsAffectedBySpellMods() const;
-        bool IsAffectedBySpellMod(SpellModifier const* mod) const;
+        uint32 IsAffectedBySpellMod(SpellModifier const* mod) const;
+        bool IsUpdatingTemporaryAuraValuesBySpellMod() const;
 
         bool CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const;
         bool CanDispelAura(SpellInfo const* auraSpellInfo) const;
@@ -608,8 +610,8 @@ class TC_GAME_API SpellInfo
         void _LoadSpellDiminishInfo();
         void _LoadImmunityInfo();
         void _LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTargets,
-            Optional<SpellEffIndex> maxTargetsEffectValueHolder,
-            Optional<SpellEffIndex> numNonDiminishedTargetsEffectValueHolder);
+            Optional<uint32> maxTargetsValueHolderSpell, Optional<SpellEffIndex> maxTargetsValueHolderEffect,
+            Optional<uint32> numNonDiminishedTargetsValueHolderSpell, Optional<SpellEffIndex> numNonDiminishedTargetsValueHolderEffect);
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();

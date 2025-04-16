@@ -67,6 +67,7 @@ class ZoneScript;
 struct FactionTemplateEntry;
 struct Loot;
 struct QuaternionData;
+struct SpawnTrackingStateData;
 struct SpellPowerCost;
 
 namespace WorldPackets
@@ -314,6 +315,8 @@ class TC_GAME_API Object
 
         virtual Loot* GetLootForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
 
+        virtual SpawnTrackingStateData const* GetSpawnTrackingStateDataForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
+
     protected:
         Object();
 
@@ -430,7 +433,7 @@ class TC_GAME_API Object
         virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
         virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
         static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
-        static void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags);
+        void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const;
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
@@ -520,7 +523,13 @@ inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit
     Object* owner = GetOwner();
     owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
     if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+    {
         _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+        if (!_changesMask)
+            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    }
+    else
+        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
 
     (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
 }
@@ -529,11 +538,18 @@ template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
 inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
 {
     Object* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
     if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+    {
         _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+        if (!_changesMask)
+            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    }
+    else
+        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
 
-    (static_cast<Derived*>(owner)->*field)._value->ClearChangesMask();
+    auto& uf = (static_cast<Derived*>(owner)->*field);
+    if (uf.has_value())
+        uf._value->ClearChangesMask();
 }
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
@@ -563,12 +579,22 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+enum class FindCreatureAliveState : uint8
+{
+    Alive               = 0, // includes feign death
+    Dead                = 1, // excludes feign death
+    EffectivelyAlive    = 2, // excludes feign death
+    EffectivelyDead     = 3, // includes feign death
+
+    Max
+};
+
 struct FindCreatureOptions
 {
     Optional<uint32> CreatureId;
     Optional<std::string_view> StringId;
 
-    Optional<bool> IsAlive;
+    Optional<FindCreatureAliveState> IsAlive;
     Optional<bool> IsInCombat;
     Optional<bool> IsSummon;
 

@@ -172,11 +172,12 @@ namespace WorldPackets
             Optional<float> TimeMod;
             std::vector<float> Points;
             std::vector<float> EstimatedPoints;
+            TaggedPosition<Position::XYZ> DstLocation;
         };
 
         struct AuraInfo
         {
-            uint8 Slot = 0;
+            uint16 Slot = 0;
             Optional<AuraDataInfo> AuraData;
         };
 
@@ -376,20 +377,20 @@ namespace WorldPackets
             SpellHealPrediction Predict;
         };
 
-        class SpellGo final : public CombatLog::CombatLogServerPacket
+        class SpellStart final : public ServerPacket
         {
         public:
-            SpellGo() : CombatLog::CombatLogServerPacket(SMSG_SPELL_GO) { }
+            SpellStart() : ServerPacket(SMSG_SPELL_START) { }
 
             WorldPacket const* Write() override;
 
             SpellCastData Cast;
         };
 
-        class SpellStart final : public ServerPacket
+        class SpellGo final : public CombatLog::CombatLogServerPacket
         {
         public:
-            SpellStart() : ServerPacket(SMSG_SPELL_START) { }
+            SpellGo() : CombatLog::CombatLogServerPacket(SMSG_SPELL_GO) { }
 
             WorldPacket const* Write() override;
 
@@ -560,9 +561,21 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsPet = false;
-            bool WithoutCategoryCooldown = false;
+            bool SkipCategory = false;
             int32 DeltaTime = 0;
             int32 SpellID = 0;
+        };
+
+        class UpdateCooldown final : public ServerPacket
+        {
+        public:
+            UpdateCooldown() : ServerPacket(SMSG_UPDATE_COOLDOWN, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            float ModChange = 1.0f;
+            float ModRate = 1.0f;
         };
 
         struct SpellCooldownStruct
@@ -643,6 +656,19 @@ namespace WorldPackets
             uint32 NextRecoveryTime = 0;
             uint8 ConsumedCharges = 0;
             float ChargeModRate = 1.0f;
+        };
+
+        class UpdateChargeCategoryCooldown final : public ServerPacket
+        {
+        public:
+            UpdateChargeCategoryCooldown() : ServerPacket(SMSG_UPDATE_CHARGE_CATEGORY_COOLDOWN, 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Category = 0;
+            float ModChange = 1.0f;
+            float ModRate = 1.0f;
+            bool Snapshot = false;
         };
 
         struct SpellChargeEntry

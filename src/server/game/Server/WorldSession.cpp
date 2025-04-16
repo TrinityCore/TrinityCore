@@ -810,7 +810,7 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     WorldPackets::Auth::ConnectTo connectTo;
     connectTo.Key = _instanceConnectKey.Raw;
     connectTo.Serial = serial;
-    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_INSTANCE);
+    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     if (instanceAddress.is_v4())
     {
         memcpy(connectTo.Payload.Where.Address.V4.data(), instanceAddress.to_v4().to_bytes().data(), 4);
@@ -1100,6 +1100,7 @@ public:
         ITEM_APPEARANCES,
         ITEM_FAVORITE_APPEARANCES,
         TRANSMOG_ILLUSIONS,
+        WARBAND_SCENES,
 
         MAX_QUERIES
     };
@@ -1146,6 +1147,10 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_TRANSMOG_ILLUSIONS);
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(TRANSMOG_ILLUSIONS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_WARBAND_SCENES);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(WARBAND_SCENES, stmt) && ok;
 
         return ok;
     }
@@ -1199,6 +1204,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
     _collectionMgr->LoadAccountMounts(holder.GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
     _collectionMgr->LoadAccountItemAppearances(holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
     _collectionMgr->LoadAccountTransmogIllusions(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_ILLUSIONS));
+    _collectionMgr->LoadAccountWarbandScenes(holder.GetPreparedResult(AccountInfoQueryHolder::WARBAND_SCENES));
 
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);
@@ -1566,11 +1572,16 @@ void WorldSession::SendTimeSync()
     timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
     SendPacket(timeSyncRequest.Write());
 
-    _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
+    RegisterTimeSync(_timeSyncNextCounter);
 
     // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
     _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
     _timeSyncNextCounter++;
+}
+
+void WorldSession::RegisterTimeSync(uint32 counter)
+{
+    _pendingTimeSyncRequests[counter] = getMSTime();
 }
 
 uint32 WorldSession::AdjustClientMovementTime(uint32 time) const

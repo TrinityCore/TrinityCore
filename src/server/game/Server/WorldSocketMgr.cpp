@@ -22,34 +22,26 @@
 #include "WorldSocket.h"
 #include <boost/system/error_code.hpp>
 
-static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
-{
-    sWorldSocketMgr.OnSocketOpen(std::forward<boost::asio::ip::tcp::socket>(sock), threadIndex);
-}
-
-class WorldSocketThread : public NetworkThread<WorldSocket>
+class WorldSocketThread : public Trinity::Net::NetworkThread<WorldSocket>
 {
 public:
-    void SocketAdded(std::shared_ptr<WorldSocket> sock) override
+    void SocketAdded(std::shared_ptr<WorldSocket> const& sock) override
     {
         sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
         sScriptMgr->OnSocketOpen(sock);
     }
 
-    void SocketRemoved(std::shared_ptr<WorldSocket> sock) override
+    void SocketRemoved(std::shared_ptr<WorldSocket>const& sock) override
     {
         sScriptMgr->OnSocketClose(sock);
     }
 };
 
-WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
+WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
 {
 }
 
-WorldSocketMgr::~WorldSocketMgr()
-{
-    ASSERT(!_instanceAcceptor, "StopNetwork must be called prior to WorldSocketMgr destruction");
-}
+WorldSocketMgr::~WorldSocketMgr() = default;
 
 WorldSocketMgr& WorldSocketMgr::Instance()
 {
@@ -57,7 +49,7 @@ WorldSocketMgr& WorldSocketMgr::Instance()
     return instance;
 }
 
-bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, uint16 instancePort, int threadCount)
+bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
@@ -78,30 +70,10 @@ bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std:
     if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
-    AsyncAcceptor* instanceAcceptor = nullptr;
-    try
+    _acceptor->AsyncAccept([this](Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
     {
-        instanceAcceptor = new AsyncAcceptor(ioContext, bindIp, instancePort);
-    }
-    catch (boost::system::system_error const& err)
-    {
-        TC_LOG_ERROR("network", "Exception caught in WorldSocketMgr::StartNetwork ({}:{}): {}", bindIp, port, err.what());
-        return false;
-    }
-
-    if (!instanceAcceptor->Bind())
-    {
-        TC_LOG_ERROR("network", "StartNetwork failed to bind instance socket acceptor");
-        delete instanceAcceptor;
-        return false;
-    }
-
-    _instanceAcceptor = instanceAcceptor;
-
-    _instanceAcceptor->SetSocketFactory([this]() { return GetSocketForAccept(); });
-
-    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
-    _instanceAcceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
+        OnSocketOpen(std::move(sock), threadIndex);
+    });
 
     sScriptMgr->OnNetworkStart();
     return true;
@@ -109,18 +81,12 @@ bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std:
 
 void WorldSocketMgr::StopNetwork()
 {
-    if (_instanceAcceptor)
-        _instanceAcceptor->Close();
-
     BaseSocketMgr::StopNetwork();
-
-    delete _instanceAcceptor;
-    _instanceAcceptor = nullptr;
 
     sScriptMgr->OnNetworkStop();
 }
 
-void WorldSocketMgr::OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
+void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
 {
     // set some options here
     if (_socketSystemSendBufferSize >= 0)
@@ -146,12 +112,10 @@ void WorldSocketMgr::OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 th
         }
     }
 
-    //sock->m_OutBufferSize = static_cast<size_t> (m_SockOutUBuff);
-
-    BaseSocketMgr::OnSocketOpen(std::forward<boost::asio::ip::tcp::socket>(sock), threadIndex);
+    BaseSocketMgr::OnSocketOpen(std::move(sock), threadIndex);
 }
 
-NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
+Trinity::Net::NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
 {
     return new WorldSocketThread[GetNetworkThreadCount()];
 }

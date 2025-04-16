@@ -295,6 +295,29 @@ void Trinity::PlayerSearcherBase<Check, Result>::Visit(PlayerMapType& m)
     }
 }
 
+// AreaTrigger searchers
+
+template <class Check, class Result>
+void Trinity::AreaTriggerSearcherBase<Check, Result>::Visit(AreaTriggerMapType& m)
+{
+    if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
+        return;
+
+    for (GridReference<AreaTrigger> const& ref : m)
+    {
+        if (!ref.GetSource()->InSamePhase(*i_phaseShift))
+            continue;
+
+        if (i_check(ref.GetSource()))
+        {
+            this->Insert(ref.GetSource());
+
+            if (this->ShouldContinue() == WorldObjectSearcherContinuation::Return)
+                return;
+        }
+    }
+}
+
 template<typename Localizer>
 void Trinity::LocalizedDo<Localizer>::operator()(Player const* p)
 {

@@ -27,6 +27,7 @@
 #include "ClientConfigPackets.h"
 #include "Common.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "Corpse.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -139,7 +140,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
     uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     WorldPackets::Who::WhoResponsePkt response;
-    response.RequestID = whoRequest.RequestID;
+    response.Token = whoRequest.Token;
 
     WhoListInfoVector const& whoList = sWhoListStorageMgr->GetWhoList();
     for (WhoListPlayerInfo const& target : whoList)
@@ -1155,7 +1156,9 @@ void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& 
 
 void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction)
 {
-    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
+    if (_player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest)
+        _player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest = false;
+    else if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
 
     if (_player->GetStableMaster() == closeInteraction.SourceGuid)
@@ -1164,8 +1167,8 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 
 void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted)
 {
-    if (Conversation* convo = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
-        sScriptMgr->OnConversationLineStarted(convo, conversationLineStarted.LineID, _player);
+    if (Conversation* conversation = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
+        conversation->AI()->OnLineStarted(conversationLineStarted.LineID, _player);
 }
 
 void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& /*requestLatestSplashScreen*/)

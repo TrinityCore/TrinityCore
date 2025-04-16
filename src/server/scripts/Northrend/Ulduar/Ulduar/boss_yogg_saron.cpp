@@ -2808,7 +2808,7 @@ class spell_yogg_saron_sanity : public SpellScriptLoader     // 63050
 
             void ModSanityStacks()
             {
-                GetSpell()->SetSpellValue(SPELLVALUE_AURA_STACK, 100);
+                GetSpell()->SetSpellValue({ SPELLVALUE_AURA_STACK, 100 });
             }
 
             void Register() override

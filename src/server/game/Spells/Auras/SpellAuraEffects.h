@@ -324,6 +324,9 @@ class TC_GAME_API AuraEffect
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModRecoveryRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModRecoveryRateBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModChargeRecoveryRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleShowConfirmationPrompt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -355,7 +358,6 @@ class TC_GAME_API AuraEffect
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
-        bool CanPeriodicTickCrit() const;
         float CalcPeriodicCritChance(Unit const* caster) const;
 
         // aura effect proc handlers

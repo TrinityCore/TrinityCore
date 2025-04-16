@@ -206,7 +206,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
 
         bool IsTransport() const;
-        bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
@@ -222,6 +221,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         // overwrite WorldObject function for proper name localization
         std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
+
+        bool HasLabel(int32 gameobjectLabel) const;
+        std::span<int32 const> GetLabels() const;
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
@@ -294,7 +296,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void EnableCollision(bool enable);
 
-        void Use(Unit* user);
+        void Use(Unit* user, bool ignoreCastInProgress = false);
 
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
@@ -384,6 +386,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
         std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
+
+        SpawnTrackingStateData const* GetSpawnTrackingStateDataForPlayer(Player const* player) const override;
 
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return m_gameObjectData->DisplayID; }

@@ -338,7 +338,7 @@ namespace WorldPackets
             int32 AbsorbSpellID = 0;
             int32 Absorbed = 0;
             int32 OriginalDamage = 0;
-            bool Unk = false;
+            bool Crit = false;
             std::vector<Spells::SpellSupportInfo> Supporters;
         };
 

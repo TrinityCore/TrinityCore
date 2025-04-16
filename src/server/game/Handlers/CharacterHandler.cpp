@@ -22,17 +22,16 @@
 #include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
+#include "BattlePetMgr.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
-#include "BattlePetMgr.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -45,6 +44,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -63,6 +63,7 @@
 #include "SystemPackets.h"
 #include "Util.h"
 #include "World.h"
+#include <boost/circular_buffer.hpp>
 #include <sstream>
 
 class LoginQueryHolder : public CharacterDatabaseQueryHolder
@@ -132,6 +133,10 @@ bool LoginQueryHolder::Initialize()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA_PROGRESS, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_SPAWN_TRACKING, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_DAILY);
     stmt->setUInt64(0, lowGuid);
@@ -466,6 +471,9 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
     }
 
     SendPacket(charEnum.Write());
+
+    if (!charEnum.IsDeletedCharacters)
+        _collectionMgr->SendWarbandSceneCollectionData();
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
@@ -1105,6 +1113,9 @@ void WorldSession::HandleContinuePlayerLogin()
 
     SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
 
+    // client will respond to SMSG_RESUME_COMMS with CMSG_QUEUED_MESSAGES_END
+    RegisterTimeSync(SPECIAL_RESUME_COMMS_TIME_SYNC_COUNTER);
+
     AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase const& holder)
     {
         HandlePlayerLogin(static_cast<LoginQueryHolder const&>(holder));
@@ -1144,6 +1155,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         delete pCurrChar;                                   // delete it manually
         m_playerLoading.Clear();
         return;
+    }
+
+    if (!_timeSyncClockDeltaQueue->empty())
+    {
+        pCurrChar->SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+        pCurrChar->SetTransportServerTime(_timeSyncClockDelta);
     }
 
     pCurrChar->SetVirtualPlayerRealm(GetVirtualRealmAddress());
@@ -1309,6 +1326,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
             pCurrChar->CastSpell(pCurrChar, 8326, true); // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
 
         pCurrChar->SetWaterWalking(true);
+
+        int32 const delay = pCurrChar->CalculateCorpseReclaimDelay(true);
+        if (delay > 0)
+            pCurrChar->SendCorpseReclaimDelay(delay);
     }
 
     pCurrChar->ContinueTaxiFlight();

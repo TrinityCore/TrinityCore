@@ -27,6 +27,7 @@
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -69,7 +70,7 @@ void AreaTrigger::AddToWorld()
         if (m_zoneScript)
             m_zoneScript->OnAreaTriggerCreate(this);
 
-        GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<AreaTrigger>(this);
         if (_spawnId)
             GetMap()->GetAreaTriggerBySpawnIdStore().insert(std::make_pair(_spawnId, this));
 
@@ -99,7 +100,7 @@ void AreaTrigger::RemoveFromWorld()
 
         if (IsStaticSpawn())
             Trinity::Containers::MultimapErasePair(GetMap()->GetAreaTriggerBySpawnIdStore(), _spawnId, this);
-        GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<AreaTrigger>(this);
     }
 }
 
@@ -195,7 +196,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID), GetCreateProperties()->AnimId);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimKitID), GetCreateProperties()->AnimKitId);
-    if (GetCreateProperties() && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::VisualAnimIsDecay))
+    if (GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::VisualAnimIsDecay))
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::IsDecay), true);
 
     if (caster)
@@ -206,15 +207,13 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             PhasingHandler::InitDbPhaseShift(GetPhaseShift(), spawnData->phaseUseFlags, spawnData->phaseId, spawnData->phaseGroup);
     }
 
-    if (target && GetCreateProperties() && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
+    if (target && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
         m_movementInfo.transport.guid = target->GetGUID();
 
     if (!IsStaticSpawn())
         UpdatePositionData();
 
     UpdateShape();
-
-    uint32 timeToTarget = GetCreateProperties()->TimeToTarget != 0 ? GetCreateProperties()->TimeToTarget : *m_areaTriggerData->Duration;
 
     if (GetCreateProperties()->OrbitInfo)
     {
@@ -224,11 +223,11 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         else
             orbit.Center = pos;
 
-        InitOrbit(orbit, timeToTarget);
+        InitOrbit(orbit, GetCreateProperties()->Speed);
     }
     else if (GetCreateProperties()->HasSplines())
     {
-        InitSplineOffsets(GetCreateProperties()->SplinePoints, timeToTarget);
+        InitSplineOffsets(GetCreateProperties()->SplinePoints);
     }
 
     // movement on transport of areatriggers on unit is handled by themself
@@ -880,7 +879,7 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumUnitsInside), _insideUnits.size());
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumPlayersInside),
-        std::count_if(_insideUnits.begin(), _insideUnits.end(), [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
+        std::ranges::count_if(_insideUnits, [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
 }
 
 AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
@@ -1065,7 +1064,7 @@ void AreaTrigger::UndoActions(Unit* unit)
                 unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget)
+void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -1085,26 +1084,26 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32
         rotatedPoints.emplace_back(x, y, z);
     }
 
-    InitSplines(std::move(rotatedPoints), timeToTarget);
+    InitSplines(rotatedPoints, overrideSpeed);
 }
 
-void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget)
+void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed)
 {
     if (splinePoints.size() < 2)
         return;
 
     _movementTime = 0;
 
-    _spline = std::make_unique<::Movement::Spline<int32>>();
-    _spline->init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeLinear);
-    _spline->initLengths();
+    std::unique_ptr<Movement::Spline<int32>> spline = std::make_unique<::Movement::Spline<int32>>();
+    spline->init_spline(splinePoints.data(), splinePoints.size(), ::Movement::SplineBase::ModeLinear, GetStationaryO());
+    spline->initLengths();
 
-    // should be sent in object create packets only
-    DoWithSuppressingObjectUpdates([&]()
-    {
-        SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
-        const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
-    });
+    float speed = overrideSpeed.value_or(GetCreateProperties()->Speed);
+    if (speed <= 0.0f)
+        speed = 1.0f;
+
+    uint32 timeToTarget = spline->length() / speed * float(IN_MILLISECONDS);
+    SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
 
     if (IsInWorld())
     {
@@ -1120,65 +1119,69 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
         reshape.AreaTriggerSpline.emplace();
         reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
         reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
-        for (G3D::Vector3 const& vec : splinePoints)
+        for (G3D::Vector3 const& vec : spline->getPoints())
             reshape.AreaTriggerSpline->Points.emplace_back(vec.x, vec.y, vec.z);
 
         SendMessageToSet(reshape.Write(), true);
     }
 
     _reachedDestination = false;
+    _movement = std::move(spline);
 }
 
 bool AreaTrigger::HasSplines() const
 {
-    return bool(_spline);
+    return std::holds_alternative<std::unique_ptr<::Movement::Spline<int32>>>(_movement);
 }
 
-void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarget)
+void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed)
 {
     // Circular movement requires either a center position or an attached unit
     ASSERT(orbit.Center.has_value() || orbit.PathTarget.has_value());
 
-    // should be sent in object create packets only
-    DoWithSuppressingObjectUpdates([&]()
-    {
-        SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
-        const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
-    });
+    float speed = overrideSpeed.value_or(GetCreateProperties()->Speed);
+    if (speed <= 0.0f)
+        speed = 1.0f;
 
+    uint32 timeToTarget = static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) * static_cast<float>(IN_MILLISECONDS) / speed);
+
+    SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OrbitPathTarget), orbit.PathTarget.value_or(ObjectGuid::Empty));
 
-    _orbitInfo = orbit;
+    std::unique_ptr<AreaTriggerOrbitInfo> movementOrbit = std::make_unique<AreaTriggerOrbitInfo>();
 
-    _orbitInfo->TimeToTarget = timeToTarget;
-    _orbitInfo->ElapsedTimeForMovement = 0;
+    movementOrbit->TimeToTarget = timeToTarget;
+    movementOrbit->ElapsedTimeForMovement = 0;
 
     if (IsInWorld())
     {
         WorldPackets::AreaTrigger::AreaTriggerRePath reshape;
         reshape.TriggerGUID = GetGUID();
-        reshape.AreaTriggerOrbit = _orbitInfo;
+        reshape.AreaTriggerOrbit = *movementOrbit;
 
         SendMessageToSet(reshape.Write(), true);
     }
+
+    _movement = std::move(movementOrbit);
 }
 
 bool AreaTrigger::HasOrbit() const
 {
-    return _orbitInfo.has_value();
+    return std::holds_alternative<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
 }
 
 Position const* AreaTrigger::GetOrbitCenterPosition() const
 {
-    if (!_orbitInfo)
+    if (!HasOrbit())
         return nullptr;
 
-    if (_orbitInfo->PathTarget)
-        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_orbitInfo->PathTarget))
+    AreaTriggerOrbitInfo const& orbit = *std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
+    if (orbit.PathTarget)
+        if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *orbit.PathTarget))
             return center;
 
-    if (_orbitInfo->Center)
-        return &_orbitInfo->Center->Pos;
+    if (orbit.Center)
+        return &orbit.Center->Pos;
 
     return nullptr;
 }
@@ -1190,7 +1193,7 @@ Position AreaTrigger::CalculateOrbitPosition() const
         return GetPosition();
 
     AreaTriggerCreateProperties const* createProperties = GetCreateProperties();
-    AreaTriggerOrbitInfo const& cmi = *_orbitInfo;
+    AreaTriggerOrbitInfo const& cmi = GetOrbit();
 
     // AreaTrigger make exactly "Duration / TimeToTarget" loops during his life time
     float pathProgress = float(cmi.ElapsedTimeForMovement) / float(cmi.TimeToTarget);
@@ -1235,10 +1238,11 @@ Position AreaTrigger::CalculateOrbitPosition() const
 
 void AreaTrigger::UpdateOrbitPosition(uint32 /*diff*/)
 {
-    if (_orbitInfo->StartDelay > GetElapsedTimeForMovement())
+    AreaTriggerOrbitInfo& orbit = *std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
+    if (orbit.StartDelay > GetElapsedTimeForMovement())
         return;
 
-    _orbitInfo->ElapsedTimeForMovement = GetElapsedTimeForMovement() - _orbitInfo->StartDelay;
+    orbit.ElapsedTimeForMovement = GetElapsedTimeForMovement() - orbit.StartDelay;
 
     Position pos = CalculateOrbitPosition();
 
@@ -1255,12 +1259,14 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
 
     _movementTime += diff;
 
+    Movement::Spline<int32>& spline = *std::get<std::unique_ptr<::Movement::Spline<int32>>>(_movement);
+
     if (_movementTime >= GetTimeToTarget())
     {
         _reachedDestination = true;
-        _lastSplineIndex = int32(_spline->last());
+        _lastSplineIndex = int32(spline.last());
 
-        G3D::Vector3 lastSplinePosition = _spline->getPoint(_lastSplineIndex);
+        G3D::Vector3 lastSplinePosition = spline.getPoint(_lastSplineIndex);
         GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());
 #ifdef TRINITY_DEBUG
         DebugVisualizePosition();
@@ -1289,12 +1295,12 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
             currentTimePercent = progress;
     }
 
-    int lastPositionIndex = 0;
+    int32 lastPositionIndex = 0;
     float percentFromLastPoint = 0;
-    _spline->computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
+    spline.computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
 
     G3D::Vector3 currentPosition;
-    _spline->evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
+    spline.evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
 
     float orientation = GetStationaryO();
     if (createProperties && createProperties->FacingCurveId)
@@ -1303,7 +1309,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     if (GetCreateProperties() && !GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAbsoluteOrientation) && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir))
     {
         G3D::Vector3 derivative;
-        _spline->evaluate_derivative(lastPositionIndex, percentFromLastPoint, derivative);
+        spline.evaluate_derivative(lastPositionIndex, percentFromLastPoint, derivative);
         if (derivative.x != 0.0f || derivative.y != 0.0f)
             orientation += std::atan2(derivative.y, derivative.x);
     }

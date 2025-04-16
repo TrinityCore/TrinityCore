@@ -125,6 +125,7 @@ namespace WorldPackets
             ObjectGuid ItemGuid;
             ObjectGuid OwnerAccountID;
             uint32 EndTime = 0;
+            uint32 Unused1110 = 0;
             Optional<ObjectGuid> Bidder;
             Optional<uint64> BidAmount;
             std::vector<Item::ItemGemData> Gems;
@@ -134,8 +135,9 @@ namespace WorldPackets
 
         struct AuctionBidderNotification
         {
-            void Initialize(::AuctionPosting const* auction, ::Item const* item);
+            void Initialize(int32 auctionHouseId, ::AuctionPosting const* auction, ::Item const* item);
 
+            int32 AuctionHouseID = 0;
             int32 AuctionID = 0;
             ObjectGuid Bidder;
             Item::ItemInstance Item;
@@ -412,9 +414,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Guid;
-            uint32 PurchasedItemDeliveryDelay = 0;
-            uint32 CancelledItemDeliveryDelay = 0;
+            ObjectGuid Auctioneer;
+            uint32 PurchaseDeliveryDelay = 0;
+            uint32 CancelDeliveryDelay = 0;
+            int32 AuctionHouseID = 0;
             bool OpenForBusiness = true;
         };
 

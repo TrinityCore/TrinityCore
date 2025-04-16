@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "EnumFlag.h"
+#include "Hash.h"
 #include "LootItemType.h"
 #include "Optional.h"
 #include "RaceMask.h"
@@ -28,6 +29,7 @@
 #include "UniqueTrackablePtr.h"
 #include "WorldPacket.h"
 #include <bitset>
+#include <unordered_set>
 #include <vector>
 
 class Player;
@@ -204,6 +206,11 @@ enum class QuestGiverStatus : uint64
 };
 
 DEFINE_ENUM_FLAG(QuestGiverStatus);
+
+inline constexpr QuestGiverStatus QuestGiverStatusFutureMask = QuestGiverStatus::Future
+    | QuestGiverStatus::FutureJourneyQuest
+    | QuestGiverStatus::FutureLegendaryQuest
+    | QuestGiverStatus::FutureImportantQuest;
 
 enum QuestFlags : uint32
 {
@@ -872,6 +879,7 @@ struct QuestStatusData
     time_t AcceptTime = time_t(0);
     uint32 Timer = 0;
     bool Explored = false;
+    std::unordered_set<std::pair<int8, uint32>> SpawnTrackingList;
 };
 
 #endif

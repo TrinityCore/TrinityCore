@@ -16,7 +16,6 @@
  */
 
 #include "Loot.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
@@ -28,6 +27,7 @@
 #include "LootMgr.h"
 #include "LootPackets.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -57,6 +57,10 @@ LootItem::LootItem(LootStoreItem const& li) : itemid(li.itemid), conditions(li.c
             type = LootItemType::Currency;
             freeforall = true;
             break;
+        case LootStoreItem::Type::TrackingQuest:
+            type = LootItemType::TrackingQuest;
+            freeforall = true;
+            break;
         default:
             break;
     }
@@ -77,6 +81,8 @@ bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot) const
             return ItemAllowedForPlayer(player, loot, itemid, needs_quest, follow_loot_rules, false, conditions);
         case LootItemType::Currency:
             return CurrencyAllowedForPlayer(player, itemid, needs_quest, conditions);
+        case LootItemType::TrackingQuest:
+            return TrackingQuestAllowedForPlayer(player, itemid, conditions);
         default:
             break;
     }
@@ -93,6 +99,8 @@ bool LootItem::AllowedForPlayer(Player const* player, LootStoreItem const& lootS
                 strictUsabilityCheck, lootStoreItem.conditions);
         case LootStoreItem::Type::Currency:
             return CurrencyAllowedForPlayer(player, lootStoreItem.itemid, lootStoreItem.needs_quest, lootStoreItem.conditions);
+        case LootStoreItem::Type::TrackingQuest:
+            return TrackingQuestAllowedForPlayer(player, lootStoreItem.itemid, lootStoreItem.conditions);
         default:
             break;
     }
@@ -177,6 +185,18 @@ bool LootItem::CurrencyAllowedForPlayer(Player const* player, uint32 currencyId,
     return true;
 }
 
+bool LootItem::TrackingQuestAllowedForPlayer(Player const* player, uint32 questId, ConditionsReference const& conditions)
+{
+    // DB conditions check
+    if (!conditions.Meets(player))
+        return false;
+
+    if (player->IsQuestCompletedBitSet(questId))
+        return false;
+
+    return true;
+}
+
 void LootItem::AddAllowedLooter(Player const* player)
 {
     allowedGUIDs.insert(player->GetGUID());
@@ -199,10 +219,7 @@ Optional<LootSlotType> LootItem::GetUiTypeForPlayer(Player const* player, Loot c
     {
         if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(loot.GetPlayerFFAItems(), player->GetGUID()))
         {
-            auto ffaItemItr = std::ranges::find_if(*ffaItems, [&](NotNormalLootItem const& ffaItem)
-            {
-                return ffaItem.LootListId == LootListId;
-            });
+            auto ffaItemItr = std::ranges::find(*ffaItems, LootListId, &NotNormalLootItem::LootListId);
             if (ffaItemItr != ffaItems->end() && !ffaItemItr->is_looted)
                 return loot.GetLootMethod() == FREE_FOR_ALL ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
         }
@@ -774,9 +791,9 @@ void Loot::NotifyMoneyRemoved(Map const* map)
     }
 }
 
-void Loot::OnLootOpened(Map* map, ObjectGuid looter)
+void Loot::OnLootOpened(Map* map, Player* looter)
 {
-    AddLooter(looter);
+    AddLooter(looter->GetGUID());
     if (!_wasOpened)
     {
         _wasOpened = true;
@@ -804,18 +821,20 @@ void Loot::OnLootOpened(Map* map, ObjectGuid looter)
         }
         else if (_lootMethod == MASTER_LOOT)
         {
-            if (looter == _lootMaster)
+            if (looter->GetGUID() == _lootMaster)
             {
-                if (Player* lootMaster = ObjectAccessor::GetPlayer(map, looter))
-                {
-                    WorldPackets::Loot::MasterLootCandidateList masterLootCandidateList;
-                    masterLootCandidateList.LootObj = GetGUID();
-                    masterLootCandidateList.Players = _allowedLooters;
-                    lootMaster->SendDirectMessage(masterLootCandidateList.Write());
-                }
+                WorldPackets::Loot::MasterLootCandidateList masterLootCandidateList;
+                masterLootCandidateList.LootObj = GetGUID();
+                masterLootCandidateList.Players = _allowedLooters;
+                looter->SendDirectMessage(masterLootCandidateList.Write());
             }
         }
     }
+
+    // Flag tracking quests as completed after all items were scanned for this player (some might depend on this quest not being completed)
+    //if (!_mailUnlootedItems)
+        if (std::vector<NotNormalLootItem>* ffaItems = Trinity::Containers::MapGetValuePtr(PlayerFFAItems, looter->GetGUID()))
+            AutoStoreTrackingQuests(looter, *ffaItems);
 }
 
 bool Loot::HasAllowedLooter(ObjectGuid const& looter) const
@@ -866,7 +885,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
             roundRobinPlayer = lootOwner->GetGUID();
 
         for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-            if (Player const* player = itr->GetSource())    // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
+            if (Player* player = itr->GetSource())    // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
                 if (player->IsAtGroupRewardDistance(lootOwner))
                     FillNotNormalLootFor(player);
 
@@ -939,6 +958,14 @@ void Loot::AddItem(LootStoreItem const& item)
             items.push_back(generatedLoot);
             break;
         }
+        case LootStoreItem::Type::TrackingQuest:
+        {
+            LootItem generatedLoot(item);
+            generatedLoot.count = 1;
+            generatedLoot.LootListId = items.size();
+            items.push_back(generatedLoot);
+            break;
+        }
         default:
             break;
     }
@@ -995,6 +1022,11 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
             case LootItemType::Currency:
                 player->ModifyCurrency(lootItem->itemid, lootItem->count, CurrencyGainSource::Loot);
                 break;
+            case LootItemType::TrackingQuest:
+
+                if (Quest const* quest = sObjectMgr->GetQuestTemplate(lootItem->itemid))
+                    player->RewardQuest(quest, LootItemType::Item, 0, player, false);
+                break;
         }
 
         if (ffaitem)
@@ -1007,6 +1039,20 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
     }
 
     return allLooted;
+}
+
+void Loot::AutoStoreTrackingQuests(Player* player, NotNormalLootItemList& ffaItems)
+{
+    for (NotNormalLootItem& ffaItem : ffaItems)
+    {
+        if (items[ffaItem.LootListId].type != LootItemType::TrackingQuest)
+            continue;
+
+        --unlootedCount;
+        ffaItem.is_looted = true;
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(items[ffaItem.LootListId].itemid))
+            player->RewardQuest(quest, LootItemType::Item, 0, player, false);
+    }
 }
 
 void Loot::LootMoney()
@@ -1079,7 +1125,7 @@ bool Loot::hasItemFor(Player const* player) const
             return true;
 
     if (NotNormalLootItemList const* ffaItems = Trinity::Containers::MapGetValuePtr(GetPlayerFFAItems(), player->GetGUID()))
-        if (std::ranges::any_of(*ffaItems, std::identity(), &NotNormalLootItem::is_looted))
+        if (std::ranges::any_of(*ffaItems, &NotNormalLootItem::is_looted))
             return true;
 
     return false;
@@ -1113,6 +1159,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player co
             {
                 WorldPackets::Loot::LootItemData& lootItem = packet.Items.emplace_back();
                 lootItem.LootListID = item.LootListId;
+                lootItem.Type = item.type;
                 lootItem.UIType = *uiType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
@@ -1148,7 +1195,7 @@ void Loot::Update()
     }
 }
 
-void Loot::FillNotNormalLootFor(Player const* player)
+void Loot::FillNotNormalLootFor(Player* player)
 {
     ObjectGuid plguid = player->GetGUID();
     _allowedLooters.insert(plguid);
@@ -1175,7 +1222,13 @@ void Loot::FillNotNormalLootFor(Player const* player)
     }
 
     if (!ffaItems->empty())
+    {
+        // TODO: flag immediately for loot that is supposed to be mailed if unlooted, otherwise flag when sending SMSG_LOOT_RESPONSE
+        //if (_mailUnlootedItems)
+        //    AutoStoreTrackingQuests(player, *ffaItems);
+
         PlayerFFAItems[player->GetGUID()] = std::move(ffaItems);
+    }
 }
 
 //

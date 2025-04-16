@@ -627,7 +627,7 @@ enum class CriteriaType : int16
     TotalFactionsEncountered                       = 89,  // Total factions encountered
     LootAnyItem                                    = 90,  // Loot any item
     ObtainAnyItem                                  = 91,  // Obtain any item
-    AnyoneTriggerGameEventScenario                 = 92,  /*NYI*/ // Anyone will Trigger game event "{GameEvents}" (Scenario Only)
+    AnyoneTriggerGameEventScenario                 = 92,  // Anyone will Trigger game event "{GameEvents}" (Scenario Only)
     RollAnyNeed                                    = 93,  // Roll any number on need
     RollAnyGreed                                   = 94,  // Roll any number on greed
     ReleasedSpirit                                 = 95,  /*NYI*/ // Released Spirit
@@ -756,7 +756,7 @@ enum class CriteriaType : int16
     CompleteAnyReplayQuest                         = 218, // Complete Any Replay Quest
     BuyItemsFromVendors                            = 219, // Buy items from vendors
     SellItemsToVendors                             = 220, // Sell items to vendors
-    ReachMaxLevel                                  = 221, /*NYI*/ // Reach Max Level
+    ReachMaxLevel                                  = 221, // Reach Max Level
     MemorizeSpell                                  = 222, /*NYI*/ // Memorize Spell "{Spell}"
     LearnTransmogIllusion                          = 223, /*NYI*/ // Learn Transmog Illusion
     LearnAnyTransmogIllusion                       = 224, /*NYI*/ // Learn Any Transmog Illusion
@@ -1102,6 +1102,18 @@ enum ItemBonusType
     ITEM_BONUS_ITEM_LIMIT_CATEGORY              = 35,
     ITEM_BONUS_ITEM_CONVERSION                  = 37,
     ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
+};
+
+enum class ItemCollectionType : uint8
+{
+    None                        = 0,
+    Toy                         = 1,
+    Heirloom                    = 2,
+    Transmog                    = 3,
+    TransmogSetFavorite         = 4,
+    RuneforgeLegendaryAbility   = 5,
+    TransmogIllusion            = 6,
+    WarbandScene                = 7,
 };
 
 enum class ItemContext : uint8
@@ -1983,6 +1995,7 @@ enum class PlayerInteractionType : int32
     ForgeMaster                 = 66,
     CharacterBanker             = 67,
     AccountBanker               = 68,
+    ProfessionRespec            = 69,
 };
 
 enum class PowerTypeFlags : int16
@@ -2072,7 +2085,8 @@ enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08,
+    SPELL_CATEGORY_FLAG_IGNORE_FOR_MOD_TIME_RATE            = 0x40
 };
 
 enum class SpellEffectAttributes
@@ -2290,14 +2304,17 @@ DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 enum class TaxiNodeFlags : int32
 {
-    ShowOnAllianceMap           = 0x00000001,
-    ShowOnHordeMap              = 0x00000002,
-    ShowOnMapBorder             = 0x00000004,
-    ShowIfClientPassesCondition = 0x00000008,
-    UsePlayerFavoriteMount      = 0x00000010,
-    EndPointPnly                = 0x00000020,
-    IgnoreForFindNearest        = 0x00000040,
-    DoNotShowInWorldMapUI       = 0x00000080,
+    ShowOnAllianceMap                           = 0x00000001,
+    ShowOnHordeMap                              = 0x00000002,
+    ShowOnMapBorder                             = 0x00000004,
+    ShowIfClientPassesCondition                 = 0x00000008,
+    UsePlayerFavoriteMount                      = 0x00000010,
+    EndPointOnly                                = 0x00000020,
+    IgnoreForFindNearest                        = 0x00000040,
+    DoNotShowInWorldMapUI                       = 0x00000080,
+    ShowNpcMinimapAtlasIfClientPassesCondition  = 0x00000100,
+    MapLayerTransition                          = 0x00000200,
+    NotAccountWide                              = 0x00000400
 };
 
 DEFINE_ENUM_FLAG(TaxiNodeFlags);
@@ -2640,6 +2657,17 @@ enum class VignetteFlags
 };
 
 DEFINE_ENUM_FLAG(VignetteFlags);
+
+enum class WarbandSceneFlags : uint8
+{
+    DoNotInclude            = 0x01,
+    HiddenUntilCollected    = 0x02,
+    CannotBeSaved           = 0x04,
+    AwardedAutomatically    = 0x08,
+    IsDefault               = 0x10
+};
+
+DEFINE_ENUM_FLAG(WarbandSceneFlags);
 
 enum WorldMapTransformsFlags
 {
