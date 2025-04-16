@@ -826,6 +826,12 @@ void SpellMgr::LoadSpellTalentRanks()
 
     for (TalentEntry const* talentInfo : sTalentStore)
     {
+        // In Classic, the Talent.db2 and TalentTab.db2 are polluted with deprecated data which can be
+        // identified by a negative order index. We just skip these.
+        TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(talentInfo->TabID);
+        if (!talentTab || talentTab->OrderIndex < 0)
+            continue;
+
         SpellInfo const* lastSpell = nullptr;
         for (size_t rank = talentInfo->SpellRank.size() - 1; rank > 0; --rank)
         {
