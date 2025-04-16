@@ -310,6 +310,16 @@ namespace WorldPackets
             std::array<uint8, 32> const& EncryptionKey;
             bool Enabled = false;
         };
+
+        class QueuedMessagesEnd final : public ClientPacket
+        {
+        public:
+            QueuedMessagesEnd(WorldPacket&& packet) : ClientPacket(CMSG_QUEUED_MESSAGES_END, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Timestamp = 0;
+        };
     }
 }
 
