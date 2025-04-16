@@ -851,14 +851,10 @@ class spell_warr_thunder_clap : public SpellScript
 
     void HandleSlow(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
         // Apply movement speed reduction
         if (Unit* target = GetHitUnit())
         {
-            caster->CastSpell(target, SPELL_WARRIOR_THUNDER_CLAP_SLOW, true);
+            GetCaster()->CastSpell(target, SPELL_WARRIOR_THUNDER_CLAP_SLOW, true);
         }
     }
 
