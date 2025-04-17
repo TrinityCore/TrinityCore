@@ -2243,7 +2243,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
         .ImplicitDetection = implicit,
         .IgnorePhaseShift = HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT),
         .IncludeHiddenBySpawnTracking = HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING),
-        .IncludePersonalSpawn = HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_PERSONAL_SPAWNS)
+        .IncludeAnyPrivateObject = HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT)
     };
     if (!caster->CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
         return SPELL_FAILED_BAD_TARGETS;

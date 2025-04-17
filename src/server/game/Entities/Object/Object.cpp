@@ -1589,7 +1589,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
-    if (!args.IncludePersonalSpawn && !obj->CheckPrivateObjectOwnerVisibility(this))
+    if (!args.IncludeAnyPrivateObject && !obj->CheckPrivateObjectOwnerVisibility(this))
         return false;
 
     if (SmoothPhasing const* smoothPhasing = obj->GetSmoothPhasing())
@@ -3129,7 +3129,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
             .ImplicitDetection = bySpell && bySpell->IsAffectingArea(),
             .IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT),
             .IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING),
-            .IncludePersonalSpawn = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_PERSONAL_SPAWNS)
+            .IncludeAnyPrivateObject = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT)
         };
         if (!unit->CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
             return false;
@@ -3292,7 +3292,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
         .ImplicitDetection = bySpell && bySpell->IsAffectingArea(),
         .IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT),
         .IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING),
-        .IncludePersonalSpawn = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_PERSONAL_SPAWNS)
+        .IncludeAnyPrivateObject = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT)
     };
     if (!CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
         return false;

@@ -632,7 +632,7 @@ struct CanSeeOrDetectExtraArgs
     bool ImplicitDetection = false;
     bool IgnorePhaseShift = false;
     bool IncludeHiddenBySpawnTracking = false;
-    bool IncludePersonalSpawn = false;
+    bool IncludeAnyPrivateObject = false;
 
     bool DistanceCheck = false;
     bool AlertCheck = false;
