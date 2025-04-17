@@ -1578,18 +1578,18 @@ SmoothPhasing* WorldObject::GetOrCreateSmoothPhasing()
     return _smoothPhasing.get();
 }
 
-bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bool distanceCheck, bool checkAlert) const
+bool WorldObject::CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs const& args /*= { }*/) const
 {
     if (this == obj)
         return true;
 
-    if (obj->IsNeverVisibleFor(this, implicitDetect) || CanNeverSee(obj))
+    if (obj->IsNeverVisibleFor(this, args.ImplicitDetection) || CanNeverSee(obj, args.IgnorePhaseShift))
         return false;
 
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
-    if (!obj->CheckPrivateObjectOwnerVisibility(this))
+    if (!args.IncludePersonalSpawn && !obj->CheckPrivateObjectOwnerVisibility(this))
         return false;
 
     if (SmoothPhasing const* smoothPhasing = obj->GetSmoothPhasing())
@@ -1600,13 +1600,14 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
         return false;
 
     // Spawn tracking
-    if (Player const* player = ToPlayer())
-        if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
-            if (!spawnTrackingStateData->Visible)
-                return false;
+    if (!args.IncludeHiddenBySpawnTracking)
+        if (Player const* player = ToPlayer())
+            if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
+                if (!spawnTrackingStateData->Visible)
+                    return false;
 
     bool corpseVisibility = false;
-    if (distanceCheck)
+    if (args.DistanceCheck)
     {
         bool corpseCheck = false;
         if (Player const* thisPlayer = ToPlayer())
@@ -1674,15 +1675,15 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
     if (obj->IsInvisibleDueToDespawn(this))
         return false;
 
-    if (!CanDetect(obj, implicitDetect, checkAlert))
+    if (!CanDetect(obj, args.ImplicitDetection, args.AlertCheck))
         return false;
 
     return true;
 }
 
-bool WorldObject::CanNeverSee(WorldObject const* obj) const
+bool WorldObject::CanNeverSee(WorldObject const* obj, bool ignorePhaseShift /*= false*/) const
 {
-    return GetMap() != obj->GetMap() || !InSamePhase(obj);
+    return GetMap() != obj->GetMap() || (!ignorePhaseShift && !InSamePhase(obj));
 }
 
 bool WorldObject::CanDetect(WorldObject const* obj, bool implicitDetect, bool checkAlert) const
@@ -3124,11 +3125,14 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (unit)
     {
         // can't attack invisible
-        if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT))
-        {
-            if (!unit->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
-                return false;
-        }
+        CanSeeOrDetectExtraArgs const& canSeeOrDetectExtraArgs = CanSeeOrDetectExtraArgs{
+            .ImplicitDetection = bySpell && bySpell->IsAffectingArea(),
+            .IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT),
+            .IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING),
+            .IncludePersonalSpawn = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_PERSONAL_SPAWNS)
+        };
+        if (!unit->CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
+            return false;
     }
 
     // can't attack dead
@@ -3284,7 +3288,13 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     }
 
     // can't assist invisible
-    if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT)) && !CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
+    CanSeeOrDetectExtraArgs const& canSeeOrDetectExtraArgs = CanSeeOrDetectExtraArgs{
+        .ImplicitDetection = bySpell && bySpell->IsAffectingArea(),
+        .IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT),
+        .IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING),
+        .IncludePersonalSpawn = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_PERSONAL_SPAWNS)
+    };
+    if (!CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
         return false;
 
     // can't assist dead

@@ -2238,8 +2238,14 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
     if (HasAttribute(SPELL_ATTR1_EXCLUDE_CASTER) && caster == target)
         return SPELL_FAILED_BAD_TARGETS;
 
-    // check visibility - ignore invisibility/stealth for implicit (area) targets
-    if (!HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT) && !caster->CanSeeOrDetect(target, implicit))
+    // check visibility - Ignore invisibility/stealth for implicit (area) targets
+    CanSeeOrDetectExtraArgs const& canSeeOrDetectExtraArgs = CanSeeOrDetectExtraArgs{
+        .ImplicitDetection = implicit,
+        .IgnorePhaseShift = HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT),
+        .IncludeHiddenBySpawnTracking = HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING),
+        .IncludePersonalSpawn = HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_PERSONAL_SPAWNS)
+    };
+    if (!caster->CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
         return SPELL_FAILED_BAD_TARGETS;
 
     Unit const* unitTarget = target->ToUnit();

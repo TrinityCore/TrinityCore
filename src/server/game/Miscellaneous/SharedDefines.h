@@ -744,7 +744,7 @@ enum SpellAttr8 : uint32
     SPELL_ATTR8_ONLY_TARGET_OWN_SUMMONS                             = 0x00010000, // TITLE Only Target Own Summons
     SPELL_ATTR8_HASTE_AFFECTS_DURATION                              = 0x00020000, // TITLE Haste Affects Duration
     SPELL_ATTR8_IGNORE_SPELLCAST_OVERRIDE_COST                      = 0x00040000, // TTILE Ignore Spellcast Override Cost
-    SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING              = 0x00080000, /*NYI - no spawn tracking implementation*/ // TITLE Allow Targets Hidden by Spawn Tracking
+    SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING              = 0x00080000, // TITLE Allow Targets Hidden by Spawn Tracking
     SPELL_ATTR8_REQUIRES_EQUIPPED_INV_TYPES                         = 0x00100000, // TITLE Requires Equipped Inv Types
     SPELL_ATTR8_NO_SUMMON_DEST_FROM_CLIENT_TARGETING_PATHING_REQUIREMENT = 0x00200000, /*NYI - vald path to a spell dest is not required currently if the dest comes from client*/ // TITLE No 'Summon + Dest from Client' Targeting Pathing Requirement
     SPELL_ATTR8_MELEE_HASTE_AFFECTS_PERIODIC                        = 0x00400000, // TITLE Melee Haste Affects Periodic
