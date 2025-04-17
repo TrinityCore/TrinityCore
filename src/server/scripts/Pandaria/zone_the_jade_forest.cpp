@@ -16,6 +16,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "PhasingHandler.h"
+#include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -23,6 +25,11 @@
 
 namespace Scripts::Pandaria::TheJadeForest
 {
+namespace Quests
+{
+    static constexpr uint32 PaintItRed                = 31765;
+}
+
 namespace Spells
 {
     // Into the Mists & The Mission
@@ -38,6 +45,11 @@ namespace Spells
     static constexpr uint32 TeleportPrepAlliance      = 130832;
     static constexpr uint32 TheMissionTeleportPlayer  = 130321;
     static constexpr uint32 TheMissionSceneJF         = 131057;
+
+    // Paint it Red!
+    static constexpr uint32 AbandonVehicle            = 92678;
+    static constexpr uint32 CannonExplosionTrigger    = 130234;
+    static constexpr uint32 BarrelExplosionTrigger    = 130247;
 }
 
 // 121545 - Into the Mists Scene - JF
@@ -180,6 +192,85 @@ class spell_cancel_blackout : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_cancel_blackout::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
+
+// 130996 - Summon Gunship Turret, Left
+// 130997 - Summon Gunship Turret, Middle
+// 130998 - Summon Gunship Turret, Right
+class spell_summon_gunship_turret : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::AbandonVehicle
+        });
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/) const
+    {
+        if (Player* playerTarget = GetTarget()->ToPlayer())
+            if (playerTarget->GetQuestStatus(Quests::PaintItRed) == QUEST_STATUS_COMPLETE)
+                playerTarget->CastSpell(nullptr, Spells::AbandonVehicle, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        PhasingHandler::OnConditionChange(GetTarget());
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_summon_gunship_turret::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectApply += AuraEffectApplyFn(spell_summon_gunship_turret::AfterApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 130233 - Cannon Explosion Reversecast
+class spell_cannon_explosion_reversecast : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::CannonExplosionTrigger
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->CastSpell(GetCaster(), Spells::CannonExplosionTrigger, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cannon_explosion_reversecast::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 130246 - Barrel Explosion Reversecast
+class spell_barrel_explosion_reversecast : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::BarrelExplosionTrigger
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->CastSpell(GetCaster(), Spells::BarrelExplosionTrigger, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_barrel_explosion_reversecast::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
 }
 
 void AddSC_zone_the_jade_forest()
@@ -192,4 +283,7 @@ void AddSC_zone_the_jade_forest()
     RegisterSpellScript(spell_the_mission_scene_jf);
     RegisterSpellScript(spell_the_mission_scene_end);
     RegisterSpellScript(spell_cancel_blackout);
+    RegisterSpellScript(spell_summon_gunship_turret);
+    RegisterSpellScript(spell_cannon_explosion_reversecast);
+    RegisterSpellScript(spell_barrel_explosion_reversecast);
 }

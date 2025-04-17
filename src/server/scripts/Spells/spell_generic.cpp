@@ -4922,6 +4922,7 @@ class spell_gen_eject_passengers_3_8 : public SpellScript
 };
 
 // 83781 - Reverse Cast Ride Vehicle
+// 85299 - Reverse Cast Ride Seat 1
 // 258344 - Reverse Cast Ride Vehicle
 class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
 {
@@ -5575,6 +5576,20 @@ class spell_gen_force_phase_update : public AuraScript
     }
 };
 
+// 92678 - Abandon Vehicle
+class spell_gen_abandon_vehicle : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_abandon_vehicle::HandleHitTarget, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5761,4 +5776,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_spatial_rift);
     RegisterAreaTriggerAI(at_gen_spatial_rift);
     RegisterSpellScript(spell_gen_force_phase_update);
+    RegisterSpellScript(spell_gen_abandon_vehicle);
 }
