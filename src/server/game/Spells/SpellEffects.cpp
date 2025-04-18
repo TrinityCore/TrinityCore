@@ -540,34 +540,6 @@ void Spell::EffectSchoolDMG()
         }
 
         Unit* unitCaster = GetUnitCasterForEffectHandlers();
-        switch (m_spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_GENERIC:
-            {
-                break;
-            }
-            case SPELLFAMILY_WARRIOR:
-            {
-                break;
-            }
-            case SPELLFAMILY_WARLOCK:
-            {
-                break;
-            }
-            case SPELLFAMILY_PRIEST:
-            {
-                break;
-            }
-            case SPELLFAMILY_DRUID:
-            {
-                break;
-            }
-            case SPELLFAMILY_DEATHKNIGHT:
-            {
-                break;
-            }
-        }
-
         if (unitCaster && apply_direct_bonus)
         {
             uint32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);

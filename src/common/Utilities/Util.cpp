@@ -18,7 +18,6 @@
 #include "Util.h"
 #include "Common.h"
 #include "Containers.h"
-#include "IpAddress.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include <boost/core/demangle.hpp>
@@ -28,6 +27,10 @@
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include <Windows.h>
+#endif
 
 void Trinity::VerifyOsVersion()
 {
@@ -268,17 +271,6 @@ std::string TimeToHumanReadable(time_t t)
     char buf[30];
     strftime(buf, 30, "%c", &time);
     return std::string(buf);
-}
-
-/// Check if the string is a valid ip address representation
-bool IsIPAddress(char const* ipaddress)
-{
-    if (!ipaddress)
-        return false;
-
-    boost::system::error_code error;
-    Trinity::Net::make_address(ipaddress, error);
-    return !error;
 }
 
 /// create PID file

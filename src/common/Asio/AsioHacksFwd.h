@@ -60,8 +60,12 @@ namespace Trinity
     {
         class DeadlineTimer;
         class IoContext;
-        class Resolver;
         class Strand;
+    }
+
+    namespace Net
+    {
+        class Resolver;
     }
 }
 

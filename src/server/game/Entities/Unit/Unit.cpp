@@ -9560,7 +9560,7 @@ void Unit::UpdateDamagePctDoneMods(WeaponAttackType attackType)
     });
 
     if (attackType == OFF_ATTACK)
-        factor *= GetTotalAuraModifier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT, [this, attackType](AuraEffect const* aurEff)
+        factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT, [this, attackType](AuraEffect const* aurEff)
         {
             return CheckAttackFitToAuraRequirement(attackType, aurEff);
         });

@@ -3108,7 +3108,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
             return SPELL_MISS_EVADE;
 
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
-    if (m_spellInfo->HasHitDelay() && unit->IsImmunedToSpell(m_spellInfo, m_caster))
+    if (hitInfo.TimeDelay && unit->IsImmunedToSpell(m_spellInfo, m_caster))
         return SPELL_MISS_IMMUNE;
 
     CallScriptBeforeHitHandlers(hitInfo.MissCondition);
@@ -3126,7 +3126,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
     if (m_caster != unit)
     {
         // Recheck  UNIT_FLAG_NON_ATTACKABLE for delayed spells
-        if (m_spellInfo->HasHitDelay() && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
+        if (hitInfo.TimeDelay && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
         if (m_caster->IsValidAttackTarget(unit, m_spellInfo))
@@ -3134,7 +3134,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
-            if (m_spellInfo->HasHitDelay() && unit->GetTypeId() == TYPEID_PLAYER && !IsPositive() && !m_caster->IsValidAssistTarget(unit, m_spellInfo))
+            if (hitInfo.TimeDelay && unit->GetTypeId() == TYPEID_PLAYER && !IsPositive() && !m_caster->IsValidAssistTarget(unit, m_spellInfo))
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
@@ -3877,7 +3877,7 @@ void Spell::_cast(bool skipCheck)
             creatureCaster->ReleaseSpellFocus(this);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if (m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled())
+    if (m_delayMoment && !m_spellInfo->IsChanneled())
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -8405,9 +8405,12 @@ bool Spell::CanReleaseEmpowerSpell() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID || m_spellInfo->IsChanneled() ||
-        (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)) || m_spellInfo->HasHitDelay() || (!m_triggeredByAuraSpell && !IsTriggered()) ||
-        m_spellInfo->HasAttribute(SPELL_ATTR7_ALWAYS_CAST_LOG);
+    return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID
+        || m_spellInfo->IsChanneled()
+        || m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)
+        || m_spellInfo->HasHitDelay() || m_delayMoment
+        || (!m_triggeredByAuraSpell && !IsTriggered())
+        || m_spellInfo->HasAttribute(SPELL_ATTR7_ALWAYS_CAST_LOG);
 }
 
 Unit* Spell::GetUnitCasterForEffectHandlers() const
@@ -8775,49 +8778,40 @@ SpellCastResult Spell::CanOpenLock(SpellEffectInfo const& effect, uint32 lockId,
     return SPELL_CAST_OK;
 }
 
-void Spell::SetSpellValue(SpellValueMod mod, int32 value)
+void Spell::SetSpellValue(CastSpellExtraArgsInit::SpellValueOverride const& value)
 {
-    if (mod < SPELLVALUE_BASE_POINT_END)
+    if (value.Type >= SPELLVALUE_BASE_POINT0 && value.Type < SPELLVALUE_BASE_POINT_END)
     {
-        m_spellValue->EffectBasePoints[mod] = value;
-        m_spellValue->CustomBasePointsMask |= 1 << mod;
+        m_spellValue->EffectBasePoints[value.Type - SPELLVALUE_BASE_POINT0] = value.Value.I;
+        m_spellValue->CustomBasePointsMask |= 1 << (value.Type - SPELLVALUE_BASE_POINT0);
         return;
     }
 
-    switch (mod)
+    switch (value.Type)
     {
         case SPELLVALUE_MAX_TARGETS:
-            m_spellValue->MaxAffectedTargets = (uint32)value;
+            m_spellValue->MaxAffectedTargets = uint32(value.Value.I);
             break;
         case SPELLVALUE_AURA_STACK:
-            m_spellValue->AuraStackAmount = uint8(value);
+            m_spellValue->AuraStackAmount = uint8(value.Value.I);
             break;
         case SPELLVALUE_DURATION:
-            m_spellValue->Duration = value;
+            m_spellValue->Duration = value.Value.I;
             break;
         case SPELLVALUE_PARENT_SPELL_TARGET_COUNT:
-            m_spellValue->ParentSpellTargetCount = value;
+            m_spellValue->ParentSpellTargetCount = value.Value.I;
             break;
         case SPELLVALUE_PARENT_SPELL_TARGET_INDEX:
-            m_spellValue->ParentSpellTargetIndex = value;
+            m_spellValue->ParentSpellTargetIndex = value.Value.I;
             break;
-        default:
-            break;
-    }
-}
-
-void Spell::SetSpellValue(SpellValueModFloat mod, float value)
-{
-    switch (mod)
-    {
         case SPELLVALUE_RADIUS_MOD:
-            m_spellValue->RadiusMod = value;
+            m_spellValue->RadiusMod = value.Value.F;
             break;
         case SPELLVALUE_CRIT_CHANCE:
-            m_spellValue->CriticalChance = value;
+            m_spellValue->CriticalChance = value.Value.F;
             break;
         case SPELLVALUE_DURATION_PCT:
-            m_spellValue->DurationMul = value / 100.0f;
+            m_spellValue->DurationMul = value.Value.F / 100.0f;
             break;
         default:
             break;

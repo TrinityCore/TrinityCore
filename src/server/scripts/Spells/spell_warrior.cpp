@@ -68,6 +68,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_STOICISM                          = 70845,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
+    SPELL_WARRIOR_STORM_BOLTS                       = 436162,
     SPELL_WARRIOR_STRATEGIST                        = 384041,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -309,6 +310,21 @@ class spell_warr_devastator : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_warr_devastator::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 260798 - Execute (Arms, Protection)
+class spell_warr_execute_damage : public SpellScript
+{
+    static void CalculateExecuteDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod)
+    {
+        // tooltip has 2 multiplier hardcoded in it $damage=${2.0*$260798s1}
+        pctMod *= 2.0f;
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
     }
 };
 
@@ -616,20 +632,44 @@ class spell_warr_storm_bolt : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_WARRIOR_STORM_BOLT_STUN
-        });
+        return ValidateSpellInfo({ SPELL_WARRIOR_STORM_BOLT_STUN });
     }
 
-    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 107570 - Storm Bolt
+class spell_warr_storm_bolts: public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_STORM_BOLTS });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_WARRIOR_STORM_BOLTS);
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        targets.clear();
+
+        if (Unit* target = GetExplTargetUnit())
+            targets.push_back(target);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_storm_bolts::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
     }
 };
 
@@ -828,6 +868,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_devastator);
+    RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
@@ -840,6 +881,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_shield_charge);
     RegisterSpellScript(spell_warr_shockwave);
     RegisterSpellScript(spell_warr_storm_bolt);
+    RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
     RegisterSpellScript(spell_warr_sudden_death);
     RegisterSpellScript(spell_warr_sweeping_strikes);
