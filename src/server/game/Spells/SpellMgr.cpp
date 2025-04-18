@@ -5307,6 +5307,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(5, 0, {}, {}, {}, {});
     });
 
+    // Ice Nova
+    ApplySpellFix({ 157997 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_2, {}, {});
+    });
+
     // Raze
     ApplySpellFix({ 400254 }, [](SpellInfo* spellInfo)
     {
