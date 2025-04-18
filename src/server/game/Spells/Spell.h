@@ -704,6 +704,9 @@ class TC_GAME_API Spell
 
         std::pair<float, float> GetMinMaxRange(bool strict) const;
 
+        // Adds a spell cast to a queue which will be executed after this spell has finished
+        void AddForceCast(uint32 spellId, ObjectGuid spellCasterGuid, CastSpellExtraArgs& spellCastArgs);
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -779,6 +782,8 @@ class TC_GAME_API Spell
 
         // -------------------------------------------
         GameObject* focusObject;
+
+        std::vector<ForceCastInfo> _triggeredForceCasts;
 
         // Damage and healing in effects need just calculate
         int32 m_damage;           // Damage  in effects count here
@@ -894,6 +899,8 @@ class TC_GAME_API Spell
 
         void PrepareTargetProcessing();
         void FinishTargetProcessing();
+
+        void ProcessForceCasts();
 
         // Scripting system
         void LoadScripts();

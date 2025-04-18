@@ -4393,84 +4393,86 @@ void Spell::finish(SpellCastResult result)
     if (!m_caster)
         return;
 
-    Unit* unitCaster = m_caster->ToUnit();
-    if (!unitCaster)
-        return;
-
-    // successful cast of the initial autorepeat spell is moved to idle state so that it is not deleted as long as autorepeat is active
-    if (IsAutoRepeat() && unitCaster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL) == this)
-        m_spellState = SPELL_STATE_IDLE;
-
-    if (m_spellInfo->IsChanneled())
-        unitCaster->UpdateInterruptMask();
-
-    if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
-        unitCaster->ClearUnitState(UNIT_STATE_CASTING);
-
-    // Unsummon summon as possessed creatures on spell cancel
-    if (m_spellInfo->IsChanneled() && unitCaster->GetTypeId() == TYPEID_PLAYER)
+    if (Unit* unitCaster = m_caster->ToUnit())
     {
-        if (Unit* charm = unitCaster->GetCharmed())
-            if (charm->GetTypeId() == TYPEID_UNIT
-                && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
-                && charm->m_unitData->CreatedBySpell == int32(m_spellInfo->Id))
-                ((Puppet*)charm)->UnSummon();
-    }
+        // successful cast of the initial autorepeat spell is moved to idle state so that it is not deleted as long as autorepeat is active
+        if (IsAutoRepeat() && unitCaster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL) == this)
+            m_spellState = SPELL_STATE_IDLE;
 
-    if (Creature* creatureCaster = unitCaster->ToCreature())
-        creatureCaster->ReleaseSpellFocus(this);
+        if (m_spellInfo->IsChanneled())
+            unitCaster->UpdateInterruptMask();
 
-    Unit::ProcSkillsAndAuras(unitCaster, nullptr, PROC_FLAG_CAST_ENDED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, this, nullptr, nullptr);
+        if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
+            unitCaster->ClearUnitState(UNIT_STATE_CASTING);
 
-    if (IsEmpowerSpell())
-    {
-        // Empower spells trigger gcd at the end of cast instead of at start
-        if (SpellInfo const* gcd = sSpellMgr->GetSpellInfo(SPELL_EMPOWER_HARDCODED_GCD, DIFFICULTY_NONE))
-            unitCaster->GetSpellHistory()->AddGlobalCooldown(gcd, Milliseconds(gcd->StartRecoveryTime));
-    }
+        // Unsummon summon as possessed creatures on spell cancel
+        if (m_spellInfo->IsChanneled() && unitCaster->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (Unit* charm = unitCaster->GetCharmed())
+                if (charm->GetTypeId() == TYPEID_UNIT
+                    && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
+                    && charm->m_unitData->CreatedBySpell == int32(m_spellInfo->Id))
+                    ((Puppet*)charm)->UnSummon();
+        }
 
-    if (result != SPELL_CAST_OK)
-    {
-        // on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
-        if (m_caster->IsPlayer() && m_spellInfo->HasEffect(SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG))
-            if (WorldPackets::Traits::TraitConfig const* traitConfig = std::any_cast<WorldPackets::Traits::TraitConfig>(&m_customArg))
-                m_caster->ToPlayer()->SendDirectMessage(WorldPackets::Traits::TraitConfigCommitFailed(traitConfig->ID).Write());
+        if (Creature* creatureCaster = unitCaster->ToCreature())
+            creatureCaster->ReleaseSpellFocus(this);
+
+        Unit::ProcSkillsAndAuras(unitCaster, nullptr, PROC_FLAG_CAST_ENDED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, this, nullptr, nullptr);
 
         if (IsEmpowerSpell())
         {
-            unitCaster->GetSpellHistory()->ResetCooldown(m_spellInfo->Id, true);
-            RefundPower();
+            // Empower spells trigger gcd at the end of cast instead of at start
+            if (SpellInfo const* gcd = sSpellMgr->GetSpellInfo(SPELL_EMPOWER_HARDCODED_GCD, DIFFICULTY_NONE))
+                unitCaster->GetSpellHistory()->AddGlobalCooldown(gcd, Milliseconds(gcd->StartRecoveryTime));
         }
 
-        return;
-    }
-
-    if (unitCaster->GetTypeId() == TYPEID_UNIT && unitCaster->IsSummon())
-    {
-        // Unsummon statue
-        uint32 spell = unitCaster->m_unitData->CreatedBySpell;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell, GetCastDifficulty());
-        if (spellInfo && spellInfo->IconFileDataId == 134230)
+        if (result != SPELL_CAST_OK)
         {
-            TC_LOG_DEBUG("spells", "Statue {} is unsummoned in spell {} finish", unitCaster->GetGUID().ToString(), m_spellInfo->Id);
-            // Avoid infinite loops with setDeathState(JUST_DIED) being called over and over
-            // It might make sense to do this check in Unit::setDeathState() and all overloaded functions
-            if (unitCaster->getDeathState() != JUST_DIED)
-                unitCaster->setDeathState(JUST_DIED);
+            // on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
+            if (m_caster->IsPlayer() && m_spellInfo->HasEffect(SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG))
+                if (WorldPackets::Traits::TraitConfig const* traitConfig = std::any_cast<WorldPackets::Traits::TraitConfig>(&m_customArg))
+                    m_caster->ToPlayer()->SendDirectMessage(WorldPackets::Traits::TraitConfigCommitFailed(traitConfig->ID).Write());
+
+            if (IsEmpowerSpell())
+            {
+                unitCaster->GetSpellHistory()->ResetCooldown(m_spellInfo->Id, true);
+                RefundPower();
+            }
+
             return;
         }
+
+        if (unitCaster->GetTypeId() == TYPEID_UNIT && unitCaster->IsSummon())
+        {
+            // Unsummon statue
+            uint32 spell = unitCaster->m_unitData->CreatedBySpell;
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell, GetCastDifficulty());
+            if (spellInfo && spellInfo->IconFileDataId == 134230)
+            {
+                TC_LOG_DEBUG("spells", "Statue {} is unsummoned in spell {} finish", unitCaster->GetGUID().ToString(), m_spellInfo->Id);
+                // Avoid infinite loops with setDeathState(JUST_DIED) being called over and over
+                // It might make sense to do this check in Unit::setDeathState() and all overloaded functions
+                if (unitCaster->getDeathState() != JUST_DIED)
+                    unitCaster->setDeathState(JUST_DIED);
+                return;
+            }
+        }
+
+        // potions disabled by client, send event "not in combat" if need
+        if (unitCaster->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (!m_triggeredByAuraSpell)
+                unitCaster->ToPlayer()->UpdatePotionCooldown(this);
+        }
+
+        // Stop Attack for some spells
+        if (m_spellInfo->HasAttribute(SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT))
+            unitCaster->AttackStop();
     }
 
-    // potions disabled by client, send event "not in combat" if need
-    if (unitCaster->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (!m_triggeredByAuraSpell)
-            unitCaster->ToPlayer()->UpdatePotionCooldown(this);
-    }
-
-    // Stop Attack for some spells
-    if (m_spellInfo->HasAttribute(SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT))
-        unitCaster->AttackStop();
+    // Execute pending force casts which have been collected from effect handlers
+    ProcessForceCasts();
 }
 
 template<class T>
@@ -7461,6 +7463,20 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
     maxRange += rangeMod;
 
     return { minRange, maxRange };
+}
+
+void Spell::AddForceCast(uint32 spellId, ObjectGuid spellCasterGuid, CastSpellExtraArgs& spellCastArgs)
+{
+    _triggeredForceCasts.emplace_back(spellId, spellCasterGuid, spellCastArgs);
+}
+
+void Spell::ProcessForceCasts()
+{
+    for (ForceCastInfo const& queuedSpell : _triggeredForceCasts)
+    {
+        WorldObject* caster = queuedSpell.SpellCasterGuid == m_caster->GetGUID() ? m_caster : ObjectAccessor::GetWorldObject(*m_caster, queuedSpell.SpellCasterGuid);
+        caster->CastSpell(m_caster, queuedSpell.SpellId, queuedSpell.SpellCastArgs);
+    }
 }
 
 SpellCastResult Spell::CheckPower() const

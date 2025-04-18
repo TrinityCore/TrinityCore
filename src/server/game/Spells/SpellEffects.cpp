@@ -779,19 +779,18 @@ void Spell::EffectForceCast()
     if (!unitTarget)
         return;
 
-    uint32 triggered_spell_id = effectInfo->TriggerSpell;
-    if (triggered_spell_id == 0)
+    uint32 triggeredSpellId = effectInfo->TriggerSpell;
+    if (triggeredSpellId == 0)
     {
         TC_LOG_WARN("spells.effect.nospell", "Spell::EffectForceCast: Spell {} [EffectIndex: {}] does not have triggered spell.", m_spellInfo->Id, effectInfo->EffectIndex);
         return;
     }
 
     // normal case
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id, GetCastDifficulty());
-
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggeredSpellId, GetCastDifficulty());
     if (!spellInfo)
     {
-        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectForceCast of spell {}: triggering unknown spell id {}.", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectForceCast of spell {}: triggering unknown spell id {}.", m_spellInfo->Id, triggeredSpellId);
         return;
     }
 
@@ -810,7 +809,8 @@ void Spell::EffectForceCast()
                 args.SetOriginalCaster(m_originalCasterGUID);
                 args.SetTriggeringSpell(this);
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
-                unitTarget->CastSpell(unitTarget, spellInfo->Id, args);
+
+                AddForceCast(spellInfo->Id, unitTarget->GetGUID(), args);
                 return;
             }
         }
@@ -819,19 +819,29 @@ void Spell::EffectForceCast()
     switch (spellInfo->Id)
     {
         case 72298: // Malleable Goo Summon
-            unitTarget->CastSpell(unitTarget, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(m_originalCasterGUID)
-                .SetTriggeringSpell(this));
+        {
+            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+            args.SetOriginalCaster(m_originalCasterGUID);
+            args.SetTriggeringSpell(this);
+            AddForceCast(spellInfo->Id, unitTarget->GetGUID(), args);
             return;
+        }
+        default:
+            break;
     }
 
-    CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
-    args.SetTriggeringSpell(this);
+    CastSpellExtraArgs args = CastSpellExtraArgs();
+    if (effectInfo->Effect != SPELL_EFFECT_FORCE_CAST_2)
+    {
+        args.SetTriggerFlags(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
+        args.SetTriggeringSpell(this);
+    }
+
     if (effectInfo->Effect == SPELL_EFFECT_FORCE_CAST_WITH_VALUE)
         for (std::size_t i = 0; i < spellInfo->GetEffects().size(); ++i)
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
-    unitTarget->CastSpell(m_caster, spellInfo->Id, args);
+    AddForceCast(spellInfo->Id, unitTarget->GetGUID(), args);
 }
 
 void Spell::EffectTriggerRitualOfSummoning()

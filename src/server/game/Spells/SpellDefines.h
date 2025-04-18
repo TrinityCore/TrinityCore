@@ -524,6 +524,18 @@ struct TC_GAME_API CastSpellExtraArgs : public CastSpellExtraArgsInit
     CastSpellExtraArgs& SetScriptWaitsForSpellHit(bool scriptWaitsForSpellHit) { ScriptWaitsForSpellHit = scriptWaitsForSpellHit; return *this; }
 };
 
+struct TC_GAME_API ForceCastInfo
+{
+    ForceCastInfo(uint32 spellId, ObjectGuid spellCasterGuid, CastSpellExtraArgs& spellCastArgs) :
+        SpellId(spellId), SpellCasterGuid(spellCasterGuid), SpellCastArgs(std::move(spellCastArgs))
+    {
+    }
+
+    uint32 SpellId;
+    ObjectGuid SpellCasterGuid;
+    CastSpellExtraArgs SpellCastArgs;
+};
+
 struct SpellCastVisual
 {
     uint32 SpellXSpellVisualID = 0;
