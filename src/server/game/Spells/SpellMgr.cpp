@@ -2178,7 +2178,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
 
             for (SkillLineAbilityEntry const* skillLine : *skillLineAbilities)
             {
-                if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                if (skillLine->GetAcquireMethod() != SkillLineAbilityAcquireMethod::AutomaticCharLevel)
                     continue;
 
                 SpellInfo const* spell = GetSpellInfo(skillLine->Spell, DIFFICULTY_NONE);
@@ -5352,7 +5352,7 @@ void SpellMgr::LoadPetFamilySpellsStore()
                 if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
                     continue;
 
-                if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                if (skillLine->GetAcquireMethod() != SkillLineAbilityAcquireMethod::AutomaticCharLevel)
                     continue;
 
                 sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->Id);
