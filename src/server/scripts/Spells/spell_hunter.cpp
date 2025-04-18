@@ -68,6 +68,7 @@ enum HunterSpells
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
+    SPELL_HUNTER_RAPID_FIRE                         = 257044,
     SPELL_HUNTER_RAPID_FIRE_DAMAGE                  = 257045,
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
@@ -822,6 +823,25 @@ class spell_hun_steady_shot : public SpellScript
     }
 };
 
+// 391559 - Surging Shots
+class spell_hun_surging_shots : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE });
+    }
+
+    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_HUNTER_RAPID_FIRE, true);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_surging_shots::HandleProc);
+    }
+};
+
 // 1515 - Tame Beast
 class spell_hun_tame_beast : public SpellScript
 {
@@ -986,6 +1006,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_scrappy);
     RegisterSpellScript(spell_hun_steady_shot);
+    RegisterSpellScript(spell_hun_surging_shots);
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
