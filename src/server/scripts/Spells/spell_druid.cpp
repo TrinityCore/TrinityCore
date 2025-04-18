@@ -1328,9 +1328,10 @@ class spell_dru_luxuriant_soil : public AuraScript
 // 33917 - Mangle
 class spell_dru_mangle : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_MANGLE_TALENT });
+        return ValidateSpellInfo({ SPELL_DRUID_MANGLE_TALENT })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
     bool Load() override
