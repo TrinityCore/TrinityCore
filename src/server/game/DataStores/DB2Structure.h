@@ -3068,6 +3068,7 @@ struct SkillLineAbilityEntry
     int16 SkillupSkillLineID;
     std::array<int32, 2> CharacterPoints;
 
+    SkillLineAbilityAcquireMethod GetAcquireMethod() const { return static_cast<SkillLineAbilityAcquireMethod>(AcquireMethod); }
     EnumFlag<SkillLineAbilityFlags> GetFlags() const { return static_cast<SkillLineAbilityFlags>(Flags); }
 };
 
