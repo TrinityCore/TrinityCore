@@ -658,9 +658,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->FlushBits();
         if (transport)
         {
-            *data << uint32(transport->GetTransportPeriod());
-            *data << uint32(transport->GetTimer());
-            data->WriteBit(transport->IsStopRequested());
+            uint32 period = transport->GetTransportPeriod();
+
+            *data << uint32((((int64(transport->GetTimer()) - int64(GameTime::GetGameTimeMS())) % period) + period) % period);  // TimeOffset
+            *data << uint32(transport->GetNextStopTimestamp().value_or(0));
+            data->WriteBit(transport->GetNextStopTimestamp().has_value());
             data->WriteBit(transport->IsStopped());
             data->WriteBit(false);
             data->FlushBits();
@@ -2995,24 +2997,19 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId, args.CastDifficulty != DIFFICULTY_NONE ? args.CastDifficulty : GetMap()->GetDifficultyID());
     if (!info)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell {} by caster {}", spellId, GetGUID().ToString());
+        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell {} by caster {}", spellId, GetGUID());
         return SPELL_FAILED_SPELL_UNAVAILABLE;
     }
 
     if (!targets.Targets)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast {} by {}", spellId, GetGUID().ToString());
+        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast {} by {}", spellId, GetGUID());
         return SPELL_FAILED_BAD_TARGETS;
     }
 
     Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId);
-    for (auto const& [Type, Value] : args.SpellValueOverrides)
-    {
-        if (Type < SPELLVALUE_INT_END)
-            spell->SetSpellValue(SpellValueMod(Type), Value.I);
-        else
-            spell->SetSpellValue(SpellValueModFloat(Type), Value.F);
-    }
+    for (CastSpellExtraArgsInit::SpellValueOverride const& value : args.SpellValueOverrides)
+        spell->SetSpellValue(value);
 
     spell->m_CastItem = args.CastItem;
     if (args.OriginalCastItemLevel)

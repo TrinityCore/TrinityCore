@@ -1203,7 +1203,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply, AuraEffect const* trigg
         // only passive and permament auras-active auras should have amount set on spellcast and not be affected
         // if aura is cast by others, it will not be affected
         if ((!aura->IsPassive() && !aura->IsPermanent() && !GetSpellInfo()->IsUpdatingTemporaryAuraValuesBySpellMod())
-            || aura->GetCasterGUID() != guid || !aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
+            || aura->GetCasterGUID() != guid || !aura->GetSpellInfo()->IsAffectedBySpellMods() || !aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
             continue;
 
         if (recalculateEffectIndex)

@@ -111,6 +111,10 @@ public:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                     break;
+                case GAMEOBJECT_TYPE_TRANSPORT:
+                case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
+                    dynFlags |= dynamicFlags;   // preserve all dynamicflgs
+                    break;
                 case GAMEOBJECT_TYPE_CAPTURE_POINT:
                     if (!gameObject->CanInteractWithCapturePoint(receiver))
                         dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;

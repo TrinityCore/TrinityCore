@@ -29,9 +29,11 @@
 
 void RASession::Start()
 {
+    _socket.non_blocking(false);
+
     // wait 1 second for active connections to send negotiation request
     for (int counter = 0; counter < 10 && _socket.available() == 0; counter++)
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(100ms);
 
     // Check if there are bytes available, if they are, then the client is requesting the negotiation
     if (_socket.available() > 0)
