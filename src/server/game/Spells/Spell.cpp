@@ -3108,7 +3108,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
             return SPELL_MISS_EVADE;
 
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
-    if (m_spellInfo->HasHitDelay() && unit->IsImmunedToSpell(m_spellInfo, m_caster))
+    if (hitInfo.TimeDelay && unit->IsImmunedToSpell(m_spellInfo, m_caster))
         return SPELL_MISS_IMMUNE;
 
     CallScriptBeforeHitHandlers(hitInfo.MissCondition);
@@ -3126,7 +3126,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
     if (m_caster != unit)
     {
         // Recheck  UNIT_FLAG_NON_ATTACKABLE for delayed spells
-        if (m_spellInfo->HasHitDelay() && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
+        if (hitInfo.TimeDelay && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
         if (m_caster->IsValidAttackTarget(unit, m_spellInfo))
@@ -3134,7 +3134,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
-            if (m_spellInfo->HasHitDelay() && unit->GetTypeId() == TYPEID_PLAYER && !IsPositive() && !m_caster->IsValidAssistTarget(unit, m_spellInfo))
+            if (hitInfo.TimeDelay && unit->GetTypeId() == TYPEID_PLAYER && !IsPositive() && !m_caster->IsValidAssistTarget(unit, m_spellInfo))
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
@@ -3877,7 +3877,7 @@ void Spell::_cast(bool skipCheck)
             creatureCaster->ReleaseSpellFocus(this);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if (m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled())
+    if (m_delayMoment && !m_spellInfo->IsChanneled())
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -8405,9 +8405,12 @@ bool Spell::CanReleaseEmpowerSpell() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID || m_spellInfo->IsChanneled() ||
-        (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)) || m_spellInfo->HasHitDelay() || (!m_triggeredByAuraSpell && !IsTriggered()) ||
-        m_spellInfo->HasAttribute(SPELL_ATTR7_ALWAYS_CAST_LOG);
+    return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID
+        || m_spellInfo->IsChanneled()
+        || m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_POINTS_ON_CLIENT)
+        || m_spellInfo->HasHitDelay() || m_delayMoment
+        || (!m_triggeredByAuraSpell && !IsTriggered())
+        || m_spellInfo->HasAttribute(SPELL_ATTR7_ALWAYS_CAST_LOG);
 }
 
 Unit* Spell::GetUnitCasterForEffectHandlers() const

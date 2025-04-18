@@ -44,32 +44,32 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
 
     using Trinity::Net::Http::RequestHandlerFlag;
 
-    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/login/", [this](std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/login/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandleGetForm(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/gameAccounts/", [](std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/gameAccounts/", [](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandleGetGameAccounts(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/portal/", [this](std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/portal/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandleGetPortal(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/", [this](std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandlePostLogin(std::move(session), context);
     }, RequestHandlerFlag::DoNotLogRequestContent);
 
-    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/srp/", [](std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/srp/", [](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandlePostLoginSrpChallenge(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/refreshLoginTicket/", [this](std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/refreshLoginTicket/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandlePostRefreshLoginTicket(std::move(session), context);
     });
@@ -80,7 +80,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     using namespace std::string_literals;
     std::array<std::string, 2> configKeys = { { "LoginREST.ExternalAddress"s, "LoginREST.LocalAddress"s } };
 
-    Trinity::Asio::Resolver resolver(ioContext);
+    Trinity::Net::Resolver resolver(ioContext);
 
     for (std::size_t i = 0; i < _hostnames.size(); ++i)
     {
@@ -121,7 +121,10 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
 
     MigrateLegacyPasswordHashes();
 
-    _acceptor->AsyncAcceptWithCallback<&LoginRESTService::OnSocketAccept>();
+    _acceptor->AsyncAccept([this](Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
+    {
+        OnSocketOpen(std::move(sock), threadIndex);
+    });
     return true;
 }
 
@@ -165,7 +168,7 @@ std::string LoginRESTService::ExtractAuthorization(HttpRequest const& request)
     return ticket;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetForm(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const
+LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetForm(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const
 {
     JSON::Login::FormInputs form = _formInputs;
     form.set_srp_url(Trinity::StringFormat("http{}://{}:{}/bnetserver/login/srp/", !SslContext::UsesDevWildcardCertificate() ? "s" : "",
@@ -176,7 +179,7 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetForm(std::shar
     return RequestHandlerResult::Handled;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetGameAccounts(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetGameAccounts(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
 {
     std::string ticket = ExtractAuthorization(context.request);
     if (ticket.empty())
@@ -225,14 +228,14 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetGameAccounts(s
     return RequestHandlerResult::Async;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetPortal(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const
+LoginRESTService::RequestHandlerResult LoginRESTService::HandleGetPortal(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const
 {
     context.response.set(boost::beast::http::field::content_type, "text/plain");
     context.response.body() = Trinity::StringFormat("{}:{}", GetHostnameForClient(session->GetRemoteIpAddress()), sConfigMgr->GetIntDefault("BattlenetPort", 1119));
     return RequestHandlerResult::Handled;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const
+LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const
 {
     std::shared_ptr<JSON::Login::LoginForm> loginForm = std::make_shared<JSON::Login::LoginForm>();
     if (!::JSON::Deserialize(context.request.body(), loginForm.get()))
@@ -396,7 +399,7 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::sh
     return RequestHandlerResult::Async;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLoginSrpChallenge(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context)
+LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLoginSrpChallenge(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
 {
     JSON::Login::LoginForm loginForm;
     if (!::JSON::Deserialize(context.request.body(), &loginForm))
@@ -483,7 +486,7 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLoginSrpChall
     return RequestHandlerResult::Async;
 }
 
-LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const
+LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const
 {
     std::string ticket = ExtractAuthorization(context.request);
     if (ticket.empty())
@@ -549,11 +552,6 @@ std::shared_ptr<Trinity::Net::Http::SessionState> LoginRESTService::CreateNewSes
     std::shared_ptr<LoginSessionState> state = std::make_shared<LoginSessionState>();
     InitAndStoreSessionState(state, address);
     return state;
-}
-
-void LoginRESTService::OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
-{
-    sLoginService.OnSocketOpen(std::move(sock), threadIndex);
 }
 
 void LoginRESTService::MigrateLegacyPasswordHashes() const

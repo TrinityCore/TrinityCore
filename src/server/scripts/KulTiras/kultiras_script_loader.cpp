@@ -21,6 +21,7 @@ void AddSC_zone_boralus();
 
 // Drustvar
 void AddSC_drustvar_chapter_1_the_final_effigy();
+void AddSC_drustvar_chapter_2_the_burden_of_proof();
 
 // Shrine of the Storm
 void AddSC_boss_aqusirr();
@@ -41,6 +42,7 @@ void AddKulTirasScripts()
 
     // Drustvar
     AddSC_drustvar_chapter_1_the_final_effigy();
+    AddSC_drustvar_chapter_2_the_burden_of_proof();
 
     // Shrine of the Storm
     AddSC_boss_aqusirr();

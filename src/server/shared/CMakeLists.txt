@@ -41,6 +41,7 @@ target_link_libraries(shared
     trinity-core-interface
   PUBLIC
     database
+    network
     rapidjson
     proto
     zlib)
