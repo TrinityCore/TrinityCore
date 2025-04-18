@@ -635,14 +635,14 @@ class spell_warr_storm_bolt : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_STORM_BOLT_STUN });
     }
 
-    void HandleStun(SpellEffIndex /*effIndex*/) const
+    void HandleOnHit(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleStun, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
