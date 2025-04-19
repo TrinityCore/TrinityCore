@@ -144,6 +144,7 @@ struct VehicleAccessory
 struct VehicleTemplate
 {
     Milliseconds DespawnDelay = Milliseconds::zero();
+    Optional<float> Pitch;
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;

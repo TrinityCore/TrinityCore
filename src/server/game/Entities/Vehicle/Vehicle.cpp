@@ -966,6 +966,15 @@ Milliseconds Vehicle::GetDespawnDelay()
     return 1ms;
 }
 
+float Vehicle::GetPitch()
+{
+    if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+        if (vehicleTemplate->Pitch)
+            return *vehicleTemplate->Pitch;
+
+    return std::max(0.0f, _vehicleInfo->PitchMin);
+}
+
 std::string Vehicle::GetDebugInfo() const
 {
     std::stringstream sstr;
