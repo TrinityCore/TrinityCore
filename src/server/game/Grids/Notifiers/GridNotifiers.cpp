@@ -124,10 +124,11 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
 
     if (!c->HasUnitState(UNIT_STATE_SIGHTLESS))
     {
-        if (c->IsAIEnabled() && c->CanSeeOrDetect(u, false, true))
+        if (c->IsAIEnabled() && c->CanSeeOrDetect(u, { .DistanceCheck = true }))
             c->AI()->MoveInLineOfSight_Safe(u);
         else
-            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled() && c->CanSeeOrDetect(u, false, true, true))
+            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled()
+                && c->CanSeeOrDetect(u, { .DistanceCheck = true, .AlertCheck = true }))
                 c->AI()->TriggerAlert(u);
     }
 }
