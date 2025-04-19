@@ -191,7 +191,7 @@ enum class AreaTriggerActionSetFlag : uint32
     CreatorsPartyOnly               = 0x0100,
     DontRunOnLeaveWhenExpiring      = 0x0200, /*NYI*/
     CanAffectUninteractible         = 0x0400,
-    DontDespawnWithCreator          = 0x0800, /*NYI*/
+    DontDespawnWithCreator          = 0x0800,
     CanAffectBeastmaster            = 0x1000, // Can affect GMs
     RequiresLineOfSight             = 0x2000  /*NYI*/
 };
