@@ -1481,7 +1481,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     m_spells[spellId] = newspell;
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))
-        CastSpell(this, spellId, true);
+        AddAura(spellId, this);
     else
         m_charmInfo->AddSpellToActionBar(spellInfo);
 
@@ -1955,7 +1955,7 @@ void Pet::CastPetAura(PetAura const* aura)
     if (auraId == 35696)                                      // Demonic Knowledge
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT)));
 
-    CastSpell(this, auraId, args);
+    AddAura(auraId, this);
 }
 
 bool Pet::IsPetAura(Aura const* aura)
