@@ -2923,7 +2923,7 @@ void Spell::EffectInterruptCast()
         {
             SpellInfo const* curSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
-            if ((spell->getState() == SPELL_STATE_CASTING
+            if ((spell->getState() == SPELL_STATE_CHANNELING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
                 && curSpellInfo->CanBeInterrupted(m_caster, unitTarget))
             {

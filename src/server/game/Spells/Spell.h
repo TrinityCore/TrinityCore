@@ -238,12 +238,12 @@ struct SpellValue
 
 enum SpellState
 {
-    SPELL_STATE_NULL      = 0,
-    SPELL_STATE_PREPARING = 1,
-    SPELL_STATE_CASTING   = 2,
-    SPELL_STATE_FINISHED  = 3,
-    SPELL_STATE_IDLE      = 4,
-    SPELL_STATE_DELAYED   = 5
+    SPELL_STATE_NULL        = 0,
+    SPELL_STATE_PREPARING   = 1,
+    SPELL_STATE_LAUNCHED    = 2,
+    SPELL_STATE_CHANNELING  = 3,
+    SPELL_STATE_FINISHED    = 4,
+    SPELL_STATE_IDLE        = 5,
 };
 
 enum SpellEffectHandleMode
@@ -524,8 +524,8 @@ class TC_GAME_API Spell
 
         void Delayed();
         void DelayedChannel();
-        uint32 getState() const { return m_spellState; }
-        void setState(uint32 state) { m_spellState = state; }
+        SpellState getState() const { return m_spellState; }
+        void setState(SpellState state) { m_spellState = state; }
 
         void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr);
 
@@ -729,16 +729,6 @@ class TC_GAME_API Spell
         bool m_autoRepeat;
         uint8 m_runesState;
 
-        struct EmpowerData
-        {
-            Milliseconds MinHoldTime = 0ms;
-            std::vector<Milliseconds> StageDurations;
-            int32 CompletedStages = 0;
-            bool IsReleasedByClient = false;
-            bool IsReleased = false;
-        };
-        std::unique_ptr<EmpowerData> m_empower;
-
         uint8 m_delayAtDamageCount;
         bool IsDelayableNoMore()
         {
@@ -748,6 +738,16 @@ class TC_GAME_API Spell
             ++m_delayAtDamageCount;
             return false;
         }
+
+        struct EmpowerData
+        {
+            Milliseconds MinHoldTime = 0ms;
+            std::vector<Milliseconds> StageDurations;
+            int32 CompletedStages = 0;
+            bool IsReleasedByClient = false;
+            bool IsReleased = false;
+        };
+        std::unique_ptr<EmpowerData> m_empower;
 
         // Delayed spells system
         uint64 m_delayStart;                                // time of spell delay start, filled by event handler, zero = just started
@@ -948,7 +948,7 @@ class TC_GAME_API Spell
         SpellCastResult CanOpenLock(SpellEffectInfo const& effect, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
 
-        uint32 m_spellState;
+        SpellState m_spellState;
         int32 m_timer;
 
         SpellEvent* _spellEvent;

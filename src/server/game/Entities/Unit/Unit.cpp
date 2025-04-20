@@ -734,7 +734,7 @@ void Unit::UpdateInterruptMask()
 
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
     {
-        if (spell->getState() == SPELL_STATE_CASTING)
+        if (spell->getState() == SPELL_STATE_CHANNELING)
         {
             m_interruptMask |= spell->m_spellInfo->ChannelInterruptFlags;
             m_interruptMask2 |= spell->m_spellInfo->ChannelInterruptFlags2;
@@ -1123,7 +1123,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
                 if (damageTaken && victim->IsPlayer())
                     if (Spell* spell = victim->m_currentSpells[CURRENT_CHANNELED_SPELL])
-                        if (spell->getState() == SPELL_STATE_CASTING && spell->m_spellInfo->HasChannelInterruptFlag(SpellAuraInterruptFlags::DamageChannelDuration))
+                        if (spell->getState() == SPELL_STATE_CHANNELING && spell->m_spellInfo->HasChannelInterruptFlag(SpellAuraInterruptFlags::DamageChannelDuration))
                             spell->DelayedChannel();
             }
         }
@@ -2910,12 +2910,12 @@ void Unit::_UpdateSpells(uint32 time)
         _UpdateAutoRepeatSpell();
 
     // remove finished spells from current pointers
-    for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
+    for (Spell*& spell : m_currentSpells)
     {
-        if (m_currentSpells[i] && m_currentSpells[i]->getState() == SPELL_STATE_FINISHED)
+        if (spell && spell->getState() == SPELL_STATE_FINISHED)
         {
-            m_currentSpells[i]->SetReferencedFromCurrent(false);
-            m_currentSpells[i] = nullptr;                      // remove pointer
+            spell->SetReferencedFromCurrent(false);
+            spell = nullptr;                                   // remove pointer
         }
     }
 
@@ -3081,8 +3081,8 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
     //TC_LOG_DEBUG("entities.unit", "Interrupt spell for unit {}.", GetEntry());
     Spell* spell = m_currentSpells[spellType];
     if (spell
-        && (withDelayed || spell->getState() != SPELL_STATE_DELAYED)
-        && (withInstant || spell->GetCastTime() > 0 || spell->getState() == SPELL_STATE_CASTING))
+        && (withDelayed || spell->getState() != SPELL_STATE_LAUNCHED)
+        && (withInstant || spell->GetCastTime() > 0 || spell->getState() == SPELL_STATE_CHANNELING))
     {
         // for example, do not let self-stun aura interrupt itself
         if (!spell->IsInterruptable())
@@ -3126,7 +3126,7 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAu
     // generic spells are cast when they are not finished and not delayed
     if (m_currentSpells[CURRENT_GENERIC_SPELL] &&
         (m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_FINISHED) &&
-        (withDelayed || m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_DELAYED))
+        (withDelayed || m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_LAUNCHED))
     {
         if (!skipInstant || m_currentSpells[CURRENT_GENERIC_SPELL]->GetCastTime())
         {
@@ -3165,9 +3165,9 @@ void Unit::InterruptNonMeleeSpells(bool withDelayed, uint32 spell_id, bool withI
 
 Spell* Unit::FindCurrentSpellBySpellId(uint32 spell_id) const
 {
-    for (uint32 i = 0; i < CURRENT_MAX_SPELL; i++)
-        if (m_currentSpells[i] && m_currentSpells[i]->m_spellInfo->Id == spell_id)
-            return m_currentSpells[i];
+    for (Spell* spell : m_currentSpells)
+        if (spell && spell->m_spellInfo->Id == spell_id)
+            return spell;
     return nullptr;
 }
 
@@ -4191,7 +4191,7 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* s
 
     // interrupt channeled spell
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if (spell->getState() == SPELL_STATE_CASTING
+        if (spell->getState() == SPELL_STATE_CHANNELING
             && spell->GetSpellInfo()->HasChannelInterruptFlag(flag)
             && (!source || spell->GetSpellInfo()->Id != source->Id)
             && !IsInterruptFlagIgnoredForSpell(flag, this, spell->GetSpellInfo(), true, source))
