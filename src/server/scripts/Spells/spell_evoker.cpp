@@ -182,6 +182,11 @@ class spell_evo_burnout : public AuraScript
 // 361469 - Living Flame (Red)
 class spell_evo_burnout_proc : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_BURNOUT });
+    }
+
     bool Load() override
     {
         return GetCaster()->HasAura(SPELL_EVOKER_BURNOUT);
