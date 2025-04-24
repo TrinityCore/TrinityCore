@@ -1054,62 +1054,134 @@ enum SheathTypes
 
 #define MAX_SHEATHETYPE                  8
 
-enum CharacterFlags
+enum CharacterFlags : int32
 {
-    CHARACTER_FLAG_NONE                 = 0x00000000,
-    CHARACTER_FLAG_UNK1                 = 0x00000001,
-    CHARACTER_FLAG_RESTING              = 0x00000002,
-    CHARACTER_FLAG_LOCKED_FOR_TRANSFER  = 0x00000004,
-    CHARACTER_FLAG_UNK4                 = 0x00000008,
-    CHARACTER_FLAG_UNK5                 = 0x00000010,
-    CHARACTER_FLAG_UNK6                 = 0x00000020,
-    CHARACTER_FLAG_UNK7                 = 0x00000040,
-    CHARACTER_FLAG_UNK8                 = 0x00000080,
-    CHARACTER_FLAG_UNK9                 = 0x00000100,
-    CHARACTER_FLAG_UNK10                = 0x00000200,
-    CHARACTER_FLAG_HIDE_HELM            = 0x00000400,
-    CHARACTER_FLAG_HIDE_CLOAK           = 0x00000800,
-    CHARACTER_FLAG_UNK13                = 0x00001000,
-    CHARACTER_FLAG_GHOST                = 0x00002000,
-    CHARACTER_FLAG_RENAME               = 0x00004000,
-    CHARACTER_FLAG_UNK16                = 0x00008000,
-    CHARACTER_FLAG_UNK17                = 0x00010000,
-    CHARACTER_FLAG_UNK18                = 0x00020000,
-    CHARACTER_FLAG_UNK19                = 0x00040000,
-    CHARACTER_FLAG_UNK20                = 0x00080000,
-    CHARACTER_FLAG_UNK21                = 0x00100000,
-    CHARACTER_FLAG_UNK22                = 0x00200000,
-    CHARACTER_FLAG_UNK23                = 0x00400000,
-    CHARACTER_FLAG_UNK24                = 0x00800000,
-    CHARACTER_FLAG_LOCKED_BY_BILLING    = 0x01000000,
-    CHARACTER_FLAG_DECLINED             = 0x02000000,
-    CHARACTER_FLAG_UNK27                = 0x04000000,
-    CHARACTER_FLAG_UNK28                = 0x08000000,
-    CHARACTER_FLAG_UNK29                = 0x10000000,
-    CHARACTER_FLAG_UNK30                = 0x20000000,
-    CHARACTER_FLAG_UNK31                = 0x40000000,
-    CHARACTER_FLAG_UNK32                = 0x80000000
+    CHARACTER_FLAG_NONE                                         = 0x00000000,
+    CHARACTER_FLAG_INVIS_GOD                                    = 0x00000001, // Player has God Invis enabled
+    CHARACTER_FLAG_RESTING                                      = 0x00000002, // Player is currently earning rest experience
+    CHARACTER_FLAG_LOCKED_FOR_TRANSFER                          = 0x00000004, // Player is locked - for paid character transfer
+    CHARACTER_FLAG_SILENCED                                     = 0x00000008, // Player's chat is silenced (can talk to GMs)
+    CHARACTER_FLAG_UBERINVIS_GOD                                = 0x00000010, // Player has God Uberinvis enabled
+    CHARACTER_FLAG_BEASTMASTER                                  = 0x00000020, // Beastmaster is on
+    CHARACTER_FLAG_PVP_ENABLED                                  = 0x00000040, // PvP Enabled
+    CHARACTER_FLAG_PORT_AFTER_RESURRECT                         = 0x00000080, // World port after resurrect
+    CHARACTER_FLAG_RESET_TALENTS_ON_LOGIN                       = 0x00000100, // Clear Talents on login
+    CHARACTER_FLAG_HAS_PVP_RANK                                 = 0x00000200, // Player has a PvP Rank
+    CHARACTER_FLAG_HIDE_HELM                                    = 0x00000400, // Hide Helm
+    CHARACTER_FLAG_HIDE_CLOAK                                   = 0x00000800, // Hide Cloak
+    CHARACTER_FLAG_SKINNABLE                                    = 0x00001000, // Player is skinnable
+    CHARACTER_FLAG_GHOST                                        = 0x00002000, // Player is a ghost
+    CHARACTER_FLAG_RENAME                                       = 0x00004000, // Set to force a rename
+    CHARACTER_FLAG_RENAME_NEEDS_GM_REVIEW                       = 0x00008000, // Flag is set after rename for GM review
+    CHARACTER_FLAG_PVP_DESIRED                                  = 0x00010000, // PvP desired flag
+    CHARACTER_FLAG_GM_MODE                                      = 0x00020000, // GM Mode enabled
+    CHARACTER_FLAG_DELETED_BY_TRANSFER                          = 0x00040000, // Deleted by a character transfer
+    CHARACTER_FLAG_ON_UNSAFE_TRANSPORT                          = 0x00080000, // On unsafe transport (port to safe loc on log in)
+    CHARACTER_FLAG_RENAME_FAILED                                = 0x00100000, // Player unable to rename character
+    CHARACTER_FLAG_MOUNT_UPGRADED                               = 0x00200000, // Mount has been upgraded
+    CHARACTER_FLAG_FRIENDS_LIST_NEEDS_REPAIR                    = 0x00400000, // Friends list requires a repair
+    CHARACTER_FLAG_EXPLORATION_DATA_FIXED                       = 0x00800000, // character had their exploration data fixed
+    CHARACTER_FLAG_LOCKED_BY_BILLING                            = 0x01000000, // Locked due to billing
+    CHARACTER_FLAG_DECLINED                                     = 0x02000000, // Player has Russian declined name forms
+    CHARACTER_FLAG_COMMENTATOR                                  = 0x04000000, // Commentator mode enabled
+    CHARACTER_FLAG_UBER_COMMENTATOR                             = 0x08000000, // Uber Commentator mode enabled
+    CHARACTER_FLAG_XP_FIXED                                     = 0x10000000, // Player's XP has been fixed (2.2.x->2.3.0)
+    CHARACTER_FLAG_LOG_PACKETS                                  = 0x20000000, // Log player packets
+    CHARACTER_FLAG_COMPENSATE_FOR_SPELLS                        = 0x40000000  // Compensate for spells
 };
 
-enum CharacterCustomizeFlags
+enum CharacterFlags2 : int32
 {
-    CHAR_CUSTOMIZE_FLAG_NONE            = 0x00000000,
-    CHAR_CUSTOMIZE_FLAG_CUSTOMIZE       = 0x00000001, // name, gender, etc...
-    CHAR_CUSTOMIZE_FLAG_FACTION         = 0x00010000, // name, gender, faction, etc...
-    CHAR_CUSTOMIZE_FLAG_RACE            = 0x00100000  // name, gender, race, etc...
+    CHARACTER_FLAG_2_NONE                                       = 0x00000000,
+    CHARACTER_FLAG_2_CUSTOMIZE                                  = 0x00000001, // Player has paid for a character re-customization
+    CHARACTER_FLAG_2_GM_SUPPORTER_PROXY                         = 0x00000002, // GMSupportServer Proxy, NOT for GMTool use
+    CHARACTER_FLAG_2_CAN_LOAD_ON_NON_SHIP_TRANPORT              = 0x00000004, // Character has been saved at least once since saving on non-ship transports was added
+    CHARACTER_FLAG_2_BATTLE_MASTER_MISC_IS_TAXI_ID              = 0x00000008, // Battle Master Misc Field is a Taxi ID
+    CHARACTER_FLAG_2_TEMP_PET_AUTOCAST_SPELL_1                  = 0x00000010, // Temp Pet Autocast Spell 1
+    CHARACTER_FLAG_2_TEMP_PET_AUTOCAST_SPELL_2                  = 0x00000020, // Temp Pet Autocast Spell 2
+    CHARACTER_FLAG_2_TEMP_PET_AUTOCAST_SPELL_3                  = 0x00000040, // Temp Pet Autocast Spell 3
+    CHARACTER_FLAG_2_TEMP_PET_AUTOCAST_SPELL_4                  = 0x00000080, // Temp Pet Autocast Spell 4
+    CHARACTER_FLAG_2_TEMP_PET_AGGRESSIVE                        = 0x00000100, // Temp Pet Aggressive
+    CHARACTER_FLAG_2_TEMP_PET_PASSIVE                           = 0x00000200, // Temp Pet Passive
+    CHARACTER_FLAG_2_CAN_INTERACT_WITH_OTHER_REALMS_IN_SITE     = 0x00000400, // Characters can interact with other realms in the site
+    CHARACTER_FLAG_2_CAN_INTERACT_WITH_OTHER_REALMS_IN_REGION   = 0x00000800, // Characters can interact with other realms in the region
+    CHARACTER_FLAG_2_BATTLE_MASTER_MISC_IS_AREA_ID              = 0x00001000, // Battle Master Misc Field is an Area ID
+    CHARACTER_FLAG_2_REEVALUATE_ACCOUNT_ITEM_LICENSES           = 0x00002000, // Account Item Licenses must be reevaluated on next login
+    CHARACTER_FLAG_2_BATTLE_MASTER_MISC_IS_TRANSPORT            = 0x00004000, // Battle Master Misc Field is a Transport
+    CHARACTER_FLAG_2_TALENTS_RESET_USING_TALENT_GROUP_DATA      = 0x00008000, // Players talents have been reset using talent group data
+    CHARACTER_FLAG_2_FACTION_CHANGE                             = 0x00010000, // This character is eligible to change his faction
+    CHARACTER_FLAG_2_HAS_CHANGED_RACE_OR_FACTION                = 0x00020000, // This character has changed his race/faction and now requires the world server to repair him
+    CHARACTER_FLAG_2_NO_XP_GAIN                                 = 0x00040000, // This character has chosen to not gain XP by any means
+    CHARACTER_FLAG_2_RECAST_ON_RESUMMON                         = 0x00080000, // Recast on Resummon
+    CHARACTER_FLAG_2_RACE_CHANGE                                = 0x00100000, // This character is eligible to change his race
+    CHARACTER_FLAG_2_CHANGED_TEMP_PET_AUTOCAST_SPELL_1          = 0x00200000, // Player has changed Temp Pet Autocast Spell 1
+    CHARACTER_FLAG_2_CHANGED_TEMP_PET_AUTOCAST_SPELL_2          = 0x00400000, // Player has changed Temp Pet Autocast Spell 2
+    CHARACTER_FLAG_2_CHANGED_TEMP_PET_AUTOCAST_SPELL_3          = 0x00800000, // Player has changed Temp Pet Autocast Spell 3
+    CHARACTER_FLAG_2_CHANGED_TEMP_PET_AUTOCAST_SPELL_4          = 0x01000000, // Player has changed Temp Pet Autocast Spell 4
+    CHARACTER_FLAG_2_CHANGED_GUILD_DURING_CHARACTER_TRANSFER    = 0x02000000, // Player has transferred guilds during a PCT
+    CHARACTER_FLAG_2_CAN_USE_VOID_STORAGE_FEATURE               = 0x04000000, // Player is allowed to use the Void Storage feature
+    CHARACTER_FLAG_2_BATTLE_PETS_CONVERTED                      = 0x08000000, // Battle Pets Converted
+    CHARACTER_FLAG_2_QUESTS_FIXED                               = 0x10000000, // Player has had his quests fixed
+    CHARACTER_FLAG_2_LOW_LEVEL_RAID_ENABLED                     = 0x20000000, // The player can join raids even if he's below the min raid level
+    CHARACTER_FLAG_2_AUTO_DECLINE_GUILD                         = 0x40000000  // The player will automatically decline guild invites
 };
 
-enum CharacterFlags3 : uint32
+enum CharacterFlags3 : int32
 {
-    CHARACTER_FLAG_3_LOCKED_BY_REVOKED_VAS_TRANSACTION      = 0x00100000,
-    CHARACTER_FLAG_3_LOCKED_BY_REVOKED_CHARACTER_UPGRADE    = 0x80000000,
+    CHARACTER_FLAG_3_NONE                                       = 0x00000000,
+    CHARACTER_FLAG_3_IS_BATTLE_PET_TRAIER                       = 0x00000001, // Player is a battle pet trainer
+    CHARACTER_FLAG_3_HIDE_ACCOUNT_ACHIEVEMENTS                  = 0x00000002, // Player has opted to hide his account and merged achievements
+    CHARACTER_FLAG_3_BATTLE_PETS_CONVERTED_AND_LOCKED           = 0x00000004, // Battle pet conversion complete but pets still locked
+    CHARACTER_FLAG_3_TRANSFERRED_BETWEEN_BNET_ACCOUNTS          = 0x00000008, // Player has performed a PCT between two bnet accounts
+    CHARACTER_FLAG_3_UPGRADE_IN_PROGRESS                        = 0x00000010, // Character upgrade in progress
+    CHARACTER_FLAG_3_BATTLE_MASTER_MISC_IS_LFG_DUNGEON          = 0x00000020, // Battle Master Misc field is a LFGDungeons rec ID
+    CHARACTER_FLAG_3_NEW_PLAYER_GUIDE                           = 0x00000040, // New Player Guide
+    CHARACTER_FLAG_3_LOCKED_BY_REVOKED_CHARACTER_UPGRADE        = 0x00000080, // Character locked due to revoked upgrade
+    CHARACTER_FLAG_3_NEEDS_FIRST_TIME_FIXUP                     = 0x00000100, // Character needs first time fix up
+    CHARACTER_FLAG_3_WAS_BOOSTED_AND_HAS_LIMITED_SPELLS         = 0x00000200, // Character was upgraded and has limited access to spells
+    CHARACTER_FLAG_3_DID_QUEST_ITEM_CLEANUP                     = 0x00000400, // Did Quest Item Cleanup
+    CHARACTER_FLAG_3_REAGENT_BANK_UNLOCKED                      = 0x00000800, // Reagent Bank Unlocked
+    CHARACTER_FLAG_3_PET_BEASTMASTER                            = 0x00001000, // Pet Beastmaster is on
+    CHARACTER_FLAG_3_RECHARGE_ON_LOGIN                          = 0x00002000, // Recharge on login
+    CHARACTER_FLAG_3_FIXUP_WOD_FACTION_CHANGE_BUG               = 0x00004000, // Fixup WoD faction change bug
+    CHARACTER_FLAG_3_FIXUP_WOD_XP                               = 0x00008000, // Fixup WoD XP to set to 0 for level 90
+    CHARACTER_FLAG_3_CHECK_FOR_RESTORABLE_DATA                  = 0x00010000, // Check for restorable data
+    CHARACTER_FLAG_3_HAS_BNET_TOKEN                             = 0x00020000, // Has a Battle.net token
+    CHARACTER_FLAG_3_BNET_TOKEN_TRANSACTION_IN_PROGRESS         = 0x00040000, // Battle.net token transaction in progress
+    CHARACTER_FLAG_3_LEVEL_WAS_SCALED                           = 0x00080000, // Player's level was scaled at last save
+    CHARACTER_FLAG_3_LOCKED_BY_REVOKED_VAS_TRANSACTION          = 0x00100000, // Character locked due to revoked VAS purchase
+    CHARACTER_FLAG_3_VAS_PRODUCT_APPLICATION_IN_PROGRESS        = 0x00200000, // Character VAS product application in progress
+    CHARACTER_FLAG_3_WAS_RECENTLY_BOOSTED                       = 0x00400000, // Character was recently boosted
+    CHARACTER_FLAG_3_CURRENTLY_PROCESSING_VAS_PURCHASE          = 0x00800000, // Character is currently processing a VAS purchase (disables web purchases)
+    CHARACTER_FLAG_3_LEGION_SPEC_WEAPON_FIXED_UP                = 0x01000000, // Legion Spec Weapon Fixed up
+    CHARACTER_FLAG_3_SENT_ACHIEVEMENT_HISTORY_TO_BI             = 0x02000000, // Sent Achievement History to BI
+    CHARACTER_FLAG_3_GRANTED_LEVELS_FROM_RAF                    = 0x04000000, // Character has been granted at least one single level boost from Recruit a friend system
+    CHARACTER_FLAG_3_WAR_MODE_DESIRED                           = 0x08000000, // Character has opted-in to Warmode
+    CHARACTER_FLAG_3_HONOR_CONVERTED_TO_ACCOUNT_WIDE            = 0x10000000, // Honor has been converted to account wide
+    CHARACTER_FLAG_3_KEYSTONE_FIXED_UP_FOR_LEGION_ROLLOVER      = 0x20000000, // Keystone has been fixed-up for Legion rollover
+    CHARACTER_FLAG_3_MYTHIC_PLUS_SEASON_1_ACHIEVEMENT_FIXED_UP  = 0x40000000, // Mythic+ Season 1 achievement has been fixed-up
 };
 
-enum CharacterFlags4 : uint32
+enum CharacterFlags4 : int32
 {
-    CHARACTER_FLAG_4_TRIAL_BOOST        = 0x00000080,
-    CHARACTER_FLAG_4_TRIAL_BOOST_LOCKED = 0x00040000,
-    CHARACTER_FLAG_4_EXPANSION_TRIAL    = 0x00080000,
+    CHARACTER_FLAG_4_NONE                                       = 0x00000000,
+    CHARACTER_FLAG_4_USED_RPE_RESET                             = 0x00000001, // Character has used a rpe reset recently
+    CHARACTER_FLAG_4_ONLY_RPE_RESET_OR_TIMERUNNING_END_BOOST    = 0x00000002, // Character has only ever used an rpe reset boost or timerunning-season-end boost
+    CHARACTER_FLAG_4_SELF_FOUND                                 = 0x00000004, // Character is self-found, and cannot trade, use the auction house, or use most mail functions
+    CHARACTER_FLAG_4_TIMERUNNING_CONVERSION_DONE                = 0x00000008, // Character has been updated to normal characters from a timerunning season
+    CHARACTER_FLAG_4_LOGGED_IN_BY_CRAWLER_OVERRIDING_LOCKS      = 0x00000010, // Character is being logged in by crawler overriding locks.
+    CHARACTER_FLAG_4_PROCESSED_FOR_WARBANDS                     = 0x00000020, // Character has had their information added to account-wide warband tracking
+    CHARACTER_FLAG_4_LOGGED_OUT_WHILE_LOREWALKING               = 0x00000040, // Character last logged out while actively Lorewalking
+    CHARACTER_FLAG_4_NO_NEIGHBORHOOD_INVITES                    = 0x00000080, // Character does not accept neighborhood invites
+    CHARACTER_FLAG_4_CHECKED_FOR_2ND_WAVE_ACCOUNT_WIDE_FACTIONS = 0x00000100, // Character has been checked for 2nd wave of account wide factions
+    CHARACTER_FLAG_4_WILL_BE_RESURRECTED_IN_HARDCORE            = 0x00000200, // Character will be resurrected overriding hardcore game rule
+};
+
+enum CharacterRestrictionFlags : uint32
+{
+    CHARACTER_RESTRICTION_FLAG_TRIAL_BOOST          = 0x00000080,
+    CHARACTER_RESTRICTION_FLAG_TRIAL_BOOST_LOCKED   = 0x00040000,
+    CHARACTER_RESTRICTION_FLAG_EXPANSION_TRIAL      = 0x00080000,
 };
 
 // Languages.db2 (9.2.0.42423)
