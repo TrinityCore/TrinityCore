@@ -33,7 +33,7 @@
 
 #define QUEST_TEMPLATE_FIELDS (ID)(QuestType)(QuestPackageID)(ContentTuningID)(QuestSortID)(QuestInfoID)(SuggestedGroupNum)(RewardNextQuest)(RewardXPDifficulty)\
     (RewardXPMultiplier)(RewardMoneyDifficulty)(RewardMoneyMultiplier)(RewardBonusMoney)(RewardSpell)(RewardHonor)(RewardKillHonor)(StartItem)\
-    (RewardArtifactXPDifficulty)(RewardArtifactXPMultiplier)(RewardArtifactCategoryID)(Flags)(FlagsEx)(FlagsEx2)\
+    (RewardArtifactXPDifficulty)(RewardArtifactXPMultiplier)(RewardArtifactCategoryID)(Flags)(FlagsEx)(FlagsEx2)(FlagsEx3)\
     (RewardItem1)(RewardAmount1)(ItemDrop1)(ItemDropQuantity1)(RewardItem2)(RewardAmount2)(ItemDrop2)(ItemDropQuantity2)\
     (RewardItem3)(RewardAmount3)(ItemDrop3)(ItemDropQuantity3)(RewardItem4)(RewardAmount4)(ItemDrop4)(ItemDropQuantity4)\
     (RewardChoiceItemID1)(RewardChoiceItemQuantity1)(RewardChoiceItemDisplayID1)(RewardChoiceItemID2)(RewardChoiceItemQuantity2)(RewardChoiceItemDisplayID2)\
@@ -109,6 +109,7 @@ Quest::Quest(QuestTemplateQueryResult const& questRecord) :
     _flags(questRecord.Flags().GetUInt32()),
     _flagsEx(questRecord.FlagsEx().GetUInt32()),
     _flagsEx2(questRecord.FlagsEx2().GetUInt32()),
+    _flagsEx3(questRecord.FlagsEx3().GetUInt32()),
     _poiContinent(questRecord.POIContinent().GetUInt32()),
     _poix(questRecord.POIx().GetFloat()),
     _poiy(questRecord.POIy().GetFloat()),
@@ -733,6 +734,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.Flags = GetFlags();
     response.Info.FlagsEx = GetFlagsEx();
     response.Info.FlagsEx2 = GetFlagsEx2();
+    response.Info.FlagsEx3 = GetFlagsEx3();
     response.Info.RewardTitle = GetRewTitle();
     response.Info.RewardArenaPoints = GetRewArenaPoints();
     response.Info.RewardSkillLineID = GetRewardSkillId();

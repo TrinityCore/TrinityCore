@@ -402,14 +402,17 @@ enum QuestObjectiveFlags2
 
 enum class QuestCompleteSpellType : uint32
 {
-    LegacyBehavior  = 0,
-    Follower        = 1,
-    Tradeskill      = 2,
-    Ability         = 3,
-    Aura            = 4,
-    Spell           = 5,
-    Unlock          = 6,
-    Companion       = 7,
+    LegacyBehavior      = 0,
+    Follower            = 1,
+    Tradeskill          = 2,
+    Ability             = 3,
+    Aura                = 4,
+    Spell               = 5,
+    Unlock              = 6,
+    Companion           = 7,
+    QuestlineUnlock     = 8,
+    QuestlineReward     = 9,
+    QuestlineUnlockPart = 10,
     Max
 };
 
@@ -698,6 +701,7 @@ class TC_GAME_API Quest
         uint32 GetFlags() const { return _flags; }
         uint32 GetFlagsEx() const { return _flagsEx; }
         uint32 GetFlagsEx2() const { return _flagsEx2; }
+        uint32 GetFlagsEx3() const { return _flagsEx3; }
         uint32 GetSpecialFlags() const { return _specialFlags; }
         uint32 GetScriptId() const { return _scriptId; }
         uint32 GetAreaGroupID() const { return _areaGroupID; }
@@ -796,6 +800,7 @@ class TC_GAME_API Quest
         uint32 _flags = 0;
         uint32 _flagsEx = 0;
         uint32 _flagsEx2 = 0;
+        uint32 _flagsEx3 = 0;
         uint32 _poiContinent = 0;
         float _poix = 0.f;
         float _poiy = 0.f;

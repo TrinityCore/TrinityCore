@@ -215,7 +215,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
 {
     data << charInfo.Guid;
     data << uint32(charInfo.VirtualRealmAddress);
-    data << uint8(charInfo.ListPosition);
+    data << uint16(charInfo.ListPosition);
     data << uint8(charInfo.RaceID);
     data << uint8(charInfo.SexID);
     data << uint8(charInfo.ClassID);

@@ -472,10 +472,12 @@ enum ItemSubclassConsumable
     ITEM_SUBCLASS_ITEM_ENHANCEMENT              = 6,
     ITEM_SUBCLASS_BANDAGE                       = 7,
     ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8,
-    ITEM_SUBCLASS_VANTUS_RUNE                   = 9
+    ITEM_SUBCLASS_VANTUS_RUNE                   = 9,
+    ITEM_SUBCLASS_UTILITY_CURIO                 = 10,
+    ITEM_SUBCLASS_COMBAT_CURIO                  = 11,
 };
 
-#define MAX_ITEM_SUBCLASS_CONSUMABLE              10
+#define MAX_ITEM_SUBCLASS_CONSUMABLE              12
 
 enum ItemSubclassContainer
 {
