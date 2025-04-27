@@ -1387,6 +1387,17 @@ struct CorruptionEffectsLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 5, &CorruptionEffectsMeta::Instance, HOTFIX_SEL_CORRUPTION_EFFECTS };
 };
 
+struct CraftingQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[2] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "QualityTier" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 2, &CraftingQualityMeta::Instance, HOTFIX_SEL_CRAFTING_QUALITY };
+};
+
 struct CreatureDisplayInfoLoadInfo
 {
     static constexpr DB2FieldMeta Fields[31] =
@@ -3859,6 +3870,18 @@ struct MawPowerLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &MawPowerMeta::Instance, HOTFIX_SEL_MAW_POWER };
 };
 
+struct ModifiedCraftingItemLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ModifiedCraftingReagentItemID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CraftingQualityID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &ModifiedCraftingItemMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_ITEM };
+};
+
 struct ModifierTreeLoadInfo
 {
     static constexpr DB2FieldMeta Fields[8] =
@@ -4126,6 +4149,22 @@ struct PathPropertyLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &PathPropertyMeta::Instance, HOTFIX_SEL_PATH_PROPERTY };
+};
+
+struct PerksActivityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { .IsSigned = false, .Type = FT_STRING, .Name = "ActivityName" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Description" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CriteriaTreeID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ThresholdContributionAmount" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Supersedes" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Priority" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &PerksActivityMeta::Instance, HOTFIX_SEL_PERKS_ACTIVITY };
 };
 
 struct PhaseLoadInfo

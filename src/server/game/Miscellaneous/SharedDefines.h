@@ -373,7 +373,7 @@ inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
     return SPELL_SCHOOL_NORMAL;
 }
 
-enum ItemQualities
+enum ItemQualities : uint8
 {
     ITEM_QUALITY_POOR                  = 0, // GREY
     ITEM_QUALITY_NORMAL                = 1, // WHITE
@@ -6252,6 +6252,7 @@ enum ChatLinkColors : uint32
     CHAT_LINK_COLOR_INSTANCE_LOCK   = 0xffff8000,
     CHAT_LINK_COLOR_JOURNAL         = 0xff66bbff,
     CHAT_LINK_COLOR_TRANSMOG        = 0xffff80ff,
+    CHAT_LINK_COLOR_NEUTRAL         = 0xffff00ff,
 };
 
 enum class ChatMessageResult : uint32

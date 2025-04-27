@@ -1009,6 +1009,12 @@ struct CorruptionEffectsEntry
     int32 Flags;
 };
 
+struct CraftingQualityEntry
+{
+    uint32 ID;
+    int32 QualityTier;
+};
+
 //struct CreatureDifficultyEntry
 //{
 //    uint32 ID;
@@ -2933,6 +2939,13 @@ struct MawPowerEntry
     int32 MawPowerRarityID;
 };
 
+struct ModifiedCraftingItemEntry
+{
+    uint32 ID;
+    int32 ModifiedCraftingReagentItemID;
+    int32 CraftingQualityID;
+};
+
 struct ModifierTreeEntry
 {
     uint32 ID;
@@ -3107,6 +3120,17 @@ struct PathPropertyEntry
     int32 Value;
 
     PathPropertyIndex GetPropertyIndex() const { return static_cast<PathPropertyIndex>(PropertyIndex); }
+};
+
+struct PerksActivityEntry
+{
+    LocalizedString ActivityName;
+    LocalizedString Description;
+    uint32 ID;
+    int32 CriteriaTreeID;
+    int32 ThresholdContributionAmount;
+    int32 Supersedes;
+    int32 Priority;
 };
 
 struct PhaseEntry
