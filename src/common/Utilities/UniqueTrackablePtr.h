@@ -198,6 +198,12 @@ public:
 
     ~unique_weak_ptr() = default;
 
+    unique_weak_ptr& operator=(std::nullptr_t) noexcept
+    {
+        _ptr.reset();
+        return *this;
+    }
+
     void swap(unique_weak_ptr& other) noexcept
     {
         using std::swap;

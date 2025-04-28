@@ -134,6 +134,8 @@ enum LfgJoinResult
     LFG_JOIN_ALREADY_USING_LFG_LIST                 = 0x3F, // You can't do that while using Premade Groups.
     LFG_JOIN_NOT_LEADER                             = 0x45, // You are not the party leader.
     LFG_JOIN_DEAD                                   = 0x49,
+    LFG_FARM_LIMIT                                  = 0x4D, // You or someone in your party has entered too many instances recently. Please wait awhile and try again.
+    LFG_NO_CROSS_FACTION_PARTIES                    = 0x4E, // Cross-faction groups can't queue for this instance
 
     LFG_JOIN_PARTY_NOT_MEET_REQS                    = 6,      // One or more party members do not meet the requirements for the chosen dungeons (FIXME)
 };

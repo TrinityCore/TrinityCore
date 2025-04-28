@@ -1713,15 +1713,29 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     if (G3D::fuzzyLe(armor, 0.0f))
         return damage;
 
-    Classes attackerClass = CLASS_WARRIOR;
+    Classes attackerClass = CLASS_NONE;
+    Optional<float> attackerItemLevel;
     if (attacker)
     {
         attackerLevel = attacker->GetLevelForTarget(victim);
-        attackerClass = Classes(attacker->GetClass());
+        if (Player const* ownerPlayer = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
+            attackerItemLevel = ownerPlayer->m_playerData->AvgItemLevel[AsUnderlyingType(AvgItemLevelCategory::EquippedBase)];
+        else
+            attackerClass = Classes(attacker->GetClass());
     }
 
     // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
     float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, attackerClass, 0);
+    if (attackerItemLevel)
+    {
+        uint32 maxLevelForExpansion = GetMaxLevelForExpansion(sWorld->getIntConfig(CONFIG_EXPANSION));
+        if (attackerLevel == maxLevelForExpansion)
+        {
+            float itemLevelDelta = *attackerItemLevel - ASSERT_NOTNULL(sItemLevelByLevelTable.GetRow(maxLevelForExpansion))->ItemLevel;
+            if (uint32 curveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::ArmorItemLevelDiminishing))
+                armorConstant *= sDB2Manager.GetCurveValueAt(curveId, itemLevelDelta);
+        }
+    }
 
     if (!(armor + armorConstant))
         return damage;
