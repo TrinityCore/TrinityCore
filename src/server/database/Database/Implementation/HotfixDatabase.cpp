@@ -488,6 +488,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CORRUPTION_EFFECTS, "SELECT MAX(ID) + 1 FROM corruption_effects", CONNECTION_SYNCH);
 
+    // CraftingQuality.db2
+    PrepareStatement(HOTFIX_SEL_CRAFTING_QUALITY, "SELECT ID, QualityTier FROM crafting_quality WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CRAFTING_QUALITY, "SELECT MAX(ID) + 1 FROM crafting_quality", CONNECTION_SYNCH);
+
     // CreatureDisplayInfo.db2
     PrepareStatement(HOTFIX_SEL_CREATURE_DISPLAY_INFO, "SELECT ID, ModelID, SoundID, SizeClass, CreatureModelScale, CreatureModelAlpha, BloodID, "
         "ExtendedDisplayInfoID, NPCSoundID, ParticleColorID, PortraitCreatureDisplayInfoID, PortraitTextureFileDataID, ObjectEffectPackageID, "
@@ -580,7 +584,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // DungeonEncounter.db2
     PrepareStatement(HOTFIX_SEL_DUNGEON_ENCOUNTER, "SELECT Name, ID, MapID, DifficultyID, OrderIndex, CompleteWorldStateID, Bit, Flags, "
-        "SpellIconFileID, Faction FROM dungeon_encounter WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "SpellIconFileID, Faction, Unknown1115 FROM dungeon_encounter WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_DUNGEON_ENCOUNTER, "SELECT MAX(ID) + 1 FROM dungeon_encounter", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_DUNGEON_ENCOUNTER, "SELECT ID, Name_lang FROM dungeon_encounter_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
@@ -1186,6 +1190,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_MAW_POWER, "SELECT ID, SpellID, MawPowerRarityID FROM maw_power WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_MAW_POWER, "SELECT MAX(ID) + 1 FROM maw_power", CONNECTION_SYNCH);
 
+    // ModifiedCraftingItem.db2
+    PrepareStatement(HOTFIX_SEL_MODIFIED_CRAFTING_ITEM, "SELECT ID, ModifiedCraftingReagentItemID, CraftingQualityID FROM modified_crafting_item"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_MODIFIED_CRAFTING_ITEM, "SELECT MAX(ID) + 1 FROM modified_crafting_item", CONNECTION_SYNCH);
+
     // ModifierTree.db2
     PrepareStatement(HOTFIX_SEL_MODIFIER_TREE, "SELECT ID, Parent, Operator, Amount, Type, Asset, SecondaryAsset, TertiaryAsset FROM modifier_tree"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -1246,8 +1255,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_NAMES_RESERVED_LOCALE, "SELECT MAX(ID) + 1 FROM names_reserved_locale", CONNECTION_SYNCH);
 
     // NumTalentsAtLevel.db2
-    PrepareStatement(HOTFIX_SEL_NUM_TALENTS_AT_LEVEL, "SELECT ID, NumTalents, NumTalentsDeathKnight, NumTalentsDemonHunter FROM num_talents_at_level"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_NUM_TALENTS_AT_LEVEL, "SELECT ID, NumTalents, NumTalentsDeathKnight, NumTalentsDemonHunter, Unknown1115"
+        " FROM num_talents_at_level WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_NUM_TALENTS_AT_LEVEL, "SELECT MAX(ID) + 1 FROM num_talents_at_level", CONNECTION_SYNCH);
 
     // OverrideSpellData.db2
@@ -1271,6 +1280,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // PathProperty.db2
     PrepareStatement(HOTFIX_SEL_PATH_PROPERTY, "SELECT ID, PathID, PropertyIndex, Value FROM path_property WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PATH_PROPERTY, "SELECT MAX(ID) + 1 FROM path_property", CONNECTION_SYNCH);
+
+    // PerksActivity.db2
+    PrepareStatement(HOTFIX_SEL_PERKS_ACTIVITY, "SELECT ActivityName, Description, ID, CriteriaTreeID, ThresholdContributionAmount, Supersedes, "
+        "Priority FROM perks_activity WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PERKS_ACTIVITY, "SELECT MAX(ID) + 1 FROM perks_activity", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_PERKS_ACTIVITY, "SELECT ID, ActivityName_lang, Description_lang FROM perks_activity_locale"
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // Phase.db2
     PrepareStatement(HOTFIX_SEL_PHASE, "SELECT ID, Flags FROM phase WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -1747,8 +1763,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TACT_KEY, "SELECT MAX(ID) + 1 FROM tact_key", CONNECTION_SYNCH);
 
     // Talent.db2
-    PrepareStatement(HOTFIX_SEL_TALENT, "SELECT ID, Description, TierID, Flags, ColumnIndex, ClassID, SpecID, SpellID, OverridesSpellID, "
-        "CategoryMask1, CategoryMask2 FROM talent WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_TALENT, "SELECT ID, Description, TierID, Flags, ColumnIndex, TabID, ClassID, SpecID, SpellID, OverridesSpellID, "
+        "RequiredSpellID, CategoryMask1, CategoryMask2, SpellRank1, SpellRank2, SpellRank3, SpellRank4, SpellRank5, SpellRank6, SpellRank7, "
+        "SpellRank8, SpellRank9, PrereqTalent1, PrereqTalent2, PrereqTalent3, PrereqRank1, PrereqRank2, PrereqRank3 FROM talent"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TALENT, "SELECT MAX(ID) + 1 FROM talent", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_TALENT, "SELECT ID, Description_lang FROM talent_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 

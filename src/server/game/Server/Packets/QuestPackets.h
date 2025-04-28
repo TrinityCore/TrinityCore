@@ -148,6 +148,7 @@ namespace WorldPackets
             uint32 Flags                    = 0;
             uint32 FlagsEx                  = 0;
             uint32 FlagsEx2                 = 0;
+            uint32 FlagsEx3                 = 0;
             int32 POIContinent              = 0;
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
@@ -315,7 +316,7 @@ namespace WorldPackets
             int32 SuggestedPartyMembers = 0;
             QuestRewards Rewards;
             std::vector<QuestDescEmote> Emotes;
-            std::array<int32, 3> QuestFlags = { };
+            std::array<int32, 4> QuestFlags = { };
             int32 QuestInfoID = 0;
         };
 
@@ -414,7 +415,7 @@ namespace WorldPackets
             ObjectGuid InformUnit;
             int32 QuestID           = 0;
             int32 QuestPackageID    = 0;
-            uint32 QuestFlags[3]    = { };
+            std::array<uint32, 4> QuestFlags = { };
             int32 SuggestedPartyMembers = 0;
             QuestRewards Rewards;
             std::vector<QuestObjectiveSimple> Objectives;
@@ -478,7 +479,7 @@ namespace WorldPackets
             std::vector<QuestCurrency> Currency;
             int32 StatusFlags           = 0;
             int32 QuestInfoID           = 0;
-            uint32 QuestFlags[3]        = { };
+            std::array<uint32, 4> QuestFlags = { };
             std::string QuestTitle;
             std::string CompletionText;
             std::vector<ConditionalQuestText> ConditionalCompletionText;
@@ -728,7 +729,6 @@ namespace WorldPackets
             int32 Unused901_1 = 0;
             int32 TypeArtFileID = 0;
             Optional<int32> Rarity;
-            Optional<uint32> RarityColor;
             int32 Unused901_2 = 0;
             int32 SpellID = 0;
             int32 MaxStacks = 0;
@@ -773,9 +773,11 @@ namespace WorldPackets
             std::string_view Question;
             std::string_view PendingChoiceText;
             std::vector<PlayerChoiceResponse> Responses;
-            bool CloseChoiceFrame = false;
+            bool InfiniteRange = false;
             bool HideWarboardHeader = false;
             bool KeepOpenAfterChoice = false;
+            bool Unknown_1115_1 = false;
+            bool Unknown_1115_2 = false;
         };
 
         class ChoiceResponse final : public ClientPacket

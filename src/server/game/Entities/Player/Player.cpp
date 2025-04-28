@@ -14277,7 +14277,9 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
                 PlayerInteractionType::ProfessionsCraftingOrder, PlayerInteractionType::Professions, PlayerInteractionType::ProfessionsCustomerOrder,
                 PlayerInteractionType::TraitSystem, PlayerInteractionType::BarbersChoice, PlayerInteractionType::MajorFactionRenown,
                 PlayerInteractionType::PersonalTabardVendor, PlayerInteractionType::ForgeMaster, PlayerInteractionType::CharacterBanker,
-                PlayerInteractionType::AccountBanker, PlayerInteractionType::ProfessionRespec
+                PlayerInteractionType::AccountBanker, PlayerInteractionType::ProfessionRespec, PlayerInteractionType::PlaceholderType72,
+                PlayerInteractionType::PlaceholderType75, PlayerInteractionType::PlaceholderType76, PlayerInteractionType::GuildRename,
+                PlayerInteractionType::PlaceholderType77, PlayerInteractionType::ItemUpgrade
             };
 
             PlayerInteractionType interactionType = GossipOptionNpcToInteractionType[AsUnderlyingType(gossipOptionNpc)];
@@ -16569,26 +16571,17 @@ void Player::SetQuestCompletedBit(uint32 questId, bool completed)
 
     uint32 fieldOffset = (questBit - 1) / QUESTS_COMPLETED_BITS_PER_BLOCK;
     uint64 flag = UI64LIT(1) << ((questBit - 1) % QUESTS_COMPLETED_BITS_PER_BLOCK);
-    if (fieldOffset < QUESTS_COMPLETED_BITS_SIZE)
-    {
-        if (completed)
-            SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::QuestCompleted, fieldOffset), flag);
-        else
-            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::QuestCompleted, fieldOffset), flag);
-    }
+
+    auto field = m_values
+        .ModifyValue(&Player::m_activePlayerData)
+        .ModifyValue(&UF::ActivePlayerData::BitVectors)
+        .ModifyValue(&UF::BitVectors::Values, PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX)
+        .ModifyValue(&UF::BitVector::Values, fieldOffset);
 
     if (completed)
-        SetUpdateFieldFlagValue(m_values
-            .ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::BitVectors)
-            .ModifyValue(&UF::BitVectors::Values, PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX)
-            .ModifyValue(&UF::BitVector::Values, fieldOffset), flag);
+        SetUpdateFieldFlagValue(field, flag);
     else
-        RemoveUpdateFieldFlagValue(m_values
-            .ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::BitVectors)
-            .ModifyValue(&UF::BitVectors::Values, PLAYER_DATA_FLAG_CHARACTER_QUEST_COMPLETED_INDEX)
-            .ModifyValue(&UF::BitVector::Values, fieldOffset), flag);
+        RemoveUpdateFieldFlagValue(field, flag);
 }
 
 void Player::AreaExploredOrEventHappens(uint32 questId)
@@ -26006,8 +25999,8 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
     // currently cast spells can be dependent from item
     for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
         if (Spell* spell = GetCurrentSpell(CurrentSpellTypes(i)))
-            if (spell->getState() != SPELL_STATE_DELAYED && !HasItemFitToSpellRequirements(spell->m_spellInfo, pItem))
-                InterruptSpell(CurrentSpellTypes(i));
+            if (!HasItemFitToSpellRequirements(spell->m_spellInfo, pItem))
+                InterruptSpell(CurrentSpellTypes(i), false);
 }
 
 void Player::InitializeSelfResurrectionSpells()
@@ -29851,7 +29844,7 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
         ObjectMgr::GetLocaleString(playerChoiceLocale->Question, locale, displayPlayerChoice.Question);
 
     displayPlayerChoice.Responses.resize(playerChoice->Responses.size());
-    displayPlayerChoice.CloseChoiceFrame = false;
+    displayPlayerChoice.InfiniteRange = false;
     displayPlayerChoice.HideWarboardHeader = playerChoice->HideWarboardHeader;
     displayPlayerChoice.KeepOpenAfterChoice = playerChoice->KeepOpenAfterChoice;
 
@@ -29945,7 +29938,6 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
             WorldPackets::Quest::PlayerChoiceResponseMawPower& mawPower = playerChoiceResponse.MawPower.emplace();
             mawPower.TypeArtFileID = playerChoiceResponseTemplate.MawPower->TypeArtFileID;
             mawPower.Rarity = playerChoiceResponseTemplate.MawPower->Rarity;
-            mawPower.RarityColor = playerChoiceResponseTemplate.MawPower->RarityColor;
             mawPower.SpellID = playerChoiceResponseTemplate.MawPower->SpellID;
             mawPower.MaxStacks = playerChoiceResponseTemplate.MawPower->MaxStacks;
         }

@@ -2578,7 +2578,7 @@ void AuraEffect::HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mod
         target->SetUnitFlag2(UNIT_FLAG2_NO_ACTIONS);
 
         // call functions which may have additional effects after chainging state of unit
-        // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
+        // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
                 if (spell->m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS)

@@ -104,7 +104,7 @@ namespace WorldPackets
             bool Important = false;
             bool Meta = false;
             std::string QuestTitle;
-            std::array<int32, 3> QuestFlags = { };
+            std::array<int32, 4> QuestFlags = { };
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText);

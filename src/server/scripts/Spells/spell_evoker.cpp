@@ -52,6 +52,8 @@ enum EvokerSpells
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
     SPELL_EVOKER_BURNOUT                        = 375802,
+    SPELL_EVOKER_CALL_OF_YSERA_TALENT           = 373834,
+    SPELL_EVOKER_CALL_OF_YSERA                  = 373835,
     SPELL_EVOKER_CAUSALITY                      = 375777,
     SPELL_EVOKER_DISINTEGRATE                   = 356995,
     SPELL_EVOKER_EMERALD_BLOSSOM_HEAL           = 355916,
@@ -66,6 +68,8 @@ enum EvokerSpells
     SPELL_EVOKER_LIVING_FLAME                   = 361469,
     SPELL_EVOKER_LIVING_FLAME_DAMAGE            = 361500,
     SPELL_EVOKER_LIVING_FLAME_HEAL              = 361509,
+    SPELL_EVOKER_PANACEA_HEAL                   = 387763,
+    SPELL_EVOKER_PANACEA_TALENT                 = 387761,
     SPELL_EVOKER_PERMEATING_CHILL_TALENT        = 370897,
     SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
     SPELL_EVOKER_RUBY_EMBERS                    = 365937,
@@ -200,6 +204,33 @@ class spell_evo_burnout_proc : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_evo_burnout_proc::HandleProc);
+    }
+};
+
+// 373834 - Call of Ysera (attached to 361195 - Verdant Embrace (Green))
+class spell_evo_call_of_ysera : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_CALL_OF_YSERA_TALENT, SPELL_EVOKER_CALL_OF_YSERA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_CALL_OF_YSERA_TALENT);
+    }
+
+    void HandleCallOfYsera() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_EVOKER_CALL_OF_YSERA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_call_of_ysera::HandleCallOfYsera);
     }
 };
 
@@ -534,6 +565,33 @@ class spell_evo_living_flame : public SpellScript
     }
 };
 
+// 387761 Panacea (Green) (attached to 355913 - Emerald Blossom (Green) and 360995 - Verdant Embrace (Green))
+class spell_evo_panacea : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_PANACEA_TALENT, SPELL_EVOKER_PANACEA_HEAL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_PANACEA_TALENT);
+    }
+
+    void HandlePanacea() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_EVOKER_PANACEA_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_panacea::HandlePanacea);
+    }
+};
+
 // 381773 - Permeating Chill
 class spell_evo_permeating_chill : public AuraScript
 {
@@ -737,6 +795,7 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
     RegisterSpellScript(spell_evo_burnout);
     RegisterSpellScript(spell_evo_burnout_proc);
+    RegisterSpellScript(spell_evo_call_of_ysera);
     RegisterSpellScript(spell_evo_causality_disintegrate);
     RegisterSpellScript(spell_evo_causality_pyre);
     RegisterSpellScript(spell_evo_charged_blast);
@@ -749,6 +808,7 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_fire_breath_damage);
     RegisterSpellScript(spell_evo_glide);
     RegisterSpellScript(spell_evo_living_flame);
+    RegisterSpellScript(spell_evo_panacea);
     RegisterSpellScript(spell_evo_permeating_chill);
     RegisterSpellScript(spell_evo_pyre);
     RegisterSpellScript(spell_evo_ruby_embers);

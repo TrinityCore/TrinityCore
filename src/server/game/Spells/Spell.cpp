@@ -2762,7 +2762,7 @@ void Spell::TargetInfo::DoTargetSpellHit(Spell* spell, SpellEffectInfo const& sp
     if (unit->IsAlive() != IsAlive && !spell->m_spellInfo->HasAttribute(SPELL_ATTR9_FORCE_CORPSE_TARGET))
         return;
 
-    if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR8_IGNORE_SANCTUARY) && spell->getState() == SPELL_STATE_DELAYED && !spell->IsPositive() && (GameTime::GetGameTimeMS() - TimeDelay) <= unit->m_lastSanctuaryTime)
+    if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR8_IGNORE_SANCTUARY) && spell->getState() == SPELL_STATE_LAUNCHED && !spell->IsPositive() && (GameTime::GetGameTimeMS() - TimeDelay) <= unit->m_lastSanctuaryTime)
         return;                                             // No missinfo in that case
 
     if (_spellHitTarget)
@@ -3606,7 +3606,7 @@ void Spell::cancel()
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
 
-    uint32 oldState = m_spellState;
+    SpellState oldState = m_spellState;
     m_spellState = SPELL_STATE_FINISHED;
 
     m_autoRepeat = false;
@@ -3615,12 +3615,11 @@ void Spell::cancel()
         case SPELL_STATE_PREPARING:
             CancelGlobalCooldown();
             [[fallthrough]];
-        case SPELL_STATE_DELAYED:
+        case SPELL_STATE_LAUNCHED:
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
             break;
-
-        case SPELL_STATE_CASTING:
+        case SPELL_STATE_CHANNELING:
             for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
                 if (targetInfo.MissCondition == SPELL_MISS_NONE)
                     if (Unit* unit = m_caster->GetGUID() == targetInfo.TargetGUID ? m_caster->ToUnit() : ObjectAccessor::GetUnit(*m_caster, targetInfo.TargetGUID))
@@ -3632,7 +3631,6 @@ void Spell::cancel()
 
             m_appliedMods.clear();
             break;
-
         default:
             break;
     }
@@ -3885,7 +3883,7 @@ void Spell::_cast(bool skipCheck)
 
         // Okay, maps created, now prepare flags
         m_immediateHandled = false;
-        m_spellState = SPELL_STATE_DELAYED;
+        m_spellState = SPELL_STATE_LAUNCHED;
         SetDelayStart(0);
 
         if (Unit* unitCaster = m_caster->ToUnit())
@@ -4048,7 +4046,7 @@ void Spell::handle_immediate()
 
         if (duration != 0)
         {
-            m_spellState = SPELL_STATE_CASTING;
+            m_spellState = SPELL_STATE_CHANNELING;
             // GameObjects shouldn't cast channeled spells
             ASSERT_NOTNULL(m_caster->ToUnit())->AddInterruptMask(m_spellInfo->ChannelInterruptFlags, m_spellInfo->ChannelInterruptFlags2);
         }
@@ -4080,7 +4078,7 @@ void Spell::handle_immediate()
     // Remove used for cast item if need (it can be already NULL after TakeReagents call
     TakeCastItem();
 
-    if (m_spellState != SPELL_STATE_CASTING)
+    if (m_spellState != SPELL_STATE_CHANNELING)
         finish();                                           // successfully finish spell cast (not last in case autorepeat or channel spell)
 }
 
@@ -4300,7 +4298,7 @@ void Spell::update(uint32 difftime)
                 cast(!m_casttime);
             break;
         }
-        case SPELL_STATE_CASTING:
+        case SPELL_STATE_CHANNELING:
         {
             if (m_timer)
             {
@@ -7267,7 +7265,7 @@ SpellCastResult Spell::CheckMovement() const
                     if (m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
                         return SPELL_FAILED_MOVING;
             }
-            else if (getState() == SPELL_STATE_CASTING)
+            else if (getState() == SPELL_STATE_CHANNELING)
                 if (!m_spellInfo->IsMoveAllowedChannel())
                     return SPELL_FAILED_MOVING;
         }
@@ -8107,7 +8105,7 @@ void Spell::DelayedChannel()
     if (!unitCaster)
         return;
 
-    if (m_spellState != SPELL_STATE_CASTING)
+    if (m_spellState != SPELL_STATE_CHANNELING)
         return;
 
     if (IsDelayableNoMore())                                    // Spells may only be delayed twice
@@ -8455,7 +8453,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
             // event will be re-added automatically at the end of routine)
             break;
         }
-        case SPELL_STATE_DELAYED:
+        case SPELL_STATE_LAUNCHED:
         {
             // first, check, if we have just started
             if (m_Spell->GetDelayStart() != 0)
