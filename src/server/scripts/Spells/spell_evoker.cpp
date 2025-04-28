@@ -51,6 +51,8 @@ enum EvokerSpells
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_SHAMAN  = 381756,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARLOCK = 381757,
     SPELL_EVOKER_BLESSING_OF_THE_BRONZE_WARRIOR = 381758,
+    SPELL_EVOKER_CALL_OF_YSERA_TALENT           = 373834,
+    SPELL_EVOKER_CALL_OF_YSERA                  = 373835,
     SPELL_EVOKER_CAUSALITY                      = 375777,
     SPELL_EVOKER_DISINTEGRATE                   = 356995,
     SPELL_EVOKER_EMERALD_BLOSSOM_HEAL           = 355916,
@@ -152,6 +154,33 @@ class spell_evo_blessing_of_the_bronze : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_blessing_of_the_bronze::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+    }
+};
+
+// 373834 - Call of Ysera (attached to 361195 - Verdant Embrace (Green))
+class spell_evo_call_of_ysera : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_CALL_OF_YSERA_TALENT, SPELL_EVOKER_CALL_OF_YSERA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_CALL_OF_YSERA_TALENT);
+    }
+
+    void HandleCallOfYsera() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_EVOKER_CALL_OF_YSERA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_call_of_ysera::HandleCallOfYsera);
     }
 };
 
@@ -714,6 +743,7 @@ void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
+    RegisterSpellScript(spell_evo_call_of_ysera);
     RegisterSpellScript(spell_evo_causality_disintegrate);
     RegisterSpellScript(spell_evo_causality_pyre);
     RegisterSpellScript(spell_evo_charged_blast);

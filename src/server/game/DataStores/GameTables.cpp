@@ -33,6 +33,7 @@ GameTable<GtBattlePetXPEntry>                   sBattlePetXPGameTable;
 GameTable<GtCombatRatingsEntry>                 sCombatRatingsGameTable;
 GameTable<GtCombatRatingsMultByILvl>            sCombatRatingsMultByILvlGameTable;
 GameTable<GtHpPerStaEntry>                      sHpPerStaGameTable;
+GameTable<GtItemLevelByLevelEntry>              sItemLevelByLevelTable;
 GameTable<GtItemSocketCostPerLevelEntry>        sItemSocketCostPerLevelGameTable;
 GameTable<GtNpcManaCostScalerEntry>             sNpcManaCostScalerGameTable;
 GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
@@ -123,6 +124,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
     LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
+    LOAD_GT(sItemLevelByLevelTable, "ItemLevelByLevel.txt");
     LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
     LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
     LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
