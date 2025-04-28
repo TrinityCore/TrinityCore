@@ -67,6 +67,8 @@ enum EvokerSpells
     SPELL_EVOKER_LIVING_FLAME                   = 361469,
     SPELL_EVOKER_LIVING_FLAME_DAMAGE            = 361500,
     SPELL_EVOKER_LIVING_FLAME_HEAL              = 361509,
+    SPELL_EVOKER_PANACEA_HEAL                   = 387763,
+    SPELL_EVOKER_PANACEA_TALENT                 = 387761,
     SPELL_EVOKER_PERMEATING_CHILL_TALENT        = 370897,
     SPELL_EVOKER_PYRE_DAMAGE                    = 357212,
     SPELL_EVOKER_RUBY_EMBERS                    = 365937,
@@ -513,6 +515,33 @@ class spell_evo_living_flame : public SpellScript
     }
 };
 
+// 387761 Panacea (Green) (attached to 355913 - Emerald Blossom (Green) and 360995 - Verdant Embrace (Green))
+class spell_evo_panacea : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_PANACEA_TALENT, SPELL_EVOKER_PANACEA_HEAL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_EVOKER_PANACEA_TALENT);
+    }
+
+    void HandlePanacea() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_EVOKER_PANACEA_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_evo_panacea::HandlePanacea);
+    }
+};
+
 // 381773 - Permeating Chill
 class spell_evo_permeating_chill : public AuraScript
 {
@@ -727,6 +756,7 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_fire_breath_damage);
     RegisterSpellScript(spell_evo_glide);
     RegisterSpellScript(spell_evo_living_flame);
+    RegisterSpellScript(spell_evo_panacea);
     RegisterSpellScript(spell_evo_permeating_chill);
     RegisterSpellScript(spell_evo_pyre);
     RegisterSpellScript(spell_evo_ruby_embers);
