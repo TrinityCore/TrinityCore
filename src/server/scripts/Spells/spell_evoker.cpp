@@ -183,30 +183,6 @@ class spell_evo_burnout : public AuraScript
     }
 };
 
-// 361469 - Living Flame (Red)
-class spell_evo_burnout_proc : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_EVOKER_BURNOUT });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->HasAura(SPELL_EVOKER_BURNOUT);
-    }
-
-    void HandleProc() const
-    {
-        GetCaster()->RemoveAurasDueToSpell(SPELL_EVOKER_BURNOUT);
-    }
-
-    void Register() override
-    {
-        AfterCast += SpellCastFn(spell_evo_burnout_proc::HandleProc);
-    }
-};
-
 // 373834 - Call of Ysera (attached to 361195 - Verdant Embrace (Green))
 class spell_evo_call_of_ysera : public SpellScript
 {
@@ -794,7 +770,6 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_blessing_of_the_bronze);
     RegisterSpellScript(spell_evo_burnout);
-    RegisterSpellScript(spell_evo_burnout_proc);
     RegisterSpellScript(spell_evo_call_of_ysera);
     RegisterSpellScript(spell_evo_causality_disintegrate);
     RegisterSpellScript(spell_evo_causality_pyre);
