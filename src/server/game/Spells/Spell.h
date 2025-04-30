@@ -310,6 +310,7 @@ class TC_GAME_API Spell
         void EffectLearnPetSpell();
         void EffectWeaponDmg();
         void EffectForceCast();
+        void EffectForceCast2();
         void EffectTriggerSpell();
         void EffectTriggerMissileSpell();
         void EffectThreat();
