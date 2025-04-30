@@ -3858,6 +3858,8 @@ void Spell::_cast(bool skipCheck)
     if (!m_spellInfo->HasAttribute(SPELL_ATTR12_START_COOLDOWN_ON_CAST_START))
         SendSpellCooldown();
 
+    m_spellState = SPELL_STATE_LAUNCHED;
+
     if (!m_spellInfo->LaunchDelay)
     {
         HandleLaunchPhase();
@@ -3883,7 +3885,6 @@ void Spell::_cast(bool skipCheck)
 
         // Okay, maps created, now prepare flags
         m_immediateHandled = false;
-        m_spellState = SPELL_STATE_LAUNCHED;
         SetDelayStart(0);
 
         if (Unit* unitCaster = m_caster->ToUnit())

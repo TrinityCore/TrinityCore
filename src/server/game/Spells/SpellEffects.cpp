@@ -248,7 +248,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
-    &Spell::EffectForceCast,                                //160 SPELL_EFFECT_FORCE_CAST_2
+    &Spell::EffectForceCast2,                               //160 SPELL_EFFECT_FORCE_CAST_2
     &Spell::EffectNULL,                                     //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
     &Spell::EffectNULL,                                     //163 SPELL_EFFECT_OBLITERATE_ITEM
@@ -823,12 +823,52 @@ void Spell::EffectForceCast()
             return;
     }
 
-    CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_REAGENT_COST));
     if (effectInfo->Effect == SPELL_EFFECT_FORCE_CAST_WITH_VALUE)
         for (std::size_t i = 0; i < spellInfo->GetEffects().size(); ++i)
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     unitTarget->CastSpell(m_caster, spellInfo->Id, args);
+}
+
+void Spell::EffectForceCast2()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    if (!unitTarget)
+        return;
+
+    uint32 triggered_spell_id = effectInfo->TriggerSpell;
+    if (triggered_spell_id == 0)
+    {
+        TC_LOG_WARN("spells.effect.nospell", "Spell::EffectForceCast2: Spell {} [EffectIndex: {}] does not have triggered spell.", m_spellInfo->Id, effectInfo->EffectIndex);
+        return;
+    }
+
+    // normal case
+    if (!sSpellMgr->GetSpellInfo(triggered_spell_id, GetCastDifficulty()))
+    {
+        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectForceCast2 of spell {}: triggering unknown spell id {}.", m_spellInfo->Id, triggered_spell_id);
+        return;
+    }
+
+    // Start the cast during next update tick
+    // This is neccessary to preserve proper SMSG_SPELL_START and SMSG_SPELL_GO packet sequence
+    // (if packet sequence is not preserved then client cast bar in UI bugs and doesn't stop when the spell is interrupted)
+    // Triggered spells from effects handled during launch phase (such as SPELL_EFFECT_TRIGGER_SPELL)
+    // normally have their SMSG_SPELL_GO sent before parent spell SMSG_SPELL_GO
+    // SPELL_EFFECT_FORCE_CAST_2 requires these packets to be sent after parent spell
+    // but also needs to be handled during launch phase as well
+    unitTarget->m_Events.AddEventAtOffset([triggered_spell_id, target = CastSpellTargetArg(m_caster), caster = unitTarget]() mutable
+    {
+        if (!target.Targets)
+            return;
+
+        target.Targets->Update(caster);
+
+        caster->CastSpell(target, triggered_spell_id);
+    }, 0ms);
 }
 
 void Spell::EffectTriggerRitualOfSummoning()
