@@ -21415,8 +21415,8 @@ void Player::_SaveSpells(CharacterDatabaseTransaction trans)
             }
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_FAVORITE);
-            stmt->setUInt32(0, itr->first);
-            stmt->setUInt64(1, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt32(1, itr->first);
             trans->Append(stmt);
 
             if (itr->second.favorite)
