@@ -703,6 +703,48 @@ class spell_gen_burning_depths_necrolyte_image : public AuraScript
     }
 };
 
+class spell_gen_cancel_aura : public SpellScript
+{
+    PrepareSpellScript(spell_gen_cancel_aura);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_cancel_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_gen_cast_on_master_self_cast : public SpellScript
+{
+    PrepareSpellScript(spell_gen_cast_on_master_self_cast);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_cast_on_master_self_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum CannibalizeSpells
 {
     SPELL_CANNIBALIZE_TRIGGERED = 20578
@@ -4585,6 +4627,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_break_shield, "spell_gen_break_shield");
     RegisterSpellScriptWithArgs(spell_gen_break_shield, "spell_gen_tournament_counterattack");
     RegisterSpellScript(spell_gen_burning_depths_necrolyte_image);
+    RegisterSpellScript(spell_gen_cancel_aura);
+    RegisterSpellScript(spell_gen_cast_on_master_self_cast);
     RegisterSpellScript(spell_gen_cannibalize);
     RegisterSpellScript(spell_gen_chains_of_ice);
     RegisterSpellScript(spell_gen_chaos_blast);

@@ -1222,23 +1222,6 @@ class spell_deathbringer_boiling_blood : public SpellScript
     }
 };
 
-// 72257 - Remove Marks of the Fallen Champion
-class spell_deathbringer_remove_marks : public SpellScript
-{
-    PrepareSpellScript(spell_deathbringer_remove_marks);
-
-    void HandleScript(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_deathbringer_remove_marks::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
 {
     public:
@@ -1272,7 +1255,6 @@ void AddSC_boss_deathbringer_saurfang()
     RegisterSpellScript(spell_deathbringer_blood_nova);
     RegisterSpellScript(spell_deathbringer_blood_nova_targeting);
     RegisterSpellScript(spell_deathbringer_boiling_blood);
-    RegisterSpellScript(spell_deathbringer_remove_marks);
 
     // Achievements
     new achievement_ive_gone_and_made_a_mess();

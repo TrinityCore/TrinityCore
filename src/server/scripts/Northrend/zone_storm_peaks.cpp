@@ -1048,31 +1048,6 @@ class spell_player_mount_wyrm : public AuraScript
 };
 
 /*######
-## Quest 12823: A Flawless Plan
-######*/
-
-// 55693 - Remove Collapsing Cave Aura
-class spell_storm_peaks_remove_collapsing_cave_aura : public SpellScript
-{
-    PrepareSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_storm_peaks_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-/*######
 ## Quest 12987: Mounting Hodir's Helm
 ######*/
 
@@ -1293,7 +1268,6 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_claw_swipe_check);
     RegisterSpellScript(spell_fatal_strike);
     RegisterSpellScript(spell_player_mount_wyrm);
-    RegisterSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
     RegisterSpellScript(spell_storm_peaks_read_pronouncement);
     RegisterSpellScript(spell_storm_peaks_bear_flank_master);
     RegisterSpellScript(spell_storm_peaks_bear_flank_fail);
