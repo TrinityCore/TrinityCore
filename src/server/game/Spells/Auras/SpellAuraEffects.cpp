@@ -2472,6 +2472,16 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
         target->UpdateDamagePhysical(attType);
 }
 
+static void InterruptSpellsWithPreventionTypeOnAuraApply(Unit* target, SpellPreventionType preventionType)
+{
+    // Stop cast only spells vs PreventionType
+    for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+        if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
+            if (spell->m_spellInfo->PreventionType & preventionType)
+                // Stop spells on prepare or casting state
+                target->InterruptSpell(CurrentSpellTypes(i), false);
+}
+
 void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
@@ -2484,12 +2494,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
         target->SetUnitFlag(UNIT_FLAG_SILENCED);
 
         // call functions which may have additional effects after changing state of unit
-        // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
-        for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
-            if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
-                if (spell->m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE)
-                    // Stop spells on prepare or casting state
-                    target->InterruptSpell(CurrentSpellTypes(i), false);
+        InterruptSpellsWithPreventionTypeOnAuraApply(target, SPELL_PREVENTION_TYPE_SILENCE);
     }
     else
     {
@@ -2509,7 +2514,12 @@ void AuraEffect::HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, 
     Unit* target = aurApp->GetTarget();
 
     if (apply)
+    {
         target->SetUnitFlag(UNIT_FLAG_PACIFIED);
+
+        // call functions which may have additional effects after changing state of unit
+        InterruptSpellsWithPreventionTypeOnAuraApply(target, SPELL_PREVENTION_TYPE_PACIFY);
+    }
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
@@ -2557,12 +2567,7 @@ void AuraEffect::HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mod
         target->SetUnitFlag2(UNIT_FLAG2_NO_ACTIONS);
 
         // call functions which may have additional effects after chainging state of unit
-        // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS
-        for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
-            if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
-                if (spell->m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS)
-                    // Stop spells on prepare or casting state
-                    target->InterruptSpell(CurrentSpellTypes(i), false);
+        InterruptSpellsWithPreventionTypeOnAuraApply(target, SPELL_PREVENTION_TYPE_NO_ACTIONS);
     }
     else
     {
