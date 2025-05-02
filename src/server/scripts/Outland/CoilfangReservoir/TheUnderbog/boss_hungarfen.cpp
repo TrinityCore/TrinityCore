@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "SpellScript.h"
 #include "the_underbog.h"
 
 enum HungarfenTexts
@@ -53,17 +54,15 @@ struct boss_hungarfen : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        _scheduler.Schedule(IsHeroic() ? 2500ms : 5s, [this](TaskContext task)
+        scheduler.Schedule(IsHeroic() ? 2500ms : 5s, [this](TaskContext task)
         {
-            /// @todo cast here SPELL_PUTRID_MUSHROOM_PRIMER and do it in spell script
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                target->CastSpell(target, SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
+            DoCastSelf(SPELL_PUTRID_MUSHROOM_PRIMER);
             task.Repeat(IsHeroic() ? 2500ms : 10s);
         });
 
         if (IsHeroic())
         {
-            _scheduler.Schedule(3s, 5s, [this](TaskContext task)
+            scheduler.Schedule(3s, 5s, [this](TaskContext task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_ACID_GEYSER);
@@ -89,7 +88,7 @@ struct boss_hungarfen : public BossAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
+        scheduler.Update(diff, [this]
         {
             DoMeleeAttackIfReady();
         });
@@ -100,7 +99,7 @@ struct boss_hungarfen : public BossAI
             _roared = true;
             me->SetReactState(REACT_PASSIVE);
 
-            _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+            scheduler.Schedule(2s, [this](TaskContext /*task*/)
             {
                 DoCastSelf(SPELL_FOUL_SPORES);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -109,7 +108,6 @@ struct boss_hungarfen : public BossAI
     }
 
 private:
-    TaskScheduler _scheduler;
     bool _roared;
 };
 
@@ -159,8 +157,36 @@ private:
     uint32 _counter;
 };
 
+// 31693 - Putrid Mushroom Primer
+class spell_hungarfen_putrid_mushroom_primer : public SpellScript
+{
+    PrepareSpellScript(spell_hungarfen_putrid_mushroom_primer);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_UNDERBOG_MUSHROOM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster || !caster->IsAIEnabled())
+            return;
+
+        // This is wrong. They don't need a script to simply select random target. But what should be done here? FilterTargets? Exclude pets?
+        if (Unit* target = caster->AI()->SelectTarget(SelectTargetMethod::Random, 0))
+            target->CastSpell(target, SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_hungarfen_putrid_mushroom_primer::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_hungarfen()
 {
     RegisterTheUnderbogCreatureAI(boss_hungarfen);
     RegisterTheUnderbogCreatureAI(npc_underbog_mushroom);
+    RegisterSpellScript(spell_hungarfen_putrid_mushroom_primer);
 }
