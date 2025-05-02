@@ -124,7 +124,7 @@ struct boss_high_king_maulgar : public BossAI
                 DoCastSelf(SPELL_ROAR);
                 task.Repeat(40s, 50s);
             });
-    
+
             scheduler.Schedule(10s, 15s, [this](TaskContext task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
