@@ -3,6 +3,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   # apple doesnt like to do the sane thing which would be to use the same version numbering as regular clang
   # version number pulled from https://en.wikipedia.org/wiki/Xcode#Toolchain_versions for row matching LLVM 11
   set(CLANG_EXPECTED_VERSION 12.0.5)
+  # enable -fpch-instantiate-templates for AppleClang (by default it is active only for regular clang)
+  set(CMAKE_C_COMPILE_OPTIONS_INSTANTIATE_TEMPLATES_PCH -fpch-instantiate-templates)
+  set(CMAKE_CXX_COMPILE_OPTIONS_INSTANTIATE_TEMPLATES_PCH -fpch-instantiate-templates)
 endif()
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS CLANG_EXPECTED_VERSION)
