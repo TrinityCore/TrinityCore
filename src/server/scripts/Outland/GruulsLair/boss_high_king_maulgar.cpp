@@ -342,7 +342,7 @@ struct boss_blindeye_the_seer : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-            _scheduler.Update(diff);
+        _scheduler.Update(diff);
 
         DoMeleeAttackIfReady();
     }
