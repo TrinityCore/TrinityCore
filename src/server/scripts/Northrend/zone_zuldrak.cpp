@@ -1023,6 +1023,36 @@ class spell_zuldrak_summon_nass : public SpellScript
     }
 };
 
+/*######
+## Quest 12730: Convocation at Zol'Heb
+######*/
+
+enum ConvocationAtZolHeb
+{
+    SPELL_AKALIS_STUN     = 52989
+};
+
+// 53010 - Convocation at Zol'Heb: Removef Akali's Stun
+class spell_zuldrak_remove_akalis_stun : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_remove_akalis_stun);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AKALIS_STUN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_AKALIS_STUN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_remove_akalis_stun::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -1045,4 +1075,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_rampage_summon_zulaman_gods_master);
     RegisterSpellScript(spell_zuldrak_breaking_through_summon_zulaman_gods_master);
     RegisterSpellScript(spell_zuldrak_summon_nass);
+    RegisterSpellScript(spell_zuldrak_remove_akalis_stun);
 }
