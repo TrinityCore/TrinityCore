@@ -69,3 +69,17 @@ DELETE FROM `spell_scripts` WHERE `id` = 53010;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_zuldrak_remove_akalis_stun';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (53010, 'spell_zuldrak_remove_akalis_stun');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (47117,47149,47316,47405,50439);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_grizzly_hills_script_cast_summon_image_of_drakuru_01',
+'spell_grizzly_hills_script_cast_summon_image_of_drakuru_02',
+'spell_grizzly_hills_script_cast_summon_image_of_drakuru_03',
+'spell_grizzly_hills_script_cast_summon_image_of_drakuru_04',
+'spell_grizzly_hills_script_cast_summon_image_of_drakuru_05');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(47117, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_01'),
+(47149, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_02'),
+(47316, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_03'),
+(47405, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_04'),
+(50439, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_05');
