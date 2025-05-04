@@ -359,7 +359,7 @@ struct areatrigger_hun_implosive_trap : AreaTriggerAI
         {
             if (caster->IsValidAttackTarget(unit))
             {
-                caster->CastSpell(unit, SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                 at->Remove();
             }
         }
