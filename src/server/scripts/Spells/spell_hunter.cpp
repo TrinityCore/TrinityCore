@@ -1014,25 +1014,36 @@ class spell_hun_wilderness_medicine : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT, SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL });
     }
 
-    void OnPeriodic(AuraEffect const* aurEff)
+    bool Load() override
+    {
+        Unit const* caster = GetCaster();
+        if (!caster)
+            return false;
+
+        AuraEffect const* wildernessMedicine = GetCaster()->GetAuraEffect(SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT, EFFECT_1);
+        if (!wildernessMedicine)
+            return false;
+
+        _dispelChance = wildernessMedicine->GetAmount();
+        return true;
+    }
+
+    void OnPeriodic(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
-        {
-            if (AuraEffect const* wildernessMedicine = GetCaster()->GetAuraEffect(SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT, EFFECT_1))
-            {
-                if (roll_chance_i(wildernessMedicine->GetAmount()))
-                    caster->CastSpell(GetTarget(), SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL, CastSpellExtraArgsInit{
-                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                        .TriggeringAura = aurEff
-                    });
-            }
-        }
+            if (roll_chance_i(_dispelChance))
+                caster->CastSpell(GetTarget(), SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .TriggeringAura = aurEff
+                });
     }
 
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_wilderness_medicine::OnPeriodic, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
     }
+
+    int32 _dispelChance = 0;
 };
 
 void AddSC_hunter_spell_scripts()
