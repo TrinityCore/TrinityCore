@@ -18,7 +18,6 @@
 #ifndef TRINITYCORE_BASE_HTTP_SOCKET_H
 #define TRINITYCORE_BASE_HTTP_SOCKET_H
 
-#include "AsyncCallbackProcessor.h"
 #include "HttpCommon.h"
 #include "HttpSessionState.h"
 #include "Optional.h"
@@ -27,7 +26,6 @@
 #include <boost/beast/core/basic_stream.hpp>
 #include <boost/beast/http/parser.hpp>
 #include <boost/beast/http/string_body.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 namespace Trinity::Net::Http
 {
@@ -40,9 +38,9 @@ class BoostBeastSocketWrapper : public IoContextHttpSocket
 public:
     using IoContextHttpSocket::basic_stream;
 
-    void shutdown(boost::asio::socket_base::shutdown_type what, boost::system::error_code& shutdownError)
+    bool is_open() const
     {
-        socket().shutdown(what, shutdownError);
+        return socket().is_open();
     }
 
     void close(boost::system::error_code& /*error*/)
@@ -50,10 +48,21 @@ public:
         IoContextHttpSocket::close();
     }
 
+    void shutdown(boost::asio::socket_base::shutdown_type what, boost::system::error_code& shutdownError)
+    {
+        socket().shutdown(what, shutdownError);
+    }
+
     template<typename WaitHandlerType>
     void async_wait(boost::asio::socket_base::wait_type type, WaitHandlerType&& handler)
     {
         socket().async_wait(type, std::forward<WaitHandlerType>(handler));
+    }
+
+    template <typename SettableSocketOption>
+    void set_option(SettableSocketOption const& option, boost::system::error_code& ec)
+    {
+        socket().set_option(option, ec);
     }
 
     IoContextTcpSocket::endpoint_type remote_endpoint() const
@@ -64,6 +73,7 @@ public:
 }
 
 using RequestParser = boost::beast::http::request_parser<RequestBody>;
+using ResponseParser = boost::beast::http::response_parser<RequestBody>;
 
 class TC_NETWORK_API AbstractSocket
 {
@@ -76,9 +86,10 @@ public:
     virtual ~AbstractSocket() = default;
 
     static bool ParseRequest(MessageBuffer& packet, RequestParser& parser);
+    static bool ParseResponse(MessageBuffer& packet, ResponseParser& parser);
 
-    static std::string SerializeRequest(Request const& request);
-    static MessageBuffer SerializeResponse(Request const& request, Response& response);
+    static MessageBuffer SerializeRequest(Request const& request);
+    static MessageBuffer SerializeResponse(Request const& request, Response const& response);
 
     virtual void SendResponse(RequestContext& context) = 0;
 
@@ -183,6 +194,8 @@ public:
 
     void SendResponse(RequestContext& context) final
     {
+        context.response.prepare_payload();
+
         MessageBuffer buffer = SerializeResponse(context.request, context.response);
 
         this->LogRequestAndResponse(context, buffer);

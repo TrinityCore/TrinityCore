@@ -111,6 +111,7 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << uint32(Info.Flags);
         _worldPacket << uint32(Info.FlagsEx);
         _worldPacket << uint32(Info.FlagsEx2);
+        _worldPacket << uint32(Info.FlagsEx3);
 
         for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         {
@@ -368,9 +369,7 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestGiverOfferReward const& offer)
     data << offer.Rewards; // QuestRewards
     data << int32(offer.Emotes.size());
     data << offer.QuestGiverGUID;
-    data << int32(offer.QuestFlags[0]); // Flags
-    data << int32(offer.QuestFlags[1]); // FlagsEx
-    data << int32(offer.QuestFlags[2]); // FlagsEx2
+    data.append(offer.QuestFlags);
     data << int32(offer.QuestGiverCreatureID);
     data << int32(offer.QuestID);
     data << int32(offer.SuggestedPartyMembers);
@@ -467,9 +466,7 @@ WorldPacket const* QuestGiverQuestDetails::Write()
     _worldPacket << int32(PortraitGiverMount);
     _worldPacket << int32(PortraitGiverModelSceneID);
     _worldPacket << int32(PortraitTurnIn);
-    _worldPacket << uint32(QuestFlags[0]); // Flags
-    _worldPacket << uint32(QuestFlags[1]); // FlagsEx
-    _worldPacket << uint32(QuestFlags[2]); // FlagsEx
+    _worldPacket.append(QuestFlags);
     _worldPacket << int32(SuggestedPartyMembers);
     _worldPacket << uint32(LearnSpells.size());
     _worldPacket << uint32(DescEmotes.size());
@@ -532,9 +529,7 @@ WorldPacket const* QuestGiverRequestItems::Write()
     _worldPacket << int32(Collect.size());
     _worldPacket << int32(Currency.size());
     _worldPacket << QuestGiverGUID;
-    _worldPacket << uint32(QuestFlags[0]);
-    _worldPacket << uint32(QuestFlags[1]);
-    _worldPacket << uint32(QuestFlags[2]);
+    _worldPacket.append(QuestFlags);
     _worldPacket << int32(StatusFlags);
     _worldPacket << int32(QuestGiverCreatureID);
     _worldPacket << int32(QuestID);
@@ -774,14 +769,10 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseMawPower const& pla
     data << int32(playerChoiceResponseMawPower.SpellID);
     data << int32(playerChoiceResponseMawPower.MaxStacks);
     data.WriteBit(playerChoiceResponseMawPower.Rarity.has_value());
-    data.WriteBit(playerChoiceResponseMawPower.RarityColor.has_value());
     data.FlushBits();
 
     if (playerChoiceResponseMawPower.Rarity)
         data << int32(*playerChoiceResponseMawPower.Rarity);
-
-    if (playerChoiceResponseMawPower.RarityColor)
-        data << uint32(*playerChoiceResponseMawPower.RarityColor);
 
     return data;
 }
@@ -840,9 +831,11 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket << Duration;
     _worldPacket.WriteBits(Question.length(), 8);
     _worldPacket.WriteBits(PendingChoiceText.length(), 8);
-    _worldPacket.WriteBit(CloseChoiceFrame);
+    _worldPacket.WriteBit(InfiniteRange);
     _worldPacket.WriteBit(HideWarboardHeader);
     _worldPacket.WriteBit(KeepOpenAfterChoice);
+    _worldPacket.WriteBit(Unknown_1115_1);
+    _worldPacket.WriteBit(Unknown_1115_2);
     _worldPacket.FlushBits();
 
     for (PlayerChoiceResponse const& response : Responses)

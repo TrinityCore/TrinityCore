@@ -118,6 +118,11 @@ struct GtItemSocketCostPerLevelEntry
     float SocketCost = 0.0f;
 };
 
+struct GtItemLevelByLevelEntry
+{
+    float ItemLevel = 0.0f;
+};
+
 struct GtNpcManaCostScalerEntry
 {
     float Scaler = 0.0f;
@@ -195,6 +200,7 @@ TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXP
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
+TC_GAME_API extern GameTable<GtItemLevelByLevelEntry>               sItemLevelByLevelTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;

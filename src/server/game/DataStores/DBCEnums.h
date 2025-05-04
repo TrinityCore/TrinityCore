@@ -441,7 +441,7 @@ enum class ContentTuningCalcType : int32
 enum class ContentTuningFlag : int32
 {
     DisabledForItem = 0x04,
-    Horde           = 0x8,
+    Horde           = 0x08,
     Alliance        = 0x10
 };
 
@@ -885,14 +885,15 @@ DEFINE_ENUM_FLAG(CurrencyTypesFlags);
 
 enum class CurrencyTypesFlagsB : uint32
 {
-    UseTotalEarnedForEarned             = 0x01,
-    ShowQuestXPGainInTooltip            = 0x02, // NYI
-    NoNotificationMailOnOfflineProgress = 0x04, // NYI
-    BattlenetVirtualCurrency            = 0x08, // NYI
-    FutureCurrencyFlag                  = 0x10, // NYI
-    DontDisplayIfZero                   = 0x20, // NYI
-    ScaleMaxQuantityBySeasonWeeks       = 0x40, // NYI
-    ScaleMaxQuantityByWeeksSinceStart   = 0x80, // NYI
+    UseTotalEarnedForEarned             = 0x0001,
+    ShowQuestXPGainInTooltip            = 0x0002, // NYI
+    NoNotificationMailOnOfflineProgress = 0x0004, // NYI
+    BattlenetVirtualCurrency            = 0x0008, // NYI
+    FutureCurrencyFlag                  = 0x0010, // NYI
+    DontDisplayIfZero                   = 0x0020, // NYI
+    ScaleMaxQuantityBySeasonWeeks       = 0x0040, // NYI
+    ScaleMaxQuantityByWeeksSinceStart   = 0x0080, // NYI
+    ForceMaxQuantityOnConversion        = 0x0100, // NYI
 };
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlagsB);
@@ -1027,6 +1028,14 @@ enum class GlobalCurve : int32
     ContentTuningPvpItemLevelHealthScaling = 13,
     ContentTuningPvpLevelDamageScaling = 14,
     ContentTuningPvpItemLevelDamageScaling = 15,
+
+    ArmorItemLevelDiminishing = 18,
+
+    ChallengeModeHealth = 21,
+    ChallengeModeDamage = 22,
+    MythicPlusEndOfRunGearSequenceLevel = 23,
+
+    SpellAreaEffectWarningRadius = 26,  // ground spell effect warning circle radius (based on spell radius)
 };
 
 #define MAX_ITEM_PROTO_FLAGS 5
@@ -1829,6 +1838,9 @@ enum class ModifierTreeType : int32
     PlayerDataElementCharacterEqual                                     = 390, /*NYI*/ // Player {PlayerDataElementCharacter} is greater than {#Amount}
     PlayerDataElementAccountEqual                                       = 391, /*NYI*/ // Player {PlayerDataElementAccount} is greater than {#Amount}
     PlayerHasCompletedQuestOrIsReadyToTurnIn                            = 392, // Player has previously completed quest "{QuestV2}" or is ready to turn it in
+    PlayerTitle                                                         = 393, // Player is currently using "{ChrTitles}" title
+
+    PlayerIsInGuild                                                     = 404, // Player is in a guild
 };
 
 enum class ModifierTreeOperator : int8
@@ -1996,6 +2008,14 @@ enum class PlayerInteractionType : int32
     CharacterBanker             = 67,
     AccountBanker               = 68,
     ProfessionRespec            = 69,
+    PlaceholderType71           = 70,
+    PlaceholderType72           = 71,
+    PlaceholderType73           = 72,
+    PlaceholderType74           = 73,
+    PlaceholderType75           = 74,
+    PlaceholderType76           = 75,
+    GuildRename                 = 76,
+    PlaceholderType77           = 77,
 };
 
 enum class PowerTypeFlags : int16
@@ -2057,11 +2077,13 @@ enum class SkillLineFlags : uint16
 
 DEFINE_ENUM_FLAG(SkillLineFlags);
 
-enum AbilytyLearnType
+enum class SkillLineAbilityAcquireMethod : int32
 {
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
-    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
+    Learned                     = 0,
+    AutomaticSkillRank          = 1, // Spell state will update depending on skill value
+    AutomaticCharLevel          = 2, // Spell will be learned/removed together with entire skill
+    NeverLearned                = 3,
+    LearnedOrAutomaticCharLevel = 4,
 };
 
 enum class SkillLineAbilityFlags
@@ -2299,7 +2321,7 @@ enum class SummonPropertiesFlags : uint32
 DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 #define MAX_TALENT_TIERS 7
-#define MAX_TALENT_COLUMNS 3
+#define MAX_TALENT_COLUMNS 4
 #define MAX_PVP_TALENT_SLOTS 4
 
 enum class TaxiNodeFlags : int32

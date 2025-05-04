@@ -172,7 +172,6 @@ namespace WorldPackets
             bool SellAllJunkEnabled                  = false;
             bool GroupFinderEnabled                  = true;  // classic only
             bool IsPremadeGroupEnabled               = true;  // classic only
-            bool UseActivePlayerDataQuestCompleted   = false; ///< Uses ActivePlayerData::QuestCompleted (legacy) to store completed quest bits instead of ActivePlayerData::BitVectors[9]
             bool GuildEventsEditsEnabled             = true;
             bool GuildTradeSkillsEnabled             = true;
             bool BNSendWhisperUseV2Services          = true;  ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService

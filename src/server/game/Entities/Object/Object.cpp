@@ -658,9 +658,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->FlushBits();
         if (transport)
         {
-            *data << uint32(transport->GetTransportPeriod());
-            *data << uint32(transport->GetTimer());
-            data->WriteBit(transport->IsStopRequested());
+            uint32 period = transport->GetTransportPeriod();
+
+            *data << uint32((((int64(transport->GetTimer()) - int64(GameTime::GetGameTimeMS())) % period) + period) % period);  // TimeOffset
+            *data << uint32(transport->GetNextStopTimestamp().value_or(0));
+            data->WriteBit(transport->GetNextStopTimestamp().has_value());
             data->WriteBit(transport->IsStopped());
             data->WriteBit(false);
             data->FlushBits();

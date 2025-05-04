@@ -743,12 +743,7 @@ struct npc_greyheart_spellbinder : public ScriptedAI
             {
                 if (Player* i_pl = itr->GetSource())
                 {
-                    bool isCasting = false;
-                    for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
-                        if (i_pl->GetCurrentSpell(i))
-                            isCasting = true;
-
-                    if (isCasting)
+                    if (i_pl->IsNonMeleeSpellCast(false, false, true))
                     {
                         DoCast(i_pl, SPELL_EARTHSHOCK);
                         break;

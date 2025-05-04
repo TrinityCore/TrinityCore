@@ -977,24 +977,35 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
         if (!gemProperties[i])
             continue;
 
+        uint32 acceptableGemTypeMask = SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)];
         // tried to put gem in socket where no socket exists (take care about prismatic sockets)
-        if (!itemTarget->GetSocketColor(i))
+        switch (itemTarget->GetSocketColor(i))
         {
-            // no prismatic socket
-            if (!itemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
-                return;
+            case 0:
+            {
+                // no prismatic socket
+                if (!itemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
+                    return;
 
-            if (i != firstPrismatic)
-                return;
+                if (i != firstPrismatic)
+                    return;
+
+                acceptableGemTypeMask = SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE;
+                break;
+            }
+            case 2:
+            case 3:
+            case 4:
+                // red, blue and yellow sockets accept any red/blue/yellow gem
+                acceptableGemTypeMask = SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE;
+                break;
+            default:
+                break;
         }
 
         // Gem must match socket color
-        if (SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] != gemProperties[i]->Type)
-        {
-            // unless its red, blue, yellow or prismatic
-            if (!(SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] & SOCKET_COLOR_PRISMATIC) || !(gemProperties[i]->Type & SOCKET_COLOR_PRISMATIC))
-                return;
-        }
+        if (!(acceptableGemTypeMask & gemProperties[i]->Type))
+            return;
     }
 
     // check unique-equipped conditions
