@@ -13,7 +13,3 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (69298, 'spell_gen_cancel_aura'),
 (70079, 'spell_gen_cancel_aura'),
 (69098, 'spell_gen_cancel_aura');
-
-UPDATE `spell_script_names` SET `ScriptName` = 'spell_gen_cast_on_master_self_cast' WHERE `ScriptName` = 'spell_fjord_the_cleansing_on_death_cast_on_master'; -- 50238
-UPDATE `spell_script_names` SET `ScriptName` = 'spell_gen_cast_on_master_self_cast' WHERE `ScriptName` = 'spell_fjord_the_way_to_his_heart_quest_complete'; -- 44462
-UPDATE `spell_script_names` SET `ScriptName` = 'spell_gen_cast_on_master_self_cast' WHERE `ScriptName` = 'spell_dragonblight_moti_hourglass_cast_see_invis_on_master'; -- 50020
