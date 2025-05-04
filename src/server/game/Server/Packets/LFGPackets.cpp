@@ -273,7 +273,7 @@ WorldPacket const* LFGRoleCheckUpdate::Write()
 WorldPacket const* LFGJoinResult::Write()
 {
     _worldPacket << Ticket;
-    _worldPacket << uint8(Result);
+    _worldPacket << int32(Result);
     _worldPacket << uint8(ResultDetail);
     _worldPacket << uint32(BlackList.size());
     _worldPacket << uint32(BlackListNames.size());

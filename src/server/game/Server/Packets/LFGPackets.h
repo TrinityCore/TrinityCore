@@ -286,7 +286,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             RideTicket Ticket;
-            uint8 Result = 0;
+            int32 Result = 0;
             uint8 ResultDetail = 0;
             std::vector<LFGBlackList> BlackList;
             std::vector<std::string const*> BlackListNames;

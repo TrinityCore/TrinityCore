@@ -151,7 +151,7 @@ namespace WorldPackets
                 uint32 VirtualRealmAddress = 0;
                 uint64 GuildClubMemberID = 0; ///< same as bgs.protocol.club.v1.MemberId.unique_id, guessed basing on SMSG_QUERY_PLAYER_NAME_RESPONSE (that one is known)
                 std::string Name;
-                uint8 ListPosition       = 0; ///< Order of the characters in list
+                uint16 ListPosition      = 0; ///< Order of the characters in list
                 uint8 RaceID             = 0;
                 uint8 ClassID            = 0;
                 uint8 SexID              = 0;
