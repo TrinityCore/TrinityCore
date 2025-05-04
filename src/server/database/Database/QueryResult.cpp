@@ -652,6 +652,13 @@ QueryResultFieldMetadata const& ResultSet::GetFieldMetadata(std::size_t index) c
     return _fieldMetadata[index];
 }
 
+QueryResultFieldMetadata const& ResultSet::GetFieldMetadata(Trinity::DB::FieldLookupByAliasKey const& alias) const
+{
+    auto itr = _fieldIndexByAlias.find(alias);
+    ASSERT(itr != _fieldIndexByAlias.end());
+    return _fieldMetadata[itr->second];
+}
+
 Field* PreparedResultSet::Fetch() const
 {
     ASSERT(m_rowPosition < m_rowCount);
@@ -677,4 +684,11 @@ QueryResultFieldMetadata const& PreparedResultSet::GetFieldMetadata(std::size_t 
 {
     ASSERT(index < std::size_t(m_fieldCount));
     return m_fieldMetadata[index];
+}
+
+QueryResultFieldMetadata const& PreparedResultSet::GetFieldMetadata(Trinity::DB::FieldLookupByAliasKey const& alias) const
+{
+    auto itr = m_fieldIndexByAlias.find(alias);
+    ASSERT(itr != m_fieldIndexByAlias.end());
+    return m_fieldMetadata[itr->second];
 }

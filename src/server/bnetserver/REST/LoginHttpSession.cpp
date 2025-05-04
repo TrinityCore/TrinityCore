@@ -24,6 +24,7 @@
 #include "SslContext.h"
 #include "Util.h"
 #include <boost/container/static_vector.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace
 {

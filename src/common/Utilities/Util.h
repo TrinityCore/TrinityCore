@@ -530,7 +530,7 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 }
 
 template<typename Ret, typename T1, typename... T>
-Ret* Coalesce(T1* first, T*... rest)
+constexpr Ret* Coalesce(T1* first, T*... rest)
 {
     if constexpr (sizeof...(T) > 0)
         return (first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));

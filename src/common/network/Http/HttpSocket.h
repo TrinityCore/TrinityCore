@@ -19,34 +19,26 @@
 #define TRINITYCORE_HTTP_SOCKET_H
 
 #include "BaseHttpSocket.h"
-#include <array>
 
 namespace Trinity::Net::Http
 {
-class Socket : public BaseSocket<Impl::BoostBeastSocketWrapper>
+class TC_NETWORK_API Socket : public BaseSocket<Impl::BoostBeastSocketWrapper>
 {
     using SocketBase = BaseSocket<Impl::BoostBeastSocketWrapper>;
 
 public:
-    using SocketBase::SocketBase;
+    explicit Socket(IoContextTcpSocket&& socket);
+
+    explicit Socket(boost::asio::io_context& context);
 
     Socket(Socket const& other) = delete;
     Socket(Socket&& other) = delete;
     Socket& operator=(Socket const& other) = delete;
     Socket& operator=(Socket&& other) = delete;
 
-    ~Socket() = default;
+    ~Socket();
 
-    void Start() override
-    {
-        std::array<std::shared_ptr<SocketConnectionInitializer>, 2> initializers =
-        { {
-            std::make_shared<HttpConnectionInitializer<SocketBase>>(this),
-            std::make_shared<ReadConnectionInitializer<SocketBase>>(this),
-        } };
-
-        SocketConnectionInitializer::SetupChain(initializers)->Start();
-    }
+    void Start() override;
 };
 }
 
