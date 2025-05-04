@@ -317,6 +317,98 @@ class spell_terokkar_cancel_shadowy_disguise : public SpellScript
     }
 };
 
+enum Translocation
+{
+    SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN     = 32572,
+    SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP       = 32568,
+    SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN        = 32569,
+    SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP          = 32571
+};
+
+// 25143 - Translocate
+class spell_terokkar_translocation_firewing_point_building_down : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_translocation_firewing_point_building_down);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_building_down::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 29128 - Translocate
+class spell_terokkar_translocation_firewing_point_building_up : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_translocation_firewing_point_building_up);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_building_up::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 29129 - Translocate
+class spell_terokkar_translocation_firewing_point_tower_down : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_translocation_firewing_point_tower_down);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_tower_down::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 25140 - Translocate
+class spell_terokkar_translocation_firewing_point_tower_up : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_translocation_firewing_point_tower_up);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_tower_up::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
@@ -326,4 +418,8 @@ void AddSC_terokkar_forest()
     RegisterSpellScript(spell_terokkar_shadowy_disguise_cast_from_questgiver);
     RegisterSpellScript(spell_terokkar_shadowy_disguise);
     RegisterSpellScript(spell_terokkar_cancel_shadowy_disguise);
+    RegisterSpellScript(spell_terokkar_translocation_firewing_point_building_down);
+    RegisterSpellScript(spell_terokkar_translocation_firewing_point_building_up);
+    RegisterSpellScript(spell_terokkar_translocation_firewing_point_tower_down);
+    RegisterSpellScript(spell_terokkar_translocation_firewing_point_tower_up);
 }

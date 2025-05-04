@@ -116,3 +116,35 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (37867, 'spell_shadowmoon_arcano_scorp_control_01'),
 (37892, 'spell_shadowmoon_arcano_scorp_control_02'),
 (37894, 'spell_shadowmoon_arcano_scorp_control_03');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (25143,29128,29129,25140);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_terokkar_translocation_firewing_point_building_down',
+'spell_terokkar_translocation_firewing_point_building_up',
+'spell_terokkar_translocation_firewing_point_tower_down',
+'spell_terokkar_translocation_firewing_point_tower_up');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(25143, 'spell_terokkar_translocation_firewing_point_building_down'),
+(29128, 'spell_terokkar_translocation_firewing_point_building_up'),
+(29129, 'spell_terokkar_translocation_firewing_point_tower_down'),
+(25140, 'spell_terokkar_translocation_firewing_point_tower_up');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (25650,25652);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_hellfire_peninsula_translocation_falcon_watch_tower_down',
+'spell_hellfire_peninsula_translocation_falcon_watch_tower_up');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(25650, 'spell_hellfire_peninsula_translocation_falcon_watch_tower_down'),
+(25652, 'spell_hellfire_peninsula_translocation_falcon_watch_tower_up');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (34448,34452,35376,35727);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_eastern_kingdoms_duskwither_spire_up',
+'spell_eastern_kingdoms_duskwither_spire_down',
+'spell_eastern_kingdoms_silvermoon_to_undercity',
+'spell_eastern_kingdoms_undercity_to_silvermoon');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(34448, 'spell_eastern_kingdoms_duskwither_spire_up'),
+(34452, 'spell_eastern_kingdoms_duskwither_spire_down'),
+(35376, 'spell_eastern_kingdoms_silvermoon_to_undercity'),
+(35727, 'spell_eastern_kingdoms_undercity_to_silvermoon');

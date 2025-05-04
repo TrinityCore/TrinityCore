@@ -850,6 +850,54 @@ class spell_hellfire_peninsula_send_vengeance_to_player : public SpellScript
     }
 };
 
+enum Translocation
+{
+    SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_DOWN     = 30140,
+    SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_UP       = 30141
+};
+
+// 25650 - Translocate
+class spell_hellfire_peninsula_translocation_falcon_watch_tower_down : public SpellScript
+{
+    PrepareSpellScript(spell_hellfire_peninsula_translocation_falcon_watch_tower_down);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_DOWN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_DOWN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hellfire_peninsula_translocation_falcon_watch_tower_down::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 25652 - Translocate
+class spell_hellfire_peninsula_translocation_falcon_watch_tower_up : public SpellScript
+{
+    PrepareSpellScript(spell_hellfire_peninsula_translocation_falcon_watch_tower_up);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_UP });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_UP);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hellfire_peninsula_translocation_falcon_watch_tower_up::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_hellfire_peninsula()
 {
     new npc_colonel_jules();
@@ -860,4 +908,6 @@ void AddSC_hellfire_peninsula()
     RegisterCreatureAI(npc_fear_controller);
     RegisterSpellScript(spell_hellfire_peninsula_send_vengeance);
     RegisterSpellScript(spell_hellfire_peninsula_send_vengeance_to_player);
+    RegisterSpellScript(spell_hellfire_peninsula_translocation_falcon_watch_tower_down);
+    RegisterSpellScript(spell_hellfire_peninsula_translocation_falcon_watch_tower_up);
 }
