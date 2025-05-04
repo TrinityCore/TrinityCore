@@ -1729,6 +1729,36 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
     }
 };
 
+/*######
+## Quest 11896: Weakness to Lightning
+######*/
+
+enum WeaknessToLightning
+{
+    SPELL_POWER_OF_THE_STORM    = 46424
+};
+
+// 46550 - Weakness to Lightning: On Quest Complete
+class spell_borean_tundra_weakness_to_lightning_on_quest_complete : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_OF_THE_STORM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_POWER_OF_THE_STORM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_on_quest_complete::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -1756,4 +1786,5 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
     RegisterSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
 }

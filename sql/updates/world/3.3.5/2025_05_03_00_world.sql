@@ -101,3 +101,18 @@ DELETE FROM `spell_scripts` WHERE `id` = 37834;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_shadowmoon_unbanish_azaloth';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (37834, 'spell_shadowmoon_unbanish_azaloth');
+
+DELETE FROM `spell_scripts` WHERE `id` = 46550;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_borean_tundra_weakness_to_lightning_on_quest_complete';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(46550, 'spell_borean_tundra_weakness_to_lightning_on_quest_complete');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (37867,37892,37894);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_shadowmoon_arcano_scorp_control_01',
+'spell_shadowmoon_arcano_scorp_control_02',
+'spell_shadowmoon_arcano_scorp_control_03');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(37867, 'spell_shadowmoon_arcano_scorp_control_01'),
+(37892, 'spell_shadowmoon_arcano_scorp_control_02'),
+(37894, 'spell_shadowmoon_arcano_scorp_control_03');
