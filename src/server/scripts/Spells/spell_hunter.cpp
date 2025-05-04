@@ -51,6 +51,8 @@ enum HunterSpells
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
+    SPELL_HUNTER_IMPLOSIVE_TRAP                     = 462032,
+    SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE              = 462033,
     SPELL_HUNTER_INTIMIDATION                       = 19577,
     SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP          = 474421,
     SPELL_HUNTER_LATENT_POISON_STACK                = 378015,
@@ -335,6 +337,32 @@ class spell_hun_hunting_party : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_hun_hunting_party::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 462032 - Implosive Trap
+// 34378 - AreatriggerId
+struct areatrigger_hun_implosive_trap : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_HUNTER_IMPLOSIVE_TRAP))
+                other->SetDuration(0);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                at->Remove();
+            }
+        }
     }
 };
 
@@ -988,6 +1016,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_explosive_shot);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
+    RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
     RegisterSpellScript(spell_hun_last_stand_pet);
     RegisterSpellScript(spell_hun_latent_poison_damage);
     RegisterSpellScript(spell_hun_latent_poison_trigger);
