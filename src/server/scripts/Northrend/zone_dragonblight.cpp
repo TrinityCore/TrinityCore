@@ -609,6 +609,29 @@ class spell_dragonblight_moti_mirror_image_script_effect : public SpellScript
     }
 };
 
+// 50020 - Mystery of the Infinite: Hourglass cast See Invis on Master
+class spell_dragonblight_moti_hourglass_cast_see_invis_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_moti_hourglass_cast_see_invis_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_moti_hourglass_cast_see_invis_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 /*######
 ## Quest 12457: The Chain Gun And You
 ######*/
@@ -959,6 +982,7 @@ void AddSC_dragonblight()
     RegisterCreatureAI(npc_wyrmrest_defender);
     RegisterSpellScript(spell_dragonblight_warsong_battle_standard);
     RegisterSpellScript(spell_dragonblight_moti_mirror_image_script_effect);
+    RegisterSpellScript(spell_dragonblight_moti_hourglass_cast_see_invis_on_master);
     RegisterSpellScript(spell_dragonblight_call_out_injured_soldier);
     RegisterSpellScript(spell_dragonblight_high_executor_branding_iron);
     RegisterSpellScript(spell_dragonblight_cancel_banshees_magic_mirror);
