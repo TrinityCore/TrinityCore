@@ -951,35 +951,6 @@ class spell_hun_tame_beast : public SpellScript
     }
 };
 
-// 187699 - Tar Trap
-// 4435 - AreatriggerId
-struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
-{
-    using AreaTriggerAI::AreaTriggerAI;
-
-    void OnInitialize() override
-    {
-        if (Unit* caster = at->GetCaster())
-        {
-            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_HUNTER_TAR_TRAP);
-
-            if (areaTriggers.size() >= 1)
-                areaTriggers.front()->SetDuration(0);
-        }
-    }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        if (Unit* caster = at->GetCaster())
-        {
-            if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_HUNTER_TAR_TRAP_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        }
-
-        at->Remove();
-    }
-};
-
 // 187700 - Tar Trap
 // 4436 - AreatriggerId
 struct areatrigger_hun_tar_trap : AreaTriggerAI
@@ -989,15 +960,39 @@ struct areatrigger_hun_tar_trap : AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         if (Unit* caster = at->GetCaster())
-        {
             if (caster->IsValidAttackTarget(unit))
                 caster->CastSpell(unit, SPELL_HUNTER_TAR_TRAP_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        }
     }
 
     void OnUnitExit(Unit* unit) override
     {
         unit->RemoveAurasDueToSpell(SPELL_HUNTER_TAR_TRAP_SLOW, at->GetCasterGuid());
+    }
+};
+
+// 187699 - Tar Trap
+// 4435 - AreatriggerId
+struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_HUNTER_TAR_TRAP))
+                other->SetDuration(0);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_TAR_TRAP_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                at->Remove();
+            }
+        }
     }
 };
 
@@ -1132,8 +1127,8 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_surging_shots);
     RegisterSpellScript(spell_hun_tame_beast);
-    RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
+    RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
     RegisterSpellScript(spell_hun_wilderness_medicine);
