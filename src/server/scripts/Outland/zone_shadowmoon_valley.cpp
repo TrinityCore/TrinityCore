@@ -1662,6 +1662,36 @@ class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
     }
 };
 
+/*######
+## Quest 10637, 10688: A Necessary Distraction
+######*/
+
+enum ANecessaryDistraction
+{
+    SPELL_BANISH_AZALOTH     = 37833
+};
+
+// 37834 - Unbanish Azaloth
+class spell_shadowmoon_unbanish_azaloth : public SpellScript
+{
+    PrepareSpellScript(spell_shadowmoon_unbanish_azaloth);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BANISH_AZALOTH });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_BANISH_AZALOTH);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_unbanish_azaloth::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_shadowmoon_valley()
 {
     new npc_invis_infernal_caster();
@@ -1678,4 +1708,5 @@ void AddSC_shadowmoon_valley()
     new npc_shadowmoon_tuber_node();
     RegisterSpellScript(spell_shadowmoon_illidari_agent_illusion);
     RegisterSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
+    RegisterSpellScript(spell_shadowmoon_unbanish_azaloth);
 }

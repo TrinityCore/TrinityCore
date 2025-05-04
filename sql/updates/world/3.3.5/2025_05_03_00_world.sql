@@ -83,3 +83,21 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (47316, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_03'),
 (47405, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_04'),
 (50439, 'spell_grizzly_hills_script_cast_summon_image_of_drakuru_05');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (58916,58917);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_icecrown_gift_of_the_lich_king',
+'spell_icecrown_consume_minions');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(58916, 'spell_icecrown_gift_of_the_lich_king'),
+(58917, 'spell_icecrown_consume_minions');
+
+DELETE FROM `spell_scripts` WHERE `id` = 37028;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_bem_dispelling_analysis';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(37028, 'spell_bem_dispelling_analysis');
+
+DELETE FROM `spell_scripts` WHERE `id` = 37834;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_shadowmoon_unbanish_azaloth';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(37834, 'spell_shadowmoon_unbanish_azaloth');
