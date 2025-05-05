@@ -156,7 +156,7 @@ class spell_hun_aspect_cheetah : public AuraScript
     }
 };
 
-// 1219162 - Aspect of the Fox (atatched to 186257 - Aspect of the Cheetah)
+// 1219162 - Aspect of the Fox (attached to 186257 - Aspect of the Cheetah)
 class spell_hun_aspect_of_the_fox : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
@@ -832,7 +832,7 @@ class spell_hun_scatter_shot : public SpellScript
     }
 };
 
-// 459455 - Scout's Instincts (atatched to 186257 - Aspect of the Cheetah)
+// 459455 - Scout's Instincts (attached to 186257 - Aspect of the Cheetah)
 class spell_hun_scouts_instincts : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
