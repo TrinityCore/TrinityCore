@@ -805,7 +805,7 @@ class spell_hun_scatter_shot : public SpellScript
     }
 };
 
-// Called by 186257 - Aspect of the Cheetah
+// 459455 - Scout's Instincts (atatched to 186257 - Aspect of the Cheetah)
 class spell_hun_scouts_instincts : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
@@ -815,10 +815,14 @@ class spell_hun_scouts_instincts : public SpellScript
             && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_MOD_MINIMUM_SPEED);
     }
 
-    void HandleMinSpeed(WorldObject*& target) const
+    bool Load() override
     {
-        if (!GetCaster()->HasAura(SPELL_HUNTER_SCOUTS_INSTINCTS))
-            target = nullptr;
+        return !GetCaster()->HasAura(SPELL_HUNTER_SCOUTS_INSTINCTS);
+    }
+
+    static void HandleMinSpeed(WorldObject*& target)
+    {
+        target = nullptr;
     }
 
     void Register() override
