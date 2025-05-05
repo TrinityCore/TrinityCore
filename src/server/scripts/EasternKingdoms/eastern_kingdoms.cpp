@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DBCStores.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "Unit.h"
@@ -111,10 +112,37 @@ class spell_eastern_kingdoms_undercity_to_silvermoon : public SpellScript
     }
 };
 
+enum DeadScarBombingRun
+{
+    SOUND_ID_BOMBING_RUN       = 12318
+};
+
+// 45071 - Quest - Sunwell Daily - Dead Scar Bombing Run
+class spell_eastern_kingdoms_dead_scar_bombing_run : public SpellScript
+{
+    PrepareSpellScript(spell_eastern_kingdoms_dead_scar_bombing_run);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sSoundEntriesStore.LookupEntry(SOUND_ID_BOMBING_RUN);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->PlayDirectSound(SOUND_ID_BOMBING_RUN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_eastern_kingdoms_dead_scar_bombing_run::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_eastern_kingdoms()
 {
     RegisterSpellScript(spell_eastern_kingdoms_duskwither_spire_up);
     RegisterSpellScript(spell_eastern_kingdoms_duskwither_spire_down);
     RegisterSpellScript(spell_eastern_kingdoms_silvermoon_to_undercity);
     RegisterSpellScript(spell_eastern_kingdoms_undercity_to_silvermoon);
+    RegisterSpellScript(spell_eastern_kingdoms_dead_scar_bombing_run);
 }

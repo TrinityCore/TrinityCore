@@ -148,3 +148,23 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (34452, 'spell_eastern_kingdoms_duskwither_spire_down'),
 (35376, 'spell_eastern_kingdoms_silvermoon_to_undercity'),
 (35727, 'spell_eastern_kingdoms_undercity_to_silvermoon');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (47393,47615,47638);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_dragonblight_focus_on_the_beach_quest_completion_script',
+'spell_dragonblight_atop_the_woodlands_quest_completion_script',
+'spell_dragonblight_end_of_the_line_quest_completion_script');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(47393, 'spell_dragonblight_focus_on_the_beach_quest_completion_script'),
+(47615, 'spell_dragonblight_atop_the_woodlands_quest_completion_script'),
+(47638, 'spell_dragonblight_end_of_the_line_quest_completion_script');
+
+DELETE FROM `spell_scripts` WHERE `id` = 24320;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_zulgurub_poisonous_blood';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(24320, 'spell_zulgurub_poisonous_blood');
+
+DELETE FROM `spell_scripts` WHERE `id` = 45071;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_eastern_kingdoms_dead_scar_bombing_run';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(45071, 'spell_eastern_kingdoms_dead_scar_bombing_run');
