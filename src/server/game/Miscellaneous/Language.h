@@ -1015,7 +1015,7 @@ enum TrinityStrings
     LANG_CMDPARSER_SPELL_NO_EXIST         = 1514,
     LANG_CMDPARSER_EXACT_SEQ_MISMATCH     = 1515,
     LANG_CMDPARSER_CURRENCY_NO_EXIST      = 1516, // master branch ONLY
-    LANG_CMDPARSER_QUEST_NO_EXIST         = 1517, // RESERVED future cherry-pick
+    LANG_CMDPARSER_QUEST_NO_EXIST         = 1517,
 
     // 1516-1996 - free
     LANG_DEBUG_AREATRIGGER_ENTITY_ENTERED = 1997, // master branch ONLY
