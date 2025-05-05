@@ -150,7 +150,6 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << Bits<1>(GroupFinderEnabled);
     _worldPacket << Bits<1>(IsPremadeGroupEnabled);
-    _worldPacket << Bits<1>(UseActivePlayerDataQuestCompleted);
     _worldPacket << Bits<1>(false); // unused 10.2.7
     _worldPacket << Bits<1>(GuildEventsEditsEnabled);
     _worldPacket << Bits<1>(GuildTradeSkillsEnabled);
@@ -158,8 +157,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(IsAccountCurrencyTransferEnabled);
-
     _worldPacket << Bits<1>(false); // unused 11.0.7
+
     _worldPacket << Bits<1>(LobbyMatchmakerQueueFromMainlineEnabled);
     _worldPacket << Bits<1>(CanSendLobbyMatchmakerPartyCustomizations);
     _worldPacket << Bits<1>(AddonProfilerEnabled);
