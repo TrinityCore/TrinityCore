@@ -989,6 +989,32 @@ class spell_icecrown_consume_minions : public SpellScript
     }
 };
 
+/*######
+## Quest 12995: Leave Our Mark
+######*/
+
+enum LeaveOurMark
+{
+    NPC_LEAVE_OUR_MARK_KILL_CREDIT_BUNNY     = 30220
+};
+
+// 23301 - Ebon Blade Banner
+class spell_icecrown_ebon_blade_banner : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_ebon_blade_banner);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            caster->KilledMonsterCredit(NPC_LEAVE_OUR_MARK_KILL_CREDIT_BUNNY);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_ebon_blade_banner::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -1005,4 +1031,5 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_summon_freed_crusader);
     RegisterSpellScript(spell_icecrown_gift_of_the_lich_king);
     RegisterSpellScript(spell_icecrown_consume_minions);
+    RegisterSpellScript(spell_icecrown_ebon_blade_banner);
 }
