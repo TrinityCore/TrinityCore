@@ -39,6 +39,7 @@ enum HunterSpells
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3         = 131952,
     SPELL_HUNTER_AIMED_SHOT                         = 19434,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
+    SPELL_HUNTER_ASPECT_OF_THE_FOX                  = 1219162,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
     SPELL_HUNTER_BINDING_SHOT                       = 109248,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
@@ -152,6 +153,32 @@ class spell_hun_aspect_cheetah : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_hun_aspect_cheetah::HandleOnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 1219162 - Aspect of the Fox (atatched to 186257 - Aspect of the Cheetah)
+class spell_hun_aspect_of_the_fox : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_ASPECT_OF_THE_FOX })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && spellInfo->GetEffect(EFFECT_2).IsAura(SPELL_AURA_CAST_WHILE_WALKING);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_HUNTER_ASPECT_OF_THE_FOX);
+    }
+
+    static void HandleCastWhileWalking(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_hun_aspect_of_the_fox::HandleCastWhileWalking, EFFECT_2, TARGET_UNIT_CASTER);
     }
 };
 
@@ -1125,6 +1152,7 @@ void AddSC_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_hun_a_murder_of_crows);
     RegisterSpellScript(spell_hun_aspect_cheetah);
+    RegisterSpellScript(spell_hun_aspect_of_the_fox);
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
     RegisterSpellScript(spell_hun_cobra_sting);
     RegisterSpellScript(spell_hun_concussive_shot);
