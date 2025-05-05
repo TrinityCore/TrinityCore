@@ -168,3 +168,15 @@ DELETE FROM `spell_scripts` WHERE `id` = 45071;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_eastern_kingdoms_dead_scar_bombing_run';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (45071, 'spell_eastern_kingdoms_dead_scar_bombing_run');
+
+DELETE FROM `spell_scripts` WHERE `id` = 57753;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 30681 AND `source_type` = 0 AND `id` = 5;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(30681,0,5,0,8,0,100,0,57753,0,0,0,0,11,57752,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Onyx Blaze Mistress - On Spellhit 'Conjure Flame Orb' - Cast 'Flame Orb Summon'");
+
+DELETE FROM `spell_scripts` WHERE `id` = 46237;
+UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 25861;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 25861 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(25861,0,0,0,8,0,100,0,46237,0,0,0,0,41,3000,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Orphaned Mammoth Calf - On Spellhit 'Dismiss Orphaned Mammoth' - Delayed Despawn"),
+(25861,0,1,0,8,0,100,0,46237,0,0,0,0,28,46233,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Orphaned Mammoth Calf - On Spellhit 'Dismiss Orphaned Mammoth' - Remove Aura 'Call Mammoth Orphan'");
