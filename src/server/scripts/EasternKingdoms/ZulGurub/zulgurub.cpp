@@ -102,7 +102,6 @@ class spell_zulgurub_poisonous_blood : public SpellScript
     }
 };
 
-
 void AddSC_zulgurub()
 {
     new go_brazier_of_madness();
