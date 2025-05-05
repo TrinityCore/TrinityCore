@@ -73,6 +73,7 @@ enum HunterSpells
     SPELL_HUNTER_RAPID_FIRE                         = 257044,
     SPELL_HUNTER_RAPID_FIRE_DAMAGE                  = 257045,
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
+    SPELL_HUNTER_SCOUTS_INSTINCTS                   = 459455,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
@@ -804,6 +805,32 @@ class spell_hun_scatter_shot : public SpellScript
     }
 };
 
+// 459455 - Scout's Instincts (atatched to 186257 - Aspect of the Cheetah)
+class spell_hun_scouts_instincts : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_SCOUTS_INSTINCTS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_MOD_MINIMUM_SPEED);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_HUNTER_SCOUTS_INSTINCTS);
+    }
+
+    static void HandleMinSpeed(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_hun_scouts_instincts::HandleMinSpeed, EFFECT_1, TARGET_UNIT_CASTER);
+    }
+};
+
 // 459533 - Scrappy
 class spell_hun_scrappy : public AuraScript
 {
@@ -1123,6 +1150,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_rapid_fire_damage);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
+    RegisterSpellScript(spell_hun_scouts_instincts);
     RegisterSpellScript(spell_hun_scrappy);
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_surging_shots);
