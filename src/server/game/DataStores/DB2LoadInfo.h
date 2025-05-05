@@ -962,7 +962,7 @@ struct ChrClassesLoadInfo
         { .IsSigned = false, .Type = FT_SHORT, .Name = "CinematicSequenceID" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "DefaultSpec" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "ID" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "PrimaryStatPriority" },
+        { .IsSigned = true, .Type = FT_BYTE, .Name = "PrimaryStatPriority" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "DisplayPower" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "RangedAttackPowerPerAgility" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "AttackPowerPerAgility" },
@@ -1387,6 +1387,17 @@ struct CorruptionEffectsLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 5, &CorruptionEffectsMeta::Instance, HOTFIX_SEL_CORRUPTION_EFFECTS };
 };
 
+struct CraftingQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[2] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "QualityTier" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 2, &CraftingQualityMeta::Instance, HOTFIX_SEL_CRAFTING_QUALITY };
+};
+
 struct CreatureDisplayInfoLoadInfo
 {
     static constexpr DB2FieldMeta Fields[31] =
@@ -1499,7 +1510,7 @@ struct CreatureModelDataLoadInfo
         { .IsSigned = false, .Type = FT_INT, .Name = "FootstepCameraEffectID" },
         { .IsSigned = false, .Type = FT_INT, .Name = "DeathThudCameraEffectID" },
         { .IsSigned = false, .Type = FT_INT, .Name = "SoundID" },
-        { .IsSigned = false, .Type = FT_INT, .Name = "SizeClass" },
+        { .IsSigned = true, .Type = FT_BYTE, .Name = "SizeClass" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "CollisionWidth" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "CollisionHeight" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "WorldEffectScale" },
@@ -1709,7 +1720,7 @@ struct DifficultyLoadInfo
 
 struct DungeonEncounterLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[10] =
+    static constexpr DB2FieldMeta Fields[11] =
     {
         { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
@@ -1721,9 +1732,10 @@ struct DungeonEncounterLoadInfo
         { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
         { .IsSigned = true, .Type = FT_INT, .Name = "SpellIconFileID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "Faction" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Unknown1115" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 10, &DungeonEncounterMeta::Instance, HOTFIX_SEL_DUNGEON_ENCOUNTER };
+    static constexpr DB2LoadInfo Instance{ Fields, 11, &DungeonEncounterMeta::Instance, HOTFIX_SEL_DUNGEON_ENCOUNTER };
 };
 
 struct DurabilityCostsLoadInfo
@@ -2516,7 +2528,7 @@ struct HeirloomLoadInfo
         { .IsSigned = true, .Type = FT_INT, .Name = "LegacyUpgradedItemID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "StaticUpgradedItemID" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "SourceTypeEnum" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
         { .IsSigned = true, .Type = FT_INT, .Name = "LegacyItemID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "UpgradeItemID1" },
         { .IsSigned = true, .Type = FT_INT, .Name = "UpgradeItemID2" },
@@ -2843,7 +2855,7 @@ struct ItemClassLoadInfo
         { .IsSigned = false, .Type = FT_STRING, .Name = "ClassName" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "ClassID" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "PriceModifier" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 5, &ItemClassMeta::Instance, HOTFIX_SEL_ITEM_CLASS };
@@ -3009,7 +3021,7 @@ struct ItemExtendedCostLoadInfo
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "RequiredArenaRating" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "ArenaBracket" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "MinFactionID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "MinReputation" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "RequiredAchievement" },
@@ -3858,6 +3870,18 @@ struct MawPowerLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &MawPowerMeta::Instance, HOTFIX_SEL_MAW_POWER };
 };
 
+struct ModifiedCraftingItemLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ModifiedCraftingReagentItemID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CraftingQualityID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &ModifiedCraftingItemMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_ITEM };
+};
+
 struct ModifierTreeLoadInfo
 {
     static constexpr DB2FieldMeta Fields[8] =
@@ -4037,15 +4061,16 @@ struct NamesReservedLocaleLoadInfo
 
 struct NumTalentsAtLevelLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[4] =
+    static constexpr DB2FieldMeta Fields[5] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "NumTalents" },
         { .IsSigned = true, .Type = FT_INT, .Name = "NumTalentsDeathKnight" },
         { .IsSigned = true, .Type = FT_INT, .Name = "NumTalentsDemonHunter" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Unknown1115" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 4, &NumTalentsAtLevelMeta::Instance, HOTFIX_SEL_NUM_TALENTS_AT_LEVEL };
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &NumTalentsAtLevelMeta::Instance, HOTFIX_SEL_NUM_TALENTS_AT_LEVEL };
 };
 
 struct OverrideSpellDataLoadInfo
@@ -4124,6 +4149,22 @@ struct PathPropertyLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &PathPropertyMeta::Instance, HOTFIX_SEL_PATH_PROPERTY };
+};
+
+struct PerksActivityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { .IsSigned = false, .Type = FT_STRING, .Name = "ActivityName" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Description" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CriteriaTreeID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ThresholdContributionAmount" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Supersedes" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Priority" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &PerksActivityMeta::Instance, HOTFIX_SEL_PERKS_ACTIVITY };
 };
 
 struct PhaseLoadInfo
@@ -5003,7 +5044,7 @@ struct SpellCastingRequirementsLoadInfo
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "SpellID" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "FacingCasterFlags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "FacingCasterFlags" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "MinFactionID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "MinReputation" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "RequiredAreasID" },
@@ -5804,22 +5845,39 @@ struct TactKeyLoadInfo
 
 struct TalentLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[11] =
+    static constexpr DB2FieldMeta Fields[28] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = false, .Type = FT_STRING, .Name = "Description" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "TierID" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "Flags" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "ColumnIndex" },
+        { .IsSigned = false, .Type = FT_SHORT, .Name = "TabID" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "ClassID" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "SpecID" },
         { .IsSigned = false, .Type = FT_INT, .Name = "SpellID" },
         { .IsSigned = false, .Type = FT_INT, .Name = "OverridesSpellID" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "CategoryMask1" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "CategoryMask2" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "RequiredSpellID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CategoryMask1" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CategoryMask2" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank1" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank2" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank3" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank4" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank5" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank6" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank7" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank8" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellRank9" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "PrereqTalent1" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "PrereqTalent2" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "PrereqTalent3" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "PrereqRank1" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "PrereqRank2" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "PrereqRank3" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 11, &TalentMeta::Instance, HOTFIX_SEL_TALENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 28, &TalentMeta::Instance, HOTFIX_SEL_TALENT };
 };
 
 struct TaxiNodesLoadInfo
@@ -5904,7 +5962,7 @@ struct ToyLoadInfo
         { .IsSigned = false, .Type = FT_STRING, .Name = "SourceText" },
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ItemID" },
-        { .IsSigned = false, .Type = FT_BYTE, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "SourceTypeEnum" },
     };
 
@@ -6634,12 +6692,12 @@ struct VehicleSeatLoadInfo
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "CameraEnteringZoom" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "CameraSeatZoomMin" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "CameraSeatZoomMax" },
-        { .IsSigned = true, .Type = FT_SHORT, .Name = "EnterAnimKitID" },
-        { .IsSigned = true, .Type = FT_SHORT, .Name = "RideAnimKitID" },
-        { .IsSigned = true, .Type = FT_SHORT, .Name = "ExitAnimKitID" },
-        { .IsSigned = true, .Type = FT_SHORT, .Name = "VehicleEnterAnimKitID" },
-        { .IsSigned = true, .Type = FT_SHORT, .Name = "VehicleRideAnimKitID" },
-        { .IsSigned = true, .Type = FT_SHORT, .Name = "VehicleExitAnimKitID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "EnterAnimKitID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "RideAnimKitID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ExitAnimKitID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "VehicleEnterAnimKitID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "VehicleRideAnimKitID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "VehicleExitAnimKitID" },
         { .IsSigned = true, .Type = FT_SHORT, .Name = "CameraModeID" },
     };
 

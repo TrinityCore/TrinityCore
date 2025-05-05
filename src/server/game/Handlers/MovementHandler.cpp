@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AuthenticationPackets.h"
 #include "WorldSession.h"
 #include "Battleground.h"
 #include "Corpse.h"
@@ -798,20 +799,18 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeS
     mover->SendMessageToSet(moveSkipTime.Write(), _player);
 }
 
-void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& timeSyncResponse)
+void WorldSession::HandleTimeSync(uint32 counter, int64 clientTime, TimePoint responseReceiveTime)
 {
-    if (_pendingTimeSyncRequests.count(timeSyncResponse.SequenceIndex) == 0)
+    auto serverTimeAtSent = _pendingTimeSyncRequests.extract(counter);
+    if (!serverTimeAtSent)
         return;
-
-    uint32 serverTimeAtSent = _pendingTimeSyncRequests.at(timeSyncResponse.SequenceIndex);
-    _pendingTimeSyncRequests.erase(timeSyncResponse.SequenceIndex);
 
     // time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
     // we are going to make 2 assumptions:
     // 1) we assume that the request processing time equals 0.
     // 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, timeSyncResponse.GetReceivedTime());
-    uint32 lagDelay = roundTripDuration / 2;
+    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent.mapped(), responseReceiveTime);
+    int64 lagDelay = roundTripDuration / 2;
 
     /*
     clockDelta = serverTime - clientTime
@@ -823,9 +822,26 @@ void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& 
     using the following relation:
     serverTime = clockDelta + clientTime
     */
-    int64 clockDelta = (int64)serverTimeAtSent + (int64)lagDelay - (int64)timeSyncResponse.ClientTime;
+    int64 clockDelta = serverTimeAtSent.mapped() + lagDelay - clientTime;
     _timeSyncClockDeltaQueue->push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
     ComputeNewClockDelta();
+}
+
+void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse const& timeSyncResponse)
+{
+    HandleTimeSync(timeSyncResponse.SequenceIndex, timeSyncResponse.ClientTime, timeSyncResponse.GetReceivedTime());
+}
+
+void WorldSession::HandleQueuedMessagesEnd(WorldPackets::Auth::QueuedMessagesEnd const& queuedMessagesEnd)
+{
+    HandleTimeSync(SPECIAL_RESUME_COMMS_TIME_SYNC_COUNTER, queuedMessagesEnd.Timestamp, queuedMessagesEnd.GetRawPacket()->GetReceivedTime());
+}
+
+void WorldSession::HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete const& moveInitActiveMoverComplete)
+{
+    HandleTimeSync(SPECIAL_INIT_ACTIVE_MOVER_TIME_SYNC_COUNTER, moveInitActiveMoverComplete.Ticks, moveInitActiveMoverComplete.GetRawPacket()->GetReceivedTime());
+
+    _player->UpdateObjectVisibility(false);
 }
 
 void WorldSession::ComputeNewClockDelta()
@@ -861,12 +877,10 @@ void WorldSession::ComputeNewClockDelta()
     }
     else if (_timeSyncClockDelta == 0)
         _timeSyncClockDelta = _timeSyncClockDeltaQueue->back().first;
-}
 
-void WorldSession::HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete& moveInitActiveMoverComplete)
-{
-    _player->SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
-    _player->SetTransportServerTime(GameTime::GetGameTimeMS() - moveInitActiveMoverComplete.Ticks);
-
-    _player->UpdateObjectVisibility(false);
+    if (_player)
+    {
+        _player->SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+        _player->SetTransportServerTime(int32(_timeSyncClockDelta));
+    }
 }

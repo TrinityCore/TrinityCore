@@ -136,7 +136,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
     data << int32(bracket.Tier);
     data << int32(bracket.WeeklyBestTier);
     data << int32(bracket.SeasonBestRating);
-    data << int32(bracket.SeasonBestTierEnum);
+    data << uint8(bracket.SeasonBestTierEnum);
     data << int32(bracket.RoundsSeasonPlayed);
     data << int32(bracket.RoundsSeasonWon);
     data << int32(bracket.RoundsWeeklyPlayed);

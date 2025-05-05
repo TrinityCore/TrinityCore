@@ -1034,7 +1034,7 @@ struct Research : public IsUpdateFieldStructureTag
     bool operator!=(Research const& right) const { return !(*this == right); }
 };
 
-struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1517>
+struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<516>
 {
     UpdateField<bool, 0, 1> BackpackAutoSortDisabled;
     UpdateField<bool, 0, 2> BackpackSellJunkDisabled;
@@ -1046,6 +1046,8 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateFieldArray<DynamicUpdateFieldBase<uint32>, 1, 43, 44> ResearchSiteProgress;
     UpdateFieldArray<DynamicUpdateFieldBase<UF::Research>, 1, 45, 46> Research;
     DynamicUpdateField<uint64, 0, 7> KnownTitles;
+    DynamicUpdateField<UF::PlayerDataElement, 0, 8> CharacterDataElements;
+    DynamicUpdateField<UF::PlayerDataElement, 0, 9> AccountDataElements;
     DynamicUpdateField<int32, 0, 11> DailyQuestsCompleted;
     DynamicUpdateField<int32, 0, 12> AvailableQuestLineXQuestIDs;
     DynamicUpdateField<int32, 0, 13> Heirlooms;
@@ -1071,8 +1073,6 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     DynamicUpdateField<UF::CategoryCooldownMod, 32, 37> CategoryCooldownMods;
     DynamicUpdateField<UF::WeeklySpellUse, 32, 38> WeeklySpellUses;
     DynamicUpdateField<UF::CollectableSourceTrackedData, 32, 39> TrackedCollectableSources;
-    DynamicUpdateField<UF::PlayerDataElement, 0, 8> CharacterDataElements;
-    DynamicUpdateField<UF::PlayerDataElement, 0, 9> AccountDataElements;
     DynamicUpdateField<UF::PVPInfo, 0, 10> PvpInfo;
     DynamicUpdateField<UF::CharacterRestriction, 0, 23> CharacterRestrictions;
     DynamicUpdateField<UF::TraitConfig, 32, 33> TraitConfigs;
@@ -1127,7 +1127,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<uint8, 70, 94> MultiActionBars;
     UpdateField<uint8, 70, 95> LifetimeMaxRank;
     UpdateField<uint8, 70, 96> NumRespecs;
-    UpdateField<uint8, 70, 97> PvpMedals;
+    UpdateField<uint32, 70, 97> PvpMedals;
     UpdateField<uint16, 70, 98> TodayHonorableKills;
     UpdateField<uint16, 70, 99> YesterdayHonorableKills;
     UpdateField<uint32, 70, 100> LifetimeHonorableKills;
@@ -1189,8 +1189,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateFieldArray<int32, 2, 481, 482> ProfessionSkillLine;
     UpdateFieldArray<uint32, 5, 484, 485> BagSlotFlags;
     UpdateFieldArray<uint32, 7, 490, 491> BankBagSlotFlags;
-    UpdateFieldArray<uint64, 1000, 498, 499> QuestCompleted;
-    UpdateFieldArray<float, 17, 1499, 1500> ItemUpgradeHighWatermark;
+    UpdateFieldArray<float, 17, 498, 499> ItemUpgradeHighWatermark;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
