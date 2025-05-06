@@ -1779,8 +1779,8 @@ class spell_borean_tundra_signal_alliance : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-	    Unit* caster = GetCaster();
-	    if (caster->HasAura(uint32(GetEffectInfo(EFFECT_0).CalcValue())))
+        Unit* caster = GetCaster();
+        if (caster->HasAura(uint32(GetEffectInfo(EFFECT_0).CalcValue())))
             caster->CastSpell(caster, uint32(GetEffectValue()));
     }
 
