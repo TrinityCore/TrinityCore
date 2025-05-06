@@ -198,3 +198,18 @@ DELETE FROM `spell_scripts` WHERE `id` = 52124;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_chapter1_sky_darkener_assault';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (52124, 'spell_chapter1_sky_darkener_assault');
+
+DELETE FROM `spell_scripts` WHERE `id` = 45188;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_eastern_kingdoms_dawnblade_attack';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(45188, 'spell_eastern_kingdoms_dawnblade_attack');
+
+DELETE FROM `spell_scripts` WHERE `id` = 45958;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_borean_tundra_signal_alliance';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(45958, 'spell_borean_tundra_signal_alliance');
+
+DELETE FROM `spell_scripts` WHERE `id` = 46289;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_muru_negative_energy';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(46289, 'spell_muru_negative_energy');

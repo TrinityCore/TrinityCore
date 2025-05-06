@@ -138,6 +138,32 @@ class spell_eastern_kingdoms_dead_scar_bombing_run : public SpellScript
     }
 };
 
+enum DawnbladeAttack
+{
+    SPELL_DAWNBLADE_ATTACK     = 45189
+};
+
+// 45188 - Dawnblade Attack
+class spell_eastern_kingdoms_dawnblade_attack : public SpellScript
+{
+    PrepareSpellScript(spell_eastern_kingdoms_dawnblade_attack);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DAWNBLADE_ATTACK });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DAWNBLADE_ATTACK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_eastern_kingdoms_dawnblade_attack::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_eastern_kingdoms()
 {
     RegisterSpellScript(spell_eastern_kingdoms_duskwither_spire_up);
@@ -145,4 +171,5 @@ void AddSC_eastern_kingdoms()
     RegisterSpellScript(spell_eastern_kingdoms_silvermoon_to_undercity);
     RegisterSpellScript(spell_eastern_kingdoms_undercity_to_silvermoon);
     RegisterSpellScript(spell_eastern_kingdoms_dead_scar_bombing_run);
+    RegisterSpellScript(spell_eastern_kingdoms_dawnblade_attack);
 }
