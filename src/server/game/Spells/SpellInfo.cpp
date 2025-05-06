@@ -1226,6 +1226,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         RangeEntry = sSpellRangeStore.LookupEntry(_misc->RangeIndex);
         Speed = _misc->Speed;
         LaunchDelay = _misc->LaunchDelay;
+        MinDuration = _misc->MinDuration;
         SchoolMask = _misc->SchoolMask;
         IconFileDataId = _misc->SpellIconFileDataID;
         ActiveIconFileDataId = _misc->ActiveIconFileDataID;
