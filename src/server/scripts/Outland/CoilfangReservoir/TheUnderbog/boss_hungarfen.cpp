@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
@@ -167,20 +168,26 @@ class spell_hungarfen_putrid_mushroom_primer : public SpellScript
         return ValidateSpellInfo({ SPELL_SUMMON_UNDERBOG_MUSHROOM });
     }
 
-    void HandleScript(SpellEffIndex /*effIndex*/)
+    /// @todo: Check if something else should be done here
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Creature* caster = GetCaster()->ToCreature();
-        if (!caster || !caster->IsAIEnabled())
+        if (targets.empty())
             return;
 
-        // This is wrong. They don't need a script to simply select random target. But what should be done here? FilterTargets? Exclude pets?
-        if (Unit* target = caster->AI()->SelectTarget(SelectTargetMethod::Random, 0))
-            target->CastSpell(target, SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        targets.clear();
+        targets.push_back(target);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_UNDERBOG_MUSHROOM);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_hungarfen_putrid_mushroom_primer::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hungarfen_putrid_mushroom_primer::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_hungarfen_putrid_mushroom_primer::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
