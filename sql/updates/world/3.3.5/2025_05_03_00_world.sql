@@ -213,3 +213,13 @@ DELETE FROM `spell_scripts` WHERE `id` = 46289;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_muru_negative_energy';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (46289, 'spell_muru_negative_energy');
+
+DELETE FROM `spell_scripts` WHERE `id` = 26393;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_lunar_festival_elunes_blessing';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(26393, 'spell_lunar_festival_elunes_blessing');
+
+DELETE FROM `spell_scripts` WHERE `id` = 49466;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_brewfest_mole_machine_portal_schedule';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(49466, 'spell_brewfest_mole_machine_portal_schedule');
