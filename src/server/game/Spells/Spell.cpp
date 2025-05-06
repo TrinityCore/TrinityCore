@@ -826,15 +826,15 @@ uint64 Spell::CalculateDelayMomentForDst(float launchDelay) const
         {
             float speed = m_targets.GetSpeedXY();
             if (speed > 0.0f)
-                return uint64(std::floor((m_targets.GetDist2d() / speed + launchDelay) * 1000.0f));
+                return uint64(std::floor((std::max(m_targets.GetDist2d() / speed, m_spellInfo->MinDuration) + launchDelay) * 1000.0f));
         }
         else if (m_spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
-            return uint64(std::floor((m_spellInfo->Speed + launchDelay) * 1000.0f));
+            return uint64(std::floor((std::max(m_spellInfo->Speed, m_spellInfo->MinDuration) + launchDelay) * 1000.0f));
         else if (m_spellInfo->Speed > 0.0f)
         {
             // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
             float dist = m_caster->GetExactDist(*m_targets.GetDstPos());
-            return uint64(std::floor((dist / m_spellInfo->Speed + launchDelay) * 1000.0f));
+            return uint64(std::floor((std::max(dist / m_spellInfo->Speed, m_spellInfo->MinDuration) + launchDelay) * 1000.0f));
         }
 
         return uint64(std::floor(launchDelay * 1000.0f));
@@ -2425,7 +2425,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     ObjectGuid targetGUID = target->GetGUID();
 
     // Lookup target in already in list
-    auto ihit = std::find_if(std::begin(m_UniqueTargetInfo), std::end(m_UniqueTargetInfo), [targetGUID](TargetInfo const& target) { return target.TargetGUID == targetGUID; });
+    auto ihit = std::ranges::find(m_UniqueTargetInfo, targetGUID, &TargetInfo::TargetGUID);
     if (ihit != std::end(m_UniqueTargetInfo)) // Found in list
     {
         // Immune effects removed from mask
@@ -2456,7 +2456,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         WorldObject const* missileSource = m_caster;
         if (m_spellInfo->HasAttribute(SPELL_ATTR4_BOUNCY_CHAIN_MISSILES))
         {
-            auto previousTargetItr = std::find_if(m_UniqueTargetInfo.rbegin(), m_UniqueTargetInfo.rend(), [effectMask](TargetInfo const& target)
+            auto previousTargetItr = std::ranges::find_if(m_UniqueTargetInfo.rbegin(), m_UniqueTargetInfo.rend(), [effectMask](TargetInfo const& target)
             {
                 return (target.EffectMask & effectMask) != 0;
             });
@@ -2472,13 +2472,13 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         }
 
         if (m_spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
-            hitDelay += m_spellInfo->Speed;
+            hitDelay += std::max(m_spellInfo->Speed, m_spellInfo->MinDuration);
         else if (m_spellInfo->Speed > 0.0f)
         {
             // calculate spell incoming interval
             /// @todo this is a hack
             float dist = std::max(missileSource->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()), 5.0f);
-            hitDelay += dist / m_spellInfo->Speed;
+            hitDelay += std::max(dist / m_spellInfo->Speed, m_spellInfo->MinDuration);
         }
 
         targetInfo.TimeDelay += uint64(std::floor(hitDelay * 1000.0f));
@@ -2523,7 +2523,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
     ObjectGuid targetGUID = go->GetGUID();
 
     // Lookup target in already in list
-    auto ihit = std::find_if(std::begin(m_UniqueGOTargetInfo), std::end(m_UniqueGOTargetInfo), [targetGUID](GOTargetInfo const& target) { return target.TargetGUID == targetGUID; });
+    auto ihit = std::ranges::find(m_UniqueGOTargetInfo, targetGUID, &GOTargetInfo::TargetGUID);
     if (ihit != std::end(m_UniqueGOTargetInfo)) // Found in list
     {
         // Add only effect mask
@@ -2542,12 +2542,12 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
     {
         float hitDelay = m_spellInfo->LaunchDelay;
         if (m_spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
-            hitDelay += m_spellInfo->Speed;
+            hitDelay += std::max(m_spellInfo->Speed, m_spellInfo->MinDuration);
         else if (m_spellInfo->Speed > 0.0f)
         {
             // calculate spell incoming interval
             float dist = std::max(m_caster->GetDistance(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ()), 5.0f);
-            hitDelay += dist / m_spellInfo->Speed;
+            hitDelay += std::max(dist / m_spellInfo->Speed, m_spellInfo->MinDuration);
         }
 
         target.TimeDelay = uint64(std::floor(hitDelay * 1000.0f));
@@ -2574,7 +2574,7 @@ void Spell::AddItemTarget(Item* item, uint32 effectMask)
         return;
 
     // Lookup target in already in list
-    auto ihit = std::find_if(std::begin(m_UniqueItemInfo), std::end(m_UniqueItemInfo), [item](ItemTargetInfo const& target) { return target.TargetItem == item; });
+    auto ihit = std::ranges::find(m_UniqueItemInfo, item, &ItemTargetInfo::TargetItem);
     if (ihit != std::end(m_UniqueItemInfo)) // Found in list
     {
         // Add only effect mask
@@ -2604,7 +2604,7 @@ void Spell::AddCorpseTarget(Corpse* corpse, uint32 effectMask)
     ObjectGuid targetGUID = corpse->GetGUID();
 
     // Lookup target in already in list
-    auto ihit = std::find_if(std::begin(m_UniqueCorpseTargetInfo), std::end(m_UniqueCorpseTargetInfo), [targetGUID](CorpseTargetInfo const& target) { return target.TargetGUID == targetGUID; });
+    auto ihit = std::ranges::find(m_UniqueCorpseTargetInfo, targetGUID, &CorpseTargetInfo::TargetGUID);
     if (ihit != std::end(m_UniqueCorpseTargetInfo)) // Found in list
     {
         // Add only effect mask
@@ -2622,12 +2622,12 @@ void Spell::AddCorpseTarget(Corpse* corpse, uint32 effectMask)
     {
         float hitDelay = m_spellInfo->LaunchDelay;
         if (m_spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
-            hitDelay += m_spellInfo->Speed;
+            hitDelay += std::max(m_spellInfo->Speed, m_spellInfo->MinDuration);
         else if (m_spellInfo->Speed > 0.0f)
         {
             // calculate spell incoming interval
             float dist = std::max(m_caster->GetDistance(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ()), 5.0f);
-            hitDelay += dist / m_spellInfo->Speed;
+            hitDelay += std::max(dist / m_spellInfo->Speed, m_spellInfo->MinDuration);
         }
 
         target.TimeDelay = uint64(std::floor(hitDelay * 1000.0f));
