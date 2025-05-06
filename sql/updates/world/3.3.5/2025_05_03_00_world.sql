@@ -185,3 +185,16 @@ DELETE FROM `spell_scripts` WHERE `id` = 23301;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_icecrown_ebon_blade_banner';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (23301, 'spell_icecrown_ebon_blade_banner');
+
+DELETE FROM `spell_scripts` WHERE `id` IN (54620,58622);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_dalaran_teleport_to_dalaran',
+'spell_dalaran_teleport_to_lake_wintergrasp');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(54620, 'spell_dalaran_teleport_to_dalaran'),
+(58622, 'spell_dalaran_teleport_to_lake_wintergrasp');
+
+DELETE FROM `spell_scripts` WHERE `id` = 52124;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_chapter1_sky_darkener_assault';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(52124, 'spell_chapter1_sky_darkener_assault');
