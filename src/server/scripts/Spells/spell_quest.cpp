@@ -1799,6 +1799,12 @@ class spell_quest_taming_the_beast : public AuraScript
 
         if (finalSpellId)
             GetCaster()->CastSpell(GetTarget(), finalSpellId, true);
+
+        if (Creature* pet = GetTarget()->ToCreature())
+        {
+            pet->GetThreatManager().ClearAllThreat();
+            pet->CombatStop(true);
+        }
     }
 
     void Register() override
