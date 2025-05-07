@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef TRINITYCORE_CONFIG_H
+#define TRINITYCORE_CONFIG_H
 
 #include "Define.h"
 #include <string>
@@ -43,19 +43,19 @@ public:
 
     bool Reload(std::vector<std::string>& errors);
 
-    std::string GetStringDefault(std::string const& name, const std::string& def, bool quiet = false) const;
-    bool GetBoolDefault(std::string const& name, bool def, bool quiet = false) const;
-    int32 GetIntDefault(std::string const& name, int32 def, bool quiet = false) const;
-    int64 GetInt64Default(std::string const& name, int64 def, bool quiet = false) const;
-    float GetFloatDefault(std::string const& name, float def, bool quiet = false) const;
+    std::string GetStringDefault(std::string_view name, std::string_view def, bool quiet = false) const;
+    bool GetBoolDefault(std::string_view name, bool def, bool quiet = false) const;
+    int32 GetIntDefault(std::string_view name, int32 def, bool quiet = false) const;
+    int64 GetInt64Default(std::string_view name, int64 def, bool quiet = false) const;
+    float GetFloatDefault(std::string_view name, float def, bool quiet = false) const;
 
     std::string const& GetFilename();
     std::vector<std::string> const& GetArguments() const;
     std::vector<std::string> GetKeysByString(std::string const& name);
 
 private:
-    template<class T>
-    T GetValueDefault(std::string const& name, T def, bool quiet) const;
+    template<class T, class R = T>
+    R GetValueDefault(std::string_view const& name, T def, bool quiet) const;
 };
 
 #define sConfigMgr ConfigMgr::instance()
