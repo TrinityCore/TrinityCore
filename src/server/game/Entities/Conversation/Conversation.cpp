@@ -209,12 +209,13 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         lineField.Flags = line->Flags;
         lineField.ChatType = line->ChatType;
 
+        std::array<Milliseconds, TOTAL_LOCALES>& startTimes = _lineStartTimes[line->Id];
         for (LocaleConstant locale = LOCALE_enUS; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
         {
             if (locale == LOCALE_none)
                 continue;
 
-            _lineStartTimes[{ locale, line->Id }] = _lastLineEndTimes[locale];
+            startTimes[locale] = _lastLineEndTimes[locale];
             if (locale == DEFAULT_LOCALE)
                 lineField.StartTime = _lastLineEndTimes[locale].count();
 
@@ -225,7 +226,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         }
     }
 
-    _duration = Milliseconds(*std::max_element(_lastLineEndTimes.begin(), _lastLineEndTimes.end()));
+    _duration = *std::ranges::max_element(_lastLineEndTimes);
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::LastLineEndTime), _duration.count());
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Lines), std::move(lines));
 
@@ -288,7 +289,10 @@ void Conversation::AddActor(int32 actorId, uint32 actorIdx, ConversationActorTyp
 
 Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 lineId) const
 {
-    return Trinity::Containers::MapGetValuePtr(_lineStartTimes, { locale, lineId });
+    if (std::array<Milliseconds, TOTAL_LOCALES> const* durations = Trinity::Containers::MapGetValuePtr(_lineStartTimes, lineId))
+        return &(*durations)[locale];
+
+    return nullptr;
 }
 
 Milliseconds Conversation::GetLastLineEndTime(LocaleConstant locale) const

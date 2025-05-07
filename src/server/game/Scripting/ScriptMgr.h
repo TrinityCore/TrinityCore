@@ -21,7 +21,6 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "Tuples.h"
-#include "Types.h"
 #include <boost/preprocessor/punctuation/remove_parens.hpp>
 #include <memory>
 #include <vector>
@@ -1307,37 +1306,46 @@ class TC_GAME_API ScriptMgr
 namespace Trinity::SpellScripts
 {
     template<typename T>
-    using is_SpellScript = std::is_base_of<SpellScript, T>;
+    concept IsSpellScript = std::is_base_of_v<SpellScript, T>;
 
     template<typename T>
-    using is_AuraScript = std::is_base_of<AuraScript, T>;
+    concept IsAuraScript = std::is_base_of_v<AuraScript, T>;
+
+    template<typename T>
+    concept IsSpellOrAuraScript = IsSpellScript<T> || IsAuraScript<T>;
+
+    template<typename T, typename Other>
+    concept ComplementScriptFor = (IsSpellScript<T> && IsAuraScript<Other>)
+        || (IsAuraScript<T> && IsSpellScript<Other>)
+        || std::same_as<T, void>;
+
+    template<typename T>
+    concept ArgsTuple = Trinity::is_tuple_v<T>;
 }
 
-template <typename... Ts>
+template <Trinity::SpellScripts::IsSpellOrAuraScript Script1, Trinity::SpellScripts::ComplementScriptFor<Script1> Script2, Trinity::SpellScripts::ArgsTuple ArgsType>
 class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
 {
-    using SpellScriptType = typename Trinity::find_type_if_t<Trinity::SpellScripts::is_SpellScript, Ts...>;
-    using AuraScriptType = typename Trinity::find_type_if_t<Trinity::SpellScripts::is_AuraScript, Ts...>;
-    using ArgsType = typename Trinity::find_type_if_t<Trinity::is_tuple, Ts...>;
-
-    static_assert(!std::conjunction_v<std::is_same<SpellScriptType, Trinity::find_type_end>, std::is_same<AuraScriptType, Trinity::find_type_end>>, "At least one of SpellScript/AuraScript arguments must be provided for GenericSpellAndAuraScriptLoader");
-
 public:
     GenericSpellAndAuraScriptLoader(char const* name, ArgsType&& args) : SpellScriptLoader(name), _args(std::move(args)) { }
 
 private:
     SpellScript* GetSpellScript() const override
     {
-        if constexpr (!std::is_same_v<SpellScriptType, Trinity::find_type_end>)
-            return Trinity::new_from_tuple<SpellScriptType>(_args);
+        if constexpr (Trinity::SpellScripts::IsSpellScript<Script1>)
+            return Trinity::new_from_tuple<Script1>(_args);
+        else if constexpr (Trinity::SpellScripts::IsSpellScript<Script2>)
+            return Trinity::new_from_tuple<Script2>(_args);
         else
             return nullptr;
     }
 
     AuraScript* GetAuraScript() const override
     {
-        if constexpr (!std::is_same_v<AuraScriptType, Trinity::find_type_end>)
-            return Trinity::new_from_tuple<AuraScriptType>(_args);
+        if constexpr (Trinity::SpellScripts::IsAuraScript<Script1>)
+            return Trinity::new_from_tuple<Script1>(_args);
+        else if constexpr (Trinity::SpellScripts::IsAuraScript<Script2>)
+            return Trinity::new_from_tuple<Script2>(_args);
         else
             return nullptr;
     }
@@ -1345,10 +1353,10 @@ private:
     ArgsType _args;
 };
 
-#define RegisterSpellScriptWithArgs(spell_script, script_name, ...) new GenericSpellAndAuraScriptLoader<BOOST_PP_REMOVE_PARENS(spell_script), decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
-#define RegisterSpellScript(spell_script) RegisterSpellScriptWithArgs(spell_script, #spell_script)
 #define RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, script_name, ...) new GenericSpellAndAuraScriptLoader<BOOST_PP_REMOVE_PARENS(script_1), BOOST_PP_REMOVE_PARENS(script_2), decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
 #define RegisterSpellAndAuraScriptPair(script_1, script_2) RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, #script_1)
+#define RegisterSpellScriptWithArgs(spell_script, script_name, ...) RegisterSpellAndAuraScriptPairWithArgs(spell_script, void, script_name, __VA_ARGS__)
+#define RegisterSpellScript(spell_script) RegisterSpellAndAuraScriptPairWithArgs(spell_script, void, #spell_script)
 
 template <class AI>
 class GenericCreatureScript : public CreatureScript

@@ -37,13 +37,6 @@ namespace WorldPackets
     }
 }
 
-struct ItemSetEffect
-{
-    uint32 ItemSetID;
-    std::unordered_set<Item const*> EquippedItems;
-    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
-};
-
 #define MAX_GEM_SOCKETS               MAX_ITEM_PROTO_SOCKETS// (BONUS_ENCHANTMENT_SLOT-SOCK_ENCHANTMENT_SLOT) and item proto size, equal value expected
 
 #define MAX_ENCHANTMENT_OFFSET    3
@@ -222,6 +215,7 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(CharacterDatabaseTransaction trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
+        void LoadAdditionalDataFromDB(Player const* owner, ItemAdditionalLoadInfo* addionalData);
         void LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ArtifactPowerData>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
         void CheckArtifactRelicSlotUnlock(Player const* owner);
 
@@ -465,7 +459,8 @@ class TC_GAME_API Item : public Object
         GuidSet allowedGUIDs;
         ItemRandomBonusListId m_randomBonusListId;          // store separately to easily find which bonus list is the one randomly given for stat rerolling
         ObjectGuid m_childItem;
-        std::unordered_map<uint32, uint16> m_artifactPowerIdToIndex;
         std::array<uint32, MAX_ITEM_PROTO_SOCKETS> m_gemScalingLevels;
+
+        int32 GetArtifactPowerIndex(uint32 artifactPowerId) const;
 };
 #endif
