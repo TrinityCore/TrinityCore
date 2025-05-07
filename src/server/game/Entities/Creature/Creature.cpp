@@ -1834,13 +1834,8 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     }
 
     if (vehId)
-    {
         if (CreateVehicleKit(vehId, entry, true))
-        {
             UpdateDisplayPower();
-            m_movementInfo.pitch = m_vehicleKit->GetPitch();
-        }
-    }
 
     if (!IsPet())
         if (uint32 vignetteId = GetCreatureTemplate()->VignetteID)

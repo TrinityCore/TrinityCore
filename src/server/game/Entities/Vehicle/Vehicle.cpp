@@ -632,6 +632,8 @@ void Vehicle::InitMovementInfoForBase()
         _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
         _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+
+    _me->m_movementInfo.pitch = GetPitch();
 }
 
 /**
@@ -972,7 +974,7 @@ float Vehicle::GetPitch()
         if (vehicleTemplate->Pitch)
             return *vehicleTemplate->Pitch;
 
-    return std::max(0.0f, _vehicleInfo->PitchMin);
+    return std::clamp(0.0f, _vehicleInfo->PitchMin, _vehicleInfo->PitchMax);
 }
 
 std::string Vehicle::GetDebugInfo() const
