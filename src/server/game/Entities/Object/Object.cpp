@@ -2159,6 +2159,7 @@ TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType
 
             if (Creature* thisCreature = ToCreature())
                 summon->InheritStringIds(thisCreature);
+            privateObjectOwner->AddPersonalSummon(summon->GetGUID());
             return summon;
         }
     }
