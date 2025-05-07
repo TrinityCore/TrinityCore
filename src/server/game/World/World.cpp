@@ -106,8 +106,6 @@
 #include "WorldSocket.h"
 #include "WorldStateMgr.h"
 
-#include <boost/algorithm/string.hpp>
-
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 
@@ -263,7 +261,13 @@ void World::SetMotd(std::string motd)
     sScriptMgr->OnMotdChange(motd);
 
     _motd.clear();
-    boost::split(_motd, motd, boost::is_any_of("@"));
+
+    std::vector<std::string_view> tokens = Trinity::Tokenize(motd, '@', true);
+
+    _motd.reserve(tokens.size());
+
+    for (std::string_view const& token : tokens)
+        _motd.emplace_back(token);
 }
 
 std::vector<std::string> const& World::GetMotd() const
