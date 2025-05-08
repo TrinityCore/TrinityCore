@@ -62,4 +62,7 @@ inline AI* GetScholomanceAI(T* obj)
     return GetInstanceAI<AI>(obj, ScholomanceScriptName);
 }
 
+#define RegisterScholomanceCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetScholomanceAI)
+#define RegisterScholomanceGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetScholomanceAI)
+
 #endif

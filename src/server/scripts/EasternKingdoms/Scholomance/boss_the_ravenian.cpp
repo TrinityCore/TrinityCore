@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Name: Boss_the_ravenian
-%Complete: 100
-Comment:
-Category: Scholomance
-*/
-
 #include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -30,84 +23,74 @@ enum Spells
 {
     SPELL_TRAMPLE                   = 15550,
     SPELL_CLEAVE                    = 20691,
-    SPELL_SUNDERINCLEAVE            = 25174,
-    SPELL_KNOCKAWAY                 = 10101
+    SPELL_SUNDERING_CLEAVE          = 25174,
+    SPELL_KNOCK_AWAY                = 10101
 };
 
 enum Events
 {
-    EVENT_TRAMPLE                   = 1,
-    EVENT_CLEAVE                    = 2,
-    EVENT_SUNDERINCLEAVE            = 3,
-    EVENT_KNOCKAWAY                 = 4
+    EVENT_TRAMPLE = 1,
+    EVENT_CLEAVE,
+    EVENT_SUNDERING_CLEAVE,
+    EVENT_KNOCK_AWAY
 };
 
-class boss_the_ravenian : public CreatureScript
+struct boss_the_ravenian : public BossAI
 {
-    public: boss_the_ravenian() : CreatureScript("boss_the_ravenian") { }
+    boss_the_ravenian(Creature* creature) : BossAI(creature, DATA_THE_RAVENIAN) { }
 
-        struct boss_theravenianAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_TRAMPLE, 24s);
+        events.ScheduleEvent(EVENT_CLEAVE, 15s);
+        events.ScheduleEvent(EVENT_SUNDERING_CLEAVE, 40s);
+        events.ScheduleEvent(EVENT_KNOCK_AWAY, 32s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THE_RAVENIAN) { }
-
-            void JustEngagedWith(Unit* who) override
+            switch (eventId)
             {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_TRAMPLE, 24s);
-                events.ScheduleEvent(EVENT_CLEAVE, 15s);
-                events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 40s);
-                events.ScheduleEvent(EVENT_KNOCKAWAY, 32s);
+                case EVENT_TRAMPLE:
+                    DoCastSelf(SPELL_TRAMPLE);
+                    events.ScheduleEvent(EVENT_TRAMPLE, 10s);
+                    break;
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    events.ScheduleEvent(EVENT_CLEAVE, 7s);
+                    break;
+                case EVENT_SUNDERING_CLEAVE:
+                    DoCastVictim(SPELL_SUNDERING_CLEAVE);
+                    events.ScheduleEvent(EVENT_SUNDERING_CLEAVE, 20s);
+                    break;
+                case EVENT_KNOCK_AWAY:
+                    DoCastVictim(SPELL_KNOCK_AWAY);
+                    events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s);
+                    break;
+                default:
+                    break;
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_TRAMPLE:
-                            DoCastVictim(SPELL_TRAMPLE, true);
-                            events.ScheduleEvent(EVENT_TRAMPLE, 10s);
-                            break;
-                        case EVENT_CLEAVE:
-                            DoCastVictim(SPELL_CLEAVE, true);
-                            events.ScheduleEvent(EVENT_CLEAVE, 7s);
-                            break;
-                        case EVENT_SUNDERINCLEAVE:
-                            DoCastVictim(SPELL_SUNDERINCLEAVE, true);
-                            events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 20s);
-                            break;
-                        case EVENT_KNOCKAWAY:
-                            DoCastVictim(SPELL_KNOCKAWAY, true);
-                            events.ScheduleEvent(EVENT_KNOCKAWAY, 12s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetScholomanceAI<boss_theravenianAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_theravenian()
 {
-    new boss_the_ravenian();
+    RegisterScholomanceCreatureAI(boss_the_ravenian);
 }
