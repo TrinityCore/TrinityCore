@@ -1697,6 +1697,63 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
     }
 };
 
+/*######
+## Quest 11896: Weakness to Lightning
+######*/
+
+enum WeaknessToLightning
+{
+    SPELL_POWER_OF_THE_STORM    = 46424
+};
+
+// 46550 - Weakness to Lightning: On Quest Complete
+class spell_borean_tundra_weakness_to_lightning_on_quest_complete : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_OF_THE_STORM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_POWER_OF_THE_STORM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_on_quest_complete::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11711: Coward Delivery... Under 30 Minutes or it's Free
+######*/
+
+// 45958 - Signal Alliance
+class spell_borean_tundra_signal_alliance : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+        {
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(uint32(GetEffectInfo(EFFECT_0).CalcValue())))
+            caster->CastSpell(caster, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_signal_alliance::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -1724,4 +1781,6 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
     RegisterSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
+    RegisterSpellScript(spell_borean_tundra_signal_alliance);
 }

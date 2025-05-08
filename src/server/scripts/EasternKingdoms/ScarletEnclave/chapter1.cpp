@@ -1165,6 +1165,30 @@ class spell_chapter1_runeforging_credit : public SpellScript
     }
 };
 
+enum SkyDarkenerAssault
+{
+    SPELL_SKY_DARKENER_ASSAULT     = 52125
+};
+
+// 52124 - Sky Darkener Assault
+class spell_chapter1_sky_darkener_assault : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SKY_DARKENER_ASSAULT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_SKY_DARKENER_ASSAULT);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_chapter1_sky_darkener_assault::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum HearthglenCrusaderPaths : uint32
 {
     PATH_HEARTHGLEN_CRUSADER_DESPAWN    = 10445360,
@@ -1331,5 +1355,6 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterCreatureAI(npc_scarlet_ghoul);
     RegisterSpellScript(spell_gift_of_the_harvester);
     RegisterSpellScript(spell_chapter1_runeforging_credit);
+    RegisterSpellScript(spell_chapter1_sky_darkener_assault);
     RegisterCreatureAI(npc_hearthglen_crusader);
 }
