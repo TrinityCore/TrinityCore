@@ -957,7 +957,7 @@ enum PlayerDelayedOperations
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
-TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
+inline constexpr uint64 MAX_MONEY_AMOUNT = 99999999999ULL;
 
 enum CharDeleteMethod
 {

@@ -211,7 +211,7 @@ namespace WorldPackets
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false; // NYI
+            bool BpayStoreEnabled                    = false;
             bool CommerceServerEnabled               = false; // NYI
             bool VeteranTokenRedeemWillKick          = false; // NYI
             bool WorldTokenRedeemWillKick            = false; // NYI

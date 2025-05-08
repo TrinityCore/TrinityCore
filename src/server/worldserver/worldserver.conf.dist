@@ -1367,9 +1367,9 @@ DBC.EnforceItemAttributes = 1
 #
 #   AccountInstancesPerHour
 #        Description: Controls the max amount of different instances player can enter within hour.
-#        Default:     5
+#        Default:     10
 
-AccountInstancesPerHour = 5
+AccountInstancesPerHour = 10
 
 #
 #   Account.PasswordChangeSecurity
@@ -1398,14 +1398,6 @@ BirthdayTime = 1222964635
 #
 
  CacheDataQueries = 1
-
-#
-#   FeatureSystem.BpayStore.Enabled
-#        Description: Not yet implemented
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-FeatureSystem.BpayStore.Enabled = 0
 
 #
 #   FeatureSystem.CharacterUndelete.Enabled

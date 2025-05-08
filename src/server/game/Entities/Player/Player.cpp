@@ -154,8 +154,6 @@ enum PlayerSpells
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
-uint64 const MAX_MONEY_AMOUNT = 99999999999ULL;
-
 Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 {
     m_objectType |= TYPEMASK_PLAYER;
@@ -487,7 +485,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     InitRunes();
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), sWorld->GetUInt64Config(CONFIG_START_PLAYER_MONEY));
 
     // Played time
     m_Last_tick = GameTime::GetGameTime();
