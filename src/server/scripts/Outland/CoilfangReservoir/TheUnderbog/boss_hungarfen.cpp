@@ -181,7 +181,7 @@ class spell_hungarfen_putrid_mushroom_primer : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_UNDERBOG_MUSHROOM);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
     }
 
     void Register() override
