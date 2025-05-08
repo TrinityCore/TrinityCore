@@ -974,6 +974,96 @@ class spell_dragonblight_corrosive_spit : public AuraScript
     }
 };
 
+/*######
+## Quest 12065, 12066: The Focus on the Beach
+######*/
+
+enum TheFocusOnTheBeach
+{
+    SPELL_LEY_LINE_INFORMATION_01     = 47391
+};
+
+// 47393 - The Focus on the Beach: Quest Completion Script
+class spell_dragonblight_focus_on_the_beach_quest_completion_script : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_focus_on_the_beach_quest_completion_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_01 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_01);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_focus_on_the_beach_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12083, 12084: Atop the Woodlands
+######*/
+
+enum AtopTheWoodlands
+{
+    SPELL_LEY_LINE_INFORMATION_02     = 47473
+};
+
+// 47615 - Atop the Woodlands: Quest Completion Script
+class spell_dragonblight_atop_the_woodlands_quest_completion_script : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_02 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_02);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_atop_the_woodlands_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12107, 12110: The End of the Line
+######*/
+
+enum TheEndOfTheLine
+{
+    SPELL_LEY_LINE_INFORMATION_03     = 47636
+};
+
+// 47638 - The End of the Line: Quest Completion Script
+class spell_dragonblight_end_of_the_line_quest_completion_script : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_03 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_03);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_end_of_the_line_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     RegisterCreatureAI(npc_commander_eligor_dawnbringer);
@@ -992,4 +1082,7 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_dragonblight_surge_needle_teleporter);
     RegisterSpellScript(spell_dragonblight_fill_blood_unholy_frost_gem);
     RegisterSpellScript(spell_dragonblight_corrosive_spit);
+    RegisterSpellScript(spell_dragonblight_focus_on_the_beach_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
 }

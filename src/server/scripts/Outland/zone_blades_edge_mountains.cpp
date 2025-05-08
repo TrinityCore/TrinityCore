@@ -1013,6 +1013,36 @@ class spell_oscillating_field : public SpellScriptLoader
         }
 };
 
+/*######
+## Quest 10556: Scratches
+######*/
+
+enum Scratches
+{
+    SPELL_LASHHAN_CHANNELING     = 36904
+};
+
+// 37028 - Dispelling Analysis
+class spell_bem_dispelling_analysis : public SpellScript
+{
+    PrepareSpellScript(spell_bem_dispelling_analysis);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LASHHAN_CHANNELING });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_LASHHAN_CHANNELING);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_dispelling_analysis::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1022,4 +1052,5 @@ void AddSC_blades_edge_mountains()
     new go_apexis_relic();
     new npc_oscillating_frequency_scanner_master_bunny();
     new spell_oscillating_field();
+    RegisterSpellScript(spell_bem_dispelling_analysis);
 }

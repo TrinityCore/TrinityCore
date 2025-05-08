@@ -25,6 +25,7 @@ void AddSC_instance_auchenai_crypts();
 void AddSC_boss_pandemonius();
 void AddSC_boss_nexusprince_shaffar();
 void AddSC_instance_mana_tombs();
+void AddSC_mana_tombs();
 
 // Auchindoun - Sekketh Halls
 void AddSC_boss_darkweaver_syth();
@@ -148,6 +149,7 @@ void AddOutlandScripts()
     AddSC_boss_pandemonius();
     AddSC_boss_nexusprince_shaffar();
     AddSC_instance_mana_tombs();
+    AddSC_mana_tombs();
 
     // Auchindoun - Sekketh Halls
     AddSC_boss_darkweaver_syth();
