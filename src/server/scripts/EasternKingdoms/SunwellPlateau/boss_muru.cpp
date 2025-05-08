@@ -52,6 +52,7 @@ enum Spells
     SPELL_ENTROPIUS_COSMETIC_SPAWN              = 46223,
     SPELL_DARKNESS_E                            = 46269,
     SPELL_NEGATIVE_ENERGY_PERIODIC_E            = 46284,
+    SPELL_NEGATIVE_ENERGY_DAMAGE                = 46285,
     SPELL_BLACKHOLE                             = 46282,
     SPELL_SUMMON_DARKFIEND_E                    = 46263,
 
@@ -616,6 +617,25 @@ class spell_muru_negative_energy_periodic : public AuraScript
     }
 };
 
+// 46289 - Negative Energy
+class spell_muru_negative_energy : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_NEGATIVE_ENERGY_DAMAGE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_NEGATIVE_ENERGY_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_muru_negative_energy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_muru()
 {
     RegisterSunwellPlateauCreatureAI(boss_muru);
@@ -630,4 +650,5 @@ void AddSC_boss_muru()
     RegisterSpellScript(spell_transform_visual_missile_periodic);
     RegisterSpellScript(spell_summon_blood_elves_periodic);
     RegisterSpellScript(spell_muru_negative_energy_periodic);
+    RegisterSpellScript(spell_muru_negative_energy);
 }

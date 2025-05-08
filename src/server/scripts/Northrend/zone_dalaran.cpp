@@ -31,6 +31,7 @@ Script Data End */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 /*******************************************************
  * npc_mageguard_dalaran
@@ -253,8 +254,42 @@ private:
     EventMap events;
 };
 
+// 54620 - Teleport Crystal: Teleport to Dalaran AICast Script
+class spell_dalaran_teleport_to_dalaran : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        /// @todo: replace this with spell
+        if (Player* target = GetHitUnit()->ToPlayer())
+            target->TeleportTo(571, 5807.75f, 588.063f, 660.939f, 1.64659f);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dalaran_teleport_to_dalaran::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 58622 - Teleport to Lake Wintergrasp
+class spell_dalaran_teleport_to_lake_wintergrasp : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        /// @todo: replace this with spell
+        if (Player* target = GetHitUnit()->ToPlayer())
+            target->TeleportTo(571, 5386.05f, 2840.97f, 418.675f, 3.14159f);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dalaran_teleport_to_lake_wintergrasp::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dalaran()
 {
     RegisterCreatureAI(npc_mageguard_dalaran);
     RegisterCreatureAI(npc_minigob_manabonk);
+    RegisterSpellScript(spell_dalaran_teleport_to_dalaran);
+    RegisterSpellScript(spell_dalaran_teleport_to_lake_wintergrasp);
 }

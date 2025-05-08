@@ -108,6 +108,7 @@ void AddSC_boss_twinemperors();
 void AddSC_boss_ouro();
 void AddSC_npc_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
+void AddSC_temple_of_ahnqiraj();
 // Throne of the Four Winds
 void AddSC_instance_throne_of_the_four_winds();
 // The Lost City of the Tol'vir
@@ -254,6 +255,7 @@ void AddKalimdorScripts()
     AddSC_boss_ouro();
     AddSC_npc_anubisath_sentinel();
     AddSC_instance_temple_of_ahnqiraj();
+    AddSC_temple_of_ahnqiraj();
     // Throne of the Four Winds
     AddSC_instance_throne_of_the_four_winds();
     // The Lost City of the Tol'vir
