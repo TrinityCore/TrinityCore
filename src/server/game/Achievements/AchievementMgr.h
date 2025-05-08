@@ -292,6 +292,7 @@ class TC_GAME_API AchievementMgr
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed achievements
 
+        uint32 GetAchievementPoints() const { return m_achievementPoints; }
     private:
         void SendAchievementEarned(AchievementEntry const* achievement) const;
         void SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const;
@@ -312,6 +313,7 @@ class TC_GAME_API AchievementMgr
         CompletedAchievementMap m_completedAchievements;
         typedef std::map<uint32, uint32> TimedAchievementMap;
         TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
+        uint32 m_achievementPoints;
 };
 
 class TC_GAME_API AchievementGlobalMgr
@@ -377,8 +379,6 @@ class TC_GAME_API AchievementGlobalMgr
         void LoadCompletedAchievements();
         void LoadRewards();
         void LoadRewardLocales();
-        AchievementEntry const* GetAchievement(uint32 achievementId) const;
-        AchievementCriteriaEntry const* GetAchievementCriteria(uint32 achievementId) const;
     private:
         AchievementCriteriaDataMap m_criteriaDataMap;
 

@@ -192,12 +192,6 @@ int main(int argc, char** argv)
 
     std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
 
-    if (sRealmList->GetRealms().empty())
-    {
-        TC_LOG_ERROR("server.authserver", "No valid realms specified.");
-        return 1;
-    }
-
     // Start the listening port (acceptor) for auth connections
     int32 port = sConfigMgr->GetIntDefault("RealmServerPort", 3724);
     if (port < 0 || port > 0xFFFF)
