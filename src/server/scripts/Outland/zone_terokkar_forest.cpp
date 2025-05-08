@@ -326,87 +326,32 @@ enum Translocation
 };
 
 // 25143 - Translocate
-class spell_terokkar_translocation_firewing_point_building_down : public SpellScript
-{
-    PrepareSpellScript(spell_terokkar_translocation_firewing_point_building_down);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_building_down::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 29128 - Translocate
-class spell_terokkar_translocation_firewing_point_building_up : public SpellScript
-{
-    PrepareSpellScript(spell_terokkar_translocation_firewing_point_building_up);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_building_up::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 29129 - Translocate
-class spell_terokkar_translocation_firewing_point_tower_down : public SpellScript
-{
-    PrepareSpellScript(spell_terokkar_translocation_firewing_point_tower_down);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_tower_down::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 25140 - Translocate
-class spell_terokkar_translocation_firewing_point_tower_up : public SpellScript
+class spell_terokkar_translocation_firewing_point : public SpellScript
 {
-    PrepareSpellScript(spell_terokkar_translocation_firewing_point_tower_up);
+    PrepareSpellScript(spell_terokkar_translocation_firewing_point);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP });
+        return ValidateSpellInfo({ _triggeredSpellId });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP);
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point_tower_up::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_terokkar_translocation_firewing_point(Translocation triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
 };
 
 void AddSC_terokkar_forest()
@@ -418,8 +363,8 @@ void AddSC_terokkar_forest()
     RegisterSpellScript(spell_terokkar_shadowy_disguise_cast_from_questgiver);
     RegisterSpellScript(spell_terokkar_shadowy_disguise);
     RegisterSpellScript(spell_terokkar_cancel_shadowy_disguise);
-    RegisterSpellScript(spell_terokkar_translocation_firewing_point_building_down);
-    RegisterSpellScript(spell_terokkar_translocation_firewing_point_building_up);
-    RegisterSpellScript(spell_terokkar_translocation_firewing_point_tower_down);
-    RegisterSpellScript(spell_terokkar_translocation_firewing_point_tower_up);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_building_down", SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_building_up", SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_tower_down", SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_tower_up", SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP);
 }

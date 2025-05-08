@@ -648,7 +648,7 @@ class spell_muru_negative_energy : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_NEGATIVE_ENERGY_DAMAGE);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_NEGATIVE_ENERGY_DAMAGE, true);
     }
 
     void Register() override

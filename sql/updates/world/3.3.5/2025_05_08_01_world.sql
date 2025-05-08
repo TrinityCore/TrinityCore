@@ -17,7 +17,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_midsummer_cleansing_flames_orgrimmar',
 'spell_midsummer_cleansing_flames_thunder_bluff',
 'spell_midsummer_cleansing_flames_the_undercity',
-'spell_midsummer_cleansing_flames_the_silvermoon',
+'spell_midsummer_cleansing_flames_silvermoon',
 'spell_midsummer_cleansing_flames_the_exodar');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (29126, 'spell_midsummer_cleansing_flames_darnassus'),
@@ -26,7 +26,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (29136, 'spell_midsummer_cleansing_flames_orgrimmar'),
 (29138, 'spell_midsummer_cleansing_flames_thunder_bluff'),
 (29139, 'spell_midsummer_cleansing_flames_the_undercity'),
-(46672, 'spell_midsummer_cleansing_flames_the_silvermoon'),
+(46672, 'spell_midsummer_cleansing_flames_silvermoon'),
 (46671, 'spell_midsummer_cleansing_flames_the_exodar');
 
 DELETE FROM `spell_scripts` WHERE `id` = 52933;

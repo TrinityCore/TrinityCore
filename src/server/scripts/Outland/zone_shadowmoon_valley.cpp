@@ -1704,66 +1704,31 @@ enum FranklyItMakesNoSense
 };
 
 // 37867 - Arcano-Scorp Control
-class spell_shadowmoon_arcano_scorp_control_01 : public SpellScript
-{
-    PrepareSpellScript(spell_shadowmoon_arcano_scorp_control_01);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ARCANO_SCORP_CONTROL_01 });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ARCANO_SCORP_CONTROL_01);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_arcano_scorp_control_01::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 37892 - Arcano-Scorp Control
-class spell_shadowmoon_arcano_scorp_control_02 : public SpellScript
-{
-    PrepareSpellScript(spell_shadowmoon_arcano_scorp_control_02);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ARCANO_SCORP_CONTROL_02 });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ARCANO_SCORP_CONTROL_02);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_arcano_scorp_control_02::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 37894 - Arcano-Scorp Control
-class spell_shadowmoon_arcano_scorp_control_03 : public SpellScript
+class spell_shadowmoon_arcano_scorp_control : public SpellScript
 {
-    PrepareSpellScript(spell_shadowmoon_arcano_scorp_control_03);
+    PrepareSpellScript(spell_shadowmoon_arcano_scorp_control);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ARCANO_SCORP_CONTROL_03 });
+        return ValidateSpellInfo({ _triggeredSpellId });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ARCANO_SCORP_CONTROL_03);
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_arcano_scorp_control_03::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_arcano_scorp_control::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_shadowmoon_arcano_scorp_control(uint32 triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
 };
 
 void AddSC_shadowmoon_valley()
@@ -1783,7 +1748,7 @@ void AddSC_shadowmoon_valley()
     RegisterSpellScript(spell_shadowmoon_illidari_agent_illusion);
     RegisterSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
     RegisterSpellScript(spell_shadowmoon_unbanish_azaloth);
-    RegisterSpellScript(spell_shadowmoon_arcano_scorp_control_01);
-    RegisterSpellScript(spell_shadowmoon_arcano_scorp_control_02);
-    RegisterSpellScript(spell_shadowmoon_arcano_scorp_control_03);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_01", SPELL_ARCANO_SCORP_CONTROL_01);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_02", SPELL_ARCANO_SCORP_CONTROL_02);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_03", SPELL_ARCANO_SCORP_CONTROL_03);
 }
