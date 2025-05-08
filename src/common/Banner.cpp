@@ -31,7 +31,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log(R"(     \ \_\ \_\  \ \_\ \_\ \_\ \_\ \__\\/`____ \)");
     log(R"(      \/_/\/_/   \/_/\/_/\/_/\/_/\/__/ `/___/> \)");
     log(R"(                                 C O R E  /\___/)");
-    log(R"(http://TrinityCore.org                    \/__/)" "\n");
+    log(R"(https://TrinityCore.org                   \/__/)" "\n");
 
     if (logExtraInfo)
         logExtraInfo();
