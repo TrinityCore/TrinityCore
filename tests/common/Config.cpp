@@ -22,6 +22,7 @@
 #include <boost/filesystem.hpp>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <map>
 #include <string>
 
