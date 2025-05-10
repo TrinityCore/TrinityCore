@@ -78,7 +78,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     _port = port;
 
     using namespace std::string_literals;
-    std::array<std::string, 2> configKeys = { { "LoginREST.ExternalAddress"s, "LoginREST.LocalAddress"s } };
+    std::array<std::string, 2> configKeys = { { "LoginREST.LocalAddress"s, "LoginREST.ExternalAddress"s } };
 
     Trinity::Net::Resolver resolver(ioContext);
 
@@ -135,9 +135,9 @@ std::string const& LoginRESTService::GetHostnameForClient(boost::asio::ip::addre
             return _hostnames[i].first;
 
     if (address.is_loopback())
-        return _hostnames[1].first;
+        return _hostnames[0].first;
 
-    return _hostnames[0].first;
+    return _hostnames[1].first;
 }
 
 std::string LoginRESTService::ExtractAuthorization(HttpRequest const& request)
