@@ -5435,10 +5435,15 @@ void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
     }
 }
 
-void Unit::RemoveAllAreaTriggers()
+void Unit::RemoveAllAreaTriggers(AreaTriggerRemoveReason reason /*= AreaTriggerRemoveReason::Default*/)
 {
-    while (!m_areaTrigger.empty())
-        m_areaTrigger.back()->Remove();
+    for (AreaTrigger* at : AreaTriggerList(std::move(m_areaTrigger)))
+    {
+        if (reason == AreaTriggerRemoveReason::UnitDespawn && at->GetTemplate()->ActionSetFlags.HasFlag(AreaTriggerActionSetFlag::DontDespawnWithCreator))
+            continue;
+
+        at->Remove();
+    }
 }
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
@@ -9905,7 +9910,7 @@ void Unit::RemoveFromWorld()
 
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        RemoveAllAreaTriggers();
+        RemoveAllAreaTriggers(AreaTriggerRemoveReason::UnitDespawn);
 
         ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
