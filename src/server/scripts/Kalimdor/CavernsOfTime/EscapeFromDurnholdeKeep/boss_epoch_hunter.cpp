@@ -95,7 +95,7 @@ struct boss_epoch_hunter : public BossAI
             {
                 case EVENT_SAND_BREATH:
                     DoCastVictim(SPELL_SAND_BREATH);
-					Talk(SAY_BREATH);
+                    Talk(SAY_BREATH);
                     events.Repeat(10s, 20s);
                     break;
                 case EVENT_IMPENDING_DEATH:
