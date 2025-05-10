@@ -116,6 +116,7 @@ struct boss_captain_skarloc : public BossAI
                 case EVENT_HOLY_SHIELD:
                     DoCastSelf(SPELL_HOLY_SHIELD);
                     events.Repeat(240s);
+                    break;
                 case EVENT_DEVOTION_AURA:
                     DoCastSelf(SPELL_DEVOTION_AURA);
                     events.Repeat(45s, 55s);
