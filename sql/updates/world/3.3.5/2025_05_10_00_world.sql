@@ -21,3 +21,13 @@ DELETE FROM `spell_scripts` WHERE `id` IN (28698);
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_dreaming_glory';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (28698, 'spell_gen_dreaming_glory');
+
+DELETE FROM `spell_scripts` WHERE `id` = 55048;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_storm_peaks_free_brunnhildar_prisoner';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(55048, 'spell_storm_peaks_free_brunnhildar_prisoner');
+
+DELETE FROM `spell_scripts` WHERE `id` = 32580;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_bem_wicked_strong_fetish';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(32580, 'spell_bem_wicked_strong_fetish');
