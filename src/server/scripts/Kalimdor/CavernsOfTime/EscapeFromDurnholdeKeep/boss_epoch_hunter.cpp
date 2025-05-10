@@ -109,6 +109,7 @@ struct boss_epoch_hunter : public BossAI
                 case EVENT_WING_BUFFET:
                     DoCastSelf(SPELL_WING_BUFFET);
                     events.Repeat(25s, 35s);
+                    break;
                 default:
                     break;
             }
