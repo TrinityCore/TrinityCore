@@ -12029,8 +12029,8 @@ void ObjectMgr::LoadJumpChargeParams()
     // need for reload case
     _jumpChargeParams.clear();
 
-    //                                               0   1      2                            3            4              5                6
-    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
+    //                                               0   1      2                            3            4              5                6                 7
+    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId, triggerSpellId FROM jump_charge_params");
     if (!result)
     {
         return;
@@ -12047,6 +12047,7 @@ void ObjectMgr::LoadJumpChargeParams()
         Optional<int32> spellVisualId;
         Optional<int32> progressCurveId;
         Optional<int32> parabolicCurveId;
+        Optional<int32> triggerSpellId;
 
         if (speed <= 0.0f)
         {
@@ -12089,6 +12090,15 @@ void ObjectMgr::LoadJumpChargeParams()
                     fields[6].GetInt32(), id);
         }
 
+        if (!fields[7].IsNull())
+        {
+            if (sSpellNameStore.LookupEntry(fields[7].GetInt32()))
+                triggerSpellId = fields[7].GetInt32();
+            else
+                TC_LOG_DEBUG("sql.sql", "Table `jump_charge_params` references non-existing trigger spell id: {} for id {}, ignored.",
+                    fields[7].GetInt32(), id);
+        }
+
         JumpChargeParams& params = _jumpChargeParams[id];
         params.Speed = speed;
         params.TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds;
@@ -12096,6 +12106,7 @@ void ObjectMgr::LoadJumpChargeParams()
         params.SpellVisualId = spellVisualId;
         params.ProgressCurveId = progressCurveId;
         params.ParabolicCurveId = parabolicCurveId;
+        params.TriggerSpellId = triggerSpellId;
 
     } while (result->NextRow());
 
