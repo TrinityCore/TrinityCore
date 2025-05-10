@@ -415,6 +415,7 @@ Unit::~Unit()
     ASSERT(m_removedAuras.empty());
     ASSERT(m_dynObj.empty());
     ASSERT(m_gameObj.empty());
+    ASSERT(m_areaTrigger.empty());
     ASSERT(!m_unitMovedByMe || (m_unitMovedByMe == this));
     ASSERT(!m_playerMovingMe || (m_playerMovingMe == this));
 }
@@ -5452,13 +5453,14 @@ void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
     }
 }
 
-void Unit::RemoveAllAreaTriggers(bool force /*= true*/)
+void Unit::RemoveAllAreaTriggers(AreaTriggerRemoveReason reason /*= AreaTriggerRemoveReason::Default*/)
 {
-    while (!m_areaTrigger.empty())
+    for (AreaTrigger* at : AreaTriggerList(std::move(m_areaTrigger)))
     {
-        AreaTrigger* at = m_areaTrigger.back();
-        if (force || !at->GetTemplate()->ActionSetFlags.HasFlag(AreaTriggerActionSetFlag::DontDespawnWithCreator))
-            at->Remove();
+        if (reason == AreaTriggerRemoveReason::UnitDespawn && at->GetTemplate()->ActionSetFlags.HasFlag(AreaTriggerActionSetFlag::DontDespawnWithCreator))
+            continue;
+
+        at->Remove();
     }
 }
 
@@ -10037,7 +10039,7 @@ void Unit::RemoveFromWorld()
 
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        RemoveAllAreaTriggers(false);
+        RemoveAllAreaTriggers(AreaTriggerRemoveReason::UnitDespawn);
 
         ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
