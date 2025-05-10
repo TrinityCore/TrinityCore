@@ -80,7 +80,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     using namespace std::string_literals;
     std::array<std::string, 2> configKeys = { { "LoginREST.ExternalAddress"s, "LoginREST.LocalAddress"s } };
 
-    Trinity::Asio::Resolver resolver(ioContext);
+    Trinity::Net::Resolver resolver(ioContext);
 
     for (std::size_t i = 0; i < _hostnames.size(); ++i)
     {

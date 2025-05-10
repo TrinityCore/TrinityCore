@@ -34,7 +34,6 @@
 #include "RealmList.pb.h"
 #include "ScriptMgr.h"
 #include "SessionKeyGenerator.h"
-#include "SslStream.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -478,7 +477,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             [[fallthrough]];
         default:
         {
-            if (opcode == CMSG_TIME_SYNC_RESPONSE)
+            if (opcode == CMSG_TIME_SYNC_RESPONSE || opcode == CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE || opcode == CMSG_QUEUED_MESSAGES_END)
                 packet.SetReceiveTime(std::chrono::steady_clock::now());
 
             sessionGuard.lock();

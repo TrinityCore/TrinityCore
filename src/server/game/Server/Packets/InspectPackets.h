@@ -108,7 +108,7 @@ namespace WorldPackets
             int32 Tier = 0;
             int32 WeeklyBestTier = 0;
             int32 SeasonBestRating = 0;
-            int32 SeasonBestTierEnum = 0;
+            uint8 SeasonBestTierEnum = 0;
             int32 RoundsSeasonPlayed = 0;
             int32 RoundsSeasonWon = 0;
             int32 RoundsWeeklyPlayed = 0;

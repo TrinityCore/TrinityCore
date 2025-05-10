@@ -17,10 +17,13 @@
 
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
-#include "Player.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum WitchHuntData
@@ -188,11 +191,71 @@ private:
     bool _halfLifeTriggered;
 };
 
+enum TheFinalEffigyData
+{
+    NPC_CYRIL_WHITE_CURSED          = 130419,
+
+    SPELL_DRUSTVAR_FALLHAVEN_SCENE  = 281070
+};
+
+// 254558 - Cancel Deathcurse
+class spell_drustvar_cancel_deathcurse : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUSTVAR_FALLHAVEN_SCENE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DRUSTVAR_FALLHAVEN_SCENE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_drustvar_cancel_deathcurse::HandleHit, EFFECT_0, SPELL_EFFECT_REMOVE_AURA_2);
+    }
+};
+
+// Scene 2131
+class scene_drustvar_cleanse_fallhaven : public SceneScript
+{
+public:
+    scene_drustvar_cleanse_fallhaven() : SceneScript("scene_drustvar_cleanse_fallhaven") {}
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        PhasingHandler::OnConditionChange(player);
+        CloneCyril(player);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        PhasingHandler::OnConditionChange(player);
+        CloneCyril(player);
+    }
+
+    void CloneCyril(Player* player) const
+    {
+        if (Creature* cyrilObject = player->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_CYRIL_WHITE_CURSED, .IgnorePhases = true }))
+            cyrilObject->SummonPersonalClone(cyrilObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+    }
+};
+
 void AddSC_drustvar_chapter_1_the_final_effigy()
 {
     // Creature
     RegisterCreatureAI(npc_helena_gentle_witch_hunt);
 
+    // Scene
+    new scene_drustvar_cleanse_fallhaven();
+
     // EventScripts
     new event_listen_to_helenas_story();
+
+    // Spells
+    RegisterSpellScript(spell_drustvar_cancel_deathcurse);
 }

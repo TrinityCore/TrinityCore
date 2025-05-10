@@ -66,48 +66,46 @@ namespace
     //   SomeConfig => SOME_CONFIG
     //   myNestedConfig.opt1 => MY_NESTED_CONFIG_OPT_1
     //   LogDB.Opt.ClearTime => LOG_DB_OPT_CLEAR_TIME
-    std::string IniKeyToEnvVarKey(std::string const& key)
+    std::string IniKeyToEnvVarKey(std::string_view const& key)
     {
+        using namespace std::string_view_literals;
+
         std::string result;
 
-        const char *str = key.c_str();
         size_t n = key.length();
 
-        char curr;
-        bool isEnd;
-        bool nextIsUpper;
-        bool currIsNumeric;
-        bool nextIsNumeric;
+        result.reserve(n);
+        result.append("TC_"sv);
 
         for (size_t i = 0; i < n; ++i)
         {
-            curr = str[i];
+            char curr = key[i];
             if (curr == ' ' || curr == '.' || curr == '-')
             {
                 result += '_';
                 continue;
             }
 
-            isEnd = i == n - 1;
+            bool isEnd = i == n - 1;
             if (!isEnd)
             {
-                nextIsUpper = isupper(str[i + 1]);
+                bool nextIsUpper = isupper(key[i + 1]);
 
                 // handle "aB" to "A_B"
                 if (!isupper(curr) && nextIsUpper)
                 {
-                    result += static_cast<char>(std::toupper(curr));
+                    result += charToUpper(curr);
                     result += '_';
                     continue;
                 }
 
-                currIsNumeric = isNumeric(curr);
-                nextIsNumeric = isNumeric(str[i + 1]);
+                bool currIsNumeric = isNumeric(curr);
+                bool nextIsNumeric = isNumeric(key[i + 1]);
 
                 // handle "a1" to "a_1"
                 if (!currIsNumeric && nextIsNumeric)
                 {
-                    result += static_cast<char>(std::toupper(curr));
+                    result += charToUpper(curr);
                     result += '_';
                     continue;
                 }
@@ -115,25 +113,24 @@ namespace
                 // handle "1a" to "1_a"
                 if (currIsNumeric && !nextIsNumeric)
                 {
-                    result += static_cast<char>(std::toupper(curr));
+                    result += charToUpper(curr);
                     result += '_';
                     continue;
                 }
             }
 
-            result += static_cast<char>(std::toupper(curr));
+            result += charToUpper(curr);
         }
         return result;
     }
 
-    Optional<std::string> EnvVarForIniKey(std::string const& key)
+    Optional<std::string> EnvVarForIniKey(std::string_view const& key)
     {
-        std::string envKey = "TC_" + IniKeyToEnvVarKey(key);
-        char* val = std::getenv(envKey.c_str());
-        if (!val)
-            return std::nullopt;
+        std::string envKey = IniKeyToEnvVarKey(key);
+        if (char const* val = std::getenv(envKey.c_str()))
+            return val;
 
-        return std::string(val);
+        return {};
     }
 }
 
@@ -242,17 +239,16 @@ bool ConfigMgr::Reload(std::vector<std::string>& errors)
     return errors.empty();
 }
 
-template<class T>
-T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
+template<class T, class R>
+R ConfigMgr::GetValueDefault(std::string_view const& name, T def, bool quiet) const
 {
     try
     {
-        return _config.get<T>(bpt::ptree::path_type(name, '/'));
+        return _config.get<T>(bpt::ptree::path_type(std::string(name), '/'));
     }
     catch (bpt::ptree_bad_path const&)
     {
-        Optional<std::string> envVar = EnvVarForIniKey(name);
-        if (envVar)
+        if (Optional<std::string> envVar = EnvVarForIniKey(name))
         {
             Optional<T> castedVar = Trinity::StringTo<T>(*envVar);
             if (!castedVar)
@@ -282,16 +278,15 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
 }
 
 template<>
-std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std::string def, bool quiet) const
+std::string ConfigMgr::GetValueDefault<std::string_view>(std::string_view const& name, std::string_view def, bool quiet) const
 {
     try
     {
-        return _config.get<std::string>(bpt::ptree::path_type(name, '/'));
+        return _config.get<std::string>(bpt::ptree::path_type(std::string(name), '/'));
     }
     catch (bpt::ptree_bad_path const&)
     {
-        Optional<std::string> envVar = EnvVarForIniKey(name);
-        if (envVar)
+        if (Optional<std::string> envVar = EnvVarForIniKey(name))
         {
             if (!quiet)
                 TC_LOG_WARN("server.loading", "Missing name {} in config file {}, recovered with environment '{}' value.", name, _filename, *envVar);
@@ -310,22 +305,23 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
             name, _filename, def);
     }
 
-    return def;
+    return std::string(def);
 }
 
-std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def, bool quiet) const
+std::string ConfigMgr::GetStringDefault(std::string_view name, std::string_view def, bool quiet) const
 {
-    std::string val = GetValueDefault(name, def, quiet);
-    val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
+    std::string val = GetValueDefault<std::string_view, std::string>(name, def, quiet);
+    std::erase(val, '"');
     return val;
 }
 
-bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) const
+bool ConfigMgr::GetBoolDefault(std::string_view name, bool def, bool quiet) const
 {
-    std::string val = GetValueDefault(name, std::string(def ? "1" : "0"), quiet);
-    val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
-    Optional<bool> boolVal = Trinity::StringTo<bool>(val);
-    if (boolVal)
+    using namespace std::string_view_literals;
+
+    std::string val = GetValueDefault<std::string_view, std::string>(name, def ? "1"sv : "0"sv, quiet);
+    std::erase(val, '"');
+    if (Optional<bool> boolVal = Trinity::StringTo<bool>(val))
         return *boolVal;
     else
     {
@@ -335,17 +331,17 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) co
     }
 }
 
-int32 ConfigMgr::GetIntDefault(std::string const& name, int32 def, bool quiet) const
+int32 ConfigMgr::GetIntDefault(std::string_view name, int32 def, bool quiet) const
 {
     return GetValueDefault(name, def, quiet);
 }
 
-int64 ConfigMgr::GetInt64Default(std::string const& name, int64 def, bool quiet) const
+int64 ConfigMgr::GetInt64Default(std::string_view name, int64 def, bool quiet) const
 {
     return GetValueDefault(name, def, quiet);
 }
 
-float ConfigMgr::GetFloatDefault(std::string const& name, float def, bool quiet) const
+float ConfigMgr::GetFloatDefault(std::string_view name, float def, bool quiet) const
 {
     return GetValueDefault(name, def, quiet);
 }
@@ -368,7 +364,7 @@ std::vector<std::string> ConfigMgr::GetKeysByString(std::string const& name)
     std::vector<std::string> keys;
 
     for (bpt::ptree::value_type const& child : _config)
-        if (child.first.compare(0, name.length(), name) == 0)
+        if (child.first.starts_with(name))
             keys.push_back(child.first);
 
     return keys;

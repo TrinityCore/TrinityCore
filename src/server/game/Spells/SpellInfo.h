@@ -385,6 +385,7 @@ class TC_GAME_API SpellInfo
         SpellRangeEntry const* RangeEntry = nullptr;
         float Speed = 0.0f;
         float LaunchDelay = 0.0f;
+        float MinDuration = 0.0f;
         uint32 StackAmount = 0;
         std::array<int32, MAX_SPELL_TOTEMS> Totem = {};
         std::array<uint16, MAX_SPELL_TOTEMS> TotemCategory = {};

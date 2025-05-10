@@ -3136,7 +3136,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             break;
         case SMART_EVENT_HEALTH_PCT:
         {
-            if (!me || !me->IsEngaged() || !me->GetMaxHealth())
+            if (!me || me->IsInEvadeMode() || !me->GetMaxHealth())
                 return;
             uint32 perc = (uint32)me->GetHealthPct();
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
@@ -3544,7 +3544,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_FRIENDLY_HEALTH_PCT:
         {
-            if (!me || !me->IsEngaged())
+            if (!me || me->IsInEvadeMode())
                 return;
 
             Unit* unitTarget = nullptr;

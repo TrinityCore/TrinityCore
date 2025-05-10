@@ -469,7 +469,7 @@ namespace WorldPackets
                 int32 PvpTierID = 0;
                 int32 SeasonPvpTier = 0;
                 int32 BestWeeklyPvpTier = 0;
-                int32 BestSeasonPvpTierEnum = 0;
+                uint8 BestSeasonPvpTierEnum = 0;
                 bool Disqualified = false;
             } Bracket[9];
         };

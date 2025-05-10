@@ -390,8 +390,6 @@ TC_COMMON_API bool WriteWinConsole(std::string_view str, bool error = false);
 
 TC_COMMON_API Optional<std::size_t> RemoveCRLF(std::string& str);
 
-TC_COMMON_API bool IsIPAddress(char const* ipaddress);
-
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
 
@@ -532,7 +530,7 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 }
 
 template<typename Ret, typename T1, typename... T>
-Ret* Coalesce(T1* first, T*... rest)
+constexpr Ret* Coalesce(T1* first, T*... rest)
 {
     if constexpr (sizeof...(T) > 0)
         return (first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));

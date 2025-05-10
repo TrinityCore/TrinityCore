@@ -65,6 +65,8 @@ namespace Trinity::Impl::ChatCommands
 
     // this creates always 25 elements - "abc" -> 'a', 'b', 'c', '\0', '\0', ... up to 25
 #define CHATCOMMANDS_IMPL_SPLIT_LITERAL(strliteral) CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(25, strliteral)
+
+    TC_GAME_API ChatCommandResult TryConsumExactSequencee(std::string_view sequence, ChatHandler const* handler, std::string_view args);
 }
 
 namespace Trinity::ChatCommands
@@ -90,17 +92,7 @@ namespace Trinity::ChatCommands
 
         ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args) const
         {
-            if (args.empty())
-                return std::nullopt;
-            std::string_view start = args.substr(0, _string.length());
-            if (StringEqualI(start, _string))
-            {
-                auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(_string.length()));
-                if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
-                    return tail;
-                start = args.substr(0, _string.length() + remainingToken.length());
-            }
-            return Trinity::Impl::ChatCommands::FormatTrinityString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, STRING_VIEW_FMT_ARG(_string), STRING_VIEW_FMT_ARG(start));
+            return Trinity::Impl::ChatCommands::TryConsumExactSequencee(_string, handler, args);
         }
 
         private:

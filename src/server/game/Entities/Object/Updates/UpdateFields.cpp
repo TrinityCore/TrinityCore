@@ -3061,7 +3061,7 @@ void BitVectors::ClearChangesMask()
 
 void PlayerDataElement::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data.WriteBits(Type, 1);
+    data << uint32(Type);
     if (Type == 1)
     {
         data << float(FloatValue);
@@ -3070,12 +3070,11 @@ void PlayerDataElement::WriteCreate(ByteBuffer& data, Player const* owner, Playe
     {
         data << int64(Int64Value);
     }
-    data.FlushBits();
 }
 
 void PlayerDataElement::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
 {
-    data.WriteBits(Type, 1);
+    data << uint32(Type);
     if (Type == 1)
     {
         data << float(FloatValue);
@@ -3084,7 +3083,6 @@ void PlayerDataElement::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
     {
         data << int64(Int64Value);
     }
-    data.FlushBits();
 }
 
 bool PlayerDataElement::operator==(PlayerDataElement const& right) const
@@ -4760,7 +4758,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << uint8(MultiActionBars);
     data << uint8(LifetimeMaxRank);
     data << uint8(NumRespecs);
-    data << uint8(PvpMedals);
+    data << uint32(PvpMedals);
     for (uint32 i = 0; i < 12; ++i)
     {
         data << uint32(BuybackPrice[i]);
@@ -4806,10 +4804,6 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     for (uint32 i = 0; i < 7; ++i)
     {
         data << uint32(BankBagSlotFlags[i]);
-    }
-    for (uint32 i = 0; i < 1000; ++i)
-    {
-        data << uint64(QuestCompleted[i]);
     }
     data << int32(Honor);
     data << int32(HonorNextLevel);
@@ -4882,6 +4876,14 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     for (uint32 i = 0; i < KnownTitles.size(); ++i)
     {
         data << uint64(KnownTitles[i]);
+    }
+    for (uint32 i = 0; i < CharacterDataElements.size(); ++i)
+    {
+        CharacterDataElements[i].WriteCreate(data, owner, receiver);
+    }
+    for (uint32 i = 0; i < AccountDataElements.size(); ++i)
+    {
+        AccountDataElements[i].WriteCreate(data, owner, receiver);
     }
     for (uint32 i = 0; i < DailyQuestsCompleted.size(); ++i)
     {
@@ -5004,14 +5006,6 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << FrozenPerksVendorItem;
     Field_1410->WriteCreate(data, owner, receiver);
     data << DungeonScore;
-    for (uint32 i = 0; i < CharacterDataElements.size(); ++i)
-    {
-        CharacterDataElements[i].WriteCreate(data, owner, receiver);
-    }
-    for (uint32 i = 0; i < AccountDataElements.size(); ++i)
-    {
-        AccountDataElements[i].WriteCreate(data, owner, receiver);
-    }
     for (uint32 i = 0; i < PvpInfo.size(); ++i)
     {
         PvpInfo[i].WriteCreate(data, owner, receiver);
@@ -5054,10 +5048,8 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
 
 void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Player const* owner, Player const* receiver) const
 {
-    for (uint32 i = 0; i < 1; ++i)
-        data << uint32(changesMask.GetBlocksMask(i));
-    data.WriteBits(changesMask.GetBlocksMask(1), 16);
-    for (uint32 i = 0; i < 48; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 17);
+    for (uint32 i = 0; i < 17; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -5419,6 +5411,26 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
+        if (changesMask[8])
+        {
+            for (uint32 i = 0; i < CharacterDataElements.size(); ++i)
+            {
+                if (CharacterDataElements.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    CharacterDataElements[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
+        }
+        if (changesMask[9])
+        {
+            for (uint32 i = 0; i < AccountDataElements.size(); ++i)
+            {
+                if (AccountDataElements.HasChanged(i) || ignoreNestedChangesMask)
+                {
+                    AccountDataElements[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                }
+            }
+        }
         if (changesMask[11])
         {
             for (uint32 i = 0; i < DailyQuestsCompleted.size(); ++i)
@@ -5682,26 +5694,6 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
     }
     if (changesMask[0])
     {
-        if (changesMask[8])
-        {
-            for (uint32 i = 0; i < CharacterDataElements.size(); ++i)
-            {
-                if (CharacterDataElements.HasChanged(i) || ignoreNestedChangesMask)
-                {
-                    CharacterDataElements[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-                }
-            }
-        }
-        if (changesMask[9])
-        {
-            for (uint32 i = 0; i < AccountDataElements.size(); ++i)
-            {
-                if (AccountDataElements.HasChanged(i) || ignoreNestedChangesMask)
-                {
-                    AccountDataElements[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-                }
-            }
-        }
         if (changesMask[10])
         {
             for (uint32 i = 0; i < PvpInfo.size(); ++i)
@@ -5956,7 +5948,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[97])
         {
-            data << uint8(PvpMedals);
+            data << uint32(PvpMedals);
         }
         if (changesMask[98])
         {
@@ -6300,19 +6292,9 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
     }
     if (changesMask[498])
     {
-        for (uint32 i = 0; i < 1000; ++i)
-        {
-            if (changesMask[499 + i])
-            {
-                data << uint64(QuestCompleted[i]);
-            }
-        }
-    }
-    if (changesMask[1499])
-    {
         for (uint32 i = 0; i < 17; ++i)
         {
-            if (changesMask[1500 + i])
+            if (changesMask[499 + i])
             {
                 data << float(ItemUpgradeHighWatermark[i]);
             }
@@ -6333,6 +6315,8 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(ResearchSiteProgress);
     Base::ClearChangesMask(Research);
     Base::ClearChangesMask(KnownTitles);
+    Base::ClearChangesMask(CharacterDataElements);
+    Base::ClearChangesMask(AccountDataElements);
     Base::ClearChangesMask(DailyQuestsCompleted);
     Base::ClearChangesMask(AvailableQuestLineXQuestIDs);
     Base::ClearChangesMask(Heirlooms);
@@ -6358,8 +6342,6 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(CategoryCooldownMods);
     Base::ClearChangesMask(WeeklySpellUses);
     Base::ClearChangesMask(TrackedCollectableSources);
-    Base::ClearChangesMask(CharacterDataElements);
-    Base::ClearChangesMask(AccountDataElements);
     Base::ClearChangesMask(PvpInfo);
     Base::ClearChangesMask(CharacterRestrictions);
     Base::ClearChangesMask(TraitConfigs);
@@ -6476,7 +6458,6 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(ProfessionSkillLine);
     Base::ClearChangesMask(BagSlotFlags);
     Base::ClearChangesMask(BankBagSlotFlags);
-    Base::ClearChangesMask(QuestCompleted);
     Base::ClearChangesMask(ItemUpgradeHighWatermark);
     _changesMask.ResetAll();
 }

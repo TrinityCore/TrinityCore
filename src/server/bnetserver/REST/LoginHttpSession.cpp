@@ -24,6 +24,7 @@
 #include "SslContext.h"
 #include "Util.h"
 #include <boost/container/static_vector.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace
 {
@@ -83,7 +84,7 @@ public:
         // build initializer chain
         boost::container::static_vector<std::shared_ptr<Trinity::Net::SocketConnectionInitializer>, 4> initializers;
 
-        initializers.stable_emplace_back(std::make_shared<Trinity::Net::IpBanCheckConnectionInitializer<BaseSocket>>(this));
+        initializers.stable_emplace_back(std::make_shared<Trinity::Net::IpBanCheckConnectionInitializer<Battlenet::LoginHttpSession>>(&_owner));
 
         if constexpr (std::is_same_v<BaseSocket, Trinity::Net::Http::SslSocket>)
             initializers.stable_emplace_back(std::make_shared<Trinity::Net::SslHandshakeConnectionInitializer<BaseSocket>>(this));
@@ -124,10 +125,26 @@ LoginHttpSession::LoginHttpSession(Trinity::Net::IoContextTcpSocket&& socket)
 {
 }
 
+LoginHttpSession::~LoginHttpSession() = default;
+
 void LoginHttpSession::Start()
 {
     TC_LOG_TRACE("server.http.session", "{} Accepted connection", GetClientInfo());
 
     return _socket->Start();
+}
+
+bool LoginHttpSession::Update()
+{
+    if (!_socket->Update())
+        return false;
+
+    _queryProcessor.ProcessReadyCallbacks();
+    return true;
+}
+
+void LoginHttpSession::QueueQuery(QueryCallback&& queryCallback)
+{
+    _queryProcessor.AddCallback(std::move(queryCallback));
 }
 }

@@ -367,3 +367,8 @@ WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Auth::QueuedMessagesEnd::Read()
+{
+    _worldPacket >> Timestamp;
+}

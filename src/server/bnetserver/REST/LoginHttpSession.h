@@ -18,7 +18,9 @@
 #ifndef TRINITYCORE_LOGIN_HTTP_SESSION_H
 #define TRINITYCORE_LOGIN_HTTP_SESSION_H
 
+#include "AsyncCallbackProcessor.h"
 #include "BaseHttpSocket.h"
+#include "DatabaseEnvFwd.h"
 #include "SRP6.h"
 
 namespace Battlenet
@@ -34,20 +36,22 @@ public:
     static constexpr std::string_view SESSION_ID_COOKIE = "JSESSIONID=";
 
     explicit LoginHttpSession(Trinity::Net::IoContextTcpSocket&& socket);
+    ~LoginHttpSession();
 
     void Start() override;
-    bool Update() override { return _socket->Update(); }
+    bool Update() override;
     boost::asio::ip::address const& GetRemoteIpAddress() const  override { return _socket->GetRemoteIpAddress(); }
     bool IsOpen() const override { return _socket->IsOpen(); }
     void CloseSocket() override { return _socket->CloseSocket(); }
 
     void SendResponse(Trinity::Net::Http::RequestContext& context) override { return _socket->SendResponse(context); }
-    void QueueQuery(QueryCallback&& queryCallback) override { return _socket->QueueQuery(std::move(queryCallback)); }
+    void QueueQuery(QueryCallback&& queryCallback);
     std::string GetClientInfo() const override { return _socket->GetClientInfo(); }
     LoginSessionState* GetSessionState() const override { return static_cast<LoginSessionState*>(_socket->GetSessionState()); }
 
 private:
     std::shared_ptr<Trinity::Net::Http::AbstractSocket> _socket;
+    QueryCallbackProcessor _queryProcessor;
 };
 }
 
