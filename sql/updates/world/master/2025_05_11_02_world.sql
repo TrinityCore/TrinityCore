@@ -7,8 +7,3 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `creature_template_addon` WHERE `entry` IN (128703 /*128703 (Vengeful Bones) - No NPC Damage Below Override Points%*/);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (128703, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '155893'); -- 128703 (Vengeful Bones) - No NPC Damage Below Override Points%
-
--- Sparring
-DELETE FROM `creature_template_sparring` WHERE `Entry` = 126355;
-INSERT INTO `creature_template_sparring` (`Entry`, `NoNPCDamageBelowHealthPct`) VALUES
-(126355, 85);
