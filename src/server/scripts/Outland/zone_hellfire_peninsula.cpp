@@ -850,6 +850,39 @@ class spell_hellfire_peninsula_send_vengeance_to_player : public SpellScript
     }
 };
 
+enum Translocation
+{
+    SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_DOWN     = 30140,
+    SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_UP       = 30141
+};
+
+// 25650 - Translocate
+// 25652 - Translocate
+class spell_hellfire_peninsula_translocation_falcon_watch : public SpellScript
+{
+    PrepareSpellScript(spell_hellfire_peninsula_translocation_falcon_watch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpellId });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hellfire_peninsula_translocation_falcon_watch::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_hellfire_peninsula_translocation_falcon_watch(Translocation triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
+};
+
 void AddSC_hellfire_peninsula()
 {
     new npc_colonel_jules();
@@ -860,4 +893,6 @@ void AddSC_hellfire_peninsula()
     RegisterCreatureAI(npc_fear_controller);
     RegisterSpellScript(spell_hellfire_peninsula_send_vengeance);
     RegisterSpellScript(spell_hellfire_peninsula_send_vengeance_to_player);
+    RegisterSpellScriptWithArgs(spell_hellfire_peninsula_translocation_falcon_watch, "spell_hellfire_peninsula_translocation_falcon_watch_tower_down", SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_DOWN);
+    RegisterSpellScriptWithArgs(spell_hellfire_peninsula_translocation_falcon_watch, "spell_hellfire_peninsula_translocation_falcon_watch_tower_up", SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_UP);
 }

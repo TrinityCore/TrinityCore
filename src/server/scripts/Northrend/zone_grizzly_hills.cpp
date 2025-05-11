@@ -953,6 +953,45 @@ class spell_warhead_fuse : public AuraScript
     }
 };
 
+enum
+{
+    SPELL_ENVISION_DRAKURU_01     = 47118,
+    SPELL_ENVISION_DRAKURU_02     = 47150,
+    SPELL_ENVISION_DRAKURU_03     = 47317,
+    SPELL_ENVISION_DRAKURU_04     = 47406,
+    SPELL_ENVISION_DRAKURU_05     = 50440
+};
+
+// 47117 - Script Cast Summon Image of Drakuru
+// 47149 - Script Cast Summon Image of Drakuru 02
+// 47316 - Script Cast Summon Image of Drakuru 03
+// 47405 - Script Cast Summon Image of Drakuru 04
+// 50439 - Script Cast Summon Image of Drakuru 05
+class spell_grizzly_hills_script_cast_summon_image_of_drakuru : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_script_cast_summon_image_of_drakuru);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpellId });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grizzly_hills_script_cast_summon_image_of_drakuru::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_grizzly_hills_script_cast_summon_image_of_drakuru(uint32 triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
+};
+
 void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
@@ -970,4 +1009,9 @@ void AddSC_grizzly_hills()
     RegisterSpellScript(spell_warhead_detonate);
     RegisterSpellScript(spell_vehicle_warhead_fuse);
     RegisterSpellScript(spell_warhead_fuse);
+    RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_01", SPELL_ENVISION_DRAKURU_01);
+    RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_02", SPELL_ENVISION_DRAKURU_02);
+    RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_03", SPELL_ENVISION_DRAKURU_03);
+    RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_04", SPELL_ENVISION_DRAKURU_04);
+    RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_05", SPELL_ENVISION_DRAKURU_05);
 }

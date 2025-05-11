@@ -48,7 +48,8 @@ enum DMGameobjectIds
     GO_CRYSTAL_02                       = 177257,
     GO_CRYSTAL_03                       = 177258,
     GO_CRYSTAL_04                       = 179504,
-    GO_CRYSTAL_05                       = 179505
+    GO_CRYSTAL_05                       = 179505,
+    GO_PRINCE_CHEST                     = 179545
 };
 
 template <class AI, class T>

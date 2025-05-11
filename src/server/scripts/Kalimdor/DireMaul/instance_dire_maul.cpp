@@ -127,6 +127,9 @@ public:
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
                         _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_STORE, 1s);
                     break;
+                case GO_PRINCE_CHEST:
+                    _princechestGUID = go->GetGUID();
+                    break;
                 default:
                     break;
             }
@@ -148,6 +151,8 @@ public:
                     return _crystalGUIDs[4];
                 case GO_FORCEFIELD:
                     return _forcefieldGUID;
+                case GO_PRINCE_CHEST:
+                    return _princechestGUID;
                 case NPC_IMMOLTHAR:
                     return _immoGUID;
                 case NPC_TORTHELDRIN:
@@ -278,6 +283,12 @@ public:
                 if (Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID))
                     tortheldrin->SetFaction(FACTION_ENEMY);
             }
+
+            if (unit->GetGUID() == _tortheldrinGUID)
+            {
+                if (GameObject* chest = instance->GetGameObject(_princechestGUID))
+                    chest->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+            }
         }
 
 protected:
@@ -285,6 +296,7 @@ protected:
         std::array<ObjectGuid, 5> _crystalGUIDs;
         std::array<std::array<ObjectGuid, 4>, 5> _crystalCreatureGUIDs; // 5 different Crystals, maximum of 4 Creatures
         ObjectGuid _forcefieldGUID;
+        ObjectGuid _princechestGUID;
         ObjectGuid _immoGUID;
         ObjectGuid _tortheldrinGUID;
     };
