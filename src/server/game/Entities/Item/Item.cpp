@@ -54,6 +54,13 @@ Item* NewItemOrBag(ItemTemplate const* proto)
     return new Item();
 }
 
+struct ItemSetEffect
+{
+    uint32 ItemSetID;
+    std::unordered_set<Item const*> EquippedItems;
+    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
+};
+
 void AddItemsSetItem(Player* player, Item const* item)
 {
     ItemTemplate const* proto = item->GetTemplate();
@@ -193,6 +200,28 @@ void RemoveItemsSetItem(Player* player, Item const* item)
         delete eff;
         player->ItemSetEff[setindex] = nullptr;
     }
+}
+
+void UpdateItemSetAuras(Player* player, bool formChange)
+{
+    // item set bonuses not dependent from item broken state
+    for (ItemSetEffect* eff : player->ItemSetEff)
+    {
+        if (!eff)
+            continue;
+
+        for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
+            player->ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
+            player->ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
+        }
+    }
+}
+
+void DeleteItemSetEffects(ItemSetEffect* itemSetEffect)
+{
+    delete itemSetEffect;
 }
 
 bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)

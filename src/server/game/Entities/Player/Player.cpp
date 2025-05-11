@@ -363,8 +363,8 @@ Player::~Player()
     for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
         delete iter->second;                                //if item is duplicated... then server may crash ... but that item should be deallocated
 
-    for (size_t x = 0; x < ItemSetEff.size(); x++)
-        delete ItemSetEff[x];
+    for (ItemSetEffect* itemSetEff : ItemSetEff)
+        DeleteItemSetEffects(itemSetEff);
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
@@ -7818,25 +7818,7 @@ void Player::UpdateEquipSpellsAtFormChange()
         }
     }
 
-    UpdateItemSetAuras(true);
-}
-
-void Player::UpdateItemSetAuras(bool formChange /*= false*/)
-{
-    // item set bonuses not dependent from item broken state
-    for (size_t setindex = 0; setindex < ItemSetEff.size(); ++setindex)
-    {
-        ItemSetEffect* eff = ItemSetEff[setindex];
-        if (!eff)
-            continue;
-
-        for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
-        {
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
-            ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
-            ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
-        }
-    }
+    UpdateItemSetAuras(this, true);
 }
 
 void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
@@ -27922,7 +27904,7 @@ void Player::SetActiveTalentGroup(uint8 group, bool withUpdate /*= true*/, bool 
             SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
 
         SetPower(pw, 0);
-        UpdateItemSetAuras(false);
+        UpdateItemSetAuras(this, false);
         // update visible transmog
         for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
             if (Item* equippedItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))

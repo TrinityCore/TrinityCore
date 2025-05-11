@@ -37,13 +37,6 @@ namespace WorldPackets
     }
 }
 
-struct ItemSetEffect
-{
-    uint32 ItemSetID;
-    std::unordered_set<Item const*> EquippedItems;
-    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
-};
-
 #define MAX_GEM_SOCKETS               MAX_ITEM_PROTO_SOCKETS// (BONUS_ENCHANTMENT_SLOT-SOCK_ENCHANTMENT_SLOT) and item proto size, equal value expected
 
 #define MAX_ENCHANTMENT_OFFSET    3
