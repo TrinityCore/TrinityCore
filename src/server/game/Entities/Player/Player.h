@@ -3230,7 +3230,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         std::unique_ptr<Runes> m_runes;
         EquipmentSetContainer _equipmentSets;
 
-        bool CanNeverSee(WorldObject const* obj) const override;
+        bool CanNeverSee(WorldObject const* obj, bool ignorePhaseShift = false) const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;

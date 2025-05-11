@@ -166,6 +166,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_DEPRECATED_LIQUID_AURA        = 0x00400000, // DO NOT REUSE
     SPELL_ATTR0_CU_IS_TALENT                     = 0x00800000,
     SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED          = 0x01000000,
+    SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT = 0x02000000,
 };
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
