@@ -4803,8 +4803,6 @@ inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, 
             return row->HasteSpell;
         case CR_EXPERTISE:
             return row->Expertise;
-        case CR_MASTERY:
-            return row->Mastery;
         case CR_ARMOR_PENETRATION:
             return row->ArmorPenetration;
         default:
@@ -4830,8 +4828,6 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
     float baseResult = (float)m_activePlayerData->CombatRatings[cr] * GetRatingMultiplier(cr);
-    if (cr != CR_RESILIENCE_PLAYER_DAMAGE)
-        return baseResult;
     return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
 }
 
@@ -4887,8 +4883,10 @@ void Player::UpdateRating(CombatRating cr)
 
     switch (cr)
     {
-        case CR_UNUSED_0:
+        case CR_WEAPON_SKILL:
+            break;
         case CR_DEFENSE_SKILL:
+            // TODO 3.4.4 UpdateDefenseBonusesMod();
             break;
         case CR_DODGE:
             UpdateDodgePercentage();
@@ -4923,14 +4921,15 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateAllSpellCritChances();
             break;
-        case CR_CORRUPTION:
-        case CR_CORRUPTION_RESISTANCE:
-            UpdateCorruption();
+        case CR_HIT_TAKEN_MELEE:                            // Implemented in Unit::MeleeMissChanceCalc
+        case CR_HIT_TAKEN_RANGED:
             break;
-        case CR_SPEED:
-        case CR_RESILIENCE_PLAYER_DAMAGE:
-        case CR_RESILIENCE_CRIT_TAKEN:
-        case CR_LIFESTEAL:
+        case CR_HIT_TAKEN_SPELL:                            // Implemented in Unit::MagicSpellHitResult
+            break;
+        case CR_CRIT_TAKEN_MELEE:                           // Implemented in Unit::RollMeleeOutcomeAgainst (only for chance to crit)
+        case CR_CRIT_TAKEN_RANGED:
+            break;
+        case CR_CRIT_TAKEN_SPELL:                           // Implemented in Unit::SpellCriticalBonus (only for chance to crit)
             break;
         case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
@@ -4965,9 +4964,9 @@ void Player::UpdateRating(CombatRating cr)
             }
             break;
         }
-        case CR_AVOIDANCE:
-        case CR_STURDINESS:
-        case CR_UNUSED_7:
+        case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
+        case CR_WEAPON_SKILL_OFFHAND:
+        case CR_WEAPON_SKILL_RANGED:
             break;
         case CR_EXPERTISE:
             if (affectStats)
@@ -4979,21 +4978,6 @@ void Player::UpdateRating(CombatRating cr)
         case CR_ARMOR_PENETRATION:
             if (affectStats)
                 UpdateArmorPenetration(amount);
-            break;
-        case CR_MASTERY:
-            UpdateMastery();
-            break;
-        case CR_PVP_POWER:
-        case CR_UNUSED_27:
-            break;
-        case CR_VERSATILITY_DAMAGE_DONE:
-            UpdateVersatilityDamageDone();
-            break;
-        case CR_VERSATILITY_HEALING_DONE:
-            UpdateHealingDonePercentMod();
-            break;
-        case CR_VERSATILITY_DAMAGE_TAKEN:
-        case CR_UNUSED_12:
             break;
     }
 }
@@ -12789,18 +12773,21 @@ void Player::ApplyItemModModifier(ItemModType modifier, int32 amount, bool apply
             ApplyRatingMod(CR_CRIT_RANGED, amount, apply);
             ApplyRatingMod(CR_CRIT_SPELL, amount, apply);
             break;
-            // case ITEM_MOD_HIT_TAKEN_RATING: // Unused since 3.3.5
-            //     ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
-            //     ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
-            //     ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
-            //     break;
-            // case ITEM_MOD_CRIT_TAKEN_RATING: // Unused since 3.3.5
-            //     ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
-            //     ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
-            //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
-            //     break;
+       // Values ITEM_MOD_HIT_TAKEN_RATING and ITEM_MOD_CRIT_TAKEN_RATING are never used in Enchantment
+       // case ITEM_MOD_HIT_TAKEN_RATING:
+       //     ApplyRatingMod(CR_HIT_TAKEN_MELEE, amount, apply);
+       //     ApplyRatingMod(CR_HIT_TAKEN_RANGED, amount, apply);
+       //     ApplyRatingMod(CR_HIT_TAKEN_SPELL, amount, apply);
+       //     break;
+       // case ITEM_MOD_CRIT_TAKEN_RATING:
+       //     ApplyRatingMod(CR_CRIT_TAKEN_MELEE, amount, apply);
+       //     ApplyRatingMod(CR_CRIT_TAKEN_RANGED, amount, apply);
+       //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, amount, apply);
+       //     break;
         case ITEM_MOD_RESILIENCE_RATING:
-            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, amount, apply);
+            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, amount, apply);
+            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, amount, apply);
+            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, amount, apply);
             break;
         case ITEM_MOD_HASTE_RATING:
             ApplyRatingMod(CR_HASTE_MELEE, amount, apply);
@@ -12835,14 +12822,14 @@ void Player::ApplyItemModModifier(ItemModType modifier, int32 amount, bool apply
         case ITEM_MOD_BLOCK_VALUE:
             HandleBaseModFlatValue(SHIELD_BLOCK_VALUE, float(amount), apply);
             break;
-        case ITEM_MOD_MASTERY_RATING:
-            ApplyRatingMod(CR_MASTERY, amount, apply);
-            break;
-        case ITEM_MOD_VERSATILITY:
-            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, amount, apply);
-            ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, amount, apply);
-            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, amount, apply);
-            break;
+        //case ITEM_MOD_MASTERY_RATING:
+        //    ApplyRatingMod(CR_MASTERY, amount, apply);
+        //    break;
+        //case ITEM_MOD_VERSATILITY:
+        //    ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, amount, apply);
+        //    ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, amount, apply);
+        //    ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, amount, apply);
+        //    break;
         default:
             break;
     }
@@ -20192,11 +20179,17 @@ void Player::_SaveStats(CharacterDatabaseTransaction trans) const
     stmt->setFloat(index++, m_activePlayerData->ParryPercentage);
     stmt->setFloat(index++, m_activePlayerData->CritPercentage);
     stmt->setFloat(index++, m_activePlayerData->RangedCritPercentage);
-    stmt->setFloat(index++, 0.f); // m_activePlayerData->SpellCritPercentage// @todo (4.4.0): in wotlk spell crit percentage was split by spell school
+
+    // Store the max spell crit percentage out of all the possible schools
+    float spellCrit = 0.0f;
+    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        spellCrit = std::max(spellCrit, m_activePlayerData->SpellCritPercentage[i]);
+    stmt->setFloat(index++, spellCrit);
+
     stmt->setUInt32(index++, m_unitData->AttackPower);
     stmt->setUInt32(index++, m_unitData->RangedAttackPower);
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
-    stmt->setUInt32(index, m_activePlayerData->CombatRatings[CR_RESILIENCE_PLAYER_DAMAGE]);
+    stmt->setUInt32(index, 0); // m_activePlayerData->CombatRatings[CR_RESILIENCE_PLAYER_DAMAGE]
     stmt->setFloat(index++, m_activePlayerData->Mastery);
     stmt->setInt32(index++, m_activePlayerData->Versatility);
 

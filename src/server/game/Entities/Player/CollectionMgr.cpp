@@ -502,6 +502,7 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
         } while (favoriteAppearances->NextRow());
     }
 
+    /*
     // Static item appearances known by every player
     static uint32 constexpr hiddenAppearanceItems[] =
     {
@@ -525,7 +526,7 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
             _appearances->resize(hiddenAppearance->ID + 1);
 
         _appearances->set(hiddenAppearance->ID);
-    }
+    }*/
 }
 
 void CollectionMgr::SaveAccountItemAppearances(LoginDatabaseTransaction trans)

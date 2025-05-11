@@ -111,12 +111,12 @@ struct GtCombatRatingsEntry
     float HasteMelee = 0.0f;
     float HasteRanged = 0.0f;
     float HasteSpell = 0.0f;
-    float Unknown1 = 0.0f;
-    float Unknown2 = 0.0f;
-    float Unknown3 = 0.0f;
+    float WeaponSkillMainhand = 0.0f;
+    float WeaponSkillOffhand = 0.0f;
+    float WeaponSkillRanged = 0.0f;
     float Expertise = 0.0f;
     float ArmorPenetration = 0.0f;
-    float Mastery = 0.0f;
+    float Unknown5 = 0.0f;
     float Unknown7 = 0.0f;
     float Unknown8 = 0.0f;
     float Unknown9 = 0.0f;

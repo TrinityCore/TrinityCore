@@ -196,8 +196,8 @@ struct BarberShopStyleEntry
     uint32 ID;
     uint8 Type;                                                     // value 0 -> hair, value 2 -> facialhair
     float CostModifier;
-    uint8 Race;
-    uint8 Sex;
+    int8 Race;
+    int8 Sex;
     uint8 Data;                                                     // real ID to hair/facial hair
 };
 
@@ -375,7 +375,7 @@ struct ChatChannelsEntry
     LocalizedString Shortcut;
     uint32 ID;
     int32 Flags;
-    int8 FactionGroup;
+    uint8 FactionGroup;
     int32 Ruleset;
 
     EnumFlag<ChatChannelFlags> GetFlags() const { return static_cast<ChatChannelFlags>(Flags); }
@@ -386,7 +386,7 @@ struct ChatChannelsEntry
 struct ChrClassUIDisplayEntry
 {
     uint32 ID;
-    uint8 ChrClassesID;
+    int8 ChrClassesID;
     uint32 AdvGuidePlayerConditionID;
     uint32 SplashPlayerConditionID;
 };
@@ -399,7 +399,6 @@ struct ChrClassesEntry
     LocalizedString NameMale;
     LocalizedString NameFemale;
     char const* PetNameToken;
-    uint32 ID;
     uint32 CreateScreenFileDataID;
     uint32 SelectScreenFileDataID;
     uint32 IconFileDataID;
@@ -410,6 +409,7 @@ struct ChrClassesEntry
     uint32 ArmorTypeMask;
     uint16 CinematicSequenceID;
     uint16 DefaultSpec;
+    uint8 ID;
     uint8 HasStrengthAttackBonus;
     uint8 PrimaryStatPriority;
     int8 DisplayPower;
@@ -501,6 +501,7 @@ struct ChrCustomizationReqEntry
     uint32 ID;
     int32 Flags;
     int32 ClassMask;
+    int32 RegionGroupMask;
     int32 AchievementID;
     int32 QuestID;
     int32 OverrideArchive;                                          // -1: allow any, otherwise must match OverrideArchive cvar
@@ -543,9 +544,9 @@ struct ChrModelEntry
 struct ChrRaceXChrModelEntry
 {
     uint32 ID;
-    uint32 ChrRacesID;
+    uint8 ChrRacesID;
     int32 ChrModelID;
-    int32 Sex;
+    int8 Sex;
     int32 AllowedTransmogSlots;
 };
 
@@ -586,7 +587,6 @@ struct ChrRacesEntry
     int32 PlayableRaceBit;
     int32 FemaleSkeletonFileDataID;
     int32 MaleSkeletonFileDataID;
-    int32 HelmetAnimScalingRaceID;
     int32 TransmogrifyDisabledSlotMask;
     std::array<float, 3> AlteredFormCustomizeOffsetFallback;
     float AlteredFormCustomizeRotationFallback;
@@ -595,7 +595,7 @@ struct ChrRacesEntry
     int16 FactionID;
     int16 CinematicSequenceID;
     int8 BaseLanguage;
-    int8 CreatureType;
+    uint8 CreatureType;
     int8 Alliance;
     int8 RaceRelated;
     int8 UnalteredVisualRaceID;
@@ -609,6 +609,7 @@ struct ChrRacesEntry
     int8 MaleTextureFallbackSex;
     int8 FemaleTextureFallbackRaceID;
     int8 FemaleTextureFallbackSex;
+    int8 HelmetAnimScalingRaceID;
     int8 UnalteredVisualCustomizationRaceID;
 
     EnumFlag<ChrRacesFlag> GetFlags() const { return static_cast<ChrRacesFlag>(Flags); }
@@ -747,7 +748,7 @@ struct CreatureDisplayInfoExtraEntry
     int8 HairStyleID;
     int8 HairColorID;
     int8 FacialHairID;
-    int8 Flags;
+    int32 Flags;
     int32 BakeMaterialResourcesID;
     int32 HDBakeMaterialResourcesID;
     std::array<uint8, 3> CustomDisplayOption;
@@ -801,7 +802,7 @@ struct CreatureModelDataEntry
     float OverrideNameScale;
     float OverrideSelectionRadius;
     float TamedPetBaseScale;
-    uint16 Unknown1154;
+    uint16 Unknown1100;
 
     EnumFlag<CreatureModelDataFlags> GetFlags() const { return static_cast<CreatureModelDataFlags>(Flags); }
 };
@@ -811,7 +812,7 @@ struct CreatureTypeEntry
 {
     uint32 ID;
     LocalizedString Name;
-    uint8 Flags;
+    int32 Flags;
 };
 
 // structure for Criteria.db2
@@ -1260,9 +1261,9 @@ struct EmotesTextEntry
 struct EmotesTextSoundEntry
 {
     uint32 ID;
-    uint8 RaceID;
-    uint8 ClassID;
-    uint8 SexID;
+    int8 RaceID;
+    int8 ClassID;
+    int8 SexID;
     uint32 SoundID;
     uint32 EmotesTextID;
 };
@@ -1638,6 +1639,7 @@ struct ItemAppearanceEntry
     int32 ItemDisplayInfoID;
     int32 DefaultIconFileDataID;
     int32 UiOrder;
+    int32 TransmogPlayerConditionID;
 };
 
 // structure for ItemArmorQuality.db2
@@ -1709,9 +1711,9 @@ struct ItemBonusTreeNodeEntry
 struct ItemChildEquipmentEntry
 {
     uint32 ID;
+    uint32 ParentItemID;
     int32 ChildItemID;
     uint8 ChildItemEquipSlot;
-    uint32 ParentItemID;
 };
 
 // structure for ItemClass.db2
@@ -1882,6 +1884,7 @@ struct ItemModifiedAppearanceEntry
     int32 ItemAppearanceID;
     int32 OrderIndex;
     uint8 TransmogSourceTypeEnum;
+    int32 Flags;
 };
 
 // structure for ItemModifiedAppearanceExtra.db2
@@ -2055,7 +2058,7 @@ struct ItemSparseEntry
     uint8 DamageDamageType;
     uint8 ContainerSlots;
     uint8 RequiredPVPMedal;
-    uint8 RequiredPVPRank;
+    int8 RequiredPVPRank;
     int8 InventoryType;
     int8 OverallQualityID;
     uint8 AmmunitionType;
@@ -2228,7 +2231,7 @@ struct LiquidTypeEntry
     uint32 ID;
     char const* Name;
     std::array<char const*, 6> Texture;
-    uint16 Flags;
+    int32 Flags;
     uint8 SoundBank;                                                // used to be "type", maybe needs fixing (works well for now)
     uint32 SoundID;
     uint32 SpellID;
@@ -2510,8 +2513,8 @@ struct NameGenEntry
 {
     uint32 ID;
     char const* Name;
-    uint8 RaceID;
-    uint8 Sex;
+    int8 RaceID;
+    int8 Sex;
 };
 
 // structure for NamesProfanity.db2
@@ -2577,7 +2580,7 @@ struct PathEntry
     uint8 Green;
     uint8 Blue;
     uint8 Alpha;
-    uint8 Flags;
+    int32 Flags;
 };
 
 // structure for PathNode.db2
@@ -2645,7 +2648,7 @@ struct PlayerConditionEntry
     uint16 WorldStateExpressionID;
     int32 WeatherID;
     uint8 PartyStatus;
-    uint8 LifetimeMaxPVPRank;
+    int8 LifetimeMaxPVPRank;
     uint32 AchievementLogic;
     int8 Gender;
     int8 NativeGender;
@@ -2675,8 +2678,8 @@ struct PlayerConditionEntry
     uint8 MinGuildLevel;
     int8 MaxExpansionTier;
     int8 MinExpansionTier;
-    uint8 MinPVPRank;
-    uint8 MaxPVPRank;
+    int8 MinPVPRank;
+    int8 MaxPVPRank;
     int32 ContentTuningID;
     int32 CovenantID;
     uint32 TraitNodeEntryLogic;
@@ -3514,7 +3517,7 @@ struct SpellShapeshiftFormEntry
     uint32 ID;
     LocalizedString Name;
     uint32 Unknown1150;
-    int8 CreatureType;
+    uint8 CreatureType;
     int32 Flags;
     int32 AttackIconFileID;
     int8 BonusActionBar;
@@ -3679,7 +3682,7 @@ struct TalentEntry
     uint8 Flags;
     uint8 ColumnIndex;
     uint16 TabID;
-    uint8 ClassID;
+    int8 ClassID;
     uint16 SpecID;
     int32 SpellID;
     int32 OverridesSpellID;
@@ -3808,13 +3811,16 @@ struct TransmogSetEntry
     LocalizedString Name;
     uint32 ID;
     int32 ClassMask;
-    uint32 TrackingQuestID;
+    int32 TrackingQuestID;
     int32 Flags;
-    uint32 TransmogSetGroupID;
+    int32 TransmogSetGroupID;
     int32 ItemNameDescriptionID;
-    uint16 ParentTransmogSetID;
-    uint8 ExpansionID;
-    int16 UiOrder;
+    uint32 ParentTransmogSetID;
+    int32 CompleteWorldStateID;
+    int32 ExpansionID;
+    int32 PatchIntroduced;
+    int32 UiOrder;
+    int32 ConditionID;
 };
 
 // structure for TransmogSetGroup.db2
@@ -4098,7 +4104,7 @@ struct WorldEffectEntry
 {
     uint32 ID;
     uint32 QuestFeedbackEffectID;
-    uint8 WhenToDisplay;
+    int32 WhenToDisplay;
     uint8 TargetType;
     int32 TargetAsset;
     uint32 PlayerConditionID;

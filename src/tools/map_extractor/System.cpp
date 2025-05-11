@@ -1334,6 +1334,8 @@ void ExtractGameTables()
     DB2FileInfo GameTables[] =
     {
         { 1391663, "BarberShopCostBase.txt" },
+        { 1391667, "ChallengeModeDamage.txt" },
+        { 1391668, "ChallengeModeHealth.txt" },
         { 3999262, "ChanceToMeleeCrit.txt" },
         { 3999263, "ChanceToMeleeCritBase.txt" },
         { 3999265, "ChanceToSpellCrit.txt" },
