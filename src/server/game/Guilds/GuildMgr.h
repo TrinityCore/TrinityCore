@@ -46,7 +46,7 @@ public:
 
     // --- new read-only accessor ---
     auto const& GetGuildStore() const { return GuildStore; }
-    
+
     void LoadGuildRewards();
 
     void LoadGuilds();
