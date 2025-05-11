@@ -5587,7 +5587,7 @@ public:
 
     void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount)
     {
-        if (!dmgInfo.GetAttacker()->IsCreature())
+        if (!dmgInfo.GetAttacker() || !dmgInfo.GetAttacker()->IsCreature())
         {
             PreventDefaultAction();
             return;
