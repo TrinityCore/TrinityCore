@@ -35,4 +35,4 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "StringFormat.h"
-#include <sstream>
+#include "TemporarySummon.h"
