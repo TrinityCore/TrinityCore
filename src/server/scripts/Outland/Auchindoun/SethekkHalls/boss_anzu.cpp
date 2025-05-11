@@ -15,18 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Name: Boss_Anzu
-%Complete: 80%
-Comment:
-Category: Auchindoun, Sethekk Halls
-*/
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sethekk_halls.h"
 
-enum Says
+enum Texts
 {
     SAY_SUMMON_BROOD            = 0,
     SAY_SPELL_BOMB              = 1
@@ -37,16 +30,15 @@ enum Spells
     SPELL_PARALYZING_SCREECH    = 40184,
     SPELL_SPELL_BOMB            = 40303,
     SPELL_CYCLONE_OF_FEATHERS   = 40321,
-    SPELL_BANISH_SELF           = 42354,
-    SPELL_FLESH_RIP             = 40199
+    SPELL_BANISH_SELF           = 42354
 };
 
 enum Events
 {
     EVENT_PARALYZING_SCREECH    = 1,
-    EVENT_SPELL_BOMB            = 2,
-    EVENT_CYCLONE_OF_FEATHERS   = 3,
-    EVENT_SUMMON                = 4
+    EVENT_SPELL_BOMB,
+    EVENT_CYCLONE_OF_FEATHERS,
+    EVENT_SUMMON
 };
 
 Position const PosSummonBrood[7] =
@@ -62,22 +54,14 @@ Position const PosSummonBrood[7] =
 
 struct boss_anzu : public BossAI
 {
-    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _under33Percent = false;
-        _under66Percent = false;
-    }
+    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU), _under33Percent(false), _under66Percent(false) { }
 
     void Reset() override
     {
         //_Reset();
         events.Reset();
-        Initialize();
+        _under33Percent = false;
+        _under66Percent = false;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -85,11 +69,6 @@ struct boss_anzu : public BossAI
         BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14s);
         events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5s);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
     }
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -122,19 +101,19 @@ struct boss_anzu : public BossAI
             {
                 case EVENT_PARALYZING_SCREECH:
                     DoCastVictim(SPELL_PARALYZING_SCREECH);
-                    events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 25s);
+                    events.Repeat(25s);
                     break;
                 case EVENT_CYCLONE_OF_FEATHERS:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
-                    events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21s);
+                    events.Repeat(21s);
                     break;
                 case EVENT_SUMMON:
                     // TODO: Add pathing for Brood of Anzu
                     for (uint8 i = 0; i < 7; i++)
                         me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
 
-                    DoCast(me, SPELL_BANISH_SELF);
+                    DoCastSelf(SPELL_BANISH_SELF);
                     events.ScheduleEvent(EVENT_SPELL_BOMB, 12s);
                     break;
                 case EVENT_SPELL_BOMB:
@@ -155,9 +134,9 @@ struct boss_anzu : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    private:
-        bool _under33Percent;
-        bool _under66Percent;
+private:
+    bool _under33Percent;
+    bool _under66Percent;
 };
 
 void AddSC_boss_anzu()
