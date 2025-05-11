@@ -118,7 +118,7 @@ namespace WorldPackets
 
         struct WarbandGroupMember
         {
-            int32 WarbandScenePlacementID = 0;
+            uint32 WarbandScenePlacementID = 0;
             int32 Type = 0;
             ObjectGuid Guid;
         };
@@ -126,9 +126,11 @@ namespace WorldPackets
         struct WarbandGroup
         {
             uint64 GroupID = 0;
-            uint8 Unknown_1100 = 0;
-            int32 Flags = 0;    ///< enum WarbandGroupFlags { Collapsed = 1 }
+            uint8 OrderIndex = 0;
+            uint32 WarbandSceneID = 0;
+            uint32 Flags = 0;    ///< enum WarbandGroupFlags { Collapsed = 1 }
             std::vector<WarbandGroupMember> Members;
+            std::string_view Name;
         };
 
         class EnumCharactersResult final : public ServerPacket
@@ -162,6 +164,7 @@ namespace WorldPackets
                 uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
                 uint32 Flags2            = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
                 uint32 Flags3            = 0; ///< Character flags 3 @todo research
+                uint32 Flags4            = 0; ///< Character flags 4 @todo research
                 bool FirstLogin      = false;
                 uint8 unkWod61x          = 0;
                 Timestamp<> LastPlayedTime;
@@ -190,6 +193,9 @@ namespace WorldPackets
 
                 std::array<VisualItemInfo, 19> VisualItems = { };
                 CustomTabardInfo PersonalTabard;
+                uint32 Unused1110_1 = 0;
+                bool Unused1110_2 = false;
+                bool Unused1110_3 = false;
             };
 
             struct CharacterRestrictionAndMailData
@@ -216,6 +222,7 @@ namespace WorldPackets
 
                 CharacterInfoBasic Basic;
                 uint64 Money = 0;
+                float AvgEquippedItemLevel = 0.0f;
                 float CurrentSeasonMythicPlusOverallScore = 0.0f;
                 uint32 CurrentSeasonBestPvpRating = 0;
                 int8 PvpRatingBracket = 0;
@@ -224,7 +231,7 @@ namespace WorldPackets
 
             struct RaceUnlock
             {
-                int32 RaceID          = 0;
+                int8 RaceID          = 0;
                 bool HasExpansion     = false;
                 bool HasAchievement   = false;
                 bool HasHeritageArmor = false;
@@ -246,7 +253,7 @@ namespace WorldPackets
                     Level
                 };
 
-                int32 RaceID = 0;
+                int8 RaceID = 0;
                 int32 BlockReason = 0;
             };
 
