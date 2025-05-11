@@ -20,6 +20,7 @@
 
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
+#include "Duration.h"
 #include "ModelIgnoreFlags.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
