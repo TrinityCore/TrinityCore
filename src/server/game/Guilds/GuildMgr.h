@@ -43,10 +43,9 @@ public:
     Guild* GetGuildByGuid(ObjectGuid guid) const;
     Guild* GetGuildByName(std::string_view guildName) const;
     std::string GetGuildNameById(ObjectGuid::LowType guildId) const;
-    
+
     // --- new read-only accessor ---
-    using GuildContainer = std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>>;
-    GuildContainer const& GetGuildStore() const { return GuildStore; }   //<--- ADDED
+    auto const& GetGuildStore() const { return GuildStore; }
     
     void LoadGuildRewards();
 
