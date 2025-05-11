@@ -2136,6 +2136,22 @@ CREATE TABLE `item_random_bonus_list_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `item_random_enchantment_template`
+--
+
+DROP TABLE IF EXISTS `item_random_enchantment_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `item_random_enchantment_template` (
+  `Id` int unsigned NOT NULL DEFAULT '0',
+  `EnchantmentType` tinyint unsigned NOT NULL,
+  `EnchantmentId` int unsigned NOT NULL DEFAULT '0',
+  `Chance` float NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Id`,`EnchantmentType`,`EnchantmentId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `item_script_names`
 --
 
@@ -4961,4 +4977,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-13 16:46:02
+-- Dump completed on 2025-05-11 10:42:36
