@@ -141,8 +141,8 @@ struct boss_talon_king_ikiss : public BossAI
     }
 
 private:
-    bool _manaShield;
     bool _intro;
+    bool _manaShield;
 };
 
 // 38194 - Blink
