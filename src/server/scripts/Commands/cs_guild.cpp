@@ -33,7 +33,8 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "Define.h"          //  MONEY_COPPER_PER_GOLD
+#include "Define.h"         //  MONEY_COPPER_PER_GOLD
+#include <inttypes.h>      // PRIu64
 #include <iomanip>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
@@ -302,54 +303,59 @@ public:
         return true;
     }
 
-	static bool HandleGuildListCommand(ChatHandler* handler, char const* /*args*/) // .guild list handler
-	{
-		// Accès propre : conteneur interne exposé par l’accesseur qu’on vient d’ajouter
-		auto const& guildStore = sGuildMgr->GetGuildStore();
-	
-		handler->SendSysMessage("|cff00ff00=== Guild list ===|r");
-		handler->SendSysMessage("|cff00ffffID | Name | GM | Created | Members | Lv | Bank(g)|r");
-	
-		uint32 total = 0;
-	
-		for (auto const& itr : guildStore)
-		{
-			uint32 id = itr.first;
-			Guild* g  = itr.second.get();           // unique_trackable_ptr => .get()
-			if (!g)
-				continue;
-	
-			/* --- GM ---------------------------------------------------------- */
-			std::string gmName;
-			if (!sCharacterCache->GetCharacterNameByGuid(g->GetLeaderGUID(), gmName))
-				gmName = "---";
-	
-			/* --- date yyyy-mm-dd -------------------------------------------- */
-			char dateBuf[11] = "---";
-			if (time_t t = g->GetCreatedDate())
-			{
-				tm tmBuf;
-			#ifdef _MSC_VER
-				localtime_s(&tmBuf, &t);
-			#else
-				localtime_r(&t, &tmBuf);
-			#endif
-				strftime(dateBuf, sizeof(dateBuf), "%Y-%m-%d", &tmBuf);
-			}
-	
-			/* --- Bank ------------------------------------------------------ */
-			uint64 gold = g->GetBankMoney() / GOLD;
-	
-			/* --- display --------------------------------------------------- */
-			handler->PSendSysMessage("|cffffff00%u|r | %s | %s | %s | %u | %u | %" PRIu64,
-									id, g->GetName().c_str(), gmName.c_str(), dateBuf,
-									g->GetMembersCount(), g->GetLevel(), gold);
-			++total;
-		}
-	
-		handler->PSendSysMessage("|cff00ff00Total guilds: %u|r", total);
-		return true;
-	}
+    static bool HandleGuildListCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        auto const& guildStore = sGuildMgr->GetGuildStore();   // map<uint32, unique_trackable_ptr<Guild>>
+
+        handler->SendSysMessage("|cff00ff00=== Guild list ===|r");
+        handler->SendSysMessage("|cff00ffffID | Name | GM | Created | Members | Lv | Bank(g)|r");
+
+        constexpr uint64 COPPER_PER_GOLD = 10000ULL;           //  1 gold = 10 000 copper
+
+        for (auto const& pair : guildStore)
+        {
+            uint32 id   = pair.first;
+            Guild* g    = pair.second.get();
+            if (!g)
+                continue;
+
+            /* ----- GM name ----- */
+            std::string gmName;
+            if (!sCharacterCache->GetCharacterNameByGuid(g->GetLeaderGUID(), gmName))
+                gmName = "---";
+
+            /* ----- creation date (yyyy-mm-dd) ----- */
+            char dateBuf[11] = "---";
+            if (time_t created = g->GetCreatedDate())
+            {
+                tm tmBuf;
+    #ifdef _MSC_VER
+                localtime_s(&tmBuf, &created);
+    #else
+                localtime_r(&created, &tmBuf);
+    #endif
+                strftime(dateBuf, sizeof(dateBuf), "%Y-%m-%d", &tmBuf);
+            }
+
+            /* ----- bank gold ----- */
+            uint64 bankGold     = g->GetBankMoney() / COPPER_PER_GOLD;
+            std::string goldStr = std::to_string(bankGold);
+
+            /* ----- output ----- */
+            handler->PSendSysMessage(
+                "|cffffff00%u|r | %s | %s | %s | %u | %u | %s",
+                id,
+                g->GetName().c_str(),
+                gmName.c_str(),
+                dateBuf,
+                g->GetMembersCount(),
+                g->GetLevel(),
+                goldStr.c_str());
+        }
+
+        handler->PSendSysMessage("|cff00ff00Total guilds: %zu|r", guildStore.size());
+        return true;
+    }
 };
 
 void AddSC_guild_commandscript()
