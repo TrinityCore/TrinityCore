@@ -42,34 +42,35 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     if (!HttpService::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
+    using namespace std::string_view_literals;
     using Trinity::Net::Http::RequestHandlerFlag;
 
-    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/login/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/login/"sv, [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandleGetForm(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/gameAccounts/", [](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/gameAccounts/"sv, [](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandleGetGameAccounts(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/portal/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::get, "/bnetserver/portal/"sv, [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandleGetPortal(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/"sv, [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandlePostLogin(std::move(session), context);
     }, RequestHandlerFlag::DoNotLogRequestContent);
 
-    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/srp/", [](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/login/srp/"sv, [](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandlePostLoginSrpChallenge(std::move(session), context);
     });
 
-    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/refreshLoginTicket/", [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
+    RegisterHandler(boost::beast::http::verb::post, "/bnetserver/refreshLoginTicket/"sv, [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
     {
         return HandlePostRefreshLoginTicket(std::move(session), context);
     });
@@ -77,11 +78,9 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     _bindIP = bindIp;
     _port = port;
 
-    using namespace std::string_literals;
-
     Trinity::Net::Resolver resolver(ioContext);
 
-    _externalHostname = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress"s, "127.0.0.1");
+    _externalHostname = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress"sv, "127.0.0.1");
 
     std::ranges::transform(resolver.ResolveAll(_externalHostname, ""),
         std::back_inserter(_addresses),
@@ -93,7 +92,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
         return false;
     }
 
-    _localHostname = sConfigMgr->GetStringDefault("LoginREST.LocalAddress"s, "127.0.0.1");
+    _localHostname = sConfigMgr->GetStringDefault("LoginREST.LocalAddress"sv, "127.0.0.1");
     _firstLocalAddressIndex = _addresses.size();
 
     std::ranges::transform(resolver.ResolveAll(_localHostname, ""),
@@ -126,7 +125,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     input->set_type("submit");
     input->set_label("Log In");
 
-    _loginTicketDuration = sConfigMgr->GetIntDefault("LoginREST.TicketDuration", 3600);
+    _loginTicketDuration = sConfigMgr->GetIntDefault("LoginREST.TicketDuration"sv, 3600);
 
     MigrateLegacyPasswordHashes();
 
@@ -139,8 +138,8 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
 
 std::string const& LoginRESTService::GetHostnameForClient(boost::asio::ip::address const& address) const
 {
-    if (auto addressIndex = Trinity::Net::SelectAddressForClient(address, _addresses))
-        return addressIndex >= _firstLocalAddressIndex ? _localHostname : _externalHostname;
+    if (Optional<std::size_t> addressIndex = Trinity::Net::SelectAddressForClient(address, _addresses))
+        return *addressIndex >= _firstLocalAddressIndex ? _localHostname : _externalHostname;
 
     if (address.is_loopback())
         return _localHostname;

@@ -51,7 +51,7 @@ public:
     using HttpRequestContext = Trinity::Net::Http::RequestContext;
     using HttpSessionState = Trinity::Net::Http::SessionState;
 
-    LoginRESTService() : HttpService("login"), _port(0), _loginTicketDuration(0) { }
+    LoginRESTService() : HttpService("login"), _port(0), _firstLocalAddressIndex(0), _loginTicketDuration(0) { }
 
     static LoginRESTService& Instance();
 
