@@ -81,7 +81,10 @@ private:
     JSON::Login::FormInputs _formInputs;
     std::string _bindIP;
     uint16 _port;
-    std::array<std::pair<std::string, std::vector<boost::asio::ip::address>>, 2> _hostnames;
+    std::string _externalHostname;
+    std::string _localHostname;
+    std::vector<boost::asio::ip::address> _addresses;
+    std::size_t _firstLocalAddressIndex; // index inside _addresses where the first local address can be found
     uint32 _loginTicketDuration;
 };
 }

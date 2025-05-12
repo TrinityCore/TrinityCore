@@ -78,23 +78,32 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     _port = port;
 
     using namespace std::string_literals;
-    std::array<std::string, 2> configKeys = { { "LoginREST.ExternalAddress"s, "LoginREST.LocalAddress"s } };
 
     Trinity::Net::Resolver resolver(ioContext);
 
-    for (std::size_t i = 0; i < _hostnames.size(); ++i)
+    _externalHostname = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress"s, "127.0.0.1");
+
+    std::ranges::transform(resolver.ResolveAll(_externalHostname, ""),
+        std::back_inserter(_addresses),
+        [](boost::asio::ip::tcp::endpoint const& endpoint) { return endpoint.address(); });
+
+    if (_addresses.empty())
     {
-        _hostnames[i].first = sConfigMgr->GetStringDefault(configKeys[i], "127.0.0.1");
+        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.ExternalAddress {}", _externalHostname);
+        return false;
+    }
 
-        std::ranges::transform(resolver.ResolveAll(_hostnames[i].first, ""),
-            std::back_inserter(_hostnames[i].second),
-            [](boost::asio::ip::tcp::endpoint const& endpoint) { return endpoint.address(); });
+    _localHostname = sConfigMgr->GetStringDefault("LoginREST.LocalAddress"s, "127.0.0.1");
+    _firstLocalAddressIndex = _addresses.size();
 
-        if (_hostnames[i].second.empty())
-        {
-            TC_LOG_ERROR("server.http.login", "Could not resolve {} {}", configKeys[i], _hostnames[i].first);
-            return false;
-        }
+    std::ranges::transform(resolver.ResolveAll(_localHostname, ""),
+        std::back_inserter(_addresses),
+        [](boost::asio::ip::tcp::endpoint const& endpoint) { return endpoint.address(); });
+
+    if (_addresses.size() == _firstLocalAddressIndex)
+    {
+        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.LocalAddress {}", _localHostname);
+        return false;
     }
 
     // set up form inputs
@@ -130,14 +139,13 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
 
 std::string const& LoginRESTService::GetHostnameForClient(boost::asio::ip::address const& address) const
 {
-    for (std::size_t i = 0; i < _hostnames.size(); ++i)
-        if (Trinity::Net::SelectAddressForClient(address, _hostnames[i].second))
-            return _hostnames[i].first;
+    if (auto addressIndex = Trinity::Net::SelectAddressForClient(address, _addresses))
+        return addressIndex >= _firstLocalAddressIndex ? _localHostname : _externalHostname;
 
     if (address.is_loopback())
-        return _hostnames[1].first;
+        return _localHostname;
 
-    return _hostnames[0].first;
+    return _externalHostname;
 }
 
 std::string LoginRESTService::ExtractAuthorization(HttpRequest const& request)
