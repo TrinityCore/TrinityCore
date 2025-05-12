@@ -15,9 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "Conversation.h"
 #include "ConversationAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum ReallyBigProblemData
