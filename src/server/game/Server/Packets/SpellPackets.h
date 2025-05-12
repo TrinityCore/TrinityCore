@@ -361,6 +361,7 @@ namespace WorldPackets
             SpellCastVisual Visual;
             uint32 CastFlags    = 0;
             uint32 CastFlagsEx  = 0;
+            uint32 CastFlagsEx2 = 0;
             uint32 CastTime     = 0;
             std::vector<ObjectGuid> HitTargets;
             std::vector<ObjectGuid> MissTargets;
@@ -989,8 +990,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UnitGUID;
-            int32 DisplayID = 0;
+            int32 ChrModelID = 0;
             int32 SpellVisualKitID = 0;
+            int32 Unused_1115 = 0;
             uint8 RaceID = 0;
             uint8 Gender = 0;
             uint8 ClassID = 0;

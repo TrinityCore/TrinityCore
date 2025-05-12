@@ -924,7 +924,7 @@ namespace UF
             return !!_value;
         }
 
-        operator bool const() const
+        operator bool() const
         {
             return has_value();
         }

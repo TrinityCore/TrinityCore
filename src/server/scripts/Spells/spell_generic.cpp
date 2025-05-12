@@ -41,6 +41,7 @@
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "ReputationMgr.h"
 #include "PathGenerator.h"
 #include "SkillDiscovery.h"
@@ -5555,6 +5556,59 @@ struct at_gen_spatial_rift : AreaTriggerAI
     }
 };
 
+class spell_gen_force_phase_update : public AuraScript
+{
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        PhasingHandler::OnConditionChange(GetTarget());
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        PhasingHandler::OnConditionChange(GetTarget());
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_gen_force_phase_update::AfterApply, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_force_phase_update::AfterRemove, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_gen_no_npc_damage_below_override : public AuraScript
+{
+public:
+    spell_gen_no_npc_damage_below_override(float healthPct) : _healthPct(healthPct) {}
+
+    static void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount)
+    {
+        if (!dmgInfo.GetAttacker() || !dmgInfo.GetAttacker()->IsCreature())
+        {
+            PreventDefaultAction();
+            return;
+        }
+
+        if (GetTarget()->GetHealthPct() <= _healthPct)
+            absorbAmount = dmgInfo.GetDamage();
+        else
+            PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_no_npc_damage_below_override::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_no_npc_damage_below_override::HandleAbsorb, EFFECT_0);
+    }
+
+private:
+    float _healthPct;
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5740,4 +5794,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_saddlechute);
     RegisterSpellScript(spell_gen_spatial_rift);
     RegisterAreaTriggerAI(at_gen_spatial_rift);
+    RegisterSpellScript(spell_gen_force_phase_update);
+    RegisterSpellScriptWithArgs(spell_gen_no_npc_damage_below_override, "spell_gen_no_npc_damage_below_override_70", 70.0f);
 }

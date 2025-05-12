@@ -1860,16 +1860,13 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
     }
 
     // check if we have charges to proc with
-    if (IsUsingCharges())
-    {
-        if (!GetCharges())
-            return 0;
+    if (IsUsingCharges() && !GetCharges())
+        return 0;
 
-        if (procEntry->AttributesMask & PROC_ATTR_REQ_SPELLMOD)
-            if (Spell const* spell = eventInfo.GetProcSpell())
-                if (!spell->m_appliedMods.count(const_cast<Aura*>(this)))
-                    return 0;
-    }
+    if (procEntry->AttributesMask & PROC_ATTR_REQ_SPELLMOD && (IsUsingCharges() || procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES))
+        if (Spell const* spell = eventInfo.GetProcSpell())
+            if (!spell->m_appliedMods.contains(const_cast<Aura*>(this)))
+                return 0;
 
     // check proc cooldown
     if (IsProcOnCooldown(now))

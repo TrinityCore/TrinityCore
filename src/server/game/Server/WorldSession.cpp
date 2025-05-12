@@ -296,6 +296,24 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     m_Socket[conIdx]->SendPacket(*packet);
 }
 
+void WorldSession::AddInstanceConnection(WorldSession* session, std::weak_ptr<WorldSocket> sockRef, ConnectToKey key)
+{
+    std::shared_ptr<WorldSocket> socket = sockRef.lock();
+    if (!socket || !socket->IsOpen())
+        return;
+
+    if (!session || session->GetConnectToInstanceKey() != key.Raw)
+    {
+        socket->SendAuthResponseError(ERROR_TIMED_OUT);
+        socket->DelayedCloseSocket();
+        return;
+    }
+
+    socket->SetWorldSession(session);
+    session->m_Socket[CONNECTION_TYPE_INSTANCE] = std::move(socket);
+    session->HandleContinuePlayerLogin();
+}
+
 /// Add an incoming packet to the queue
 void WorldSession::QueuePacket(WorldPacket* new_packet)
 {
@@ -1572,11 +1590,16 @@ void WorldSession::SendTimeSync()
     timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
     SendPacket(timeSyncRequest.Write());
 
-    _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
+    RegisterTimeSync(_timeSyncNextCounter);
 
     // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
     _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
     _timeSyncNextCounter++;
+}
+
+void WorldSession::RegisterTimeSync(uint32 counter)
+{
+    _pendingTimeSyncRequests[counter] = getMSTime();
 }
 
 uint32 WorldSession::AdjustClientMovementTime(uint32 time) const

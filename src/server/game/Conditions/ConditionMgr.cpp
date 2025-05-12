@@ -93,7 +93,8 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
     "Trainer Spell",
     "Object Visibility (by ID)",
     "Spawn Group",
-    "Player Condition"
+    "Player Condition",
+    "Skill Line Ability"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -160,27 +161,20 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { .Name = "Label",                     .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
 };
 
-ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1, WorldObject const* target2)
+ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1, WorldObject const* target2) :
+    mConditionTargets({ target0, target1, target2 }),
+    mConditionMap(nullptr),
+    mLastFailedCondition(nullptr)
 {
-    mConditionTargets[0] = target0;
-    mConditionTargets[1] = target1;
-    mConditionTargets[2] = target2;
-    if (target0)
-        mConditionMap = target0->GetMap();
-    else if (target1)
-        mConditionMap = target1->GetMap();
-    else if (target2)
-        mConditionMap = target2->GetMap();
-    else
-        mConditionMap =  nullptr;
-    mLastFailedCondition = nullptr;
+    if (WorldObject const* target = Coalesce<WorldObject const>(target0, target1, target2))
+        mConditionMap = target->GetMap();
 }
 
-ConditionSourceInfo::ConditionSourceInfo(Map const* map)
+ConditionSourceInfo::ConditionSourceInfo(Map const* map) :
+    mConditionTargets(),
+    mConditionMap(map),
+    mLastFailedCondition(nullptr)
 {
-    std::fill(std::begin(mConditionTargets), std::end(mConditionTargets), nullptr);
-    mConditionMap = map;
-    mLastFailedCondition = nullptr;
 }
 
 std::size_t ConditionId::GetHash() const
@@ -961,7 +955,7 @@ std::string Condition::ToString(bool ext /*= false*/) const
     }
 
     ss << "]";
-    return ss.str();
+    return std::move(ss).str();
 }
 
 ConditionMgr::ConditionMgr() { }
@@ -2078,6 +2072,22 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             if (spawnGroup->flags & (SPAWNGROUP_FLAG_SYSTEM))
             {
                 TC_LOG_ERROR("sql.sql", "{} in `spawn_group_template` table cannot have SPAWNGROUP_FLAG_SYSTEM flags, ignoring.", cond->ToString());
+                return false;
+            }
+            break;
+        }
+        case CONDITION_SOURCE_TYPE_SKILL_LINE_ABILITY:
+        {
+            SkillLineAbilityEntry const* skillLineAbility = sSkillLineAbilityStore.LookupEntry(cond->SourceEntry);
+            if (!skillLineAbility)
+            {
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in SkillLineAbility.db2, ignoring.", cond->ToString());
+                return false;
+            }
+            if (skillLineAbility->GetAcquireMethod() != SkillLineAbilityAcquireMethod::LearnedOrAutomaticCharLevel)
+            {
+                TC_LOG_ERROR("sql.sql", "{} in SkillLineAbility.db2 does not have AcquireMethod = {} (LearnedOrAutomaticCharLevel), ignoring.",
+                    cond->ToString(), SkillLineAbilityAcquireMethod::LearnedOrAutomaticCharLevel);
                 return false;
             }
             break;
@@ -3232,7 +3242,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
         return false;
 
-    if (std::any_of(condition->TraitNodeEntryID.begin(), condition->TraitNodeEntryID.end(), [](int32 traitNodeEntryId) { return traitNodeEntryId != 0; }))
+    if (std::ranges::any_of(condition->TraitNodeEntryID, [](int32 traitNodeEntryId) { return traitNodeEntryId != 0; }))
     {
         auto getTraitNodeEntryRank = [player](int32 traitNodeEntryId) -> Optional<uint16>
         {
@@ -3240,7 +3250,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             {
                 if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
                 {
-                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
+                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != *traitConfig.ID
                         || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
                         continue;
                 }
@@ -3324,7 +3334,7 @@ static int32(* const WorldStateExpressionFunctions[WSE_FUNCTION_MAX])(Map const*
     // WSE_FUNCTION_CLOCK_HOUR
     [](Map const* /*map*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
     {
-        uint32 currentHour = GameTime::GetDateAndTime()->tm_hour + 1;
+        int32 currentHour = GameTime::GetDateAndTime()->tm_hour + 1;
         return currentHour <= 12 ? (currentHour ? currentHour : 12) : currentHour - 12;
     },
 
@@ -3552,7 +3562,7 @@ int32 EvalSingleValue(ByteBuffer& buffer, Map const* map)
         }
         case WorldStateExpressionValueType::WorldState:
         {
-            uint32 worldStateId = buffer.read<uint32>();
+            int32 worldStateId = buffer.read<int32>();
             value = sWorldStateMgr->GetValue(worldStateId, map);
             break;
         }
@@ -3757,7 +3767,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsChannelingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
             return unit->GetChannelSpellId() != 0;
         case UnitConditionVariable::NumberOfMeleeAttackers:
-            return std::count_if(unit->getAttackers().begin(), unit->getAttackers().end(), [unit](Unit* attacker)
+            return std::ranges::count_if(unit->getAttackers(), [unit](Unit const* attacker)
             {
                 float distance = std::max(unit->GetCombatReach() + attacker->GetCombatReach() + 1.3333334f, 5.0f);
                 if (unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || attacker->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
@@ -3806,7 +3816,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::NumberOfAttackers:
             return unit->getAttackers().size();
         case UnitConditionVariable::NumberOfRangedAttackers:
-            return std::count_if(unit->getAttackers().begin(), unit->getAttackers().end(), [unit](Unit* attacker)
+            return std::ranges::count_if(unit->getAttackers(), [unit](Unit const* attacker)
             {
                 float distance = std::max(unit->GetCombatReach() + attacker->GetCombatReach() + 1.3333334f, 5.0f);
                 if (unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || attacker->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
@@ -3913,10 +3923,10 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsHovering:
             return unit->IsHovering();
         case UnitConditionVariable::HasHelpfulAuraEffect:
-            return value >= 0 && value < int32(TOTAL_AURAS) && std::find_if(unit->GetAuraEffectsByType(AuraType(value)).begin(), unit->GetAuraEffectsByType(AuraType(value)).end(), [unit](AuraEffect const* aurEff)
+            return value >= 0 && value < int32(TOTAL_AURAS) && std::ranges::any_of(unit->GetAuraEffectsByType(AuraType(value)), [unit](AuraEffect const* aurEff)
             {
                 return (aurEff->GetBase()->GetApplicationOfTarget(unit->GetGUID())->GetFlags() & AFLAG_NEGATIVE) == 0;
-            }) != unit->GetAuraEffectsByType(AuraType(value)).end();
+            });
         case UnitConditionVariable::HasHelpfulAuraSchool:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {

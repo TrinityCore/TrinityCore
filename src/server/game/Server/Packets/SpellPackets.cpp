@@ -388,6 +388,7 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
     data << spellCastData.Visual;
     data << uint32(spellCastData.CastFlags);
     data << uint32(spellCastData.CastFlagsEx);
+    data << uint32(spellCastData.CastFlagsEx2);
     data << uint32(spellCastData.CastTime);
     data << spellCastData.MissileTrajectory;
     data << int32(spellCastData.AmmoDisplayID);
@@ -984,14 +985,15 @@ MirrorImageComponentedData::~MirrorImageComponentedData() = default;
 WorldPacket const* MirrorImageComponentedData::Write()
 {
     _worldPacket << UnitGUID;
-    _worldPacket << int32(DisplayID);
-    _worldPacket << int32(SpellVisualKitID);
+    _worldPacket << int32(ChrModelID);
     _worldPacket << uint8(RaceID);
     _worldPacket << uint8(Gender);
     _worldPacket << uint8(ClassID);
     _worldPacket << uint32(Customizations.size());
     _worldPacket << GuildGUID;
     _worldPacket << uint32(ItemDisplayID.size());
+    _worldPacket << int32(SpellVisualKitID);
+    _worldPacket << int32(Unused_1115);
 
     for (Character::ChrCustomizationChoice const& customization : Customizations)
         _worldPacket << customization;

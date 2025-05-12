@@ -173,7 +173,6 @@ enum WorldBoolConfigs
     CONFIG_IP_BASED_ACTION_LOGGING,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
-    CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED,
     CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED,
     CONFIG_RESET_DUEL_COOLDOWNS,
     CONFIG_RESET_DUEL_HEALTH_MANA,
@@ -225,6 +224,10 @@ enum WorldFloatConfigs
     CONFIG_CALL_TO_ARMS_5_PCT,
     CONFIG_CALL_TO_ARMS_10_PCT,
     CONFIG_CALL_TO_ARMS_20_PCT,
+    CONFIG_MAX_VISIBILITY_DISTANCE_CONTINENT,
+    CONFIG_MAX_VISIBILITY_DISTANCE_INSTANCE,
+    CONFIG_MAX_VISIBILITY_DISTANCE_BATTLEGROUND,
+    CONFIG_MAX_VISIBILITY_DISTANCE_ARENA,
     FLOAT_CONFIG_VALUE_COUNT
 };
 
@@ -262,11 +265,6 @@ enum WorldIntConfigs
     CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL,
     CONFIG_START_EVOKER_PLAYER_LEVEL,
     CONFIG_START_ALLIED_RACE_LEVEL,
-    CONFIG_START_PLAYER_MONEY,
-    CONFIG_CURRENCY_START_APEXIS_CRYSTALS,
-    CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS,
-    CONFIG_CURRENCY_START_JUSTICE_POINTS,
-    CONFIG_CURRENCY_MAX_JUSTICE_POINTS,
     CONFIG_CURRENCY_RESET_HOUR,
     CONFIG_CURRENCY_RESET_DAY,
     CONFIG_CURRENCY_RESET_INTERVAL,
@@ -334,7 +332,6 @@ enum WorldIntConfigs
     CONFIG_CORPSE_DECAY_TRIVIAL,
     CONFIG_CORPSE_DECAY_MINUSMOB,
     CONFIG_DEATH_SICKNESS_LEVEL,
-    CONFIG_INSTANT_LOGOUT,
     CONFIG_DISABLE_BREATHING,
     CONFIG_BATTLEGROUND_INVITATION_TYPE,
     CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER,
@@ -353,7 +350,6 @@ enum WorldIntConfigs
     CONFIG_PVP_TOKEN_ID,
     CONFIG_PVP_TOKEN_COUNT,
     CONFIG_ENABLE_SINFO_LOGIN,
-    CONFIG_PLAYER_ALLOW_COMMANDS,
     CONFIG_NUMTHREADS,
     CONFIG_LOGDB_CLEARINTERVAL,
     CONFIG_LOGDB_CLEARTIME,
@@ -437,13 +433,18 @@ enum WorldIntConfigs
     CONFIG_BLACKMARKET_MAXAUCTIONS,
     CONFIG_BLACKMARKET_UPDATE_PERIOD,
     CONFIG_FACTION_BALANCE_LEVEL_CHECK_DIFF,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_CONTINENT,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_INSTANCE,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_BATTLEGROUND,
+    CONFIG_VISIBILITY_NOTIFY_PERIOD_ARENA,
     INT_CONFIG_VALUE_COUNT
 };
 
 enum WorldInt64Configs
 {
     CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK,
-    INT64_CONFIT_VALUE_COUNT
+    CONFIG_START_PLAYER_MONEY,
+    INT64_CONFIG_VALUE_COUNT
 };
 
 /// Server rates
@@ -482,7 +483,6 @@ enum Rates
     RATE_XP_KILL,
     RATE_XP_BG_KILL,
     RATE_XP_QUEST,
-    RATE_XP_GUILD_MODIFIER,
     RATE_XP_EXPLORE,
     RATE_REPAIRCOST,
     RATE_REPUTATION_GAIN,
@@ -717,7 +717,7 @@ class TC_GAME_API World
 
         uint64 GetUInt64Config(WorldInt64Configs index) const
         {
-            return index < INT64_CONFIT_VALUE_COUNT ? m_int64_configs[index] : 0;
+            return index < INT64_CONFIG_VALUE_COUNT ? m_int64_configs[index] : 0;
         }
 
         static PersistentWorldVariable const NextCurrencyResetTimeVarId;                    // Next arena distribution time
@@ -745,17 +745,6 @@ class TC_GAME_API World
         bool RemoveBanAccount(BanMode mode, std::string const& nameOrIP);
         BanReturn BanCharacter(std::string const& name, std::string const& duration, std::string const& reason, std::string const& author);
         bool RemoveBanCharacter(std::string const& name);
-
-        // for max speed access
-        static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
-        static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
-        static float GetMaxVisibleDistanceInBG()            { return m_MaxVisibleDistanceInBG;         }
-        static float GetMaxVisibleDistanceInArenas()        { return m_MaxVisibleDistanceInArenas;     }
-
-        static int32 GetVisibilityNotifyPeriodOnContinents(){ return m_visibility_notify_periodOnContinents; }
-        static int32 GetVisibilityNotifyPeriodInInstances() { return m_visibility_notify_periodInInstances;  }
-        static int32 GetVisibilityNotifyPeriodInBG()        { return m_visibility_notify_periodInBG;         }
-        static int32 GetVisibilityNotifyPeriodInArenas()    { return m_visibility_notify_periodInArenas;     }
 
         void ProcessCliCommands();
         void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
@@ -843,7 +832,7 @@ class TC_GAME_API World
 
         float rate_values[MAX_RATES];
         uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
-        uint64 m_int64_configs[INT64_CONFIT_VALUE_COUNT];
+        uint64 m_int64_configs[INT64_CONFIG_VALUE_COUNT];
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
         std::unordered_map<std::string, int32> m_worldVariables;
@@ -854,17 +843,6 @@ class TC_GAME_API World
         bool m_allowMovement;
         std::vector<std::string> _motd;
         std::string m_dataPath;
-
-        // for max speed access
-        static float m_MaxVisibleDistanceOnContinents;
-        static float m_MaxVisibleDistanceInInstances;
-        static float m_MaxVisibleDistanceInBG;
-        static float m_MaxVisibleDistanceInArenas;
-
-        static int32 m_visibility_notify_periodOnContinents;
-        static int32 m_visibility_notify_periodInInstances;
-        static int32 m_visibility_notify_periodInBG;
-        static int32 m_visibility_notify_periodInArenas;
 
         // CLI command holder to be thread safe
         LockedQueue<CliCommandHolder*> cliCmdQueue;
@@ -885,7 +863,6 @@ class TC_GAME_API World
         void AddSession_(WorldSession* s);
         LockedQueue<WorldSession*> addSessQueue;
 
-        void ProcessLinkInstanceSocket(std::pair<std::weak_ptr<WorldSocket>, uint64> linkInfo);
         LockedQueue<std::pair<std::weak_ptr<WorldSocket>, uint64>> _linkSocketQueue;
 
         // used versions
