@@ -71,7 +71,6 @@ class spell_drustvar_dismiss_tradewind : public SpellScript
     {
         if (Creature* hitUnit = GetHitCreature())
             hitUnit->DespawnOrUnsummon(2s);
-            return;
     }
 
     void Register() override
