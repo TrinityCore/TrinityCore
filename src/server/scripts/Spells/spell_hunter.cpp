@@ -39,6 +39,7 @@ enum HunterSpells
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3         = 131952,
     SPELL_HUNTER_AIMED_SHOT                         = 19434,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
+    SPELL_HUNTER_ASPECT_OF_THE_FOX                  = 1219162,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
     SPELL_HUNTER_BINDING_SHOT                       = 109248,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
@@ -51,6 +52,8 @@ enum HunterSpells
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
+    SPELL_HUNTER_IMPLOSIVE_TRAP                     = 462032,
+    SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE              = 462033,
     SPELL_HUNTER_INTIMIDATION                       = 19577,
     SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP          = 474421,
     SPELL_HUNTER_LATENT_POISON_STACK                = 378015,
@@ -68,12 +71,20 @@ enum HunterSpells
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
+    SPELL_HUNTER_RAPID_FIRE                         = 257044,
     SPELL_HUNTER_RAPID_FIRE_DAMAGE                  = 257045,
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
+    SPELL_HUNTER_REJUVENATING_WIND_HEAL             = 385540,
+    SPELL_HUNTER_SCOUTS_INSTINCTS                   = 459455,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
+    SPELL_HUNTER_TAR_TRAP                           = 187699,
+    SPELL_HUNTER_TAR_TRAP_AREATRIGGER               = 187700,
+    SPELL_HUNTER_TAR_TRAP_SLOW                      = 135299,
+    SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT         = 343242,
+    SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL         = 384784,
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
@@ -146,6 +157,32 @@ class spell_hun_aspect_cheetah : public AuraScript
     }
 };
 
+// 1219162 - Aspect of the Fox (attached to 186257 - Aspect of the Cheetah)
+class spell_hun_aspect_of_the_fox : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_ASPECT_OF_THE_FOX })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && spellInfo->GetEffect(EFFECT_2).IsAura(SPELL_AURA_CAST_WHILE_WALKING);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_HUNTER_ASPECT_OF_THE_FOX);
+    }
+
+    static void HandleCastWhileWalking(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_hun_aspect_of_the_fox::HandleCastWhileWalking, EFFECT_2, TARGET_UNIT_CASTER);
+    }
+};
+
 // 186265 - Aspect of the Turtle
 class spell_hun_aspect_of_the_turtle : public AuraScript
 {
@@ -168,6 +205,20 @@ class spell_hun_aspect_of_the_turtle : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_hun_aspect_of_the_turtle::OnApply, EFFECT_0, SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_hun_aspect_of_the_turtle::OnRemove, EFFECT_0, SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 204089 - Bullseye
+class spell_hun_bullseye : public AuraScript
+{
+    static bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_bullseye::CheckEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -334,6 +385,32 @@ class spell_hun_hunting_party : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_hun_hunting_party::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 462032 - Implosive Trap
+// 34378 - AreatriggerId
+struct areatrigger_hun_implosive_trap : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_HUNTER_IMPLOSIVE_TRAP))
+                other->SetDuration(0);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                at->Remove();
+            }
+        }
     }
 };
 
@@ -711,6 +788,36 @@ class spell_hun_rapid_fire_damage : public SpellScript
     }
 };
 
+// 385539 - Rejuvenating Wind
+class spell_hun_rejuvenating_wind : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_REJUVENATING_WIND_HEAL })
+            && sSpellMgr->AssertSpellInfo(SPELL_HUNTER_REJUVENATING_WIND_HEAL, DIFFICULTY_NONE)->GetMaxTicks() > 0;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
+    {
+        PreventDefaultAction();
+
+        Unit* caster = GetTarget();
+
+        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_REJUVENATING_WIND_HEAL, DIFFICULTY_NONE)->GetMaxTicks();
+        int32 heal = CalculatePct(caster->GetMaxHealth(), aurEff->GetAmount()) / ticks;
+
+        caster->CastSpell(caster, SPELL_HUNTER_REJUVENATING_WIND_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, heal } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_hun_rejuvenating_wind::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 53480 - Roar of Sacrifice
 class spell_hun_roar_of_sacrifice : public AuraScript
 {
@@ -770,6 +877,32 @@ class spell_hun_scatter_shot : public SpellScript
     }
 };
 
+// 459455 - Scout's Instincts (attached to 186257 - Aspect of the Cheetah)
+class spell_hun_scouts_instincts : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_SCOUTS_INSTINCTS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_MOD_MINIMUM_SPEED);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_HUNTER_SCOUTS_INSTINCTS);
+    }
+
+    static void HandleMinSpeed(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_hun_scouts_instincts::HandleMinSpeed, EFFECT_1, TARGET_UNIT_CASTER);
+    }
+};
+
 // 459533 - Scrappy
 class spell_hun_scrappy : public AuraScript
 {
@@ -819,6 +952,25 @@ class spell_hun_steady_shot : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_hun_steady_shot::HandleOnHit);
+    }
+};
+
+// 391559 - Surging Shots
+class spell_hun_surging_shots : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE });
+    }
+
+    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_HUNTER_RAPID_FIRE, true);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_surging_shots::HandleProc);
     }
 };
 
@@ -898,6 +1050,51 @@ class spell_hun_tame_beast : public SpellScript
     }
 };
 
+// 187700 - Tar Trap
+// 4436 - AreatriggerId
+struct areatrigger_hun_tar_trap : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_HUNTER_TAR_TRAP_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_HUNTER_TAR_TRAP_SLOW, at->GetCasterGuid());
+    }
+};
+
+// 187699 - Tar Trap
+// 4435 - AreatriggerId
+struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_HUNTER_TAR_TRAP))
+                other->SetDuration(0);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_TAR_TRAP_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                at->Remove();
+            }
+        }
+    }
+};
+
 // 67151 - Item - Hunter T9 4P Bonus (Steady Shot)
 class spell_hun_t9_4p_bonus : public AuraScript
 {
@@ -956,11 +1153,53 @@ class spell_hun_t29_2p_marksmanship_bonus : public AuraScript
     }
 };
 
+// Called by 136 - Mend Pet
+class spell_hun_wilderness_medicine : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT, SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL });
+    }
+
+    bool Load() override
+    {
+        Unit const* caster = GetCaster();
+        if (!caster)
+            return false;
+
+        AuraEffect const* wildernessMedicine = GetCaster()->GetAuraEffect(SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT, EFFECT_1);
+        if (!wildernessMedicine)
+            return false;
+
+        _dispelChance = wildernessMedicine->GetAmount();
+        return true;
+    }
+
+    void OnPeriodic(AuraEffect const* aurEff) const
+    {
+        if (Unit* caster = GetCaster())
+            if (roll_chance_i(_dispelChance))
+                caster->CastSpell(GetTarget(), SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .TriggeringAura = aurEff
+                });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_wilderness_medicine::OnPeriodic, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
+    }
+
+    int32 _dispelChance = 0;
+};
+
 void AddSC_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_hun_a_murder_of_crows);
     RegisterSpellScript(spell_hun_aspect_cheetah);
+    RegisterSpellScript(spell_hun_aspect_of_the_fox);
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
+    RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
     RegisterSpellScript(spell_hun_concussive_shot);
     RegisterSpellScript(spell_hun_emergency_salve);
@@ -968,6 +1207,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_explosive_shot);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
+    RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
     RegisterSpellScript(spell_hun_last_stand_pet);
     RegisterSpellScript(spell_hun_latent_poison_damage);
     RegisterSpellScript(spell_hun_latent_poison_trigger);
@@ -982,11 +1222,17 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_posthaste);
     RegisterSpellScript(spell_hun_rapid_fire);
     RegisterSpellScript(spell_hun_rapid_fire_damage);
+    RegisterSpellScript(spell_hun_rejuvenating_wind);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
+    RegisterSpellScript(spell_hun_scouts_instincts);
     RegisterSpellScript(spell_hun_scrappy);
     RegisterSpellScript(spell_hun_steady_shot);
+    RegisterSpellScript(spell_hun_surging_shots);
     RegisterSpellScript(spell_hun_tame_beast);
+    RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
+    RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
+    RegisterSpellScript(spell_hun_wilderness_medicine);
 }

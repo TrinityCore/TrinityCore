@@ -5576,6 +5576,40 @@ class spell_gen_force_phase_update : public AuraScript
     }
 };
 
+class spell_gen_no_npc_damage_below_override : public AuraScript
+{
+public:
+    spell_gen_no_npc_damage_below_override(float healthPct) : _healthPct(healthPct) {}
+
+    static void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount)
+    {
+        if (!dmgInfo.GetAttacker() || !dmgInfo.GetAttacker()->IsCreature())
+        {
+            PreventDefaultAction();
+            return;
+        }
+
+        if (GetTarget()->GetHealthPct() <= _healthPct)
+            absorbAmount = dmgInfo.GetDamage();
+        else
+            PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_no_npc_damage_below_override::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_no_npc_damage_below_override::HandleAbsorb, EFFECT_0);
+    }
+
+private:
+    float _healthPct;
+};
+
 // 92678 - Abandon Vehicle
 class spell_gen_abandon_vehicle : public SpellScript
 {
@@ -5776,5 +5810,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_spatial_rift);
     RegisterAreaTriggerAI(at_gen_spatial_rift);
     RegisterSpellScript(spell_gen_force_phase_update);
+    RegisterSpellScriptWithArgs(spell_gen_no_npc_damage_below_override, "spell_gen_no_npc_damage_below_override_70", 70.0f);
     RegisterSpellScript(spell_gen_abandon_vehicle);
 }

@@ -287,6 +287,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();
             text.QuestFlags[2] = quest->GetFlagsEx2();
+            text.QuestFlags[3] = quest->GetFlagsEx3();
             text.Repeatable = quest->IsTurnIn() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly();
             text.ResetByScheduler = quest->IsResetByScheduler();
             text.Important = quest->IsImportant();
@@ -418,6 +419,7 @@ void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();
             text.QuestFlags[2] = quest->GetFlagsEx2();
+            text.QuestFlags[3] = quest->GetFlagsEx3();
             text.Repeatable = quest->IsTurnIn() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly();
             text.ResetByScheduler = quest->IsResetByScheduler();
             text.Important = quest->IsImportant();
@@ -495,6 +497,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.QuestFlags[0] = quest->GetFlags() & (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? ~QUEST_FLAGS_AUTO_ACCEPT : ~0);
     packet.QuestFlags[1] = quest->GetFlagsEx();
     packet.QuestFlags[2] = quest->GetFlagsEx2();
+    packet.QuestFlags[3] = quest->GetFlagsEx3();
     packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
     // Is there a better way? what about game objects?
@@ -602,6 +605,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     offer.QuestFlags[0] = quest->GetFlags();
     offer.QuestFlags[1] = quest->GetFlagsEx();
     offer.QuestFlags[2] = quest->GetFlagsEx2();
+    offer.QuestFlags[3] = quest->GetFlagsEx3();
 
     packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
@@ -668,6 +672,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.QuestFlags[0] = quest->GetFlags();
     packet.QuestFlags[1] = quest->GetFlagsEx();
     packet.QuestFlags[2] = quest->GetFlagsEx2();
+    packet.QuestFlags[3] = quest->GetFlagsEx3();
     packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
     packet.QuestInfoID = quest->GetQuestInfoID();
 

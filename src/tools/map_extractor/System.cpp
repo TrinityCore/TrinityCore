@@ -1335,28 +1335,28 @@ void ExtractGameTables()
 
     printf("output path %s\n", outputPath.string().c_str());
 
-    DB2FileInfo GameTables[] =
+    static constexpr DB2FileInfo GameTables[] =
     {
-        { 1582086, "ArtifactKnowledgeMultiplier.txt" },
-        { 1391662, "ArtifactLevelXP.txt" },
-        { 1391663, "BarberShopCostBase.txt" },
-        { 1391664, "BaseMp.txt" },
-        { 4494528, "BaseProfessionRatings.txt" },
-        { 1391665, "BattlePetTypeDamageMod.txt" },
-        { 1391666, "BattlePetXP.txt" },
-        { 1391669, "CombatRatings.txt" },
-        { 1391670, "CombatRatingsMultByILvl.txt" },
-        { 1391671, "HonorLevel.txt" },
-        { 1391642, "HpPerSta.txt" },
-        { 2012881, "ItemLevelByLevel.txt" },
-        { 1726830, "ItemLevelSquish.txt" },
-        { 1391643, "ItemSocketCostPerLevel.txt" },
-        { 1391651, "NPCManaCostScaler.txt" },
-        { 4492239, "ProfessionRatings.txt" },
-        { 1391659, "SandboxScaling.txt" },
-        { 1391660, "SpellScaling.txt" },
-        { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" }
+        { .FileDataId = 1582086, .Name = "ArtifactKnowledgeMultiplier.txt" },
+        { .FileDataId = 1391662, .Name = "ArtifactLevelXP.txt" },
+        { .FileDataId = 1391663, .Name = "BarberShopCostBase.txt" },
+        { .FileDataId = 1391664, .Name = "BaseMp.txt" },
+        { .FileDataId = 4494528, .Name = "BaseProfessionRatings.txt" },
+        { .FileDataId = 1391665, .Name = "BattlePetTypeDamageMod.txt" },
+        { .FileDataId = 1391666, .Name = "BattlePetXP.txt" },
+        { .FileDataId = 1391669, .Name = "CombatRatings.txt" },
+        { .FileDataId = 1391670, .Name = "CombatRatingsMultByILvl.txt" },
+        { .FileDataId = 1391671, .Name = "HonorLevel.txt" },
+        { .FileDataId = 1391642, .Name = "HpPerSta.txt" },
+        { .FileDataId = 2012881, .Name = "ItemLevelByLevel.txt" },
+        { .FileDataId = 1726830, .Name = "ItemLevelSquish.txt" },
+        { .FileDataId = 1391643, .Name = "ItemSocketCostPerLevel.txt" },
+        { .FileDataId = 1391651, .Name = "NPCManaCostScaler.txt" },
+        { .FileDataId = 4492239, .Name = "ProfessionRatings.txt" },
+        { .FileDataId = 1391659, .Name = "SandboxScaling.txt" },
+        { .FileDataId = 1391660, .Name = "SpellScaling.txt" },
+        { .FileDataId = 1980632, .Name = "StaminaMultByILvl.txt" },
+        { .FileDataId = 1391661, .Name = "xp.txt" }
     };
 
     uint32 count = 0;

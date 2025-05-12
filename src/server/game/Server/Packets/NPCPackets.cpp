@@ -78,9 +78,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.ContentTuningID);
     data << int32(gossipText.QuestType);
     data << int32(gossipText.Unused1102);
-    data << int32(gossipText.QuestFlags[0]);
-    data << int32(gossipText.QuestFlags[1]);
-    data << int32(gossipText.QuestFlags[2]);
+    data.append(gossipText.QuestFlags);
 
     data << Bits<1>(gossipText.Repeatable);
     data << Bits<1>(gossipText.ResetByScheduler);

@@ -296,6 +296,24 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     m_Socket[conIdx]->SendPacket(*packet);
 }
 
+void WorldSession::AddInstanceConnection(WorldSession* session, std::weak_ptr<WorldSocket> sockRef, ConnectToKey key)
+{
+    std::shared_ptr<WorldSocket> socket = sockRef.lock();
+    if (!socket || !socket->IsOpen())
+        return;
+
+    if (!session || session->GetConnectToInstanceKey() != key.Raw)
+    {
+        socket->SendAuthResponseError(ERROR_TIMED_OUT);
+        socket->DelayedCloseSocket();
+        return;
+    }
+
+    socket->SetWorldSession(session);
+    session->m_Socket[CONNECTION_TYPE_INSTANCE] = std::move(socket);
+    session->HandleContinuePlayerLogin();
+}
+
 /// Add an incoming packet to the queue
 void WorldSession::QueuePacket(WorldPacket* new_packet)
 {

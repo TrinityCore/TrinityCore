@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AuthenticationPackets.h"
 #include "WorldSession.h"
+#include "AuthenticationPackets.h"
 #include "Battleground.h"
 #include "Corpse.h"
 #include "DB2Stores.h"
@@ -29,18 +29,20 @@
 #include "Map.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
+#include "MoveSpline.h"
+#include "MovementGenerator.h"
 #include "MovementPackets.h"
 #include "Player.h"
 #include "SpellInfo.h"
-#include "MotionMaster.h"
-#include "MovementGenerator.h"
-#include "MoveSpline.h"
+#include "SpellMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
-#include "SpellMgr.h"
+#include <boost/accumulators/framework/accumulator_set.hpp>
+#include <boost/accumulators/framework/features.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics.hpp>
 #include <boost/circular_buffer.hpp>
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
