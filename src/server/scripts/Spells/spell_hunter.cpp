@@ -211,14 +211,14 @@ class spell_hun_aspect_of_the_turtle : public AuraScript
 // 204089 - Bullseye
 class spell_hun_bullseye : public AuraScript
 {
-    bool CheckProc(ProcEventInfo const& eventInfo) const
+    static bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        return eventInfo.GetActionTarget()->HealthBelowPct(GetEffectInfo(EFFECT_0).CalcValue(eventInfo.GetActor()));
+        return eventInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount());
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_hun_bullseye::CheckProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_bullseye::CheckEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
