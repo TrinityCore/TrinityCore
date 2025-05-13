@@ -669,8 +669,6 @@ namespace
             ClientFormatFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::format;\
             ClientParseFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::parse
 
-        using namespace std::string_view_literals;
-
         SET_GUID_INFO(Null, FormatNull, ParseNull);
         SET_GUID_INFO(Uniq, FormatUniq, ParseUniq);
         SET_GUID_INFO(Player, FormatPlayer, ParsePlayer);

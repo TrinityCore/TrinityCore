@@ -16,6 +16,7 @@
  */
 
 #include "Config.h"
+#include "Common.h"
 #include "Log.h"
 #include "StringConvert.h"
 #include <boost/filesystem/directory.hpp>
