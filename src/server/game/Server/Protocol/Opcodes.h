@@ -36,7 +36,7 @@ enum ConnectionType : int8
     CONNECTION_TYPE_DEFAULT     = -1
 };
 
-constexpr uint16 UNKNOWN_OPCODE = 0xBBAADD;   // special marker value for uninitialized WorldPackets
+constexpr uint32 UNKNOWN_OPCODE = 0xBBAADD;   // special marker value for uninitialized WorldPackets
 
 enum OpcodeClient : uint32
 {
