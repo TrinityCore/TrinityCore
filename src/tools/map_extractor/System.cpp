@@ -1354,7 +1354,7 @@ void ExtractGameTables()
         // { 5464960, "OCTBaseHPByClass.txt" },
         { 4049853, "OCTBaseMPByClass.txt" },
         { 4526467, "OCTClassCombatRatingScalar.txt" },
-        { 5464961, "OCTHPPerStamina.txt" },
+        //{ 5464961, "OCTHPPerStamina.txt" },
         { 3953485, "OCTRegenHP.txt" },
         { 2238239, "OCTRegenMP.txt" },
         { 3953486, "RegenHPPerSpt.txt" },

@@ -372,16 +372,11 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina() const
 {
-    // Taken from PaperDollFrame.lua - 4.3.4.15595
-    float ratio = 10.0f;
-    if (GtOctHpPerStaminaEntry const* hpBase = sOctHpPerStaminaGameTable.GetRow(GetLevel()))
-        ratio = hpBase->Scalar;
-
     float stamina = GetStat(STAT_STAMINA);
     float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
 
-    return baseStam + moreStam * ratio;
+    return baseStam + (moreStam * 10.0f);
 }
 
 float Player::GetManaBonusFromIntellect() const

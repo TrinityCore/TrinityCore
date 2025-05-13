@@ -33,7 +33,6 @@ GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
 GameTable<GtOctBaseMpByClassEntry>               sOctBaseMpByClassGameTable;
 GameTable<GtOctClassCombatRatingScalarEntry>     sOctClassCombatRatingScalarGameTable;
-GameTable<GtOctHpPerStaminaEntry>                sOctHpPerStaminaGameTable;
 GameTable<GtOctRegenHpEntry>                     sOctRegenHpGameTable;
 GameTable<GtOctRegenMpEntry>                     sOctRegenMpGameTable;
 GameTable<GtRegenHpPerSptEntry>                  sRegenHpPerSptTable;
@@ -128,7 +127,6 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
     LOAD_GT(sOctBaseMpByClassGameTable, "OCTBaseMPByClass.txt");
     LOAD_GT(sOctClassCombatRatingScalarGameTable, "OCTClassCombatRatingScalar.txt");
-    LOAD_GT(sOctHpPerStaminaGameTable, "OCTHPPerStamina.txt");
     LOAD_GT(sOctRegenHpGameTable, "OCTRegenHP.txt");
     LOAD_GT(sOctRegenMpGameTable, "OCTRegenMP.txt");
     LOAD_GT(sRegenHpPerSptTable, "RegenHPPerSpt.txt");

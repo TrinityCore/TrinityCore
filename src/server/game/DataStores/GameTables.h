@@ -160,11 +160,6 @@ struct GtOctClassCombatRatingScalarEntry
     float Druid = 0.0f;
 };
 
-struct GtOctHpPerStaminaEntry
-{
-    float Scalar = 0.0f;
-};
-
 struct GtOctRegenHpEntry
 {
     float Warrior = 0.0f;
@@ -293,7 +288,6 @@ TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatin
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
 TC_GAME_API extern GameTable<GtOctBaseMpByClassEntry>               sOctBaseMpByClassGameTable;
 TC_GAME_API extern GameTable<GtOctClassCombatRatingScalarEntry>     sOctClassCombatRatingScalarGameTable;
-TC_GAME_API extern GameTable<GtOctHpPerStaminaEntry>                sOctHpPerStaminaGameTable;
 TC_GAME_API extern GameTable<GtOctRegenHpEntry>                     sOctRegenHpGameTable;
 TC_GAME_API extern GameTable<GtOctRegenMpEntry>                     sOctRegenMpGameTable;
 TC_GAME_API extern GameTable<GtRegenHpPerSptEntry>                  sRegenHpPerSptTable;
