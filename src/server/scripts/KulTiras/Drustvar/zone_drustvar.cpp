@@ -21,6 +21,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
