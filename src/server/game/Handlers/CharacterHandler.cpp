@@ -2138,9 +2138,6 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 case RACE_NIGHTELF:
                     stmt->setUInt16(1, 113);
                     break;
-                case RACE_WORGEN:
-                    stmt->setUInt16(1, 791);
-                    break;
                 case RACE_UNDEAD_PLAYER:
                     stmt->setUInt16(1, 673);
                     break;
@@ -2152,9 +2149,6 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     break;
                 case RACE_BLOODELF:
                     stmt->setUInt16(1, 137);
-                    break;
-                case RACE_GOBLIN:
-                    stmt->setUInt16(1, 792);
                     break;
                 default:
                     TC_LOG_ERROR("entities.player", "Could not find language data for race ({}).", factionChangeInfo->RaceID);

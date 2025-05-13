@@ -33,7 +33,7 @@ enum Races
     RACE_TAUREN                     = 6,  // TITLE Tauren
     RACE_GNOME                      = 7,  // TITLE Gnome
     RACE_TROLL                      = 8,  // TITLE Troll
-    RACE_GOBLIN                     = 9,  // TITLE Goblin
+    //RACE_GOBLIN                     = 9,  // TITLE Goblin
     RACE_BLOODELF                   = 10, // TITLE Blood Elf
     RACE_DRAENEI                    = 11, // TITLE Draenei
     //RACE_FEL_ORC                  = 12,
@@ -46,7 +46,7 @@ enum Races
     //RACE_TAUNKA                   = 19,
     //RACE_NORTHREND_SKELETON       = 20,
     //RACE_ICE_TROLL                = 21,
-    RACE_WORGEN                     = 22, // TITLE Worgen
+    //RACE_WORGEN                     = 22, // TITLE Worgen
     //RACE_GILNEAN                  = 23,
     //RACE_PANDAREN_NEUTRAL           = 24, // TITLE Pandaren DESCRIPTION Pandaren (Neutral)
     //RACE_PANDAREN_ALLIANCE          = 25, // TITLE Pandaren DESCRIPTION Pandaren (Alliance)
@@ -81,7 +81,7 @@ enum Races
 };
 
 // max+1 for player race
-#define MAX_RACES                       23
+#define MAX_RACES                       12
 
 namespace Trinity
 {
@@ -109,10 +109,8 @@ struct RaceMask
             case RACE_TAUREN:
             case RACE_GNOME:
             case RACE_TROLL:
-            case RACE_GOBLIN:
             case RACE_BLOODELF:
             case RACE_DRAENEI:
-            case RACE_WORGEN:
                 return raceId - 1;
             default:
                 break;
@@ -145,17 +143,14 @@ constexpr Trinity::RaceMask<uint64> RACEMASK_ALL_PLAYABLE = { std::integral_cons
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_GNOME)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_TROLL)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_BLOODELF)            |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DRAENEI)             |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_GOBLIN)              |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_WORGEN)>::value };
+     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DRAENEI)>::value };
 
 constexpr Trinity::RaceMask<uint64> RACEMASK_ALLIANCE = { std::integral_constant<uint64,
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_HUMAN)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DWARF)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_NIGHTELF)            |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_GNOME)               |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DRAENEI)             |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_WORGEN)>::value };
+     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DRAENEI)>::value };
 
 constexpr Trinity::RaceMask<uint64> RACEMASK_HORDE = { std::integral_constant<uint64, (RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE).RawValue>::value };
 

@@ -31,7 +31,6 @@ GameTable<GtChanceToSpellCritEntry>              sChanceToSpellCritGameTable;
 GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable;
 GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
-GameTable<GtOctBaseHpByClassEntry>               sOctBaseHpByClassGameTable;
 GameTable<GtOctBaseMpByClassEntry>               sOctBaseMpByClassGameTable;
 GameTable<GtOctClassCombatRatingScalarEntry>     sOctClassCombatRatingScalarGameTable;
 GameTable<GtOctHpPerStaminaEntry>                sOctHpPerStaminaGameTable;
@@ -127,7 +126,6 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sChanceToSpellCritBaseGameTable, "ChanceToSpellCritBase.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
     LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
-    LOAD_GT(sOctBaseHpByClassGameTable, "OCTBaseHPByClass.txt");
     LOAD_GT(sOctBaseMpByClassGameTable, "OCTBaseMPByClass.txt");
     LOAD_GT(sOctClassCombatRatingScalarGameTable, "OCTClassCombatRatingScalar.txt");
     LOAD_GT(sOctHpPerStaminaGameTable, "OCTHPPerStamina.txt");

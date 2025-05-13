@@ -420,12 +420,10 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         { RACE_NIGHTELF, { RACE_TROLL, RACE_BLOODELF } },
         { RACE_UNDEAD_PLAYER, { RACE_HUMAN } },
         { RACE_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
-        { RACE_GNOME, { RACE_GOBLIN, RACE_BLOODELF } },
+        { RACE_GNOME, { RACE_BLOODELF } },
         { RACE_TROLL, { RACE_NIGHTELF, RACE_HUMAN, RACE_DRAENEI } },
-        { RACE_GOBLIN, { RACE_GNOME, RACE_DWARF } },
         { RACE_BLOODELF, { RACE_HUMAN, RACE_NIGHTELF } },
         { RACE_DRAENEI, { RACE_TAUREN, RACE_ORC } },
-        { RACE_WORGEN, { RACE_TROLL } }
     };
 
     inline static std::unordered_map<Races, std::array<uint32, 2>> const RaceDisplayIds =
@@ -438,10 +436,8 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         { RACE_TAUREN, { 55261, 55260 } },
         { RACE_GNOME, { 55245, 55244 } },
         { RACE_TROLL, { 55263, 55262 } },
-        { RACE_GOBLIN, { 55267, 57244 } },
         { RACE_BLOODELF, { 55265, 55264 } },
         { RACE_DRAENEI, { 55247, 55246 } },
-        { RACE_WORGEN, { 55255, 55254 } }
     };
 
     inline static std::vector<uint32> RacialSkills;

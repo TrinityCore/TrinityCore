@@ -4013,8 +4013,8 @@ void ObjectMgr::LoadPlayerInfo()
 
         } while (raceStatsResult->NextRow());
 
-        //                                                0      1      2    3    4    5     6
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte, spi FROM player_classlevelstats");
+        //                                                0      1      2    3    4    5     6    7
+        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte, spi, basehp FROM player_classlevelstats");
 
         if (!result)
         {
@@ -4056,6 +4056,8 @@ void ObjectMgr::LoadPlayerInfo()
                     PlayerLevelInfo& levelInfo = playerInfo->levelInfo[current_level - 1];
                     for (uint8 i = 0; i < MAX_STATS; ++i)
                         levelInfo.stats[i] = fields[i + 2].GetUInt16() + raceStatModifiers[race].StatModifier[i];
+
+                    levelInfo.base_hp = fields[7].GetUInt32();
                 }
             }
 
@@ -4089,14 +4091,14 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
 
                 // skip expansion races if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_CATACLYSM && (race == RACE_GOBLIN || race == RACE_WORGEN))
-                    continue;
-
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_LEGION && class_ == CLASS_DEMON_HUNTER)
-                    continue;
-
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_DRAGONFLIGHT && class_ == CLASS_EVOKER)
-                    continue;
+                // if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_CATACLYSM && (race == RACE_GOBLIN || race == RACE_WORGEN))
+                //     continue;
+                //
+                // if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_LEGION && class_ == CLASS_DEMON_HUNTER)
+                //     continue;
+                //
+                // if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_DRAGONFLIGHT && class_ == CLASS_EVOKER)
+                //     continue;
 
                 // fatal error if no level 1 data
                 if (!playerInfo->levelInfo || playerInfo->levelInfo[0].stats[0] == 0)
@@ -4174,7 +4176,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
-void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana, uint32& baseHp) const
+void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const
 {
     if (level < 1 || class_ >= MAX_CLASSES)
         return;
@@ -4186,11 +4188,6 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
         baseMana = uint32(GetGameTableColumnForClass(mp, class_));
     else
         baseMana = 0;
-
-    if (GtOctBaseHpByClassEntry const* hp = sOctBaseHpByClassGameTable.GetRow(level))
-        baseHp = uint32(GetGameTableColumnForClass(hp, class_));
-    else
-        baseHp = 0;
 }
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const

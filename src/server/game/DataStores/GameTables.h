@@ -130,21 +130,6 @@ struct GtNpcManaCostScalerEntry
     float Scaler = 0.0f;
 };
 
-struct GtOctBaseHpByClassEntry
-{
-    float Warrior = 0.0f;
-    float Paladin = 0.0f;
-    float Hunter = 0.0f;
-    float Rogue = 0.0f;
-    float Priest = 0.0f;
-    float DeathKnight = 0.0f;
-    float Shaman = 0.0f;
-    float Mage = 0.0f;
-    float Warlock = 0.0f;
-    float Monk = 0.0f;
-    float Druid = 0.0f;
-};
-
 struct GtOctBaseMpByClassEntry
 {
     float Warrior = 0.0f;
@@ -254,19 +239,24 @@ struct GtShieldBlockRegularEntry
 
 struct GtSpellScalingEntry
 {
-    float Warrior = 0.0f;
-    float Paladin = 0.0f;
-    float Hunter = 0.0f;
     float Rogue = 0.0f;
-    float Priest = 0.0f;
-    float DeathKnight = 0.0f;
-    float Shaman = 0.0f;
-    float Mage = 0.0f;
-    float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
+    float Hunter = 0.0f;
+    float Mage = 0.0f;
+    float Paladin = 0.0f;
+    float Priest = 0.0f;
+    float Shaman = 0.0f;
+    float Warlock = 0.0f;
+    float Warrior = 0.0f;
+    float DeathKnight = 0.0f;
+    float Monk = 0.0f;
+    float DemonHunter = 0.0f;
     float Item = 0.0f;
     float Consumable = 0.0f;
+    float Gem1 = 0.0f;
+    float Gem2 = 0.0f;
+    float Gem3 = 0.0f;
+    float Health = 0.0f;
 };
 
 struct GtTeamContributionPointsEntry
@@ -301,7 +291,6 @@ TC_GAME_API extern GameTable<GtChanceToSpellCritEntry>              sChanceToSpe
 TC_GAME_API extern GameTable<GtChanceToSpellCritBaseEntry>          sChanceToSpellCritBaseGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
-TC_GAME_API extern GameTable<GtOctBaseHpByClassEntry>               sOctBaseHpByClassGameTable;
 TC_GAME_API extern GameTable<GtOctBaseMpByClassEntry>               sOctBaseMpByClassGameTable;
 TC_GAME_API extern GameTable<GtOctClassCombatRatingScalarEntry>     sOctClassCombatRatingScalarGameTable;
 TC_GAME_API extern GameTable<GtOctHpPerStaminaEntry>                sOctHpPerStaminaGameTable;

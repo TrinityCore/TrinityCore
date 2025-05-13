@@ -1351,7 +1351,7 @@ void ExtractGameTables()
         // { 1391653, "NpcTotalHpExp1.txt" },
         // { 1391654, "NpcTotalHpExp2.txt" },
         // { 1391655, "NpcTotalHpExp3.txt" },
-        { 5464960, "OCTBaseHPByClass.txt" },
+        // { 5464960, "OCTBaseHPByClass.txt" },
         { 4049853, "OCTBaseMPByClass.txt" },
         { 4526467, "OCTClassCombatRatingScalar.txt" },
         { 5464961, "OCTHPPerStamina.txt" },
