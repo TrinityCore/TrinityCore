@@ -90,9 +90,9 @@ enum Expansions
     EXPANSION_CLASSIC                  = 0,
     EXPANSION_THE_BURNING_CRUSADE      = 1,
     EXPANSION_WRATH_OF_THE_LICH_KING   = 2,
-    EXPANSION_CATACLYSM                = 3,
     MAX_CLASSIC_EXPANSIONS,
 
+    EXPANSION_CATACLYSM                = 3,
     EXPANSION_MISTS_OF_PANDARIA        = 4,
     EXPANSION_WARLORDS_OF_DRAENOR      = 5,
     EXPANSION_LEGION                   = 6,
