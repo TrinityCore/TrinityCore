@@ -234,7 +234,7 @@ class TC_SHARED_API ByteBuffer
             uint32 value = 0;
             if (bits > 8 - int32(_bitpos))
             {
-                // first retriever whatever is left in the bit buffer
+                // first retrieve whatever is left in the bit buffer
                 int32 bitsInBuffer = 8 - _bitpos;
                 value = (_curbitval & ((UI64LIT(1) << bitsInBuffer) - 1)) << (bits - bitsInBuffer);
                 bits -= bitsInBuffer;
