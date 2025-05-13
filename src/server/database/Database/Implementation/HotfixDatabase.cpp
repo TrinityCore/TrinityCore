@@ -197,9 +197,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_CLASS_UI_DISPLAY, "SELECT MAX(ID) + 1 FROM chr_class_ui_display", CONNECTION_SYNCH);
 
     // ChrClasses.db2
-    PrepareStatement(HOTFIX_SEL_CHR_CLASSES, "SELECT Name, Filename, NameMale, NameFemale, PetNameToken, ID, CreateScreenFileDataID, "
+    PrepareStatement(HOTFIX_SEL_CHR_CLASSES, "SELECT Name, Filename, NameMale, NameFemale, PetNameToken, CreateScreenFileDataID, "
         "SelectScreenFileDataID, IconFileDataID, LowResScreenFileDataID, Flags, StartingLevel, SpellTextureBlobFileDataID, ArmorTypeMask, "
-        "CinematicSequenceID, DefaultSpec, HasStrengthAttackBonus, PrimaryStatPriority, DisplayPower, RangedAttackPowerPerAgility, "
+        "CinematicSequenceID, DefaultSpec, ID, HasStrengthAttackBonus, PrimaryStatPriority, DisplayPower, RangedAttackPowerPerAgility, "
         "AttackPowerPerAgility, AttackPowerPerStrength, SpellClassSet, RolesMask, DamageBonusStat, HasRelicSlot FROM chr_classes"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_CLASSES, "SELECT MAX(ID) + 1 FROM chr_classes", CONNECTION_SYNCH);
@@ -241,8 +241,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // ChrCustomizationReq.db2
-    PrepareStatement(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT RaceMask, ReqSource, ID, Flags, ClassMask, AchievementID, QuestID, OverrideArchive, "
-        "ItemModifiedAppearanceID FROM chr_customization_req WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT RaceMask, ReqSource, ID, Flags, ClassMask, RegionGroupMask, AchievementID, QuestID, "
+        "OverrideArchive, ItemModifiedAppearanceID FROM chr_customization_req WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT MAX(ID) + 1 FROM chr_customization_req", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_CUSTOMIZATION_REQ, "SELECT ID, ReqSource_lang FROM chr_customization_req_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
@@ -271,12 +271,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "SplashSoundID, CreateScreenFileDataID, SelectScreenFileDataID, LowResScreenFileDataID, AlteredFormStartVisualKitID1, "
         "AlteredFormStartVisualKitID2, AlteredFormStartVisualKitID3, AlteredFormFinishVisualKitID1, AlteredFormFinishVisualKitID2, "
         "AlteredFormFinishVisualKitID3, HeritageArmorAchievementID, StartingLevel, UiDisplayOrder, PlayableRaceBit, FemaleSkeletonFileDataID, "
-        "MaleSkeletonFileDataID, HelmetAnimScalingRaceID, TransmogrifyDisabledSlotMask, AlteredFormCustomizeOffsetFallback1, "
-        "AlteredFormCustomizeOffsetFallback2, AlteredFormCustomizeOffsetFallback3, AlteredFormCustomizeRotationFallback, Unknown901_01, "
-        "Unknown901_02, Unknown901_03, Unknown901_11, Unknown901_12, Unknown901_13, FactionID, CinematicSequenceID, BaseLanguage, CreatureType, "
-        "Alliance, RaceRelated, UnalteredVisualRaceID, DefaultClassID, NeutralRaceID, MaleModelFallbackRaceID, MaleModelFallbackSex, "
-        "FemaleModelFallbackRaceID, FemaleModelFallbackSex, MaleTextureFallbackRaceID, MaleTextureFallbackSex, FemaleTextureFallbackRaceID, "
-        "FemaleTextureFallbackSex, UnalteredVisualCustomizationRaceID FROM chr_races WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "MaleSkeletonFileDataID, TransmogrifyDisabledSlotMask, AlteredFormCustomizeOffsetFallback1, AlteredFormCustomizeOffsetFallback2, "
+        "AlteredFormCustomizeOffsetFallback3, AlteredFormCustomizeRotationFallback, Unknown901_01, Unknown901_02, Unknown901_03, Unknown901_11, "
+        "Unknown901_12, Unknown901_13, FactionID, CinematicSequenceID, BaseLanguage, CreatureType, Alliance, RaceRelated, UnalteredVisualRaceID, "
+        "DefaultClassID, NeutralRaceID, MaleModelFallbackRaceID, MaleModelFallbackSex, FemaleModelFallbackRaceID, FemaleModelFallbackSex, "
+        "MaleTextureFallbackRaceID, MaleTextureFallbackSex, FemaleTextureFallbackRaceID, FemaleTextureFallbackSex, HelmetAnimScalingRaceID, "
+        "UnalteredVisualCustomizationRaceID FROM chr_races WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CHR_RACES, "SELECT MAX(ID) + 1 FROM chr_races", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_RACES, "SELECT ID, Name_lang, NameFemale_lang, NameLowercase_lang, NameFemaleLowercase_lang, LoreName_lang, "
         "LoreNameFemale_lang, LoreNameLower_lang, LoreNameLowerFemale_lang, LoreDescription_lang, ShortName_lang, ShortNameFemale_lang, "
@@ -337,7 +337,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "FootprintTextureID, FootprintTextureLength, FootprintTextureWidth, FootprintParticleScale, FoleyMaterialID, FootstepCameraEffectID, "
         "DeathThudCameraEffectID, SoundID, SizeClass, CollisionWidth, CollisionHeight, WorldEffectScale, CreatureGeosetDataID, HoverHeight, "
         "AttachedEffectScale, ModelScale, MissileCollisionRadius, MissileCollisionPush, MissileCollisionRaise, MountHeight, OverrideLootEffectScale, "
-        "OverrideNameScale, OverrideSelectionRadius, TamedPetBaseScale, Unknown1154 FROM creature_model_data WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "OverrideNameScale, OverrideSelectionRadius, TamedPetBaseScale, Unknown1100 FROM creature_model_data WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CREATURE_MODEL_DATA, "SELECT MAX(ID) + 1 FROM creature_model_data", CONNECTION_SYNCH);
 
     // CreatureType.db2
@@ -575,8 +575,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM, "SELECT MAX(ID) + 1 FROM item", CONNECTION_SYNCH);
 
     // ItemAppearance.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_APPEARANCE, "SELECT ID, DisplayType, ItemDisplayInfoID, DefaultIconFileDataID, UiOrder FROM item_appearance"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_ITEM_APPEARANCE, "SELECT ID, DisplayType, ItemDisplayInfoID, DefaultIconFileDataID, UiOrder, "
+        "TransmogPlayerConditionID FROM item_appearance WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_APPEARANCE, "SELECT MAX(ID) + 1 FROM item_appearance", CONNECTION_SYNCH);
 
     // ItemArmorQuality.db2
@@ -616,7 +616,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_BONUS_TREE_NODE, "SELECT MAX(ID) + 1 FROM item_bonus_tree_node", CONNECTION_SYNCH);
 
     // ItemChildEquipment.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_CHILD_EQUIPMENT, "SELECT ID, ChildItemID, ChildItemEquipSlot, ParentItemID FROM item_child_equipment"
+    PrepareStatement(HOTFIX_SEL_ITEM_CHILD_EQUIPMENT, "SELECT ID, ParentItemID, ChildItemID, ChildItemEquipSlot FROM item_child_equipment"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_CHILD_EQUIPMENT, "SELECT MAX(ID) + 1 FROM item_child_equipment", CONNECTION_SYNCH);
 
@@ -704,7 +704,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // ItemModifiedAppearance.db2
     PrepareStatement(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE, "SELECT ID, ItemID, ItemAppearanceModifierID, ItemAppearanceID, OrderIndex, "
-        "TransmogSourceTypeEnum FROM item_modified_appearance WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "TransmogSourceTypeEnum, Flags FROM item_modified_appearance WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE, "SELECT MAX(ID) + 1 FROM item_modified_appearance", CONNECTION_SYNCH);
 
     // ItemModifiedAppearanceExtra.db2
@@ -1474,7 +1474,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // TransmogSet.db2
     PrepareStatement(HOTFIX_SEL_TRANSMOG_SET, "SELECT Name, ID, ClassMask, TrackingQuestID, Flags, TransmogSetGroupID, ItemNameDescriptionID, "
-        "ParentTransmogSetID, ExpansionID, UiOrder FROM transmog_set WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "ParentTransmogSetID, CompleteWorldStateID, ExpansionID, PatchIntroduced, UiOrder, ConditionID FROM transmog_set"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_SET, "SELECT MAX(ID) + 1 FROM transmog_set", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_TRANSMOG_SET, "SELECT ID, Name_lang FROM transmog_set_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
