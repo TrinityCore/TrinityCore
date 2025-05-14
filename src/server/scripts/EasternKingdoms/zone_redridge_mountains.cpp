@@ -220,7 +220,7 @@ public:
             _events.ScheduleEvent(EVENT_STORE_GUIDS, 5s);
         }
 
-        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id != SPELL_LIFT_BOULDER_RIDE)
                 return;
