@@ -40,7 +40,6 @@ struct GtChanceToMeleeCritEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -55,7 +54,6 @@ struct GtChanceToMeleeCritBaseEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -70,7 +68,6 @@ struct GtChanceToSpellCritEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -85,7 +82,6 @@ struct GtChanceToSpellCritBaseEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -141,7 +137,6 @@ struct GtOctBaseMpByClassEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -156,7 +151,6 @@ struct GtOctClassCombatRatingScalarEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -171,7 +165,6 @@ struct GtOctRegenHpEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -186,7 +179,6 @@ struct GtOctRegenMpEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -201,7 +193,6 @@ struct GtRegenHpPerSptEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -216,7 +207,6 @@ struct GtRegenMpPerSptEntry
     float Shaman = 0.0f;
     float Mage = 0.0f;
     float Warlock = 0.0f;
-    float Monk = 0.0f;
     float Druid = 0.0f;
 };
 
@@ -244,8 +234,6 @@ struct GtSpellScalingEntry
     float Warlock = 0.0f;
     float Warrior = 0.0f;
     float DeathKnight = 0.0f;
-    float Monk = 0.0f;
-    float DemonHunter = 0.0f;
     float Item = 0.0f;
     float Consumable = 0.0f;
     float Gem1 = 0.0f;
@@ -321,8 +309,6 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->Mage;
         case CLASS_WARLOCK:
             return row->Warlock;
-        case CLASS_MONK:
-            return row->Monk;
         case CLASS_DRUID:
             return row->Druid;
         default:
@@ -354,8 +340,6 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Mage;
         case CLASS_WARLOCK:
             return row->Warlock;
-        case CLASS_MONK:
-            return row->Monk;
         case CLASS_DRUID:
             return row->Druid;
         case -1:
