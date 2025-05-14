@@ -20,6 +20,7 @@
 void AddSC_zone_boralus();
 
 // Drustvar
+void AddSC_zone_drustvar();
 void AddSC_drustvar_chapter_1_the_final_effigy();
 void AddSC_drustvar_chapter_2_the_burden_of_proof();
 
@@ -41,6 +42,7 @@ void AddKulTirasScripts()
     AddSC_zone_boralus();
 
     // Drustvar
+    AddSC_zone_drustvar();
     AddSC_drustvar_chapter_1_the_final_effigy();
     AddSC_drustvar_chapter_2_the_burden_of_proof();
 
