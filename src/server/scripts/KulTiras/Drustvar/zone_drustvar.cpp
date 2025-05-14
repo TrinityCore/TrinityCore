@@ -77,7 +77,10 @@ class spell_drustvar_dismiss_tradewind : public SpellScript
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         if (Creature* hitUnit = GetHitCreature())
-            hitUnit->DespawnOrUnsummon(2s);
+        {
+            if (hitUnit->GetEntry() == NPC_SUMMONED_THORNGUARD_IRONCLAW)
+                hitUnit->DespawnOrUnsummon(2s);
+        }
     }
 
     void Register() override
