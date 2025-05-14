@@ -154,11 +154,7 @@ enum Classes : uint8
     CLASS_SHAMAN        = 7,  // TITLE Shaman
     CLASS_MAGE          = 8,  // TITLE Mage
     CLASS_WARLOCK       = 9,  // TITLE Warlock
-    CLASS_MONK          = 10, // TITLE Monk
     CLASS_DRUID         = 11, // TITLE Druid
-    CLASS_DEMON_HUNTER  = 12, // TITLE Demon Hunter
-    CLASS_EVOKER        = 13, // TITLE Evoker
-    CLASS_ADVENTURER    = 14  // TITLE Adventurer
 };
 
 // max+1 for player class
@@ -174,10 +170,7 @@ enum Classes : uint8
      (1<<(CLASS_SHAMAN-1))       | \
      (1<<(CLASS_MAGE-1))         | \
      (1<<(CLASS_WARLOCK-1))      | \
-     (1<<(CLASS_MONK-1))         | \
-     (1<<(CLASS_DRUID-1))        | \
-     (1<<(CLASS_DEMON_HUNTER-1)) | \
-     (1<<(CLASS_EVOKER-1)))
+     (1<<(CLASS_DRUID-1)))
 
 enum PlayerSpecializations : uint8
 {
@@ -5543,7 +5536,6 @@ constexpr uint8 ClassByQuestSort(int32 QuestSort)
         case QUEST_SORT_PRIEST:         return CLASS_PRIEST;
         case QUEST_SORT_DRUID:          return CLASS_DRUID;
         case QUEST_SORT_DEATH_KNIGHT:   return CLASS_DEATH_KNIGHT;
-        case QUEST_SORT_DEMON_HUNTER:   return CLASS_DEMON_HUNTER;
     }
     return 0;
 }

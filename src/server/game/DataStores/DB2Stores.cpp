@@ -2237,8 +2237,6 @@ int32 DB2Manager::GetNumTalentsAtLevel(uint32 level, Classes playerClass)
         {
             case CLASS_DEATH_KNIGHT:
                 return numTalentsAtLevel->NumTalentsDeathKnight;
-            case CLASS_DEMON_HUNTER:
-                return numTalentsAtLevel->NumTalentsDemonHunter;
             default:
                 return numTalentsAtLevel->NumTalents;
         }

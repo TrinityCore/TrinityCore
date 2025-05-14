@@ -23773,7 +23773,7 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races r
         // riding special cases
         if (skillId == SKILL_RIDING)
         {
-            if (GetClassMask() & ((1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_DEMON_HUNTER - 1)))
+            if (GetClassMask() & ((1 << (CLASS_DEATH_KNIGHT - 1)))
                 && (ability->Spell == SPELL_APPRENTICE_RIDING || ability->Spell == SPELL_JOURNEYMAN_RIDING))
                 requiredLevel = 0;
         }

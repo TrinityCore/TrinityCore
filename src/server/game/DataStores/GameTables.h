@@ -321,8 +321,6 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->Mage;
         case CLASS_WARLOCK:
             return row->Warlock;
-        case CLASS_MONK:
-            return row->Monk;
         case CLASS_DRUID:
             return row->Druid;
         default:
@@ -354,8 +352,6 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Mage;
         case CLASS_WARLOCK:
             return row->Warlock;
-        case CLASS_MONK:
-            return row->Monk;
         case CLASS_DRUID:
             return row->Druid;
         case -1:
