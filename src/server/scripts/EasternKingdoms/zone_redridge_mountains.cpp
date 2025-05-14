@@ -490,6 +490,7 @@ public:
 
                         _events.Reset();
                         me->DisappearAndDie();
+                        break;
                     default:
                         break;
                 }
