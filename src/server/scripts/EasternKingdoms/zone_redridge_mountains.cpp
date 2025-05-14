@@ -552,7 +552,7 @@ public:
             switch (spell->Id)
             {
                 case SPELL_BOULDER_AURA:
-                    me->GetMotionMaster()->MovePoint(POINT_NEAR_BOULDER, -9272.053, -2291.7463, 68.54081, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
+                    me->GetMotionMaster()->MovePoint(POINT_NEAR_BOULDER, -9272.053f, -2291.7463f, 68.54081f, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
                     break;
                 case SPELL_DESPAWN_KILL_CREDIT:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, caster->GetGUID()))
