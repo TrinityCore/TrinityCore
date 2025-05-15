@@ -2158,9 +2158,9 @@ void AddSC_zone_mardum()
     RegisterSpellScript(spell_mardum_coloss_infernal_smash_selector);
     RegisterSpellScript(spell_mardum_baleful_beaming_gaze_selector);
     RegisterSpellScript(spell_give_me_sight_beyond_sight_periodic);
+    RegisterSpellScript(spell_fel_lord_caza_throwing_axe_selector);
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_CYANA_NIGHTGLAIVE_FREED>, "spell_cyana_nightglaive_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
-    RegisterSpellScript(spell_fel_lord_caza_throwing_axe_selector);
 };
