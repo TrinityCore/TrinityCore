@@ -308,6 +308,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::array<uint8, 32> const& EncryptionKey;
+            int32 RegionGroup = 0;
             bool Enabled = false;
         };
 
