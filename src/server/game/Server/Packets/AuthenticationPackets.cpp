@@ -304,7 +304,7 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     Trinity::Crypto::RsaSignature rsa(*ConnectToRSA);
     Trinity::Crypto::RsaSignature::SHA256 digestGenerator;
     std::vector<uint8> signature;
-    rsa.Sign(signBuffer.contents(), signBuffer.size(), digestGenerator, signature);
+    rsa.Sign(signBuffer.data(), signBuffer.size(), digestGenerator, signature);
 
     _worldPacket.append(signature.data(), signature.size());
     _worldPacket.append(whereBuffer);

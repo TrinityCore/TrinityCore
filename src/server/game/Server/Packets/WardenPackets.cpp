@@ -24,6 +24,6 @@ void WorldPackets::Warden::WardenData::Read()
     if (size)
     {
         Data.resize(size);
-        _worldPacket.read(Data.contents(), size);
+        _worldPacket.read(Data.data(), size);
     }
 }
