@@ -1,13 +1,3 @@
-# set string ids for creatures
-UPDATE `creature` SET `StringId` = 'npc_redridge_foreman_oslow_under_rock' WHERE `guid` = 334926;
-UPDATE `creature` SET `StringId` = 'npc_redridge_bridge_worker_alex' WHERE `guid` = 334927;
-UPDATE `creature` SET `StringId` = 'npc_redridge_bridge_worker_trent' WHERE `guid` = 334925;
-UPDATE `creature` SET `StringId` = 'npc_redridge_bridge_worker_dmitri' WHERE `guid` = 334930;
-UPDATE `creature` SET `StringId` = 'npc_redridge_bridge_worker_jess' WHERE `guid` = 334929;
-UPDATE `creature` SET `StringId` = 'npc_redridge_bridge_worker_daniel' WHERE `guid` = 334928;
-UPDATE `creature` SET `StringId` = 'npc_redridge_bridge_worker_matthew' WHERE `guid` = 334931;
-UPDATE `creature` SET `StringId` = 'npc_redridge_huge_boulder' WHERE `guid` = 334924;
-
 # move script from alex to boulder
 UPDATE `creature_template` SET `ScriptName`='npc_redridge_huge_boulder' WHERE `entry` = 43196; -- Huge Boulder
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry` = 653; -- Bridge Worker Alex
@@ -39,7 +29,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 # exit location for thrown boulder
 DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry` = 8161;
-INSERT INTO `vehicle_seat_addon` (SeatEntry, SeatOrientation, ExitParamX, ExitParamY, ExitParamZ, ExitParamO, ExitParamValue) VALUES
+INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES
 (8161, 0, -9310.855, -2366.367, 67.17842, 0, 2);
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 43197;

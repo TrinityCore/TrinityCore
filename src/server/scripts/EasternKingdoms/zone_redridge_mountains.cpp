@@ -52,12 +52,18 @@ enum RedridgeSpellData
 
 enum RedridgeCreatureData
 {
-    NPC_FOREMAN_OSLOW        = 341,
-    NPC_CANYON_ETTIN         = 43094,
-    NPC_SUBDUED_CANYON_ETTIN = 43197,
-    NPC_HUGE_BOULDER         = 43196,
+    NPC_FOREMAN_OSLOW         = 341,
+    NPC_BRIDGE_WORKER_ALEX    = 653,
+    NPC_BRIDGE_WORKER_TRENT   = 648,
+    NPC_BRIDGE_WORKER_DMITRI  = 649,
+    NPC_BRIDGE_WORKER_JESS    = 650,
+    NPC_BRIDGE_WORKER_DANIEL  = 651,
+    NPC_BRIDGE_WORKER_MATTHEW = 652,
+    NPC_CANYON_ETTIN          = 43094,
+    NPC_SUBDUED_CANYON_ETTIN  = 43197,
+    NPC_HUGE_BOULDER          = 43196,
 
-    NPC_BIGEARL              = 43248,
+    NPC_BIGEARL               = 43248,
 };
 
 /*######
@@ -238,19 +244,19 @@ public:
                 switch (eventId)
                 {
                     case EVENT_STORE_GUIDS:
-                        if (Creature const* oslow = me->FindNearestCreatureWithOptions(10.0f,  { .StringId = "npc_redridge_foreman_oslow_under_rock"sv }))
+                        if (Creature const* oslow = me->FindNearestCreature(NPC_FOREMAN_OSLOW, 10.0f, true))
                             _oslowGUID = oslow->GetGUID();
-                        if (Creature const* alex = me->FindNearestCreatureWithOptions(10.0f,  { .StringId = "npc_redridge_bridge_worker_alex"sv }))
+                        if (Creature const* alex = me->FindNearestCreature(NPC_BRIDGE_WORKER_ALEX, 10.0f, true))
                             _alexGUID = alex->GetGUID();
-                        if (Creature const* trent = me->FindNearestCreatureWithOptions(10.0f,  { .StringId = "npc_redridge_bridge_worker_trent"sv }))
+                        if (Creature const* trent = me->FindNearestCreature(NPC_BRIDGE_WORKER_TRENT, 10.0f, true))
                             _trentGUID = trent->GetGUID();
-                        if (Creature const* dimitri = me->FindNearestCreatureWithOptions(10.0f,  { .StringId = "npc_redridge_bridge_worker_dmitri"sv }))
+                        if (Creature const* dimitri = me->FindNearestCreature(NPC_BRIDGE_WORKER_DMITRI, 10.0f, true))
                             _dmitriGUID = dimitri->GetGUID();
-                        if (Creature const* jess = me->FindNearestCreatureWithOptions(10.0f,  { .StringId = "npc_redridge_bridge_worker_jess"sv }))
+                        if (Creature const* jess = me->FindNearestCreature(NPC_BRIDGE_WORKER_JESS, 10.0f, true))
                             _jessGUID = jess->GetGUID();
-                        if (Creature const* daniel = me->FindNearestCreatureWithOptions(10.0f,  { .StringId = "npc_redridge_bridge_worker_daniel"sv }))
+                        if (Creature const* daniel = me->FindNearestCreature(NPC_BRIDGE_WORKER_DANIEL, 10.0f, true))
                             _danielGUID = daniel->GetGUID();
-                        if (Creature const* matthew = me->FindNearestCreatureWithOptions(10.0f,  { .StringId = "npc_redridge_bridge_worker_matthew"sv }))
+                        if (Creature const* matthew = me->FindNearestCreature(NPC_BRIDGE_WORKER_MATTHEW, 10.0f, true))
                             _matthewGUID = matthew->GetGUID();
 
                         if (!_oslowGUID || !_alexGUID || !_trentGUID || !_dmitriGUID || !_jessGUID || !_danielGUID || !_matthewGUID)
@@ -628,12 +634,12 @@ public:
             switch (pointId)
             {
                 case POINT_NEAR_BOULDER:
-                    if (Creature* boulder = me->FindNearestCreatureWithOptions(5.0f,  { .StringId = "npc_redridge_huge_boulder"sv }))
+                    if (Creature const* boulder = me->FindNearestCreature(NPC_HUGE_BOULDER, 5.0f, true))
                     {
                         _boulderGUID = boulder->GetGUID();
                         me->CastSpell(nullptr, SPELL_LIFT_HUGE_BOULDER, false);
 
-                        if (Creature* daniel = me->FindNearestCreatureWithOptions(20.0f,  { .StringId = "npc_redridge_bridge_worker_daniel"sv }))
+                        if (Creature const* daniel = me->FindNearestCreature(NPC_BRIDGE_WORKER_DANIEL, 20.0f,  true))
                             me->SetFacingToObject(daniel);
 
                         _events.ScheduleEvent(EVENT_ETTIN_LINE_1, 2s);
@@ -736,8 +742,7 @@ class spell_redridge_lift_huge_boulder : public SpellScript
 
     void SetTarget(WorldObject*& target) const
     {
-        float const spellRange = GetSpellInfo()->GetMaxRange();
-        target = GetCaster()->FindNearestCreatureWithOptions(spellRange, { .StringId = "npc_redridge_huge_boulder"sv });
+        target = GetCaster()->FindNearestCreature(NPC_HUGE_BOULDER, GetSpellInfo()->GetMaxRange(), true);
     }
 
     void Register() override
