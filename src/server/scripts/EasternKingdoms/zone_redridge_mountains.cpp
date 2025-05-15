@@ -420,28 +420,28 @@ public:
                         Trinity::Containers::RandomResize(allWorkers, 2);
                         std::set<ObjectGuid> scaredWorkers(allWorkers.begin(), allWorkers.end());
 
-                        if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                            if (scaredWorkers.contains(_alexGUID))
+                        if (scaredWorkers.contains(_alexGUID))
+                            if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                                 alex->AI()->Talk(TALK_ALEX_SCARED, me);
 
-                        if (Creature const* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
-                            if (scaredWorkers.contains(_matthewGUID))
+                        if (scaredWorkers.contains(_matthewGUID))
+                            if (Creature const* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
                                 matthew->AI()->Talk(TALK_MATTHEW_SCARED, me);
 
-                        if (Creature const* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
-                            if (scaredWorkers.contains(_trentGUID))
+                        if (scaredWorkers.contains(_trentGUID))
+                            if (Creature const* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
                                 trent->AI()->Talk(TALK_TRENT_SCARED, me);
 
-                        if (Creature const* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
-                            if (scaredWorkers.contains(_dmitriGUID))
+                        if (scaredWorkers.contains(_dmitriGUID))
+                            if (Creature const* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
                                 dmitri->AI()->Talk(TALK_DMITRI_SCARED, me);
 
-                        if (Creature const* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
-                            if (scaredWorkers.contains(_jessGUID))
+                        if (scaredWorkers.contains(_jessGUID))
+                            if (Creature const* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
                                 jess->AI()->Talk(TALK_JESS_SCARED, me);
 
-                        if (Creature const* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
-                            if (scaredWorkers.contains(_danielGUID))
+                        if (scaredWorkers.contains(_danielGUID))
+                            if (Creature const* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
                                 daniel->AI()->Talk(TALK_DANIEL_SCARED, me);
                         break;
                     }
