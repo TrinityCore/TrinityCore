@@ -3566,7 +3566,7 @@ bool ConditionMgr::IsMeetingWorldStateExpression(Map const* map, WorldStateExpre
             default:
                 break;
         }
-    } while (buffer.rpos() >= buffer.size());
+    } while (buffer.rpos() < buffer.size());
 
     return finalResult;
 }
