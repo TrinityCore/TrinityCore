@@ -737,7 +737,7 @@ class spell_redridge_lift_huge_boulder : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
     {
         if (Creature* target = GetHitCreature())
-            target->CastSpell(GetCaster(), static_cast<uint32>(GetSpellInfo()->GetEffect(EFFECT_0).BasePoints), false);
+            target->CastSpell(GetCaster(), GetEffectValue(), false);
     }
 
     void SetTarget(WorldObject*& target) const
