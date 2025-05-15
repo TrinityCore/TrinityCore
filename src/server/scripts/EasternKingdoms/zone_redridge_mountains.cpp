@@ -180,28 +180,12 @@ enum RedridgeHugeBoulder
     SAY_WORKERS_HO         = 0,
     SAY_MATTHEW_IM_PUSHING = 1,
 
+    PATH_ETTIN_TO_WATER = 4319700,
+    PATH_ETTIN_UP_HILL  = 4319701,
+
     POINT_NEAR_BOULDER  = 1,
     POINT_NEAR_WATER    = 2,
     POINT_UP_PATH       = 3,
-};
-
-constexpr Position EttinPathToWater[] =
-{
-    { -9270.707f, -2299.5933f, 69.642654f },
-    { -9271.457f, -2309.5933f, 69.892654f },
-    { -9279.707f, -2319.0933f, 66.892654f },
-    { -9303.957f, -2330.5933f, 61.642654f },
-    { -9324.86f,  -2338.94f,   61.2445f  }
-};
-
-constexpr Position EttinPathUpHill[] =
-{
-    { -9308.439f, -2330.975f, 61.716003f },
-    { -9292.939f, -2325.475f, 62.716003f },
-    { -9276.939f, -2316.725f, 68.966f },
-    { -9260.689f, -2312.725f, 75.216f },
-    { -9237.689f, -2313.225f, 78.716f },
-    { -9214.52f,  -2334.01f,  83.6875f }
 };
 
 class npc_redridge_huge_boulder : public CreatureScript
@@ -590,36 +574,20 @@ public:
                         _events.ScheduleEvent(EVENT_MOVE_TO_WATER, 1s);
                         break;
                     case EVENT_MOVE_TO_WATER:
-                    {
-                        std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
-                        {
-                            Movement::PointsArray path(std::size(EttinPathToWater));
-                            std::ranges::transform(EttinPathToWater, path.begin(), [](Position pos) { return PositionToVector3(pos); });
-                            init.MovebyPath(path, 0);
-                        };
-                        me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_NEAR_WATER, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                        me->GetMotionMaster()->MovePath(PATH_ETTIN_TO_WATER, false);
                         break;
-                    }
                     case EVENT_THROW_BOULDER:
                         me->CastSpell(nullptr, SPELL_EJECT_PASSENGER_1);
                         _events.ScheduleEvent(EVENT_PATH_AWAY, 6s);
                         break;
                     case EVENT_PATH_AWAY:
-                    {
                         Talk(3);
 
                         if (Creature* boulder = ObjectAccessor::GetCreature(*me, _boulderGUID))
                             boulder->AI()->SetData(0, DATA_DONE);
 
-                        std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
-                        {
-                            Movement::PointsArray path(std::size(EttinPathUpHill));
-                            std::ranges::transform(EttinPathUpHill, path.begin(), [](Position const pos) { return PositionToVector3(pos); });
-                            init.MovebyPath(path, 0);
-                        };
-                        me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_UP_PATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                        me->GetMotionMaster()->MovePath(PATH_ETTIN_UP_HILL, false);
                         break;
-                    }
                     default:
                         break;
                 }
@@ -631,31 +599,31 @@ public:
             if (movementType != POINT_MOTION_TYPE)
                 return;
 
-            switch (pointId)
+            if (pointId == POINT_NEAR_BOULDER)
+                if (Creature const* boulder = me->FindNearestCreature(NPC_HUGE_BOULDER, 5.0f, true))
+                {
+                    _boulderGUID = boulder->GetGUID();
+                    me->CastSpell(nullptr, SPELL_LIFT_HUGE_BOULDER, false);
+
+                    if (Creature const* daniel = me->FindNearestCreature(NPC_BRIDGE_WORKER_DANIEL, 20.0f,  true))
+                        me->SetFacingToObject(daniel);
+
+                    _events.ScheduleEvent(EVENT_ETTIN_LINE_1, 2s);
+                    boulder->AI()->SetData(0, DATA_OSLOW_GET_UP);
+                }
+        }
+
+        void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+        {
+            if (pathId == PATH_ETTIN_TO_WATER)
             {
-                case POINT_NEAR_BOULDER:
-                    if (Creature const* boulder = me->FindNearestCreature(NPC_HUGE_BOULDER, 5.0f, true))
-                    {
-                        _boulderGUID = boulder->GetGUID();
-                        me->CastSpell(nullptr, SPELL_LIFT_HUGE_BOULDER, false);
-
-                        if (Creature const* daniel = me->FindNearestCreature(NPC_BRIDGE_WORKER_DANIEL, 20.0f,  true))
-                            me->SetFacingToObject(daniel);
-
-                        _events.ScheduleEvent(EVENT_ETTIN_LINE_1, 2s);
-                        boulder->AI()->SetData(0, DATA_OSLOW_GET_UP);
-                    }
-                    break;
-                case POINT_NEAR_WATER:
-                    me->SetFacingTo(5.0614f);
-                    _events.ScheduleEvent(EVENT_THROW_BOULDER, 1s);
-                    break;
-                case POINT_UP_PATH:
-                    me->CastSpell(nullptr, SPELL_CANYON_ETTIN_DESPAWN);
-                    me->CastSpell(nullptr, SPELL_DESPAWN_ETTIN);
-                    break;
-                default:
-                    break;
+                me->SetFacingTo(5.0614f);
+                _events.ScheduleEvent(EVENT_THROW_BOULDER, 1s);
+            }
+            else if (pathId == PATH_ETTIN_UP_HILL)
+            {
+                me->CastSpell(nullptr, SPELL_CANYON_ETTIN_DESPAWN);
+                me->CastSpell(nullptr, SPELL_DESPAWN_ETTIN);
             }
         }
 

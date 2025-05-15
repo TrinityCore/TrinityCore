@@ -38,3 +38,36 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (43197, 1, 0, 'Where trow? TROW ON BRIDGE??', 12, 0, 100, 0, 0, 0, 43220, 0, 'Subdued Canyon Ettin to Huge Boulder'),
 (43197, 2, 0, 'OK! Me trow in water!', 12, 0, 100, 0, 0, 0, 43222, 0, 'Subdued Canyon Ettin to Huge Boulder'),
 (43197, 3, 0, 'BYE, BYE, DADDY!', 14, 0, 100, 0, 0, 0, 43226, 0, 'Subdued Canyon Ettin to Huge Boulder');
+
+-- Path 1 for Subdued Canyon Ettin
+SET @ENTRY := 43197;
+SET @PATHOFFSET := 0;
+SET @PATH := @ENTRY * 100 + @PATHOFFSET;
+DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
+INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
+(@PATH, 1, 0x0, NULL, 'Subdued Canyon Ettin - Path To Water');
+
+DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
+INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
+(@PATH, 0, -9270.707, -2299.5933, 69.642654, NULL, 0),
+(@PATH, 1, -9271.457, -2309.5933, 69.892654, NULL, 0),
+(@PATH, 2, -9279.707, -2319.0933, 66.892654, NULL, 0),
+(@PATH, 3, -9303.957, -2330.5933, 61.642654, NULL, 0),
+(@PATH, 4, -9324.86,  -2338.94,   61.2445, NULL, 0);
+
+-- Path 2 for Subdued Canyon Ettin
+SET @ENTRY := 43197;
+SET @PATHOFFSET := 1;
+SET @PATH := @ENTRY * 100 + @PATHOFFSET;
+DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
+INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
+(@PATH, 1, 0x0, NULL, 'Subdued Canyon Ettin - Path Up Hill');
+
+DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
+INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
+(@PATH, 0, -9308.439, -2330.975, 61.716003, NULL, 0),
+(@PATH, 1, -9292.939, -2325.475, 62.716003, NULL, 0),
+(@PATH, 2, -9276.939, -2316.725, 68.966, NULL, 0),
+(@PATH, 3, -9260.689, -2312.725, 75.216, NULL, 0),
+(@PATH, 4, -9237.689, -2313.225, 78.716, NULL, 0),
+(@PATH, 5, -9214.52,  -2334.01,  83.6875, NULL, 0);
