@@ -32,12 +32,48 @@ DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry` = 8161;
 INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES
 (8161, 0, -9310.855, -2366.367, 67.17842, 0, 2);
 
-DELETE FROM `creature_text` WHERE `CreatureID` = 43197;
+DELETE FROM `creature_text` WHERE `CreatureID` = 43197 AND `GroupID` IN (0, 1, 2, 3);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (43197, 0, 0, 'ROCK NOT SO HEAVY! PUNY HUMIES!', 12, 0, 100, 0, 0, 0, 43218, 0, 'Subdued Canyon Ettin to Huge Boulder'),
 (43197, 1, 0, 'Where trow? TROW ON BRIDGE??', 12, 0, 100, 0, 0, 0, 43220, 0, 'Subdued Canyon Ettin to Huge Boulder'),
 (43197, 2, 0, 'OK! Me trow in water!', 12, 0, 100, 0, 0, 0, 43222, 0, 'Subdued Canyon Ettin to Huge Boulder'),
 (43197, 3, 0, 'BYE, BYE, DADDY!', 14, 0, 100, 0, 0, 0, 43226, 0, 'Subdued Canyon Ettin to Huge Boulder');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 648 AND `GroupID` = 1;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(648, 1, 0, 'NO, NO, NO! Please!', 12, 0, 100, 0, 0, 0, 43230, 0, 'Bridge Worker Trent - Scared'),
+(648, 1, 1, 'NOOOOOO!!!', 12, 0, 100, 0, 0, 0, 43231, 0, 'Bridge Worker Trent - Scared'),
+(648, 1, 2, 'ANYWHERE BUT THE BRIDGE!', 12, 0, 100, 0, 0, 0, 43232, 0, 'Bridge Worker Trent - Scared');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 649 AND `GroupID` = 1;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(649, 1, 0, 'NO, NO, NO! Please!', 12, 0, 100, 0, 0, 0, 43230, 0, 'Bridge Worker Dmitri - Scared'),
+(649, 1, 1, 'NOOOOOO!!!', 12, 0, 100, 0, 0, 0, 43231, 0, 'Bridge Worker Dmitri - Scared'),
+(649, 1, 2, 'ANYWHERE BUT THE BRIDGE!', 12, 0, 100, 0, 0, 0, 43232, 0, 'Bridge Worker Dmitri - Scared');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 650 AND `GroupID` = 1;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(650, 1, 0, 'NO, NO, NO! Please!', 12, 0, 100, 0, 0, 0, 43230, 0, 'Bridge Worker Jess - Scared'),
+(650, 1, 1, 'NOOOOOO!!!', 12, 0, 100, 0, 0, 0, 43231, 0, 'Bridge Worker Jess - Scared'),
+(650, 1, 2, 'ANYWHERE BUT THE BRIDGE!', 12, 0, 100, 0, 0, 0, 43232, 0, 'Bridge Worker Jess - Scared');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 651 AND `GroupID` = 1;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(651, 1, 0, 'NO, NO, NO! Please!', 12, 0, 100, 0, 0, 0, 43230, 0, 'Bridge Worker Daniel - Scared'),
+(651, 1, 1, 'NOOOOOO!!!', 12, 0, 100, 0, 0, 0, 43231, 0, 'Bridge Worker Daniel - Scared'),
+(651, 1, 2, 'ANYWHERE BUT THE BRIDGE!', 12, 0, 100, 0, 0, 0, 43232, 0, 'Bridge Worker Daniel - Scared');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 652 AND `GroupID` = 2;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(652, 2, 0, 'NO, NO, NO! Please!', 12, 0, 100, 0, 0, 0, 43230, 0, 'Bridge Worker Matthew - Scared'),
+(652, 2, 1, 'NOOOOOO!!!', 12, 0, 100, 0, 0, 0, 43231, 0, 'Bridge Worker Matthew - Scared'),
+(652, 2, 2, 'ANYWHERE BUT THE BRIDGE!', 12, 0, 100, 0, 0, 0, 43232, 0, 'Bridge Worker Matthew - Scared');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 653 AND `GroupID` = 5;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(653, 5, 0, 'NO, NO, NO! Please!', 12, 0, 100, 0, 0, 0, 43230, 0, 'Bridge Worker Alex - Scared'),
+(653, 5, 1, 'NOOOOOO!!!', 12, 0, 100, 0, 0, 0, 43231, 0, 'Bridge Worker Alex - Scared'),
+(653, 5, 2, 'ANYWHERE BUT THE BRIDGE!', 12, 0, 100, 0, 0, 0, 43232, 0, 'Bridge Worker Alex - Scared');
 
 -- Path 1 for Subdued Canyon Ettin
 SET @ENTRY := 43197;

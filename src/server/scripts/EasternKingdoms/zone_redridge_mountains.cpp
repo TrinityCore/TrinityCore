@@ -23,6 +23,7 @@ Script Data End */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Containers.h"
 #include "G3DPosition.hpp"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
@@ -64,6 +65,22 @@ enum RedridgeCreatureData
     NPC_HUGE_BOULDER          = 43196,
 
     NPC_BIGEARL               = 43248,
+};
+
+enum RedridgeTalks
+{
+    TALK_OSLOW_IDLE         = 0,
+    TALK_ALEX_HEAVE         = 1,
+    TALK_ALEX_DAMN          = 2,
+    TALK_ALEX_PUSH          = 4,
+    TALK_ALEX_SCARED        = 5,
+    TALK_WORKERS_HO         = 0,
+    TALK_MATTHEW_IM_PUSHING = 1,
+    TALK_MATTHEW_SCARED     = 2,
+    TALK_TRENT_SCARED       = 1,
+    TALK_DMITRI_SCARED      = 1,
+    TALK_JESS_SCARED        = 1,
+    TALK_DANIEL_SCARED      = 1,
 };
 
 /*######
@@ -173,13 +190,6 @@ enum RedridgeHugeBoulder
     DATA_OSLOW_GET_UP      = 2,
     DATA_DONE              = 3,
 
-    SAY_OSLOW              = 0,
-    SAY_ALEX_HEAVE         = 1,
-    SAY_ALEX_DAMN          = 2,
-    SAY_ALEX_PUSH          = 4,
-    SAY_WORKERS_HO         = 0,
-    SAY_MATTHEW_IM_PUSHING = 1,
-
     PATH_ETTIN_TO_WATER = 4319700,
     PATH_ETTIN_UP_HILL  = 4319701,
 
@@ -253,7 +263,7 @@ public:
                         break;
                     case EVENT_OSLOW_IDLE_TALK:
                         if (Creature const* oslow = ObjectAccessor::GetCreature(*me, _oslowGUID))
-                            oslow->AI()->Talk(SAY_OSLOW);
+                            oslow->AI()->Talk(TALK_OSLOW_IDLE);
                         _events.Repeat(45s, 60s);
                         break;
                     case EVENT_ALEX_IDLE_TALK:
@@ -261,11 +271,11 @@ public:
                             switch (uint32 text = urand(0, 3))
                             {
                                 case 1:
-                                    alex->AI()->Talk(SAY_ALEX_HEAVE);
+                                    alex->AI()->Talk(TALK_ALEX_HEAVE);
                                     _events.ScheduleEvent(EVENT_WORKERS_RESPONSE, 1s);
                                     break;
                                 case 2:
-                                    alex->AI()->Talk(SAY_ALEX_DAMN);
+                                    alex->AI()->Talk(TALK_ALEX_DAMN);
                                     _events.ScheduleEvent(EVENT_ALEX_SAY_PUSH, 3s);
                                     break;
                                 default:
@@ -278,27 +288,27 @@ public:
                         if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                         {
                             if (Creature const* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
-                                trent->AI()->Talk(SAY_WORKERS_HO, alex);
+                                trent->AI()->Talk(TALK_WORKERS_HO, alex);
                             if (Creature const* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
-                                dmitri->AI()->Talk(SAY_WORKERS_HO, alex);
+                                dmitri->AI()->Talk(TALK_WORKERS_HO, alex);
                             if (Creature const* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
-                                jess->AI()->Talk(SAY_WORKERS_HO, alex);
+                                jess->AI()->Talk(TALK_WORKERS_HO, alex);
                             if (Creature const* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
-                                daniel->AI()->Talk(SAY_WORKERS_HO, alex);
+                                daniel->AI()->Talk(TALK_WORKERS_HO, alex);
                             if (Creature const* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
-                                matthew->AI()->Talk(SAY_WORKERS_HO, alex);
+                                matthew->AI()->Talk(TALK_WORKERS_HO, alex);
                         }
                         _events.ScheduleEvent(EVENT_ALEX_IDLE_TALK, 20s, 30s);
                         break;
                     case EVENT_ALEX_SAY_PUSH:
                         if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                            alex->AI()->Talk(SAY_ALEX_PUSH);
+                            alex->AI()->Talk(TALK_ALEX_PUSH);
                         _events.ScheduleEvent(EVENT_MATTHEW_PUSH_RESPONSE, 4s);
                         break;
                     case EVENT_MATTHEW_PUSH_RESPONSE:
                         if (Creature const* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
                             if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                                matthew->AI()->Talk(SAY_MATTHEW_IM_PUSHING, alex);
+                                matthew->AI()->Talk(TALK_MATTHEW_IM_PUSHING, alex);
                         _events.ScheduleEvent(EVENT_ALEX_IDLE_TALK, 20s, 30s);
                         break;
                     case EVENT_REPOSITION:
@@ -400,56 +410,39 @@ public:
                         break;
                     case EVENT_BRIDGE_WORKERS_COWER:
                     {
-                        // pick two random (and different) workers to say random scared things
-                        uint32 a = urand(0, 5);
-                        uint32 b = urand(0, 5);
-                        if (a == b)
-                            b = (a + 2) % 6;
+                        // all workers should cower
+                        std::vector<ObjectGuid> allWorkers = { _alexGUID, _matthewGUID, _trentGUID, _dmitriGUID, _jessGUID, _danielGUID };
+                        for (ObjectGuid const& workerGUID : allWorkers)
+                            if (Creature* worker = ObjectAccessor::GetCreature(*me, workerGUID))
+                                worker->SetEmoteState(EMOTE_STATE_COWER);
 
-                        float const range = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
+                        // pick two random workers to say random scared things
+                        Trinity::Containers::RandomResize(allWorkers, 2);
+                        std::set<ObjectGuid> scaredWorkers(allWorkers.begin(), allWorkers.end());
 
-                        if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                        {
-                            alex->SetEmoteState(EMOTE_STATE_COWER);
-                            if (a == 0 || b == 0)
-                                alex->Talk(43230 + urand(0, 2), CHAT_MSG_MONSTER_SAY, range, nullptr);
-                        }
+                        if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
+                            if (scaredWorkers.contains(_alexGUID))
+                                alex->AI()->Talk(TALK_ALEX_SCARED, me);
 
-                        if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
-                        {
-                            matthew->SetEmoteState(EMOTE_STATE_COWER);
-                            if (a == 1 || b == 1)
-                                matthew->Talk(43230 + urand(0, 2), CHAT_MSG_MONSTER_SAY, range, nullptr);
-                        }
+                        if (Creature const* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
+                            if (scaredWorkers.contains(_matthewGUID))
+                                matthew->AI()->Talk(TALK_MATTHEW_SCARED, me);
 
-                        if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
-                        {
-                            trent->SetEmoteState(EMOTE_STATE_COWER);
-                            if (a == 2 || b == 2)
-                                trent->Talk(43230 + urand(0, 2), CHAT_MSG_MONSTER_SAY, range, nullptr);
-                        }
+                        if (Creature const* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
+                            if (scaredWorkers.contains(_trentGUID))
+                                trent->AI()->Talk(TALK_TRENT_SCARED, me);
 
-                        if (Creature* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
-                        {
-                            dmitri->SetEmoteState(EMOTE_STATE_COWER);
-                            if (a == 3 || b == 3)
-                                dmitri->Talk(43230 + urand(0, 2), CHAT_MSG_MONSTER_SAY, range, nullptr);
-                        }
+                        if (Creature const* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
+                            if (scaredWorkers.contains(_dmitriGUID))
+                                dmitri->AI()->Talk(TALK_DMITRI_SCARED, me);
 
-                        if (Creature* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
-                        {
-                            jess->SetEmoteState(EMOTE_STATE_COWER);
-                            if (a == 4 || b == 4)
-                                jess->Talk(43230 + urand(0, 2), CHAT_MSG_MONSTER_SAY, range, nullptr);
-                        }
+                        if (Creature const* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
+                            if (scaredWorkers.contains(_jessGUID))
+                                jess->AI()->Talk(TALK_JESS_SCARED, me);
 
-                        if (Creature* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
-                        {
-                            daniel->SetEmoteState(EMOTE_STATE_COWER);
-                            if (a == 5 || b == 5)
-                                daniel->Talk(43230 + urand(0, 2), CHAT_MSG_MONSTER_SAY, range, nullptr);
-                        }
-
+                        if (Creature const* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
+                            if (scaredWorkers.contains(_danielGUID))
+                                daniel->AI()->Talk(TALK_DANIEL_SCARED, me);
                         break;
                     }
                     case EVENT_OSLOW_GET_UP:
