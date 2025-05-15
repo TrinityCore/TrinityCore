@@ -109,7 +109,6 @@ struct npc_coilfang_waterelemental : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-    
         _scheduler.Schedule(4s, 12s, [this](TaskContext task)
         {
             DoCastSelf(SPELL_WATER_BOLT_VOLLEY);
