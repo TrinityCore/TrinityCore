@@ -74,3 +74,8 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `OrderIndex`, `MapID`,
 DELETE FROM `spell_script_names` WHERE `spell_id`=196889;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (196889, 'spell_fel_lord_caza_throwing_axe_selector');
+
+-- Conditions
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=196889;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 196889, 0, 0, 51, 0, 5, 100061, 0, '', 0, 0, 0, '', 'Spell \'Throw Axe\' can only hit \'Axe Throw Stalker\'');
