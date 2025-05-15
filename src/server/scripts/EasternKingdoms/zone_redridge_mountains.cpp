@@ -486,6 +486,9 @@ public:
             {
                 case DATA_OSLOW_GET_UP:
                     _events.ScheduleEvent(EVENT_OSLOW_GET_UP, 2s);
+
+                    // in case player who started event disconnects
+                    _events.ScheduleEvent(EVENT_DONE, 30s);
                     break;
                 case DATA_DONE:
                     _events.ScheduleEvent(EVENT_DONE, 0s);
