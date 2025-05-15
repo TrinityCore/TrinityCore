@@ -561,8 +561,11 @@ namespace WorldPackets
         {
             friend inline ByteBuffer& operator>>(ByteBuffer& data, DataReaderWriter const& string)
             {
-                const_cast<Container&>(string.Value) = data.ReadString(string.Value.length());
-                data.read_skip<char>(); // null terminator
+                if (!string.Value.empty())
+                {
+                    const_cast<Container&>(string.Value) = data.ReadString(string.Value.length());
+                    (void)data.read<char>(); // null terminator
+                }
                 return data;
             }
         };
