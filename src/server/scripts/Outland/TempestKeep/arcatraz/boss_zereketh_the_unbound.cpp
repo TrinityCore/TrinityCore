@@ -41,6 +41,7 @@ enum ZerekethEvents
     EVENT_SEED_OF_CORRUPTION
 };
 
+// 20870 - Zereketh the Unbound
 struct boss_zereketh_the_unbound : public BossAI
 {
     boss_zereketh_the_unbound(Creature* creature) : BossAI(creature, DATA_ZEREKETH) { }

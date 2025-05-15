@@ -75,6 +75,7 @@ enum SkyrissMisc
     NPC_ILLUSION_33              = 21467
 };
 
+// 20912 - Harbinger Skyriss
 struct boss_harbinger_skyriss : public BossAI
 {
     boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS), _intro(false), _image33(false), _image66(false) { }
@@ -136,12 +137,12 @@ struct boss_harbinger_skyriss : public BossAI
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(66, damage) && !_image66)
+        if (!_image66 && me->HealthBelowPctDamaged(66, damage))
         {
             _image66 = true;
             events.ScheduleEvent(EVENT_SUMMON_66, 0s);
         }
-        if (me->HealthBelowPctDamaged(33, damage) && !_image33)
+        if (!_image33 && me->HealthBelowPctDamaged(33, damage))
         {
             _image33 = true;
             events.ScheduleEvent(EVENT_SUMMON_33, 0s);
@@ -249,6 +250,7 @@ private:
     bool _image66;
 };
 
+// 21466, 21467 - Harbinger Skyriss
 struct boss_harbinger_skyriss_illusion : public ScriptedAI
 {
     boss_harbinger_skyriss_illusion(Creature* creature) : ScriptedAI(creature) { }
