@@ -631,7 +631,7 @@ public:
                     if (Creature* boulder = me->FindNearestCreatureWithOptions(5.0f,  { .StringId = "npc_redridge_huge_boulder"sv }))
                     {
                         _boulderGUID = boulder->GetGUID();
-                        boulder->CastSpell(me, SPELL_LIFT_HUGE_BOULDER, false);
+                        me->CastSpell(nullptr, SPELL_LIFT_HUGE_BOULDER, false);
 
                         if (Creature* daniel = me->FindNearestCreatureWithOptions(20.0f,  { .StringId = "npc_redridge_bridge_worker_daniel"sv }))
                             me->SetFacingToObject(daniel);
@@ -683,12 +683,11 @@ class spell_redridge_control_ettin : public SpellScript
 
     void SetTarget(WorldObject*& target)
     {
-        float spellRange = GetSpellInfo()->GetMaxRange();
-
         std::list<TempSummon*> minionList;
         GetCaster()->GetAllMinionsByEntry(minionList, NPC_SUBDUED_CANYON_ETTIN);
         if (minionList.empty())
         {
+            float const spellRange = GetSpellInfo()->GetMaxRange();
             if (GetCaster()->FindNearestCreature(NPC_CANYON_ETTIN, spellRange, true) == nullptr)
                 FinishCast(SPELL_FAILED_OUT_OF_RANGE);
         }
@@ -732,11 +731,18 @@ class spell_redridge_lift_huge_boulder : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
     {
         if (Creature* target = GetHitCreature())
-            GetCaster()->CastSpell(target, static_cast<uint32>(GetSpellInfo()->GetEffect(EFFECT_0).BasePoints), false);
+            target->CastSpell(GetCaster(), static_cast<uint32>(GetSpellInfo()->GetEffect(EFFECT_0).BasePoints), false);
+    }
+
+    void SetTarget(WorldObject*& target) const
+    {
+        float const spellRange = GetSpellInfo()->GetMaxRange();
+        target = GetCaster()->FindNearestCreatureWithOptions(spellRange, { .StringId = "npc_redridge_huge_boulder"sv });
     }
 
     void Register() override
     {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_redridge_lift_huge_boulder::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_redridge_lift_huge_boulder::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
