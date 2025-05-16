@@ -1327,8 +1327,6 @@ public:
             _ShowLootContents(handler, all.has_value(), loot);
         else
         {
-            using namespace std::string_view_literals;
-
             for (auto const& [lootOwner, personalLoot] : creatureTarget->m_personalLoot)
             {
                 CharacterCacheEntry const* character = sCharacterCache->GetCharacterCacheByGuid(lootOwner);
