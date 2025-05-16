@@ -796,12 +796,12 @@ static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
     return sRealmList->GetCurrentRealmId().Realm;
 }
 
-ObjectGuid ObjectGuidFactory::CreateNull()
+constexpr ObjectGuid ObjectGuidFactory::CreateNull()
 {
     return ObjectGuid();
 }
 
-ObjectGuid ObjectGuidFactory::CreateUniq(ObjectGuid::LowType id)
+constexpr ObjectGuid ObjectGuidFactory::CreateUniq(ObjectGuid::LowType id)
 {
     return ObjectGuid(uint64(uint64(HighGuid::Uniq) << 58),
         id);
@@ -952,37 +952,45 @@ ObjectGuid ObjectGuidFactory::CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 
         counter);
 }
 
-ObjectGuid const ObjectGuid::Empty = ObjectGuid();
+ObjectGuid const ObjectGuid::Empty = ObjectGuid::Create<HighGuid::Null>();
 ObjectGuid const ObjectGuid::ToStringFailed = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(3));
 ObjectGuid const ObjectGuid::FromStringFailed = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(4));
 ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(10));
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 {
-    uint8 lowMask = 0;
-    uint8 highMask = 0;
-    buf.FlushBits();    // flush any unwritten bits to make wpos return a meaningful value
-    std::size_t pos = buf.wpos();
-    buf << uint8(lowMask);
-    buf << uint8(highMask);
+    static constexpr std::size_t NumUInt64s = 2;
 
-    uint8 packed[8];
-    if (size_t packedSize = ByteBuffer::PackUInt64(guid._data[0], &lowMask, packed))
-        buf.append(packed, packedSize);
-    if (size_t packedSize = ByteBuffer::PackUInt64(guid._data[1], &highMask, packed))
-        buf.append(packed, packedSize);
+    std::array<uint8, NumUInt64s + ObjectGuid::BytesSize> bytes;
+    memset(bytes.data(), 0, NumUInt64s);
+    size_t packedSize = guid._data.size();
 
-    buf.put(pos, lowMask);
-    buf.put(pos + 1, highMask);
+    for (std::size_t i = 0; i < guid._data.size(); ++i)
+    {
+        for (uint32 b = 0; b < 8; ++b)
+        {
+            if (uint8 byte = uint8((guid._data[i] >> (b * 8)) & 0xFF))
+            {
+                bytes[packedSize++] = byte;
+                bytes[i] |= uint8(1 << b);
+            }
+        }
+    }
+
+    buf.append(bytes.data(), packedSize);
 
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
-    uint8 lowMask, highMask;
-    buf >> lowMask >> highMask;
-    buf.ReadPackedUInt64(lowMask, guid._data[0]);
-    buf.ReadPackedUInt64(highMask, guid._data[1]);
+    std::array<uint8, 2> mask;
+    buf.read(mask);
+
+    for (std::size_t i = 0; i < guid._data.size(); ++i)
+        for (uint32 b = 0; b < 8; ++b)
+            if (mask[i] & (uint8(1) << b))
+                guid._data[i] |= uint64(buf.read<uint8>()) << (b * 8);
+
     return buf;
 }
