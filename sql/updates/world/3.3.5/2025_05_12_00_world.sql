@@ -6,5 +6,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_shirrak_ping_shirrak';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (32301, 'spell_shirrak_ping_shirrak');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_shirrak_inhibit_magic';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(32264, 'spell_shirrak_inhibit_magic');
 
 UPDATE `creature_template` SET `flags_extra` = `flags_extra` | 128 WHERE `entry` IN (18374,20308);

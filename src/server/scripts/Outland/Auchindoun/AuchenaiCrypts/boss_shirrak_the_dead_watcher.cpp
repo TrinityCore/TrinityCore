@@ -17,13 +17,12 @@
 
 /* Old comment: "Inhibit Magic should stack slower far from the boss" - really? */
 
-#include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "auchenai_crypts.h"
-#include "Map.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellScript.h"
+#include "SpellInfo.h"
+#include "auchenai_crypts.h"
 
 enum ShirrakTexts
 {
@@ -32,7 +31,7 @@ enum ShirrakTexts
 
 enum ShirrakSpells
 {
-    SPELL_INHIBIT_MAGIC_PERIODIC   = 33460,     // NYI
+    SPELL_INHIBIT_MAGIC_PERIODIC   = 33460,
     SPELL_INHIBIT_MAGIC            = 32264,
 
     SPELL_ATTRACT_MAGIC            = 32265,
@@ -57,21 +56,11 @@ enum ShirrakEvents
 // 18371 - Shirrak the Dead Watcher
 struct boss_shirrak_the_dead_watcher : public BossAI
 {
-    boss_shirrak_the_dead_watcher(Creature* creature) : BossAI(creature, DATA_SHIRRAK_THE_DEAD_WATCHER)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        Inhibitmagic_Timer = 0;
-    }
-
-    uint32 Inhibitmagic_Timer;
+    boss_shirrak_the_dead_watcher(Creature* creature) : BossAI(creature, DATA_SHIRRAK_THE_DEAD_WATCHER) { }
 
     void Reset() override
     {
-        Initialize();
+        DoCastSelf(SPELL_INHIBIT_MAGIC_PERIODIC);
         _Reset();
     }
 
@@ -85,27 +74,6 @@ struct boss_shirrak_the_dead_watcher : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        /// @todo: Do it in aura script
-        if (Inhibitmagic_Timer <= diff)
-        {
-            float dist;
-            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if (Player* i_pl = i->GetSource())
-                    if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
-                    {
-                        i_pl->RemoveAurasDueToSpell(SPELL_INHIBIT_MAGIC);
-                        me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
-                        if (dist < 35)
-                            me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
-                        if (dist < 25)
-                            me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
-                        if (dist < 15)
-                            me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
-                    }
-            Inhibitmagic_Timer = 3000 + (rand32() % 1000);
-        } else Inhibitmagic_Timer -= diff;
-
         if (!UpdateVictim())
             return;
 
@@ -199,9 +167,49 @@ class spell_shirrak_ping_shirrak : public SpellScript
     }
 };
 
+// 32264 - Inhibit Magic
+class spell_shirrak_inhibit_magic : public SpellScript
+{
+    PrepareSpellScript(spell_shirrak_inhibit_magic);
+
+    void RemoveOldAura(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+    }
+
+    void TriggerNext()
+    {
+        int32 castIndex = GetCastIndex();
+        if (castIndex >= 3)
+            return;
+
+        float radiusMod = GetSpellValue()->RadiusMod * 0.66f;
+
+        GetCaster()->CastSpell(nullptr, GetSpellInfo()->Id, CastSpellExtraArgs()
+            .SetTriggerFlags(TRIGGERED_FULL_MASK)
+            .AddSpellMod(SPELLVALUE_BASE_POINT1, castIndex + 1)
+            .AddSpellMod(SPELLVALUE_RADIUS_MOD, int32(radiusMod * 10000)));
+    }
+
+    int32 GetCastIndex() const
+    {
+        // we are storing number of casts in a non-effect SPELLVALUE_BASE_POINT1
+        return GetSpellValue()->EffectBasePoints[EFFECT_1];
+    }
+
+    void Register() override
+    {
+        if (!GetSpell() || GetCastIndex() == 0)
+            OnEffectLaunchTarget += SpellEffectFn(spell_shirrak_inhibit_magic::RemoveOldAura, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+
+        AfterCast += SpellCastFn(spell_shirrak_inhibit_magic::TriggerNext);
+    }
+};
+
 void AddSC_boss_shirrak_the_dead_watcher()
 {
     RegisterAuchenaiCryptsCreatureAI(boss_shirrak_the_dead_watcher);
     RegisterAuchenaiCryptsCreatureAI(npc_focus_fire);
     RegisterSpellScript(spell_shirrak_ping_shirrak);
+    RegisterSpellScript(spell_shirrak_inhibit_magic);
 }
