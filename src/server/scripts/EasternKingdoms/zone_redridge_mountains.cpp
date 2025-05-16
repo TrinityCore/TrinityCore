@@ -195,9 +195,8 @@ enum RedridgeHugeBoulder
 
     EVENT_DONE                  = 20,
 
-    DATA_REPOSITION             = 1,
-    DATA_OSLOW_GET_UP           = 2,
-    DATA_DONE                   = 3,
+    ACTION_OSLOW_GET_UP         = 0,
+    ACTION_DONE,
 
     PATH_ETTIN_TO_WATER         = 4319700,
     PATH_ETTIN_UP_HILL          = 4319701,
@@ -484,17 +483,17 @@ struct npc_redridge_huge_boulder : public CreatureAI
         }
     }
 
-    void SetData(uint32 /*id*/, uint32 value) override
+    void DoAction(int32 const param) override
     {
-        switch (value)
+        switch (param)
         {
-            case DATA_OSLOW_GET_UP:
+            case ACTION_OSLOW_GET_UP:
                 _events.ScheduleEvent(EVENT_OSLOW_GET_UP, 2s);
 
                 // in case player who started event disconnects
                 _events.ScheduleEvent(EVENT_DONE, 30s);
                 break;
-            case DATA_DONE:
+            case ACTION_DONE:
                 _events.ScheduleEvent(EVENT_DONE, 0s);
                 break;
             default:
@@ -574,7 +573,7 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
                     Talk(TALK_BYE);
 
                     if (Creature* boulder = ObjectAccessor::GetCreature(*me, _boulderGUID))
-                        boulder->AI()->SetData(0, DATA_DONE);
+                        boulder->AI()->DoAction(ACTION_DONE);
 
                     me->GetMotionMaster()->MovePath(PATH_ETTIN_UP_HILL, false);
                     break;
@@ -600,7 +599,7 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
                     me->SetFacingToObject(daniel);
 
                 _events.ScheduleEvent(EVENT_ETTIN_LINE_1, 2s);
-                boulder->AI()->SetData(0, DATA_OSLOW_GET_UP);
+                boulder->AI()->DoAction(ACTION_OSLOW_GET_UP);
             }
         }
     }
