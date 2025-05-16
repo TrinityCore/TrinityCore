@@ -54,6 +54,7 @@ enum ShirrakEvents
     EVENT_FOCUS_FIRE
 };
 
+// 18371 - Shirrak the Dead Watcher
 struct boss_shirrak_the_dead_watcher : public BossAI
 {
     boss_shirrak_the_dead_watcher(Creature* creature) : BossAI(creature, DATA_SHIRRAK_THE_DEAD_WATCHER)
@@ -94,13 +95,13 @@ struct boss_shirrak_the_dead_watcher : public BossAI
                     if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
                     {
                         i_pl->RemoveAurasDueToSpell(SPELL_INHIBIT_MAGIC);
-                        me->AddAura(SPELL_INHIBIT_MAGIC, i_pl);
+                        me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
                         if (dist < 35)
-                            me->AddAura(SPELL_INHIBIT_MAGIC, i_pl);
+                            me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
                         if (dist < 25)
-                            me->AddAura(SPELL_INHIBIT_MAGIC, i_pl);
+                            me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
                         if (dist < 15)
-                            me->AddAura(SPELL_INHIBIT_MAGIC, i_pl);
+                            me->CastSpell(i_pl, SPELL_INHIBIT_MAGIC, true);
                     }
             Inhibitmagic_Timer = 3000 + (rand32() % 1000);
         } else Inhibitmagic_Timer -= diff;
@@ -145,6 +146,7 @@ struct boss_shirrak_the_dead_watcher : public BossAI
     }
 };
 
+// 18374 - Focus Fire
 struct npc_focus_fire : public ScriptedAI
 {
     npc_focus_fire(Creature* creature) : ScriptedAI(creature) { }
