@@ -89,6 +89,11 @@ enum RedridgeTalks
     TALK_JESS_SCARED        = 1,
 
     TALK_DANIEL_SCARED      = 1,
+
+    TALK_NOT_SO_HEAVY       = 0,
+    TALK_WHERE_THROW        = 1,
+    TALK_THROW_IN_WATER     = 2,
+    TALK_BYE                = 3
 };
 
 /*######
@@ -572,15 +577,15 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
             switch (eventId)
             {
                 case EVENT_ETTIN_LINE_1:
-                    Talk(0);
+                    Talk(TALK_NOT_SO_HEAVY);
                     _events.ScheduleEvent(EVENT_ETTIN_LINE_2, 4s);
                     break;
                 case EVENT_ETTIN_LINE_2:
-                    Talk(1);
+                    Talk(TALK_WHERE_THROW);
                     _events.ScheduleEvent(EVENT_ETTIN_LINE_3, 6s);
                     break;
                 case EVENT_ETTIN_LINE_3:
-                    Talk(2);
+                    Talk(TALK_THROW_IN_WATER);
                     _events.ScheduleEvent(EVENT_MOVE_TO_WATER, 1s);
                     break;
                 case EVENT_MOVE_TO_WATER:
@@ -591,7 +596,7 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
                     _events.ScheduleEvent(EVENT_PATH_AWAY, 6s);
                     break;
                 case EVENT_PATH_AWAY:
-                    Talk(3);
+                    Talk(TALK_BYE);
 
                     if (Creature* boulder = ObjectAccessor::GetCreature(*me, _boulderGUID))
                         boulder->AI()->SetData(0, DATA_DONE);
