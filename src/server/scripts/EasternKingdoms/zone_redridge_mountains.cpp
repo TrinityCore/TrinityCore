@@ -206,6 +206,13 @@ enum RedridgeHugeBoulder
     POINT_UP_PATH               = 3,
 };
 
+constexpr Position TrentRepositionPos = { -9281.44f, -2285.27f, 67.5123f };
+constexpr Position DmitriRepositionPos = { -9282.8f, -2293.28f, 67.5089f };
+constexpr Position JessRepositionPos = { -9282.27f, -2290.95f, 67.5319f };
+constexpr Position DanielRepositionPos = { -9281.77f, -2287.55f, 67.5869f };
+constexpr Position MatthewRepositionPos = { -9280.71f, -2283.21f, 67.5747f };
+constexpr Position AlexRepositionPos = { -9279.86f, -2281.42f, 67.5854f };
+
 // 43196 - Huge Boulder
 struct npc_redridge_huge_boulder : public CreatureAI
 {
@@ -336,37 +343,37 @@ struct npc_redridge_huge_boulder : public CreatureAI
                     if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
                     {
                         trent->SetAIAnimKitId(0);
-                        trent->GetMotionMaster()->MovePoint(0, -9281.44f, -2285.27f, 67.5123f);
+                        trent->GetMotionMaster()->MovePoint(0, TrentRepositionPos);
                     }
 
                     if (Creature* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
                     {
                         dmitri->SetAIAnimKitId(0);
-                        dmitri->GetMotionMaster()->MovePoint(0, -9282.8f, -2293.28f, 67.5089f);
+                        dmitri->GetMotionMaster()->MovePoint(0, DmitriRepositionPos);
                     }
 
                     if (Creature* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
                     {
                         jess->SetAIAnimKitId(0);
-                        jess->GetMotionMaster()->MovePoint(0, -9282.27f, -2290.95f, 67.5319f);
+                        jess->GetMotionMaster()->MovePoint(0, JessRepositionPos);
                     }
 
                     if (Creature* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
                     {
                         daniel->SetAIAnimKitId(0);
-                        daniel->GetMotionMaster()->MovePoint(0, -9281.77f, -2287.55f, 67.5869f);
+                        daniel->GetMotionMaster()->MovePoint(0, DanielRepositionPos);
                     }
 
                     if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
                     {
                         matthew->SetAIAnimKitId(0);
-                        matthew->GetMotionMaster()->MovePoint(0, -9280.71f, -2283.21f, 67.5747f);
+                        matthew->GetMotionMaster()->MovePoint(0, MatthewRepositionPos);
                     }
 
                     if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                     {
                         alex->SetAIAnimKitId(0);
-                        alex->GetMotionMaster()->MovePoint(0, -9279.86f, -2281.42f, 67.5854f);
+                        alex->GetMotionMaster()->MovePoint(0, AlexRepositionPos);
                     }
 
                     _events.ScheduleEvent(EVENT_LIFT_BOULDER, 100ms);
@@ -512,6 +519,8 @@ private:
     ObjectGuid _matthewGUID;
 };
 
+constexpr Position EttinNearBoulderPosition = { -9272.053f, -2291.7463f, 68.54081f };
+
 // 43197 - Subdued Canyon Ettin
 struct npc_redridge_subdued_canyon_ettin : public CreatureAI
 {
@@ -531,7 +540,7 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
         switch (spell->Id)
         {
             case SPELL_BOULDER_AURA:
-                me->GetMotionMaster()->MovePoint(POINT_NEAR_BOULDER, -9272.053f, -2291.7463f, 68.54081f, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
+                me->GetMotionMaster()->MovePoint(POINT_NEAR_BOULDER, EttinNearBoulderPosition, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
                 break;
             case SPELL_DESPAWN_KILL_CREDIT:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, caster->GetGUID()))
