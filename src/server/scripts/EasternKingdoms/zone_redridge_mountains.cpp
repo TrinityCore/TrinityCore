@@ -71,16 +71,23 @@ enum RedridgeCreatureData
 enum RedridgeTalks
 {
     TALK_OSLOW_IDLE         = 0,
+
     TALK_ALEX_HEAVE         = 1,
     TALK_ALEX_DAMN          = 2,
     TALK_ALEX_PUSH          = 4,
     TALK_ALEX_SCARED        = 5,
+
     TALK_WORKERS_HO         = 0,
+
     TALK_MATTHEW_IM_PUSHING = 1,
     TALK_MATTHEW_SCARED     = 2,
+
     TALK_TRENT_SCARED       = 1,
+
     TALK_DMITRI_SCARED      = 1,
+
     TALK_JESS_SCARED        = 1,
+
     TALK_DANIEL_SCARED      = 1,
 };
 
@@ -183,16 +190,16 @@ enum RedridgeHugeBoulder
 
     EVENT_DONE                  = 20,
 
-    DATA_REPOSITION        = 1,
-    DATA_OSLOW_GET_UP      = 2,
-    DATA_DONE              = 3,
+    DATA_REPOSITION             = 1,
+    DATA_OSLOW_GET_UP           = 2,
+    DATA_DONE                   = 3,
 
-    PATH_ETTIN_TO_WATER = 4319700,
-    PATH_ETTIN_UP_HILL  = 4319701,
+    PATH_ETTIN_TO_WATER         = 4319700,
+    PATH_ETTIN_UP_HILL          = 4319701,
 
-    POINT_NEAR_BOULDER  = 1,
-    POINT_NEAR_WATER    = 2,
-    POINT_UP_PATH       = 3,
+    POINT_NEAR_BOULDER          = 1,
+    POINT_NEAR_WATER            = 2,
+    POINT_UP_PATH               = 3,
 };
 
 // 43196 - Huge Boulder
@@ -231,6 +238,7 @@ struct npc_redridge_huge_boulder : public CreatureAI
             switch (eventId)
             {
                 case EVENT_STORE_GUIDS:
+                {
                     if (Creature const* oslow = me->FindNearestCreature(NPC_FOREMAN_OSLOW, 10.0f, true))
                         _oslowGUID = oslow->GetGUID();
                     if (Creature const* alex = me->FindNearestCreature(NPC_BRIDGE_WORKER_ALEX, 10.0f, true))
@@ -254,20 +262,25 @@ struct npc_redridge_huge_boulder : public CreatureAI
                         _events.ScheduleEvent(EVENT_ALEX_IDLE_TALK, 20s, 30s);
                     }
                     break;
+                }
                 case EVENT_OSLOW_IDLE_TALK:
+                {
                     if (Creature const* oslow = ObjectAccessor::GetCreature(*me, _oslowGUID))
                         oslow->AI()->Talk(TALK_OSLOW_IDLE);
                     _events.Repeat(45s, 60s);
                     break;
+                }
                 case EVENT_ALEX_IDLE_TALK:
+                {
                     if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
+                    {
                         switch (uint32 text = urand(0, 3))
                         {
-                            case 1:
+                            case TALK_ALEX_HEAVE:
                                 alex->AI()->Talk(TALK_ALEX_HEAVE);
                                 _events.ScheduleEvent(EVENT_WORKERS_RESPONSE, 1s);
                                 break;
-                            case 2:
+                            case TALK_ALEX_DAMN:
                                 alex->AI()->Talk(TALK_ALEX_DAMN);
                                 _events.ScheduleEvent(EVENT_ALEX_SAY_PUSH, 3s);
                                 break;
@@ -276,8 +289,11 @@ struct npc_redridge_huge_boulder : public CreatureAI
                                 _events.Repeat(10s);
                                 break;
                         }
+                    }
                     break;
+                }
                 case EVENT_WORKERS_RESPONSE:
+                {
                     if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                     {
                         if (Creature const* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
@@ -293,18 +309,26 @@ struct npc_redridge_huge_boulder : public CreatureAI
                     }
                     _events.ScheduleEvent(EVENT_ALEX_IDLE_TALK, 20s, 30s);
                     break;
+                }
                 case EVENT_ALEX_SAY_PUSH:
+                {
                     if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                         alex->AI()->Talk(TALK_ALEX_PUSH);
                     _events.ScheduleEvent(EVENT_MATTHEW_PUSH_RESPONSE, 4s);
                     break;
+                }
                 case EVENT_MATTHEW_PUSH_RESPONSE:
+                {
                     if (Creature const* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
+                    {
                         if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                             matthew->AI()->Talk(TALK_MATTHEW_IM_PUSHING, alex);
+                    }
                     _events.ScheduleEvent(EVENT_ALEX_IDLE_TALK, 20s, 30s);
                     break;
+                }
                 case EVENT_REPOSITION:
+                {
                     if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
                     {
                         trent->SetAIAnimKitId(0);
@@ -343,64 +367,65 @@ struct npc_redridge_huge_boulder : public CreatureAI
 
                     _events.ScheduleEvent(EVENT_LIFT_BOULDER, 100ms);
                     break;
+                }
                 case EVENT_LIFT_BOULDER:
+                {
+                    bool allStopped = true;
+
+                    if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
                     {
-                        bool allStopped = true;
+                        if (trent->IsStopped())
+                            trent->SetFacingToObject(me);
 
-                        if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
-                        {
-                            if (trent->IsStopped())
-                                trent->SetFacingToObject(me);
-
-                            allStopped = trent->IsStopped();
-                        }
-
-                        if (Creature* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
-                        {
-                            if (dmitri->IsStopped())
-                                dmitri->SetFacingToObject(me);
-
-                            allStopped = allStopped && dmitri->IsStopped();
-                        }
-
-                        if (Creature* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
-                        {
-                            if (jess->IsStopped())
-                                jess->SetFacingToObject(me);
-
-                            allStopped = allStopped && jess->IsStopped();
-                        }
-
-                        if (Creature* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
-                        {
-                            if (daniel->IsStopped())
-                                daniel->SetFacingToObject(me);
-
-                            allStopped = allStopped && daniel->IsStopped();
-                        }
-
-                        if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
-                        {
-                            if (matthew->IsStopped())
-                                matthew->SetFacingToObject(me);
-
-                            allStopped = allStopped && matthew->IsStopped();
-                        }
-
-                        if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                        {
-                            if (alex->IsStopped())
-                                alex->SetFacingToObject(me);
-
-                            allStopped = allStopped && alex->IsStopped();
-                        }
-
-                        if (allStopped)
-                            _events.ScheduleEvent(EVENT_BRIDGE_WORKERS_COWER, 6s);
-                        else
-                            _events.Repeat(100ms);
+                        allStopped = trent->IsStopped();
                     }
+
+                    if (Creature* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
+                    {
+                        if (dmitri->IsStopped())
+                            dmitri->SetFacingToObject(me);
+
+                        allStopped = allStopped && dmitri->IsStopped();
+                    }
+
+                    if (Creature* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
+                    {
+                        if (jess->IsStopped())
+                            jess->SetFacingToObject(me);
+
+                        allStopped = allStopped && jess->IsStopped();
+                    }
+
+                    if (Creature* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
+                    {
+                        if (daniel->IsStopped())
+                            daniel->SetFacingToObject(me);
+
+                        allStopped = allStopped && daniel->IsStopped();
+                    }
+
+                    if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
+                    {
+                        if (matthew->IsStopped())
+                            matthew->SetFacingToObject(me);
+
+                        allStopped = allStopped && matthew->IsStopped();
+                    }
+
+                    if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
+                    {
+                        if (alex->IsStopped())
+                            alex->SetFacingToObject(me);
+
+                        allStopped = allStopped && alex->IsStopped();
+                    }
+
+                    if (allStopped)
+                        _events.ScheduleEvent(EVENT_BRIDGE_WORKERS_COWER, 6s);
+                    else
+                        _events.Repeat(100ms);
                     break;
+                }
                 case EVENT_BRIDGE_WORKERS_COWER:
                 {
                     // all workers should cower
@@ -439,16 +464,21 @@ struct npc_redridge_huge_boulder : public CreatureAI
                     break;
                 }
                 case EVENT_OSLOW_GET_UP:
+                {
                     if (Creature* oslow = ObjectAccessor::GetCreature(*me, _oslowGUID))
                         oslow->SetStandState(UNIT_STAND_STATE_STAND);
 
                     _events.ScheduleEvent(EVENT_OSLOW_STUN, 2s);
                     break;
+                }
                 case EVENT_OSLOW_STUN:
+                {
                     if (Creature* oslow = ObjectAccessor::GetCreature(*me, _oslowGUID))
                         oslow->SetEmoteState(EMOTE_STATE_STUN);
                     break;
+                }
                 case EVENT_DONE:
+                {
                     if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                         alex->DespawnOrUnsummon();
                     if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
@@ -465,8 +495,9 @@ struct npc_redridge_huge_boulder : public CreatureAI
                         oslow->DespawnOrUnsummon();
 
                     _events.Reset();
-                    me->DisappearAndDie();
+                    me->DespawnOrUnsummon();
                     break;
+                }
                 default:
                     break;
             }
@@ -579,17 +610,19 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
             return;
 
         if (pointId == POINT_NEAR_BOULDER)
+        {
             if (Creature const* boulder = me->FindNearestCreature(NPC_HUGE_BOULDER, 5.0f, true))
             {
                 _boulderGUID = boulder->GetGUID();
                 me->CastSpell(nullptr, SPELL_LIFT_HUGE_BOULDER, false);
 
-                if (Creature const* daniel = me->FindNearestCreature(NPC_BRIDGE_WORKER_DANIEL, 20.0f,  true))
+                if (Creature const* daniel = me->FindNearestCreature(NPC_BRIDGE_WORKER_DANIEL, 20.0f, true))
                     me->SetFacingToObject(daniel);
 
                 _events.ScheduleEvent(EVENT_ETTIN_LINE_1, 2s);
                 boulder->AI()->SetData(0, DATA_OSLOW_GET_UP);
             }
+        }
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
@@ -630,6 +663,7 @@ class spell_redridge_control_ettin : public SpellScript
 
     void SetTarget(WorldObject*& target)
     {
+        // @TODO: move to db
         std::list<TempSummon*> minionList;
         GetCaster()->GetAllMinionsByEntry(minionList, NPC_SUBDUED_CANYON_ETTIN);
         if (minionList.empty())
@@ -654,7 +688,6 @@ class spell_redridge_control_ettin_2 : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
     {
-        // despawn target ettin
         if (Creature* target = GetHitCreature())
             target->DespawnOrUnsummon();
 
