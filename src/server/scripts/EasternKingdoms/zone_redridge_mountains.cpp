@@ -23,6 +23,7 @@ Script Data End */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "Containers.h"
 #include "G3DPosition.hpp"
 #include "MotionMaster.h"
@@ -159,10 +160,6 @@ public:
         return new npc_big_earlAI(creature);
     }
 };
-
-/*######
-# npc_redridge_huge_boulder
-######*/
 
 enum RedridgeHugeBoulder
 {
@@ -457,19 +454,19 @@ public:
                         break;
                     case EVENT_DONE:
                         if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                            alex->DisappearAndDie();
+                            alex->DespawnOrUnsummon();
                         if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
-                            matthew->DisappearAndDie();
+                            matthew->DespawnOrUnsummon();
                         if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
-                            trent->DisappearAndDie();
+                            trent->DespawnOrUnsummon();
                         if (Creature* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
-                            dmitri->DisappearAndDie();
+                            dmitri->DespawnOrUnsummon();
                         if (Creature* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
-                            jess->DisappearAndDie();
+                            jess->DespawnOrUnsummon();
                         if (Creature* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
-                            daniel->DisappearAndDie();
+                            daniel->DespawnOrUnsummon();
                         if (Creature* oslow = ObjectAccessor::GetCreature(*me, _oslowGUID))
-                            oslow->DisappearAndDie();
+                            oslow->DespawnOrUnsummon();
 
                         _events.Reset();
                         me->DisappearAndDie();
@@ -704,14 +701,8 @@ class spell_redridge_lift_huge_boulder : public SpellScript
             target->CastSpell(GetCaster(), GetEffectValue(), false);
     }
 
-    void SetTarget(WorldObject*& target) const
-    {
-        target = GetCaster()->FindNearestCreature(NPC_HUGE_BOULDER, GetSpellInfo()->GetMaxRange(), true);
-    }
-
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_redridge_lift_huge_boulder::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_redridge_lift_huge_boulder::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };

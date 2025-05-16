@@ -107,3 +107,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 3, -9260.689, -2312.725, 75.216, NULL, 0),
 (@PATH, 4, -9237.689, -2313.225, 78.716, NULL, 0),
 (@PATH, 5, -9214.52,  -2334.01,  83.6875, NULL, 0);
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (80739));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(13, 1, 80739, 0, 0, 51, 0, 5, 43196, 0, '', 0, 'Potential target of the spell is TYPEID_UNIT, entry is 43196');
