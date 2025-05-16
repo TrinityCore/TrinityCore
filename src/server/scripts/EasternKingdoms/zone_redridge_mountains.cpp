@@ -377,53 +377,22 @@ struct npc_redridge_huge_boulder : public CreatureAI
                 {
                     bool allStopped = true;
 
-                    if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
+                    auto stopCreature = [this, &allStopped](ObjectGuid const guid)
                     {
-                        if (trent->IsStopped())
-                            trent->SetFacingToObject(me);
+                        if (Creature* creature = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            if (creature->IsStopped())
+                                creature->SetFacingToObject(me);
 
-                        allStopped = trent->IsStopped();
-                    }
-
-                    if (Creature* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
-                    {
-                        if (dmitri->IsStopped())
-                            dmitri->SetFacingToObject(me);
-
-                        allStopped = allStopped && dmitri->IsStopped();
-                    }
-
-                    if (Creature* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
-                    {
-                        if (jess->IsStopped())
-                            jess->SetFacingToObject(me);
-
-                        allStopped = allStopped && jess->IsStopped();
-                    }
-
-                    if (Creature* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
-                    {
-                        if (daniel->IsStopped())
-                            daniel->SetFacingToObject(me);
-
-                        allStopped = allStopped && daniel->IsStopped();
-                    }
-
-                    if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
-                    {
-                        if (matthew->IsStopped())
-                            matthew->SetFacingToObject(me);
-
-                        allStopped = allStopped && matthew->IsStopped();
-                    }
-
-                    if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                    {
-                        if (alex->IsStopped())
-                            alex->SetFacingToObject(me);
-
-                        allStopped = allStopped && alex->IsStopped();
-                    }
+                            allStopped = creature->IsStopped();
+                        }
+                    };
+                    stopCreature(_trentGUID);
+                    stopCreature(_dmitriGUID);
+                    stopCreature(_jessGUID);
+                    stopCreature(_danielGUID);
+                    stopCreature(_matthewGUID);
+                    stopCreature(_alexGUID);
 
                     if (allStopped)
                         _events.ScheduleEvent(EVENT_BRIDGE_WORKERS_COWER, 6s);
@@ -441,31 +410,37 @@ struct npc_redridge_huge_boulder : public CreatureAI
 
                     // pick two random workers to say random scared things
                     Trinity::Containers::RandomResize(allWorkers, 2);
-                    std::set<ObjectGuid> scaredWorkers(allWorkers.begin(), allWorkers.end());
 
-                    if (scaredWorkers.contains(_alexGUID))
-                        if (Creature const* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
-                            alex->AI()->Talk(TALK_ALEX_SCARED, me);
+                    for (ObjectGuid const workerGUID : allWorkers)
+                    {
+                        Creature* worker = ObjectAccessor::GetCreature(*me, workerGUID);
+                        if (!worker)
+                            continue;
 
-                    if (scaredWorkers.contains(_matthewGUID))
-                        if (Creature const* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
-                            matthew->AI()->Talk(TALK_MATTHEW_SCARED, me);
-
-                    if (scaredWorkers.contains(_trentGUID))
-                        if (Creature const* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
-                            trent->AI()->Talk(TALK_TRENT_SCARED, me);
-
-                    if (scaredWorkers.contains(_dmitriGUID))
-                        if (Creature const* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
-                            dmitri->AI()->Talk(TALK_DMITRI_SCARED, me);
-
-                    if (scaredWorkers.contains(_jessGUID))
-                        if (Creature const* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
-                            jess->AI()->Talk(TALK_JESS_SCARED, me);
-
-                    if (scaredWorkers.contains(_danielGUID))
-                        if (Creature const* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
-                            daniel->AI()->Talk(TALK_DANIEL_SCARED, me);
+                        switch (worker->GetEntry())
+                        {
+                            case NPC_BRIDGE_WORKER_ALEX:
+                                worker->AI()->Talk(TALK_ALEX_SCARED, me);
+                                break;
+                            case NPC_BRIDGE_WORKER_MATTHEW:
+                                worker->AI()->Talk(TALK_MATTHEW_SCARED, me);
+                                break;
+                            case NPC_BRIDGE_WORKER_TRENT:
+                                worker->AI()->Talk(TALK_TRENT_SCARED, me);
+                                break;
+                            case NPC_BRIDGE_WORKER_DMITRI:
+                                worker->AI()->Talk(TALK_DMITRI_SCARED, me);
+                                break;
+                            case NPC_BRIDGE_WORKER_JESS:
+                                worker->AI()->Talk(TALK_JESS_SCARED, me);
+                                break;
+                            case NPC_BRIDGE_WORKER_DANIEL:
+                                worker->AI()->Talk(TALK_DANIEL_SCARED, me);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                     break;
                 }
                 case EVENT_OSLOW_GET_UP:
