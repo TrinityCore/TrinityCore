@@ -89,7 +89,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 1, -9271.457, -2309.5933, 69.892654, NULL, 0),
 (@PATH, 2, -9279.707, -2319.0933, 66.892654, NULL, 0),
 (@PATH, 3, -9303.957, -2330.5933, 61.642654, NULL, 0),
-(@PATH, 4, -9324.86,  -2338.94,   61.2445, NULL, 0);
+(@PATH, 4, -9324.86,  -2338.94,   61.2445, 5.0614, 0);
 
 -- Path 2 for Subdued Canyon Ettin
 SET @ENTRY := 43197;

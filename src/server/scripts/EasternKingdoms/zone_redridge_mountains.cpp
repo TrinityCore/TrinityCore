@@ -182,20 +182,18 @@ enum RedridgeHugeBoulder
     EVENT_ALEX_SAY_PUSH         = 5,
     EVENT_MATTHEW_PUSH_RESPONSE = 6,
     EVENT_REPOSITION            = 7,
-    EVENT_LIFT_BOULDER          = 8,
-    EVENT_BRIDGE_WORKERS_COWER  = 9,
-    EVENT_OSLOW_GET_UP          = 10,
-    EVENT_OSLOW_STUN            = 11,
-    EVENT_ETTIN_LINE_1          = 12,
-    EVENT_ETTIN_LINE_2          = 13,
-    EVENT_ETTIN_LINE_3          = 14,
-    EVENT_MOVE_TO_WATER         = 15,
-    EVENT_THROW_BOULDER         = 16,
-    EVENT_PATH_AWAY             = 17,
-
-    EVENT_DONE                  = 20,
+    EVENT_BRIDGE_WORKERS_COWER  = 8,
+    EVENT_OSLOW_GET_UP          = 9,
+    EVENT_OSLOW_STUN            = 10,
+    EVENT_ETTIN_LINE_1          = 11,
+    EVENT_ETTIN_LINE_2          = 12,
+    EVENT_MOVE_TO_WATER         = 13,
+    EVENT_THROW_BOULDER         = 14,
+    EVENT_PATH_AWAY             = 15,
+    EVENT_DONE,
 
     ACTION_OSLOW_GET_UP         = 0,
+    ACTION_COWER                = 1,
     ACTION_DONE,
 
     PATH_ETTIN_TO_WATER         = 4319700,
@@ -206,12 +204,12 @@ enum RedridgeHugeBoulder
     POINT_UP_PATH               = 3,
 };
 
-constexpr Position TrentRepositionPos = { -9281.44f, -2285.27f, 67.5123f };
-constexpr Position DmitriRepositionPos = { -9282.8f, -2293.28f, 67.5089f };
-constexpr Position JessRepositionPos = { -9282.27f, -2290.95f, 67.5319f };
-constexpr Position DanielRepositionPos = { -9281.77f, -2287.55f, 67.5869f };
-constexpr Position MatthewRepositionPos = { -9280.71f, -2283.21f, 67.5747f };
-constexpr Position AlexRepositionPos = { -9279.86f, -2281.42f, 67.5854f };
+constexpr Position TrentRepositionPos = { -9281.44f, -2285.27f, 67.5123f, 6.0213f };
+constexpr Position DmitriRepositionPos = { -9282.8f, -2293.28f, 67.5089f, 6.2657f };
+constexpr Position JessRepositionPos = { -9282.27f, -2290.95f, 67.5319f, 6.0737f };
+constexpr Position DanielRepositionPos = { -9281.77f, -2287.55f, 67.5869f, 6.0911f };
+constexpr Position MatthewRepositionPos = { -9280.71f, -2283.21f, 67.5747f, 6.0737f };
+constexpr Position AlexRepositionPos = { -9279.86f, -2281.42f, 67.5854f, 5.7421f };
 
 // 43196 - Huge Boulder
 struct npc_redridge_huge_boulder : public CreatureAI
@@ -237,7 +235,7 @@ struct npc_redridge_huge_boulder : public CreatureAI
             return;
 
         _events.Reset();
-        _events.ScheduleEvent(EVENT_REPOSITION, 500ms);
+        _events.ScheduleEvent(EVENT_REPOSITION, 0ms);
     }
 
     void UpdateAI(uint32 diff) override
@@ -343,67 +341,38 @@ struct npc_redridge_huge_boulder : public CreatureAI
                     if (Creature* trent = ObjectAccessor::GetCreature(*me, _trentGUID))
                     {
                         trent->SetAIAnimKitId(0);
-                        trent->GetMotionMaster()->MovePoint(0, TrentRepositionPos);
+                        trent->GetMotionMaster()->MovePoint(0, TrentRepositionPos, true, TrentRepositionPos.GetOrientation());
                     }
 
                     if (Creature* dmitri = ObjectAccessor::GetCreature(*me, _dmitriGUID))
                     {
                         dmitri->SetAIAnimKitId(0);
-                        dmitri->GetMotionMaster()->MovePoint(0, DmitriRepositionPos);
+                        dmitri->GetMotionMaster()->MovePoint(0, DmitriRepositionPos, true, DmitriRepositionPos.GetOrientation());
                     }
 
                     if (Creature* jess = ObjectAccessor::GetCreature(*me, _jessGUID))
                     {
                         jess->SetAIAnimKitId(0);
-                        jess->GetMotionMaster()->MovePoint(0, JessRepositionPos);
+                        jess->GetMotionMaster()->MovePoint(0, JessRepositionPos, true, JessRepositionPos.GetOrientation());
                     }
 
                     if (Creature* daniel = ObjectAccessor::GetCreature(*me, _danielGUID))
                     {
                         daniel->SetAIAnimKitId(0);
-                        daniel->GetMotionMaster()->MovePoint(0, DanielRepositionPos);
+                        daniel->GetMotionMaster()->MovePoint(0, DanielRepositionPos, true, DanielRepositionPos.GetOrientation());
                     }
 
                     if (Creature* matthew = ObjectAccessor::GetCreature(*me, _matthewGUID))
                     {
                         matthew->SetAIAnimKitId(0);
-                        matthew->GetMotionMaster()->MovePoint(0, MatthewRepositionPos);
+                        matthew->GetMotionMaster()->MovePoint(0, MatthewRepositionPos, true, MatthewRepositionPos.GetOrientation());
                     }
 
                     if (Creature* alex = ObjectAccessor::GetCreature(*me, _alexGUID))
                     {
                         alex->SetAIAnimKitId(0);
-                        alex->GetMotionMaster()->MovePoint(0, AlexRepositionPos);
+                        alex->GetMotionMaster()->MovePoint(0, AlexRepositionPos, true, AlexRepositionPos.GetOrientation());
                     }
-
-                    _events.ScheduleEvent(EVENT_LIFT_BOULDER, 100ms);
-                    break;
-                }
-                case EVENT_LIFT_BOULDER:
-                {
-                    bool allStopped = true;
-
-                    auto stopCreature = [this, &allStopped](ObjectGuid const guid)
-                    {
-                        if (Creature* creature = ObjectAccessor::GetCreature(*me, guid))
-                        {
-                            if (creature->IsStopped())
-                                creature->SetFacingToObject(me);
-
-                            allStopped = creature->IsStopped();
-                        }
-                    };
-                    stopCreature(_trentGUID);
-                    stopCreature(_dmitriGUID);
-                    stopCreature(_jessGUID);
-                    stopCreature(_danielGUID);
-                    stopCreature(_matthewGUID);
-                    stopCreature(_alexGUID);
-
-                    if (allStopped)
-                        _events.ScheduleEvent(EVENT_BRIDGE_WORKERS_COWER, 6s);
-                    else
-                        _events.Repeat(100ms);
                     break;
                 }
                 case EVENT_BRIDGE_WORKERS_COWER:
@@ -495,10 +464,13 @@ struct npc_redridge_huge_boulder : public CreatureAI
         switch (param)
         {
             case ACTION_OSLOW_GET_UP:
-                _events.ScheduleEvent(EVENT_OSLOW_GET_UP, 2s);
+                _events.ScheduleEvent(EVENT_OSLOW_GET_UP, 500ms);
 
                 // in case player who started event disconnects
                 _events.ScheduleEvent(EVENT_DONE, 30s);
+                break;
+            case ACTION_COWER:
+                _events.ScheduleEvent(EVENT_BRIDGE_WORKERS_COWER, 3s);
                 break;
             case ACTION_DONE:
                 _events.ScheduleEvent(EVENT_DONE, 0s);
@@ -561,18 +533,19 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
             {
                 case EVENT_ETTIN_LINE_1:
                     Talk(TALK_NOT_SO_HEAVY);
-                    _events.ScheduleEvent(EVENT_ETTIN_LINE_2, 4s);
+                    _events.ScheduleEvent(EVENT_ETTIN_LINE_2, 3s);
                     break;
                 case EVENT_ETTIN_LINE_2:
                     Talk(TALK_WHERE_THROW);
-                    _events.ScheduleEvent(EVENT_ETTIN_LINE_3, 6s);
-                    break;
-                case EVENT_ETTIN_LINE_3:
-                    Talk(TALK_THROW_IN_WATER);
-                    _events.ScheduleEvent(EVENT_MOVE_TO_WATER, 1s);
+
+                    if (Creature* boulder = ObjectAccessor::GetCreature(*me, _boulderGUID))
+                        boulder->AI()->DoAction(ACTION_COWER);
+
+                    _events.ScheduleEvent(EVENT_MOVE_TO_WATER, 9s);
                     break;
                 case EVENT_MOVE_TO_WATER:
                     me->GetMotionMaster()->MovePath(PATH_ETTIN_TO_WATER, false);
+                    Talk(TALK_THROW_IN_WATER);
                     break;
                 case EVENT_THROW_BOULDER:
                     me->CastSpell(nullptr, SPELL_EJECT_PASSENGER_1);
@@ -607,7 +580,7 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
                 if (Creature const* daniel = me->FindNearestCreature(NPC_BRIDGE_WORKER_DANIEL, 20.0f, true))
                     me->SetFacingToObject(daniel);
 
-                _events.ScheduleEvent(EVENT_ETTIN_LINE_1, 2s);
+                _events.ScheduleEvent(EVENT_ETTIN_LINE_1, 2500ms);
                 boulder->AI()->DoAction(ACTION_OSLOW_GET_UP);
             }
         }
@@ -617,8 +590,7 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
     {
         if (pathId == PATH_ETTIN_TO_WATER)
         {
-            me->SetFacingTo(5.0614f);
-            _events.ScheduleEvent(EVENT_THROW_BOULDER, 1s);
+            _events.ScheduleEvent(EVENT_THROW_BOULDER, 0s);
         }
         else if (pathId == PATH_ETTIN_UP_HILL)
         {
