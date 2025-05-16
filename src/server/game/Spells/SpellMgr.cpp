@@ -4717,6 +4717,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Throw Axe
+    ApplySpellFix({ 196876 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
+        });
+    });
+
     // ENDOF MARDUM SPELLS
 
     //
@@ -5085,15 +5094,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // Sigil of Flame
     ApplySpellFix({ 204598 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
-        });
-    });
-
-    // Throw Axe
-    ApplySpellFix({ 196876 }, [](SpellInfo* spellInfo)
     {
         ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
         {

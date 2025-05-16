@@ -2092,8 +2092,7 @@ class spell_fel_lord_caza_throwing_axe_selector : public SpellScript
 {
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        caster->CastSpell(GetHitUnit()->GetPosition(), SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
