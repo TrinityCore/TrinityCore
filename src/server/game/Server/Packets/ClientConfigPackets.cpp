@@ -66,7 +66,7 @@ void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
     if (compressedSize)
     {
         CompressedData.resize(compressedSize);
-        _worldPacket.read(CompressedData.contents(), compressedSize);
+        _worldPacket.read(CompressedData.data(), compressedSize);
     }
 }
 

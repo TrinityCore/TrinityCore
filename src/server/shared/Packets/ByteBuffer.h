@@ -571,19 +571,8 @@ class TC_SHARED_API ByteBuffer
 
         std::string_view ReadString(uint32 length, bool requireValidUtf8 = true);
 
-        uint8* contents()
-        {
-            if (_storage.empty())
-                throw ByteBufferException();
-            return _storage.data();
-        }
-
-        uint8 const* contents() const
-        {
-            if (_storage.empty())
-                throw ByteBufferException();
-            return _storage.data();
-        }
+        uint8* data() { return _storage.data(); }
+        uint8 const* data() const { return _storage.data(); }
 
         size_t size() const { return _storage.size(); }
         bool empty() const { return _storage.empty(); }
@@ -622,7 +611,7 @@ class TC_SHARED_API ByteBuffer
         void append(ByteBuffer const& buffer)
         {
             if (!buffer.empty())
-                append(buffer.contents(), buffer.size());
+                append(buffer.data(), buffer.size());
         }
 
         template <size_t Size>
