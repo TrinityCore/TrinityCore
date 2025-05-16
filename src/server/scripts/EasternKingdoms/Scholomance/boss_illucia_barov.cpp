@@ -19,7 +19,7 @@
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum IlluciaSpells
 {
     SPELL_CURSE_OF_AGONY        = 18671,
     SPELL_DOMINATE              = 7645, // UNUSED YET added for documentation
@@ -28,7 +28,7 @@ enum Spells
     SPELL_SILENCE               = 12528
 };
 
-enum Events
+enum IlluciaEvents
 {
     EVENT_CURSE_OF_AGONY = 1,
     EVENT_SHADOW_SHOCK,
@@ -36,6 +36,7 @@ enum Events
     EVENT_FEAR
 };
 
+// 10502 - Lady Illucia Barov
 struct boss_illucia_barov : public BossAI
 {
     boss_illucia_barov(Creature* creature) : BossAI(creature, DATA_LADY_ILLUCIA_BAROV) { }
@@ -65,19 +66,19 @@ struct boss_illucia_barov : public BossAI
             {
                 case EVENT_CURSE_OF_AGONY:
                     DoCastVictim(SPELL_CURSE_OF_AGONY);
-                    events.ScheduleEvent(EVENT_CURSE_OF_AGONY, 30s);
+                    events.Repeat(30s);
                     break;
                 case EVENT_SHADOW_SHOCK:
                     DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_SHADOW_SHOCK);
-                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, 12s);
+                    events.Repeat(12s);
                     break;
                 case EVENT_SILENCE:
                     DoCastSelf(SPELL_SILENCE);
-                    events.ScheduleEvent(EVENT_SILENCE, 14s);
+                    events.Repeat(14s);
                     break;
                 case EVENT_FEAR:
                     DoCastVictim(SPELL_FEAR);
-                    events.ScheduleEvent(EVENT_FEAR, 30s);
+                    events.Repeat(30s);
                     break;
                 default:
                     break;

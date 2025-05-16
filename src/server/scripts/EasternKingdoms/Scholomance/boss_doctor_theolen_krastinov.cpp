@@ -19,25 +19,26 @@
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Texts
+enum TheolenTexts
 {
-    EMOTE_FRENZY_KILL           = 0,
+    EMOTE_FRENZY_KILL           = 0
 };
 
-enum Spells
+enum TheolenSpells
 {
     SPELL_REND                  = 16509,
     SPELL_BACKHAND              = 18103,
     SPELL_FRENZY                = 8269
 };
 
-enum Events
+enum TheolenEvents
 {
     EVENT_REND = 1,
     EVENT_BACKHAND,
     EVENT_FRENZY
 };
 
+// 11261 - Doctor Theolen Krastinov
 struct boss_doctor_theolen_krastinov : public BossAI
 {
     boss_doctor_theolen_krastinov(Creature* creature) : BossAI(creature, DATA_DOCTOR_THEOLEN_KRASTINOV) { }
@@ -66,16 +67,16 @@ struct boss_doctor_theolen_krastinov : public BossAI
             {
                 case EVENT_REND:
                     DoCastVictim(SPELL_REND);
-                    events.ScheduleEvent(EVENT_REND, 10s);
+                    events.Repeat(10s);
                     break;
                 case EVENT_BACKHAND:
                     DoCastVictim(SPELL_BACKHAND);
-                    events.ScheduleEvent(EVENT_BACKHAND, 10s);
+                    events.Repeat(10s);
                     break;
                 case EVENT_FRENZY:
                     DoCastSelf(SPELL_FRENZY);
                     Talk(EMOTE_FRENZY_KILL);
-                    events.ScheduleEvent(EVENT_FRENZY, 120s);
+                    events.Repeat(120s);
                     break;
                 default:
                     break;

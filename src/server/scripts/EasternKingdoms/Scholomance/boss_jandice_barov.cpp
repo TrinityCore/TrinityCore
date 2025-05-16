@@ -19,14 +19,14 @@
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum JandiceSpells
 {
     SPELL_CURSE_OF_BLOOD        = 24673,
     SPELL_ILLUSION              = 17773,
     SPELL_DROP_JOURNAL          = 26096
 };
 
-enum Events
+enum JandiceEvents
 {
     EVENT_CURSE_OF_BLOOD = 1,
     EVENT_ILLUSION,
@@ -34,6 +34,7 @@ enum Events
     EVENT_SET_VISIBILITY
 };
 
+// 10503 - Jandice Barov
 struct boss_jandice_barov : public ScriptedAI
 {
     boss_jandice_barov(Creature* creature) : ScriptedAI(creature), _summons(me) { }
@@ -81,7 +82,7 @@ struct boss_jandice_barov : public ScriptedAI
             {
                 case EVENT_CURSE_OF_BLOOD:
                     DoCastVictim(SPELL_CURSE_OF_BLOOD);
-                    _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 30s);
+                    _events.Repeat(30s);
                     break;
                 case EVENT_ILLUSION:
                     DoCast(SPELL_ILLUSION);
@@ -89,7 +90,7 @@ struct boss_jandice_barov : public ScriptedAI
                     me->SetDisplayId(11686);  // Invisible Model
                     ModifyThreatByPercent(me->GetVictim(), -99);
                     _events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
-                    _events.ScheduleEvent(EVENT_ILLUSION, 25s);
+                    _events.Repeat(25s);
                     break;
                 case EVENT_SET_VISIBILITY:
                     me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);

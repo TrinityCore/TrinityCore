@@ -19,11 +19,12 @@
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum DarkreaverSpells
 {
     SUMMON_FALLEN_CHARGER       = 23261
 };
 
+// 14516 - Death Knight Darkreaver
 struct boss_death_knight_darkreaver : public ScriptedAI
 {
     boss_death_knight_darkreaver(Creature* creature) : ScriptedAI(creature) { }

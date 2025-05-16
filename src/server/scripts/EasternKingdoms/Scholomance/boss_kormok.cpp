@@ -20,7 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum Spells
+enum KormokSpells
 {
     SPELL_SHADOWBOLT_VOLLEY             = 20741,
     SPELL_BONE_SHIELD                   = 27688,
@@ -38,7 +38,7 @@ enum Spells
     SPELL_SUMMON_BONE_MINION_RIGHT      = 27693
 };
 
-enum Events
+enum KormokEvents
 {
     EVENT_SHADOWBOLT_VOLLEY = 1,
     EVENT_BONE_SHIELD,
@@ -46,6 +46,7 @@ enum Events
     EVENT_SUMMON_MINIONS
 };
 
+// 16118 - Kormok
 struct boss_kormok : public ScriptedAI
 {
     boss_kormok(Creature* creature) : ScriptedAI(creature) { }
@@ -79,19 +80,19 @@ struct boss_kormok : public ScriptedAI
             {
                 case EVENT_SHADOWBOLT_VOLLEY:
                     DoCastSelf(SPELL_SHADOWBOLT_VOLLEY);
-                    _events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15s);
+                    _events.Repeat(15s);
                     break;
                 case EVENT_BONE_SHIELD:
                     DoCastSelf(SPELL_BONE_SHIELD);
-                    _events.ScheduleEvent(EVENT_BONE_SHIELD, 45s);
+                    _events.Repeat(45s);
                     break;
                 case EVENT_SUMMON_MAGES:
                     DoCastSelf(SPELL_SUMMON_BONE_MAGES);
-                    _events.ScheduleEvent(EVENT_SUMMON_MAGES, 10s, 15s);
+                    _events.Repeat(10s, 15s);
                     break;
                 case EVENT_SUMMON_MINIONS:
                     DoCastSelf(SPELL_SUMMON_BONE_MINIONS);
-                    _events.ScheduleEvent(EVENT_SUMMON_MINIONS, 20s, 25s);
+                    _events.Repeat(20s, 25s);
                     break;
                 default:
                     break;

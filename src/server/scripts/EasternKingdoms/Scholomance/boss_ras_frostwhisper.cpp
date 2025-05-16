@@ -19,7 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum RasSpells
 {
     SPELL_FROSTBOLT         = 21369,
     SPELL_ICE_ARMOR         = 18100, // This is actually a buff he gives himself
@@ -29,7 +29,7 @@ enum Spells
     SPELL_FROSTBOLT_VOLLEY  = 8398
 };
 
-enum Events
+enum RasEvents
 {
     EVENT_FROSTBOLT = 1,
     EVENT_ICE_ARMOR,
@@ -39,6 +39,7 @@ enum Events
     EVENT_FROSTVOLLEY
 };
 
+// 10508 - Ras Frostwhisper
 struct boss_boss_ras_frostwhisper : public ScriptedAI
 {
     boss_boss_ras_frostwhisper(Creature* creature) : ScriptedAI(creature) { }
@@ -74,28 +75,28 @@ struct boss_boss_ras_frostwhisper : public ScriptedAI
             {
                 case EVENT_ICE_ARMOR:
                     DoCastSelf(SPELL_ICE_ARMOR);
-                    _events.ScheduleEvent(EVENT_ICE_ARMOR, 3min);
+                    _events.Repeat(3min);
                     break;
                 case EVENT_FROSTBOLT:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                         DoCast(target, SPELL_FROSTBOLT);
-                    _events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
+                    _events.Repeat(8s);
                     break;
                 case EVENT_FREEZE:
                     DoCastVictim(SPELL_FREEZE);
-                    _events.ScheduleEvent(EVENT_FREEZE, 24s);
+                    _events.Repeat(24s);
                     break;
                 case EVENT_FEAR:
                     DoCastSelf(SPELL_FEAR);
-                    _events.ScheduleEvent(EVENT_FEAR, 30s);
+                    _events.Repeat(30s);
                     break;
                 case EVENT_CHILL_NOVA:
                     DoCastSelf(SPELL_CHILL_NOVA);
-                    _events.ScheduleEvent(EVENT_CHILL_NOVA, 14s);
+                    _events.Repeat(14s);
                     break;
                 case EVENT_FROSTVOLLEY:
                     DoCastVictim(SPELL_FROSTBOLT_VOLLEY);
-                    _events.ScheduleEvent(EVENT_FROSTVOLLEY, 15s);
+                    _events.Repeat(15s);
                     break;
                 default:
                     break;

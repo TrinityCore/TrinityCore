@@ -26,12 +26,12 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Texts
+enum GandlingTexts
 {
     SAY_SUMMONED                 = 0
 };
 
-enum Spells
+enum GandlingSpells
 {
     SPELL_ARCANE_MISSILES       = 15790,
     SPELL_SHADOW_SHIELD         = 12040,
@@ -39,7 +39,7 @@ enum Spells
     SPELL_SHADOW_PORTAL         = 17950
 };
 
-enum Events
+enum GandlingEvents
 {
     EVENT_ARCANE_MISSILES = 1,
     EVENT_SHADOW_SHIELD,
@@ -47,6 +47,7 @@ enum Events
     EVENT_SHADOW_PORTAL
 };
 
+// 1853 - Darkmaster Gandling
 struct boss_darkmaster_gandling : public BossAI
 {
     boss_darkmaster_gandling(Creature* creature) : BossAI(creature, DATA_DARKMASTER_GANDLING) { }
@@ -99,21 +100,21 @@ struct boss_darkmaster_gandling : public BossAI
             {
                 case EVENT_ARCANE_MISSILES:
                     DoCastVictim(SPELL_ARCANE_MISSILES);
-                    events.ScheduleEvent(EVENT_ARCANE_MISSILES, 8s);
+                    events.Repeat(8s);
                     break;
                 case EVENT_SHADOW_SHIELD:
                     DoCastSelf(SPELL_SHADOW_SHIELD);
-                    events.ScheduleEvent(EVENT_SHADOW_SHIELD, 14s, 28s);
+                    events.Repeat(14s, 28s);
                     break;
                 case EVENT_CURSE:
                     DoCastVictim(SPELL_CURSE);
-                    events.ScheduleEvent(EVENT_CURSE, 15s, 27s);
+                    events.Repeat(15s, 27s);
                     break;
                 case EVENT_SHADOW_PORTAL:
                     if (HealthAbovePct(3))
                     {
                         DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_SHADOW_PORTAL);
-                        events.ScheduleEvent(EVENT_SHADOW_PORTAL, 17s, 27s);
+                        events.Repeat(17s, 27s);
                     }
             }
 

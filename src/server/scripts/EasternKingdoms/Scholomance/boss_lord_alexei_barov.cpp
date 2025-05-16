@@ -19,19 +19,20 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum AlexeiSpells
 {
     SPELL_IMMOLATE                  = 20294,
     SPELL_VEIL_OF_SHADOW            = 17820,
     SPELL_UNHOLY_AURA               = 17467
 };
 
-enum Events
+enum AlexeiEvents
 {
     EVENT_IMMOLATE = 1,
     EVENT_VEIL_OF_SHADOW
 };
 
+// 10504 - Lord Alexei Barov
 struct boss_lord_alexei_barov : public BossAI
 {
     boss_lord_alexei_barov(Creature* creature) : BossAI(creature, DATA_LORD_ALEXEI_BAROV) { }
@@ -67,11 +68,11 @@ struct boss_lord_alexei_barov : public BossAI
             {
                 case EVENT_IMMOLATE:
                     DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_IMMOLATE);
-                    events.ScheduleEvent(EVENT_IMMOLATE, 12s);
+                    events.Repeat(12s);
                     break;
                 case EVENT_VEIL_OF_SHADOW:
                     DoCastVictim(SPELL_VEIL_OF_SHADOW);
-                    events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 20s);
+                    events.Repeat(20s);
                     break;
                 default:
                     break;

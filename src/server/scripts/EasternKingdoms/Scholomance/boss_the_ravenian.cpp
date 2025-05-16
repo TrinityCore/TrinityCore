@@ -19,7 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum RavenianSpells
 {
     SPELL_TRAMPLE                   = 15550,
     SPELL_CLEAVE                    = 20691,
@@ -27,7 +27,7 @@ enum Spells
     SPELL_KNOCK_AWAY                = 10101
 };
 
-enum Events
+enum RavenianEvents
 {
     EVENT_TRAMPLE = 1,
     EVENT_CLEAVE,
@@ -35,6 +35,7 @@ enum Events
     EVENT_KNOCK_AWAY
 };
 
+// 10507 - The Ravenian
 struct boss_the_ravenian : public BossAI
 {
     boss_the_ravenian(Creature* creature) : BossAI(creature, DATA_THE_RAVENIAN) { }
@@ -64,19 +65,19 @@ struct boss_the_ravenian : public BossAI
             {
                 case EVENT_TRAMPLE:
                     DoCastSelf(SPELL_TRAMPLE);
-                    events.ScheduleEvent(EVENT_TRAMPLE, 10s);
+                    events.Repeat(10s);
                     break;
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    events.ScheduleEvent(EVENT_CLEAVE, 7s);
+                    events.Repeat(7s);
                     break;
                 case EVENT_SUNDERING_CLEAVE:
                     DoCastVictim(SPELL_SUNDERING_CLEAVE);
-                    events.ScheduleEvent(EVENT_SUNDERING_CLEAVE, 20s);
+                    events.Repeat(20s);
                     break;
                 case EVENT_KNOCK_AWAY:
                     DoCastVictim(SPELL_KNOCK_AWAY);
-                    events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s);
+                    events.Repeat(12s);
                     break;
                 default:
                     break;

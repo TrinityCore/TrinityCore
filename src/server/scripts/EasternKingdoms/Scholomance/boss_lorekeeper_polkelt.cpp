@@ -19,7 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum PolkeltSpells
 {
     SPELL_VOLATILE_INFECTION    = 24928,
     SPELL_DARK_PLAGUE           = 18270,
@@ -27,7 +27,7 @@ enum Spells
     SPELL_NOXIOUS_CATALYST      = 18151
 };
 
-enum Events
+enum PolkeltEvents
 {
     EVENT_VOLATILE_INFECTION = 1,
     EVENT_DARK_PLAGUE,
@@ -35,6 +35,7 @@ enum Events
     EVENT_NOXIOUS_CATALYST
 };
 
+// 10901 - Lorekeeper Polkelt
 struct boss_lorekeeper_polkelt : public BossAI
 {
     boss_lorekeeper_polkelt(Creature* creature) : BossAI(creature, DATA_LOREKEEPER_POLKELT) { }
@@ -64,19 +65,19 @@ struct boss_lorekeeper_polkelt : public BossAI
             {
                 case EVENT_VOLATILE_INFECTION:
                     DoCastVictim(SPELL_VOLATILE_INFECTION);
-                    events.ScheduleEvent(EVENT_VOLATILE_INFECTION, 32s);
+                    events.Repeat(32s);
                     break;
                 case EVENT_DARK_PLAGUE:
                     DoCastVictim(SPELL_DARK_PLAGUE);
-                    events.ScheduleEvent(EVENT_DARK_PLAGUE, 8s);
+                    events.Repeat(8s);
                     break;
                 case EVENT_CORROSIVE_ACID:
                     DoCastSelf(SPELL_CORROSIVE_ACID);
-                    events.ScheduleEvent(EVENT_CORROSIVE_ACID, 25s);
+                    events.Repeat(25s);
                     break;
                 case EVENT_NOXIOUS_CATALYST:
                     DoCastVictim(SPELL_NOXIOUS_CATALYST);
-                    events.ScheduleEvent(EVENT_NOXIOUS_CATALYST, 38s);
+                    events.Repeat(38s);
                     break;
                 default:
                     break;

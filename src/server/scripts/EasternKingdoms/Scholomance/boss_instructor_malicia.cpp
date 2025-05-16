@@ -19,7 +19,7 @@
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum MaliciaSpells
 {
     SPELL_CALL_OF_GRAVES        = 17831,
     SPELL_CORRUPTION            = 11672,
@@ -28,7 +28,7 @@ enum Spells
     SPELL_HEALING_TOUCH         = 9889
 };
 
-enum Events
+enum MaliciaEvents
 {
     EVENT_CALL_OF_GRAVES = 1,
     EVENT_CORRUPTION,
@@ -37,6 +37,7 @@ enum Events
     EVENT_HEALING_TOUCH
 };
 
+// 10505 - Instructor Malicia
 struct boss_instructor_malicia : public BossAI
 {
     boss_instructor_malicia(Creature* creature) : BossAI(creature, DATA_INSTRUCTOR_MALICIA)
@@ -85,15 +86,15 @@ struct boss_instructor_malicia : public BossAI
             {
                 case EVENT_CALL_OF_GRAVES:
                     DoCastSelf(SPELL_CALL_OF_GRAVES);
-                    events.ScheduleEvent(EVENT_CALL_OF_GRAVES, 65s);
+                    events.Repeat(65s);
                     break;
                 case EVENT_CORRUPTION:
                     DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CORRUPTION);
-                    events.ScheduleEvent(EVENT_CORRUPTION, 24s);
+                    events.Repeat(24s);
                     break;
                 case EVENT_RENEW:
                     DoCastSelf(SPELL_RENEW);
-                    events.ScheduleEvent(EVENT_RENEW, 10s);
+                    events.Repeat(10s);
                     break;
                 case EVENT_FLASH_HEAL:
                     // 5 Flash Heal will be cast

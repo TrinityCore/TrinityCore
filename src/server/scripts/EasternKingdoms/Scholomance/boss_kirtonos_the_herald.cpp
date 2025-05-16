@@ -26,12 +26,12 @@
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Texts
+enum KirtonosTexts
 {
    EMOTE_SUMMONED                     = 0
 };
 
-enum Spells
+enum KirtonosSpells
 {
     SPELL_SWOOP                       = 18144,
     SPELL_WING_FLAP                   = 12882,
@@ -43,7 +43,7 @@ enum Spells
     SPELL_DOMINATE_MIND               = 14515
 };
 
-enum Events
+enum KirtonosEvents
 {
     INTRO_1                           = 1,
     INTRO_2                           = 2,
@@ -61,7 +61,7 @@ enum Events
     EVENT_KIRTONOS_TRANSFORM          = 14
 };
 
-enum Misc
+enum KirtonosMisc
 {
     WEAPON_KIRTONOS_STAFF             = 11365,
     POINT_KIRTONOS_LAND               = 13,
@@ -74,6 +74,7 @@ Position const PosMove[2] =
     { 314.8673f, 90.30210f, 101.6459f, 0.0f }
 };
 
+// 10506 - Kirtonos the Herald
 struct boss_kirtonos_the_herald : public BossAI
 {
     boss_kirtonos_the_herald(Creature* creature) : BossAI(creature, DATA_KIRTONOS) { }
@@ -199,31 +200,31 @@ struct boss_kirtonos_the_herald : public BossAI
             {
                 case EVENT_SWOOP:
                     DoCastVictim(SPELL_SWOOP);
-                    events.ScheduleEvent(EVENT_SWOOP, 15s);
+                    events.Repeat(15s);
                     break;
                 case EVENT_WING_FLAP:
                     DoCastSelf(SPELL_WING_FLAP);
-                    events.ScheduleEvent(EVENT_WING_FLAP, 13s);
+                    events.Repeat(13s);
                     break;
                 case EVENT_PIERCE_ARMOR:
                     DoCastVictim(SPELL_PIERCE_ARMOR);
-                    events.ScheduleEvent(EVENT_PIERCE_ARMOR, 12s);
+                    events.Repeat(12s);
                     break;
                 case EVENT_DISARM:
                     DoCastVictim(SPELL_DISARM);
-                    events.ScheduleEvent(EVENT_DISARM, 11s);
+                    events.Repeat(11s);
                     break;
                 case EVENT_SHADOW_BOLT:
                     DoCastVictim(SPELL_SHADOW_BOLT);
-                    events.ScheduleEvent(EVENT_SHADOW_BOLT, 42s);
+                    events.Repeat(42s);
                     break;
                 case EVENT_CURSE_OF_TONGUES:
                     DoCastVictim(SPELL_CURSE_OF_TONGUES);
-                    events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 35s);
+                    events.Repeat(35s);
                     break;
                 case EVENT_DOMINATE_MIND:
                     DoCastVictim(SPELL_DOMINATE_MIND);
-                    events.ScheduleEvent(EVENT_DOMINATE_MIND, 44s, 48s);
+                    events.Repeat(44s, 48s);
                     break;
                 case EVENT_KIRTONOS_TRANSFORM:
                     if (me->HasAura(SPELL_KIRTONOS_TRANSFORM))
@@ -238,7 +239,7 @@ struct boss_kirtonos_the_herald : public BossAI
                         me->SetVirtualItem(0, uint32(WEAPON_KIRTONOS_STAFF));
                         me->SetCanFly(true);
                     }
-                    events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, 16s, 18s);
+                    events.Repeat(16s, 18s);
                     break;
                 default:
                     break;

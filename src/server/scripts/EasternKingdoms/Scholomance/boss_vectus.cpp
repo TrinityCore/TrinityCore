@@ -19,12 +19,12 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Texts
+enum VectusTexts
 {
     EMOTE_FRENZY                 = 0
 };
 
-enum Spells
+enum VectusSpells
 {
     SPELL_FLAMESTRIKE            = 18399,
     SPELL_BLAST_WAVE             = 16046,
@@ -32,13 +32,14 @@ enum Spells
     SPELL_FRENZY                 = 8269  // 28371
 };
 
-enum Events
+enum VectusEvents
 {
     EVENT_FIRE_SHIELD = 1,
     EVENT_BLAST_WAVE,
     EVENT_FRENZY
 };
 
+// 10432 - Vectus
 struct boss_vectus : public ScriptedAI
 {
     boss_vectus(Creature* creature) : ScriptedAI(creature) { }
@@ -56,7 +57,7 @@ struct boss_vectus : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(25, damage))
+        if (!me->HasAura(SPELL_FRENZY) && me->HealthBelowPctDamaged(25, damage))
             _events.ScheduleEvent(EVENT_FRENZY, 0s);
     }
 
@@ -76,16 +77,16 @@ struct boss_vectus : public ScriptedAI
             {
                 case EVENT_FIRE_SHIELD:
                     DoCastSelf(SPELL_FIRE_SHIELD);
-                    _events.ScheduleEvent(EVENT_FIRE_SHIELD, 90s);
+                    _events.Repeat(90s);
                     break;
                 case EVENT_BLAST_WAVE:
                     DoCastSelf(SPELL_BLAST_WAVE);
-                    _events.ScheduleEvent(EVENT_BLAST_WAVE, 12s);
+                    _events.Repeat(12s);
                     break;
                 case EVENT_FRENZY:
                     DoCastSelf(SPELL_FRENZY);
                     Talk(EMOTE_FRENZY);
-                    _events.ScheduleEvent(EVENT_FRENZY, 24s);
+                    _events.Repeat(24s);
                     break;
                 default:
                     break;
