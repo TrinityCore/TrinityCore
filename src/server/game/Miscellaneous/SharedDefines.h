@@ -105,7 +105,7 @@ enum Expansions
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_CATACLYSM
+#define CURRENT_EXPANSION EXPANSION_WRATH_OF_THE_LICH_KING
 
 constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
