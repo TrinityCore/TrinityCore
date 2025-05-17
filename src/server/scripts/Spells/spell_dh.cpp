@@ -752,7 +752,7 @@ class spell_dh_demonic : public SpellScript
         SpellCastTargets targets;
         targets.SetUnitTarget(caster);
 
-        Spell* spell = new Spell(caster, sSpellMgr->AssertSpellInfo(_transformSpellId, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, ObjectGuid::Empty);
+        Spell* spell = new Spell(caster, sSpellMgr->AssertSpellInfo(_transformSpellId, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, ObjectGuid::Empty, GetSpell()->m_castId);
         spell->m_SpellVisual.SpellXSpellVisualID = 0;
         spell->m_SpellVisual.ScriptVisualID = 0;
         spell->SetSpellValue({ SPELLVALUE_DURATION, duration });
