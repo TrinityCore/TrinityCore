@@ -15,12 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Luetenant_Drake
-SD%Complete: 70
-SDComment: Missing proper code for patrolling area after being spawned. Script for GO (barrels) quest 10283
-SDCategory: Caverns of Time, Old Hillsbrad Foothills
-EndScriptData */
+/* Missing proper code for patrolling area after being spawned */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
@@ -30,11 +25,7 @@ EndScriptData */
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
 
-/*######
-## boss_lieutenant_drake
-######*/
-
-enum LieutenantDrake
+enum DrakeTexts
 {
     SAY_ENTER               = 0,
     SAY_AGGRO               = 1,
@@ -42,11 +33,22 @@ enum LieutenantDrake
     SAY_MORTAL              = 3,
     SAY_SHOUT               = 4,
     SAY_DEATH               = 5,
+};
 
+enum DrakeSpells
+{
     SPELL_WHIRLWIND         = 31909,
     SPELL_HAMSTRING         = 9080,
     SPELL_MORTAL_STRIKE     = 31911,
     SPELL_FRIGHTENING_SHOUT = 33789
+};
+
+enum DrakeEvents
+{
+    EVENT_WHIRLWIND           = 1,
+    EVENT_HAMSTRING,
+    EVENT_MORTAL_STRIKE,
+    EVENT_FRIGHTENING_SHOUT
 };
 
 Position const DrakeWP[]=
@@ -72,6 +74,7 @@ Position const DrakeWP[]=
     { 2128.20f, 70.9763f, 64.4221f }
 };
 
+// 17848 - Lieutenant Drake
 struct boss_lieutenant_drake : public BossAI
 {
     boss_lieutenant_drake(Creature* creature) : BossAI(creature, DATA_LIEUTENANT_DRAKE)
@@ -83,20 +86,10 @@ struct boss_lieutenant_drake : public BossAI
     {
         CanPatrol = true;
         wpId = 0;
-
-        Whirlwind_Timer = 20000;
-        Fear_Timer = 30000;
-        MortalStrike_Timer = 45000;
-        ExplodingShout_Timer = 25000;
     }
 
     bool CanPatrol;
     uint32 wpId;
-
-    uint32 Whirlwind_Timer;
-    uint32 Fear_Timer;
-    uint32 MortalStrike_Timer;
-    uint32 ExplodingShout_Timer;
 
     void Reset() override
     {
@@ -108,6 +101,10 @@ struct boss_lieutenant_drake : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_WHIRLWIND, 20s);
+        events.ScheduleEvent(EVENT_HAMSTRING, 30s);
+        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 45s);
+        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 25s);
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -130,40 +127,47 @@ struct boss_lieutenant_drake : public BossAI
             ++wpId;
         }
 
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        //Whirlwind
-        if (Whirlwind_Timer <= diff)
-        {
-            DoCastVictim(SPELL_WHIRLWIND);
-            Whirlwind_Timer = 20000 + rand32() % 5000;
-        } else Whirlwind_Timer -= diff;
+        events.Update(diff);
 
-        //Fear
-        if (Fear_Timer <= diff)
-        {
-            Talk(SAY_SHOUT);
-            DoCastVictim(SPELL_FRIGHTENING_SHOUT);
-            Fear_Timer = 25000 + rand32() % 10000;
-        } else Fear_Timer -= diff;
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
 
-        //Mortal Strike
-        if (MortalStrike_Timer <= diff)
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Talk(SAY_MORTAL);
-            DoCastVictim(SPELL_MORTAL_STRIKE);
-            MortalStrike_Timer = 20000 + rand32() % 10000;
-        } else MortalStrike_Timer -= diff;
+            switch (eventId)
+            {
+                case EVENT_WHIRLWIND:
+                    DoCastSelf(SPELL_WHIRLWIND);
+                    events.Repeat(20s, 25s);
+                    break;
+                case EVENT_HAMSTRING:
+                    DoCastVictim(SPELL_HAMSTRING);
+                    events.Repeat(15s, 20s);
+                    break;
+                case EVENT_MORTAL_STRIKE:
+                    Talk(SAY_MORTAL);
+                    DoCastVictim(SPELL_MORTAL_STRIKE);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_FRIGHTENING_SHOUT:
+                    Talk(SAY_SHOUT);
+                    DoCastVictim(SPELL_FRIGHTENING_SHOUT);
+                    events.Repeat(25s, 35s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
         DoMeleeAttackIfReady();
     }
 };
-
-/*######
-## go_barrel_old_hillsbrad
-######*/
 
 struct go_barrel_old_hillsbrad : public GameObjectAI
 {
