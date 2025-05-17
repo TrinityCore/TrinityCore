@@ -48,16 +48,22 @@ enum ThorngrinEvents
     EVENT_ENRAGE
 };
 
+enum ThorngrinPhases : uint8
+{
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_50,
+    PHASE_HEALTH_20
+};
+
 // 17978 - Thorngrin the Tender
 struct boss_thorngrin_the_tender : public BossAI
 {
-    boss_thorngrin_the_tender(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER), _phase1(false), _phase2(false), _intro(false) { }
+    boss_thorngrin_the_tender(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER), _phase(PHASE_NONE), _intro(false) { }
 
     void Reset() override
     {
         _Reset();
-        _phase1 = false;
-        _phase2 = false;
+        _phase = PHASE_NONE;
         _intro = false;
     }
 
@@ -105,14 +111,14 @@ struct boss_thorngrin_the_tender : public BossAI
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_phase1 && me->HealthBelowPctDamaged(50, damage))
+        if (_phase < PHASE_HEALTH_50 && me->HealthBelowPctDamaged(50, damage))
         {
-            _phase1 = true;
+            _phase++;
             Talk(SAY_50_PERCENT_HP);
         }
-        if (!_phase2 && me->HealthBelowPctDamaged(20, damage))
+        if (_phase < PHASE_HEALTH_20 && me->HealthBelowPctDamaged(20, damage))
         {
-            _phase2 = true;
+            _phase++;
             Talk(SAY_20_PERCENT_HP);
         }
     }
@@ -167,8 +173,7 @@ struct boss_thorngrin_the_tender : public BossAI
     }
 
 private:
-    bool _phase1;
-    bool _phase2;
+    uint8 _phase;
     bool _intro;
 };
 
