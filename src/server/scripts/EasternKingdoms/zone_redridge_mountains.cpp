@@ -29,6 +29,7 @@ Script Data End */
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "WaypointDefines.h"
 #include "World.h"
 #include <algorithm>
@@ -615,9 +616,24 @@ class spell_redridge_control_ettin : public SpellScript
 {
     SpellCastResult CheckCast()
     {
-        if (!GetCaster()->HasAura(SPELL_CANYON_ETTIN_SPAWN_SPELL))
+        // check for a spawn spell with a valid caster (subdued ettin)
+        Aura const* spawnAura = GetCaster()->GetAura(SPELL_CANYON_ETTIN_SPAWN_SPELL, [](Aura const* aura)
+        {
+            return aura->GetCaster() != nullptr;
+        });
+
+        if (spawnAura != nullptr)
+        {
+            // fail if the subdued ettin is no longer alive
+            if (!spawnAura->GetCaster()->IsAlive())
+                return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+        }
+        else
+        {
+            // no spawn spell, so require nearby canyon ettin
             if (!GetCaster()->FindNearestCreature(NPC_CANYON_ETTIN, GetSpellInfo()->GetMaxRange(), true))
                 return SPELL_FAILED_OUT_OF_RANGE;
+        }
 
         return SPELL_CAST_OK;
     }
@@ -626,14 +642,11 @@ class spell_redridge_control_ettin : public SpellScript
     {
         if (Unit const* target = GetHitUnit())
         {
-            // only control one ettin
-            if (GetCaster()->HasAura(SPELL_CANYON_ETTIN_SPAWN_SPELL))
+            // conditions ensure this ettin is owned by player
+            if (target->GetEntry() == NPC_SUBDUED_CANYON_ETTIN)
             {
-                if (target->GetEntry() == NPC_SUBDUED_CANYON_ETTIN)
-                {
-                    GetCaster()->CastSpell(nullptr, SPELL_BOULDER_AURA, false);
-                    GetCaster()->CastSpell(nullptr, SPELL_DESPAWN_KILL_CREDIT, false);
-                }
+                GetCaster()->CastSpell(nullptr, SPELL_BOULDER_AURA, false);
+                GetCaster()->CastSpell(nullptr, SPELL_DESPAWN_KILL_CREDIT, false);
             }
             else
                 GetCaster()->CastSpell(nullptr, SPELL_CONTROL_ETTIN_2, false);
