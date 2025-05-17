@@ -15,184 +15,194 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-Name: Boss_Shirrak_the_dead_watcher
-%Complete: 80
-Comment: InhibitMagic should stack slower far from the boss, proper Visual for Focus Fire, heroic implemented
-Category: Auchindoun, Auchenai Crypts
-EndScriptData */
+/* Old comment: "Inhibit Magic should stack slower far from the boss" - really? */
 
-#include "ScriptMgr.h"
-#include "auchenai_crypts.h"
-#include "Map.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellScript.h"
+#include "SpellInfo.h"
+#include "auchenai_crypts.h"
 
-enum Spells
+enum ShirrakTexts
 {
-    SPELL_INHIBITMAGIC          = 32264,
-    SPELL_ATTRACTMAGIC          = 32265,
-    SPELL_CARNIVOROUSBITE       = 36383,
-
-    SPELL_FIERY_BLAST           = 32302,
-
-    SPELL_FOCUS_FIRE_VISUAL     = 42075 //need to find better visual
+    EMOTE_FOCUSED                  = 0
 };
 
-enum Say
+enum ShirrakSpells
 {
-    EMOTE_FOCUSED               = 0
+    SPELL_INHIBIT_MAGIC_PERIODIC   = 33460,
+    SPELL_INHIBIT_MAGIC            = 32264,
+
+    SPELL_ATTRACT_MAGIC            = 32265,
+    SPELL_CARNIVOROUS_BITE         = 36383,
+    SPELL_FOCUS_FIRE_AURA          = 32291,
+
+    SPELL_BIRTH                    = 26262,
+    SPELL_FOCUS_TARGET_VISUAL      = 32286,
+    SPELL_FIERY_BLAST              = 32302,
+
+    SPELL_FOCUS_FIRE_DUMMY         = 32300,
+    SPELL_PING_SHIRRAK             = 32301
 };
 
-enum Creatures
+enum ShirrakEvents
 {
-    NPC_FOCUS_FIRE            = 18374
+    EVENT_ATTRACT_MAGIC            = 1,
+    EVENT_CARNIVOROUS_BITE,
+    EVENT_FOCUS_FIRE
 };
 
+// 18371 - Shirrak the Dead Watcher
 struct boss_shirrak_the_dead_watcher : public BossAI
 {
-    boss_shirrak_the_dead_watcher(Creature* creature) : BossAI(creature, DATA_SHIRRAK_THE_DEAD_WATCHER)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        Inhibitmagic_Timer = 0;
-        Attractmagic_Timer = 28000;
-        Carnivorousbite_Timer = 10000;
-        FocusFire_Timer = 17000;
-        FocusedTargetGUID.Clear();
-    }
-
-    uint32 Inhibitmagic_Timer;
-    uint32 Attractmagic_Timer;
-    uint32 Carnivorousbite_Timer;
-    uint32 FocusFire_Timer;
-
-    ObjectGuid FocusedTargetGUID;
+    boss_shirrak_the_dead_watcher(Creature* creature) : BossAI(creature, DATA_SHIRRAK_THE_DEAD_WATCHER) { }
 
     void Reset() override
     {
-        Initialize();
+        DoCastSelf(SPELL_INHIBIT_MAGIC_PERIODIC);
         _Reset();
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustEngagedWith(Unit* who) override
     {
-        if (summoned && summoned->GetEntry() == NPC_FOCUS_FIRE)
-        {
-            summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
-            summoned->SetFaction(me->GetFaction());
-            summoned->SetLevel(me->GetLevel());
-            summoned->AddUnitState(UNIT_STATE_ROOT);
-
-            if (Unit* pFocusedTarget = ObjectAccessor::GetUnit(*me, FocusedTargetGUID))
-                summoned->AI()->AttackStart(pFocusedTarget);
-        }
-        BossAI::JustSummoned(summoned);
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_ATTRACT_MAGIC, 30s);
+        events.ScheduleEvent(EVENT_CARNIVOROUS_BITE, 5s, 10s);
+        events.ScheduleEvent(EVENT_FOCUS_FIRE, 20s, 30s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        //Inhibitmagic_Timer
-        if (Inhibitmagic_Timer <= diff)
-        {
-            float dist;
-            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if (Player* i_pl = i->GetSource())
-                    if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
-                    {
-                        i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
-                        me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        if (dist < 35)
-                            me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        if (dist < 25)
-                            me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        if (dist < 15)
-                            me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                    }
-            Inhibitmagic_Timer = 3000 + (rand32() % 1000);
-        } else Inhibitmagic_Timer -= diff;
-
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        //Attractmagic_Timer
-        if (Attractmagic_Timer <= diff)
-        {
-            DoCast(me, SPELL_ATTRACTMAGIC);
-            Attractmagic_Timer = 30000;
-            Carnivorousbite_Timer = 1500;
-        } else Attractmagic_Timer -= diff;
+        events.Update(diff);
 
-        //Carnivorousbite_Timer
-        if (Carnivorousbite_Timer <= diff)
-        {
-            DoCast(me, SPELL_CARNIVOROUSBITE);
-            Carnivorousbite_Timer = 10000;
-        } else Carnivorousbite_Timer -= diff;
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
 
-        //FocusFire_Timer
-        if (FocusFire_Timer <= diff)
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            // Summon Focus Fire & Emote
-            Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
-            if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
+            switch (eventId)
             {
-                FocusedTargetGUID = target->GetGUID();
-                me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500ms);
-                Talk(EMOTE_FOCUSED, target);
+                case EVENT_ATTRACT_MAGIC:
+                    DoCastSelf(SPELL_ATTRACT_MAGIC);
+                    events.Repeat(30s);
+                    break;
+                case EVENT_CARNIVOROUS_BITE:
+                    DoCastSelf(SPELL_CARNIVOROUS_BITE);
+                    events.Repeat(5s, 10s);
+                    break;
+                case EVENT_FOCUS_FIRE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 50, true))
+                    {
+                        DoCast(target, SPELL_FOCUS_FIRE_AURA);
+                        Talk(EMOTE_FOCUSED, target);
+                    }
+                    events.Repeat(15s, 25s);
+                    break;
+                default:
+                    break;
             }
-            FocusFire_Timer = 15000 + (rand32() % 5000);
-        } else FocusFire_Timer -= diff;
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
         DoMeleeAttackIfReady();
     }
 };
 
+// 18374 - Focus Fire
 struct npc_focus_fire : public ScriptedAI
 {
-    npc_focus_fire(Creature* creature) : ScriptedAI(creature)
+    npc_focus_fire(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
     {
-        Initialize();
+        me->SetReactState(REACT_PASSIVE);
     }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        FieryBlast_Timer = 3000 + (rand32() % 1000);
-        fiery1 = fiery2 = true;
-    }
+        // Should be in this sniffed order but makes it ignore other spell casts, so disabled
+        // DoCastSelf(SPELL_BIRTH);
+        DoCastSelf(SPELL_FOCUS_TARGET_VISUAL);
+        DoCastSelf(SPELL_PING_SHIRRAK);
 
-    uint32 FieryBlast_Timer;
-    bool fiery1, fiery2;
-
-    void Reset() override
-    {
-        Initialize();
+        _scheduler.Schedule(5s, [this](TaskContext /*task*/)
+        {
+            DoCastSelf(SPELL_FIERY_BLAST);
+        });
     }
 
     void UpdateAI(uint32 diff) override
     {
-        //Return since we have no target
-        if (!UpdateVictim())
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 32301 - Ping Shirrak
+class spell_shirrak_ping_shirrak : public SpellScript
+{
+    PrepareSpellScript(spell_shirrak_ping_shirrak);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FOCUS_FIRE_DUMMY });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_FOCUS_FIRE_DUMMY);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_shirrak_ping_shirrak::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 32264 - Inhibit Magic
+class spell_shirrak_inhibit_magic : public SpellScript
+{
+    PrepareSpellScript(spell_shirrak_inhibit_magic);
+
+    void RemoveOldAura(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+    }
+
+    void TriggerNext()
+    {
+        int32 castIndex = GetCastIndex();
+        if (castIndex >= 3)
             return;
 
-        //FieryBlast_Timer
-        if (fiery2 && FieryBlast_Timer <= diff)
-        {
-            DoCast(me, SPELL_FIERY_BLAST);
+        float radiusMod = GetSpellValue()->RadiusMod * 0.66f;
 
-            if (fiery1) fiery1 = false;
-            else if (fiery2) fiery2 = false;
+        GetCaster()->CastSpell(nullptr, GetSpellInfo()->Id, CastSpellExtraArgs()
+            .SetTriggerFlags(TRIGGERED_FULL_MASK)
+            .AddSpellMod(SPELLVALUE_BASE_POINT1, castIndex + 1)
+            .AddSpellMod(SPELLVALUE_RADIUS_MOD, int32(radiusMod * 10000)));
+    }
 
-            FieryBlast_Timer = 1000;
-        } else FieryBlast_Timer -= diff;
+    int32 GetCastIndex() const
+    {
+        // we are storing number of casts in a non-effect SPELLVALUE_BASE_POINT1
+        return GetSpellValue()->EffectBasePoints[EFFECT_1];
+    }
 
-        DoMeleeAttackIfReady();
+    void Register() override
+    {
+        if (!GetSpell() || GetCastIndex() == 0)
+            OnEffectLaunchTarget += SpellEffectFn(spell_shirrak_inhibit_magic::RemoveOldAura, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+
+        AfterCast += SpellCastFn(spell_shirrak_inhibit_magic::TriggerNext);
     }
 };
 
@@ -200,4 +210,6 @@ void AddSC_boss_shirrak_the_dead_watcher()
 {
     RegisterAuchenaiCryptsCreatureAI(boss_shirrak_the_dead_watcher);
     RegisterAuchenaiCryptsCreatureAI(npc_focus_fire);
+    RegisterSpellScript(spell_shirrak_ping_shirrak);
+    RegisterSpellScript(spell_shirrak_inhibit_magic);
 }
