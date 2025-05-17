@@ -97,12 +97,6 @@ struct boss_skarmorak : public BossAI
         Talk(SAY_DEATH);
     }
 
-    void JustAppeared() override
-    {
-        me->SetPowerType(POWER_ENERGY);
-        me->SetPower(POWER_ENERGY, 100);
-    }
-
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         Talk(SAY_WIPE);
