@@ -78,6 +78,8 @@ enum HunterSpells
     SPELL_HUNTER_SCOUTS_INSTINCTS                   = 459455,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
+    SPELL_HUNTER_STREAMLINE_TALENT                  = 260367,
+    SPELL_HUNTER_STREAMLINE_BUFF                    = 342076,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
     SPELL_HUNTER_TAR_TRAP                           = 187699,
@@ -955,6 +957,33 @@ class spell_hun_steady_shot : public SpellScript
     }
 };
 
+// 260367 - Streamline (attached to 257044 - Rapid Fire)
+class spell_hun_streamline : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_STREAMLINE_TALENT, SPELL_HUNTER_STREAMLINE_BUFF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_STREAMLINE_TALENT);
+    }
+
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_STREAMLINE_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_hun_streamline::HandleAfterCast);
+    }
+};
+
 // 391559 - Surging Shots
 class spell_hun_surging_shots : public AuraScript
 {
@@ -1228,6 +1257,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_scouts_instincts);
     RegisterSpellScript(spell_hun_scrappy);
     RegisterSpellScript(spell_hun_steady_shot);
+    RegisterSpellScript(spell_hun_streamline);
     RegisterSpellScript(spell_hun_surging_shots);
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
