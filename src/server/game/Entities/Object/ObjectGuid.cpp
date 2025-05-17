@@ -19,10 +19,9 @@
 #include "ByteBuffer.h"
 #include "Errors.h"
 #include "Hash.h"
-#include "Log.h"
 #include "RealmList.h"
+#include "StringFormat.h"
 #include "Util.h"
-#include "World.h"
 #include <charconv>
 
 static_assert(sizeof(ObjectGuid) == sizeof(uint64) * 2, "ObjectGuid must be exactly 16 bytes");
@@ -31,9 +30,12 @@ namespace
 {
     struct ObjectGuidInfo
     {
-        std::string Names[AsUnderlyingType(HighGuid::Count)];
-        fmt::appender(*ClientFormatFunction[AsUnderlyingType(HighGuid::Count)])(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid);
-        ObjectGuid(*ClientParseFunction[AsUnderlyingType(HighGuid::Count)])(HighGuid type, std::string_view guidString);
+        using FormatFunction = fmt::appender(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid);
+        using ParseFunction = ObjectGuid(HighGuid type, std::string_view guidString);
+
+        std::string_view Names[AsUnderlyingType(HighGuid::Count)];
+        std::array<FormatFunction*, AsUnderlyingType(HighGuid::Count)> ClientFormatFunction;
+        std::array<ParseFunction*, AsUnderlyingType(HighGuid::Count)> ClientParseFunction;
 
         static std::string Format(ObjectGuid const& guid)
         {
@@ -72,9 +74,9 @@ namespace
         static constexpr inline FormatBase dec{ 10 };
         static constexpr inline FormatBase hex{ 16 };
 
-        static fmt::appender AppendTypeName(fmt::format_context& ctx, std::string const& type)
+        static fmt::appender AppendTypeName(fmt::format_context& ctx, std::string_view type)
         {
-            return std::copy(type.begin(), type.end(), ctx.out());
+            return std::ranges::copy(type, ctx.out()).out;
         }
 
         template <FormatPadding Width, FormatBase Base>
@@ -90,19 +92,19 @@ namespace
             if constexpr (Width != 0)
             {
                 if (std::ptrdiff_t written =  std::distance(buf.data(), end); written < Width)
-                    std::fill_n(ctx.out(), Width - written, '0');
+                    std::ranges::fill_n(ctx.out(), Width - written, '0');
             }
 
             if constexpr (Base > 10)
-                return std::transform(buf.data(), end, ctx.out(), charToUpper);
+                return std::ranges::transform(buf.data(), end, ctx.out(), charToUpper).out;
             else
-                return std::copy(buf.data(), end, ctx.out());
+                return std::ranges::copy(buf.data(), end, ctx.out()).out;
         }
 
         static fmt::appender AppendComponent(fmt::format_context& ctx, std::string_view component)
         {
             *ctx.out() = '-';
-            return std::copy(component.begin(), component.end(), ctx.out());
+            return std::ranges::copy(component, ctx.out()).out;
         }
 
         template <FormatBase Base, typename T>
@@ -126,9 +128,9 @@ namespace
 
         static bool ParseDone(std::string_view const& sv) { return sv.empty(); }
 
-        static fmt::appender FormatNull(fmt::format_context& ctx, std::string const& /*typeName*/, ObjectGuid const& /*guid*/)
+        static fmt::appender FormatNull(fmt::format_context& ctx, std::string_view /*typeName*/, ObjectGuid const& /*guid*/)
         {
-            return std::fill_n(ctx.out(), 16, '0');
+            return std::ranges::fill_n(ctx.out(), 16, '0');
         }
 
         static ObjectGuid ParseNull(HighGuid, std::string_view)
@@ -136,80 +138,56 @@ namespace
             return ObjectGuid::Empty;
         }
 
-        static fmt::appender FormatUniq(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static constexpr std::array<std::string_view, 20> UniqNames =
         {
-            constexpr char const* uniqNames[] =
-            {
-                nullptr,
-                "WOWGUID_UNIQUE_PROBED_DELETE",
-                "WOWGUID_UNIQUE_JAM_TEMP",
-                "WOWGUID_TO_STRING_FAILED",
-                "WOWGUID_FROM_STRING_FAILED",
-                "WOWGUID_UNIQUE_SERVER_SELF",
-                "WOWGUID_UNIQUE_MAGIC_SELF",
-                "WOWGUID_UNIQUE_MAGIC_PET",
-                "WOWGUID_UNIQUE_INVALID_TRANSPORT",
-                "WOWGUID_UNIQUE_AMMO_ID",
-                "WOWGUID_SPELL_TARGET_TRADE_ITEM",
-                "WOWGUID_SCRIPT_TARGET_INVALID",
-                "WOWGUID_SCRIPT_TARGET_NONE",
-                nullptr,
-                "WOWGUID_FAKE_MODERATOR",
-                nullptr,
-                nullptr,
-                "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION",
-                nullptr,
-                "WOWGUID_PENDING_PERMANENT_CHARACTER_ASSIGNMENT"
-            };
+            "",
+            "WOWGUID_UNIQUE_PROBED_DELETE",
+            "WOWGUID_UNIQUE_JAM_TEMP",
+            "WOWGUID_TO_STRING_FAILED",
+            "WOWGUID_FROM_STRING_FAILED",
+            "WOWGUID_UNIQUE_SERVER_SELF",
+            "WOWGUID_UNIQUE_MAGIC_SELF",
+            "WOWGUID_UNIQUE_MAGIC_PET",
+            "WOWGUID_UNIQUE_INVALID_TRANSPORT",
+            "WOWGUID_UNIQUE_AMMO_ID",
+            "WOWGUID_SPELL_TARGET_TRADE_ITEM",
+            "WOWGUID_SCRIPT_TARGET_INVALID",
+            "WOWGUID_SCRIPT_TARGET_NONE",
+            "",
+            "WOWGUID_FAKE_MODERATOR",
+            "",
+            "",
+            "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION",
+            "",
+            "WOWGUID_PENDING_PERMANENT_CHARACTER_ASSIGNMENT"
+        };
 
+        static fmt::appender FormatUniq(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
+        {
             ObjectGuid::LowType id = guid.GetCounter();
-            if (id >= std::size(uniqNames) || !uniqNames[id])
+            if (id >= UniqNames.size() || UniqNames[id].empty())
                 id = 3;
 
             ctx.advance_to(AppendTypeName(ctx, typeName));
-            ctx.advance_to(AppendComponent(ctx, uniqNames[id]));
+            ctx.advance_to(AppendComponent(ctx, UniqNames[id]));
             return ctx.out();
         }
 
         static ObjectGuid ParseUniq(HighGuid /*type*/, std::string_view guidString)
         {
-            constexpr char const* uniqNames[] =
+            for (std::size_t id = 0; id < UniqNames.size(); ++id)
             {
-                nullptr,
-                "WOWGUID_UNIQUE_PROBED_DELETE",
-                "WOWGUID_UNIQUE_JAM_TEMP",
-                "WOWGUID_TO_STRING_FAILED",
-                "WOWGUID_FROM_STRING_FAILED",
-                "WOWGUID_UNIQUE_SERVER_SELF",
-                "WOWGUID_UNIQUE_MAGIC_SELF",
-                "WOWGUID_UNIQUE_MAGIC_PET",
-                "WOWGUID_UNIQUE_INVALID_TRANSPORT",
-                "WOWGUID_UNIQUE_AMMO_ID",
-                "WOWGUID_SPELL_TARGET_TRADE_ITEM",
-                "WOWGUID_SCRIPT_TARGET_INVALID",
-                "WOWGUID_SCRIPT_TARGET_NONE",
-                nullptr,
-                "WOWGUID_FAKE_MODERATOR",
-                nullptr,
-                nullptr,
-                "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION",
-                nullptr,
-                "WOWGUID_PENDING_PERMANENT_CHARACTER_ASSIGNMENT"
-            };
-
-            for (std::size_t id = 0; id < std::size(uniqNames); ++id)
-            {
-                if (!uniqNames[id])
+                if (UniqNames[id].empty())
                     continue;
 
-                if (guidString == uniqNames[id])
+                if (guidString == UniqNames[id])
                     return ObjectGuidFactory::CreateUniq(id);
             }
 
             return ObjectGuid::FromStringFailed;
         }
 
-        static fmt::appender FormatPlayer(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatPlayer(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -230,7 +208,7 @@ namespace
             return ObjectGuidFactory::CreatePlayer(realmId, dbId);
         }
 
-        static fmt::appender FormatItem(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatItem(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -254,7 +232,7 @@ namespace
             return ObjectGuidFactory::CreateItem(realmId, dbId);
         }
 
-        static fmt::appender FormatWorldObject(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatWorldObject(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetSubType()));
@@ -287,7 +265,7 @@ namespace
             return ObjectGuidFactory::CreateWorldObject(type, subType, realmId, mapId, serverId, id, counter);
         }
 
-        static fmt::appender FormatTransport(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatTransport(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetEntry()));
@@ -308,7 +286,7 @@ namespace
             return ObjectGuidFactory::CreateTransport(type, counter);
         }
 
-        static fmt::appender FormatClientActor(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatClientActor(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -332,7 +310,7 @@ namespace
             return ObjectGuidFactory::CreateClientActor(ownerType, ownerId, counter);
         }
 
-        static fmt::appender FormatChatChannel(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatChatChannel(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             uint32 builtIn = (guid.GetRawValue(1) >> 25) & 0x1;
             uint32 trade = (guid.GetRawValue(1) >> 24) & 0x1;
@@ -370,7 +348,7 @@ namespace
             return ObjectGuidFactory::CreateChatChannel(realmId, builtIn != 0, trade != 0, zoneId, factionGroupMask, id);
         }
 
-        static fmt::appender FormatGlobal(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatGlobal(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) & 0x3FFFFFFFFFFFFFF));
@@ -391,7 +369,7 @@ namespace
             return ObjectGuidFactory::CreateGlobal(type, dbIdHigh, dbIdLow);
         }
 
-        static fmt::appender FormatGuild(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatGuild(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -412,7 +390,7 @@ namespace
             return ObjectGuidFactory::CreateGuild(type, realmId, dbId);
         }
 
-        static fmt::appender FormatMobileSession(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatMobileSession(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -436,7 +414,7 @@ namespace
             return ObjectGuidFactory::CreateMobileSession(realmId, arg1, counter);
         }
 
-        static fmt::appender FormatWebObj(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatWebObj(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -463,7 +441,7 @@ namespace
             return ObjectGuidFactory::CreateWebObj(realmId, arg1, arg2, counter);
         }
 
-        static fmt::appender FormatLFGObject(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatLFGObject(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 54 & 0xF));
@@ -499,7 +477,7 @@ namespace
             return ObjectGuidFactory::CreateLFGObject(arg1, arg2, arg3, arg4, arg5 != 0, arg6, counter);
         }
 
-        static fmt::appender FormatLFGList(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatLFGList(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 54 & 0xF));
@@ -520,7 +498,7 @@ namespace
             return ObjectGuidFactory::CreateLFGList(arg1, counter);
         }
 
-        static fmt::appender FormatClient(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatClient(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -544,7 +522,7 @@ namespace
             return ObjectGuidFactory::CreateClient(type, realmId, arg1, counter);
         }
 
-        static fmt::appender FormatClubFinder(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatClubFinder(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             uint32 type = uint32(guid.GetRawValue(1) >> 33) & 0xFF;
             uint32 clubFinderId = uint32(guid.GetRawValue(1)) & 0xFFFFFFFF;
@@ -600,7 +578,7 @@ namespace
             return ObjectGuidFactory::CreateClubFinder(realmId, type, clubFinderId, dbId);
         }
 
-        static fmt::appender FormatToolsClient(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatToolsClient(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetMapId()));
@@ -624,7 +602,7 @@ namespace
             return ObjectGuidFactory::CreateToolsClient(mapId, serverId, counter);
         }
 
-        static fmt::appender FormatWorldLayer(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatWorldLayer(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<padding<0>, hex>(ctx, guid.GetRawValue(1) >> 10 & 0xFFFFFFFF));
@@ -651,7 +629,7 @@ namespace
             return ObjectGuidFactory::CreateWorldLayer(arg1, arg2, arg3, arg4);
         }
 
-        static fmt::appender FormatLMMLobby(fmt::format_context& ctx, std::string const& typeName, ObjectGuid const& guid)
+        static fmt::appender FormatLMMLobby(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
@@ -687,7 +665,7 @@ namespace
     ObjectGuidInfo::ObjectGuidInfo()
     {
 #define SET_GUID_INFO(type, format, parse) \
-            Names[AsUnderlyingType(HighGuid::type)] = #type;\
+            Names[AsUnderlyingType(HighGuid::type)] = #type ## sv;\
             ClientFormatFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::format;\
             ClientParseFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::parse
 
@@ -797,17 +775,17 @@ std::size_t ObjectGuid::GetHash() const
     return hashVal;
 }
 
-std::vector<uint8> ObjectGuid::GetRawValue() const
+std::array<uint8, 16> ObjectGuid::GetRawValue() const
 {
-    std::vector<uint8> raw(16);
-    memcpy(raw.data(), this, sizeof(*this));
+    std::array<uint8, 16> raw;
+    memcpy(raw.data(), _data.data(), BytesSize);
     return raw;
 }
 
-void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
+void ObjectGuid::SetRawValue(std::span<uint8 const> rawBytes)
 {
-    ASSERT(guid.size() == sizeof(*this));
-    memcpy(this, guid.data(), sizeof(*this));
+    ASSERT(rawBytes.size() == BytesSize, SZFMTD " == " SZFMTD, rawBytes.size(), BytesSize);
+    memcpy(_data.data(), rawBytes.data(), BytesSize);
 }
 
 static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
@@ -818,12 +796,12 @@ static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
     return sRealmList->GetCurrentRealmId().Realm;
 }
 
-ObjectGuid ObjectGuidFactory::CreateNull()
+constexpr ObjectGuid ObjectGuidFactory::CreateNull()
 {
     return ObjectGuid();
 }
 
-ObjectGuid ObjectGuidFactory::CreateUniq(ObjectGuid::LowType id)
+constexpr ObjectGuid ObjectGuidFactory::CreateUniq(ObjectGuid::LowType id)
 {
     return ObjectGuid(uint64(uint64(HighGuid::Uniq) << 58),
         id);
@@ -974,62 +952,45 @@ ObjectGuid ObjectGuidFactory::CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 
         counter);
 }
 
-ObjectGuid const ObjectGuid::Empty = ObjectGuid();
+ObjectGuid const ObjectGuid::Empty = ObjectGuid::Create<HighGuid::Null>();
 ObjectGuid const ObjectGuid::ToStringFailed = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(3));
 ObjectGuid const ObjectGuid::FromStringFailed = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(4));
 ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(10));
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 {
-    uint8 lowMask = 0;
-    uint8 highMask = 0;
-    buf.FlushBits();    // flush any unwritten bits to make wpos return a meaningful value
-    std::size_t pos = buf.wpos();
-    buf << uint8(lowMask);
-    buf << uint8(highMask);
+    static constexpr std::size_t NumUInt64s = 2;
 
-    uint8 packed[8];
-    if (size_t packedSize = ByteBuffer::PackUInt64(guid._data[0], &lowMask, packed))
-        buf.append(packed, packedSize);
-    if (size_t packedSize = ByteBuffer::PackUInt64(guid._data[1], &highMask, packed))
-        buf.append(packed, packedSize);
+    std::array<uint8, NumUInt64s + ObjectGuid::BytesSize> bytes;
+    memset(bytes.data(), 0, NumUInt64s);
+    size_t packedSize = guid._data.size();
 
-    buf.put(pos, lowMask);
-    buf.put(pos + 1, highMask);
+    for (std::size_t i = 0; i < guid._data.size(); ++i)
+    {
+        for (uint32 b = 0; b < 8; ++b)
+        {
+            if (uint8 byte = uint8((guid._data[i] >> (b * 8)) & 0xFF))
+            {
+                bytes[packedSize++] = byte;
+                bytes[i] |= uint8(1 << b);
+            }
+        }
+    }
+
+    buf.append(bytes.data(), packedSize);
 
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
-    uint8 lowMask, highMask;
-    buf >> lowMask >> highMask;
-    buf.ReadPackedUInt64(lowMask, guid._data[0]);
-    buf.ReadPackedUInt64(highMask, guid._data[1]);
+    std::array<uint8, 2> mask;
+    buf.read(mask);
+
+    for (std::size_t i = 0; i < guid._data.size(); ++i)
+        for (uint32 b = 0; b < 8; ++b)
+            if (mask[i] & (uint8(1) << b))
+                guid._data[i] |= uint64(buf.read<uint8>()) << (b * 8);
+
     return buf;
-}
-
-ObjectGuid::LowType ObjectGuidGenerator::Generate()
-{
-    if (_nextGuid >= ObjectGuid::GetMaxCounter(_high) - 1)
-        HandleCounterOverflow();
-
-    if (_high == HighGuid::Creature || _high == HighGuid::Vehicle || _high == HighGuid::GameObject || _high == HighGuid::Transport)
-        CheckGuidTrigger();
-
-    return _nextGuid++;
-}
-
-void ObjectGuidGenerator::HandleCounterOverflow()
-{
-    TC_LOG_ERROR("misc", "{} guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(_high));
-    World::StopNow(ERROR_EXIT_CODE);
-}
-
-void ObjectGuidGenerator::CheckGuidTrigger()
-{
-    if (!sWorld->IsGuidAlert() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
-        sWorld->TriggerGuidAlert();
-    else if (!sWorld->IsGuidWarning() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
-        sWorld->TriggerGuidWarning();
 }

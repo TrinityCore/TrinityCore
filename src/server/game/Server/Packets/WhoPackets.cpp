@@ -17,88 +17,85 @@
 
 #include "WhoPackets.h"
 
-void WorldPackets::Who::WhoIsRequest::Read()
+namespace WorldPackets::Who
 {
-    CharName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
+void WhoIsRequest::Read()
+{
+    _worldPacket >> SizedString::BitsSize<6>(CharName);
+    _worldPacket >> SizedString::Data(CharName);
 }
 
-WorldPacket const* WorldPackets::Who::WhoIsResponse::Write()
+WorldPacket const* WhoIsResponse::Write()
 {
-    _worldPacket.WriteBits(AccountName.length(), 11);
+    _worldPacket << SizedString::BitsSize<11>(AccountName);
     _worldPacket.FlushBits();
 
-    _worldPacket.WriteString(AccountName);
+    _worldPacket << SizedString::Data(AccountName);
 
     return &_worldPacket;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoWord& word)
+ByteBuffer& operator>>(ByteBuffer& data, WhoWord& word)
 {
-    word.Word = data.ReadString(data.ReadBits(7));
     data.ResetBitPos();
+    data >> SizedString::BitsSize<7>(word.Word);
+    data >> SizedString::Data(word.Word);
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Who::WhoRequestServerInfo>& serverInfo)
+ByteBuffer& operator>>(ByteBuffer& data, WhoRequestServerInfo& serverInfo)
 {
-    serverInfo.emplace();
-
-    data >> serverInfo->FactionGroup;
-    data >> serverInfo->Locale;
-    data >> serverInfo->RequesterVirtualRealmAddress;
+    data >> serverInfo.FactionGroup;
+    data >> serverInfo.Locale;
+    data >> serverInfo.RequesterVirtualRealmAddress;
 
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoRequest& request)
+ByteBuffer& operator>>(ByteBuffer& data, WhoRequest& request)
 {
     data >> request.MinLevel;
     data >> request.MaxLevel;
     data >> request.RaceFilter.RawValue;
     data >> request.ClassFilter;
-
-    uint32 nameLength = data.ReadBits(6);
-    uint32 virtualRealmNameLength = data.ReadBits(9);
-    uint32 guildNameLength = data.ReadBits(7);
-    uint32 guildVirtualRealmNameLength = data.ReadBits(9);
-    request.Words.resize(data.ReadBits(3));
-
-    request.ShowEnemies = data.ReadBit();
-    request.ShowArenaPlayers = data.ReadBit();
-    request.ExactName = data.ReadBit();
-
-    bool hasWhoRequest = data.ReadBit();
-    data.ResetBitPos();
+    data >> SizedString::BitsSize<6>(request.Name);
+    data >> SizedString::BitsSize<9>(request.VirtualRealmName);
+    data >> SizedString::BitsSize<7>(request.Guild);
+    data >> SizedString::BitsSize<9>(request.GuildVirtualRealmName);
+    data >> BitsSize<3>(request.Words);
+    data >> Bits<1>(request.ShowEnemies);
+    data >> Bits<1>(request.ShowArenaPlayers);
+    data >> Bits<1>(request.ExactName);
+    data >> OptionalInit(request.ServerInfo);
 
     for (size_t i = 0; i < request.Words.size(); ++i)
         data >> request.Words[i];
 
-    request.Name = data.ReadString(nameLength);
-    request.VirtualRealmName = data.ReadString(virtualRealmNameLength);
-    request.Guild = data.ReadString(guildNameLength);
-    request.GuildVirtualRealmName = data.ReadString(guildVirtualRealmNameLength);
+    data >> SizedString::Data(request.Name);
+    data >> SizedString::Data(request.VirtualRealmName);
+    data >> SizedString::Data(request.Guild);
+    data >> SizedString::Data(request.GuildVirtualRealmName);
 
-    if (hasWhoRequest)
-        data >> request.ServerInfo;
+    if (request.ServerInfo)
+        data >> *request.ServerInfo;
 
     return data;
 }
 
-void WorldPackets::Who::WhoRequestPkt::Read()
+void WhoRequestPkt::Read()
 {
-    Areas.resize(_worldPacket.ReadBits(4));
-    IsFromAddOn = _worldPacket.ReadBit();
-
+    _worldPacket >> BitsSize<4>(Areas);
+    _worldPacket >> Bits<1>(IsAddon);
     _worldPacket >> Request;
-    _worldPacket >> RequestID;
+    _worldPacket >> Token;
     _worldPacket >> Origin;
 
     for (size_t i = 0; i < Areas.size(); ++i)
         _worldPacket >> Areas[i];
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Who::WhoEntry const& entry)
+ByteBuffer& operator<<(ByteBuffer& data, WhoEntry const& entry)
 {
     data << entry.PlayerData;
 
@@ -106,30 +103,31 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Who::WhoEntry const& entr
     data << uint32(entry.GuildVirtualRealmAddress);
     data << int32(entry.AreaID);
 
-    data.WriteBits(entry.GuildName.length(), 7);
-    data.WriteBit(entry.IsGM);
+    data << SizedString::BitsSize<7>(entry.GuildName);
+    data << Bits<1>(entry.IsGM);
     data.FlushBits();
 
-    data.WriteString(entry.GuildName);
+    data << SizedString::Data(entry.GuildName);
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Who::WhoResponse const& response)
+ByteBuffer& operator<<(ByteBuffer& data, WhoResponse const& response)
 {
-    data.WriteBits(response.Entries.size(), 6);
+    data << BitsSize<6>(response.Entries);
     data.FlushBits();
 
-    for (WorldPackets::Who::WhoEntry const& whoEntry : response.Entries)
+    for (WhoEntry const& whoEntry : response.Entries)
         data << whoEntry;
 
     return data;
 }
 
-WorldPacket const* WorldPackets::Who::WhoResponsePkt::Write()
+WorldPacket const* WhoResponsePkt::Write()
 {
-    _worldPacket << uint32(RequestID);
+    _worldPacket << uint32(Token);
     _worldPacket << Response;
 
     return &_worldPacket;
+}
 }

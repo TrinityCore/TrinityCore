@@ -556,7 +556,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 CustomizationScope = 0;
+            uint32 CustomizationFeatureMask = 0;
         };
 
         struct PhaseShiftDataPhase
@@ -893,7 +893,7 @@ namespace WorldPackets
             int32 OverrideLightID = 0;
         };
 
-        class DisplayGameError final : public ServerPacket
+        class TC_GAME_API DisplayGameError final : public ServerPacket
         {
         public:
             DisplayGameError(GameError error) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1), Error(error) { }
@@ -1009,6 +1009,17 @@ namespace WorldPackets
             int32 LootSpec = 0;
             ::Gender Gender = GENDER_NONE;
             uint32 CurrencyID = 0;
+        };
+
+        class AccountWarbandSceneUpdate final : public ServerPacket
+        {
+        public:
+            AccountWarbandSceneUpdate() : ServerPacket(SMSG_ACCOUNT_WARBAND_SCENE_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate = false;
+            WarbandSceneCollectionContainer const* WarbandScenes = nullptr;
         };
     }
 }

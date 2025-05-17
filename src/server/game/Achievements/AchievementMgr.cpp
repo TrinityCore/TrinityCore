@@ -17,11 +17,10 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
-#include "DB2HotfixGenerator.h"
-#include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
-#include "Containers.h"
+#include "DB2HotfixGenerator.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -32,10 +31,11 @@
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
-#include "StringConvert.h"
 #include "ScriptMgr.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -77,11 +77,8 @@ uint32 AchievementMgr::GetAchievementPoints() const
 
 std::vector<uint32> AchievementMgr::GetCompletedAchievementIds() const
 {
-    std::vector<uint32> achievementIds;
-    std::transform(_completedAchievements.begin(), _completedAchievements.end(), std::back_inserter(achievementIds), [](std::pair<uint32 const, CompletedAchievementData> const& achievement)
-    {
-        return achievement.first;
-    });
+    std::vector<uint32> achievementIds(_completedAchievements.size());
+    std::ranges::transform(_completedAchievements, achievementIds.begin(), Trinity::Containers::MapKey);
     return achievementIds;
 }
 

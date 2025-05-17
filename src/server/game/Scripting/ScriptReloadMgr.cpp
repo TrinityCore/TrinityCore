@@ -50,9 +50,9 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Timer.h"
 #include "Util.h"
 #include "World.h"
-#include <boost/algorithm/string/replace.hpp>
 #include <boost/dll/runtime_symbol_info.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/system/system_error.hpp>
 #include <efsw/efsw.hpp>
 #include <algorithm>

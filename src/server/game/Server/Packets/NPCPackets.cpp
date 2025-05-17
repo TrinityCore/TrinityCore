@@ -43,7 +43,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     data << int32(gossipOption.GossipOptionID);
     data << uint8(gossipOption.OptionNPC);
     data << int8(gossipOption.OptionFlags);
-    data << int32(gossipOption.OptionCost);
+    data << uint64(gossipOption.OptionCost);
     data << uint32(gossipOption.OptionLanguage);
     data << int32(gossipOption.Flags);
     data << int32(gossipOption.OrderIndex);
@@ -78,9 +78,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.ContentTuningID);
     data << int32(gossipText.QuestType);
     data << int32(gossipText.Unused1102);
-    data << int32(gossipText.QuestFlags[0]);
-    data << int32(gossipText.QuestFlags[1]);
-    data << int32(gossipText.QuestFlags[2]);
+    data.append(gossipText.QuestFlags);
 
     data << Bits<1>(gossipText.Repeatable);
     data << Bits<1>(gossipText.ResetByScheduler);

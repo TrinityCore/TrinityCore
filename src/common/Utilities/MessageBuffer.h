@@ -32,9 +32,8 @@ public:
         _storage.resize(4096);
     }
 
-    explicit MessageBuffer(std::size_t initialSize) : _wpos(0), _rpos(0), _storage()
+    explicit MessageBuffer(std::size_t initialSize) : _wpos(0), _rpos(0), _storage(initialSize)
     {
-        _storage.resize(initialSize);
     }
 
     MessageBuffer(MessageBuffer const& right) : _wpos(right._wpos), _rpos(right._rpos), _storage(right._storage)

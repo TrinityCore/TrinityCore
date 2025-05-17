@@ -16,24 +16,19 @@
  */
 
 #include "MotionMaster.h"
-#include "AbstractFollower.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "Errors.h"
 #include "G3DPosition.hpp"
 #include "Log.h"
-#include "Map.h"
+#include "MapUtils.h"
+#include "Memory.h"
 #include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
-#include "PetDefines.h"
 #include "Player.h"
 #include "ScriptSystem.h"
-#include "Unit.h"
-#include "WaypointDefines.h"
 #include <algorithm>
 #include <iterator>
 
@@ -46,7 +41,6 @@
 #include "GenericMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
-#include "Memory.h"
 #include "PointMovementGenerator.h"
 #include "RandomMovementGenerator.h"
 #include "SplineChainMovementGenerator.h"
@@ -1036,7 +1030,7 @@ void MotionMaster::MoveFall(uint32 id /*= 0*/,
     if (tz <= INVALID_HEIGHT)
     {
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFall: '{}', unable to retrieve a proper height at map Id: {} (X: {}, Y: {}, Z: {})",
-            _owner->GetGUID(), _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+            _owner->GetGUID(), _owner->GetMapId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
         return;
     }
 

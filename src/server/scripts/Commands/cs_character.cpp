@@ -559,7 +559,7 @@ public:
             if (faction.Flags.HasFlag(ReputationFlags::Inactive))
                 ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
 
-            handler->SendSysMessage(ss.str().c_str());
+            handler->SendSysMessage(ss.view());
         }
 
         return true;

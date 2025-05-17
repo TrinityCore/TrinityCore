@@ -317,7 +317,7 @@ ByteBuffer& operator<<(ByteBuffer& data, FollowerSoftCapInfo const& followerSoft
 
 WorldPacket const* GetGarrisonInfoResult::Write()
 {
-    _worldPacket << int32(FactionIndex);
+    _worldPacket << int8(FactionIndex);
     _worldPacket << uint32(Garrisons.size());
     _worldPacket << uint32(FollowerSoftCaps.size());
     for (FollowerSoftCapInfo const& followerSoftCapInfo : FollowerSoftCaps)

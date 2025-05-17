@@ -58,6 +58,8 @@ void AddSC_battleground_seething_shore();
 void AddSC_battleground_silvershard_mines();
 void AddSC_battleground_temple_of_kotmogu();
 
+void AddSC_battleground_deephaul_ravine();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBattlegroundsScripts()
@@ -102,4 +104,5 @@ void AddBattlegroundsScripts()
 
     AddSC_battleground_silvershard_mines();
     AddSC_battleground_temple_of_kotmogu();
+    AddSC_battleground_deephaul_ravine();
 }

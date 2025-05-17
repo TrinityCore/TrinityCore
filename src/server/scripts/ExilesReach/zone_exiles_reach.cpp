@@ -24,6 +24,7 @@
 #include "Conversation.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"

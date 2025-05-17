@@ -80,7 +80,7 @@ namespace WorldPackets
             int32 GossipOptionID  = 0;
             GossipOptionNpc OptionNPC = {};
             uint8 OptionFlags   = 0;
-            int32 OptionCost    = 0;
+            uint64 OptionCost    = 0;
             uint32 OptionLanguage = 0;
             GossipOptionFlags Flags = {};
             int32 OrderIndex = 0;
@@ -104,7 +104,7 @@ namespace WorldPackets
             bool Important = false;
             bool Meta = false;
             std::string QuestTitle;
-            std::array<int32, 3> QuestFlags = { };
+            std::array<int32, 4> QuestFlags = { };
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText);

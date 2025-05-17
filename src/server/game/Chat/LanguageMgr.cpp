@@ -16,14 +16,12 @@
  */
 
 #include "LanguageMgr.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "Log.h"
-#include "SpellInfo.h"
+#include "MapUtils.h"
 #include "SpellMgr.h"
 #include "Timer.h"
 #include "Util.h"
-#include <sstream>
 
 LanguageMgr::LanguageMgr() : _langsMap(), _wordsMap() { }
 

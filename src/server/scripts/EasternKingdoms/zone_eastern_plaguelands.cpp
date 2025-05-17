@@ -39,7 +39,7 @@ class spell_eastern_plaguelands_test_fetid_skull : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_CREATE_RESONATING_SKULL : SPELL_CREATE_BONE_DUST, TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_CREATE_RESONATING_SKULL : SPELL_CREATE_BONE_DUST, TRIGGERED_IGNORE_REAGENT_COST);
     }
 
     void Register() override

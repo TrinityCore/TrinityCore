@@ -621,6 +621,46 @@ namespace Trinity
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
 
+    // AreaTrigger searchers
+    template<class Check, class Result>
+    struct AreaTriggerSearcherBase : Result
+    {
+        PhaseShift const* i_phaseShift;
+        Check& i_check;
+
+        template<typename Container>
+        AreaTriggerSearcherBase(PhaseShift const* phaseShift, Container& result, Check& check)
+            : Result(result), i_phaseShift(phaseShift), i_check(check) {
+        }
+
+        void Visit(AreaTriggerMapType& m);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED>&) {}
+    };
+
+    template<class Check>
+    struct AreaTriggerSearcher : AreaTriggerSearcherBase<Check, SearcherFirstObjectResult<AreaTrigger*>>
+    {
+        AreaTriggerSearcher(WorldObject const* searcher, AreaTrigger*& result, Check& check)
+            : AreaTriggerSearcherBase<Check, SearcherFirstObjectResult<AreaTrigger*>>(&searcher->GetPhaseShift(), result, check) {}
+    };
+
+    // Last accepted by Check GO if any (Check can change requirements at each call)
+    template<class Check>
+    struct AreaTriggerLastSearcher : AreaTriggerSearcherBase<Check, SearcherLastObjectResult<AreaTrigger*>>
+    {
+        AreaTriggerLastSearcher(WorldObject const* searcher, AreaTrigger*& result, Check& check)
+            : AreaTriggerSearcherBase<Check, SearcherLastObjectResult<AreaTrigger*>>(&searcher->GetPhaseShift(), result, check) {}
+    };
+
+    template<class Check>
+    struct AreaTriggerListSearcher : AreaTriggerSearcherBase<Check, SearcherContainerResult<AreaTrigger*>>
+    {
+        template<typename Container>
+        AreaTriggerListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : AreaTriggerSearcherBase<Check, SearcherContainerResult<AreaTrigger*>>(&searcher->GetPhaseShift(), container, check) {}
+    };
+
     // CHECKS && DO classes
 
     // CHECK modifiers
@@ -1824,6 +1864,31 @@ namespace Trinity
     private:
         ObjectGuid _ownerGUID;
         uint32 _entry;
+    };
+
+    class NearestAreaTriggerEntryInObjectRangeCheck
+    {
+    public:
+        NearestAreaTriggerEntryInObjectRangeCheck(WorldObject const& obj, uint32 entry, float range, bool spawnedOnly = false) : i_obj(obj), i_entry(entry), i_range(range), i_spawnedOnly(spawnedOnly) { }
+
+        bool operator()(AreaTrigger const* at)
+        {
+            if ((!i_spawnedOnly || at->IsStaticSpawn()) && at->GetEntry() == i_entry && at->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDist(at, i_range))
+            {
+                i_range = i_obj.GetDistance(at);
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        WorldObject const& i_obj;
+        uint32 i_entry;
+        float  i_range;
+        bool   i_spawnedOnly;
+
+        // prevent clone this object
+        NearestAreaTriggerEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&) = delete;
     };
 
     // Player checks and do

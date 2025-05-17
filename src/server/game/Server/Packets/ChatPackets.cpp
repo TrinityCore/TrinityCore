@@ -47,20 +47,11 @@ void WorldPackets::Chat::ChatMessageWhisper::Read()
     _worldPacket >> TargetGUID;
     _worldPacket >> TargetVirtualRealmAddress;
 
-    uint32 targetLen = _worldPacket.ReadBits(9);
-    uint32 textLen = _worldPacket.ReadBits(11);
+    _worldPacket >> SizedCString::BitsSize<9>(Target);
+    _worldPacket >> SizedCString::BitsSize<11>(Text);
 
-    if (targetLen > 1)
-    {
-        Target = _worldPacket.ReadString(targetLen - 1);
-        _worldPacket.read_skip<uint8>(); // null terminator
-    }
-
-    if (textLen > 1)
-    {
-        Text = _worldPacket.ReadString(textLen - 1);
-        _worldPacket.read_skip<uint8>(); // null terminator
-    }
+    _worldPacket >> SizedCString::Data(Target);
+    _worldPacket >> SizedCString::Data(Text);
 }
 
 void WorldPackets::Chat::ChatMessageChannel::Read()
@@ -100,20 +91,11 @@ void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
     _worldPacket >> PlayerGUID;
     _worldPacket >> PlayerVirtualRealmAddress;
 
-    uint32 playerNameLength = _worldPacket.ReadBits(9);
-    uint32 channelNameLength = _worldPacket.ReadBits(8);
+    _worldPacket >> SizedCString::BitsSize<9>(PlayerName);
+    _worldPacket >> SizedCString::BitsSize<8>(ChannelName);
 
-    if (playerNameLength > 1)
-    {
-        PlayerName = _worldPacket.ReadString(playerNameLength - 1);
-        _worldPacket.read_skip<uint8>(); // null terminator
-    }
-
-    if (channelNameLength > 1)
-    {
-        ChannelName = _worldPacket.ReadString(channelNameLength - 1);
-        _worldPacket.read_skip<uint8>(); // null terminator
-    }
+    _worldPacket >> SizedCString::Data(PlayerName);
+    _worldPacket >> SizedCString::Data(ChannelName);
 }
 
 void WorldPackets::Chat::ChatMessageDND::Read()

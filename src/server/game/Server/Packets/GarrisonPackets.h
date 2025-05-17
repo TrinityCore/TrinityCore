@@ -232,7 +232,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 FactionIndex = 0;
+            int8 FactionIndex = 0;
             std::vector<GarrisonInfo> Garrisons;
             std::vector<FollowerSoftCapInfo> FollowerSoftCaps;
         };

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ExtractorDB2LoadInfo_h__
-#define ExtractorDB2LoadInfo_h__
+#ifndef TRINITYCORE_EXTRACTOR_DB2_LOAD_INFO_H
+#define TRINITYCORE_EXTRACTOR_DB2_LOAD_INFO_H
 
 #include "DB2FileLoader.h"
 #include "DB2Meta.h"
@@ -25,14 +25,23 @@ struct CinematicCameraLoadInfo
 {
     static constexpr DB2MetaField MetaFields[5] =
     {
-        { FT_FLOAT, 3, true },
-        { FT_INT, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_INT, 1, false },
-        { FT_INT, 1, false },
+        { .Type = FT_FLOAT,                .ArraySize =  3, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1294214, -1, 5, 5, 0x8BFD752B, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1294214,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 5,
+        .FileFieldCount     = 5,
+        .LayoutHash         = 0x8BFD752B,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[8] =
     {
@@ -53,18 +62,27 @@ struct GameobjectDisplayInfoLoadInfo
 {
     static constexpr DB2MetaField MetaFields[9] =
     {
-        { FT_FLOAT, 6, true },
-        { FT_INT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_SHORT, 1, false },
+        { .Type = FT_FLOAT,                .ArraySize =  6, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1266277, -1, 9, 9, 0xD85414D1, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1266277,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 9,
+        .FileFieldCount     = 9,
+        .LayoutHash         = 0xD85414D1,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[15] =
     {
@@ -92,16 +110,25 @@ struct LiquidMaterialLoadInfo
 {
     static constexpr DB2MetaField MetaFields[2] =
     {
-        { FT_BYTE, 1, true },
-        { FT_BYTE, 1, true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1132538, -1, 2, 2, 0x01033D2A, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1132538,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 2,
+        .FileFieldCount     = 2,
+        .LayoutHash         = 0x98E5D7AA,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[3] =
     {
         { false, FT_INT, "ID" },
-        { true, FT_BYTE, "Flags" },
+        { true, FT_INT, "Flags" },
         { true, FT_BYTE, "LVF" },
     };
 
@@ -112,14 +139,23 @@ struct LiquidObjectLoadInfo
 {
     static constexpr DB2MetaField MetaFields[5] =
     {
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1308058, -1, 5, 5, 0xCB0D39E8, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1308058,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 5,
+        .FileFieldCount     = 5,
+        .LayoutHash         = 0xCB0D39E8,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[6] =
     {
@@ -131,37 +167,46 @@ struct LiquidObjectLoadInfo
         { false, FT_BYTE, "Reflection" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 3, & MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 6, &MetaInstance };
 };
 
 struct LiquidTypeLoadInfo
 {
     static constexpr DB2MetaField MetaFields[21] =
     {
-        { FT_STRING_NOT_LOCALIZED, 1, true },
-        { FT_STRING_NOT_LOCALIZED, 6, true },
-        { FT_SHORT, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, false },
-        { FT_INT, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
-        { FT_BYTE, 6, false },
-        { FT_INT, 2, true },
-        { FT_FLOAT, 18, true },
-        { FT_INT, 4, false },
-        { FT_FLOAT, 4, true },
+        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  6, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  6, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize = 18, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  4, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  4, .IsSigned =  true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1371380, -1, 21, 21, 0x95DB15B6, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1371380,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 21,
+        .FileFieldCount     = 21,
+        .LayoutHash         = 0x4397CEE6,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[56] =
     {
@@ -173,7 +218,7 @@ struct LiquidTypeLoadInfo
         { false, FT_STRING_NOT_LOCALIZED, "Texture4" },
         { false, FT_STRING_NOT_LOCALIZED, "Texture5" },
         { false, FT_STRING_NOT_LOCALIZED, "Texture6" },
-        { false, FT_SHORT, "Flags" },
+        { true, FT_INT, "Flags" },
         { false, FT_BYTE, "SoundBank" },
         { false, FT_INT, "SoundID" },
         { false, FT_INT, "SpellID" },
@@ -230,34 +275,43 @@ struct MapLoadInfo
 {
     static constexpr DB2MetaField MetaFields[25] =
     {
-        { FT_STRING_NOT_LOCALIZED, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_FLOAT, 2, true },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_SHORT, 1, false },
-        { FT_SHORT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_SHORT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 3, true },
+        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  3, .IsSigned =  true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1349477, -1, 25, 25, 0xE0196C63, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1349477,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 25,
+        .FileFieldCount     = 25,
+        .LayoutHash         = 0xE0196C63,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[29] =
     {
@@ -295,4 +349,4 @@ struct MapLoadInfo
     static constexpr DB2FileLoadInfo Instance{ Fields, 29, &MetaInstance };
 };
 
-#endif // ExtractorDB2LoadInfo_h__
+#endif // TRINITYCORE_EXTRACTOR_DB2_LOAD_INFO_H

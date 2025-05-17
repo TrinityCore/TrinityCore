@@ -90,9 +90,15 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << int16(NameLookupTelemetryInterval);
     _worldPacket << NotFoundCacheTimeSeconds;
 
+    _worldPacket << uint32(RealmPvpTypeOverride);
+
     _worldPacket << int32(AddonChatThrottle.MaxTries);
     _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
     _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
+
+    _worldPacket << float(AddonPerformanceMsgWarning);
+    _worldPacket << float(AddonPerformanceMsgError);
+    _worldPacket << float(AddonPerformanceMsgOverall);
 
     for (GameRuleValuePair const& gameRuleValue : GameRules)
         _worldPacket << gameRuleValue;
@@ -144,18 +150,18 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << Bits<1>(GroupFinderEnabled);
     _worldPacket << Bits<1>(IsPremadeGroupEnabled);
-    _worldPacket << Bits<1>(UseActivePlayerDataQuestCompleted);
     _worldPacket << Bits<1>(false); // unused 10.2.7
     _worldPacket << Bits<1>(GuildEventsEditsEnabled);
     _worldPacket << Bits<1>(GuildTradeSkillsEnabled);
-    _worldPacket << BitsSize<7>(Unknown1027);
+    _worldPacket << SizedString::BitsSize<7>(Unknown1027);
     _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(IsAccountCurrencyTransferEnabled);
-
     _worldPacket << Bits<1>(false); // unused 11.0.7
+
     _worldPacket << Bits<1>(LobbyMatchmakerQueueFromMainlineEnabled);
     _worldPacket << Bits<1>(CanSendLobbyMatchmakerPartyCustomizations);
+    _worldPacket << Bits<1>(AddonProfilerEnabled);
 
     _worldPacket.FlushBits();
 
@@ -192,7 +198,7 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
-    _worldPacket.WriteString(Unknown1027);
+    _worldPacket << SizedString::Data(Unknown1027);
 
     {
         _worldPacket << Bits<1>(Squelch.IsSquelched);

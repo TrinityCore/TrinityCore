@@ -32,13 +32,18 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-namespace StormwindCity
+namespace Scripts::EasternKingdoms::StormwindCity
 {
-    namespace Spells
-    {
-        static constexpr uint32 MOPAllianceIntroMoviePlay = 130805;
-        static constexpr uint32 FadeToBlack               = 130411;
-    }
+namespace Spells
+{
+    // The King's Command
+    static constexpr uint32 MOPAllianceIntroMoviePlay = 130805;
+    static constexpr uint32 FadeToBlack               = 130411;
+
+    // The Mission
+    static constexpr uint32 TeleportPrep              = 130832;
+    static constexpr uint32 TeleportTimer             = 132032;
+    static constexpr uint32 TheMissionTeleportPlayer  = 130321;
 }
 
 enum TidesOfWarData
@@ -511,15 +516,13 @@ class spell_the_kings_command_movie_aura : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
-            StormwindCity::Spells::FadeToBlack
+            Spells::FadeToBlack
         });
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        Unit* hitUnit = GetHitUnit();
-
-        hitUnit->CastSpell(hitUnit, StormwindCity::Spells::FadeToBlack, CastSpellExtraArgsInit{
+        GetHitUnit()->CastSpell(nullptr, Spells::FadeToBlack, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .OriginalCastId = GetSpell()->m_castId
         });
@@ -531,20 +534,19 @@ class spell_the_kings_command_movie_aura : public SpellScript
     }
 };
 
+// 130804 - The King's Command Movie Aura
 class spell_the_kings_command_movie_aura_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
-            StormwindCity::Spells::MOPAllianceIntroMoviePlay
+            Spells::MOPAllianceIntroMoviePlay
         });
     }
 
     void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Unit* target = GetTarget();
-
-        target->CastSpell(target, StormwindCity::Spells::MOPAllianceIntroMoviePlay, CastSpellExtraArgsInit{
+        GetTarget()->CastSpell(nullptr, Spells::MOPAllianceIntroMoviePlay, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
@@ -555,8 +557,88 @@ class spell_the_kings_command_movie_aura_aura : public AuraScript
     }
 };
 
+// 140885 - Admiral Rogers Script Effect
+class spell_admiral_rogers_script_effect : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::TeleportPrep
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->CastSpell(nullptr, Spells::TeleportPrep, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_admiral_rogers_script_effect::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 130832 - Teleport Prep
+class spell_teleport_prep_alliance : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::TeleportTimer
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* hitUnit = GetHitUnit();
+
+        hitUnit->CancelMountAura();
+        hitUnit->CastSpell(nullptr, Spells::TeleportTimer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_teleport_prep_alliance::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 132032 - Teleport Timer
+class spell_teleport_timer_alliance : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::TheMissionTeleportPlayer
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+
+        target->CancelTravelShapeshiftForm();
+        target->CastSpell(nullptr, Spells::TheMissionTeleportPlayer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_teleport_timer_alliance::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+}
+
 void AddSC_stormwind_city()
 {
+    using namespace Scripts::EasternKingdoms::StormwindCity;
+
     // Creature
     RegisterCreatureAI(npc_jaina_proudmoore_tides_of_war);
     RegisterCreatureAI(npc_anduin_wrynn_nation_of_kultiras);
@@ -577,4 +659,7 @@ void AddSC_stormwind_city()
     RegisterSpellScript(spell_despawn_sailor_memory);
     RegisterSpellScript(spell_kultiras_skip_intro);
     RegisterSpellAndAuraScriptPair(spell_the_kings_command_movie_aura, spell_the_kings_command_movie_aura_aura);
+    RegisterSpellScript(spell_admiral_rogers_script_effect);
+    RegisterSpellScript(spell_teleport_prep_alliance);
+    RegisterSpellScript(spell_teleport_timer_alliance);
 }

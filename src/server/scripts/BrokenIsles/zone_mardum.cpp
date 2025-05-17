@@ -24,6 +24,7 @@
 #include "CreatureAIImpl.h"
 #include "EventProcessor.h"
 #include "GridNotifiersImpl.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"

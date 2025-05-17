@@ -97,7 +97,7 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     VirtualRealmAddress = GetVirtualRealmAddress();
     GuildClubMemberID = ::Battlenet::Services::Clubs::CreateClubMemberId(Guid);
-    Name              = fields[1].GetString();
+    Name              = fields[1].GetStringView();
     RaceID            = fields[2].GetUInt8();
     ClassID           = fields[3].GetUInt8();
     SexID             = fields[4].GetUInt8();
@@ -115,6 +115,9 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     if (playerFlags & PLAYER_FLAGS_RESTING)
         Flags |= CHARACTER_FLAG_RESTING;
 
+    if (atLoginFlags & AT_LOGIN_RESET_TALENTS)
+        Flags |= CHARACTER_FLAG_RESET_TALENTS_ON_LOGIN;
+
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
 
@@ -127,17 +130,31 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     if (fields[18].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[28].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[28].GetStringView().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
-        Flags2 = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
+        Flags2 = CHARACTER_FLAG_2_CUSTOMIZE;
     else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
-        Flags2 = CHAR_CUSTOMIZE_FLAG_FACTION;
+        Flags2 = CHARACTER_FLAG_2_FACTION_CHANGE;
     else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
-        Flags2 = CHAR_CUSTOMIZE_FLAG_RACE;
+        Flags2 = CHARACTER_FLAG_2_RACE_CHANGE;
 
-    Flags3 = 0;
+    if (playerFlags & PLAYER_FLAGS_NO_XP_GAIN)
+        Flags2 |= CHARACTER_FLAG_2_NO_XP_GAIN;
+
+    if (playerFlags & PLAYER_FLAGS_LOW_LEVEL_RAID_ENABLED)
+        Flags2 |= CHARACTER_FLAG_2_LOW_LEVEL_RAID_ENABLED;
+
+    if (playerFlags & PLAYER_FLAGS_AUTO_DECLINE_GUILD)
+        Flags2 |= CHARACTER_FLAG_2_AUTO_DECLINE_GUILD;
+
+    if (playerFlags & PLAYER_FLAGS_HIDE_ACCOUNT_ACHIEVEMENTS)
+        Flags3 |= CHARACTER_FLAG_3_HIDE_ACCOUNT_ACHIEVEMENTS;
+
+    if (playerFlags & PLAYER_FLAGS_WAR_MODE_DESIRED)
+        Flags3 |= CHARACTER_FLAG_3_WAR_MODE_DESIRED;
+
     FirstLogin = (atLoginFlags & AT_LOGIN_FIRST) != 0;
 
     // show pet at selection character in character list only for non-ghost character
@@ -198,7 +215,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
 {
     data << charInfo.Guid;
     data << uint32(charInfo.VirtualRealmAddress);
-    data << uint8(charInfo.ListPosition);
+    data << uint16(charInfo.ListPosition);
     data << uint8(charInfo.RaceID);
     data << uint8(charInfo.SexID);
     data << uint8(charInfo.ClassID);
@@ -213,6 +230,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     data << uint32(charInfo.Flags);
     data << uint32(charInfo.Flags2);
     data << uint32(charInfo.Flags3);
+    data << uint32(charInfo.Flags4);
     data << uint8(charInfo.CantLoginReason);
 
     data << uint32(charInfo.PetCreatureDisplayID);
@@ -232,16 +250,19 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
 
     data << int32(charInfo.TimerunningSeasonID);
     data << uint32(charInfo.OverrideSelectScreenFileDataID);
+    data << uint32(charInfo.Unused1110_1);
 
     for (ChrCustomizationChoice const& customization : charInfo.Customizations)
         data << customization;
 
-    data << BitsSize<6>(charInfo.Name);
+    data << SizedString::BitsSize<6>(charInfo.Name);
     data << Bits<1>(charInfo.FirstLogin);
+    data << Bits<1>(charInfo.Unused1110_2);
+    data << Bits<1>(charInfo.Unused1110_3);
 
     data.FlushBits();
 
-    data.WriteString(charInfo.Name);
+    data << SizedString::Data(charInfo.Name);
 
     return data;
 }
@@ -263,13 +284,12 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterRestrict
         data.append(restrictionsAndMails.MailSenderTypes.data(), restrictionsAndMails.MailSenderTypes.size());
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        data << Bits<6>(str.length() + 1);
+        data << SizedCString::BitsSize<6>(str);
 
     data.FlushBits();
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        if (!str.empty())
-            data << str;
+        data << SizedCString::Data(str);
 
     return data;
 }
@@ -286,6 +306,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RegionwideCharact
 {
     data << charInfo.Basic;
     data << uint64(charInfo.Money);
+    data << float(charInfo.AvgEquippedItemLevel);
     data << float(charInfo.CurrentSeasonMythicPlusOverallScore);
     data << int32(charInfo.CurrentSeasonBestPvpRating);
     data << int8(charInfo.PvpRatingBracket);
@@ -296,7 +317,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RegionwideCharact
 
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const& raceUnlock)
 {
-    data << int32(raceUnlock.RaceID);
+    data << int8(raceUnlock.RaceID);
     data << Bits<1>(raceUnlock.HasUnlockedLicense);
     data << Bits<1>(raceUnlock.HasUnlockedAchievement);
     data << Bits<1>(raceUnlock.HasHeritageArmorUnlockAchievement);
@@ -317,7 +338,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedCondition
 
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableInfo const& raceLimitDisableInfo)
 {
-    data << int32(raceLimitDisableInfo.RaceID);
+    data << int8(raceLimitDisableInfo.RaceID);
     data << int32(raceLimitDisableInfo.Reason);
 
     return data;
@@ -325,7 +346,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableI
 
 ByteBuffer& operator<<(ByteBuffer& data, WarbandGroupMember const& warbandGroupMember)
 {
-    data << int32(warbandGroupMember.WarbandScenePlacementID);
+    data << uint32(warbandGroupMember.WarbandScenePlacementID);
     data << int32(warbandGroupMember.Type);
     if (warbandGroupMember.Type == 0)
         data << warbandGroupMember.Guid;
@@ -336,12 +357,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WarbandGroupMember const& warbandGroupM
 ByteBuffer& operator<<(ByteBuffer& data, WarbandGroup const& warbandGroup)
 {
     data << uint64(warbandGroup.GroupID);
-    data << uint8(warbandGroup.Unknown_1100);
-    data << int32(warbandGroup.Flags);
+    data << uint8(warbandGroup.OrderIndex);
+    data << uint32(warbandGroup.WarbandSceneID);
+    data << uint32(warbandGroup.Flags);
     data << uint32(warbandGroup.Members.size());
 
     for (WarbandGroupMember const& member : warbandGroup.Members)
         data << member;
+
+    data << SizedString::BitsSize<9>(warbandGroup.Name);
+    data.FlushBits();
+
+    data << SizedString::Data(warbandGroup.Name);
 
     return data;
 }
@@ -384,9 +411,6 @@ WorldPacket const* EnumCharactersResult::Write()
     for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
         _worldPacket << raceLimitDisableInfo;
 
-    for (WarbandGroup const& warbandGroup : WarbandGroups)
-        _worldPacket << warbandGroup;
-
     for (CharacterInfo const& charInfo : Characters)
         _worldPacket << charInfo;
 
@@ -395,6 +419,9 @@ WorldPacket const* EnumCharactersResult::Write()
 
     for (RaceUnlock const& raceUnlock : RaceUnlockData)
         _worldPacket << raceUnlock;
+
+    for (WarbandGroup const& warbandGroup : WarbandGroups)
+        _worldPacket << warbandGroup;
 
     return &_worldPacket;
 }

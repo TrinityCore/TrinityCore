@@ -16,7 +16,6 @@
  */
 
 #include "BankPackets.h"
-#include "DBCEnums.h"
 
 void WorldPackets::Bank::AutoBankItem::Read()
 {

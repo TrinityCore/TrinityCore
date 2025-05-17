@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __TRINITY_CHANNELMGR_H
-#define __TRINITY_CHANNELMGR_H
+#ifndef TRINITYCORE_CHANNEL_MGR_H
+#define TRINITYCORE_CHANNEL_MGR_H
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "ObjectGuidSequenceGenerator.h"
 #include "SharedDefines.h"
 #include <string>
 #include <unordered_map>

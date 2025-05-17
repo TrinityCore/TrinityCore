@@ -172,7 +172,6 @@ namespace WorldPackets
             bool SellAllJunkEnabled                  = false;
             bool GroupFinderEnabled                  = true;  // classic only
             bool IsPremadeGroupEnabled               = true;  // classic only
-            bool UseActivePlayerDataQuestCompleted   = false; ///< Uses ActivePlayerData::QuestCompleted (legacy) to store completed quest bits instead of ActivePlayerData::BitVectors[9]
             bool GuildEventsEditsEnabled             = true;
             bool GuildTradeSkillsEnabled             = true;
             bool BNSendWhisperUseV2Services          = true;  ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
@@ -180,6 +179,7 @@ namespace WorldPackets
             bool IsAccountCurrencyTransferEnabled    = false;
             bool LobbyMatchmakerQueueFromMainlineEnabled = false;
             bool CanSendLobbyMatchmakerPartyCustomizations = false;
+            bool AddonProfilerEnabled                = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
@@ -189,6 +189,10 @@ namespace WorldPackets
             int32 RemainingTimerunningSeasonSeconds  = 0;
             std::string Unknown1027;                          // related to movement lua functions used by keybinds
             AddonChatThrottleParams AddonChatThrottle;
+            uint32 RealmPvpTypeOverride              = 0;       ///< Use Cfg_Configs value = 0, ForceEnabled = 1, ForceDisabled = 2
+            float AddonPerformanceMsgWarning         = 0.0f;
+            float AddonPerformanceMsgError           = 0.0f;
+            float AddonPerformanceMsgOverall         = 0.0f;
         };
 
         struct DebugTimeEventInfo
@@ -207,7 +211,7 @@ namespace WorldPackets
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false; // NYI
+            bool BpayStoreEnabled                    = false;
             bool CommerceServerEnabled               = false; // NYI
             bool VeteranTokenRedeemWillKick          = false; // NYI
             bool WorldTokenRedeemWillKick            = false; // NYI

@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SpellHistory_h__
-#define SpellHistory_h__
+#ifndef TRINITYCORE_SPELL_HISTORY_H
+#define TRINITYCORE_SPELL_HISTORY_H
 
+#include "Concepts.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "GameTime.h"
@@ -32,6 +33,17 @@ class Player;
 class Spell;
 class SpellInfo;
 class Unit;
+
+namespace WorldPackets::Pet
+{
+class PetSpells;
+}
+
+namespace WorldPackets::Spells
+{
+class SendSpellHistory;
+class SendSpellCharges;
+}
 
 /// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
 enum SpellCooldownFlags
@@ -96,8 +108,9 @@ public:
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr);
     bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
-    template<class PacketType>
-    void WritePacket(PacketType* packet) const;
+    void WritePacket(WorldPackets::Spells::SendSpellHistory* sendSpellHistory) const;
+    void WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpellCharges) const;
+    void WritePacket(WorldPackets::Pet::PetSpells* petSpells) const;
 
     // Cooldowns
     static Duration const InfinityCooldownDelay;  // used for set "infinity cooldowns" for spells and check
@@ -114,27 +127,37 @@ public:
     void AddCooldown(uint32 spellId, uint32 itemId, TimePoint cooldownEnd, uint32 categoryId, TimePoint categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown = false);
     void ModifyCooldown(SpellInfo const* spellInfo, Duration cooldownMod, bool withoutCategoryCooldown = false);
-    template<typename Predicate>
+    template <Trinity::invocable_r<bool, CooldownEntry const&> Predicate>
     void ModifyCoooldowns(Predicate&& predicate, Duration cooldownMod, bool withoutCategoryCooldown = false)
     {
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
         {
-            if (predicate(itr))
+            if (std::forward<Predicate>(predicate)(itr->second))
                 ModifySpellCooldown(itr, cooldownMod, withoutCategoryCooldown);
             else
                 ++itr;
         }
     }
 
+    template <Trinity::invocable_r<bool, CooldownEntry const&> Predicate>
+    void UpdateCooldownRecoveryRate(Predicate&& predicate, float modChange, bool apply)
+    {
+        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
+        {
+            if (std::forward<Predicate>(predicate)(itr->second))
+                UpdateCooldownRecoveryRate(itr, modChange, apply);
+        }
+    }
+
     void ResetCooldown(uint32 spellId, bool update = false);
-    template<typename Predicate>
-    void ResetCooldowns(Predicate predicate, bool update = false)
+    template <Trinity::invocable_r<bool, CooldownEntry const&> Predicate>
+    void ResetCooldowns(Predicate&& predicate, bool update = false)
     {
         std::vector<int32> resetCooldowns;
         resetCooldowns.reserve(_spellCooldowns.size());
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
         {
-            if (predicate(itr))
+            if (std::forward<Predicate>(predicate)(itr->second))
             {
                 resetCooldowns.push_back(int32(itr->first));
                 ResetCooldown(itr, false);
@@ -161,6 +184,7 @@ public:
     // Charges
     bool ConsumeCharge(uint32 chargeCategoryId);
     void ModifyChargeRecoveryTime(uint32 chargeCategoryId, Duration cooldownMod);
+    void UpdateChargeRecoveryRate(uint32 chargeCategoryId, float modChange, bool apply);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
@@ -187,6 +211,7 @@ private:
     Player* GetPlayerOwner() const;
     void ModifySpellCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown);
     void ModifySpellCooldown(CooldownStorageType::iterator& itr, Duration cooldownMod, bool withoutCategoryCooldown);
+    void UpdateCooldownRecoveryRate(CooldownStorageType::iterator& itr, float modChange, bool apply);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
@@ -195,7 +220,7 @@ private:
         return _spellCooldowns.erase(itr);
     }
 
-    void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection);
+    void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection) const;
 
     Unit* _owner;
     CooldownStorageType _spellCooldowns;
@@ -210,4 +235,4 @@ private:
     struct PersistenceHelper { };
 };
 
-#endif // SpellHistory_h__
+#endif // TRINITYCORE_SPELL_HISTORY_H

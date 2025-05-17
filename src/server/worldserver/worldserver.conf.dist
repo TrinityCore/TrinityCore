@@ -167,13 +167,6 @@ MaxPingTime = 30
 WorldServerPort = 8085
 
 #
-#    InstanceServerPort
-#        Description: TCP port to for second world connection.
-#        Default:     8086
-
-InstanceServerPort = 8086
-
-#
 #    BindIP
 #        Description: Bind world server to IP/hostname.
 #                     Using IPv6 address (such as "::") will enable both IPv4 and IPv6 connections
@@ -1374,9 +1367,9 @@ DBC.EnforceItemAttributes = 1
 #
 #   AccountInstancesPerHour
 #        Description: Controls the max amount of different instances player can enter within hour.
-#        Default:     5
+#        Default:     10
 
-AccountInstancesPerHour = 5
+AccountInstancesPerHour = 10
 
 #
 #   Account.PasswordChangeSecurity
@@ -1405,14 +1398,6 @@ BirthdayTime = 1222964635
 #
 
  CacheDataQueries = 1
-
-#
-#   FeatureSystem.BpayStore.Enabled
-#        Description: Not yet implemented
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-FeatureSystem.BpayStore.Enabled = 0
 
 #
 #   FeatureSystem.CharacterUndelete.Enabled

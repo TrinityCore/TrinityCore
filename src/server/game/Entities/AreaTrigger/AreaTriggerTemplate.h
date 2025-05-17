@@ -207,10 +207,10 @@ public:
     AreaTriggerTemplate();
     ~AreaTriggerTemplate();
 
-    AreaTriggerId Id;
-    EnumFlag<AreaTriggerFlag> Flags;
-    uint32 ActionSetId;
-    EnumFlag<AreaTriggerActionSetFlag> ActionSetFlags;
+    AreaTriggerId Id = { .Id = 0, .IsCustom = false };
+    EnumFlag<AreaTriggerFlag> Flags = AreaTriggerFlag::None;
+    uint32 ActionSetId = 0;
+    EnumFlag<AreaTriggerActionSetFlag> ActionSetFlags = AreaTriggerActionSetFlag::None;
     std::vector<AreaTriggerAction> Actions;
 };
 
@@ -222,34 +222,34 @@ public:
 
     bool HasSplines() const;
 
-    AreaTriggerCreatePropertiesId Id;
-    AreaTriggerTemplate const* Template;
-    EnumFlag<AreaTriggerCreatePropertiesFlag> Flags;
+    AreaTriggerCreatePropertiesId Id = { .Id = 0, .IsCustom = false };
+    AreaTriggerTemplate const* Template = nullptr;
+    EnumFlag<AreaTriggerCreatePropertiesFlag> Flags = AreaTriggerCreatePropertiesFlag::None;
 
-    uint32 MoveCurveId;
-    uint32 ScaleCurveId;
-    uint32 MorphCurveId;
-    uint32 FacingCurveId;
+    uint32 MoveCurveId = 0;
+    uint32 ScaleCurveId = 0;
+    uint32 MorphCurveId = 0;
+    uint32 FacingCurveId = 0;
 
-    int32 AnimId;
-    int32 AnimKitId;
+    int32 AnimId = 0;
+    int32 AnimKitId = 0;
 
-    uint32 DecalPropertiesId;
+    uint32 DecalPropertiesId = 0;
 
     Optional<int32> SpellForVisuals;
 
-    uint32 TimeToTarget;
-    uint32 TimeToTargetScale;
+    uint32 TimeToTargetScale = 0;
 
     Optional<AreaTriggerScaleCurveTemplate> OverrideScale;
-    Optional<AreaTriggerScaleCurveTemplate> ExtraScale;
+    Optional<AreaTriggerScaleCurveTemplate> ExtraScale = Optional<AreaTriggerScaleCurveTemplate>(std::in_place);
 
     AreaTriggerShapeInfo Shape;
 
+    float Speed = 1.0f;
     std::vector<Position> SplinePoints;
     Optional<AreaTriggerOrbitInfo> OrbitInfo;
 
-    uint32 ScriptId;
+    uint32 ScriptId = 0;
 };
 
 struct AreaTriggerSpawn : SpawnData

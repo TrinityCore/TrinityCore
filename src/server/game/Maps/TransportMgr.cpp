@@ -16,12 +16,12 @@
  */
 
 #include "TransportMgr.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

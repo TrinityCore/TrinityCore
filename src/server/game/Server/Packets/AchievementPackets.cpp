@@ -39,7 +39,7 @@ ByteBuffer& operator<<(ByteBuffer& data, CriteriaProgress const& criteria)
     data << criteria.Date;
     data << criteria.TimeFromStart;
     data << criteria.TimeFromCreate;
-    data.WriteBit(criteria.DynamicID.has_value());
+    data << OptionalInit(criteria.DynamicID);
     data.FlushBits();
 
     if (criteria.DynamicID)
@@ -96,7 +96,7 @@ WorldPacket const* CriteriaUpdate::Write()
     _worldPacket << CurrentTime;
     _worldPacket << ElapsedTime;
     _worldPacket << CreationTime;
-    _worldPacket.WriteBit(DynamicID.has_value());
+    _worldPacket << OptionalInit(DynamicID);
     _worldPacket.FlushBits();
 
     if (DynamicID)
@@ -135,7 +135,7 @@ WorldPacket const* AchievementEarned::Write()
     _worldPacket << Time;
     _worldPacket << uint32(EarnerNativeRealm);
     _worldPacket << uint32(EarnerVirtualRealm);
-    _worldPacket.WriteBit(Initial);
+    _worldPacket << Bits<1>(Initial);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -143,11 +143,11 @@ WorldPacket const* AchievementEarned::Write()
 
 WorldPacket const* BroadcastAchievement::Write()
 {
-    _worldPacket.WriteBits(Name.length(), 7);
-    _worldPacket.WriteBit(GuildAchievement);
+    _worldPacket << SizedString::BitsSize<7>(Name);
+    _worldPacket << Bits<1>(GuildAchievement);
     _worldPacket << PlayerGUID;
     _worldPacket << AchievementID;
-    _worldPacket.WriteString(Name);
+    _worldPacket << SizedString::Data(Name);
 
     return &_worldPacket;
 }

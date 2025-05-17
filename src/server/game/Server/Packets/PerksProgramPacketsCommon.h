@@ -31,6 +31,7 @@ struct PerksVendorItem
     int32 ItemModifiedAppearanceID = 0;
     int32 TransmogIllusionID = 0;
     int32 ToyID = 0;
+    int32 WarbandSceneID = 0;
     int32 Price = 0;
     int32 OriginalPrice = 0;
     Timestamp<> AvailableUntil;

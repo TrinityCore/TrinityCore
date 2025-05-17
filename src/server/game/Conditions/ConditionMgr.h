@@ -187,6 +187,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32,
     CONDITION_SOURCE_TYPE_SPAWN_GROUP                    = 33,
     CONDITION_SOURCE_TYPE_PLAYER_CONDITION               = 34,
+    CONDITION_SOURCE_TYPE_SKILL_LINE_ABILITY             = 35,
 
     CONDITION_SOURCE_TYPE_MAX_DB_ALLOWED,
     CONDITION_SOURCE_TYPE_REFERENCE_CONDITION            = CONDITION_SOURCE_TYPE_MAX_DB_ALLOWED, // internal, not set in db
@@ -219,7 +220,7 @@ enum MaxConditionTargets
 
 struct TC_GAME_API ConditionSourceInfo
 {
-    WorldObject const* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
+    std::array<WorldObject const*, MAX_CONDITION_TARGETS> mConditionTargets; // an array of targets available for conditions
     Map const* mConditionMap;
     Condition const* mLastFailedCondition;
     ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1 = nullptr, WorldObject const* target2 = nullptr);
@@ -326,7 +327,7 @@ class TC_GAME_API ConditionMgr
 
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
         bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
-        bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const;
+        bool IsObjectMeetingVisibilityByObjectIdConditions(WorldObject const* obj, WorldObject const* seer) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, uint32 conditionId);

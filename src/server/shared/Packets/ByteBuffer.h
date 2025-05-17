@@ -159,9 +159,6 @@ class TC_SHARED_API ByteBuffer
 
         void ResetBitPos()
         {
-            if (_bitpos > 7)
-                return;
-
             _bitpos = 8;
             _curbitval = 0;
         }
@@ -184,14 +181,13 @@ class TC_SHARED_API ByteBuffer
 
         bool ReadBit()
         {
-            ++_bitpos;
-            if (_bitpos > 7)
+            if (_bitpos >= 8)
             {
-                _curbitval = read<uint8>();
+                read(&_curbitval, 1);
                 _bitpos = 0;
             }
 
-            return ((_curbitval >> (7 - _bitpos)) & 1) != 0;
+            return ((_curbitval >> (8 - ++_bitpos)) & 1) != 0;
         }
 
         void WriteBits(uint64 value, int32 bits)
@@ -236,8 +232,34 @@ class TC_SHARED_API ByteBuffer
         uint32 ReadBits(int32 bits)
         {
             uint32 value = 0;
-            for (int32 i = bits - 1; i >= 0; --i)
-                value |= uint32(ReadBit()) << i;
+            if (bits > 8 - int32(_bitpos))
+            {
+                // first retrieve whatever is left in the bit buffer
+                int32 bitsInBuffer = 8 - _bitpos;
+                value = (_curbitval & ((UI64LIT(1) << bitsInBuffer) - 1)) << (bits - bitsInBuffer);
+                bits -= bitsInBuffer;
+
+                // then read as many full bytes as possible
+                while (bits >= 8)
+                {
+                    bits -= 8;
+                    value |= read<uint8>() << bits;
+                }
+
+                // and finally any remaining bits
+                if (bits)
+                {
+                    read(&_curbitval, 1);
+                    value |= (_curbitval >> (8 - bits)) & ((UI64LIT(1) << bits) - 1);
+                    _bitpos = bits;
+                }
+            }
+            else
+            {
+                // entire value is in the bit buffer
+                value = (_curbitval >> (8 - _bitpos - bits)) & ((UI64LIT(1) << bits) - 1);
+                _bitpos += bits;
+            }
 
             return value;
         }
@@ -512,19 +534,6 @@ class TC_SHARED_API ByteBuffer
             read(arr.data(), Size);
         }
 
-        void ReadPackedUInt64(uint64& guid)
-        {
-            guid = 0;
-            ReadPackedUInt64(read<uint8>(), guid);
-        }
-
-        void ReadPackedUInt64(uint8 mask, uint64& value)
-        {
-            for (uint32 i = 0; i < 8; ++i)
-                if (mask & (uint8(1) << i))
-                    value |= (uint64(read<uint8>()) << (i * 8));
-        }
-
         //! Method for writing strings that have their length sent separately in packet
         //! without null-terminating the string
         void WriteString(std::string const& str)
@@ -549,19 +558,8 @@ class TC_SHARED_API ByteBuffer
 
         std::string_view ReadString(uint32 length, bool requireValidUtf8 = true);
 
-        uint8* contents()
-        {
-            if (_storage.empty())
-                throw ByteBufferException();
-            return _storage.data();
-        }
-
-        uint8 const* contents() const
-        {
-            if (_storage.empty())
-                throw ByteBufferException();
-            return _storage.data();
-        }
+        uint8* data() { return _storage.data(); }
+        uint8 const* data() const { return _storage.data(); }
 
         size_t size() const { return _storage.size(); }
         bool empty() const { return _storage.empty(); }
@@ -600,56 +598,13 @@ class TC_SHARED_API ByteBuffer
         void append(ByteBuffer const& buffer)
         {
             if (!buffer.empty())
-                append(buffer.contents(), buffer.size());
+                append(buffer.data(), buffer.size());
         }
 
         template <size_t Size>
         void append(std::array<uint8, Size> const& arr)
         {
             append(arr.data(), Size);
-        }
-
-        // can be used in SMSG_MONSTER_MOVE opcode
-        void appendPackXYZ(float x, float y, float z)
-        {
-            uint32 packed = 0;
-            packed |= ((int)(x / 0.25f) & 0x7FF);
-            packed |= ((int)(y / 0.25f) & 0x7FF) << 11;
-            packed |= ((int)(z / 0.25f) & 0x3FF) << 22;
-            *this << packed;
-        }
-
-        void AppendPackedUInt64(uint64 guid)
-        {
-            uint8 mask = 0;
-            size_t pos = wpos();
-            *this << uint8(mask);
-
-            uint8 packed[8];
-            if (size_t packedSize = PackUInt64(guid, &mask, packed))
-                append(packed, packedSize);
-
-            put<uint8>(pos, mask);
-        }
-
-        static size_t PackUInt64(uint64 value, uint8* mask, uint8* result)
-        {
-            size_t resultSize = 0;
-            *mask = 0;
-            memset(result, 0, 8);
-
-            for (uint8 i = 0; value != 0; ++i)
-            {
-                if (value & 0xFF)
-                {
-                    *mask |= uint8(1 << i);
-                    result[resultSize++] = uint8(value & 0xFF);
-                }
-
-                value >>= 8;
-            }
-
-            return resultSize;
         }
 
         void put(size_t pos, uint8 const* src, size_t cnt);
@@ -667,8 +622,8 @@ class TC_SHARED_API ByteBuffer
         std::vector<uint8> _storage;
 };
 
-/// @todo Make a ByteBuffer.cpp and move all this inlining to it.
-template <> inline std::string ByteBuffer::read<std::string>()
+template <>
+inline std::string ByteBuffer::read<std::string>()
 {
     return std::string(ReadCString());
 }
@@ -690,5 +645,16 @@ inline void ByteBuffer::read_skip<std::string>()
 {
     read_skip<char*>();
 }
+
+extern template uint8 ByteBuffer::read<uint8>();
+extern template uint16 ByteBuffer::read<uint16>();
+extern template uint32 ByteBuffer::read<uint32>();
+extern template uint64 ByteBuffer::read<uint64>();
+extern template int8 ByteBuffer::read<int8>();
+extern template int16 ByteBuffer::read<int16>();
+extern template int32 ByteBuffer::read<int32>();
+extern template int64 ByteBuffer::read<int64>();
+extern template float ByteBuffer::read<float>();
+extern template double ByteBuffer::read<double>();
 
 #endif

@@ -275,6 +275,7 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> OldMapPosition;
             Optional<ShipTransferPending> Ship;
             Optional<int32> TransferSpellID;
+            Optional<int32> TaxiPathID;
         };
 
         class TransferAborted final : public ServerPacket
@@ -707,7 +708,7 @@ namespace WorldPackets
                 float InitVertSpeed = 0.0f;
             };
 
-            struct SpeedRange
+            struct StateChangeRangeInfo
             {
                 float Min = 0.0f;
                 float Max = 0.0f;
@@ -720,7 +721,7 @@ namespace WorldPackets
                 uint32 MessageID = 0;
                 uint32 SequenceIndex = 0;
                 Optional<float> Speed;
-                Optional<MoveSetCompoundState::SpeedRange> SpeedRange;
+                Optional<StateChangeRangeInfo> Range;
                 Optional<KnockBackInfo> KnockBack;
                 Optional<int32> VehicleRecID;
                 Optional<CollisionHeightInfo> CollisionHeight;
@@ -728,6 +729,7 @@ namespace WorldPackets
                 Optional<ObjectGuid> MovementForceGUID;
                 Optional<int32> MovementInertiaID;
                 Optional<uint32> MovementInertiaLifetimeMs;
+                Optional<int32> DriveCapabilityRecID;
             };
 
             MoveSetCompoundState() : ServerPacket(SMSG_MOVE_SET_COMPOUND_STATE, 4 + 1) { }
