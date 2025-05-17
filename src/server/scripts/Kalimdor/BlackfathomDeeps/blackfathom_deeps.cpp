@@ -109,20 +109,18 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
             _instance->SetData(DATA_EVENT, _instance->GetData(DATA_EVENT) + 1);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (me->GetEntry() != NPC_MURKSHALLOW_SOFTSHELL && me->GetEntry() != NPC_BARBED_CRUSTACEAN)
-            return;
-
-        if (!_flee && me->HealthBelowPctDamaged(15, damage))
-        {
-            _flee = true;
-            me->DoFleeToGetAssistance();
-        }
-    }
-
     void UpdateAI(uint32 diff) override
     {
+        if (me->GetEntry() == NPC_MURKSHALLOW_SOFTSHELL || me->GetEntry() == NPC_BARBED_CRUSTACEAN)
+        {
+            if (!me->HasUnitState(UNIT_STATE_CASTING) && !_flee && me->HealthBelowPct(15))
+            {
+                _flee = true;
+                me->DoFleeToGetAssistance();
+                return;
+            }
+        }
+
         if (!UpdateVictim())
             return;
 
