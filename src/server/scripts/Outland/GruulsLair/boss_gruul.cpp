@@ -30,7 +30,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Texts
+enum GruulTexts
 {
     SAY_AGGRO                   = 0,
     SAY_SLAM                    = 1,
@@ -40,7 +40,7 @@ enum Texts
     EMOTE_GROW                  = 5
 };
 
-enum Spells
+enum GruulSpells
 {
     SPELL_HURTFUL_STRIKE_PRIMER = 33812,
     SPELL_HURTFUL_STRIKE        = 33813,
@@ -57,7 +57,7 @@ enum Spells
     SPELL_STONED                = 33652
 };
 
-enum Events
+enum GruulEvents
 {
     EVENT_HURTFUL_STRIKE = 1,
     EVENT_CAVE_IN,
@@ -66,11 +66,12 @@ enum Events
     EVENT_GROUND_SLAM
 };
 
-enum Misc
+enum GruulMisc
 {
     SOUND_ID_DEATH              = 11363
 };
 
+// 19044 - Gruul the Dragonkiller
 struct boss_gruul : public BossAI
 {
     boss_gruul(Creature* creature) : BossAI(creature, DATA_GRUUL) { }

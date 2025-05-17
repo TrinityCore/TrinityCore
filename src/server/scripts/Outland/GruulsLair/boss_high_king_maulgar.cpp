@@ -27,7 +27,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 
-enum Texts
+enum MaulgarTexts
 {
     SAY_AGGRO                   = 0,
     SAY_ENRAGE                  = 1,
@@ -36,7 +36,7 @@ enum Texts
     SAY_DEATH                   = 4
 };
 
-enum Spells
+enum MaulgarSpells
 {
     // High King Maulgar
     SPELL_ARCING_SMASH          = 39144,
@@ -68,11 +68,12 @@ enum Spells
     SPELL_BLAST_WAVE            = 33061
 };
 
-enum Misc
+enum MaulgarMisc
 {
     ACTION_ADD_DEATH            = 1
 };
 
+// 18831 - High King Maulgar
 struct boss_high_king_maulgar : public BossAI
 {
     boss_high_king_maulgar(Creature* creature) : BossAI(creature, DATA_MAULGAR), _enraged(false) { }
@@ -171,6 +172,7 @@ private:
     bool _enraged;
 };
 
+// 18834 - Olm the Summoner
 struct boss_olm_the_summoner : public ScriptedAI
 {
     boss_olm_the_summoner(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -228,6 +230,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 18835 - Kiggler the Crazed
 struct boss_kiggler_the_crazed : public ScriptedAI
 {
     boss_kiggler_the_crazed(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -296,6 +299,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 18836 - Blindeye the Seer
 struct boss_blindeye_the_seer : public ScriptedAI
 {
     boss_blindeye_the_seer(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -352,6 +356,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 18832 - Krosh Firehand
 struct boss_krosh_firehand : public ScriptedAI
 {
     boss_krosh_firehand(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
