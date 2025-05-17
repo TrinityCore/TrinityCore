@@ -111,3 +111,9 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (80739));
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
 (13, 1, 80739, 0, 0, 51, 0, 5, 43196, 0, '', 0, 'Potential target of the spell is TYPEID_UNIT, entry is 43196');
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (80704));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES
+(13, 2, 80704, 0, 0, 51, 0, 5, 43197, 0, '', 0, 'Potential target of the spell is TYPEID_UNIT, entry is 43197'),
+(13, 2, 80704, 0, 0, 33, 0, 1, 3, 0, '', 0, 'Potential target of the spell is TYPEID_UNIT, entry is 43197, if owned by spell caster'),
+(13, 2, 80704, 0, 1, 51, 0, 5, 43094, 0, '', 0, 'Otherwise, potential target of the spell is TYPEID_UNIT, entry is 43094');

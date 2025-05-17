@@ -626,31 +626,23 @@ class spell_redridge_control_ettin : public SpellScript
     {
         if (Unit const* target = GetHitUnit())
         {
-            if (target->GetEntry() == NPC_SUBDUED_CANYON_ETTIN)
+            // only control one ettin
+            if (GetCaster()->HasAura(SPELL_CANYON_ETTIN_SPAWN_SPELL))
             {
-                GetCaster()->CastSpell(nullptr, SPELL_BOULDER_AURA, false);
-                GetCaster()->CastSpell(nullptr, SPELL_DESPAWN_KILL_CREDIT, false);
+                if (target->GetEntry() == NPC_SUBDUED_CANYON_ETTIN)
+                {
+                    GetCaster()->CastSpell(nullptr, SPELL_BOULDER_AURA, false);
+                    GetCaster()->CastSpell(nullptr, SPELL_DESPAWN_KILL_CREDIT, false);
+                }
             }
             else
                 GetCaster()->CastSpell(nullptr, SPELL_CONTROL_ETTIN_2, false);
         }
     }
 
-    void SetTarget(WorldObject*& target)
-    {
-        // @TODO: move to db
-        if (GetCaster()->HasAura(SPELL_CANYON_ETTIN_SPAWN_SPELL))
-        {
-            std::list<TempSummon*> minionList;
-            GetCaster()->GetAllMinionsByEntry(minionList, NPC_SUBDUED_CANYON_ETTIN);
-            target = minionList.front();
-        }
-    }
-
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_redridge_control_ettin::CheckCast);
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_redridge_control_ettin::SetTarget, EFFECT_1, TARGET_UNIT_NEARBY_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_redridge_control_ettin::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
