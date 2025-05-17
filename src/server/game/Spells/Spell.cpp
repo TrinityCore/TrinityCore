@@ -3447,9 +3447,15 @@ void Spell::_cast(bool skipCheck)
     }
 
     if (Unit* unitCaster = m_caster->ToUnit())
+    {
         if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
-            if (Creature* pet = ObjectAccessor::GetCreature(*m_caster, unitCaster->GetPetGUID()))
+        {
+            if (Pet* pet = ObjectAccessor::GetPet(*m_caster, unitCaster->GetPetGUID())) // For Players
                 pet->DespawnOrUnsummon();
+            else if (Creature* pet = ObjectAccessor::GetCreature(*m_caster, unitCaster->GetPetGUID())) // For NPCs
+                pet->DespawnOrUnsummon();
+        }
+    }
 
     PrepareTriggersExecutedOnHit();
 
