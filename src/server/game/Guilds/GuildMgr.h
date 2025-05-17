@@ -44,6 +44,9 @@ public:
     Guild* GetGuildByName(std::string_view guildName) const;
     std::string GetGuildNameById(ObjectGuid::LowType guildId) const;
 
+    // --- new read-only accessor ---
+    auto const& GetGuildStore() const { return GuildStore; }
+
     void LoadGuildRewards();
 
     void LoadGuilds();
