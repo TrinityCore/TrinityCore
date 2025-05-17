@@ -65,6 +65,7 @@ enum InventorySlot
 };
 
 struct AbstractFollower;
+struct AuraCreateInfo;
 struct CharmInfo;
 struct FactionTemplateEntry;
 struct LiquidData;

@@ -589,6 +589,25 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
         HandleMovementOpcode(CMSG_MOVE_STOP, *packet.Status);
 }
 
+void WorldSession::HandleUpdateAuraVisual(WorldPackets::Spells::UpdateAuraVisual const& updateAuraVisual)
+{
+    Unit* target = ObjectAccessor::GetUnit(*_player, updateAuraVisual.TargetGUID);
+    if (!target)
+        return;
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(updateAuraVisual.SpellID, _player->GetMap()->GetDifficultyID());
+    if (!spellInfo)
+        return;
+
+    uint32 spellXspellVisualId = _player->GetCastSpellXSpellVisualId(spellInfo);
+    for (auto const& [_, auraApp] : Trinity::Containers::MapEqualRange(target->GetAppliedAuras(), spellInfo->Id))
+        if (auraApp->GetBase()->GetCasterGUID() == _player->GetGUID())
+            auraApp->GetBase()->SetSpellVisual({ .SpellXSpellVisualID = spellXspellVisualId });
+
+    if (_player->GetChannelSpellId() == spellInfo->Id)
+        _player->SetChannelVisual({ .SpellXSpellVisualID = spellXspellVisualId });
+}
+
 void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)
 {
     Player* player = GetPlayer();

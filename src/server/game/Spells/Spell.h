@@ -628,6 +628,7 @@ class TC_GAME_API Spell
 
         int32 GetCastTime() const { return m_casttime; }
         int32 GetRemainingCastTime() const { return m_timer; }
+        int32 GetChannelDuration() const { return m_channelDuration; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
@@ -725,7 +726,7 @@ class TC_GAME_API Spell
 
         std::vector<SpellPowerCost> m_powerCost;            // Calculated spell cost initialized only in Spell::prepare
         int32 m_casttime;                                   // Calculated spell cast time initialized only in Spell::prepare
-        int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
+        int32 m_channelDuration;                            // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
         uint8 m_runesState;

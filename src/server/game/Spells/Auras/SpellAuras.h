@@ -48,9 +48,11 @@ class DynObjAura;
 class ChargeDropEvent;
 class DynamicObject;
 class HealInfo;
+class Item;
 class ProcEventInfo;
 class Unit;
 class UnitAura;
+class WorldObject;
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
@@ -101,6 +103,50 @@ class TC_GAME_API AuraApplication
         std::string GetDebugInfo() const;
 };
 
+struct TC_GAME_API AuraCreateInfo
+{
+    friend class Aura;
+    friend class UnitAura;
+    friend class DynObjAura;
+
+    AuraCreateInfo(ObjectGuid castId, SpellInfo const* spellInfo, Difficulty castDifficulty, uint32 auraEffMask, WorldObject* owner);
+
+    AuraCreateInfo& SetCasterGUID(ObjectGuid const& guid) { CasterGUID = guid; return *this; }
+    AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
+    AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
+    AuraCreateInfo& SetCastItem(ObjectGuid const& guid, uint32 itemId, int32 itemLevel) { CastItemGUID = guid; CastItemId = itemId; CastItemLevel = itemLevel; return *this; }
+    AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
+    AuraCreateInfo& SetIsRefresh(bool* isRefresh) { IsRefresh = isRefresh; return *this; }
+    AuraCreateInfo& SetStackAmount(int32 stackAmount) { StackAmount = stackAmount > 0 ? stackAmount : 1; return *this; }
+    AuraCreateInfo& SetOwnerEffectMask(uint32 effMask) { _targetEffectMask = effMask; return *this; }
+    AuraCreateInfo& SetSpellVisual(SpellCastVisual const& spellVisual) { _spellVisual = spellVisual; return *this; }
+
+    SpellInfo const* GetSpellInfo() const { return _spellInfo; }
+    uint32 GetAuraEffectMask() const { return _auraEffectMask; }
+
+    ObjectGuid CasterGUID;
+    Unit* Caster = nullptr;
+    int32 const* BaseAmount = nullptr;
+    ObjectGuid CastItemGUID;
+    uint32 CastItemId = 0;
+    int32 CastItemLevel = -1;
+    bool* IsRefresh = nullptr;
+    int32 StackAmount = 1;
+    bool ResetPeriodicTimer = true;
+
+private:
+    ObjectGuid _castId;
+    SpellInfo const* _spellInfo = nullptr;
+    Difficulty _castDifficulty = Difficulty(0);
+    uint32 _auraEffectMask = 0;
+    WorldObject* _owner = nullptr;
+    Optional<SpellCastVisual> _spellVisual;
+
+    uint32 _targetEffectMask = 0;
+
+    SpellCastVisual CalcSpellVisual() const;
+};
+
 // Structure representing database aura primary key fields
 struct AuraKey
 {
@@ -131,7 +177,6 @@ class TC_GAME_API Aura
         static Aura* Create(AuraCreateInfo& createInfo);
         explicit Aura(AuraCreateInfo const& createInfo);
         void _InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount);
-        void SaveCasterInfo(Unit* caster);
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
@@ -144,6 +189,7 @@ class TC_GAME_API Aura
         uint32 GetCastItemId() const { return m_castItemId; }
         int32 GetCastItemLevel() const { return m_castItemLevel; }
         SpellCastVisual GetSpellVisual() const { return m_spellVisual; }
+        void SetSpellVisual(SpellCastVisual const& spellVisual);
         Unit* GetCaster() const;
         WorldObject* GetWorldObjectCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
@@ -349,7 +395,7 @@ class TC_GAME_API Aura
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         uint32 m_castItemId;
         int32 m_castItemLevel;
-        SpellCastVisual const m_spellVisual;
+        SpellCastVisual m_spellVisual;
         time_t const m_applyTime;
         WorldObject* const m_owner;
 
