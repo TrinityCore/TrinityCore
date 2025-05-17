@@ -553,6 +553,12 @@ Aura::~Aura()
     _DeleteRemovedApplications();
 }
 
+void Aura::SetSpellVisual(SpellCastVisual const& spellVisual)
+{
+    m_spellVisual = spellVisual;
+    SetNeedClientUpdateForTargets();
+}
+
 Unit* Aura::GetCaster() const
 {
     if (GetOwner()->GetGUID() == GetCasterGUID())

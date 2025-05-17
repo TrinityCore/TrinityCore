@@ -997,6 +997,13 @@ void UpdateMissileTrajectory::Read()
         _worldPacket >> Status.emplace();
 }
 
+void UpdateAuraVisual::Read()
+{
+    _worldPacket >> SpellID;
+    _worldPacket >> Visual;
+    _worldPacket >> TargetGUID;
+}
+
 WorldPacket const* SpellDelayed::Write()
 {
     _worldPacket << Caster;
