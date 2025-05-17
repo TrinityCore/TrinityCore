@@ -1299,10 +1299,10 @@ struct at_dk_death_and_decay : AreaTriggerAI
             unit->CastSpell(unit, SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS, TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         if (unit->HasAura(SPELL_DK_UNHOLY_GROUND_TALENT))
-            unit->CastSpell(unit, SPELL_DK_SANGUINE_GROUND);
+            unit->CastSpell(unit, SPELL_DK_UNHOLY_GROUND_HASTE);
 
         if (unit->HasAura(SPELL_DK_SANGUINE_GROUND_TALENT))
-            unit->CastSpell(unit, SPELL_DK_UNHOLY_GROUND_HASTE);
+            unit->CastSpell(unit, SPELL_DK_SANGUINE_GROUND);
     }
 
     void OnUnitExit(Unit* unit) override
