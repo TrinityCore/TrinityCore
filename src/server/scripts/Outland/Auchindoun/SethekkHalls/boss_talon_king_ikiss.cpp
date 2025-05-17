@@ -21,7 +21,7 @@
 #include "SpellScript.h"
 #include "sethekk_halls.h"
 
-enum Texts
+enum IkissTexts
 {
     SAY_INTRO                   = 0,
     SAY_AGGRO                   = 1,
@@ -30,7 +30,7 @@ enum Texts
     EMOTE_ARCANE_EXPLOSION      = 4
 };
 
-enum Spells
+enum IkissSpells
 {
     SPELL_BLINK                 = 38194,
     SPELL_BLINK_TELEPORT        = 38203,
@@ -42,7 +42,7 @@ enum Spells
     SPELL_ARCANE_EXPLOSION      = 38197,
 };
 
-enum Events
+enum IkissEvents
 {
     EVENT_POLYMORPH = 1,
     EVENT_BLINK,
@@ -51,6 +51,7 @@ enum Events
     EVENT_ARCANE_EXPLOSION
 };
 
+// 18473 - Talon King Ikiss
 struct boss_talon_king_ikiss : public BossAI
 {
     boss_talon_king_ikiss(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS), _intro(false), _manaShield(false) { }

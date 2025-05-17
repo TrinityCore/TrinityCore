@@ -21,7 +21,7 @@
 #include "SpellInfo.h"
 #include "sethekk_halls.h"
 
-enum Texts
+enum SythTexts
 {
     SAY_SUMMON                  = 0,
     SAY_AGGRO                   = 1,
@@ -29,7 +29,7 @@ enum Texts
     SAY_DEATH                   = 3
 };
 
-enum Spells
+enum SythSpells
 {
     SPELL_FROST_SHOCK           = 21401,
     SPELL_FLAME_SHOCK           = 34354,
@@ -46,7 +46,7 @@ enum Spells
     SPELL_SUMMON_SYTH_SHADOW    = 33540
 };
 
-enum Events
+enum SythEvents
 {
     EVENT_FLAME_SHOCK           = 1,
     EVENT_ARCANE_SHOCK,
@@ -56,22 +56,29 @@ enum Events
     EVENT_SUMMON
 };
 
-enum Misc
+enum SythMisc
 {
     NPC_LAKKA                   = 18956,
     SAY_LAKKA_FREE              = 1
 };
 
+enum SythPhases : uint8
+{
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_90,
+    PHASE_HEALTH_55,
+    PHASE_HEALTH_10
+};
+
+// 18472 - Darkweaver Syth
 struct boss_darkweaver_syth : public BossAI
 {
-    boss_darkweaver_syth(Creature* creature) : BossAI(creature, DATA_DARKWEAVER_SYTH), _summon90(false), _summon55(false), _summon10(false) { }
+    boss_darkweaver_syth(Creature* creature) : BossAI(creature, DATA_DARKWEAVER_SYTH), _phase(PHASE_NONE) { }
 
     void Reset() override
     {
         _Reset();
-        _summon90 = false;
-        _summon55 = false;
-        _summon10 = false;
+        _phase = PHASE_NONE;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -117,22 +124,22 @@ struct boss_darkweaver_syth : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(90, damage) && !_summon90)
+        if (_phase < PHASE_HEALTH_90 && me->HealthBelowPctDamaged(90, damage))
         {
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON, 0s);
-            _summon90 = true;
         }
 
-        if (me->HealthBelowPctDamaged(55, damage) && !_summon55)
+        if (_phase < PHASE_HEALTH_55 && me->HealthBelowPctDamaged(55, damage))
         {
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON, 0s);
-            _summon55 = true;
         }
 
-        if (me->HealthBelowPctDamaged(10, damage) && !_summon10)
+        if (_phase < PHASE_HEALTH_10 && me->HealthBelowPctDamaged(10, damage))
         {
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON, 0s);
-            _summon10 = true;
         }
     }
 
@@ -169,9 +176,7 @@ struct boss_darkweaver_syth : public BossAI
     }
 
 private:
-    bool _summon90;
-    bool _summon55;
-    bool _summon10;
+    uint8 _phase;
 };
 
 // 33595 - Summon Elementals

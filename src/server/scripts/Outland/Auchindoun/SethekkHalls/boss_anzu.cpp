@@ -19,13 +19,13 @@
 #include "ScriptedCreature.h"
 #include "sethekk_halls.h"
 
-enum Texts
+enum AnzuTexts
 {
     SAY_SUMMON_BROOD            = 0,
     SAY_SPELL_BOMB              = 1
 };
 
-enum Spells
+enum AnzuSpells
 {
     SPELL_PARALYZING_SCREECH    = 40184,
     SPELL_SPELL_BOMB            = 40303,
@@ -33,12 +33,19 @@ enum Spells
     SPELL_BANISH_SELF           = 42354
 };
 
-enum Events
+enum AnzuEvents
 {
     EVENT_PARALYZING_SCREECH    = 1,
     EVENT_SPELL_BOMB,
     EVENT_CYCLONE_OF_FEATHERS,
     EVENT_SUMMON
+};
+
+enum AnzuPhases : uint8
+{
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_66,
+    PHASE_HEALTH_33
 };
 
 Position const PosSummonBrood[7] =
@@ -52,16 +59,16 @@ Position const PosSummonBrood[7] =
     { -81.70527f, 280.8776f, 44.58830f, 0.526849f }
 };
 
+// 23035 - Anzu
 struct boss_anzu : public BossAI
 {
-    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU), _under33Percent(false), _under66Percent(false) { }
+    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU), _phase(PHASE_NONE) { }
 
     void Reset() override
     {
         //_Reset();
         events.Reset();
-        _under33Percent = false;
-        _under66Percent = false;
+        _phase = PHASE_NONE;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -73,16 +80,16 @@ struct boss_anzu : public BossAI
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(33, damage) && !_under33Percent)
+        if (_phase < PHASE_HEALTH_66 && me->HealthBelowPctDamaged(66, damage))
         {
-            _under33Percent = true;
+            _phase++;
             Talk(SAY_SUMMON_BROOD);
             events.ScheduleEvent(EVENT_SUMMON, 3s);
         }
 
-        if (me->HealthBelowPctDamaged(66, damage) && !_under66Percent)
+        if (_phase < PHASE_HEALTH_33 && me->HealthBelowPctDamaged(33, damage))
         {
-            _under66Percent = true;
+            _phase++;
             Talk(SAY_SUMMON_BROOD);
             events.ScheduleEvent(EVENT_SUMMON, 3s);
         }
@@ -135,8 +142,7 @@ struct boss_anzu : public BossAI
     }
 
 private:
-    bool _under33Percent;
-    bool _under66Percent;
+    uint8 _phase;
 };
 
 void AddSC_boss_anzu()
