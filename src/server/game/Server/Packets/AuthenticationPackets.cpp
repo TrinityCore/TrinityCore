@@ -23,7 +23,9 @@
 #include "ObjectMgr.h"
 #include "RSA.h"
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
+namespace WorldPackets::Auth
+{
+ByteBuffer& operator<<(ByteBuffer& data, VirtualRealmNameInfo const& virtualRealmInfo)
 {
     data << WorldPackets::Bits<1>(virtualRealmInfo.IsLocal);
     data << WorldPackets::Bits<1>(virtualRealmInfo.IsInternalRealm);
@@ -31,13 +33,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInf
     data << WorldPackets::SizedString::BitsSize<8>(virtualRealmInfo.RealmNameNormalized);
     data.FlushBits();
 
-    data << WorldPackets::SizedString::Data(virtualRealmInfo.RealmNameActual);
-    data << WorldPackets::SizedString::Data(virtualRealmInfo.RealmNameNormalized);
+    data << SizedString::Data(virtualRealmInfo.RealmNameActual);
+    data << SizedString::Data(virtualRealmInfo.RealmNameNormalized);
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& virtualRealmInfo)
+ByteBuffer& operator<<(ByteBuffer& data, VirtualRealmInfo const& virtualRealmInfo)
 {
     data << uint32(virtualRealmInfo.RealmAddress);
     data << virtualRealmInfo.RealmNameInfo;
@@ -45,33 +47,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo co
     return data;
 }
 
-bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
-{
-    try
-    {
-        Read();
-        return true;
-    }
-    catch (ByteBufferException const& /*ex*/)
-    {
-    }
-
-    return false;
-}
-
-void WorldPackets::Auth::Ping::Read()
+void Ping::Read()
 {
     _worldPacket >> Serial;
     _worldPacket >> Latency;
 }
 
-const WorldPacket* WorldPackets::Auth::Pong::Write()
+WorldPacket const* Pong::Write()
 {
     _worldPacket << uint32(Serial);
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
+WorldPacket const* AuthChallenge::Write()
 {
     _worldPacket.append(DosChallenge.data(), DosChallenge.size());
     _worldPacket.append(Challenge.data(), Challenge.size());
@@ -79,7 +67,7 @@ WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Auth::AuthSession::Read()
+void AuthSession::Read()
 {
     uint32 realmJoinTicketSize;
 
@@ -98,7 +86,7 @@ void WorldPackets::Auth::AuthSession::Read()
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const& waitInfo)
+ByteBuffer& operator<<(ByteBuffer& data, AuthWaitInfo const& waitInfo)
 {
     data << uint32(waitInfo.WaitCount);
     data << uint32(waitInfo.WaitTime);
@@ -110,7 +98,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const&
     return data;
 }
 
-WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
+WorldPacket const* AuthResponse::Write()
 {
     _worldPacket << uint32(Result);
     _worldPacket << OptionalInit(SuccessInfo);
@@ -208,7 +196,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+WorldPacket const* WaitQueueUpdate::Write()
 {
     _worldPacket << WaitInfo;
 
@@ -258,7 +246,7 @@ std::unique_ptr<Trinity::Crypto::RsaSignature> ConnectToRSA;
 std::unique_ptr<Trinity::Crypto::Ed25519> EnterEncryptedModeSigner;
 }
 
-bool WorldPackets::Auth::ConnectTo::InitializeEncryption()
+bool ConnectTo::InitializeEncryption()
 {
     std::unique_ptr<Trinity::Crypto::RsaSignature> rsa = std::make_unique<Trinity::Crypto::RsaSignature>();
     if (!rsa->LoadKeyFromString(RSAPrivateKey))
@@ -268,16 +256,12 @@ bool WorldPackets::Auth::ConnectTo::InitializeEncryption()
     return true;
 }
 
-void WorldPackets::Auth::ConnectTo::ShutdownEncryption()
+void ConnectTo::ShutdownEncryption()
 {
     ConnectToRSA.reset();
 }
 
-WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 256 + 1 + 16 + 2 + 4 + 1 + 8)
-{
-}
-
-WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
+WorldPacket const* ConnectTo::Write()
 {
     ByteBuffer whereBuffer;
     whereBuffer << uint8(Payload.Where.Type);
@@ -316,7 +300,7 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Auth::AuthContinuedSession::Read()
+void AuthContinuedSession::Read()
 {
     _worldPacket >> DosResponse;
     _worldPacket >> Key;
@@ -324,13 +308,13 @@ void WorldPackets::Auth::AuthContinuedSession::Read()
     _worldPacket.read(Digest.data(), Digest.size());
 }
 
-void WorldPackets::Auth::ConnectToFailed::Read()
+void ConnectToFailed::Read()
 {
     _worldPacket >> Con;
     _worldPacket >> As<uint32>(Serial);
 }
 
-bool WorldPackets::Auth::EnterEncryptedMode::InitializeEncryption()
+bool EnterEncryptedMode::InitializeEncryption()
 {
     std::unique_ptr<Trinity::Crypto::Ed25519> ed25519 = std::make_unique<Trinity::Crypto::Ed25519>();
     if (!ed25519->LoadFromByteArray(EnterEncryptedModePrivateKey))
@@ -340,7 +324,7 @@ bool WorldPackets::Auth::EnterEncryptedMode::InitializeEncryption()
     return true;
 }
 
-void WorldPackets::Auth::EnterEncryptedMode::ShutdownEncryption()
+void EnterEncryptedMode::ShutdownEncryption()
 {
     EnterEncryptedModeSigner.reset();
 }
@@ -349,7 +333,7 @@ std::array<uint8, 32> constexpr EnableEncryptionSeed = { 0x66, 0xBE, 0x29, 0x79,
     0x32, 0xEC, 0x94, 0xEC, 0x75, 0xB3, 0x5F, 0x44, 0x6A, 0x63, 0x43, 0x67, 0x17, 0x20, 0x44, 0x34 };
 std::array<uint8, 16> constexpr EnableEncryptionContext = { 0xA7, 0x1F, 0xB6, 0x9B, 0xC9, 0x7C, 0xDD, 0x96, 0xE9, 0xBB, 0xB8, 0x21, 0x39, 0x8D, 0x5A, 0xD4 };
 
-WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
+WorldPacket const* EnterEncryptedMode::Write()
 {
     std::array<uint8, 64> toSign = Trinity::Crypto::HMAC_SHA512::GetDigestOf(EncryptionKey,
         std::array<uint8, 1>{uint8(Enabled ? 1 : 0)},
@@ -368,7 +352,8 @@ WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Auth::QueuedMessagesEnd::Read()
+void QueuedMessagesEnd::Read()
 {
     _worldPacket >> Timestamp;
+}
 }

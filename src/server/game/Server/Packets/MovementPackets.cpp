@@ -462,7 +462,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         if (hasFadeObjectTime)
             data << uint32(moveSpline.effect_start_time);                       // FadeObjectTime
 
-        data.append(moveSpline.getPath().data(), moveSpline.getPath().size());
+        data.append(reinterpret_cast<float const*>(moveSpline.getPath().data()), moveSpline.getPath().size() * 3);
 
         if (moveSpline.spell_effect_extra)
         {
@@ -504,7 +504,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 void WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(::Movement::Spline<int32> const& spline, ByteBuffer& data)
 {
     data.WriteBits(spline.getPoints().size(), 16);
-    data.append<G3D::Vector3>(spline.getPoints().data(), spline.getPoints().size());
+    data.append(reinterpret_cast<float const*>(spline.getPoints().data()), spline.getPoints().size() * 3);
 }
 
 void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(MovementForce const& movementForce, ByteBuffer& data, Position const* objectPosition /*= nullptr*/)

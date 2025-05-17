@@ -58,7 +58,7 @@ bool OpcodeTable::ValidateClientOpcode(OpcodeClient opcode, char const* name) co
     }
 
     std::ptrdiff_t index = GetOpcodeArrayIndex(opcode);
-    if (index < 0 || index >= std::ptrdiff_t(NUM_CMSG_OPCODES))
+    if (index < 0 || index >= std::ssize(_internalTableClient))
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
@@ -95,7 +95,7 @@ bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, char const* name, Co
     }
 
     std::ptrdiff_t index = GetOpcodeArrayIndex(opcode);
-    if (index < 0 || index >= std::ptrdiff_t(NUM_SMSG_OPCODES))
+    if (index < 0 || index >= std::ssize(_internalTableServer))
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
@@ -2284,7 +2284,7 @@ void OpcodeTable::InitializeServerOpcodes()
 }
 
 template<typename OpcodeDefinition, std::size_t N, typename T>
-inline std::string GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinition, N> const& definitions, T id)
+static inline std::string GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinition, N> const& definitions, T id)
 {
     uint32 opcode = uint32(id);
     char const* name = nullptr;
