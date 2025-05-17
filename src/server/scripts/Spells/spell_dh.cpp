@@ -718,70 +718,56 @@ class spell_dh_deflecting_spikes : public SpellScript
     }
 };
 
-// Called by 212084 - Fel Devastation and 198013 - Eye Beam
+// 213410 - Demonic (attached to 212084 - Fel Devastation and 198013 - Eye Beam)
 class spell_dh_demonic : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_DEMONIC, SPELL_DH_METAMORPHOSIS_TRANSFORM, SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM });
+        return ValidateSpellInfo({ _transformSpellId })
+            && ValidateSpellEffect({ { SPELL_DH_DEMONIC, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura();
     }
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_DH_DEMONIC);
+        return GetCaster()->HasAuraEffect(SPELL_DH_DEMONIC, EFFECT_0);
     }
 
-    void HandleHavocMetamorphosis()
+    void TriggerMetamorphosis() const
     {
-        SpellInfo const* demonic = sSpellMgr->GetSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE);
-
+        Unit* caster = GetCaster();
+        AuraEffect const* demonic = caster->GetAuraEffect(SPELL_DH_DEMONIC, EFFECT_0);
         if (!demonic)
             return;
 
-        if (Aura* aura = GetCaster()->GetAura(SPELL_DH_METAMORPHOSIS_TRANSFORM))
-            aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
-        else if (GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_TRANSFORM, GetCaster()))
+        int32 duration = demonic->GetAmount() + GetSpell()->GetChannelDuration();
+
+        if (Aura* aura = caster->GetAura(_transformSpellId))
         {
-            SpellCastTargets targets;
-            targets.SetUnitTarget(GetCaster());
-
-            Spell* spell = new Spell(GetCaster(), sSpellMgr->GetSpellInfo(SPELL_DH_METAMORPHOSIS_TRANSFORM, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, GetCaster()->GetGUID());
-            spell->m_SpellVisual.SpellXSpellVisualID = 0;
-            spell->m_SpellVisual.ScriptVisualID = 0;
-            spell->SetSpellValue(SPELLVALUE_DURATION, demonic->GetEffect(EFFECT_0).CalcValue() + GetHitAura()->GetDuration());
-            spell->prepare(targets);
-        }
-    }
-
-    void HandleVengeanceMetamorphosis()
-    {
-        SpellInfo const* demonic = sSpellMgr->GetSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE);
-
-        if (!demonic)
+            aura->SetMaxDuration(aura->GetDuration() + duration);
+            aura->SetDuration(aura->GetMaxDuration());
             return;
-
-        if (Aura* aura = GetCaster()->GetAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM))
-            aura->SetDuration(aura->GetDuration() + demonic->GetEffect(EFFECT_0).CalcValue());
-        else if (GetCaster()->AddAura(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM, GetCaster()))
-        {
-            SpellCastTargets targets;
-            targets.SetUnitTarget(GetCaster());
-
-            Spell* spell = new Spell(GetCaster(), sSpellMgr->GetSpellInfo(SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, GetCaster()->GetGUID());
-            spell->m_SpellVisual.SpellXSpellVisualID = 0;
-            spell->m_SpellVisual.ScriptVisualID = 0;
-            spell->SetSpellValue(SPELLVALUE_DURATION, demonic->GetEffect(EFFECT_0).CalcValue() + GetHitAura()->GetDuration());
-            spell->prepare(targets);
         }
+
+        SpellCastTargets targets;
+        targets.SetUnitTarget(caster);
+
+        Spell* spell = new Spell(caster, sSpellMgr->AssertSpellInfo(_transformSpellId, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, ObjectGuid::Empty);
+        spell->m_SpellVisual.SpellXSpellVisualID = 0;
+        spell->m_SpellVisual.ScriptVisualID = 0;
+        spell->SetSpellValue({ SPELLVALUE_DURATION, duration });
+        spell->prepare(targets);
     }
 
     void Register() override
     {
-        if (m_scriptSpellId == SPELL_DH_EYE_BEAM)
-            AfterHit += SpellHitFn(spell_dh_demonic::HandleHavocMetamorphosis);
-        else
-            AfterHit += SpellHitFn(spell_dh_demonic::HandleVengeanceMetamorphosis);
+        OnCast += SpellCastFn(spell_dh_demonic::TriggerMetamorphosis);
     }
+
+    uint32 _transformSpellId;
+
+public:
+    explicit spell_dh_demonic(uint32 transformSpellId) : _transformSpellId(transformSpellId) { }
 };
 
 // 203720 - Demon Spikes
@@ -1687,7 +1673,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
-    RegisterSpellScript(spell_dh_demonic);
+    RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
+    RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
