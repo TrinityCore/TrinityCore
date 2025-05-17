@@ -54,20 +54,20 @@ enum IkissEvents
 // 18473 - Talon King Ikiss
 struct boss_talon_king_ikiss : public BossAI
 {
-    boss_talon_king_ikiss(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS), _intro(false), _manaShield(false) { }
+    boss_talon_king_ikiss(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS), _introDone(false), _manaShieldTriggered(false) { }
 
     void Reset() override
     {
         _Reset();
-        _intro = false;
-        _manaShield = false;
+        _introDone = false;
+        _manaShieldTriggered = false;
     }
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (!_intro && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
+        if (!_introDone && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
         {
-            _intro = true;
+            _introDone = true;
             Talk(SAY_INTRO);
         }
 
@@ -87,10 +87,10 @@ struct boss_talon_king_ikiss : public BossAI
 
     void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_manaShield && me->HealthBelowPctDamaged(20, damage))
+        if (!_manaShieldTriggered && me->HealthBelowPctDamaged(20, damage))
         {
             DoCastSelf(SPELL_MANA_SHIELD);
-            _manaShield = true;
+            _manaShieldTriggered = true;
         }
     }
 
@@ -142,8 +142,8 @@ struct boss_talon_king_ikiss : public BossAI
     }
 
 private:
-    bool _intro;
-    bool _manaShield;
+    bool _introDone;
+    bool _manaShieldTriggered;
 };
 
 // 38194 - Blink
