@@ -468,7 +468,7 @@ struct npc_redridge_huge_boulder : public CreatureAI
                 _events.ScheduleEvent(EVENT_OSLOW_GET_UP, 500ms);
 
                 // in case player who started event disconnects
-                _events.ScheduleEvent(EVENT_DONE, 30s);
+                _events.ScheduleEvent(EVENT_DONE, 120s);
                 break;
             case ACTION_COWER:
                 _events.ScheduleEvent(EVENT_BRIDGE_WORKERS_COWER, 3s);

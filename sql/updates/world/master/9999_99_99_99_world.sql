@@ -1,3 +1,6 @@
+# fix respawn times for bridge workers, foreman oslow, and huge boulder
+UPDATE `creature` SET `spawntimesecs` = 30 WHERE `guid` IN (334925, 334930, 334929, 334928, 334931, 334927, 334926, 334924);
+
 # move script from alex to boulder
 UPDATE `creature_template` SET `ScriptName`='npc_redridge_huge_boulder' WHERE `entry` = 43196; -- Huge Boulder
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry` = 653; -- Bridge Worker Alex
