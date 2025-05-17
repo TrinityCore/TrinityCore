@@ -58,20 +58,20 @@ enum ThorngrinPhases : uint8
 // 17978 - Thorngrin the Tender
 struct boss_thorngrin_the_tender : public BossAI
 {
-    boss_thorngrin_the_tender(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER), _phase(PHASE_NONE), _intro(false) { }
+    boss_thorngrin_the_tender(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER), _phase(PHASE_NONE), _introDone(false) { }
 
     void Reset() override
     {
         _Reset();
         _phase = PHASE_NONE;
-        _intro = false;
+        _introDone = false;
     }
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (!_intro && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 75.0f))
+        if (!_introDone && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 75.0f))
         {
-            _intro = true;
+            _introDone = true;
             Talk(SAY_INTRO);
         }
 
@@ -174,7 +174,7 @@ struct boss_thorngrin_the_tender : public BossAI
 
 private:
     uint8 _phase;
-    bool _intro;
+    bool _introDone;
 };
 
 void AddSC_boss_thorngrin_the_tender()
