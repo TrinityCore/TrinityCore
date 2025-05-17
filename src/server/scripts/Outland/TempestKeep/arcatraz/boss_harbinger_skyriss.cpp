@@ -75,10 +75,17 @@ enum SkyrissMisc
     NPC_ILLUSION_33              = 21467
 };
 
+enum SkyrissPhases : uint8
+{
+    PHASE_NONE                   = 0,
+    PHASE_HEALTH_66,
+    PHASE_HEALTH_33
+};
+
 // 20912 - Harbinger Skyriss
 struct boss_harbinger_skyriss : public BossAI
 {
-    boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS), _intro(false), _image33(false), _image66(false) { }
+    boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS), _intro(false), _phase(PHASE_NONE) { }
 
     void Initialize()
     {
@@ -94,8 +101,7 @@ struct boss_harbinger_skyriss : public BossAI
         DoCastSelf(SPELL_SIMPLE_TELEPORT);
         _Reset();
         _intro = false;
-        _image33 = false;
-        _image66 = false;
+        _phase = PHASE_NONE;
         me->SetImmuneToAll(!_intro);
         Initialize();
     }
@@ -137,14 +143,14 @@ struct boss_harbinger_skyriss : public BossAI
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_image66 && me->HealthBelowPctDamaged(66, damage))
+        if (_phase < PHASE_HEALTH_66 && me->HealthBelowPctDamaged(66, damage))
         {
-            _image66 = true;
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON_66, 0s);
         }
-        if (!_image33 && me->HealthBelowPctDamaged(33, damage))
+        if (_phase < PHASE_HEALTH_33 && me->HealthBelowPctDamaged(33, damage))
         {
-            _image33 = true;
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON_33, 0s);
         }
     }
@@ -246,8 +252,7 @@ struct boss_harbinger_skyriss : public BossAI
 
 private:
     bool _intro;
-    bool _image33;
-    bool _image66;
+    uint8 _phase;
 };
 
 // 21466, 21467 - Harbinger Skyriss
