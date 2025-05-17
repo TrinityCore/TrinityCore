@@ -19,14 +19,14 @@
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum JandiceSpells
 {
     SPELL_CURSE_OF_BLOOD        = 24673,
     SPELL_ILLUSION              = 17773,
     SPELL_DROP_JOURNAL          = 26096
 };
 
-enum Events
+enum JandiceEvents
 {
     EVENT_CURSE_OF_BLOOD = 1,
     EVENT_ILLUSION,
@@ -34,84 +34,75 @@ enum Events
     EVENT_SET_VISIBILITY
 };
 
-class boss_jandice_barov : public CreatureScript
+// 10503 - Jandice Barov
+struct boss_jandice_barov : public BossAI
 {
-public:
-    boss_jandice_barov() : CreatureScript("boss_jandice_barov") { }
+    boss_jandice_barov(Creature* creature) : BossAI(creature, DATA_JANDICE_BAROV) { }
 
-    struct boss_jandicebarovAI : public BossAI
+    void JustSummoned(Creature* summoned) override
     {
-        boss_jandicebarovAI(Creature* creature) : BossAI(creature, DATA_JANDICE_BAROV) { }
+        // Illusions should attack a random target.
+        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+            summoned->AI()->AttackStart(target);
 
-        void JustSummoned(Creature* summoned) override
+        summons.Summon(summoned);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 15s);
+        events.ScheduleEvent(EVENT_ILLUSION, 30s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        BossAI::JustDied(killer);
+        summons.DespawnAll();
+        DoCastSelf(SPELL_DROP_JOURNAL, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            // Illusions should attack a random target.
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                summoned->AI()->AttackStart(target);
-
-            summons.Summon(summoned);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            _JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 15s);
-            events.ScheduleEvent(EVENT_ILLUSION, 30s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            DoCastSelf(SPELL_DROP_JOURNAL, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_CURSE_OF_BLOOD:
+                    DoCastVictim(SPELL_CURSE_OF_BLOOD);
+                    events.Repeat(30s);
+                    break;
+                case EVENT_ILLUSION:
+                    DoCast(SPELL_ILLUSION);
+                    me->SetUninteractible(true);
+                    me->SetDisplayId(11686);  // Invisible Model
+                    ModifyThreatByPercent(me->GetVictim(), -99);
+                    events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
+                    events.Repeat(25s);
+                    break;
+                case EVENT_SET_VISIBILITY:
+                    me->SetUninteractible(false);
+                    me->SetDisplayId(11073);     // Jandice Model
+                    break;
+                default:
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_CURSE_OF_BLOOD:
-                        DoCastVictim(SPELL_CURSE_OF_BLOOD);
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 30s);
-                        break;
-                    case EVENT_ILLUSION:
-                        DoCast(SPELL_ILLUSION);
-                        me->SetUninteractible(true);
-                        me->SetDisplayId(11686);  // Invisible Model
-                        ModifyThreatByPercent(me->GetVictim(), -99);
-                        events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
-                        events.ScheduleEvent(EVENT_ILLUSION, 25s);
-                        break;
-                    case EVENT_SET_VISIBILITY:
-                        me->SetUninteractible(false);
-                        me->SetDisplayId(11073);     //Jandice Model
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetScholomanceAI<boss_jandicebarovAI>(creature);
     }
 };
 
 void AddSC_boss_jandicebarov()
 {
-    new boss_jandice_barov();
+    RegisterScholomanceCreatureAI(boss_jandice_barov);
 }
