@@ -504,6 +504,12 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
         _events.Reset();
     }
 
+    void OnDespawn() override
+    {
+        if (Player* player = me->GetOwner()->ToPlayer())
+            player->RemoveAurasDueToSpell(SPELL_CANYON_ETTIN_SPAWN_SPELL);
+    }
+
     void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (!caster || !caster->IsPlayer())
@@ -607,6 +613,15 @@ private:
 // 80704 - Control Ettin
 class spell_redridge_control_ettin : public SpellScript
 {
+    SpellCastResult CheckCast()
+    {
+        if (!GetCaster()->HasAura(SPELL_CANYON_ETTIN_SPAWN_SPELL))
+            if (!GetCaster()->FindNearestCreature(NPC_CANYON_ETTIN, GetSpellInfo()->GetMaxRange(), true))
+                return SPELL_FAILED_OUT_OF_RANGE;
+
+        return SPELL_CAST_OK;
+    }
+
     void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
     {
         if (Unit const* target = GetHitUnit())
@@ -624,20 +639,17 @@ class spell_redridge_control_ettin : public SpellScript
     void SetTarget(WorldObject*& target)
     {
         // @TODO: move to db
-        std::list<TempSummon*> minionList;
-        GetCaster()->GetAllMinionsByEntry(minionList, NPC_SUBDUED_CANYON_ETTIN);
-        if (minionList.empty())
+        if (GetCaster()->HasAura(SPELL_CANYON_ETTIN_SPAWN_SPELL))
         {
-            float const spellRange = GetSpellInfo()->GetMaxRange();
-            if (GetCaster()->FindNearestCreature(NPC_CANYON_ETTIN, spellRange, true) == nullptr)
-                FinishCast(SPELL_FAILED_OUT_OF_RANGE);
-        }
-        else
+            std::list<TempSummon*> minionList;
+            GetCaster()->GetAllMinionsByEntry(minionList, NPC_SUBDUED_CANYON_ETTIN);
             target = minionList.front();
+        }
     }
 
     void Register() override
     {
+        OnCheckCast += SpellCheckCastFn(spell_redridge_control_ettin::CheckCast);
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_redridge_control_ettin::SetTarget, EFFECT_1, TARGET_UNIT_NEARBY_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_redridge_control_ettin::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
@@ -652,7 +664,6 @@ class spell_redridge_control_ettin_2 : public SpellScript
             target->DespawnOrUnsummon();
 
         // subdued ettin minion casts 82558 to player
-        // doesn't seem to do anything ??
         std::list<TempSummon*> minionList;
         GetCaster()->GetAllMinionsByEntry(minionList, NPC_SUBDUED_CANYON_ETTIN);
         if (Creature* ettin = minionList.front())
