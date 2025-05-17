@@ -3236,7 +3236,8 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                     .SetPeriodicReset(resetPeriodicTimer)
                     .SetOwnerEffectMask(aura_effmask)
                     .SetIsRefresh(&refresh)
-                    .SetStackAmount(m_spellValue->AuraStackAmount);
+                    .SetStackAmount(m_spellValue->AuraStackAmount)
+                    .SetSpellVisual(m_SpellVisual);
 
                 if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo, false))
                 {
