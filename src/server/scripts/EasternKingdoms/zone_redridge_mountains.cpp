@@ -22,14 +22,15 @@ SDComment:
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellInfo.h"
 #include "Containers.h"
 #include "G3DPosition.hpp"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "WaypointDefines.h"
 #include "World.h"
 #include <algorithm>
