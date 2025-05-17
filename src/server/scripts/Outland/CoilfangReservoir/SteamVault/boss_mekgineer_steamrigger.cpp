@@ -61,17 +61,23 @@ enum SteamriggerMisc
     POINT_REPAIR                = 1
 };
 
+enum SteamriggerPhases : uint8
+{
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_75,
+    PHASE_HEALTH_50,
+    PHASE_HEALTH_25
+};
+
 // 17796 - Mekgineer Steamrigger
 struct boss_mekgineer_steamrigger : public BossAI
 {
-    boss_mekgineer_steamrigger(Creature* creature) : BossAI(creature, DATA_MEKGINEER_STEAMRIGGER), _summon75(false), _summon50(false), _summon25(false) { }
+    boss_mekgineer_steamrigger(Creature* creature) : BossAI(creature, DATA_MEKGINEER_STEAMRIGGER), _phase(PHASE_NONE) { }
 
     void Reset() override
     {
         _Reset();
-        _summon75 = false;
-        _summon50 = false;
-        _summon25 = false;
+        _phase = PHASE_NONE;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -90,19 +96,19 @@ struct boss_mekgineer_steamrigger : public BossAI
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_summon75 && !IsHeroic() && me->HealthBelowPctDamaged(75, damage))
+        if (_phase < PHASE_HEALTH_75 && !IsHeroic() && me->HealthBelowPctDamaged(75, damage))
         {
-            _summon75 = true;
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON, 0s);
         }
-        if (!_summon50 && !IsHeroic() && me->HealthBelowPctDamaged(50, damage))
+        if (_phase < PHASE_HEALTH_50 && !IsHeroic() && me->HealthBelowPctDamaged(50, damage))
         {
-            _summon50 = true;
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON, 0s);
         }
-        if (!_summon25 && !IsHeroic() && me->HealthBelowPctDamaged(25, damage))
+        if (_phase < PHASE_HEALTH_25 && !IsHeroic() && me->HealthBelowPctDamaged(25, damage))
         {
-            _summon25 = true;
+            _phase++;
             events.ScheduleEvent(EVENT_SUMMON, 0s);
         }
     }
@@ -166,9 +172,7 @@ struct boss_mekgineer_steamrigger : public BossAI
     }
 
 private:
-    bool _summon75;
-    bool _summon50;
-    bool _summon25;
+    uint8 _phase;
 };
 
 // 17951 - Steamrigger Mechanic
