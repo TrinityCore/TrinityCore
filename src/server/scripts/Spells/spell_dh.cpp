@@ -761,7 +761,7 @@ class spell_dh_demonic : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_dh_demonic::TriggerMetamorphosis);
+        AfterCast += SpellCastFn(spell_dh_demonic::TriggerMetamorphosis);
     }
 
     uint32 _transformSpellId;
