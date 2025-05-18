@@ -138,7 +138,7 @@ namespace Trinity::Impl::ChatCommands
                 std::string_view title(text.Title);
                 std::string_view constant(text.Constant);
 
-                auto [constantIt, constantNew] = map.try_emplace(title, val);
+                auto [constantIt, constantNew] = map.try_emplace(constant, val);
                 if (!constantNew)
                     constantIt->second = std::nullopt;
 
