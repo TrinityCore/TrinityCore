@@ -80,7 +80,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
 
     Trinity::Net::Resolver resolver(ioContext);
 
-    _externalHostname = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress"sv, "127.0.0.1");
+    _externalHostname = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress", "127.0.0.1");
 
     std::ranges::transform(resolver.ResolveAll(_externalHostname, ""),
         std::back_inserter(_addresses),
@@ -92,7 +92,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
         return false;
     }
 
-    _localHostname = sConfigMgr->GetStringDefault("LoginREST.LocalAddress"sv, "127.0.0.1");
+    _localHostname = sConfigMgr->GetStringDefault("LoginREST.LocalAddress", "127.0.0.1");
     _firstLocalAddressIndex = _addresses.size();
 
     std::ranges::transform(resolver.ResolveAll(_localHostname, ""),
@@ -125,7 +125,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     input->set_type("submit");
     input->set_label("Log In");
 
-    _loginTicketDuration = sConfigMgr->GetIntDefault("LoginREST.TicketDuration"sv, 3600);
+    _loginTicketDuration = sConfigMgr->GetIntDefault("LoginREST.TicketDuration", 3600);
 
     MigrateLegacyPasswordHashes();
 
