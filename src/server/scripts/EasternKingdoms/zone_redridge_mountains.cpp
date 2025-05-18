@@ -29,8 +29,10 @@ Script Data End */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "WaypointDefines.h"
 #include "World.h"
 #include <algorithm>
@@ -672,7 +674,7 @@ class spell_redridge_control_ettin_2 : public SpellScript
         // subdued ettin minion casts 82558 to player
         std::list<TempSummon*> minionList;
         GetCaster()->GetAllMinionsByEntry(minionList, NPC_SUBDUED_CANYON_ETTIN);
-        if (Creature* ettin = minionList.front())
+        if (TempSummon* ettin = minionList.front())
             ettin->CastSpell(GetCaster(), SPELL_CANYON_ETTIN_SPAWN_SPELL, false);
     }
 
