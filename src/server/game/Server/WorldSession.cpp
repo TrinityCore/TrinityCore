@@ -20,7 +20,6 @@
 */
 
 #include "WorldSession.h"
-#include "QueryHolder.h"
 #include "AccountMgr.h"
 #include "AuthenticationPackets.h"
 #include "BattlePetMgr.h"
@@ -121,6 +120,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _os(std::move(os)),
     _clientBuild(build),
     _clientBuildVariant(clientBuildVariant),
+    _realmListSecret(),
     _battlenetRequestToken(0),
     _logoutTime(0),
     m_inQueue(false),
