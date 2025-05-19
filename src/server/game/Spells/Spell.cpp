@@ -8137,9 +8137,20 @@ void Spell::DelayedChannel()
         m_timer -= delaytime;
 
     for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
-        if (targetInfo.MissCondition == SPELL_MISS_NONE)
-            if (Unit* unit = (unitCaster->GetGUID() == targetInfo.TargetGUID) ? unitCaster : ObjectAccessor::GetUnit(*unitCaster, targetInfo.TargetGUID))
-                unit->DelayOwnedAuras(m_spellInfo->Id, m_originalCasterGUID, delaytime);
+    {
+        if (targetInfo.MissCondition != SPELL_MISS_NONE)
+            continue;
+
+        Unit* unit = unitCaster;
+        if (unitCaster->GetGUID() != targetInfo.TargetGUID)
+        {
+            unit = ObjectAccessor::GetUnit(*unitCaster, targetInfo.TargetGUID);
+            if (!unit)
+                continue;
+        }
+
+        unit->DelayOwnedAuras(m_spellInfo->Id, m_originalCasterGUID, delaytime);
+    }
 
     // partially interrupt persistent area auras
     if (DynamicObject* dynObj = unitCaster->GetDynObject(m_spellInfo->Id))
