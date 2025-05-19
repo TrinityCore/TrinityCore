@@ -53,6 +53,7 @@ enum DeathKnightSpells
     SPELL_DK_BRITTLE_DEBUFF                     = 374557,
     SPELL_DK_CLEAVING_STRIKES                   = 316916,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
+    SPELL_DK_CRIMSON_SCOURGE_BUFF               = 81141,
     SPELL_DK_DARK_SIMULACRUM_BUFF               = 77616,
     SPELL_DK_DARK_SIMULACRUM_SPELLPOWER_BUFF    = 94984,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
@@ -327,6 +328,50 @@ class spell_dk_brittle : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dk_brittle::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 81136 - Crimson Scourge
+class spell_dk_crimson_scourge : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BLOOD_PLAGUE, SPELL_DK_CRIMSON_SCOURGE_BUFF });
+    }
+
+    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
+    {
+        return procInfo.GetProcTarget()->HasAura(SPELL_DK_BLOOD_PLAGUE, procInfo.GetActor()->GetGUID());
+    }
+
+    static void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DK_CRIMSON_SCOURGE_BUFF, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_crimson_scourge::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dk_crimson_scourge::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 81141 - Crimson Scourge (attached to 43265 - Death and Decay)
+class spell_dk_crimson_scourge_buff : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_CRIMSON_SCOURGE_BUFF });
+    }
+
+    void HandleCrimsonScourge() const
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_DK_CRIMSON_SCOURGE_BUFF);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dk_crimson_scourge_buff::HandleCrimsonScourge);
     }
 };
 
@@ -1333,6 +1378,8 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_blinding_sleet);
     RegisterSpellScript(spell_dk_blood_boil);
     RegisterSpellScript(spell_dk_brittle);
+    RegisterSpellScript(spell_dk_crimson_scourge);
+    RegisterSpellScript(spell_dk_crimson_scourge_buff);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
