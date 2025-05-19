@@ -783,6 +783,11 @@ enum DaughterOfTheSeaData
 // 281460 - Teleport Off Ship
 class spell_boralus_teleport_off_ship : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PLAY_SCENE_JAINA_PROCESSION });
+    }
+
     void HandleHitSummoner(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetHitUnit()->ToPlayer())
@@ -825,6 +830,11 @@ public:
 // 241526 - Teleport to Tol Dagor
 class spell_boralus_teleport_to_tol_dagor : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WAKE_UP_IN_TOL_DAGOR });
+    }
+
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
