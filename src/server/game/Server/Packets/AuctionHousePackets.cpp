@@ -19,7 +19,6 @@
 #include "AuctionHouseMgr.h"
 #include "DB2Stores.h"
 #include "ObjectGuid.h"
-#include "Util.h"
 
 namespace WorldPackets::AuctionHouse
 {

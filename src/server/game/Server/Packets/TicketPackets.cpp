@@ -74,13 +74,11 @@ void GMTicketAcknowledgeSurvey::Read()
 void SubmitUserFeedback::Read()
 {
     _worldPacket >> Header;
-    uint32 noteLength = _worldPacket.ReadBits(24);
-    IsSuggestion = _worldPacket.ReadBit();
-    if (noteLength)
-    {
-        Note = _worldPacket.ReadString(noteLength - 1);
-        _worldPacket.read_skip<char>(); // null terminator
-    }
+
+    _worldPacket >> SizedCString::BitsSize<24>(Note);
+    _worldPacket >> Bits<1>(IsSuggestion);
+
+    _worldPacket >> SizedCString::Data(Note);
 }
 
 SupportTicketChatLine::SupportTicketChatLine(time_t timestamp, std::string const& text) :

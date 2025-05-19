@@ -1740,6 +1740,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         int32 GetQuestObjectiveData(QuestObjective const& objective) const;
         void SetQuestObjectiveData(QuestObjective const& objective, int32 data);
         bool IsQuestObjectiveCompletable(uint16 slot, Quest const* quest, QuestObjective const& objective) const;
+        bool IsQuestObjectiveCompletable(uint32 questId, uint32 objectiveId) const;
         bool IsQuestObjectiveComplete(uint16 slot, Quest const* quest, QuestObjective const& objective) const;
         bool IsQuestObjectiveComplete(uint32 questId, uint32 objectiveId) const;
         bool IsQuestObjectiveProgressBarComplete(uint16 slot, Quest const* quest) const;

@@ -718,6 +718,58 @@ class spell_dh_deflecting_spikes : public SpellScript
     }
 };
 
+// 213410 - Demonic (attached to 212084 - Fel Devastation and 198013 - Eye Beam)
+class spell_dh_demonic : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _transformSpellId })
+            && ValidateSpellEffect({ { SPELL_DH_DEMONIC, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura();
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_DH_DEMONIC, EFFECT_0);
+    }
+
+    void TriggerMetamorphosis() const
+    {
+        Unit* caster = GetCaster();
+        AuraEffect const* demonic = caster->GetAuraEffect(SPELL_DH_DEMONIC, EFFECT_0);
+        if (!demonic)
+            return;
+
+        int32 duration = demonic->GetAmount() + GetSpell()->GetChannelDuration();
+
+        if (Aura* aura = caster->GetAura(_transformSpellId))
+        {
+            aura->SetMaxDuration(aura->GetDuration() + duration);
+            aura->SetDuration(aura->GetMaxDuration());
+            return;
+        }
+
+        SpellCastTargets targets;
+        targets.SetUnitTarget(caster);
+
+        Spell* spell = new Spell(caster, sSpellMgr->AssertSpellInfo(_transformSpellId, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, ObjectGuid::Empty, GetSpell()->m_castId);
+        spell->m_SpellVisual.SpellXSpellVisualID = 0;
+        spell->m_SpellVisual.ScriptVisualID = 0;
+        spell->SetSpellValue({ SPELLVALUE_DURATION, duration });
+        spell->prepare(targets);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_demonic::TriggerMetamorphosis);
+    }
+
+    uint32 _transformSpellId;
+
+public:
+    explicit spell_dh_demonic(uint32 transformSpellId) : _transformSpellId(transformSpellId) { }
+};
+
 // 203720 - Demon Spikes
 class spell_dh_demon_spikes : public SpellScript
 {
@@ -1621,6 +1673,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
+    RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
+    RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);

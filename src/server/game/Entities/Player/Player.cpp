@@ -17178,6 +17178,23 @@ bool Player::IsQuestObjectiveCompletable(uint16 slot, Quest const* quest, QuestO
     return true;
 }
 
+bool Player::IsQuestObjectiveCompletable(uint32 questId, uint32 objectiveId) const
+{
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    if (!quest)
+        return false;
+
+    uint16 slot = FindQuestSlot(questId);
+    if (slot >= MAX_QUEST_LOG_SIZE)
+        return false;
+
+    QuestObjective const* obj = sObjectMgr->GetQuestObjective(objectiveId);
+    if (!obj)
+        return false;
+
+    return IsQuestObjectiveCompletable(slot, quest, *obj);
+}
+
 bool Player::IsQuestObjectiveComplete(uint16 slot, Quest const* quest, QuestObjective const& objective) const
 {
     switch (objective.Type)
@@ -17527,7 +17544,7 @@ SpawnTrackingState Player::GetSpawnTrackingStateByObjective(uint32 spawnTracking
         {
             if (IsQuestRewarded(questObjective->QuestID) || IsQuestObjectiveComplete(questObjective->QuestID, questObjective->ID))
                 return SpawnTrackingState::Complete;
-            else if (GetQuestStatus(questObjective->QuestID) != QUEST_STATUS_NONE)
+            else if (GetQuestStatus(questObjective->QuestID) != QUEST_STATUS_NONE && IsQuestObjectiveCompletable(questObjective->QuestID, questObjective->ID))
             {
                 auto itr = m_QuestStatus.find(questObjective->QuestID);
                 if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)

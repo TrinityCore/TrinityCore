@@ -1088,6 +1088,18 @@ namespace WorldPackets
             Optional<MovementInfo> Status;
         };
 
+        class UpdateAuraVisual final : public ClientPacket
+        {
+        public:
+            explicit UpdateAuraVisual(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_SPELL_VISUAL, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 SpellID = 0;
+            SpellCastVisual Visual;
+            ObjectGuid TargetGUID;
+        };
+
         class SpellDelayed final : public ServerPacket
         {
         public:

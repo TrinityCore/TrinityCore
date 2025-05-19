@@ -446,6 +446,36 @@ namespace WorldPackets
     template<uint32 BitCount, typename T>
     inline BitsReaderWriter<BitCount, T> Bits(T& value) { return { value }; }
 
+    template<typename Underlying, typename Container>
+    struct SizeWriter
+    {
+        Container const& Value;
+
+        friend inline ByteBuffer& operator<<(ByteBuffer& data, SizeWriter const& size)
+        {
+            data << static_cast<Underlying>(size.Value.size());
+            return data;
+        }
+    };
+
+    template<typename Underlying, typename Container>
+    struct SizeReaderWriter : SizeWriter<Underlying, Container>
+    {
+        friend inline ByteBuffer& operator>>(ByteBuffer& data, SizeReaderWriter const& size)
+        {
+            Underlying temp;
+            data >> temp;
+            const_cast<Container&>(size.Value).resize(temp);
+            return data;
+        }
+    };
+
+    template<typename Underlying, typename Container>
+    inline SizeWriter<Underlying, Container> Size(Container const& value) { return { value }; }
+
+    template<typename Underlying, typename Container>
+    inline SizeReaderWriter<Underlying, Container> Size(Container& value) { return { value }; }
+
     template<uint32 BitCount, typename Container>
     struct BitsSizeWriter
     {

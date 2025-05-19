@@ -534,19 +534,6 @@ class TC_SHARED_API ByteBuffer
             read(arr.data(), Size);
         }
 
-        void ReadPackedUInt64(uint64& guid)
-        {
-            guid = 0;
-            ReadPackedUInt64(read<uint8>(), guid);
-        }
-
-        void ReadPackedUInt64(uint8 mask, uint64& value)
-        {
-            for (uint32 i = 0; i < 8; ++i)
-                if (mask & (uint8(1) << i))
-                    value |= (uint64(read<uint8>()) << (i * 8));
-        }
-
         //! Method for writing strings that have their length sent separately in packet
         //! without null-terminating the string
         void WriteString(std::string const& str)
@@ -618,49 +605,6 @@ class TC_SHARED_API ByteBuffer
         void append(std::array<uint8, Size> const& arr)
         {
             append(arr.data(), Size);
-        }
-
-        // can be used in SMSG_MONSTER_MOVE opcode
-        void appendPackXYZ(float x, float y, float z)
-        {
-            uint32 packed = 0;
-            packed |= ((int)(x / 0.25f) & 0x7FF);
-            packed |= ((int)(y / 0.25f) & 0x7FF) << 11;
-            packed |= ((int)(z / 0.25f) & 0x3FF) << 22;
-            *this << packed;
-        }
-
-        void AppendPackedUInt64(uint64 guid)
-        {
-            uint8 mask = 0;
-            size_t pos = wpos();
-            *this << uint8(mask);
-
-            uint8 packed[8];
-            if (size_t packedSize = PackUInt64(guid, &mask, packed))
-                append(packed, packedSize);
-
-            put<uint8>(pos, mask);
-        }
-
-        static size_t PackUInt64(uint64 value, uint8* mask, uint8* result)
-        {
-            size_t resultSize = 0;
-            *mask = 0;
-            memset(result, 0, 8);
-
-            for (uint8 i = 0; value != 0; ++i)
-            {
-                if (value & 0xFF)
-                {
-                    *mask |= uint8(1 << i);
-                    result[resultSize++] = uint8(value & 0xFF);
-                }
-
-                value >>= 8;
-            }
-
-            return resultSize;
         }
 
         void put(size_t pos, uint8 const* src, size_t cnt);
