@@ -813,7 +813,7 @@ class spell_dk_heartbreaker : public SpellScript
 // 273947 - Hemostasis
 class spell_dk_hemostasis : public AuraScript
 {
-    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    static void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/)
     {
         GetCaster()->RemoveAurasDueToSpell(GetAura()->GetId());
     }
