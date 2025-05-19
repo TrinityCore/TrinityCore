@@ -2948,7 +2948,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
             RemovePetAura(petSpell);
 
     // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
-    if (spellInfo && spellInfo->IsPrimaryProfessionFirstRank())
+    if (spellInfo->IsPrimaryProfessionFirstRank())
     {
         uint32 freeProfs = GetFreePrimaryProfessionPoints()+1;
         if (freeProfs <= sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
@@ -3085,7 +3085,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
     if (m_canTitanGrip)
     {
-        if (spellInfo && spellInfo->IsPassive() && spellInfo->HasEffect(SPELL_EFFECT_TITAN_GRIP))
+        if (spellInfo->IsPassive() && spellInfo->HasEffect(SPELL_EFFECT_TITAN_GRIP))
         {
             RemoveAurasDueToSpell(m_titanGripPenaltySpellId);
             SetCanTitanGrip(false);
@@ -3094,7 +3094,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
     if (m_canDualWield)
     {
-        if (spellInfo && spellInfo->IsPassive() && spellInfo->HasEffect(SPELL_EFFECT_DUAL_WIELD))
+        if (spellInfo->IsPassive() && spellInfo->HasEffect(SPELL_EFFECT_DUAL_WIELD))
             SetCanDualWield(false);
     }
 
@@ -13671,7 +13671,7 @@ Quest const* Player::GetNextQuest(Object const* questGiver, Quest const* quest) 
 
     //we should obtain map pointer from GetMap() in 99% of cases. Special case
     //only for quests which cast teleport spells on player
-    if (WorldObject const* worldObjectQuestGiver = dynamic_cast<WorldObject const*>(questGiver))
+    if (WorldObject const* worldObjectQuestGiver = questGiver->ToWorldObject())
         if (!IsInMap(worldObjectQuestGiver))
             return nullptr;
 

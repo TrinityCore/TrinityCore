@@ -30,7 +30,7 @@ enum PetType : uint8
 {
     SUMMON_PET              = 0,
     HUNTER_PET              = 1,
-    MAX_PET_TYPE            = 4
+    MAX_PET_TYPE
 };
 
 #define MAX_ACTIVE_PETS         5
