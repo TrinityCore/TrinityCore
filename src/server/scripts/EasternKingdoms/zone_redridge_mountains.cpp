@@ -684,21 +684,6 @@ class spell_redridge_control_ettin_2 : public SpellScript
     }
 };
 
-// 80739 - Lift Huge Boulder
-class spell_redridge_lift_huge_boulder : public SpellScript
-{
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
-    {
-        if (Creature* target = GetHitCreature())
-            target->CastSpell(GetCaster(), GetEffectValue(), false);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_redridge_lift_huge_boulder::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 /*######
 # npc_redridge_citizen "Used by entries 43222 and 43247"
 ######*/
@@ -814,6 +799,5 @@ void AddSC_redridge_mountains()
     RegisterCreatureAI(npc_redridge_subdued_canyon_ettin);
     RegisterSpellScript(spell_redridge_control_ettin);
     RegisterSpellScript(spell_redridge_control_ettin_2);
-    RegisterSpellScript(spell_redridge_lift_huge_boulder);
     new npc_redridge_citizen();
 }

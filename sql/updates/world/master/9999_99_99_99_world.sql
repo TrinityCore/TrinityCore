@@ -27,7 +27,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id` IN (80704, 80702, 80739, 80707
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (80704, 'spell_redridge_control_ettin'),
 (80702, 'spell_redridge_control_ettin_2'),
-(80739, 'spell_redridge_lift_huge_boulder'),
+(80739, 'spell_gen_reverse_cast_target_to_caster_triggered'),
 (80707, 'spell_gen_despawn_target');
 
 # exit location for thrown boulder
