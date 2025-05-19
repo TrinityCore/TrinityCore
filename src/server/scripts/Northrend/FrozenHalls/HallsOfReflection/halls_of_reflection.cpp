@@ -2772,7 +2772,7 @@ class spell_hor_evasion : public SpellScriptLoader
             void SetDest(SpellDestination& dest)
             {
                 WorldObject* target = GetExplTargetWorldObject();
-                Position pos(*target);
+                Position pos = target->GetPosition();
                 Position home = GetCaster()->ToCreature()->GetHomePosition();
 
                 // prevent evasion outside the room
