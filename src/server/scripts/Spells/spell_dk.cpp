@@ -103,6 +103,8 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_GROUND_HASTE                = 374271,
     SPELL_DK_UNHOLY_GROUND_TALENT               = 374265,
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
+    SPELL_DH_VORACIOUS_LEECH                    = 274009,
+    SPELL_DH_VORACIOUS_TALENT                   = 273953
 };
 
 enum Misc
@@ -1312,6 +1314,34 @@ class spell_dk_vampiric_blood : public AuraScript
     }
 };
 
+// 273953 - Voracious (attached to 49998 - Death Strike)
+class spell_dk_voracious : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_VORACIOUS_TALENT, SPELL_DH_VORACIOUS_LEECH });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_VORACIOUS_TALENT);
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DH_VORACIOUS_LEECH, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_voracious::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 43265 - Death and Decay
 struct at_dk_death_and_decay : AreaTriggerAI
 {
@@ -1396,6 +1426,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_subduing_grasp);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
+    RegisterSpellScript(spell_dk_voracious);
 
     RegisterAreaTriggerAI(at_dk_death_and_decay);
 }
