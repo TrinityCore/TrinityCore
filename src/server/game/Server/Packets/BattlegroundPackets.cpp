@@ -157,9 +157,11 @@ WorldPacket const* PVPMatchStatisticsMessage::Write()
 
 void BattlemasterJoin::Read()
 {
-    QueueIDs.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(QueueIDs);
     _worldPacket >> Roles;
-    _worldPacket >> BlacklistMap[0] >> BlacklistMap[1];
+    for (int32& blacklistMap : BlacklistMap)
+        _worldPacket >> blacklistMap;
+
     for (uint64& queueId : QueueIDs)
         _worldPacket >> queueId;
 }

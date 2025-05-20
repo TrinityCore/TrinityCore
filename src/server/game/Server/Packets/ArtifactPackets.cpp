@@ -30,7 +30,7 @@ void ArtifactAddPower::Read()
 {
     _worldPacket >> ArtifactGUID;
     _worldPacket >> ForgeGUID;
-    PowerChoices.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(PowerChoices);
     for (ArtifactPowerChoice& artifactPowerChoice : PowerChoices)
         _worldPacket >> artifactPowerChoice;
 }
