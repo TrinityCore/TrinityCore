@@ -839,20 +839,6 @@ class spell_dk_heartbreaker : public SpellScript
     }
 };
 
-// 273947 - Hemostasis
-class spell_dk_hemostasis : public AuraScript
-{
-    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/)
-    {
-        Remove();
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dk_hemostasis::HandleEffectProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
-    }
-};
-
 // 49184 - Howling Blast
 class spell_dk_howling_blast : public SpellScript
 {
@@ -1450,7 +1436,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterSpellScript(spell_dk_heartbreaker);
-    RegisterSpellScript(spell_dk_hemostasis);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_ice_prison);
     RegisterSpellScript(spell_dk_icy_talons);
