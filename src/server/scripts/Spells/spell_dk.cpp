@@ -299,7 +299,7 @@ class spell_dk_blooddrinker : public AuraScript
         return ValidateSpellInfo({ SPELL_DK_BLOODDRINKER_DEBUFF });
     }
 
-    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
