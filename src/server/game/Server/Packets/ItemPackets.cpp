@@ -17,13 +17,15 @@
 
 #include "ItemPackets.h"
 
-void WorldPackets::Item::BuyBackItem::Read()
+namespace WorldPackets::Item
+{
+void BuyBackItem::Read()
 {
     _worldPacket >> VendorGUID;
     _worldPacket >> Slot;
 }
 
-void WorldPackets::Item::BuyItem::Read()
+void BuyItem::Read()
 {
     _worldPacket >> VendorGUID;
     _worldPacket >> ContainerGUID;
@@ -34,7 +36,7 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Item;
 }
 
-WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
+WorldPacket const* BuySucceeded::Write()
 {
     _worldPacket << VendorGUID;
     _worldPacket << uint32(Muid);
@@ -44,7 +46,7 @@ WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::BuyFailed::Write()
+WorldPacket const* BuyFailed::Write()
 {
     _worldPacket << VendorGUID;
     _worldPacket << uint32(Muid);
@@ -53,12 +55,12 @@ WorldPacket const* WorldPackets::Item::BuyFailed::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Item::GetItemPurchaseData::Read()
+void GetItemPurchaseData::Read()
 {
     _worldPacket >> ItemGUID;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundItem& refundItem)
+ByteBuffer& operator<<(ByteBuffer& data, ItemPurchaseRefundItem& refundItem)
 {
     data << int32(refundItem.ItemID);
     data << int32(refundItem.ItemCount);
@@ -66,7 +68,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundI
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundCurrency& refundCurrency)
+ByteBuffer& operator<<(ByteBuffer& data, ItemPurchaseRefundCurrency& refundCurrency)
 {
     data << int32(refundCurrency.CurrencyID);
     data << int32(refundCurrency.CurrencyCount);
@@ -74,7 +76,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundC
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseContents& purchaseContents)
+ByteBuffer& operator<<(ByteBuffer& data, ItemPurchaseContents& purchaseContents)
 {
     data << uint64(purchaseContents.Money);
     for (uint32 i = 0; i < 5; ++i)
@@ -86,7 +88,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseContent
     return data;
 }
 
-WorldPacket const* WorldPackets::Item::SetItemPurchaseData::Write()
+WorldPacket const* SetItemPurchaseData::Write()
 {
     _worldPacket << ItemGUID;
     _worldPacket << Contents;
@@ -96,16 +98,16 @@ WorldPacket const* WorldPackets::Item::SetItemPurchaseData::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Item::ItemPurchaseRefund::Read()
+void ItemPurchaseRefund::Read()
 {
     _worldPacket >> ItemGUID;
 }
 
-WorldPacket const* WorldPackets::Item::ItemPurchaseRefundResult::Write()
+WorldPacket const* ItemPurchaseRefundResult::Write()
 {
     _worldPacket << ItemGUID;
     _worldPacket << uint8(Result);
-    _worldPacket.WriteBit(Contents.has_value());
+    _worldPacket << OptionalInit(Contents);
     _worldPacket.FlushBits();
     if (Contents)
         _worldPacket << *Contents;
@@ -113,28 +115,28 @@ WorldPacket const* WorldPackets::Item::ItemPurchaseRefundResult::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::ItemExpirePurchaseRefund::Write()
+WorldPacket const* ItemExpirePurchaseRefund::Write()
 {
     _worldPacket << ItemGUID;
 
     return &_worldPacket;
 }
 
-void WorldPackets::Item::RepairItem::Read()
+void RepairItem::Read()
 {
     _worldPacket >> NpcGUID;
     _worldPacket >> ItemGUID;
-    UseGuildBank = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(UseGuildBank);
 }
 
-void WorldPackets::Item::SellItem::Read()
+void SellItem::Read()
 {
     _worldPacket >> VendorGUID;
     _worldPacket >> ItemGUID;
     _worldPacket >> Amount;
 }
 
-WorldPacket const* WorldPackets::Item::ItemTimeUpdate::Write()
+WorldPacket const* ItemTimeUpdate::Write()
 {
     _worldPacket << ItemGuid;
     _worldPacket << uint32(DurationLeft);
@@ -142,7 +144,7 @@ WorldPacket const* WorldPackets::Item::ItemTimeUpdate::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::SetProficiency::Write()
+WorldPacket const* SetProficiency::Write()
 {
     _worldPacket << uint32(ProficiencyMask);
     _worldPacket << uint8(ProficiencyClass);
@@ -150,7 +152,7 @@ WorldPacket const* WorldPackets::Item::SetProficiency::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
+WorldPacket const* InventoryChangeFailure::Write()
 {
     _worldPacket << int32(BagResult);
     _worldPacket << Item[0];
@@ -180,7 +182,7 @@ WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Item::SplitItem::Read()
+void SplitItem::Read()
 {
     _worldPacket >> Inv;
     _worldPacket >> FromPackSlot;
@@ -190,14 +192,14 @@ void WorldPackets::Item::SplitItem::Read()
     _worldPacket >> Quantity;
 }
 
-void WorldPackets::Item::SwapInvItem::Read()
+void SwapInvItem::Read()
 {
     _worldPacket >> Inv;
     _worldPacket >> Slot2;
     _worldPacket >> Slot1;
 }
 
-void WorldPackets::Item::SwapItem::Read()
+void SwapItem::Read()
 {
     _worldPacket >> Inv;
     _worldPacket >> ContainerSlotB;
@@ -206,21 +208,21 @@ void WorldPackets::Item::SwapItem::Read()
     _worldPacket >> SlotA;
 }
 
-void WorldPackets::Item::AutoEquipItem::Read()
+void AutoEquipItem::Read()
 {
     _worldPacket >> Inv;
     _worldPacket >> PackSlot;
     _worldPacket >> Slot;
 }
 
-void WorldPackets::Item::AutoEquipItemSlot::Read()
+void AutoEquipItemSlot::Read()
 {
     _worldPacket >> Inv;
     _worldPacket >> Item;
     _worldPacket >> ItemDstSlot;
 }
 
-void WorldPackets::Item::AutoStoreBagItem::Read()
+void AutoStoreBagItem::Read()
 {
     _worldPacket >> Inv;
     _worldPacket >> ContainerSlotB;
@@ -228,17 +230,17 @@ void WorldPackets::Item::AutoStoreBagItem::Read()
     _worldPacket >> SlotA;
 }
 
-void WorldPackets::Item::DestroyItem::Read()
+void DestroyItem::Read()
 {
     _worldPacket >> Count;
     _worldPacket >> ContainerId;
     _worldPacket >> SlotNum;
 }
 
-WorldPacket const* WorldPackets::Item::SellResponse::Write()
+WorldPacket const* SellResponse::Write()
 {
     _worldPacket << VendorGUID;
-    _worldPacket << uint32(ItemGUIDs.size());
+    _worldPacket << Size<uint32>(ItemGUIDs);
     _worldPacket << int32(Reason);
     for (ObjectGuid const& itemGuid : ItemGUIDs)
         _worldPacket << itemGuid;
@@ -246,7 +248,7 @@ WorldPacket const* WorldPackets::Item::SellResponse::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
+WorldPacket const* ItemPushResult::Write()
 {
     _worldPacket << PlayerGUID;
     _worldPacket << uint8(Slot);
@@ -261,7 +263,7 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << uint8(BattlePetBreedQuality);
     _worldPacket << int32(BattlePetLevel);
     _worldPacket << ItemGUID;
-    _worldPacket << uint32(Toasts.size());
+    _worldPacket << Size<uint32>(Toasts);
     for (UiEventToast const& uiEventToast : Toasts)
         _worldPacket << uiEventToast;
 
@@ -286,41 +288,41 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Item::ReadItem::Read()
+void ReadItem::Read()
 {
     _worldPacket >> PackSlot;
     _worldPacket >> Slot;
 }
 
-WorldPacket const* WorldPackets::Item::ReadItemResultFailed::Write()
+WorldPacket const* ReadItemResultFailed::Write()
 {
     _worldPacket << Item;
     _worldPacket << uint32(Delay);
-    _worldPacket.WriteBits(Subcode, 2);
+    _worldPacket << Bits<2>(Subcode);
 
     _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::ReadItemResultOK::Write()
+WorldPacket const* ReadItemResultOK::Write()
 {
     _worldPacket << Item;
 
     return &_worldPacket;
 }
 
-void WorldPackets::Item::WrapItem::Read()
+void WrapItem::Read()
 {
     _worldPacket >> Inv;
 }
 
-void WorldPackets::Item::CancelTempEnchantment::Read()
+void CancelTempEnchantment::Read()
 {
     _worldPacket >> Slot;
 }
 
-WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
+WorldPacket const* ItemCooldown::Write()
 {
     _worldPacket << ItemGuid;
     _worldPacket << uint32(SpellID);
@@ -329,7 +331,7 @@ WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::EnchantmentLog::Write()
+WorldPacket const* EnchantmentLog::Write()
 {
     _worldPacket << Owner;
     _worldPacket << Caster;
@@ -341,7 +343,7 @@ WorldPacket const* WorldPackets::Item::EnchantmentLog::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
+WorldPacket const* ItemEnchantTimeUpdate::Write()
 {
     _worldPacket << ItemGuid;
     _worldPacket << uint32(DurationLeft);
@@ -351,78 +353,79 @@ WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Item::UseCritterItem::Read()
+void UseCritterItem::Read()
 {
     _worldPacket >> ItemGuid;
 }
 
-void WorldPackets::Item::SocketGems::Read()
+void SocketGems::Read()
 {
     _worldPacket >> ItemGuid;
     for (ObjectGuid& gemGuid : GemItem)
         _worldPacket >> gemGuid;
 }
 
-WorldPacket const* WorldPackets::Item::SocketGemsSuccess::Write()
+WorldPacket const* SocketGemsSuccess::Write()
 {
     _worldPacket << Item;
 
     return &_worldPacket;
 }
 
-void WorldPackets::Item::RemoveNewItem::Read()
+void RemoveNewItem::Read()
 {
     _worldPacket >> ItemGuid;
 }
 
-void WorldPackets::Item::ChangeBagSlotFlag::Read()
+void ChangeBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
     _worldPacket >> As<uint32>(FlagToChange);
     _worldPacket >> Bits<1>(On);
 }
 
-void WorldPackets::Item::ChangeBankBagSlotFlag::Read()
+void ChangeBankBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
     _worldPacket >> As<uint32>(FlagToChange);
     _worldPacket >> Bits<1>(On);
 }
 
-void WorldPackets::Item::SetBackpackAutosortDisabled::Read()
+void SetBackpackAutosortDisabled::Read()
 {
-    Disable = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(Disable);
 }
 
-void WorldPackets::Item::SetBackpackSellJunkDisabled::Read()
+void SetBackpackSellJunkDisabled::Read()
 {
-    Disable = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(Disable);
 }
 
-void WorldPackets::Item::SetBankAutosortDisabled::Read()
+void SetBankAutosortDisabled::Read()
 {
-    Disable = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(Disable);
 }
 
-WorldPacket const* WorldPackets::Item::AddItemPassive::Write()
+WorldPacket const* AddItemPassive::Write()
 {
     _worldPacket << int32(SpellID);
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::RemoveItemPassive::Write()
+WorldPacket const* RemoveItemPassive::Write()
 {
     _worldPacket << int32(SpellID);
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Item::SendItemPassives::Write()
+WorldPacket const* SendItemPassives::Write()
 {
-    _worldPacket << uint32(SpellID.size());
+    _worldPacket << Size<uint32>(SpellID);
     if (!SpellID.empty())
         _worldPacket.append(SpellID.data(), SpellID.size());
 
     return &_worldPacket;
+}
 }

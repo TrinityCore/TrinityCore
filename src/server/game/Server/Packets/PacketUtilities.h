@@ -127,6 +127,11 @@ namespace WorldPackets
             return *this = std::string_view(value);
         }
 
+        void resize(std::size_t size)
+        {
+            _storage.resize(size);
+        }
+
     private:
         static bool Validate(std::string_view value)
         {
