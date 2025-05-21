@@ -403,7 +403,8 @@ struct TC_GAME_API CreatureBaseStats
 
     uint32 GenerateHealth(CreatureTemplate const* info) const
     {
-        return uint32(BaseHealth[info->expansion] * info->ModHealth);
+        float value = BaseHealth[info->expansion] * info->ModHealth;
+        return uint32(std::round(std::max(value, 1.f)));
     }
 
     uint32 GenerateMana(CreatureTemplate const* info) const
