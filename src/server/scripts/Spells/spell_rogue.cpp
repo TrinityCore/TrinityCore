@@ -83,6 +83,8 @@ enum RogueSpells
     SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
     SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
     SPELL_ROGUE_SHIV_NATURE_DAMAGE                  = 319504,
+    SPELL_ROGUE_SHURIKEN_STORM_DAMAGE               = 197835,
+    SPELL_ROGUE_SHURIKEN_STORM_ENERGIZE             = 212743,
     SPELL_ROGUE_SLICE_AND_DICE                      = 315496,
     SPELL_ROGUE_SPRINT                              = 2983,
     SPELL_ROGUE_SOOTHING_DARKNESS_TALENT            = 393970,
@@ -1116,6 +1118,51 @@ class spell_rog_stealth : public AuraScript
     }
 };
 
+// 197835 - Shuriken Storm
+class spell_rog_shuriken_storm : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_ROGUE_SHURIKEN_STORM_ENERGIZE });
+    }
+
+    void HandleEnergize(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_ROGUE_SHURIKEN_STORM_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_shuriken_storm::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 277925 - Shuriken Tornado
+class spell_rog_shuriken_tornado : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHURIKEN_STORM_DAMAGE });
+    }
+
+    void HandlePeriodicEffect(AuraEffect const* aurEff) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_ROGUE_SHURIKEN_STORM_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_shuriken_tornado::HandlePeriodicEffect, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 212283 - Symbols of Death
 class spell_rog_symbols_of_death : public SpellScript
 {
@@ -1341,6 +1388,8 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_ruthlessness);
     RegisterSpellScript(spell_rog_shadowstrike);
     RegisterSpellScript(spell_rog_shadow_focus);
+    RegisterSpellScript(spell_rog_shuriken_storm);
+    RegisterSpellScript(spell_rog_shuriken_tornado);
     RegisterSpellScript(spell_rog_sinister_strike);
     RegisterSpellScript(spell_rog_soothing_darkness);
     RegisterSpellScript(spell_rog_stealth);
