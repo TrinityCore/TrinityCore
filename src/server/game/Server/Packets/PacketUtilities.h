@@ -60,6 +60,12 @@ namespace WorldPackets
 
     namespace Strings
     {
+        enum Utf8Mode : uint8
+        {
+            DontValidateUtf8,
+            ValidUtf8
+        };
+
         struct RawBytes { static bool Validate(std::string_view /*value*/) { return true; } };
         template<std::size_t MaxBytesWithoutNullTerminator>
         struct ByteSize { static bool Validate(std::string_view value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
@@ -513,32 +519,34 @@ namespace WorldPackets
         inline BitsSizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
 
         template<typename Container>
-        struct SizedStringWriter
+        struct DataWriter
         {
             Container const& Value;
 
-            friend inline ByteBuffer& operator<<(ByteBuffer& data, SizedStringWriter const& string)
+            friend inline ByteBuffer& operator<<(ByteBuffer& data, DataWriter const& string)
             {
                 data.WriteString(string.Value);
                 return data;
             }
         };
 
-        template<typename Container>
-        struct SizedStringReaderWriter : SizedStringWriter<Container>
+        template<typename Container, Strings::Utf8Mode Mode>
+        struct DataReaderWriter : DataWriter<Container>
         {
-            friend inline ByteBuffer& operator>>(ByteBuffer& data, SizedStringReaderWriter const& string)
+            static constexpr bool IsUtf8() { return Mode == Strings::ValidUtf8; }
+
+            friend inline ByteBuffer& operator>>(ByteBuffer& data, DataReaderWriter const& string)
             {
-                const_cast<Container&>(string.Value) = data.ReadString(string.Value.length());
+                const_cast<Container&>(string.Value) = data.ReadString(string.Value.length(), IsUtf8());
                 return data;
             }
         };
 
-        template<typename Container>
-        inline SizedStringWriter<Container> Data(Container const& value) { return { value }; }
+        template<Strings::Utf8Mode = Strings::ValidUtf8, typename Container>
+        inline DataWriter<Container> Data(Container const& value) { return { value }; }
 
-        template<typename Container>
-        inline SizedStringReaderWriter<Container> Data(Container& value) { return { value }; }
+        template<Strings::Utf8Mode Mode = Strings::ValidUtf8, typename Container>
+        inline DataReaderWriter<Container, Mode> Data(Container& value) { return { value }; }
     }
 
     // SizedCString (sends size + string + null terminator but only if not empty)
@@ -581,31 +589,36 @@ namespace WorldPackets
             friend inline ByteBuffer& operator<<(ByteBuffer& data, DataWriter const& string)
             {
                 if (!string.Value.empty())
-                    data << string.Value;
+                {
+                    data.WriteString(string.Value);
+                    data << char('\0');
+                }
                 return data;
             }
         };
 
-        template<typename Container>
+        template<typename Container, Strings::Utf8Mode Mode>
         struct DataReaderWriter : DataWriter<Container>
         {
+            static constexpr bool IsUtf8() { return Mode == Strings::ValidUtf8; }
+
             friend inline ByteBuffer& operator>>(ByteBuffer& data, DataReaderWriter const& string)
             {
                 if (!string.Value.empty())
                 {
-                    const_cast<Container&>(string.Value) = data.ReadString(string.Value.length());
+                    const_cast<Container&>(string.Value) = data.ReadString(string.Value.length(), IsUtf8());
                     (void)data.read<char>(); // null terminator
                 }
                 return data;
             }
         };
 
-        template<typename Container>
+        template<Strings::Utf8Mode = Strings::ValidUtf8, typename Container>
         inline DataWriter<Container> Data(Container const& value) { return { value }; }
 
-        template<typename Container>
-        inline DataReaderWriter<Container> Data(Container& value) { return { value }; }
-    };
+        template<Strings::Utf8Mode Mode = Strings::ValidUtf8, typename Container>
+        inline DataReaderWriter<Container, Mode> Data(Container& value) { return { value }; }
+    }
 }
 
 #endif // PacketUtilities_h__
