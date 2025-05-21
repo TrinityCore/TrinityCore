@@ -51,6 +51,8 @@ enum RogueSpells
     SPELL_ROGUE_CHEAT_DEATH_DUMMY                   = 31231,
     SPELL_ROGUE_CHEATED_DEATH                       = 45181,
     SPELL_ROGUE_CHEATING_DEATH                      = 45182,
+    SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT           = 382515,
+    SPELL_ROGUE_CLOAKED_IN_SHADOWS_ABSORB           = 386165,
     SPELL_ROGUE_CRIPPLING_POISON                    = 3408,
     SPELL_ROGUE_CRIPPLING_POISON_DEBUFF             = 3409,
     SPELL_ROGUE_DEADLY_POISON                       = 2823,
@@ -315,6 +317,43 @@ class spell_rog_cheat_death : public AuraScript
     void Register() override
     {
         OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_rog_cheat_death::HandleAbsorb, EFFECT_0);
+    }
+};
+
+// 382515 - Cloaked in Shadows (attached to 1856 - Vanish)
+class spell_rog_cloaked_in_shadows : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_CLOAKED_IN_SHADOWS_ABSORB })
+            && ValidateSpellEffect({ { SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT);
+    }
+
+    void HandleCloakedInShadows() const
+    {
+        Unit* caster = GetCaster();
+
+        AuraEffect const* cloakedInShadows = caster->GetAuraEffect(SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT, EFFECT_0);
+        if (!cloakedInShadows)
+            return;
+
+        int32 amount = CalculatePct(caster->GetMaxHealth(), cloakedInShadows->GetAmount());
+
+        caster->CastSpell(caster, SPELL_ROGUE_CLOAKED_IN_SHADOWS_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_rog_cloaked_in_shadows::HandleCloakedInShadows);
     }
 };
 
@@ -1319,6 +1358,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_blackjack);
     RegisterSpellScript(spell_rog_blade_flurry);
     RegisterSpellScript(spell_rog_cheat_death);
+    RegisterSpellScript(spell_rog_cloaked_in_shadows);
     RegisterSpellScript(spell_rog_deadly_poison);
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
