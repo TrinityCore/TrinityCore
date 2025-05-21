@@ -286,6 +286,8 @@ class TC_SHARED_API ByteBuffer
         */
         void PutBits(std::size_t pos, std::size_t value, uint32 bitCount);
 
+        ByteBuffer& operator<<(bool) = delete;  // prevent implicit conversions to int32
+
         ByteBuffer& operator<<(char value)
         {
             append<char>(value);
@@ -371,6 +373,8 @@ class TC_SHARED_API ByteBuffer
         {
             return operator<<(std::string_view(str ? str : ""));
         }
+
+        ByteBuffer& operator>>(bool&) = delete;
 
         ByteBuffer& operator>>(char& value)
         {
