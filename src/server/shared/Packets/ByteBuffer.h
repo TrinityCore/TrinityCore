@@ -286,6 +286,12 @@ class TC_SHARED_API ByteBuffer
         */
         void PutBits(std::size_t pos, std::size_t value, uint32 bitCount);
 
+        ByteBuffer& operator<<(char value)
+        {
+            append<char>(value);
+            return *this;
+        }
+
         ByteBuffer& operator<<(uint8 value)
         {
             append<uint8>(value);
@@ -366,9 +372,9 @@ class TC_SHARED_API ByteBuffer
             return operator<<(std::string_view(str ? str : ""));
         }
 
-        ByteBuffer& operator>>(bool& value)
+        ByteBuffer& operator>>(char& value)
         {
-            value = read<char>() > 0;
+            read(&value, 1);
             return *this;
         }
 
