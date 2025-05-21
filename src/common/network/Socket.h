@@ -266,7 +266,7 @@ protected:
     }
 
 private:
-    void TryCloseIfQueueEmpty()
+    void CloseSocketCheck()
     {
         if (_openState == OpenState_Closing && _writeQueue.empty())
             CloseSocket();
@@ -330,13 +330,13 @@ private:
                 return AsyncProcessQueue();
 
             _writeQueue.pop();
-            TryCloseIfQueueEmpty();
+            CloseSocketCheck();
             return false;
         }
         else if (bytesSent == 0)
         {
             _writeQueue.pop();
-            TryCloseIfQueueEmpty();
+            CloseSocketCheck();
             return false;
         }
         else if (bytesSent < bytesToSend) // now n > 0
@@ -346,7 +346,7 @@ private:
         }
 
         _writeQueue.pop();
-        TryCloseIfQueueEmpty();
+        CloseSocketCheck();
         return !_writeQueue.empty();
     }
 
