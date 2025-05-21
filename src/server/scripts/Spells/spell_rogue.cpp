@@ -1152,7 +1152,7 @@ class spell_rog_shuriken_tornado : public AuraScript
     {
         if (Unit* caster = GetCaster())
             caster->CastSpell(caster, SPELL_ROGUE_SHURIKEN_STORM_DAMAGE, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_GCD,
                 .TriggeringAura = aurEff
             });
     }
