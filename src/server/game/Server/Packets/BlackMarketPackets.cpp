@@ -66,7 +66,7 @@ ByteBuffer& operator>>(ByteBuffer& data, BlackMarketItem& blackMarketItem)
 WorldPacket const* BlackMarketRequestItemsResult::Write()
 {
     _worldPacket << LastUpdateID;
-    _worldPacket << uint32(Items.size());
+    _worldPacket << Size<uint32>(Items);
 
     for (BlackMarketItem const& item : Items)
         _worldPacket << item;

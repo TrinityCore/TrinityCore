@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef TRINITYCORE_INSPECT_PACKETS_H
+#define TRINITYCORE_INSPECT_PACKETS_H
 
 #include "Packet.h"
 #include "CharacterPackets.h"
@@ -36,7 +37,7 @@ namespace WorldPackets
         class Inspect final : public ClientPacket
         {
         public:
-            Inspect(WorldPacket&& packet) : ClientPacket(CMSG_INSPECT, std::move(packet)) { }
+            explicit Inspect(WorldPacket&& packet) : ClientPacket(CMSG_INSPECT, std::move(packet)) { }
 
             void Read() override;
 
@@ -127,7 +128,7 @@ namespace WorldPackets
         class InspectResult final : public ServerPacket
         {
         public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 4096)
+            explicit InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 4096)
             {
                 PvpTalents.fill(0);
             }
@@ -153,7 +154,7 @@ namespace WorldPackets
         class QueryInspectAchievements final : public ClientPacket
         {
         public:
-            QueryInspectAchievements(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_INSPECT_ACHIEVEMENTS, std::move(packet)) { }
+            explicit QueryInspectAchievements(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_INSPECT_ACHIEVEMENTS, std::move(packet)) { }
 
             void Read() override;
 
@@ -163,3 +164,5 @@ namespace WorldPackets
         /// RespondInspectAchievements in AchievementPackets
     }
 }
+
+#endif // TRINITYCORE_INSPECT_PACKETS_H
