@@ -60,8 +60,10 @@ void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
     _worldPacket >> DataType;
 
     uint32 compressedSize = _worldPacket.read<uint32>();
-    if (compressedSize > _worldPacket.size() - _worldPacket.rpos())
-        throw ByteBufferPositionException(_worldPacket.rpos(), _worldPacket.size(), compressedSize);
+    std::size_t pos = _worldPacket.rpos();
+    std::size_t remainingSize = _worldPacket.size() - pos;
+    if (compressedSize > remainingSize)
+        OnInvalidArraySize(compressedSize, remainingSize);
 
     if (compressedSize)
     {

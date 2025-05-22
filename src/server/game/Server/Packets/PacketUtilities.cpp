@@ -69,6 +69,11 @@ void WorldPackets::Strings::NoHyperlinks::Validate(std::string_view value)
         throw InvalidHyperlinkException(value, InvalidHyperlinkException::NotAllowed);
 }
 
+void WorldPackets::OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit)
+{
+    throw PacketArrayMaxCapacityException(requestedSize, sizeLimit);
+}
+
 WorldPackets::PacketArrayMaxCapacityException::PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
     : ByteBufferException(Trinity::StringFormat("Attempted to read more array elements from packet {} than allowed {}", requestedSize, sizeLimit))
 {

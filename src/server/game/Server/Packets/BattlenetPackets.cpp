@@ -80,7 +80,7 @@ void WorldPackets::Battlenet::Request::Read()
     _worldPacket >> protoSize;
 
     if (protoSize > 0xFFFF)
-        throw PacketArrayMaxCapacityException(protoSize, 0xFFFF);
+        OnInvalidArraySize(protoSize, 0xFFFF);
 
     if (protoSize)
     {
