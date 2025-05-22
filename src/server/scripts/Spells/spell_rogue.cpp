@@ -83,6 +83,8 @@ enum RogueSpells
     SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
     SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
     SPELL_ROGUE_SHIV_NATURE_DAMAGE                  = 319504,
+    SPELL_ROGUE_SHOT_IN_THE_DARK_TALENT             = 257505,
+    SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF               = 257506,
     SPELL_ROGUE_SLICE_AND_DICE                      = 315496,
     SPELL_ROGUE_SPRINT                              = 2983,
     SPELL_ROGUE_SOOTHING_DARKNESS_TALENT            = 393970,
@@ -1016,6 +1018,53 @@ class spell_rog_shadow_focus : public AuraScript
     }
 };
 
+// 257505 - Shot in the Dark (attached to 1784 - Stealth and 185313 - Shadow Dance)
+class spell_rog_shot_in_the_dark : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHOT_IN_THE_DARK_TALENT, SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_SHOT_IN_THE_DARK_TALENT);
+    }
+
+    void HandleAfterCast() const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_rog_shot_in_the_dark::HandleAfterCast);
+    }
+};
+
+// 257506 - Shot in the Dark (attached to 185422 - Shadow Dance and 158185 - Stealth)
+class spell_rog_shot_in_the_dark_buff : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF });
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_shot_in_the_dark_buff::HandleEffectRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 193315 - Sinister Strike
 class spell_rog_sinister_strike : public SpellScript
 {
@@ -1341,6 +1390,8 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_ruthlessness);
     RegisterSpellScript(spell_rog_shadowstrike);
     RegisterSpellScript(spell_rog_shadow_focus);
+    RegisterSpellScript(spell_rog_shot_in_the_dark);
+    RegisterSpellScript(spell_rog_shot_in_the_dark_buff);
     RegisterSpellScript(spell_rog_sinister_strike);
     RegisterSpellScript(spell_rog_soothing_darkness);
     RegisterSpellScript(spell_rog_stealth);
